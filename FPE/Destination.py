@@ -1,4 +1,5 @@
 import base64
+from Transport import Transport
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
@@ -41,13 +42,13 @@ class Destination:
 
 
 	def __init__(self, direction, type, app_name, *aspects):
-
 		# Check input values and build name string
 		if "." in app_name: raise ValueError("Dots can't be used in app names") 
 		if not type in Destination.types: raise ValueError("Unknown destination type")
 		if not direction in Destination.directions: raise ValueError("Unknown destination direction")
 		self.type = type
 		self.direction = direction
+		self.mtu = 0
 
 		self.name = Destination.getDestinationName(app_name, *aspects)		
 		self.hash = Destination.getDestinationHash(app_name, *aspects)
@@ -60,6 +61,8 @@ class Destination:
 		self.pub = None
 		self.prv_bytes = None
 		self.pub_bytes = None
+
+		Transport.registerDestination(self)
 
 
 	def __str__(self):
@@ -158,7 +161,7 @@ class Destination:
 
 	def decrypt(self, ciphertext):
 		if self.type == Destination.PLAIN:
-			return plaintext
+			return ciphertext
 
 		if self.type == Destination.SINGLE and self.prv != None:
 			plaintext = self.prv.decrypt(
