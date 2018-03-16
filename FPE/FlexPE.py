@@ -17,9 +17,14 @@ class FlexPE:
 	configpath   = configdir+"/config"
 
 
-	def __init__(self):
-		if os.path.isfile(FlexPE.configpath):
-			self.config = ConfigObj(FlexPE.configpath)
+	def __init__(self,config=None):
+		if config != None:
+			self.configpath = config
+		else:
+			self.configpath = FlexPE.configpath
+
+		if os.path.isfile(self.configpath):
+			self.config = ConfigObj(self.configpath)
 		else:
 			print("Could not load config file, creating default configuration...")
 			self.createDefaultConfig()

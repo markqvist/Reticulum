@@ -2,6 +2,7 @@ import base64
 import math
 from Identity import Identity
 from Transport import Transport
+from Packet import Packet
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
@@ -47,7 +48,7 @@ class Destination:
 		return digest.finalize()[:10]
 
 
-	def __init__(self, direction, type, app_name, *aspects):
+	def __init__(self, identity, direction, type, app_name, *aspects):
 		# Check input values and build name string
 		if "." in app_name: raise ValueError("Dots can't be used in app names") 
 		if not type in Destination.types: raise ValueError("Unknown destination type")
@@ -56,17 +57,18 @@ class Destination:
 		self.direction = direction
 		self.mtu = 0
 
+		if identity == None:
+			identity = Identity()
+			identity.createKeys()
+
+		self.identity = identity
+		aspects = aspects+(identity.hexhash,)
+
 		self.name = Destination.getDestinationName(app_name, *aspects)		
 		self.hash = Destination.getDestinationHash(app_name, *aspects)
 		self.hexhash = self.hash.encode("hex_codec")
 
 		self.callback = None
-
-		# Initialize keys to none
-		self.prv = None
-		self.pub = None
-		self.prv_bytes = None
-		self.pub_bytes = None
 
 		Transport.registerDestination(self)
 
@@ -85,54 +87,33 @@ class Destination:
 			self.callback(plaintext, self)
 
 
-	def createKey(self):
+	def createKeys(self):
 		if self.type == Destination.PLAIN:
 			raise TypeError("A plain destination does not hold any keys")
 
 		if self.type == Destination.SINGLE:
-			self.prv = rsa.generate_private_key(
-				public_exponent=65337,
-				key_size=Destination.KEYSIZE,
-				backend=default_backend()
-			)
-			self.prv_bytes = self.prv.private_bytes(
-				encoding=serialization.Encoding.DER,
-				format=serialization.PrivateFormat.PKCS8,
-				encryption_algorithm=serialization.NoEncryption()
-			)
-			self.pub = self.prv.public_key()
-			self.pub_bytes = self.pub.public_bytes(
-				encoding=serialization.Encoding.DER,
-				format=serialization.PublicFormat.SubjectPublicKeyInfo
-			)
-			print("Keys created, private length is "+str(len(self.prv_bytes)))
-			print("Keys created, public length is "+str(len(self.pub_bytes)))
-			#+", public length is "+str(len(self.pub_bytes))))
+			raise TypeError("A single destination holds keys through an Identity instance")
 
 		if self.type == Destination.GROUP:
 			self.prv_bytes = Fernet.generate_key()
 			self.prv = Fernet(self.prv_bytes)
 
 
-	def getKey(self):
+	def getPrivateKey(self):
 		if self.type == Destination.PLAIN:
 			raise TypeError("A plain destination does not hold any keys")
+		elif self.type == Destination.SINGLE:
+			raise TypeError("A single destination holds keys through an Identity instance")
 		else:
 			return self.prv_bytes
 
 
-	def loadKey(self, key):
+	def loadPrivateKey(self, key):
 		if self.type == Destination.PLAIN:
 			raise TypeError("A plain destination does not hold any keys")
 
 		if self.type == Destination.SINGLE:
-			self.prv_bytes = key
-			self.prv = serialization.load_der_private_key(self.prv_bytes, password=None,backend=default_backend())
-			self.pub = self.prv.public_key()
-			self.pub_bytes = self.pub.public_bytes(
-				encoding=serialization.Encoding.DER,
-				format=serialization.PublicFormat.SubjectPublicKeyInfo
-			)
+			raise TypeError("A single destination holds keys through an Identity instance")
 
 		if self.type == Destination.GROUP:
 			self.prv_bytes = key
@@ -141,39 +122,16 @@ class Destination:
 	def loadPublicKey(self, key):
 		if self.type != Destination.SINGLE:
 			raise TypeError("Only the \"single\" destination type can hold a public key")
-
-		self.pub_bytes = key
-		self.pub = load_der_public_key(self.pub_bytes, backend=default_backend())
+		else:
+			raise TypeError("A single destination holds keys through an Identity instance")
 
 
 	def encrypt(self, plaintext):
 		if self.type == Destination.PLAIN:
 			return plaintext
 
-		if self.type == Destination.SINGLE and self.prv != None:
-			chunksize = (Destination.KEYSIZE-Destination.PADDINGSIZE)/8
-			chunks = int(math.ceil(len(plaintext)/(float(chunksize))))
-			print("Plaintext size is "+str(len(plaintext))+", with "+str(chunks)+" chunks")
-
-			ciphertext = "";
-			for chunk in range(chunks):
-				start = chunk*chunksize
-				end = (chunk+1)*chunksize
-				if (chunk+1)*chunksize > len(plaintext):
-					end = len(plaintext)
-
-				print("Processing chunk "+str(chunk+1)+" of "+str(chunks)+". Starting at "+str(start)+" and stopping at "+str(end)+". The length is "+str(len(plaintext[start:end])))
-				
-				ciphertext += self.pub.encrypt(
-					plaintext[start:end],
-					padding.OAEP(
-						mgf=padding.MGF1(algorithm=hashes.SHA1()),
-						algorithm=hashes.SHA1(),
-						label=None
-					)
-				)
-			print("Plaintext encrypted, ciphertext length is "+str(len(ciphertext))+" bytes.")
-			return ciphertext
+		if self.type == Destination.SINGLE and self.identity != None:
+			return self.identity.encrypt(plaintext)
 
 		if self.type == Destination.GROUP and self.prv != None:
 			try:
@@ -186,44 +144,21 @@ class Destination:
 		if self.type == Destination.PLAIN:
 			return ciphertext
 
-		if self.type == Destination.SINGLE and self.prv != None:
-			print("Ciphertext length is "+str(len(ciphertext))+". ")
-			chunksize = (Destination.KEYSIZE)/8
-			chunks = int(math.ceil(len(ciphertext)/(float(chunksize))))
-
-			plaintext = "";
-			for chunk in range(chunks):
-				start = chunk*chunksize
-				end = (chunk+1)*chunksize
-				if (chunk+1)*chunksize > len(ciphertext):
-					end = len(ciphertext)
-
-				print("Processing chunk "+str(chunk+1)+" of "+str(chunks)+". Starting at "+str(start)+" and stopping at "+str(end)+". The length is "+str(len(ciphertext[start:end])))
-
-				plaintext += self.prv.decrypt(
-					ciphertext[start:end],
-					padding.OAEP(
-						mgf=padding.MGF1(algorithm=hashes.SHA1()),
-						algorithm=hashes.SHA1(),
-						label=None
-					)
-				)
-			return plaintext;
+		if self.type == Destination.SINGLE and self.identity != None:
+			return self.identity.decrypt(ciphertext)
 
 		if self.type == Destination.GROUP:
 			return self.prv.decrypt(base64.urlsafe_b64encode(ciphertext))
 
 
 	def sign(self, message):
-		if self.type == Destination.SINGLE and self.prv != None:
-			signer = self.prv.signer(
-				padding.PSS(
-					mgf=padding.MGF1(hashes.SHA256()),
-					salt_length=padding.PSS.MAX_LENGTH
-				),
-				hashes.SHA256()
-			)
-			signer.update(message)
-			return signer.finalize()
+		if self.type == Destination.SINGLE and self.identity != None:
+			return self.identity.sign(message)
 		else:
 			return None
+
+
+	# Creates an announce packet for this destination.
+	# Application specific data can be added to the announce.
+	def announce(self,app_data=None):
+		pass
