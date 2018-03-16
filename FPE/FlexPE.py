@@ -8,7 +8,7 @@ import os.path
 import os
 
 class FlexPE:
-	MTU          = 700
+	MTU          = 600
 	router       = None
 	config       = None
 	destinations = []
@@ -25,8 +25,6 @@ class FlexPE:
 			self.createDefaultConfig()
 
 		self.applyConfig()
-		print FlexPE.interfaces
-
 		FlexPE.router = self
 
 	@staticmethod

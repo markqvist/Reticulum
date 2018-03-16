@@ -1,4 +1,6 @@
 import base64
+import math
+from Identity import Identity
 from Transport import Transport
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
@@ -8,6 +10,10 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 
 class Destination:
+	KEYSIZE    = Identity.KEYSIZE;
+	PADDINGSIZE= Identity.PADDINGSIZE;
+
+	# Constants
 	SINGLE     = 0x01;
 	GROUP      = 0x02;
 	PLAIN      = 0x03;
@@ -86,7 +92,7 @@ class Destination:
 		if self.type == Destination.SINGLE:
 			self.prv = rsa.generate_private_key(
 				public_exponent=65337,
-				key_size=2048,
+				key_size=Destination.KEYSIZE,
 				backend=default_backend()
 			)
 			self.prv_bytes = self.prv.private_bytes(
@@ -99,6 +105,9 @@ class Destination:
 				encoding=serialization.Encoding.DER,
 				format=serialization.PublicFormat.SubjectPublicKeyInfo
 			)
+			print("Keys created, private length is "+str(len(self.prv_bytes)))
+			print("Keys created, public length is "+str(len(self.pub_bytes)))
+			#+", public length is "+str(len(self.pub_bytes))))
 
 		if self.type == Destination.GROUP:
 			self.prv_bytes = Fernet.generate_key()
@@ -142,14 +151,28 @@ class Destination:
 			return plaintext
 
 		if self.type == Destination.SINGLE and self.prv != None:
-			ciphertext = self.pub.encrypt(
-				plaintext,
-				padding.OAEP(
-					mgf=padding.MGF1(algorithm=hashes.SHA1()),
-					algorithm=hashes.SHA1(),
-					label=None
+			chunksize = (Destination.KEYSIZE-Destination.PADDINGSIZE)/8
+			chunks = int(math.ceil(len(plaintext)/(float(chunksize))))
+			print("Plaintext size is "+str(len(plaintext))+", with "+str(chunks)+" chunks")
+
+			ciphertext = "";
+			for chunk in range(chunks):
+				start = chunk*chunksize
+				end = (chunk+1)*chunksize
+				if (chunk+1)*chunksize > len(plaintext):
+					end = len(plaintext)
+
+				print("Processing chunk "+str(chunk+1)+" of "+str(chunks)+". Starting at "+str(start)+" and stopping at "+str(end)+". The length is "+str(len(plaintext[start:end])))
+				
+				ciphertext += self.pub.encrypt(
+					plaintext[start:end],
+					padding.OAEP(
+						mgf=padding.MGF1(algorithm=hashes.SHA1()),
+						algorithm=hashes.SHA1(),
+						label=None
+					)
 				)
-			)
+			print("Plaintext encrypted, ciphertext length is "+str(len(ciphertext))+" bytes.")
 			return ciphertext
 
 		if self.type == Destination.GROUP and self.prv != None:
@@ -164,14 +187,27 @@ class Destination:
 			return ciphertext
 
 		if self.type == Destination.SINGLE and self.prv != None:
-			plaintext = self.prv.decrypt(
-				ciphertext,
-				padding.OAEP(
-					mgf=padding.MGF1(algorithm=hashes.SHA1()),
-					algorithm=hashes.SHA1(),
-					label=None
+			print("Ciphertext length is "+str(len(ciphertext))+". ")
+			chunksize = (Destination.KEYSIZE)/8
+			chunks = int(math.ceil(len(ciphertext)/(float(chunksize))))
+
+			plaintext = "";
+			for chunk in range(chunks):
+				start = chunk*chunksize
+				end = (chunk+1)*chunksize
+				if (chunk+1)*chunksize > len(ciphertext):
+					end = len(ciphertext)
+
+				print("Processing chunk "+str(chunk+1)+" of "+str(chunks)+". Starting at "+str(start)+" and stopping at "+str(end)+". The length is "+str(len(ciphertext[start:end])))
+
+				plaintext += self.prv.decrypt(
+					ciphertext[start:end],
+					padding.OAEP(
+						mgf=padding.MGF1(algorithm=hashes.SHA1()),
+						algorithm=hashes.SHA1(),
+						label=None
+					)
 				)
-			)
 			return plaintext;
 
 		if self.type == Destination.GROUP:

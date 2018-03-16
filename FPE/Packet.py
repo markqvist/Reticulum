@@ -21,8 +21,9 @@ class Packet:
 			self.raw = self.header + self.ciphertext
 
 			if len(self.raw) > self.MTU:
-				raise IOError("Packet size exceeds MTU of "+Packet.MTU+" bytes")
+				raise IOError("Packet size of "+str(len(self.raw))+" exceeds MTU of "+str(self.MTU)+" bytes")
 
+			print("Size: "+str(len(self.raw)))
 			Transport.outbound(self.raw)
 			self.sent = True
 		else:
