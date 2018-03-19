@@ -1,0 +1,30 @@
+header types
+-----------------
+type 1			00	One byte header, one 10 byte address field
+type 2			01	One byte header, two 10 byte address fields
+type 3			10	Reserved
+type 4			11	Reserved
+
+
+propagation types
+-----------------
+broadcast		00
+transport		01
+relay			10
+tunnel			11
+
+
+destination types
+-----------------
+single			00
+group			01
+plain			10
+link			11
+
+
+packet types
+-----------------
+message			00
+resource		01
+link request	10
+proof			11

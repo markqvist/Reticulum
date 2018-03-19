@@ -1,5 +1,6 @@
 import base64
 import math
+import FPE
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -51,8 +52,7 @@ class Identity:
 		self.hash = Identity.getHash(self.pub_bytes)
 		self.hexhash = self.hash.encode("hex_codec")
 
-		print("Identity keys created, private length is "+str(len(self.prv_bytes)))
-		print("Identity keys created, public length is "+str(len(self.pub_bytes)))
+		FPE.log("Identity keys created, private length is "+str(len(self.prv_bytes))+" public length is "+str(len(self.pub_bytes)), FPE.LOG_INFO)
 
 	def getPrivateKey(self):
 		return self.prv_bytes
@@ -83,7 +83,7 @@ class Identity:
 		if self.prv != None:
 			chunksize = (Identity.KEYSIZE-Identity.PADDINGSIZE)/8
 			chunks = int(math.ceil(len(plaintext)/(float(chunksize))))
-			print("Plaintext size is "+str(len(plaintext))+", with "+str(chunks)+" chunks")
+			# TODO: Remove debug output print("Plaintext size is "+str(len(plaintext))+", with "+str(chunks)+" chunks")
 
 			ciphertext = "";
 			for chunk in range(chunks):
@@ -92,7 +92,7 @@ class Identity:
 				if (chunk+1)*chunksize > len(plaintext):
 					end = len(plaintext)
 
-				print("Processing chunk "+str(chunk+1)+" of "+str(chunks)+". Starting at "+str(start)+" and stopping at "+str(end)+". The length is "+str(len(plaintext[start:end])))
+				# TODO: Remove debug output print("Processing chunk "+str(chunk+1)+" of "+str(chunks)+". Starting at "+str(start)+" and stopping at "+str(end)+". The length is "+str(len(plaintext[start:end])))
 				
 				ciphertext += self.pub.encrypt(
 					plaintext[start:end],
@@ -102,7 +102,7 @@ class Identity:
 						label=None
 					)
 				)
-			print("Plaintext encrypted, ciphertext length is "+str(len(ciphertext))+" bytes.")
+			# TODO: Remove debug output print("Plaintext encrypted, ciphertext length is "+str(len(ciphertext))+" bytes.")
 			return ciphertext
 		else:
 			raise KeyError("Encryption failed because identity does not hold a private key")
@@ -110,7 +110,7 @@ class Identity:
 
 	def decrypt(self, ciphertext):
 		if self.prv != None:
-			print("Ciphertext length is "+str(len(ciphertext))+". ")
+			# TODO: Remove debug output print("Ciphertext length is "+str(len(ciphertext))+". ")
 			chunksize = (Identity.KEYSIZE)/8
 			chunks = int(math.ceil(len(ciphertext)/(float(chunksize))))
 
@@ -121,7 +121,7 @@ class Identity:
 				if (chunk+1)*chunksize > len(ciphertext):
 					end = len(ciphertext)
 
-				print("Processing chunk "+str(chunk+1)+" of "+str(chunks)+". Starting at "+str(start)+" and stopping at "+str(end)+". The length is "+str(len(ciphertext[start:end])))
+				# TODO: Remove debug output print("Processing chunk "+str(chunk+1)+" of "+str(chunks)+". Starting at "+str(start)+" and stopping at "+str(end)+". The length is "+str(len(ciphertext[start:end])))
 
 				plaintext += self.prv.decrypt(
 					ciphertext[start:end],
@@ -150,3 +150,5 @@ class Identity:
 		else:
 			raise KeyError("Signing failed because identity does not hold a private key")
 
+	def announce(self):
+		pass

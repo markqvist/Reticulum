@@ -19,33 +19,32 @@ identity = Identity()
 d1=Destination(identity, Destination.IN, Destination.SINGLE, "messenger", "user")
 d1.setCallback(testCallback)
 
+d2=Destination(identity, Destination.IN, Destination.PLAIN, "messenger", "user")
+d2.setCallback(testCallback)
+
 # d2=Destination(identity, Destination.IN, Destination.PLAIN, "plainchat", "markqvist")
 # d2.setCallback(testCallback)
 
-print identity.hexhash
-print d1.name
-print d1.hexhash
-print d1.identity.pub
-print "---"
-print
+#print identity.hexhash
+#print d1.name
+#print d1.hexhash
+#print d1.identity.pub
+#print "---"
+#print
 
-# p1=Packet(d1, "testmessage")
-# p1.send()
 msg=""
 for x in range(300):
 	msg += "a"
 signed = d1.sign(msg)
 sl = len(signed)
 pl = len(d1.identity.pub_bytes)
-print("Signature length is "+str(sl))
-print("Minimum announce is "+str(pl+sl+8))
+#print("Signature length is "+str(sl))
+#print("Minimum announce is "+str(pl+sl+8))
 
+p1=Packet(d1, msg)
+p1.send()
 
-p2=Packet(d1, msg)
-p2.send()
-
-# p2=Packet(d2, "something else")
+# p2=Packet(d2,"Test af msg")
 # p2.send()
 
 raw_input()
-

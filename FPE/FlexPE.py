@@ -1,4 +1,6 @@
 from Interfaces import *
+import FPE
+
 import ConfigParser
 import jsonpickle
 from vendor.configobj import ConfigObj
@@ -25,8 +27,9 @@ class FlexPE:
 
 		if os.path.isfile(self.configpath):
 			self.config = ConfigObj(self.configpath)
+			FPE.log("Configuration loaded from "+self.configpath)
 		else:
-			print("Could not load config file, creating default configuration...")
+			FPE.log("Could not load config file, creating default configuration...")
 			self.createDefaultConfig()
 
 		self.applyConfig()
@@ -39,23 +42,26 @@ class FlexPE:
 
 	@staticmethod
 	def incoming(data):
-		
-		header = struct.unpack("B", data[0])
-
-		hash = data[1:11]
-		type = header[0] & 0x03
+		packet = FPE.Packet(None, data)
+		packet.unpack()
 
 		for destination in FlexPE.destinations:
-			if destination.hash == hash and destination.type == type:
-				destination.receive(data[11:])
+			if destination.hash == packet.destination_hash and destination.type == packet.destination_type:
+				destination.receive(packet.data)
 
 	@staticmethod
 	def outbound(raw):
 		for interface in FlexPE.interfaces:
 			if interface.OUT:
+				FPE.log("Transmitting via: "+str(interface), FPE.LOG_DEBUG)
 				interface.processOutgoing(raw)
 
 	def applyConfig(self):
+		for option in self.config["logging"]:
+			value = self.config["logging"][option]
+			if option == "loglevel":
+				FPE.loglevel = int(value)
+
 		for name in self.config["interfaces"]:
 			c = self.config["interfaces"][name]
 			try:
@@ -91,8 +97,8 @@ class FlexPE:
 					FlexPE.interfaces.append(interface)
 
 			except Exception as e:
-				print("The interface \""+name+"\" could not be created. Check your configuration file for errors!")
-				print("The contained error was: "+str(e))
+				FPE.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", FPE.LOG_ERROR)
+				FPE.log("The contained exception was: "+str(e), FPE.LOG_ERROR)
 				
 
 

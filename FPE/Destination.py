@@ -1,8 +1,7 @@
 import base64
 import math
-from Identity import Identity
-from Transport import Transport
-from Packet import Packet
+import FPE
+
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
@@ -10,15 +9,17 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 
+
 class Destination:
-	KEYSIZE    = Identity.KEYSIZE;
-	PADDINGSIZE= Identity.PADDINGSIZE;
+	KEYSIZE    = FPE.Identity.KEYSIZE;
+	PADDINGSIZE= FPE.Identity.PADDINGSIZE;
 
 	# Constants
-	SINGLE     = 0x01;
-	GROUP      = 0x02;
-	PLAIN      = 0x03;
-	types      = [SINGLE, GROUP, PLAIN]
+	SINGLE     = 0x00;
+	GROUP      = 0x01;
+	PLAIN      = 0x02;
+	LINK       = 0x03;
+	types      = [SINGLE, GROUP, PLAIN, LINK]
 
 	IN         = 0x11;
 	OUT        = 0x12;
@@ -70,7 +71,7 @@ class Destination:
 
 		self.callback = None
 
-		Transport.registerDestination(self)
+		FPE.Transport.registerDestination(self)
 
 
 	def __str__(self):
