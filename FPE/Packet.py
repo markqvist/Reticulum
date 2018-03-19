@@ -3,11 +3,11 @@ import FPE
 
 class Packet:
 	# Constants
-	MESSAGE      = 0x00;
-	RESOURCE     = 0x01;
+	RESOURCE     = 0x00;
+	ANNOUNCE     = 0x01;
 	LINKREQUEST  = 0x02;
 	PROOF        = 0x03;
-	types        = [MESSAGE, RESOURCE, LINKREQUEST, PROOF]
+	types        = [RESOURCE, ANNOUNCE, LINKREQUEST, PROOF]
 
 	HEADER_1     = 0x00;	# Normal header format
 	HEADER_2     = 0x01;	# Header format used for link packets in transport
@@ -15,7 +15,7 @@ class Packet:
 	HEADER_4     = 0x03;	# Reserved
 	header_types = [HEADER_1, HEADER_2, HEADER_3, HEADER_4]
 
-	def __init__(self, destination, data, packet_type = MESSAGE, transport_type = None, header_type = HEADER_1, transport_id = None):
+	def __init__(self, destination, data, packet_type = RESOURCE, transport_type = FPE.Transport.BROADCAST, header_type = HEADER_1, transport_id = None):
 		if destination != None:
 			if transport_type == None:
 				transport_type = FPE.Transport.BROADCAST
@@ -53,7 +53,11 @@ class Packet:
 				raise IOError("Packet with header type 2 must have a transport ID")
 
 		self.header += self.destination.hash
-		self.ciphertext = self.destination.encrypt(self.data)
+		if self.packet_type != Packet.ANNOUNCE:
+			self.ciphertext = self.destination.encrypt(self.data)
+		else:
+			self.ciphertext = self.data
+
 		self.raw = self.header + self.ciphertext
 
 		if len(self.raw) > self.MTU:

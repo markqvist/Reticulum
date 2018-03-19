@@ -58,3 +58,13 @@ def log(msg, level=3):
 			file = open(logfile, "a")
 			file.write(logstring+"\n")
 			file.close()
+
+def hexprint(data):
+	print(hexrep(hexrep))
+
+def hexrep(data, delimit=True):
+	delimiter = ":"
+	if not delimit:
+		delimiter = ""
+	hexrep = delimiter.join("{:02x}".format(ord(c)) for c in data)
+	return hexrep

@@ -1,18 +1,25 @@
 import base64
 import math
+import os
 import FPE
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.serialization import load_der_public_key
+from cryptography.hazmat.primitives.serialization import load_der_private_key
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 
 class Identity:
 	# Configure key size
 	KEYSIZE    = 1536;
+	DERKEYSIZE = 1808;
 
 	# Padding size, not configurable
 	PADDINGSIZE= 336;
+
+	# Storage
+	remembered_destinations = {}
 
 	def __init__(self):
 		# Initialize keys to none
@@ -26,11 +33,52 @@ class Identity:
 		self.createKeys()
 
 	@staticmethod
-	def getHash(pub_key):
+	def remember(hash, public_key, app_data = None):
+		FPE.log("Remembering "+FPE.hexrep(hash, False), FPE.LOG_VERBOSE)
+		Identity.remembered_destinations[hash] = [public_key, app_data]
+
+	@staticmethod
+	def recall(identity):
+		pass
+
+	@staticmethod
+	def fullHash(data):
 		digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
-		digest.update(pub_key)
+		digest.update(data)
+
+		return digest.finalize()
+
+	@staticmethod
+	def truncatedHash(data):
+		digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
+		digest.update(data)
 
 		return digest.finalize()[:10]
+
+	@staticmethod
+	def validateAnnounce(packet):
+		if packet.packet_type == FPE.Packet.ANNOUNCE:
+			FPE.log("Validating announce from "+FPE.hexrep(packet.destination_hash), FPE.LOG_VERBOSE)
+			destination_hash = packet.destination_hash
+			public_key = packet.data[10:Identity.DERKEYSIZE/8+10]
+			random_hash = packet.data[Identity.DERKEYSIZE/8+10:Identity.DERKEYSIZE/8+20]
+			signature = packet.data[Identity.DERKEYSIZE/8+20:Identity.DERKEYSIZE/8+20+Identity.KEYSIZE/8]
+			app_data = ""
+			if len(packet.data) > Identity.DERKEYSIZE/8+20+Identity.KEYSIZE/8:
+				app_data = packet.data[Identity.DERKEYSIZE/8+20+Identity.KEYSIZE/8:]
+
+			signed_data = destination_hash+public_key+random_hash+app_data
+
+			announced_identity = Identity()
+			announced_identity.loadPublicKey(public_key)
+
+			if announced_identity.validate(signature, signed_data):
+				FPE.log("Announce is valid", FPE.LOG_VERBOSE)
+				FPE.Identity.remember(destination_hash, public_key)
+			else:
+				FPE.log("Announce is invalid", FPE.LOG_VERBOSE)
+
+			del announced_identity
 
 	def createKeys(self):
 		self.prv = rsa.generate_private_key(
@@ -49,7 +97,7 @@ class Identity:
 			format=serialization.PublicFormat.SubjectPublicKeyInfo
 		)
 
-		self.hash = Identity.getHash(self.pub_bytes)
+		self.hash = Identity.truncatedHash(self.pub_bytes)
 		self.hexhash = self.hash.encode("hex_codec")
 
 		FPE.log("Identity keys created, private length is "+str(len(self.prv_bytes))+" public length is "+str(len(self.pub_bytes)), FPE.LOG_INFO)
@@ -150,5 +198,24 @@ class Identity:
 		else:
 			raise KeyError("Signing failed because identity does not hold a private key")
 
-	def announce(self):
-		pass
+	def validate(self, signature, message):
+		if self.pub != None:
+			try:
+				self.pub.verify(
+					signature,
+					message,
+					padding.PSS(
+						mgf=padding.MGF1(hashes.SHA256()),
+						salt_length=padding.PSS.MAX_LENGTH
+					),
+					hashes.SHA256()
+				)
+				return True
+			except:
+				return False
+		else:
+			raise KeyError("Signature validation failed because identity does not hold a public key")
+
+	def getRandomHash(self):
+		return self.truncatedHash(os.urandom(10))
+

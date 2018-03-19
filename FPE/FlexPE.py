@@ -1,6 +1,4 @@
 from Interfaces import *
-import FPE
-
 import ConfigParser
 import jsonpickle
 from vendor.configobj import ConfigObj
@@ -9,8 +7,10 @@ import array
 import os.path
 import os
 
+import FPE
+
 class FlexPE:
-	MTU          = 600
+	MTU          = 500
 	router       = None
 	config       = None
 	destinations = []
@@ -18,6 +18,7 @@ class FlexPE:
 	configdir = os.path.expanduser("~")+"/.flexpe"
 	configpath   = configdir+"/config"
 
+	packetlist = []
 
 	def __init__(self,config=None):
 		if config != None:
@@ -42,12 +43,20 @@ class FlexPE:
 
 	@staticmethod
 	def incoming(data):
-		packet = FPE.Packet(None, data)
-		packet.unpack()
+		packet_hash = FPE.Identity.fullHash(data)
 
-		for destination in FlexPE.destinations:
-			if destination.hash == packet.destination_hash and destination.type == packet.destination_type:
-				destination.receive(packet.data)
+		if not packet_hash in FlexPE.packetlist:
+			FlexPE.packetlist.append(packet_hash)
+			packet = FPE.Packet(None, data)
+			packet.unpack()
+
+			if packet.packet_type == FPE.Packet.ANNOUNCE:
+				FPE.Identity.validateAnnounce(packet)
+			
+			if packet.packet_type == FPE.Packet.RESOURCE:
+				for destination in FlexPE.destinations:
+					if destination.hash == packet.destination_hash and destination.type == packet.destination_type:
+						destination.receive(packet.data)
 
 	@staticmethod
 	def outbound(raw):

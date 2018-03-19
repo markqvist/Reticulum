@@ -162,4 +162,18 @@ class Destination:
 	# Creates an announce packet for this destination.
 	# Application specific data can be added to the announce.
 	def announce(self,app_data=None):
-		pass
+		destination_hash = self.hash
+		random_hash = self.identity.getRandomHash()
+		
+		signed_data = self.hash+self.identity.getPublicKey()+random_hash
+		if app_data != None:
+			signed_data += app_data
+
+		signature = self.identity.sign(signed_data)
+
+		announce_data = self.hash+self.identity.getPublicKey()+random_hash+signature
+		if app_data != None:
+			announce_data += app_data
+
+		FPE.Packet(self, announce_data, FPE.Packet.ANNOUNCE).send()
+
