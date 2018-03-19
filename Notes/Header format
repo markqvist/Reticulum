@@ -3,7 +3,7 @@ header types
 type 1			00	One byte header, one 10 byte address field
 type 2			01	One byte header, two 10 byte address fields
 type 3			10	Reserved
-type 4			11	Reserved
+type 4			11	Reserved for extended packet format
 
 
 propagation types
@@ -24,7 +24,7 @@ link			11
 
 packet types
 -----------------
-message			00
-resource		01
+resource		00
+announce		01
 link request	10
 proof			11

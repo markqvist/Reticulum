@@ -36,7 +36,7 @@ class UdpInterface(Interface):
 
 
     def processIncoming(self, data):
-        self.owner.__class__.incoming(data)
+        self.owner.inbound(data)
 
     def processOutgoing(self,data):
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

@@ -2,6 +2,9 @@ import base64
 import math
 import os
 import FPE
+import time
+import atexit
+import cPickle
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -19,9 +22,9 @@ class Identity:
 	PADDINGSIZE= 336;
 
 	# Storage
-	remembered_destinations = {}
+	known_destinations = {}
 
-	def __init__(self):
+	def __init__(self,public_only=False):
 		# Initialize keys to none
 		self.prv = None
 		self.pub = None
@@ -30,16 +33,35 @@ class Identity:
 		self.hash = None
 		self.hexhash = None
 
-		self.createKeys()
+		if not public_only:
+			self.createKeys()
 
 	@staticmethod
 	def remember(hash, public_key, app_data = None):
 		FPE.log("Remembering "+FPE.hexrep(hash, False), FPE.LOG_VERBOSE)
-		Identity.remembered_destinations[hash] = [public_key, app_data]
+		Identity.known_destinations[hash] = [time.time(), public_key, app_data]
 
 	@staticmethod
 	def recall(identity):
 		pass
+
+	@staticmethod
+	def saveKnownDestinations():
+		FPE.log("Saving known destinations to storage...", FPE.LOG_VERBOSE)
+		file = open(FPE.FlexPE.storagepath+"/known_destinations","w")
+		cPickle.dump(Identity.known_destinations, file)
+		file.close()
+		FPE.log("Done saving known destinations to storage", FPE.LOG_VERBOSE)
+
+	@staticmethod
+	def loadKnownDestinations():
+		if os.path.isfile(FPE.FlexPE.storagepath+"/known_destinations"):
+			file = open(FPE.FlexPE.storagepath+"/known_destinations","r")
+			Identity.known_destinations = cPickle.load(file)
+			file.close()
+			FPE.log("Loaded "+str(len(Identity.known_destinations))+" known destinations from storage", FPE.LOG_VERBOSE)
+		else:
+			FPE.log("Destinations file does not exist, so no known destinations loaded", FPE.LOG_VERBOSE)
 
 	@staticmethod
 	def fullHash(data):
@@ -69,7 +91,7 @@ class Identity:
 
 			signed_data = destination_hash+public_key+random_hash+app_data
 
-			announced_identity = Identity()
+			announced_identity = Identity(public_only=True)
 			announced_identity.loadPublicKey(public_key)
 
 			if announced_identity.validate(signature, signed_data):
@@ -219,3 +241,8 @@ class Identity:
 	def getRandomHash(self):
 		return self.truncatedHash(os.urandom(10))
 
+
+def identityExithandler():
+	Identity.saveKnownDestinations()
+
+atexit.register(identityExithandler)

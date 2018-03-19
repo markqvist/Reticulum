@@ -12,7 +12,7 @@ def testCallback(message, receiver):
   print("----------")
 
 
-#fpe = FlexPE(config=os.path.expanduser("~")+"/.flexpe/config.test")
+#fpe = FlexPE(configdir=os.path.expanduser("~")+"/.flexpe2")
 fpe = FlexPE()
 identity = Identity()
 

@@ -15,16 +15,27 @@ class FlexPE:
 	config       = None
 	destinations = []
 	interfaces   = []
-	configdir = os.path.expanduser("~")+"/.flexpe"
-	configpath   = configdir+"/config"
+	configdir    = os.path.expanduser("~")+"/.flexpe"
+	configpath   = ""
+	storagepath  = ""
+	cachepath    = ""
+	
+	# TODO: Move this to Transport
+	packetlist   = []
 
-	packetlist = []
+	def __init__(self,configdir=None):
+		if configdir != None:
+			FlexPE.configdir = configdir
+		
+		FlexPE.configpath   = FlexPE.configdir+"/config"
+		FlexPE.storagepath = FlexPE.configdir+"/storage"
+		FlexPE.cachepath = FlexPE.configdir+"/storage/cache"
 
-	def __init__(self,config=None):
-		if config != None:
-			self.configpath = config
-		else:
-			self.configpath = FlexPE.configpath
+		if not os.path.isdir(FlexPE.storagepath):
+			os.makedirs(FlexPE.storagepath)
+
+		if not os.path.isdir(FlexPE.cachepath):
+			os.makedirs(FlexPE.cachepath)
 
 		if os.path.isfile(self.configpath):
 			self.config = ConfigObj(self.configpath)
@@ -34,29 +45,13 @@ class FlexPE:
 			self.createDefaultConfig()
 
 		self.applyConfig()
+		FPE.Identity.loadKnownDestinations()
 		FlexPE.router = self
 
 	@staticmethod
 	def addDestination(destination):
 		destination.MTU = FlexPE.MTU
 		FlexPE.destinations.append(destination)
-
-	@staticmethod
-	def incoming(data):
-		packet_hash = FPE.Identity.fullHash(data)
-
-		if not packet_hash in FlexPE.packetlist:
-			FlexPE.packetlist.append(packet_hash)
-			packet = FPE.Packet(None, data)
-			packet.unpack()
-
-			if packet.packet_type == FPE.Packet.ANNOUNCE:
-				FPE.Identity.validateAnnounce(packet)
-			
-			if packet.packet_type == FPE.Packet.RESOURCE:
-				for destination in FlexPE.destinations:
-					if destination.hash == packet.destination_hash and destination.type == packet.destination_type:
-						destination.receive(packet.data)
 
 	@staticmethod
 	def outbound(raw):
@@ -76,7 +71,7 @@ class FlexPE:
 			try:
 				if c["type"] == "UdpInterface":
 					interface = UdpInterface.UdpInterface(
-						self,
+						FPE.Transport,
 						c["listen_ip"],
 						int(c["listen_port"]),
 						c["forward_ip"],
@@ -91,7 +86,7 @@ class FlexPE:
 
 				if c["type"] == "SerialInterface":
 					interface = SerialInterface.SerialInterface(
-						self,
+						FPE.Transport,
 						c["port"],
 						int(c["speed"]),
 						int(c["databits"]),

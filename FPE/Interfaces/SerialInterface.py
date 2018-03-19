@@ -62,7 +62,7 @@ class SerialInterface(Interface):
 
 
 	def processIncoming(self, data):
-		self.owner.__class__.incoming(data)
+		self.owner.inbound(data)
 
 
 	def processOutgoing(self,data):
