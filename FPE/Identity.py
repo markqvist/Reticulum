@@ -104,7 +104,7 @@ class Identity:
 			announced_identity = Identity(public_only=True)
 			announced_identity.loadPublicKey(public_key)
 
-			if announced_identity.validate(signature, signed_data):
+			if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
 				FPE.log("Announce is valid", FPE.LOG_VERBOSE)
 				FPE.Identity.remember(FPE.Identity.fullHash(packet.raw), destination_hash, public_key)
 				FPE.log("Stored valid announce from "+FPE.prettyhexrep(destination_hash), FPE.LOG_INFO)
@@ -158,9 +158,12 @@ class Identity:
 		self.updateHashes()
 
 	def loadPublicKey(self, key):
-		self.pub_bytes = key
-		self.pub = load_der_public_key(self.pub_bytes, backend=default_backend())
-		self.updateHashes()
+		try:
+			self.pub_bytes = key
+			self.pub = load_der_public_key(self.pub_bytes, backend=default_backend())
+			self.updateHashes()
+		except Exception as e:
+			FPE.log("Error while loading public key, the contained exception was: "+str(e), FPE.LOG_ERROR)
 
 	def updateHashes(self):
 		self.hash = Identity.truncatedHash(self.pub_bytes)
@@ -203,27 +206,29 @@ class Identity:
 
 	def decrypt(self, ciphertext):
 		if self.prv != None:
-			# TODO: Remove debug output print("Ciphertext length is "+str(len(ciphertext))+". ")
-			chunksize = (Identity.KEYSIZE)/8
-			chunks = int(math.ceil(len(ciphertext)/(float(chunksize))))
+			plaintext = None
+			try:
+				chunksize = (Identity.KEYSIZE)/8
+				chunks = int(math.ceil(len(ciphertext)/(float(chunksize))))
 
-			plaintext = "";
-			for chunk in range(chunks):
-				start = chunk*chunksize
-				end = (chunk+1)*chunksize
-				if (chunk+1)*chunksize > len(ciphertext):
-					end = len(ciphertext)
+				plaintext = "";
+				for chunk in range(chunks):
+					start = chunk*chunksize
+					end = (chunk+1)*chunksize
+					if (chunk+1)*chunksize > len(ciphertext):
+						end = len(ciphertext)
 
-				# TODO: Remove debug output print("Processing chunk "+str(chunk+1)+" of "+str(chunks)+". Starting at "+str(start)+" and stopping at "+str(end)+". The length is "+str(len(ciphertext[start:end])))
-
-				plaintext += self.prv.decrypt(
-					ciphertext[start:end],
-					padding.OAEP(
-						mgf=padding.MGF1(algorithm=hashes.SHA1()),
-						algorithm=hashes.SHA1(),
-						label=None
+					plaintext += self.prv.decrypt(
+						ciphertext[start:end],
+						padding.OAEP(
+							mgf=padding.MGF1(algorithm=hashes.SHA1()),
+							algorithm=hashes.SHA1(),
+							label=None
+						)
 					)
-				)
+			except:
+				FPE.log("Decryption by "+FPE.prettyhexrep(self.hash)+" failed")
+				
 			return plaintext;
 		else:
 			raise KeyError("Decryption failed because identity does not hold a private key")

@@ -36,7 +36,7 @@ def server(configpath):
 
 def announceLoop(destination):
 	# Let the user know that everything is ready
-	FPE.log("Echo server running, hit enter to send announce (Ctrl-C to quit)")
+	FPE.log("Echo server "+FPE.prettyhexrep(destination.hash)+" running, hit enter to send announce (Ctrl-C to quit)")
 
 	# We enter a loop that runs until the users exits.
 	# If the user just hits enter, we will announce our server
@@ -102,7 +102,7 @@ def client(destination_hexhash, configpath):
 		exit()
 
 	# We must first initialise FlexPE
-	fpe = FPE.FlexPE()
+	fpe = FPE.FlexPE(configpath)
 
 	# Randomly create a new identity for our echo server
 	client_identity = FPE.Identity()
@@ -191,10 +191,13 @@ def clientProofCallback(proof_packet):
 				else:
 					rtt = round(rtt*1000, 3)
 					rttstring = str(rtt)+" milliseconds"
+				
 				FPE.log(
 					"Valid echo reply, proved by "+FPE.prettyhexrep(unproven_packet.destination.hash)+
 					", round-trip time was "+rttstring
 					)
+				sent_requests.remove(unproven_packet)
+				del unproven_packet
 			else:
 				FPE.log("Proof invalid")
 
