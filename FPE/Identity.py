@@ -37,13 +37,23 @@ class Identity:
 			self.createKeys()
 
 	@staticmethod
-	def remember(hash, public_key, app_data = None):
-		FPE.log("Remembering "+FPE.hexrep(hash, False), FPE.LOG_VERBOSE)
-		Identity.known_destinations[hash] = [time.time(), public_key, app_data]
+	def remember(packet_hash, destination_hash, public_key, app_data = None):
+		FPE.log("Remembering "+FPE.prettyhexrep(destination_hash), FPE.LOG_VERBOSE)
+		Identity.known_destinations[destination_hash] = [time.time(), packet_hash, public_key, app_data]
+
 
 	@staticmethod
-	def recall(identity):
-		pass
+	def recall(destination_hash):
+		FPE.log("Searching for "+FPE.prettyhexrep(destination_hash)+"...", FPE.LOG_DEBUG)
+		if destination_hash in Identity.known_destinations:
+			identity_data = Identity.known_destinations[destination_hash]
+			identity = Identity(public_only=True)
+			identity.loadPublicKey(identity_data[2])
+			FPE.log("Found "+FPE.prettyhexrep(destination_hash)+" in known destinations", FPE.LOG_DEBUG)
+			return identity
+		else:
+			FPE.log("Could not find "+FPE.prettyhexrep(destination_hash)+" in known destinations", FPE.LOG_DEBUG)
+			return None
 
 	@staticmethod
 	def saveKnownDestinations():
@@ -80,7 +90,7 @@ class Identity:
 	@staticmethod
 	def validateAnnounce(packet):
 		if packet.packet_type == FPE.Packet.ANNOUNCE:
-			FPE.log("Validating announce from "+FPE.hexrep(packet.destination_hash), FPE.LOG_VERBOSE)
+			FPE.log("Validating announce from "+FPE.prettyhexrep(packet.destination_hash), FPE.LOG_VERBOSE)
 			destination_hash = packet.destination_hash
 			public_key = packet.data[10:Identity.DERKEYSIZE/8+10]
 			random_hash = packet.data[Identity.DERKEYSIZE/8+10:Identity.DERKEYSIZE/8+20]
@@ -96,11 +106,19 @@ class Identity:
 
 			if announced_identity.validate(signature, signed_data):
 				FPE.log("Announce is valid", FPE.LOG_VERBOSE)
-				FPE.Identity.remember(destination_hash, public_key)
+				FPE.Identity.remember(FPE.Identity.fullHash(packet.raw), destination_hash, public_key)
+				FPE.log("Stored valid announce from "+FPE.prettyhexrep(destination_hash), FPE.LOG_INFO)
+				del announced_identity
+				return True
 			else:
 				FPE.log("Announce is invalid", FPE.LOG_VERBOSE)
+				del announced_identity
+				return False
 
-			del announced_identity
+	@staticmethod
+	def exitHandler():
+		Identity.saveKnownDestinations()
+
 
 	def createKeys(self):
 		self.prv = rsa.generate_private_key(
@@ -119,10 +137,9 @@ class Identity:
 			format=serialization.PublicFormat.SubjectPublicKeyInfo
 		)
 
-		self.hash = Identity.truncatedHash(self.pub_bytes)
-		self.hexhash = self.hash.encode("hex_codec")
+		self.updateHashes()
 
-		FPE.log("Identity keys created, private length is "+str(len(self.prv_bytes))+" public length is "+str(len(self.pub_bytes)), FPE.LOG_INFO)
+		FPE.log("Identity keys created for "+FPE.prettyhexrep(self.hash), FPE.LOG_INFO)
 
 	def getPrivateKey(self):
 		return self.prv_bytes
@@ -138,10 +155,16 @@ class Identity:
 			encoding=serialization.Encoding.DER,
 			format=serialization.PublicFormat.SubjectPublicKeyInfo
 		)
+		self.updateHashes()
 
 	def loadPublicKey(self, key):
 		self.pub_bytes = key
 		self.pub = load_der_public_key(self.pub_bytes, backend=default_backend())
+		self.updateHashes()
+
+	def updateHashes(self):
+		self.hash = Identity.truncatedHash(self.pub_bytes)
+		self.hexhash = self.hash.encode("hex_codec")
 
 	def saveIdentity(self):
 		pass
@@ -150,7 +173,7 @@ class Identity:
 		pass
 
 	def encrypt(self, plaintext):
-		if self.prv != None:
+		if self.pub != None:
 			chunksize = (Identity.KEYSIZE-Identity.PADDINGSIZE)/8
 			chunks = int(math.ceil(len(plaintext)/(float(chunksize))))
 			# TODO: Remove debug output print("Plaintext size is "+str(len(plaintext))+", with "+str(chunks)+" chunks")
@@ -175,7 +198,7 @@ class Identity:
 			# TODO: Remove debug output print("Plaintext encrypted, ciphertext length is "+str(len(ciphertext))+" bytes.")
 			return ciphertext
 		else:
-			raise KeyError("Encryption failed because identity does not hold a private key")
+			raise KeyError("Encryption failed because identity does not hold a public key")
 
 
 	def decrypt(self, ciphertext):
@@ -238,11 +261,12 @@ class Identity:
 		else:
 			raise KeyError("Signature validation failed because identity does not hold a public key")
 
+	def prove(self, packet, destination):
+		proof_data = packet.packet_hash + self.sign(packet.packet_hash)
+		proof = FPE.Packet(destination, proof_data, FPE.Packet.PROOF)
+		proof.send()
+
+
 	def getRandomHash(self):
 		return self.truncatedHash(os.urandom(10))
 
-
-def identityExithandler():
-	Identity.saveKnownDestinations()
-
-atexit.register(identityExithandler)

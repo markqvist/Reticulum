@@ -1,4 +1,5 @@
 import struct
+import time
 import FPE
 
 class Packet:
@@ -29,14 +30,19 @@ class Packet:
 			self.transport_id   = transport_id
 			self.data 		    = data
 			self.flags	 	    = self.getPackedFlags()
+			self.MTU     		= self.destination.MTU
 
 			self.raw    		= None
 			self.packed 		= False
 			self.sent   		= False
-			self.MTU    		= self.destination.MTU
+			self.fromPacked		= False
 		else:
-			self.raw    = data
-			self.packed = True
+			self.raw            = data
+			self.packed         = True
+			self.fromPacked     = True
+
+		self.sent_at = None
+		self.packet_hash = None
 
 	def getPackedFlags(self):
 		packed_flags = (self.header_type << 6) | (self.transport_type << 4) | (self.destination.type << 2) | self.packet_type
@@ -90,6 +96,8 @@ class Packet:
 			self.pack()
 			FPE.log("Size: "+str(len(self.raw))+" header is "+str(len(self.header))+" payload is "+str(len(self.ciphertext)), FPE.LOG_DEBUG)
 			FPE.Transport.outbound(self.raw)
+			self.packet_hash = FPE.Identity.fullHash(self.raw)
+			self.sent_at = time.time()
 			self.sent = True
 		else:
 			raise IOError("Packet was already sent")
@@ -99,3 +107,22 @@ class Packet:
 			Transport.outbound(self.raw)
 		else:
 			raise IOError("Packet was not sent yet")
+
+	def prove(self, destination):
+		if self.fromPacked and self.destination:
+			if self.destination.identity and self.destination.identity.prv:
+				self.destination.identity.prove(self, destination)
+
+	def validateProofPacket(self, proof_packet):
+		return self.validateProof(proof_packet.data)
+
+	def validateProof(self, proof):
+		proof_hash = proof[:32]
+		signature = proof[32:]
+		if proof_hash == self.packet_hash:
+			return self.destination.identity.validate(signature, proof_hash)
+		else:
+			return False
+
+
+

@@ -15,11 +15,16 @@ class Destination:
 	PADDINGSIZE= FPE.Identity.PADDINGSIZE;
 
 	# Constants
-	SINGLE     = 0x00;
-	GROUP      = 0x01;
-	PLAIN      = 0x02;
-	LINK       = 0x03;
+	SINGLE     = 0x00
+	GROUP      = 0x01
+	PLAIN      = 0x02
+	LINK       = 0x03
 	types      = [SINGLE, GROUP, PLAIN, LINK]
+
+	PROVE_NONE = 0x21
+	PROVE_APP  = 0x22
+	PROVE_ALL  = 0x23
+	proof_strategies = [PROVE_NONE, PROVE_APP, PROVE_ALL]
 
 	IN         = 0x11;
 	OUT        = 0x12;
@@ -56,20 +61,24 @@ class Destination:
 		if not direction in Destination.directions: raise ValueError("Unknown destination direction")
 		self.type = type
 		self.direction = direction
+		self.proof_strategy = Destination.PROVE_NONE
 		self.mtu = 0
 
-		if identity == None:
+		if identity != None and type == Destination.SINGLE:
+			aspects = aspects+(identity.hexhash,)
+
+		if identity == None and direction == Destination.IN:
 			identity = Identity()
-			identity.createKeys()
+			aspects = aspects+(identity.hexhash,)
 
 		self.identity = identity
-		aspects = aspects+(identity.hexhash,)
 
 		self.name = Destination.getDestinationName(app_name, *aspects)		
 		self.hash = Destination.getDestinationHash(app_name, *aspects)
 		self.hexhash = self.hash.encode("hex_codec")
 
 		self.callback = None
+		self.proofcallback = None
 
 		FPE.Transport.registerDestination(self)
 
@@ -81,11 +90,19 @@ class Destination:
 	def setCallback(self, callback):
 		self.callback = callback
 
+	def setProofCallback(self, callback):
+		self.proofcallback = callback
 
-	def receive(self, data):
-		plaintext = self.decrypt(data)
+	def setProofStrategy(self, proof_strategy):
+		if not proof_strategy in Destination.proof_strategies:
+			raise TypeError("Unsupported proof strategy")
+		else:
+			self.proof_strategy = proof_strategy
+
+	def receive(self, packet):
+		plaintext = self.decrypt(packet.data)
 		if plaintext != None and self.callback != None:
-			self.callback(plaintext, self)
+			self.callback(plaintext, packet)
 
 
 	def createKeys(self):

@@ -3,6 +3,7 @@ import SocketServer
 import threading
 import socket
 import sys
+import FPE
 
 class UdpInterface(Interface):
     bind_ip = None
@@ -36,9 +37,13 @@ class UdpInterface(Interface):
 
 
     def processIncoming(self, data):
+        # TODO: remove
+        #FPE.log("IN: "+FPE.prettyhexrep(data))
         self.owner.inbound(data)
 
     def processOutgoing(self,data):
+        # TODO: remove
+        #FPE.log("OUT: "+FPE.prettyhexrep(" "+data))
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         udp_socket.sendto(data, (self.forward_ip, self.forward_port))
@@ -52,5 +57,7 @@ class UdpInterfaceHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
         if (UdpInterfaceHandler.interface != None):
-            data = self.request[0].strip()
+            # TODO: remove
+            #FPE.log("Datagram contents: "+FPE.prettyhexrep(self.request[0]))
+            data = self.request[0]
             UdpInterfaceHandler.interface.processIncoming(data)

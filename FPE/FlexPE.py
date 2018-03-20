@@ -1,7 +1,7 @@
 from Interfaces import *
 import ConfigParser
-import jsonpickle
 from vendor.configobj import ConfigObj
+import atexit
 import struct
 import array
 import os.path
@@ -13,16 +13,12 @@ class FlexPE:
 	MTU          = 500
 	router       = None
 	config       = None
-	destinations = []
-	interfaces   = []
+	
 	configdir    = os.path.expanduser("~")+"/.flexpe"
 	configpath   = ""
 	storagepath  = ""
 	cachepath    = ""
 	
-	# TODO: Move this to Transport
-	packetlist   = []
-
 	def __init__(self,configdir=None):
 		if configdir != None:
 			FlexPE.configdir = configdir
@@ -48,23 +44,14 @@ class FlexPE:
 		FPE.Identity.loadKnownDestinations()
 		FlexPE.router = self
 
-	@staticmethod
-	def addDestination(destination):
-		destination.MTU = FlexPE.MTU
-		FlexPE.destinations.append(destination)
-
-	@staticmethod
-	def outbound(raw):
-		for interface in FlexPE.interfaces:
-			if interface.OUT:
-				FPE.log("Transmitting via: "+str(interface), FPE.LOG_DEBUG)
-				interface.processOutgoing(raw)
+		atexit.register(FPE.Identity.exitHandler)
 
 	def applyConfig(self):
-		for option in self.config["logging"]:
-			value = self.config["logging"][option]
-			if option == "loglevel":
-				FPE.loglevel = int(value)
+		if "logging" in self.config:
+			for option in self.config["logging"]:
+				value = self.config["logging"][option]
+				if option == "loglevel":
+					FPE.loglevel = int(value)
 
 		for name in self.config["interfaces"]:
 			c = self.config["interfaces"][name]
@@ -82,7 +69,7 @@ class FlexPE:
 						interface.OUT = True
 
 					interface.name = name
-					FlexPE.interfaces.append(interface)
+					FPE.Transport.interfaces.append(interface)
 
 				if c["type"] == "SerialInterface":
 					interface = SerialInterface.SerialInterface(
@@ -98,7 +85,7 @@ class FlexPE:
 						interface.OUT = True
 
 					interface.name = name
-					FlexPE.interfaces.append(interface)
+					FPE.Transport.interfaces.append(interface)
 
 			except Exception as e:
 				FPE.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", FPE.LOG_ERROR)
