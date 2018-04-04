@@ -1,6 +1,6 @@
 import base64
 import math
-import FPE
+import RNS
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
@@ -11,8 +11,8 @@ from cryptography.hazmat.primitives.asymmetric import padding
 
 
 class Destination:
-	KEYSIZE    = FPE.Identity.KEYSIZE;
-	PADDINGSIZE= FPE.Identity.PADDINGSIZE;
+	KEYSIZE    = RNS.Identity.KEYSIZE;
+	PADDINGSIZE= RNS.Identity.PADDINGSIZE;
 
 	# Constants
 	SINGLE     = 0x00
@@ -80,7 +80,7 @@ class Destination:
 		self.callback = None
 		self.proofcallback = None
 
-		FPE.Transport.registerDestination(self)
+		RNS.Transport.registerDestination(self)
 
 
 	def __str__(self):
@@ -192,5 +192,5 @@ class Destination:
 		if app_data != None:
 			announce_data += app_data
 
-		FPE.Packet(self, announce_data, FPE.Packet.ANNOUNCE).send()
+		RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE).send()
 

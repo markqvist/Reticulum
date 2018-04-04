@@ -1,6 +1,6 @@
 import struct
 import time
-import FPE
+import RNS
 
 class Packet:
 	# Constants
@@ -16,10 +16,10 @@ class Packet:
 	HEADER_4     = 0x03;	# Reserved
 	header_types = [HEADER_1, HEADER_2, HEADER_3, HEADER_4]
 
-	def __init__(self, destination, data, packet_type = RESOURCE, transport_type = FPE.Transport.BROADCAST, header_type = HEADER_1, transport_id = None):
+	def __init__(self, destination, data, packet_type = RESOURCE, transport_type = RNS.Transport.BROADCAST, header_type = HEADER_1, transport_id = None):
 		if destination != None:
 			if transport_type == None:
-				transport_type = FPE.Transport.BROADCAST
+				transport_type = RNS.Transport.BROADCAST
 
 			self.header_type    = header_type
 			self.packet_type    = packet_type
@@ -94,9 +94,9 @@ class Packet:
 	def send(self):
 		if not self.sent:
 			self.pack()
-			FPE.log("Size: "+str(len(self.raw))+" header is "+str(len(self.header))+" payload is "+str(len(self.ciphertext)), FPE.LOG_DEBUG)
-			FPE.Transport.outbound(self.raw)
-			self.packet_hash = FPE.Identity.fullHash(self.raw)
+			RNS.log("Size: "+str(len(self.raw))+" header is "+str(len(self.header))+" payload is "+str(len(self.ciphertext)), RNS.LOG_DEBUG)
+			RNS.Transport.outbound(self.raw)
+			self.packet_hash = RNS.Identity.fullHash(self.raw)
 			self.sent_at = time.time()
 			self.sent = True
 		else:

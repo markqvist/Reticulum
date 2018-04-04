@@ -1,8 +1,8 @@
-# from FPE.Destination import *
-# from FPE.Packet import *
-# from FPE import FlexPE
-from FPE import *
-# from FPE import Destination
+# from RNS.Destination import *
+# from RNS.Packet import *
+# from RNS import Reticulum
+from RNS import *
+# from RNS import Destination
 import os
 import time
 
@@ -12,8 +12,8 @@ def testCallback(message, receiver):
   print("----------")
 
 
-#fpe = FlexPE(configdir=os.path.expanduser("~")+"/.flexpe2")
-fpe = FlexPE()
+#RNS = Reticulum(configdir=os.path.expanduser("~")+"/.Reticulum2")
+RNS = Reticulum()
 identity = Identity()
 
 d1=Destination(identity, Destination.IN, Destination.SINGLE, "messenger", "user")

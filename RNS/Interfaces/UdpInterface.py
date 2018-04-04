@@ -3,7 +3,7 @@ import SocketServer
 import threading
 import socket
 import sys
-import FPE
+import RNS
 
 class UdpInterface(Interface):
     bind_ip = None
@@ -37,7 +37,7 @@ class UdpInterface(Interface):
 
 
     def processIncoming(self, data):
-        self.owner.inbound(data)
+        self.owner.inbound(data, self)
 
     def processOutgoing(self,data):
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -46,7 +46,7 @@ class UdpInterface(Interface):
 
 
     def __str__(self):
-        return "UdpInterface["+self.bind_ip+":"+str(self.bind_port)+"]"
+        return "UdpInterface["+self.name+"/"+self.bind_ip+":"+str(self.bind_port)+"]"
 
 class UdpInterfaceHandler(SocketServer.BaseRequestHandler):
     interface = None

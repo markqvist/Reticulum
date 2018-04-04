@@ -1,7 +1,7 @@
 import base64
 import math
 import os
-import FPE
+import RNS
 import time
 import atexit
 import cPickle
@@ -38,40 +38,40 @@ class Identity:
 
 	@staticmethod
 	def remember(packet_hash, destination_hash, public_key, app_data = None):
-		FPE.log("Remembering "+FPE.prettyhexrep(destination_hash), FPE.LOG_VERBOSE)
+		RNS.log("Remembering "+RNS.prettyhexrep(destination_hash), RNS.LOG_VERBOSE)
 		Identity.known_destinations[destination_hash] = [time.time(), packet_hash, public_key, app_data]
 
 
 	@staticmethod
 	def recall(destination_hash):
-		FPE.log("Searching for "+FPE.prettyhexrep(destination_hash)+"...", FPE.LOG_DEBUG)
+		RNS.log("Searching for "+RNS.prettyhexrep(destination_hash)+"...", RNS.LOG_DEBUG)
 		if destination_hash in Identity.known_destinations:
 			identity_data = Identity.known_destinations[destination_hash]
 			identity = Identity(public_only=True)
 			identity.loadPublicKey(identity_data[2])
-			FPE.log("Found "+FPE.prettyhexrep(destination_hash)+" in known destinations", FPE.LOG_DEBUG)
+			RNS.log("Found "+RNS.prettyhexrep(destination_hash)+" in known destinations", RNS.LOG_DEBUG)
 			return identity
 		else:
-			FPE.log("Could not find "+FPE.prettyhexrep(destination_hash)+" in known destinations", FPE.LOG_DEBUG)
+			RNS.log("Could not find "+RNS.prettyhexrep(destination_hash)+" in known destinations", RNS.LOG_DEBUG)
 			return None
 
 	@staticmethod
 	def saveKnownDestinations():
-		FPE.log("Saving known destinations to storage...", FPE.LOG_VERBOSE)
-		file = open(FPE.FlexPE.storagepath+"/known_destinations","w")
+		RNS.log("Saving known destinations to storage...", RNS.LOG_VERBOSE)
+		file = open(RNS.Reticulum.storagepath+"/known_destinations","w")
 		cPickle.dump(Identity.known_destinations, file)
 		file.close()
-		FPE.log("Done saving known destinations to storage", FPE.LOG_VERBOSE)
+		RNS.log("Done saving known destinations to storage", RNS.LOG_VERBOSE)
 
 	@staticmethod
 	def loadKnownDestinations():
-		if os.path.isfile(FPE.FlexPE.storagepath+"/known_destinations"):
-			file = open(FPE.FlexPE.storagepath+"/known_destinations","r")
+		if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
+			file = open(RNS.Reticulum.storagepath+"/known_destinations","r")
 			Identity.known_destinations = cPickle.load(file)
 			file.close()
-			FPE.log("Loaded "+str(len(Identity.known_destinations))+" known destinations from storage", FPE.LOG_VERBOSE)
+			RNS.log("Loaded "+str(len(Identity.known_destinations))+" known destinations from storage", RNS.LOG_VERBOSE)
 		else:
-			FPE.log("Destinations file does not exist, so no known destinations loaded", FPE.LOG_VERBOSE)
+			RNS.log("Destinations file does not exist, so no known destinations loaded", RNS.LOG_VERBOSE)
 
 	@staticmethod
 	def fullHash(data):
@@ -89,8 +89,8 @@ class Identity:
 
 	@staticmethod
 	def validateAnnounce(packet):
-		if packet.packet_type == FPE.Packet.ANNOUNCE:
-			FPE.log("Validating announce from "+FPE.prettyhexrep(packet.destination_hash), FPE.LOG_VERBOSE)
+		if packet.packet_type == RNS.Packet.ANNOUNCE:
+			RNS.log("Validating announce from "+RNS.prettyhexrep(packet.destination_hash), RNS.LOG_VERBOSE)
 			destination_hash = packet.destination_hash
 			public_key = packet.data[10:Identity.DERKEYSIZE/8+10]
 			random_hash = packet.data[Identity.DERKEYSIZE/8+10:Identity.DERKEYSIZE/8+20]
@@ -105,13 +105,13 @@ class Identity:
 			announced_identity.loadPublicKey(public_key)
 
 			if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
-				FPE.log("Announce is valid", FPE.LOG_VERBOSE)
-				FPE.Identity.remember(FPE.Identity.fullHash(packet.raw), destination_hash, public_key)
-				FPE.log("Stored valid announce from "+FPE.prettyhexrep(destination_hash), FPE.LOG_INFO)
+				RNS.log("Announce is valid", RNS.LOG_VERBOSE)
+				RNS.Identity.remember(RNS.Identity.fullHash(packet.raw), destination_hash, public_key)
+				RNS.log("Stored valid announce from "+RNS.prettyhexrep(destination_hash), RNS.LOG_INFO)
 				del announced_identity
 				return True
 			else:
-				FPE.log("Announce is invalid", FPE.LOG_VERBOSE)
+				RNS.log("Announce is invalid", RNS.LOG_VERBOSE)
 				del announced_identity
 				return False
 
@@ -139,7 +139,7 @@ class Identity:
 
 		self.updateHashes()
 
-		FPE.log("Identity keys created for "+FPE.prettyhexrep(self.hash), FPE.LOG_INFO)
+		RNS.log("Identity keys created for "+RNS.prettyhexrep(self.hash), RNS.LOG_INFO)
 
 	def getPrivateKey(self):
 		return self.prv_bytes
@@ -163,7 +163,7 @@ class Identity:
 			self.pub = load_der_public_key(self.pub_bytes, backend=default_backend())
 			self.updateHashes()
 		except Exception as e:
-			FPE.log("Error while loading public key, the contained exception was: "+str(e), FPE.LOG_ERROR)
+			RNS.log("Error while loading public key, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
 	def updateHashes(self):
 		self.hash = Identity.truncatedHash(self.pub_bytes)
@@ -223,7 +223,7 @@ class Identity:
 						)
 					)
 			except:
-				FPE.log("Decryption by "+FPE.prettyhexrep(self.hash)+" failed")
+				RNS.log("Decryption by "+RNS.prettyhexrep(self.hash)+" failed")
 				
 			return plaintext;
 		else:
@@ -264,7 +264,7 @@ class Identity:
 
 	def prove(self, packet, destination):
 		proof_data = packet.packet_hash + self.sign(packet.packet_hash)
-		proof = FPE.Packet(destination, proof_data, FPE.Packet.PROOF)
+		proof = RNS.Packet(destination, proof_data, RNS.Packet.PROOF)
 		proof.send()
 
 

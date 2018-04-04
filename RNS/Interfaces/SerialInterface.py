@@ -5,7 +5,7 @@ import sys
 import serial
 import threading
 import time
-import FPE
+import RNS
 
 class SerialInterface(Interface):
 	MAX_CHUNK = 32768
@@ -36,7 +36,7 @@ class SerialInterface(Interface):
 			self.parity = serial.PARITY_ODD
 
 		try:
-			FPE.log("Opening serial port "+self.port+"...")
+			RNS.log("Opening serial port "+self.port+"...")
 			self.serial = serial.Serial(
 				port = self.port,
 				baudrate = self.speed,
@@ -51,7 +51,7 @@ class SerialInterface(Interface):
 				dsrdtr = False,
 			)
 		except Exception as e:
-			FPE.log("Could not create serial port", FPE.LOG_ERROR)
+			RNS.log("Could not create serial port", RNS.LOG_ERROR)
 			raise e
 
 		if self.serial.is_open:
@@ -60,13 +60,13 @@ class SerialInterface(Interface):
 			thread.setDaemon(True)
 			thread.start()
 			self.online = True
-			FPE.log("Serial port "+self.port+" is now open")
+			RNS.log("Serial port "+self.port+" is now open")
 		else:
 			raise IOError("Could not open serial port")
 
 
 	def processIncoming(self, data):
-		self.owner.inbound(data)
+		self.owner.inbound(data, self)
 
 
 	def processOutgoing(self,data):
@@ -93,6 +93,8 @@ class SerialInterface(Interface):
 					sleep(0.08)
 		except Exception as e:
 			self.online = False
-			FPE.log("A serial port error occurred, the contained exception was: "+str(e), FPE.LOG_ERROR)
-			FPE.log("The interface "+str(self.name)+" is now offline. Restart FlexPE to attempt reconnection.", FPE.LOG_ERROR)
+			RNS.log("A serial port error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
+			RNS.log("The interface "+str(self.name)+" is now offline. Restart Reticulum to attempt reconnection.", RNS.LOG_ERROR)
 
+	def __str__(self):
+		return "SerialInterface["+self.name+"]"

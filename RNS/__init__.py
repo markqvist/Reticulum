@@ -2,7 +2,7 @@ import os
 import glob
 import time
 
-from .FlexPE import FlexPE
+from .Reticulum import Reticulum
 from .Identity import Identity
 from .Transport import Transport
 from .Destination import Destination
