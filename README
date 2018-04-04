@@ -1,3 +1,0 @@
-Dependencies:
- - cryptography.io
- - pyserial 3.1
