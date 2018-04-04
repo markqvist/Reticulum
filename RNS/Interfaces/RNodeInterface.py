@@ -23,7 +23,7 @@ class KISS():
 	CMD_RETURN		= chr(0xFF)
 
 # TODO: THIS CLASS IS NOT YET IMPLEMENTED --- PLACEHOLDER ONLY ---
-class AX25Interface(Interface):
+class RNodeInterface(Interface):
 	MAX_CHUNK = 32768
 
 	owner    = None
@@ -83,12 +83,12 @@ class AX25Interface(Interface):
 			thread.start()
 			self.online = True
 			RNS.log("Serial port "+self.port+" is now open")
-			RNS.log("Configuring KISS interface parameters...")
+			RNS.log("Configuring RNode interface parameters...")
 			self.setPreamble(self.preamble)
 			self.setTxTail(self.txtail)
 			self.setPersistence(self.persistence)
 			self.setSlotTime(self.slottime)
-			RNS.log("KISS interface configured")
+			RNS.log("RNode interface configured")
 			sleep(2)
 		else:
 			raise IOError("Could not open serial port")
@@ -212,5 +212,5 @@ class AX25Interface(Interface):
 			RNS.log("The interface "+str(self.name)+" is now offline. Restart Reticulum to attempt reconnection.", RNS.LOG_ERROR)
 
 	def __str__(self):
-		return "KISSInterface["+self.name+"]"
+		return "RNodeInterface["+self.name+"]"
 
