@@ -87,7 +87,7 @@ class Reticulum:
 					if port == None:
 						raise ValueError("No port specified for serial interface")
 
-					interface = SerialKISSInterface.SerialKISSInterface(
+					interface = SerialInterface.SerialInterface(
 						RNS.Transport,
 						port,
 						speed,
@@ -104,7 +104,7 @@ class Reticulum:
 					interface.name = name
 					RNS.Transport.interfaces.append(interface)
 
-				if c["type"] == "SerialKISSInterface":
+				if c["type"] == "KISSInterface":
 					preamble = int(c["preamble"]) if "preamble" in c else None
 					txtail = int(c["txtail"]) if "txtail" in c else None
 					persistence = int(c["persistence"]) if "persistence" in c else None
@@ -119,7 +119,7 @@ class Reticulum:
 					if port == None:
 						raise ValueError("No port specified for serial interface")
 
-					interface = SerialKISSInterface.SerialKISSInterface(
+					interface = KISSInterface.KISSInterface(
 						RNS.Transport,
 						port,
 						speed,

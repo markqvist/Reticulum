@@ -18,12 +18,14 @@ class Transport:
 		for interface in Transport.interfaces:
 			if interface.OUT:
 				RNS.log("Transmitting via: "+str(interface), RNS.LOG_DEBUG)
+				RNS.log(str(len(raw))+" bytes of data: "+RNS.hexrep(raw), RNS.LOG_DEBUG)
 				interface.processOutgoing(raw)
 
 	@staticmethod
 	def inbound(raw, interface=None):
 		packet_hash = RNS.Identity.fullHash(raw)
 		RNS.log(str(interface)+" received packet with hash "+RNS.prettyhexrep(packet_hash), RNS.LOG_DEBUG)
+		RNS.log(str(len(raw))+" bytes of data: "+RNS.hexrep(raw), RNS.LOG_DEBUG)
 
 		if not packet_hash in Transport.packet_hashlist:
 			Transport.packet_hashlist.append(packet_hash)

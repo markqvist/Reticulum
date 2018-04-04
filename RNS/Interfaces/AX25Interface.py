@@ -22,7 +22,8 @@ class KISS():
 	CMD_SETHARDWARE	= chr(0x06)
 	CMD_RETURN		= chr(0xFF)
 
-class SerialKISSInterface(Interface):
+# TODO: THIS CLASS IS NOT YET IMPLEMENTED --- PLACEHOLDER ONLY ---
+class AX25Interface(Interface):
 	MAX_CHUNK = 32768
 
 	owner    = None

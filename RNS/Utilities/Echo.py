@@ -12,7 +12,7 @@ APP_NAME = "example_utilitites"
 # to run as a server
 def server(configpath):
 	# We must first initialise Reticulum
-	RNS = RNS.Reticulum(configpath)
+	reticulum = RNS.Reticulum(configpath)
 	
 	# Randomly create a new identity for our echo server
 	server_identity = RNS.Identity()
@@ -98,11 +98,11 @@ def client(destination_hexhash, configpath):
 			raise ValueError("Destination length is invalid, must be 20 hexadecimal characters (10 bytes)")
 		destination_hash = destination_hexhash.decode("hex")
 	except:
-		RNS.log("Invalid destination entered. Check your input!")
+		RNS.log("Invalid destination entered. Check your input!\n")
 		exit()
 
 	# We must first initialise Reticulum
-	RNS = RNS.Reticulum(configpath)
+	reticulum = RNS.Reticulum(configpath)
 
 	# Randomly create a new identity for our echo server
 	client_identity = RNS.Identity()
@@ -244,6 +244,10 @@ if __name__ == "__main__":
 			configarg=None
 			if args.config:
 				configarg = args.config
+			if (args.destination == None):
+				print("")
+				parser.print_help()
+				print("")
 			client(args.destination, configarg)
 	except KeyboardInterrupt:
 		exit()
