@@ -179,31 +179,55 @@ def client(destination_hexhash, configpath):
 			# user to wait for an announce to arrive.
 			FPE.log("Destination is not yet known. Wait for an announce to arrive.")
 
+# This method is called when our reply destination
+# receives a proof packet.
 def clientProofCallback(proof_packet):
+	# We save the current time so we can calculate
+	# round-trip time for the packet
 	now = time.time()
+
+	# Let's look through our list of sent requests,
+	# and see if we can find one that matches the
+	# proof we just received.
 	for unproven_packet in sent_requests:
-		if unproven_packet.packet_hash == proof_packet.data[:32]:
-			if unproven_packet.validateProofPacket(proof_packet):
-				rtt = now - unproven_packet.sent_at
-				if (rtt >= 1):
-					rtt = round(rtt, 3)
-					rttstring = str(rtt)+" seconds"
+		try:
+			# Check that the proof hash matches the
+			# hash of the packet we sent earlier
+			if unproven_packet.packet_hash == proof_packet.data[:32]:
+				# We need to actually calidate the proof.
+				# This is simply done by calling the
+				# validateProofPacket method on the packet
+				# we sent earlier.
+				if unproven_packet.validateProofPacket(proof_packet):
+					# If the proof is valid, we will calculate
+					# the round-trip time, and inform the user.
+					rtt = now - unproven_packet.sent_at
+					if (rtt >= 1):
+						rtt = round(rtt, 3)
+						rttstring = str(rtt)+" seconds"
+					else:
+						rtt = round(rtt*1000, 3)
+						rttstring = str(rtt)+" milliseconds"
+					
+					FPE.log(
+						"Valid echo reply, proved by "+FPE.prettyhexrep(unproven_packet.destination.hash)+
+						", round-trip time was "+rttstring
+						)
+					# Perform some cleanup
+					sent_requests.remove(unproven_packet)
+					del unproven_packet
 				else:
-					rtt = round(rtt*1000, 3)
-					rttstring = str(rtt)+" milliseconds"
-				
-				FPE.log(
-					"Valid echo reply, proved by "+FPE.prettyhexrep(unproven_packet.destination.hash)+
-					", round-trip time was "+rttstring
-					)
-				sent_requests.remove(unproven_packet)
-				del unproven_packet
-			else:
-				FPE.log("Proof invalid")
+					# If the proof was invalid, we inform 
+					# the user of this.
+					FPE.log("Echo reply received, but proof was invalid")
+		except:
+			FPE.log("Proof packet received, but packet contained invalid or unparsable data")
 
 
 
 if __name__ == "__main__":
+	# Set up command line arguments and start
+	# the selected program mode.
 	try:
 		parser = argparse.ArgumentParser(description="Simple echo server and client utility")
 		parser.add_argument("-s", "--server", action="store_true", help="wait for incoming packets from clients")

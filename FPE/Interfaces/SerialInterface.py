@@ -9,7 +9,6 @@ import FPE
 
 class SerialInterface(Interface):
 	MAX_CHUNK = 32768
-	TIMEOUT_SECONDS = 1.0
 
 	owner    = None
 	port     = None

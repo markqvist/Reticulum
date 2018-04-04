@@ -179,7 +179,6 @@ class Identity:
 		if self.pub != None:
 			chunksize = (Identity.KEYSIZE-Identity.PADDINGSIZE)/8
 			chunks = int(math.ceil(len(plaintext)/(float(chunksize))))
-			# TODO: Remove debug output print("Plaintext size is "+str(len(plaintext))+", with "+str(chunks)+" chunks")
 
 			ciphertext = "";
 			for chunk in range(chunks):
@@ -187,8 +186,6 @@ class Identity:
 				end = (chunk+1)*chunksize
 				if (chunk+1)*chunksize > len(plaintext):
 					end = len(plaintext)
-
-				# TODO: Remove debug output print("Processing chunk "+str(chunk+1)+" of "+str(chunks)+". Starting at "+str(start)+" and stopping at "+str(end)+". The length is "+str(len(plaintext[start:end])))
 				
 				ciphertext += self.pub.encrypt(
 					plaintext[start:end],
@@ -198,7 +195,6 @@ class Identity:
 						label=None
 					)
 				)
-			# TODO: Remove debug output print("Plaintext encrypted, ciphertext length is "+str(len(ciphertext))+" bytes.")
 			return ciphertext
 		else:
 			raise KeyError("Encryption failed because identity does not hold a public key")
