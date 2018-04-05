@@ -33,9 +33,10 @@ class KISSInterface(Interface):
 	stopbits = None
 	serial   = None
 
-	def __init__(self, owner, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime):
+	def __init__(self, owner, name, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime):
 		self.serial   = None
 		self.owner    = owner
+		self.name     = name
 		self.port     = port
 		self.speed    = speed
 		self.databits = databits
@@ -71,7 +72,7 @@ class KISSInterface(Interface):
 				dsrdtr = False,
 			)
 		except Exception as e:
-			RNS.log("Could not create serial port", RNS.LOG_ERROR)
+			RNS.log("Could not open serial port "+self.port, RNS.LOG_ERROR)
 			raise e
 
 		if self.serial.is_open:
@@ -88,7 +89,6 @@ class KISSInterface(Interface):
 			self.setPersistence(self.persistence)
 			self.setSlotTime(self.slottime)
 			RNS.log("KISS interface configured")
-			sleep(2)
 		else:
 			raise IOError("Could not open serial port")
 

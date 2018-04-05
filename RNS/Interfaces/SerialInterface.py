@@ -18,9 +18,10 @@ class SerialInterface(Interface):
 	stopbits = None
 	serial   = None
 
-	def __init__(self, owner, port, speed, databits, parity, stopbits):
+	def __init__(self, owner, name, port, speed, databits, parity, stopbits):
 		self.serial   = None
 		self.owner    = owner
+		self.name     = name
 		self.port     = port
 		self.speed    = speed
 		self.databits = databits
@@ -51,7 +52,7 @@ class SerialInterface(Interface):
 				dsrdtr = False,
 			)
 		except Exception as e:
-			RNS.log("Could not create serial port", RNS.LOG_ERROR)
+			RNS.log("Could not open serial port for interface "+str(self), RNS.LOG_ERROR)
 			raise e
 
 		if self.serial.is_open:

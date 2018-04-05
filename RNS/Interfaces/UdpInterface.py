@@ -12,9 +12,11 @@ class UdpInterface(Interface):
     forward_port = None
     owner = None
 
-    def __init__(self, owner, bindip=None, bindport=None, forwardip=None, forwardport=None):
+    def __init__(self, owner, name, bindip=None, bindport=None, forwardip=None, forwardport=None):
         self.IN  = True
         self.OUT = False
+
+        self.name = name
 
         if (bindip != None and bindport != None):
             self.receives = True

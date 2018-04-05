@@ -63,6 +63,7 @@ class Reticulum:
 				if c["type"] == "UdpInterface":
 					interface = UdpInterface.UdpInterface(
 						RNS.Transport,
+						name,
 						c["listen_ip"],
 						int(c["listen_port"]),
 						c["forward_ip"],
@@ -74,7 +75,6 @@ class Reticulum:
 					else:
 						interface.OUT = False
 
-					interface.name = name
 					RNS.Transport.interfaces.append(interface)
 
 				if c["type"] == "SerialInterface":
@@ -89,6 +89,7 @@ class Reticulum:
 
 					interface = SerialInterface.SerialInterface(
 						RNS.Transport,
+						name,
 						port,
 						speed,
 						databits,
@@ -101,7 +102,6 @@ class Reticulum:
 					else:
 						interface.OUT = False
 
-					interface.name = name
 					RNS.Transport.interfaces.append(interface)
 
 				if c["type"] == "KISSInterface":
@@ -121,6 +121,7 @@ class Reticulum:
 
 					interface = KISSInterface.KISSInterface(
 						RNS.Transport,
+						name,
 						port,
 						speed,
 						databits,
@@ -137,13 +138,40 @@ class Reticulum:
 					else:
 						interface.OUT = False
 
-					interface.name = name
+					RNS.Transport.interfaces.append(interface)
+
+				if c["type"] == "RNodeInterface":
+					frequency = int(c["frequency"]) if "frequency" in c else None
+					bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
+					txpower = int(c["txpower"]) if "txpower" in c else None
+					spreadingfactor = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
+
+					port = c["port"] if "port" in c else None
+					
+					if port == None:
+						raise ValueError("No port specified for RNode interface")
+
+					interface = RNodeInterface.RNodeInterface(
+						RNS.Transport,
+						name,
+						port,
+						frequency,
+						bandwidth,
+						txpower,
+						spreadingfactor						
+					)
+
+					if "outgoing" in c and c["outgoing"].lower() == "true":
+						interface.OUT = True
+					else:
+						interface.OUT = False
+
 					RNS.Transport.interfaces.append(interface)
 
 			except Exception as e:
 				RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
 				RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
-				traceback.print_exc()
+				#traceback.print_exc()
 				
 
 
