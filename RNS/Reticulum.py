@@ -140,6 +140,47 @@ class Reticulum:
 
 					RNS.Transport.interfaces.append(interface)
 
+				if c["type"] == "AX25KISSInterface":
+					preamble = int(c["preamble"]) if "preamble" in c else None
+					txtail = int(c["txtail"]) if "txtail" in c else None
+					persistence = int(c["persistence"]) if "persistence" in c else None
+					slottime = int(c["slottime"]) if "slottime" in c else None
+
+					port = c["port"] if "port" in c else None
+					speed = int(c["speed"]) if "speed" in c else 9600
+					databits = int(c["databits"]) if "databits" in c else 8
+					parity = c["parity"] if "parity" in c else "N"
+					stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+
+					callsign = c["callsign"] if "callsign" in c else ""
+					ssid = int(c["ssid"]) if "ssid" in c else -1
+
+					if port == None:
+						raise ValueError("No port specified for serial interface")
+
+					interface = AX25KISSInterface.AX25KISSInterface(
+						RNS.Transport,
+						name,
+						callsign,
+						ssid,
+						port,
+						speed,
+						databits,
+						parity,
+						stopbits,
+						preamble,
+						txtail,
+						persistence,
+						slottime
+					)
+
+					if "outgoing" in c and c["outgoing"].lower() == "true":
+						interface.OUT = True
+					else:
+						interface.OUT = False
+
+					RNS.Transport.interfaces.append(interface)
+
 				if c["type"] == "RNodeInterface":
 					frequency = int(c["frequency"]) if "frequency" in c else None
 					bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None

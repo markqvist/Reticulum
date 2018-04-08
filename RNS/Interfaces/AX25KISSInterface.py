@@ -22,8 +22,14 @@ class KISS():
 	CMD_SETHARDWARE	= chr(0x06)
 	CMD_RETURN		= chr(0xFF)
 
+class AX25():
+	PID_NOLAYER3	= chr(0xF0)
+	CTRL_UI			= chr(0x03)
+	CRC_CORRECT     = chr(0xF0)+chr(0xB8)
+
+
 # TODO: THIS CLASS IS NOT YET IMPLEMENTED --- PLACEHOLDER ONLY ---
-class AX25Interface(Interface):
+class AX25KISSInterface(Interface):
 	MAX_CHUNK = 32768
 
 	owner    = None
@@ -34,10 +40,14 @@ class AX25Interface(Interface):
 	stopbits = None
 	serial   = None
 
-	def __init__(self, owner, name, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime):
+	def __init__(self, owner, name, callsign, ssid, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime):
 		self.serial   = None
 		self.owner    = owner
 		self.name	  = name
+		self.src_call = callsign.upper()
+		self.src_ssid = ssid
+		self.dst_call = "APZRNS"
+		self.dst_ssid = 0
 		self.port     = port
 		self.speed    = speed
 		self.databits = databits
@@ -45,6 +55,12 @@ class AX25Interface(Interface):
 		self.stopbits = stopbits
 		self.timeout  = 100
 		self.online   = False
+
+		if (len(self.src_call) < 3 or len(self.src_call) > 6):
+			raise ValueError("Invalid callsign for "+str(self))
+
+		if (self.src_ssid < 0 or self.src_ssid > 15):
+			raise ValueError("Invalid SSID for "+str(self))
 
 		self.preamble    = preamble if preamble != None else 350;
 		self.txtail      = txtail if txtail != None else 20;
@@ -84,12 +100,12 @@ class AX25Interface(Interface):
 			thread.start()
 			self.online = True
 			RNS.log("Serial port "+self.port+" is now open")
-			RNS.log("Configuring KISS interface parameters...")
+			RNS.log("Configuring AX.25 KISS interface parameters...")
 			self.setPreamble(self.preamble)
 			self.setTxTail(self.txtail)
 			self.setPersistence(self.persistence)
 			self.setSlotTime(self.slottime)
-			RNS.log("KISS interface configured")
+			RNS.log("AX.25 KISS interface configured")
 			sleep(2)
 		else:
 			raise IOError("Could not open serial port")
@@ -107,7 +123,7 @@ class AX25Interface(Interface):
 		kiss_command = KISS.FEND+KISS.CMD_TXDELAY+chr(preamble)+KISS.FEND
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
-			raise IOError("Could not configure KISS interface preamble to "+str(preamble_ms)+" (command value "+str(preamble)+")")
+			raise IOError("Could not configure AX.25 KISS interface preamble to "+str(preamble_ms)+" (command value "+str(preamble)+")")
 
 	def setTxTail(self, txtail):
 		txtail_ms = txtail
@@ -120,7 +136,7 @@ class AX25Interface(Interface):
 		kiss_command = KISS.FEND+KISS.CMD_TXTAIL+chr(txtail)+KISS.FEND
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
-			raise IOError("Could not configure KISS interface TX tail to "+str(txtail_ms)+" (command value "+str(txtail)+")")
+			raise IOError("Could not configure AX.25 KISS interface TX tail to "+str(txtail_ms)+" (command value "+str(txtail)+")")
 
 	def setPersistence(self, persistence):
 		if persistence < 0:
@@ -131,7 +147,7 @@ class AX25Interface(Interface):
 		kiss_command = KISS.FEND+KISS.CMD_P+chr(persistence)+KISS.FEND
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
-			raise IOError("Could not configure KISS interface persistence to "+str(persistence))
+			raise IOError("Could not configure AX.25 KISS interface persistence to "+str(persistence))
 
 	def setSlotTime(self, slottime):
 		slottime_ms = slottime
@@ -144,7 +160,7 @@ class AX25Interface(Interface):
 		kiss_command = KISS.FEND+KISS.CMD_SLOTTIME+chr(slottime)+KISS.FEND
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
-			raise IOError("Could not configure KISS interface slot time to "+str(slottime_ms)+" (command value "+str(slottime)+")")
+			raise IOError("Could not configure AX.25 KISS interface slot time to "+str(slottime_ms)+" (command value "+str(slottime)+")")
 
 
 	def processIncoming(self, data):
@@ -153,12 +169,36 @@ class AX25Interface(Interface):
 
 	def processOutgoing(self,data):
 		if self.online:
+			# gen src/dst
+
+			encoded_dst_ssid = 0x60 | (self.dst_ssid << 1)
+			encoded_src_ssid = 0x60 | (self.src_ssid << 1) | 0x01
+
+			addr = ""
+
+			for i in range(0,6):
+				if (i < len(self.dst_call)):
+					addr += chr(ord(self.dst_call[i])<<1)
+				else:
+					addr += chr(0x20)
+			addr += chr(encoded_dst_ssid)
+
+			for i in range(0,6):
+				if (i < len(self.src_call)):
+					addr += chr(ord(self.src_call[i])<<1)
+				else:
+					addr += chr(0x20)
+			addr += chr(encoded_src_ssid)
+
+			data = addr+AX25.CTRL_UI+AX25.PID_NOLAYER3+data
+
 			data = data.replace(chr(0xdb), chr(0xdb)+chr(0xdd))
 			data = data.replace(chr(0xc0), chr(0xdb)+chr(0xdc))
-			frame = chr(0xc0)+chr(0x00)+data+chr(0xc0)
-			written = self.serial.write(frame)
-			if written != len(frame):
-				raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))
+			kiss_frame = chr(0xc0)+chr(0x00)+data+chr(0xc0)
+
+			written = self.serial.write(kiss_frame)
+			if written != len(kiss_frame):
+				raise IOError("AX.25 interface only wrote "+str(written)+" bytes of "+str(len(kiss_frame)))
 
 
 	def readLoop(self):
@@ -213,5 +253,5 @@ class AX25Interface(Interface):
 			RNS.log("The interface "+str(self.name)+" is now offline. Restart Reticulum to attempt reconnection.", RNS.LOG_ERROR)
 
 	def __str__(self):
-		return "KISSInterface["+self.name+"]"
+		return "AX25KISSInterface["+self.name+"]"
 

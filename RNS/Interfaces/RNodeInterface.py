@@ -5,6 +5,7 @@ import sys
 import serial
 import threading
 import time
+import math
 import RNS
 
 class KISS():
@@ -72,7 +73,9 @@ class RNodeInterface(Interface):
 		self.bandwidth   = bandwidth
 		self.txpower     = txpower
 		self.sf          = sf
+		self.cr          = 5 # Coding rate is hard-coded in firmware for now
 		self.state       = KISS.RADIO_STATE_OFF
+		self.bitrate     = 0
 
 		self.r_frequency = None
 		self.r_bandwidth = None
@@ -218,6 +221,13 @@ class RNodeInterface(Interface):
 			return False
 
 
+	def updateBitrate(self):
+		try:
+			self.bitrate = self.r_sf * ( (4.0/self.cr) / (math.pow(2,self.r_sf)/(self.r_bandwidth/1000)) ) * 1000
+			self.bitrate_kbps = round(self.bitrate/1000.0, 2)
+			RNS.log(str(self)+" On-air bitrate is now "+str(self.bitrate_kbps)+ " kbps", RNS.LOG_DEBUG)
+		except:
+			self.bitrate = 0
 
 	def processIncoming(self, data):
 		self.owner.inbound(data, self)
@@ -284,7 +294,8 @@ class RNodeInterface(Interface):
 								command_buffer = command_buffer+byte
 								if (len(command_buffer) == 4):
 									self.r_frequency = ord(command_buffer[0]) << 24 | ord(command_buffer[1]) << 16 | ord(command_buffer[2]) << 8 | ord(command_buffer[3])
-									RNS.log("Radio reporting frequency is "+str(self.r_frequency), RNS.LOG_DEBUG)
+									RNS.log(str(self)+" Radio reporting frequency is "+str(self.r_frequency/1000000.0)+" MHz", RNS.LOG_DEBUG)
+									self.updateBitrate()
 
 						elif (command == KISS.CMD_BANDWIDTH):
 							if (byte == KISS.FESC):
@@ -299,14 +310,16 @@ class RNodeInterface(Interface):
 								command_buffer = command_buffer+byte
 								if (len(command_buffer) == 4):
 									self.r_bandwidth = ord(command_buffer[0]) << 24 | ord(command_buffer[1]) << 16 | ord(command_buffer[2]) << 8 | ord(command_buffer[3])
-									RNS.log("Radio reporting bandwidth is "+str(self.r_bandwidth), RNS.LOG_DEBUG)
+									RNS.log(str(self)+" Radio reporting bandwidth is "+str(self.r_bandwidth/1000.0)+" KHz", RNS.LOG_DEBUG)
+									self.updateBitrate()
 
 						elif (command == KISS.CMD_TXPOWER):
 							self.r_txpower = ord(byte)
-							RNS.log("Radio reporting TX power is "+str(self.r_txpower), RNS.LOG_DEBUG)
+							RNS.log(str(self)+" Radio reporting TX power is "+str(self.r_txpower)+" dBm", RNS.LOG_DEBUG)
 						elif (command == KISS.CMD_SF):
 							self.r_sf = ord(byte)
-							RNS.log("Radio reporting spreading factor is "+str(self.r_sf), RNS.LOG_DEBUG)
+							RNS.log(str(self)+" Radio reporting spreading factor is "+str(self.r_sf), RNS.LOG_DEBUG)
+							self.updateBitrate()
 						elif (command == KISS.CMD_RADIO_STATE):
 							self.r_state = ord(byte)
 						elif (command == KISS.CMD_RADIO_LOCK):
