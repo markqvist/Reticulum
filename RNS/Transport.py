@@ -17,7 +17,7 @@ class Transport:
 		Transport.cacheRaw(raw)
 		for interface in Transport.interfaces:
 			if interface.OUT:
-				RNS.log("Transmitting via: "+str(interface), RNS.LOG_DEBUG)
+				RNS.log("Transmitting "+str(len(raw))+" bytes via: "+str(interface), RNS.LOG_DEBUG)
 				interface.processOutgoing(raw)
 
 	@staticmethod

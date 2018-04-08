@@ -15,11 +15,11 @@ from cryptography.hazmat.primitives.asymmetric import padding
 
 class Identity:
 	# Configure key size
-	KEYSIZE    = 1536;
-	DERKEYSIZE = 1808;
+	KEYSIZE    = 1536
+	DERKEYSIZE = 1808
 
 	# Padding size, not configurable
-	PADDINGSIZE= 336;
+	PADDINGSIZE= 336
 
 	# Storage
 	known_destinations = {}

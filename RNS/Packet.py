@@ -94,7 +94,7 @@ class Packet:
 	def send(self):
 		if not self.sent:
 			self.pack()
-			RNS.log("Size: "+str(len(self.raw))+" header is "+str(len(self.header))+" payload is "+str(len(self.ciphertext)), RNS.LOG_DEBUG)
+			#RNS.log("Size: "+str(len(self.raw))+" header is "+str(len(self.header))+" payload is "+str(len(self.ciphertext)), RNS.LOG_DEBUG)
 			RNS.Transport.outbound(self.raw)
 			self.packet_hash = RNS.Identity.fullHash(self.raw)
 			self.sent_at = time.time()
