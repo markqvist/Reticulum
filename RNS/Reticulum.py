@@ -56,6 +56,10 @@ class Reticulum:
 				value = self.config["logging"][option]
 				if option == "loglevel":
 					RNS.loglevel = int(value)
+					if RNS.loglevel < 0:
+						RNS.loglevel = 0
+					if RNS.loglevel > 6:
+						RNS.loglevel = 6
 
 		for name in self.config["interfaces"]:
 			c = self.config["interfaces"][name]

@@ -3,7 +3,7 @@ header types
 type 1			00	One byte header, one 10 byte address field
 type 2			01	One byte header, two 10 byte address fields
 type 3			10	Reserved
-type 4			11	Reserved for extended packet format
+type 4			11	Reserved for extended header format
 
 
 propagation types

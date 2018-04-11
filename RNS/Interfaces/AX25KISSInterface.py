@@ -119,7 +119,6 @@ class AX25KISSInterface(Interface):
 		if preamble > 255:
 			preamble = 255
 
-		RNS.log("Setting preamble to "+str(preamble)+" "+chr(preamble))
 		kiss_command = KISS.FEND+KISS.CMD_TXDELAY+chr(preamble)+KISS.FEND
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
