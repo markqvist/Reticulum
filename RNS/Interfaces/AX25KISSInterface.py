@@ -163,7 +163,8 @@ class AX25KISSInterface(Interface):
 
 
 	def processIncoming(self, data):
-		self.owner.inbound(data, self)
+		if (len(data) > 16):
+			self.owner.inbound(data[16:], self)
 
 
 	def processOutgoing(self,data):
