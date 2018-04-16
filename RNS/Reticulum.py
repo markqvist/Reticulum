@@ -8,7 +8,7 @@ import os.path
 import os
 import RNS
 
-import traceback
+#import traceback
 
 class Reticulum:
 	MTU          = 500

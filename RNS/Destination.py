@@ -9,6 +9,11 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 
+class Callbacks:
+	def __init__(self):
+		self.link_established = None
+		self.packet = None
+		self.proof = None
 
 class Destination:
 	KEYSIZE    = RNS.Identity.KEYSIZE;
@@ -59,10 +64,13 @@ class Destination:
 		if "." in app_name: raise ValueError("Dots can't be used in app names") 
 		if not type in Destination.types: raise ValueError("Unknown destination type")
 		if not direction in Destination.directions: raise ValueError("Unknown destination direction")
+		self.callbacks = Callbacks()
 		self.type = type
 		self.direction = direction
 		self.proof_strategy = Destination.PROVE_NONE
 		self.mtu = 0
+
+		self.links = []
 
 		if identity != None and type == Destination.SINGLE:
 			aspects = aspects+(identity.hexhash,)
@@ -87,11 +95,14 @@ class Destination:
 		return "<"+self.name+"/"+self.hexhash+">"
 
 
-	def setCallback(self, callback):
-		self.callback = callback
+	def link_established_callback(self, callback):
+		self.callbacks.link_established = callback
 
-	def setProofCallback(self, callback):
-		self.proofcallback = callback
+	def packet_callback(self, callback):
+		self.callbacks.packet = callback
+
+	def proof_callback(self, callback):
+		self.callbacks.proof = callback
 
 	def setProofStrategy(self, proof_strategy):
 		if not proof_strategy in Destination.proof_strategies:
@@ -101,9 +112,19 @@ class Destination:
 
 	def receive(self, packet):
 		plaintext = self.decrypt(packet.data)
-		if plaintext != None and self.callback != None:
-			self.callback(plaintext, packet)
+		if plaintext != None:
+			if packet.packet_type == RNS.Packet.LINKREQUEST:
+				self.incomingLinkRequest(plaintext, packet)
 
+			if packet.packet_type == RNS.Packet.RESOURCE:
+				if self.callbacks.packet != None:
+					self.callbacks.packet(plaintext, packet)
+
+	def incomingLinkRequest(self, data, packet):
+		link = RNS.Link.validateRequest(self, data, packet)
+		if link != None:
+			RNS.log(str(self)+" accepted link request", RNS.LOG_DEBUG)
+			self.links.append(link)
 
 	def createKeys(self):
 		if self.type == Destination.PLAIN:

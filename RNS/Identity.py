@@ -14,9 +14,9 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 
 class Identity:
-	# Configure key size
-	KEYSIZE    = 1536
-	DERKEYSIZE = 1808
+	#KEYSIZE    = 1536
+	KEYSIZE    = 1024
+	DERKEYSIZE = KEYSIZE+272
 
 	# Padding size, not configurable
 	PADDINGSIZE= 336
@@ -223,7 +223,7 @@ class Identity:
 						)
 					)
 			except:
-				RNS.log("Decryption by "+RNS.prettyhexrep(self.hash)+" failed")
+				RNS.log("Decryption by "+RNS.prettyhexrep(self.hash)+" failed", RNS.LOG_VERBOSE)
 				
 			return plaintext;
 		else:

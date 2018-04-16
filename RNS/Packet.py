@@ -12,7 +12,7 @@ class Packet:
 
 	HEADER_1     = 0x00;	# Normal header format
 	HEADER_2     = 0x01;	# Header format used for link packets in transport
-	HEADER_3     = 0x02;	# Reserved
+	HEADER_3     = 0x02;	# Normal header format, but used to indicate a link request proof
 	HEADER_4     = 0x03;	# Reserved
 	header_types = [HEADER_1, HEADER_2, HEADER_3, HEADER_4]
 
@@ -30,7 +30,7 @@ class Packet:
 			self.transport_id   = transport_id
 			self.data 		    = data
 			self.flags	 	    = self.getPackedFlags()
-			self.MTU     		= self.destination.MTU
+			self.MTU     		= RNS.Reticulum.MTU
 
 			self.raw    		= None
 			self.packed 		= False
@@ -45,7 +45,10 @@ class Packet:
 		self.packet_hash = None
 
 	def getPackedFlags(self):
-		packed_flags = (self.header_type << 6) | (self.transport_type << 4) | (self.destination.type << 2) | self.packet_type
+		if self.header_type == Packet.HEADER_3:
+			packed_flags = (self.header_type << 6) | (self.transport_type << 4) | RNS.Destination.LINK | self.packet_type
+		else:
+			packed_flags = (self.header_type << 6) | (self.transport_type << 4) | (self.destination.type << 2) | self.packet_type
 		return packed_flags
 
 	def pack(self):
@@ -58,10 +61,14 @@ class Packet:
 			else:
 				raise IOError("Packet with header type 2 must have a transport ID")
 
-		self.header += self.destination.hash
-		if self.packet_type != Packet.ANNOUNCE:
-			self.ciphertext = self.destination.encrypt(self.data)
-		else:
+		if self.header_type == Packet.HEADER_1:
+			self.header += self.destination.hash
+			if self.packet_type != Packet.ANNOUNCE:
+				self.ciphertext = self.destination.encrypt(self.data)
+			else:
+				self.ciphertext = self.data
+		if self.header_type == Packet.HEADER_3:
+			self.header += self.destination.link_id
 			self.ciphertext = self.data
 
 		self.raw = self.header + self.ciphertext
@@ -93,9 +100,10 @@ class Packet:
 
 	def send(self):
 		if not self.sent:
-			self.pack()
-			#RNS.log("Size: "+str(len(self.raw))+" header is "+str(len(self.header))+" payload is "+str(len(self.ciphertext)), RNS.LOG_DEBUG)
-			RNS.Transport.outbound(self.raw)
+			if not self.packed:
+				self.pack()
+	
+			RNS.Transport.outbound(self)
 			self.packet_hash = RNS.Identity.fullHash(self.raw)
 			self.sent_at = time.time()
 			self.sent = True

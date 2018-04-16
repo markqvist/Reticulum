@@ -4,6 +4,7 @@ import time
 
 from .Reticulum import Reticulum
 from .Identity import Identity
+from .Link import Link
 from .Transport import Transport
 from .Destination import Destination
 from .Packet import Packet
