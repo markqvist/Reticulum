@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import time
 
@@ -74,3 +75,6 @@ def prettyhexrep(data):
 	delimiter = ""
 	hexrep = "<"+delimiter.join("{:02x}".format(ord(c)) for c in data)+">"
 	return hexrep
+
+def panic():
+	os._exit(255)

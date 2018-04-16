@@ -41,7 +41,6 @@ class Link:
 			except Exception as e:
 				RNS.log("Validating link request failed", RNS.LOG_VERBOSE)
 				return None
-			
 
 		else:
 			RNS.log("Invalid link request payload size, dropping request", RNS.LOG_VERBOSE)
@@ -49,12 +48,15 @@ class Link:
 
 
 	def __init__(self, destination=None, owner=None, peer_pub_bytes = None):
+		if destination != None and destination.type != RNS.Destination.SINGLE:
+			raise TypeError("Links can only be established to the \"single\" destination type")
 		self.callbacks = LinkCallbacks()
 		self.status = Link.PENDING
 		self.type = RNS.Destination.LINK
 		self.owner = owner
 		self.destination = destination
 		self.attached_interface = None
+		self.__encryption_disabled = False
 		if self.destination == None:
 			self.initiator = False
 		else:
@@ -142,6 +144,8 @@ class Link:
 				self.callbacks.packet(plaintext, packet)
 
 	def encrypt(self, plaintext):
+		if self.__encryption_disabled:
+			return plaintext
 		try:
 			fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
 			ciphertext = base64.urlsafe_b64decode(fernet.encrypt(plaintext))
@@ -151,6 +155,8 @@ class Link:
 
 
 	def decrypt(self, ciphertext):
+		if self.__encryption_disabled:
+			return ciphertext
 		try:
 			fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
 			plaintext = fernet.decrypt(base64.urlsafe_b64encode(ciphertext))
@@ -169,6 +175,15 @@ class Link:
 
 	def resource_completed_callback(self, callback):
 		self.callbacks.resource_completed = callback
+
+	def disableEncryption(self):
+		if (RNS.Reticulum.should_allow_unencrypted()):
+			RNS.log("The link "+str(self)+" was downgraded to an encryptionless link", RNS.LOG_NOTICE)
+			self.__encryption_disabled = True
+		else:
+			RNS.log("Attempt to disable encryption on link, but encryptionless links are not allowed by config.", RNS.LOG_CRITICAL)
+			RNS.log("Shutting down Reticulum now!", RNS.LOG_CRITICAL)
+			RNS.panic()
 
 	def __str__(self):
 		return RNS.prettyhexrep(self.link_id)

@@ -28,6 +28,8 @@ class Reticulum:
 		Reticulum.storagepath = Reticulum.configdir+"/storage"
 		Reticulum.cachepath = Reticulum.configdir+"/storage/cache"
 
+		Reticulum.__allow_unencrypted = False
+
 		if not os.path.isdir(Reticulum.storagepath):
 			os.makedirs(Reticulum.storagepath)
 
@@ -60,6 +62,24 @@ class Reticulum:
 						RNS.loglevel = 0
 					if RNS.loglevel > 6:
 						RNS.loglevel = 6
+
+		if "reticulum" in self.config:
+			for option in self.config["reticulum"]:
+				value = self.config["reticulum"][option]
+				if option == "allow_unencrypted":
+					if value == "true":
+						RNS.log("", RNS.LOG_CRITICAL)
+						RNS.log("! ! !", RNS.LOG_CRITICAL)
+						RNS.log("", RNS.LOG_CRITICAL)
+						RNS.log("Danger! Encryptionless links have been allowed in the config file!", RNS.LOG_CRITICAL)
+						RNS.log("Beware of the consequences! Any data sent over a link can potentially be intercepted,", RNS.LOG_CRITICAL)
+						RNS.log("read and modified! If you are not absolutely sure that you want this,", RNS.LOG_CRITICAL)
+						RNS.log("you should exit Reticulum NOW and change your config file!", RNS.LOG_CRITICAL)
+						RNS.log("", RNS.LOG_CRITICAL)
+						RNS.log("! ! !", RNS.LOG_CRITICAL)
+						RNS.log("", RNS.LOG_CRITICAL)
+						Reticulum.__allow_unencrypted = True
+
 
 		for name in self.config["interfaces"]:
 			c = self.config["interfaces"][name]
@@ -236,3 +256,7 @@ class Reticulum:
 			os.makedirs(Reticulum.configdir)
 		self.config.write()
 		self.applyConfig()
+
+	@staticmethod
+	def should_allow_unencrypted():
+		return Reticulum.__allow_unencrypted
