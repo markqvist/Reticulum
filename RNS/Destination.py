@@ -116,7 +116,7 @@ class Destination:
 			if packet.packet_type == RNS.Packet.LINKREQUEST:
 				self.incomingLinkRequest(plaintext, packet)
 
-			if packet.packet_type == RNS.Packet.RESOURCE:
+			if packet.packet_type == RNS.Packet.DATA:
 				if self.callbacks.packet != None:
 					self.callbacks.packet(plaintext, packet)
 

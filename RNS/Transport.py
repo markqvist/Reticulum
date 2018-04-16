@@ -51,7 +51,7 @@ class Transport:
 						destination.receive(packet)
 						Transport.cache(packet)
 			
-			if packet.packet_type == RNS.Packet.RESOURCE:
+			if packet.packet_type == RNS.Packet.DATA:
 				if packet.destination_type == RNS.Destination.LINK:
 					for link in Transport.active_links:
 						if link.link_id == packet.destination_hash:

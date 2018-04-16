@@ -24,7 +24,7 @@ link			11
 
 packet types
 -----------------
-resource		00
+data			00
 announce		01
 link request	10
 proof			11
