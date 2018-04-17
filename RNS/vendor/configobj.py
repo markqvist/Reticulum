@@ -38,7 +38,7 @@ BOMS = {
     BOM_UTF16: ('utf_16', 'utf_16'),
     }
 # All legal variants of the BOM codecs.
-# TODO: the list of aliases is not meant to be exhaustive, is there a
+# The list of aliases is not meant to be exhaustive, is there a
 #   better way ?
 BOM_LIST = {
     'utf_16': 'utf_16',

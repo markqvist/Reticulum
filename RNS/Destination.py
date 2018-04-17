@@ -13,7 +13,7 @@ class Callbacks:
 	def __init__(self):
 		self.link_established = None
 		self.packet = None
-		self.proof = None
+		self.proof_requested = None
 
 class Destination:
 	KEYSIZE    = RNS.Identity.KEYSIZE;
@@ -101,8 +101,8 @@ class Destination:
 	def packet_callback(self, callback):
 		self.callbacks.packet = callback
 
-	def proof_callback(self, callback):
-		self.callbacks.proof = callback
+	def proof_requested_callback(self, callback):
+		self.callbacks.proof_requested = callback
 
 	def setProofStrategy(self, proof_strategy):
 		if not proof_strategy in Destination.proof_strategies:

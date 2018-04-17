@@ -28,7 +28,6 @@ class AX25():
 	CRC_CORRECT     = chr(0xF0)+chr(0xB8)
 
 
-# TODO: THIS CLASS IS NOT YET IMPLEMENTED --- PLACEHOLDER ONLY ---
 class AX25KISSInterface(Interface):
 	MAX_CHUNK = 32768
 

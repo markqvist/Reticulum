@@ -14,12 +14,14 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 
 class Identity:
-	#KEYSIZE    = 1536
-	KEYSIZE    = 1024
-	DERKEYSIZE = KEYSIZE+272
+   #KEYSIZE     = 1536
+	KEYSIZE     = 1024
+	DERKEYSIZE  = KEYSIZE+272
 
-	# Padding size, not configurable
-	PADDINGSIZE= 336
+	# Non-configurable constants
+	PADDINGSIZE = 336		# In bits
+	HASHLENGTH  = 256		# In bits
+	SIGLENGTH   = KEYSIZE
 
 	# Storage
 	known_destinations = {}
@@ -257,13 +259,21 @@ class Identity:
 					hashes.SHA256()
 				)
 				return True
-			except:
+			except Exception as e:
 				return False
 		else:
 			raise KeyError("Signature validation failed because identity does not hold a public key")
 
-	def prove(self, packet, destination):
-		proof_data = packet.packet_hash + self.sign(packet.packet_hash)
+	def prove(self, packet, destination=None):
+		signature = self.sign(packet.packet_hash)
+		if RNS.Reticulum.should_use_implicit_proof():
+			proof_data = signature
+		else:
+			proof_data = packet.packet_hash + signature
+		
+		if destination == None:
+			destination = packet.generateProofDestination()
+
 		proof = RNS.Packet(destination, proof_data, RNS.Packet.PROOF)
 		proof.send()
 

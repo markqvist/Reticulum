@@ -29,6 +29,7 @@ class Reticulum:
 		Reticulum.cachepath = Reticulum.configdir+"/storage/cache"
 
 		Reticulum.__allow_unencrypted = False
+		Reticulum.__use_implicit_proof = False
 
 		if not os.path.isdir(Reticulum.storagepath):
 			os.makedirs(Reticulum.storagepath)
@@ -50,6 +51,8 @@ class Reticulum:
 		RNS.Identity.loadKnownDestinations()
 		Reticulum.router = self
 
+		RNS.Transport.scheduleJobs()
+
 		atexit.register(RNS.Identity.exitHandler)
 
 	def applyConfig(self):
@@ -66,6 +69,11 @@ class Reticulum:
 		if "reticulum" in self.config:
 			for option in self.config["reticulum"]:
 				value = self.config["reticulum"][option]
+				if option == "use_implicit_proof":
+					if value == "true":
+						Reticulum.__use_implicit_proof = True
+					if value == "false":
+						Reticulum.__use_implicit_proof = False
 				if option == "allow_unencrypted":
 					if value == "true":
 						RNS.log("", RNS.LOG_CRITICAL)
@@ -260,3 +268,7 @@ class Reticulum:
 	@staticmethod
 	def should_allow_unencrypted():
 		return Reticulum.__allow_unencrypted
+
+	@staticmethod
+	def should_use_implicit_proof():
+		return Reticulum.__use_implicit_proof

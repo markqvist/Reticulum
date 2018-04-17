@@ -2,6 +2,96 @@ import struct
 import time
 import RNS
 
+class PacketReceipt:
+	# Receipt status constants
+	FAILED    = 0x00
+	SENT	  = 0x01
+	DELIVERED = 0x02
+
+
+	EXPL_LENGTH = RNS.Identity.HASHLENGTH/8+RNS.Identity.SIGLENGTH/8
+	IMPL_LENGTH = RNS.Identity.SIGLENGTH/8
+
+	# Creates a new packet receipt from a sent packet
+	def __init__(self, packet):
+		self.hash    = packet.getHash()
+		self.sent    = True
+		self.sent_at = time.time()
+		self.timeout = Packet.TIMEOUT
+		self.proved  = False
+		self.status  = PacketReceipt.SENT
+		self.destination = packet.destination
+		self.callbacks   = PacketReceiptCallbacks()
+		self.concluded_at = None
+
+	# Validate a proof packet
+	def validateProofPacket(self, proof_packet):
+		return self.validateProof(proof_packet.data)
+
+	# Validate a raw proof
+	def validateProof(self, proof):
+		if len(proof) == PacketReceipt.EXPL_LENGTH:
+			# This is an explicit proof
+			proof_hash = proof[:RNS.Identity.HASHLENGTH/8]
+			signature = proof[RNS.Identity.HASHLENGTH/8:RNS.Identity.HASHLENGTH/8+RNS.Identity.SIGLENGTH/8]
+			if proof_hash == self.hash:
+				proof_valid = self.destination.identity.validate(signature, self.hash)
+				if proof_valid:
+					self.status = PacketReceipt.DELIVERED
+					self.proved = True
+					if self.callbacks.delivery != None:
+						self.callbacks.delivery(self)
+					return True
+				else:
+					return False
+			else:
+				return False
+		elif len(proof) == PacketReceipt.IMPL_LENGTH:
+			# This is an implicit proof
+			signature = proof[:RNS.Identity.SIGLENGTH/8]
+			proof_valid = self.destination.identity.validate(signature, self.hash)
+			if proof_valid:
+					self.status = PacketReceipt.DELIVERED
+					self.proved = True
+					if self.callbacks.delivery != None:
+						self.callbacks.delivery(self)
+					return True
+			else:
+				return False
+		else:
+			return False
+
+
+	def isTimedOut(self):
+		return (self.sent_at+self.timeout < time.time())
+
+	def checkTimeout(self):
+		if self.isTimedOut():
+			self.status = PacketReceipt.FAILED
+			self.concluded_at = time.time()
+			if self.callbacks.timeout:
+				self.callbacks.timeout(self)
+
+
+	# Set the timeout in seconds
+	def setTimeout(self, timeout):
+		self.timeout = float(timeout)
+
+	# Set a function that gets called when
+	# a successfull delivery has been proved
+	def delivery_callback(self, callback):
+		self.callbacks.delivery = callback
+
+	# Set a function that gets called if the
+	# delivery times out
+	def timeout_callback(self, callback):
+		self.callbacks.timeout = callback
+
+class PacketReceiptCallbacks:
+	def __init__(self):
+		self.delivery = None
+		self.timeout  = None
+
 class Packet:
 	# Constants
 	DATA         = 0x00;
@@ -15,6 +105,9 @@ class Packet:
 	HEADER_3     = 0x02;	# Normal header format, but used to indicate a link request proof
 	HEADER_4     = 0x03;	# Reserved
 	header_types = [HEADER_1, HEADER_2, HEADER_3, HEADER_4]
+
+	# Defaults
+	TIMEOUT 	 = 3600.0
 
 	def __init__(self, destination, data, packet_type = DATA, transport_type = RNS.Transport.BROADCAST, header_type = HEADER_1, transport_id = None):
 		if destination != None:
@@ -35,6 +128,7 @@ class Packet:
 			self.raw    		= None
 			self.packed 		= False
 			self.sent   		= False
+			self.receipt 		= None
 			self.fromPacked		= False
 		else:
 			self.raw            = data
@@ -67,6 +161,7 @@ class Packet:
 				self.ciphertext = self.destination.encrypt(self.data)
 			else:
 				self.ciphertext = self.data
+
 		if self.header_type == Packet.HEADER_3:
 			self.header += self.destination.link_id
 			self.ciphertext = self.data
@@ -103,10 +198,11 @@ class Packet:
 			if not self.packed:
 				self.pack()
 	
-			RNS.Transport.outbound(self)
-			self.packet_hash = RNS.Identity.fullHash(self.raw)
-			self.sent_at = time.time()
-			self.sent = True
+			if RNS.Transport.outbound(self):
+				return self.receipt
+			else:
+				# TODO: Don't raise error here, handle gracefully
+				raise IOError("Packet could not be sent! Do you have any outbound interfaces configured?")
 		else:
 			raise IOError("Packet was already sent")
 
@@ -116,21 +212,36 @@ class Packet:
 		else:
 			raise IOError("Packet was not sent yet")
 
-	def prove(self, destination):
+	def prove(self, destination=None):
 		if self.fromPacked and self.destination:
 			if self.destination.identity and self.destination.identity.prv:
 				self.destination.identity.prove(self, destination)
 
+	# Generates a special destination that allows Reticulum
+	# to direct the proof back to the proved packet's sender
+	def generateProofDestination(self):
+		return ProofDestination(self)
+
 	def validateProofPacket(self, proof_packet):
-		return self.validateProof(proof_packet.data)
+		return self.receipt.validateProofPacket(proof_packet)
 
 	def validateProof(self, proof):
-		proof_hash = proof[:32]
-		signature = proof[32:]
-		if proof_hash == self.packet_hash:
-			return self.destination.identity.validate(signature, proof_hash)
-		else:
-			return False
+		return self.receipt.validateProof(proof)
 
+	def updateHash(self):
+		self.packet_hash = self.getHash()
 
+	def getHash(self):
+		return RNS.Identity.fullHash(self.getHashablePart())
+
+	def getHashablePart(self):
+		return self.raw[0:1]+self.raw[2:]
+
+class ProofDestination:
+	def __init__(self, packet):
+		self.hash = packet.getHash()[:10];
+		self.type = RNS.Destination.SINGLE
+
+	def encrypt(self, plaintext):
+		return plaintext
 
