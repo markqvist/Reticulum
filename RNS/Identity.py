@@ -4,7 +4,7 @@ import os
 import RNS
 import time
 import atexit
-import cPickle
+import vendor.umsgpack as umsgpack
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -61,7 +61,7 @@ class Identity:
 	def saveKnownDestinations():
 		RNS.log("Saving known destinations to storage...", RNS.LOG_VERBOSE)
 		file = open(RNS.Reticulum.storagepath+"/known_destinations","w")
-		cPickle.dump(Identity.known_destinations, file)
+		umsgpack.dump(Identity.known_destinations, file)
 		file.close()
 		RNS.log("Done saving known destinations to storage", RNS.LOG_VERBOSE)
 
@@ -69,7 +69,7 @@ class Identity:
 	def loadKnownDestinations():
 		if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
 			file = open(RNS.Reticulum.storagepath+"/known_destinations","r")
-			Identity.known_destinations = cPickle.load(file)
+			Identity.known_destinations = umsgpack.load(file)
 			file.close()
 			RNS.log("Loaded "+str(len(Identity.known_destinations))+" known destinations from storage", RNS.LOG_VERBOSE)
 		else:
@@ -88,6 +88,10 @@ class Identity:
 		digest.update(data)
 
 		return digest.finalize()[:10]
+
+	@staticmethod
+	def getRandomHash():
+		return Identity.truncatedHash(os.urandom(10))
 
 	@staticmethod
 	def validateAnnounce(packet):
@@ -276,8 +280,3 @@ class Identity:
 
 		proof = RNS.Packet(destination, proof_data, RNS.Packet.PROOF)
 		proof.send()
-
-
-	def getRandomHash(self):
-		return self.truncatedHash(os.urandom(10))
-

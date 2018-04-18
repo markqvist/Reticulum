@@ -29,7 +29,7 @@ class Reticulum:
 		Reticulum.cachepath = Reticulum.configdir+"/storage/cache"
 
 		Reticulum.__allow_unencrypted = False
-		Reticulum.__use_implicit_proof = False
+		Reticulum.__use_implicit_proof = True
 
 		if not os.path.isdir(Reticulum.storagepath):
 			os.makedirs(Reticulum.storagepath)
@@ -41,7 +41,7 @@ class Reticulum:
 			self.config = ConfigObj(self.configpath)
 			RNS.log("Configuration loaded from "+self.configpath)
 		else:
-			RNS.log("Could not load config file, creating default configuration...")
+			RNS.log("Could not load config file, creating default configuration file...")
 			self.createDefaultConfig()
 			RNS.log("Default config file created. Make any necessary changes in "+Reticulum.configdir+"/config and start Reticulum again.")
 			RNS.log("Exiting now!")
@@ -244,10 +244,7 @@ class Reticulum:
 			except Exception as e:
 				RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
 				RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
-				#traceback.print_exc()
 				
-
-
 
 	def createDefaultConfig(self):
 		self.config = ConfigObj()

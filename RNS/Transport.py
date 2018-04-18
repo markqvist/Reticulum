@@ -115,18 +115,19 @@ class Transport:
 			if packet.packet_type == RNS.Packet.ANNOUNCE:
 				if RNS.Identity.validateAnnounce(packet):
 					Transport.cache(packet)
-
-			if packet.packet_type == RNS.Packet.LINKREQUEST:
+			
+			elif packet.packet_type == RNS.Packet.LINKREQUEST:
 				for destination in Transport.destinations:
 					if destination.hash == packet.destination_hash and destination.type == packet.destination_type:
 						packet.destination = destination
 						destination.receive(packet)
 						Transport.cache(packet)
 			
-			if packet.packet_type == RNS.Packet.DATA:
+			elif packet.packet_type == RNS.Packet.DATA:
 				if packet.destination_type == RNS.Destination.LINK:
 					for link in Transport.active_links:
 						if link.link_id == packet.destination_hash:
+							packet.link = link
 							link.receive(packet)
 							Transport.cache(packet)
 				else:
@@ -143,13 +144,17 @@ class Transport:
 								if destination.callbacks.proof_requested:
 									destination.callbacks.proof_requested(packet)
 
-			if packet.packet_type == RNS.Packet.PROOF:
-				if packet.header_type == RNS.Packet.HEADER_3:
+			elif packet.packet_type == RNS.Packet.PROOF:
+				if packet.context == RNS.Packet.LRPROOF:
 					# This is a link request proof, forward
 					# to a waiting link request
 					for link in Transport.pending_links:
 						if link.link_id == packet.destination_hash:
 							link.validateProof(packet)
+				elif packet.context == RNS.Packet.RESOURCE_PRF:
+					for link in Transport.active_links:
+						if link.link_id == packet.destination_hash:
+							link.receive(packet)
 				else:
 					# TODO: Make sure everything uses new proof handling
 					if len(packet.data) == RNS.PacketReceipt.EXPL_LENGTH:

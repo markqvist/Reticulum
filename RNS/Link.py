@@ -14,14 +14,20 @@ class LinkCallbacks:
 		self.link_established = None
 		self.packet = None
 		self.resource_started = None
-		self.resource_completed = None
+		self.resource_concluded = None
 
 class Link:
 	CURVE = ec.SECP256R1()
 	ECPUBSIZE = 91
+	BLOCKSIZE = 16
 
 	PENDING = 0x00
 	ACTIVE = 0x01
+
+	ACCEPT_NONE = 0x00
+	ACCEPT_APP = 0x01
+	ACCEPT_ALL = 0x02
+	resource_strategies = [ACCEPT_NONE, ACCEPT_APP, ACCEPT_ALL]
 
 	@staticmethod
 	def validateRequest(owner, data, packet):
@@ -40,6 +46,7 @@ class Link:
 
 			except Exception as e:
 				RNS.log("Validating link request failed", RNS.LOG_VERBOSE)
+				traceback.print_exc()
 				return None
 
 		else:
@@ -50,7 +57,11 @@ class Link:
 	def __init__(self, destination=None, owner=None, peer_pub_bytes = None):
 		if destination != None and destination.type != RNS.Destination.SINGLE:
 			raise TypeError("Links can only be established to the \"single\" destination type")
+		self.rtt = None
 		self.callbacks = LinkCallbacks()
+		self.resource_strategy = Link.ACCEPT_NONE
+		self.outgoing_resources = []
+		self.incoming_resources = []
 		self.status = Link.PENDING
 		self.type = RNS.Destination.LINK
 		self.owner = owner
@@ -109,7 +120,7 @@ class Link:
 		signature = self.owner.identity.sign(signed_data)
 
 		proof_data = self.pub_bytes+signature
-		proof = RNS.Packet(self, proof_data, packet_type=RNS.Packet.PROOF, header_type=RNS.Packet.HEADER_3)
+		proof = RNS.Packet(self, proof_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.LRPROOF)
 		proof.send()
 
 	def validateProof(self, packet):
@@ -122,9 +133,9 @@ class Link:
 			self.handshake()
 			self.attached_interface = packet.receiving_interface
 			RNS.Transport.activateLink(self)
+			RNS.log("Link "+str(self)+" established with "+str(self.destination), RNS.LOG_VERBOSE)
 			if self.callbacks.link_established != None:
 				self.callbacks.link_established(self)
-			RNS.log("Link "+str(self)+" established with "+str(self.destination), RNS.LOG_VERBOSE)
 		else:
 			RNS.log("Invalid link proof signature received by "+str(self), RNS.LOG_VERBOSE)
 
@@ -139,9 +150,60 @@ class Link:
 		if packet.receiving_interface != self.attached_interface:
 			RNS.log("Link-associated packet received on unexpected interface! Someone might be trying to manipulate your communication!", RNS.LOG_ERROR)
 		else:
-			plaintext = self.decrypt(packet.data)
-			if (self.callbacks.packet != None):
-				self.callbacks.packet(plaintext, packet)
+			if packet.packet_type == RNS.Packet.DATA:
+				if packet.context == RNS.Packet.NONE:
+					plaintext = self.decrypt(packet.data)
+					if (self.callbacks.packet != None):
+						self.callbacks.packet(plaintext, packet)
+
+				elif packet.context == RNS.Packet.RESOURCE_ADV:
+					packet.plaintext = self.decrypt(packet.data)
+					if self.resource_strategy == Link.ACCEPT_NONE:
+						pass
+					elif self.resource_strategy == Link.ACCEPT_APP:
+						if self.callbacks.resource != None:
+							self.callbacks.resource(packet)
+					elif self.resource_strategy == Link.ACCEPT_ALL:
+						RNS.Resource.accept(packet, self.callbacks.resource_concluded)
+
+				elif packet.context == RNS.Packet.RESOURCE_REQ:
+					plaintext = self.decrypt(packet.data)
+					if ord(plaintext[:1]) == RNS.Resource.HASHMAP_IS_EXHAUSTED:
+						resource_hash = plaintext[1+RNS.Resource.MAPHASH_LEN:RNS.Identity.HASHLENGTH/8+1+RNS.Resource.MAPHASH_LEN]
+					else:
+						resource_hash = plaintext[1:RNS.Identity.HASHLENGTH/8+1]
+					for resource in self.outgoing_resources:
+						if resource.hash == resource_hash:
+							resource.request(plaintext)
+
+				elif packet.context == RNS.Packet.RESOURCE_HMU:
+					plaintext = self.decrypt(packet.data)
+					resource_hash = plaintext[:RNS.Identity.HASHLENGTH/8]
+					for resource in self.incoming_resources:
+						if resource_hash == resource.hash:
+							resource.hashmap_update_packet(plaintext)
+
+				elif packet.context == RNS.Packet.RESOURCE_ICL:
+					plaintext = self.decrypt(packet.data)
+					resource_hash = plaintext[:RNS.Identity.HASHLENGTH/8]
+					for resource in self.incoming_resources:
+						if resource_hash == resource.hash:
+							resource.cancel()
+
+				# TODO: find the most efficient way to allow multiple
+				# transfers at the same time, sending resource hash on
+				# each packet is a huge overhead
+				elif packet.context == RNS.Packet.RESOURCE:
+					for resource in self.incoming_resources:
+						resource.receive_part(packet)
+
+			elif packet.packet_type == RNS.Packet.PROOF:
+				if packet.context == RNS.Packet.RESOURCE_PRF:
+					resource_hash = packet.data[0:RNS.Identity.HASHLENGTH/8]
+					for resource in self.outgoing_resources:
+						if resource_hash == resource.hash:
+							resource.validateProof(packet.data)
+
 
 	def encrypt(self, plaintext):
 		if self.__encryption_disabled:
@@ -170,11 +232,43 @@ class Link:
 	def packet_callback(self, callback):
 		self.callbacks.packet = callback
 
+	# Called when an incoming resource transfer is started
 	def resource_started_callback(self, callback):
 		self.callbacks.resource_started = callback
 
-	def resource_completed_callback(self, callback):
-		self.callbacks.resource_completed = callback
+	# Called when a resource transfer is concluded
+	def resource_concluded_callback(self, callback):
+		self.callbacks.resource_concluded = callback
+
+	def setResourceStrategy(self, resource_strategy):
+		if not resource_strategy in Link.resource_strategies:
+			raise TypeError("Unsupported resource strategy")
+		else:
+			self.resource_strategy = resource_strategy
+
+	def register_outgoing_resource(self, resource):
+		self.outgoing_resources.append(resource)
+
+	def register_incoming_resource(self, resource):
+		self.incoming_resources.append(resource)
+
+	def cancel_outgoing_resource(self, resource):
+		if resource in self.outgoing_resources:
+			self.outgoing_resources.remove(resource)
+		else:
+			RNS.log("Attempt to cancel a non-existing incoming resource", RNS.LOG_ERROR)
+
+	def cancel_incoming_resource(self, resource):
+		if resource in self.incoming_resources:
+			self.incoming_resources.remove(resource)
+		else:
+			RNS.log("Attempt to cancel a non-existing incoming resource", RNS.LOG_ERROR)
+
+	def ready_for_new_resource(self):
+		if len(self.outgoing_resources) > 0:
+			return False
+		else:
+			return True
 
 	def disableEncryption(self):
 		if (RNS.Reticulum.should_allow_unencrypted()):
@@ -184,6 +278,9 @@ class Link:
 			RNS.log("Attempt to disable encryption on link, but encryptionless links are not allowed by config.", RNS.LOG_CRITICAL)
 			RNS.log("Shutting down Reticulum now!", RNS.LOG_CRITICAL)
 			RNS.panic()
+
+	def encryption_disabled(self):
+		return self.__encryption_disabled
 
 	def __str__(self):
 		return RNS.prettyhexrep(self.link_id)

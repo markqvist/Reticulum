@@ -201,7 +201,7 @@ class Destination:
 	# Application specific data can be added to the announce.
 	def announce(self,app_data=None):
 		destination_hash = self.hash
-		random_hash = self.identity.getRandomHash()
+		random_hash = RNS.Identity.getRandomHash()
 		
 		signed_data = self.hash+self.identity.getPublicKey()+random_hash
 		if app_data != None:

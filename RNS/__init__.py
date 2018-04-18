@@ -10,6 +10,7 @@ from .Transport import Transport
 from .Destination import Destination
 from .Packet import Packet
 from .Packet import PacketReceipt
+from .Resource import Resource
 
 modules = glob.glob(os.path.dirname(__file__)+"/*.py")
 __all__ = [ os.path.basename(f)[:-3] for f in modules if not f.endswith('__init__.py')]
