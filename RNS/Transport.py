@@ -98,6 +98,13 @@ class Transport:
 		return sent
 
 	@staticmethod
+	def packet_filter(packet):
+		if packet.context == RNS.Packet.KEEPALIVE:
+			return True
+		if not packet.packet_hash in Transport.packet_hashlist:
+			return True
+
+	@staticmethod
 	def inbound(raw, interface=None):
 		while (Transport.jobs_running):
 			sleep(0.1)
@@ -111,7 +118,7 @@ class Transport:
 
 		RNS.log(str(interface)+" received packet with hash "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_DEBUG)
 
-		if not packet.packet_hash in Transport.packet_hashlist:
+		if Transport.packet_filter(packet):
 			Transport.packet_hashlist.append(packet.packet_hash)
 			
 			if packet.packet_type == RNS.Packet.ANNOUNCE:

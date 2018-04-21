@@ -29,6 +29,7 @@ class Packet:
 	RESPONSE     = 0x09
 	COMMAND      = 0x0A
 	COMMAND_STAT = 0x0B
+	KEEPALIVE    = 0xFC
 	LINKCLOSE    = 0xFD
 	LRRTT		 = 0xFE
 	LRPROOF      = 0xFF
@@ -98,6 +99,10 @@ class Packet:
 					# A resource takes care of symmetric
 					# encryption by itself
 					self.ciphertext = self.data
+				elif self.context == Packet.KEEPALIVE:
+					# Keepalive packets contain no actual
+					# data
+					self.ciphertext = self.data
 				else:
 					# In all other cases, we encrypt the packet
 					# with the destination's public key
@@ -148,6 +153,11 @@ class Packet:
 			if self.destination.type == RNS.Destination.LINK:
 				if self.destination.status == RNS.Link.CLOSED:
 					raise IOError("Attempt to transmit over a closed link")
+				else:
+					self.destination.last_outbound = time.time()
+					self.destination.tx += 1
+					self.destination.txbytes += len(self.data)
+
 			if not self.packed:
 				self.pack()
 	
