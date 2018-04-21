@@ -4,7 +4,9 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.fernet import Fernet
+import vendor.umsgpack as umsgpack
 import base64
+import time
 import RNS
 
 import traceback
@@ -12,6 +14,7 @@ import traceback
 class LinkCallbacks:
 	def __init__(self):
 		self.link_established = None
+		self.link_closed = None
 		self.packet = None
 		self.resource_started = None
 		self.resource_concluded = None
@@ -21,8 +24,11 @@ class Link:
 	ECPUBSIZE = 91
 	BLOCKSIZE = 16
 
-	PENDING = 0x00
-	ACTIVE = 0x01
+	PENDING   = 0x00
+	HANDSHAKE = 0x01
+	ACTIVE    = 0x02
+	STALE     = 0x03
+	CLOSED    = 0x04
 
 	ACCEPT_NONE = 0x00
 	ACCEPT_APP = 0x01
@@ -39,6 +45,7 @@ class Link:
 				link.handshake()
 				link.attached_interface = packet.receiving_interface
 				link.prove()
+				link.request_time = time.time()
 				RNS.Transport.registerLink(link)
 				if link.owner.callbacks.link_established != None:
 					link.owner.callbacks.link_established(link)
@@ -92,6 +99,7 @@ class Link:
 			self.packet.pack()
 			self.setLinkID(self.packet)
 			RNS.Transport.registerLink(self)
+			self.request_time = time.time()
 			self.packet.send()
 			RNS.log("Link request "+RNS.prettyhexrep(self.link_id)+" sent to "+str(self.destination), RNS.LOG_VERBOSE)
 
@@ -106,6 +114,7 @@ class Link:
 		self.hash = self.link_id
 
 	def handshake(self):
+		self.status = Link.HANDSHAKE
 		self.shared_key = self.prv.exchange(ec.ECDH(), self.peer_pub)
 		self.derived_key = HKDF(
 			algorithm=hashes.SHA256(),
@@ -131,14 +140,39 @@ class Link:
 		if self.destination.identity.validate(signature, signed_data):
 			self.loadPeer(peer_pub_bytes)
 			self.handshake()
+			self.rtt = time.time() - self.request_time
 			self.attached_interface = packet.receiving_interface
 			RNS.Transport.activateLink(self)
-			RNS.log("Link "+str(self)+" established with "+str(self.destination), RNS.LOG_VERBOSE)
+			RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(self.rtt), RNS.LOG_VERBOSE)
+			rtt_data = umsgpack.packb(self.rtt)
+			rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
+			rtt_packet.send()
+
+			self.status = Link.ACTIVE
 			if self.callbacks.link_established != None:
 				self.callbacks.link_established(self)
 		else:
 			RNS.log("Invalid link proof signature received by "+str(self), RNS.LOG_VERBOSE)
+			# TODO: should we really do this, or just wait
+			# for a valid one? Needs analysis.
+			self.teardown()
 
+
+	def rtt_packet(self, packet):
+		try:
+			# TODO: This is crude, we should use the delta
+			# to model a more representative per-bit round
+			# trip time, and use that to set a sensible RTT
+			# expectancy for the link. This will have to do
+			# for now though.
+			measured_rtt = time.time() - self.request_time
+			plaintext = self.decrypt(packet.data)
+			rtt = umsgpack.unpackb(plaintext)
+			#RNS.log("Measured RTT is "+str(measured_rtt)+", received RTT is "+str(rtt))
+			self.rtt = max(measured_rtt, rtt)
+			self.status = Link.ACTIVE
+		except Exception as e:
+			self.teardown()
 
 	def getSalt(self):
 		return self.link_id
@@ -146,63 +180,99 @@ class Link:
 	def getContext(self):
 		return None
 
+	def teardown(self):
+		if self.status != Link.PENDING:
+			teardown_packet = RNS.Packet(self, self.link_id, context=RNS.Packet.LINKCLOSE)
+			teardown_packet.send()
+		self.status = Link.CLOSED
+		self.link_closed()
+
+	def teardown_packet(self, packet):
+		try:
+			plaintext = self.decrypt(packet.data)
+			if plaintext == self.link_id:
+				self.status = Link.CLOSED
+				self.link_closed()
+		except Exception as e:
+			pass
+
+	def link_closed(self):
+		self.prv = None
+		self.pub = None
+		self.pub_bytes = None
+		self.shared_key = None
+		self.derived_key = None
+
+		if self.callbacks.link_closed != None:
+			self.callbacks.link_closed(self)
+
+
 	def receive(self, packet):
-		if packet.receiving_interface != self.attached_interface:
-			RNS.log("Link-associated packet received on unexpected interface! Someone might be trying to manipulate your communication!", RNS.LOG_ERROR)
-		else:
-			if packet.packet_type == RNS.Packet.DATA:
-				if packet.context == RNS.Packet.NONE:
-					plaintext = self.decrypt(packet.data)
-					if (self.callbacks.packet != None):
-						self.callbacks.packet(plaintext, packet)
+		if not self.status == Link.CLOSED:
+			if packet.receiving_interface != self.attached_interface:
+				RNS.log("Link-associated packet received on unexpected interface! Someone might be trying to manipulate your communication!", RNS.LOG_ERROR)
+			else:
+				if packet.packet_type == RNS.Packet.DATA:
+					if packet.context == RNS.Packet.NONE:
+						plaintext = self.decrypt(packet.data)
+						if (self.callbacks.packet != None):
+							self.callbacks.packet(plaintext, packet)
 
-				elif packet.context == RNS.Packet.RESOURCE_ADV:
-					packet.plaintext = self.decrypt(packet.data)
-					if self.resource_strategy == Link.ACCEPT_NONE:
-						pass
-					elif self.resource_strategy == Link.ACCEPT_APP:
-						if self.callbacks.resource != None:
-							self.callbacks.resource(packet)
-					elif self.resource_strategy == Link.ACCEPT_ALL:
-						RNS.Resource.accept(packet, self.callbacks.resource_concluded)
+					elif packet.context == RNS.Packet.LRRTT:
+						if not self.initiator:
+							self.rtt_packet(packet)
 
-				elif packet.context == RNS.Packet.RESOURCE_REQ:
-					plaintext = self.decrypt(packet.data)
-					if ord(plaintext[:1]) == RNS.Resource.HASHMAP_IS_EXHAUSTED:
-						resource_hash = plaintext[1+RNS.Resource.MAPHASH_LEN:RNS.Identity.HASHLENGTH/8+1+RNS.Resource.MAPHASH_LEN]
-					else:
-						resource_hash = plaintext[1:RNS.Identity.HASHLENGTH/8+1]
-					for resource in self.outgoing_resources:
-						if resource.hash == resource_hash:
-							resource.request(plaintext)
+					elif packet.context == RNS.Packet.LINKCLOSE:
+						self.teardown_packet(packet)
 
-				elif packet.context == RNS.Packet.RESOURCE_HMU:
-					plaintext = self.decrypt(packet.data)
-					resource_hash = plaintext[:RNS.Identity.HASHLENGTH/8]
-					for resource in self.incoming_resources:
-						if resource_hash == resource.hash:
-							resource.hashmap_update_packet(plaintext)
+					elif packet.context == RNS.Packet.RESOURCE_ADV:
+						packet.plaintext = self.decrypt(packet.data)
+						if self.resource_strategy == Link.ACCEPT_NONE:
+							pass
+						elif self.resource_strategy == Link.ACCEPT_APP:
+							if self.callbacks.resource != None:
+								self.callbacks.resource(packet)
+						elif self.resource_strategy == Link.ACCEPT_ALL:
+							RNS.Resource.accept(packet, self.callbacks.resource_concluded)
 
-				elif packet.context == RNS.Packet.RESOURCE_ICL:
-					plaintext = self.decrypt(packet.data)
-					resource_hash = plaintext[:RNS.Identity.HASHLENGTH/8]
-					for resource in self.incoming_resources:
-						if resource_hash == resource.hash:
-							resource.cancel()
+					elif packet.context == RNS.Packet.RESOURCE_REQ:
+						plaintext = self.decrypt(packet.data)
+						if ord(plaintext[:1]) == RNS.Resource.HASHMAP_IS_EXHAUSTED:
+							resource_hash = plaintext[1+RNS.Resource.MAPHASH_LEN:RNS.Identity.HASHLENGTH/8+1+RNS.Resource.MAPHASH_LEN]
+						else:
+							resource_hash = plaintext[1:RNS.Identity.HASHLENGTH/8+1]
+						for resource in self.outgoing_resources:
+							if resource.hash == resource_hash:
+								resource.request(plaintext)
 
-				# TODO: find the most efficient way to allow multiple
-				# transfers at the same time, sending resource hash on
-				# each packet is a huge overhead
-				elif packet.context == RNS.Packet.RESOURCE:
-					for resource in self.incoming_resources:
-						resource.receive_part(packet)
+					elif packet.context == RNS.Packet.RESOURCE_HMU:
+						plaintext = self.decrypt(packet.data)
+						resource_hash = plaintext[:RNS.Identity.HASHLENGTH/8]
+						for resource in self.incoming_resources:
+							if resource_hash == resource.hash:
+								resource.hashmap_update_packet(plaintext)
 
-			elif packet.packet_type == RNS.Packet.PROOF:
-				if packet.context == RNS.Packet.RESOURCE_PRF:
-					resource_hash = packet.data[0:RNS.Identity.HASHLENGTH/8]
-					for resource in self.outgoing_resources:
-						if resource_hash == resource.hash:
-							resource.validateProof(packet.data)
+					elif packet.context == RNS.Packet.RESOURCE_ICL:
+						plaintext = self.decrypt(packet.data)
+						resource_hash = plaintext[:RNS.Identity.HASHLENGTH/8]
+						for resource in self.incoming_resources:
+							if resource_hash == resource.hash:
+								resource.cancel()
+
+					# TODO: find the most efficient way to allow multiple
+					# transfers at the same time, sending resource hash on
+					# each packet is a huge overhead. Probably some kind
+					# of hash -> sequence map
+					elif packet.context == RNS.Packet.RESOURCE:
+						for resource in self.incoming_resources:
+							resource.receive_part(packet)
+
+				elif packet.packet_type == RNS.Packet.PROOF:
+					if packet.context == RNS.Packet.RESOURCE_PRF:
+						resource_hash = packet.data[0:RNS.Identity.HASHLENGTH/8]
+						for resource in self.outgoing_resources:
+							if resource_hash == resource.hash:
+								resource.validateProof(packet.data)
 
 
 	def encrypt(self, plaintext):
@@ -228,6 +298,9 @@ class Link:
 
 	def link_established_callback(self, callback):
 		self.callbacks.link_established = callback
+
+	def link_closed_callback(self, callback):
+		self.callbacks.link_closed = callback
 
 	def packet_callback(self, callback):
 		self.callbacks.packet = callback

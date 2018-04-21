@@ -74,6 +74,8 @@ class Transport:
 			if interface.OUT:
 				should_transmit = True
 				if packet.destination.type == RNS.Destination.LINK:
+					if packet.destination.status == RNS.Link.CLOSED:
+						should_transmit = False
 					if interface != packet.destination.attached_interface:
 						should_transmit = False
 

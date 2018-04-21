@@ -29,6 +29,8 @@ class Packet:
 	RESPONSE     = 0x09
 	COMMAND      = 0x0A
 	COMMAND_STAT = 0x0B
+	LINKCLOSE    = 0xFD
+	LRRTT		 = 0xFE
 	LRPROOF      = 0xFF
 
 	HEADER_MAXSIZE = 23
@@ -143,6 +145,9 @@ class Packet:
 
 	def send(self):
 		if not self.sent:
+			if self.destination.type == RNS.Destination.LINK:
+				if self.destination.status == RNS.Link.CLOSED:
+					raise IOError("Attempt to transmit over a closed link")
 			if not self.packed:
 				self.pack()
 	
