@@ -123,7 +123,6 @@ class Destination:
 	def incomingLinkRequest(self, data, packet):
 		link = RNS.Link.validateRequest(self, data, packet)
 		if link != None:
-			RNS.log(str(self)+" accepted link request", RNS.LOG_DEBUG)
 			self.links.append(link)
 
 	def createKeys(self):

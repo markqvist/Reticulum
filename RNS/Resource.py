@@ -364,8 +364,9 @@ class Resource:
 	def cancel(self):
 		self.status = Resource.FAILED
 		if self.initiator:
-			cancel_packet = RNS.Packet(self.link, self.hash, context=RNS.Packet.RESOURCE_ICL)
-			cancel_packet.send()
+			if self.link.status == RNS.Link.ACTIVE:
+				cancel_packet = RNS.Packet(self.link, self.hash, context=RNS.Packet.RESOURCE_ICL)
+				cancel_packet.send()
 			self.link.cancel_outgoing_resource(self)
 		else:
 			self.link.cancel_incoming_resource(self)

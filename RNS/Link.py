@@ -65,7 +65,9 @@ class Link:
 
 				if link.owner.callbacks.link_established != None:
 					link.owner.callbacks.link_established(link)
+				
 				RNS.log("Incoming link request "+str(link)+" accepted", RNS.LOG_VERBOSE)
+				return link
 
 			except Exception as e:
 				RNS.log("Validating link request failed", RNS.LOG_VERBOSE)
@@ -232,6 +234,11 @@ class Link:
 			pass
 
 	def link_closed(self):
+		for resource in self.incoming_resources:
+			resource.cancel()
+		for resource in self.outgoing_resources:
+			resource.cancel()
+			
 		self.prv = None
 		self.pub = None
 		self.pub_bytes = None
