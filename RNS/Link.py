@@ -29,8 +29,8 @@ class Link:
 	# TODO: This should not be hardcoded,
 	# but calculated from something like 
 	# first-hop RTT latency and distance 
-	PROOF_TIMEOUT = 10
-	TIMEOUT_FACTOR = 4
+	DEFAULT_TIMEOUT = 5
+	TIMEOUT_FACTOR = 3
 	KEEPALIVE = 120
 
 	PENDING   = 0x00
@@ -93,7 +93,8 @@ class Link:
 		self.rx = 0
 		self.txbytes = 0
 		self.rxbytes = 0
-		self.proof_timeout = Link.PROOF_TIMEOUT
+		self.default_timeout = Link.DEFAULT_TIMEOUT
+		self.proof_timeout = self.default_timeout
 		self.timeout_factor = Link.TIMEOUT_FACTOR
 		self.keepalive = Link.KEEPALIVE
 		self.watchdog_lock = False
@@ -275,7 +276,7 @@ class Link:
 					next_check = self.request_time + self.proof_timeout
 					sleep_time = next_check - time.time()
 					if time.time() >= self.request_time + self.proof_timeout:
-						RNS.log("Timeout waiting for RTT packet from link initiator", RNS.LOG_VERBOSE)
+						#RNS.log("Timeout waiting for RTT packet from link initiator", RNS.LOG_DEBUG)
 						self.status = Link.CLOSED
 						self.teardown_reason = Link.TIMEOUT
 						self.link_closed()

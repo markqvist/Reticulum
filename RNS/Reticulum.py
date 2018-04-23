@@ -63,8 +63,8 @@ class Reticulum:
 					RNS.loglevel = int(value)
 					if RNS.loglevel < 0:
 						RNS.loglevel = 0
-					if RNS.loglevel > 6:
-						RNS.loglevel = 6
+					if RNS.loglevel > 7:
+						RNS.loglevel = 7
 
 		if "reticulum" in self.config:
 			for option in self.config["reticulum"]:

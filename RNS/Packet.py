@@ -17,22 +17,23 @@ class Packet:
 	header_types = [HEADER_1, HEADER_2, HEADER_3, HEADER_4]
 
 	# Context types
-	NONE 		 = 0x00
-	RESOURCE     = 0x01
-	RESOURCE_ADV = 0x02
-	RESOURCE_REQ = 0x03
-	RESOURCE_HMU = 0x04
-	RESOURCE_PRF = 0x05
-	RESOURCE_ICL = 0x06
-	RESOURCE_RCL = 0x07
-	REQUEST      = 0x08
-	RESPONSE     = 0x09
-	COMMAND      = 0x0A
-	COMMAND_STAT = 0x0B
-	KEEPALIVE    = 0xFC
-	LINKCLOSE    = 0xFD
-	LRRTT		 = 0xFE
-	LRPROOF      = 0xFF
+	NONE 		  = 0x00
+	RESOURCE      = 0x01
+	RESOURCE_ADV  = 0x02
+	RESOURCE_REQ  = 0x03
+	RESOURCE_HMU  = 0x04
+	RESOURCE_PRF  = 0x05
+	RESOURCE_ICL  = 0x06
+	RESOURCE_RCL  = 0x07
+	CACHE_REQUEST = 0x08
+	REQUEST       = 0x09
+	RESPONSE      = 0x0A
+	COMMAND       = 0x0B
+	COMMAND_STAT  = 0x0C
+	KEEPALIVE     = 0xFC
+	LINKCLOSE     = 0xFD
+	LRRTT		  = 0xFE
+	LRPROOF       = 0xFF
 
 	HEADER_MAXSIZE = 23
 
@@ -171,7 +172,11 @@ class Packet:
 
 	def resend(self):
 		if self.sent:
-			Transport.outbound(self.raw)
+			if RNS.Transport.outbound(self):
+				return self.receipt
+			else:
+				# TODO: Don't raise error here, handle gracefully
+				raise IOError("Packet could not be sent! Do you have any outbound interfaces configured?")
 		else:
 			raise IOError("Packet was not sent yet")
 
@@ -198,6 +203,8 @@ class Packet:
 		return RNS.Identity.fullHash(self.getHashablePart())
 
 	def getHashablePart(self):
+		# TODO: This assumes transport headers are stripped
+		# by Transport before going anywhere else
 		return self.raw[0:1]+self.raw[2:]
 
 class ProofDestination:

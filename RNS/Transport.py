@@ -1,3 +1,4 @@
+import os
 import RNS
 import time
 import threading
@@ -64,7 +65,7 @@ class Transport:
 	@staticmethod
 	def outbound(packet):
 		while (Transport.jobs_running):
-			sleep(0.1)
+			sleep(0.01)
 
 		Transport.jobs_locked = True
 		packet.updateHash()
@@ -101,8 +102,14 @@ class Transport:
 	def packet_filter(packet):
 		if packet.context == RNS.Packet.KEEPALIVE:
 			return True
+		if packet.context == RNS.Packet.RESOURCE_REQ:
+			return True
+		if packet.context == RNS.Packet.RESOURCE_PRF:
+			return True
 		if not packet.packet_hash in Transport.packet_hashlist:
 			return True
+
+		return False
 
 	@staticmethod
 	def inbound(raw, interface=None):
@@ -116,8 +123,9 @@ class Transport:
 		packet.updateHash()
 		packet.receiving_interface = interface
 
-		RNS.log(str(interface)+" received packet with hash "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_DEBUG)
+		RNS.log(str(interface)+" received packet with hash "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_EXTREME)
 
+		# TODO: Rewrite these redundant cache calls
 		if Transport.packet_filter(packet):
 			Transport.packet_hashlist.append(packet.packet_hash)
 			
@@ -216,6 +224,9 @@ class Transport:
 	def shouldCache(packet):
 		# TODO: Implement sensible rules for which
 		# packets to cache
+		if packet.context == RNS.Packet.RESOURCE_PRF:
+			return True
+
 		return False
 
 	@staticmethod
@@ -226,8 +237,37 @@ class Transport:
 				file = open(RNS.Reticulum.cachepath+"/"+packet_hash, "w")
 				file.write(packet.raw)
 				file.close()
-				RNS.log("Wrote packet "+packet_hash+" to cache", RNS.LOG_DEBUG)
+				RNS.log("Wrote packet "+packet_hash+" to cache", RNS.LOG_EXTREME)
 			except Exception as e:
 				RNS.log("Error writing packet to cache", RNS.LOG_ERROR)
 				RNS.log("The contained exception was: "+str(e))
 
+	@staticmethod
+	def cache_request_packet(packet):
+		if len(packet.data) == RNS.Identity.HASHLENGTH/8:
+			packet_hash = RNS.hexrep(packet.data, delimit=False)
+			path = RNS.Reticulum.cachepath+"/"+packet_hash
+			if os.path.isfile(path):
+				file = open(path, "r")
+				raw = file.read()
+				file.close()
+				packet = RNS.Packet(None, raw)
+				# TODO: Implement outbound for this
+
+
+	@staticmethod
+	def cache_request(packet_hash):
+		RNS.log("Cache request for "+RNS.prettyhexrep(packet_hash), RNS.LOG_EXTREME)
+		path = RNS.Reticulum.cachepath+"/"+RNS.hexrep(packet_hash, delimit=False)
+		if os.path.isfile(path):
+			file = open(path, "r")
+			raw = file.read()
+			Transport.inbound(raw)
+			file.close()
+		else:
+			cache_request_packet = RNS.Packet(Transport.transport_destination(), packet_hash, context = RNS.Packet.CACHE_REQUEST)
+
+	@staticmethod
+	def transport_destination():
+		# TODO: implement this
+		pass
