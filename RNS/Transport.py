@@ -3,6 +3,7 @@ import RNS
 import time
 import threading
 from time import sleep
+import vendor.umsgpack as umsgpack
 
 class Transport:
 	# Constants
@@ -41,6 +42,15 @@ class Transport:
 				Transport.identity.save(transport_identity_path)
 			else:
 				RNS.log("Loaded Transport Identity from disk", RNS.LOG_VERBOSE)
+
+		packet_hashlist_path = RNS.Reticulum.configdir+"/packet_hashlist"
+		if os.path.isfile(packet_hashlist_path):
+			try:
+				file = open(packet_hashlist_path, "r")
+				Transport.packet_hashlist = umsgpack.unpackb(file.read())
+				file.close()
+			except Exception as e:
+				RNS.log("Could not load packet hashlist from disk, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
 
 		thread = threading.Thread(target=Transport.jobloop)
@@ -288,3 +298,13 @@ class Transport:
 	def transport_destination():
 		# TODO: implement this
 		pass
+
+	@staticmethod
+	def exitHandler():
+		try:
+			packet_hashlist_path = RNS.Reticulum.configdir+"/packet_hashlist"
+			file = open(packet_hashlist_path, "w")
+			file.write(umsgpack.packb(Transport.packet_hashlist))
+			file.close()
+		except Exception as e:
+			RNS.log("Could not save packet hashlist to disk, the contained exception was: "+str(e), RNS.LOG_ERROR)

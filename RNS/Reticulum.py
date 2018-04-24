@@ -53,6 +53,7 @@ class Reticulum:
 
 		RNS.Transport.start()
 
+		atexit.register(RNS.Transport.exitHandler)
 		atexit.register(RNS.Identity.exitHandler)
 
 	def applyConfig(self):

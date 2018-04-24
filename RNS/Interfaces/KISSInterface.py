@@ -151,7 +151,7 @@ class KISSInterface(Interface):
 		if written != len(kiss_command):
 			raise IOError("Could not configure KISS interface slot time to "+str(slottime_ms)+" (command value "+str(slottime)+")")
 
-		def setFlowControl(self, flow_control):
+	def setFlowControl(self, flow_control):
 		kiss_command = KISS.FEND+KISS.CMD_READY+chr(0x01)+KISS.FEND
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
