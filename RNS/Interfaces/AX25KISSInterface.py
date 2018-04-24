@@ -8,19 +8,20 @@ import time
 import RNS
 
 class KISS():
-	FEND			= chr(0xC0)
-	FESC			= chr(0xDB)
-	TFEND			= chr(0xDC)
-	TFESC			= chr(0xDD)
-	CMD_UNKNOWN		= chr(0xFE)
-	CMD_DATA		= chr(0x00)
-	CMD_TXDELAY		= chr(0x01)
-	CMD_P			= chr(0x02)
-	CMD_SLOTTIME	= chr(0x03)
-	CMD_TXTAIL		= chr(0x04)
-	CMD_FULLDUPLEX	= chr(0x05)
-	CMD_SETHARDWARE	= chr(0x06)
-	CMD_RETURN		= chr(0xFF)
+	FEND			  = chr(0xC0)
+	FESC			  = chr(0xDB)
+	TFEND			  = chr(0xDC)
+	TFESC			  = chr(0xDD)
+	CMD_UNKNOWN		  = chr(0xFE)
+	CMD_DATA		  = chr(0x00)
+	CMD_TXDELAY		  = chr(0x01)
+	CMD_P			  = chr(0x02)
+	CMD_SLOTTIME	  = chr(0x03)
+	CMD_TXTAIL		  = chr(0x04)
+	CMD_FULLDUPLEX	  = chr(0x05)
+	CMD_SETHARDWARE	  = chr(0x06)
+	CMD_READY         = chr(0x0F)
+	CMD_RETURN		  = chr(0xFF)
 
 class AX25():
 	PID_NOLAYER3	= chr(0xF0)
@@ -39,7 +40,7 @@ class AX25KISSInterface(Interface):
 	stopbits = None
 	serial   = None
 
-	def __init__(self, owner, name, callsign, ssid, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime):
+	def __init__(self, owner, name, callsign, ssid, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime, flow_control):
 		self.serial   = None
 		self.owner    = owner
 		self.name	  = name
@@ -54,6 +55,10 @@ class AX25KISSInterface(Interface):
 		self.stopbits = stopbits
 		self.timeout  = 100
 		self.online   = False
+
+		self.packet_queue    = []
+		self.flow_control    = flow_control
+		self.interface_ready = False
 
 		if (len(self.src_call) < 3 or len(self.src_call) > 6):
 			raise ValueError("Invalid callsign for "+str(self))
@@ -104,6 +109,8 @@ class AX25KISSInterface(Interface):
 			self.setTxTail(self.txtail)
 			self.setPersistence(self.persistence)
 			self.setSlotTime(self.slottime)
+			self.setFlowControl(self.flow_control)
+			self.interface_ready = True
 			RNS.log("AX.25 KISS interface configured")
 			sleep(2)
 		else:
@@ -160,6 +167,15 @@ class AX25KISSInterface(Interface):
 		if written != len(kiss_command):
 			raise IOError("Could not configure AX.25 KISS interface slot time to "+str(slottime_ms)+" (command value "+str(slottime)+")")
 
+	def setFlowControl(self, flow_control):
+		kiss_command = KISS.FEND+KISS.CMD_READY+chr(0x01)+KISS.FEND
+		written = self.serial.write(kiss_command)
+		if written != len(kiss_command):
+			if (flow_control):
+				raise IOError("Could not enable AX.25 KISS interface flow control")
+			else:
+				raise IOError("Could not enable AX.25 KISS interface flow control")
+
 
 	def processIncoming(self, data):
 		if (len(data) > 16):
@@ -168,37 +184,53 @@ class AX25KISSInterface(Interface):
 
 	def processOutgoing(self,data):
 		if self.online:
-			# gen src/dst
+			if self.interface_ready:
+				if self.flow_control:
+					self.interface_ready = False
 
-			encoded_dst_ssid = 0x60 | (self.dst_ssid << 1)
-			encoded_src_ssid = 0x60 | (self.src_ssid << 1) | 0x01
+				encoded_dst_ssid = 0x60 | (self.dst_ssid << 1)
+				encoded_src_ssid = 0x60 | (self.src_ssid << 1) | 0x01
 
-			addr = ""
+				addr = ""
 
-			for i in range(0,6):
-				if (i < len(self.dst_call)):
-					addr += chr(ord(self.dst_call[i])<<1)
-				else:
-					addr += chr(0x20)
-			addr += chr(encoded_dst_ssid)
+				for i in range(0,6):
+					if (i < len(self.dst_call)):
+						addr += chr(ord(self.dst_call[i])<<1)
+					else:
+						addr += chr(0x20)
+				addr += chr(encoded_dst_ssid)
 
-			for i in range(0,6):
-				if (i < len(self.src_call)):
-					addr += chr(ord(self.src_call[i])<<1)
-				else:
-					addr += chr(0x20)
-			addr += chr(encoded_src_ssid)
+				for i in range(0,6):
+					if (i < len(self.src_call)):
+						addr += chr(ord(self.src_call[i])<<1)
+					else:
+						addr += chr(0x20)
+				addr += chr(encoded_src_ssid)
 
-			data = addr+AX25.CTRL_UI+AX25.PID_NOLAYER3+data
+				data = addr+AX25.CTRL_UI+AX25.PID_NOLAYER3+data
 
-			data = data.replace(chr(0xdb), chr(0xdb)+chr(0xdd))
-			data = data.replace(chr(0xc0), chr(0xdb)+chr(0xdc))
-			kiss_frame = chr(0xc0)+chr(0x00)+data+chr(0xc0)
+				data = data.replace(chr(0xdb), chr(0xdb)+chr(0xdd))
+				data = data.replace(chr(0xc0), chr(0xdb)+chr(0xdc))
+				kiss_frame = chr(0xc0)+chr(0x00)+data+chr(0xc0)
 
-			written = self.serial.write(kiss_frame)
-			if written != len(kiss_frame):
-				raise IOError("AX.25 interface only wrote "+str(written)+" bytes of "+str(len(kiss_frame)))
+				written = self.serial.write(kiss_frame)
+				if written != len(kiss_frame):
+					if self.flow_control:
+						self.interface_ready = True
+					raise IOError("AX.25 interface only wrote "+str(written)+" bytes of "+str(len(kiss_frame)))
+			else:
+				self.queue(data)
 
+	def queue(self, data):
+		self.packet_queue.append(data)
+
+	def process_queue(self):
+		if len(self.packet_queue) > 0:
+			data = self.packet_queue.pop(0)
+			self.interface_ready = True
+			self.processOutgoing(data)
+		elif len(self.packet_queue) == 0:
+			self.interface_ready = True
 
 	def readLoop(self):
 		try:
@@ -237,6 +269,10 @@ class AX25KISSInterface(Interface):
 										byte = KISS.FESC
 									escape = False
 								data_buffer = data_buffer+byte
+						elif (command == KISS.CMD_READY):
+							# TODO: add timeout and reset if ready
+							# command never arrives
+							self.process_queue()
 				else:
 					time_since_last = int(time.time()*1000) - last_read_ms
 					if len(data_buffer) > 0 and time_since_last > self.timeout:

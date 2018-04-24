@@ -26,11 +26,28 @@ class Transport:
 	receipts_check_interval = 1.0
 	hashlist_maxsize        = 1000000
 
+	identity = None
+
 	@staticmethod
-	def scheduleJobs():
+	def start():
+		if Transport.identity == None:
+			transport_identity_path = RNS.Reticulum.configdir+"/transportidentity"
+			if os.path.isfile(transport_identity_path):
+				Transport.identity = RNS.Identity.from_file(transport_identity_path)				
+
+			if Transport.identity == None:
+				RNS.log("No valid Transport Identity on disk, creating...", RNS.LOG_VERBOSE)
+				Transport.identity = RNS.Identity()
+				Transport.identity.save(transport_identity_path)
+			else:
+				RNS.log("Loaded Transport Identity from disk", RNS.LOG_VERBOSE)
+
+
 		thread = threading.Thread(target=Transport.jobloop)
 		thread.setDaemon(True)
 		thread.start()
+
+		RNS.log("Transport instance "+str(Transport.identity)+" started")
 
 	@staticmethod
 	def jobloop():

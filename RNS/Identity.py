@@ -26,18 +26,6 @@ class Identity:
 	# Storage
 	known_destinations = {}
 
-	def __init__(self,public_only=False):
-		# Initialize keys to none
-		self.prv = None
-		self.pub = None
-		self.prv_bytes = None
-		self.pub_bytes = None
-		self.hash = None
-		self.hexhash = None
-
-		if not public_only:
-			self.createKeys()
-
 	@staticmethod
 	def remember(packet_hash, destination_hash, public_key, app_data = None):
 		RNS.log("Remembering "+RNS.prettyhexrep(destination_hash), RNS.LOG_VERBOSE)
@@ -126,6 +114,27 @@ class Identity:
 		Identity.saveKnownDestinations()
 
 
+	@staticmethod
+	def from_file(path):
+		identity = Identity(public_only=True)
+		if identity.load(path):
+			return identity
+		else:
+			return None
+
+
+	def __init__(self,public_only=False):
+		# Initialize keys to none
+		self.prv = None
+		self.pub = None
+		self.prv_bytes = None
+		self.pub_bytes = None
+		self.hash = None
+		self.hexhash = None
+
+		if not public_only:
+			self.createKeys()
+
 	def createKeys(self):
 		self.prv = rsa.generate_private_key(
 			public_exponent=65337,
@@ -145,7 +154,7 @@ class Identity:
 
 		self.updateHashes()
 
-		RNS.log("Identity keys created for "+RNS.prettyhexrep(self.hash), RNS.LOG_INFO)
+		RNS.log("Identity keys created for "+RNS.prettyhexrep(self.hash), RNS.LOG_VERBOSE)
 
 	def getPrivateKey(self):
 		return self.prv_bytes
@@ -153,15 +162,27 @@ class Identity:
 	def getPublicKey(self):
 		return self.pub_bytes
 
-	def loadPrivateKey(self, key):
-		self.prv_bytes = key
-		self.prv = serialization.load_der_private_key(self.prv_bytes, password=None,backend=default_backend())
-		self.pub = self.prv.public_key()
-		self.pub_bytes = self.pub.public_bytes(
-			encoding=serialization.Encoding.DER,
-			format=serialization.PublicFormat.SubjectPublicKeyInfo
-		)
-		self.updateHashes()
+	def loadPrivateKey(self, prv_bytes):
+		try:
+			self.prv_bytes = prv_bytes
+			self.prv = serialization.load_der_private_key(
+				self.prv_bytes,
+				password=None,
+				backend=default_backend()
+			)
+			self.pub = self.prv.public_key()
+			self.pub_bytes = self.pub.public_bytes(
+				encoding=serialization.Encoding.DER,
+				format=serialization.PublicFormat.SubjectPublicKeyInfo
+			)
+			self.updateHashes()
+
+			return True
+
+		except Exception as e:
+			RNS.log("Failed to load identity key", RNS.LOG_ERROR)
+			RNS.log("The contained exception was: "+str(e))
+			return False
 
 	def loadPublicKey(self, key):
 		try:
@@ -175,11 +196,25 @@ class Identity:
 		self.hash = Identity.truncatedHash(self.pub_bytes)
 		self.hexhash = self.hash.encode("hex_codec")
 
-	def saveIdentity(self):
-		pass
+	def save(self, path):
+		try:
+			with open(path, "w") as key_file:
+				key_file.write(self.prv_bytes)
+				return True
+			return False
+		except Exception as e:
+			RNS.log("Error while saving identity to "+str(path), RNS.LOG_ERROR)
+			RNS.log("The contained exception was: "+str(e))
 
-	def loadIdentity(self):
-		pass
+	def load(self, path):
+		try:
+			with open(path, "r") as key_file:
+				prv_bytes = key_file.read()
+				return self.loadPrivateKey(prv_bytes)
+			return False
+		except Exception as e:
+			RNS.log("Error while loading identity from "+str(path), RNS.LOG_ERROR)
+			RNS.log("The contained exception was: "+str(e))
 
 	def encrypt(self, plaintext):
 		if self.pub != None:
@@ -280,3 +315,6 @@ class Identity:
 
 		proof = RNS.Packet(destination, proof_data, RNS.Packet.PROOF)
 		proof.send()
+
+	def __str__(self):
+		return RNS.prettyhexrep(self.hash)

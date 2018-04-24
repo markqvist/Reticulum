@@ -51,7 +51,7 @@ class Reticulum:
 		RNS.Identity.loadKnownDestinations()
 		Reticulum.router = self
 
-		RNS.Transport.scheduleJobs()
+		RNS.Transport.start()
 
 		atexit.register(RNS.Identity.exitHandler)
 
@@ -141,6 +141,7 @@ class Reticulum:
 					txtail = int(c["txtail"]) if "txtail" in c else None
 					persistence = int(c["persistence"]) if "persistence" in c else None
 					slottime = int(c["slottime"]) if "slottime" in c else None
+					flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
 
 					port = c["port"] if "port" in c else None
 					speed = int(c["speed"]) if "speed" in c else 9600
@@ -162,7 +163,8 @@ class Reticulum:
 						preamble,
 						txtail,
 						persistence,
-						slottime
+						slottime,
+						flow_control
 					)
 
 					if "outgoing" in c and c["outgoing"].lower() == "true":
@@ -177,6 +179,7 @@ class Reticulum:
 					txtail = int(c["txtail"]) if "txtail" in c else None
 					persistence = int(c["persistence"]) if "persistence" in c else None
 					slottime = int(c["slottime"]) if "slottime" in c else None
+					flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
 
 					port = c["port"] if "port" in c else None
 					speed = int(c["speed"]) if "speed" in c else 9600
@@ -203,7 +206,8 @@ class Reticulum:
 						preamble,
 						txtail,
 						persistence,
-						slottime
+						slottime,
+						flow_control
 					)
 
 					if "outgoing" in c and c["outgoing"].lower() == "true":
