@@ -253,6 +253,7 @@ class PacketReceipt:
 				if proof_valid:
 					self.status = PacketReceipt.DELIVERED
 					self.proved = True
+					self.concluded_at = time.time()
 					if self.callbacks.delivery != None:
 						self.callbacks.delivery(self)
 					return True
@@ -267,6 +268,7 @@ class PacketReceipt:
 			if proof_valid:
 					self.status = PacketReceipt.DELIVERED
 					self.proved = True
+					self.concluded_at = time.time()
 					if self.callbacks.delivery != None:
 						self.callbacks.delivery(self)
 					return True
@@ -275,6 +277,8 @@ class PacketReceipt:
 		else:
 			return False
 
+	def rtt(self):
+		return self.concluded_at - self.sent_at
 
 	def isTimedOut(self):
 		return (self.sent_at+self.timeout < time.time())

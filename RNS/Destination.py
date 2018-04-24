@@ -104,7 +104,7 @@ class Destination:
 	def proof_requested_callback(self, callback):
 		self.callbacks.proof_requested = callback
 
-	def setProofStrategy(self, proof_strategy):
+	def set_proof_strategy(self, proof_strategy):
 		if not proof_strategy in Destination.proof_strategies:
 			raise TypeError("Unsupported proof strategy")
 		else:
