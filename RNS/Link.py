@@ -29,8 +29,8 @@ class Link:
 	# TODO: This should not be hardcoded,
 	# but calculated from something like 
 	# first-hop RTT latency and distance 
-	DEFAULT_TIMEOUT = 10.0
-	TIMEOUT_FACTOR = 5
+	DEFAULT_TIMEOUT = 15.0
+	TIMEOUT_FACTOR = 3
 	KEEPALIVE = 120
 
 	PENDING   = 0x00
@@ -225,7 +225,7 @@ class Link:
 		return None
 
 	def teardown(self):
-		if self.status != Link.PENDING:
+		if self.status != Link.PENDING and self.status != Link.CLOSED:
 			teardown_packet = RNS.Packet(self, self.link_id, context=RNS.Packet.LINKCLOSE)
 			teardown_packet.send()
 		self.status = Link.CLOSED
