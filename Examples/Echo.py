@@ -163,14 +163,15 @@ def packet_timed_out(receipt):
 	if receipt.status == RNS.PacketReceipt.FAILED:
 		RNS.log("Packet "+RNS.prettyhexrep(receipt.hash)+" timed out")
 
+# This part of the program gets run at startup,
+# and parses input of from  the user, and then
+# starts up the desired program mode.
 if __name__ == "__main__":
-	# Set up command line arguments and start
-	# the selected program mode.
 	try:
 		parser = argparse.ArgumentParser(description="Simple echo server and client utility")
 		parser.add_argument("-s", "--server", action="store_true", help="wait for incoming packets from clients")
-		parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
 		parser.add_argument("-t", "--timeout", action="store", metavar="s", default=None, help="set a reply timeout in seconds", type=float)
+		parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
 		parser.add_argument("destination", nargs="?", default=None, help="hexadecimal hash of the server destination", type=str)
 		args = parser.parse_args()
 
