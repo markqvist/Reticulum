@@ -14,6 +14,11 @@ import RNS
 # them all within the app namespace "example_utilities"
 APP_NAME = "example_utilitites"
 
+
+##########################################################
+#### Server Part #########################################
+##########################################################
+
 # This initialisation is executed when the users chooses
 # to run as a server
 def server(configpath):
@@ -68,6 +73,10 @@ def server_callback(message, packet):
 	# set up the destination to prove all incoming packets.
 	RNS.log("Received packet from echo client, proof sent")
 
+
+##########################################################
+#### Client Part #########################################
+##########################################################
 
 # This initialisation is executed when the users chooses
 # to run as a client
@@ -163,9 +172,14 @@ def packet_timed_out(receipt):
 	if receipt.status == RNS.PacketReceipt.FAILED:
 		RNS.log("Packet "+RNS.prettyhexrep(receipt.hash)+" timed out")
 
+
+##########################################################
+#### Program Startup #####################################
+##########################################################
+
 # This part of the program gets run at startup,
-# and parses input of from  the user, and then
-# starts up the desired program mode.
+# and parses input from the user, and then starts
+# the desired program mode.
 if __name__ == "__main__":
 	try:
 		parser = argparse.ArgumentParser(description="Simple echo server and client utility")
