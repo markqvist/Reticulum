@@ -27,6 +27,7 @@ class AX25():
 	PID_NOLAYER3	= chr(0xF0)
 	CTRL_UI			= chr(0x03)
 	CRC_CORRECT     = chr(0xF0)+chr(0xB8)
+	HEADER_SIZE		= 16
 
 
 class AX25KISSInterface(Interface):
@@ -178,8 +179,8 @@ class AX25KISSInterface(Interface):
 
 
 	def processIncoming(self, data):
-		if (len(data) > 16):
-			self.owner.inbound(data[16:], self)
+		if (len(data) > AX25.HEADER_SIZE):
+			self.owner.inbound(data[AX25.HEADER_SIZE:], self)
 
 
 	def processOutgoing(self,data):
@@ -252,10 +253,10 @@ class AX25KISSInterface(Interface):
 						in_frame = True
 						command = KISS.CMD_UNKNOWN
 						data_buffer = ""
-					elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
+					elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU+AX25.OVERHEAD):
 						if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
 							# We only support one HDLC port for now, so
-							# strip off port nibble
+							# strip off the port nibble
 							byte = chr(ord(byte) & 0x0F)
 							command = byte
 						elif (command == KISS.CMD_DATA):

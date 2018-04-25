@@ -47,6 +47,8 @@ def loglevelname(level):
 		return "Verbose"
 	if (level == LOG_DEBUG):
 		return "Debug"
+	if (level == LOG_EXTREME):
+		return "Extra"
 	
 	return "Unknown"
 
