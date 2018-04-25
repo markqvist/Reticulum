@@ -39,7 +39,7 @@ class Packet:
 
 	# This is used to calculate allowable
 	# payload sizes
-	HEADER_MAXSIZE = 23
+	HEADER_MAXSIZE = RNS.Reticulum.HEADER_MAXSIZE
 
 	# TODO: This should be calculated
 	# more intelligently

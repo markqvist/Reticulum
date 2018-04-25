@@ -1,6 +1,7 @@
 from Interfaces import *
 import ConfigParser
 from vendor.configobj import ConfigObj
+import RNS
 import atexit
 import struct
 import array
@@ -11,9 +12,14 @@ import RNS
 #import traceback
 
 class Reticulum:
-	MTU          = 500
-	router       = None
-	config       = None
+	MTU            = 500
+	HEADER_MAXSIZE = 23
+
+	PAD_AES_HMAC   = 64
+	MDU            = MTU - HEADER_MAXSIZE
+	LINK_MDU       = MDU - PAD_AES_HMAC
+	router         = None
+	config         = None
 	
 	configdir    = os.path.expanduser("~")+"/.reticulum"
 	configpath   = ""
