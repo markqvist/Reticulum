@@ -3,13 +3,14 @@ import time
 import RNS
 
 class Packet:
-	# Constants
-	DATA         = 0x00
-	ANNOUNCE     = 0x01
-	LINKREQUEST  = 0x02
-	PROOF        = 0x03
+	# Packet types
+	DATA         = 0x00		# Data packets
+	ANNOUNCE     = 0x01		# Announces
+	LINKREQUEST  = 0x02		# Link requests
+	PROOF        = 0x03		# Proofs
 	types        = [DATA, ANNOUNCE, LINKREQUEST, PROOF]
 
+	# Header types
 	HEADER_1     = 0x00		# Normal header format
 	HEADER_2     = 0x01		# Header format used for link packets in transport
 	HEADER_3     = 0x02		# Reserved
@@ -17,27 +18,32 @@ class Packet:
 	header_types = [HEADER_1, HEADER_2, HEADER_3, HEADER_4]
 
 	# Context types
-	NONE 		  = 0x00
-	RESOURCE      = 0x01
-	RESOURCE_ADV  = 0x02
-	RESOURCE_REQ  = 0x03
-	RESOURCE_HMU  = 0x04
-	RESOURCE_PRF  = 0x05
-	RESOURCE_ICL  = 0x06
-	RESOURCE_RCL  = 0x07
-	CACHE_REQUEST = 0x08
-	REQUEST       = 0x09
-	RESPONSE      = 0x0A
-	COMMAND       = 0x0B
-	COMMAND_STAT  = 0x0C
-	KEEPALIVE     = 0xFC
-	LINKCLOSE     = 0xFD
-	LRRTT		  = 0xFE
-	LRPROOF       = 0xFF
+	NONE 		   = 0x00	# Generic data packet
+	RESOURCE       = 0x01	# Packet is part of a resource
+	RESOURCE_ADV   = 0x02	# Packet is a resource advertisement
+	RESOURCE_REQ   = 0x03	# Packet is a resource part request
+	RESOURCE_HMU   = 0x04	# Packet is a resource hashmap update
+	RESOURCE_PRF   = 0x05	# Packet is a resource proof
+	RESOURCE_ICL   = 0x06	# Packet is a resource initiator cancel message
+	RESOURCE_RCL   = 0x07	# Packet is a resource receiver cancel message
+	CACHE_REQUEST  = 0x08	# Packet is a cache request
+	REQUEST        = 0x09	# Packet is a request
+	RESPONSE       = 0x0A	# Packet is a response to a request
+	COMMAND        = 0x0B	# Packet is a command
+	COMMAND_STATUS = 0x0C	# Packet is a status of an executed command
+	KEEPALIVE      = 0xFC	# Packet is a keepalive packet
+	LINKCLOSE      = 0xFD	# Packet is a link close message
+	LRRTT		   = 0xFE	# Packet is a link request round-trip time measurement
+	LRPROOF        = 0xFF	# Packet is a link request proof
 
+	# This is used to calculate allowable
+	# payload sizes
 	HEADER_MAXSIZE = 23
 
-	# Defaults
+	# TODO: This should be calculated
+	# more intelligently
+
+	# Default packet timeout
 	TIMEOUT 	 = 60
 
 	def __init__(self, destination, data, packet_type = DATA, context = NONE, transport_type = RNS.Transport.BROADCAST, header_type = HEADER_1, transport_id = None):
