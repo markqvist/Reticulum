@@ -413,18 +413,21 @@ def download_concluded(resource):
 	global menu_mode, current_filename
 	saved_filename = current_filename
 
-	counter = 0
-	while os.path.isfile(saved_filename):
-		counter += 1
-		saved_filename = current_filename+"."+str(counter)
+	if resource.status == RNS.Resource.COMPLETE:
+		counter = 0
+		while os.path.isfile(saved_filename):
+			counter += 1
+			saved_filename = current_filename+"."+str(counter)
 
-	try:
-		file = open(saved_filename, "w")
-		file.write(resource.data)
-		file.close()
+		try:
+			file = open(saved_filename, "w")
+			file.write(resource.data)
+			file.close()
+			menu_mode = "download_concluded"
+		except:
+			menu_mode = "save_error"
+	else:
 		menu_mode = "download_concluded"
-	except:
-		menu_mode = "save_error"
 
 
 # A convenience function for clearing the screen
