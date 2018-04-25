@@ -71,7 +71,7 @@ def server_callback(message, packet):
 
 # This initialisation is executed when the users chooses
 # to run as a client
-def client(destination_hexhash, configpath):
+def client(destination_hexhash, configpath, timeout=None):
 	# We need a binary representation of the destination
 	# hash that was entered on the command line
 	try:
@@ -124,6 +124,14 @@ def client(destination_hexhash, configpath):
 			# sent, it will return a PacketReceipt instance.
 			packet_receipt = echo_request.send()
 
+			# If the user specified a timeout, we set this
+			# timeout on the packet receipt, and configure
+			# a callback function, that will get called if
+			# the packet times out.
+			if timeout != None:
+				packet_receipt.setTimeout(timeout)
+				packet_receipt.timeout_callback(packet_timed_out)
+
 			# We can then set a delivery callback on the receipt.
 			# This will get automatically called when a proof for
 			# this specific packet is received from the destination.
@@ -136,7 +144,7 @@ def client(destination_hexhash, configpath):
 			# user to wait for an announce to arrive.
 			RNS.log("Destination is not yet known. Wait for an announce to arrive and try again.")
 
-# This method is called when our reply destination
+# This function is called when our reply destination
 # receives a proof packet.
 def packet_delivered(receipt):
 	if receipt.status == RNS.PacketReceipt.DELIVERED:
@@ -150,6 +158,10 @@ def packet_delivered(receipt):
 
 		RNS.log("Valid reply received from "+RNS.prettyhexrep(receipt.destination.hash)+", round-trip time is "+rttstring)
 
+# This function is called if a packet times out.
+def packet_timed_out(receipt):
+	if receipt.status == RNS.PacketReceipt.FAILED:
+		RNS.log("Packet "+RNS.prettyhexrep(receipt.hash)+" timed out")
 
 if __name__ == "__main__":
 	# Set up command line arguments and start
@@ -158,6 +170,7 @@ if __name__ == "__main__":
 		parser = argparse.ArgumentParser(description="Simple echo server and client utility")
 		parser.add_argument("-s", "--server", action="store_true", help="wait for incoming packets from clients")
 		parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
+		parser.add_argument("-t", "--timeout", action="store", metavar="s", default=None, help="set a reply timeout in seconds", type=float)
 		parser.add_argument("destination", nargs="?", default=None, help="hexadecimal hash of the server destination", type=str)
 		args = parser.parse_args()
 
@@ -167,14 +180,22 @@ if __name__ == "__main__":
 				configarg = args.config
 			server(configarg)
 		else:
-			configarg=None
 			if args.config:
 				configarg = args.config
+			else:
+				configarg = None
+
+			if args.timeout:
+				timeoutarg = float(args.timeout)
+			else:
+				timeoutarg = None
+
 			if (args.destination == None):
 				print("")
 				parser.print_help()
 				print("")
 			else:
-				client(args.destination, configarg)
+				client(args.destination, configarg, timeout=timeoutarg)
 	except KeyboardInterrupt:
+		print("")
 		exit()
