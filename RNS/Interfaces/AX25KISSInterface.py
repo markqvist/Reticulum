@@ -253,7 +253,7 @@ class AX25KISSInterface(Interface):
 						in_frame = True
 						command = KISS.CMD_UNKNOWN
 						data_buffer = ""
-					elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU+AX25.OVERHEAD):
+					elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU+AX25.HEADER_SIZE):
 						if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
 							# We only support one HDLC port for now, so
 							# strip off the port nibble
