@@ -73,7 +73,7 @@ class Transport:
 				# Process receipts list for timed-out packets
 				if Transport.receipts_last_checked+Transport.receipts_check_interval < time.time():
 					for receipt in Transport.receipts:
-						receipt.checkTimeout()
+						receipt.check_timeout()
 						if receipt.status != RNS.PacketReceipt.SENT:
 							Transport.receipts.remove(receipt)
 
@@ -127,6 +127,7 @@ class Transport:
 
 	@staticmethod
 	def packet_filter(packet):
+		# TODO: Think long and hard about this
 		if packet.context == RNS.Packet.KEEPALIVE:
 			return True
 		if packet.context == RNS.Packet.RESOURCE_REQ:
@@ -184,9 +185,10 @@ class Transport:
 							if destination.proof_strategy == RNS.Destination.PROVE_ALL:
 								packet.prove()
 
-							if destination.proof_strategy == RNS.Destination.PROVE_APP:
+							elif destination.proof_strategy == RNS.Destination.PROVE_APP:
 								if destination.callbacks.proof_requested:
-									destination.callbacks.proof_requested(packet)
+									if destination.callbacks.proof_requested(packet):
+										packet.prove()
 
 			elif packet.packet_type == RNS.Packet.PROOF:
 				if packet.context == RNS.Packet.LRPROOF:
@@ -200,6 +202,13 @@ class Transport:
 						if link.link_id == packet.destination_hash:
 							link.receive(packet)
 				else:
+					if packet.destination_type == RNS.Destination.LINK:
+						for link in Transport.active_links:
+							if link.link_id == packet.destination_hash:
+								packet.link = link
+								# plaintext = link.decrypt(packet.data)
+								
+
 					# TODO: Make sure everything uses new proof handling
 					if len(packet.data) == RNS.PacketReceipt.EXPL_LENGTH:
 						proof_hash = packet.data[:RNS.Identity.HASHLENGTH/8]
@@ -230,7 +239,7 @@ class Transport:
 
 	@staticmethod
 	def registerLink(link):
-		RNS.log("Registering link "+str(link))
+		RNS.log("Registering link "+str(link), RNS.LOG_DEBUG)
 		if link.initiator:
 			Transport.pending_links.append(link)
 		else:
@@ -238,7 +247,7 @@ class Transport:
 
 	@staticmethod
 	def activateLink(link):
-		RNS.log("Activating link "+str(link))
+		RNS.log("Activating link "+str(link), RNS.LOG_DEBUG)
 		if link in Transport.pending_links:
 			Transport.pending_links.remove(link)
 			Transport.active_links.append(link)

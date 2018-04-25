@@ -30,7 +30,7 @@ class Link:
 	# but calculated from something like 
 	# first-hop RTT latency and distance 
 	DEFAULT_TIMEOUT = 5
-	TIMEOUT_FACTOR = 3
+	TIMEOUT_FACTOR = 5
 	KEEPALIVE = 120
 
 	PENDING   = 0x00
@@ -54,6 +54,7 @@ class Link:
 			try:
 				link = Link(owner = owner, peer_pub_bytes = data[:Link.ECPUBSIZE])
 				link.setLinkID(packet)
+				link.destination = packet.destination
 				RNS.log("Validating link request "+RNS.prettyhexrep(link.link_id), RNS.LOG_VERBOSE)
 				link.handshake()
 				link.attached_interface = packet.receiving_interface
@@ -137,7 +138,8 @@ class Link:
 	def loadPeer(self, peer_pub_bytes):
 		self.peer_pub_bytes = peer_pub_bytes
 		self.peer_pub = serialization.load_der_public_key(peer_pub_bytes, backend=default_backend())
-		self.peer_pub.curce = Link.CURVE
+		if not hasattr(self.peer_pub, "curve"):
+			self.peer_pub.curve = Link.CURVE
 
 	def setLinkID(self, packet):
 		self.link_id = RNS.Identity.truncatedHash(packet.raw)
@@ -160,6 +162,18 @@ class Link:
 
 		proof_data = self.pub_bytes+signature
 		proof = RNS.Packet(self, proof_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.LRPROOF)
+		proof.send()
+
+	def prove_packet(self, packet):
+		signature = self.sign(packet.packet_hash)
+		# TODO: Hardcoded as explicit proof for now
+		# if RNS.Reticulum.should_use_implicit_proof():
+		# 	proof_data = signature
+		# else:
+		# 	proof_data = packet.packet_hash + signature
+		proof_data = packet.packet_hash + signature
+
+		proof = RNS.Packet(self, proof_data, RNS.Packet.PROOF)
 		proof.send()
 
 	def validateProof(self, packet):
@@ -326,8 +340,15 @@ class Link:
 				if packet.packet_type == RNS.Packet.DATA:
 					if packet.context == RNS.Packet.NONE:
 						plaintext = self.decrypt(packet.data)
-						if (self.callbacks.packet != None):
+						if self.callbacks.packet != None:
 							self.callbacks.packet(plaintext, packet)
+						
+						if self.destination.proof_strategy == RNS.Destination.PROVE_ALL:
+							packet.prove()
+
+						elif self.destination.proof_strategy == RNS.Destination.PROVE_APP:
+							if self.destination.callbacks.proof_requested:
+								self.destination.callbacks.proof_requested(packet)
 
 					elif packet.context == RNS.Packet.LRRTT:
 						if not self.initiator:
@@ -415,6 +436,16 @@ class Link:
 		except Exception as e:
 			RNS.log("Decryption failed on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
+	def sign(self, message):
+		return self.prv.sign(message, ec.ECDSA(hashes.SHA256()))
+
+	def validate(self, signature, message):
+		try:
+			self.peer_pub.verify(signature, message, ec.ECDSA(hashes.SHA256()))
+			return True
+		except Exception as e:
+			return False
+
 	def link_established_callback(self, callback):
 		self.callbacks.link_established = callback
 
@@ -432,7 +463,13 @@ class Link:
 	def resource_concluded_callback(self, callback):
 		self.callbacks.resource_concluded = callback
 
-	def setResourceStrategy(self, resource_strategy):
+	def resource_concluded(self, resource):
+		if resource in self.incoming_resources:
+			self.incoming_resources.remove(resource)
+		if resource in self.outgoing_resources:
+			self.outgoing_resources.remove(resource)
+
+	def set_resource_strategy(self, resource_strategy):
 		if not resource_strategy in Link.resource_strategies:
 			raise TypeError("Unsupported resource strategy")
 		else:

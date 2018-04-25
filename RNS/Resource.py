@@ -311,6 +311,7 @@ class Resource:
 				self.status = Resource.CORRUPT
 
 			if self.callback != None:
+				self.link.resource_concluded(self)
 				self.callback(self)
 
 
@@ -327,6 +328,7 @@ class Resource:
 				if proof_data[RNS.Identity.HASHLENGTH/8:] == self.expected_proof:
 					self.status = Resource.COMPLETE
 					if self.callback != None:
+						self.link.resource_concluded(self)
 						self.callback(self)
 				else:
 					pass
@@ -487,6 +489,7 @@ class Resource:
 				self.link.cancel_incoming_resource(self)
 			
 			if self.callback != None:
+				self.link.resource_concluded(self)
 				self.callback(self)
 
 	def progress_callback(self, callback):

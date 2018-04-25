@@ -17,7 +17,7 @@ class Packet:
 	HEADER_4     = 0x03		# Reserved
 	header_types = [HEADER_1, HEADER_2, HEADER_3, HEADER_4]
 
-	# Context types
+	# Data packet context types
 	NONE 		   = 0x00	# Generic data packet
 	RESOURCE       = 0x01	# Packet is part of a resource
 	RESOURCE_ADV   = 0x02	# Packet is a resource advertisement
@@ -31,8 +31,9 @@ class Packet:
 	RESPONSE       = 0x0A	# Packet is a response to a request
 	COMMAND        = 0x0B	# Packet is a command
 	COMMAND_STATUS = 0x0C	# Packet is a status of an executed command
-	KEEPALIVE      = 0xFC	# Packet is a keepalive packet
-	LINKCLOSE      = 0xFD	# Packet is a link close message
+	KEEPALIVE      = 0xFB	# Packet is a keepalive packet
+	LINKCLOSE      = 0xFC	# Packet is a link close message
+	LINKPROOF      = 0xFD	# Packet is a link packet proof
 	LRRTT		   = 0xFE	# Packet is a link request round-trip time measurement
 	LRPROOF        = 0xFF	# Packet is a link request proof
 
@@ -101,6 +102,9 @@ class Packet:
 					self.ciphertext = self.data
 				elif self.packet_type == Packet.PROOF and self.context == Packet.RESOURCE_PRF:
 					# Resource proofs are not encrypted
+					self.ciphertext = self.data
+				elif self.packet_type == Packet.PROOF and self.destination.type == RNS.Destination.LINK:
+					# Packet proofs over links are not encrypted
 					self.ciphertext = self.data
 				elif self.context == Packet.RESOURCE:
 					# A resource takes care of symmetric
@@ -187,9 +191,13 @@ class Packet:
 			raise IOError("Packet was not sent yet")
 
 	def prove(self, destination=None):
-		if self.fromPacked and self.destination:
+		if self.fromPacked and hasattr(self, "destination") and self.destination:
 			if self.destination.identity and self.destination.identity.prv:
 				self.destination.identity.prove(self, destination)
+		elif self.fromPacked and hasattr(self, "link") and self.link:
+			self.link.prove_packet(self)
+		else:
+			RNS.log("Could not prove packet associated with neither a destination nor a link", RNS.LOG_ERROR)
 
 	# Generates a special destination that allows Reticulum
 	# to direct the proof back to the proved packet's sender
@@ -246,7 +254,48 @@ class PacketReceipt:
 
 	# Validate a proof packet
 	def validateProofPacket(self, proof_packet):
-		return self.validateProof(proof_packet.data)
+		if hasattr(proof_packet, "link") and proof_packet.link:
+			return self.validate_link_proof(proof_packet.data, proof_packet.link)
+		else:
+			return self.validateProof(proof_packet.data)
+
+	# Validate a raw proof for a link
+	def validate_link_proof(self, proof, link):
+		# TODO: Hardcoded as explicit proofs for now
+		if True or len(proof) == PacketReceipt.EXPL_LENGTH:
+			# This is an explicit proof
+			proof_hash = proof[:RNS.Identity.HASHLENGTH/8]
+			signature = proof[RNS.Identity.HASHLENGTH/8:RNS.Identity.HASHLENGTH/8+RNS.Identity.SIGLENGTH/8]
+			if proof_hash == self.hash:
+				proof_valid = link.validate(signature, self.hash)
+				if proof_valid:
+					self.status = PacketReceipt.DELIVERED
+					self.proved = True
+					self.concluded_at = time.time()
+					if self.callbacks.delivery != None:
+						self.callbacks.delivery(self)
+					return True
+				else:
+					return False
+			else:
+				return False
+		elif len(proof) == PacketReceipt.IMPL_LENGTH:
+			pass
+			# signature = proof[:RNS.Identity.SIGLENGTH/8]
+			# proof_valid = self.link.validate(signature, self.hash)
+			# if proof_valid:
+			# 		self.status = PacketReceipt.DELIVERED
+			# 		self.proved = True
+			# 		self.concluded_at = time.time()
+			# 		if self.callbacks.delivery != None:
+			# 			self.callbacks.delivery(self)
+			# 		RNS.log("valid")
+			# 		return True
+			# else:
+			# 	RNS.log("invalid")
+			# 	return False
+		else:
+			return False
 
 	# Validate a raw proof
 	def validateProof(self, proof):
@@ -286,11 +335,11 @@ class PacketReceipt:
 	def rtt(self):
 		return self.concluded_at - self.sent_at
 
-	def isTimedOut(self):
+	def is_timed_out(self):
 		return (self.sent_at+self.timeout < time.time())
 
-	def checkTimeout(self):
-		if self.isTimedOut():
+	def check_timeout(self):
+		if self.is_timed_out():
 			self.status = PacketReceipt.FAILED
 			self.concluded_at = time.time()
 			if self.callbacks.timeout:
@@ -298,7 +347,7 @@ class PacketReceipt:
 
 
 	# Set the timeout in seconds
-	def setTimeout(self, timeout):
+	def set_timeout(self, timeout):
 		self.timeout = float(timeout)
 
 	# Set a function that gets called when

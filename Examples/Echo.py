@@ -138,7 +138,7 @@ def client(destination_hexhash, configpath, timeout=None):
 			# a callback function, that will get called if
 			# the packet times out.
 			if timeout != None:
-				packet_receipt.setTimeout(timeout)
+				packet_receipt.set_timeout(timeout)
 				packet_receipt.timeout_callback(packet_timed_out)
 
 			# We can then set a delivery callback on the receipt.

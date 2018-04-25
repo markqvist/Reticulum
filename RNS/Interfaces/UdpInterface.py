@@ -2,19 +2,16 @@ from Interface import Interface
 import SocketServer
 import threading
 import socket
+import time
 import sys
 import RNS
 
 class UdpInterface(Interface):
-    bind_ip = None
-    bind_port = None
-    forward_ip = None
-    forward_port = None
-    owner = None
 
     def __init__(self, owner, name, bindip=None, bindport=None, forwardip=None, forwardport=None):
         self.IN  = True
         self.OUT = False
+        self.transmit_delay = 0.001
 
         self.name = name
 
@@ -42,6 +39,7 @@ class UdpInterface(Interface):
         self.owner.inbound(data, self)
 
     def processOutgoing(self,data):
+        time.sleep(self.transmit_delay)
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         udp_socket.sendto(data, (self.forward_ip, self.forward_port))

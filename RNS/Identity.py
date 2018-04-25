@@ -56,10 +56,13 @@ class Identity:
 	@staticmethod
 	def loadKnownDestinations():
 		if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
-			file = open(RNS.Reticulum.storagepath+"/known_destinations","r")
-			Identity.known_destinations = umsgpack.load(file)
-			file.close()
-			RNS.log("Loaded "+str(len(Identity.known_destinations))+" known destinations from storage", RNS.LOG_VERBOSE)
+			try:
+				file = open(RNS.Reticulum.storagepath+"/known_destinations","r")
+				Identity.known_destinations = umsgpack.load(file)
+				file.close()
+				RNS.log("Loaded "+str(len(Identity.known_destinations))+" known destinations from storage", RNS.LOG_VERBOSE)
+			except:
+				RNS.log("Error loading known destinations from disk, file will be recreated on exit", RNS.LOG_ERROR)
 		else:
 			RNS.log("Destinations file does not exist, so no known destinations loaded", RNS.LOG_VERBOSE)
 
