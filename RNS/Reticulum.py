@@ -26,6 +26,11 @@ class Reticulum:
 	storagepath  = ""
 	cachepath    = ""
 	
+	@staticmethod
+	def exit_handler():
+		RNS.Transport.exitHandler()
+		RNS.Identity.exitHandler()
+
 	def __init__(self,configdir=None):
 		if configdir != None:
 			Reticulum.configdir = configdir
@@ -59,8 +64,7 @@ class Reticulum:
 
 		RNS.Transport.start()
 
-		atexit.register(RNS.Transport.exitHandler)
-		atexit.register(RNS.Identity.exitHandler)
+		atexit.register(Reticulum.exit_handler)
 
 	def applyConfig(self):
 		if "logging" in self.config:

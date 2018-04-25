@@ -402,6 +402,7 @@ def link_closed(link):
 	else:
 		RNS.log("Link closed, exiting now")
 	
+	RNS.Reticulum.exit_handler()
 	time.sleep(1.5)
 	os._exit(0)
 
