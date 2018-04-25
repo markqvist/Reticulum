@@ -83,6 +83,8 @@ def client_connected(link):
 	if os.path.isdir(serve_path):
 		RNS.log("Client connected, sending file list...")
 
+		link.link_closed_callback(client_disconnected)
+
 		# We pack a list of files for sending in a packet
 		data = umsgpack.packb(list_files())
 
@@ -108,6 +110,9 @@ def client_connected(link):
 	else:
 		RNS.log("Client connected, but served path no longer exists!", RNS.LOG_ERROR)
 		link.teardown()
+
+def client_disconnected(link):
+	RNS.log("Client disconnected")
 
 def client_request(message, packet):
 	global serve_path
@@ -235,7 +240,7 @@ def download(filename):
 # to select which files to download, or quit
 menu_mode = None
 def menu():
-	global server_files
+	global server_files, server_link
 	# Wait until we have a filelist
 	while len(server_files) == 0:
 		time.sleep(0.1)
@@ -265,6 +270,9 @@ def menu():
 						download(server_files[int(user_input)])
 				except:
 					pass
+
+	if should_quit:
+		server_link.teardown()
 
 # Prints out menus or screens for the
 # various states of the client program.
@@ -393,6 +401,8 @@ def link_closed(link):
 		RNS.log("The link was closed by the server, exiting now")
 	else:
 		RNS.log("Link closed, exiting now")
+	
+	time.sleep(1.5)
 	os._exit(0)
 
 # When RNS detects that the download has
