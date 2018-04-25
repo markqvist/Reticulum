@@ -275,15 +275,15 @@ class Identity:
 
 	def sign(self, message):
 		if self.prv != None:
-			signer = self.prv.signer(
+			signature = self.prv.sign(
+				message,
 				padding.PSS(
 					mgf=padding.MGF1(hashes.SHA256()),
 					salt_length=padding.PSS.MAX_LENGTH
 				),
 				hashes.SHA256()
 			)
-			signer.update(message)
-			return signer.finalize()
+			return signature
 		else:
 			raise KeyError("Signing failed because identity does not hold a private key")
 
