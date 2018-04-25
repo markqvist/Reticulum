@@ -29,7 +29,7 @@ class Link:
 	# TODO: This should not be hardcoded,
 	# but calculated from something like 
 	# first-hop RTT latency and distance 
-	DEFAULT_TIMEOUT = 5
+	DEFAULT_TIMEOUT = 10.0
 	TIMEOUT_FACTOR = 5
 	KEEPALIVE = 120
 

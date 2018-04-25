@@ -2,6 +2,7 @@ import os
 import RNS
 import time
 import threading
+import traceback
 from time import sleep
 import vendor.umsgpack as umsgpack
 
@@ -86,6 +87,7 @@ class Transport:
 		except Exception as e:
 			RNS.log("An exception occurred while running Transport jobs.", RNS.LOG_ERROR)
 			RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+			traceback.print_exc()
 
 		Transport.jobs_running = False
 
