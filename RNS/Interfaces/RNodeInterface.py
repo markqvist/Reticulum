@@ -22,6 +22,7 @@ class KISS():
 	CMD_SF			= chr(0x04)
 	CMD_RADIO_STATE = chr(0x05)
 	CMD_RADIO_LOCK	= chr(0x06)
+	CMD_READY       = chr(0x0F)
 	CMD_STAT_RX		= chr(0x21)
 	CMD_STAT_TX		= chr(0x22)
 	CMD_STAT_RSSI	= chr(0x23)
@@ -57,7 +58,7 @@ class RNodeInterface(Interface):
 	FREQ_MIN = 137000000
 	FREQ_MAX = 1020000000
 
-	def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None):
+	def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, flow_control = True):
 		self.serial      = None
 		self.owner       = owner
 		self.name        = name
@@ -87,6 +88,10 @@ class RNodeInterface(Interface):
 		self.r_stat_tx   = None
 		self.r_stat_rssi = None
 		self.r_random	 = None
+
+		self.packet_queue    = []
+		self.flow_control    = flow_control
+		self.interface_ready = False
 
 		self.validcfg  = True
 		if (self.frequency < RNodeInterface.FREQ_MIN or self.frequency > RNodeInterface.FREQ_MAX):
@@ -137,6 +142,7 @@ class RNodeInterface(Interface):
 			RNS.log("Configuring RNode interface...", RNS.LOG_VERBOSE)
 			self.initRadio()
 			if (self.validateRadioState()):
+				self.interface_ready = True
 				RNS.log(str(self)+" is configured and powered up")
 			else:
 				RNS.log("After configuring "+str(self)+", the actual radio parameters did not match your configuration.", RNS.LOG_ERROR)
@@ -235,12 +241,28 @@ class RNodeInterface(Interface):
 
 	def processOutgoing(self,data):
 		if self.online:
-			data = KISS.escape(data)
-			frame = chr(0xc0)+chr(0x00)+data+chr(0xc0)
-			written = self.serial.write(frame)
-			if written != len(frame):
-				raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))
+			if self.interface_ready:
+				if self.flow_control:
+					self.interface_ready = False
 
+				data = KISS.escape(data)
+				frame = chr(0xc0)+chr(0x00)+data+chr(0xc0)
+				written = self.serial.write(frame)
+				if written != len(frame):
+					raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))
+			else:
+				self.queue(data)
+
+	def queue(self, data):
+		self.packet_queue.append(data)
+
+	def process_queue(self):
+		if len(self.packet_queue) > 0:
+			data = self.packet_queue.pop(0)
+			self.interface_ready = True
+			self.processOutgoing(data)
+		elif len(self.packet_queue) == 0:
+			self.interface_ready = True
 
 	def readLoop(self):
 		try:
@@ -266,9 +288,6 @@ class RNodeInterface(Interface):
 						command_buffer = ""
 					elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
 						if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
-							# We only support one HDLC port for now, so
-							# strip off port nibble
-							byte = chr(ord(byte) & 0x0F)
 							command = byte
 						elif (command == KISS.CMD_DATA):
 							if (byte == KISS.FESC):
@@ -363,6 +382,10 @@ class RNodeInterface(Interface):
 								RNS.log(str(self)+" hardware TX error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
 							else:
 								RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
+						elif (command == KISS.CMD_READY):
+							# TODO: add timeout and reset if ready
+							# command never arrives
+							self.process_queue()
 						
 				else:
 					time_since_last = int(time.time()*1000) - last_read_ms
