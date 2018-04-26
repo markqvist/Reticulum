@@ -259,7 +259,6 @@ class RNodeInterface(Interface):
 
 	def process_queue(self):
 		if len(self.packet_queue) > 0:
-			sleep(0.5)
 			data = self.packet_queue.pop(0)
 			self.interface_ready = True
 			self.processOutgoing(data)
@@ -394,7 +393,7 @@ class RNodeInterface(Interface):
 				else:
 					time_since_last = int(time.time()*1000) - last_read_ms
 					if len(data_buffer) > 0 and time_since_last > self.timeout:
-						RNS.log(str(self)+" serial read timeout", RNS.LOG_EXTREME)
+						RNS.log(str(self)+" serial read timeout", RNS.LOG_DEBUG)
 			 			data_buffer = ""
 			 			in_frame = False
 			 			command = KISS.CMD_UNKNOWN
