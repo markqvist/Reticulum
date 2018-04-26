@@ -74,7 +74,9 @@ class Transport:
 				# Process receipts list for timed-out packets
 				if Transport.receipts_last_checked+Transport.receipts_check_interval < time.time():
 					for receipt in Transport.receipts:
-						receipt.check_timeout()
+						thread = threading.Thread(target=receipt.check_timeout)
+						thread.setDaemon(True)
+						thread.start()
 						if receipt.status != RNS.PacketReceipt.SENT:
 							Transport.receipts.remove(receipt)
 

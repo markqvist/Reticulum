@@ -144,6 +144,7 @@ class RNodeInterface(Interface):
 			if (self.validateRadioState()):
 				self.interface_ready = True
 				RNS.log(str(self)+" is configured and powered up")
+				sleep(1.0)
 			else:
 				RNS.log("After configuring "+str(self)+", the actual radio parameters did not match your configuration.", RNS.LOG_ERROR)
 				RNS.log("Make sure that your hardware actually supports the parameters specified in the configuration", RNS.LOG_ERROR)
