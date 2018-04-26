@@ -321,13 +321,14 @@ def print_menu():
 			print("\rProgress: 100.0 %"),
 			sys.stdout.flush()
 			print("")
-			print("The download completed!")
+			print("The download completed! Pres enter to return to the menu.")
+			raw_input()
 
 		else:
 			print("")
-			print("The download failed!")
+			print("The download failed! Pres enter to return to the menu.")
+			raw_input()
 
-		time.sleep(1)
 		current_download = None
 		menu_mode = "main"
 		print_menu()
