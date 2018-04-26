@@ -112,7 +112,9 @@ class Transport:
 						should_transmit = False
 
 				if should_transmit:
-					RNS.log("Transmitting "+str(len(packet.raw))+" bytes via: "+str(interface), RNS.LOG_DEBUG)
+					# TODO: Remove
+					RNS.log("Transmitting "+str(len(packet.raw))+" bytes via: "+str(interface), RNS.LOG_EXTREME)
+					RNS.log("Hash is "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_EXTREME)
 					interface.processOutgoing(packet.raw)
 					sent = True
 

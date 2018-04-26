@@ -191,6 +191,8 @@ class Link:
 				RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(self.rtt), RNS.LOG_VERBOSE)
 				rtt_data = umsgpack.packb(self.rtt)
 				rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
+				# TODO: remove
+				RNS.log("Sending RTT packet", RNS.LOG_EXTREME)
 				rtt_packet.send()
 
 				self.status = Link.ACTIVE
@@ -290,7 +292,7 @@ class Link:
 					next_check = self.request_time + self.proof_timeout
 					sleep_time = next_check - time.time()
 					if time.time() >= self.request_time + self.proof_timeout:
-						#RNS.log("Timeout waiting for RTT packet from link initiator", RNS.LOG_DEBUG)
+						RNS.log("Timeout waiting for RTT packet from link initiator", RNS.LOG_DEBUG)
 						self.status = Link.CLOSED
 						self.teardown_reason = Link.TIMEOUT
 						self.link_closed()
