@@ -20,22 +20,30 @@ class KISS():
 	CMD_BANDWIDTH	= chr(0x02)
 	CMD_TXPOWER		= chr(0x03)
 	CMD_SF			= chr(0x04)
-	CMD_RADIO_STATE = chr(0x05)
-	CMD_RADIO_LOCK	= chr(0x06)
+	CMD_CR          = chr(0x05)
+	CMD_RADIO_STATE = chr(0x06)
+	CMD_RADIO_LOCK	= chr(0x07)
+	CMD_DETECT		= chr(0x08)
 	CMD_READY       = chr(0x0F)
 	CMD_STAT_RX		= chr(0x21)
 	CMD_STAT_TX		= chr(0x22)
 	CMD_STAT_RSSI	= chr(0x23)
 	CMD_BLINK		= chr(0x30)
 	CMD_RANDOM		= chr(0x40)
+	CMD_FW_VERSION  = chr(0x50)
+	CMD_ROM_READ    = chr(0x51)
+
+	DETECT_REQ      = chr(0x73)
+	DETECT_RESP     = chr(0x46)
 	
 	RADIO_STATE_OFF = chr(0x00)
 	RADIO_STATE_ON	= chr(0x01)
 	RADIO_STATE_ASK = chr(0xFF)
 	
-	CMD_ERROR		= chr(0x90)
-	ERROR_INITRADIO = chr(0x01)
-	ERROR_TXFAILED	= chr(0x02)
+	CMD_ERROR		    = chr(0x90)
+	ERROR_INITRADIO     = chr(0x01)
+	ERROR_TXFAILED	    = chr(0x02)
+	ERROR_EEPROM_LOCKED	= chr(0x03)
 
 	@staticmethod
 	def escape(data):
@@ -74,7 +82,7 @@ class RNodeInterface(Interface):
 		self.bandwidth   = bandwidth
 		self.txpower     = txpower
 		self.sf          = sf
-		self.cr          = 5 # Coding rate is hard-coded in firmware for now
+		self.cr          = 5
 		self.state       = KISS.RADIO_STATE_OFF
 		self.bitrate     = 0
 
@@ -82,6 +90,7 @@ class RNodeInterface(Interface):
 		self.r_bandwidth = None
 		self.r_txpower   = None
 		self.r_sf        = None
+		self.r_cr        = None
 		self.r_state     = None
 		self.r_lock      = None
 		self.r_stat_rx   = None
@@ -199,6 +208,13 @@ class RNodeInterface(Interface):
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("An IO error occurred while configuring spreading factor for "+self(str))
+
+	def setCodingRate(self):
+		cr = chr(self.cr)
+		kiss_command = KISS.FEND+KISS.CMD_CR+cr+KISS.FEND
+		written = self.serial.write(kiss_command)
+		if written != len(kiss_command):
+			raise IOError("An IO error occurred while configuring coding rate for "+self(str))
 
 	def setRadioState(self, state):
 		kiss_command = KISS.FEND+KISS.CMD_RADIO_STATE+state+KISS.FEND
@@ -341,6 +357,10 @@ class RNodeInterface(Interface):
 						elif (command == KISS.CMD_SF):
 							self.r_sf = ord(byte)
 							RNS.log(str(self)+" Radio reporting spreading factor is "+str(self.r_sf), RNS.LOG_DEBUG)
+							self.updateBitrate()
+						elif (command == KISS.CMD_CR):
+							self.r_cr = ord(byte)
+							RNS.log(str(self)+" Radio reporting coding rate is "+str(self.r_cr), RNS.LOG_DEBUG)
 							self.updateBitrate()
 						elif (command == KISS.CMD_RADIO_STATE):
 							self.r_state = ord(byte)

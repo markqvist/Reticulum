@@ -191,8 +191,6 @@ class Link:
 				RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(self.rtt), RNS.LOG_VERBOSE)
 				rtt_data = umsgpack.packb(self.rtt)
 				rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
-				# TODO: remove
-				RNS.log("Sending RTT packet", RNS.LOG_EXTREME)
 				rtt_packet.send()
 
 				self.status = Link.ACTIVE
@@ -437,6 +435,7 @@ class Link:
 			return plaintext
 		except Exception as e:
 			RNS.log("Decryption failed on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+			traceback.print_exc()
 
 	def sign(self, message):
 		return self.prv.sign(message, ec.ECDSA(hashes.SHA256()))
