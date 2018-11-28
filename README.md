@@ -13,7 +13,7 @@ Reticulum is currently in pre-alpha state. Even the master branch should be cons
 ## What hardware does Reticulum work with?
 Practically any hardware that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, HAM radio digital modes, free-space optical systems and similar systems are all examples of the types of interfaces Reticulum was designed for.
 
-An open-source LoRa-based interface has been designed specifically for use with Reticulum and will be available along with the stable alpha release. It is easy to build yourself, or can be purchased as a complete radio that just needs a USB connection to the host.
+An open-source LoRa-based interface called [RNode](https://unsigned.io/projects/rnode/) has been designed specifically for use with Reticulum. It is easy to build yourself, or can be purchased as a complete radio that just needs a USB connection to the host.
 
 Reticulum can also be tunneled over existing IP networks.
 
