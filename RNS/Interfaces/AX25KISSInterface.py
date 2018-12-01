@@ -56,6 +56,7 @@ class AX25KISSInterface(Interface):
 		self.stopbits = stopbits
 		self.timeout  = 100
 		self.online   = False
+		self.txdelay  = 0.4
 
 		self.packet_queue    = []
 		self.flow_control    = flow_control
@@ -213,6 +214,10 @@ class AX25KISSInterface(Interface):
 				data = data.replace(chr(0xdb), chr(0xdb)+chr(0xdd))
 				data = data.replace(chr(0xc0), chr(0xdb)+chr(0xdc))
 				kiss_frame = chr(0xc0)+chr(0x00)+data+chr(0xc0)
+
+				if (self.txdelay > 0):
+					RNS.log(str(self.name)+" delaying TX for "+str(self.txdelay)+" seconds", RNS.LOG_EXTREME)
+					sleep(self.txdelay)
 
 				written = self.serial.write(kiss_frame)
 				if written != len(kiss_frame):
