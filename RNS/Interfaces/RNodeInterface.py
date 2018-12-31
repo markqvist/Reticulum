@@ -397,7 +397,7 @@ class RNodeInterface(Interface):
 									self.r_stat_tx = ord(command_buffer[0]) << 24 | ord(command_buffer[1]) << 16 | ord(command_buffer[2]) << 8 | ord(command_buffer[3])
 
 						elif (command == KISS.CMD_STAT_RSSI):
-							self.r_stat_rssi = ord(byte)-RSSI_OFFSET
+							self.r_stat_rssi = ord(byte)-RNodeInterface.RSSI_OFFSET
 						elif (command == KISS.CMD_RANDOM):
 							self.r_random = ord(byte)
 						elif (command == KISS.CMD_ERROR):

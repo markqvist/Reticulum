@@ -64,10 +64,12 @@ class Link:
 				link.last_inbound = time.time()
 				link.start_watchdog()
 
-				if link.owner.callbacks.link_established != None:
-					link.owner.callbacks.link_established(link)
+				# TODO: Why was link_established callback here? Seems weird
+				# to call this before RTT packet has been received
+				#if self.owner.callbacks.link_established != None:
+				#	self.owner.callbacks.link_established(link)
 				
-				RNS.log("Incoming link request "+str(link)+" accepted", RNS.LOG_VERBOSE)
+				RNS.log("Incoming link request "+str(link)+" accepted, waiting for RTT packet", RNS.LOG_VERBOSE)
 				return link
 
 			except Exception as e:
@@ -191,6 +193,7 @@ class Link:
 				RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(self.rtt), RNS.LOG_VERBOSE)
 				rtt_data = umsgpack.packb(self.rtt)
 				rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
+				RNS.log("Sending RTT packet", RNS.LOG_EXTREME);
 				rtt_packet.send()
 
 				self.status = Link.ACTIVE
@@ -215,7 +218,12 @@ class Link:
 			rtt = umsgpack.unpackb(plaintext)
 			self.rtt = max(measured_rtt, rtt)
 			self.status = Link.ACTIVE
+			# TODO: Link established callback moved here, ok?
+			if self.owner.callbacks.link_established != None:
+					self.owner.callbacks.link_established(self)
 		except Exception as e:
+			RNS.log("Error occurred while processing RTT packet, tearing down link", RNS.LOG_ERROR)
+			traceback.print_exc()
 			self.teardown()
 
 	def getSalt(self):

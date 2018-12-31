@@ -8,8 +8,8 @@ from time import sleep
 
 class Resource:
 	WINDOW_MIN  = 1
-	WINDOW_MAX  = 10
-	WINDOW      = 5
+	WINDOW_MAX  = 7
+	WINDOW      = 4
 	MAPHASH_LEN = 4
 	SDU         = RNS.Reticulum.MTU - RNS.Packet.HEADER_MAXSIZE
 	RANDOM_HASH_SIZE = 4
