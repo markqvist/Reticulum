@@ -77,7 +77,7 @@ def list_files():
 # When a client establishes a link to our server
 # destination, this function will be called with
 # a reference to the link. We then send the client
-# a  list of files hosted on the server.
+# a list of files hosted on the server.
 def client_connected(link):
 	# Check if the served directory still exists
 	if os.path.isdir(serve_path):
@@ -119,7 +119,7 @@ def client_request(message, packet):
 	if message in list_files():
 		try:
 			# If we have the requested file, we'll
-			# read it and packe it as a resource
+			# read it and pack it as a resource
 			RNS.log("Client requested \""+message+"\"")
 			file = open(os.path.join(serve_path, message), "r")
 			file_resource = RNS.Resource(file.read(), packet.link, callback=resource_sending_concluded)
