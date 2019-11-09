@@ -62,7 +62,6 @@ class Packet:
 			self.transport_id   = transport_id
 			self.data 		    = data
 			self.flags	 	    = self.getPackedFlags()
-			self.MTU     		= RNS.Reticulum.MTU
 
 			self.raw    		= None
 			self.packed 		= False
@@ -74,7 +73,8 @@ class Packet:
 			self.packed         = True
 			self.fromPacked     = True
 
-		self.sent_at = None
+		self.MTU         = RNS.Reticulum.MTU
+		self.sent_at     = None
 		self.packet_hash = None
 
 	def getPackedFlags(self):
@@ -120,8 +120,13 @@ class Packet:
 					self.ciphertext = self.destination.encrypt(self.data)
 
 			if self.header_type == Packet.HEADER_2:
-				if t_destination != None:
-					self.header += self.t_destination
+				if self.transport_id != None:
+					self.header += self.transport_id
+					self.header += self.destination.hash
+
+					if self.packet_type == Packet.ANNOUNCE:
+						# Announce packets are not encrypted
+						self.ciphertext = self.data
 				else:
 					raise IOError("Packet with header type 2 must have a transport ID")
 

@@ -208,7 +208,11 @@ class Destination:
 
 		signature = self.identity.sign(signed_data)
 
+		# TODO: Check if this could be optimised by only
+		# carrying the hash in the destination field, not
+		# also redundantly inside the signed blob as here
 		announce_data = self.hash+self.identity.getPublicKey()+random_hash+signature
+
 		if app_data != None:
 			announce_data += app_data
 
