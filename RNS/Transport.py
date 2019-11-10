@@ -19,11 +19,18 @@ class Transport:
 	REACHABILITY_DIRECT      = 0x01
 	REACHABILITY_TRANSPORT	 = 0x02
 
+	# TODO: Document the addition of random windows
+	# and max local rebroadcasts.
 	PATHFINDER_M    = 18		# Max hops
 	PATHFINDER_C    = 2.0		# Decay constant
 	PATHFINDER_R	= 2			# Retransmit retries
 	PATHFINDER_T	= 10		# Retry grace period
+	PATHFINDER_RW   = 10		# Random window for announce rebroadcast
 	PATHFINDER_E    = 60*15		# Path expiration in seconds
+
+	# TODO: Calculate an optimal number for this in
+	# various situations
+	LOCAL_REBROADCASTS_MAX = 2	# How many local rebroadcasts of an announce is allowed
 
 	interfaces	 	= []		# All active interfaces
 	destinations    = []		# All active destinations
@@ -32,8 +39,8 @@ class Transport:
 	packet_hashlist = []		# A list of packet hashes for duplicate detection
 	receipts		= []		# Receipts of all outgoing packets for proof processing
 
-	announce_table    = {}
-	destination_table = {}
+	announce_table    = {}		# A table for storing announces currently waiting to be retransmitted
+	destination_table = {}		# A lookup table containing the next hop to a given destination
 
 	jobs_locked = False
 	jobs_running = False
@@ -113,8 +120,7 @@ class Transport:
 							break
 						else:
 							if time.time() > announce_entry[1]:
-								# RNS.log("Rebroadcasting announce", RNS.LOG_INFO)
-								announce_entry[1] = time.time() + math.pow(Transport.PATHFINDER_C, announce_entry[4]) + Transport.PATHFINDER_T
+								announce_entry[1] = time.time() + math.pow(Transport.PATHFINDER_C, announce_entry[4]) + Transport.PATHFINDER_T + Transport.PATHFINDER_RW
 								announce_entry[2] += 1
 								packet = announce_entry[5]
 								announce_data = packet.data
@@ -221,12 +227,21 @@ class Transport:
 						
 						# Check if this is a next retransmission from
 						# another node. If it is, we're removing the
-						# announcein question from our pending table
+						# announce in question from our pending table
 						if packet.destination_hash in Transport.announce_table:
 							announce_entry = Transport.announce_table[packet.destination_hash]
+							
+							if packet.hops == announce_entry[4]:
+								RNS.log("Heard a local rebroadcast of announce for "+RNS.prettyhexrep(packet.destination_hash), RNS.LOG_DEBUG)
+								announce_entry[6] += 1
+								if announce_entry[6] >= Transport.LOCAL_REBROADCASTS_MAX:
+									RNS.log("Max local rebroadcasts of announce for "+RNS.prettyhexrep(packet.destination_hash)+" reached, dropping announce from our table", RNS.LOG_DEBUG)
+									Transport.announce_table.pop(packet.destination_hash)
+
 							if packet.hops == announce_entry[4]+1 and announce_entry[2] > 0:
 								now = time.time()
 								if now < announce_entry[1]:
+									RNS.log("Rebroadcasted announce for "+RNS.prettyhexrep(packet.destination_hash)+" has been passed on to next node, no further tries needed", RNS.LOG_DEBUG)
 									Transport.announce_table.pop(packet.destination_hash)
 
 					else:
@@ -236,20 +251,42 @@ class Transport:
 					# announce and destination tables
 					should_add = False
 					packet.hops += 1
+					# First, check that the announce is not for a destination
+					# local to this system, and that hops are less than the max
 					if (not any(packet.destination_hash == d.hash for d in Transport.destinations) and packet.hops < Transport.PATHFINDER_M+1):
+						random_blob = packet.data[RNS.Identity.DERKEYSIZE/8+10:RNS.Identity.DERKEYSIZE/8+20]
+						random_blobs = []
 						if packet.destination_hash in Transport.destination_table:
+							random_blobs = Transport.destination_table[packet.destination_hash][4]
+
+							# If we already have a path to the announced
+							# destination, but the hop count is equal or
+							# less, we'll update our tables.
 							if packet.hops <= Transport.destination_table[packet.destination_hash][2]:
-								# If we already have a path to the announced
-								# destination, but the hop count is equal or
-								# less, we'll update our tables.
-								should_add = True
+								# Make sure we haven't heard the random
+								# blob before, so announces can't be
+								# replayed to forge paths.
+								# TODO: Check whether this approach works
+								# under all circumstances
+								if not random_blob in random_blobs:
+									should_add = True
+								else:
+									should_add = False
 							else:
 								# If an announce arrives with a larger hop
 								# count than we already have in the table,
 								# ignore it, unless the path is expired
-								if (time.time() < Transport.destination_table[packet.destination_hash][3]):
-									RNS.log("Replacing destination table entry for "+str(RNS.prettyhexrep(packet.destination_hash))+" with new announce due to expired path", RNS.LOG_DEBUG)
-									should_add = True
+								if (time.time() > Transport.destination_table[packet.destination_hash][3]):
+									# We also check that the announce hash is
+									# different from ones we've already heard,
+									# to avoid loops in the network
+									if not random_blob in random_blobs:
+										# TODO: Check that this ^ approach actually
+										# works under all circumstances
+										RNS.log("Replacing destination table entry for "+str(RNS.prettyhexrep(packet.destination_hash))+" with new announce due to expired path", RNS.LOG_DEBUG)
+										should_add = True
+									else:
+										should_add = False
 								else:
 									should_add = False
 						else:
@@ -261,9 +298,11 @@ class Transport:
 							now = time.time()
 							retries = 0
 							expires = now + Transport.PATHFINDER_E
-							retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops)
-							Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, packet.hops, packet]
-							Transport.destination_table[packet.destination_hash] = [now, received_from, packet.hops, expires]
+							local_rebroadcasts = 0
+							random_blobs.append(random_blob)
+							retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops) + (RNS.rand() * Transport.PATHFINDER_RW)
+							Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, packet.hops, packet, local_rebroadcasts]
+							Transport.destination_table[packet.destination_hash] = [now, received_from, packet.hops, expires, random_blobs]
 			
 			elif packet.packet_type == RNS.Packet.LINKREQUEST:
 				for destination in Transport.destinations:

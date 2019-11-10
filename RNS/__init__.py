@@ -2,6 +2,7 @@ import os
 import sys
 import glob
 import time
+import random
 
 from .Reticulum import Reticulum
 from .Identity import Identity
@@ -31,6 +32,8 @@ loglevel 	 = LOG_NOTICE
 logfile      = None
 logdest      = LOG_STDOUT
 logtimefmt   = "%Y-%m-%d %H:%M:%S"
+
+random.seed(os.urandom(10))
 
 def loglevelname(level):
 	if (level == LOG_CRITICAL):
@@ -65,6 +68,10 @@ def log(msg, level=3):
 			file = open(logfile, "a")
 			file.write(logstring+"\n")
 			file.close()
+
+def rand():
+	result = random.random()
+	return result
 
 def hexprint(data):
 	print(hexrep(hexrep))
