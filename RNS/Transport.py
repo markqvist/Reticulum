@@ -19,17 +19,18 @@ class Transport:
 	REACHABILITY_DIRECT      = 0x01
 	REACHABILITY_TRANSPORT	 = 0x02
 
-	PATHFINDER_M    = 18	# Max hops
-	PATHFINDER_C    = 2.0	# Decay constant
-	PATHFINDER_R	= 2		# Retransmit retries
-	PATHFINDER_T	= 10	# Retry grace period
+	PATHFINDER_M    = 18		# Max hops
+	PATHFINDER_C    = 2.0		# Decay constant
+	PATHFINDER_R	= 2			# Retransmit retries
+	PATHFINDER_T	= 10		# Retry grace period
+	PATHFINDER_E    = 60*15		# Path expiration in seconds
 
-	interfaces	 	= []	# All active interfaces
-	destinations    = []	# All active destinations
-	pending_links   = []	# Links that are being established
-	active_links	= []	# Links that are active
-	packet_hashlist = []	# A list of packet hashes for duplicate detection
-	receipts		= []	# Receipts of all outgoing packets for proof processing
+	interfaces	 	= []		# All active interfaces
+	destinations    = []		# All active destinations
+	pending_links   = []		# Links that are being established
+	active_links	= []		# Links that are active
+	packet_hashlist = []		# A list of packet hashes for duplicate detection
+	receipts		= []		# Receipts of all outgoing packets for proof processing
 
 	announce_table    = {}
 	destination_table = {}
@@ -107,7 +108,7 @@ class Transport:
 						# RNS.log("Announce entry retries: "+str(announce_entry[2]), RNS.LOG_INFO)
 						# RNS.log("Max retries: "+str(Transport.PATHFINDER_R), RNS.LOG_INFO)
 						if announce_entry[2] > Transport.PATHFINDER_R:
-							# RNS.log("Removing due to exceeded retries", RNS.LOG_INFO)
+							RNS.log("Dropping announce for "+RNS.prettyhexrep(destination_hash)+", retries exceeded", RNS.LOG_DEBUG)
 							Transport.announce_table.pop(destination_hash)
 							break
 						else:
@@ -123,7 +124,7 @@ class Transport:
 								announce_destination.hexhash = announce_destination.hash.encode("hex_codec")
 								new_packet = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE, header_type = RNS.Packet.HEADER_2, transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash)
 								new_packet.hops = announce_entry[4]
-								RNS.log("Rebroadcasting announce for "+RNS.prettyhexrep(announce_destination.hash)+" with hop count "+str(new_packet.hops), RNS.LOG_INFO)
+								RNS.log("Rebroadcasting announce for "+RNS.prettyhexrep(announce_destination.hash)+" with hop count "+str(new_packet.hops), RNS.LOG_DEBUG)
 								outgoing.append(new_packet)
 
 					Transport.announces_last_checked = time.time()
@@ -225,23 +226,44 @@ class Transport:
 							announce_entry = Transport.announce_table[packet.destination_hash]
 							if packet.hops == announce_entry[4]+1 and announce_entry[2] > 0:
 								now = time.time()
-								if now < announce_entry[2]:
-									# TODO: Remove
-									RNS.log("Another node retransmitted our transported announce for "+RNS.prettyhexrep(packet.destination_hash)+", removing it from pending table", RNS.LOG_DEBUG)
-									Transport.announce_table.pop(announce_entry)
+								if now < announce_entry[1]:
+									Transport.announce_table.pop(packet.destination_hash)
 
 					else:
 						received_from = packet.destination_hash
 
-					# If the announce has not reached the retransmission
-					# limit, insert it into our pending table
+					# Check if this announce should be inserted into
+					# announce and destination tables
+					should_add = False
 					packet.hops += 1
-					if (packet.hops < Transport.PATHFINDER_M+1):
-						now = time.time()
-						retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops)
-						retries = 0
-						Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, packet.hops, packet]
-						Transport.destination_table[packet.destination_hash] = [now, received_from, packet.hops]
+					if (not any(packet.destination_hash == d.hash for d in Transport.destinations) and packet.hops < Transport.PATHFINDER_M+1):
+						if packet.destination_hash in Transport.destination_table:
+							if packet.hops <= Transport.destination_table[packet.destination_hash][2]:
+								# If we already have a path to the announced
+								# destination, but the hop count is equal or
+								# less, we'll update our tables.
+								should_add = True
+							else:
+								# If an announce arrives with a larger hop
+								# count than we already have in the table,
+								# ignore it, unless the path is expired
+								if (time.time() < Transport.destination_table[packet.destination_hash][3]):
+									RNS.log("Replacing destination table entry for "+str(RNS.prettyhexrep(packet.destination_hash))+" with new announce due to expired path", RNS.LOG_DEBUG)
+									should_add = True
+								else:
+									should_add = False
+						else:
+							# If this destination is unknown in our table
+							# we should add it
+							should_add = True
+
+						if should_add:
+							now = time.time()
+							retries = 0
+							expires = now + Transport.PATHFINDER_E
+							retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops)
+							Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, packet.hops, packet]
+							Transport.destination_table[packet.destination_hash] = [now, received_from, packet.hops, expires]
 			
 			elif packet.packet_type == RNS.Packet.LINKREQUEST:
 				for destination in Transport.destinations:
