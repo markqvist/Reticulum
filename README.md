@@ -8,10 +8,10 @@ Reticulum is a complete networking stack, and does not use IP or higher layers, 
 For more info, see [unsigned.io/projects/reticulum](http://unsigned.io/projects/reticulum/)
 
 ## Current Status
-Reticulum is currently in pre-alpha state. Even the master branch should be considered experimental. At this point the protocol may change without notice, and is made publicly available for development collaboration, previewing and testing features. Do not build anything serious with Reticulum yet. Stable alpha release will be in early 2019.
+Reticulum is in an early experimental state. Most features are implemented and working, but at this point the protocol may still change significantly, and is made publicly available for development collaboration, previewing and testing features.
 
 ## What hardware does Reticulum work with?
-Practically any hardware that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, HAM radio digital modes, free-space optical systems and similar systems are all examples of the types of interfaces Reticulum was designed for.
+Practically any hardware that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, HAM radio digital modes, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.
 
 An open-source LoRa-based interface called [RNode](https://unsigned.io/projects/rnode/) has been designed specifically for use with Reticulum. It is easy to build yourself, or can be purchased as a complete radio that just needs a USB connection to the host.
 
