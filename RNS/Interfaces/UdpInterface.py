@@ -20,10 +20,14 @@ class UdpInterface(Interface):
             self.bind_ip = bindip
             self.bind_port = bindport
 
-            UdpInterfaceHandler.interface = self
+            def handlerFactory(callback):
+                def createHandler(*args, **keys):
+                    return UdpInterfaceHandler(callback, *args, **keys)
+                return createHandler
+
             self.owner = owner
             address = (self.bind_ip, self.bind_port)
-            self.server = SocketServer.UDPServer(address, UdpInterfaceHandler)
+            self.server = SocketServer.UDPServer(address, handlerFactory(self.processIncoming))
 
             thread = threading.Thread(target=self.server.serve_forever)
             thread.setDaemon(True)
@@ -49,9 +53,10 @@ class UdpInterface(Interface):
         return "UdpInterface["+self.name+"/"+self.bind_ip+":"+str(self.bind_port)+"]"
 
 class UdpInterfaceHandler(SocketServer.BaseRequestHandler):
-    interface = None
+    def __init__(self, callback, *args, **keys):
+        self.callback = callback
+        SocketServer.BaseRequestHandler.__init__(self, *args, **keys)
 
     def handle(self):
-        if (UdpInterfaceHandler.interface != None):
-            data = self.request[0]
-            UdpInterfaceHandler.interface.processIncoming(data)
+        data = self.request[0]
+        self.callback(data)

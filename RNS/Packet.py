@@ -12,7 +12,7 @@ class Packet:
 
 	# Header types
 	HEADER_1     = 0x00		# Normal header format
-	HEADER_2     = 0x01		# Header format used for link packets in transport
+	HEADER_2     = 0x01		# Header format used for packets in transport
 	HEADER_3     = 0x02		# Reserved
 	HEADER_4     = 0x03		# Reserved
 	header_types = [HEADER_1, HEADER_2, HEADER_3, HEADER_4]
@@ -85,6 +85,7 @@ class Packet:
 		return packed_flags
 
 	def pack(self):
+		self.destination_hash = self.destination.hash
 		self.header = ""
 		self.header += struct.pack("!B", self.flags)
 		self.header += struct.pack("!B", self.hops)
@@ -141,6 +142,7 @@ class Packet:
 			raise IOError("Packet size of "+str(len(self.raw))+" exceeds MTU of "+str(self.MTU)+" bytes")
 
 		self.packed = True
+		self.updateHash()
 
 	def unpack(self):
 		self.flags = ord(self.raw[0])
@@ -163,6 +165,7 @@ class Packet:
 			self.data = self.raw[13:]
 
 		self.packed = False
+		self.updateHash()
 
 	def send(self):
 		if not self.sent:
@@ -222,9 +225,13 @@ class Packet:
 		return RNS.Identity.fullHash(self.getHashablePart())
 
 	def getHashablePart(self):
-		# TODO: This assumes transport headers are stripped
-		# by Transport before going anywhere else
-		return self.raw[0:1]+self.raw[2:]
+		hashable_part = struct.pack("!B", struct.unpack("!B", self.raw[0])[0] & 0b00001111)
+		if self.header_type == Packet.HEADER_2:
+			hashable_part += self.raw[12:]
+		else:
+			hashable_part += self.raw[2:]
+
+		return hashable_part
 
 class ProofDestination:
 	def __init__(self, packet):

@@ -265,7 +265,6 @@ class Resource:
 						expected_data = self.hash + self.expected_proof
 						expected_proof_packet = RNS.Packet(self.link, expected_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.RESOURCE_PRF)
 						expected_proof_packet.pack()
-						expected_proof_packet.updateHash()
 						RNS.Transport.cache_request(expected_proof_packet.packet_hash)
 						self.last_part_sent = time.time()
 						sleep_time = 0.001
