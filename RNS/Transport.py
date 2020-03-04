@@ -236,6 +236,7 @@ class Transport:
 			if packet.packet_type == RNS.Packet.ANNOUNCE:
 				return True
 
+		RNS.log("Filtered packet with hash "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_DEBUG)
 		return False
 
 	@staticmethod
@@ -261,7 +262,6 @@ class Transport:
 					RNS.log("Received packet in transport for "+RNS.prettyhexrep(packet.destination_hash)+" with matching transport ID, transporting it...", RNS.LOG_DEBUG)
 					if packet.destination_hash in Transport.destination_table:
 						next_hop = Transport.destination_table[packet.destination_hash][1]
-						RNS.log("Packet hops: "+str(packet.hops), RNS.LOG_DEBUG)
 						RNS.log("Next hop to destination is "+RNS.prettyhexrep(next_hop)+", transporting it.", RNS.LOG_DEBUG)
 						new_raw = packet.raw[0:1]
 						new_raw += struct.pack("!B", packet.hops)

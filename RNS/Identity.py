@@ -23,6 +23,8 @@ class Identity:
 	HASHLENGTH  = 256		# In bits
 	SIGLENGTH   = KEYSIZE
 
+	TRUNCATED_HASHLENGTH = 80 # In bits
+
 	# Storage
 	known_destinations = {}
 
@@ -78,7 +80,7 @@ class Identity:
 		digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
 		digest.update(data)
 
-		return digest.finalize()[:10]
+		return digest.finalize()[:(Identity.TRUNCATED_HASHLENGTH/8)]
 
 	@staticmethod
 	def getRandomHash():

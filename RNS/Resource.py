@@ -18,6 +18,7 @@ class Resource:
 	# intelligently
 	MAX_RETRIES       = 5
 	SENDER_GRACE_TIME = 10
+	RETRY_GRACE_TIME  = 0.25
 
 	HASHMAP_IS_NOT_EXHAUSTED = 0x00
 	HASHMAP_IS_EXHAUSTED = 0xFF
@@ -232,7 +233,7 @@ class Resource:
 			elif self.status == Resource.TRANSFERRING:
 				if not self.initiator:
 					rtt = self.link.rtt if self.rtt == None else self.rtt
-					sleep_time = self.last_activity + (rtt*self.timeout_factor) - time.time()
+					sleep_time = self.last_activity + (rtt*self.timeout_factor) + Resource.RETRY_GRACE_TIME - time.time()
 
 					if sleep_time < 0:
 						if self.retries_left > 0:
