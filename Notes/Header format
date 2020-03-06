@@ -28,3 +28,14 @@ data			00
 announce		01
 link request	10
 proof			11
+
+
++- Header example -+
+
+01010000 00000100
+ | | | |    |
+ | | | |    +-- Context = RESOURCE_HMU
+ | | | +------- DATA packet
+ | | +--------- SINGLE destination
+ | +----------- TRANSPORT propagation type
+ +------------- HEADER_2, two byte header, two address fields

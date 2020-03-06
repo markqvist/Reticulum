@@ -20,11 +20,13 @@ class Transport:
 	REACHABILITY_DIRECT      = 0x01
 	REACHABILITY_TRANSPORT	 = 0x02
 
+	APP_NAME = "rnstransport"
+
 	# TODO: Document the addition of random windows
 	# and max local rebroadcasts.
 	PATHFINDER_M    = 18		# Max hops
 	PATHFINDER_C    = 2.0		# Decay constant
-	PATHFINDER_R	= 2			# Retransmit retries
+	PATHFINDER_R	= 1			# Retransmit retries
 	PATHFINDER_T	= 10		# Retry grace period
 	PATHFINDER_RW   = 10		# Random window for announce rebroadcast
 	PATHFINDER_E    = 60*15		# Path expiration in seconds
@@ -32,6 +34,9 @@ class Transport:
 	# TODO: Calculate an optimal number for this in
 	# various situations
 	LOCAL_REBROADCASTS_MAX = 2	# How many local rebroadcasts of an announce is allowed
+
+	PATH_REQUEST_GRACE = 0.25   # Grace time before a path announcement is made, allows directly reachable peers to respond first
+	PATH_REQUEST_RW = 2 		# Path request random window
 
 	interfaces	 	= []		# All active interfaces
 	destinations    = []		# All active destinations
@@ -78,7 +83,10 @@ class Transport:
 			except Exception as e:
 				RNS.log("Could not load packet hashlist from disk, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
-
+		# Create transport-specific destinations
+		path_request_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
+		path_request_destination.packet_callback(Transport.pathRequestHandler)
+		
 		thread = threading.Thread(target=Transport.jobloop)
 		thread.setDaemon(True)
 		thread.start()
@@ -121,12 +129,16 @@ class Transport:
 								announce_entry[1] = time.time() + math.pow(Transport.PATHFINDER_C, announce_entry[4]) + Transport.PATHFINDER_T + Transport.PATHFINDER_RW
 								announce_entry[2] += 1
 								packet = announce_entry[5]
+								block_rebroadcasts = announce_entry[7]
+								announce_context = RNS.Packet.NONE
+								if block_rebroadcasts:
+									announce_context = RNS.Packet.PATH_RESPONSE
 								announce_data = packet.data
 								announce_identity = RNS.Identity.recall(packet.destination_hash)
 								announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
 								announce_destination.hash = packet.destination_hash
 								announce_destination.hexhash = announce_destination.hash.encode("hex_codec")
-								new_packet = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE, header_type = RNS.Packet.HEADER_2, transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash)
+								new_packet = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE, context = announce_context, header_type = RNS.Packet.HEADER_2, transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash)
 								new_packet.hops = announce_entry[4]
 								RNS.log("Rebroadcasting announce for "+RNS.prettyhexrep(announce_destination.hash)+" with hop count "+str(new_packet.hops), RNS.LOG_DEBUG)
 								outgoing.append(new_packet)
@@ -185,7 +197,6 @@ class Transport:
 				# Destination is directly reachable, and we know on
 				# what interface, so transmit only on that one
 
-				# TODO: Strip transport headers here
 				RNS.log("Transmitting "+str(len(packet.raw))+" bytes on: "+str(outbound_interface), RNS.LOG_EXTREME)
 				RNS.log("Hash is "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_EXTREME)
 				outbound_interface.processOutgoing(packet.raw)
@@ -212,7 +223,7 @@ class Transport:
 			packet.sent = True
 			packet.sent_at = time.time()
 
-			if (packet.packet_type == RNS.Packet.DATA):
+			if (packet.packet_type == RNS.Packet.DATA and packet.destination.type != RNS.Destination.PLAIN):
 				packet.receipt = RNS.PacketReceipt(packet)
 				Transport.receipts.append(packet.receipt)
 			
@@ -373,10 +384,13 @@ class Transport:
 							retries = 0
 							expires = now + Transport.PATHFINDER_E
 							local_rebroadcasts = 0
+							block_rebroadcasts = False
 							random_blobs.append(random_blob)
 							retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops) + (RNS.rand() * Transport.PATHFINDER_RW)
-							Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, packet.hops, packet, local_rebroadcasts]
-							Transport.destination_table[packet.destination_hash] = [now, received_from, packet.hops, expires, random_blobs, packet.receiving_interface]
+							if packet.context != RNS.Packet.PATH_RESPONSE:
+								Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, packet.hops, packet, local_rebroadcasts, block_rebroadcasts]
+
+							Transport.destination_table[packet.destination_hash] = [now, received_from, packet.hops, expires, random_blobs, packet.receiving_interface, packet]
 							RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" is now via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_DEBUG)
 			
 			elif packet.packet_type == RNS.Packet.LINKREQUEST:
@@ -532,6 +546,55 @@ class Transport:
 			file.close()
 		else:
 			cache_request_packet = RNS.Packet(Transport.transport_destination(), packet_hash, context = RNS.Packet.CACHE_REQUEST)
+
+	@staticmethod
+	def hasPath(destination_hash):
+		if destination_hash in Transport.destination_table:
+			return True
+		else:
+			return False
+
+	@staticmethod
+	def requestPath(destination_hash):
+		path_request_data = destination_hash + RNS.Identity.getRandomHash()
+		path_request_dst = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
+		packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1)
+		packet.send()
+
+	@staticmethod
+	def pathRequestHandler(data, packet):
+		if len(data) >= RNS.Identity.TRUNCATED_HASHLENGTH/8:
+			Transport.pathRequest(data[:RNS.Identity.TRUNCATED_HASHLENGTH/8])
+
+	@staticmethod
+	def pathRequest(destination_hash):
+		RNS.log("Path request for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
+		
+		local_destination = next((d for d in Transport.destinations if d.hash == destination_hash), None)
+		if local_destination != None:
+			RNS.log("Destination is local to this system, announcing", RNS.LOG_DEBUG)
+			local_destination.announce()
+
+		elif destination_hash in Transport.destination_table:
+			RNS.log("Path found, inserting announce for transmission", RNS.LOG_DEBUG)
+			packet = Transport.destination_table[destination_hash][6]
+			received_from = Transport.destination_table[destination_hash][5]
+
+			# Setting hops to 0xFF ensures announce is not rebroadcast by any local
+			# nodes, but requester will still see it and get a valid path
+			# TODO: Consider if there is a more elegant way to do this, or whether
+			# rebroadcasts should actually be allowed here
+			faux_hops = packet.hops
+			now = time.time()
+			retries = Transport.PATHFINDER_R
+			local_rebroadcasts = 0
+			block_rebroadcasts = True
+			retransmit_timeout = now + Transport.PATH_REQUEST_GRACE # + (RNS.rand() * Transport.PATHFINDER_RW)
+
+			Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, faux_hops, packet, local_rebroadcasts, block_rebroadcasts]
+
+		else:
+			RNS.log("No known path to requested destination, ignoring request", RNS.LOG_DEBUG)
 
 	@staticmethod
 	def transport_destination():

@@ -96,8 +96,7 @@ def client(destination_hexhash, configpath, timeout=None):
 
 	# We override the loglevel to provide feedback when
 	# an announce is received
-	# TODO: Reset this
-	RNS.loglevel = RNS.LOG_DEBUG
+	RNS.loglevel = RNS.LOG_INFO
 
 	# Tell the user that the client is ready!
 	RNS.log("Echo client ready, hit enter to send echo request to "+destination_hexhash+" (Ctrl-C to quit)")
@@ -108,14 +107,19 @@ def client(destination_hexhash, configpath, timeout=None):
 	# command line.
 	while True:
 		raw_input()
-		# To address the server, we need to know it's public
-		# key, so we check if Reticulum knows this destination.
-		# This is done by calling the "recall" method of the
-		# Identity module. If the destination is known, it will
-		# return an Identity instance that can be used in
-		# outgoing destinations.
-		server_identity = RNS.Identity.recall(destination_hash)
-		if server_identity != None:
+		
+		# Let's first check if RNS knows a path to the destination.
+		# If it does, we'll load the server identity and create a packet
+		if RNS.Transport.hasPath(destination_hash):
+
+			# To address the server, we need to know it's public
+			# key, so we check if Reticulum knows this destination.
+			# This is done by calling the "recall" method of the
+			# Identity module. If the destination is known, it will
+			# return an Identity instance that can be used in
+			# outgoing destinations.
+			server_identity = RNS.Identity.recall(destination_hash)
+
 			# We got the correct identity instance from the
 			# recall method, so let's create an outgoing
 			# destination. We use the naming convention:
@@ -152,7 +156,8 @@ def client(destination_hexhash, configpath, timeout=None):
 		else:
 			# If we do not know this destination, tell the
 			# user to wait for an announce to arrive.
-			RNS.log("Destination is not yet known. Wait for an announce to arrive and try again.")
+			RNS.log("Destination is not yet known. Requesting path...")
+			RNS.Transport.requestPath(destination_hash)
 
 # This function is called when our reply destination
 # receives a proof packet.

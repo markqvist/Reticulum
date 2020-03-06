@@ -57,7 +57,8 @@ class AX25KISSInterface(Interface):
 		self.timeout  = 100
 		self.online   = False
 		# TODO: Sane default and make this configurable
-		self.txdelay  = 0.1
+		# TODO: Changed to 1ms instead of 100ms, check it
+		self.txdelay  = 0.001
 
 		self.packet_queue    = []
 		self.flow_control    = flow_control

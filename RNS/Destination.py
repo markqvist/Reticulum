@@ -75,8 +75,8 @@ class Destination:
 		if identity != None and type == Destination.SINGLE:
 			aspects = aspects+(identity.hexhash,)
 
-		if identity == None and direction == Destination.IN:
-			identity = Identity()
+		if identity == None and direction == Destination.IN and self.type != Destination.PLAIN:
+			identity = RNS.Identity()
 			aspects = aspects+(identity.hexhash,)
 
 		self.identity = identity

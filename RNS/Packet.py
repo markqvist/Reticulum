@@ -29,8 +29,9 @@ class Packet:
 	CACHE_REQUEST  = 0x08	# Packet is a cache request
 	REQUEST        = 0x09	# Packet is a request
 	RESPONSE       = 0x0A	# Packet is a response to a request
-	COMMAND        = 0x0B	# Packet is a command
-	COMMAND_STATUS = 0x0C	# Packet is a status of an executed command
+	PATH_RESPONSE  = 0x0B	# Packet is a response to a path request
+	COMMAND        = 0x0C	# Packet is a command
+	COMMAND_STATUS = 0x0D	# Packet is a status of an executed command
 	KEEPALIVE      = 0xFB	# Packet is a keepalive packet
 	LINKCLOSE      = 0xFC	# Packet is a link close message
 	LINKPROOF      = 0xFD	# Packet is a link packet proof
@@ -330,6 +331,9 @@ class PacketReceipt:
 				return False
 		elif len(proof) == PacketReceipt.IMPL_LENGTH:
 			# This is an implicit proof
+			if self.destination.identity == None:
+				return False
+
 			signature = proof[:RNS.Identity.SIGLENGTH/8]
 			proof_valid = self.destination.identity.validate(signature, self.hash)
 			if proof_valid:
