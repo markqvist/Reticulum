@@ -657,10 +657,6 @@ class Transport:
 			packet = Transport.destination_table[destination_hash][6]
 			received_from = Transport.destination_table[destination_hash][5]
 
-			# Setting hops to 0xFF ensures announce is not rebroadcast by any local
-			# nodes, but requester will still see it and get a valid path
-			# TODO: Consider if there is a more elegant way to do this, or whether
-			# rebroadcasts should actually be allowed here
 			now = time.time()
 			retries = Transport.PATHFINDER_R
 			local_rebroadcasts = 0
