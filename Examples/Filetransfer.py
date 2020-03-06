@@ -180,15 +180,16 @@ def client(destination_hexhash, configpath):
 	# We must first initialise Reticulum
 	reticulum = RNS.Reticulum(configpath)
 
-	# Check if we already know the destination
-	server_identity = RNS.Identity.recall(destination_hash)
 
-	# If not, we'll have to wait until an announce arrives
-	if server_identity == None:
-		RNS.log("Destination is not yet known, waiting for an announce to arrive... (Ctrl-C to cancel)")
-		while (server_identity == None):
+	# Check if we know a path to the destination
+	if not RNS.Transport.hasPath(destination_hash):
+		RNS.log("Destination is not yet known. Requesting path and waiting for announce to arrive...")
+		RNS.Transport.requestPath(destination_hash)
+		while not RNS.Transport.hasPath(destination_hash):
 			time.sleep(0.1)
-			server_identity = RNS.Identity.recall(destination_hash)
+
+	# Recall the server identity
+	server_identity = RNS.Identity.recall(destination_hash)
 
 	# Inform the user that we'll begin connecting
 	RNS.log("Establishing link with server...")

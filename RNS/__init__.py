@@ -73,9 +73,6 @@ def rand():
 	result = random.random()
 	return result
 
-def hexprint(data):
-	print(hexrep(hexrep))
-
 def hexrep(data, delimit=True):
 	delimiter = ":"
 	if not delimit:

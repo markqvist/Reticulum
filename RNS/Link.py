@@ -144,7 +144,7 @@ class Link:
 			self.peer_pub.curve = Link.CURVE
 
 	def setLinkID(self, packet):
-		self.link_id = RNS.Identity.truncatedHash(packet.raw)
+		self.link_id = packet.getTruncatedHash()
 		self.hash = self.link_id
 
 	def handshake(self):
@@ -218,7 +218,7 @@ class Link:
 			rtt = umsgpack.unpackb(plaintext)
 			self.rtt = max(measured_rtt, rtt)
 			self.status = Link.ACTIVE
-			# TODO: Link established callback moved here, ok?
+			
 			if self.owner.callbacks.link_established != None:
 					self.owner.callbacks.link_established(self)
 		except Exception as e:

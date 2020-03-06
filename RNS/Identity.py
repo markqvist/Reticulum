@@ -36,15 +36,15 @@ class Identity:
 
 	@staticmethod
 	def recall(destination_hash):
-		RNS.log("Searching for "+RNS.prettyhexrep(destination_hash)+"...", RNS.LOG_DEBUG)
+		RNS.log("Searching for "+RNS.prettyhexrep(destination_hash)+"...", RNS.LOG_EXTREME)
 		if destination_hash in Identity.known_destinations:
 			identity_data = Identity.known_destinations[destination_hash]
 			identity = Identity(public_only=True)
 			identity.loadPublicKey(identity_data[2])
-			RNS.log("Found "+RNS.prettyhexrep(destination_hash)+" in known destinations", RNS.LOG_DEBUG)
+			RNS.log("Found "+RNS.prettyhexrep(destination_hash)+" in known destinations", RNS.LOG_EXTREME)
 			return identity
 		else:
-			RNS.log("Could not find "+RNS.prettyhexrep(destination_hash)+" in known destinations", RNS.LOG_DEBUG)
+			RNS.log("Could not find "+RNS.prettyhexrep(destination_hash)+" in known destinations", RNS.LOG_EXTREME)
 			return None
 
 	@staticmethod
@@ -104,7 +104,7 @@ class Identity:
 			announced_identity.loadPublicKey(public_key)
 
 			if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
-				RNS.Identity.remember(RNS.Identity.fullHash(packet.raw), destination_hash, public_key)
+				RNS.Identity.remember(packet.getHash(), destination_hash, public_key)
 				RNS.log("Stored valid announce from "+RNS.prettyhexrep(destination_hash), RNS.LOG_INFO)
 				del announced_identity
 				return True

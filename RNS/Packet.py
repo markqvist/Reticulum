@@ -133,8 +133,6 @@ class Packet:
 					raise IOError("Packet with header type 2 must have a transport ID")
 
 
-
-
 		self.header += chr(self.context)
 
 		self.raw = self.header + self.ciphertext
@@ -224,6 +222,9 @@ class Packet:
 
 	def getHash(self):
 		return RNS.Identity.fullHash(self.getHashablePart())
+
+	def getTruncatedHash(self):
+		return RNS.Identity.truncatedHash(self.getHashablePart())
 
 	def getHashablePart(self):
 		hashable_part = struct.pack("!B", struct.unpack("!B", self.raw[0])[0] & 0b00001111)

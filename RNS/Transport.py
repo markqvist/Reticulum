@@ -48,6 +48,7 @@ class Transport:
 	announce_table    = {}		# A table for storing announces currently waiting to be retransmitted
 	destination_table = {}		# A lookup table containing the next hop to a given destination
 	reverse_table	  = {}		# A lookup table for storing packet hashes used to return proofs and replies
+	link_table        = {}		# A lookup table containing hops for links
 
 	jobs_locked = False
 	jobs_running = False
@@ -132,8 +133,6 @@ class Transport:
 								block_rebroadcasts = announce_entry[7]
 								announce_context = RNS.Packet.NONE
 								if block_rebroadcasts:
-									# TODO: Remove
-									RNS.log("Rebroadcasts blocked, setting context", RNS.LOG_DEBUG)
 									announce_context = RNS.Packet.PATH_RESPONSE
 								announce_data = packet.data
 								announce_identity = RNS.Identity.recall(packet.destination_hash)
@@ -203,9 +202,10 @@ class Transport:
 				RNS.log("Hash is "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_EXTREME)
 				outbound_interface.processOutgoing(packet.raw)
 				sent = True
-			
+
 		else:
-			# Broadcast packet on all outgoing interfaces
+			# Broadcast packet on all outgoing interfaces, or relevant
+			# interface, if packet is for a link
 			for interface in Transport.interfaces:
 				if interface.OUT:
 					should_transmit = True
@@ -214,7 +214,9 @@ class Transport:
 							should_transmit = False
 						if interface != packet.destination.attached_interface:
 							should_transmit = False
-
+						else:
+							pass
+							
 					if should_transmit:
 						RNS.log("Transmitting "+str(len(packet.raw))+" bytes on: "+str(interface), RNS.LOG_EXTREME)
 						RNS.log("Hash is "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_EXTREME)
@@ -249,7 +251,6 @@ class Transport:
 			if packet.packet_type == RNS.Packet.ANNOUNCE:
 				return True
 
-		# TODO: Probably changee to LOG_EXTREME
 		RNS.log("Filtered packet with hash "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_DEBUG)
 		return False
 
@@ -271,6 +272,9 @@ class Transport:
 		if Transport.packet_filter(packet):
 			Transport.packet_hashlist.append(packet.packet_hash)
 			
+			# General transport handling. Takes care of directing
+			# packets according to transport tables and recording
+			# entries in reverse and link tables.
 			if packet.transport_id != None and packet.packet_type != RNS.Packet.ANNOUNCE:
 				if packet.transport_id == Transport.identity.hash:
 					RNS.log("Received packet in transport for "+RNS.prettyhexrep(packet.destination_hash)+" with matching transport ID, transporting it...", RNS.LOG_DEBUG)
@@ -294,7 +298,27 @@ class Transport:
 						outbound_interface = Transport.destination_table[packet.destination_hash][5]
 						outbound_interface.processOutgoing(new_raw)
 
-						Transport.reverse_table[packet.packet_hash[:10]] = [packet.receiving_interface, outbound_interface, time.time()]
+						if packet.packet_type == RNS.Packet.LINKREQUEST:
+							# Entry format is
+							link_entry = [	time.time(),					# 0: Timestamp,
+											next_hop,						# 1: Next-hop transport ID
+											outbound_interface,				# 2: Next-hop interface
+											remaining_hops,					# 3: Remaining hops
+											packet.receiving_interface,		# 4: Received on interface
+											packet.hops,					# 5: Taken hops
+											packet.destination_hash,		# 6: Original destination hash
+											False]							# 7: Validated
+
+							Transport.link_table[packet.getTruncatedHash()] = link_entry
+
+						else:
+							# Entry format is
+							reverse_entry = [	packet.receiving_interface,	# 0: Received on interface
+												outbound_interface,			# 1: Outbound interface
+												time.time()]				# 2: Timestamp
+
+							Transport.reverse_table[packet.getTruncatedHash()] = reverse_entry
+
 					else:
 						# TODO: There should probably be some kind of REJECT
 						# mechanism here, to signal to the source that their
@@ -303,9 +327,45 @@ class Transport:
 				else:
 					pass
 
+			# Link transport handling. Directs packetes according
+			# to entries in the link tables
+			if packet.packet_type != RNS.Packet.ANNOUNCE and packet.packet_type != RNS.Packet.LINKREQUEST:
+				if packet.destination_hash in Transport.link_table:
+					link_entry = Transport.link_table[packet.destination_hash]
+					# If receiving and outbound interface is
+					# the same for this link, direction doesn't
+					# matter, and we simply send the packet on.
+					outbound_interface = None
+					if link_entry[2] == link_entry[4]:
+						# But check that taken hops matches one
+						# of the expectede values.
+						if packet.hops == link_entry[3] or packet.hops == link_entry[5]:
+							outbound_interface = link_entry[2]
+					else:
+						# If interfaces differ, we transmit on
+						# the opposite interface of what the
+						# packet was received on.
+						if packet.receiving_interface == link_entry[2]:
+							# Also check that expected hop count matches
+							if packet.hops == link_entry[3]:
+								outbound_interface = link_entry[4]
+						elif packet.receiving_interface == link_entry[4]:
+							# Also check that expected hop count matches
+							if packet.hops == link_entry[5]:
+								outbound_interface = link_entry[2]
+						
+					if outbound_interface != None:
+						new_raw = packet.raw[0:1]
+						new_raw += struct.pack("!B", packet.hops)
+						new_raw += packet.raw[2:]
+						outbound_interface.processOutgoing(new_raw)
+					else:
+						pass
+
+
 			# Announce handling. Handles logic related to incoming
 			# announces, queueing rebroadcasts of these, and removal
-			# of queued announce rebroadcasts once handed to the next node
+			# of queued announce rebroadcasts once handed to the next node.
 			if packet.packet_type == RNS.Packet.ANNOUNCE:
 				local_destination = next((d for d in Transport.destinations if d.hash == packet.destination_hash), None)
 				if local_destination == None and RNS.Identity.validateAnnounce(packet):
@@ -427,11 +487,29 @@ class Transport:
 
 			elif packet.packet_type == RNS.Packet.PROOF:
 				if packet.context == RNS.Packet.LRPROOF:
-					# This is a link request proof, forward
-					# to a waiting link request
-					for link in Transport.pending_links:
-						if link.link_id == packet.destination_hash:
-							link.validateProof(packet)
+					# This is a link request proof, check if it
+					# needs to be transported
+
+					if packet.destination_hash in Transport.link_table:
+						link_entry = Transport.link_table[packet.destination_hash]
+						if packet.receiving_interface == link_entry[2]:
+							# TODO: Should we validate the LR proof at each transport
+							# step before transporting it?
+							RNS.log("Link request proof received on correct interface, transporting it via "+str(link_entry[4]), RNS.LOG_DEBUG)
+							new_raw = packet.raw[0:1]
+							new_raw += struct.pack("!B", packet.hops)
+							new_raw += packet.raw[2:]
+							Transport.link_table[packet.destination_hash][7] = True
+							link_entry[4].processOutgoing(new_raw)
+						else:
+							RNS.log("Link request proof received on wrong interface, not transporting it.", RNS.LOG_DEBUG)
+					else:
+						# Check if we can deliver it to a local
+						# pending link
+						for link in Transport.pending_links:
+							if link.link_id == packet.destination_hash:
+								link.validateProof(packet)
+
 				elif packet.context == RNS.Packet.RESOURCE_PRF:
 					for link in Transport.active_links:
 						if link.link_id == packet.destination_hash:
@@ -443,8 +521,6 @@ class Transport:
 								packet.link = link
 								# plaintext = link.decrypt(packet.data)
 								
-
-					# TODO: Make sure everything uses new proof handling
 					if len(packet.data) == RNS.PacketReceipt.EXPL_LENGTH:
 						proof_hash = packet.data[:RNS.Identity.HASHLENGTH/8]
 					else:

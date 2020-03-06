@@ -32,7 +32,7 @@ proof			11
 
 +- Header example -+
 
-01010000 00000100
+01010000 00000100 [ADDR 1, 10 bytes] [ADDR 2, 10 bytes] [CONTEXT]
  | | | |    |
  | | | |    +-- Context = RESOURCE_HMU
  | | | +------- DATA packet
