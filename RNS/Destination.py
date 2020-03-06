@@ -198,7 +198,7 @@ class Destination:
 
 	# Creates an announce packet for this destination.
 	# Application specific data can be added to the announce.
-	def announce(self,app_data=None):
+	def announce(self, app_data=None, path_response=False):
 		destination_hash = self.hash
 		random_hash = RNS.Identity.getRandomHash()
 		
@@ -216,5 +216,10 @@ class Destination:
 		if app_data != None:
 			announce_data += app_data
 
-		RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE).send()
+		if path_response:
+			announce_context = RNS.Packet.PATH_RESPONSE
+		else:
+			announce_context = RNS.Packet.NONE
+
+		RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE, context = announce_context).send()
 

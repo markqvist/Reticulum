@@ -132,6 +132,8 @@ class Transport:
 								block_rebroadcasts = announce_entry[7]
 								announce_context = RNS.Packet.NONE
 								if block_rebroadcasts:
+									# TODO: Remove
+									RNS.log("Rebroadcasts blocked, setting context", RNS.LOG_DEBUG)
 									announce_context = RNS.Packet.PATH_RESPONSE
 								announce_data = packet.data
 								announce_identity = RNS.Identity.recall(packet.destination_hash)
@@ -299,14 +301,14 @@ class Transport:
 						# expected path failed
 						RNS.log("Got packet in transport, but no known path to final destination. Dropping packet.", RNS.LOG_DEBUG)
 				else:
-					# TODO: Remove this log statement
-					RNS.log("Received packet in transport, but transport ID doesn't match, not transporting it further.", RNS.LOG_DEBUG)
+					pass
 
 			# Announce handling. Handles logic related to incoming
 			# announces, queueing rebroadcasts of these, and removal
 			# of queued announce rebroadcasts once handed to the next node
 			if packet.packet_type == RNS.Packet.ANNOUNCE:
-				if RNS.Identity.validateAnnounce(packet):
+				local_destination = next((d for d in Transport.destinations if d.hash == packet.destination_hash), None)
+				if local_destination == None and RNS.Identity.validateAnnounce(packet):
 					if packet.transport_id != None:
 						received_from = packet.transport_id
 						
@@ -387,11 +389,12 @@ class Transport:
 							block_rebroadcasts = False
 							random_blobs.append(random_blob)
 							retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops) + (RNS.rand() * Transport.PATHFINDER_RW)
+
 							if packet.context != RNS.Packet.PATH_RESPONSE:
 								Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, packet.hops, packet, local_rebroadcasts, block_rebroadcasts]
 
 							Transport.destination_table[packet.destination_hash] = [now, received_from, packet.hops, expires, random_blobs, packet.receiving_interface, packet]
-							RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" is now via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_DEBUG)
+							RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(packet.hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_DEBUG)
 			
 			elif packet.packet_type == RNS.Packet.LINKREQUEST:
 				for destination in Transport.destinations:
@@ -573,7 +576,7 @@ class Transport:
 		local_destination = next((d for d in Transport.destinations if d.hash == destination_hash), None)
 		if local_destination != None:
 			RNS.log("Destination is local to this system, announcing", RNS.LOG_DEBUG)
-			local_destination.announce()
+			local_destination.announce(path_response=True)
 
 		elif destination_hash in Transport.destination_table:
 			RNS.log("Path found, inserting announce for transmission", RNS.LOG_DEBUG)
@@ -584,14 +587,13 @@ class Transport:
 			# nodes, but requester will still see it and get a valid path
 			# TODO: Consider if there is a more elegant way to do this, or whether
 			# rebroadcasts should actually be allowed here
-			faux_hops = packet.hops
 			now = time.time()
 			retries = Transport.PATHFINDER_R
 			local_rebroadcasts = 0
 			block_rebroadcasts = True
 			retransmit_timeout = now + Transport.PATH_REQUEST_GRACE # + (RNS.rand() * Transport.PATHFINDER_RW)
 
-			Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, faux_hops, packet, local_rebroadcasts, block_rebroadcasts]
+			Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, packet.hops, packet, local_rebroadcasts, block_rebroadcasts]
 
 		else:
 			RNS.log("No known path to requested destination, ignoring request", RNS.LOG_DEBUG)

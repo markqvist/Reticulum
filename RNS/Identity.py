@@ -89,7 +89,7 @@ class Identity:
 	@staticmethod
 	def validateAnnounce(packet):
 		if packet.packet_type == RNS.Packet.ANNOUNCE:
-			RNS.log("Validating announce from "+RNS.prettyhexrep(packet.destination_hash), RNS.LOG_VERBOSE)
+			RNS.log("Validating announce from "+RNS.prettyhexrep(packet.destination_hash), RNS.LOG_DEBUG)
 			destination_hash = packet.destination_hash
 			public_key = packet.data[10:Identity.DERKEYSIZE/8+10]
 			random_hash = packet.data[Identity.DERKEYSIZE/8+10:Identity.DERKEYSIZE/8+20]
