@@ -236,6 +236,7 @@ class Transport:
 			if packet.packet_type == RNS.Packet.ANNOUNCE:
 				return True
 
+		# TODO: Probably changee to LOG_EXTREME
 		RNS.log("Filtered packet with hash "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_DEBUG)
 		return False
 
@@ -262,11 +263,21 @@ class Transport:
 					RNS.log("Received packet in transport for "+RNS.prettyhexrep(packet.destination_hash)+" with matching transport ID, transporting it...", RNS.LOG_DEBUG)
 					if packet.destination_hash in Transport.destination_table:
 						next_hop = Transport.destination_table[packet.destination_hash][1]
-						RNS.log("Next hop to destination is "+RNS.prettyhexrep(next_hop)+", transporting it.", RNS.LOG_DEBUG)
-						new_raw = packet.raw[0:1]
-						new_raw += struct.pack("!B", packet.hops)
-						new_raw += next_hop
-						new_raw += packet.raw[12:]
+						remaining_hops = Transport.destination_table[packet.destination_hash][2]
+						RNS.log("Next hop to destination is "+RNS.prettyhexrep(next_hop)+" with "+str(remaining_hops)+" hops remaining, transporting it.", RNS.LOG_DEBUG)
+						if remaining_hops > 1:
+							# Just increase hop count and transmit
+							new_raw = packet.raw[0:1]
+							new_raw += struct.pack("!B", packet.hops)
+							new_raw += next_hop
+							new_raw += packet.raw[12:]
+						else:
+							# Strip transport headers and transmit
+							new_flags = (RNS.Packet.HEADER_1) << 6 | (Transport.BROADCAST) << 4 | (packet.flags & 0b00001111)
+							new_raw = struct.pack("!B", new_flags)
+							new_raw += struct.pack("!B", packet.hops)
+							new_raw += packet.raw[12:]
+
 						outbound_interface = Transport.destination_table[packet.destination_hash][5]
 						outbound_interface.processOutgoing(new_raw)
 
