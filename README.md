@@ -21,7 +21,7 @@ Reticulum can also be tunneled over existing IP networks.
 Some countries still ban the use of encryption when operating under an amateur radio license. Reticulum offers several encryptionless modes, while still using cryptographic principles for station verification, link establishment, data integrity verification, acknowledgements and routing. It is therefore perfectly possible to include Reticulum in amateur radio use, even if your country bans encryption.
 
 ## How do I get started?
-Full documentation and video tutorials are coming with the stable alpha release. Until then, you are on your own. If you really want to experiment already, you could take a look in the "Examples" folder, for some well-documented example programs. Be sure to also read the [Reticulum Overview Document](http://unsigned.io/wp-content/uploads/2018/04/Reticulum_Overview_v0.4.pdf)
+Full documentation and video tutorials are coming with the stable alpha release. Until then, you are mostly on your own. If you really want to experiment already, you could take a look in the "Examples" folder, for some well-documented example programs. Be sure to also read the [Reticulum Overview Document](http://unsigned.io/wp-content/uploads/2018/04/Reticulum_Overview_v0.4.pdf)
 
 ## Dependencies:
  - cryptography.io

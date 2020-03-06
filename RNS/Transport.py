@@ -189,8 +189,6 @@ class Transport:
 				new_raw += packet.raw[1:2]
 				new_raw += Transport.destination_table[packet.destination_hash][1]
 				new_raw += packet.raw[2:]
-				# RNS.log("Transporting "+str(len(packet.raw))+" bytes via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_EXTREME)
-				# RNS.log("Hash is "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_EXTREME)
 				RNS.log("Packet was inserted into transport via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_DEBUG)
 				outbound_interface.processOutgoing(new_raw)
 				sent = True
@@ -205,7 +203,7 @@ class Transport:
 
 		else:
 			# Broadcast packet on all outgoing interfaces, or relevant
-			# interface, if packet is for a link
+			# interface, if packet is for a link or has an attachede interface
 			for interface in Transport.interfaces:
 				if interface.OUT:
 					should_transmit = True
@@ -214,8 +212,8 @@ class Transport:
 							should_transmit = False
 						if interface != packet.destination.attached_interface:
 							should_transmit = False
-						else:
-							pass
+					if packet.attached_interface != None and interface != packet.attached_interface:
+						should_transmit = False
 							
 					if should_transmit:
 						RNS.log("Transmitting "+str(len(packet.raw))+" bytes on: "+str(interface), RNS.LOG_EXTREME)

@@ -317,7 +317,7 @@ class Identity:
 		if destination == None:
 			destination = packet.generateProofDestination()
 
-		proof = RNS.Packet(destination, proof_data, RNS.Packet.PROOF)
+		proof = RNS.Packet(destination, proof_data, RNS.Packet.PROOF, attached_interface = packet.receiving_interface)
 		proof.send()
 
 	def __str__(self):

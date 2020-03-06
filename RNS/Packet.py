@@ -48,7 +48,7 @@ class Packet:
 	# Default packet timeout
 	TIMEOUT 	 = 60
 
-	def __init__(self, destination, data, packet_type = DATA, context = NONE, transport_type = RNS.Transport.BROADCAST, header_type = HEADER_1, transport_id = None):
+	def __init__(self, destination, data, packet_type = DATA, context = NONE, transport_type = RNS.Transport.BROADCAST, header_type = HEADER_1, transport_id = None, attached_interface = None):
 		if destination != None:
 			if transport_type == None:
 				transport_type = RNS.Transport.BROADCAST
@@ -77,6 +77,8 @@ class Packet:
 		self.MTU         = RNS.Reticulum.MTU
 		self.sent_at     = None
 		self.packet_hash = None
+
+		self.attached_interface = attached_interface
 
 	def getPackedFlags(self):
 		if self.context == Packet.LRPROOF:
