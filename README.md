@@ -7,7 +7,7 @@ Reticulum is a complete networking stack, and does not use IP or higher layers, 
 
 Reticulum runs completely in userland, and can run on practically any system that runs Python.
 
-For more info, see [unsigned.io/projects/reticulum](http://unsigned.io/projects/reticulum/)
+For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects/reticulum/)
 
 ## What hardware does Reticulum work with?
 Practically any hardware that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, HAM radio digital modes, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.
