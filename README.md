@@ -5,6 +5,8 @@ Reticulum is a cryptography-based networking stack for low-bandwidth, high-laten
 
 Reticulum is a complete networking stack, and does not use IP or higher layers, although it can be easily tunnelled through conventional IP networks. This frees up a lot of overhead, that has been utilised to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.
 
+Reticulum runs completely in userland, and can run on practically any system that runs Python.
+
 For more info, see [unsigned.io/projects/reticulum](http://unsigned.io/projects/reticulum/)
 
 ## What hardware does Reticulum work with?
@@ -80,4 +82,4 @@ python Examples/Echo.py 3e12fc71692f8ec47bc5
 python Examples/Filetransfer.py -h
 ```
 
-I'll add configuration examples for LoRa, packet radio and more in the near future. Until then, it should be possible to infer the config format quite easily from the classes in the Interfaces directory and the UDPInterface example created by default.
+I'll add configuration examples for LoRa, packet radio TNCs and more in the near future. Until then, it should be possible to infer the config format quite easily from the classes in the Interfaces directory and the UDPInterface example created by default.
