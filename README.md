@@ -41,6 +41,7 @@ An API- and wireformat-stable alpha release is coming in the near future. Until 
  - Useful example programs and utilities
  - API documentation
  - Cleanup and code commenting
+ - A few useful-in-the-real-world apps built with Reticulum
 
 ## Can I use Reticulum on amateur radio spectrum?
 Some countries still ban the use of encryption when operating under an amateur radio license. Reticulum offers several encryptionless modes, while still using cryptographic principles for station verification, link establishment, data integrity verification, acknowledgements and routing. It is therefore perfectly possible to include Reticulum in amateur radio use, even if your country bans encryption.
