@@ -264,6 +264,10 @@ class Reticulum:
 	def createDefaultConfig(self):
 		self.config = ConfigObj()
 		self.config.filename = Reticulum.configpath
+		self.config["reticulum"] = {}
+		self.config["reticulum"]["allow_unencrypted"] = False
+		self.config["logging"] = {}
+		self.config["logging"]["loglevel"] = 4
 		self.config["interfaces"] = {}
 		self.config["interfaces"]["Default UDP Interface"] = {}
 		self.config["interfaces"]["Default UDP Interface"]["type"] = "UdpInterface"
@@ -271,7 +275,7 @@ class Reticulum:
 		self.config["interfaces"]["Default UDP Interface"]["listen_port"] = 7777
 		self.config["interfaces"]["Default UDP Interface"]["forward_ip"] = "255.255.255.255"
 		self.config["interfaces"]["Default UDP Interface"]["forward_port"] = 7777
-		self.config["interfaces"]["Default UDP Interface"]["use_as_outgoing"] = "true"
+		self.config["interfaces"]["Default UDP Interface"]["outgoing"] = "true"
 		if not os.path.isdir(Reticulum.configdir):
 			os.makedirs(Reticulum.configdir)
 		self.config.write()
