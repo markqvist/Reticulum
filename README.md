@@ -19,7 +19,7 @@ Reticulum can also be tunneled over existing IP networks, so there's nothing sto
 As an example, it's possible to set up a Raspberry Pi connected to both a LoRa radio, a packet radio TNC and your home WiFi. Once the interfaces are configured, Reticulum will take care of the rest, and any device on your home WiFi can communicate with nodes on the LoRa and packet radio sides of the network.
 
 ## Current Status
-Reticulum is in an early experimental state. Most features are implemented and working, but at this point the protocol may still change significantly, and is made publicly available for development collaboration, previewing and testing features.
+Consider Reticulum experimental at this stage. Most features are implemented and working, but at this point the protocol may still change significantly, and is made publicly available for development collaboration, previewing and testing.
 
 An API- and wireformat-stable alpha release is coming in the near future. Until then expect things to change unexpectedly if something warrants it.
 
