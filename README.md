@@ -7,11 +7,6 @@ Reticulum is a complete networking stack, and does not use IP or higher layers, 
 
 For more info, see [unsigned.io/projects/reticulum](http://unsigned.io/projects/reticulum/)
 
-## Current Status
-Reticulum is in an early experimental state. Most features are implemented and working, but at this point the protocol may still change significantly, and is made publicly available for development collaboration, previewing and testing features.
-
-An API and wireformat stable alpha release is coming in the near future. Until then expect things to change unexpectedly if something warrants it.
-
 ## What hardware does Reticulum work with?
 Practically any hardware that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, HAM radio digital modes, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.
 
@@ -20,6 +15,30 @@ An open-source LoRa-based interface called [RNode](https://unsigned.io/projects/
 Reticulum can also be tunneled over existing IP networks, so there's nothing stopping you from using it over gigabit fiber or your local WiFi network, where it'll work just as well. In fact, one of the strengths of Reticulum is how easily it allows you to connect different mediums into a self-configuring, resilient and encrypted mesh.
 
 As an example, it's possible to set up a Raspberry Pi connected to both a LoRa radio, a packet radio TNC and your home WiFi. Once the interfaces are configured, Reticulum will take care of the rest, and any device on your home WiFi can communicate with nodes on the LoRa and packet radio sides of the network.
+
+## Current Status
+Reticulum is in an early experimental state. Most features are implemented and working, but at this point the protocol may still change significantly, and is made publicly available for development collaboration, previewing and testing features.
+
+An API- and wireformat-stable alpha release is coming in the near future. Until then expect things to change unexpectedly if something warrants it.
+
+## What is implemented at this point?
+ - All basic adressing and identification features
+ - RSA assymetric encryption and signatures as basis for all communication
+ - Elliptic curve encryption for links (on the SECP256R1 curve)
+ - Unforgeable packet delivery confirmations
+ - Fully self-configuring multi-hop routing
+ - A variety of supported interface types
+ - Efficient and easy resource transfers
+ - A simple and easy-to-use API
+ - A few basic examples
+
+## What features are still missing?
+ - On-network caching and cache queries
+
+## What is currently being worked on?
+ - Useful example programs and utilities
+ - API documentation
+ - Cleanup and code commenting
 
 ## Can I use Reticulum on amateur radio spectrum?
 Some countries still ban the use of encryption when operating under an amateur radio license. Reticulum offers several encryptionless modes, while still using cryptographic principles for station verification, link establishment, data integrity verification, acknowledgements and routing. It is therefore perfectly possible to include Reticulum in amateur radio use, even if your country bans encryption.
