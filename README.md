@@ -68,19 +68,19 @@ cd Reticulum
 ln -s ../RNS ./Examples/
 
 # Run an example
-python Examples/Echo.py -s
+python3 Examples/Echo.py -s
 
 # Unless you've manually created a config file, Reticulum will do so now, and immediately exit. Make any necessary changees to the file and launch the example again.
-python Examples/Echo.py -s
+python3 Examples/Echo.py -s
 
 # You can now repeat the process on another computer, and run the same example with -h to get command line options.
-python Examples/Echo.py -h
+python3 Examples/Echo.py -h
 
 # Run the example in client mode to "ping" the server. Replace the hash below with the actual destination hash of your server.
-python Examples/Echo.py 3e12fc71692f8ec47bc5
+python3 Examples/Echo.py 3e12fc71692f8ec47bc5
 
 # Have a look at another example
-python Examples/Filetransfer.py -h
+python3 Examples/Filetransfer.py -h
 ```
 
 I'll add configuration examples for LoRa, packet radio TNCs and more in the near future. Until then, it should be possible to infer the config format quite easily from the classes in the Interfaces directory and the UDPInterface example created by default.
