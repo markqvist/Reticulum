@@ -8,25 +8,25 @@ import time
 import RNS
 
 class KISS():
-	FEND			  = chr(0xC0)
-	FESC			  = chr(0xDB)
-	TFEND			  = chr(0xDC)
-	TFESC			  = chr(0xDD)
-	CMD_UNKNOWN		  = chr(0xFE)
-	CMD_DATA		  = chr(0x00)
-	CMD_TXDELAY		  = chr(0x01)
-	CMD_P			  = chr(0x02)
-	CMD_SLOTTIME	  = chr(0x03)
-	CMD_TXTAIL		  = chr(0x04)
-	CMD_FULLDUPLEX	  = chr(0x05)
-	CMD_SETHARDWARE	  = chr(0x06)
-	CMD_READY         = chr(0x0F)
-	CMD_RETURN		  = chr(0xFF)
+	FEND			  = 0xC0
+	FESC			  = 0xDB
+	TFEND			  = 0xDC
+	TFESC			  = 0xDD
+	CMD_UNKNOWN		  = 0xFE
+	CMD_DATA		  = 0x00
+	CMD_TXDELAY		  = 0x01
+	CMD_P			  = 0x02
+	CMD_SLOTTIME	  = 0x03
+	CMD_TXTAIL		  = 0x04
+	CMD_FULLDUPLEX	  = 0x05
+	CMD_SETHARDWARE	  = 0x06
+	CMD_READY         = 0x0F
+	CMD_RETURN		  = 0xFF
 
 class AX25():
-	PID_NOLAYER3	= chr(0xF0)
-	CTRL_UI			= chr(0x03)
-	CRC_CORRECT     = chr(0xF0)+chr(0xB8)
+	PID_NOLAYER3	= 0xF0
+	CTRL_UI			= 0x03
+	CRC_CORRECT     = bytes([0xF0])+bytes([0xB8])
 	HEADER_SIZE		= 16
 
 
@@ -45,9 +45,9 @@ class AX25KISSInterface(Interface):
 		self.serial   = None
 		self.owner    = owner
 		self.name	  = name
-		self.src_call = callsign.upper()
+		self.src_call = callsign.upper().encode("ascii")
 		self.src_ssid = ssid
-		self.dst_call = "APZRNS"
+		self.dst_call = "APZRNS".encode("ascii")
 		self.dst_ssid = 0
 		self.port     = port
 		self.speed    = speed
@@ -57,8 +57,8 @@ class AX25KISSInterface(Interface):
 		self.timeout  = 100
 		self.online   = False
 		# TODO: Sane default and make this configurable
-		# TODO: Changed to 1ms instead of 100ms, check it
-		self.txdelay  = 0.001
+		# TODO: Changed to 25ms instead of 100ms, check it
+		self.txdelay  = 0.025
 
 		self.packet_queue    = []
 		self.flow_control    = flow_control
@@ -129,7 +129,7 @@ class AX25KISSInterface(Interface):
 		if preamble > 255:
 			preamble = 255
 
-		kiss_command = KISS.FEND+KISS.CMD_TXDELAY+chr(preamble)+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_TXDELAY])+bytes([preamble])+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("Could not configure AX.25 KISS interface preamble to "+str(preamble_ms)+" (command value "+str(preamble)+")")
@@ -142,7 +142,7 @@ class AX25KISSInterface(Interface):
 		if txtail > 255:
 			txtail = 255
 
-		kiss_command = KISS.FEND+KISS.CMD_TXTAIL+chr(txtail)+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_TXTAIL])+bytes([txtail])+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("Could not configure AX.25 KISS interface TX tail to "+str(txtail_ms)+" (command value "+str(txtail)+")")
@@ -153,7 +153,7 @@ class AX25KISSInterface(Interface):
 		if persistence > 255:
 			persistence = 255
 
-		kiss_command = KISS.FEND+KISS.CMD_P+chr(persistence)+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_P])+bytes([persistence])+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("Could not configure AX.25 KISS interface persistence to "+str(persistence))
@@ -166,13 +166,13 @@ class AX25KISSInterface(Interface):
 		if slottime > 255:
 			slottime = 255
 
-		kiss_command = KISS.FEND+KISS.CMD_SLOTTIME+chr(slottime)+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_SLOTTIME])+bytes([slottime])+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("Could not configure AX.25 KISS interface slot time to "+str(slottime_ms)+" (command value "+str(slottime)+")")
 
 	def setFlowControl(self, flow_control):
-		kiss_command = KISS.FEND+KISS.CMD_READY+chr(0x01)+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_READY])+bytes([0x01])+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			if (flow_control):
@@ -192,30 +192,30 @@ class AX25KISSInterface(Interface):
 				if self.flow_control:
 					self.interface_ready = False
 
-				encoded_dst_ssid = 0x60 | (self.dst_ssid << 1)
-				encoded_src_ssid = 0x60 | (self.src_ssid << 1) | 0x01
+				encoded_dst_ssid = bytes([0x60 | (self.dst_ssid << 1)])
+				encoded_src_ssid = bytes([0x60 | (self.src_ssid << 1) | 0x01])
 
-				addr = ""
+				addr = b""
 
 				for i in range(0,6):
 					if (i < len(self.dst_call)):
-						addr += chr(ord(self.dst_call[i])<<1)
+						addr += bytes([self.dst_call[i]<<1])
 					else:
-						addr += chr(0x20)
-				addr += chr(encoded_dst_ssid)
+						addr += bytes([0x20])
+				addr += encoded_dst_ssid
 
 				for i in range(0,6):
 					if (i < len(self.src_call)):
-						addr += chr(ord(self.src_call[i])<<1)
+						addr += bytes([self.src_call[i]<<1])
 					else:
-						addr += chr(0x20)
-				addr += chr(encoded_src_ssid)
+						addr += bytes([0x20])
+				addr += encoded_src_ssid
 
-				data = addr+AX25.CTRL_UI+AX25.PID_NOLAYER3+data
+				data = addr+bytes([AX25.CTRL_UI])+bytes([AX25.PID_NOLAYER3])+data
 
-				data = data.replace(chr(0xdb), chr(0xdb)+chr(0xdd))
-				data = data.replace(chr(0xc0), chr(0xdb)+chr(0xdc))
-				kiss_frame = chr(0xc0)+chr(0x00)+data+chr(0xc0)
+				data = data.replace(bytes([0xdb]), bytes([0xdb])+bytes([0xdd]))
+				data = data.replace(bytes([0xc0]), bytes([0xdb])+bytes([0xdc]))
+				kiss_frame = bytes([KISS.FEND])+bytes([0x00])+data+bytes([KISS.FEND])
 
 				if (self.txdelay > 0):
 					RNS.log(str(self.name)+" delaying TX for "+str(self.txdelay)+" seconds", RNS.LOG_EXTREME)
@@ -250,7 +250,7 @@ class AX25KISSInterface(Interface):
 
 			while self.serial.is_open:
 				if self.serial.in_waiting:
-					byte = self.serial.read(1)
+					byte = ord(self.serial.read(1))
 					last_read_ms = int(time.time()*1000)
 
 					if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
@@ -259,12 +259,12 @@ class AX25KISSInterface(Interface):
 					elif (byte == KISS.FEND):
 						in_frame = True
 						command = KISS.CMD_UNKNOWN
-						data_buffer = ""
+						data_buffer = b""
 					elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU+AX25.HEADER_SIZE):
 						if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
 							# We only support one HDLC port for now, so
 							# strip off the port nibble
-							byte = chr(ord(byte) & 0x0F)
+							byte = byte & 0x0F
 							command = byte
 						elif (command == KISS.CMD_DATA):
 							if (byte == KISS.FESC):
@@ -276,7 +276,7 @@ class AX25KISSInterface(Interface):
 									if (byte == KISS.TFESC):
 										byte = KISS.FESC
 									escape = False
-								data_buffer = data_buffer+byte
+								data_buffer = data_buffer+bytes([byte])
 						elif (command == KISS.CMD_READY):
 							# TODO: add timeout and reset if ready
 							# command never arrives
@@ -297,4 +297,3 @@ class AX25KISSInterface(Interface):
 
 	def __str__(self):
 		return "AX25KISSInterface["+self.name+"]"
-

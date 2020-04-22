@@ -8,20 +8,20 @@ import time
 import RNS
 
 class KISS():
-	FEND			= chr(0xC0)
-	FESC			= chr(0xDB)
-	TFEND			= chr(0xDC)
-	TFESC			= chr(0xDD)
-	CMD_UNKNOWN		= chr(0xFE)
-	CMD_DATA		= chr(0x00)
-	CMD_TXDELAY		= chr(0x01)
-	CMD_P			= chr(0x02)
-	CMD_SLOTTIME	= chr(0x03)
-	CMD_TXTAIL		= chr(0x04)
-	CMD_FULLDUPLEX	= chr(0x05)
-	CMD_SETHARDWARE	= chr(0x06)
-	CMD_READY       = chr(0x0F)
-	CMD_RETURN		= chr(0xFF)
+	FEND			  = 0xC0
+	FESC			  = 0xDB
+	TFEND			  = 0xDC
+	TFESC			  = 0xDD
+	CMD_UNKNOWN		  = 0xFE
+	CMD_DATA		  = 0x00
+	CMD_TXDELAY		  = 0x01
+	CMD_P			  = 0x02
+	CMD_SLOTTIME	  = 0x03
+	CMD_TXTAIL		  = 0x04
+	CMD_FULLDUPLEX	  = 0x05
+	CMD_SETHARDWARE	  = 0x06
+	CMD_READY         = 0x0F
+	CMD_RETURN		  = 0xFF
 
 class KISSInterface(Interface):
 	MAX_CHUNK = 32768
@@ -108,8 +108,7 @@ class KISSInterface(Interface):
 		if preamble > 255:
 			preamble = 255
 
-		RNS.log("Setting preamble to "+str(preamble)+" "+chr(preamble))
-		kiss_command = KISS.FEND+KISS.CMD_TXDELAY+chr(preamble)+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_TXDELAY])+bytes([preamble])+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("Could not configure KISS interface preamble to "+str(preamble_ms)+" (command value "+str(preamble)+")")
@@ -122,7 +121,7 @@ class KISSInterface(Interface):
 		if txtail > 255:
 			txtail = 255
 
-		kiss_command = KISS.FEND+KISS.CMD_TXTAIL+chr(txtail)+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_TXTAIL])+bytes([txtail])+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("Could not configure KISS interface TX tail to "+str(txtail_ms)+" (command value "+str(txtail)+")")
@@ -133,7 +132,7 @@ class KISSInterface(Interface):
 		if persistence > 255:
 			persistence = 255
 
-		kiss_command = KISS.FEND+KISS.CMD_P+chr(persistence)+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_P])+bytes([persistence])+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("Could not configure KISS interface persistence to "+str(persistence))
@@ -146,13 +145,13 @@ class KISSInterface(Interface):
 		if slottime > 255:
 			slottime = 255
 
-		kiss_command = KISS.FEND+KISS.CMD_SLOTTIME+chr(slottime)+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_SLOTTIME])+bytes([slottime])+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("Could not configure KISS interface slot time to "+str(slottime_ms)+" (command value "+str(slottime)+")")
 
 	def setFlowControl(self, flow_control):
-		kiss_command = KISS.FEND+KISS.CMD_READY+chr(0x01)+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_READY])+bytes([0x01])+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			if (flow_control):
@@ -171,9 +170,10 @@ class KISSInterface(Interface):
 				if self.flow_control:
 					self.interface_ready = False
 
-				data = data.replace(chr(0xdb), chr(0xdb)+chr(0xdd))
-				data = data.replace(chr(0xc0), chr(0xdb)+chr(0xdc))
-				frame = chr(0xc0)+chr(0x00)+data+chr(0xc0)
+				data = data.replace(bytes([0xdb]), bytes([0xdb])+bytes([0xdd]))
+				data = data.replace(bytes([0xc0]), bytes([0xdb])+bytes([0xdc]))
+				frame = bytes([KISS.FEND])+bytes([0x00])+data+bytes([KISS.FEND])
+
 				written = self.serial.write(frame)
 				if written != len(frame):
 					raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))
@@ -202,7 +202,7 @@ class KISSInterface(Interface):
 
 			while self.serial.is_open:
 				if self.serial.in_waiting:
-					byte = self.serial.read(1)
+					byte = ord(self.serial.read(1))
 					last_read_ms = int(time.time()*1000)
 
 					if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
@@ -211,12 +211,12 @@ class KISSInterface(Interface):
 					elif (byte == KISS.FEND):
 						in_frame = True
 						command = KISS.CMD_UNKNOWN
-						data_buffer = ""
+						data_buffer = b""
 					elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
 						if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
 							# We only support one HDLC port for now, so
-							# strip off port nibble
-							byte = chr(ord(byte) & 0x0F)
+							# strip off the port nibble
+							byte = byte & 0x0F
 							command = byte
 						elif (command == KISS.CMD_DATA):
 							if (byte == KISS.FESC):
@@ -228,7 +228,7 @@ class KISSInterface(Interface):
 									if (byte == KISS.TFESC):
 										byte = KISS.FESC
 									escape = False
-								data_buffer = data_buffer+byte
+								data_buffer = data_buffer+bytes([byte])
 						elif (command == KISS.CMD_READY):
 							# TODO: add timeout and reset if ready
 							# command never arrives
@@ -249,4 +249,3 @@ class KISSInterface(Interface):
 
 	def __str__(self):
 		return "KISSInterface["+self.name+"]"
-

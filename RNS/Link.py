@@ -31,7 +31,7 @@ class Link:
 	# first-hop RTT latency and distance 
 	DEFAULT_TIMEOUT = 15.0
 	TIMEOUT_FACTOR = 3
-	KEEPALIVE = 120
+	KEEPALIVE = 180
 
 	PENDING   = 0x00
 	HANDSHAKE = 0x01
@@ -330,12 +330,12 @@ class Link:
 
 
 	def send_keepalive(self):
-		keepalive_packet = RNS.Packet(self, chr(0xFF), context=RNS.Packet.KEEPALIVE)
+		keepalive_packet = RNS.Packet(self, bytes([0xFF]), context=RNS.Packet.KEEPALIVE)
 		keepalive_packet.send()
 
 	def receive(self, packet):
 		self.watchdog_lock = True
-		if not self.status == Link.CLOSED and not (self.initiator and packet.context == RNS.Packet.KEEPALIVE and packet.data == chr(0xFF)):
+		if not self.status == Link.CLOSED and not (self.initiator and packet.context == RNS.Packet.KEEPALIVE and packet.data == bytes([0xFF])):
 			if packet.receiving_interface != self.attached_interface:
 				RNS.log("Link-associated packet received on unexpected interface! Someone might be trying to manipulate your communication!", RNS.LOG_ERROR)
 			else:
@@ -400,8 +400,8 @@ class Link:
 								resource.cancel()
 
 					elif packet.context == RNS.Packet.KEEPALIVE:
-						if not self.initiator and packet.data == chr(0xFF):
-							keepalive_packet = RNS.Packet(self, chr(0xFE), context=RNS.Packet.KEEPALIVE)
+						if not self.initiator and packet.data == bytes([0xFF]):
+							keepalive_packet = RNS.Packet(self, bytes([0xFE]), context=RNS.Packet.KEEPALIVE)
 							keepalive_packet.send()
 
 

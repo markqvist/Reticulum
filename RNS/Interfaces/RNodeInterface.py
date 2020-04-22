@@ -9,46 +9,47 @@ import math
 import RNS
 
 class KISS():
-	FEND			= chr(0xC0)
-	FESC			= chr(0xDB)
-	TFEND			= chr(0xDC)
-	TFESC			= chr(0xDD)
+	FEND			= 0xC0
+	FESC			= 0xDB
+	TFEND			= 0xDC
+	TFESC			= 0xDD
 	
-	CMD_UNKNOWN		= chr(0xFE)
-	CMD_DATA		= chr(0x00)
-	CMD_FREQUENCY	= chr(0x01)
-	CMD_BANDWIDTH	= chr(0x02)
-	CMD_TXPOWER		= chr(0x03)
-	CMD_SF			= chr(0x04)
-	CMD_CR          = chr(0x05)
-	CMD_RADIO_STATE = chr(0x06)
-	CMD_RADIO_LOCK	= chr(0x07)
-	CMD_DETECT		= chr(0x08)
-	CMD_READY       = chr(0x0F)
-	CMD_STAT_RX		= chr(0x21)
-	CMD_STAT_TX		= chr(0x22)
-	CMD_STAT_RSSI	= chr(0x23)
-	CMD_BLINK		= chr(0x30)
-	CMD_RANDOM		= chr(0x40)
-	CMD_FW_VERSION  = chr(0x50)
-	CMD_ROM_READ    = chr(0x51)
+	CMD_UNKNOWN		= 0xFE
+	CMD_DATA		= 0x00
+	CMD_FREQUENCY	= 0x01
+	CMD_BANDWIDTH	= 0x02
+	CMD_TXPOWER		= 0x03
+	CMD_SF			= 0x04
+	CMD_CR          = 0x05
+	CMD_RADIO_STATE = 0x06
+	CMD_RADIO_LOCK	= 0x07
+	CMD_DETECT		= 0x08
+	CMD_READY       = 0x0F
+	CMD_STAT_RX		= 0x21
+	CMD_STAT_TX		= 0x22
+	CMD_STAT_RSSI	= 0x23
+	CMD_STAT_SNR	= 0x24
+	CMD_BLINK		= 0x30
+	CMD_RANDOM		= 0x40
+	CMD_FW_VERSION  = 0x50
+	CMD_ROM_READ    = 0x51
 
-	DETECT_REQ      = chr(0x73)
-	DETECT_RESP     = chr(0x46)
+	DETECT_REQ      = 0x73
+	DETECT_RESP     = 0x46
 	
-	RADIO_STATE_OFF = chr(0x00)
-	RADIO_STATE_ON	= chr(0x01)
-	RADIO_STATE_ASK = chr(0xFF)
+	RADIO_STATE_OFF = 0x00
+	RADIO_STATE_ON	= 0x01
+	RADIO_STATE_ASK = 0xFF
 	
-	CMD_ERROR		    = chr(0x90)
-	ERROR_INITRADIO     = chr(0x01)
-	ERROR_TXFAILED	    = chr(0x02)
-	ERROR_EEPROM_LOCKED	= chr(0x03)
+	CMD_ERROR		    = 0x90
+	ERROR_INITRADIO     = 0x01
+	ERROR_TXFAILED	    = 0x02
+	ERROR_EEPROM_LOCKED	= 0x03
 
 	@staticmethod
 	def escape(data):
-		data = data.replace(chr(0xdb), chr(0xdb)+chr(0xdd))
-		data = data.replace(chr(0xc0), chr(0xdb)+chr(0xdc))
+		data = data.replace(bytes([0xdb]), bytes([0xdb])+bytes([0xdd]))
+		data = data.replace(bytes([0xc0]), bytes([0xdb])+bytes([0xdc]))
 		return data
 	
 
@@ -66,9 +67,10 @@ class RNodeInterface(Interface):
 	FREQ_MIN = 137000000
 	FREQ_MAX = 1020000000
 
-	RSSI_OFFSET = 292
+	RSSI_OFFSET = 157
+	SNR_OFFSET  = 128
 
-	def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, flow_control = True):
+	def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, flow_control = False):
 		self.serial      = None
 		self.owner       = owner
 		self.name        = name
@@ -157,7 +159,7 @@ class RNodeInterface(Interface):
 				RNS.log(str(self)+" is configured and powered up")
 				sleep(1.0)
 			else:
-				RNS.log("After configuring "+str(self)+", the actual radio parameters did not match your configuration.", RNS.LOG_ERROR)
+				RNS.log("After configuring "+str(self)+", the reported radio parameters did not match your configuration.", RNS.LOG_ERROR)
 				RNS.log("Make sure that your hardware actually supports the parameters specified in the configuration", RNS.LOG_ERROR)
 				RNS.log("Aborting RNode startup", RNS.LOG_ERROR)
 				self.serial.close()
@@ -178,9 +180,9 @@ class RNodeInterface(Interface):
 		c2 = self.frequency >> 16 & 0xFF
 		c3 = self.frequency >> 8 & 0xFF
 		c4 = self.frequency & 0xFF
-		data = KISS.escape(chr(c1)+chr(c2)+chr(c3)+chr(c4))
+		data = KISS.escape(bytes([c1])+bytes([c2])+bytes([c3])+bytes([c4]))
 
-		kiss_command = KISS.FEND+KISS.CMD_FREQUENCY+data+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_FREQUENCY])+data+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("An IO error occurred while configuring frequency for "+self(str))
@@ -190,36 +192,39 @@ class RNodeInterface(Interface):
 		c2 = self.bandwidth >> 16 & 0xFF
 		c3 = self.bandwidth >> 8 & 0xFF
 		c4 = self.bandwidth & 0xFF
-		data = KISS.escape(chr(c1)+chr(c2)+chr(c3)+chr(c4))
+		data = KISS.escape(bytes([c1])+bytes([c2])+bytes([c3])+bytes([c4]))
 
-		kiss_command = KISS.FEND+KISS.CMD_BANDWIDTH+data+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_BANDWIDTH])+data+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("An IO error occurred while configuring bandwidth for "+self(str))
 
 	def setTXPower(self):
-		txp = chr(self.txpower)
-		kiss_command = KISS.FEND+KISS.CMD_TXPOWER+txp+KISS.FEND
+		txp = bytes([self.txpower])
+
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_TXPOWER])+txp+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("An IO error occurred while configuring TX power for "+self(str))
 
 	def setSpreadingFactor(self):
-		sf = chr(self.sf)
-		kiss_command = KISS.FEND+KISS.CMD_SF+sf+KISS.FEND
+		sf = bytes([self.sf])
+
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_SF])+sf+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("An IO error occurred while configuring spreading factor for "+self(str))
 
 	def setCodingRate(self):
-		cr = chr(self.cr)
-		kiss_command = KISS.FEND+KISS.CMD_CR+cr+KISS.FEND
+		cr = bytes([self.cr])
+
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_CR])+cr+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("An IO error occurred while configuring coding rate for "+self(str))
 
 	def setRadioState(self, state):
-		kiss_command = KISS.FEND+KISS.CMD_RADIO_STATE+state+KISS.FEND
+		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_RADIO_STATE])+bytes([state])+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
 			raise IOError("An IO error occurred while configuring radio state for "+self(str))
@@ -265,7 +270,7 @@ class RNodeInterface(Interface):
 					self.interface_ready = False
 
 				data = KISS.escape(data)
-				frame = chr(0xc0)+chr(0x00)+data+chr(0xc0)
+				frame = bytes([0xc0])+bytes([0x00])+data+bytes([0xc0])
 				written = self.serial.write(frame)
 				if written != len(frame):
 					raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))
@@ -288,25 +293,25 @@ class RNodeInterface(Interface):
 			in_frame = False
 			escape = False
 			command = KISS.CMD_UNKNOWN
-			data_buffer = ""
-			command_buffer = ""
+			data_buffer = b""
+			command_buffer = b""
 			last_read_ms = int(time.time()*1000)
 
 			while self.serial.is_open:
 				if self.serial.in_waiting:
-					byte = self.serial.read(1)
+					byte = ord(self.serial.read(1))
 					last_read_ms = int(time.time()*1000)
 
 					if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
 						in_frame = False
 						self.processIncoming(data_buffer)
-						data_buffer = ""
-						command_buffer = ""
+						data_buffer = b""
+						command_buffer = b""
 					elif (byte == KISS.FEND):
 						in_frame = True
 						command = KISS.CMD_UNKNOWN
-						data_buffer = ""
-						command_buffer = ""
+						data_buffer = b""
+						command_buffer = b""
 					elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
 						if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
 							command = byte
@@ -320,7 +325,7 @@ class RNodeInterface(Interface):
 									if (byte == KISS.TFESC):
 										byte = KISS.FESC
 									escape = False
-								data_buffer = data_buffer+byte
+								data_buffer = data_buffer+bytes([byte])
 						elif (command == KISS.CMD_FREQUENCY):
 							if (byte == KISS.FESC):
 								escape = True
@@ -331,9 +336,9 @@ class RNodeInterface(Interface):
 									if (byte == KISS.TFESC):
 										byte = KISS.FESC
 									escape = False
-								command_buffer = command_buffer+byte
+								command_buffer = command_buffer+bytes([byte])
 								if (len(command_buffer) == 4):
-									self.r_frequency = ord(command_buffer[0]) << 24 | ord(command_buffer[1]) << 16 | ord(command_buffer[2]) << 8 | ord(command_buffer[3])
+									self.r_frequency = command_buffer[0] << 24 | command_buffer[1] << 16 | command_buffer[2] << 8 | command_buffer[3]
 									RNS.log(str(self)+" Radio reporting frequency is "+str(self.r_frequency/1000000.0)+" MHz", RNS.LOG_DEBUG)
 									self.updateBitrate()
 
@@ -347,27 +352,27 @@ class RNodeInterface(Interface):
 									if (byte == KISS.TFESC):
 										byte = KISS.FESC
 									escape = False
-								command_buffer = command_buffer+byte
+								command_buffer = command_buffer+bytes([byte])
 								if (len(command_buffer) == 4):
-									self.r_bandwidth = ord(command_buffer[0]) << 24 | ord(command_buffer[1]) << 16 | ord(command_buffer[2]) << 8 | ord(command_buffer[3])
+									self.r_bandwidth = command_buffer[0] << 24 | command_buffer[1] << 16 | command_buffer[2] << 8 | command_buffer[3]
 									RNS.log(str(self)+" Radio reporting bandwidth is "+str(self.r_bandwidth/1000.0)+" KHz", RNS.LOG_DEBUG)
 									self.updateBitrate()
 
 						elif (command == KISS.CMD_TXPOWER):
-							self.r_txpower = ord(byte)
+							self.r_txpower = byte
 							RNS.log(str(self)+" Radio reporting TX power is "+str(self.r_txpower)+" dBm", RNS.LOG_DEBUG)
 						elif (command == KISS.CMD_SF):
-							self.r_sf = ord(byte)
+							self.r_sf = byte
 							RNS.log(str(self)+" Radio reporting spreading factor is "+str(self.r_sf), RNS.LOG_DEBUG)
 							self.updateBitrate()
 						elif (command == KISS.CMD_CR):
-							self.r_cr = ord(byte)
+							self.r_cr = byte
 							RNS.log(str(self)+" Radio reporting coding rate is "+str(self.r_cr), RNS.LOG_DEBUG)
 							self.updateBitrate()
 						elif (command == KISS.CMD_RADIO_STATE):
-							self.r_state = ord(byte)
+							self.r_state = byte
 						elif (command == KISS.CMD_RADIO_LOCK):
-							self.r_lock = ord(byte)
+							self.r_lock = byte
 						elif (command == KISS.CMD_STAT_RX):
 							if (byte == KISS.FESC):
 								escape = True
@@ -378,7 +383,7 @@ class RNodeInterface(Interface):
 									if (byte == KISS.TFESC):
 										byte = KISS.FESC
 									escape = False
-								command_buffer = command_buffer+byte
+								command_buffer = command_buffer+bytes([byte])
 								if (len(command_buffer) == 4):
 									self.r_stat_rx = ord(command_buffer[0]) << 24 | ord(command_buffer[1]) << 16 | ord(command_buffer[2]) << 8 | ord(command_buffer[3])
 
@@ -392,14 +397,16 @@ class RNodeInterface(Interface):
 									if (byte == KISS.TFESC):
 										byte = KISS.FESC
 									escape = False
-								command_buffer = command_buffer+byte
+								command_buffer = command_buffer+bytes([byte])
 								if (len(command_buffer) == 4):
 									self.r_stat_tx = ord(command_buffer[0]) << 24 | ord(command_buffer[1]) << 16 | ord(command_buffer[2]) << 8 | ord(command_buffer[3])
 
 						elif (command == KISS.CMD_STAT_RSSI):
-							self.r_stat_rssi = ord(byte)-RNodeInterface.RSSI_OFFSET
+							self.r_stat_rssi = byte-RNodeInterface.RSSI_OFFSET
+						elif (command == KISS.CMD_STAT_SNR):
+							self.r_stat_snr = byte-RNodeInterface.SNR_OFFSET
 						elif (command == KISS.CMD_RANDOM):
-							self.r_random = ord(byte)
+							self.r_random = byte
 						elif (command == KISS.CMD_ERROR):
 							if (byte == KISS.ERROR_INITRADIO):
 								RNS.log(str(self)+" hardware initialisation error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
@@ -408,8 +415,10 @@ class RNodeInterface(Interface):
 							else:
 								RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
 						elif (command == KISS.CMD_READY):
-							# TODO: add timeout and reset if ready
-							# command never arrives
+							# TODO: Flow control is disabled by default now.
+							# Add timed flow control ready-inidication to the
+							# RNode firmware to make sure flow control doesn't
+							# hang if it is enabled
 							self.process_queue()
 						
 				else:

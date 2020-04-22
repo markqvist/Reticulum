@@ -5,7 +5,7 @@ Reticulum is a cryptography-based networking stack for low-bandwidth, high-laten
 
 Reticulum is a complete networking stack, and does not use IP or higher layers, although it can be easily tunnelled through conventional IP networks. This frees up a lot of overhead, that has been utilised to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.
 
-Reticulum runs completely in userland, and can run on practically any system that runs Python.
+Reticulum runs completely in userland, and can run on practically any system that runs Python 3.
 
 For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects/reticulum/)
 
@@ -47,9 +47,9 @@ An API- and wireformat-stable alpha release is coming in the near future. Until 
 Some countries still ban the use of encryption when operating under an amateur radio license. Reticulum offers several encryptionless modes, while still using cryptographic principles for station verification, link establishment, data integrity verification, acknowledgements and routing. It is therefore perfectly possible to include Reticulum in amateur radio use, even if your country bans encryption.
 
 ## Dependencies:
- - Python 2.7
+ - Python 3
  - cryptography.io
- - pyserial 3.1
+ - pyserial
 
 ## How do I get started?
 Full documentation and video tutorials are coming with the stable alpha release. Until then, you are mostly on your own. If you really want to experiment already, you could take a look in the "Examples" folder, for some well-documented example programs. Be sure to also read the [Reticulum Overview Document](http://unsigned.io/wp-content/uploads/2018/04/Reticulum_Overview_v0.4.pdf).
@@ -58,7 +58,7 @@ To install dependencies and get started:
 
 ```
 # Install dependencies
-pip install cryptography pyserial
+pip3 install cryptography pyserial
 
 # Clone repository
 git clone https://github.com/markqvist/Reticulum.git

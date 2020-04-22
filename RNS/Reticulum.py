@@ -233,6 +233,7 @@ class Reticulum:
 					bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
 					txpower = int(c["txpower"]) if "txpower" in c else None
 					spreadingfactor = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
+					flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
 
 					port = c["port"] if "port" in c else None
 					
@@ -246,7 +247,8 @@ class Reticulum:
 						frequency,
 						bandwidth,
 						txpower,
-						spreadingfactor						
+						spreadingfactor,
+						flow_control
 					)
 
 					if "outgoing" in c and c["outgoing"].lower() == "true":
@@ -259,6 +261,7 @@ class Reticulum:
 			except Exception as e:
 				RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
 				RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+				raise e
 				
 
 	def createDefaultConfig(self):

@@ -1,3 +1,8 @@
+# TODO: This should be reworked for Python3 support,
+# and maybe framing should be introduced to improve
+# performance. The current 100ms wait is a bit stupid.
+# Probably also need to add queue support like the
+# other interfaces.
 
 from .Interface import Interface
 from time import sleep
