@@ -61,7 +61,7 @@ def announceLoop(destination):
 	# destination on the network, which will let clients
 	# know how to create messages directed towards it.
 	while True:
-		entered = raw_input()
+		entered = input()
 		destination.announce()
 		RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
 
@@ -86,7 +86,7 @@ def client(destination_hexhash, configpath, timeout=None):
 	try:
 		if len(destination_hexhash) != 20:
 			raise ValueError("Destination length is invalid, must be 20 hexadecimal characters (10 bytes)")
-		destination_hash = destination_hexhash.decode("hex")
+		destination_hash = bytes.fromhex(destination_hexhash)
 	except:
 		RNS.log("Invalid destination entered. Check your input!\n")
 		exit()
@@ -106,7 +106,7 @@ def client(destination_hexhash, configpath, timeout=None):
 	# echo request to the destination specified on the
 	# command line.
 	while True:
-		raw_input()
+		input()
 		
 		# Let's first check if RNS knows a path to the destination.
 		# If it does, we'll load the server identity and create a packet

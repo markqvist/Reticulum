@@ -1,5 +1,5 @@
-from __future__ import print_function
-from Interface import Interface
+
+from .Interface import Interface
 from time import sleep
 import sys
 import serial
@@ -236,11 +236,11 @@ class KISSInterface(Interface):
 				else:
 					time_since_last = int(time.time()*1000) - last_read_ms
 					if len(data_buffer) > 0 and time_since_last > self.timeout:
-			 			data_buffer = ""
-			 			in_frame = False
-			 			command = KISS.CMD_UNKNOWN
-			 			escape = False
-			 		sleep(0.08)
+						data_buffer = ""
+						in_frame = False
+						command = KISS.CMD_UNKNOWN
+						escape = False
+					sleep(0.08)
 
 		except Exception as e:
 			self.online = False

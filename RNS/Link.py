@@ -5,7 +5,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.fernet import Fernet
 from time import sleep
-import vendor.umsgpack as umsgpack
+from .vendor import umsgpack as umsgpack
 import threading
 import base64
 import time
@@ -182,7 +182,7 @@ class Link:
 		if self.initiator:
 			peer_pub_bytes = packet.data[:Link.ECPUBSIZE]
 			signed_data = self.link_id+peer_pub_bytes
-			signature = packet.data[Link.ECPUBSIZE:RNS.Identity.KEYSIZE/8+Link.ECPUBSIZE]
+			signature = packet.data[Link.ECPUBSIZE:RNS.Identity.KEYSIZE//8+Link.ECPUBSIZE]
 
 			if self.destination.identity.validate(signature, signed_data):
 				self.loadPeer(peer_pub_bytes)
@@ -378,23 +378,23 @@ class Link:
 					elif packet.context == RNS.Packet.RESOURCE_REQ:
 						plaintext = self.decrypt(packet.data)
 						if ord(plaintext[:1]) == RNS.Resource.HASHMAP_IS_EXHAUSTED:
-							resource_hash = plaintext[1+RNS.Resource.MAPHASH_LEN:RNS.Identity.HASHLENGTH/8+1+RNS.Resource.MAPHASH_LEN]
+							resource_hash = plaintext[1+RNS.Resource.MAPHASH_LEN:RNS.Identity.HASHLENGTH//8+1+RNS.Resource.MAPHASH_LEN]
 						else:
-							resource_hash = plaintext[1:RNS.Identity.HASHLENGTH/8+1]
+							resource_hash = plaintext[1:RNS.Identity.HASHLENGTH//8+1]
 						for resource in self.outgoing_resources:
 							if resource.hash == resource_hash:
 								resource.request(plaintext)
 
 					elif packet.context == RNS.Packet.RESOURCE_HMU:
 						plaintext = self.decrypt(packet.data)
-						resource_hash = plaintext[:RNS.Identity.HASHLENGTH/8]
+						resource_hash = plaintext[:RNS.Identity.HASHLENGTH//8]
 						for resource in self.incoming_resources:
 							if resource_hash == resource.hash:
 								resource.hashmap_update_packet(plaintext)
 
 					elif packet.context == RNS.Packet.RESOURCE_ICL:
 						plaintext = self.decrypt(packet.data)
-						resource_hash = plaintext[:RNS.Identity.HASHLENGTH/8]
+						resource_hash = plaintext[:RNS.Identity.HASHLENGTH//8]
 						for resource in self.incoming_resources:
 							if resource_hash == resource.hash:
 								resource.cancel()
@@ -415,7 +415,7 @@ class Link:
 
 				elif packet.packet_type == RNS.Packet.PROOF:
 					if packet.context == RNS.Packet.RESOURCE_PRF:
-						resource_hash = packet.data[0:RNS.Identity.HASHLENGTH/8]
+						resource_hash = packet.data[0:RNS.Identity.HASHLENGTH//8]
 						for resource in self.outgoing_resources:
 							if resource_hash == resource.hash:
 								resource.validateProof(packet.data)

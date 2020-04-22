@@ -1,6 +1,6 @@
-from Interfaces import *
-import ConfigParser
-from vendor.configobj import ConfigObj
+from .Interfaces import *
+import configparser
+from .vendor.configobj import ConfigObj
 import RNS
 import atexit
 import struct

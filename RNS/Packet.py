@@ -89,10 +89,9 @@ class Packet:
 
 	def pack(self):
 		self.destination_hash = self.destination.hash
-		self.header = ""
+		self.header = b""
 		self.header += struct.pack("!B", self.flags)
 		self.header += struct.pack("!B", self.hops)
-
 
 		if self.context == Packet.LRPROOF:
 			self.header += self.destination.link_id
@@ -135,8 +134,7 @@ class Packet:
 					raise IOError("Packet with header type 2 must have a transport ID")
 
 
-		self.header += chr(self.context)
-
+		self.header += bytes([self.context])
 		self.raw = self.header + self.ciphertext
 
 		if len(self.raw) > self.MTU:
@@ -146,8 +144,8 @@ class Packet:
 		self.updateHash()
 
 	def unpack(self):
-		self.flags = ord(self.raw[0])
-		self.hops  = ord(self.raw[1])
+		self.flags = self.raw[0]
+		self.hops  = self.raw[1]
 
 		self.header_type      = (self.flags & 0b11000000) >> 6
 		self.transport_type   = (self.flags & 0b00110000) >> 4
@@ -229,7 +227,7 @@ class Packet:
 		return RNS.Identity.truncatedHash(self.getHashablePart())
 
 	def getHashablePart(self):
-		hashable_part = struct.pack("!B", struct.unpack("!B", self.raw[0])[0] & 0b00001111)
+		hashable_part = bytes([self.raw[0] & 0b00001111])
 		if self.header_type == Packet.HEADER_2:
 			hashable_part += self.raw[12:]
 		else:
@@ -253,8 +251,8 @@ class PacketReceipt:
 	DELIVERED = 0x02
 
 
-	EXPL_LENGTH = RNS.Identity.HASHLENGTH/8+RNS.Identity.SIGLENGTH/8
-	IMPL_LENGTH = RNS.Identity.SIGLENGTH/8
+	EXPL_LENGTH = RNS.Identity.HASHLENGTH//8+RNS.Identity.SIGLENGTH//8
+	IMPL_LENGTH = RNS.Identity.SIGLENGTH//8
 
 	# Creates a new packet receipt from a sent packet
 	def __init__(self, packet):
@@ -280,8 +278,8 @@ class PacketReceipt:
 		# TODO: Hardcoded as explicit proofs for now
 		if True or len(proof) == PacketReceipt.EXPL_LENGTH:
 			# This is an explicit proof
-			proof_hash = proof[:RNS.Identity.HASHLENGTH/8]
-			signature = proof[RNS.Identity.HASHLENGTH/8:RNS.Identity.HASHLENGTH/8+RNS.Identity.SIGLENGTH/8]
+			proof_hash = proof[:RNS.Identity.HASHLENGTH//8]
+			signature = proof[RNS.Identity.HASHLENGTH//8:RNS.Identity.HASHLENGTH//8+RNS.Identity.SIGLENGTH//8]
 			if proof_hash == self.hash:
 				proof_valid = link.validate(signature, self.hash)
 				if proof_valid:
@@ -297,7 +295,8 @@ class PacketReceipt:
 				return False
 		elif len(proof) == PacketReceipt.IMPL_LENGTH:
 			pass
-			# signature = proof[:RNS.Identity.SIGLENGTH/8]
+			# TODO: Why is this disabled?
+			# signature = proof[:RNS.Identity.SIGLENGTH//8]
 			# proof_valid = self.link.validate(signature, self.hash)
 			# if proof_valid:
 			# 		self.status = PacketReceipt.DELIVERED
@@ -317,8 +316,8 @@ class PacketReceipt:
 	def validateProof(self, proof):
 		if len(proof) == PacketReceipt.EXPL_LENGTH:
 			# This is an explicit proof
-			proof_hash = proof[:RNS.Identity.HASHLENGTH/8]
-			signature = proof[RNS.Identity.HASHLENGTH/8:RNS.Identity.HASHLENGTH/8+RNS.Identity.SIGLENGTH/8]
+			proof_hash = proof[:RNS.Identity.HASHLENGTH//8]
+			signature = proof[RNS.Identity.HASHLENGTH//8:RNS.Identity.HASHLENGTH//8+RNS.Identity.SIGLENGTH//8]
 			if proof_hash == self.hash:
 				proof_valid = self.destination.identity.validate(signature, self.hash)
 				if proof_valid:
@@ -337,7 +336,7 @@ class PacketReceipt:
 			if self.destination.identity == None:
 				return False
 
-			signature = proof[:RNS.Identity.SIGLENGTH/8]
+			signature = proof[:RNS.Identity.SIGLENGTH//8]
 			proof_valid = self.destination.identity.validate(signature, self.hash)
 			if proof_valid:
 					self.status = PacketReceipt.DELIVERED

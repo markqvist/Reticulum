@@ -1,5 +1,5 @@
-from __future__ import print_function
-from Interface import Interface
+
+from .Interface import Interface
 from time import sleep
 import sys
 import serial
@@ -288,7 +288,7 @@ class AX25KISSInterface(Interface):
 			 			in_frame = False
 			 			command = KISS.CMD_UNKNOWN
 			 			escape = False
-			 		sleep(0.08)
+					sleep(0.08)
 
 		except Exception as e:
 			self.online = False

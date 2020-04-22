@@ -1,5 +1,5 @@
-from __future__ import print_function
-from Interface import Interface
+
+from .Interface import Interface
 from time import sleep
 import sys
 import serial

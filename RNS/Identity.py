@@ -4,7 +4,7 @@ import os
 import RNS
 import time
 import atexit
-import vendor.umsgpack as umsgpack
+from .vendor import umsgpack as umsgpack
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -50,7 +50,7 @@ class Identity:
 	@staticmethod
 	def saveKnownDestinations():
 		RNS.log("Saving known destinations to storage...", RNS.LOG_VERBOSE)
-		file = open(RNS.Reticulum.storagepath+"/known_destinations","w")
+		file = open(RNS.Reticulum.storagepath+"/known_destinations","wb")
 		umsgpack.dump(Identity.known_destinations, file)
 		file.close()
 		RNS.log("Done saving known destinations to storage", RNS.LOG_VERBOSE)
@@ -59,7 +59,7 @@ class Identity:
 	def loadKnownDestinations():
 		if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
 			try:
-				file = open(RNS.Reticulum.storagepath+"/known_destinations","r")
+				file = open(RNS.Reticulum.storagepath+"/known_destinations","rb")
 				Identity.known_destinations = umsgpack.load(file)
 				file.close()
 				RNS.log("Loaded "+str(len(Identity.known_destinations))+" known destinations from storage", RNS.LOG_VERBOSE)
@@ -80,7 +80,7 @@ class Identity:
 		digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
 		digest.update(data)
 
-		return digest.finalize()[:(Identity.TRUNCATED_HASHLENGTH/8)]
+		return digest.finalize()[:(Identity.TRUNCATED_HASHLENGTH//8)]
 
 	@staticmethod
 	def getRandomHash():
@@ -91,12 +91,12 @@ class Identity:
 		if packet.packet_type == RNS.Packet.ANNOUNCE:
 			RNS.log("Validating announce from "+RNS.prettyhexrep(packet.destination_hash), RNS.LOG_DEBUG)
 			destination_hash = packet.destination_hash
-			public_key = packet.data[10:Identity.DERKEYSIZE/8+10]
-			random_hash = packet.data[Identity.DERKEYSIZE/8+10:Identity.DERKEYSIZE/8+20]
-			signature = packet.data[Identity.DERKEYSIZE/8+20:Identity.DERKEYSIZE/8+20+Identity.KEYSIZE/8]
-			app_data = ""
-			if len(packet.data) > Identity.DERKEYSIZE/8+20+Identity.KEYSIZE/8:
-				app_data = packet.data[Identity.DERKEYSIZE/8+20+Identity.KEYSIZE/8:]
+			public_key = packet.data[10:Identity.DERKEYSIZE//8+10]
+			random_hash = packet.data[Identity.DERKEYSIZE//8+10:Identity.DERKEYSIZE//8+20]
+			signature = packet.data[Identity.DERKEYSIZE//8+20:Identity.DERKEYSIZE//8+20+Identity.KEYSIZE//8]
+			app_data = b""
+			if len(packet.data) > Identity.DERKEYSIZE//8+20+Identity.KEYSIZE//8:
+				app_data = packet.data[Identity.DERKEYSIZE//8+20+Identity.KEYSIZE//8:]
 
 			signed_data = destination_hash+public_key+random_hash+app_data
 
@@ -198,11 +198,11 @@ class Identity:
 
 	def updateHashes(self):
 		self.hash = Identity.truncatedHash(self.pub_bytes)
-		self.hexhash = self.hash.encode("hex_codec")
+		self.hexhash = self.hash.hex()
 
 	def save(self, path):
 		try:
-			with open(path, "w") as key_file:
+			with open(path, "wb") as key_file:
 				key_file.write(self.prv_bytes)
 				return True
 			return False
@@ -212,7 +212,7 @@ class Identity:
 
 	def load(self, path):
 		try:
-			with open(path, "r") as key_file:
+			with open(path, "rb") as key_file:
 				prv_bytes = key_file.read()
 				return self.loadPrivateKey(prv_bytes)
 			return False
@@ -222,10 +222,10 @@ class Identity:
 
 	def encrypt(self, plaintext):
 		if self.pub != None:
-			chunksize = (Identity.KEYSIZE-Identity.PADDINGSIZE)/8
+			chunksize = (Identity.KEYSIZE-Identity.PADDINGSIZE)//8
 			chunks = int(math.ceil(len(plaintext)/(float(chunksize))))
 
-			ciphertext = "";
+			ciphertext = b"";
 			for chunk in range(chunks):
 				start = chunk*chunksize
 				end = (chunk+1)*chunksize
@@ -249,10 +249,10 @@ class Identity:
 		if self.prv != None:
 			plaintext = None
 			try:
-				chunksize = (Identity.KEYSIZE)/8
+				chunksize = (Identity.KEYSIZE)//8
 				chunks = int(math.ceil(len(ciphertext)/(float(chunksize))))
 
-				plaintext = "";
+				plaintext = b"";
 				for chunk in range(chunks):
 					start = chunk*chunksize
 					end = (chunk+1)*chunksize

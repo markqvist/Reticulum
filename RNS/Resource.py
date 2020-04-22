@@ -3,7 +3,7 @@ import bz2
 import math
 import time
 import threading
-import vendor.umsgpack as umsgpack
+from .vendor import umsgpack as umsgpack
 from time import sleep
 
 class Resource:
@@ -74,7 +74,7 @@ class Resource:
 			resource.watchdog_job()
 
 			return resource
-		except Exception as e:
+		except:
 			RNS.log("Could not decode resource advertisement, dropping resource", RNS.LOG_DEBUG)
 			return None
 
@@ -123,7 +123,7 @@ class Resource:
 
 				self.size = len(self.data)
 				
-				self.hashmap = ""
+				self.hashmap = b""
 				self.sent_parts = 0
 				self.parts  = []
 				for i in range(0,int(math.ceil(self.size/float(Resource.SDU)))):
@@ -158,7 +158,7 @@ class Resource:
 			self.last_activity = time.time()
 			self.retries_left = self.max_retries
 
-			update = umsgpack.unpackb(plaintext[RNS.Identity.HASHLENGTH/8:])
+			update = umsgpack.unpackb(plaintext[RNS.Identity.HASHLENGTH//8:])
 			self.hashmap_update(update[0], update[1])
 
 
@@ -166,7 +166,7 @@ class Resource:
 		if not self.status == Resource.FAILED:
 			self.status = Resource.TRANSFERRING
 			seg_len = ResourceAdvertisement.HASHMAP_MAX_LEN
-			hashes = len(hashmap)/Resource.MAPHASH_LEN
+			hashes = len(hashmap)//Resource.MAPHASH_LEN
 			for i in range(0,hashes):
 				if self.hashmap[i+segment*seg_len] == None:
 					self.hashmap_height += 1
@@ -283,7 +283,7 @@ class Resource:
 		if not self.status == Resource.FAILED:
 			try:
 				self.status = Resource.ASSEMBLING
-				stream = ""
+				stream = b""
 				for part in self.parts:
 					stream += part
 
@@ -324,8 +324,8 @@ class Resource:
 
 	def validateProof(self, proof_data):
 		if not self.status == Resource.FAILED:
-			if len(proof_data) == RNS.Identity.HASHLENGTH/8*2:
-				if proof_data[RNS.Identity.HASHLENGTH/8:] == self.expected_proof:
+			if len(proof_data) == RNS.Identity.HASHLENGTH//8*2:
+				if proof_data[RNS.Identity.HASHLENGTH//8:] == self.expected_proof:
 					self.status = Resource.COMPLETE
 					if self.callback != None:
 						self.link.resource_concluded(self)
@@ -379,7 +379,7 @@ class Resource:
 			if not self.waiting_for_hmu:
 				self.outstanding_parts = 0
 				hashmap_exhausted = Resource.HASHMAP_IS_NOT_EXHAUSTED
-				requested_hashes = ""
+				requested_hashes = b""
 
 				i = 0; pn = 0
 				for part in self.parts:
@@ -397,12 +397,13 @@ class Resource:
 					if i >= self.window or hashmap_exhausted == Resource.HASHMAP_IS_EXHAUSTED:
 						break
 
-				hmu_part = chr(hashmap_exhausted)
+				hmu_part = bytes([hashmap_exhausted])
 				if hashmap_exhausted == Resource.HASHMAP_IS_EXHAUSTED:
 					last_map_hash = self.hashmap[self.hashmap_height-1]
 					hmu_part += last_map_hash
 					self.waiting_for_hmu = True
 
+				requested_data = b""
 				request_data = hmu_part + self.hash + requested_hashes
 				request_packet = RNS.Packet(self.link, request_data, context = RNS.Packet.RESOURCE_REQ)
 
@@ -424,12 +425,12 @@ class Resource:
 
 			self.retries_left = self.max_retries
 
-			wants_more_hashmap = True if ord(request_data[0]) == Resource.HASHMAP_IS_EXHAUSTED else False
+			wants_more_hashmap = True if request_data[0] == Resource.HASHMAP_IS_EXHAUSTED else False
 			pad = 1+Resource.MAPHASH_LEN if wants_more_hashmap else 1
 
-			requested_hashes = request_data[pad+RNS.Identity.HASHLENGTH/8:]
+			requested_hashes = request_data[pad+RNS.Identity.HASHLENGTH//8:]
 
-			for i in range(0,len(requested_hashes)/Resource.MAPHASH_LEN):
+			for i in range(0,len(requested_hashes)//Resource.MAPHASH_LEN):
 				requested_hash = requested_hashes[i*Resource.MAPHASH_LEN:(i+1)*Resource.MAPHASH_LEN]
 				
 				pi = 0
@@ -458,13 +459,13 @@ class Resource:
 					RNS.log("Resource sequencing error, cancelling transfer!", RNS.LOG_ERROR)
 					self.cancel()
 				else:
-					segment = part_index / ResourceAdvertisement.HASHMAP_MAX_LEN
+					segment = part_index // ResourceAdvertisement.HASHMAP_MAX_LEN
 
 				
 				hashmap_start = segment*ResourceAdvertisement.HASHMAP_MAX_LEN
 				hashmap_end   = min((segment+1)*ResourceAdvertisement.HASHMAP_MAX_LEN, len(self.parts))
 
-				hashmap = ""
+				hashmap = b""
 				for i in range(hashmap_start,hashmap_end):
 					hashmap += self.hashmap[i*Resource.MAPHASH_LEN:(i+1)*Resource.MAPHASH_LEN]
 
@@ -523,18 +524,18 @@ class ResourceAdvertisement:
 		hashmap_start = segment*ResourceAdvertisement.HASHMAP_MAX_LEN
 		hashmap_end   = min((segment+1)*ResourceAdvertisement.HASHMAP_MAX_LEN, self.n)
 
-		hashmap = ""
+		hashmap = b""
 		for i in range(hashmap_start,hashmap_end):
 			hashmap += self.m[i*Resource.MAPHASH_LEN:(i+1)*Resource.MAPHASH_LEN]
 
 		dictionary = {
-			u"t": self.t,
-			u"d": self.d,
-			u"n": self.n,
-			u"h": self.h,
-			u"r": self.r,
-			u"f": self.f,
-			u"m": hashmap
+			"t": self.t,
+			"d": self.d,
+			"n": self.n,
+			"h": self.h,
+			"r": self.r,
+			"f": self.f,
+			"m": hashmap
 		}
 
 		return umsgpack.packb(dictionary)

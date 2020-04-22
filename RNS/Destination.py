@@ -54,7 +54,7 @@ class Destination:
 
 		# Create a digest for the destination
 		digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
-		digest.update(name)
+		digest.update(name.encode("UTF-8"))
 
 		return digest.finalize()[:10]
 
@@ -83,7 +83,7 @@ class Destination:
 
 		self.name = Destination.getDestinationName(app_name, *aspects)		
 		self.hash = Destination.getDestinationHash(app_name, *aspects)
-		self.hexhash = self.hash.encode("hex_codec")
+		self.hexhash = self.hash.hex()
 
 		self.callback = None
 		self.proofcallback = None

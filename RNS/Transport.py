@@ -6,7 +6,7 @@ import struct
 import threading
 import traceback
 from time import sleep
-import vendor.umsgpack as umsgpack
+from .vendor import umsgpack as umsgpack
 
 class Transport:
 	# Constants
@@ -84,7 +84,7 @@ class Transport:
 		packet_hashlist_path = RNS.Reticulum.configdir+"/packet_hashlist"
 		if os.path.isfile(packet_hashlist_path):
 			try:
-				file = open(packet_hashlist_path, "r")
+				file = open(packet_hashlist_path, "rb")
 				Transport.packet_hashlist = umsgpack.unpackb(file.read())
 				file.close()
 			except Exception as e:
@@ -144,7 +144,7 @@ class Transport:
 								announce_identity = RNS.Identity.recall(packet.destination_hash)
 								announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
 								announce_destination.hash = packet.destination_hash
-								announce_destination.hexhash = announce_destination.hash.encode("hex_codec")
+								announce_destination.hexhash = announce_destination.hash.hex()
 								new_packet = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE, context = announce_context, header_type = RNS.Packet.HEADER_2, transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash)
 								new_packet.hops = announce_entry[4]
 								RNS.log("Rebroadcasting announce for "+RNS.prettyhexrep(announce_destination.hash)+" with hop count "+str(new_packet.hops), RNS.LOG_DEBUG)
@@ -423,7 +423,7 @@ class Transport:
 					# First, check that the announce is not for a destination
 					# local to this system, and that hops are less than the max
 					if (not any(packet.destination_hash == d.hash for d in Transport.destinations) and packet.hops < Transport.PATHFINDER_M+1):
-						random_blob = packet.data[RNS.Identity.DERKEYSIZE/8+10:RNS.Identity.DERKEYSIZE/8+20]
+						random_blob = packet.data[RNS.Identity.DERKEYSIZE//8+10:RNS.Identity.DERKEYSIZE//8+20]
 						random_blobs = []
 						if packet.destination_hash in Transport.destination_table:
 							random_blobs = Transport.destination_table[packet.destination_hash][4]
@@ -541,7 +541,7 @@ class Transport:
 								# plaintext = link.decrypt(packet.data)
 								
 					if len(packet.data) == RNS.PacketReceipt.EXPL_LENGTH:
-						proof_hash = packet.data[:RNS.Identity.HASHLENGTH/8]
+						proof_hash = packet.data[:RNS.Identity.HASHLENGTH//8]
 					else:
 						proof_hash = None
 
@@ -612,7 +612,7 @@ class Transport:
 		if RNS.Transport.shouldCache(packet):
 			try:
 				packet_hash = RNS.hexrep(packet.getHash(), delimit=False)
-				file = open(RNS.Reticulum.cachepath+"/"+packet_hash, "w")
+				file = open(RNS.Reticulum.cachepath+"/"+packet_hash, "wb")
 				file.write(packet.raw)
 				file.close()
 				RNS.log("Wrote packet "+packet_hash+" to cache", RNS.LOG_EXTREME)
@@ -628,7 +628,7 @@ class Transport:
 			packet_hash = RNS.hexrep(packet.data, delimit=False)
 			path = RNS.Reticulum.cachepath+"/"+packet_hash
 			if os.path.isfile(path):
-				file = open(path, "r")
+				file = open(path, "rb")
 				raw = file.read()
 				file.close()
 				packet = RNS.Packet(None, raw)
@@ -642,7 +642,7 @@ class Transport:
 		RNS.log("Cache request for "+RNS.prettyhexrep(packet_hash), RNS.LOG_EXTREME)
 		path = RNS.Reticulum.cachepath+"/"+RNS.hexrep(packet_hash, delimit=False)
 		if os.path.isfile(path):
-			file = open(path, "r")
+			file = open(path, "rb")
 			raw = file.read()
 			Transport.inbound(raw)
 			file.close()
@@ -665,8 +665,8 @@ class Transport:
 
 	@staticmethod
 	def pathRequestHandler(data, packet):
-		if len(data) >= RNS.Identity.TRUNCATED_HASHLENGTH/8:
-			Transport.pathRequest(data[:RNS.Identity.TRUNCATED_HASHLENGTH/8])
+		if len(data) >= RNS.Identity.TRUNCATED_HASHLENGTH//8:
+			Transport.pathRequest(data[:RNS.Identity.TRUNCATED_HASHLENGTH//8])
 
 	@staticmethod
 	def pathRequest(destination_hash):
@@ -704,7 +704,7 @@ class Transport:
 	def exitHandler():
 		try:
 			packet_hashlist_path = RNS.Reticulum.configdir+"/packet_hashlist"
-			file = open(packet_hashlist_path, "w")
+			file = open(packet_hashlist_path, "wb")
 			file.write(umsgpack.packb(Transport.packet_hashlist))
 			file.close()
 		except Exception as e:

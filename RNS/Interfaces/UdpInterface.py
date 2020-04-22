@@ -1,5 +1,5 @@
-from Interface import Interface
-import SocketServer
+from .Interface import Interface
+import socketserver
 import threading
 import socket
 import time
@@ -27,7 +27,7 @@ class UdpInterface(Interface):
 
             self.owner = owner
             address = (self.bind_ip, self.bind_port)
-            self.server = SocketServer.UDPServer(address, handlerFactory(self.processIncoming))
+            self.server = socketserver.UDPServer(address, handlerFactory(self.processIncoming))
 
             thread = threading.Thread(target=self.server.serve_forever)
             thread.setDaemon(True)
@@ -52,10 +52,10 @@ class UdpInterface(Interface):
     def __str__(self):
         return "UdpInterface["+self.name+"/"+self.bind_ip+":"+str(self.bind_port)+"]"
 
-class UdpInterfaceHandler(SocketServer.BaseRequestHandler):
+class UdpInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):
         self.callback = callback
-        SocketServer.BaseRequestHandler.__init__(self, *args, **keys)
+        socketserver.BaseRequestHandler.__init__(self, *args, **keys)
 
     def handle(self):
         data = self.request[0]

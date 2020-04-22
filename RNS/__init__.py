@@ -82,7 +82,7 @@ def hexrep(data, delimit=True):
 
 def prettyhexrep(data):
 	delimiter = ""
-	hexrep = "<"+delimiter.join("{:02x}".format(ord(c)) for c in data)+">"
+	hexrep = "<"+delimiter.join("{:02x}".format(c) for c in data)+">"
 	return hexrep
 
 def panic():

@@ -62,7 +62,7 @@ def announceLoop(destination):
 	# destination on the network, which will let clients
 	# know how to create messages directed towards it.
 	while True:
-		entered = raw_input()
+		entered = input()
 		destination.announce()
 		RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
 
@@ -116,18 +116,19 @@ def client_disconnected(link):
 
 def client_request(message, packet):
 	global serve_path
-	if message in list_files():
+	filename = message.decode("utf-8")
+	if filename in list_files():
 		try:
 			# If we have the requested file, we'll
 			# read it and pack it as a resource
-			RNS.log("Client requested \""+message+"\"")
-			file = open(os.path.join(serve_path, message), "r")
+			RNS.log("Client requested \""+filename+"\"")
+			file = open(os.path.join(serve_path, filename), "rb")
 			file_resource = RNS.Resource(file.read(), packet.link, callback=resource_sending_concluded)
-			file_resource.filename = message
+			file_resource.filename = filename
 		except:
 			# If somethign went wrong, we close
 			# the link
-			RNS.log("Error while reading file \""+message+"\"", RNS.LOG_ERROR)
+			RNS.log("Error while reading file \""+filename+"\"", RNS.LOG_ERROR)
 			packet.link.teardown()
 	else:
 		# If we don't have it, we close the link
@@ -172,7 +173,7 @@ def client(destination_hexhash, configpath):
 	try:
 		if len(destination_hexhash) != 20:
 			raise ValueError("Destination length is invalid, must be 20 hexadecimal characters (10 bytes)")
-		destination_hash = destination_hexhash.decode("hex")
+		destination_hash = bytes.fromhex(destination_hexhash)
 	except:
 		RNS.log("Invalid destination entered. Check your input!\n")
 		exit()
@@ -230,11 +231,11 @@ def download(filename):
 	# We just create a packet containing the
 	# requested filename, and send it down the
 	# link.
-	request_packet = RNS.Packet(server_link, filename)
+	request_packet = RNS.Packet(server_link, filename.encode("utf-8"))
 	request_packet.send()
 	
 	print("")
-	print("Requested \""+filename+"\" from server, waiting for download to begin...")
+	print(("Requested \""+filename+"\" from server, waiting for download to begin..."))
 	menu_mode = "download_started"
 
 # This function runs a simple menu for the user
@@ -258,7 +259,7 @@ def menu():
 			# Wait
 			time.sleep(0.25)
 
-		user_input = raw_input()
+		user_input = input()
 		if user_input == "q" or user_input == "quit" or user_input == "exit":
 			should_quit = True
 			print("")
@@ -288,7 +289,7 @@ def print_menu():
 		print_filelist()
 		print("")
 		print("Select a file to download by entering name or number, or q to quit")
-		print("> "),
+		print(("> "), end=' ')
 	elif menu_mode == "download_started":
 		download_began = time.time()
 		while menu_mode == "download_started":
@@ -305,12 +306,12 @@ def print_menu():
 		while menu_mode == "downloading":
 			global current_download
 			percent = round(current_download.progress() * 100.0, 1)
-			print("\rProgress: "+str(percent)+" %   "),
+			print(("\rProgress: "+str(percent)+" %   "), end=' ')
 			sys.stdout.flush()
 			time.sleep(0.1)
 
 	if menu_mode == "save_error":
-		print("\rProgress: 100.0 %"),
+		print(("\rProgress: 100.0 %"), end=' ')
 		sys.stdout.flush()
 		print("")
 		print("Could not write downloaded file to disk")
@@ -319,16 +320,16 @@ def print_menu():
 
 	if menu_mode == "download_concluded":
 		if current_download.status == RNS.Resource.COMPLETE:
-			print("\rProgress: 100.0 %"),
+			print(("\rProgress: 100.0 %"), end=' ')
 			sys.stdout.flush()
 			print("")
-			print("The download completed! Pres enter to return to the menu.")
-			raw_input()
+			print("The download completed! Press enter to return to the menu.")
+			input()
 
 		else:
 			print("")
-			print("The download failed! Pres enter to return to the menu.")
-			raw_input()
+			print("The download failed! Press enter to return to the menu.")
+			input()
 
 		current_download = None
 		menu_mode = "main"
@@ -431,7 +432,7 @@ def download_concluded(resource):
 			saved_filename = current_filename+"."+str(counter)
 
 		try:
-			file = open(saved_filename, "w")
+			file = open(saved_filename, "wb")
 			file.write(resource.data)
 			file.close()
 			menu_mode = "download_concluded"
