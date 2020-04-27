@@ -488,5 +488,4 @@ loglevel = 4
     persistence = 200
     slottime = 20
 
-
 '''.splitlines()
