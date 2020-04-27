@@ -70,7 +70,7 @@ class RNodeInterface(Interface):
 	RSSI_OFFSET = 157
 	SNR_OFFSET  = 128
 
-	def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, flow_control = False):
+	def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False):
 		self.serial      = None
 		self.owner       = owner
 		self.name        = name
@@ -86,7 +86,7 @@ class RNodeInterface(Interface):
 		self.bandwidth   = bandwidth
 		self.txpower     = txpower
 		self.sf          = sf
-		self.cr          = 5
+		self.cr          = cr
 		self.state       = KISS.RADIO_STATE_OFF
 		self.bitrate     = 0
 
@@ -121,6 +121,10 @@ class RNodeInterface(Interface):
 
 		if (self.sf < 7 or self.sf > 12):
 			RNS.log("Invalid spreading factor configured for "+str(self), RNS.LOG_ERROR)
+			self.validcfg = False
+
+		if (self.cr < 5 or self.sf > 8):
+			RNS.log("Invalid coding rate configured for "+str(self), RNS.LOG_ERROR)
 			self.validcfg = False
 
 		if (not self.validcfg):

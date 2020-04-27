@@ -102,161 +102,166 @@ class Reticulum:
 
 		for name in self.config["interfaces"]:
 			c = self.config["interfaces"][name]
+
 			try:
-				if c["type"] == "UdpInterface":
-					interface = UdpInterface.UdpInterface(
-						RNS.Transport,
-						name,
-						c["listen_ip"],
-						int(c["listen_port"]),
-						c["forward_ip"],
-						int(c["forward_port"])
-					)
+				if ("interface_enabled" in c) and c.as_bool("interface_enabled") == True:
+					if c["type"] == "UdpInterface":
+						interface = UdpInterface.UdpInterface(
+							RNS.Transport,
+							name,
+							c["listen_ip"],
+							int(c["listen_port"]),
+							c["forward_ip"],
+							int(c["forward_port"])
+						)
 
-					if "outgoing" in c and c["outgoing"].lower() == "true":
-						interface.OUT = True
-					else:
-						interface.OUT = False
+						if "outgoing" in c and c.as_bool("outgoing") == True:
+							interface.OUT = True
+						else:
+							interface.OUT = False
 
-					RNS.Transport.interfaces.append(interface)
+						RNS.Transport.interfaces.append(interface)
 
-				if c["type"] == "SerialInterface":
-					port = c["port"] if "port" in c else None
-					speed = int(c["speed"]) if "speed" in c else 9600
-					databits = int(c["databits"]) if "databits" in c else 8
-					parity = c["parity"] if "parity" in c else "N"
-					stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+					if c["type"] == "SerialInterface":
+						port = c["port"] if "port" in c else None
+						speed = int(c["speed"]) if "speed" in c else 9600
+						databits = int(c["databits"]) if "databits" in c else 8
+						parity = c["parity"] if "parity" in c else "N"
+						stopbits = int(c["stopbits"]) if "stopbits" in c else 1
 
-					if port == None:
-						raise ValueError("No port specified for serial interface")
+						if port == None:
+							raise ValueError("No port specified for serial interface")
 
-					interface = SerialInterface.SerialInterface(
-						RNS.Transport,
-						name,
-						port,
-						speed,
-						databits,
-						parity,
-						stopbits
-					)
+						interface = SerialInterface.SerialInterface(
+							RNS.Transport,
+							name,
+							port,
+							speed,
+							databits,
+							parity,
+							stopbits
+						)
 
-					if "outgoing" in c and c["outgoing"].lower() == "true":
-						interface.OUT = True
-					else:
-						interface.OUT = False
+						if "outgoing" in c and c["outgoing"].lower() == "true":
+							interface.OUT = True
+						else:
+							interface.OUT = False
 
-					RNS.Transport.interfaces.append(interface)
+						RNS.Transport.interfaces.append(interface)
 
-				if c["type"] == "KISSInterface":
-					preamble = int(c["preamble"]) if "preamble" in c else None
-					txtail = int(c["txtail"]) if "txtail" in c else None
-					persistence = int(c["persistence"]) if "persistence" in c else None
-					slottime = int(c["slottime"]) if "slottime" in c else None
-					flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
+					if c["type"] == "KISSInterface":
+						preamble = int(c["preamble"]) if "preamble" in c else None
+						txtail = int(c["txtail"]) if "txtail" in c else None
+						persistence = int(c["persistence"]) if "persistence" in c else None
+						slottime = int(c["slottime"]) if "slottime" in c else None
+						flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
 
-					port = c["port"] if "port" in c else None
-					speed = int(c["speed"]) if "speed" in c else 9600
-					databits = int(c["databits"]) if "databits" in c else 8
-					parity = c["parity"] if "parity" in c else "N"
-					stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+						port = c["port"] if "port" in c else None
+						speed = int(c["speed"]) if "speed" in c else 9600
+						databits = int(c["databits"]) if "databits" in c else 8
+						parity = c["parity"] if "parity" in c else "N"
+						stopbits = int(c["stopbits"]) if "stopbits" in c else 1
 
-					if port == None:
-						raise ValueError("No port specified for serial interface")
+						if port == None:
+							raise ValueError("No port specified for serial interface")
 
-					interface = KISSInterface.KISSInterface(
-						RNS.Transport,
-						name,
-						port,
-						speed,
-						databits,
-						parity,
-						stopbits,
-						preamble,
-						txtail,
-						persistence,
-						slottime,
-						flow_control
-					)
+						interface = KISSInterface.KISSInterface(
+							RNS.Transport,
+							name,
+							port,
+							speed,
+							databits,
+							parity,
+							stopbits,
+							preamble,
+							txtail,
+							persistence,
+							slottime,
+							flow_control
+						)
 
-					if "outgoing" in c and c["outgoing"].lower() == "true":
-						interface.OUT = True
-					else:
-						interface.OUT = False
+						if "outgoing" in c and c["outgoing"].lower() == "true":
+							interface.OUT = True
+						else:
+							interface.OUT = False
 
-					RNS.Transport.interfaces.append(interface)
+						RNS.Transport.interfaces.append(interface)
 
-				if c["type"] == "AX25KISSInterface":
-					preamble = int(c["preamble"]) if "preamble" in c else None
-					txtail = int(c["txtail"]) if "txtail" in c else None
-					persistence = int(c["persistence"]) if "persistence" in c else None
-					slottime = int(c["slottime"]) if "slottime" in c else None
-					flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
+					if c["type"] == "AX25KISSInterface":
+						preamble = int(c["preamble"]) if "preamble" in c else None
+						txtail = int(c["txtail"]) if "txtail" in c else None
+						persistence = int(c["persistence"]) if "persistence" in c else None
+						slottime = int(c["slottime"]) if "slottime" in c else None
+						flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
 
-					port = c["port"] if "port" in c else None
-					speed = int(c["speed"]) if "speed" in c else 9600
-					databits = int(c["databits"]) if "databits" in c else 8
-					parity = c["parity"] if "parity" in c else "N"
-					stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+						port = c["port"] if "port" in c else None
+						speed = int(c["speed"]) if "speed" in c else 9600
+						databits = int(c["databits"]) if "databits" in c else 8
+						parity = c["parity"] if "parity" in c else "N"
+						stopbits = int(c["stopbits"]) if "stopbits" in c else 1
 
-					callsign = c["callsign"] if "callsign" in c else ""
-					ssid = int(c["ssid"]) if "ssid" in c else -1
+						callsign = c["callsign"] if "callsign" in c else ""
+						ssid = int(c["ssid"]) if "ssid" in c else -1
 
-					if port == None:
-						raise ValueError("No port specified for serial interface")
+						if port == None:
+							raise ValueError("No port specified for serial interface")
 
-					interface = AX25KISSInterface.AX25KISSInterface(
-						RNS.Transport,
-						name,
-						callsign,
-						ssid,
-						port,
-						speed,
-						databits,
-						parity,
-						stopbits,
-						preamble,
-						txtail,
-						persistence,
-						slottime,
-						flow_control
-					)
+						interface = AX25KISSInterface.AX25KISSInterface(
+							RNS.Transport,
+							name,
+							callsign,
+							ssid,
+							port,
+							speed,
+							databits,
+							parity,
+							stopbits,
+							preamble,
+							txtail,
+							persistence,
+							slottime,
+							flow_control
+						)
 
-					if "outgoing" in c and c["outgoing"].lower() == "true":
-						interface.OUT = True
-					else:
-						interface.OUT = False
+						if "outgoing" in c and c["outgoing"].lower() == "true":
+							interface.OUT = True
+						else:
+							interface.OUT = False
 
-					RNS.Transport.interfaces.append(interface)
+						RNS.Transport.interfaces.append(interface)
 
-				if c["type"] == "RNodeInterface":
-					frequency = int(c["frequency"]) if "frequency" in c else None
-					bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
-					txpower = int(c["txpower"]) if "txpower" in c else None
-					spreadingfactor = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
-					flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
+					if c["type"] == "RNodeInterface":
+						frequency = int(c["frequency"]) if "frequency" in c else None
+						bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
+						txpower = int(c["txpower"]) if "txpower" in c else None
+						spreadingfactor = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
+						codingrate = int(c["codingrate"]) if "codingrate" in c else None
+						flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
 
-					port = c["port"] if "port" in c else None
-					
-					if port == None:
-						raise ValueError("No port specified for RNode interface")
+						port = c["port"] if "port" in c else None
+						
+						if port == None:
+							raise ValueError("No port specified for RNode interface")
 
-					interface = RNodeInterface.RNodeInterface(
-						RNS.Transport,
-						name,
-						port,
-						frequency,
-						bandwidth,
-						txpower,
-						spreadingfactor,
-						flow_control
-					)
+						interface = RNodeInterface.RNodeInterface(
+							RNS.Transport,
+							name,
+							port,
+							frequency,
+							bandwidth,
+							txpower,
+							spreadingfactor,
+							flow_control
+						)
 
-					if "outgoing" in c and c["outgoing"].lower() == "true":
-						interface.OUT = True
-					else:
-						interface.OUT = False
+						if "outgoing" in c and c["outgoing"].lower() == "true":
+							interface.OUT = True
+						else:
+							interface.OUT = False
 
-					RNS.Transport.interfaces.append(interface)
+						RNS.Transport.interfaces.append(interface)
+				else:
+					RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_VERBOSE)
 
 			except Exception as e:
 				RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
@@ -265,20 +270,9 @@ class Reticulum:
 				
 
 	def createDefaultConfig(self):
-		self.config = ConfigObj()
+		self.config = ConfigObj(__default_rns_config__)
 		self.config.filename = Reticulum.configpath
-		self.config["reticulum"] = {}
-		self.config["reticulum"]["allow_unencrypted"] = False
-		self.config["logging"] = {}
-		self.config["logging"]["loglevel"] = 4
-		self.config["interfaces"] = {}
-		self.config["interfaces"]["Default UDP Interface"] = {}
-		self.config["interfaces"]["Default UDP Interface"]["type"] = "UdpInterface"
-		self.config["interfaces"]["Default UDP Interface"]["listen_ip"] = "0.0.0.0"
-		self.config["interfaces"]["Default UDP Interface"]["listen_port"] = 7777
-		self.config["interfaces"]["Default UDP Interface"]["forward_ip"] = "255.255.255.255"
-		self.config["interfaces"]["Default UDP Interface"]["forward_port"] = 7777
-		self.config["interfaces"]["Default UDP Interface"]["outgoing"] = "true"
+		
 		if not os.path.isdir(Reticulum.configdir):
 			os.makedirs(Reticulum.configdir)
 		self.config.write()
@@ -291,3 +285,198 @@ class Reticulum:
 	@staticmethod
 	def should_use_implicit_proof():
 		return Reticulum.__use_implicit_proof
+
+# Default configuration file:
+__default_rns_config__ = '''# This is the default Reticulum config file.
+# You should probably edit it to include any additional,
+# interfaces and settings you might need.
+
+[reticulum]
+
+# Don't allow unencrypted links by default.
+# If you REALLY need to allow unencrypted links, for example
+# for debug or regulatory purposes, this can be set to true.
+allow_unencrypted = False
+
+# If you enable Transport, your system will route traffic
+# for other peers, pass announces and serve path requests.
+# Unless you really know what you're doing, this should be
+# done only for systems that are suited to act as transport
+# nodes, ie. if they are stationary and always-on.
+enable_transport = False
+
+
+[logging]
+# Valid log levels are 0 through 7:
+#   0: Log only critical information
+#   1: Log errors and lower log levels
+#   2: Log warnings and lower log levels
+#   3: Log notices and lower log levels
+#   4: Log info and lower (this is the default)
+#   5: Verbose logging
+#   6: Debug logging
+#   7: Extreme logging
+
+loglevel = 4
+
+
+# The interfaces section defines the physical and virtual
+# interfaces Reticulum will use to communicate on. This
+# section will contain examples for a variety of interface
+# types. You can modify these or use them as a basis for
+# your own config, or simply remove the unused ones.
+
+[interfaces]
+
+  # This interface enables communication with other
+  # Reticulum nodes on your local ethernet networks.
+  [[Default UDP Interface]]
+  	type = UdpInterface
+    interface_enabled = True
+    outgoing = True
+    listen_ip = 0.0.0.0
+    listen_port = 7777
+    forward_ip = 255.255.255.255
+    forward_port = 7777
+
+
+  # Here's an example of how to add a LoRa interface
+  # using the RNode LoRa transceiver.
+
+  [[RNode LoRa Interface]]
+    type = RNodeInterface
+
+    # Enable interface if you want use it!
+    interface_enabled = False
+
+    # Allow transmit on interface. Setting
+    # this to false will create a listen-
+    # only interface.
+    outgoing = true
+
+    # Serial port for the device
+    port = /dev/ttyUSB0
+
+    # Set frequency to 867.2 MHz
+    frequency = 867200000
+
+    # Set LoRa bandwidth to 125 KHz
+    bandwidth = 125000
+
+    # Set TX power to 7 dBm (5 mW)
+    txpower = 7
+
+    # Select spreading factor 8. Valid 
+    # range is 7 through 12, with 7
+    # being the fastest and 12 having
+    # the longest range.
+    spreadingfactor = 8
+
+    # Select coding rate 5. Valid range
+    # is 5 throough 8, with 5 being the
+    # fastest, and 8 the longest range.
+    codingrate = 5
+
+  # An example KISS modem interface. Useful for running
+  # Reticulum over packet radio hardware.
+
+  [[Packet Radio KISS Interface]]
+    type = KISSInterface
+
+    # Enable interface if you want use it!
+    interface_enabled = False
+
+    # Allow transmit on interface.
+    outgoing = true
+
+	# Serial port for the device
+    port = /dev/ttyUSB1
+
+    # Set the serial baud-rate and other
+    # configuration parameters.
+    speed = 115200    
+    databits = 8
+    parity = none
+    stopbits = 1
+
+    # Whether to use KISS flow-control.
+    # This is useful for modems with a
+    # small internal packet buffer.
+    flow_control = false
+
+    # Set the modem preamble. A 150ms
+    # preamble should be a reasonable
+    # default, but may need to be
+    # increased for radios with slow-
+    # opening squelch and long TX/RX
+    # turnaround
+    preamble = 150
+
+    # Set the modem TX tail. In most
+    # cases this should be kept as low
+    # as possible to not waste airtime.
+    txtail = 10
+
+    # Configure CDMA parameters. These
+    # settings are reasonable defaults.
+    persistence = 200
+    slottime = 20
+
+  # If you're using Reticulum on amateur radio spectrum,
+  # you might want to use the AX.25 KISS interface. This
+  # way, Reticulum will automatically encapsulate it's
+  # traffic in AX.25 and also identify your stations
+  # transmissions with your callsign and SSID.
+  # 
+  # Only do this if you really need to! Reticulum doesn't
+  # need the AX.25 layer for anything, and it incurs extra
+  # overhead on every packet to encapsulate in AX.25.
+
+  [[Packet Radio AX.25 KISS Interface]]
+    type = AX25KISSInterface
+
+    # Set the station callsign and SSID
+    callsign = NO1CLL
+    ssid = 0
+
+    # Enable interface if you want use it!
+    interface_enabled = False
+
+    # Allow transmit on interface.
+    outgoing = true
+
+	# Serial port for the device
+    port = /dev/ttyUSB2
+
+    # Set the serial baud-rate and other
+    # configuration parameters.
+    speed = 115200    
+    databits = 8
+    parity = none
+    stopbits = 1
+
+    # Whether to use KISS flow-control.
+    # This is useful for modems with a
+    # small internal packet buffer.
+    flow_control = false
+
+    # Set the modem preamble. A 150ms
+    # preamble should be a reasonable
+    # default, but may need to be
+    # increased for radios with slow-
+    # opening squelch and long TX/RX
+    # turnaround
+    preamble = 150
+
+    # Set the modem TX tail. In most
+    # cases this should be kept as low
+    # as possible to not waste airtime.
+    txtail = 10
+
+    # Configure CDMA parameters. These
+    # settings are reasonable defaults.
+    persistence = 200
+    slottime = 20
+
+
+'''.splitlines()
