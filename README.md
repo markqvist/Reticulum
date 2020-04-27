@@ -70,16 +70,19 @@ ln -s ../RNS ./Examples/
 # Run an example
 python3 Examples/Echo.py -s
 
-# Unless you've manually created a config file, Reticulum will do so now, and immediately exit. Make any necessary changes to the file.
+# Unless you've manually created a config file, Reticulum will do so now,
+# and immediately exit. Make any necessary changes to the file:
 nano ~/.reticulum/config
 
 # ... and launch the example again.
 python3 Examples/Echo.py -s
 
-# You can now repeat the process on another computer, and run the same example with -h to get command line options.
+# You can now repeat the process on another computer,
+# and run the same example with -h to get command line options.
 python3 Examples/Echo.py -h
 
-# Run the example in client mode to "ping" the server. Replace the hash below with the actual destination hash of your server.
+# Run the example in client mode to "ping" the server.
+# Replace the hash below with the actual destination hash of your server.
 python3 Examples/Echo.py 3e12fc71692f8ec47bc5
 
 # Have a look at another example
