@@ -90,10 +90,9 @@ class Transport:
 			except Exception as e:
 				RNS.log("Could not load packet hashlist from disk, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
-		if RNS.Reticulum.transport_enabled():
-			# Create transport-specific destinations
-			path_request_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
-			path_request_destination.packet_callback(Transport.pathRequestHandler)
+		# Create transport-specific destinations
+		path_request_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
+		path_request_destination.packet_callback(Transport.pathRequestHandler)
 		
 		thread = threading.Thread(target=Transport.jobloop)
 		thread.setDaemon(True)
@@ -680,7 +679,7 @@ class Transport:
 			RNS.log("Destination is local to this system, announcing", RNS.LOG_DEBUG)
 			local_destination.announce(path_response=True)
 
-		elif destination_hash in Transport.destination_table:
+		elif RNS.Reticulum.transport_enabled() and destination_hash in Transport.destination_table:
 			RNS.log("Path found, inserting announce for transmission", RNS.LOG_DEBUG)
 			packet = Transport.destination_table[destination_hash][6]
 			received_from = Transport.destination_table[destination_hash][5]
