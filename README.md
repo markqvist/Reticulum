@@ -56,7 +56,7 @@ Full documentation and video tutorials are coming with the stable alpha release.
 
 To install dependencies and get started:
 
-```
+```bash
 # Install dependencies
 pip3 install cryptography pyserial
 
