@@ -3,3 +3,6 @@
 testutils
 TODO
 Examples/RNS
+build
+dist
+rns*.egg-info

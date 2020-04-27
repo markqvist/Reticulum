@@ -54,7 +54,13 @@ Some countries still ban the use of encryption when operating under an amateur r
 ## How do I get started?
 Full documentation and video tutorials are coming with the stable alpha release. Until then, you are mostly on your own. If you really want to experiment already, you could take a look in the "Examples" folder, for some well-documented example programs. Be sure to also read the [Reticulum Overview Document](http://unsigned.io/wp-content/uploads/2018/04/Reticulum_Overview_v0.4.pdf).
 
-To install dependencies and get started:
+If you just need Reticulum as a dependency for another application, the easiest way is probably via pip:
+
+```bash
+pip3 install rns
+```
+
+For development, you might want to get the latest source from GitHub. To install dependencies and get started:
 
 ```bash
 # Install dependencies
