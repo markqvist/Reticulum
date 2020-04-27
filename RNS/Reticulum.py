@@ -40,6 +40,7 @@ class Reticulum:
 		Reticulum.cachepath = Reticulum.configdir+"/storage/cache"
 
 		Reticulum.__allow_unencrypted = False
+		Reticulum.__transport_enabled = False
 		Reticulum.__use_implicit_proof = True
 
 		if not os.path.isdir(Reticulum.storagepath):
@@ -60,7 +61,6 @@ class Reticulum:
 
 		self.applyConfig()
 		RNS.Identity.loadKnownDestinations()
-		Reticulum.router = self
 
 		RNS.Transport.start()
 
@@ -80,22 +80,28 @@ class Reticulum:
 		if "reticulum" in self.config:
 			for option in self.config["reticulum"]:
 				value = self.config["reticulum"][option]
+				if option == "enable_transport":
+					v = self.config["reticulum"].as_bool(option)
+					if v == True:
+						Reticulum.__transport_enabled = True
 				if option == "use_implicit_proof":
-					if value == "true":
+					v = self.config["reticulum"].as_bool(option)
+					if v == True:
 						Reticulum.__use_implicit_proof = True
-					if value == "false":
+					if v == False:
 						Reticulum.__use_implicit_proof = False
 				if option == "allow_unencrypted":
-					if value == "true":
+					v = self.config["reticulum"].as_bool(option)
+					if v == True:
 						RNS.log("", RNS.LOG_CRITICAL)
-						RNS.log("! ! !", RNS.LOG_CRITICAL)
+						RNS.log("! ! !     ! ! !     ! ! !", RNS.LOG_CRITICAL)
 						RNS.log("", RNS.LOG_CRITICAL)
 						RNS.log("Danger! Encryptionless links have been allowed in the config file!", RNS.LOG_CRITICAL)
 						RNS.log("Beware of the consequences! Any data sent over a link can potentially be intercepted,", RNS.LOG_CRITICAL)
 						RNS.log("read and modified! If you are not absolutely sure that you want this,", RNS.LOG_CRITICAL)
 						RNS.log("you should exit Reticulum NOW and change your config file!", RNS.LOG_CRITICAL)
 						RNS.log("", RNS.LOG_CRITICAL)
-						RNS.log("! ! !", RNS.LOG_CRITICAL)
+						RNS.log("! ! !     ! ! !     ! ! !", RNS.LOG_CRITICAL)
 						RNS.log("", RNS.LOG_CRITICAL)
 						Reticulum.__allow_unencrypted = True
 
@@ -285,6 +291,10 @@ class Reticulum:
 	@staticmethod
 	def should_use_implicit_proof():
 		return Reticulum.__use_implicit_proof
+
+	@staticmethod
+	def transport_enabled():
+		return Reticulum.__transport_enabled
 
 # Default configuration file:
 __default_rns_config__ = '''# This is the default Reticulum config file.

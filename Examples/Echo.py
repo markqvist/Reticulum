@@ -96,7 +96,8 @@ def client(destination_hexhash, configpath, timeout=None):
 
 	# We override the loglevel to provide feedback when
 	# an announce is received
-	RNS.loglevel = RNS.LOG_INFO
+	if RNS.loglevel < RNS.LOG_INFO:
+		RNS.loglevel = RNS.LOG_INFO
 
 	# Tell the user that the client is ready!
 	RNS.log("Echo client ready, hit enter to send echo request to "+destination_hexhash+" (Ctrl-C to quit)")

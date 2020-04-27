@@ -90,15 +90,17 @@ class Transport:
 			except Exception as e:
 				RNS.log("Could not load packet hashlist from disk, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
-		# Create transport-specific destinations
-		path_request_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
-		path_request_destination.packet_callback(Transport.pathRequestHandler)
+		if RNS.Reticulum.transport_enabled():
+			# Create transport-specific destinations
+			path_request_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
+			path_request_destination.packet_callback(Transport.pathRequestHandler)
 		
 		thread = threading.Thread(target=Transport.jobloop)
 		thread.setDaemon(True)
 		thread.start()
 
-		RNS.log("Transport instance "+str(Transport.identity)+" started")
+		if RNS.Reticulum.transport_enabled():
+			RNS.log("Transport instance "+str(Transport.identity)+" started")
 
 	@staticmethod
 	def jobloop():
@@ -123,34 +125,35 @@ class Transport:
 
 					Transport.receipts_last_checked = time.time()
 
-				# Process announces needing retransmission
-				if time.time() > Transport.announces_last_checked+Transport.announces_check_interval:
-					for destination_hash in Transport.announce_table:
-						announce_entry = Transport.announce_table[destination_hash]
-						if announce_entry[2] > Transport.PATHFINDER_R:
-							RNS.log("Dropping announce for "+RNS.prettyhexrep(destination_hash)+", retries exceeded", RNS.LOG_DEBUG)
-							Transport.announce_table.pop(destination_hash)
-							break
-						else:
-							if time.time() > announce_entry[1]:
-								announce_entry[1] = time.time() + math.pow(Transport.PATHFINDER_C, announce_entry[4]) + Transport.PATHFINDER_T + Transport.PATHFINDER_RW
-								announce_entry[2] += 1
-								packet = announce_entry[5]
-								block_rebroadcasts = announce_entry[7]
-								announce_context = RNS.Packet.NONE
-								if block_rebroadcasts:
-									announce_context = RNS.Packet.PATH_RESPONSE
-								announce_data = packet.data
-								announce_identity = RNS.Identity.recall(packet.destination_hash)
-								announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
-								announce_destination.hash = packet.destination_hash
-								announce_destination.hexhash = announce_destination.hash.hex()
-								new_packet = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE, context = announce_context, header_type = RNS.Packet.HEADER_2, transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash)
-								new_packet.hops = announce_entry[4]
-								RNS.log("Rebroadcasting announce for "+RNS.prettyhexrep(announce_destination.hash)+" with hop count "+str(new_packet.hops), RNS.LOG_DEBUG)
-								outgoing.append(new_packet)
+				if RNS.Reticulum.transport_enabled():
+					# Process announces needing retransmission
+					if time.time() > Transport.announces_last_checked+Transport.announces_check_interval:
+						for destination_hash in Transport.announce_table:
+							announce_entry = Transport.announce_table[destination_hash]
+							if announce_entry[2] > Transport.PATHFINDER_R:
+								RNS.log("Dropping announce for "+RNS.prettyhexrep(destination_hash)+", retries exceeded", RNS.LOG_DEBUG)
+								Transport.announce_table.pop(destination_hash)
+								break
+							else:
+								if time.time() > announce_entry[1]:
+									announce_entry[1] = time.time() + math.pow(Transport.PATHFINDER_C, announce_entry[4]) + Transport.PATHFINDER_T + Transport.PATHFINDER_RW
+									announce_entry[2] += 1
+									packet = announce_entry[5]
+									block_rebroadcasts = announce_entry[7]
+									announce_context = RNS.Packet.NONE
+									if block_rebroadcasts:
+										announce_context = RNS.Packet.PATH_RESPONSE
+									announce_data = packet.data
+									announce_identity = RNS.Identity.recall(packet.destination_hash)
+									announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
+									announce_destination.hash = packet.destination_hash
+									announce_destination.hexhash = announce_destination.hash.hex()
+									new_packet = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE, context = announce_context, header_type = RNS.Packet.HEADER_2, transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash)
+									new_packet.hops = announce_entry[4]
+									RNS.log("Rebroadcasting announce for "+RNS.prettyhexrep(announce_destination.hash)+" with hop count "+str(new_packet.hops), RNS.LOG_DEBUG)
+									outgoing.append(new_packet)
 
-					Transport.announces_last_checked = time.time()
+						Transport.announces_last_checked = time.time()
 
 
 				# Cull the packet hashlist if it has reached max size
@@ -170,7 +173,7 @@ class Transport:
 						if time.time() > link_entry[0] + Transport.LINK_TIMEOUT:
 							Transport.link_table.pop(link_id)
 
-					# Cull the destination table in some way
+					# Cull the destination table
 					for destination_hash in Transport.destination_table:
 						destination_entry = Transport.destination_table[destination_hash]
 						if time.time() > destination_entry[0] + Transport.DESTINATION_TIMEOUT:
@@ -295,94 +298,95 @@ class Transport:
 			# General transport handling. Takes care of directing
 			# packets according to transport tables and recording
 			# entries in reverse and link tables.
-			if packet.transport_id != None and packet.packet_type != RNS.Packet.ANNOUNCE:
-				if packet.transport_id == Transport.identity.hash:
-					RNS.log("Received packet in transport for "+RNS.prettyhexrep(packet.destination_hash)+" with matching transport ID, transporting it...", RNS.LOG_DEBUG)
-					if packet.destination_hash in Transport.destination_table:
-						next_hop = Transport.destination_table[packet.destination_hash][1]
-						remaining_hops = Transport.destination_table[packet.destination_hash][2]
-						RNS.log("Next hop to destination is "+RNS.prettyhexrep(next_hop)+" with "+str(remaining_hops)+" hops remaining, transporting it.", RNS.LOG_DEBUG)
-						if remaining_hops > 1:
-							# Just increase hop count and transmit
-							new_raw = packet.raw[0:1]
-							new_raw += struct.pack("!B", packet.hops)
-							new_raw += next_hop
-							new_raw += packet.raw[12:]
+			if RNS.Reticulum.transport_enabled():
+				if packet.transport_id != None and packet.packet_type != RNS.Packet.ANNOUNCE:
+					if packet.transport_id == Transport.identity.hash:
+						RNS.log("Received packet in transport for "+RNS.prettyhexrep(packet.destination_hash)+" with matching transport ID, transporting it...", RNS.LOG_DEBUG)
+						if packet.destination_hash in Transport.destination_table:
+							next_hop = Transport.destination_table[packet.destination_hash][1]
+							remaining_hops = Transport.destination_table[packet.destination_hash][2]
+							RNS.log("Next hop to destination is "+RNS.prettyhexrep(next_hop)+" with "+str(remaining_hops)+" hops remaining, transporting it.", RNS.LOG_DEBUG)
+							if remaining_hops > 1:
+								# Just increase hop count and transmit
+								new_raw = packet.raw[0:1]
+								new_raw += struct.pack("!B", packet.hops)
+								new_raw += next_hop
+								new_raw += packet.raw[12:]
+							else:
+								# Strip transport headers and transmit
+								new_flags = (RNS.Packet.HEADER_1) << 6 | (Transport.BROADCAST) << 4 | (packet.flags & 0b00001111)
+								new_raw = struct.pack("!B", new_flags)
+								new_raw += struct.pack("!B", packet.hops)
+								new_raw += packet.raw[12:]
+
+							outbound_interface = Transport.destination_table[packet.destination_hash][5]
+							outbound_interface.processOutgoing(new_raw)
+							Transport.destination_table[packet.destination_hash][0] = time.time()
+
+							if packet.packet_type == RNS.Packet.LINKREQUEST:
+								# Entry format is
+								link_entry = [	time.time(),					# 0: Timestamp,
+												next_hop,						# 1: Next-hop transport ID
+												outbound_interface,				# 2: Next-hop interface
+												remaining_hops,					# 3: Remaining hops
+												packet.receiving_interface,		# 4: Received on interface
+												packet.hops,					# 5: Taken hops
+												packet.destination_hash,		# 6: Original destination hash
+												False]							# 7: Validated
+
+								Transport.link_table[packet.getTruncatedHash()] = link_entry
+
+							else:
+								# Entry format is
+								reverse_entry = [	packet.receiving_interface,	# 0: Received on interface
+													outbound_interface,			# 1: Outbound interface
+													time.time()]				# 2: Timestamp
+
+								Transport.reverse_table[packet.getTruncatedHash()] = reverse_entry
+
 						else:
-							# Strip transport headers and transmit
-							new_flags = (RNS.Packet.HEADER_1) << 6 | (Transport.BROADCAST) << 4 | (packet.flags & 0b00001111)
-							new_raw = struct.pack("!B", new_flags)
-							new_raw += struct.pack("!B", packet.hops)
-							new_raw += packet.raw[12:]
-
-						outbound_interface = Transport.destination_table[packet.destination_hash][5]
-						outbound_interface.processOutgoing(new_raw)
-						Transport.destination_table[packet.destination_hash][0] = time.time()
-
-						if packet.packet_type == RNS.Packet.LINKREQUEST:
-							# Entry format is
-							link_entry = [	time.time(),					# 0: Timestamp,
-											next_hop,						# 1: Next-hop transport ID
-											outbound_interface,				# 2: Next-hop interface
-											remaining_hops,					# 3: Remaining hops
-											packet.receiving_interface,		# 4: Received on interface
-											packet.hops,					# 5: Taken hops
-											packet.destination_hash,		# 6: Original destination hash
-											False]							# 7: Validated
-
-							Transport.link_table[packet.getTruncatedHash()] = link_entry
-
-						else:
-							# Entry format is
-							reverse_entry = [	packet.receiving_interface,	# 0: Received on interface
-												outbound_interface,			# 1: Outbound interface
-												time.time()]				# 2: Timestamp
-
-							Transport.reverse_table[packet.getTruncatedHash()] = reverse_entry
-
-					else:
-						# TODO: There should probably be some kind of REJECT
-						# mechanism here, to signal to the source that their
-						# expected path failed
-						RNS.log("Got packet in transport, but no known path to final destination. Dropping packet.", RNS.LOG_DEBUG)
-				else:
-					pass
-
-			# Link transport handling. Directs packetes according
-			# to entries in the link tables
-			if packet.packet_type != RNS.Packet.ANNOUNCE and packet.packet_type != RNS.Packet.LINKREQUEST:
-				if packet.destination_hash in Transport.link_table:
-					link_entry = Transport.link_table[packet.destination_hash]
-					# If receiving and outbound interface is
-					# the same for this link, direction doesn't
-					# matter, and we simply send the packet on.
-					outbound_interface = None
-					if link_entry[2] == link_entry[4]:
-						# But check that taken hops matches one
-						# of the expectede values.
-						if packet.hops == link_entry[3] or packet.hops == link_entry[5]:
-							outbound_interface = link_entry[2]
-					else:
-						# If interfaces differ, we transmit on
-						# the opposite interface of what the
-						# packet was received on.
-						if packet.receiving_interface == link_entry[2]:
-							# Also check that expected hop count matches
-							if packet.hops == link_entry[3]:
-								outbound_interface = link_entry[4]
-						elif packet.receiving_interface == link_entry[4]:
-							# Also check that expected hop count matches
-							if packet.hops == link_entry[5]:
-								outbound_interface = link_entry[2]
-						
-					if outbound_interface != None:
-						new_raw = packet.raw[0:1]
-						new_raw += struct.pack("!B", packet.hops)
-						new_raw += packet.raw[2:]
-						outbound_interface.processOutgoing(new_raw)
-						Transport.link_table[packet.destination_hash][0] = time.time()
+							# TODO: There should probably be some kind of REJECT
+							# mechanism here, to signal to the source that their
+							# expected path failed
+							RNS.log("Got packet in transport, but no known path to final destination. Dropping packet.", RNS.LOG_DEBUG)
 					else:
 						pass
+
+				# Link transport handling. Directs packets according
+				# to entries in the link tables
+				if packet.packet_type != RNS.Packet.ANNOUNCE and packet.packet_type != RNS.Packet.LINKREQUEST:
+					if packet.destination_hash in Transport.link_table:
+						link_entry = Transport.link_table[packet.destination_hash]
+						# If receiving and outbound interface is
+						# the same for this link, direction doesn't
+						# matter, and we simply send the packet on.
+						outbound_interface = None
+						if link_entry[2] == link_entry[4]:
+							# But check that taken hops matches one
+							# of the expectede values.
+							if packet.hops == link_entry[3] or packet.hops == link_entry[5]:
+								outbound_interface = link_entry[2]
+						else:
+							# If interfaces differ, we transmit on
+							# the opposite interface of what the
+							# packet was received on.
+							if packet.receiving_interface == link_entry[2]:
+								# Also check that expected hop count matches
+								if packet.hops == link_entry[3]:
+									outbound_interface = link_entry[4]
+							elif packet.receiving_interface == link_entry[4]:
+								# Also check that expected hop count matches
+								if packet.hops == link_entry[5]:
+									outbound_interface = link_entry[2]
+							
+						if outbound_interface != None:
+							new_raw = packet.raw[0:1]
+							new_raw += struct.pack("!B", packet.hops)
+							new_raw += packet.raw[2:]
+							outbound_interface.processOutgoing(new_raw)
+							Transport.link_table[packet.destination_hash][0] = time.time()
+						else:
+							pass
 
 
 			# Announce handling. Handles logic related to incoming
@@ -397,7 +401,7 @@ class Transport:
 						# Check if this is a next retransmission from
 						# another node. If it is, we're removing the
 						# announce in question from our pending table
-						if packet.destination_hash in Transport.announce_table:
+						if RNS.Reticulum.transport_enabled() and packet.destination_hash in Transport.announce_table:
 							announce_entry = Transport.announce_table[packet.destination_hash]
 							
 							if packet.hops-1 == announce_entry[4]:
@@ -472,7 +476,7 @@ class Transport:
 							random_blobs.append(random_blob)
 							retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops) + (RNS.rand() * Transport.PATHFINDER_RW)
 
-							if packet.context != RNS.Packet.PATH_RESPONSE:
+							if RNS.Reticulum.transport_enabled() and packet.context != RNS.Packet.PATH_RESPONSE:
 								Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, packet.hops, packet, local_rebroadcasts, block_rebroadcasts]
 
 							Transport.destination_table[packet.destination_hash] = [now, received_from, packet.hops, expires, random_blobs, packet.receiving_interface, packet]
@@ -509,7 +513,7 @@ class Transport:
 					# This is a link request proof, check if it
 					# needs to be transported
 
-					if packet.destination_hash in Transport.link_table:
+					if RNS.Reticulum.transport_enabled() and packet.destination_hash in Transport.link_table:
 						link_entry = Transport.link_table[packet.destination_hash]
 						if packet.receiving_interface == link_entry[2]:
 							# TODO: Should we validate the LR proof at each transport
@@ -538,7 +542,6 @@ class Transport:
 						for link in Transport.active_links:
 							if link.link_id == packet.destination_hash:
 								packet.link = link
-								# plaintext = link.decrypt(packet.data)
 								
 					if len(packet.data) == RNS.PacketReceipt.EXPL_LENGTH:
 						proof_hash = packet.data[:RNS.Identity.HASHLENGTH//8]
@@ -546,7 +549,7 @@ class Transport:
 						proof_hash = None
 
 					# Check if this proof neds to be transported
-					if packet.destination_hash in Transport.reverse_table:
+					if RNS.Reticulum.transport_enabled() and packet.destination_hash in Transport.reverse_table:
 						reverse_entry = Transport.reverse_table.pop(packet.destination_hash)
 						if packet.receiving_interface == reverse_entry[1]:
 							RNS.log("Proof received on correct interface, transporting it via "+str(reverse_entry[0]), RNS.LOG_DEBUG)
