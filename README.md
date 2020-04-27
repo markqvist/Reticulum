@@ -70,7 +70,10 @@ ln -s ../RNS ./Examples/
 # Run an example
 python3 Examples/Echo.py -s
 
-# Unless you've manually created a config file, Reticulum will do so now, and immediately exit. Make any necessary changees to the file and launch the example again.
+# Unless you've manually created a config file, Reticulum will do so now, and immediately exit. Make any necessary changes to the file.
+nano ~/.reticulum/config
+
+# ... and launch the example again.
 python3 Examples/Echo.py -s
 
 # You can now repeat the process on another computer, and run the same example with -h to get command line options.
@@ -83,4 +86,6 @@ python3 Examples/Echo.py 3e12fc71692f8ec47bc5
 python3 Examples/Filetransfer.py -h
 ```
 
-I'll add configuration examples for LoRa, packet radio TNCs and more in the near future. Until then, it should be possible to infer the config format quite easily from the classes in the Interfaces directory and the UDPInterface example created by default.
+The default config file contains examples for using Reticulum with LoRa transceivers (specifically [RNode](https://unsigned.io/projects/rnode/)), packet radio TNCs/modems and UDP. By default a UDP interface is already enabled in the default config, which will enable Reticulum communication in your local ethernet broadcast domain.
+
+You can use the examples in the config file to expand communication over other mediums such as packet radio or LoRa, or over fast IP links using the UDP interface. I'll add in-depth tutorials and explanations on these topics later. For now, the included examples will hopefully be enough to get started.
