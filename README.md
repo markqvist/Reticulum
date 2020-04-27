@@ -60,7 +60,7 @@ If you just need Reticulum as a dependency for another application, the easiest 
 pip3 install rns
 ```
 
-For development, you might want to get the latest source from GitHub. To install dependencies and get started:
+For development, you might want to get the latest source from GitHub. In that case, don't use pip, but try this recipe:
 
 ```bash
 # Install dependencies
