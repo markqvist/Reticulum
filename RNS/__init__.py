@@ -77,7 +77,7 @@ def hexrep(data, delimit=True):
 	delimiter = ":"
 	if not delimit:
 		delimiter = ""
-	hexrep = delimiter.join("{:02x}".format(ord(c)) for c in data)
+	hexrep = delimiter.join("{:02x}".format(c) for c in data)
 	return hexrep
 
 def prettyhexrep(data):

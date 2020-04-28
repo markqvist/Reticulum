@@ -11,7 +11,7 @@ class Resource:
 	WINDOW_MAX  = 7
 	WINDOW      = 4
 	MAPHASH_LEN = 4
-	SDU         = RNS.Reticulum.MTU - RNS.Packet.HEADER_MAXSIZE
+	SDU         = RNS.Packet.MDU
 	RANDOM_HASH_SIZE = 4
 
 	# TODO: Should be allocated more
@@ -89,6 +89,7 @@ class Resource:
 		self.hmu_retry_ok = False
 		self.watchdog_lock = False
 		self.__watchdog_job_id = 0
+		self.__progress_callback = progress_callback
 		self.rtt = None
 
 		if data != None:
@@ -96,7 +97,8 @@ class Resource:
 			while not hashmap_ok:
 				self.initiator         = True
 				self.callback          = callback
-				self.progress_callback = progress_callback
+				# TODO: Remove
+				#self.progress_callback = progress_callback
 				self.random_hash       = RNS.Identity.getRandomHash()[:Resource.RANDOM_HASH_SIZE]
 				self.uncompressed_data = data
 				self.compressed_data   = bz2.compress(self.uncompressed_data)
@@ -478,6 +480,9 @@ class Resource:
 			if self.sent_parts == len(self.parts):
 				self.status = Resource.AWAITING_PROOF
 
+			if self.__progress_callback != None:
+				self.__progress_callback(self)
+
 	def cancel(self):
 		if self.status < Resource.COMPLETE:
 			self.status = Resource.FAILED
@@ -497,7 +502,10 @@ class Resource:
 		self.__progress_callback = callback
 
 	def progress(self):
-		progress = self.received_count / float(self.total_parts)
+		if self.initiator:
+			progress = self.sent_parts / len(self.parts)
+		else:
+			progress = self.received_count / float(self.total_parts)
 		return progress
 
 	def __str__(self):

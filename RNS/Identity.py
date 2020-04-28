@@ -23,6 +23,9 @@ class Identity:
 	HASHLENGTH  = 256		# In bits
 	SIGLENGTH   = KEYSIZE
 
+	ENCRYPT_CHUNKSIZE = (KEYSIZE-PADDINGSIZE)//8
+	DECRYPT_CHUNKSIZE = KEYSIZE//8
+
 	TRUNCATED_HASHLENGTH = 80 # In bits
 
 	# Storage
@@ -222,7 +225,7 @@ class Identity:
 
 	def encrypt(self, plaintext):
 		if self.pub != None:
-			chunksize = (Identity.KEYSIZE-Identity.PADDINGSIZE)//8
+			chunksize = Identity.ENCRYPT_CHUNKSIZE
 			chunks = int(math.ceil(len(plaintext)/(float(chunksize))))
 
 			ciphertext = b"";
@@ -249,7 +252,7 @@ class Identity:
 		if self.prv != None:
 			plaintext = None
 			try:
-				chunksize = (Identity.KEYSIZE)//8
+				chunksize = Identity.DECRYPT_CHUNKSIZE
 				chunks = int(math.ceil(len(ciphertext)/(float(chunksize))))
 
 				plaintext = b"";

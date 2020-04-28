@@ -14,10 +14,8 @@ import RNS
 class Reticulum:
 	MTU            = 500
 	HEADER_MAXSIZE = 23
-
-	PAD_AES_HMAC   = 64
 	MDU            = MTU - HEADER_MAXSIZE
-	LINK_MDU       = MDU - PAD_AES_HMAC
+
 	router         = None
 	config         = None
 	

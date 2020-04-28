@@ -89,7 +89,7 @@ def client_connected(link):
 		data = umsgpack.packb(list_files())
 
 		# Check the size of the packed data
-		if len(data) <= RNS.Reticulum.LINK_MDU:
+		if len(data) <= RNS.Link.MDU:
 			# If it fits in one packet, we will just
 			# send it as a single packet over the link.
 			list_packet = RNS.Packet(link, data)

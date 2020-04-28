@@ -1,4 +1,5 @@
 import struct
+import math
 import time
 import RNS
 
@@ -40,11 +41,17 @@ class Packet:
 
 	# This is used to calculate allowable
 	# payload sizes
-	HEADER_MAXSIZE = RNS.Reticulum.HEADER_MAXSIZE
+	HEADER_MAXSIZE = 23
+	MDU            = RNS.Reticulum.MDU
+
+	# With an MTU of 500, the maximum RSA-encrypted
+	# amount of data we can send in a single packet
+	# is given by the below calculation; 258 bytes.
+	RSA_MDU   = math.floor(MDU/RNS.Identity.DECRYPT_CHUNKSIZE)*RNS.Identity.ENCRYPT_CHUNKSIZE
+	PLAIN_MDU = MDU
 
 	# TODO: This should be calculated
 	# more intelligently
-
 	# Default packet timeout
 	TIMEOUT 	 = 60
 

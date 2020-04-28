@@ -8,6 +8,7 @@ from time import sleep
 from .vendor import umsgpack as umsgpack
 import threading
 import base64
+import math
 import time
 import RNS
 
@@ -25,6 +26,8 @@ class Link:
 	CURVE = ec.SECP256R1()
 	ECPUBSIZE = 91
 	BLOCKSIZE = 16
+	AES_HMAC_OVERHEAD = 58
+	MDU = math.floor((RNS.Reticulum.MDU-AES_HMAC_OVERHEAD)/BLOCKSIZE)*BLOCKSIZE - 1
 
 	# TODO: This should not be hardcoded,
 	# but calculated from something like 
@@ -44,8 +47,8 @@ class Link:
 	DESTINATION_CLOSED = 0x03
 
 	ACCEPT_NONE = 0x00
-	ACCEPT_APP = 0x01
-	ACCEPT_ALL = 0x02
+	ACCEPT_APP  = 0x01
+	ACCEPT_ALL  = 0x02
 	resource_strategies = [ACCEPT_NONE, ACCEPT_APP, ACCEPT_ALL]
 
 	@staticmethod
@@ -69,7 +72,7 @@ class Link:
 				#if self.owner.callbacks.link_established != None:
 				#	self.owner.callbacks.link_established(link)
 				
-				RNS.log("Incoming link request "+str(link)+" accepted, waiting for RTT packet", RNS.LOG_VERBOSE)
+				RNS.log("Incoming link request "+str(link)+" accepted", RNS.LOG_VERBOSE)
 				return link
 
 			except Exception as e:
