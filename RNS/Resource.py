@@ -16,7 +16,7 @@ class Resource:
 
 	# TODO: Should be allocated more
 	# intelligently
-	MAX_RETRIES       = 5
+	MAX_RETRIES       = 2
 	SENDER_GRACE_TIME = 10
 	RETRY_GRACE_TIME  = 0.25
 
