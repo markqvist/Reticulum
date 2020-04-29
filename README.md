@@ -26,7 +26,9 @@ An API- and wireformat-stable alpha release is coming in the near future. Until 
 ## What is implemented at this point?
  - All basic adressing and identification features
  - RSA assymetric encryption and signatures as basis for all communication
+ - AES-128 symmetric encryption for group destinations
  - Elliptic curve encryption for links (on the SECP256R1 curve)
+ - Perfect Forward Secrecy on links with ephemereal ECDH keys
  - Unforgeable packet delivery confirmations
  - Fully self-configuring multi-hop routing
  - A variety of supported interface types
@@ -41,6 +43,7 @@ An API- and wireformat-stable alpha release is coming in the near future. Until 
  - Useful example programs and utilities
  - API documentation
  - Cleanup and code commenting
+ - A messaging protocol built on Reticulum, see [LXMF](https://github.com/markqvist/lxmf)
  - A few useful-in-the-real-world apps built with Reticulum
 
 ## Can I use Reticulum on amateur radio spectrum?
@@ -98,3 +101,6 @@ python3 Examples/Filetransfer.py -h
 The default config file contains examples for using Reticulum with LoRa transceivers (specifically [RNode](https://unsigned.io/projects/rnode/)), packet radio TNCs/modems and UDP. By default a UDP interface is already enabled in the default config, which will enable Reticulum communication in your local ethernet broadcast domain.
 
 You can use the examples in the config file to expand communication over other mediums such as packet radio or LoRa, or over fast IP links using the UDP interface. I'll add in-depth tutorials and explanations on these topics later. For now, the included examples will hopefully be enough to get started.
+
+## Caveat Emptor
+Reticulum is alpha software, and should be considered experimental. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy-breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
