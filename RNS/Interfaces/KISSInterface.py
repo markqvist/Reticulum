@@ -23,6 +23,12 @@ class KISS():
 	CMD_READY         = 0x0F
 	CMD_RETURN		  = 0xFF
 
+	@staticmethod
+	def escape(data):
+		data = data.replace(bytes([0xdb]), bytes([0xdb])+bytes([0xdd]))
+		data = data.replace(bytes([0xc0]), bytes([0xdb])+bytes([0xdc]))
+		return data
+
 class KISSInterface(Interface):
 	MAX_CHUNK = 32768
 
@@ -236,7 +242,7 @@ class KISSInterface(Interface):
 				else:
 					time_since_last = int(time.time()*1000) - last_read_ms
 					if len(data_buffer) > 0 and time_since_last > self.timeout:
-						data_buffer = ""
+						data_buffer = b""
 						in_frame = False
 						command = KISS.CMD_UNKNOWN
 						escape = False
