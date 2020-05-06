@@ -1,4 +1,3 @@
-
 from .Interface import Interface
 from time import sleep
 import sys
@@ -25,8 +24,8 @@ class KISS():
 
 	@staticmethod
 	def escape(data):
-		data = data.replace(bytes([0xdb]), bytes([0xdb])+bytes([0xdd]))
-		data = data.replace(bytes([0xc0]), bytes([0xdb])+bytes([0xdc]))
+		data = data.replace(bytes([0xdb]), bytes([0xdb, 0xdd]))
+		data = data.replace(bytes([0xc0]), bytes([0xdb, 0xdc]))
 		return data
 
 class KISSInterface(Interface):
@@ -53,7 +52,7 @@ class KISSInterface(Interface):
 		self.online   = False
 
 		self.packet_queue    = []
-		self.flow_control = flow_control
+		self.flow_control    = flow_control
 		self.interface_ready = False
 
 		self.preamble    = preamble if preamble != None else 350;
@@ -203,7 +202,7 @@ class KISSInterface(Interface):
 			in_frame = False
 			escape = False
 			command = KISS.CMD_UNKNOWN
-			data_buffer = ""
+			data_buffer = b""
 			last_read_ms = int(time.time()*1000)
 
 			while self.serial.is_open:

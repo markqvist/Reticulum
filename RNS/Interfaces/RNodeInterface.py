@@ -48,8 +48,8 @@ class KISS():
 
 	@staticmethod
 	def escape(data):
-		data = data.replace(bytes([0xdb]), bytes([0xdb])+bytes([0xdd]))
-		data = data.replace(bytes([0xc0]), bytes([0xdb])+bytes([0xdc]))
+		data = data.replace(bytes([0xdb]), bytes([0xdb, 0xdd]))
+		data = data.replace(bytes([0xc0]), bytes([0xdb, 0xdc]))
 		return data
 	
 
@@ -419,10 +419,6 @@ class RNodeInterface(Interface):
 							else:
 								RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
 						elif (command == KISS.CMD_READY):
-							# TODO: Flow control is disabled by default now.
-							# Add timed flow control ready-inidication to the
-							# RNode firmware to make sure flow control doesn't
-							# hang if it is enabled
 							self.process_queue()
 						
 				else:

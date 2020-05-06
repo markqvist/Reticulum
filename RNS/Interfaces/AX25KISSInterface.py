@@ -25,8 +25,8 @@ class KISS():
 
 	@staticmethod
 	def escape(data):
-		data = data.replace(bytes([0xdb]), bytes([0xdb])+bytes([0xdd]))
-		data = data.replace(bytes([0xc0]), bytes([0xdb])+bytes([0xdc]))
+		data = data.replace(bytes([0xdb]), bytes([0xdb, 0xdd]))
+		data = data.replace(bytes([0xc0]), bytes([0xdb, 0xdc]))
 		return data
 
 class AX25():
