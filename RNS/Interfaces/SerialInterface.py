@@ -1,9 +1,3 @@
-# TODO: This should be reworked for Python3 support,
-# and maybe framing should be introduced to improve
-# performance. The current 100ms wait is a bit stupid.
-# Probably also need to add queue support like the
-# other interfaces.
-
 from .Interface import Interface
 from time import sleep
 import sys
@@ -11,6 +5,17 @@ import serial
 import threading
 import time
 import RNS
+
+class HDLC():
+	FLAG			  = 0x7E
+	ESC               = 0x7D
+	ESC_MASK          = 0x20
+
+	@staticmethod
+	def escape(data):
+		data = data.replace(bytes([HDLC.ESC]), bytes([HDLC.ESC, HDLC.ESC^HDLC.ESC_MASK]))
+		data = data.replace(bytes([HDLC.FLAG]), bytes([HDLC.ESC, HDLC.FLAG^HDLC.ESC_MASK]))
+		return data
 
 class SerialInterface(Interface):
 	MAX_CHUNK = 32768
@@ -77,6 +82,7 @@ class SerialInterface(Interface):
 
 	def processOutgoing(self,data):
 		if self.online:
+			data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
 			written = self.serial.write(data)
 			if written != len(data):
 				raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))
@@ -84,18 +90,40 @@ class SerialInterface(Interface):
 
 	def readLoop(self):
 		try:
-			data_buffer = ""
+			in_frame = False
+			escape = False
+			data_buffer = b""
 			last_read_ms = int(time.time()*1000)
+
 			while self.serial.is_open:
 				if self.serial.in_waiting:
-					data = self.serial.read(size=self.serial.in_waiting)
-					data_buffer += data
+					byte = ord(self.serial.read(1))
 					last_read_ms = int(time.time()*1000)
+
+					if (in_frame and byte == HDLC.FLAG):
+						in_frame = False
+						self.processIncoming(data_buffer)
+					elif (byte == HDLC.FLAG):
+						in_frame = True
+						data_buffer = b""
+					elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
+						if (byte == HDLC.ESC):
+							escape = True
+						else:
+							if (escape):
+								if (byte == HDLC.FLAG ^ HDLC.ESC_MASK):
+									byte = HDLC.FLAG
+								if (byte == HDLC.ESC  ^ HDLC.ESC_MASK):
+									byte = HDLC.ESC
+								escape = False
+							data_buffer = data_buffer+bytes([byte])
+						
 				else:
 					time_since_last = int(time.time()*1000) - last_read_ms
 					if len(data_buffer) > 0 and time_since_last > self.timeout:
-						self.processIncoming(data_buffer)
-						data_buffer = ""
+						data_buffer = b""
+						in_frame = False
+						escape = False
 					sleep(0.08)
 		except Exception as e:
 			self.online = False
