@@ -48,8 +48,13 @@ class Reticulum:
 			os.makedirs(Reticulum.cachepath)
 
 		if os.path.isfile(self.configpath):
-			self.config = ConfigObj(self.configpath)
-			RNS.log("Configuration loaded from "+self.configpath)
+			try:
+				self.config = ConfigObj(self.configpath)
+				RNS.log("Configuration loaded from "+self.configpath)
+			except Exception as e:
+				RNS.log("Could not parse the configuration at "+self.configpath, RNS.LOG_ERROR)
+				RNS.log("Check your configuration file for errors!", RNS.LOG_ERROR)
+				RNS.panic()
 		else:
 			RNS.log("Could not load config file, creating default configuration file...")
 			self.createDefaultConfig()
@@ -103,207 +108,211 @@ class Reticulum:
 						RNS.log("", RNS.LOG_CRITICAL)
 						Reticulum.__allow_unencrypted = True
 
-
+		interface_names = []
 		for name in self.config["interfaces"]:
-			c = self.config["interfaces"][name]
+			if not name in interface_names:
+				c = self.config["interfaces"][name]
 
-			try:
-				if ("interface_enabled" in c) and c.as_bool("interface_enabled") == True:
-					if c["type"] == "UdpInterface":
-						interface = UdpInterface.UdpInterface(
-							RNS.Transport,
-							name,
-							c["listen_ip"],
-							int(c["listen_port"]),
-							c["forward_ip"],
-							int(c["forward_port"])
-						)
+				try:
+					if ("interface_enabled" in c) and c.as_bool("interface_enabled") == True:
+						if c["type"] == "UdpInterface":
+							interface = UdpInterface.UdpInterface(
+								RNS.Transport,
+								name,
+								c["listen_ip"],
+								int(c["listen_port"]),
+								c["forward_ip"],
+								int(c["forward_port"])
+							)
 
-						if "outgoing" in c and c.as_bool("outgoing") == True:
-							interface.OUT = True
-						else:
-							interface.OUT = False
+							if "outgoing" in c and c.as_bool("outgoing") == True:
+								interface.OUT = True
+							else:
+								interface.OUT = False
 
-						RNS.Transport.interfaces.append(interface)
-
-
-					if c["type"] == "TCPServerInterface":
-						interface = TCPInterface.TCPServerInterface(
-							RNS.Transport,
-							name,
-							c["listen_ip"],
-							int(c["listen_port"])
-						)
-
-						if "outgoing" in c and c.as_bool("outgoing") == True:
-							interface.OUT = True
-						else:
-							interface.OUT = False
-
-						RNS.Transport.interfaces.append(interface)
+							RNS.Transport.interfaces.append(interface)
 
 
-					if c["type"] == "TCPClientInterface":
-						interface = TCPInterface.TCPClientInterface(
-							RNS.Transport,
-							name,
-							c["target_host"],
-							int(c["target_port"])
-						)
+						if c["type"] == "TCPServerInterface":
+							interface = TCPInterface.TCPServerInterface(
+								RNS.Transport,
+								name,
+								c["listen_ip"],
+								int(c["listen_port"])
+							)
 
-						if "outgoing" in c and c.as_bool("outgoing") == True:
-							interface.OUT = True
-						else:
-							interface.OUT = False
+							if "outgoing" in c and c.as_bool("outgoing") == True:
+								interface.OUT = True
+							else:
+								interface.OUT = False
 
-						RNS.Transport.interfaces.append(interface)
+							RNS.Transport.interfaces.append(interface)
 
 
-					if c["type"] == "SerialInterface":
-						port = c["port"] if "port" in c else None
-						speed = int(c["speed"]) if "speed" in c else 9600
-						databits = int(c["databits"]) if "databits" in c else 8
-						parity = c["parity"] if "parity" in c else "N"
-						stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+						if c["type"] == "TCPClientInterface":
+							interface = TCPInterface.TCPClientInterface(
+								RNS.Transport,
+								name,
+								c["target_host"],
+								int(c["target_port"])
+							)
 
-						if port == None:
-							raise ValueError("No port specified for serial interface")
+							if "outgoing" in c and c.as_bool("outgoing") == True:
+								interface.OUT = True
+							else:
+								interface.OUT = False
 
-						interface = SerialInterface.SerialInterface(
-							RNS.Transport,
-							name,
-							port,
-							speed,
-							databits,
-							parity,
-							stopbits
-						)
+							RNS.Transport.interfaces.append(interface)
 
-						if "outgoing" in c and c["outgoing"].lower() == "true":
-							interface.OUT = True
-						else:
-							interface.OUT = False
 
-						RNS.Transport.interfaces.append(interface)
+						if c["type"] == "SerialInterface":
+							port = c["port"] if "port" in c else None
+							speed = int(c["speed"]) if "speed" in c else 9600
+							databits = int(c["databits"]) if "databits" in c else 8
+							parity = c["parity"] if "parity" in c else "N"
+							stopbits = int(c["stopbits"]) if "stopbits" in c else 1
 
-					if c["type"] == "KISSInterface":
-						preamble = int(c["preamble"]) if "preamble" in c else None
-						txtail = int(c["txtail"]) if "txtail" in c else None
-						persistence = int(c["persistence"]) if "persistence" in c else None
-						slottime = int(c["slottime"]) if "slottime" in c else None
-						flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
+							if port == None:
+								raise ValueError("No port specified for serial interface")
 
-						port = c["port"] if "port" in c else None
-						speed = int(c["speed"]) if "speed" in c else 9600
-						databits = int(c["databits"]) if "databits" in c else 8
-						parity = c["parity"] if "parity" in c else "N"
-						stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+							interface = SerialInterface.SerialInterface(
+								RNS.Transport,
+								name,
+								port,
+								speed,
+								databits,
+								parity,
+								stopbits
+							)
 
-						if port == None:
-							raise ValueError("No port specified for serial interface")
+							if "outgoing" in c and c["outgoing"].lower() == "true":
+								interface.OUT = True
+							else:
+								interface.OUT = False
 
-						interface = KISSInterface.KISSInterface(
-							RNS.Transport,
-							name,
-							port,
-							speed,
-							databits,
-							parity,
-							stopbits,
-							preamble,
-							txtail,
-							persistence,
-							slottime,
-							flow_control
-						)
+							RNS.Transport.interfaces.append(interface)
 
-						if "outgoing" in c and c["outgoing"].lower() == "true":
-							interface.OUT = True
-						else:
-							interface.OUT = False
+						if c["type"] == "KISSInterface":
+							preamble = int(c["preamble"]) if "preamble" in c else None
+							txtail = int(c["txtail"]) if "txtail" in c else None
+							persistence = int(c["persistence"]) if "persistence" in c else None
+							slottime = int(c["slottime"]) if "slottime" in c else None
+							flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
 
-						RNS.Transport.interfaces.append(interface)
+							port = c["port"] if "port" in c else None
+							speed = int(c["speed"]) if "speed" in c else 9600
+							databits = int(c["databits"]) if "databits" in c else 8
+							parity = c["parity"] if "parity" in c else "N"
+							stopbits = int(c["stopbits"]) if "stopbits" in c else 1
 
-					if c["type"] == "AX25KISSInterface":
-						preamble = int(c["preamble"]) if "preamble" in c else None
-						txtail = int(c["txtail"]) if "txtail" in c else None
-						persistence = int(c["persistence"]) if "persistence" in c else None
-						slottime = int(c["slottime"]) if "slottime" in c else None
-						flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
+							if port == None:
+								raise ValueError("No port specified for serial interface")
 
-						port = c["port"] if "port" in c else None
-						speed = int(c["speed"]) if "speed" in c else 9600
-						databits = int(c["databits"]) if "databits" in c else 8
-						parity = c["parity"] if "parity" in c else "N"
-						stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+							interface = KISSInterface.KISSInterface(
+								RNS.Transport,
+								name,
+								port,
+								speed,
+								databits,
+								parity,
+								stopbits,
+								preamble,
+								txtail,
+								persistence,
+								slottime,
+								flow_control
+							)
 
-						callsign = c["callsign"] if "callsign" in c else ""
-						ssid = int(c["ssid"]) if "ssid" in c else -1
+							if "outgoing" in c and c["outgoing"].lower() == "true":
+								interface.OUT = True
+							else:
+								interface.OUT = False
 
-						if port == None:
-							raise ValueError("No port specified for serial interface")
+							RNS.Transport.interfaces.append(interface)
 
-						interface = AX25KISSInterface.AX25KISSInterface(
-							RNS.Transport,
-							name,
-							callsign,
-							ssid,
-							port,
-							speed,
-							databits,
-							parity,
-							stopbits,
-							preamble,
-							txtail,
-							persistence,
-							slottime,
-							flow_control
-						)
+						if c["type"] == "AX25KISSInterface":
+							preamble = int(c["preamble"]) if "preamble" in c else None
+							txtail = int(c["txtail"]) if "txtail" in c else None
+							persistence = int(c["persistence"]) if "persistence" in c else None
+							slottime = int(c["slottime"]) if "slottime" in c else None
+							flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
 
-						if "outgoing" in c and c["outgoing"].lower() == "true":
-							interface.OUT = True
-						else:
-							interface.OUT = False
+							port = c["port"] if "port" in c else None
+							speed = int(c["speed"]) if "speed" in c else 9600
+							databits = int(c["databits"]) if "databits" in c else 8
+							parity = c["parity"] if "parity" in c else "N"
+							stopbits = int(c["stopbits"]) if "stopbits" in c else 1
 
-						RNS.Transport.interfaces.append(interface)
+							callsign = c["callsign"] if "callsign" in c else ""
+							ssid = int(c["ssid"]) if "ssid" in c else -1
 
-					if c["type"] == "RNodeInterface":
-						frequency = int(c["frequency"]) if "frequency" in c else None
-						bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
-						txpower = int(c["txpower"]) if "txpower" in c else None
-						spreadingfactor = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
-						codingrate = int(c["codingrate"]) if "codingrate" in c else None
-						flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
+							if port == None:
+								raise ValueError("No port specified for serial interface")
 
-						port = c["port"] if "port" in c else None
-						
-						if port == None:
-							raise ValueError("No port specified for RNode interface")
+							interface = AX25KISSInterface.AX25KISSInterface(
+								RNS.Transport,
+								name,
+								callsign,
+								ssid,
+								port,
+								speed,
+								databits,
+								parity,
+								stopbits,
+								preamble,
+								txtail,
+								persistence,
+								slottime,
+								flow_control
+							)
 
-						interface = RNodeInterface.RNodeInterface(
-							RNS.Transport,
-							name,
-							port,
-							frequency,
-							bandwidth,
-							txpower,
-							spreadingfactor,
-							flow_control
-						)
+							if "outgoing" in c and c["outgoing"].lower() == "true":
+								interface.OUT = True
+							else:
+								interface.OUT = False
 
-						if "outgoing" in c and c["outgoing"].lower() == "true":
-							interface.OUT = True
-						else:
-							interface.OUT = False
+							RNS.Transport.interfaces.append(interface)
 
-						RNS.Transport.interfaces.append(interface)
-				else:
-					RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_VERBOSE)
+						if c["type"] == "RNodeInterface":
+							frequency = int(c["frequency"]) if "frequency" in c else None
+							bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
+							txpower = int(c["txpower"]) if "txpower" in c else None
+							spreadingfactor = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
+							codingrate = int(c["codingrate"]) if "codingrate" in c else None
+							flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
 
-			except Exception as e:
-				RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
-				RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
-				raise e
+							port = c["port"] if "port" in c else None
+							
+							if port == None:
+								raise ValueError("No port specified for RNode interface")
+
+							interface = RNodeInterface.RNodeInterface(
+								RNS.Transport,
+								name,
+								port,
+								frequency,
+								bandwidth,
+								txpower,
+								spreadingfactor,
+								flow_control
+							)
+
+							if "outgoing" in c and c["outgoing"].lower() == "true":
+								interface.OUT = True
+							else:
+								interface.OUT = False
+
+							RNS.Transport.interfaces.append(interface)
+					else:
+						RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_VERBOSE)
+
+				except Exception as e:
+					RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
+					RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+					RNS.panic()
+			else:
+				RNS.log("The interface name \""+name+"\" was already used. Check your configuration file for errors!", RNS.LOG_ERROR)
+				RNS.panic()
 				
 
 	def createDefaultConfig(self):

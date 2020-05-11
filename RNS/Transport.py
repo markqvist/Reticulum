@@ -70,25 +70,25 @@ class Transport:
 	@staticmethod
 	def start():
 		if Transport.identity == None:
-			transport_identity_path = RNS.Reticulum.configdir+"/transportidentity"
+			transport_identity_path = RNS.Reticulum.storagepath+"/transport_identity"
 			if os.path.isfile(transport_identity_path):
 				Transport.identity = RNS.Identity.from_file(transport_identity_path)				
 
 			if Transport.identity == None:
-				RNS.log("No valid Transport Identity on disk, creating...", RNS.LOG_VERBOSE)
+				RNS.log("No valid Transport Identity in storage, creating...", RNS.LOG_VERBOSE)
 				Transport.identity = RNS.Identity()
 				Transport.identity.save(transport_identity_path)
 			else:
-				RNS.log("Loaded Transport Identity from disk", RNS.LOG_VERBOSE)
+				RNS.log("Loaded Transport Identity from storage", RNS.LOG_VERBOSE)
 
-		packet_hashlist_path = RNS.Reticulum.configdir+"/packet_hashlist"
+		packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
 		if os.path.isfile(packet_hashlist_path):
 			try:
 				file = open(packet_hashlist_path, "rb")
 				Transport.packet_hashlist = umsgpack.unpackb(file.read())
 				file.close()
 			except Exception as e:
-				RNS.log("Could not load packet hashlist from disk, the contained exception was: "+str(e), RNS.LOG_ERROR)
+				RNS.log("Could not load packet hashlist from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
 		# Create transport-specific destinations
 		path_request_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
@@ -99,6 +99,38 @@ class Transport:
 		thread.start()
 
 		if RNS.Reticulum.transport_enabled():
+			destination_table_path = RNS.Reticulum.storagepath+"/destination_table"
+			if os.path.isfile(destination_table_path):
+				serialised_destinations = []
+				try:
+					file = open(destination_table_path, "rb")
+					serialised_destinations = umsgpack.unpackb(file.read())
+					file.close()
+
+					for serialised_entry in serialised_destinations:
+						destination_hash = serialised_entry[0]
+						receiving_interface = Transport.find_interface_from_hash(serialised_entry[6])
+						announce_packet = Transport.get_cached_packet(serialised_entry[7])
+
+						if announce_packet != None and receiving_interface != None:
+							announce_packet.unpack()
+							timestamp = serialised_entry[1]
+							received_from = serialised_entry[2]
+							hops = serialised_entry[3]
+							expires = serialised_entry[4]
+							random_blobs = serialised_entry[5]
+							Transport.destination_table[destination_hash] = [timestamp, received_from, hops, expires, random_blobs, receiving_interface, announce_packet]
+							RNS.log("Loaded destination table entry for "+RNS.prettyhexrep(destination_hash)+" from storage", RNS.LOG_DEBUG)
+						else:
+							RNS.log("Could not reconstruct destination table entry from storage for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
+							if announce_packet == None:
+								RNS.log("The announce packet could not be loaded from cache", RNS.LOG_DEBUG)
+							if receiving_interface == None:
+								RNS.log("The interface is no longer available", RNS.LOG_DEBUG)
+
+				except Exception as e:
+					RNS.log("Could not load destination table from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+
 			RNS.log("Transport instance "+str(Transport.identity)+" started")
 
 	@staticmethod
@@ -599,6 +631,13 @@ class Transport:
 		else:
 			RNS.log("Attempted to activate a link that was not in the pending table", RNS.LOG_ERROR)
 
+	@staticmethod
+	def find_interface_from_hash(interface_hash):
+		for interface in Transport.interfaces:
+			if interface.get_hash() == interface_hash:
+				return interface
+
+		return None
 
 	@staticmethod
 	def shouldCache(packet):
@@ -610,8 +649,8 @@ class Transport:
 		return False
 
 	@staticmethod
-	def cache(packet):
-		if RNS.Transport.shouldCache(packet):
+	def cache(packet, force_cache=False):
+		if RNS.Transport.shouldCache(packet) or force_cache:
 			try:
 				packet_hash = RNS.hexrep(packet.getHash(), delimit=False)
 				file = open(RNS.Reticulum.cachepath+"/"+packet_hash, "wb")
@@ -622,20 +661,36 @@ class Transport:
 				RNS.log("Error writing packet to cache", RNS.LOG_ERROR)
 				RNS.log("The contained exception was: "+str(e))
 
-	# TODO: Implement cache requests. Needs methodology
-	# rethinking. This is skeleton code.
 	@staticmethod
-	def cache_request_packet(packet):
-		if len(packet.data) == RNS.Identity.HASHLENGTH/8:
-			packet_hash = RNS.hexrep(packet.data, delimit=False)
+	def get_cached_packet(packet_hash):
+		try:
+			packet_hash = RNS.hexrep(packet_hash, delimit=False)
 			path = RNS.Reticulum.cachepath+"/"+packet_hash
 			if os.path.isfile(path):
 				file = open(path, "rb")
 				raw = file.read()
 				file.close()
 				packet = RNS.Packet(None, raw)
-				# TODO: Implement outbound for this
+				return packet
+			else:
+				return None
+		except Exception as e:
+			RNS.log("Exception occurred while getting cached packet.", RNS.LOG_ERROR)
+			RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
 
+	# TODO: Implement cache requests. Needs methodology
+	# rethinking. This is skeleton code.
+	@staticmethod
+	def cache_request_packet(packet):
+		if len(packet.data) == RNS.Identity.HASHLENGTH/8:
+			packet_hash = RNS.hexrep(packet.data, delimit=False)
+			packet = Transport.get_cached_packet(packet_hash)
+
+			if packet != None:
+				# TODO: Implement outbound for this
+				pass
+			else:
+				pass
 
 	# TODO: Implement cache requests. Needs methodology
 	# rethinking. This is skeleton code.
@@ -704,10 +759,33 @@ class Transport:
 
 	@staticmethod
 	def exitHandler():
+		RNS.log("Saving packet hashlist to storage...", RNS.LOG_VERBOSE)
 		try:
-			packet_hashlist_path = RNS.Reticulum.configdir+"/packet_hashlist"
+			packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
 			file = open(packet_hashlist_path, "wb")
 			file.write(umsgpack.packb(Transport.packet_hashlist))
 			file.close()
+			RNS.log("Done packet hashlist to storage", RNS.LOG_VERBOSE)
 		except Exception as e:
-			RNS.log("Could not save packet hashlist to disk, the contained exception was: "+str(e), RNS.LOG_ERROR)
+			RNS.log("Could not save packet hashlist to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+
+		RNS.log("Saving destination table to storage...", RNS.LOG_VERBOSE)
+		try:
+			serialised_destinations = []
+			for destination_hash in Transport.destination_table:
+				destination_entry = Transport.destination_table[destination_hash]
+
+				de = destination_entry
+				Transport.cache(de[6], force_cache=True)
+				interface_hash = de[5].get_hash()
+				packet_hash = de[6].getHash()
+				serialised_entry = [destination_hash, de[0], de[1], de[2], de[3], de[4], interface_hash, packet_hash]
+				serialised_destinations.append(serialised_entry)
+
+			destination_table_path = RNS.Reticulum.storagepath+"/destination_table"
+			file = open(destination_table_path, "wb")
+			file.write(umsgpack.packb(serialised_destinations))
+			file.close()
+			RNS.log("Done saving destination table to storage", RNS.LOG_VERBOSE)
+		except Exception as e:
+			RNS.log("Could not save destination table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)

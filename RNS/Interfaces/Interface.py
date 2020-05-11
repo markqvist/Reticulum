@@ -1,3 +1,5 @@
+import RNS
+
 class Interface:
     IN  = False
     OUT = False
@@ -7,3 +9,7 @@ class Interface:
 
     def __init__(self):
         pass
+
+    def get_hash(self):
+    	# TODO: Maybe expand this to something more unique
+    	return RNS.Identity.fullHash(str(self).encode("utf-8"))
