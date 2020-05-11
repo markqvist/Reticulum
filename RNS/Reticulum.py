@@ -126,6 +126,39 @@ class Reticulum:
 
 						RNS.Transport.interfaces.append(interface)
 
+
+					if c["type"] == "TCPServerInterface":
+						interface = TCPInterface.TCPServerInterface(
+							RNS.Transport,
+							name,
+							c["listen_ip"],
+							int(c["listen_port"])
+						)
+
+						if "outgoing" in c and c.as_bool("outgoing") == True:
+							interface.OUT = True
+						else:
+							interface.OUT = False
+
+						RNS.Transport.interfaces.append(interface)
+
+
+					if c["type"] == "TCPClientInterface":
+						interface = TCPInterface.TCPClientInterface(
+							RNS.Transport,
+							name,
+							c["target_ip"],
+							int(c["target_port"])
+						)
+
+						if "outgoing" in c and c.as_bool("outgoing") == True:
+							interface.OUT = True
+						else:
+							interface.OUT = False
+
+						RNS.Transport.interfaces.append(interface)
+
+
 					if c["type"] == "SerialInterface":
 						port = c["port"] if "port" in c else None
 						speed = int(c["speed"]) if "speed" in c else 9600
