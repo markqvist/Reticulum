@@ -11,6 +11,8 @@ class UdpInterface(Interface):
     def __init__(self, owner, name, bindip=None, bindport=None, forwardip=None, forwardport=None):
         self.IN  = True
         self.OUT = False
+
+        # TODO: Optimise so this is not needed
         self.transmit_delay = 0.001
 
         self.name = name

@@ -26,11 +26,12 @@ class TCPClientInterface(Interface):
     def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None):
         self.IN  = True
         self.OUT = False
-        self.transmit_delay = 0.001
         self.socket = None
         self.parent_interface = None
-
         self.name = name
+
+        # TODO: Optimise so this is not needed
+        self.transmit_delay = 0.001
 
         if connected_socket != None:
             self.receives = True
@@ -61,6 +62,7 @@ class TCPClientInterface(Interface):
     def processOutgoing(self, data):
         if self.online:
             try:
+                time.sleep(self.transmit_delay)
                 data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
                 self.socket.sendall(data)
             except Exception as e:
