@@ -65,7 +65,7 @@ class Identity:
 				file = open(RNS.Reticulum.storagepath+"/known_destinations","rb")
 				Identity.known_destinations = umsgpack.load(file)
 				file.close()
-				RNS.log("Loaded "+str(len(Identity.known_destinations))+" known destinations from storage", RNS.LOG_VERBOSE)
+				RNS.log("Loaded "+str(len(Identity.known_destinations))+" known destination from storage", RNS.LOG_VERBOSE)
 			except:
 				RNS.log("Error loading known destinations from disk, file will be recreated on exit", RNS.LOG_ERROR)
 		else:

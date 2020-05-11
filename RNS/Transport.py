@@ -120,13 +120,20 @@ class Transport:
 							expires = serialised_entry[4]
 							random_blobs = serialised_entry[5]
 							Transport.destination_table[destination_hash] = [timestamp, received_from, hops, expires, random_blobs, receiving_interface, announce_packet]
-							RNS.log("Loaded destination table entry for "+RNS.prettyhexrep(destination_hash)+" from storage", RNS.LOG_DEBUG)
+							RNS.log("Loaded path table entry for "+RNS.prettyhexrep(destination_hash)+" from storage", RNS.LOG_DEBUG)
 						else:
-							RNS.log("Could not reconstruct destination table entry from storage for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
+							RNS.log("Could not reconstruct path table entry from storage for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
 							if announce_packet == None:
 								RNS.log("The announce packet could not be loaded from cache", RNS.LOG_DEBUG)
 							if receiving_interface == None:
 								RNS.log("The interface is no longer available", RNS.LOG_DEBUG)
+
+					if len(Transport.destination_table) == 1:
+						specifier = "entry"
+					else:
+						specifier = "entries"
+
+					RNS.log("Loaded "+str(len(Transport.destination_table))+" path table "+specifier+" from storage", RNS.LOG_VERBOSE)
 
 				except Exception as e:
 					RNS.log("Could not load destination table from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -769,23 +776,27 @@ class Transport:
 		except Exception as e:
 			RNS.log("Could not save packet hashlist to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
-		RNS.log("Saving destination table to storage...", RNS.LOG_VERBOSE)
+		RNS.log("Saving path table to storage...", RNS.LOG_VERBOSE)
 		try:
 			serialised_destinations = []
 			for destination_hash in Transport.destination_table:
-				destination_entry = Transport.destination_table[destination_hash]
-
-				de = destination_entry
-				Transport.cache(de[6], force_cache=True)
+				# Get the destination entry from the destination table
+				de = Transport.destination_table[destination_hash]
 				interface_hash = de[5].get_hash()
-				packet_hash = de[6].getHash()
-				serialised_entry = [destination_hash, de[0], de[1], de[2], de[3], de[4], interface_hash, packet_hash]
-				serialised_destinations.append(serialised_entry)
+
+				# Only store destination tablee entry if the associated
+				# interface is still active
+				interface = Transport.find_interface_from_hash(interface_hash)
+				if interface != None:
+					Transport.cache(de[6], force_cache=True)
+					packet_hash = de[6].getHash()
+					serialised_entry = [destination_hash, de[0], de[1], de[2], de[3], de[4], interface_hash, packet_hash]
+					serialised_destinations.append(serialised_entry)
 
 			destination_table_path = RNS.Reticulum.storagepath+"/destination_table"
 			file = open(destination_table_path, "wb")
 			file.write(umsgpack.packb(serialised_destinations))
 			file.close()
-			RNS.log("Done saving destination table to storage", RNS.LOG_VERBOSE)
+			RNS.log("Done saving path table to storage", RNS.LOG_VERBOSE)
 		except Exception as e:
-			RNS.log("Could not save destination table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+			RNS.log("Could not save path table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
