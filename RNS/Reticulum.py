@@ -147,7 +147,7 @@ class Reticulum:
 						interface = TCPInterface.TCPClientInterface(
 							RNS.Transport,
 							name,
-							c["target_ip"],
+							c["target_host"],
 							int(c["target_port"])
 						)
 
@@ -371,14 +371,44 @@ loglevel = 4
 
   # This interface enables communication with other
   # Reticulum nodes on your local ethernet networks.
+  # It's enabled by default, and provides basic
+  # connectivity to other peers in your local ethernet
+  # broadcast domain. You can modify it to suit your
+  # needs or turn it off completely.
+  
   [[Default UDP Interface]]
   	type = UdpInterface
     interface_enabled = True
     outgoing = True
     listen_ip = 0.0.0.0
-    listen_port = 7777
+    listen_port = 4242
     forward_ip = 255.255.255.255
-    forward_port = 7777
+    forward_port = 4242
+
+
+  # This example demonstrates a TCP server interface.
+  # It will listen for incoming connections on the
+  # specified IP address and port number.
+  
+  [[TCP Server Interface]]
+    type = TCPServerInterface
+    interface_enabled = False
+    outgoing = True
+    listen_ip = 0.0.0.0
+    listen_port = 4242
+
+
+  # To connect to a TCP server interface, you would
+  # naturally use the TCP client interface. Here's
+  # an example. The target_host can either be an IP
+  # address or a hostname
+
+  [[TCP Client Interface]]
+    type = TCPClientInterface
+    interface_enabled = False
+    outgoing = True
+    target_host = 127.0.0.1
+    target_port = 4242
 
 
   # Here's an example of how to add a LoRa interface
@@ -417,6 +447,7 @@ loglevel = 4
     # is 5 throough 8, with 5 being the
     # fastest, and 8 the longest range.
     codingrate = 5
+
 
   # An example KISS modem interface. Useful for running
   # Reticulum over packet radio hardware.
@@ -462,6 +493,7 @@ loglevel = 4
     # settings are reasonable defaults.
     persistence = 200
     slottime = 20
+
 
   # If you're using Reticulum on amateur radio spectrum,
   # you might want to use the AX.25 KISS interface. This
