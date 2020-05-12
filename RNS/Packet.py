@@ -189,8 +189,9 @@ class Packet:
 			if RNS.Transport.outbound(self):
 				return self.receipt
 			else:
-				# TODO: Don't raise error here, handle gracefully
-				raise IOError("Packet could not be sent! Do you have any outbound interfaces configured?")
+				# TODO: Decide whether this failure should simply
+				# return none, or raise an error
+				raise IOError("No interfaces could process the outbound packet")
 		else:
 			raise IOError("Packet was already sent")
 

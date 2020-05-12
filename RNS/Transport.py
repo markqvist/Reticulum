@@ -306,6 +306,8 @@ class Transport:
 			return True
 		if packet.context == RNS.Packet.RESOURCE_PRF:
 			return True
+		if packet.context == RNS.Packet.RESOURCE:
+			return True
 		if not packet.packet_hash in Transport.packet_hashlist:
 			return True
 		else:

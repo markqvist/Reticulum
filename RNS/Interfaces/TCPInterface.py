@@ -118,7 +118,8 @@ class TCPClientInterface(Interface):
         self.online = False
         self.OUT = False
         self.IN = False
-        RNS.Transport.interfaces.remove(self)
+        if self in RNS.Transport.interfaces:
+            RNS.Transport.interfaces.remove(self)
 
 
     def __str__(self):

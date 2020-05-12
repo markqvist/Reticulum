@@ -34,6 +34,7 @@ class Link:
 	# first-hop RTT latency and distance 
 	DEFAULT_TIMEOUT = 15.0
 	TIMEOUT_FACTOR = 3
+	STALE_GRACE = 2
 	KEEPALIVE = 180
 
 	PENDING   = 0x00
@@ -201,7 +202,9 @@ class Link:
 
 				self.status = Link.ACTIVE
 				if self.callbacks.link_established != None:
-					self.callbacks.link_established(self)
+					thread = threading.Thread(target=self.callbacks.link_established, args=(self,))
+					thread.setDaemon(True)
+					thread.start()
 			else:
 				RNS.log("Invalid link proof signature received by "+str(self), RNS.LOG_VERBOSE)
 				# TODO: should we really do this, or just wait
@@ -309,7 +312,7 @@ class Link:
 
 				elif self.status == Link.ACTIVE:
 					if time.time() >= self.last_inbound + self.keepalive:
-						sleep_time = self.rtt * self.timeout_factor
+						sleep_time = self.rtt * self.timeout_factor + Link.STALE_GRACE
 						self.status = Link.STALE
 						if self.initiator:
 							self.send_keepalive()
@@ -326,8 +329,8 @@ class Link:
 				if sleep_time == 0:
 					RNS.log("Warning! Link watchdog sleep time of 0!", RNS.LOG_ERROR)
 				if sleep_time == None or sleep_time < 0:
-					RNS.log("Timing error! Closing Reticulum now.", RNS.LOG_CRITICAL)
-					RNS.panic()
+					RNS.log("Timing error! Tearing down link "+str(self)+" now.", RNS.LOG_ERROR)
+					self.teardown()
 
 				sleep(sleep_time)
 
@@ -352,7 +355,9 @@ class Link:
 					if packet.context == RNS.Packet.NONE:
 						plaintext = self.decrypt(packet.data)
 						if self.callbacks.packet != None:
-							self.callbacks.packet(plaintext, packet)
+							thread = threading.Thread(target=self.callbacks.packet, args=(plaintext, packet))
+							thread.setDaemon(True)
+							thread.start()
 						
 						if self.destination.proof_strategy == RNS.Destination.PROVE_ALL:
 							packet.prove()
@@ -374,7 +379,9 @@ class Link:
 							pass
 						elif self.resource_strategy == Link.ACCEPT_APP:
 							if self.callbacks.resource != None:
-								self.callbacks.resource(packet)
+								thread = threading.Thread(target=self.callbacks.resource, args=(packet))
+								thread.setDaemon(True)
+								thread.start()
 						elif self.resource_strategy == Link.ACCEPT_ALL:
 							RNS.Resource.accept(packet, self.callbacks.resource_concluded)
 
@@ -497,7 +504,7 @@ class Link:
 		if resource in self.outgoing_resources:
 			self.outgoing_resources.remove(resource)
 		else:
-			RNS.log("Attempt to cancel a non-existing incoming resource", RNS.LOG_ERROR)
+			RNS.log("Attempt to cancel a non-existing outgoing resource", RNS.LOG_ERROR)
 
 	def cancel_incoming_resource(self, resource):
 		if resource in self.incoming_resources:

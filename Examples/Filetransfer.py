@@ -123,7 +123,10 @@ def client_request(message, packet):
 			# read it and pack it as a resource
 			RNS.log("Client requested \""+filename+"\"")
 			file = open(os.path.join(serve_path, filename), "rb")
-			file_resource = RNS.Resource(file.read(), packet.link, callback=resource_sending_concluded)
+			file_data = file.read()
+			file.close()
+
+			file_resource = RNS.Resource(file_data, packet.link, callback=resource_sending_concluded)
 			file_resource.filename = filename
 		except:
 			# If somethign went wrong, we close
@@ -138,10 +141,15 @@ def client_request(message, packet):
 # This function is called on the server when a
 # resource transfer concludes.
 def resource_sending_concluded(resource):
+	if hasattr(resource, "filename"):
+		name = resource.filename
+	else:
+		name = "resource"
+
 	if resource.status == RNS.Resource.COMPLETE:
-		RNS.log("Done sending \""+resource.filename+"\" to client")
+		RNS.log("Done sending \""+name+"\" to client")
 	elif resource.status == RNS.Resource.FAILED:
-		RNS.log("Sending \""+resource.filename+"\" to client failed")
+		RNS.log("Sending \""+name+"\" to client failed")
 
 def list_delivered(receipt):
 	RNS.log("The file list was received by the client")
@@ -297,8 +305,7 @@ def print_menu():
 			if time.time() > download_began+APP_TIMEOUT:
 				print("The download timed out")
 				time.sleep(1)
-				menu_mode = "main"
-				print_menu()
+				server_link.teardown()
 
 	if menu_mode == "downloading":
 		print("Download started")
