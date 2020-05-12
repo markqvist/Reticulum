@@ -78,27 +78,30 @@ class TCPClientInterface(Interface):
             data_buffer = b""
 
             while True:
-                data_in = self.socket.recv(1)
+                data_in = self.socket.recv(1024)
 
                 if len(data_in) > 0:
-                    byte = ord(data_in)
-                    if (in_frame and byte == HDLC.FLAG):
-                        in_frame = False
-                        self.processIncoming(data_buffer)
-                    elif (byte == HDLC.FLAG):
-                        in_frame = True
-                        data_buffer = b""
-                    elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
-                        if (byte == HDLC.ESC):
-                            escape = True
-                        else:
-                            if (escape):
-                                if (byte == HDLC.FLAG ^ HDLC.ESC_MASK):
-                                    byte = HDLC.FLAG
-                                if (byte == HDLC.ESC  ^ HDLC.ESC_MASK):
-                                    byte = HDLC.ESC
-                                escape = False
-                            data_buffer = data_buffer+bytes([byte])
+                    pointer = 0
+                    while pointer < len(data_in):
+                        byte = data_in[pointer]
+                        pointer += 1
+                        if (in_frame and byte == HDLC.FLAG):
+                            in_frame = False
+                            self.processIncoming(data_buffer)
+                        elif (byte == HDLC.FLAG):
+                            in_frame = True
+                            data_buffer = b""
+                        elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
+                            if (byte == HDLC.ESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == HDLC.FLAG ^ HDLC.ESC_MASK):
+                                        byte = HDLC.FLAG
+                                    if (byte == HDLC.ESC  ^ HDLC.ESC_MASK):
+                                        byte = HDLC.ESC
+                                    escape = False
+                                data_buffer = data_buffer+bytes([byte])
                 else:
                     RNS.log("TCP socket for "+str(self)+" was closed, tearing down interface", RNS.LOG_VERBOSE)
                     self.teardown()
@@ -108,9 +111,8 @@ class TCPClientInterface(Interface):
         except Exception as e:
             self.online = False
             RNS.log("An interface error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log("The interface "+str(self.name)+" is now offline. Restart Reticulum to attempt reconnection.", RNS.LOG_ERROR)
-            raise e
-
+            RNS.log("Tearing down "+str(self), RNS.LOG_ERROR)
+            self.teardown()
 
     def teardown(self):
         self.online = False
@@ -128,8 +130,6 @@ class TCPServerInterface(Interface):
     def __init__(self, owner, name, bindip=None, bindport=None):
         self.IN  = True
         self.OUT = False
-        self.transmit_delay = 0.001
-
         self.name = name
 
         if (bindip != None and bindport != None):

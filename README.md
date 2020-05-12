@@ -55,7 +55,7 @@ Some countries still ban the use of encryption when operating under an amateur r
  - pyserial
 
 ## How do I get started?
-Full documentation and video tutorials are coming with the stable alpha release. Until then, you are mostly on your own. If you really want to experiment already, you could take a look in the "Examples" folder, for some well-documented example programs. Be sure to also read the [Reticulum Overview Document](http://unsigned.io/wp-content/uploads/2018/04/Reticulum_Overview_v0.4.pdf).
+Full documentation and video tutorials are coming with the stable alpha release. Until then, you are mostly on your own. If you really want to experiment already, you could take a look in the "Examples" folder, for some well-documented example programs. The default configuration file created by Reticulum on the first run is also worth reading. Be sure to also read the [Reticulum Overview Document](http://unsigned.io/wp-content/uploads/2018/04/Reticulum_Overview_v0.4.pdf).
 
 If you just need Reticulum as a dependency for another application, the easiest way is probably via pip:
 

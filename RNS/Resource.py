@@ -438,14 +438,19 @@ class Resource:
 				pi = 0
 				for part in self.parts:
 					if part.map_hash == requested_hash:
-						if not part.sent:
-							part.send()
-							self.sent_parts += 1
-						else:
-							part.resend()
-						self.last_activity = time.time()
-						self.last_part_sent = self.last_activity
-						break
+						try:
+							if not part.sent:
+								part.send()
+								self.sent_parts += 1
+							else:
+								part.resend()
+							self.last_activity = time.time()
+							self.last_part_sent = self.last_activity
+							break
+						except Exception as e:
+							RNS.log("Resource could not send parts, cancelling transfer!", RNS.LOG_ERROR)
+							RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+							self.cancel()
 					pi += 1
 
 			if wants_more_hashmap:
@@ -488,8 +493,11 @@ class Resource:
 			self.status = Resource.FAILED
 			if self.initiator:
 				if self.link.status == RNS.Link.ACTIVE:
-					cancel_packet = RNS.Packet(self.link, self.hash, context=RNS.Packet.RESOURCE_ICL)
-					cancel_packet.send()
+					try:
+						cancel_packet = RNS.Packet(self.link, self.hash, context=RNS.Packet.RESOURCE_ICL)
+						cancel_packet.send()
+					except Exception as e:
+						RNS.log("Could not send resource cancel packet, the contained exception was: "+str(e), RNS.LOG_ERROR)
 				self.link.cancel_outgoing_resource(self)
 			else:
 				self.link.cancel_incoming_resource(self)
