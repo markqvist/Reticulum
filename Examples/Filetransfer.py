@@ -55,7 +55,8 @@ def server(configpath, path):
 
 def announceLoop(destination):
 	# Let the user know that everything is ready
-	RNS.log("File server "+RNS.prettyhexrep(destination.hash)+" running, hit enter to manually send an announce (Ctrl-C to quit)")
+	RNS.log("File server "+RNS.prettyhexrep(destination.hash)+" running")
+	RNS.log("Hit enter to manually send an announce (Ctrl-C to quit)")
 
 	# We enter a loop that runs until the users exits.
 	# If the user hits enter, we will announce our server
@@ -238,8 +239,9 @@ def download(filename):
 
 	# We just create a packet containing the
 	# requested filename, and send it down the
-	# link.
-	request_packet = RNS.Packet(server_link, filename.encode("utf-8"))
+	# link. We also specify we don't need a
+	# packet receipt.
+	request_packet = RNS.Packet(server_link, filename.encode("utf-8"), create_receipt=False)
 	request_packet.send()
 	
 	print("")

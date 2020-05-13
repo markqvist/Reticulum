@@ -548,8 +548,10 @@ class Resource:
 			if wants_more_hashmap:
 				last_map_hash = request_data[1:Resource.MAPHASH_LEN+1]
 				
-				part_index = self.receiver_min_consecutive_height
-				for part in self.parts[self.receiver_min_consecutive_height:]:
+				part_index   = self.receiver_min_consecutive_height
+				search_start = part_index
+				search_end   = self.receiver_min_consecutive_height+ResourceAdvertisement.COLLISION_GUARD_SIZE
+				for part in self.parts[search_start:search_end]:
 					part_index += 1
 					if part.map_hash == last_map_hash:
 						break

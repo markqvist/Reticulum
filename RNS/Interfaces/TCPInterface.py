@@ -24,32 +24,30 @@ class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 class TCPClientInterface(Interface):
 
     def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None):
-        self.IN  = True
-        self.OUT = False
-        self.socket = None
+        self.IN               = True
+        self.OUT              = False
+        self.socket           = None
         self.parent_interface = None
-        self.name = name
-
-        # TODO: Optimise so this is not needed
-        self.transmit_delay = 0.001
+        self.name             = name
 
         if connected_socket != None:
-            self.receives = True
-            self.target_ip = None
+            self.receives    = True
+            self.target_ip   = None
             self.target_port = None
-            self.socket = connected_socket
+            self.socket      = connected_socket
 
         elif target_ip != None and target_port != None:
-            self.receives = True
-            self.target_ip = target_ip
+            self.receives    = True
+            self.target_ip   = target_ip
             self.target_port = target_port
 
             RNS.log("Client init: "+str(self))
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((self.target_ip, self.target_port))
 
-        self.owner = owner
-        self.online = True
+        self.owner   = owner
+        self.online  = True
+        self.writing = False
 
         if connected_socket == None:
             thread = threading.Thread(target=self.read_loop)
@@ -61,10 +59,14 @@ class TCPClientInterface(Interface):
 
     def processOutgoing(self, data):
         if self.online:
+            while self.writing:
+                time.sleep(0.01)
+
             try:
-                time.sleep(self.transmit_delay)
+                self.writing = True
                 data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
                 self.socket.sendall(data)
+                self.writing = False
             except Exception as e:
                 RNS.log("Exception occurred while transmitting via "+str(self)+", tearing down interface", RNS.LOG_ERROR)
                 RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -78,8 +80,7 @@ class TCPClientInterface(Interface):
             data_buffer = b""
 
             while True:
-                data_in = self.socket.recv(1024)
-
+                data_in = self.socket.recv(4096)
                 if len(data_in) > 0:
                     pointer = 0
                     while pointer < len(data_in):

@@ -41,6 +41,7 @@ class Transport:
 	LINK_TIMEOUT        = RNS.Link.KEEPALIVE * 2
 	REVERSE_TIMEOUT     = 30*60		 # Reverse table entries are removed after max 30 minutes
 	DESTINATION_TIMEOUT = 60*60*24*7 # Destination table entries are removed if unused for one week
+	MAX_RECEIPTS        = 1024       # Maximum number of receipts to keep track of
 
 	interfaces	 	    = []		 # All active interfaces
 	destinations        = []		 # All active destinations
@@ -49,6 +50,7 @@ class Transport:
 	packet_hashlist     = []		 # A list of packet hashes for duplicate detection
 	receipts		    = []		 # Receipts of all outgoing packets for proof processing
 
+	# TODO: "destination_table" should really be renamed to "path_table"
 	announce_table      = {}		 # A table for storing announces currently waiting to be retransmitted
 	destination_table   = {}		 # A lookup table containing the next hop to a given destination
 	reverse_table	    = {}		 # A lookup table for storing packet hashes used to return proofs and replies
@@ -154,10 +156,13 @@ class Transport:
 			if not Transport.jobs_locked:
 				# Process receipts list for timed-out packets
 				if time.time() > Transport.receipts_last_checked+Transport.receipts_check_interval:
+					while len(Transport.receipts) > Transport.MAX_RECEIPTS:
+						culled_receipt = Transport.receipts.pop(0)
+						culled_receipt.timeout = -1
+						receipt.check_timeout()
+
 					for receipt in Transport.receipts:
-						thread = threading.Thread(target=receipt.check_timeout)
-						thread.setDaemon(True)
-						thread.start()
+						receipt.check_timeout()
 						if receipt.status != RNS.PacketReceipt.SENT:
 							Transport.receipts.remove(receipt)
 
@@ -211,11 +216,30 @@ class Transport:
 						if time.time() > link_entry[0] + Transport.LINK_TIMEOUT:
 							Transport.link_table.pop(link_id)
 
-					# Cull the destination table
+					# Cull the path table
+					stale_paths = []
 					for destination_hash in Transport.destination_table:
 						destination_entry = Transport.destination_table[destination_hash]
+						attached_interface = destination_entry[5]
+
 						if time.time() > destination_entry[0] + Transport.DESTINATION_TIMEOUT:
-							Transport.destination_table.pop(destination_hash)
+							stale_paths.append(destination_hash)
+							RNS.log("Path to "+RNS.prettyhexrep(destination_hash)+" timed out and was removed", RNS.LOG_DEBUG)
+
+						if not attached_interface in Transport.interfaces:
+							stale_paths.append(destination_hash)
+							RNS.log("Path to "+RNS.prettyhexrep(destination_hash)+" was removed since the attached interface no longer exists", RNS.LOG_DEBUG)
+
+					i = 0
+					for destination_hash in stale_paths:
+						Transport.destination_table.pop(destination_hash)
+						i += 1
+
+					if i > 0:
+						if i == 1:
+							RNS.log("Removed "+str(i)+" path", RNS.LOG_DEBUG)
+						else:
+							RNS.log("Removed "+str(i)+" paths", RNS.LOG_DEBUG)
 
 					Transport.tables_last_culled = time.time()
 
@@ -266,7 +290,7 @@ class Transport:
 
 		else:
 			# Broadcast packet on all outgoing interfaces, or relevant
-			# interface, if packet is for a link or has an attachede interface
+			# interface, if packet is for a link or has an attached interface
 			for interface in Transport.interfaces:
 				if interface.OUT:
 					should_transmit = True
@@ -288,7 +312,17 @@ class Transport:
 			packet.sent = True
 			packet.sent_at = time.time()
 
-			if (packet.packet_type == RNS.Packet.DATA and packet.destination.type != RNS.Destination.PLAIN):
+			    # Don't generate receipt if it has been explicitly disabled
+			if (packet.create_receipt == True and
+				# Only generate receipts for DATA packets
+				packet.packet_type == RNS.Packet.DATA and
+				# Don't generate receipts for PLAIN destinations
+				packet.destination.type != RNS.Destination.PLAIN and
+				# Don't generate receipts for link-related packets
+				not (packet.context >= RNS.Packet.KEEPALIVE and packet.context <= RNS.Packet.LRPROOF) and
+				# Don't generate receipts for resource packets
+				not (packet.context >= RNS.Packet.RESOURCE and packet.context <= RNS.Packet.RESOURCE_RCL)):
+
 				packet.receipt = RNS.PacketReceipt(packet)
 				Transport.receipts.append(packet.receipt)
 			

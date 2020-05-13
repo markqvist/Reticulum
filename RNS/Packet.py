@@ -1,3 +1,4 @@
+import threading
 import struct
 import math
 import time
@@ -55,7 +56,7 @@ class Packet:
 	# Default packet timeout
 	TIMEOUT 	 = 60
 
-	def __init__(self, destination, data, packet_type = DATA, context = NONE, transport_type = RNS.Transport.BROADCAST, header_type = HEADER_1, transport_id = None, attached_interface = None):
+	def __init__(self, destination, data, packet_type = DATA, context = NONE, transport_type = RNS.Transport.BROADCAST, header_type = HEADER_1, transport_id = None, attached_interface = None, create_receipt = True):
 		if destination != None:
 			if transport_type == None:
 				transport_type = RNS.Transport.BROADCAST
@@ -65,17 +66,18 @@ class Packet:
 			self.transport_type = transport_type
 			self.context        = context
 
-			self.hops		    = 0;
+			self.hops           = 0;
 			self.destination    = destination
 			self.transport_id   = transport_id
-			self.data 		    = data
-			self.flags	 	    = self.getPackedFlags()
+			self.data           = data
+			self.flags          = self.getPackedFlags()
 
-			self.raw    		= None
-			self.packed 		= False
-			self.sent   		= False
-			self.receipt 		= None
-			self.fromPacked		= False
+			self.raw            = None
+			self.packed         = False
+			self.sent           = False
+			self.create_receipt = create_receipt
+			self.receipt        = None
+			self.fromPacked     = False
 		else:
 			self.raw            = data
 			self.packed         = True
@@ -257,6 +259,7 @@ class PacketReceipt:
 	FAILED    = 0x00
 	SENT	  = 0x01
 	DELIVERED = 0x02
+	CULLED    = 0xFF
 
 
 	EXPL_LENGTH = RNS.Identity.HASHLENGTH//8+RNS.Identity.SIGLENGTH//8
@@ -366,10 +369,18 @@ class PacketReceipt:
 
 	def check_timeout(self):
 		if self.is_timed_out():
-			self.status = PacketReceipt.FAILED
+			if self.timeout == -1:
+				self.status = PacketReceipt.CULLED
+			else:
+				self.status = PacketReceipt.FAILED
+
 			self.concluded_at = time.time()
+
 			if self.callbacks.timeout:
-				self.callbacks.timeout(self)
+				thread = threading.Thread(target=self.callbacks.timeout, args=(self,))
+				thread.setDaemon(True)
+				thread.start()
+				#self.callbacks.timeout(self)
 
 
 	# Set the timeout in seconds
