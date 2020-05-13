@@ -1,0 +1,54 @@
+Reticulum Wire Format
+
+Header Types
+-----------------
+type 1          00  Two byte header, one 10 byte address field
+type 2          01  Two byte header, two 10 byte address fields
+type 3          10  Reserved
+type 4          11  Reserved for extended header format
+
+
+Propagation Types
+-----------------
+broadcast       00
+transport       01
+relay           10
+tunnel          11
+
+
+Destination Types
+-----------------
+single          00
+group           01
+plain           10
+link            11
+
+
+Packet Types
+-----------------
+data            00
+announce        01
+link request    10
+proof           11
+
+
++- Packet Example -+
+
+01010000 00000100 [ADDR1, 10 bytes] [ADDR2, 10 bytes] [CONTEXT, 1 byte] [DATA]
+ | | | |    |
+ | | | |    +-- Hops = 4
+ | | | +------- DATA packet
+ | | +--------- SINGLE destination
+ | +----------- TRANSPORT propagation type
+ +------------- HEADER_2, two byte header, two address fields
+
+
+ +- Packet Example -+
+
+00000000 00000111 [ADDR1, 10 bytes] [CONTEXT, 1 byte] [DATA]
+ | | | |    |
+ | | | |    +-- Hops = 7
+ | | | +------- DATA packet
+ | | +--------- SINGLE destination
+ | +----------- BROADCAST propagation type
+ +------------- HEADER_1, two byte header, one address field
