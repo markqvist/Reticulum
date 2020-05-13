@@ -175,6 +175,9 @@ class Packet:
 		self.packed = False
 		self.updateHash()
 
+	# Sends the packet. Returns a receipt if one is generated,
+	# or None if no receipt is available. Returns False if the
+	# packet could not be sent.
 	def send(self):
 		if not self.sent:
 			if self.destination.type == RNS.Destination.LINK:
@@ -191,9 +194,11 @@ class Packet:
 			if RNS.Transport.outbound(self):
 				return self.receipt
 			else:
-				# TODO: Decide whether this failure should simply
-				# return none, or raise an error
-				raise IOError("No interfaces could process the outbound packet")
+				RNS.log("No interfaces could process the outbound packet", RNS.LOG_ERROR)
+				self.sent = False
+				self.receipt = None
+				return False
+				
 		else:
 			raise IOError("Packet was already sent")
 
@@ -202,8 +207,10 @@ class Packet:
 			if RNS.Transport.outbound(self):
 				return self.receipt
 			else:
-				# TODO: Don't raise error here, handle gracefully
-				raise IOError("Packet could not be sent! Do you have any outbound interfaces configured?")
+				RNS.log("No interfaces could process the outbound packet", RNS.LOG_ERROR)
+				self.sent = False
+				self.receipt = None
+				return False
 		else:
 			raise IOError("Packet was not sent yet")
 
