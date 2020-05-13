@@ -41,7 +41,6 @@ class TCPClientInterface(Interface):
             self.target_ip   = target_ip
             self.target_port = target_port
 
-            RNS.log("Client init: "+str(self))
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((self.target_ip, self.target_port))
 
