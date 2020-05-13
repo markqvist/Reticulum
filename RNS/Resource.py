@@ -344,6 +344,8 @@ class Resource:
 				sleep(sleep_time)
 
 	def assemble(self):
+		# TODO: Optimise assembly. It's way too
+		# slow for larger files
 		if not self.status == Resource.FAILED:
 			try:
 				self.status = Resource.ASSEMBLING

@@ -732,16 +732,16 @@ pre {
 }
 </style><title>README</title></head><body><article class="markdown-body"><h1>
 <a id="user-content-reticulum-network-stack-α" class="anchor" href="#reticulum-network-stack-%CE%B1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Reticulum Network Stack α</h1>
-<p>Reticulum is a cryptography-based networking stack for low-bandwidth, high-latency, wide-area networks built on cheap and readily available hardware. Reticulum allows you to build very wide-area networks with cheap off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, resource caching, unforgeable packet acknowledgements and much more.</p>
-<p>Reticulum is a complete networking stack, and does not use IP or higher layers, although it can be easily tunnelled through conventional IP networks. This frees up a lot of overhead, that has been utilised to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.</p>
-<p>Reticulum runs completely in userland, and can run on practically any system that runs Python 3.</p>
+<p>Reticulum is a cryptography-based networking stack for high-latency, wide-area networks built on readily available hardware. Reticulum allows you to build very wide-area networks with off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, resource caching, unforgeable packet acknowledgements and much more.</p>
+<p>Reticulum is a complete networking stack, and does not use IP or higher layers, although it can be easily tunnelled through conventional IP networks. This frees up overhead, that has been utilised to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.</p>
+<p>No kernel modules or drivers are required. Reticulum runs completely in userland, and can run on practically any system that runs Python 3.</p>
 <p>For more info, see <a href="https://unsigned.io/projects/reticulum/" rel="nofollow">unsigned.io/projects/reticulum</a></p>
 <h2>
-<a id="user-content-what-hardware-does-reticulum-work-with" class="anchor" href="#what-hardware-does-reticulum-work-with" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What hardware does Reticulum work with?</h2>
-<p>Practically any hardware that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, HAM radio digital modes, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.</p>
-<p>An open-source LoRa-based interface called <a href="https://unsigned.io/projects/rnode/" rel="nofollow">RNode</a> has been designed specifically for use with Reticulum. It is easy to build yourself, or can be purchased as a complete radio that just needs a USB connection to the host.</p>
-<p>Reticulum can also be tunneled over existing IP networks, so there's nothing stopping you from using it over gigabit fiber or your local WiFi network, where it'll work just as well. In fact, one of the strengths of Reticulum is how easily it allows you to connect different mediums into a self-configuring, resilient and encrypted mesh.</p>
-<p>As an example, it's possible to set up a Raspberry Pi connected to both a LoRa radio, a packet radio TNC and your home WiFi. Once the interfaces are configured, Reticulum will take care of the rest, and any device on your home WiFi can communicate with nodes on the LoRa and packet radio sides of the network.</p>
+<a id="user-content-where-can-reticulum-be-used" class="anchor" href="#where-can-reticulum-be-used" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Where can Reticulum be used?</h2>
+<p>On practically any hardware that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.</p>
+<p>An open-source LoRa-based interface called <a href="https://unsigned.io/projects/rnode/" rel="nofollow">RNode</a> has been designed specifically for use with Reticulum. It is possible to build yourself, or can be purchased as a complete transceiver that just needs a USB connection to the host.</p>
+<p>Reticulum can also be encapsulated over existing IP networks, so there's nothing stopping you from using it over wired ethernet or your local WiFi network, where it'll work just as well. In fact, one of the strengths of Reticulum is how easily it allows you to connect different mediums into a self-configuring, resilient and encrypted mesh.</p>
+<p>As an example, it's possible to set up a Raspberry Pi connected to both a LoRa radio, a packet radio TNC and a WiFi network. Once the interfaces are configured, Reticulum will take care of the rest, and any device on the WiFi network can communicate with nodes on the LoRa and packet radio sides of the network, and vice versa.</p>
 <h2>
 <a id="user-content-current-status" class="anchor" href="#current-status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Current Status</h2>
 <p>Consider Reticulum experimental at this stage. Most features are implemented and working, but at this point the protocol may still change significantly, and is made publicly available for development collaboration, previewing and testing.</p>
@@ -749,29 +749,36 @@ pre {
 <h2>
 <a id="user-content-what-is-implemented-at-this-point" class="anchor" href="#what-is-implemented-at-this-point" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is implemented at this point?</h2>
 <ul>
-<li>All basic adressing and identification features</li>
+<li>Adressing and identification</li>
+<li>Fully self-configuring multi-hop routing</li>
 <li>RSA assymetric encryption and signatures as basis for all communication</li>
 <li>AES-128 symmetric encryption for group destinations</li>
 <li>Elliptic curve encryption for links (on the SECP256R1 curve)</li>
 <li>Perfect Forward Secrecy on links with ephemereal ECDH keys</li>
 <li>Unforgeable packet delivery confirmations</li>
-<li>Fully self-configuring multi-hop routing</li>
 <li>A variety of supported interface types</li>
 <li>Efficient and easy resource transfers</li>
 <li>A simple and easy-to-use API</li>
-<li>A few basic examples</li>
+<li>Some basic programming examples</li>
 </ul>
 <h2>
-<a id="user-content-what-features-are-still-missing" class="anchor" href="#what-features-are-still-missing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What features are still missing?</h2>
+<a id="user-content-supported-interface-types-and-devices" class="anchor" href="#supported-interface-types-and-devices" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Supported interface types and devices</h2>
+<p>Reticulum implements a range of generalised interface types that covers most of the communications hardware that Reticulum can run over. If your hardware is not supported, it's relatively simple to implement an interface class. Currently, the following interfaces are supported:</p>
 <ul>
-<li>On-network caching and cache queries</li>
+<li>Any ethernet device</li>
+<li>LoRa using <a href="https://unsigned.io/projects/rnode/" rel="nofollow">RNode</a>
+</li>
+<li>Packet Radio TNCs (with or without AX.25)</li>
+<li>Any device with a serial port</li>
+<li>TCP over IP networks</li>
+<li>UDP over IP networks</li>
 </ul>
 <h2>
 <a id="user-content-what-is-currently-being-worked-on" class="anchor" href="#what-is-currently-being-worked-on" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is currently being worked on?</h2>
 <ul>
+<li>Delay/disruption tolerant bundle transfers</li>
 <li>Useful example programs and utilities</li>
 <li>API documentation</li>
-<li>Cleanup and code commenting</li>
 <li>A messaging protocol built on Reticulum, see <a href="https://github.com/markqvist/lxmf">LXMF</a>
 </li>
 <li>A few useful-in-the-real-world apps built with Reticulum</li>
@@ -788,7 +795,7 @@ pre {
 </ul>
 <h2>
 <a id="user-content-how-do-i-get-started" class="anchor" href="#how-do-i-get-started" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How do I get started?</h2>
-<p>Full documentation and video tutorials are coming with the stable alpha release. Until then, you are mostly on your own. If you really want to experiment already, you could take a look in the "Examples" folder, for some well-documented example programs. The default configuration file created by Reticulum on the first run is also worth reading. Be sure to also read the <a href="http://unsigned.io/wp-content/uploads/2018/04/Reticulum_Overview_v0.4.pdf" rel="nofollow">Reticulum Overview Document</a>.</p>
+<p>Full documentation and tutorials are coming with the stable alpha release. Until then, you are mostly on your own. If you want to experiment already, you could take a look in the "Examples" folder, for some well-documented example programs. The default configuration file created by Reticulum on the first run is also worth reading. Be sure to also read the <a href="http://unsigned.io/wp-content/uploads/2018/04/Reticulum_Overview_v0.4.pdf" rel="nofollow">Reticulum Overview Document</a>.</p>
 <p>If you just need Reticulum as a dependency for another application, the easiest way is probably via pip:</p>
 <div class="highlight highlight-source-shell"><pre>pip3 install rns</pre></div>
 <p>For development, you might want to get the latest source from GitHub. In that case, don't use pip, but try this recipe:</p>
