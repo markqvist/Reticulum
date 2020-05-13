@@ -44,6 +44,8 @@ class LocalClientInterface(Interface):
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((self.target_ip, self.target_port))
 
+            self.is_connected_to_shared_instance = True
+
         self.owner   = owner
         self.online  = True
         self.writing = False
@@ -118,8 +120,12 @@ class LocalClientInterface(Interface):
         self.online = False
         self.OUT = False
         self.IN = False
+
         if self in RNS.Transport.interfaces:
             RNS.Transport.interfaces.remove(self)
+
+        if self in RNS.Transport.local_client_interfaces:
+            RNS.Transport.local_client_interfaces.remove(self)
 
 
     def __str__(self):
@@ -144,6 +150,8 @@ class LocalServerInterface(Interface):
                 return createHandler
 
             self.owner = owner
+            self.is_local_shared_instance = True
+
             address = (self.bind_ip, self.bind_port)
             self.server = ThreadingTCPServer(address, handlerFactory(self.incoming_connection))
 
@@ -162,6 +170,7 @@ class LocalServerInterface(Interface):
         spawned_interface.parent_interface = self
         RNS.log("Accepting new connection to shared instance: "+str(spawned_interface), RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)
+        RNS.Transport.local_client_interfaces.append(spawned_interface)
         spawned_interface.read_loop()
 
     def processOutgoing(self, data):

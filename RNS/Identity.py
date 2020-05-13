@@ -33,7 +33,6 @@ class Identity:
 
 	@staticmethod
 	def remember(packet_hash, destination_hash, public_key, app_data = None):
-		RNS.log("Remembering "+RNS.prettyhexrep(destination_hash), RNS.LOG_VERBOSE)
 		Identity.known_destinations[destination_hash] = [time.time(), packet_hash, public_key, app_data]
 
 
@@ -108,7 +107,7 @@ class Identity:
 
 			if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
 				RNS.Identity.remember(packet.getHash(), destination_hash, public_key)
-				RNS.log("Stored valid announce from "+RNS.prettyhexrep(destination_hash), RNS.LOG_INFO)
+				RNS.log("Stored valid announce from "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
 				del announced_identity
 				return True
 			else:

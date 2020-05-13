@@ -159,9 +159,6 @@ class Reticulum:
 		self.start_local_interface()
 
 		if self.is_shared_instance or self.is_standalone_instance:
-			# TODO: Remove
-			RNS.log("Starting local interfaces...")
-
 			interface_names = []
 			for name in self.config["interfaces"]:
 				if not name in interface_names:
