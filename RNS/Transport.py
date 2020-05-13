@@ -289,8 +289,8 @@ class Transport:
 				sent = True
 
 		else:
-			# Broadcast packet on all outgoing interfaces, or relevant
-			# interface, if packet is for a link or has an attached interface
+			# Broadcast packet on all outgoing interfaces, or the relevant
+			# interface if packet is for a link or has an attached interface
 			for interface in Transport.interfaces:
 				if interface.OUT:
 					should_transmit = True
