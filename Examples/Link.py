@@ -75,10 +75,13 @@ def client_disconnected(link):
 def server_packet_received(message, packet):
 	global latest_client_link
 
+	# When data is received over any active link,
+	# it will all be directed to the last client
+	# that connected.
 	text = message.decode("utf-8")
 	RNS.log("Received data on the link: "+text)
 	
-	reply_text = "I got \""+text+"\" from you"
+	reply_text = "I received \""+text+"\" over the link"
 	reply_data = reply_text.encode("utf-8")
 	RNS.Packet(latest_client_link, reply_data).send()
 
