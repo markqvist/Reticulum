@@ -72,7 +72,7 @@ class Reticulum:
 		self.applyConfig()
 		RNS.Identity.loadKnownDestinations()
 
-		RNS.Transport.start()
+		RNS.Transport.start(self)
 
 		atexit.register(Reticulum.exit_handler)
 
