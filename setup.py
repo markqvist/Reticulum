@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="rns",
-    version="0.1.0",
+    version="0.1.1",
     author="Mark Qvist",
     author_email="mark@unsigned.io",
     description="Self-configuring, encrypted and resilient mesh networking stack for LoRa, packet radio, WiFi and everything in between",
