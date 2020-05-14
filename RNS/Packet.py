@@ -82,6 +82,7 @@ class Packet:
 			self.raw            = data
 			self.packed         = True
 			self.fromPacked     = True
+			self.create_receipt = False
 
 		self.MTU         = RNS.Reticulum.MTU
 		self.sent_at     = None
