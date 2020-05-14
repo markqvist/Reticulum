@@ -171,11 +171,16 @@ class Destination:
 		if self.type == Destination.SINGLE and self.identity != None:
 			return self.identity.encrypt(plaintext)
 
-		if self.type == Destination.GROUP and self.prv != None:
-			try:
-				return base64.urlsafe_b64decode(self.prv.encrypt(plaintext))
-			except:
-				return None
+		if self.type == Destination.GROUP:
+			if hasattr(self, "prv") and self.prv != None:
+				try:
+					return base64.urlsafe_b64decode(self.prv.encrypt(plaintext))
+				except Exception as e:
+					RNS.log("The GROUP destination could not encrypt data", RNS.LOG_ERROR)
+					RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+			else:
+				raise ValueError("No private key held by GROUP destination. Did you create or load one?")
+
 
 
 	def decrypt(self, ciphertext):
@@ -186,7 +191,14 @@ class Destination:
 			return self.identity.decrypt(ciphertext)
 
 		if self.type == Destination.GROUP:
-			return self.prv.decrypt(base64.urlsafe_b64encode(ciphertext))
+			if hasattr(self, "prv") and self.prv != None:
+				try:
+					return self.prv.decrypt(base64.urlsafe_b64encode(ciphertext))
+				except Exception as e:
+					RNS.log("The GROUP destination could not decrypt data", RNS.LOG_ERROR)
+					RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+			else:
+				raise ValueError("No private key held by GROUP destination. Did you create or load one?")
 
 
 	def sign(self, message):
