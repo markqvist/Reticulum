@@ -149,18 +149,22 @@ def client_loop():
 
 	should_quit = False
 	while not should_quit:
-		print("> ", end=" ")
-		text = input()
+		try:
+			print("> ", end=" ")
+			text = input()
 
-		# Check if we should quit the example
-		if text == "quit" or text == "q" or text == "exit":
+			# Check if we should quit the example
+			if text == "quit" or text == "q" or text == "exit":
+				should_quit = True
+				server_link.teardown()
+
+			# If not, send the entered text over the link
+			if text != "":
+				data = text.encode("utf-8")
+				RNS.Packet(server_link, data).send()
+		except Exception as e:
 			should_quit = True
 			server_link.teardown()
-
-		# If not, send the entered text over the link
-		if text != "":
-			data = text.encode("utf-8")
-			RNS.Packet(server_link, data).send()
 
 # This function is called when a link
 # has been established with the server
