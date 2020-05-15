@@ -337,6 +337,19 @@ class Transport:
 					outbound_interface.processOutgoing(new_raw)
 					Transport.destination_table[packet.destination_hash][0] = time.time()
 					sent = True
+			elif Transport.destination_table[packet.destination_hash][2] == 1 and Transport.owner.is_connected_to_shared_instance:
+				if packet.header_type == RNS.Packet.HEADER_1:
+					# Insert packet into transport
+					new_flags = (RNS.Packet.HEADER_2) << 6 | (Transport.TRANSPORT) << 4 | (packet.flags & 0b00001111)
+					new_raw = struct.pack("!B", new_flags)
+					new_raw += packet.raw[1:2]
+					new_raw += Transport.destination_table[packet.destination_hash][1]
+					new_raw += packet.raw[2:]
+					# TODO: Remove at some point
+					RNS.log("Packet was inserted into direct transport via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_DEBUG)
+					outbound_interface.processOutgoing(new_raw)
+					Transport.destination_table[packet.destination_hash][0] = time.time()
+					sent = True
 			else:
 				# Destination is directly reachable, and we know on
 				# what interface, so transmit only on that one
@@ -961,7 +974,12 @@ class Transport:
 			local_rebroadcasts = 0
 			block_rebroadcasts = True
 			announce_hops      = packet.hops
-			retransmit_timeout = now + Transport.PATH_REQUEST_GRACE # + (RNS.rand() * Transport.PATHFINDER_RW)
+
+			if is_from_local_client:
+				retransmit_timeout = now
+			else:
+				# TODO: Look at this timing
+				retransmit_timeout = now + Transport.PATH_REQUEST_GRACE # + (RNS.rand() * Transport.PATHFINDER_RW)
 
 			# This handles an edge case where a peer sends a past
 			# request for a destination just after an announce for
@@ -981,6 +999,12 @@ class Transport:
 			for interface in Transport.interfaces:
 				if not interface == attached_interface:
 					Transport.requestPathOnInterface(destination_hash, interface)
+
+		elif not is_from_local_client and len(Transport.local_client_interfaces) > 0:
+			# Forward the path request on all local
+			# client interfaces
+			for interface in Transport.local_client_interfaces:
+				Transport.requestPathOnInterface(destination_hash, interface)
 
 		else:
 			RNS.log("No known path to requested destination, ignoring request", RNS.LOG_DEBUG)
