@@ -324,6 +324,11 @@ class Transport:
 		if packet.packet_type != RNS.Packet.ANNOUNCE and packet.destination_hash in Transport.destination_table:
 			outbound_interface = Transport.destination_table[packet.destination_hash][5]
 
+			# If there's more than one hop to the destination, and we know
+			# a path, we insert the packet into transport by adding the next
+			# transport nodes address to the header, and modifying the flags.
+			# This rule applies both for "normal" transport, and when connected
+			# to a local shared Reticulum instance.
 			if Transport.destination_table[packet.destination_hash][2] > 1:
 				if packet.header_type == RNS.Packet.HEADER_1:
 					# Insert packet into transport
@@ -333,10 +338,18 @@ class Transport:
 					new_raw += Transport.destination_table[packet.destination_hash][1]
 					new_raw += packet.raw[2:]
 					# TODO: Remove at some point
-					RNS.log("Packet was inserted into transport via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_DEBUG)
+					RNS.log("Packet was inserted into transport via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_EXTREME)
 					outbound_interface.processOutgoing(new_raw)
 					Transport.destination_table[packet.destination_hash][0] = time.time()
 					sent = True
+
+			# In the special case where we are connected to a local shared
+			# Reticulum instance, and the destination is one hop away, we
+			# also add transport headers to inject the packet into transport
+			# via the shared instance. Normally a packet for a destination
+			# one hop away would just be broadcast directly, but since we
+			# are "behind" a shared instance, we need to get that instance
+			# to transport it onto the network.
 			elif Transport.destination_table[packet.destination_hash][2] == 1 and Transport.owner.is_connected_to_shared_instance:
 				if packet.header_type == RNS.Packet.HEADER_1:
 					# Insert packet into transport
@@ -346,19 +359,23 @@ class Transport:
 					new_raw += Transport.destination_table[packet.destination_hash][1]
 					new_raw += packet.raw[2:]
 					# TODO: Remove at some point
-					RNS.log("Packet was inserted into direct transport via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_DEBUG)
+					RNS.log("Packet was inserted into transport via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_EXTREME)
 					outbound_interface.processOutgoing(new_raw)
 					Transport.destination_table[packet.destination_hash][0] = time.time()
 					sent = True
+
+			# If none of the above applies, we know the destination is
+			# directly reachable, and also on which interface, so we
+			# simply transmit the packet directly on that one.
 			else:
-				# Destination is directly reachable, and we know on
-				# what interface, so transmit only on that one
 				outbound_interface.processOutgoing(packet.raw)
 				sent = True
 
+		# If we don't have a known path for the destination, we'll
+		# broadcast the packet on all outgoing interfaces, or the
+		# just the relevant interface if the packet has an attached
+		# interface, or belongs to a link.
 		else:
-			# Broadcast packet on all outgoing interfaces, or the relevant
-			# interface if packet is for a link or has an attached interface
 			for interface in Transport.interfaces:
 				if interface.OUT:
 					should_transmit = True
