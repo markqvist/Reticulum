@@ -70,7 +70,9 @@ class RNodeInterface(Interface):
 	RSSI_OFFSET = 157
 	SNR_OFFSET  = 128
 
-	def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False):
+	CALLSIGN_MAX_LEN    = 32
+
+	def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None):
 		self.serial      = None
 		self.owner       = owner
 		self.name        = name
@@ -89,6 +91,8 @@ class RNodeInterface(Interface):
 		self.cr          = cr
 		self.state       = KISS.RADIO_STATE_OFF
 		self.bitrate     = 0
+
+		self.last_id     = 0
 
 		self.r_frequency = None
 		self.r_bandwidth = None
@@ -123,9 +127,21 @@ class RNodeInterface(Interface):
 			RNS.log("Invalid spreading factor configured for "+str(self), RNS.LOG_ERROR)
 			self.validcfg = False
 
-		if (self.cr < 5 or self.sf > 8):
+		if (self.cr < 5 or self.cr > 8):
 			RNS.log("Invalid coding rate configured for "+str(self), RNS.LOG_ERROR)
 			self.validcfg = False
+
+		if id_interval != None and id_callsign != None:
+			if (len(id_callsign.encode("utf-8")) <= RNodeInterface.CALLSIGN_MAX_LEN):
+				self.should_id = True
+				self.id_callsign = id_callsign
+				self.id_interval = id_interval
+			else:
+				RNS.log("The encoded ID callsign for "+str(self)+" exceeds the max length of "+str(RNodeInterface.CALLSIGN_MAX_LEN)+" bytes.", RNS.LOG_ERROR)
+				self.validcfg = False
+		else:
+			self.id_interval = None
+			self.id_callsign = None
 
 		if (not self.validcfg):
 			raise ValueError("The configuration for "+str(self)+" contains errors, interface is offline")
@@ -259,7 +275,7 @@ class RNodeInterface(Interface):
 		try:
 			self.bitrate = self.r_sf * ( (4.0/self.cr) / (math.pow(2,self.r_sf)/(self.r_bandwidth/1000)) ) * 1000
 			self.bitrate_kbps = round(self.bitrate/1000.0, 2)
-			RNS.log(str(self)+" On-air bitrate is now "+str(self.bitrate_kbps)+ " kbps", RNS.LOG_DEBUG)
+			RNS.log(str(self)+" On-air bitrate is now "+str(self.bitrate_kbps)+ " kbps", RNS.LOG_INFO)
 		except:
 			self.bitrate = 0
 
@@ -273,9 +289,17 @@ class RNodeInterface(Interface):
 				if self.flow_control:
 					self.interface_ready = False
 
-				data = KISS.escape(data)
-				frame = bytes([0xc0])+bytes([0x00])+data+bytes([0xc0])
+				frame = b""
+
+				if self.id_interval != None and self.id_callsign != None:
+					if self.last_id + self.id_interval < time.time():
+						self.last_id = time.time()
+						frame = bytes([0xc0])+bytes([0x00])+KISS.escape(self.id_callsign.encode("utf-8"))+bytes([0xc0])
+
+				data    = KISS.escape(data)
+				frame  += bytes([0xc0])+bytes([0x00])+data+bytes([0xc0])
 				written = self.serial.write(frame)
+
 				if written != len(frame):
 					raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))
 			else:
@@ -408,7 +432,7 @@ class RNodeInterface(Interface):
 						elif (command == KISS.CMD_STAT_RSSI):
 							self.r_stat_rssi = byte-RNodeInterface.RSSI_OFFSET
 						elif (command == KISS.CMD_STAT_SNR):
-							self.r_stat_snr = byte-RNodeInterface.SNR_OFFSET
+							self.r_stat_snr = int.from_bytes(bytes([byte]), byteorder="big", signed=True) * 0.25
 						elif (command == KISS.CMD_RANDOM):
 							self.r_random = byte
 						elif (command == KISS.CMD_ERROR):

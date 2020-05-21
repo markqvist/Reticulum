@@ -248,8 +248,7 @@ class Reticulum:
 								txtail = int(c["txtail"]) if "txtail" in c else None
 								persistence = int(c["persistence"]) if "persistence" in c else None
 								slottime = int(c["slottime"]) if "slottime" in c else None
-								flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
-
+								flow_control = c.as_bool("flow_control") if "flow_control" in c else False
 								port = c["port"] if "port" in c else None
 								speed = int(c["speed"]) if "speed" in c else 9600
 								databits = int(c["databits"]) if "databits" in c else 8
@@ -286,8 +285,7 @@ class Reticulum:
 								txtail = int(c["txtail"]) if "txtail" in c else None
 								persistence = int(c["persistence"]) if "persistence" in c else None
 								slottime = int(c["slottime"]) if "slottime" in c else None
-								flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
-
+								flow_control = c.as_bool("flow_control") if "flow_control" in c else False
 								port = c["port"] if "port" in c else None
 								speed = int(c["speed"]) if "speed" in c else 9600
 								databits = int(c["databits"]) if "databits" in c else 8
@@ -330,7 +328,9 @@ class Reticulum:
 								txpower = int(c["txpower"]) if "txpower" in c else None
 								spreadingfactor = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
 								codingrate = int(c["codingrate"]) if "codingrate" in c else None
-								flow_control = (True if c["flow_control"] == "true" else False) if "flow_control" in c else False
+								flow_control = c.as_bool("flow_control") if "flow_control" in c else False
+								id_interval = int(c["id_interval"]) if "id_interval" in c else None
+								id_callsign = c["id_callsign"] if "id_callsign" in c else None
 
 								port = c["port"] if "port" in c else None
 								
@@ -341,11 +341,14 @@ class Reticulum:
 									RNS.Transport,
 									name,
 									port,
-									frequency,
-									bandwidth,
-									txpower,
-									spreadingfactor,
-									flow_control
+									frequency = frequency,
+									bandwidth = bandwidth,
+									txpower = txpower,
+									sf = spreadingfactor,
+									cr = codingrate,
+									flow_control = flow_control,
+									id_interval = id_interval,
+									id_callsign = id_callsign
 								)
 
 								if "outgoing" in c and c["outgoing"].lower() == "true":
@@ -355,7 +358,7 @@ class Reticulum:
 
 								RNS.Transport.interfaces.append(interface)
 						else:
-							RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_VERBOSE)
+							RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_NOTICE)
 
 					except Exception as e:
 						RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
@@ -532,6 +535,19 @@ loglevel = 4
     # is 5 throough 8, with 5 being the
     # fastest, and 8 the longest range.
     codingrate = 5
+
+    # You can configure the RNode to send
+    # out identification on the channel with
+    # a set interval by configuring the
+    # following two parameters. The trans-
+    # ceiver will only ID before making an
+    # actual transmission, and if the set
+    # interval has elapsed since it's last
+    # ID. Interval is configured in seconds
+    # This option is commented out and not
+    # used by default.
+    # id_callsign = MYCALL-0
+    # id_interval = 600
 
 
   # An example KISS modem interface. Useful for running
