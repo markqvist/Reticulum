@@ -68,7 +68,6 @@ class RNodeInterface(Interface):
 	FREQ_MAX = 1020000000
 
 	RSSI_OFFSET = 157
-	SNR_OFFSET  = 128
 
 	CALLSIGN_MAX_LEN    = 32
 
@@ -193,6 +192,7 @@ class RNodeInterface(Interface):
 		self.setBandwidth()
 		self.setTXPower()
 		self.setSpreadingFactor()
+		self.setCodingRate()
 		self.setRadioState(KISS.RADIO_STATE_ON)
 
 	def setFrequency(self):
@@ -221,7 +221,6 @@ class RNodeInterface(Interface):
 
 	def setTXPower(self):
 		txp = bytes([self.txpower])
-
 		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_TXPOWER])+txp+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
@@ -229,7 +228,6 @@ class RNodeInterface(Interface):
 
 	def setSpreadingFactor(self):
 		sf = bytes([self.sf])
-
 		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_SF])+sf+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
@@ -237,7 +235,6 @@ class RNodeInterface(Interface):
 
 	def setCodingRate(self):
 		cr = bytes([self.cr])
-
 		kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_CR])+cr+bytes([KISS.FEND])
 		written = self.serial.write(kiss_command)
 		if written != len(kiss_command):
