@@ -270,7 +270,7 @@ class RNodeInterface(Interface):
 
 	def updateBitrate(self):
 		try:
-			self.bitrate = self.r_sf * ( (4.0/self.cr) / (math.pow(2,self.r_sf)/(self.r_bandwidth/1000)) ) * 1000
+			self.bitrate = self.r_sf * ( (4.0/self.r_cr) / (math.pow(2,self.r_sf)/(self.r_bandwidth/1000)) ) * 1000
 			self.bitrate_kbps = round(self.bitrate/1000.0, 2)
 			RNS.log(str(self)+" On-air bitrate is now "+str(self.bitrate_kbps)+ " kbps", RNS.LOG_INFO)
 		except:
