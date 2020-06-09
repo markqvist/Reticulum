@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="rns",
-    version="0.1.4",
+    version="0.1.5",
     author="Mark Qvist",
     author_email="mark@unsigned.io",
     description="Self-configuring, encrypted and resilient mesh networking stack for LoRa, packet radio, WiFi and everything in between",
@@ -19,5 +19,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=['cryptography', 'pyserial'],
-    python_requires='>=3.6',
+    python_requires='>=3.5',
 )
