@@ -3,6 +3,17 @@
 # server and client program. The server will serve a     #
 # directory of files, and the clients can list and       #
 # download files from the server.                        #
+#                                                        #
+# Please note that using RNS Resources for large file    #
+# transfers is not recommended, since compression,       #
+# encryption and hashmap sequencing can take a long time #
+# on systems with slow CPUs, which will probably result  #
+# in the client timing out before the resource sender    #
+# can complete preparing the resource.                   #
+#                                                        #
+# If you need to transfer large files, use the Bundle    #
+# class instead, which will automatically slice the data #
+# into chunks suitable for packing as a Resource.        #
 ##########################################################
 
 import os
