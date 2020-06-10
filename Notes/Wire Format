@@ -5,15 +5,15 @@ Header Types
 type 1          00  Two byte header, one 10 byte address field
 type 2          01  Two byte header, two 10 byte address fields
 type 3          10  Reserved
-type 4          11  Reserved for extended header format
+type 4          11  Reserved
 
 
 Propagation Types
 -----------------
 broadcast       00
 transport       01
-relay           10
-tunnel          11
+reserved        10
+reserved        11
 
 
 Destination Types

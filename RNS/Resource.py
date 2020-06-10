@@ -15,13 +15,25 @@ class Resource:
 	SDU                  = RNS.Packet.MDU
 	RANDOM_HASH_SIZE     = 4
 
+	# This is an indication of what the
+	# maximum size a resource should be, if
+	# it is to be handled within reasonable
+	# time constraint, even on small systems.
+	#
+	# A small system in this regard is
+	# defined as a Raspberry Pi, which should
+	# be able to compress, encrypt and hasmap
+	# the resource in about 10 seconds.
+	MAX_EFFICIENT_SIZE   = 16 * 1024 * 1024
+
 	# The maximum size to auto-compress with
 	# bz2 before sending.
-	AUTO_COMPRESS_MAX_SIZE = 32 * 1024 * 1024
+	AUTO_COMPRESS_MAX_SIZE = MAX_EFFICIENT_SIZE
 
 	# TODO: Should be allocated more
 	# intelligently
-	MAX_RETRIES       = 2
+	# TODO: Set higher
+	MAX_RETRIES       = 5
 	SENDER_GRACE_TIME = 10
 	RETRY_GRACE_TIME  = 0.25
 
@@ -71,6 +83,8 @@ class Resource:
 			resource.hashmap = [None] * resource.total_parts
 			resource.hashmap_height = 0
 			resource.waiting_for_hmu = False
+
+			resource.receiving_part = False
 
 			resource.consecutive_completed_height = 0
 			
@@ -344,14 +358,10 @@ class Resource:
 				sleep(sleep_time)
 
 	def assemble(self):
-		# TODO: Optimise assembly. It's way too
-		# slow for larger files
 		if not self.status == Resource.FAILED:
 			try:
 				self.status = Resource.ASSEMBLING
-				stream = b""
-				for part in self.parts:
-					stream += part
+				stream = b"".join(self.parts)
 
 				if self.encrypted:
 					data = self.link.decrypt(stream)
@@ -412,6 +422,10 @@ class Resource:
 
 
 	def receive_part(self, packet):
+		while self.receiving_part:
+			sleep(0.001)
+
+		self.receiving_part = True
 		self.last_activity = time.time()
 		self.retries_left = self.max_retries
 
@@ -439,13 +453,17 @@ class Resource:
 						self.outstanding_parts -= 1
 
 						# Update consecutive completed pointer
-						if i == 0 or self.parts[i-1] != None and i == self.consecutive_completed_height:
-							self.consecutive_completed_height = i+1
-							cp = i+1
-							while cp < len(self.parts) and self.parts[cp] != None:
-								self.consecutive_completed_height = cp
-								cp += 1
+						if i == self.consecutive_completed_height + 1:
+							self.consecutive_completed_height = i
+						
+						cp = self.consecutive_completed_height + 1
+						while cp < len(self.parts) and self.parts[cp] != None:
+							self.consecutive_completed_height = cp
+							cp += 1
+
 				i += 1
+
+			self.receiving_part = False
 
 			if self.__progress_callback != None:
 				self.__progress_callback(self)
@@ -453,7 +471,7 @@ class Resource:
 			if self.outstanding_parts == 0 and self.received_count == self.total_parts:
 				self.assemble()
 			elif self.outstanding_parts == 0:
-				# TODO: Figure out if ther is a mathematically
+				# TODO: Figure out if there is a mathematically
 				# optimal way to adjust windows
 				if self.window < self.window_max:
 					self.window += 1
@@ -461,18 +479,25 @@ class Resource:
 						self.window_min += 1
 
 				self.request_next()
+		else:
+			self.receiving_part = False
 
 	# Called on incoming resource to send a request for more data
 	def request_next(self):
+		while self.receiving_part:
+			sleep(0.001)
+
 		if not self.status == Resource.FAILED:
 			if not self.waiting_for_hmu:
 				self.outstanding_parts = 0
 				hashmap_exhausted = Resource.HASHMAP_IS_NOT_EXHAUSTED
 				requested_hashes = b""
 
-				i = 0; pn = self.consecutive_completed_height
-				for part in self.parts[self.consecutive_completed_height:self.consecutive_completed_height+self.window]:
-					
+				offset = (1 if self.consecutive_completed_height > 0 else 0)
+				i = 0; pn = self.consecutive_completed_height+offset
+				search_start = pn
+
+				for part in self.parts[search_start:search_start+self.window]:
 					if part == None:
 						part_hash = self.hashmap[pn]
 						if part_hash != None:
@@ -622,7 +647,6 @@ class Resource:
 
 
 class ResourceAdvertisement:
-	# TODO: Can this be allocated dynamically? Keep in mind hashmap_update inference
 	HASHMAP_MAX_LEN      = 84
 	COLLISION_GUARD_SIZE = 2*Resource.WINDOW_MAX+HASHMAP_MAX_LEN
 

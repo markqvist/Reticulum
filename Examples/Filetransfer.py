@@ -20,7 +20,7 @@ import RNS.vendor.umsgpack as umsgpack
 APP_NAME = "example_utilitites"
 
 # We'll also define a default timeout, in seconds
-APP_TIMEOUT = 15.0
+APP_TIMEOUT = 45.0
 
 ##########################################################
 #### Server Part #########################################
