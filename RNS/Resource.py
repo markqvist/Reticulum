@@ -22,7 +22,7 @@ class Resource:
 	#
 	# A small system in this regard is
 	# defined as a Raspberry Pi, which should
-	# be able to compress, encrypt and hasmap
+	# be able to compress, encrypt and hashmap
 	# the resource in about 10 seconds.
 	MAX_EFFICIENT_SIZE   = 16 * 1024 * 1024
 

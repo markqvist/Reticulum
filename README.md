@@ -9,6 +9,20 @@ No kernel modules or drivers are required. Reticulum runs completely in userland
 
 For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects/reticulum/)
 
+## Notable Features
+ - Coordination-less globally unique adressing and identification
+ - Fully self-configuring multi-hop routing
+ - Asymmetric RSA encryption and signatures as basis for all communication
+ - Perfect Forward Secrecy on links with ephemereal Elliptic Curve Diffie-Hellman keys (on the SECP256R1 curve)
+ - Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for encryption to group destinations and on links
+    - AES-128 in CBC mode with PKCS7 padding
+    - HMAC using SHA256 for authentication
+    - IVs are generated through os.urandom()
+ - Unforgeable packet delivery confirmations
+ - A variety of supported interface types
+ - Efficient and easy resource transfers
+ - A simple and easy-to-use API
+
 ## Where can Reticulum be used?
 On practically any hardware that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.
 
@@ -23,19 +37,6 @@ Consider Reticulum experimental at this stage. Most features are implemented and
 
 An API- and wireformat-stable alpha release is coming in the near future. Until then expect things to change unexpectedly if something warrants it.
 
-## What is implemented at this point?
- - Adressing and identification
- - Fully self-configuring multi-hop routing
- - RSA assymetric encryption and signatures as basis for all communication
- - AES-128 symmetric encryption for group destinations
- - Elliptic curve encryption for links (on the SECP256R1 curve)
- - Perfect Forward Secrecy on links with ephemereal ECDH keys
- - Unforgeable packet delivery confirmations
- - A variety of supported interface types
- - Efficient and easy resource transfers
- - A simple and easy-to-use API
- - Some basic programming examples
-
 ## Supported interface types and devices
 
 Reticulum implements a range of generalised interface types that covers most of the communications hardware that Reticulum can run over. If your hardware is not supported, it's relatively simple to implement an interface class. Currently, the following interfaces are supported:
@@ -48,10 +49,10 @@ Reticulum implements a range of generalised interface types that covers most of 
  - UDP over IP networks
 
 ## What is currently being worked on?
- - Delay/disruption tolerant bundle transfers
- - Useful example programs and utilities
+ - Delay/disruption tolerance
  - API documentation
- - A messaging protocol built on Reticulum, see [LXMF](https://github.com/markqvist/lxmf)
+ - Useful example programs and utilities
+ - A generic message transfer protocol built on Reticulum, see [LXMF](https://github.com/markqvist/lxmf)
  - A few useful-in-the-real-world apps built with Reticulum
 
 ## Can I use Reticulum on amateur radio spectrum?

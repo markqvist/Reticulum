@@ -437,6 +437,7 @@ class Link:
 		if self.__encryption_disabled:
 			return plaintext
 		try:
+			# TODO: Optimise this re-allocation
 			fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
 			ciphertext = base64.urlsafe_b64decode(fernet.encrypt(plaintext))
 			return ciphertext
