@@ -176,14 +176,22 @@ def list_timeout(receipt):
 ##########################################################
 
 # We store a global list of files available on the server
-server_files = []
+server_files      = []
 
 # A reference to the server link
-server_link = None
+server_link       = None
 
 # And a reference to the current download
-current_download = None
-current_filename = None
+current_download  = None
+current_filename  = None
+
+# Variables to store download statistics
+download_started  = 0
+download_finished = 0
+download_time     = 0
+transfer_size     = 0
+file_size         = 0
+
 
 # This initialisation is executed when the users chooses
 # to run as a client
@@ -303,7 +311,7 @@ def menu():
 # I won't go into detail here. Just
 # strings basically.
 def print_menu():
-	global menu_mode
+	global menu_mode, download_time, download_started, download_finished, transfer_size, file_size
 
 	if menu_mode == "main":
 		clear_screen()
@@ -342,8 +350,22 @@ def print_menu():
 		if current_download.status == RNS.Resource.COMPLETE:
 			print(("\rProgress: 100.0 %"), end=' ')
 			sys.stdout.flush()
+
+			# Print statistics
+			hours, rem = divmod(download_time, 3600)
+			minutes, seconds = divmod(rem, 60)
+			timestring = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds)
+			print("")
+			print("")
+			print("--- Statistics -----")
+			print("\tTime taken       : "+timestring)
+			print("\tFile size        : "+size_str(file_size))
+			print("\tData transferred : "+size_str(transfer_size))
+			print("\tEffective rate   : "+size_str(file_size/download_time, suffix='b')+"/s")
+			print("\tTransfer rate    : "+size_str(transfer_size/download_time, suffix='b')+"/s")
 			print("")
 			print("The download completed! Press enter to return to the menu.")
+			print("")
 			input()
 
 		else:
@@ -434,16 +456,25 @@ def link_closed(link):
 # so the user can be shown a progress of
 # the download.
 def download_began(resource):
-	global menu_mode, current_download
+	global menu_mode, current_download, download_started, transfer_size, file_size
 	current_download = resource
+	
+	download_started = time.time()
+	transfer_size = resource.size
+	file_size = resource.uncompressed_size
+
 	menu_mode = "downloading"
 
 # When the download concludes, successfully
 # or not, we'll update our menu state and 
 # inform the user about how it all went.
 def download_concluded(resource):
-	global menu_mode, current_filename
+	global menu_mode, current_filename, download_started, download_finished, download_time
+	download_finished = time.time()
+	download_time = download_finished - download_started
+
 	saved_filename = current_filename
+
 
 	if resource.status == RNS.Resource.COMPLETE:
 		counter = 0
@@ -461,6 +492,22 @@ def download_concluded(resource):
 	else:
 		menu_mode = "download_concluded"
 
+# A convenience function for printing a human-
+# readable file size
+def size_str(num, suffix='B'):
+	units = ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']
+	last_unit = 'Yi'
+
+	if suffix == 'b':
+		num *= 8
+		units = ['','K','M','G','T','P','E','Z']
+		last_unit = 'Y'
+
+	for unit in units:
+		if abs(num) < 1024.0:
+			return "%3.2f %s%s" % (num, unit, suffix)
+		num /= 1024.0
+	return "%.2f %s%s" % (num, last_unit, suffix)
 
 # A convenience function for clearing the screen
 def clear_screen():
