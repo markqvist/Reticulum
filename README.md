@@ -1,9 +1,11 @@
 Reticulum Network Stack α
 ==========
 
-Reticulum is a cryptography-based networking stack for high-latency, wide-area networks built on readily available hardware. Reticulum allows you to build very wide-area networks with off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, resource caching, unforgeable packet acknowledgements and much more.
+Reticulum is a cryptography-based networking stack for high-latency, wide-area networks built on readily available hardware. Reticulum allows you to build very wide-area networks with off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable packet acknowledgements and more.
 
-Reticulum is a complete networking stack, and does not use IP or higher layers, although it can be easily tunnelled through conventional IP networks. This frees up overhead, that has been utilised to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.
+Reticulum is a complete networking stack, and does not use IP or higher layers, although it is easy to utilise IP (with TCP or UDP) as the underlying carrier for Reticulum.
+
+Having no dependencies on traditional networking stacks free up overhead that has been utilised to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.
 
 No kernel modules or drivers are required. Reticulum runs completely in userland, and can run on practically any system that runs Python 3.
 
@@ -14,14 +16,14 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
  - Fully self-configuring multi-hop routing
  - Asymmetric RSA encryption and signatures as basis for all communication
  - Perfect Forward Secrecy on links with ephemereal Elliptic Curve Diffie-Hellman keys (on the SECP256R1 curve)
- - Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for encryption to group destinations and on links
+ - Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for encryption on links and to group destinations
     - AES-128 in CBC mode with PKCS7 padding
     - HMAC using SHA256 for authentication
     - IVs are generated through os.urandom()
  - Unforgeable packet delivery confirmations
  - A variety of supported interface types
  - Efficient and easy resource transfers
- - A simple and easy-to-use API
+ - An intuitive and easy-to-use API
 
 ## Where can Reticulum be used?
 On practically any hardware that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.

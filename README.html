@@ -1056,8 +1056,9 @@ body .markdown-body
 .codehilite .il{color:#009999}
 .codehilite .gc{color:#999;background-color:#EAF2F5}
 </style><title>README</title></head><body><article class="markdown-body"><h1 id="reticulum-network-stack">Reticulum Network Stack α<a class="headerlink" href="#reticulum-network-stack" title="Permanent link"></a></h1>
-<p>Reticulum is a cryptography-based networking stack for high-latency, wide-area networks built on readily available hardware. Reticulum allows you to build very wide-area networks with off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, resource caching, unforgeable packet acknowledgements and much more.</p>
-<p>Reticulum is a complete networking stack, and does not use IP or higher layers, although it can be easily tunnelled through conventional IP networks. This frees up overhead, that has been utilised to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.</p>
+<p>Reticulum is a cryptography-based networking stack for high-latency, wide-area networks built on readily available hardware. Reticulum allows you to build very wide-area networks with off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable packet acknowledgements and more.</p>
+<p>Reticulum is a complete networking stack, and does not use IP or higher layers, although it is easy to utilise IP (with TCP or UDP) as the underlying carrier for Reticulum.</p>
+<p>Having no dependencies on traditional networking stacks free up overhead that has been utilised to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.</p>
 <p>No kernel modules or drivers are required. Reticulum runs completely in userland, and can run on practically any system that runs Python 3.</p>
 <p>For more info, see <a href="https://unsigned.io/projects/reticulum/">unsigned.io/projects/reticulum</a></p>
 <h2 id="notable-features">Notable Features<a class="headerlink" href="#notable-features" title="Permanent link"></a></h2>
@@ -1066,7 +1067,7 @@ body .markdown-body
 <li>Fully self-configuring multi-hop routing</li>
 <li>Asymmetric RSA encryption and signatures as basis for all communication</li>
 <li>Perfect Forward Secrecy on links with ephemereal Elliptic Curve Diffie-Hellman keys (on the SECP256R1 curve)</li>
-<li>Reticulum uses the <a href="https://github.com/fernet/spec/blob/master/Spec.md">Fernet</a> specification for encryption to group destinations and on links<ul>
+<li>Reticulum uses the <a href="https://github.com/fernet/spec/blob/master/Spec.md">Fernet</a> specification for encryption on links and to group destinations<ul>
 <li>AES-128 in CBC mode with PKCS7 padding</li>
 <li>HMAC using SHA256 for authentication</li>
 <li>IVs are generated through os.urandom()</li>
@@ -1075,7 +1076,7 @@ body .markdown-body
 <li>Unforgeable packet delivery confirmations</li>
 <li>A variety of supported interface types</li>
 <li>Efficient and easy resource transfers</li>
-<li>A simple and easy-to-use API</li>
+<li>An intuitive and easy-to-use API</li>
 </ul>
 <h2 id="where-can-reticulum-be-used">Where can Reticulum be used?<a class="headerlink" href="#where-can-reticulum-be-used" title="Permanent link"></a></h2>
 <p>On practically any hardware that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.</p>

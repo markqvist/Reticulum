@@ -22,7 +22,7 @@ class Resource:
 	#
 	# A small system in this regard is
 	# defined as a Raspberry Pi, which should
-	# be able to compress, encrypt and hashmap
+	# be able to compress, encrypt and hash-map
 	# the resource in about 10 seconds.
 	MAX_EFFICIENT_SIZE   = 16 * 1024 * 1024
 
@@ -308,7 +308,7 @@ class Resource:
 
 					if sleep_time < 0:
 						if self.retries_left > 0:
-							RNS.log("Timeout waiting for parts, requesting retry", RNS.LOG_DEBUG)
+							RNS.log("Timed out waiting for parts, requesting retry", RNS.LOG_DEBUG)
 							if self.window > self.window_min:
 								self.window -= 1
 								if self.window_max > self.window_min:
@@ -344,7 +344,7 @@ class Resource:
 						expected_data = self.hash + self.expected_proof
 						expected_proof_packet = RNS.Packet(self.link, expected_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.RESOURCE_PRF)
 						expected_proof_packet.pack()
-						RNS.Transport.cache_request(expected_proof_packet.packet_hash)
+						RNS.Transport.cache_request(expected_proof_packet.packet_hash, self.link)
 						self.last_part_sent = time.time()
 						sleep_time = 0.001
 

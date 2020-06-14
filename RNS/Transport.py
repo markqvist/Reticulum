@@ -338,7 +338,7 @@ class Transport:
 					new_raw += Transport.destination_table[packet.destination_hash][1]
 					new_raw += packet.raw[2:]
 					# TODO: Remove at some point
-					RNS.log("Packet was inserted into transport via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_EXTREME)
+					# RNS.log("Packet was inserted into transport via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_EXTREME)
 					outbound_interface.processOutgoing(new_raw)
 					Transport.destination_table[packet.destination_hash][0] = time.time()
 					sent = True
@@ -359,7 +359,7 @@ class Transport:
 					new_raw += Transport.destination_table[packet.destination_hash][1]
 					new_raw += packet.raw[2:]
 					# TODO: Remove at some point
-					RNS.log("Packet was inserted into transport via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_EXTREME)
+					# RNS.log("Packet was inserted into transport via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_EXTREME)
 					outbound_interface.processOutgoing(new_raw)
 					Transport.destination_table[packet.destination_hash][0] = time.time()
 					sent = True
@@ -416,6 +416,7 @@ class Transport:
 		Transport.jobs_locked = False
 		return sent
 
+	
 	@staticmethod
 	def packet_filter(packet):
 		# TODO: Think long and hard about this.
@@ -429,8 +430,11 @@ class Transport:
 			return True
 		if packet.context == RNS.Packet.RESOURCE:
 			return True
+		if packet.context == RNS.Packet.CACHE_REQUEST:
+			return True
 		if packet.destination_type == RNS.Destination.PLAIN:
 			return True
+
 		if not packet.packet_hash in Transport.packet_hashlist:
 			return True
 		else:
@@ -455,9 +459,6 @@ class Transport:
 		RNS.log(str(interface)+" received packet with hash "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_EXTREME)
 
 		if len(Transport.local_client_interfaces) > 0:
-			new_raw  = packet.raw[0:1]
-			new_raw += struct.pack("!B", packet.hops)
-			new_raw += packet.raw[2:]
 
 			if Transport.is_local_client_interface(interface):
 				packet.hops -= 1
@@ -506,10 +507,19 @@ class Transport:
 				# shared instance, so they look directly reach-
 				# able), and reinsert, so the normal transport
 				# implementation can handle the packet.
-
 				if packet.transport_id == None and for_local_client:
 					packet.transport_id = Transport.identity.hash
 
+				# If this is a cache request, and we can fullfill
+				# it, do so and stop processing. Otherwise resume
+				# normal processing.
+				if packet.context == RNS.Packet.CACHE_REQUEST:
+					if Transport.cache_request_packet(packet):
+						return
+
+				# If the packet is in transport, check whether we
+				# are the designated next hop, and process it
+				# accordingly if we are.
 				if packet.transport_id != None and packet.packet_type != RNS.Packet.ANNOUNCE:
 					if packet.transport_id == Transport.identity.hash:
 						RNS.log("Received packet in transport for "+RNS.prettyhexrep(packet.destination_hash)+" with matching transport ID, transporting it...", RNS.LOG_DEBUG)
@@ -563,10 +573,8 @@ class Transport:
 						else:
 							# TODO: There should probably be some kind of REJECT
 							# mechanism here, to signal to the source that their
-							# expected path failed
+							# expected path failed.
 							RNS.log("Got packet in transport, but no known path to final destination. Dropping packet.", RNS.LOG_DEBUG)
-					else:
-						pass
 
 				# Link transport handling. Directs packets according
 				# to entries in the link tables
@@ -872,10 +880,8 @@ class Transport:
 
 	@staticmethod
 	def shouldCache(packet):
-		# TODO: Implement sensible rules for which
-		# packets to cache
-		#if packet.context == RNS.Packet.RESOURCE_PRF:
-		#	return True
+		if packet.context == RNS.Packet.RESOURCE_PRF:
+			return True
 
 		return False
 
@@ -889,10 +895,14 @@ class Transport:
 		if RNS.Transport.shouldCache(packet) or force_cache:
 			try:
 				packet_hash = RNS.hexrep(packet.getHash(), delimit=False)
-				file = open(RNS.Reticulum.cachepath+"/"+packet_hash, "wb")
-				file.write(packet.raw)
+				interface_reference = None
+				if packet.receiving_interface != None:
+					interface_reference = str(packet.receiving_interface)
+
+				file = open(RNS.Reticulum.cachepath+"/"+packet_hash, "wb")	
+				file.write(umsgpack.packb([packet.raw, interface_reference]))
 				file.close()
-				RNS.log("Wrote packet "+packet_hash+" to cache", RNS.LOG_EXTREME)
+
 			except Exception as e:
 				RNS.log("Error writing packet to cache", RNS.LOG_ERROR)
 				RNS.log("The contained exception was: "+str(e))
@@ -902,11 +912,19 @@ class Transport:
 		try:
 			packet_hash = RNS.hexrep(packet_hash, delimit=False)
 			path = RNS.Reticulum.cachepath+"/"+packet_hash
+
 			if os.path.isfile(path):
 				file = open(path, "rb")
-				raw = file.read()
+				cached_data = umsgpack.unpackb(file.read())
 				file.close()
-				packet = RNS.Packet(None, raw)
+
+				packet = RNS.Packet(None, cached_data[0])
+				interface_reference = cached_data[1]
+
+				for interface in Transport.interfaces:
+					if str(interface) == interface_reference:
+						packet.receiving_interface = interface
+
 				return packet
 			else:
 				return None
@@ -914,33 +932,34 @@ class Transport:
 			RNS.log("Exception occurred while getting cached packet.", RNS.LOG_ERROR)
 			RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
 
-	# TODO: Implement cache requests. Needs methodology
-	# rethinking. This is skeleton code.
 	@staticmethod
 	def cache_request_packet(packet):
 		if len(packet.data) == RNS.Identity.HASHLENGTH/8:
-			packet_hash = RNS.hexrep(packet.data, delimit=False)
-			packet = Transport.get_cached_packet(packet_hash)
+			packet = Transport.get_cached_packet(packet.data)
 
 			if packet != None:
-				# TODO: Implement outbound for this
-				pass
+				# If the packet was retrieved from the local
+				# cache, replay it to the Transport instance,
+				# so that it can be directed towards it original
+				# destination.
+				Transport.inbound(packet.raw, packet.receiving_interface)
+				return True
 			else:
-				pass
-
-	# TODO: Implement cache requests. Needs methodology
-	# rethinking. This is skeleton code.
-	@staticmethod
-	def cache_request(packet_hash):
-		RNS.log("Cache request for "+RNS.prettyhexrep(packet_hash), RNS.LOG_EXTREME)
-		path = RNS.Reticulum.cachepath+"/"+RNS.hexrep(packet_hash, delimit=False)
-		if os.path.isfile(path):
-			file = open(path, "rb")
-			raw = file.read()
-			Transport.inbound(raw)
-			file.close()
+				return False
 		else:
-			cache_request_packet = RNS.Packet(Transport.transport_destination(), packet_hash, context = RNS.Packet.CACHE_REQUEST)
+			return False
+
+	@staticmethod
+	def cache_request(packet_hash, destination):
+		cached_packet = Transport.get_cached_packet(packet_hash)
+		if cached_packet:
+			# The packet was found in the local cache,
+			# replay it to the Transport instance.
+			Transport.inbound(packet.raw, packet.receiving_interface)
+		else:
+			# The packet is not in the local cache,
+			# query the network.
+			RNS.Packet(destination, packet_hash, context = RNS.Packet.CACHE_REQUEST).send()
 
 	@staticmethod
 	def hasPath(destination_hash):
@@ -1025,13 +1044,6 @@ class Transport:
 
 		else:
 			RNS.log("No known path to requested destination, ignoring request", RNS.LOG_DEBUG)
-
-	# TODO: Currently only used for cache requests.
-	# Needs rethink.
-	@staticmethod
-	def transport_destination():
-		# TODO: implement this
-		pass
 
 	@staticmethod
 	def from_local_client(packet):

@@ -89,6 +89,7 @@ class Packet:
 		self.packet_hash = None
 
 		self.attached_interface = attached_interface
+		self.receiving_interface = None
 
 	def getPackedFlags(self):
 		if self.context == Packet.LRPROOF:
@@ -127,9 +128,12 @@ class Packet:
 					# Keepalive packets contain no actual
 					# data
 					self.ciphertext = self.data
+				elif self.context == Packet.CACHE_REQUEST:
+					# Cache-requests are not encrypted
+					self.ciphertext = self.data
 				else:
 					# In all other cases, we encrypt the packet
-					# with the destination's public key
+					# with the destination's encryption method
 					self.ciphertext = self.destination.encrypt(self.data)
 
 			if self.header_type == Packet.HEADER_2:
