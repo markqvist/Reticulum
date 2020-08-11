@@ -79,10 +79,11 @@ class Identity:
 
 	@staticmethod
 	def truncatedHash(data):
-		digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
-		digest.update(data)
+		# TODO: Remove
+		# digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
+		# digest.update(data)
 
-		return digest.finalize()[:(Identity.TRUNCATED_HASHLENGTH//8)]
+		return Identity.fullHash(data)[:(Identity.TRUNCATED_HASHLENGTH//8)]
 
 	@staticmethod
 	def getRandomHash():
