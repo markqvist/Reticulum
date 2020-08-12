@@ -33,28 +33,32 @@ class Transport:
 
 	# TODO: Calculate an optimal number for this in
 	# various situations
-	LOCAL_REBROADCASTS_MAX = 2	# How many local rebroadcasts of an announce is allowed
+	LOCAL_REBROADCASTS_MAX = 2	      # How many local rebroadcasts of an announce is allowed
 
-	PATH_REQUEST_GRACE  = 0.35       # Grace time before a path announcement is made, allows directly reachable peers to respond first
-	PATH_REQUEST_RW     = 2 		 # Path request random window
+	PATH_REQUEST_GRACE  = 0.35        # Grace time before a path announcement is made, allows directly reachable peers to respond first
+	PATH_REQUEST_RW     = 2 		  # Path request random window
 
 	LINK_TIMEOUT         = RNS.Link.KEEPALIVE * 2
-	REVERSE_TIMEOUT      = 30*60		 # Reverse table entries are removed after max 30 minutes
+	REVERSE_TIMEOUT      = 30*60	  # Reverse table entries are removed after max 30 minutes
 	DESTINATION_TIMEOUT  = 60*60*24*7 # Destination table entries are removed if unused for one week
 	MAX_RECEIPTS         = 1024       # Maximum number of receipts to keep track of
 
-	interfaces	 	     = []		 # All active interfaces
-	destinations         = []		 # All active destinations
-	pending_links        = []		 # Links that are being established
-	active_links	     = []		 # Links that are active
-	packet_hashlist      = []		 # A list of packet hashes for duplicate detection
-	receipts		     = []		 # Receipts of all outgoing packets for proof processing
+	BUNDLE_TIMEOUT       = 60*60*24*7 # Bundles time out after 7 days
+	BUNDLE_INTERVAL      = 180        # How often we should attempt to transfer bundles to their next hop
+
+	interfaces	 	     = []		  # All active interfaces
+	destinations         = []		  # All active destinations
+	pending_links        = []		  # Links that are being established
+	active_links	     = []		  # Links that are active
+	packet_hashlist      = []		  # A list of packet hashes for duplicate detection
+	receipts		     = []		  # Receipts of all outgoing packets for proof processing
 
 	# TODO: "destination_table" should really be renamed to "path_table"
 	announce_table       = {}         # A table for storing announces currently waiting to be retransmitted
 	destination_table    = {}         # A lookup table containing the next hop to a given destination
 	reverse_table	     = {}         # A lookup table for storing packet hashes used to return proofs and replies
 	link_table           = {}         # A lookup table containing hops for links
+	bundle_table         = {}         # A table for holding references to bundles in transport
 	held_announces       = {}         # A table containing temporarily held announce-table entries
 
 	# Transport control destinations are used
@@ -107,9 +111,16 @@ class Transport:
 
 		# Create transport-specific destinations
 		Transport.path_request_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
-		Transport.path_request_destination.packet_callback(Transport.pathRequestHandler)
+		Transport.path_request_destination.packet_callback(Transport.path_request_handler)
+		
+		Transport.bundle_advertisement_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "bundle", "advertisement", )
+		Transport.bundle_advertisement_destination.packet_callback(Transport.bundle_advertisement_handler)
+
 		Transport.control_destinations.append(Transport.path_request_destination)
 		Transport.control_hashes.append(Transport.path_request_destination.hash)
+
+		Transport.control_destinations.append(Transport.bundle_advertisement_destination)
+		Transport.control_hashes.append(Transport.bundle_advertisement_destination.hash)
 		
 		thread = threading.Thread(target=Transport.jobloop)
 		thread.setDaemon(True)
@@ -300,6 +311,8 @@ class Transport:
 
 					Transport.tables_last_culled = time.time()
 
+			Transport.bundle_jobs()
+
 		except Exception as e:
 			RNS.log("An exception occurred while running Transport jobs.", RNS.LOG_ERROR)
 			RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -309,6 +322,35 @@ class Transport:
 
 		for packet in outgoing:
 			packet.send()
+
+	@staticmethod
+	def bundle_jobs():
+		removed_bundles = []
+		for bundle in Transport.bundle_table:
+			# The bundle could not be passed on within the allowed
+			# time, and should be removed from storage
+			if bundle.heartbeat+Transport.BUNDLE_TIMEOUT < time.time():
+				RNS.log("Removing stale bundle "+RNS.prettyhexrep(bundle.id)+" from storage", RNS.LOG_VERBOSE)
+				removed_bundles.append(bundle)
+				bundle.remove()
+
+			# Custody was transferred to another node, we'll remove the bundle
+			if bundle.state == RNS.Bundle.NO_CUSTODY:
+				RNS.log("Removing bundle "+RNS.prettyhexrep(bundle.id)+" from storage since custody was transferred", RNS.LOG_VERBOSE)
+				removed_bundles.append(bundle)
+				bundle.remove()
+
+			# This is an incoming bundle, attempt to retrieve it
+			if bundle.state == RNS.Bundle.TAKING_CUSTODY:
+				pass
+
+			# We have custody over this bundle, and we should attempt
+			# to deliver it to it's next hop.
+			if bundle.state == RNS.Bundle.FULL_CUSTODY:
+				pass
+
+		for bundle in removed_bundles:
+			Transport.bundle_table.remove(bundle)
 
 	@staticmethod
 	def outbound(packet):
@@ -853,6 +895,11 @@ class Transport:
 			Transport.destinations.append(destination)
 
 	@staticmethod
+	def deregister_destination(destination):
+		if destination in Transport.destinations:
+			Transport.destinations.remove(destination)
+
+	@staticmethod
 	def registerLink(link):
 		RNS.log("Registering link "+str(link), RNS.LOG_DEBUG)
 		if link.initiator:
@@ -869,6 +916,11 @@ class Transport:
 			link.status = RNS.Link.ACTIVE
 		else:
 			RNS.log("Attempted to activate a link that was not in the pending table", RNS.LOG_ERROR)
+
+	@staticmethod
+	def register_bundle(bundle):
+		RNS.log("Transport instance registered bundle "+RNS.prettyhexrep(bundle.id), RNS.LOG_DEBUG)
+		self.bundle_table.append(bundle)
 
 	@staticmethod
 	def find_interface_from_hash(interface_hash):
@@ -983,13 +1035,17 @@ class Transport:
 		packet.send()
 
 	@staticmethod
-	def pathRequestHandler(data, packet):
+	def path_request_handler(data, packet):
 		if len(data) >= RNS.Identity.TRUNCATED_HASHLENGTH//8:
 			Transport.pathRequest(
 				data[:RNS.Identity.TRUNCATED_HASHLENGTH//8],
 				Transport.from_local_client(packet),
 				packet.receiving_interface
 			)
+
+	@staticmethod
+	def bundle_advertisement_handler(data, packet):
+		pass
 
 	@staticmethod
 	def pathRequest(destination_hash, is_from_local_client, attached_interface):
