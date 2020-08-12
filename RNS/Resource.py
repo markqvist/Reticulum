@@ -9,12 +9,12 @@ from time import sleep
 
 class Resource:
 	WINDOW_FLEXIBILITY   = 4
-	WINDOW_MIN           = 1
-	WINDOW_MAX           = 10
-	WINDOW               = 4
-	MAPHASH_LEN          = 4
-	SDU                  = RNS.Packet.MDU
-	RANDOM_HASH_SIZE     = 4
+	WINDOW_MIN		   = 1
+	WINDOW_MAX		   = 10
+	WINDOW			   = 4
+	MAPHASH_LEN		  = 4
+	SDU				  = RNS.Packet.MDU
+	RANDOM_HASH_SIZE	 = 4
 
 	# This is an indication of what the
 	# maximum size a resource should be, if
@@ -34,7 +34,7 @@ class Resource:
 	# TODO: Should be allocated more
 	# intelligently
 	# TODO: Set higher
-	MAX_RETRIES       = 5
+	MAX_RETRIES	   = 5
 	SENDER_GRACE_TIME = 10
 	RETRY_GRACE_TIME  = 0.25
 
@@ -47,7 +47,7 @@ class Resource:
 	ADVERTISED 		= 0x02
 	TRANSFERRING	= 0x03
 	AWAITING_PROOF  = 0x04
-	ASSEMBLING      = 0x05
+	ASSEMBLING	  = 0x05
 	COMPLETE		= 0x06
 	FAILED			= 0x07
 	CORRUPT			= 0x08
@@ -60,31 +60,31 @@ class Resource:
 			resource = Resource(None, advertisement_packet.link)
 			resource.status = Resource.TRANSFERRING
 
-			resource.flags               = adv.f
-			resource.size                = adv.t
+			resource.flags			   = adv.f
+			resource.size				= adv.t
 			resource.uncompressed_size   = adv.d
-			resource.hash                = adv.h
-			resource.original_hash       = adv.o
-			resource.random_hash         = adv.r
-			resource.hashmap_raw         = adv.m
-			resource.encrypted           = True if resource.flags & 0x01 else False
-			resource.compressed          = True if resource.flags >> 1 & 0x01 else False
-			resource.initiator           = False
-			resource.callback		     = callback
+			resource.hash				= adv.h
+			resource.original_hash	   = adv.o
+			resource.random_hash		 = adv.r
+			resource.hashmap_raw		 = adv.m
+			resource.encrypted		   = True if resource.flags & 0x01 else False
+			resource.compressed		  = True if resource.flags >> 1 & 0x01 else False
+			resource.initiator		   = False
+			resource.callback			 = callback
 			resource.__progress_callback = progress_callback
-			resource.total_parts	     = int(math.ceil(resource.size/float(Resource.SDU)))
-			resource.received_count      = 0
+			resource.total_parts		 = int(math.ceil(resource.size/float(Resource.SDU)))
+			resource.received_count	  = 0
 			resource.outstanding_parts   = 0
-			resource.parts			     = [None] * resource.total_parts
-			resource.window 		     = Resource.WINDOW
-			resource.window_max          = Resource.WINDOW_MAX
-			resource.window_min          = Resource.WINDOW_MIN
+			resource.parts				 = [None] * resource.total_parts
+			resource.window 			 = Resource.WINDOW
+			resource.window_max		  = Resource.WINDOW_MAX
+			resource.window_min		  = Resource.WINDOW_MIN
 			resource.window_flexibility  = Resource.WINDOW_FLEXIBILITY
-			resource.last_activity       = time.time()
+			resource.last_activity	   = time.time()
 
-			resource.storagepath         = RNS.Reticulum.resourcepath+"/"+resource.original_hash.hex()
-			resource.segment_index       = adv.i
-			resource.total_segments      = adv.l
+			resource.storagepath		 = RNS.Reticulum.resourcepath+"/"+resource.original_hash.hex()
+			resource.segment_index	   = adv.i
+			resource.total_segments	  = adv.l
 			if adv.l > 1:
 				resource.split = True
 			else:
@@ -126,15 +126,15 @@ class Resource:
 			if data_size <= Resource.MAX_EFFICIENT_SIZE:
 				self.total_segments = 1
 				self.segment_index  = 1
-				self.split          = False
+				self.split		  = False
 				resource_data = data.read()
 				data.close()
 			else:
 				self.total_segments = ((data_size-1)//Resource.MAX_EFFICIENT_SIZE)+1
 				self.segment_index  = segment_index
-				self.split          = True
-				seek_index          = segment_index-1
-				seek_position       = seek_index*Resource.MAX_EFFICIENT_SIZE
+				self.split		  = True
+				seek_index		  = segment_index-1
+				seek_position	   = seek_index*Resource.MAX_EFFICIENT_SIZE
 
 				data.seek(seek_position)
 				resource_data = data.read(Resource.MAX_EFFICIENT_SIZE)
@@ -145,7 +145,7 @@ class Resource:
 			resource_data = data
 			self.total_segments = 1
 			self.segment_index  = 1
-			self.split          = False
+			self.split		  = False
 
 		elif data == None:
 			pass
@@ -172,8 +172,8 @@ class Resource:
 		self.receiver_min_consecutive_height = 0
 
 		if data != None:
-			self.initiator         = True
-			self.callback          = callback
+			self.initiator		 = True
+			self.callback		  = callback
 			self.uncompressed_data = data
 
 			compression_began = time.time()
@@ -228,14 +228,14 @@ class Resource:
 				hashmap_computation_began = time.time()
 				RNS.log("Starting resource hashmap computation with "+str(hashmap_entries)+" entries...", RNS.LOG_DEBUG)
 
-				self.random_hash       = RNS.Identity.getRandomHash()[:Resource.RANDOM_HASH_SIZE]
+				self.random_hash	   = RNS.Identity.getRandomHash()[:Resource.RANDOM_HASH_SIZE]
 				self.hash = RNS.Identity.fullHash(data+self.random_hash)
 				self.expected_proof = RNS.Identity.fullHash(data+self.hash)
 
 				if original_hash == None:
-				    self.original_hash = self.hash
+					self.original_hash = self.hash
 				else:
-				    self.original_hash = original_hash
+					self.original_hash = original_hash
 
 				self.parts  = []
 				self.hashmap = b""
@@ -717,21 +717,19 @@ class Resource:
 
 	def progress(self):
 		if self.initiator:
-		    # TODO: Remove
-			# progress = self.sent_parts / len(self.parts)
 			self.processed_parts  = (self.segment_index-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)
 			self.processed_parts += self.sent_parts
 			self.progress_total_parts = float(self.grand_total_parts)
-        else:
-            self.processed_parts  = (self.segment_index-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)			
-		    self.processed_parts += self.received_count
-            if self.split:
-                self.progress_total_parts = float((self.total_segments-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)+self.total_parts)
-            else:
-                self.progress_total_parts = float(self.total_parts)
+		else:
+			self.processed_parts  = (self.segment_index-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)			
+			self.processed_parts += self.received_count
+			if self.split:
+				self.progress_total_parts = float((self.total_segments-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)+self.total_parts)
+			else:
+				self.progress_total_parts = float(self.total_parts)
 
-	    
-	    progress = self.processed_parts / self.progress_total_parts
+		
+		progress = self.processed_parts / self.progress_total_parts
 		return progress
 
 	def __str__(self):
@@ -739,23 +737,23 @@ class Resource:
 
 
 class ResourceAdvertisement:
-	HASHMAP_MAX_LEN      = 75
+	HASHMAP_MAX_LEN	  = 75
 	COLLISION_GUARD_SIZE = 2*Resource.WINDOW_MAX+HASHMAP_MAX_LEN
 
 	def __init__(self, resource=None):
 		if resource != None:
-			self.t = resource.size 				               # Transfer size
-			self.d = resource.uncompressed_size                # Data size
-			self.n = len(resource.parts) 		               # Number of parts
-			self.h = resource.hash 				               # Resource hash
-			self.r = resource.random_hash		               # Resource random hash
-			self.o = resource.original_hash                    # First-segment hash
-			self.m = resource.hashmap			               # Resource hashmap
-			self.c = resource.compressed   		               # Compression flag
-			self.e = resource.encrypted    		               # Encryption flag
-			self.s = resource.split                            # Split flag
-			self.i = resource.segment_index                    # Segment index
-			self.l = resource.total_segments                   # Total segments
+			self.t = resource.size 							   # Transfer size
+			self.d = resource.uncompressed_size				   # Data size
+			self.n = len(resource.parts) 					   # Number of parts
+			self.h = resource.hash 							   # Resource hash
+			self.r = resource.random_hash					   # Resource random hash
+			self.o = resource.original_hash					   # First-segment hash
+			self.m = resource.hashmap						   # Resource hashmap
+			self.c = resource.compressed   					   # Compression flag
+			self.e = resource.encrypted						   # Encryption flag
+			self.s = resource.split							   # Split flag
+			self.i = resource.segment_index					   # Segment index
+			self.l = resource.total_segments				   # Total segments
 			self.f = 0x00 | self.s << 2 | self.c << 1 | self.e # Flags
 
 	def pack(self, segment=0):
@@ -772,7 +770,7 @@ class ResourceAdvertisement:
 			"n": self.n,	# Number of parts
 			"h": self.h,	# Resource hash
 			"r": self.r,	# Resource random hash
-			"o": self.o,    # Original hash
+			"o": self.o,	# Original hash
 			"i": self.i,	# Segment index
 			"l": self.l,	# Total segments
 			"f": self.f,	# Resource flags
