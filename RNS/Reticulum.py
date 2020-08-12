@@ -31,10 +31,10 @@ class Reticulum:
 		if configdir != None:
 			Reticulum.configdir = configdir
 		
-		Reticulum.configpath  = Reticulum.configdir+"/config"
-		Reticulum.storagepath = Reticulum.configdir+"/storage"
-		Reticulum.cachepath   = Reticulum.configdir+"/storage/cache"
-		Reticulum.bundlepath  = Reticulum.configdir+"/storage/bundles"
+		Reticulum.configpath    = Reticulum.configdir+"/config"
+		Reticulum.storagepath   = Reticulum.configdir+"/storage"
+		Reticulum.cachepath     = Reticulum.configdir+"/storage/cache"
+		Reticulum.resourcepath  = Reticulum.configdir+"/storage/resources"
 
 		Reticulum.__allow_unencrypted = False
 		Reticulum.__transport_enabled = False
@@ -53,8 +53,8 @@ class Reticulum:
 		if not os.path.isdir(Reticulum.cachepath):
 			os.makedirs(Reticulum.cachepath)
 
-		if not os.path.isdir(Reticulum.bundlepath):
-			os.makedirs(Reticulum.bundlepath)
+		if not os.path.isdir(Reticulum.resourcepath):
+			os.makedirs(Reticulum.resourcepath)
 
 		if os.path.isfile(self.configpath):
 			try:

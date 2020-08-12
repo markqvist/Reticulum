@@ -1,4 +1,5 @@
 import RNS
+import os
 import bz2
 import math
 import time
@@ -63,6 +64,7 @@ class Resource:
 			resource.size                = adv.t
 			resource.uncompressed_size   = adv.d
 			resource.hash                = adv.h
+			resource.original_hash       = adv.o
 			resource.random_hash         = adv.r
 			resource.hashmap_raw         = adv.m
 			resource.encrypted           = True if resource.flags & 0x01 else False
@@ -79,6 +81,14 @@ class Resource:
 			resource.window_min          = Resource.WINDOW_MIN
 			resource.window_flexibility  = Resource.WINDOW_FLEXIBILITY
 			resource.last_activity       = time.time()
+
+			resource.storagepath         = RNS.Reticulum.resourcepath+"/"+resource.original_hash.hex()
+			resource.segment_index       = adv.i
+			resource.total_segments      = adv.l
+			if adv.l > 1:
+				resource.split = True
+			else:
+				resource.split = False
 
 			resource.hashmap = [None] * resource.total_parts
 			resource.hashmap_height = 0
@@ -98,11 +108,53 @@ class Resource:
 			resource.watchdog_job()
 
 			return resource
-		except:
+		except Exception as e:
 			RNS.log("Could not decode resource advertisement, dropping resource", RNS.LOG_DEBUG)
+			# TODO: Remove
+			raise e
 			return None
 
-	def __init__(self, data, link, advertise=True, auto_compress=True, must_compress=False, callback=None, progress_callback=None):
+	# Create a resource for transmission to a remote destination
+	# The data passed can be either a bytes-array or a file opened
+	# in binary read mode.
+	def __init__(self, data, link, advertise=True, auto_compress=True, must_compress=False, callback=None, progress_callback=None, segment_index = 1, original_hash = None):
+		data_size = None
+		resource_data = None
+		if hasattr(data, "read"):
+			data_size = os.stat(data.name).st_size
+
+			if data_size <= Resource.MAX_EFFICIENT_SIZE:
+				self.total_segments = 1
+				self.segment_index  = 1
+				self.split          = False
+				resource_data = data.read()
+				data.close()
+			else:
+				self.total_segments = ((data_size-1)//Resource.MAX_EFFICIENT_SIZE)+1
+				self.segment_index  = segment_index
+				self.split          = True
+				seek_index          = segment_index-1
+				seek_position       = seek_index*Resource.MAX_EFFICIENT_SIZE
+
+				data.seek(seek_position)
+				resource_data = data.read(Resource.MAX_EFFICIENT_SIZE)
+				self.input_file = data
+
+		elif isinstance(data, bytes):
+			data_size = len(data)
+			resource_data = data
+			self.total_segments = 1
+			self.segment_index  = 1
+			self.split          = False
+
+		elif data == None:
+			pass
+
+		else:
+			raise TypeError("Invalid data instance type passed to resource initialisation")
+
+		data = resource_data
+
 		self.status = Resource.NONE
 		self.link = link
 		self.max_retries = Resource.MAX_RETRIES
@@ -115,6 +167,7 @@ class Resource:
 		self.__watchdog_job_id = 0
 		self.__progress_callback = progress_callback
 		self.rtt = None
+		self.grand_total_parts = math.ceil(data_size/Resource.SDU)
 
 		self.receiver_min_consecutive_height = 0
 
@@ -178,6 +231,11 @@ class Resource:
 				self.random_hash       = RNS.Identity.getRandomHash()[:Resource.RANDOM_HASH_SIZE]
 				self.hash = RNS.Identity.fullHash(data+self.random_hash)
 				self.expected_proof = RNS.Identity.fullHash(data+self.hash)
+
+				if original_hash == None:
+				    self.original_hash = self.hash
+				else:
+				    self.original_hash = original_hash
 
 				self.parts  = []
 				self.hashmap = b""
@@ -379,6 +437,9 @@ class Resource:
 				calculated_hash = RNS.Identity.fullHash(self.data+self.random_hash)
 
 				if calculated_hash == self.hash:
+					self.file = open(self.storagepath, "ab")
+					self.file.write(self.data)
+					self.file.close()
 					self.status = Resource.COMPLETE
 					self.prove()
 				else:
@@ -390,9 +451,21 @@ class Resource:
 				RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
 				self.status = Resource.CORRUPT
 
-			if self.callback != None:
-				self.link.resource_concluded(self)
-				self.callback(self)
+			self.link.resource_concluded(self)
+
+			if self.segment_index == self.total_segments:
+				if self.callback != None:
+					self.data = open(self.storagepath, "rb")
+					self.callback(self)
+
+				try:
+					self.data.close()
+					os.unlink(self.storagepath)
+				except Exception as e:
+					RNS.log("Error while cleaning up resource files, the contained exception was:", RNS.LOG_ERROR)
+					RNS.log(str(e))
+			else:
+				RNS.log("Resource segment "+str(self.segment_index)+" of "+str(self.total_segments)+" received, waiting for next segment to be announced", RNS.LOG_VERBOSE)
 
 
 	def prove(self):
@@ -412,9 +485,16 @@ class Resource:
 			if len(proof_data) == RNS.Identity.HASHLENGTH//8*2:
 				if proof_data[RNS.Identity.HASHLENGTH//8:] == self.expected_proof:
 					self.status = Resource.COMPLETE
-					if self.callback != None:
-						self.link.resource_concluded(self)
-						self.callback(self)
+					self.link.resource_concluded(self)
+					if self.segment_index == self.total_segments:
+						# If all segments were processed, we'll
+						# signal that the resource sending concluded
+						if self.callback != None:
+							self.callback(self)
+					else:
+						# Otherwise we'll recursively create the
+						# next segment of the resource
+						Resource(self.input_file, self.link, callback = self.callback, segment_index = self.segment_index+1, original_hash=self.original_hash)
 				else:
 					pass
 			else:
@@ -637,9 +717,21 @@ class Resource:
 
 	def progress(self):
 		if self.initiator:
-			progress = self.sent_parts / len(self.parts)
-		else:
-			progress = self.received_count / float(self.total_parts)
+		    # TODO: Remove
+			# progress = self.sent_parts / len(self.parts)
+			self.processed_parts  = (self.segment_index-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)
+			self.processed_parts += self.sent_parts
+			self.progress_total_parts = float(self.grand_total_parts)
+        else:
+            self.processed_parts  = (self.segment_index-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)			
+		    self.processed_parts += self.received_count
+            if self.split:
+                self.progress_total_parts = float((self.total_segments-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)+self.total_parts)
+            else:
+                self.progress_total_parts = float(self.total_parts)
+
+	    
+	    progress = self.processed_parts / self.progress_total_parts
 		return progress
 
 	def __str__(self):
@@ -647,36 +739,43 @@ class Resource:
 
 
 class ResourceAdvertisement:
-	HASHMAP_MAX_LEN      = 84
+	HASHMAP_MAX_LEN      = 75
 	COLLISION_GUARD_SIZE = 2*Resource.WINDOW_MAX+HASHMAP_MAX_LEN
 
 	def __init__(self, resource=None):
 		if resource != None:
-			self.t = resource.size 				  # Transfer size
-			self.d = resource.uncompressed_size   # Data size
-			self.n = len(resource.parts) 		  # Number of parts
-			self.h = resource.hash 				  # Resource hash
-			self.r = resource.random_hash		  # Resource random hash
-			self.m = resource.hashmap			  # Resource hashmap
-			self.c = resource.compressed   		  # Compression flag
-			self.e = resource.encrypted    		  # Encryption flag
-			self.f  = 0x00 | self.c << 1 | self.e # Flags
+			self.t = resource.size 				               # Transfer size
+			self.d = resource.uncompressed_size                # Data size
+			self.n = len(resource.parts) 		               # Number of parts
+			self.h = resource.hash 				               # Resource hash
+			self.r = resource.random_hash		               # Resource random hash
+			self.o = resource.original_hash                    # First-segment hash
+			self.m = resource.hashmap			               # Resource hashmap
+			self.c = resource.compressed   		               # Compression flag
+			self.e = resource.encrypted    		               # Encryption flag
+			self.s = resource.split                            # Split flag
+			self.i = resource.segment_index                    # Segment index
+			self.l = resource.total_segments                   # Total segments
+			self.f = 0x00 | self.s << 2 | self.c << 1 | self.e # Flags
 
 	def pack(self, segment=0):
 		hashmap_start = segment*ResourceAdvertisement.HASHMAP_MAX_LEN
-		hashmap_end   = min((segment+1)*ResourceAdvertisement.HASHMAP_MAX_LEN, self.n)
+		hashmap_end   = min((segment+1)*(ResourceAdvertisement.HASHMAP_MAX_LEN), self.n)
 
 		hashmap = b""
 		for i in range(hashmap_start,hashmap_end):
 			hashmap += self.m[i*Resource.MAPHASH_LEN:(i+1)*Resource.MAPHASH_LEN]
 
 		dictionary = {
-			"t": self.t,
-			"d": self.d,
-			"n": self.n,
-			"h": self.h,
-			"r": self.r,
-			"f": self.f,
+			"t": self.t,	# Transfer size
+			"d": self.d,	# Data size
+			"n": self.n,	# Number of parts
+			"h": self.h,	# Resource hash
+			"r": self.r,	# Resource random hash
+			"o": self.o,    # Original hash
+			"i": self.i,	# Segment index
+			"l": self.l,	# Total segments
+			"f": self.f,	# Resource flags
 			"m": hashmap
 		}
 
@@ -692,9 +791,13 @@ class ResourceAdvertisement:
 		adv.n = dictionary["n"]
 		adv.h = dictionary["h"]
 		adv.r = dictionary["r"]
+		adv.o = dictionary["o"]
 		adv.m = dictionary["m"]
 		adv.f = dictionary["f"]
+		adv.i = dictionary["i"]
+		adv.l = dictionary["l"]
 		adv.e = True if (adv.f & 0x01) == 0x01 else False
 		adv.c = True if ((adv.f >> 1) & 0x01) == 0x01 else False
+		adv.s = True if ((adv.f >> 2) & 0x01) == 0x01 else False
 
 		return adv

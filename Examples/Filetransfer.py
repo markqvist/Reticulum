@@ -135,16 +135,14 @@ def client_request(message, packet):
 			# read it and pack it as a resource
 			RNS.log("Client requested \""+filename+"\"")
 			file = open(os.path.join(serve_path, filename), "rb")
-			file_data = file.read()
-			file.close()
-
-			file_resource = RNS.Resource(file_data, packet.link, callback=resource_sending_concluded)
+			file_resource = RNS.Resource(file, packet.link, callback=resource_sending_concluded)
 			file_resource.filename = filename
-		except:
+		except Exception as e:
 			# If somethign went wrong, we close
 			# the link
 			RNS.log("Error while reading file \""+filename+"\"", RNS.LOG_ERROR)
 			packet.link.teardown()
+			raise e
 	else:
 		# If we don't have it, we close the link
 		RNS.log("Client requested an unknown file")
@@ -484,7 +482,7 @@ def download_concluded(resource):
 
 		try:
 			file = open(saved_filename, "wb")
-			file.write(resource.data)
+			file.write(resource.data.read())
 			file.close()
 			menu_mode = "download_concluded"
 		except:

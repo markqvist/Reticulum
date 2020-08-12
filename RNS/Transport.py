@@ -43,9 +43,6 @@ class Transport:
 	DESTINATION_TIMEOUT  = 60*60*24*7 # Destination table entries are removed if unused for one week
 	MAX_RECEIPTS         = 1024       # Maximum number of receipts to keep track of
 
-	BUNDLE_TIMEOUT       = 60*60*24*7 # Bundles time out after 7 days
-	BUNDLE_INTERVAL      = 180        # How often we should attempt to transfer bundles to their next hop
-
 	interfaces	 	     = []		  # All active interfaces
 	destinations         = []		  # All active destinations
 	pending_links        = []		  # Links that are being established
@@ -58,7 +55,6 @@ class Transport:
 	destination_table    = {}         # A lookup table containing the next hop to a given destination
 	reverse_table	     = {}         # A lookup table for storing packet hashes used to return proofs and replies
 	link_table           = {}         # A lookup table containing hops for links
-	bundle_table         = {}         # A table for holding references to bundles in transport
 	held_announces       = {}         # A table containing temporarily held announce-table entries
 
 	# Transport control destinations are used
@@ -112,16 +108,9 @@ class Transport:
 		# Create transport-specific destinations
 		Transport.path_request_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
 		Transport.path_request_destination.packet_callback(Transport.path_request_handler)
-		
-		Transport.bundle_advertisement_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "bundle", "advertisement", )
-		Transport.bundle_advertisement_destination.packet_callback(Transport.bundle_advertisement_handler)
-
 		Transport.control_destinations.append(Transport.path_request_destination)
 		Transport.control_hashes.append(Transport.path_request_destination.hash)
 
-		Transport.control_destinations.append(Transport.bundle_advertisement_destination)
-		Transport.control_hashes.append(Transport.bundle_advertisement_destination.hash)
-		
 		thread = threading.Thread(target=Transport.jobloop)
 		thread.setDaemon(True)
 		thread.start()
@@ -311,8 +300,6 @@ class Transport:
 
 					Transport.tables_last_culled = time.time()
 
-			Transport.bundle_jobs()
-
 		except Exception as e:
 			RNS.log("An exception occurred while running Transport jobs.", RNS.LOG_ERROR)
 			RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -322,35 +309,6 @@ class Transport:
 
 		for packet in outgoing:
 			packet.send()
-
-	@staticmethod
-	def bundle_jobs():
-		removed_bundles = []
-		for bundle in Transport.bundle_table:
-			# The bundle could not be passed on within the allowed
-			# time, and should be removed from storage
-			if bundle.heartbeat+Transport.BUNDLE_TIMEOUT < time.time():
-				RNS.log("Removing stale bundle "+RNS.prettyhexrep(bundle.id)+" from storage", RNS.LOG_VERBOSE)
-				removed_bundles.append(bundle)
-				bundle.remove()
-
-			# Custody was transferred to another node, we'll remove the bundle
-			if bundle.state == RNS.Bundle.NO_CUSTODY:
-				RNS.log("Removing bundle "+RNS.prettyhexrep(bundle.id)+" from storage since custody was transferred", RNS.LOG_VERBOSE)
-				removed_bundles.append(bundle)
-				bundle.remove()
-
-			# This is an incoming bundle, attempt to retrieve it
-			if bundle.state == RNS.Bundle.TAKING_CUSTODY:
-				pass
-
-			# We have custody over this bundle, and we should attempt
-			# to deliver it to it's next hop.
-			if bundle.state == RNS.Bundle.FULL_CUSTODY:
-				pass
-
-		for bundle in removed_bundles:
-			Transport.bundle_table.remove(bundle)
 
 	@staticmethod
 	def outbound(packet):
@@ -458,7 +416,6 @@ class Transport:
 		Transport.jobs_locked = False
 		return sent
 
-	
 	@staticmethod
 	def packet_filter(packet):
 		# TODO: Think long and hard about this.
@@ -918,11 +875,6 @@ class Transport:
 			RNS.log("Attempted to activate a link that was not in the pending table", RNS.LOG_ERROR)
 
 	@staticmethod
-	def register_bundle(bundle):
-		RNS.log("Transport instance registered bundle "+RNS.prettyhexrep(bundle.id), RNS.LOG_DEBUG)
-		self.bundle_table.append(bundle)
-
-	@staticmethod
 	def find_interface_from_hash(interface_hash):
 		for interface in Transport.interfaces:
 			if interface.get_hash() == interface_hash:
@@ -1042,10 +994,6 @@ class Transport:
 				Transport.from_local_client(packet),
 				packet.receiving_interface
 			)
-
-	@staticmethod
-	def bundle_advertisement_handler(data, packet):
-		pass
 
 	@staticmethod
 	def pathRequest(destination_hash, is_from_local_client, attached_interface):
