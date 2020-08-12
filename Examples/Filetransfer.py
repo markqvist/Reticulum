@@ -251,8 +251,10 @@ def client(destination_hexhash, configpath):
 
 # Requests the specified file from the server
 def download(filename):
-	global server_link, menu_mode, current_filename
+	global server_link, menu_mode, current_filename, transfer_size, download_started
 	current_filename = filename
+	download_started = 0
+	transfer_size    = 0
 
 	# We just create a packet containing the
 	# requested filename, and send it down the
@@ -454,14 +456,16 @@ def link_closed(link):
 # so the user can be shown a progress of
 # the download.
 def download_began(resource):
-	global menu_mode, current_download, download_started, transfer_size, file_size
-	current_download = resource
-	
-	download_started = time.time()
-	transfer_size = resource.size
-	file_size = resource.uncompressed_size
-
-	menu_mode = "downloading"
+    global menu_mode, current_download, download_started, transfer_size, file_size
+    current_download = resource
+    
+    if download_started == 0:
+        download_started = time.time()
+    
+    transfer_size += resource.size
+    file_size = resource.total_size
+    
+    menu_mode = "downloading"
 
 # When the download concludes, successfully
 # or not, we'll update our menu state and 

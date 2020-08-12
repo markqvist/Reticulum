@@ -62,6 +62,7 @@ class Resource:
 
             resource.flags               = adv.f
             resource.size                = adv.t
+            resource.total_size          = adv.d
             resource.uncompressed_size   = adv.d
             resource.hash                = adv.h
             resource.original_hash       = adv.o
@@ -122,6 +123,7 @@ class Resource:
         resource_data = None
         if hasattr(data, "read"):
             data_size = os.stat(data.name).st_size
+            self.total_size  = data_size
             self.grand_total_parts = math.ceil(data_size/Resource.SDU)
 
             if data_size <= Resource.MAX_EFFICIENT_SIZE:
@@ -144,6 +146,7 @@ class Resource:
         elif isinstance(data, bytes):
             data_size = len(data)
             self.grand_total_parts = math.ceil(data_size/Resource.SDU)
+            self.total_size  = data_size
             
             resource_data = data
             self.total_segments = 1
@@ -467,7 +470,7 @@ class Resource:
                     RNS.log("Error while cleaning up resource files, the contained exception was:", RNS.LOG_ERROR)
                     RNS.log(str(e))
             else:
-                RNS.log("Resource segment "+str(self.segment_index)+" of "+str(self.total_segments)+" received, waiting for next segment to be announced", RNS.LOG_VERBOSE)
+                RNS.log("Resource segment "+str(self.segment_index)+" of "+str(self.total_segments)+" received, waiting for next segment to be announced", RNS.LOG_DEBUG)
 
 
     def prove(self):
@@ -728,7 +731,7 @@ class Resource:
             self.processed_parts  = (self.segment_index-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)            
             self.processed_parts += self.received_count
             if self.split:
-                self.progress_total_parts = float((self.total_segments-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)+self.total_parts)
+                self.progress_total_parts = float(math.ceil(self.total_size/Resource.SDU))
             else:
                 self.progress_total_parts = float(self.total_parts)
 
@@ -746,15 +749,15 @@ class ResourceAdvertisement:
 
     def __init__(self, resource=None):
         if resource != None:
-            self.t = resource.size                                # Transfer size
-            self.d = resource.uncompressed_size                # Data size
-            self.n = len(resource.parts)                        # Number of parts
-            self.h = resource.hash                                # Resource hash
-            self.r = resource.random_hash                       # Resource random hash
+            self.t = resource.size                             # Transfer size
+            self.d = resource.total_size                       # Total uncompressed data size
+            self.n = len(resource.parts)                       # Number of parts
+            self.h = resource.hash                             # Resource hash
+            self.r = resource.random_hash                      # Resource random hash
             self.o = resource.original_hash                    # First-segment hash
-            self.m = resource.hashmap                           # Resource hashmap
-            self.c = resource.compressed                          # Compression flag
-            self.e = resource.encrypted                           # Encryption flag
+            self.m = resource.hashmap                          # Resource hashmap
+            self.c = resource.compressed                       # Compression flag
+            self.e = resource.encrypted                        # Encryption flag
             self.s = resource.split                            # Split flag
             self.i = resource.segment_index                    # Segment index
             self.l = resource.total_segments                   # Total segments
