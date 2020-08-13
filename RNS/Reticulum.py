@@ -10,387 +10,387 @@ import os
 import RNS
 
 class Reticulum:
-	MTU            = 500
-	HEADER_MAXSIZE = 23
-	MDU            = MTU - HEADER_MAXSIZE
+    MTU            = 500
+    HEADER_MAXSIZE = 23
+    MDU            = MTU - HEADER_MAXSIZE
 
-	router         = None
-	config         = None
-	
-	configdir    = os.path.expanduser("~")+"/.reticulum"
-	configpath   = ""
-	storagepath  = ""
-	cachepath    = ""
-	
-	@staticmethod
-	def exit_handler():
-		RNS.Transport.exitHandler()
-		RNS.Identity.exitHandler()
+    router         = None
+    config         = None
+    
+    configdir    = os.path.expanduser("~")+"/.reticulum"
+    configpath   = ""
+    storagepath  = ""
+    cachepath    = ""
+    
+    @staticmethod
+    def exit_handler():
+        RNS.Transport.exitHandler()
+        RNS.Identity.exitHandler()
 
-	def __init__(self,configdir=None):
-		if configdir != None:
-			Reticulum.configdir = configdir
-		
-		Reticulum.configpath    = Reticulum.configdir+"/config"
-		Reticulum.storagepath   = Reticulum.configdir+"/storage"
-		Reticulum.cachepath     = Reticulum.configdir+"/storage/cache"
-		Reticulum.resourcepath  = Reticulum.configdir+"/storage/resources"
+    def __init__(self,configdir=None):
+        if configdir != None:
+            Reticulum.configdir = configdir
+        
+        Reticulum.configpath    = Reticulum.configdir+"/config"
+        Reticulum.storagepath   = Reticulum.configdir+"/storage"
+        Reticulum.cachepath     = Reticulum.configdir+"/storage/cache"
+        Reticulum.resourcepath  = Reticulum.configdir+"/storage/resources"
 
-		Reticulum.__allow_unencrypted = False
-		Reticulum.__transport_enabled = False
-		Reticulum.__use_implicit_proof = True
+        Reticulum.__allow_unencrypted = False
+        Reticulum.__transport_enabled = False
+        Reticulum.__use_implicit_proof = True
 
-		self.local_interface_port = 37428
-		self.share_instance = True
+        self.local_interface_port = 37428
+        self.share_instance = True
 
-		self.is_shared_instance = False
-		self.is_connected_to_shared_instance = False
-		self.is_standalone_instance = False
+        self.is_shared_instance = False
+        self.is_connected_to_shared_instance = False
+        self.is_standalone_instance = False
 
-		if not os.path.isdir(Reticulum.storagepath):
-			os.makedirs(Reticulum.storagepath)
+        if not os.path.isdir(Reticulum.storagepath):
+            os.makedirs(Reticulum.storagepath)
 
-		if not os.path.isdir(Reticulum.cachepath):
-			os.makedirs(Reticulum.cachepath)
+        if not os.path.isdir(Reticulum.cachepath):
+            os.makedirs(Reticulum.cachepath)
 
-		if not os.path.isdir(Reticulum.resourcepath):
-			os.makedirs(Reticulum.resourcepath)
+        if not os.path.isdir(Reticulum.resourcepath):
+            os.makedirs(Reticulum.resourcepath)
 
-		if os.path.isfile(self.configpath):
-			try:
-				self.config = ConfigObj(self.configpath)
-				RNS.log("Configuration loaded from "+self.configpath)
-			except Exception as e:
-				RNS.log("Could not parse the configuration at "+self.configpath, RNS.LOG_ERROR)
-				RNS.log("Check your configuration file for errors!", RNS.LOG_ERROR)
-				RNS.panic()
-		else:
-			RNS.log("Could not load config file, creating default configuration file...")
-			self.createDefaultConfig()
-			RNS.log("Default config file created. Make any necessary changes in "+Reticulum.configdir+"/config and start Reticulum again.")
-			RNS.log("Exiting now!")
-			exit(1)
+        if os.path.isfile(self.configpath):
+            try:
+                self.config = ConfigObj(self.configpath)
+                RNS.log("Configuration loaded from "+self.configpath)
+            except Exception as e:
+                RNS.log("Could not parse the configuration at "+self.configpath, RNS.LOG_ERROR)
+                RNS.log("Check your configuration file for errors!", RNS.LOG_ERROR)
+                RNS.panic()
+        else:
+            RNS.log("Could not load config file, creating default configuration file...")
+            self.createDefaultConfig()
+            RNS.log("Default config file created. Make any necessary changes in "+Reticulum.configdir+"/config and start Reticulum again.")
+            RNS.log("Exiting now!")
+            exit(1)
 
-		self.applyConfig()
-		RNS.Identity.loadKnownDestinations()
+        self.applyConfig()
+        RNS.Identity.loadKnownDestinations()
 
-		RNS.Transport.start(self)
+        RNS.Transport.start(self)
 
-		atexit.register(Reticulum.exit_handler)
+        atexit.register(Reticulum.exit_handler)
 
-	def start_local_interface(self):
-		if self.share_instance:
-			try:
-				interface = LocalInterface.LocalServerInterface(
-					RNS.Transport,
-					self.local_interface_port
-				)
-				interface.OUT = True
-				RNS.Transport.interfaces.append(interface)
-				self.is_shared_instance = True
-				RNS.log("Started shared instance interface: "+str(interface), RNS.LOG_DEBUG)
-			except Exception as e:
-				try:
-					interface = LocalInterface.LocalClientInterface(
-						RNS.Transport,
-						"Local shared instance",
-						self.local_interface_port)
-					interface.target_port = self.local_interface_port
-					interface.OUT = True
-					RNS.Transport.interfaces.append(interface)
-					self.is_shared_instance = False
-					self.is_standalone_instance = False
-					self.is_connected_to_shared_instance = True
-					RNS.log("Connected to local shared instance via: "+str(interface), RNS.LOG_DEBUG)
-				except Exception as e:
-					RNS.log("Local shared instance appears to be running, but it could not be connected", RNS.LOG_ERROR)
-					RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
-					self.is_shared_instance = False
-					self.is_standalone_instance = True
-					self.is_connected_to_shared_instance = False
-		else:
-			self.is_shared_instance = False
-			self.is_standalone_instance = True
-			self.is_connected_to_shared_instance = False
+    def start_local_interface(self):
+        if self.share_instance:
+            try:
+                interface = LocalInterface.LocalServerInterface(
+                    RNS.Transport,
+                    self.local_interface_port
+                )
+                interface.OUT = True
+                RNS.Transport.interfaces.append(interface)
+                self.is_shared_instance = True
+                RNS.log("Started shared instance interface: "+str(interface), RNS.LOG_DEBUG)
+            except Exception as e:
+                try:
+                    interface = LocalInterface.LocalClientInterface(
+                        RNS.Transport,
+                        "Local shared instance",
+                        self.local_interface_port)
+                    interface.target_port = self.local_interface_port
+                    interface.OUT = True
+                    RNS.Transport.interfaces.append(interface)
+                    self.is_shared_instance = False
+                    self.is_standalone_instance = False
+                    self.is_connected_to_shared_instance = True
+                    RNS.log("Connected to local shared instance via: "+str(interface), RNS.LOG_DEBUG)
+                except Exception as e:
+                    RNS.log("Local shared instance appears to be running, but it could not be connected", RNS.LOG_ERROR)
+                    RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                    self.is_shared_instance = False
+                    self.is_standalone_instance = True
+                    self.is_connected_to_shared_instance = False
+        else:
+            self.is_shared_instance = False
+            self.is_standalone_instance = True
+            self.is_connected_to_shared_instance = False
 
-	def applyConfig(self):
-		if "logging" in self.config:
-			for option in self.config["logging"]:
-				value = self.config["logging"][option]
-				if option == "loglevel":
-					RNS.loglevel = int(value)
-					if RNS.loglevel < 0:
-						RNS.loglevel = 0
-					if RNS.loglevel > 7:
-						RNS.loglevel = 7
+    def applyConfig(self):
+        if "logging" in self.config:
+            for option in self.config["logging"]:
+                value = self.config["logging"][option]
+                if option == "loglevel":
+                    RNS.loglevel = int(value)
+                    if RNS.loglevel < 0:
+                        RNS.loglevel = 0
+                    if RNS.loglevel > 7:
+                        RNS.loglevel = 7
 
-		if "reticulum" in self.config:
-			for option in self.config["reticulum"]:
-				value = self.config["reticulum"][option]
-				if option == "share_instance":
-					value = self.config["reticulum"].as_bool(option)
-					self.share_instance = value
-				if option == "shared_instance_port":
-					value = int(self.config["reticulum"][option])
-					self.local_interface_port = value
-				if option == "enable_transport":
-					v = self.config["reticulum"].as_bool(option)
-					if v == True:
-						Reticulum.__transport_enabled = True
-				if option == "use_implicit_proof":
-					v = self.config["reticulum"].as_bool(option)
-					if v == True:
-						Reticulum.__use_implicit_proof = True
-					if v == False:
-						Reticulum.__use_implicit_proof = False
-				if option == "allow_unencrypted":
-					v = self.config["reticulum"].as_bool(option)
-					if v == True:
-						RNS.log("", RNS.LOG_CRITICAL)
-						RNS.log("! ! !     ! ! !     ! ! !", RNS.LOG_CRITICAL)
-						RNS.log("", RNS.LOG_CRITICAL)
-						RNS.log("Danger! Encryptionless links have been allowed in the config file!", RNS.LOG_CRITICAL)
-						RNS.log("Beware of the consequences! Any data sent over a link can potentially be intercepted,", RNS.LOG_CRITICAL)
-						RNS.log("read and modified! If you are not absolutely sure that you want this,", RNS.LOG_CRITICAL)
-						RNS.log("you should exit Reticulum NOW and change your config file!", RNS.LOG_CRITICAL)
-						RNS.log("", RNS.LOG_CRITICAL)
-						RNS.log("! ! !     ! ! !     ! ! !", RNS.LOG_CRITICAL)
-						RNS.log("", RNS.LOG_CRITICAL)
-						Reticulum.__allow_unencrypted = True
+        if "reticulum" in self.config:
+            for option in self.config["reticulum"]:
+                value = self.config["reticulum"][option]
+                if option == "share_instance":
+                    value = self.config["reticulum"].as_bool(option)
+                    self.share_instance = value
+                if option == "shared_instance_port":
+                    value = int(self.config["reticulum"][option])
+                    self.local_interface_port = value
+                if option == "enable_transport":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v == True:
+                        Reticulum.__transport_enabled = True
+                if option == "use_implicit_proof":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v == True:
+                        Reticulum.__use_implicit_proof = True
+                    if v == False:
+                        Reticulum.__use_implicit_proof = False
+                if option == "allow_unencrypted":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v == True:
+                        RNS.log("", RNS.LOG_CRITICAL)
+                        RNS.log("! ! !     ! ! !     ! ! !", RNS.LOG_CRITICAL)
+                        RNS.log("", RNS.LOG_CRITICAL)
+                        RNS.log("Danger! Encryptionless links have been allowed in the config file!", RNS.LOG_CRITICAL)
+                        RNS.log("Beware of the consequences! Any data sent over a link can potentially be intercepted,", RNS.LOG_CRITICAL)
+                        RNS.log("read and modified! If you are not absolutely sure that you want this,", RNS.LOG_CRITICAL)
+                        RNS.log("you should exit Reticulum NOW and change your config file!", RNS.LOG_CRITICAL)
+                        RNS.log("", RNS.LOG_CRITICAL)
+                        RNS.log("! ! !     ! ! !     ! ! !", RNS.LOG_CRITICAL)
+                        RNS.log("", RNS.LOG_CRITICAL)
+                        Reticulum.__allow_unencrypted = True
 
-		self.start_local_interface()
+        self.start_local_interface()
 
-		if self.is_shared_instance or self.is_standalone_instance:
-			interface_names = []
-			for name in self.config["interfaces"]:
-				if not name in interface_names:
-					c = self.config["interfaces"][name]
+        if self.is_shared_instance or self.is_standalone_instance:
+            interface_names = []
+            for name in self.config["interfaces"]:
+                if not name in interface_names:
+                    c = self.config["interfaces"][name]
 
-					try:
-						if ("interface_enabled" in c) and c.as_bool("interface_enabled") == True:
-							if c["type"] == "UdpInterface":
-								interface = UdpInterface.UdpInterface(
-									RNS.Transport,
-									name,
-									c["listen_ip"],
-									int(c["listen_port"]),
-									c["forward_ip"],
-									int(c["forward_port"])
-								)
+                    try:
+                        if ("interface_enabled" in c) and c.as_bool("interface_enabled") == True:
+                            if c["type"] == "UdpInterface":
+                                interface = UdpInterface.UdpInterface(
+                                    RNS.Transport,
+                                    name,
+                                    c["listen_ip"],
+                                    int(c["listen_port"]),
+                                    c["forward_ip"],
+                                    int(c["forward_port"])
+                                )
 
-								if "outgoing" in c and c.as_bool("outgoing") == True:
-									interface.OUT = True
-								else:
-									interface.OUT = False
+                                if "outgoing" in c and c.as_bool("outgoing") == True:
+                                    interface.OUT = True
+                                else:
+                                    interface.OUT = False
 
-								RNS.Transport.interfaces.append(interface)
-
-
-							if c["type"] == "TCPServerInterface":
-								interface = TCPInterface.TCPServerInterface(
-									RNS.Transport,
-									name,
-									c["listen_ip"],
-									int(c["listen_port"])
-								)
-
-								if "outgoing" in c and c.as_bool("outgoing") == True:
-									interface.OUT = True
-								else:
-									interface.OUT = False
-
-								RNS.Transport.interfaces.append(interface)
+                                RNS.Transport.interfaces.append(interface)
 
 
-							if c["type"] == "TCPClientInterface":
-								interface = TCPInterface.TCPClientInterface(
-									RNS.Transport,
-									name,
-									c["target_host"],
-									int(c["target_port"])
-								)
+                            if c["type"] == "TCPServerInterface":
+                                interface = TCPInterface.TCPServerInterface(
+                                    RNS.Transport,
+                                    name,
+                                    c["listen_ip"],
+                                    int(c["listen_port"])
+                                )
 
-								if "outgoing" in c and c.as_bool("outgoing") == True:
-									interface.OUT = True
-								else:
-									interface.OUT = False
+                                if "outgoing" in c and c.as_bool("outgoing") == True:
+                                    interface.OUT = True
+                                else:
+                                    interface.OUT = False
 
-								RNS.Transport.interfaces.append(interface)
+                                RNS.Transport.interfaces.append(interface)
 
 
-							if c["type"] == "SerialInterface":
-								port = c["port"] if "port" in c else None
-								speed = int(c["speed"]) if "speed" in c else 9600
-								databits = int(c["databits"]) if "databits" in c else 8
-								parity = c["parity"] if "parity" in c else "N"
-								stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+                            if c["type"] == "TCPClientInterface":
+                                interface = TCPInterface.TCPClientInterface(
+                                    RNS.Transport,
+                                    name,
+                                    c["target_host"],
+                                    int(c["target_port"])
+                                )
 
-								if port == None:
-									raise ValueError("No port specified for serial interface")
+                                if "outgoing" in c and c.as_bool("outgoing") == True:
+                                    interface.OUT = True
+                                else:
+                                    interface.OUT = False
 
-								interface = SerialInterface.SerialInterface(
-									RNS.Transport,
-									name,
-									port,
-									speed,
-									databits,
-									parity,
-									stopbits
-								)
+                                RNS.Transport.interfaces.append(interface)
 
-								if "outgoing" in c and c["outgoing"].lower() == "true":
-									interface.OUT = True
-								else:
-									interface.OUT = False
 
-								RNS.Transport.interfaces.append(interface)
+                            if c["type"] == "SerialInterface":
+                                port = c["port"] if "port" in c else None
+                                speed = int(c["speed"]) if "speed" in c else 9600
+                                databits = int(c["databits"]) if "databits" in c else 8
+                                parity = c["parity"] if "parity" in c else "N"
+                                stopbits = int(c["stopbits"]) if "stopbits" in c else 1
 
-							if c["type"] == "KISSInterface":
-								preamble = int(c["preamble"]) if "preamble" in c else None
-								txtail = int(c["txtail"]) if "txtail" in c else None
-								persistence = int(c["persistence"]) if "persistence" in c else None
-								slottime = int(c["slottime"]) if "slottime" in c else None
-								flow_control = c.as_bool("flow_control") if "flow_control" in c else False
-								port = c["port"] if "port" in c else None
-								speed = int(c["speed"]) if "speed" in c else 9600
-								databits = int(c["databits"]) if "databits" in c else 8
-								parity = c["parity"] if "parity" in c else "N"
-								stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+                                if port == None:
+                                    raise ValueError("No port specified for serial interface")
 
-								if port == None:
-									raise ValueError("No port specified for serial interface")
+                                interface = SerialInterface.SerialInterface(
+                                    RNS.Transport,
+                                    name,
+                                    port,
+                                    speed,
+                                    databits,
+                                    parity,
+                                    stopbits
+                                )
 
-								interface = KISSInterface.KISSInterface(
-									RNS.Transport,
-									name,
-									port,
-									speed,
-									databits,
-									parity,
-									stopbits,
-									preamble,
-									txtail,
-									persistence,
-									slottime,
-									flow_control
-								)
+                                if "outgoing" in c and c["outgoing"].lower() == "true":
+                                    interface.OUT = True
+                                else:
+                                    interface.OUT = False
 
-								if "outgoing" in c and c["outgoing"].lower() == "true":
-									interface.OUT = True
-								else:
-									interface.OUT = False
+                                RNS.Transport.interfaces.append(interface)
 
-								RNS.Transport.interfaces.append(interface)
+                            if c["type"] == "KISSInterface":
+                                preamble = int(c["preamble"]) if "preamble" in c else None
+                                txtail = int(c["txtail"]) if "txtail" in c else None
+                                persistence = int(c["persistence"]) if "persistence" in c else None
+                                slottime = int(c["slottime"]) if "slottime" in c else None
+                                flow_control = c.as_bool("flow_control") if "flow_control" in c else False
+                                port = c["port"] if "port" in c else None
+                                speed = int(c["speed"]) if "speed" in c else 9600
+                                databits = int(c["databits"]) if "databits" in c else 8
+                                parity = c["parity"] if "parity" in c else "N"
+                                stopbits = int(c["stopbits"]) if "stopbits" in c else 1
 
-							if c["type"] == "AX25KISSInterface":
-								preamble = int(c["preamble"]) if "preamble" in c else None
-								txtail = int(c["txtail"]) if "txtail" in c else None
-								persistence = int(c["persistence"]) if "persistence" in c else None
-								slottime = int(c["slottime"]) if "slottime" in c else None
-								flow_control = c.as_bool("flow_control") if "flow_control" in c else False
-								port = c["port"] if "port" in c else None
-								speed = int(c["speed"]) if "speed" in c else 9600
-								databits = int(c["databits"]) if "databits" in c else 8
-								parity = c["parity"] if "parity" in c else "N"
-								stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+                                if port == None:
+                                    raise ValueError("No port specified for serial interface")
 
-								callsign = c["callsign"] if "callsign" in c else ""
-								ssid = int(c["ssid"]) if "ssid" in c else -1
+                                interface = KISSInterface.KISSInterface(
+                                    RNS.Transport,
+                                    name,
+                                    port,
+                                    speed,
+                                    databits,
+                                    parity,
+                                    stopbits,
+                                    preamble,
+                                    txtail,
+                                    persistence,
+                                    slottime,
+                                    flow_control
+                                )
 
-								if port == None:
-									raise ValueError("No port specified for serial interface")
+                                if "outgoing" in c and c["outgoing"].lower() == "true":
+                                    interface.OUT = True
+                                else:
+                                    interface.OUT = False
 
-								interface = AX25KISSInterface.AX25KISSInterface(
-									RNS.Transport,
-									name,
-									callsign,
-									ssid,
-									port,
-									speed,
-									databits,
-									parity,
-									stopbits,
-									preamble,
-									txtail,
-									persistence,
-									slottime,
-									flow_control
-								)
+                                RNS.Transport.interfaces.append(interface)
 
-								if "outgoing" in c and c["outgoing"].lower() == "true":
-									interface.OUT = True
-								else:
-									interface.OUT = False
+                            if c["type"] == "AX25KISSInterface":
+                                preamble = int(c["preamble"]) if "preamble" in c else None
+                                txtail = int(c["txtail"]) if "txtail" in c else None
+                                persistence = int(c["persistence"]) if "persistence" in c else None
+                                slottime = int(c["slottime"]) if "slottime" in c else None
+                                flow_control = c.as_bool("flow_control") if "flow_control" in c else False
+                                port = c["port"] if "port" in c else None
+                                speed = int(c["speed"]) if "speed" in c else 9600
+                                databits = int(c["databits"]) if "databits" in c else 8
+                                parity = c["parity"] if "parity" in c else "N"
+                                stopbits = int(c["stopbits"]) if "stopbits" in c else 1
 
-								RNS.Transport.interfaces.append(interface)
+                                callsign = c["callsign"] if "callsign" in c else ""
+                                ssid = int(c["ssid"]) if "ssid" in c else -1
 
-							if c["type"] == "RNodeInterface":
-								frequency = int(c["frequency"]) if "frequency" in c else None
-								bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
-								txpower = int(c["txpower"]) if "txpower" in c else None
-								spreadingfactor = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
-								codingrate = int(c["codingrate"]) if "codingrate" in c else None
-								flow_control = c.as_bool("flow_control") if "flow_control" in c else False
-								id_interval = int(c["id_interval"]) if "id_interval" in c else None
-								id_callsign = c["id_callsign"] if "id_callsign" in c else None
+                                if port == None:
+                                    raise ValueError("No port specified for serial interface")
 
-								port = c["port"] if "port" in c else None
-								
-								if port == None:
-									raise ValueError("No port specified for RNode interface")
+                                interface = AX25KISSInterface.AX25KISSInterface(
+                                    RNS.Transport,
+                                    name,
+                                    callsign,
+                                    ssid,
+                                    port,
+                                    speed,
+                                    databits,
+                                    parity,
+                                    stopbits,
+                                    preamble,
+                                    txtail,
+                                    persistence,
+                                    slottime,
+                                    flow_control
+                                )
 
-								interface = RNodeInterface.RNodeInterface(
-									RNS.Transport,
-									name,
-									port,
-									frequency = frequency,
-									bandwidth = bandwidth,
-									txpower = txpower,
-									sf = spreadingfactor,
-									cr = codingrate,
-									flow_control = flow_control,
-									id_interval = id_interval,
-									id_callsign = id_callsign
-								)
+                                if "outgoing" in c and c["outgoing"].lower() == "true":
+                                    interface.OUT = True
+                                else:
+                                    interface.OUT = False
 
-								if "outgoing" in c and c["outgoing"].lower() == "true":
-									interface.OUT = True
-								else:
-									interface.OUT = False
+                                RNS.Transport.interfaces.append(interface)
 
-								RNS.Transport.interfaces.append(interface)
-						else:
-							RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_NOTICE)
+                            if c["type"] == "RNodeInterface":
+                                frequency = int(c["frequency"]) if "frequency" in c else None
+                                bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
+                                txpower = int(c["txpower"]) if "txpower" in c else None
+                                spreadingfactor = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
+                                codingrate = int(c["codingrate"]) if "codingrate" in c else None
+                                flow_control = c.as_bool("flow_control") if "flow_control" in c else False
+                                id_interval = int(c["id_interval"]) if "id_interval" in c else None
+                                id_callsign = c["id_callsign"] if "id_callsign" in c else None
 
-					except Exception as e:
-						RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
-						RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
-						RNS.panic()
-				else:
-					RNS.log("The interface name \""+name+"\" was already used. Check your configuration file for errors!", RNS.LOG_ERROR)
-					RNS.panic()
-				
+                                port = c["port"] if "port" in c else None
+                                
+                                if port == None:
+                                    raise ValueError("No port specified for RNode interface")
 
-	def createDefaultConfig(self):
-		self.config = ConfigObj(__default_rns_config__)
-		self.config.filename = Reticulum.configpath
-		
-		if not os.path.isdir(Reticulum.configdir):
-			os.makedirs(Reticulum.configdir)
-		self.config.write()
-		self.applyConfig()
+                                interface = RNodeInterface.RNodeInterface(
+                                    RNS.Transport,
+                                    name,
+                                    port,
+                                    frequency = frequency,
+                                    bandwidth = bandwidth,
+                                    txpower = txpower,
+                                    sf = spreadingfactor,
+                                    cr = codingrate,
+                                    flow_control = flow_control,
+                                    id_interval = id_interval,
+                                    id_callsign = id_callsign
+                                )
 
-	@staticmethod
-	def should_allow_unencrypted():
-		return Reticulum.__allow_unencrypted
+                                if "outgoing" in c and c["outgoing"].lower() == "true":
+                                    interface.OUT = True
+                                else:
+                                    interface.OUT = False
 
-	@staticmethod
-	def should_use_implicit_proof():
-		return Reticulum.__use_implicit_proof
+                                RNS.Transport.interfaces.append(interface)
+                        else:
+                            RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_NOTICE)
 
-	@staticmethod
-	def transport_enabled():
-		return Reticulum.__transport_enabled
+                    except Exception as e:
+                        RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
+                        RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                        RNS.panic()
+                else:
+                    RNS.log("The interface name \""+name+"\" was already used. Check your configuration file for errors!", RNS.LOG_ERROR)
+                    RNS.panic()
+                
+
+    def createDefaultConfig(self):
+        self.config = ConfigObj(__default_rns_config__)
+        self.config.filename = Reticulum.configpath
+        
+        if not os.path.isdir(Reticulum.configdir):
+            os.makedirs(Reticulum.configdir)
+        self.config.write()
+        self.applyConfig()
+
+    @staticmethod
+    def should_allow_unencrypted():
+        return Reticulum.__allow_unencrypted
+
+    @staticmethod
+    def should_use_implicit_proof():
+        return Reticulum.__use_implicit_proof
+
+    @staticmethod
+    def transport_enabled():
+        return Reticulum.__transport_enabled
 
 # Default configuration file:
 __default_rns_config__ = '''# This is the default Reticulum config file.
@@ -467,7 +467,7 @@ loglevel = 4
   # needs or turn it off completely.
   
   [[Default UDP Interface]]
-  	type = UdpInterface
+    type = UdpInterface
     interface_enabled = True
     outgoing = True
     listen_ip = 0.0.0.0
@@ -564,7 +564,7 @@ loglevel = 4
     # Allow transmit on interface.
     outgoing = true
 
-	# Serial port for the device
+    # Serial port for the device
     port = /dev/ttyUSB1
 
     # Set the serial baud-rate and other
@@ -621,7 +621,7 @@ loglevel = 4
     # Allow transmit on interface.
     outgoing = true
 
-	# Serial port for the device
+    # Serial port for the device
     port = /dev/ttyUSB2
 
     # Set the serial baud-rate and other
