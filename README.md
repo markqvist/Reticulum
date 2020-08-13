@@ -54,10 +54,9 @@ Reticulum implements a range of generalised interface types that covers most of 
  - UDP over IP networks
 
 ## What is currently being worked on?
- - Delay/disruption tolerance
  - API documentation
  - Useful example programs and utilities
- - A generic message transfer protocol built on Reticulum, see [LXMF](https://github.com/markqvist/lxmf)
+ - A delay and disruption tolerant message transfer protocol built on Reticulum, see [LXMF](https://github.com/markqvist/lxmf)
  - A few useful-in-the-real-world apps built with Reticulum
 
 ## Can I use Reticulum on amateur radio spectrum?
