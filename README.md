@@ -1,9 +1,9 @@
 Reticulum Network Stack α
 ==========
 
-Reticulum is a cryptography-based networking stack for high-latency, wide-area networks built on readily available hardware. Reticulum allows you to build very wide-area networks with off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable packet acknowledgements and more.
+Reticulum is a cryptography-based networking stack for wide-area networks built on readily available hardware, and can operate even with very high latency and extremely low bandwidth. Reticulum allows you to build very wide-area networks with off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable packet acknowledgements and more.
 
-Reticulum is a complete networking stack, and does not use IP or higher layers, although it is easy to utilise IP (with TCP or UDP) as the underlying carrier for Reticulum.
+Reticulum is a complete networking stack, and does not use IP or higher layers, although it is easy to utilise IP (with TCP or UDP) as the underlying carrier for Reticulum. It is therefore trivial to tunnel Reticulum over the Internet or private IP networks.
 
 Having no dependencies on traditional networking stacks free up overhead that has been utilised to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.
 
@@ -22,22 +22,25 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
     - IVs are generated through os.urandom()
  - Unforgeable packet delivery confirmations
  - A variety of supported interface types
- - Efficient and easy resource transfers
  - An intuitive and easy-to-use API
+ - Reliable and efficient transfer of arbritrary amounts of data
+    - Reticulum can handle a few bytes of data or files of many gigabytes
+    - Sequencing, transfer coordination and checksumming is automatic
+    - The API is very easy to use, and provides transfer progress
 
 ## Where can Reticulum be used?
-On practically any hardware that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.
+On practically any hardware that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, ad-hoc WiFi, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.
 
-An open-source LoRa-based interface called [RNode](https://unsigned.io/projects/rnode/) has been designed specifically for use with Reticulum. It is possible to build yourself, or can be purchased as a complete transceiver that just needs a USB connection to the host.
+An open-source LoRa-based interface called [RNode](https://unsigned.io/projects/rnode/) has been designed specifically for use with Reticulum. It is possible to build yourself, or it can be purchased as a complete transceiver that just needs a USB connection to the host.
 
 Reticulum can also be encapsulated over existing IP networks, so there's nothing stopping you from using it over wired ethernet or your local WiFi network, where it'll work just as well. In fact, one of the strengths of Reticulum is how easily it allows you to connect different mediums into a self-configuring, resilient and encrypted mesh.
 
 As an example, it's possible to set up a Raspberry Pi connected to both a LoRa radio, a packet radio TNC and a WiFi network. Once the interfaces are configured, Reticulum will take care of the rest, and any device on the WiFi network can communicate with nodes on the LoRa and packet radio sides of the network, and vice versa.
 
 ## Current Status
-Consider Reticulum experimental at this stage. Most features are implemented and working, but at this point the protocol may still change significantly, and is made publicly available for development collaboration, previewing and testing.
+Consider Reticulum in extended testing at this stage. All core protocol features are implemented and functioning, but additions and changes can still occur if it is warranted.
 
-An API- and wireformat-stable alpha release is coming in the near future. Until then expect things to change unexpectedly if something warrants it.
+An API- and wireformat-stable beta is near at hand.
 
 ## Supported interface types and devices
 
@@ -74,7 +77,7 @@ If you just need Reticulum as a dependency for another application, the easiest 
 pip3 install rns
 ```
 
-For development, you might want to get the latest source from GitHub. In that case, don't use pip, but try this recipe:
+For Reticulum development, you might want to get the latest source from GitHub. In that case, don't use pip, but try this recipe:
 
 ```bash
 # Install dependencies
@@ -114,4 +117,4 @@ The default config file contains examples for using Reticulum with LoRa transcei
 You can use the examples in the config file to expand communication over other mediums such as packet radio or LoRa, or over fast IP links using the UDP interface. I'll add in-depth tutorials and explanations on these topics later. For now, the included examples will hopefully be enough to get started.
 
 ## Caveat Emptor
-Reticulum is alpha software, and should be considered experimental. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy-breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
+Reticulum is experimental software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy-breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
