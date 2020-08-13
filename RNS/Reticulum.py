@@ -256,6 +256,8 @@ class Reticulum:
                                 databits = int(c["databits"]) if "databits" in c else 8
                                 parity = c["parity"] if "parity" in c else "N"
                                 stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+                                beacon_interval = int(c["id_interval"]) if "id_interval" in c else None
+                                beacon_data = c["id_callsign"] if "id_callsign" in c else None
 
                                 if port == None:
                                     raise ValueError("No port specified for serial interface")
@@ -272,7 +274,9 @@ class Reticulum:
                                     txtail,
                                     persistence,
                                     slottime,
-                                    flow_control
+                                    flow_control,
+                                    beacon_interval,
+                                    beacon_data
                                 )
 
                                 if "outgoing" in c and c["outgoing"].lower() == "true":
@@ -542,16 +546,22 @@ loglevel = 4
     # out identification on the channel with
     # a set interval by configuring the
     # following two parameters. The trans-
-    # ceiver will only ID before making an
-    # actual transmission, and if the set
+    # ceiver will only ID if the set
     # interval has elapsed since it's last
-    # ID. Interval is configured in seconds
+    # actual transmission. The interval is
+    # configured in seconds.
     # This option is commented out and not
     # used by default.
     # id_callsign = MYCALL-0
     # id_interval = 600
 
-
+    # For certain homebrew RNode interfaces
+    # with low amounts of RAM, using packet
+    # flow control can be useful. By default
+    # it is disabled.
+    flow_control = False
+    
+    
   # An example KISS modem interface. Useful for running
   # Reticulum over packet radio hardware.
 
@@ -574,11 +584,6 @@ loglevel = 4
     parity = none
     stopbits = 1
 
-    # Whether to use KISS flow-control.
-    # This is useful for modems with a
-    # small internal packet buffer.
-    flow_control = false
-
     # Set the modem preamble. A 150ms
     # preamble should be a reasonable
     # default, but may need to be
@@ -597,6 +602,25 @@ loglevel = 4
     persistence = 200
     slottime = 20
 
+    # You can configure the interface to send
+    # out identification on the channel with
+    # a set interval by configuring the
+    # following two parameters. The KISS
+    # interface will only ID if the set
+    # interval has elapsed since it's last
+    # actual transmission. The interval is
+    # configured in seconds.
+    # This option is commented out and not
+    # used by default.
+    # id_callsign = MYCALL-0
+    # id_interval = 600
+
+    # Whether to use KISS flow-control.
+    # This is useful for modems that have
+    # a small internal packet buffer, but
+    # support packet flow control instead.
+    flow_control = false
+
 
   # If you're using Reticulum on amateur radio spectrum,
   # you might want to use the AX.25 KISS interface. This
@@ -607,6 +631,9 @@ loglevel = 4
   # Only do this if you really need to! Reticulum doesn't
   # need the AX.25 layer for anything, and it incurs extra
   # overhead on every packet to encapsulate in AX.25.
+  #
+  # A more efficient way is to use the plain KISS interface
+  # with the beaconing functionality described above.
 
   [[Packet Radio AX.25 KISS Interface]]
     type = AX25KISSInterface

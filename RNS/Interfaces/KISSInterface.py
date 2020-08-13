@@ -39,7 +39,7 @@ class KISSInterface(Interface):
     stopbits = None
     serial   = None
 
-    def __init__(self, owner, name, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime, flow_control):
+    def __init__(self, owner, name, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime, flow_control, beacon_interval, beacon_data):
         self.serial   = None
         self.owner    = owner
         self.name     = name
@@ -50,10 +50,15 @@ class KISSInterface(Interface):
         self.stopbits = stopbits
         self.timeout  = 100
         self.online   = False
+        self.beacon_i = beacon_interval
+        self.beacon_d = beacon_data.encode("utf-8")
+        self.first_tx = None
 
         self.packet_queue    = []
         self.flow_control    = flow_control
         self.interface_ready = False
+        self.flow_control_timeout = 10
+        self.flow_control_locked  = time.time()
 
         self.preamble    = preamble if preamble != None else 350;
         self.txtail      = txtail if txtail != None else 20;
@@ -174,12 +179,20 @@ class KISSInterface(Interface):
             if self.interface_ready:
                 if self.flow_control:
                     self.interface_ready = False
+                    self.flow_control_locked = time.time()
 
                 data = data.replace(bytes([0xdb]), bytes([0xdb])+bytes([0xdd]))
                 data = data.replace(bytes([0xc0]), bytes([0xdb])+bytes([0xdc]))
                 frame = bytes([KISS.FEND])+bytes([0x00])+data+bytes([KISS.FEND])
 
                 written = self.serial.write(frame)
+
+                if data == self.beacon_d:
+                    self.first_tx = None
+                else:
+                    if self.first_tx == None:
+                        self.first_tx = time.time()
+
                 if written != len(frame):
                     raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))
 
@@ -235,8 +248,6 @@ class KISSInterface(Interface):
                                     escape = False
                                 data_buffer = data_buffer+bytes([byte])
                         elif (command == KISS.CMD_READY):
-                            # TODO: add timeout and reset if ready
-                            # command never arrives
                             self.process_queue()
                 else:
                     time_since_last = int(time.time()*1000) - last_read_ms
@@ -246,6 +257,19 @@ class KISSInterface(Interface):
                         command = KISS.CMD_UNKNOWN
                         escape = False
                     sleep(0.08)
+
+                    if self.flow_control:
+                        if not self.interface_ready:
+                            if time.time() > self.flow_control_locked + self.flow_control_timeout:
+                                RNS.log("Interface "+str(self)+" is unlocking flow control due to time-out. This should not happen. Your hardware might have missed a flow-control READY command.", RNS.LOG_WARNING)
+                                self.process_queue()
+
+                    if self.beacon_i != None and self.beacon_d != None:
+                        if self.first_tx != None:
+                            if time.time() > self.first_tx + self.beacon_i:
+                                RNS.log("Interface "+str(self)+" is transmitting beacon data: "+str(self.beacon_d.decode("utf-8")), RNS.LOG_DEBUG)
+                                self.first_tx = None
+                                self.processOutgoing(self.beacon_d)
 
         except Exception as e:
             self.online = False

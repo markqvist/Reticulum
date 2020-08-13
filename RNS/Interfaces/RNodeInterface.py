@@ -92,6 +92,7 @@ class RNodeInterface(Interface):
         self.bitrate     = 0
 
         self.last_id     = 0
+        self.first_tx    = None
 
         self.r_frequency = None
         self.r_bandwidth = None
@@ -133,7 +134,7 @@ class RNodeInterface(Interface):
         if id_interval != None and id_callsign != None:
             if (len(id_callsign.encode("utf-8")) <= RNodeInterface.CALLSIGN_MAX_LEN):
                 self.should_id = True
-                self.id_callsign = id_callsign
+                self.id_callsign = id_callsign.encode("utf-8")
                 self.id_interval = id_interval
             else:
                 RNS.log("The encoded ID callsign for "+str(self)+" exceeds the max length of "+str(RNodeInterface.CALLSIGN_MAX_LEN)+" bytes.", RNS.LOG_ERROR)
@@ -286,15 +287,15 @@ class RNodeInterface(Interface):
                 if self.flow_control:
                     self.interface_ready = False
 
-                frame = b""
-
-                if self.id_interval != None and self.id_callsign != None:
-                    if self.last_id + self.id_interval < time.time():
-                        self.last_id = time.time()
-                        frame = bytes([0xc0])+bytes([0x00])+KISS.escape(self.id_callsign.encode("utf-8"))+bytes([0xc0])
+                if data == self.id_callsign:
+                    self.first_tx = None
+                else:
+                    if self.first_tx == None:
+                        self.first_tx = time.time()
 
                 data    = KISS.escape(data)
-                frame  += bytes([0xc0])+bytes([0x00])+data+bytes([0xc0])
+                frame   = bytes([0xc0])+bytes([0x00])+data+bytes([0xc0])
+
                 written = self.serial.write(frame)
 
                 if written != len(frame):
@@ -450,6 +451,13 @@ class RNodeInterface(Interface):
                         in_frame = False
                         command = KISS.CMD_UNKNOWN
                         escape = False
+
+                    if self.id_interval != None and self.id_callsign != None:
+                        if self.first_tx != None:
+                            if time.time() > self.first_tx + self.id_interval:
+                                RNS.log("Interface "+str(self)+" is transmitting beacon data: "+str(self.id_callsign.decode("utf-8")), RNS.LOG_DEBUG)
+                                self.processOutgoing(self.id_callsign)
+
                     sleep(0.08)
 
         except Exception as e:
