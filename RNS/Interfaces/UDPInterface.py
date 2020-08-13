@@ -6,7 +6,7 @@ import time
 import sys
 import RNS
 
-class UdpInterface(Interface):
+class UDPInterface(Interface):
 
     def __init__(self, owner, name, bindip=None, bindport=None, forwardip=None, forwardport=None):
         self.IN  = True
@@ -20,7 +20,7 @@ class UdpInterface(Interface):
 
             def handlerFactory(callback):
                 def createHandler(*args, **keys):
-                    return UdpInterfaceHandler(callback, *args, **keys)
+                    return UDPInterfaceHandler(callback, *args, **keys)
                 return createHandler
 
             self.owner = owner
@@ -47,9 +47,9 @@ class UdpInterface(Interface):
 
 
     def __str__(self):
-        return "UdpInterface["+self.name+"/"+self.bind_ip+":"+str(self.bind_port)+"]"
+        return "UDPInterface["+self.name+"/"+self.bind_ip+":"+str(self.bind_port)+"]"
 
-class UdpInterfaceHandler(socketserver.BaseRequestHandler):
+class UDPInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):
         self.callback = callback
         socketserver.BaseRequestHandler.__init__(self, *args, **keys)

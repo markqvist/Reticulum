@@ -168,8 +168,8 @@ class Reticulum:
 
                     try:
                         if ("interface_enabled" in c) and c.as_bool("interface_enabled") == True:
-                            if c["type"] == "UdpInterface":
-                                interface = UdpInterface.UdpInterface(
+                            if c["type"] == "UDPInterface":
+                                interface = UDPInterface.UDPInterface(
                                     RNS.Transport,
                                     name,
                                     c["listen_ip"],
@@ -467,7 +467,7 @@ loglevel = 4
   # needs or turn it off completely.
   
   [[Default UDP Interface]]
-    type = UdpInterface
+    type = UDPInterface
     interface_enabled = True
     outgoing = True
     listen_ip = 0.0.0.0
