@@ -144,7 +144,7 @@ class Identity:
 
     def createKeys(self):
         self.prv = rsa.generate_private_key(
-            public_exponent=65337,
+            public_exponent=65537,
             key_size=Identity.KEYSIZE,
             backend=default_backend()
         )
