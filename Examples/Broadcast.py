@@ -73,7 +73,7 @@ if __name__ == "__main__":
     try:
         parser = argparse.ArgumentParser(description="Reticulum example that demonstrates sending and receiving unencrypted broadcasts")
         parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
-        parser.add_argument("--channel", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
+        parser.add_argument("--channel", action="store", default=None, help="broadcast channel name", type=str)
         args = parser.parse_args()
 
         if args.config:

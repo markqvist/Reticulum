@@ -42,15 +42,15 @@ class Resource:
     HASHMAP_IS_EXHAUSTED = 0xFF
 
     # Status constants
-    NONE             = 0x00
-    QUEUED             = 0x01
-    ADVERTISED         = 0x02
+    NONE            = 0x00
+    QUEUED          = 0x01
+    ADVERTISED      = 0x02
     TRANSFERRING    = 0x03
     AWAITING_PROOF  = 0x04
     ASSEMBLING      = 0x05
     COMPLETE        = 0x06
-    FAILED            = 0x07
-    CORRUPT            = 0x08
+    FAILED          = 0x07
+    CORRUPT         = 0x08
 
     @staticmethod
     def accept(advertisement_packet, callback=None, progress_callback = None):

@@ -188,7 +188,7 @@ class Identity:
 
         except Exception as e:
             RNS.log("Failed to load identity key", RNS.LOG_ERROR)
-            RNS.log("The contained exception was: "+str(e))
+            RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
             return False
 
     def loadPublicKey(self, key):

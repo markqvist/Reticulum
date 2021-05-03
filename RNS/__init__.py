@@ -3,6 +3,7 @@ import sys
 import glob
 import time
 import random
+import threading
 
 from .Reticulum import Reticulum
 from .Identity import Identity
@@ -35,6 +36,10 @@ logtimefmt   = "%Y-%m-%d %H:%M:%S"
 
 random.seed(os.urandom(10))
 
+_always_override_destination = False
+
+logging_lock = threading.Lock()
+
 def loglevelname(level):
     if (level == LOG_CRITICAL):
         return "Critical"
@@ -55,19 +60,31 @@ def loglevelname(level):
     
     return "Unknown"
 
-def log(msg, level=3):
-    # TODO: not thread safe
+def log(msg, level=3, _override_destination = False):
+    global _always_override_destination
+    
     if loglevel >= level:
         timestamp = time.time()
         logstring = "["+time.strftime(logtimefmt)+"] ["+loglevelname(level)+"] "+msg
+        logging_lock.acquire()
 
-        if (logdest == LOG_STDOUT):
+        if (logdest == LOG_STDOUT or _always_override_destination):
             print(logstring)
+            logging_lock.release()
 
-        if (logdest == LOG_FILE and logfile != None):
-            file = open(logfile, "a")
-            file.write(logstring+"\n")
-            file.close()
+        elif (logdest == LOG_FILE and logfile != None):
+            try:
+                file = open(logfile, "a")
+                file.write(logstring+"\n")
+                file.close()
+                logging_lock.release()
+            except Exception as e:
+                logging_lock.release()
+                _always_override_destination = True
+                log("Exception occurred while writing log message to log file: "+str(e), LOG_CRITICAL)
+                log("Dumping future log events to console!", LOG_CRITICAL)
+                log(msg, level)
+                
 
 def rand():
     result = random.random()
