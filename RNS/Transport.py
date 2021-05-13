@@ -446,6 +446,7 @@ class Transport:
     @staticmethod
     def inbound(raw, interface=None):
         while (Transport.jobs_running):
+            # TODO: Decrease this for performance
             sleep(0.1)
             
         Transport.jobs_locked = True
@@ -849,6 +850,9 @@ class Transport:
     def registerDestination(destination):
         destination.MTU = RNS.Reticulum.MTU
         if destination.direction == RNS.Destination.IN:
+            for registered_destination in Transport.destinations:
+                if destination.hash == registered_destination.hash:
+                    raise KeyError("Attempt to register an already registered destination.")
             Transport.destinations.append(destination)
 
     @staticmethod

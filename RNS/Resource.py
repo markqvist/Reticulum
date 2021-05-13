@@ -111,8 +111,6 @@ class Resource:
             return resource
         except Exception as e:
             RNS.log("Could not decode resource advertisement, dropping resource", RNS.LOG_DEBUG)
-            # TODO: Remove
-            raise e
             return None
 
     # Create a resource for transmission to a remote destination

@@ -43,10 +43,22 @@ class Identity:
             identity_data = Identity.known_destinations[destination_hash]
             identity = Identity(public_only=True)
             identity.loadPublicKey(identity_data[2])
+            identity.app_data = identity_data[3]
             RNS.log("Found "+RNS.prettyhexrep(destination_hash)+" in known destinations", RNS.LOG_EXTREME)
             return identity
         else:
             RNS.log("Could not find "+RNS.prettyhexrep(destination_hash)+" in known destinations", RNS.LOG_EXTREME)
+            return None
+
+    @staticmethod
+    def recall_app_data(destination_hash):
+        RNS.log("Searching for app_data for "+RNS.prettyhexrep(destination_hash)+"...", RNS.LOG_EXTREME)
+        if destination_hash in Identity.known_destinations:
+            app_data = Identity.known_destinations[destination_hash][3]
+            RNS.log("Found "+RNS.prettyhexrep(destination_hash)+" app_data in known destinations", RNS.LOG_EXTREME)
+            return app_data
+        else:
+            RNS.log("Could not find "+RNS.prettyhexrep(destination_hash)+" app_data in known destinations", RNS.LOG_EXTREME)
             return None
 
     @staticmethod
@@ -79,10 +91,6 @@ class Identity:
 
     @staticmethod
     def truncatedHash(data):
-        # TODO: Remove
-        # digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
-        # digest.update(data)
-
         return Identity.fullHash(data)[:(Identity.TRUNCATED_HASHLENGTH//8)]
 
     @staticmethod
@@ -103,11 +111,14 @@ class Identity:
 
             signed_data = destination_hash+public_key+random_hash+app_data
 
+            if not len(packet.data) > Identity.DERKEYSIZE//8+20+Identity.KEYSIZE//8:
+                app_data = None
+
             announced_identity = Identity(public_only=True)
             announced_identity.loadPublicKey(public_key)
 
             if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
-                RNS.Identity.remember(packet.getHash(), destination_hash, public_key)
+                RNS.Identity.remember(packet.getHash(), destination_hash, public_key, app_data)
                 RNS.log("Stored valid announce from "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
                 del announced_identity
                 return True

@@ -238,6 +238,9 @@ class Link:
     def getContext(self):
         return None
 
+    def inactive_for(self):
+        return min(time.time() - self.last_inbound, time.time() - self.last_outbound)
+
     def teardown(self):
         if self.status != Link.PENDING and self.status != Link.CLOSED:
             teardown_packet = RNS.Packet(self, self.link_id, context=RNS.Packet.LINKCLOSE)
@@ -331,6 +334,7 @@ class Link:
                 if sleep_time == None or sleep_time < 0:
                     RNS.log("Timing error! Tearing down link "+str(self)+" now.", RNS.LOG_ERROR)
                     self.teardown()
+                    sleep_time = 0.1
 
                 sleep(sleep_time)
 
@@ -454,7 +458,10 @@ class Link:
             return plaintext
         except Exception as e:
             RNS.log("Decryption failed on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
-            traceback.print_exc()
+            RNS.log(traceback.format_exc(), RNS.LOG_ERROR)
+            # TODO: Do we really need to do this? Or can we recover somehow?
+            self.teardown()
+
 
     def sign(self, message):
         return self.prv.sign(message, ec.ECDSA(hashes.SHA256()))
