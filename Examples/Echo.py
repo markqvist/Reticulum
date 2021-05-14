@@ -111,7 +111,7 @@ def client(destination_hexhash, configpath, timeout=None):
         
         # Let's first check if RNS knows a path to the destination.
         # If it does, we'll load the server identity and create a packet
-        if RNS.Transport.hasPath(destination_hash):
+        if RNS.Transport.has_path(destination_hash):
 
             # To address the server, we need to know it's public
             # key, so we check if Reticulum knows this destination.

@@ -970,7 +970,7 @@ class Transport:
             RNS.Packet(destination, packet_hash, context = RNS.Packet.CACHE_REQUEST).send()
 
     @staticmethod
-    def hasPath(destination_hash):
+    def has_path(destination_hash):
         if destination_hash in Transport.destination_table:
             return True
         else:
@@ -1130,6 +1130,6 @@ class Transport:
                 file = open(destination_table_path, "wb")
                 file.write(umsgpack.packb(serialised_destinations))
                 file.close()
-                RNS.log("Done saving path table to storage", RNS.LOG_VERBOSE)
+                RNS.log("Done saving "+str(len(serialised_destinations))+" path table entries to storage", RNS.LOG_VERBOSE)
             except Exception as e:
                 RNS.log("Could not save path table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
