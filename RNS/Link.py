@@ -138,6 +138,7 @@ class Link:
             self.request_time = time.time()
             self.start_watchdog()
             self.packet.send()
+            self.had_outbound()
             RNS.log("Link request "+RNS.prettyhexrep(self.link_id)+" sent to "+str(self.destination), RNS.LOG_VERBOSE)
 
 
@@ -169,6 +170,7 @@ class Link:
         proof_data = self.pub_bytes+signature
         proof = RNS.Packet(self, proof_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.LRPROOF)
         proof.send()
+        self.had_outbound()
 
     def prove_packet(self, packet):
         signature = self.sign(packet.packet_hash)
@@ -181,6 +183,7 @@ class Link:
 
         proof = RNS.Packet(self, proof_data, RNS.Packet.PROOF)
         proof.send()
+        self.had_outbound()
 
     def validateProof(self, packet):
         if self.initiator:
@@ -199,6 +202,7 @@ class Link:
                 rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
                 RNS.log("Sending RTT packet", RNS.LOG_EXTREME);
                 rtt_packet.send()
+                self.had_outbound()
 
                 self.status = Link.ACTIVE
                 if self.callbacks.link_established != None:
@@ -238,13 +242,23 @@ class Link:
     def getContext(self):
         return None
 
+    def no_inbound_for(self):
+        return time.time() - self.last_inbound
+
+    def no_outbound_for(self):
+        return time.time() - self.last_outbound
+
     def inactive_for(self):
-        return min(time.time() - self.last_inbound, time.time() - self.last_outbound)
+        return min(self.no_inbound_for(), self.no_outbound_for())
+
+    def had_outbound(self):
+        self.last_outbound = time.time()
 
     def teardown(self):
         if self.status != Link.PENDING and self.status != Link.CLOSED:
             teardown_packet = RNS.Packet(self, self.link_id, context=RNS.Packet.LINKCLOSE)
             teardown_packet.send()
+            self.had_outbound()
         self.status = Link.CLOSED
         if self.initiator:
             self.teardown_reason = Link.INITIATOR_CLOSED
@@ -342,6 +356,7 @@ class Link:
     def send_keepalive(self):
         keepalive_packet = RNS.Packet(self, bytes([0xFF]), context=RNS.Packet.KEEPALIVE)
         keepalive_packet.send()
+        self.had_outbound()
 
     def receive(self, packet):
         self.watchdog_lock = True
@@ -417,6 +432,7 @@ class Link:
                         if not self.initiator and packet.data == bytes([0xFF]):
                             keepalive_packet = RNS.Packet(self, bytes([0xFE]), context=RNS.Packet.KEEPALIVE)
                             keepalive_packet.send()
+                            self.had_outbound()
 
 
                     # TODO: find the most efficient way to allow multiple
