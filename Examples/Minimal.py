@@ -11,7 +11,7 @@ import RNS
 # destinations we create. Since this basic example
 # is part of a range of example utilities, we'll put
 # them all within the app namespace "example_utilities"
-APP_NAME = "example_utilitites"
+APP_NAME = "example_utilities"
 
 # This initialisation is executed when the program is started
 def program_setup(configpath):

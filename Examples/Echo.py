@@ -12,7 +12,7 @@ import RNS
 # destinations we create. Since this echo example
 # is part of a range of example utilities, we'll put
 # them all within the app namespace "example_utilities"
-APP_NAME = "example_utilitites"
+APP_NAME = "example_utilities"
 
 
 ##########################################################

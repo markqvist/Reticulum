@@ -56,6 +56,7 @@ class Transport:
     reverse_table        = {}         # A lookup table for storing packet hashes used to return proofs and replies
     link_table           = {}         # A lookup table containing hops for links
     held_announces       = {}         # A table containing temporarily held announce-table entries
+    announce_handlers    = []         # A table storing externally registered announce handlers
 
     # Transport control destinations are used
     # for control purposes like path requests
@@ -749,7 +750,33 @@ class Transport:
 
                             Transport.destination_table[packet.destination_hash] = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet]
                             RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_VERBOSE)
-            
+
+                            # Call externally registered callbacks from apps
+                            # wanting to know when an announce arrives
+                            for handler in Transport.announce_handlers:
+                                try:
+                                    # Check that the announced destination matches
+                                    # the handlers aspect filter
+                                    execute_callback = False
+                                    if handler.aspect_filter == None:
+                                        # If the handlers aspect filter is set to
+                                        # None, we execute the callback in all cases
+                                        execute_callback = True
+                                    else:
+                                        announce_identity = RNS.Identity.recall(packet.destination_hash)
+                                        handler_expected_hash = RNS.Destination.hash_from_name_and_identity(handler.aspect_filter, announce_identity)
+                                        if packet.destination_hash == handler_expected_hash:
+                                            execute_callback = True
+                                    if execute_callback:
+                                        handler.received_announce(
+                                            destination_hash=packet.destination_hash,
+                                            announced_identity=announce_identity,
+                                            app_data=RNS.Identity.recall_app_data(packet.destination_hash)
+                                        )
+                                except Exception as e:
+                                    RNS.log("Error while processing external announce callback.", RNS.LOG_ERROR)
+                                    RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+
             # Handling for linkrequests to local destinations
             elif packet.packet_type == RNS.Packet.LINKREQUEST:
                 for destination in Transport.destinations:
@@ -877,6 +904,17 @@ class Transport:
             link.status = RNS.Link.ACTIVE
         else:
             RNS.log("Attempted to activate a link that was not in the pending table", RNS.LOG_ERROR)
+
+    @staticmethod
+    def register_announce_handler(handler):
+        if hasattr(handler, "received_announce") and callable(handler.received_announce):
+            if hasattr(handler, "aspect_filter"):
+                Transport.announce_handlers.append(handler)
+
+    @staticmethod
+    def deregister_announce_handler(handler):
+        while handler in Transport.announce_handlers:
+            Transport.announce_handlers.remove(handler)
 
     @staticmethod
     def find_interface_from_hash(interface_hash):

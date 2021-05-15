@@ -36,7 +36,7 @@ class Destination:
     directions = [IN, OUT]
 
     @staticmethod
-    def getDestinationName(app_name, *aspects):
+    def full_name(app_name, *aspects):
         # Check input values and build name string
         if "." in app_name: raise ValueError("Dots can't be used in app names")
 
@@ -49,8 +49,8 @@ class Destination:
 
 
     @staticmethod
-    def getDestinationHash(app_name, *aspects):
-        name = Destination.getDestinationName(app_name, *aspects)
+    def hash(app_name, *aspects):
+        name = Destination.full_name(app_name, *aspects)
 
         # Create a digest for the destination
         digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
@@ -58,6 +58,16 @@ class Destination:
 
         return digest.finalize()[:10]
 
+    @staticmethod
+    def app_and_aspects_from_name(full_name):
+        components = full_name.split(".")
+        return (components[0], components[1:])
+
+    @staticmethod
+    def hash_from_name_and_identity(full_name, identity):
+        app_name, aspects = Destination.app_and_aspects_from_name(full_name)
+        aspects.append(identity.hexhash)
+        return Destination.hash(app_name, *aspects)
 
     def __init__(self, identity, direction, type, app_name, *aspects):
         # Check input values and build name string
@@ -81,8 +91,8 @@ class Destination:
 
         self.identity = identity
 
-        self.name = Destination.getDestinationName(app_name, *aspects)      
-        self.hash = Destination.getDestinationHash(app_name, *aspects)
+        self.name = Destination.full_name(app_name, *aspects)      
+        self.hash = Destination.hash(app_name, *aspects)
         self.hexhash = self.hash.hex()
 
         self.callback = None
