@@ -94,6 +94,7 @@ class Destination:
         self.name = Destination.full_name(app_name, *aspects)      
         self.hash = Destination.hash(app_name, *aspects)
         self.hexhash = self.hash.hex()
+        self.default_app_data = None
 
         self.callback = None
         self.proofcallback = None
@@ -217,12 +218,20 @@ class Destination:
         else:
             return None
 
+    def set_default_app_data(self, app_data=None):
+        self.default_app_data = app_data
+
+    def clear_default_app_data(self):
+        self.set_default_app_data(app_data=None)
 
     # Creates an announce packet for this destination.
     # Application specific data can be added to the announce.
     def announce(self, app_data=None, path_response=False):
         destination_hash = self.hash
         random_hash = RNS.Identity.getRandomHash()
+
+        if app_data == None and self.default_app_data != None:
+            app_data = self.default_app_data
         
         signed_data = self.hash+self.identity.getPublicKey()+random_hash
         if app_data != None:
