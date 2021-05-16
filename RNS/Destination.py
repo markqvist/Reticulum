@@ -24,7 +24,7 @@ class Destination:
     presence on the network, which will also distribute necessary keys for
     encrypted communication with it.
 
-    :param identity: An instance of :ref:`RNS.Identity<Identity>`. Can hold only public keys for an outgoing destination, or holding private keys for an ingoing.
+    :param identity: An instance of :ref:`RNS.Identity<api-identity>`. Can hold only public keys for an outgoing destination, or holding private keys for an ingoing.
     :param direction: ``RNS.Destination.IN`` or ``RNS.Destination.OUT``
     :param type: ``RNS.Destination.SINGLE``, ``RNS.Destination.GROUP`` or ``RNS.Destination.PLAIN``.
     :param app_name: A string specifying the app name.
@@ -275,7 +275,7 @@ class Destination:
         """
         Decrypts information for ``RNS.Destination.SINGLE`` or ``RNS.Destination.GROUP`` type destination.
 
-        :param ciphertext: A *bytes-like* containing the ciphertext to be decrypted.
+        :param ciphertext: *Bytes* containing the ciphertext to be decrypted.
         :raises: ``ValueError`` if destination does not hold a necessary key for decryption.
         """
         if self.type == Destination.PLAIN:
@@ -299,7 +299,7 @@ class Destination:
         """
         Signs information for ``RNS.Destination.SINGLE`` type destination.
 
-        :param message: A *bytes-like* containing the message to be signed.
+        :param message: *Bytes* containing the message to be signed.
         :returns: A *bytes-like* containing the message signature, or *None* if the destination could not sign the message.
         """
         if self.type == Destination.SINGLE and self.identity != None:
@@ -329,7 +329,7 @@ class Destination:
         all interfaces. Application specific data can be added to the announce.
 
         :param app_data: *bytes* containing the app_data.
-        :param path_response: Internal flag used by :ref:`RNS.Transport<Transport>`. Ignore.
+        :param path_response: Internal flag used by :ref:`RNS.Transport<api-transport>`. Ignore.
         """
         destination_hash = self.hash
         random_hash = RNS.Identity.get_random_hash()
