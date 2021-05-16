@@ -93,7 +93,7 @@ class Transport:
             if Transport.identity == None:
                 RNS.log("No valid Transport Identity in storage, creating...", RNS.LOG_VERBOSE)
                 Transport.identity = RNS.Identity()
-                Transport.identity.save(transport_identity_path)
+                Transport.identity.to_file(transport_identity_path)
             else:
                 RNS.log("Loaded Transport Identity from storage", RNS.LOG_VERBOSE)
 
