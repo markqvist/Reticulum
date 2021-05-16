@@ -245,7 +245,7 @@ class Resource:
                 collision_guard_list = []
                 for i in range(0,hashmap_entries):
                     data = self.data[i*Resource.SDU:(i+1)*Resource.SDU]
-                    map_hash = self.getMapHash(data)
+                    map_hash = self.get_map_hash(data)
 
                     if map_hash in collision_guard_list:
                         RNS.log("Found hash collision in resource map, remapping...", RNS.LOG_VERBOSE)
@@ -293,7 +293,7 @@ class Resource:
             self.waiting_for_hmu = False
             self.request_next()
 
-    def getMapHash(self, data):
+    def get_map_hash(self, data):
         # TODO: This will break if running unencrypted,
         # uncompressed transfers on streams with long blocks
         # of identical bytes. Doing so would be very silly
@@ -524,7 +524,7 @@ class Resource:
         if not self.status == Resource.FAILED:
             self.status = Resource.TRANSFERRING
             part_data = packet.data
-            part_hash = self.getMapHash(part_data)
+            part_hash = self.get_map_hash(part_data)
 
             i = self.consecutive_completed_height
             for map_hash in self.hashmap[self.consecutive_completed_height:self.consecutive_completed_height+self.window]:
