@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Examples &#8212; Reticulum Network Stack 0.2.0 beta documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="reference.html" />
+    <link rel="prev" title="Getting Started Fast" href="gettingstartedfast.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="reference.html" title="API Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gettingstartedfast.html" title="Getting Started Fast"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.0 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Examples</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="examples">
+<span id="examples-main"></span><h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>A number of examples are included in the source distribution of Reticulum.
+You can use these examples to learn how to write your own programs.</p>
+<div class="section" id="minimal">
+<span id="example-minimal"></span><h2>Minimal<a class="headerlink" href="#minimal" title="Permalink to this headline">¶</a></h2>
+<p>This example can be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Minimal.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Minimal.py</a>.</p>
+<p>The <em>Minimal</em> example demonstrates the bare-minimum setup required to connect to
+a Reticulum network from your program. In about five lines of code, you will
+have the Reticulum Network Stack initialised, and ready to pass traffic in your
+program.</p>
+</div>
+<div class="section" id="announce">
+<span id="example-announce"></span><h2>Announce<a class="headerlink" href="#announce" title="Permalink to this headline">¶</a></h2>
+<p>This example can be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Announce.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Announce.py</a>.</p>
+<p>The <em>Announce</em> example builds upon the previous example by exploring how to
+announce a destination on the network, and how to let your program receive
+notifications about announces from relevant destinations.</p>
+</div>
+<div class="section" id="broadcast">
+<span id="example-broadcast"></span><h2>Broadcast<a class="headerlink" href="#broadcast" title="Permalink to this headline">¶</a></h2>
+<p>This example can be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Broadcast.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Broadcast.py</a>.</p>
+<p>The <em>Broadcast</em> example explores how to transmit plaintext broadcast messages
+over the network.</p>
+</div>
+<div class="section" id="echo">
+<span id="example-echo"></span><h2>Echo<a class="headerlink" href="#echo" title="Permalink to this headline">¶</a></h2>
+<p>This example can be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Echo.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Echo.py</a>.</p>
+<p>The <em>Echo</em> example demonstrates communication between two destinations using
+the Packet interface.</p>
+</div>
+<div class="section" id="link">
+<span id="example-link"></span><h2>Link<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h2>
+<p>This example can be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Link.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Link.py</a>.</p>
+<p>The <em>Link</em> example explores establishing an encrypted link to a remote
+destination, and passing traffic back and forth over the link.</p>
+</div>
+<div class="section" id="filetransfer">
+<span id="example-filetransfer"></span><h2>Filetransfer<a class="headerlink" href="#filetransfer" title="Permalink to this headline">¶</a></h2>
+<p>This example can be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Filetransfer.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Filetransfer.py</a>.</p>
+<p>The <em>Filetransfer</em> example implements a basic file-server program that
+allow clients to connect and download files. The program uses the Resource
+interface to efficiently pass files of any size over a Reticulum <a class="reference internal" href="reference.html#api-link"><span class="std std-ref">Link</span></a>.</p>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Examples</a><ul>
+<li><a class="reference internal" href="#minimal">Minimal</a></li>
+<li><a class="reference internal" href="#announce">Announce</a></li>
+<li><a class="reference internal" href="#broadcast">Broadcast</a></li>
+<li><a class="reference internal" href="#echo">Echo</a></li>
+<li><a class="reference internal" href="#link">Link</a></li>
+<li><a class="reference internal" href="#filetransfer">Filetransfer</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gettingstartedfast.html"
+                        title="previous chapter">Getting Started Fast</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="reference.html"
+                        title="next chapter">API Reference</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/examples.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="reference.html" title="API Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gettingstartedfast.html" title="Getting Started Fast"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.0 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Examples</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Mark Qvist.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1046 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Reference &#8212; Reticulum Network Stack 0.2.0 beta documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Understanding Reticulum" href="understanding.html" />
+    <link rel="prev" title="Examples" href="examples.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="understanding.html" title="Understanding Reticulum"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.0 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API Reference</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="api-reference">
+<span id="api-main"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<p>This reference guide lists and explains all classes exposed by the RNS API.</p>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<p>Communication over a Reticulum network is achieved using a set of classes exposed by RNS.</p>
+<div class="section" id="reticulum">
+<span id="api-reticulum"></span><h3>Reticulum<a class="headerlink" href="#reticulum" title="Permalink to this headline">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.Reticulum">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Reticulum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is used to initialise access to Reticulum within a
+program. You must create exactly one instance of this class before
+carrying out any other RNS operations, such as creating destinations
+or sending traffic. Every independently executed program must create
+their own instance of the Reticulum class, but Reticulum will
+automatically handle inter-program communication on the same system,
+and expose all connected programs to external interfaces as well.</p>
+<p>As soon as an instance of this class is created, Reticulum will start
+opening and configuring any hardware devices specified in the supplied
+configuration.</p>
+<p>Currently the first running instance must be kept running while other
+local instances are connected, as the first created instance will
+act as a master instance that directly communicates with external
+hardware such as modems, TNCs and radios. If a master instance is
+asked to exit, it will not exit until all client processes have
+terminated (unless killed forcibly).</p>
+<p>If you are running Reticulum on a system with several different
+programs that use RNS starting and terminating at different times,
+it will be advantageous to run a master RNS instance as a daemon for
+other programs to use on demand.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Reticulum.should_allow_unencrypted">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">should_allow_unencrypted</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.should_allow_unencrypted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether unencrypted links are allowed by the
+current configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if the current running configuration allows downgrading links to plaintext. False if not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Reticulum.should_use_implicit_proof">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">should_use_implicit_proof</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.should_use_implicit_proof" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether proofs sent are explicit or implicit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if the current running configuration specifies to use implicit proofs. False if not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Reticulum.transport_enabled">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">transport_enabled</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.transport_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether Transport is enabled for the running
+instance.</p>
+<p>When Transport is enabled, Reticulum will
+route traffic for other peers, respond to path requests
+and pass announces over the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if Transport is enabled, False if not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="api-identity">
+<span id="identity"></span><h3>Identity<a class="headerlink" href="#api-identity" title="Permalink to this headline">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.Identity">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Identity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is used to manage identities in Reticulum. It provides methods
+for encryption, decryption, signatures and verification, and is the basis
+for all encrypted communication over Reticulum networks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>public_only</strong> – Specifies whether this destination only holds a public key.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Identity.KEYSIZE">
+<span class="sig-name descname"><span class="pre">KEYSIZE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">1024</span></em><a class="headerlink" href="#RNS.Identity.KEYSIZE" title="Permalink to this definition">¶</a></dt>
+<dd><p>RSA key size in bits.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Identity.TRUNCATED_HASHLENGTH">
+<span class="sig-name descname"><span class="pre">TRUNCATED_HASHLENGTH</span></span><em class="property"> <span class="pre">=</span> <span class="pre">80</span></em><a class="headerlink" href="#RNS.Identity.TRUNCATED_HASHLENGTH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constant specifying the truncated hash length (in bits) used by Reticulum
+for addressable hashes. Non-configurable.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.recall">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">recall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.recall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recall identity for a destination hash.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>destination_hash</strong> – Destination hash as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An <a class="reference internal" href="#api-identity"><span class="std std-ref">RNS.Identity</span></a> instance that can be used to create an outgoing <a class="reference internal" href="#api-destination"><span class="std std-ref">RNS.Destination</span></a>, or <em>None</em> if the destination is unknown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.recall_app_data">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">recall_app_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.recall_app_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recall last heard app_data for a destination hash.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>destination_hash</strong> – Destination hash as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>Bytes</em> containing app_data, or <em>None</em> if the destination is unknown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.full_hash">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">full_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.full_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a SHA-256 hash of passed data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – Data to be hashed as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SHA-256 hash as <em>bytes</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.truncated_hash">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">truncated_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.truncated_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a truncated SHA-256 hash of passed data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – Data to be hashed as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Truncated SHA-256 hash as <em>bytes</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.get_random_hash">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">get_random_hash</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.get_random_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a random SHA-256 hash.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – Data to be hashed as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Truncated SHA-256 hash of random data as <em>bytes</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.from_file">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#api-identity"><span class="std std-ref">RNS.Identity</span></a> instance from a file.
+Can be used to load previously created and saved identities into Reticulum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – The full path to the saved <a class="reference internal" href="#api-identity"><span class="std std-ref">RNS.Identity</span></a> data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A <a class="reference internal" href="#api-identity"><span class="std std-ref">RNS.Identity</span></a> instance, or <em>None</em> if the loaded data was invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.get_private_key">
+<span class="sig-name descname"><span class="pre">get_private_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.get_private_key" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The private key as <em>bytes</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.get_public_key">
+<span class="sig-name descname"><span class="pre">get_public_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.get_public_key" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The public key as <em>bytes</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.load_private_key">
+<span class="sig-name descname"><span class="pre">load_private_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prv_bytes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.load_private_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a private key into the instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prv_bytes</strong> – The private key as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the key was loaded, otherwise False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.load_public_key">
+<span class="sig-name descname"><span class="pre">load_public_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.load_public_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a public key into the instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prv_bytes</strong> – The public key as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the key was loaded, otherwise False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.to_file">
+<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the identity to a file. This will write the private key to disk,
+and anyone with access to this file will be able to decrypt all
+communication for the identity. Be very careful with this method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – The full path specifying where to save the identity.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the file was saved, otherwise False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.encrypt">
+<span class="sig-name descname"><span class="pre">encrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plaintext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.encrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encrypts information for the identity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>plaintext</strong> – The plaintext to be encrypted as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Ciphertext as <em>bytes</em>.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><em>KeyError</em> if the instance does not hold a public key</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.decrypt">
+<span class="sig-name descname"><span class="pre">decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ciphertext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.decrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decrypts information for the identity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ciphertext</strong> – The ciphertext to be decrypted as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Plaintext as <em>bytes</em>, or <em>None</em> if decryption fails.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><em>KeyError</em> if the instance does not hold a private key</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.sign">
+<span class="sig-name descname"><span class="pre">sign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.sign" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signs information by the identity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> – The message to be signed as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Signature as <em>bytes</em>.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><em>KeyError</em> if the instance does not hold a private key</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates the signature of a signed message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signature</strong> – The signature to be validated as <em>bytes</em>.</p></li>
+<li><p><strong>message</strong> – The message to be validated as <em>bytes</em>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the signature is valid, otherwise False.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><em>KeyError</em> if the instance does not hold a public key</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="destination">
+<span id="api-destination"></span><h3>Destination<a class="headerlink" href="#destination" title="Permalink to this headline">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.Destination">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Destination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">aspects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class used to describe endpoints in a Reticulum Network. Destination
+instances are used both to create outgoing and incoming endpoints. The
+destination type will decide if encryption, and what type, is used in
+communication with the endpoint. A destination can also announce its
+presence on the network, which will also distribute necessary keys for
+encrypted communication with it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identity</strong> – An instance of <a class="reference internal" href="#api-identity"><span class="std std-ref">RNS.Identity</span></a>. Can hold only public keys for an outgoing destination, or holding private keys for an ingoing.</p></li>
+<li><p><strong>direction</strong> – <code class="docutils literal notranslate"><span class="pre">RNS.Destination.IN</span></code> or <code class="docutils literal notranslate"><span class="pre">RNS.Destination.OUT</span></code></p></li>
+<li><p><strong>type</strong> – <code class="docutils literal notranslate"><span class="pre">RNS.Destination.SINGLE</span></code>, <code class="docutils literal notranslate"><span class="pre">RNS.Destination.GROUP</span></code> or <code class="docutils literal notranslate"><span class="pre">RNS.Destination.PLAIN</span></code>.</p></li>
+<li><p><strong>app_name</strong> – A string specifying the app name.</p></li>
+<li><p><strong>*aspects</strong> – Any non-zero number of string arguments.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.full_name">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">full_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">aspects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.full_name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A string containing the full human-readable name of the destination, for an app_name and a number of aspects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.app_and_aspects_from_name">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">app_and_aspects_from_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.app_and_aspects_from_name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A tuple containing the app name and a list of aspects, for a full-name string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.hash_from_name_and_identity">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">hash_from_name_and_identity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.hash_from_name_and_identity" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A destination name in adressable hash form, for a full name string and Identity instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.hash">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">aspects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.hash" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A destination name in adressable hash form, for an app_name and a number of aspects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.announce">
+<span class="sig-name descname"><span class="pre">announce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.announce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an announce packet for this destination and broadcasts it on
+all interfaces. Application specific data can be added to the announce.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>app_data</strong> – <em>bytes</em> containing the app_data.</p></li>
+<li><p><strong>path_response</strong> – Internal flag used by <a class="reference internal" href="#api-transport"><span class="std std-ref">RNS.Transport</span></a>. Ignore.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.link_established_callback">
+<span class="sig-name descname"><span class="pre">link_established_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.link_established_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a function to be called when a link has been established to
+this destination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method to be called.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.packet_callback">
+<span class="sig-name descname"><span class="pre">packet_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.packet_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a function to be called when a packet has been received by
+this destination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method to be called.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.proof_requested_callback">
+<span class="sig-name descname"><span class="pre">proof_requested_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.proof_requested_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a function to be called when a proof has been requested for
+a packet sent to this destination. Allows control over when and if
+proofs should be returned for received packets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method to be called. The callback must return one of True or False. If the callback returns True, a proof will be sent. If it returns False, a proof will not be sent.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.set_proof_strategy">
+<span class="sig-name descname"><span class="pre">set_proof_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proof_strategy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.set_proof_strategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the destinations proof strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>proof_strategy</strong> – One of <code class="docutils literal notranslate"><span class="pre">RNS.Destination.PROVE_NONE</span></code>, <code class="docutils literal notranslate"><span class="pre">RNS.Destination.PROVE_ALL</span></code> or <code class="docutils literal notranslate"><span class="pre">RNS.Destination.PROVE_APP</span></code>. If <code class="docutils literal notranslate"><span class="pre">RNS.Destination.PROVE_APP</span></code> is set, the <cite>proof_requested_callback</cite> will be called to determine whether a proof should be sent or not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.create_keys">
+<span class="sig-name descname"><span class="pre">create_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.create_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a <code class="docutils literal notranslate"><span class="pre">RNS.Destination.GROUP</span></code> type destination, creates a new symmetric key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">TypeError</span></code> if called on an incompatible type of destination.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.get_private_key">
+<span class="sig-name descname"><span class="pre">get_private_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.get_private_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a <code class="docutils literal notranslate"><span class="pre">RNS.Destination.GROUP</span></code> type destination, returns the symmetric private key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">TypeError</span></code> if called on an incompatible type of destination.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.load_private_key">
+<span class="sig-name descname"><span class="pre">load_private_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.load_private_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a <code class="docutils literal notranslate"><span class="pre">RNS.Destination.GROUP</span></code> type destination, loads a symmetric private key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> – A <em>bytes-like</em> containing the symmetric key.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">TypeError</span></code> if called on an incompatible type of destination.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.encrypt">
+<span class="sig-name descname"><span class="pre">encrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plaintext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.encrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encrypts information for <code class="docutils literal notranslate"><span class="pre">RNS.Destination.SINGLE</span></code> or <code class="docutils literal notranslate"><span class="pre">RNS.Destination.GROUP</span></code> type destination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>plaintext</strong> – A <em>bytes-like</em> containing the plaintext to be encrypted.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">ValueError</span></code> if destination does not hold a necessary key for encryption.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.decrypt">
+<span class="sig-name descname"><span class="pre">decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ciphertext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.decrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decrypts information for <code class="docutils literal notranslate"><span class="pre">RNS.Destination.SINGLE</span></code> or <code class="docutils literal notranslate"><span class="pre">RNS.Destination.GROUP</span></code> type destination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ciphertext</strong> – <em>Bytes</em> containing the ciphertext to be decrypted.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">ValueError</span></code> if destination does not hold a necessary key for decryption.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.sign">
+<span class="sig-name descname"><span class="pre">sign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.sign" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signs information for <code class="docutils literal notranslate"><span class="pre">RNS.Destination.SINGLE</span></code> type destination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> – <em>Bytes</em> containing the message to be signed.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A <em>bytes-like</em> containing the message signature, or <em>None</em> if the destination could not sign the message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.set_default_app_data">
+<span class="sig-name descname"><span class="pre">set_default_app_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.set_default_app_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the default app_data for the destination. If set, the default
+app_data will be included in every announce sent by the destination,
+unless other app_data is specified in the <em>announce</em> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>app_data</strong> – A <em>bytes-like</em> containing the default app_data, or a <em>callable</em> returning a <em>bytes-like</em> containing the app_data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.clear_default_app_data">
+<span class="sig-name descname"><span class="pre">clear_default_app_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.clear_default_app_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears default app_data previously set for the destination.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="packet">
+<span id="api-packet"></span><h3>Packet<a class="headerlink" href="#packet" title="Permalink to this headline">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.Packet">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attached_interface</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_receipt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Packet class is used to create packet instances that can be
+sent over a Reticulum network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>destination</strong> – A <a class="reference internal" href="#api-destination"><span class="std std-ref">RNS.Destination</span></a> instance to which the packet will be sent.</p></li>
+<li><p><strong>data</strong> – The data payload to be included in the packet as <em>bytes</em>.</p></li>
+<li><p><strong>create_receipt</strong> – Specifies whether a <a class="reference internal" href="#api-packetreceipt"><span class="std std-ref">RNS.PacketReceipt</span></a> should be created when instantiating the packet.</p></li>
+<li><p><strong>type</strong> – Internal use by <a class="reference internal" href="#api-transport"><span class="std std-ref">RNS.Transport</span></a>. Defaults to <code class="docutils literal notranslate"><span class="pre">RNS.Packet.DATA</span></code>, and should not be specified.</p></li>
+<li><p><strong>context</strong> – Internal use by <a class="reference internal" href="#api-transport"><span class="std std-ref">RNS.Transport</span></a>. Ignore.</p></li>
+<li><p><strong>transport_type</strong> – Internal use by <a class="reference internal" href="#api-transport"><span class="std std-ref">RNS.Transport</span></a>. Ignore.</p></li>
+<li><p><strong>transport_id</strong> – Internal use by <a class="reference internal" href="#api-transport"><span class="std std-ref">RNS.Transport</span></a>. Ignore.</p></li>
+<li><p><strong>attached_interface</strong> – Internal use by <a class="reference internal" href="#api-transport"><span class="std std-ref">RNS.Transport</span></a>. Ignore.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Packet.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Packet.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends the packet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A <a class="reference internal" href="#api-packetreceipt"><span class="std std-ref">RNS.PacketReceipt</span></a> instance if <em>create_receipt</em> was set to <em>True</em> when the packet was instantiated, if not returns <em>None</em>. If the packet could not be sent <em>False</em> is returned.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Packet.resend">
+<span class="sig-name descname"><span class="pre">resend</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Packet.resend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Re-sends the packet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A <a class="reference internal" href="#api-packetreceipt"><span class="std std-ref">RNS.PacketReceipt</span></a> instance if <em>create_receipt</em> was set to <em>True</em> when the packet was instantiated, if not returns <em>None</em>. If the packet could not be sent <em>False</em> is returned.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="packet-receipt">
+<span id="api-packetreceipt"></span><h3>Packet Receipt<a class="headerlink" href="#packet-receipt" title="Permalink to this headline">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.PacketReceipt">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">PacketReceipt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.PacketReceipt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The PacketReceipt class is used to receive notifications about
+<a class="reference internal" href="#api-packet"><span class="std std-ref">RNS.Packet</span></a> instances sent over the network. Instances
+of this class should never be created manually, but always returned
+from a the <em>send()</em> method of a <a class="reference internal" href="#api-packet"><span class="std std-ref">RNS.Packet</span></a> instance.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.PacketReceipt.get_status">
+<span class="sig-name descname"><span class="pre">get_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.PacketReceipt.get_status" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The status of the associated <a class="reference internal" href="#api-packet"><span class="std std-ref">RNS.Packet</span></a> instance. Can be one of <code class="docutils literal notranslate"><span class="pre">RNS.PacketReceipt.SENT</span></code>, <code class="docutils literal notranslate"><span class="pre">RNS.PacketReceipt.DELIVERED</span></code>, <code class="docutils literal notranslate"><span class="pre">RNS.PacketReceipt.FAILED</span></code> or <code class="docutils literal notranslate"><span class="pre">RNS.PacketReceipt.CULLED</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.PacketReceipt.rtt">
+<span class="sig-name descname"><span class="pre">rtt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.PacketReceipt.rtt" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The round-trip-time in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.PacketReceipt.set_timeout">
+<span class="sig-name descname"><span class="pre">set_timeout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.PacketReceipt.set_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets a timeout in seconds</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> – The timeout in seconds.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.PacketReceipt.delivery_callback">
+<span class="sig-name descname"><span class="pre">delivery_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.PacketReceipt.delivery_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets a function that gets called if a successfull delivery has been proven.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>callback</strong> – A <em>callable</em> with the signature <em>callback(packet_receipt)</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.PacketReceipt.timeout_callback">
+<span class="sig-name descname"><span class="pre">timeout_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.PacketReceipt.timeout_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets a function that gets called if the delivery times out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>callback</strong> – A <em>callable</em> with the signature <em>callback(packet_receipt)</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="link">
+<span id="api-link"></span><h3>Link<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.Link">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peer_pub_bytes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>destination</strong> – A <a class="reference internal" href="#api-destination"><span class="std std-ref">RNS.Destination</span></a> instance which to establish a link to.</p></li>
+<li><p><strong>owner</strong> – Internal use by <a class="reference internal" href="#api-transport"><span class="std std-ref">RNS.Transport</span></a>, ignore this argument.</p></li>
+<li><p><strong>peer_pub_bytes</strong> – Internal use by <a class="reference internal" href="#api-transport"><span class="std std-ref">RNS.Transport</span></a>, ignore this argument.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Link.CURVE">
+<span class="sig-name descname"><span class="pre">CURVE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;cryptography.hazmat.primitives.asymmetric.ec.SECP256R1</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#RNS.Link.CURVE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The curve used for Elliptic Curve DH key exchanges</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Link.DEFAULT_TIMEOUT">
+<span class="sig-name descname"><span class="pre">DEFAULT_TIMEOUT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">15.0</span></em><a class="headerlink" href="#RNS.Link.DEFAULT_TIMEOUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default timeout for link establishment in seconds.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Link.KEEPALIVE">
+<span class="sig-name descname"><span class="pre">KEEPALIVE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">180</span></em><a class="headerlink" href="#RNS.Link.KEEPALIVE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interval for sending keep-alive packets on established links in seconds.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.no_inbound_for">
+<span class="sig-name descname"><span class="pre">no_inbound_for</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.no_inbound_for" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The time in seconds since last inbound packet on the link.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.no_outbound_for">
+<span class="sig-name descname"><span class="pre">no_outbound_for</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.no_outbound_for" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The time in seconds since last outbound packet on the link.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.inactive_for">
+<span class="sig-name descname"><span class="pre">inactive_for</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.inactive_for" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The time in seconds since activity on the link.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.teardown">
+<span class="sig-name descname"><span class="pre">teardown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.teardown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the link and purges encryption keys. New keys will
+be used if a new link to the same destination is established.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.packet_callback">
+<span class="sig-name descname"><span class="pre">packet_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.packet_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a function to be called when a packet has been
+received over this link.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method with the signature <em>callback(message, packet)</em> to be called.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.resource_callback">
+<span class="sig-name descname"><span class="pre">resource_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.resource_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a function to be called when a resource has been
+advertised over this link. If the function returns <em>True</em>
+the resource will be accepted. If it returns <em>False</em> it will
+be ignored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method with the signature <em>callback(resource)</em> to be called.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.resource_started_callback">
+<span class="sig-name descname"><span class="pre">resource_started_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.resource_started_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a function to be called when a resource has begun
+transferring over this link.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method with the signature <em>callback(resource)</em> to be called.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.resource_concluded_callback">
+<span class="sig-name descname"><span class="pre">resource_concluded_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.resource_concluded_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a function to be called when a resource has concluded
+transferring over this link.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method with the signature <em>callback(resource)</em> to be called.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.set_resource_strategy">
+<span class="sig-name descname"><span class="pre">set_resource_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_strategy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.set_resource_strategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the resource strategy for the link.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>resource_strategy</strong> – One of <code class="docutils literal notranslate"><span class="pre">RNS.Link.ACCEPT_NONE</span></code>, <code class="docutils literal notranslate"><span class="pre">RNS.Link.ACCEPT_ALL</span></code> or <code class="docutils literal notranslate"><span class="pre">RNS.Link.ACCEPT_APP</span></code>. If <code class="docutils literal notranslate"><span class="pre">RNS.Link.ACCEPT_APP</span></code> is set, the <cite>resource_callback</cite> will be called to determine whether the resource should be accepted or not.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><em>TypeError</em> if the resource strategy is unsupported.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.disable_encryption">
+<span class="sig-name descname"><span class="pre">disable_encryption</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.disable_encryption" title="Permalink to this definition">¶</a></dt>
+<dd><p>HAZARDOUS. This will downgrade the link to encryptionless. All
+information over the link will be sent in plaintext. Never use
+this in production applications. Should only be used for debugging
+purposes, and will disappear in a future version.</p>
+<p>If encryptionless links are not explicitly allowed in the users
+configuration file, Reticulum will terminate itself along with the
+client application and throw an error message to the user.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="resource">
+<span id="api-resource"></span><h3>Resource<a class="headerlink" href="#resource" title="Permalink to this headline">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.Resource">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advertise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">must_compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_hash</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Resource class allows transferring arbitrary amounts
+of data over a link. It will automatically handle sequencing,
+compression, coordination and checksumming.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The data to be transferred. Can be <em>bytes</em> or an open <em>file handle</em>. See the <a class="reference internal" href="examples.html#example-filetransfer"><span class="std std-ref">Filetransfer Example</span></a> for details.</p></li>
+<li><p><strong>link</strong> – The <a class="reference internal" href="#api-link"><span class="std std-ref">RNS.Link</span></a> instance on which to transfer the data.</p></li>
+<li><p><strong>advertise</strong> – Whether to automatically advertise the resource. Can be <em>True</em> or <em>False</em>.</p></li>
+<li><p><strong>auto_compress</strong> – Whether to auto-compress the resource. Can be <em>True</em> or <em>False</em>.</p></li>
+<li><p><strong>auto_compress</strong> – Whether the resource must be compressed. Can be <em>True</em> or <em>False</em>. Used for debugging, will disappear in the future.</p></li>
+<li><p><strong>callback</strong> – A <em>callable</em> with the signature <em>callback(resource)</em>. Will be called when the resource transfer concludes.</p></li>
+<li><p><strong>progress_callback</strong> – A <em>callable</em> with the signature <em>callback(resource)</em>. Will be called whenever the resource transfer progress is updated.</p></li>
+<li><p><strong>segment_index</strong> – Internal use, ignore.</p></li>
+<li><p><strong>original_hash</strong> – Internal use, ignore.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Resource.MAX_EFFICIENT_SIZE">
+<span class="sig-name descname"><span class="pre">MAX_EFFICIENT_SIZE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">16777216</span></em><a class="headerlink" href="#RNS.Resource.MAX_EFFICIENT_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an indication of what the
+maximum size a resource should be, if
+it is to be handled within reasonable
+time constraint, even on small systems.</p>
+<p>A small system in this regard is
+defined as a Raspberry Pi, which should
+be able to compress, encrypt and hash-map
+the resource in about 10 seconds.</p>
+<p>This constant will be used when determining
+how to sequence the sending of large resources.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Resource.advertise">
+<span class="sig-name descname"><span class="pre">advertise</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource.advertise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Advertise the resource. If the other end of the link accepts
+the resource advertisement it will begin transferring.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Resource.cancel">
+<span class="sig-name descname"><span class="pre">cancel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource.cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cancels transferring the resource.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Resource.progress">
+<span class="sig-name descname"><span class="pre">progress</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource.progress" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The current progress of the resource transfer as a <em>float</em> between 0.0 and 1.0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="transport">
+<span id="api-transport"></span><h3>Transport<a class="headerlink" href="#transport" title="Permalink to this headline">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.Transport">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Transport</span></span><a class="headerlink" href="#RNS.Transport" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="RNS.Transport.register_announce_handler">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">register_announce_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Transport.register_announce_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers an announce handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>handler</strong> – Must be an object with an <em>aspect_filter</em> attribute and a <em>received_announce(destination_hash, announced_identity, app_data)</em> callable. See the <a class="reference internal" href="examples.html#example-announce"><span class="std std-ref">Announce Example</span></a> for more info.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Transport.deregister_announce_handler">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">deregister_announce_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Transport.deregister_announce_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deregisters an announce handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>handler</strong> – The announce handler to be deregistered.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Transport.has_path">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">has_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Transport.has_path" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>destination_hash</strong> – A destination hash as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>True</em> if a path to the destination is known, otherwise <em>False</em>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Transport.request_path">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">request_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Transport.request_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests a path to the destination from the network. If
+another reachable peer on the network knows a path, it
+will announce it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>destination_hash</strong> – A destination hash as <em>bytes</em>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">API Reference</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#reticulum">Reticulum</a></li>
+<li><a class="reference internal" href="#api-identity">Identity</a></li>
+<li><a class="reference internal" href="#destination">Destination</a></li>
+<li><a class="reference internal" href="#packet">Packet</a></li>
+<li><a class="reference internal" href="#packet-receipt">Packet Receipt</a></li>
+<li><a class="reference internal" href="#link">Link</a></li>
+<li><a class="reference internal" href="#resource">Resource</a></li>
+<li><a class="reference internal" href="#transport">Transport</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="examples.html"
+                        title="previous chapter">Examples</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="understanding.html"
+                        title="next chapter">Understanding Reticulum</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/reference.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="understanding.html" title="Understanding Reticulum"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.0 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API Reference</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Mark Qvist.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,683 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Understanding Reticulum &#8212; Reticulum Network Stack 0.2.0 beta documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="API Reference" href="reference.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="reference.html" title="API Reference"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.0 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Understanding Reticulum</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="understanding-reticulum">
+<span id="understanding-main"></span><h1>Understanding Reticulum<a class="headerlink" href="#understanding-reticulum" title="Permalink to this headline">¶</a></h1>
+<p>This chapter will briefly describe the overall purpose and operating principles of Reticulum, a
+networking stack designed for reliable and secure communication over high-latency, low-bandwidth
+links. It should give you an overview of how the stack works, and an understanding of how to
+develop networked applications using Reticulum.</p>
+<p>This document is not an exhaustive source of information on Reticulum, at least not yet. Currently,
+the best place to go for such information is the Python reference implementation of Reticulum, along
+with the API reference.</p>
+<p>After reading this document, you should be well-equipped to understand how a Reticulum network
+operates, what it can achieve, and how you can use it yourself. If you want to help out with the
+development, this is also the place to start, since it will also provide a pretty clear overview of the
+sentiments and the philosophy behind Reticulum.</p>
+<div class="section" id="motivation">
+<h2>Motivation<a class="headerlink" href="#motivation" title="Permalink to this headline">¶</a></h2>
+<p>The primary motivation for designing and implementing Reticulum has been the current lack of
+reliable, functional and secure minimal-infrastructure modes of digital communication. It is my
+belief that it is highly desirable to create a cheap and reliable way to set up a wide-range digital
+communication network that can securely allow exchange of information between people and
+machines, with no central point of authority, control, censorship or barrier to entry.</p>
+<p>Almost all of the various networking stacks in wide use today share a common limitation, namely
+that they require large amounts of coordination and trust to work. You can’t just plug in a bunch of
+ethernet cables to the same switch, or turn on a number of WiFi radios, and expect such a setup to
+provide a reliable platform for communication.</p>
+<p>This need for coordination and trust inevitably leads to an environment of control, where it’s very
+easy for infrastructure operators or governments to control or alter traffic.</p>
+<p>Reticulum aims to require as little coordination and trust as possible. In fact, the only
+“coordination” required is to know how to get connected to a Reticulum network. Since Reticulum
+is medium agnostic, this could be whatever is best suited to the situation. In some cases, this might
+be 1200 baud packet radio links over VHF frequencies, in other cases it might be a microwave
+network using off-the-shelf radios. At the time of release of this document, the recommended setup
+is using cheap LoRa radio modules with an open source firmware (see the chapter <em>Reference System
+Setup</em> ), connected to a small computer like a Raspberry Pi. As an example, the default reference
+setup provides a channel capacity of 5.4 Kbps, and a usable direct node-to-node range of around 15
+kilometers (indefinitely extendable by using multiple hops).</p>
+</div>
+<div class="section" id="goals">
+<h2>Goals<a class="headerlink" href="#goals" title="Permalink to this headline">¶</a></h2>
+<p>To be as widely usable and easy to implement as possible, the following goals have been used to
+guide the design of Reticulum:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>Fully useable as open source software stack</strong></dt><dd><p>Reticulum must be implemented, and be able to run using only open source software. This is
+critical to ensuring availability, security and transparency of the system.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Hardware layer agnosticism</strong></dt><dd><p>Reticulum shall be fully hardware agnostic, and should be useable over a wide range
+physical networking layers, such as data radios, serial lines, modems, handheld transceivers,
+wired ethernet, wifi, or anything else that can carry a digital data stream. Hardware made for
+dedicated Reticulum use shall be as cheap as possible and use off-the-shelf components, so
+it can be easily replicated.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Very low bandwidth requirements</strong></dt><dd><p>Reticulum should be able to function reliably over links with a data capacity as low as <em>1,</em>
+<em>bps</em>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Encryption by default</strong></dt><dd><p>Reticulum must use encryption by default where possible and applicable.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Unlicensed use</strong></dt><dd><p>Reticulum shall be functional over physical communication mediums that do not require any
+form of license to use. Reticulum must be designed in a way, so it is usable over ISM radio
+frequency bands, and can provide functional long distance links in such conditions.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Supplied software</strong></dt><dd><p>Apart from the core networking stack and API, that allows any developer to build
+applications with Reticulum, a basic communication suite using Reticulum must be
+implemented and released at the same time as Reticulum itself. This shall serve both as a
+functional communication suite, and as an example and learning resource to others wishing
+to build applications with Reticulum.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Ease of use</strong></dt><dd><p>The reference implementation of Reticulum is written in Python, to make it very easy to use
+and understand. Any programmer with only basic experience should be able to use
+Reticulum in their own applications.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Low cost</strong></dt><dd><p>It shall be as cheap as possible to deploy a communication system based on Reticulum. This
+should be achieved by using cheap off-the-shelf hardware that potential users might already
+own. The cost of setting up a functioning node should be less than $100 even if all parts
+needs to be purchased.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="introduction-basic-functionality">
+<h2>Introduction &amp; Basic Functionality<a class="headerlink" href="#introduction-basic-functionality" title="Permalink to this headline">¶</a></h2>
+<p>Reticulum is a networking stack suited for high-latency, low-bandwidth links. Reticulum is at it’s
+core <em>message oriented</em> , but can provide connection oriented sessions. It is suited for both local
+point-to-point or point-to-multipoint scenarios where alle nodes are within range of each other, as
+well as scenarios where packets need to be transported over multiple hops to reach the recipient.</p>
+<p>Reticulum does away with the idea of addresses and ports known from IP, TCP and UDP. Instead
+Reticulum uses the singular concept of <em>destinations</em>. Any application using Reticulum as it’s
+networking stack will need to create one or more destinations to receive data, and know the
+destinations it needs to send data to.</p>
+<p>Reticulum encrypts all data by default using public-key cryptography. Any message sent to a
+destination is encrypted with that destinations public key. Reticulum also offers symmetric key
+encryption for group-oriented communications, as well as unencrypted packets for broadcast
+purposes, or situations where you need the communication to be in plain text. The multi-hop
+transport, coordination, verification and reliability layers are fully autonomous and based on public
+key cryptography.</p>
+<p>Reticulum can connect to a variety of interfaces such as radio modems, data radios and serial ports,
+and offers the possibility to easily tunnel Reticulum traffic over IP links such as the Internet or
+private IP networks.</p>
+<div class="section" id="destinations">
+<h3>Destinations<a class="headerlink" href="#destinations" title="Permalink to this headline">¶</a></h3>
+<p>To receive and send data with the Reticulum stack, an application needs to create one or more
+destinations. Reticulum uses three different basic destination types, and one special:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>Single</strong></dt><dd><p>The <em>single</em> destination type defines a public-key encrypted destination. Any data sent to this
+destination will be encrypted with the destination’s public key, and will only be readable by
+the creator of the destination.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Group</strong></dt><dd><p>The <em>group</em> destination type defines a symmetrically encrypted destination. Data sent to this
+destination will be encrypted with a symmetric key, and will be readable by anyone in
+possession of the key. The <em>group</em> destination can be used just as well by only two peers, as it
+can by many.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Plain</strong></dt><dd><p>A <em>plain</em> destination type is unencrypted, and suited for traffic that should be broadcast to a
+number of users, or should be readable by anyone.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Link</strong></dt><dd><p>A <em>link</em> is a special destination type, that serves as an abstract channel between two <em>single</em>
+destinations, directly connected or over multiple hops. The <em>link</em> also offers reliability and
+more efficient encryption, and as such is useful even when nodes are directly connected.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="section" id="destination-naming">
+<h4>Destination Naming<a class="headerlink" href="#destination-naming" title="Permalink to this headline">¶</a></h4>
+<p>Destinations are created and named in an easy to understand dotted notation of <em>aspects</em> , and
+represented on the network as a hash of this value. The hash is a SHA-256 truncated to 80 bits. The
+top level aspect should always be the a unique identifier for the application using the destination.
+The next levels of aspects can be defined in any way by the creator of the application. For example,
+a destination for a messaging application could be made up of the application name and a username,
+and look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">name</span><span class="p">:</span> <span class="n">simplemessenger</span><span class="o">.</span><span class="n">someuser</span> <span class="nb">hash</span><span class="p">:</span> <span class="mi">2</span><span class="n">a7ddfab5213f916dea</span>
+</pre></div>
+</div>
+<p>For the <em>single</em> destination, Reticulum will automatically append the associated public key as a
+destination aspect before hashing. This is done to ensure only the correct destination is reached,
+since anyone can listen to any destination name. Appending the public key ensures that a given
+packet is only directed at the destination that holds the corresponding private key to decrypt the
+packet. It is important to understand that anyone can use the destination name
+<em>simplemessenger.myusername</em> , but each person that does so will still have a different destination
+hash, because their public keys will differ. In actual use of <em>single</em> destination naming, it is advisable
+not to use any uniquely identifying features in aspect naming, though. In the simple messenger
+example, when using <em>single</em> destinations, we would instead use a destination naming scheme such
+as <em>simplemessenger.user</em> where appending the public key expands the destination into a uniquely
+identifying one.</p>
+<p>To recap, the destination types should be used in the following situations:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>Single</strong></dt><dd><p>When private communication between two endpoints is needed. Supports routing.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Group</strong></dt><dd><p>When private communication between two or more endpoints is needed. More efficient in
+data usage than <em>single</em> destinations. Supports routing indirectly, but must first be established
+through a <em>single</em> destination.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Plain</strong></dt><dd><p>When plain-text communication is desirable, for example when broadcasting information.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>To communicate with a <em>single</em> destination, you need to know it’s public key. Any method for
+obtaining the public key is valid, but Reticulum includes a simple mechanism for making other
+nodes aware of your destinations public key, called the <em>announce</em>.</p>
+<p>Note that this information could be shared and verified in many other ways, and that it is therefore
+not required to use the announce functionality, although it is by far the easiest, and should probably
+be used if you are not confident in how to verify public keys and signatures manually.</p>
+</div>
+</div>
+<div class="section" id="public-key-announcements">
+<h3>Public Key Announcements<a class="headerlink" href="#public-key-announcements" title="Permalink to this headline">¶</a></h3>
+<p>An <em>announce</em> will send a special packet over any configured interfaces, containing all needed
+information about the destination hash and public key, and can also contain some additional,
+application specific data. The entire packet is signed by the sender to ensure authenticity. It is not
+required to use the announce functionality, but in many cases it will be the simplest way to share
+public keys on the network. As an example, an announce in a simple messenger application might
+contain the following information:</p>
+<ul class="simple">
+<li><p>The announcers destination hash</p></li>
+<li><p>The announcers public key</p></li>
+<li><p>Application specific data, in this case the users nickname and availability status</p></li>
+<li><p>A random blob, making each new announce unique</p></li>
+<li><p>A signature of the above information, verifying authenticity</p></li>
+</ul>
+<p>With this information, any Reticulum node that receives it will be able to reconstruct an outgoing
+destination to securely communicate with that destination. You might have noticed that there is one
+piece of information lacking to reconstruct full knowledge of the announced destination, and that is
+the aspect names of the destination. These are intentionally left out to save bandwidth, since they
+will be implicit in almost all cases. If a destination name is not entirely implicit, information can be
+included in the application specific data part that will allow the receiver to infer the naming.</p>
+<p>It is important to note that announcements will be forwarded throughout the network according to a
+certain pattern. This will be detailed later. Seeing how <em>single</em> destinations are always tied to a
+private/public key pair leads us to the next topic.</p>
+</div>
+<div class="section" id="identities">
+<h3>Identities<a class="headerlink" href="#identities" title="Permalink to this headline">¶</a></h3>
+<p>In Reticulum, an <em>identity</em> does not necessarily represent a personal identity, but is an abstraction that
+can represent any kind of <em>verified entity</em>. This could very well be a person, but it could also be the
+control interface of a machine, a program, robot, computer, sensor or something else entirely. In
+general, any kind of agent that can act, or be acted upon, or store or manipulate information, can be
+represented as an identity.</p>
+<p>As we have seen, a <em>single</em> destination will always have an <em>identity</em> tied to it, but not <em>plain</em> or <em>group</em>
+destinations. Destinations and identities share a multilateral connection. You can create a
+destination, and if it is not connected to an identity upon creation, it will just create a new one to use
+automatically. This may be desirable in some situations, but often you will probably want to create
+the identity first, and then link it to created destinations.</p>
+<p>Building upon the simple messenger example, we could use an identity to represent the user of the
+application. Destinations created will then be linked to this identity to allow communication to
+reach the user. In such a case it is of great importance to store the user’s identity securely and
+privately.</p>
+</div>
+<div class="section" id="getting-further">
+<h3>Getting Further<a class="headerlink" href="#getting-further" title="Permalink to this headline">¶</a></h3>
+<p>The above functions and principles form the core of Reticulum, and would suffice to create
+functional networked applications in local clusters, for example over radio links where all interested
+nodes can hear each other. But to be truly useful, we need a way to go further. In the next chapter,
+two concepts that allow this will be introduced, <em>paths</em> and <em>resources</em>.</p>
+</div>
+</div>
+<div class="section" id="reticulum-transport">
+<h2>Reticulum Transport<a class="headerlink" href="#reticulum-transport" title="Permalink to this headline">¶</a></h2>
+<p>I have purposefully avoided the term routing until now, and will continue to do so, because the
+current methods of routing used in IP based networks are fundamentally incompatible for the link
+types that Reticulum was designed to handle. These routing methodologies assume trust at the
+physical layer. Since Reticulum is designed to run over open radio spectrum, no such trust exists.
+Furthermore, existing routing protocols like BGP or OSPF carry too much overhead to be
+practically useable over bandwidth-limited, high-latency links.</p>
+<p>To overcome such challenges, Reticulum’s <em>Transport</em> system uses public-key cryptography to
+implement the concept of <em>paths</em> that allow discovery of how to get information to a certain
+destination, and <em>resources</em> that help alleviate congestion and make reliable communication more
+efficient and less bandwidth-hungry.</p>
+<div class="section" id="threading-a-path">
+<h3>Threading a Path<a class="headerlink" href="#threading-a-path" title="Permalink to this headline">¶</a></h3>
+<p>In networks with changing topology and trustless connectivity, nodes need a way to establish
+<em>verified connectivity</em> with each other. To do this, the following process is employed:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>First, the node that wishes to establish connectivity will send out a special packet, that</dt><dd><p>traverses the network and locates the desired destination. Along the way, the nodes that
+forward the packet will take note of this <em>link request</em>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Second, if the destination accepts the <em>link request</em> , it will send back a packet that proves the</dt><dd><p>authenticity of it’s identity (and the receipt of the link request) to the initiating node. All
+nodes that initially forwarded the packet will also be able to verify this proof, and thus
+accept the validity of the <em>link</em> throughout the network.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>When the validity of the <em>link</em> has been accepted by forwarding nodes, these nodes will</dt><dd><p>remember the <em>link</em> , and it can subsequently be used by referring to a hash representing it.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>As a part of the <em>link request</em> , a Diffie-Hellman key exchange takes place, that sets up an</dt><dd><p>efficient symmetrically encrypted tunnel between the two nodes, using elliptic curve
+cryptography. As such, this mode of communication is preferred, even for situations when
+nodes can directly communicate, when the amount of data to be exchanged numbers in the
+tens of packets.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>When a <em>link</em> has been set up, it automatically provides message receipt functionality, so the</dt><dd><p>sending node can obtain verified confirmation that the information reached the intended
+recipient.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>In a moment, we will discuss the specifics of how this methodology is implemented, but let’s first
+recap what purposes this serves. We first ensure that the node answering our request is actually the
+one we want to communicate with, and not a malicious actor pretending to be so. At the same time
+we establish an efficient encrypted channel. The setup of this is relatively cheap in terms of
+bandwidth, so it can be used just for a short exchange, and then recreated as needed, which will also</p>
+<p>rotate encryption keys (keys can also be rotated over an existing path), but the link can also be kept
+alive for longer periods of time, if this is more suitable to the application. The amount of bandwidth
+used on keeping a link open is practically negligible. The procedure also inserts the <em>link id</em> , a hash
+calculated from the link request packet, into the memory of forwarding nodes, which means that the
+communicating nodes can thereafter reach each other simply by referring to this <em>link id</em>.</p>
+<p><strong>Step 1, pathfinding</strong></p>
+<p>The pathfinding method builds on the <em>announce</em> functionality discussed earlier. When an announce
+is sent out by a node, it will be forwarded by any node receiving it, but according to some specific
+rules:</p>
+<ul class="simple">
+<li><p>If this announce has already been received before, ignore it.</p></li>
+<li><dl class="simple">
+<dt>Record into a table which node the announce was received from, and how many times in</dt><dd><p>total it has been retransmitted to get here.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>If the announce has been retransmitted <em>m+1</em> times, it will not be forwarded. By default, <em>m</em> is</dt><dd><p>set to 18.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The announce will be assigned a delay <em>d</em> = <em>ch</em> seconds, where <em>c</em> is a decay constant, by</dt><dd><p>default 2, and <em>h</em> is the amount of times this packet has already been forwarded.</p>
+</dd>
+</dl>
+</li>
+<li><p>The packet will be given a priority <em>p = 1/d</em>.</p></li>
+<li><dl class="simple">
+<dt>If at least <em>d</em> seconds has passed since the announce was received, and no other packets with a</dt><dd><p>priority higher than <em>p</em> are waiting in the queue (see Packet Prioritisation), and the channel is
+not utilized by other traffic, the announce will be forwarded.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>If no other nodes are heard retransmitting the announce with a greater hop count than when</dt><dd><p>it left this node, transmitting it will be retried <em>r</em> times. By default, <em>r</em> is set to 2. Retries follow
+same rules as above, with the exception that it must wait for at least <em>d = ch+1 + t</em> seconds, ie.,
+the amount of time it would take the next node to retransmit the packet. By default, <em>t</em> is set to
+10.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>If a newer announce from the same destination arrives, while an identical one is already in</dt><dd><p>the queue, the newest announce is discarded. If the newest announce contains different
+application specific data, it will replace the old announce, but will use <em>d</em> and <em>p</em> of the old
+announce.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Once an announce has reached a node in the network, any other node in direct contact with that
+node will be able to reach the destination the announce originated from, simply by sending a packet
+addressed to that destination. Any node with knowledge of the announce will be able to direct the
+packet towards the destination by looking up the next node with the shortest amount of hops to the
+destination. The specifics of this process is detailed in <em>Path Calculation</em>.</p>
+<p>According to these rules and default constants, an announce will propagate throughout the network
+in a predictable way. In an example network utilising the default constants, and with an average link</p>
+<p>distance of <em>Lavg =</em> 15 kilometers, an announce will be able to propagate outwards to a radius of 180
+kilometers in 34 minutes, and a <em>maximum announce radius</em> of 270 kilometers in approximately 3
+days. Methods for overcoming the distance limitation of <em>m * Lavg</em> will be introduced later in this
+chapter.</p>
+<p><strong>Step 2, link establishment</strong></p>
+<p>After seeing how the conditions for finding a path through the network are created, we will now
+explore how two nodes can establish reliable communications over multiple hops. The <em>link</em> in
+Reticulum terminology should not be viewed as a direct node-to-node link on the physical layer, but
+as an abstract channel, that can be open for any amount of time, and can span an arbitrary number
+of hops, where information will be exchanged between two nodes.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>When a node in the network wants to establish verified connectivity with another node, it</dt><dd><p>will create a <em>link request</em> packet, and broadcast it.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The <em>link request</em> packet contains the destination hash <em>Hd</em> , and an asymmetrically encrypted</dt><dd><p>part containing the following data: The source hash <em>Hs</em> , a symmetric key <em>Lk</em> , a truncated
+hash of a random number <em>Hr</em> , and a signature <em>S</em> of the plaintext values of <em>Hd</em> , <em>Hs</em> , <em>Lk</em> and <em>Hr</em>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The broadcasted packet will be directed through the network according to the rules laid out</dt><dd><p>previously.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Any node that forwards the link request will store a <em>link id</em> in it’s <em>link table</em> , along with the</dt><dd><p>amount of hops the packet had taken when received. The link id is a hash of the entire link
+request packet. If the path is not <em>proven</em> within some set amount of time, the entry will be
+dropped from the table again.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>When the destination receives the link request packet, it will decide whether to accept the</dt><dd><p>request. If it is accepted, it will create a special packet called a <em>proof</em>. A <em>proof</em> is a simple
+construct, consisting of a truncated hash of the message that needs to be proven, and a
+signature (made by the destination’s private key) of this hash. This <em>proof</em> effectively verifies
+that the intended recipient got the packet, and also serves to verify the discovered path
+through the network. Since the <em>proof</em> hash matches the <em>path id</em> in the intermediary nodes’
+<em>path tables</em> , the intermediary nodes can forward the proof all the way back to the source.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>When the source receives the <em>proof</em> , it will know unequivocally that a verified path has been</dt><dd><p>established to the destination, and that information can now be exchanged reliably and
+securely.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>It’s important to note that this methodology ensures that the source of the request does not need to
+reveal any identifying information. Only the intended destination will know “who called”, so to
+speak. This is a huge improvement to protocols like IP, where by design, you have to reveal your
+own address to communicate with anyone, unless you jump through a lot of hoops to hide it.
+Reticulum offers initiator anonymity by design.</p>
+<p>When using <em>links</em> , Reticulum will automatically verify anything sent over the link, and also
+automates retransmissions if parts of a message was lost along the way. Due to the caching features
+of Reticulum, such a retransmission does not need to travel the entire length of an established path.
+If a packet is lost on the 8th hop of a 12 hop path, it can be fetched from the last hop that received it
+reliably.</p>
+</div>
+<div class="section" id="crossing-continents">
+<h3>Crossing Continents<a class="headerlink" href="#crossing-continents" title="Permalink to this headline">¶</a></h3>
+<p>When a packet needs to travel farther than local network topology knowledge stretches, a system of
+geographical or topological hinting is used to direct the packet towards a network segment with
+direct knowledge of the intended destination. This functionality is currently left out of the protocol
+for simplicity of testing other parts, but will be activated in a future release. For more information
+on when, refer to the roadmap on the website.</p>
+</div>
+<div class="section" id="resourceful-memory">
+<h3>Resourceful Memory<a class="headerlink" href="#resourceful-memory" title="Permalink to this headline">¶</a></h3>
+<p>In traditional networks, large amounts of data is rapidly exchanged with very low latency. Links of
+several thousand kilometers will often only have round-trip latency in the tens of milliseconds, and
+as such, traditional protocols are often designed to not store any transmitted data at intermediary
+hops. If a transmission error occurs, the sending node will simply notice the lack of a packet
+acknowledgement, and retransmit the packet all the way, until it hears back from the receiver that it
+got the intended data.</p>
+<p>In bandwidth-limited and high-latency conditions, such behaviour quickly causes congestion on the
+network, and communications that span many hops become exceedingly expensive in terms of
+bandwidth usage, due to the higher risk of some packets failing.</p>
+<p>Reticulum alleviates this in part with it’s <em>path</em> discovery methodology, and in part by implementing
+<em>resource</em> caching at all nodes that can support it. Network operation can be made much more
+efficient by caching everything for a period of time, and given the availability of cheap memory and
+storage, this is a very welcome tradeoff. A gigabyte of memory can store millions of Reticulum
+packets, and since everything is encrypted by default, the storing poses very little privacy risk.</p>
+<p>In a Reticulum network, any node that is able to do so, should cache as many packets as it’s
+memory will allow for. When a packet is received, a timestamp and a hash of the packet is stored
+along with the full packet itself, and it will be kept in storage until the allocated cache storage is
+full, whereupon the packet that was last accessed in the cache will be deleted. If a packet is accessed
+from the cache, it’s timestamp will be updated to the current time, to ensure that packets that are
+used stay in the cache, and packets that are not used are dropped from memory.</p>
+<p>Some packet types are stored in separate caching tables, that allow easier lookup for other nodes.
+For example, an announce is stored in a way, that allows other nodes to request the public key for a
+certain destination, and as such the network as a whole operates as a distributed key ledger.</p>
+<p>For more details on how the caching works and is used, see the reference implementation source
+code.</p>
+</div>
+</div>
+<div class="section" id="reference-system-setup">
+<h2>Reference System Setup<a class="headerlink" href="#reference-system-setup" title="Permalink to this headline">¶</a></h2>
+<p>This section will detail the recommended <em>Reference System Setup</em> for Reticulum. It is important to
+note that Reticulum is designed to be usable over more or less any medium that allows you to send
+and receive data in a digital form, and satisfies some very low minimum requirements. The
+communication channel must support at least half-duplex operation, and provide an average
+throughput of around 1000 bits per second, and supports a physical layer MTU of 500 bytes. The
+Reticulum software should be able to run on more or less any hardware that can provide a Python 3.x
+runtime environment.</p>
+<p>That being said, the reference setup has been outlined to provide a common platform for anyone
+who wants to help in the development of Reticulum, and for everyone who wants to know a
+recommended setup to get started. A reference system consists of three parts:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>A channel access device</strong></dt><dd><p>Or <em>CAD</em> , in short, provides access to the physical medium whereupon the communication
+takes place, for example a radio with an integrated modem. A setup with a separate modem
+connected to a radio would also be termed a “channel access device”.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>A host device</strong></dt><dd><p>Some sort of computing device that can run the necessary software, communicates with the
+channel access device, and provides user interaction.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>A software stack</strong></dt><dd><p>The software implementing the Reticulum protocol and applications using it.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The reference setup can be considered a relatively stable platform to develop on, and also to start
+building networks on. While details of the implementation might change at the current stage of
+development, it is the goal to maintain hardware compatibility for as long as entirely possible, and
+the current reference setup has been determined to provide a functional platform for many years
+into the future. The current Reference System Setup is as follows:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>Channel Access Device</strong></dt><dd><p>A data radio consisting of a LoRa radio module, and a microcontroller with open source
+firmware, that can connect to host devices via USB. It operates in either the 430, 868 or 900
+MHz frequency bands. More details on the exact parts and how to get/make one can be
+found on the website.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Host device</strong></dt><dd><p>Any computer device running Linux and Python. A Raspberry Pi with Raspbian is
+recommended.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Software stack</strong></dt><dd><p>The current Reference Implementation Release of Reticulum, running on a Debian based
+operating system.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>It is very important to note, that the reference channel access device <strong>does not</strong> use the LoRaWAN
+standard, but uses a custom MAC layer on top of the plain LoRa modulation! As such, you will
+need a plain LoRa radio module connected to an MCU with the correct Reticulum firmware. Full
+details on how to get or make such a device is available on the website.</p>
+<p>With the current reference setup, it should be possible to get on a Reticulum network for around 70$
+even if you have none of the hardware already.</p>
+</div>
+<div class="section" id="protocol-specifics">
+<h2>Protocol Specifics<a class="headerlink" href="#protocol-specifics" title="Permalink to this headline">¶</a></h2>
+<p>This chapter will detail protocol specific information that is essential to the implementation of
+Reticulum, but non critical in understanding how the protocol works on a general level. It should be
+treated more as a reference than as essential reading.</p>
+<div class="section" id="node-types">
+<h3>Node Types<a class="headerlink" href="#node-types" title="Permalink to this headline">¶</a></h3>
+<p>Currently Reticulum defines two node types, the <em>Station</em> and the <em>Peer</em>. A node is a <em>station</em> if it fixed
+in one place, and if it is intended to be kept online at all times. Otherwise the node is a <em>peer</em>. This
+distinction is made by the user configuring the node, and is used to determine what nodes on the
+network will help forward traffic, and what nodes rely on other nodes for connectivity.</p>
+</div>
+<div class="section" id="packet-prioritisation">
+<h3>Packet Prioritisation<a class="headerlink" href="#packet-prioritisation" title="Permalink to this headline">¶</a></h3>
+<p><em>The packet prioritisation algorithms are subject to rapid change at the moment, and for now, they
+are not documented here. See the reference implementation for more info on how this functionality
+works.</em></p>
+</div>
+<div class="section" id="path-calculation">
+<h3>Path Calculation<a class="headerlink" href="#path-calculation" title="Permalink to this headline">¶</a></h3>
+<p><em>The path calculation algorithms are subject to rapid change at the moment, and for now, they are
+not documented here. See the reference implementation for more info on how this functionality
+works.</em></p>
+</div>
+<div class="section" id="binary-packet-format">
+<h3>Binary Packet Format<a class="headerlink" href="#binary-packet-format" title="Permalink to this headline">¶</a></h3>
+<p><em>The binary packet format is subject to rapid change at the moment, and for now, it is not
+documented here. See the reference implementation for the specific details on this topic.</em></p>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Understanding Reticulum</a><ul>
+<li><a class="reference internal" href="#motivation">Motivation</a></li>
+<li><a class="reference internal" href="#goals">Goals</a></li>
+<li><a class="reference internal" href="#introduction-basic-functionality">Introduction &amp; Basic Functionality</a><ul>
+<li><a class="reference internal" href="#destinations">Destinations</a><ul>
+<li><a class="reference internal" href="#destination-naming">Destination Naming</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#public-key-announcements">Public Key Announcements</a></li>
+<li><a class="reference internal" href="#identities">Identities</a></li>
+<li><a class="reference internal" href="#getting-further">Getting Further</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reticulum-transport">Reticulum Transport</a><ul>
+<li><a class="reference internal" href="#threading-a-path">Threading a Path</a></li>
+<li><a class="reference internal" href="#crossing-continents">Crossing Continents</a></li>
+<li><a class="reference internal" href="#resourceful-memory">Resourceful Memory</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reference-system-setup">Reference System Setup</a></li>
+<li><a class="reference internal" href="#protocol-specifics">Protocol Specifics</a><ul>
+<li><a class="reference internal" href="#node-types">Node Types</a></li>
+<li><a class="reference internal" href="#packet-prioritisation">Packet Prioritisation</a></li>
+<li><a class="reference internal" href="#path-calculation">Path Calculation</a></li>
+<li><a class="reference internal" href="#binary-packet-format">Binary Packet Format</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="reference.html"
+                        title="previous chapter">API Reference</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/understanding.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="reference.html" title="API Reference"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.0 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Understanding Reticulum</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Mark Qvist.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+  </body>
+</html>
