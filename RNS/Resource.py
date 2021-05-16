@@ -8,6 +8,21 @@ from .vendor import umsgpack as umsgpack
 from time import sleep
 
 class Resource:
+    """
+    The Resource class allows transferring arbitrary amounts
+    of data over a link. It will automatically handle sequencing,
+    compression, coordination and checksumming.
+
+    :param data: The data to be transferred. Can be *bytes* or an open *file handle*. See the :ref:`Filetransfer Example<example-filetransfer>` for details.
+    :param link: The :ref:`RNS.Link<api-link>` instance on which to transfer the data.
+    :param advertise: Whether to automatically advertise the resource. Can be *True* or *False*.
+    :param auto_compress: Whether to auto-compress the resource. Can be *True* or *False*.
+    :param auto_compress: Whether the resource must be compressed. Can be *True* or *False*. Used for debugging, will disappear in the future.
+    :param callback: A *callable* with the signature *callback(resource)*. Will be called when the resource transfer concludes.
+    :param progress_callback: A *callable* with the signature *callback(resource)*. Will be called whenever the resource transfer progress is updated.
+    :param segment_index: Internal use, ignore.
+    :param original_hash: Internal use, ignore.
+    """
     WINDOW_FLEXIBILITY   = 4
     WINDOW_MIN           = 1
     WINDOW_MAX           = 10
@@ -16,16 +31,21 @@ class Resource:
     SDU                  = RNS.Packet.MDU
     RANDOM_HASH_SIZE     = 4
 
-    # This is an indication of what the
-    # maximum size a resource should be, if
-    # it is to be handled within reasonable
-    # time constraint, even on small systems.
-    #
-    # A small system in this regard is
-    # defined as a Raspberry Pi, which should
-    # be able to compress, encrypt and hash-map
-    # the resource in about 10 seconds.
     MAX_EFFICIENT_SIZE   = 16 * 1024 * 1024
+    """
+    This is an indication of what the
+    maximum size a resource should be, if
+    it is to be handled within reasonable
+    time constraint, even on small systems.
+    
+    A small system in this regard is
+    defined as a Raspberry Pi, which should
+    be able to compress, encrypt and hash-map
+    the resource in about 10 seconds.
+
+    This constant will be used when determining
+    how to sequence the sending of large resources.
+    """
 
     # The maximum size to auto-compress with
     # bz2 before sending.
@@ -301,6 +321,10 @@ class Resource:
         return RNS.Identity.full_hash(data+self.random_hash)[:Resource.MAPHASH_LEN]
 
     def advertise(self):
+        """
+        Advertise the resource. If the other end of the link accepts
+        the resource advertisement it will begin transferring.
+        """
         thread = threading.Thread(target=self.__advertise_job)
         thread.setDaemon(True)
         thread.start()
@@ -698,6 +722,9 @@ class Resource:
                 self.__progress_callback(self)
 
     def cancel(self):
+        """
+        Cancels transferring the resource.
+        """
         if self.status < Resource.COMPLETE:
             self.status = Resource.FAILED
             if self.initiator:
@@ -719,6 +746,9 @@ class Resource:
         self.__progress_callback = callback
 
     def progress(self):
+        """
+        :returns: The current progress of the resource transfer as a *float* between 0.0 and 1.0.
+        """
         if self.initiator:
             # TODO: Remove
             # progress = self.sent_parts / len(self.parts)
