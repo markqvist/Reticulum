@@ -16,6 +16,21 @@ class Callbacks:
         self.proof_requested = None
 
 class Destination:
+    """
+    A class used to describe endpoints in a Reticulum Network. Destination
+    instances are used both to create outgoing and incoming endpoints. The
+    destination type will decide if encryption, and what type, is used in
+    communication with the endpoint. A destination can also announce its
+    presence on the network, which will also distribute necessary keys for
+    encrypted communication with it.
+
+    :param identity: An instance of :ref:`RNS.Identity<Identity>`. Can hold only public keys for an outgoing destination, or holding private keys for an ingoing.
+    :param direction: ``RNS.Destination.IN`` or ``RNS.Destination.OUT``
+    :param type: ``RNS.Destination.SINGLE``, ``RNS.Destination.GROUP`` or ``RNS.Destination.PLAIN``.
+    :param app_name: A string specifying the app name.
+    :param \*aspects: Any non-zero number of string arguments.
+    """
+
     KEYSIZE    = RNS.Identity.KEYSIZE;
     PADDINGSIZE= RNS.Identity.PADDINGSIZE;
 
@@ -37,6 +52,10 @@ class Destination:
 
     @staticmethod
     def full_name(app_name, *aspects):
+        """
+        :returns: A string containing the full human-readable name of the destination, for an app_name and a number of aspects.
+        """
+
         # Check input values and build name string
         if "." in app_name: raise ValueError("Dots can't be used in app names")
 
@@ -50,6 +69,9 @@ class Destination:
 
     @staticmethod
     def hash(app_name, *aspects):
+        """
+        :returns: A destination name in adressable hash form, for an app_name and a number of aspects.
+        """
         name = Destination.full_name(app_name, *aspects)
 
         # Create a digest for the destination
@@ -60,11 +82,17 @@ class Destination:
 
     @staticmethod
     def app_and_aspects_from_name(full_name):
+        """
+        :returns: A tuple containing the app name and a list of aspects, for a full-name string.
+        """
         components = full_name.split(".")
         return (components[0], components[1:])
 
     @staticmethod
     def hash_from_name_and_identity(full_name, identity):
+        """
+        :returns: A destination name in adressable hash form, for a full name string and Identity instance.
+        """
         app_name, aspects = Destination.app_and_aspects_from_name(full_name)
         aspects.append(identity.hexhash)
         return Destination.hash(app_name, *aspects)
@@ -103,19 +131,46 @@ class Destination:
 
 
     def __str__(self):
+        """
+        :returns: A human-readable representation of the destination including addressable hash and full name.
+        """
         return "<"+self.name+"/"+self.hexhash+">"
 
 
     def link_established_callback(self, callback):
+        """
+        Registers a function to be called when a link has been established to
+        this destination.
+
+        :param callback: A function or method to be called
+        """
         self.callbacks.link_established = callback
 
     def packet_callback(self, callback):
+        """
+        Registers a function to be called when a packet has been received by
+        this destination.
+
+        :param callback: A function or method to be called
+        """
         self.callbacks.packet = callback
 
     def proof_requested_callback(self, callback):
+        """
+        Registers a function to be called when a proof has been requested for
+        a packet sent to this destination. Allows control over when and if
+        proofs should be returned for received packets.
+
+        :param callback: A function or method to be called. The callback must return one of True or False. If the callback returns True, a proof will be sent. If it returns False, a proof will not be sent.
+        """
         self.callbacks.proof_requested = callback
 
     def set_proof_strategy(self, proof_strategy):
+        """
+        Sets the destinations proof strategy.
+
+        :param proof_strategy: One of ``RNS.Destination.PROVE_NONE``, ``RNS.Destination.PROVE_ALL`` or ``RNS.Destination.PROVE_APP``. If ``RNS.Destination.PROVE_APP`` is set, the `proof_requested_callback` will be called to determine whether a proof should be sent or not.
+        """
         if not proof_strategy in Destination.proof_strategies:
             raise TypeError("Unsupported proof strategy")
         else:
@@ -136,7 +191,12 @@ class Destination:
         if link != None:
             self.links.append(link)
 
-    def createKeys(self):
+    def create_keys(self):
+        """
+        For a ``RNS.Destination.GROUP`` type destination, creates a new symmetric key.
+
+        :raises: ``TypeError`` if called on an incompatible type of destination.
+        """
         if self.type == Destination.PLAIN:
             raise TypeError("A plain destination does not hold any keys")
 
@@ -148,7 +208,12 @@ class Destination:
             self.prv = Fernet(self.prv_bytes)
 
 
-    def getPrivateKey(self):
+    def get_private_key(self):
+        """
+        For a ``RNS.Destination.GROUP`` type destination, returns the symmetric private key.
+
+        :raises: ``TypeError`` if called on an incompatible type of destination.
+        """
         if self.type == Destination.PLAIN:
             raise TypeError("A plain destination does not hold any keys")
         elif self.type == Destination.SINGLE:
@@ -157,7 +222,13 @@ class Destination:
             return self.prv_bytes
 
 
-    def loadPrivateKey(self, key):
+    def load_private_key(self, key):
+        """
+        For a ``RNS.Destination.GROUP`` type destination, loads a symmetric private key.
+
+        :param key: A *bytes-like* containing the symmetric key.
+        :raises: ``TypeError`` if called on an incompatible type of destination.
+        """
         if self.type == Destination.PLAIN:
             raise TypeError("A plain destination does not hold any keys")
 
@@ -168,7 +239,7 @@ class Destination:
             self.prv_bytes = key
             self.prv = Fernet(self.prv_bytes)
 
-    def loadPublicKey(self, key):
+    def load_public_key(self, key):
         if self.type != Destination.SINGLE:
             raise TypeError("Only the \"single\" destination type can hold a public key")
         else:
@@ -176,6 +247,12 @@ class Destination:
 
 
     def encrypt(self, plaintext):
+        """
+        Encrypts information for ``RNS.Destination.SINGLE`` or ``RNS.Destination.GROUP`` type destination.
+
+        :param plaintext: A *bytes-like* containing the plaintext to be encrypted.
+        :raises: ``ValueError`` if destination does not hold a necessary key for encryption.
+        """
         if self.type == Destination.PLAIN:
             return plaintext
 
@@ -195,6 +272,12 @@ class Destination:
 
 
     def decrypt(self, ciphertext):
+        """
+        Decrypts information for ``RNS.Destination.SINGLE`` or ``RNS.Destination.GROUP`` type destination.
+
+        :param ciphertext: A *bytes-like* containing the ciphertext to be decrypted.
+        :raises: ``ValueError`` if destination does not hold a necessary key for decryption.
+        """
         if self.type == Destination.PLAIN:
             return ciphertext
 
@@ -213,25 +296,51 @@ class Destination:
 
 
     def sign(self, message):
+        """
+        Signs information for ``RNS.Destination.SINGLE`` type destination.
+
+        :param message: A *bytes-like* containing the message to be signed.
+        :returns: A *bytes-like* containing the message signature, or *None* if the destination could not sign the message.
+        """
         if self.type == Destination.SINGLE and self.identity != None:
             return self.identity.sign(message)
         else:
             return None
 
     def set_default_app_data(self, app_data=None):
+        """
+        Sets the default app_data for the destination. If set, the default
+        app_data will be included in every announce sent by the destination,
+        unless other app_data is specified in the *announce* method.
+
+        :param app_data: A *bytes-like* containing the default app_data, or a *callable* returning a *bytes-like* containing the app_data.
+        """
         self.default_app_data = app_data
 
     def clear_default_app_data(self):
+        """
+        Clears default app_data previously set for the destination.
+        """
         self.set_default_app_data(app_data=None)
 
-    # Creates an announce packet for this destination.
-    # Application specific data can be added to the announce.
     def announce(self, app_data=None, path_response=False):
+        """
+        Creates an announce packet for this destination and broadcasts it on
+        all interfaces. Application specific data can be added to the announce.
+
+        :param app_data: *bytes* containing the app_data.
+        :param path_response: Internal flag used by :ref:`RNS.Transport<Transport>`. Ignore.
+        """
         destination_hash = self.hash
         random_hash = RNS.Identity.getRandomHash()
 
         if app_data == None and self.default_app_data != None:
-            app_data = self.default_app_data
+            if isinstance(self.default_app_data, bytes):
+                app_data = self.default_app_data
+            elif callable(self.default_app_data):
+                returned_app_data = self.default_app_data()
+                if isinstance(returned_app_data, bytes):
+                    app_data = returned_app_data
         
         signed_data = self.hash+self.identity.getPublicKey()+random_hash
         if app_data != None:
