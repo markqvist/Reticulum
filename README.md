@@ -11,6 +11,8 @@ No kernel modules or drivers are required. Reticulum runs completely in userland
 
 For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects/reticulum/)
 
+The documentation for Reticulum is available at [unsigned.io/docs/rns/](https://unsigned.io/docs/rns/)
+
 ## Notable Features
  - Coordination-less globally unique adressing and identification
  - Fully self-configuring multi-hop routing
