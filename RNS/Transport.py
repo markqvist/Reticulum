@@ -828,7 +828,7 @@ class Transport:
                         # pending link
                         for link in Transport.pending_links:
                             if link.link_id == packet.destination_hash:
-                                link.validateProof(packet)
+                                link.validate_proof(packet)
 
                 elif packet.context == RNS.Packet.RESOURCE_PRF:
                     for link in Transport.active_links:

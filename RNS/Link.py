@@ -53,11 +53,11 @@ class Link:
     resource_strategies = [ACCEPT_NONE, ACCEPT_APP, ACCEPT_ALL]
 
     @staticmethod
-    def validateRequest(owner, data, packet):
+    def validate_request(owner, data, packet):
         if len(data) == (Link.ECPUBSIZE):
             try:
                 link = Link(owner = owner, peer_pub_bytes = data[:Link.ECPUBSIZE])
-                link.setLinkID(packet)
+                link.set_link_id(packet)
                 link.destination = packet.destination
                 RNS.log("Validating link request "+RNS.prettyhexrep(link.link_id), RNS.LOG_VERBOSE)
                 link.handshake()
@@ -127,13 +127,13 @@ class Link:
             self.peer_pub = None
             self.peer_pub_bytes = None
         else:
-            self.loadPeer(peer_pub_bytes)
+            self.load_peer(peer_pub_bytes)
 
         if (self.initiator):
             self.request_data = self.pub_bytes
             self.packet = RNS.Packet(destination, self.request_data, packet_type=RNS.Packet.LINKREQUEST)
             self.packet.pack()
-            self.setLinkID(self.packet)
+            self.set_link_id(self.packet)
             RNS.Transport.registerLink(self)
             self.request_time = time.time()
             self.start_watchdog()
@@ -142,13 +142,13 @@ class Link:
             RNS.log("Link request "+RNS.prettyhexrep(self.link_id)+" sent to "+str(self.destination), RNS.LOG_VERBOSE)
 
 
-    def loadPeer(self, peer_pub_bytes):
+    def load_peer(self, peer_pub_bytes):
         self.peer_pub_bytes = peer_pub_bytes
         self.peer_pub = serialization.load_der_public_key(peer_pub_bytes, backend=default_backend())
         if not hasattr(self.peer_pub, "curve"):
             self.peer_pub.curve = Link.CURVE
 
-    def setLinkID(self, packet):
+    def set_link_id(self, packet):
         self.link_id = packet.getTruncatedHash()
         self.hash = self.link_id
 
@@ -158,8 +158,8 @@ class Link:
         self.derived_key = HKDF(
             algorithm=hashes.SHA256(),
             length=32,
-            salt=self.getSalt(),
-            info=self.getContext(),
+            salt=self.get_salt(),
+            info=self.get_context(),
             backend=default_backend()
         ).derive(self.shared_key)
 
@@ -185,14 +185,14 @@ class Link:
         proof.send()
         self.had_outbound()
 
-    def validateProof(self, packet):
+    def validate_proof(self, packet):
         if self.initiator:
             peer_pub_bytes = packet.data[:Link.ECPUBSIZE]
             signed_data = self.link_id+peer_pub_bytes
             signature = packet.data[Link.ECPUBSIZE:RNS.Identity.KEYSIZE//8+Link.ECPUBSIZE]
 
             if self.destination.identity.validate(signature, signed_data):
-                self.loadPeer(peer_pub_bytes)
+                self.load_peer(peer_pub_bytes)
                 self.handshake()
                 self.rtt = time.time() - self.request_time
                 self.attached_interface = packet.receiving_interface
@@ -236,10 +236,10 @@ class Link:
             traceback.print_exc()
             self.teardown()
 
-    def getSalt(self):
+    def get_salt(self):
         return self.link_id
 
-    def getContext(self):
+    def get_context(self):
         return None
 
     def no_inbound_for(self):

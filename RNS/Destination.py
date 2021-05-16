@@ -180,14 +180,14 @@ class Destination:
         plaintext = self.decrypt(packet.data)
         if plaintext != None:
             if packet.packet_type == RNS.Packet.LINKREQUEST:
-                self.incomingLinkRequest(plaintext, packet)
+                self.incoming_link_request(plaintext, packet)
 
             if packet.packet_type == RNS.Packet.DATA:
                 if self.callbacks.packet != None:
                     self.callbacks.packet(plaintext, packet)
 
-    def incomingLinkRequest(self, data, packet):
-        link = RNS.Link.validateRequest(self, data, packet)
+    def incoming_link_request(self, data, packet):
+        link = RNS.Link.validate_request(self, data, packet)
         if link != None:
             self.links.append(link)
 
