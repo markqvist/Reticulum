@@ -742,7 +742,7 @@ class Resource:
 
 
 class ResourceAdvertisement:
-    HASHMAP_MAX_LEN      = 75
+    HASHMAP_MAX_LEN      = 73
     COLLISION_GUARD_SIZE = 2*Resource.WINDOW_MAX+HASHMAP_MAX_LEN
 
     def __init__(self, resource=None):
