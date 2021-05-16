@@ -619,7 +619,7 @@ class Transport:
             # of queued announce rebroadcasts once handed to the next node.
             if packet.packet_type == RNS.Packet.ANNOUNCE:
                 local_destination = next((d for d in Transport.destinations if d.hash == packet.destination_hash), None)
-                if local_destination == None and RNS.Identity.validateAnnounce(packet):
+                if local_destination == None and RNS.Identity.validate_announce(packet):
                     if packet.transport_id != None:
                         received_from = packet.transport_id
                         
@@ -1016,14 +1016,14 @@ class Transport:
 
     @staticmethod
     def requestPath(destination_hash):
-        path_request_data = destination_hash + RNS.Identity.getRandomHash()
+        path_request_data = destination_hash + RNS.Identity.get_random_hash()
         path_request_dst = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
         packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1)
         packet.send()
 
     @staticmethod
     def requestPathOnInterface(destination_hash, interface):
-        path_request_data = destination_hash + RNS.Identity.getRandomHash()
+        path_request_data = destination_hash + RNS.Identity.get_random_hash()
         path_request_dst = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
         packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = interface)
         packet.send()

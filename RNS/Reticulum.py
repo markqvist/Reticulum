@@ -120,7 +120,7 @@ class Reticulum:
             exit(1)
 
         self.__apply_config()
-        RNS.Identity.loadKnownDestinations()
+        RNS.Identity.load_known_destinations()
 
         RNS.Transport.start(self)
 

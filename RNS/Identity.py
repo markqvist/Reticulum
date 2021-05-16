@@ -42,7 +42,7 @@ class Identity:
         if destination_hash in Identity.known_destinations:
             identity_data = Identity.known_destinations[destination_hash]
             identity = Identity(public_only=True)
-            identity.loadPublicKey(identity_data[2])
+            identity.load_public_key(identity_data[2])
             identity.app_data = identity_data[3]
             RNS.log("Found "+RNS.prettyhexrep(destination_hash)+" in known destinations", RNS.LOG_EXTREME)
             return identity
@@ -62,7 +62,7 @@ class Identity:
             return None
 
     @staticmethod
-    def saveKnownDestinations():
+    def save_known_destinations():
         RNS.log("Saving known destinations to storage...", RNS.LOG_VERBOSE)
         file = open(RNS.Reticulum.storagepath+"/known_destinations","wb")
         umsgpack.dump(Identity.known_destinations, file)
@@ -70,7 +70,7 @@ class Identity:
         RNS.log("Done saving known destinations to storage", RNS.LOG_VERBOSE)
 
     @staticmethod
-    def loadKnownDestinations():
+    def load_known_destinations():
         if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
             try:
                 file = open(RNS.Reticulum.storagepath+"/known_destinations","rb")
@@ -83,22 +83,22 @@ class Identity:
             RNS.log("Destinations file does not exist, so no known destinations loaded", RNS.LOG_VERBOSE)
 
     @staticmethod
-    def fullHash(data):
+    def full_hash(data):
         digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
         digest.update(data)
 
         return digest.finalize()
 
     @staticmethod
-    def truncatedHash(data):
-        return Identity.fullHash(data)[:(Identity.TRUNCATED_HASHLENGTH//8)]
+    def truncated_hash(data):
+        return Identity.full_hash(data)[:(Identity.TRUNCATED_HASHLENGTH//8)]
 
     @staticmethod
-    def getRandomHash():
-        return Identity.truncatedHash(os.urandom(10))
+    def get_random_hash():
+        return Identity.truncated_hash(os.urandom(10))
 
     @staticmethod
-    def validateAnnounce(packet):
+    def validate_announce(packet):
         if packet.packet_type == RNS.Packet.ANNOUNCE:
             RNS.log("Validating announce from "+RNS.prettyhexrep(packet.destination_hash), RNS.LOG_DEBUG)
             destination_hash = packet.destination_hash
@@ -115,7 +115,7 @@ class Identity:
                 app_data = None
 
             announced_identity = Identity(public_only=True)
-            announced_identity.loadPublicKey(public_key)
+            announced_identity.load_public_key(public_key)
 
             if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
                 RNS.Identity.remember(packet.getHash(), destination_hash, public_key, app_data)
@@ -129,7 +129,7 @@ class Identity:
 
     @staticmethod
     def exit_handler():
-        Identity.saveKnownDestinations()
+        Identity.save_known_destinations()
 
 
     @staticmethod
@@ -151,9 +151,9 @@ class Identity:
         self.hexhash = None
 
         if not public_only:
-            self.createKeys()
+            self.create_keys()
 
-    def createKeys(self):
+    def create_keys(self):
         self.prv = rsa.generate_private_key(
             public_exponent=65537,
             key_size=Identity.KEYSIZE,
@@ -170,17 +170,17 @@ class Identity:
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         )
 
-        self.updateHashes()
+        self.update_hashes()
 
         RNS.log("Identity keys created for "+RNS.prettyhexrep(self.hash), RNS.LOG_VERBOSE)
 
-    def getPrivateKey(self):
+    def get_private_key(self):
         return self.prv_bytes
 
-    def getPublicKey(self):
+    def get_public_key(self):
         return self.pub_bytes
 
-    def loadPrivateKey(self, prv_bytes):
+    def load_private_key(self, prv_bytes):
         try:
             self.prv_bytes = prv_bytes
             self.prv = serialization.load_der_private_key(
@@ -193,7 +193,7 @@ class Identity:
                 encoding=serialization.Encoding.DER,
                 format=serialization.PublicFormat.SubjectPublicKeyInfo
             )
-            self.updateHashes()
+            self.update_hashes()
 
             return True
 
@@ -202,16 +202,16 @@ class Identity:
             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
             return False
 
-    def loadPublicKey(self, key):
+    def load_public_key(self, key):
         try:
             self.pub_bytes = key
             self.pub = load_der_public_key(self.pub_bytes, backend=default_backend())
-            self.updateHashes()
+            self.update_hashes()
         except Exception as e:
             RNS.log("Error while loading public key, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
-    def updateHashes(self):
-        self.hash = Identity.truncatedHash(self.pub_bytes)
+    def update_hashes(self):
+        self.hash = Identity.truncated_hash(self.pub_bytes)
         self.hexhash = self.hash.hex()
 
     def save(self, path):
@@ -228,7 +228,7 @@ class Identity:
         try:
             with open(path, "rb") as key_file:
                 prv_bytes = key_file.read()
-                return self.loadPrivateKey(prv_bytes)
+                return self.load_private_key(prv_bytes)
             return False
         except Exception as e:
             RNS.log("Error while loading identity from "+str(path), RNS.LOG_ERROR)

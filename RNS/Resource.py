@@ -195,7 +195,7 @@ class Resource:
                 RNS.log("Compression saved "+str(saved_bytes)+" bytes, sending compressed", RNS.LOG_DEBUG)
 
                 self.data  = b""
-                self.data += RNS.Identity.getRandomHash()[:Resource.RANDOM_HASH_SIZE]
+                self.data += RNS.Identity.get_random_hash()[:Resource.RANDOM_HASH_SIZE]
                 self.data += self.compressed_data
                 
                 self.compressed = True
@@ -203,7 +203,7 @@ class Resource:
 
             else:
                 self.data  = b""
-                self.data += RNS.Identity.getRandomHash()[:Resource.RANDOM_HASH_SIZE]
+                self.data += RNS.Identity.get_random_hash()[:Resource.RANDOM_HASH_SIZE]
                 self.data += self.uncompressed_data
                 self.uncompressed_data = self.data
 
@@ -231,9 +231,9 @@ class Resource:
                 hashmap_computation_began = time.time()
                 RNS.log("Starting resource hashmap computation with "+str(hashmap_entries)+" entries...", RNS.LOG_DEBUG)
 
-                self.random_hash       = RNS.Identity.getRandomHash()[:Resource.RANDOM_HASH_SIZE]
-                self.hash = RNS.Identity.fullHash(data+self.random_hash)
-                self.expected_proof = RNS.Identity.fullHash(data+self.hash)
+                self.random_hash       = RNS.Identity.get_random_hash()[:Resource.RANDOM_HASH_SIZE]
+                self.hash = RNS.Identity.full_hash(data+self.random_hash)
+                self.expected_proof = RNS.Identity.full_hash(data+self.hash)
 
                 if original_hash == None:
                     self.original_hash = self.hash
@@ -298,7 +298,7 @@ class Resource:
         # uncompressed transfers on streams with long blocks
         # of identical bytes. Doing so would be very silly
         # anyways but maybe it should be handled gracefully.
-        return RNS.Identity.fullHash(data+self.random_hash)[:Resource.MAPHASH_LEN]
+        return RNS.Identity.full_hash(data+self.random_hash)[:Resource.MAPHASH_LEN]
 
     def advertise(self):
         thread = threading.Thread(target=self.__advertise_job)
@@ -437,7 +437,7 @@ class Resource:
                 else:
                     self.data = data
 
-                calculated_hash = RNS.Identity.fullHash(self.data+self.random_hash)
+                calculated_hash = RNS.Identity.full_hash(self.data+self.random_hash)
 
                 if calculated_hash == self.hash:
                     self.file = open(self.storagepath, "ab")
@@ -474,7 +474,7 @@ class Resource:
     def prove(self):
         if not self.status == Resource.FAILED:
             try:
-                proof = RNS.Identity.fullHash(self.data+self.hash)
+                proof = RNS.Identity.full_hash(self.data+self.hash)
                 proof_data = self.hash+proof
                 proof_packet = RNS.Packet(self.link, proof_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.RESOURCE_PRF)
                 proof_packet.send()

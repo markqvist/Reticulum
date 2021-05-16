@@ -133,7 +133,7 @@ def client(destination_hexhash, configpath, timeout=None):
             # We set the destination to the request_destination
             # that was just created, and the only data we add
             # is a random hash.
-            echo_request = RNS.Packet(request_destination, RNS.Identity.getRandomHash())
+            echo_request = RNS.Packet(request_destination, RNS.Identity.get_random_hash())
 
             # Send the packet! If the packet is successfully
             # sent, it will return a PacketReceipt instance.

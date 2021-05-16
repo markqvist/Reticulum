@@ -332,7 +332,7 @@ class Destination:
         :param path_response: Internal flag used by :ref:`RNS.Transport<Transport>`. Ignore.
         """
         destination_hash = self.hash
-        random_hash = RNS.Identity.getRandomHash()
+        random_hash = RNS.Identity.get_random_hash()
 
         if app_data == None and self.default_app_data != None:
             if isinstance(self.default_app_data, bytes):
@@ -342,7 +342,7 @@ class Destination:
                 if isinstance(returned_app_data, bytes):
                     app_data = returned_app_data
         
-        signed_data = self.hash+self.identity.getPublicKey()+random_hash
+        signed_data = self.hash+self.identity.get_public_key()+random_hash
         if app_data != None:
             signed_data += app_data
 
@@ -351,7 +351,7 @@ class Destination:
         # TODO: Check if this could be optimised by only
         # carrying the hash in the destination field, not
         # also redundantly inside the signed blob as here
-        announce_data = self.hash+self.identity.getPublicKey()+random_hash+signature
+        announce_data = self.hash+self.identity.get_public_key()+random_hash+signature
 
         if app_data != None:
             announce_data += app_data

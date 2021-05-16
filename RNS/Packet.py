@@ -243,10 +243,10 @@ class Packet:
         self.packet_hash = self.getHash()
 
     def getHash(self):
-        return RNS.Identity.fullHash(self.getHashablePart())
+        return RNS.Identity.full_hash(self.getHashablePart())
 
     def getTruncatedHash(self):
-        return RNS.Identity.truncatedHash(self.getHashablePart())
+        return RNS.Identity.truncated_hash(self.getHashablePart())
 
     def getHashablePart(self):
         hashable_part = bytes([self.raw[0] & 0b00001111])
