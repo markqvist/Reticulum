@@ -483,7 +483,7 @@ class Resource:
                 RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
                 self.cancel()
 
-    def validateProof(self, proof_data):
+    def validate_proof(self, proof_data):
         if not self.status == Resource.FAILED:
             if len(proof_data) == RNS.Identity.HASHLENGTH//8*2:
                 if proof_data[RNS.Identity.HASHLENGTH//8:] == self.expected_proof:

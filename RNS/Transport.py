@@ -862,11 +862,11 @@ class Transport:
                         if proof_hash != None:
                             # Only test validation if hash matches
                             if receipt.hash == proof_hash:
-                                receipt_validated = receipt.validateProofPacket(packet)
+                                receipt_validated = receipt.validate_proof_packet(packet)
                         else:
                             # In case of an implicit proof, we have
                             # to check every single outstanding receipt
-                            receipt_validated = receipt.validateProofPacket(packet)
+                            receipt_validated = receipt.validate_proof_packet(packet)
 
                         if receipt_validated:
                             Transport.receipts.remove(receipt)

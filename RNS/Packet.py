@@ -70,7 +70,7 @@ class Packet:
             self.destination    = destination
             self.transport_id   = transport_id
             self.data           = data
-            self.flags          = self.getPackedFlags()
+            self.flags          = self.get_packed_flags()
 
             self.raw            = None
             self.packed         = False
@@ -91,7 +91,7 @@ class Packet:
         self.attached_interface = attached_interface
         self.receiving_interface = None
 
-    def getPackedFlags(self):
+    def get_packed_flags(self):
         if self.context == Packet.LRPROOF:
             packed_flags = (self.header_type << 6) | (self.transport_type << 4) | RNS.Destination.LINK | self.packet_type
         else:
@@ -230,14 +230,14 @@ class Packet:
 
     # Generates a special destination that allows Reticulum
     # to direct the proof back to the proved packet's sender
-    def generateProofDestination(self):
+    def generate_proof_destination(self):
         return ProofDestination(self)
 
-    def validateProofPacket(self, proof_packet):
-        return self.receipt.validateProofPacket(proof_packet)
+    def validate_proof_packet(self, proof_packet):
+        return self.receipt.validate_proof_packet(proof_packet)
 
-    def validateProof(self, proof):
-        return self.receipt.validateProof(proof)
+    def validate_proof(self, proof):
+        return self.receipt.validate_proof(proof)
 
     def updateHash(self):
         self.packet_hash = self.getHash()
@@ -290,11 +290,11 @@ class PacketReceipt:
         self.concluded_at = None
 
     # Validate a proof packet
-    def validateProofPacket(self, proof_packet):
+    def validate_proof_packet(self, proof_packet):
         if hasattr(proof_packet, "link") and proof_packet.link:
             return self.validate_link_proof(proof_packet.data, proof_packet.link)
         else:
-            return self.validateProof(proof_packet.data)
+            return self.validate_proof(proof_packet.data)
 
     # Validate a raw proof for a link
     def validate_link_proof(self, proof, link):
@@ -336,7 +336,7 @@ class PacketReceipt:
             return False
 
     # Validate a raw proof
-    def validateProof(self, proof):
+    def validate_proof(self, proof):
         if len(proof) == PacketReceipt.EXPL_LENGTH:
             # This is an explicit proof
             proof_hash = proof[:RNS.Identity.HASHLENGTH//8]

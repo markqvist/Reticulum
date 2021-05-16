@@ -448,7 +448,7 @@ class Link:
                         resource_hash = packet.data[0:RNS.Identity.HASHLENGTH//8]
                         for resource in self.outgoing_resources:
                             if resource_hash == resource.hash:
-                                resource.validateProof(packet.data)
+                                resource.validate_proof(packet.data)
 
         self.watchdog_lock = False
 

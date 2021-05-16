@@ -329,7 +329,7 @@ class Identity:
             proof_data = packet.packet_hash + signature
         
         if destination == None:
-            destination = packet.generateProofDestination()
+            destination = packet.generate_proof_destination()
 
         proof = RNS.Packet(destination, proof_data, RNS.Packet.PROOF, attached_interface = packet.receiving_interface)
         proof.send()
