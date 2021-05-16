@@ -5,4 +5,5 @@ TODO
 Examples/RNS
 build
 dist
+docs/build
 rns*.egg-info
