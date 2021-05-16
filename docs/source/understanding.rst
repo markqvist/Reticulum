@@ -1,7 +1,9 @@
+.. _understanding-main:
+
 ***********************
 Understanding Reticulum
 ***********************
-This document will briefly describe the overall purpose and operating principles of Reticulum, a
+This chapter will briefly describe the overall purpose and operating principles of Reticulum, a
 networking stack designed for reliable and secure communication over high-latency, low-bandwidth
 links. It should give you an overview of how the stack works, and an understanding of how to
 develop networked applications using Reticulum.

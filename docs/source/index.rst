@@ -1,21 +1,33 @@
 *************************************
 Reticulum Network Stack Documentation
 *************************************
-Reticulum is a cryptography-based networking stack for wide-area networks built on readily available hardware, and can operate even with very high latency and extremely low bandwidth. Reticulum allows you to build very wide-area networks with off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable packet acknowledgements and more.
+Welcome to the documentation for Reticulum. This document aims to provide you
+with all the information you need to understand Reticulum, develop programs
+using it, or to participate in the development of Reticulum itself.
 
-Reticulum is a complete networking stack, and does not use IP or higher layers, although it is easy to utilise IP (with TCP or UDP) as the underlying carrier for Reticulum. It is therefore trivial to tunnel Reticulum over the Internet or private IP networks.
-
+Table of Contents
+=================
 .. toctree::
    :maxdepth: 3
-   :caption: Table of Contents:
 
+   whatis
    gettingstartedfast
    examples
    reference
-   overview
+   understanding
 
 
-Indices and tables
+Current Status
+==============
+Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.
+
+
+Caveat Emptor
+=============
+Reticulum is experimental software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it has not been externally security audited, and there could very well be privacy-breaking bugs. To be considered secure, Reticulum needs a very thourough security review by independt cryptographers and security researchers. If you want to help out, or help sponsor an audit, please do get in touch.
+
+
+Indices and Tables
 ==================
 
 * :ref:`genindex`

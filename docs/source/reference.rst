@@ -1,56 +1,68 @@
+.. _api-main:
+
 *************
 API Reference
 *************
 This reference guide lists and explains all classes exposed by the RNS API.
 
-Classes
-=======
-Communication over a Reticulum network in a program is acheived using a set of classes exposed by RNS.
+Primary Interface Classes
+=========================
+Communication over a Reticulum network in a program is acheived using a set of
+classes exposed by RNS.
+
+.. _api-reticulum:
 
 Reticulum
 ---------
 
-.. automodule:: RNS
-   :members: Reticulum
+.. autoclass:: RNS.Reticulum
+   :members:
+
+
+.. _api-identity:
 
 Identity
 --------
 
-.. automodule:: RNS
-   :members: Identity
-   :noindex:
+.. autoclass:: RNS.Identity
+   :members:
+
+.. _api-destination:
 
 Destination
 -----------
 
-.. automodule:: RNS
-   :members: Destination
-   :noindex:
+.. autoclass:: RNS.Destination
+   :members:
+
+.. _api-packet:
 
 Packet
 ------
 
-.. automodule:: RNS
-   :members: Packet
-   :noindex:
+.. autoclass:: RNS.Packet
+   :members:
+
+.. _api-link:
 
 Link
 ----
 
-.. automodule:: RNS
-   :members: Link
-   :noindex:
+.. autoclass:: RNS.Link
+   :members:
+
+.. _api-resource:
 
 Resource
 --------
 
-.. automodule:: RNS
-   :members: Resource
-   :noindex:
+.. autoclass:: RNS.Resource
+   :members:
+
+.. _api-transport:
 
 Transport
 ---------
 
-.. automodule:: RNS
-   :members: Transport
-   :noindex:
+.. autoclass:: RNS.Transport
+   :members:

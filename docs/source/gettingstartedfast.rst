@@ -24,9 +24,9 @@ started is to install Reticulum via pip:
 
 The above command will install Reticulum and dependencies, and you will be
 ready to import and use RNS in your own programs. The next step will most
-likely be to look at some :ref:`Example Programs<Examples>`.
+likely be to look at some :ref:`Example Programs<examples-main>`.
 
-Further information can be found in the :ref:`API Reference<API Reference>`.
+Further information can be found in the :ref:`API Reference<api-main>`.
 
 
 Participate in Reticulum Development
@@ -69,4 +69,4 @@ don't use pip, but try this recipe:
     python3 Examples/Filetransfer.py -h
 
 When you have experimented with the basic examples, it's time to go read the
-:ref:`Understanding Reticulum<Understanding Reticulum>` chapter.
+:ref:`Understanding Reticulum<understanding-main>` chapter.

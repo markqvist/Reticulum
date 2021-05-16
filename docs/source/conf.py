@@ -32,7 +32,7 @@ release = '0.2.0 β'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.autosectionlabel',
+    #'sphinx.ext.autosectionlabel',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -55,3 +55,11 @@ html_theme = 'classic'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+
+# def check_skip_member(app, what, name, obj, skip, options):
+#     print(what, " | ", name, " | ", obj, " | ", skip, " | ", options)
+#     return False
+
+# def setup(app):
+#     app.connect('autodoc-skip-member', check_skip_member)
