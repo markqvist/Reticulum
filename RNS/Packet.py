@@ -5,6 +5,20 @@ import time
 import RNS
 
 class Packet:
+    """
+    The Packet class is used to create packet instances that can be
+    sent over a Reticulum network.
+
+    :param destination: A :ref:`RNS.Destination<api-destination>` instance to which the packet will be sent.
+    :param data: The data payload to be included in the packet as *bytes*.
+    :param create_receipt: Specifies whether a :ref:`RNS.PacketReceipt<api-packetreceipt>` should be created when instantiating the packet.
+    :param type: Internal use by :ref:`RNS.Transport<api-transport>`. Defaults to ``RNS.Packet.DATA``, and should not be specified.
+    :param context: Internal use by :ref:`RNS.Transport<api-transport>`. Ignore.
+    :param transport_type: Internal use by :ref:`RNS.Transport<api-transport>`. Ignore.
+    :param transport_id: Internal use by :ref:`RNS.Transport<api-transport>`. Ignore.
+    :param attached_interface: Internal use by :ref:`RNS.Transport<api-transport>`. Ignore.
+    """
+
     # Packet types
     DATA         = 0x00     # Data packets
     ANNOUNCE     = 0x01     # Announces
@@ -155,7 +169,7 @@ class Packet:
             raise IOError("Packet size of "+str(len(self.raw))+" exceeds MTU of "+str(self.MTU)+" bytes")
 
         self.packed = True
-        self.updateHash()
+        self.update_hash()
 
     def unpack(self):
         self.flags = self.raw[0]
@@ -178,12 +192,14 @@ class Packet:
             self.data = self.raw[13:]
 
         self.packed = False
-        self.updateHash()
+        self.update_hash()
 
-    # Sends the packet. Returns a receipt if one is generated,
-    # or None if no receipt is available. Returns False if the
-    # packet could not be sent.
     def send(self):
+        """
+        Sends the packet.
+        
+        :returns: A :ref:`RNS.PacketReceipt<api-packetreceipt>` instance if *create_receipt* was set to *True* when the packet was instantiated, if not returns *None*. If the packet could not be sent *False* is returned.
+        """
         if not self.sent:
             if self.destination.type == RNS.Destination.LINK:
                 if self.destination.status == RNS.Link.CLOSED:
@@ -208,6 +224,11 @@ class Packet:
             raise IOError("Packet was already sent")
 
     def resend(self):
+        """
+        Re-sends the packet.
+        
+        :returns: A :ref:`RNS.PacketReceipt<api-packetreceipt>` instance if *create_receipt* was set to *True* when the packet was instantiated, if not returns *None*. If the packet could not be sent *False* is returned.
+        """
         if self.sent:
             if RNS.Transport.outbound(self):
                 return self.receipt
@@ -239,16 +260,16 @@ class Packet:
     def validate_proof(self, proof):
         return self.receipt.validate_proof(proof)
 
-    def updateHash(self):
-        self.packet_hash = self.getHash()
+    def update_hash(self):
+        self.packet_hash = self.get_hash()
 
-    def getHash(self):
-        return RNS.Identity.full_hash(self.getHashablePart())
+    def get_hash(self):
+        return RNS.Identity.full_hash(self.get_hashable_part())
 
     def getTruncatedHash(self):
-        return RNS.Identity.truncated_hash(self.getHashablePart())
+        return RNS.Identity.truncated_hash(self.get_hashable_part())
 
-    def getHashablePart(self):
+    def get_hashable_part(self):
         hashable_part = bytes([self.raw[0] & 0b00001111])
         if self.header_type == Packet.HEADER_2:
             hashable_part += self.raw[12:]
@@ -259,7 +280,7 @@ class Packet:
 
 class ProofDestination:
     def __init__(self, packet):
-        self.hash = packet.getHash()[:10];
+        self.hash = packet.get_hash()[:10];
         self.type = RNS.Destination.SINGLE
 
     def encrypt(self, plaintext):
@@ -267,6 +288,12 @@ class ProofDestination:
 
 
 class PacketReceipt:
+    """
+    The PacketReceipt class is used to receive notifications about
+    :ref:`RNS.Packet<api-packet>` instances sent over the network. Instances
+    of this class should never be created manually, but always returned
+    from a the *send()* method of a :ref:`RNS.Packet<api-packet>` instance.
+    """
     # Receipt status constants
     FAILED    = 0x00
     SENT      = 0x01
@@ -279,7 +306,7 @@ class PacketReceipt:
 
     # Creates a new packet receipt from a sent packet
     def __init__(self, packet):
-        self.hash    = packet.getHash()
+        self.hash    = packet.get_hash()
         self.sent    = True
         self.sent_at = time.time()
         self.timeout = Packet.TIMEOUT
@@ -288,6 +315,12 @@ class PacketReceipt:
         self.destination = packet.destination
         self.callbacks   = PacketReceiptCallbacks()
         self.concluded_at = None
+
+    def get_status(self):
+        """
+        :returns: The status of the associated :ref:`RNS.Packet<api-packet>` instance. Can be one of ``RNS.PacketReceipt.SENT``, ``RNS.PacketReceipt.DELIVERED``, ``RNS.PacketReceipt.FAILED`` or ``RNS.PacketReceipt.CULLED``. 
+        """
+        return self.status
 
     # Validate a proof packet
     def validate_proof_packet(self, proof_packet):
@@ -374,6 +407,9 @@ class PacketReceipt:
             return False
 
     def rtt(self):
+        """
+        :returns: The round-trip-time in seconds
+        """
         return self.concluded_at - self.sent_at
 
     def is_timed_out(self):
@@ -395,18 +431,30 @@ class PacketReceipt:
                 #self.callbacks.timeout(self)
 
 
-    # Set the timeout in seconds
     def set_timeout(self, timeout):
+        """
+        Sets a timeout in seconds
+        
+        :param timeout: The timeout in seconds.
+        """
         self.timeout = float(timeout)
 
-    # Set a function that gets called when
-    # a successfull delivery has been proved
     def delivery_callback(self, callback):
+        """
+        Sets a function that gets called if a successfull delivery has been proven.
+
+        :param callback: A *callable* with the signature *callback(packet_receipt)*
+        """
         self.callbacks.delivery = callback
 
     # Set a function that gets called if the
     # delivery times out
     def timeout_callback(self, callback):
+        """
+        Sets a function that gets called if the delivery times out.
+
+        :param callback: A *callable* with the signature *callback(packet_receipt)*
+        """
         self.callbacks.timeout = callback
 
 class PacketReceiptCallbacks:

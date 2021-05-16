@@ -161,7 +161,7 @@ class Identity:
             announced_identity.load_public_key(public_key)
 
             if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
-                RNS.Identity.remember(packet.getHash(), destination_hash, public_key, app_data)
+                RNS.Identity.remember(packet.get_hash(), destination_hash, public_key, app_data)
                 RNS.log("Stored valid announce from "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
                 del announced_identity
                 return True

@@ -318,7 +318,7 @@ class Transport:
 
         Transport.jobs_locked = True
         # TODO: This updateHash call might be redundant
-        packet.updateHash()
+        packet.update_hash()
         sent = False
 
         # Check if we have a known path for the destination in the path table
@@ -907,12 +907,22 @@ class Transport:
 
     @staticmethod
     def register_announce_handler(handler):
+        """
+        Registers an announce handler.
+
+        :param handler: Must be an object with an *aspect_filter* attribute and a *received_announce(destination_hash, announced_identity, app_data)* callable. See the :ref:`Announce Example<example-announce>` for more info.
+        """
         if hasattr(handler, "received_announce") and callable(handler.received_announce):
             if hasattr(handler, "aspect_filter"):
                 Transport.announce_handlers.append(handler)
 
     @staticmethod
     def deregister_announce_handler(handler):
+        """
+        Deregisters an announce handler.
+
+        :param handler: The announce handler to be deregistered.
+        """
         while handler in Transport.announce_handlers:
             Transport.announce_handlers.remove(handler)
 
@@ -940,7 +950,7 @@ class Transport:
     def cache(packet, force_cache=False):
         if RNS.Transport.should_cache(packet) or force_cache:
             try:
-                packet_hash = RNS.hexrep(packet.getHash(), delimit=False)
+                packet_hash = RNS.hexrep(packet.get_hash(), delimit=False)
                 interface_reference = None
                 if packet.receiving_interface != None:
                     interface_reference = str(packet.receiving_interface)
@@ -1009,6 +1019,10 @@ class Transport:
 
     @staticmethod
     def has_path(destination_hash):
+        """
+        :param destination_hash: A destination hash as *bytes*.
+        :returns: *True* if a path to the destination is known, otherwise *False*.
+        """
         if destination_hash in Transport.destination_table:
             return True
         else:
@@ -1016,6 +1030,13 @@ class Transport:
 
     @staticmethod
     def request_path(destination_hash):
+        """
+        Requests a path to the destination from the network. If
+        another reachable peer on the network knows a path, it
+        will announce it.
+
+        :param destination_hash: A destination hash as *bytes*.
+        """
         path_request_data = destination_hash + RNS.Identity.get_random_hash()
         path_request_dst = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
         packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1)
@@ -1147,7 +1168,7 @@ class Transport:
                         hops = de[2]
                         expires = de[3]
                         random_blobs = de[4]
-                        packet_hash = de[6].getHash()
+                        packet_hash = de[6].get_hash()
 
                         serialised_entry = [
                             destination_hash,

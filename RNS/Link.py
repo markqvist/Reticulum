@@ -19,11 +19,23 @@ class LinkCallbacks:
         self.link_established = None
         self.link_closed = None
         self.packet = None
+        self.resource = None
         self.resource_started = None
         self.resource_concluded = None
 
 class Link:
+    """
+    This class.
+
+    :param destination: A :ref:`RNS.Destination<api-destination>` instance which to establish a link to.
+    :param owner: Internal use by :ref:`RNS.Transport<api-Transport>`, ignore this argument.
+    :param peer_pub_bytes: Internal use by :ref:`RNS.Transport<api-Transport>`, ignore this argument.
+    """
     CURVE = ec.SECP256R1()
+    """
+    The curve used for Elliptic Curve DH key exchanges
+    """
+
     ECPUBSIZE = 91
     BLOCKSIZE = 16
     AES_HMAC_OVERHEAD = 58
@@ -33,9 +45,15 @@ class Link:
     # but calculated from something like 
     # first-hop RTT latency and distance 
     DEFAULT_TIMEOUT = 15.0
+    """
+    Default timeout for link establishment in seconds.
+    """
     TIMEOUT_FACTOR = 3
     STALE_GRACE = 2
     KEEPALIVE = 180
+    """
+    Interval for sending keep-alive packets on established links in seconds.
+    """
 
     PENDING   = 0x00
     HANDSHAKE = 0x01
@@ -243,18 +261,31 @@ class Link:
         return None
 
     def no_inbound_for(self):
+        """
+        :returns: The time in seconds since last inbound packet on the link.
+        """
         return time.time() - self.last_inbound
 
     def no_outbound_for(self):
+        """
+        :returns: The time in seconds since last outbound packet on the link.
+        """
         return time.time() - self.last_outbound
 
     def inactive_for(self):
+        """
+        :returns: The time in seconds since activity on the link.
+        """
         return min(self.no_inbound_for(), self.no_outbound_for())
 
     def had_outbound(self):
         self.last_outbound = time.time()
 
     def teardown(self):
+        """
+        Closes the link and purges encryption keys. New keys will
+        be used if a new link to the same destination is established.
+        """
         if self.status != Link.PENDING and self.status != Link.CLOSED:
             teardown_packet = RNS.Packet(self, self.link_id, context=RNS.Packet.LINKCLOSE)
             teardown_packet.send()
@@ -398,9 +429,8 @@ class Link:
                             pass
                         elif self.resource_strategy == Link.ACCEPT_APP:
                             if self.callbacks.resource != None:
-                                thread = threading.Thread(target=self.callbacks.resource, args=(packet))
-                                thread.setDaemon(True)
-                                thread.start()
+                                if self.callbacks.resource(resource):
+                                    RNS.Resource.accept(packet, self.callbacks.resource_concluded)
                         elif self.resource_strategy == Link.ACCEPT_ALL:
                             RNS.Resource.accept(packet, self.callbacks.resource_concluded)
 
@@ -496,14 +526,41 @@ class Link:
         self.callbacks.link_closed = callback
 
     def packet_callback(self, callback):
+        """
+        Registers a function to be called when a packet has been
+        received over this link.
+
+        :param callback: A function or method with the signature *callback(message, packet)* to be called.
+        """
         self.callbacks.packet = callback
 
-    # Called when an incoming resource transfer is started
+    def resource_callback(self, callback):
+        """
+        Registers a function to be called when a resource has been
+        advertised over this link. If the function returns *True*
+        the resource will be accepted. If it returns *False* it will
+        be ignored.
+
+        :param callback: A function or method with the signature *callback(resource)* to be called.
+        """
+        self.callbacks.resource = callback
+
     def resource_started_callback(self, callback):
+        """
+        Registers a function to be called when a resource has begun
+        transferring over this link.
+
+        :param callback: A function or method with the signature *callback(resource)* to be called.
+        """
         self.callbacks.resource_started = callback
 
-    # Called when a resource transfer is concluded
     def resource_concluded_callback(self, callback):
+        """
+        Registers a function to be called when a resource has concluded
+        transferring over this link.
+
+        :param callback: A function or method with the signature *callback(resource)* to be called.
+        """
         self.callbacks.resource_concluded = callback
 
     def resource_concluded(self, resource):
@@ -513,6 +570,12 @@ class Link:
             self.outgoing_resources.remove(resource)
 
     def set_resource_strategy(self, resource_strategy):
+        """
+        Sets the resource strategy for the link.
+
+        :param resource_strategy: One of ``RNS.Link.ACCEPT_NONE``, ``RNS.Link.ACCEPT_ALL`` or ``RNS.Link.ACCEPT_APP``. If ``RNS.Link.ACCEPT_APP`` is set, the `resource_callback` will be called to determine whether the resource should be accepted or not.
+        :raises: *TypeError* if the resource strategy is unsupported.
+        """
         if not resource_strategy in Link.resource_strategies:
             raise TypeError("Unsupported resource strategy")
         else:
@@ -542,7 +605,17 @@ class Link:
         else:
             return True
 
-    def disableEncryption(self):
+    def disable_encryption(self):
+        """
+        HAZARDOUS. This will downgrade the link to encryptionless. All
+        information over the link will be sent in plaintext. Never use
+        this in production applications. Should only be used for debugging
+        purposes, and will disappear in a future version.
+
+        If encryptionless links are not explicitly allowed in the users
+        configuration file, Reticulum will terminate itself along with the
+        client application and throw an error message to the user.
+        """
         if (RNS.Reticulum.should_allow_unencrypted()):
             RNS.log("The link "+str(self)+" was downgraded to an encryptionless link", RNS.LOG_NOTICE)
             self.__encryption_disabled = True
