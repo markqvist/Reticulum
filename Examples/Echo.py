@@ -158,7 +158,7 @@ def client(destination_hexhash, configpath, timeout=None):
             # If we do not know this destination, tell the
             # user to wait for an announce to arrive.
             RNS.log("Destination is not yet known. Requesting path...")
-            RNS.Transport.requestPath(destination_hash)
+            RNS.Transport.request_path(destination_hash)
 
 # This function is called when our reply destination
 # receives a proof packet.

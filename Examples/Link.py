@@ -112,7 +112,7 @@ def client(destination_hexhash, configpath):
     # Check if we know a path to the destination
     if not RNS.Transport.has_path(destination_hash):
         RNS.log("Destination is not yet known. Requesting path and waiting for announce to arrive...")
-        RNS.Transport.requestPath(destination_hash)
+        RNS.Transport.request_path(destination_hash)
         while not RNS.Transport.has_path(destination_hash):
             time.sleep(0.1)
 
