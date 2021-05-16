@@ -10,6 +10,32 @@ import os
 import RNS
 
 class Reticulum:
+    """
+    This class is used to initialise access to Reticulum within a
+    program. You must create exactly one instance of this class before
+    carrying out any other RNS operations, such as creating destinations
+    or sending traffic. Every independently executed program must create
+    their own instance of the Reticulum class, but Reticulum will
+    automatically handle inter-program communication on the same system,
+    and expose all connected programs to external interfaces as well.
+
+    As soon as an instance of this class is created, Reticulum will start
+    opening and configuring any hardware devices specified in the supplied
+    configuration.
+
+    Currently the first running instance must be kept running while other
+    local instances are connected, as the first created instance will
+    act as a master instance that directly communicates with external
+    hardware such as modems, TNCs and radios. If a master instance is
+    asked to exit, it will not exit until all client processes have
+    terminated (unless killed forcibly).
+
+    If you are running Reticulum on a system with several different
+    programs that use RNS starting and terminating at different times,
+    it will be advantageous to run a master RNS instance as a daemon for
+    other programs to use on demand.
+    """
+
     MTU            = 500
     HEADER_MAXSIZE = 23
     MDU            = MTU - HEADER_MAXSIZE
@@ -28,6 +54,14 @@ class Reticulum:
         RNS.Identity.exitHandler()
 
     def __init__(self,configdir=None):
+        """
+        Initialises and starts a Reticulum instance. This must be
+        done before any other operations, and Reticulum will not
+        pass any traffic before being instantiated.
+
+        :param configdir: Full path to a Reticulum configuration directory.
+        """
+
         if configdir != None:
             Reticulum.configdir = configdir
         
@@ -66,19 +100,19 @@ class Reticulum:
                 RNS.panic()
         else:
             RNS.log("Could not load config file, creating default configuration file...")
-            self.createDefaultConfig()
+            self.__create_default_config()
             RNS.log("Default config file created. Make any necessary changes in "+Reticulum.configdir+"/config and start Reticulum again.")
             RNS.log("Exiting now!")
             exit(1)
 
-        self.applyConfig()
+        self.__apply_config()
         RNS.Identity.loadKnownDestinations()
 
         RNS.Transport.start(self)
 
         atexit.register(Reticulum.exit_handler)
 
-    def start_local_interface(self):
+    def __start_local_interface(self):
         if self.share_instance:
             try:
                 interface = LocalInterface.LocalServerInterface(
@@ -113,7 +147,7 @@ class Reticulum:
             self.is_standalone_instance = True
             self.is_connected_to_shared_instance = False
 
-    def applyConfig(self):
+    def __apply_config(self):
         if "logging" in self.config:
             for option in self.config["logging"]:
                 value = self.config["logging"][option]
@@ -158,7 +192,7 @@ class Reticulum:
                         RNS.log("", RNS.LOG_CRITICAL)
                         Reticulum.__allow_unencrypted = True
 
-        self.start_local_interface()
+        self.__start_local_interface()
 
         if self.is_shared_instance or self.is_standalone_instance:
             interface_names = []
@@ -375,25 +409,48 @@ class Reticulum:
                     RNS.panic()
                 
 
-    def createDefaultConfig(self):
+    def __create_default_config(self):
         self.config = ConfigObj(__default_rns_config__)
         self.config.filename = Reticulum.configpath
         
         if not os.path.isdir(Reticulum.configdir):
             os.makedirs(Reticulum.configdir)
         self.config.write()
-        self.applyConfig()
+        self.__apply_config()
 
     @staticmethod
     def should_allow_unencrypted():
+        """
+        Query whether unencrypted links are allowed by the
+        current configuration.
+
+        :returns: True if the current running configuration
+        allows downgrading links to plaintext. False if not.
+        """
         return Reticulum.__allow_unencrypted
 
     @staticmethod
     def should_use_implicit_proof():
+        """
+        Query whether proofs sent are explicit or implicit.
+
+        :returns: True if the current running configuration
+        specifies to use implicit proofs. False if not.
+        """
         return Reticulum.__use_implicit_proof
 
     @staticmethod
     def transport_enabled():
+        """
+        Query whether Transport is enabled for the running
+        instance.
+
+        When Transport is enabled, Reticulum will
+        route traffic for other peers, respond to path requests
+        and pass announces over the network.
+
+        :returns: True if Transport is enabled, False if not.
+        """
         return Reticulum.__transport_enabled
 
 # Default configuration file:
