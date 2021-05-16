@@ -6,6 +6,7 @@ Examples
 A number of examples are included in the source distribution of Reticulum.
 You can use these examples to learn how to write your own programs.
 
+.. _example-minimal:
 
 Minimal
 =======
@@ -16,6 +17,8 @@ a Reticulum network from your program. In about five lines of code, you will
 have the Reticulum Network Stack initialised, and ready to pass traffic in your
 program.
 
+.. _example-announce:
+
 Announce
 ========
 This example can be found at `<https://github.com/markqvist/Reticulum/blob/master/Examples/Announce.py>`_.
@@ -24,6 +27,7 @@ The *Announce* example builds upon the previous example by exploring how to
 announce a destination on the network, and how to let your program receive
 notifications about announces from relevant destinations.
 
+.. _example-broadcast:
 
 Broadcast
 =========
@@ -31,6 +35,8 @@ This example can be found at `<https://github.com/markqvist/Reticulum/blob/maste
 
 The *Broadcast* example explores how to transmit plaintext broadcast messages
 over the network.
+
+.. _example-echo:
 
 Echo
 ====
@@ -47,6 +53,8 @@ This example can be found at `<https://github.com/markqvist/Reticulum/blob/maste
 
 The *Link* example explores establishing an encrypted link to a remote
 destination, and passing traffic back and forth over the link.
+
+.. _example-filetransfer:
 
 Filetransfer
 ============

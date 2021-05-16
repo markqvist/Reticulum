@@ -5,7 +5,7 @@ API Reference
 *************
 This reference guide lists and explains all classes exposed by the RNS API.
 
-Primary Interface Classes
+Classes
 =========================
 Communication over a Reticulum network in a program is acheived using a set of
 classes exposed by RNS.
@@ -41,6 +41,14 @@ Packet
 ------
 
 .. autoclass:: RNS.Packet
+   :members:
+
+.. _api-packetreceipt:
+
+Packet Receipt
+--------------
+
+.. autoclass:: RNS.PacketReceipt
    :members:
 
 .. _api-link:
