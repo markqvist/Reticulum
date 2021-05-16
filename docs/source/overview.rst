@@ -1,16 +1,14 @@
 ***********************
 Understanding Reticulum
 ***********************
-
 This document will briefly describe the overall purpose and operating principles of Reticulum, a
 networking stack designed for reliable and secure communication over high-latency, low-bandwidth
 links. It should give you an overview of how the stack works, and an understanding of how to
 develop networked applications using Reticulum.
 
 This document is not an exhaustive source of information on Reticulum, at least not yet. Currently,
-the best place to go for such information is the Python reference implementation of Reticulum. Both
-the reference implementation and this document may (and will) change rapidly in the current phase
-of development, but historical versions will always be available in the Git repositories.
+the best place to go for such information is the Python reference implementation of Reticulum, along
+with the API reference.
 
 After reading this document, you should be well-equipped to understand how a Reticulum network
 operates, what it can achieve, and how you can use it yourself. If you want to help out with the
@@ -423,13 +421,12 @@ note that Reticulum is designed to be usable over more or less any medium that a
 and receive data in a digital form, and satisfies some very low minimum requirements. The
 communication channel must support at least half-duplex operation, and provide an average
 throughput of around 1000 bits per second, and supports a physical layer MTU of 500 bytes. The
-Reticulum software should be able to run on more or less any hardware that can provide a Python
+Reticulum software should be able to run on more or less any hardware that can provide a Python 3.x 
 runtime environment.
 
 That being said, the reference setup has been outlined to provide a common platform for anyone
 who wants to help in the development of Reticulum, and for everyone who wants to know a
 recommended setup to get started. A reference system consists of three parts:
-
 
 * **A channel access device**
     Or *CAD* , in short, provides access to the physical medium whereupon the communication
