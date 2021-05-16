@@ -1116,7 +1116,7 @@ class Transport:
             return False
 
     @staticmethod
-    def exitHandler():
+    def exit_handler():
         RNS.log("Saving packet hashlist to storage...", RNS.LOG_VERBOSE)
         try:
             packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"

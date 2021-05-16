@@ -36,6 +36,13 @@ class Reticulum:
     other programs to use on demand.
     """
 
+    # The default RNS MTU is 500 bytes. This number has been chosen as
+    # a balance between compatibility with existing hardware devices
+    # on one hand, and the ability to use sufficiently high cryptographic
+    # key sizes on the other. In custom RNS network implementations, it
+    # is possible to raise this value, but doing so will completely break
+    # compatibility with all other RNS networks. An identical MTU is a
+    # prerequisite for peers to communicate in the same network.
     MTU            = 500
     HEADER_MAXSIZE = 23
     MDU            = MTU - HEADER_MAXSIZE
@@ -43,6 +50,8 @@ class Reticulum:
     router         = None
     config         = None
     
+    # The default configuration path will be expanded to a directory
+    # named ".reticulum" inside the current users home directory
     configdir    = os.path.expanduser("~")+"/.reticulum"
     configpath   = ""
     storagepath  = ""
@@ -50,8 +59,14 @@ class Reticulum:
     
     @staticmethod
     def exit_handler():
-        RNS.Transport.exitHandler()
-        RNS.Identity.exitHandler()
+        """
+        This exit handler is called whenever Reticulum is asked to
+        shut down, and will in turn call exit handlers in other
+        classes, saving necessary information to disk and carrying
+        out cleanup operations.
+        """
+        RNS.Transport.exit_handler()
+        RNS.Identity.exit_handler()
 
     def __init__(self,configdir=None):
         """

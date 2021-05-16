@@ -128,7 +128,7 @@ class Identity:
                 return False
 
     @staticmethod
-    def exitHandler():
+    def exit_handler():
         Identity.saveKnownDestinations()
 
 
