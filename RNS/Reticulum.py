@@ -59,12 +59,11 @@ class Reticulum:
     
     @staticmethod
     def exit_handler():
-        """
-        This exit handler is called whenever Reticulum is asked to
-        shut down, and will in turn call exit handlers in other
-        classes, saving necessary information to disk and carrying
-        out cleanup operations.
-        """
+        # This exit handler is called whenever Reticulum is asked to
+        # shut down, and will in turn call exit handlers in other
+        # classes, saving necessary information to disk and carrying
+        # out cleanup operations.
+
         RNS.Transport.exit_handler()
         RNS.Identity.exit_handler()
 
@@ -436,28 +435,26 @@ class Reticulum:
     @staticmethod
     def should_allow_unencrypted():
         """
-        Query whether unencrypted links are allowed by the
+        Returns whether unencrypted links are allowed by the
         current configuration.
 
-        :returns: True if the current running configuration
-        allows downgrading links to plaintext. False if not.
+        :returns: True if the current running configuration allows downgrading links to plaintext. False if not.
         """
         return Reticulum.__allow_unencrypted
 
     @staticmethod
     def should_use_implicit_proof():
         """
-        Query whether proofs sent are explicit or implicit.
+        Returns whether proofs sent are explicit or implicit.
 
-        :returns: True if the current running configuration
-        specifies to use implicit proofs. False if not.
+        :returns: True if the current running configuration specifies to use implicit proofs. False if not.
         """
         return Reticulum.__use_implicit_proof
 
     @staticmethod
     def transport_enabled():
         """
-        Query whether Transport is enabled for the running
+        Returns whether Transport is enabled for the running
         instance.
 
         When Transport is enabled, Reticulum will
