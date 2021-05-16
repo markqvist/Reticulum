@@ -19,7 +19,7 @@ Table of Contents
 
 Current Status
 ==============
-Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.
+Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. There will be bugs. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.
 
 
 Caveat Emptor
