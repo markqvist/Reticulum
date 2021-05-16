@@ -874,7 +874,7 @@ class Transport:
         Transport.jobs_locked = False
 
     @staticmethod
-    def registerDestination(destination):
+    def register_destination(destination):
         destination.MTU = RNS.Reticulum.MTU
         if destination.direction == RNS.Destination.IN:
             for registered_destination in Transport.destinations:
@@ -888,7 +888,7 @@ class Transport:
             Transport.destinations.remove(destination)
 
     @staticmethod
-    def registerLink(link):
+    def register_link(link):
         RNS.log("Registering link "+str(link), RNS.LOG_DEBUG)
         if link.initiator:
             Transport.pending_links.append(link)
@@ -896,7 +896,7 @@ class Transport:
             Transport.active_links.append(link)
 
     @staticmethod
-    def activateLink(link):
+    def activate_link(link):
         RNS.log("Activating link "+str(link), RNS.LOG_DEBUG)
         if link in Transport.pending_links:
             Transport.pending_links.remove(link)
@@ -925,7 +925,7 @@ class Transport:
         return None
 
     @staticmethod
-    def shouldCache(packet):
+    def should_cache(packet):
         if packet.context == RNS.Packet.RESOURCE_PRF:
             return True
 
@@ -938,7 +938,7 @@ class Transport:
     # the packet cache.
     @staticmethod
     def cache(packet, force_cache=False):
-        if RNS.Transport.shouldCache(packet) or force_cache:
+        if RNS.Transport.should_cache(packet) or force_cache:
             try:
                 packet_hash = RNS.hexrep(packet.getHash(), delimit=False)
                 interface_reference = None
@@ -1015,14 +1015,14 @@ class Transport:
             return False
 
     @staticmethod
-    def requestPath(destination_hash):
+    def request_path(destination_hash):
         path_request_data = destination_hash + RNS.Identity.get_random_hash()
         path_request_dst = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
         packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1)
         packet.send()
 
     @staticmethod
-    def requestPathOnInterface(destination_hash, interface):
+    def request_path_on_interface(destination_hash, interface):
         path_request_data = destination_hash + RNS.Identity.get_random_hash()
         path_request_dst = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
         packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = interface)
@@ -1031,14 +1031,14 @@ class Transport:
     @staticmethod
     def path_request_handler(data, packet):
         if len(data) >= RNS.Identity.TRUNCATED_HASHLENGTH//8:
-            Transport.pathRequest(
+            Transport.path_request(
                 data[:RNS.Identity.TRUNCATED_HASHLENGTH//8],
                 Transport.from_local_client(packet),
                 packet.receiving_interface
             )
 
     @staticmethod
-    def pathRequest(destination_hash, is_from_local_client, attached_interface):
+    def path_request(destination_hash, is_from_local_client, attached_interface):
         RNS.log("Path request for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
         
         local_destination = next((d for d in Transport.destinations if d.hash == destination_hash), None)
@@ -1080,13 +1080,13 @@ class Transport:
             # except the local client
             for interface in Transport.interfaces:
                 if not interface == attached_interface:
-                    Transport.requestPathOnInterface(destination_hash, interface)
+                    Transport.request_path_on_interface(destination_hash, interface)
 
         elif not is_from_local_client and len(Transport.local_client_interfaces) > 0:
             # Forward the path request on all local
             # client interfaces
             for interface in Transport.local_client_interfaces:
-                Transport.requestPathOnInterface(destination_hash, interface)
+                Transport.request_path_on_interface(destination_hash, interface)
 
         else:
             RNS.log("No known path to requested destination, ignoring request", RNS.LOG_DEBUG)

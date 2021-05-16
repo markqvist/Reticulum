@@ -64,7 +64,7 @@ class Link:
                 link.attached_interface = packet.receiving_interface
                 link.prove()
                 link.request_time = time.time()
-                RNS.Transport.registerLink(link)
+                RNS.Transport.register_link(link)
                 link.last_inbound = time.time()
                 link.start_watchdog()
 
@@ -134,7 +134,7 @@ class Link:
             self.packet = RNS.Packet(destination, self.request_data, packet_type=RNS.Packet.LINKREQUEST)
             self.packet.pack()
             self.set_link_id(self.packet)
-            RNS.Transport.registerLink(self)
+            RNS.Transport.register_link(self)
             self.request_time = time.time()
             self.start_watchdog()
             self.packet.send()
@@ -196,7 +196,7 @@ class Link:
                 self.handshake()
                 self.rtt = time.time() - self.request_time
                 self.attached_interface = packet.receiving_interface
-                RNS.Transport.activateLink(self)
+                RNS.Transport.activate_link(self)
                 RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(self.rtt), RNS.LOG_VERBOSE)
                 rtt_data = umsgpack.packb(self.rtt)
                 rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)

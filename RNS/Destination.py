@@ -127,7 +127,7 @@ class Destination:
         self.callback = None
         self.proofcallback = None
 
-        RNS.Transport.registerDestination(self)
+        RNS.Transport.register_destination(self)
 
 
     def __str__(self):
