@@ -137,12 +137,53 @@ class Destination:
         return "<"+self.name+"/"+self.hexhash+">"
 
 
+    def announce(self, app_data=None, path_response=False):
+        """
+        Creates an announce packet for this destination and broadcasts it on
+        all interfaces. Application specific data can be added to the announce.
+
+        :param app_data: *bytes* containing the app_data.
+        :param path_response: Internal flag used by :ref:`RNS.Transport<api-transport>`. Ignore.
+        """
+        destination_hash = self.hash
+        random_hash = RNS.Identity.get_random_hash()
+
+        if app_data == None and self.default_app_data != None:
+            if isinstance(self.default_app_data, bytes):
+                app_data = self.default_app_data
+            elif callable(self.default_app_data):
+                returned_app_data = self.default_app_data()
+                if isinstance(returned_app_data, bytes):
+                    app_data = returned_app_data
+        
+        signed_data = self.hash+self.identity.get_public_key()+random_hash
+        if app_data != None:
+            signed_data += app_data
+
+        signature = self.identity.sign(signed_data)
+
+        # TODO: Check if this could be optimised by only
+        # carrying the hash in the destination field, not
+        # also redundantly inside the signed blob as here
+        announce_data = self.hash+self.identity.get_public_key()+random_hash+signature
+
+        if app_data != None:
+            announce_data += app_data
+
+        if path_response:
+            announce_context = RNS.Packet.PATH_RESPONSE
+        else:
+            announce_context = RNS.Packet.NONE
+
+        RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE, context = announce_context).send()
+
+
     def link_established_callback(self, callback):
         """
         Registers a function to be called when a link has been established to
         this destination.
 
-        :param callback: A function or method to be called
+        :param callback: A function or method to be called.
         """
         self.callbacks.link_established = callback
 
@@ -151,7 +192,7 @@ class Destination:
         Registers a function to be called when a packet has been received by
         this destination.
 
-        :param callback: A function or method to be called
+        :param callback: A function or method to be called.
         """
         self.callbacks.packet = callback
 
@@ -322,44 +363,3 @@ class Destination:
         Clears default app_data previously set for the destination.
         """
         self.set_default_app_data(app_data=None)
-
-    def announce(self, app_data=None, path_response=False):
-        """
-        Creates an announce packet for this destination and broadcasts it on
-        all interfaces. Application specific data can be added to the announce.
-
-        :param app_data: *bytes* containing the app_data.
-        :param path_response: Internal flag used by :ref:`RNS.Transport<api-transport>`. Ignore.
-        """
-        destination_hash = self.hash
-        random_hash = RNS.Identity.get_random_hash()
-
-        if app_data == None and self.default_app_data != None:
-            if isinstance(self.default_app_data, bytes):
-                app_data = self.default_app_data
-            elif callable(self.default_app_data):
-                returned_app_data = self.default_app_data()
-                if isinstance(returned_app_data, bytes):
-                    app_data = returned_app_data
-        
-        signed_data = self.hash+self.identity.get_public_key()+random_hash
-        if app_data != None:
-            signed_data += app_data
-
-        signature = self.identity.sign(signed_data)
-
-        # TODO: Check if this could be optimised by only
-        # carrying the hash in the destination field, not
-        # also redundantly inside the signed blob as here
-        announce_data = self.hash+self.identity.get_public_key()+random_hash+signature
-
-        if app_data != None:
-            announce_data += app_data
-
-        if path_response:
-            announce_context = RNS.Packet.PATH_RESPONSE
-        else:
-            announce_context = RNS.Packet.NONE
-
-        RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE, context = announce_context).send()
-
