@@ -7,8 +7,7 @@ This reference guide lists and explains all classes exposed by the RNS API.
 
 Classes
 =========================
-Communication over a Reticulum network in a program is acheived using a set of
-classes exposed by RNS.
+Communication over a Reticulum network is achieved using a set of classes exposed by RNS.
 
 .. _api-reticulum:
 
