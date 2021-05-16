@@ -1,7 +1,7 @@
 ********************
 Getting Started Fast
 ********************
-What do we want to do? Something! When do want to do it? Right now!
+What do we want to do? Something! When do we want to do it? Right now! Let's go.
 
 The best way to get started with the Reticulum Network Stack depends on what
 you want to do. This guide will outline sensible starting paths for different
