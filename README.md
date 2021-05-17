@@ -1,4 +1,4 @@
-Reticulum Network Stack α
+Reticulum Network Stack β
 ==========
 
 Reticulum is a cryptography-based networking stack for wide-area networks built on readily available hardware, and can operate even with very high latency and extremely low bandwidth. Reticulum allows you to build very wide-area networks with off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable packet acknowledgements and more.
@@ -9,9 +9,11 @@ Having no dependencies on traditional networking stacks free up overhead that ha
 
 No kernel modules or drivers are required. Reticulum runs completely in userland, and can run on practically any system that runs Python 3.
 
-For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects/reticulum/)
+The full documentation for Reticulum is available at [markqvist.github.io/Reticulum/manual/](https://markqvist.github.io/Reticulum/manual/).
 
-The documentation for Reticulum is available at [unsigned.io/docs/rns/](https://unsigned.io/docs/rns/)
+You can also [download the Reticulum manual as a PDF](https://github.com/markqvist/Reticulum/raw/master/docs/Reticulum%20Manual.pdf)
+
+For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects/reticulum/)
 
 ## Notable Features
  - Coordination-less globally unique adressing and identification
@@ -40,9 +42,7 @@ Reticulum can also be encapsulated over existing IP networks, so there's nothing
 As an example, it's possible to set up a Raspberry Pi connected to both a LoRa radio, a packet radio TNC and a WiFi network. Once the interfaces are configured, Reticulum will take care of the rest, and any device on the WiFi network can communicate with nodes on the LoRa and packet radio sides of the network, and vice versa.
 
 ## Current Status
-Consider Reticulum in extended testing at this stage. All core protocol features are implemented and functioning, but additions and changes can still occur if it is warranted.
-
-An API- and wireformat-stable beta is near at hand.
+Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. There will be bugs. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.
 
 ## Supported interface types and devices
 
