@@ -31,22 +31,20 @@ class Resource:
     SDU                  = RNS.Packet.MDU
     RANDOM_HASH_SIZE     = 4
 
-    MAX_EFFICIENT_SIZE   = 16 * 1024 * 1024
-    """
-    This is an indication of what the
-    maximum size a resource should be, if
-    it is to be handled within reasonable
-    time constraint, even on small systems.
+    # This is an indication of what the
+    # maximum size a resource should be, if
+    # it is to be handled within reasonable
+    # time constraint, even on small systems.
     
-    A small system in this regard is
-    defined as a Raspberry Pi, which should
-    be able to compress, encrypt and hash-map
-    the resource in about 10 seconds.
+    # A small system in this regard is
+    # defined as a Raspberry Pi, which should
+    # be able to compress, encrypt and hash-map
+    # the resource in about 10 seconds.
 
-    This constant will be used when determining
-    how to sequence the sending of large resources.
-    """
-
+    # This constant will be used when determining
+    # how to sequence the sending of large resources.
+    MAX_EFFICIENT_SIZE   = 16 * 1024 * 1024
+    
     # The maximum size to auto-compress with
     # bz2 before sending.
     AUTO_COMPRESS_MAX_SIZE = MAX_EFFICIENT_SIZE

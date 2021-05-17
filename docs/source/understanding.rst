@@ -449,38 +449,18 @@ automate retransmissions if *Resources* are used.
 Resources
 ---------
 
-TODO: Write
+For exchanging small amounts of data over a Reticulum network, the :ref:`Packet<api-packet>` interface
+is sufficient, but for exchanging data that would require many packets, an efficient way to coordinate
+the transfer is needed.
 
-In traditional networks, large amounts of data is rapidly exchanged with very low latency. Links of
-several thousand kilometers will often only have round-trip latency in the tens of milliseconds, and
-as such, traditional protocols are often designed to not store any transmitted data at intermediary
-hops. If a transmission error occurs, the sending node will simply notice the lack of a packet
-acknowledgement, and retransmit the packet all the way, until it hears back from the receiver that it
-got the intended data.
+This is the purpose of the Reticulum :ref:`Resource<api-resource>`. A *Resource* can automatically
+handle the reliable transfer of an arbitrary amount of data over an established :ref:`Link<api-link>`.
+Resources can auto-compress data, will handle breaking the data into individual packets, sequencing
+the transfer and reassembling the data on the other end.
 
-In bandwidth-limited and high-latency conditions, such behaviour quickly causes congestion on the
-network, and communications that span many hops become exceedingly expensive in terms of
-bandwidth usage, due to the higher risk of some packets failing.
-
-Reticulum alleviates this in part with it’s *path* discovery methodology, and in part by implementing
-*resource* caching at all nodes that can support it. Network operation can be made much more
-efficient by caching everything for a period of time, and given the availability of cheap memory and
-storage, this is a very welcome tradeoff. A gigabyte of memory can store millions of Reticulum
-packets, and since everything is encrypted by default, the storing poses very little privacy risk.
-
-In a Reticulum network, any node that is able to do so, should cache as many packets as it’s
-memory will allow for. When a packet is received, a timestamp and a hash of the packet is stored
-along with the full packet itself, and it will be kept in storage until the allocated cache storage is
-full, whereupon the packet that was last accessed in the cache will be deleted. If a packet is accessed
-from the cache, it’s timestamp will be updated to the current time, to ensure that packets that are
-used stay in the cache, and packets that are not used are dropped from memory.
-
-Some packet types are stored in separate caching tables, that allow easier lookup for other nodes.
-For example, an announce is stored in a way, that allows other nodes to request the public key for a
-certain destination, and as such the network as a whole operates as a distributed key ledger.
-
-For more details on how the caching works and is used, see the reference implementation source
-code.
+:ref:`Resources<api-resource>` are programmatically very simple to use, and only requires a few lines
+of codes to reliably transfer any amount of data. They can be used to transfer data stored in memory,
+or stream data directly from files.
 
 .. _understanding-referencesystem:
 
