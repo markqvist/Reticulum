@@ -17,7 +17,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Getting Started Fast" href="gettingstartedfast.html" />
-    <link rel="prev" title="Reticulum Network Stack Documentation" href="index.html" /> 
+    <link rel="prev" title="Reticulum Network Stack Manual" href="index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,7 +29,7 @@
           <a href="gettingstartedfast.html" title="Getting Started Fast"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Reticulum Network Stack Documentation"
+          <a href="index.html" title="Reticulum Network Stack Manual"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.0 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">What is Reticulum?</a></li> 
@@ -46,6 +46,14 @@
 <p>Reticulum is a cryptography-based networking stack for wide-area networks built on readily available hardware, and can operate even with very high latency and extremely low bandwidth. Reticulum allows you to build very wide-area networks with off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable packet acknowledgements and more.</p>
 <p>Reticulum is a complete networking stack, and does not use IP or higher layers, although it is easy to utilise IP (with TCP or UDP) as the underlying carrier for Reticulum. It is therefore trivial to tunnel Reticulum over the Internet or private IP networks. Reticulum is built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.</p>
 <p>No kernel modules or drivers are required. Reticulum runs completely in userland, and can run on practically any system that runs Python 3.</p>
+<div class="section" id="current-status">
+<h2>Current Status<a class="headerlink" href="#current-status" title="Permalink to this headline">¶</a></h2>
+<p>Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. There will be bugs. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.</p>
+</div>
+<div class="section" id="caveat-emptor">
+<h2>Caveat Emptor<a class="headerlink" href="#caveat-emptor" title="Permalink to this headline">¶</a></h2>
+<p>Reticulum is experimental software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it has not been externally security audited, and there could very well be privacy-breaking bugs. To be considered secure, Reticulum needs a very thourough security review by independt cryptographers and security researchers. If you want to help out, or help sponsor an audit, please do get in touch.</p>
+</div>
 <div class="section" id="what-does-reticulum-offer">
 <h2>What does Reticulum Offer?<a class="headerlink" href="#what-does-reticulum-offer" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -118,6 +126,8 @@ network, and vice versa.</p>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">What is Reticulum?</a><ul>
+<li><a class="reference internal" href="#current-status">Current Status</a></li>
+<li><a class="reference internal" href="#caveat-emptor">Caveat Emptor</a></li>
 <li><a class="reference internal" href="#what-does-reticulum-offer">What does Reticulum Offer?</a></li>
 <li><a class="reference internal" href="#where-can-reticulum-be-used">Where can Reticulum be Used?</a></li>
 <li><a class="reference internal" href="#supported-interface-types-and-devices">Supported Interface Types and Devices</a></li>
@@ -127,7 +137,7 @@ network, and vice versa.</p>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="index.html"
-                        title="previous chapter">Reticulum Network Stack Documentation</a></p>
+                        title="previous chapter">Reticulum Network Stack Manual</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="gettingstartedfast.html"
                         title="next chapter">Getting Started Fast</a></p>
@@ -162,7 +172,7 @@ network, and vice versa.</p>
           <a href="gettingstartedfast.html" title="Getting Started Fast"
              >next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Reticulum Network Stack Documentation"
+          <a href="index.html" title="Reticulum Network Stack Manual"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.0 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">What is Reticulum?</a></li> 

@@ -18,8 +18,15 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-	rm -rf html
-	rm -rf manual
-	cp -r build/html ./
-	mv html manual
-	cp -r build/latex/reticulumnetworkstack.pdf ./Reticulum.pdf
+	@if [ $@ = "html" ]; then \
+		rm -rf html; \
+		rm -rf manual; \
+		cp -r build/html ./; \
+		mv html manual; \
+		echo "HTML Manual Generated"; \
+	fi
+
+	@if [ $@ = "latexpdf" ]; then \
+		cp -r build/latex/reticulumnetworkstack.pdf ./Reticulum\ Manual.pdf; \
+		echo "PDF Manual Generated"; \
+	fi
