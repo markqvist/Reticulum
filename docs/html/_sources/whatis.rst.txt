@@ -17,7 +17,7 @@ What does Reticulum Offer?
 
 * Asymmetric RSA encryption and signatures as basis for all communication
 
-* Perfect Forward Secrecy on links with ephemereal Elliptic Curve Diffie-Hellman keys (on the SECP256R1 curve)
+* Perfect Forward Secrecy on links with ephemereal Elliptic Curve Diffie-Hellman keys (on Curve25519)
 
 * Reticulum uses the Fernet specification for encryption on links and to group destinations
 
