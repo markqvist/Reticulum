@@ -1,7 +1,7 @@
-*************************************
-Reticulum Network Stack Documentation
-*************************************
-Welcome to the documentation for Reticulum. This document aims to provide you
+******************************
+Reticulum Network Stack Manual
+******************************
+Welcome to the manual for Reticulum. This document aims to provide you
 with all the information you need to understand Reticulum, develop programs
 using it, or to participate in the development of Reticulum itself.
 

@@ -870,21 +870,6 @@ compression, coordination and checksumming.</p>
 </ul>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="RNS.Resource.MAX_EFFICIENT_SIZE">
-<span class="sig-name descname"><span class="pre">MAX_EFFICIENT_SIZE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">16777216</span></em><a class="headerlink" href="#RNS.Resource.MAX_EFFICIENT_SIZE" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is an indication of what the
-maximum size a resource should be, if
-it is to be handled within reasonable
-time constraint, even on small systems.</p>
-<p>A small system in this regard is
-defined as a Raspberry Pi, which should
-be able to compress, encrypt and hash-map
-the resource in about 10 seconds.</p>
-<p>This constant will be used when determining
-how to sequence the sending of large resources.</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Resource.advertise">
 <span class="sig-name descname"><span class="pre">advertise</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource.advertise" title="Permalink to this definition">¶</a></dt>
