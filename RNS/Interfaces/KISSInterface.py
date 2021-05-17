@@ -40,6 +40,9 @@ class KISSInterface(Interface):
     serial   = None
 
     def __init__(self, owner, name, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime, flow_control, beacon_interval, beacon_data):
+        if beacon_data == None:
+            beacon_data = ""
+
         self.serial   = None
         self.owner    = owner
         self.name     = name
