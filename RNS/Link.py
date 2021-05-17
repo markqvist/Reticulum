@@ -1,7 +1,8 @@
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
+from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.fernet import Fernet
 from time import sleep
@@ -31,13 +32,15 @@ class Link:
     :param owner: Internal use by :ref:`RNS.Transport<api-Transport>`, ignore this argument.
     :param peer_pub_bytes: Internal use by :ref:`RNS.Transport<api-Transport>`, ignore this argument.
     """
-    CURVE = ec.SECP256R1()
+    CURVE = "Curve25519"
     """
     The curve used for Elliptic Curve DH key exchanges
     """
 
-    ECPUBSIZE = 91
+    ECPUBSIZE = 32
     BLOCKSIZE = 16
+    KEYSIZE   = 32
+
     AES_HMAC_OVERHEAD = 58
     MDU = math.floor((RNS.Reticulum.MDU-AES_HMAC_OVERHEAD)/BLOCKSIZE)*BLOCKSIZE - 1
 
@@ -133,12 +136,22 @@ class Link:
             self.initiator = False
         else:
             self.initiator = True
+
+        self.fernet  = None
         
-        self.prv = ec.generate_private_key(Link.CURVE, default_backend())
+        self.prv     = X25519PrivateKey.generate()
+        self.sig_prv = Ed25519PrivateKey.from_private_bytes(
+            self.prv.private_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PrivateFormat.Raw,
+                encryption_algorithm=serialization.NoEncryption()
+            )
+        )
+
         self.pub = self.prv.public_key()
         self.pub_bytes = self.pub.public_bytes(
-            encoding=serialization.Encoding.DER,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw
         )
 
         if peer_pub_bytes == None:
@@ -162,7 +175,11 @@ class Link:
 
     def load_peer(self, peer_pub_bytes):
         self.peer_pub_bytes = peer_pub_bytes
-        self.peer_pub = serialization.load_der_public_key(peer_pub_bytes, backend=default_backend())
+        self.peer_pub = X25519PublicKey.from_public_bytes(self.peer_pub_bytes)
+
+        self.peer_sig_pub_bytes = peer_pub_bytes
+        self.peer_sig_pub = Ed25519PublicKey.from_public_bytes(self.peer_sig_pub_bytes)
+
         if not hasattr(self.peer_pub, "curve"):
             self.peer_pub.curve = Link.CURVE
 
@@ -172,13 +189,12 @@ class Link:
 
     def handshake(self):
         self.status = Link.HANDSHAKE
-        self.shared_key = self.prv.exchange(ec.ECDH(), self.peer_pub)
+        self.shared_key = self.prv.exchange(self.peer_pub)
         self.derived_key = HKDF(
             algorithm=hashes.SHA256(),
             length=32,
             salt=self.get_salt(),
             info=self.get_context(),
-            backend=default_backend()
         ).derive(self.shared_key)
 
     def prove(self):
@@ -487,9 +503,10 @@ class Link:
         if self.__encryption_disabled:
             return plaintext
         try:
-            # TODO: Optimise this re-allocation
-            fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
-            ciphertext = base64.urlsafe_b64decode(fernet.encrypt(plaintext))
+            if not self.fernet:
+                self.fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
+
+            ciphertext = base64.urlsafe_b64decode(self.fernet.encrypt(plaintext))
             return ciphertext
         except Exception as e:
             RNS.log("Encryption on link "+str(self)+" failed. The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -499,8 +516,10 @@ class Link:
         if self.__encryption_disabled:
             return ciphertext
         try:
-            fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
-            plaintext = fernet.decrypt(base64.urlsafe_b64encode(ciphertext))
+            if not self.fernet:
+                self.fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
+                
+            plaintext = self.fernet.decrypt(base64.urlsafe_b64encode(ciphertext))
             return plaintext
         except Exception as e:
             RNS.log("Decryption failed on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -510,11 +529,11 @@ class Link:
 
 
     def sign(self, message):
-        return self.prv.sign(message, ec.ECDSA(hashes.SHA256()))
+        return self.sig_prv.sign(message)
 
     def validate(self, signature, message):
         try:
-            self.peer_pub.verify(signature, message, ec.ECDSA(hashes.SHA256()))
+            self.peer_sig_pub.verify(signature, message)
             return True
         except Exception as e:
             return False

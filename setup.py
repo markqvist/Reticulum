@@ -18,6 +18,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires=['cryptography', 'pyserial'],
+    install_requires=['cryptography>=3.4.7', 'pyserial'],
     python_requires='>=3.5',
 )
