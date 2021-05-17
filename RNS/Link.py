@@ -30,14 +30,15 @@ class Link:
 
     :param destination: A :ref:`RNS.Destination<api-destination>` instance which to establish a link to.
     :param owner: Internal use by :ref:`RNS.Transport<api-Transport>`, ignore this argument.
-    :param peer_pub_bytes: Internal use by :ref:`RNS.Transport<api-Transport>`, ignore this argument.
+    :param peer_pub_bytes: Internal use, ignore this argument.
+    :param peer_sig_pub_bytes: Internal use, ignore this argument.
     """
     CURVE = "Curve25519"
     """
     The curve used for Elliptic Curve DH key exchanges
     """
 
-    ECPUBSIZE = 32
+    ECPUBSIZE = 32+32
     BLOCKSIZE = 16
     KEYSIZE   = 32
 
@@ -77,7 +78,7 @@ class Link:
     def validate_request(owner, data, packet):
         if len(data) == (Link.ECPUBSIZE):
             try:
-                link = Link(owner = owner, peer_pub_bytes = data[:Link.ECPUBSIZE])
+                link = Link(owner = owner, peer_pub_bytes=data[:Link.ECPUBSIZE//2], peer_sig_pub_bytes=data[Link.ECPUBSIZE//2:Link.ECPUBSIZE])
                 link.set_link_id(packet)
                 link.destination = packet.destination
                 RNS.log("Validating link request "+RNS.prettyhexrep(link.link_id), RNS.LOG_VERBOSE)
@@ -107,7 +108,7 @@ class Link:
             return None
 
 
-    def __init__(self, destination=None, owner=None, peer_pub_bytes = None):
+    def __init__(self, destination=None, owner=None, peer_pub_bytes = None, peer_sig_pub_bytes = None):
         if destination != None and destination.type != RNS.Destination.SINGLE:
             raise TypeError("Links can only be established to the \"single\" destination type")
         self.rtt = None
@@ -140,16 +141,16 @@ class Link:
         self.fernet  = None
         
         self.prv     = X25519PrivateKey.generate()
-        self.sig_prv = Ed25519PrivateKey.from_private_bytes(
-            self.prv.private_bytes(
-                encoding=serialization.Encoding.Raw,
-                format=serialization.PrivateFormat.Raw,
-                encryption_algorithm=serialization.NoEncryption()
-            )
-        )
-
+        self.sig_prv = Ed25519PrivateKey.generate()
+        
         self.pub = self.prv.public_key()
         self.pub_bytes = self.pub.public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw
+        )
+
+        self.sig_pub = self.sig_prv.public_key()
+        self.sig_pub_bytes = self.sig_pub.public_bytes(
             encoding=serialization.Encoding.Raw,
             format=serialization.PublicFormat.Raw
         )
@@ -158,10 +159,10 @@ class Link:
             self.peer_pub = None
             self.peer_pub_bytes = None
         else:
-            self.load_peer(peer_pub_bytes)
+            self.load_peer(peer_pub_bytes, peer_sig_pub_bytes)
 
         if (self.initiator):
-            self.request_data = self.pub_bytes
+            self.request_data = self.pub_bytes+self.sig_pub_bytes
             self.packet = RNS.Packet(destination, self.request_data, packet_type=RNS.Packet.LINKREQUEST)
             self.packet.pack()
             self.set_link_id(self.packet)
@@ -173,11 +174,11 @@ class Link:
             RNS.log("Link request "+RNS.prettyhexrep(self.link_id)+" sent to "+str(self.destination), RNS.LOG_VERBOSE)
 
 
-    def load_peer(self, peer_pub_bytes):
+    def load_peer(self, peer_pub_bytes, peer_sig_pub_bytes):
         self.peer_pub_bytes = peer_pub_bytes
         self.peer_pub = X25519PublicKey.from_public_bytes(self.peer_pub_bytes)
 
-        self.peer_sig_pub_bytes = peer_pub_bytes
+        self.peer_sig_pub_bytes = peer_sig_pub_bytes
         self.peer_sig_pub = Ed25519PublicKey.from_public_bytes(self.peer_sig_pub_bytes)
 
         if not hasattr(self.peer_pub, "curve"):
@@ -198,10 +199,10 @@ class Link:
         ).derive(self.shared_key)
 
     def prove(self):
-        signed_data = self.link_id+self.pub_bytes
+        signed_data = self.link_id+self.pub_bytes+self.sig_pub_bytes
         signature = self.owner.identity.sign(signed_data)
 
-        proof_data = self.pub_bytes+signature
+        proof_data = self.pub_bytes+self.sig_pub_bytes+signature
         proof = RNS.Packet(self, proof_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.LRPROOF)
         proof.send()
         self.had_outbound()
@@ -220,13 +221,14 @@ class Link:
         self.had_outbound()
 
     def validate_proof(self, packet):
-        if self.initiator:
-            peer_pub_bytes = packet.data[:Link.ECPUBSIZE]
-            signed_data = self.link_id+peer_pub_bytes
+        if self.initiator and len(packet.data) == Link.ECPUBSIZE+RNS.Identity.KEYSIZE//8:
+            peer_pub_bytes = packet.data[:Link.ECPUBSIZE//2]
+            peer_sig_pub_bytes = packet.data[Link.ECPUBSIZE//2:Link.ECPUBSIZE]
+            signed_data = self.link_id+peer_pub_bytes+peer_sig_pub_bytes
             signature = packet.data[Link.ECPUBSIZE:RNS.Identity.KEYSIZE//8+Link.ECPUBSIZE]
 
             if self.destination.identity.validate(signature, signed_data):
-                self.load_peer(peer_pub_bytes)
+                self.load_peer(peer_pub_bytes, peer_sig_pub_bytes)
                 self.handshake()
                 self.rtt = time.time() - self.request_time
                 self.attached_interface = packet.receiving_interface
@@ -244,10 +246,7 @@ class Link:
                     thread.setDaemon(True)
                     thread.start()
             else:
-                RNS.log("Invalid link proof signature received by "+str(self), RNS.LOG_VERBOSE)
-                # TODO: should we really do this, or just wait
-                # for a valid one? Needs analysis.
-                self.teardown()
+                RNS.log("Invalid link proof signature received by "+str(self)+". Ignoring.", RNS.LOG_DEBUG)
 
 
     def rtt_packet(self, packet):
