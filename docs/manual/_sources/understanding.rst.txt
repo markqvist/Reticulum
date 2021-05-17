@@ -405,6 +405,11 @@ of hops, where information will be exchanged between two nodes.
 * | When a node in the network wants to establish verified connectivity with another node, it
     will randomly generate a new X25519 private/public key pair. It then creates a *link request*
     packet, and broadcast it.
+  |  
+  | *It should be noted that the X25519 public/private keypair mentioned above is two separate keypairs:
+    An encryption key pair, used for derivation of a shared symmetric key, and a signing key pair, used
+    for signing and verifying messages on the link. They are sent together over the wire, and can be
+    considered as single public key for simplicity in this explanation.*
 
 * | The *link request* is addressed to the destination hash of the desired destination, and
     contains the following data: The newly generated X25519 public key *LKi*. The contents 
@@ -437,6 +442,7 @@ of hops, where information will be exchanged between two nodes.
     established to the destination. It can now also use the X25519 public key contained in the
     *link proof* to perform it's own Diffie Hellman Key Exchange and derive the symmetric key
     that is used to encrypt the channel. Information can now be exchanged reliably and securely.
+
 
 It’s important to note that this methodology ensures that the source of the request does not need to
 reveal any identifying information about itself. The link initiator remains completely anonymous.
@@ -635,3 +641,18 @@ Binary Packet Format
      | | +--------- Destination Type = SINGLE
      | +----------- Propagation Type = BROADCAST
      +------------- Header Type      = HEADER_1 (two byte header, one address field)
+
+
+     Size examples of different packet types
+     ---------------------------------------
+
+     The following table lists example sizes of various
+     packet types. The size listed are the complete on-
+     wire size including all fields.
+
+     - Path Request    :    33  bytes
+     - Announce        :    323 bytes
+     - Link Request    :    141 bytes
+     - Link Proof      :    205 bytes
+     - Link RTT packet :    86  bytes
+     - Link keepalive  :    14  bytes

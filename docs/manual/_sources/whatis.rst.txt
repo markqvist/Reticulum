@@ -16,7 +16,7 @@ Reticulum should currently be considered beta software. All core protocol featur
 
 Caveat Emptor
 ==============
-Reticulum is experimental software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it has not been externally security audited, and there could very well be privacy-breaking bugs. To be considered secure, Reticulum needs a very thourough security review by independt cryptographers and security researchers. If you want to help out, or help sponsor an audit, please do get in touch.
+Reticulum is an experimental networking stack, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it has not been externally security audited, and there could very well be privacy-breaking bugs. To be considered even remotely secure, Reticulum needs a very thourough security review by independt cryptographers and security researchers. If you want to help out, or help sponsor an audit, please do get in touch.
 
 
 What does Reticulum Offer?
@@ -60,10 +60,10 @@ modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes,
 ad-hoc WiFi, free-space optical links and similar systems are all examples
 of the types of interfaces Reticulum was designed for.
 
-An open-source LoRa-based interface called RNode has been designed
-specifically for use with Reticulum. It is possible to build yourself, or it
-can be purchased as a complete transceiver that just needs a USB connection
-to the host.
+An open-source LoRa-based interface called `RNode <https://unsigned.io/rnode>`_
+has been designed specifically for use with Reticulum. It is possible to build
+yourself, or it can be purchased as a complete transceiver that just needs a
+USB connection to the host.
 
 Reticulum can also be encapsulated over existing IP networks, so there's
 nothing stopping you from using it over wired ethernet or your local WiFi

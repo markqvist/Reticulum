@@ -452,6 +452,11 @@ of hops, where information will be exchanged between two nodes.</p>
 <div class="line">When a node in the network wants to establish verified connectivity with another node, it
 will randomly generate a new X25519 private/public key pair. It then creates a <em>link request</em>
 packet, and broadcast it.</div>
+<div class="line"><br /></div>
+<div class="line"><em>It should be noted that the X25519 public/private keypair mentioned above is two separate keypairs:
+An encryption key pair, used for derivation of a shared symmetric key, and a signing key pair, used
+for signing and verifying messages on the link. They are sent together over the wire, and can be
+considered as single public key for simplicity in this explanation.</em></div>
 </div>
 </li>
 <li><div class="line-block">
@@ -691,6 +696,21 @@ proof           11
  | | +--------- Destination Type = SINGLE
  | +----------- Propagation Type = BROADCAST
  +------------- Header Type      = HEADER_1 (two byte header, one address field)
+
+
+ Size examples of different packet types
+ ---------------------------------------
+
+ The following table lists example sizes of various
+ packet types. The size listed are the complete on-
+ wire size including all fields.
+
+ - Path Request    :    33  bytes
+ - Announce        :    323 bytes
+ - Link Request    :    141 bytes
+ - Link Proof      :    205 bytes
+ - Link RTT packet :    86  bytes
+ - Link keepalive  :    14  bytes
 </pre></div>
 </div>
 </div>
