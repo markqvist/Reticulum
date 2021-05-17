@@ -19,4 +19,7 @@ help:
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	rm -rf html
+	rm -rf manual
 	cp -r build/html ./
+	mv html manual
+	cp -r build/latex/reticulumnetworkstack.pdf ./Reticulum.pdf
