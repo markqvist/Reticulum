@@ -27,7 +27,13 @@ def program_setup(configpath):
     # existence, which will let the network know they are reachable
     # and autoomatically create paths to them, from anywhere else
     # in the network.
-    destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "minimalsample")
+    destination = RNS.Destination(
+        identity,
+        RNS.Destination.IN,
+        RNS.Destination.SINGLE,
+        APP_NAME,
+        "minimalsample"
+    )
 
     # We configure the destination to automatically prove all
     # packets adressed to it. By doing this, RNS will automatically
@@ -44,7 +50,11 @@ def program_setup(configpath):
 
 def announceLoop(destination):
     # Let the user know that everything is ready
-    RNS.log("Minimal example "+RNS.prettyhexrep(destination.hash)+" running, hit enter to manually send an announce (Ctrl-C to quit)")
+    RNS.log(
+        "Minimal example "+
+        RNS.prettyhexrep(destination.hash)+
+        " running, hit enter to manually send an announce (Ctrl-C to quit)"
+    )
 
     # We enter a loop that runs until the users exits.
     # If the user hits enter, we will announce our server
@@ -65,8 +75,18 @@ def announceLoop(destination):
 # the desired program mode.
 if __name__ == "__main__":
     try:
-        parser = argparse.ArgumentParser(description="Bare minimum example to start Reticulum and create a destination")
-        parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
+        parser = argparse.ArgumentParser(
+            description="Minimal example to start Reticulum and create a destination"
+        )
+
+        parser.add_argument(
+            "--config",
+            action="store",
+            default=None,
+            help="path to alternative Reticulum config directory",
+            type=str
+        )
+
         args = parser.parse_args()
 
         if args.config:

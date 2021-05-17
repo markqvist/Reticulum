@@ -34,7 +34,14 @@ def server(configpath):
     # messages. This way the client can send a request and be
     # certain that no-one else than this destination was able
     # to read it. 
-    echo_destination = RNS.Destination(server_identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "echo", "request")
+    echo_destination = RNS.Destination(
+        server_identity,
+        RNS.Destination.IN,
+        RNS.Destination.SINGLE,
+        APP_NAME,
+        "echo",
+        "request"
+    )
 
     # We configure the destination to automatically prove all
     # packets adressed to it. By doing this, RNS will automatically
@@ -54,7 +61,11 @@ def server(configpath):
 
 def announceLoop(destination):
     # Let the user know that everything is ready
-    RNS.log("Echo server "+RNS.prettyhexrep(destination.hash)+" running, hit enter to manually send an announce (Ctrl-C to quit)")
+    RNS.log(
+        "Echo server "+
+        RNS.prettyhexrep(destination.hash)+
+        " running, hit enter to manually send an announce (Ctrl-C to quit)"
+    )
 
     # We enter a loop that runs until the users exits.
     # If the user hits enter, we will announce our server
@@ -85,7 +96,10 @@ def client(destination_hexhash, configpath, timeout=None):
     # hash that was entered on the command line
     try:
         if len(destination_hexhash) != 20:
-            raise ValueError("Destination length is invalid, must be 20 hexadecimal characters (10 bytes)")
+            raise ValueError(
+                "Destination length is invalid, must be 20 hexadecimal characters (10 bytes)"
+            )
+
         destination_hash = bytes.fromhex(destination_hexhash)
     except:
         RNS.log("Invalid destination entered. Check your input!\n")
@@ -100,7 +114,11 @@ def client(destination_hexhash, configpath, timeout=None):
         RNS.loglevel = RNS.LOG_INFO
 
     # Tell the user that the client is ready!
-    RNS.log("Echo client ready, hit enter to send echo request to "+destination_hexhash+" (Ctrl-C to quit)")
+    RNS.log(
+        "Echo client ready, hit enter to send echo request to "+
+        destination_hexhash+
+        " (Ctrl-C to quit)"
+    )
 
     # We enter a loop that runs until the user exits.
     # If the user hits enter, we will try to send an
@@ -127,7 +145,14 @@ def client(destination_hexhash, configpath, timeout=None):
             # example_utilities.echo.request
             # This matches the naming we specified in the
             # server part of the code.
-            request_destination = RNS.Destination(server_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "echo", "request")
+            request_destination = RNS.Destination(
+                server_identity,
+                RNS.Destination.OUT,
+                RNS.Destination.SINGLE,
+                APP_NAME,
+                "echo",
+                "request"
+            )
 
             # The destination is ready, so let's create a packet.
             # We set the destination to the request_destination
@@ -172,7 +197,11 @@ def packet_delivered(receipt):
             rtt = round(rtt*1000, 3)
             rttstring = str(rtt)+" milliseconds"
 
-        RNS.log("Valid reply received from "+RNS.prettyhexrep(receipt.destination.hash)+", round-trip time is "+rttstring)
+        RNS.log(
+            "Valid reply received from "+
+            RNS.prettyhexrep(receipt.destination.hash)+
+            ", round-trip time is "+rttstring
+        )
 
 # This function is called if a packet times out.
 def packet_timed_out(receipt):
@@ -190,10 +219,39 @@ def packet_timed_out(receipt):
 if __name__ == "__main__":
     try:
         parser = argparse.ArgumentParser(description="Simple echo server and client utility")
-        parser.add_argument("-s", "--server", action="store_true", help="wait for incoming packets from clients")
-        parser.add_argument("-t", "--timeout", action="store", metavar="s", default=None, help="set a reply timeout in seconds", type=float)
-        parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
-        parser.add_argument("destination", nargs="?", default=None, help="hexadecimal hash of the server destination", type=str)
+
+        parser.add_argument(
+            "-s",
+            "--server",
+            action="store_true",
+            help="wait for incoming packets from clients"
+        )
+
+        parser.add_argument(
+            "-t",
+            "--timeout",
+            action="store",
+            metavar="s",
+            default=None,
+            help="set a reply timeout in seconds",
+            type=float
+        )
+
+        parser.add_argument("--config",
+            action="store",
+            default=None,
+            help="path to alternative Reticulum config directory",
+            type=str
+        )
+
+        parser.add_argument(
+            "destination",
+            nargs="?",
+            default=None,
+            help="hexadecimal hash of the server destination",
+            type=str
+        )
+
         args = parser.parse_args()
 
         if args.server:

@@ -34,7 +34,13 @@ def server(configpath):
     # We create a destination that clients can connect to. We
     # want clients to create links to this destination, so we
     # need to create a "single" destination type.
-    server_destination = RNS.Destination(server_identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "linkexample")
+    server_destination = RNS.Destination(
+        server_identity,
+        RNS.Destination.IN,
+        RNS.Destination.SINGLE,
+        APP_NAME,
+        "linkexample"
+    )
 
     # We configure a function that will get called every time
     # a new client creates a link to this destination.
@@ -46,7 +52,12 @@ def server(configpath):
 
 def server_loop(destination):
     # Let the user know that everything is ready
-    RNS.log("Link example "+RNS.prettyhexrep(destination.hash)+" running, waiting for a connection.")
+    RNS.log(
+        "Link example "+
+        RNS.prettyhexrep(destination.hash)+
+        " running, waiting for a connection."
+    )
+
     RNS.log("Hit enter to manually send an announce (Ctrl-C to quit)")
 
     # We enter a loop that runs until the users exits.
@@ -124,7 +135,13 @@ def client(destination_hexhash, configpath):
 
     # When the server identity is known, we set
     # up a destination
-    server_destination = RNS.Destination(server_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "linkexample")
+    server_destination = RNS.Destination(
+        server_identity,
+        RNS.Destination.OUT,
+        RNS.Destination.SINGLE,
+        APP_NAME,
+        "linkexample"
+    )
 
     # And create a link
     link = RNS.Link(server_destination)
@@ -214,9 +231,30 @@ def client_packet_received(message, packet):
 if __name__ == "__main__":
     try:
         parser = argparse.ArgumentParser(description="Simple link example")
-        parser.add_argument("-s", "--server", action="store_true", help="wait for incoming link requests from clients")
-        parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
-        parser.add_argument("destination", nargs="?", default=None, help="hexadecimal hash of the server destination", type=str)
+
+        parser.add_argument(
+            "-s",
+            "--server",
+            action="store_true",
+            help="wait for incoming link requests from clients"
+        )
+
+        parser.add_argument(
+            "--config",
+            action="store",
+            default=None,
+            help="path to alternative Reticulum config directory",
+            type=str
+        )
+
+        parser.add_argument(
+            "destination",
+            nargs="?",
+            default=None,
+            help="hexadecimal hash of the server destination",
+            type=str
+        )
+
         args = parser.parse_args()
 
         if args.config:

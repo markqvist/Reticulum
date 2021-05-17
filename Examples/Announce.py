@@ -15,7 +15,7 @@ import RNS
 APP_NAME = "example_utilities"
 
 # We initialise two lists of strings to use as app_data
-fruits = ["Peach", "Quince", "Date palm", "Tangerine", "Pomelo", "Carambola", "Grape", "Passion fruit", "Prune", "Cranberry", "Strawberry", "Papaya", "Pomegranate", "Avocado", "Mango"]
+fruits = ["Peach", "Quince", "Date palm", "Tangerine", "Pomelo", "Carambola", "Grape"]
 noble_gases = ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon", "Oganesson"]
 
 # This initialisation is executed when the program is started
@@ -34,8 +34,23 @@ def program_setup(configpath):
     # existence, which will let the network know they are reachable
     # and autoomatically create paths to them, from anywhere else
     # in the network.
-    destination_1 = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "announcesample", "fruits")
-    destination_2 = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "announcesample", "noble_gases")
+    destination_1 = RNS.Destination(
+        identity,
+        RNS.Destination.IN,
+        RNS.Destination.SINGLE,
+        APP_NAME,
+        "announcesample",
+        "fruits"
+    )
+
+    destination_2 = RNS.Destination(
+        identity,
+        RNS.Destination.IN,
+        RNS.Destination.SINGLE,
+        APP_NAME,
+        "announcesample",
+        "noble_gases"
+    )
 
     # We configure the destinations to automatically prove all
     # packets adressed to it. By doing this, RNS will automatically
@@ -49,7 +64,9 @@ def program_setup(configpath):
     # We create an announce handler and configure it to only ask for
     # announces from "example_utilities.announcesample.fruits".
     # Try changing the filter and see what happens.
-    announce_handler = ExampleAnnounceHandler(aspect_filter="example_utilities.announcesample.fruits")
+    announce_handler = ExampleAnnounceHandler(
+        aspect_filter="example_utilities.announcesample.fruits"
+    )
 
     # We register the announce handler with Reticulum
     RNS.Transport.register_announce_handler(announce_handler)
@@ -75,14 +92,22 @@ def announceLoop(destination_1, destination_2):
 
         # Send the announce including the app data
         destination_1.announce(app_data=fruit.encode("utf-8"))
-        RNS.log("Sent announce from "+RNS.prettyhexrep(destination_1.hash)+" ("+destination_1.name+")")
+        RNS.log(
+            "Sent announce from "+
+            RNS.prettyhexrep(destination_1.hash)+
+            " ("+destination_1.name+")"
+        )
 
         # Randomly select a noble gas
         noble_gas = noble_gases[random.randint(0,len(noble_gases)-1)]
 
         # Send the announce including the app data
         destination_2.announce(app_data=noble_gas.encode("utf-8"))
-        RNS.log("Sent announce from "+RNS.prettyhexrep(destination_2.hash)+" ("+destination_2.name+")")
+        RNS.log(
+            "Sent announce from "+
+            RNS.prettyhexrep(destination_2.hash)+
+            " ("+destination_2.name+")"
+        )
 
 # We will need to define an announce handler class that
 # Reticulum can message when an announce arrives.
@@ -100,8 +125,15 @@ class ExampleAnnounceHandler:
     # configured aspect filter. Filters must be specific,
     # and cannot use wildcards.
     def received_announce(self, destination_hash, announced_identity, app_data):
-        RNS.log("Received an announce from "+RNS.prettyhexrep(destination_hash))
-        RNS.log("The announce contained the following app data: "+app_data.decode("utf-8"))
+        RNS.log(
+            "Received an announce from "+
+            RNS.prettyhexrep(destination_hash)
+        )
+
+        RNS.log(
+            "The announce contained the following app data: "+
+            app_data.decode("utf-8")
+        )
 
 ##########################################################
 #### Program Startup #####################################
@@ -112,8 +144,18 @@ class ExampleAnnounceHandler:
 # the desired program mode.
 if __name__ == "__main__":
     try:
-        parser = argparse.ArgumentParser(description="Reticulum example that demonstrates announces and announce handlers")
-        parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
+        parser = argparse.ArgumentParser(
+            description="Reticulum example that demonstrates announces and announce handlers"
+        )
+
+        parser.add_argument(
+            "--config",
+            action="store",
+            default=None,
+            help="path to alternative Reticulum config directory",
+            type=str
+        )
+
         args = parser.parse_args()
 
         if args.config:

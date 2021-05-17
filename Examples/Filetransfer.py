@@ -54,7 +54,14 @@ def server(configpath, path):
     # We create a destination that clients can connect to. We
     # want clients to create links to this destination, so we
     # need to create a "single" destination type.
-    server_destination = RNS.Destination(server_identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "filetransfer", "server")
+    server_destination = RNS.Destination(
+        server_identity,
+        RNS.Destination.IN,
+        RNS.Destination.SINGLE,
+        APP_NAME,
+        "filetransfer",
+        "server"
+    )
 
     # We configure a function that will get called every time
     # a new client creates a link to this destination.
@@ -135,7 +142,13 @@ def client_request(message, packet):
             # read it and pack it as a resource
             RNS.log("Client requested \""+filename+"\"")
             file = open(os.path.join(serve_path, filename), "rb")
-            file_resource = RNS.Resource(file, packet.link, callback=resource_sending_concluded)
+            
+            file_resource = RNS.Resource(
+                file,
+                packet.link,
+                callback=resource_sending_concluded
+            )
+
             file_resource.filename = filename
         except Exception as e:
             # If somethign went wrong, we close
@@ -223,7 +236,14 @@ def client(destination_hexhash, configpath):
 
     # When the server identity is known, we set
     # up a destination
-    server_destination = RNS.Destination(server_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "filetransfer", "server")
+    server_destination = RNS.Destination(
+        server_identity,
+        RNS.Destination.OUT,
+        RNS.Destination.SINGLE,
+        APP_NAME,
+        "filetransfer",
+        "server"
+    )
 
     # We also want to automatically prove incoming packets
     server_destination.set_proof_strategy(RNS.Destination.PROVE_ALL)
@@ -524,10 +544,34 @@ def clear_screen():
 # starts up the desired program mode.
 if __name__ == "__main__":
     try:
-        parser = argparse.ArgumentParser(description="Simple file transfer server and client utility")
-        parser.add_argument("-s", "--serve", action="store", metavar="dir", help="serve a directory of files to clients")
-        parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
-        parser.add_argument("destination", nargs="?", default=None, help="hexadecimal hash of the server destination", type=str)
+        parser = argparse.ArgumentParser(
+            description="Simple file transfer server and client utility"
+        )
+
+        parser.add_argument(
+            "-s",
+            "--serve",
+            action="store",
+            metavar="dir",
+            help="serve a directory of files to clients"
+        )
+
+        parser.add_argument(
+            "--config",
+            action="store",
+            default=None,
+            help="path to alternative Reticulum config directory",
+            type=str
+        )
+
+        parser.add_argument(
+            "destination",
+            nargs="?",
+            default=None,
+            help="hexadecimal hash of the server destination",
+            type=str
+        )
+
         args = parser.parse_args()
 
         if args.config:

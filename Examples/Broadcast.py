@@ -28,7 +28,14 @@ def program_setup(configpath, channel=None):
 
     # We create a PLAIN destination. This is an uncencrypted endpoint
     # that anyone can listen to and send information to.
-    broadcast_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, APP_NAME, "broadcast", channel)
+    broadcast_destination = RNS.Destination(
+        None,
+        RNS.Destination.IN,
+        RNS.Destination.PLAIN,
+        APP_NAME,
+        "broadcast",
+        channel
+    )
 
     # We specify a callback that will get called every time
     # the destination receives data.
@@ -46,7 +53,11 @@ def packet_callback(data, packet):
 
 def broadcastLoop(destination):
     # Let the user know that everything is ready
-    RNS.log("Broadcast example "+RNS.prettyhexrep(destination.hash)+" running, enter text and hit enter to broadcast (Ctrl-C to quit)")
+    RNS.log(
+        "Broadcast example "+
+        RNS.prettyhexrep(destination.hash)+
+        " running, enter text and hit enter to broadcast (Ctrl-C to quit)"
+    )
 
     # We enter a loop that runs until the users exits.
     # If the user hits enter, we will send the information
@@ -71,9 +82,26 @@ def broadcastLoop(destination):
 # the program.
 if __name__ == "__main__":
     try:
-        parser = argparse.ArgumentParser(description="Reticulum example that demonstrates sending and receiving unencrypted broadcasts")
-        parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
-        parser.add_argument("--channel", action="store", default=None, help="broadcast channel name", type=str)
+        parser = argparse.ArgumentParser(
+            description="Reticulum example demonstrating sending and receiving broadcasts"
+        )
+
+        parser.add_argument(
+            "--config",
+            action="store",
+            default=None,
+            help="path to alternative Reticulum config directory",
+            type=str
+        )
+
+        parser.add_argument(
+            "--channel",
+            action="store",
+            default=None,
+            help="broadcast channel name",
+            type=str
+        )
+
         args = parser.parse_args()
 
         if args.config:
