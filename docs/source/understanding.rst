@@ -403,11 +403,12 @@ of hops, where information will be exchanged between two nodes.
 
 
 * | When a node in the network wants to establish verified connectivity with another node, it
-    will create a *link request* packet, and broadcast it.
+    will randomly generate a new X25519 private/public key pair. It then creates a *link request*
+    packet, and broadcast it.
 
-* | The *link request* packet contains the destination hash *Hd* , and an asymmetrically encrypted
-    part containing the following data: The source hash *Hs* , a symmetric key *Lk* , a truncated
-    hash of a random number *Hr* , and a signature *S* of the plaintext values of *Hd* , *Hs* , *Lk* and *Hr*.
+* | The *link request* is addressed to the destination hash of the desired destination, and
+    contains the following data: The newly generated X25519 public key *LKi*. The contents 
+    are encrypted with the RSA public key of the destination and tramsitted over the network.
 
 * | The broadcasted packet will be directed through the network according to the rules laid out
     previously.
@@ -415,31 +416,33 @@ of hops, where information will be exchanged between two nodes.
 * | Any node that forwards the link request will store a *link id* in it’s *link table* , along with the
     amount of hops the packet had taken when received. The link id is a hash of the entire link
     request packet. If the path is not *proven* within some set amount of time, the entry will be
-    dropped from the table again.
+    dropped from the *link table* again.
 
-* | When the destination receives the link request packet, it will decide whether to accept the
-    request. If it is accepted, it will create a special packet called a *proof*. A *proof* is a simple
-    construct, consisting of a truncated hash of the message that needs to be proven, and a
-    signature (made by the destination’s private key) of this hash. This *proof* effectively verifies
-    that the intended recipient got the packet, and also serves to verify the discovered path
-    through the network. Since the *proof* hash matches the *path id* in the intermediary nodes’
-    *path tables* , the intermediary nodes can forward the proof all the way back to the source.
+* | When the destination receives the link request packet, it will decrypt it and decide whether to
+    accept the request. If it is accepted, the destination will also generate a new X25519 private/public
+    key pair, and perform a Diffie Hellman Key Exchange, deriving a new symmetric key that will be used
+    to encrypt the channel, once it has been established.
+
+* | A *link proof* packet is now constructed and transmitted over the network. This packet is
+    addressed to the *link id* of the *link*. It contains the following data: The newly generated X25519
+    public key *LKr* and an RSA-1024 signature of the *link id* and *LKr*.
+   
+* | By verifying this *link proof* packet, all nodes that originally transported the *link request*
+    packet to the destination from the originator can now verify that the intended destination received
+    the request and accepted it, and that the path they chose for forwarding the request was valid.
+    In sucessfully carrying out this verification, the transporting nodes marks the link as active.
+    An abstract bi-directional communication channel has now been established along a path in the network.
 
 * | When the source receives the *proof* , it will know unequivocally that a verified path has been
-    established to the destination, and that information can now be exchanged reliably and
-    securely.
+    established to the destination. It can now also use the X25519 public key contained in the
+    *link proof* to perform it's own Diffie Hellman Key Exchange and derive the symmetric key
+    that is used to encrypt the channel. Information can now be exchanged reliably and securely.
 
 It’s important to note that this methodology ensures that the source of the request does not need to
-reveal any identifying information. Only the intended destination will know “who called”, so to
-speak. This is a huge improvement to protocols like IP, where by design, you have to reveal your
-own address to communicate with anyone, unless you jump through a lot of hoops to hide it.
-Reticulum offers initiator anonymity by design.
+reveal any identifying information about itself. The link initiator remains completely anonymous.
 
-When using *links* , Reticulum will automatically verify anything sent over the link, and also
-automates retransmissions if parts of a message was lost along the way. Due to the caching features
-of Reticulum, such a retransmission does not need to travel the entire length of an established path.
-If a packet is lost on the 8th hop of a 12 hop path, it can be fetched from the last hop that received it
-reliably.
+When using *links*, Reticulum will automatically verify all data sent over the link, and can also
+automate retransmissions if *Resources* are used.
 
 .. _understanding-resources:
 
