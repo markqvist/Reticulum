@@ -113,8 +113,8 @@ will be displayed as 10 bytes in hexadecimal representation, as in the following
 By default Reticulum encrypts all data using public-key cryptography. Any message sent to a
 destination is encrypted with that destinations public key. Reticulum can also set up an encrypted
 channel to a destination with *Perfect Forward Secrecy* and *Initiator Anonymity* using a elliptic
-curve cryptography and ephemeral keys derived from a Diffie Hellman exchange on the SECP256R1 curve.
-In Reticulum terminology, this is called a *Link*.
+curve cryptography and ephemeral keys derived from a Diffie Hellman exchange on Curve25519. In
+Reticulum terminology, this is called a *Link*.
 
 Reticulum also offers symmetric key encryption for group-oriented communications, as well as
 unencrypted packets for broadcast purposes, or situations where you need the communication to be in

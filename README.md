@@ -17,7 +17,7 @@ The documentation for Reticulum is available at [unsigned.io/docs/rns/](https://
  - Coordination-less globally unique adressing and identification
  - Fully self-configuring multi-hop routing
  - Asymmetric RSA encryption and signatures as basis for all communication
- - Perfect Forward Secrecy on links with ephemereal Elliptic Curve Diffie-Hellman keys (on the SECP256R1 curve)
+ - Perfect Forward Secrecy on links with ephemereal Elliptic Curve Diffie-Hellman keys (on Curve25519)
  - Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for encryption on links and to group destinations
     - AES-128 in CBC mode with PKCS7 padding
     - HMAC using SHA256 for authentication
