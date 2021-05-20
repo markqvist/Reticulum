@@ -149,16 +149,16 @@ class Identity:
         if packet.packet_type == RNS.Packet.ANNOUNCE:
             RNS.log("Validating announce from "+RNS.prettyhexrep(packet.destination_hash), RNS.LOG_DEBUG)
             destination_hash = packet.destination_hash
-            public_key = packet.data[10:Identity.KEYSIZE//8+10]
-            random_hash = packet.data[Identity.KEYSIZE//8+10:Identity.KEYSIZE//8+20]
-            signature = packet.data[Identity.KEYSIZE//8+20:Identity.KEYSIZE//8+20+Identity.KEYSIZE//8]
+            public_key = packet.data[:Identity.KEYSIZE//8]
+            random_hash = packet.data[Identity.KEYSIZE//8:Identity.KEYSIZE//8+10]
+            signature = packet.data[Identity.KEYSIZE//8+10:Identity.KEYSIZE//8+10+Identity.KEYSIZE//8]
             app_data = b""
-            if len(packet.data) > Identity.KEYSIZE//8+20+Identity.KEYSIZE//8:
-                app_data = packet.data[Identity.KEYSIZE//8+20+Identity.KEYSIZE//8:]
+            if len(packet.data) > Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:
+                app_data = packet.data[Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:]
 
             signed_data = destination_hash+public_key+random_hash+app_data
 
-            if not len(packet.data) > Identity.KEYSIZE//8+20+Identity.KEYSIZE//8:
+            if not len(packet.data) > Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:
                 app_data = None
 
             announced_identity = Identity(create_keys=False)

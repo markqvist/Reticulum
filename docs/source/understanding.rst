@@ -672,8 +672,8 @@ Binary Packet Format
      wire size including all fields.
 
      - Path Request    :    33  bytes
-     - Announce        :    323 bytes
-     - Link Request    :    141 bytes
+     - Announce        :    151 bytes
+     - Link Request    :    182 bytes
      - Link Proof      :    205 bytes
      - Link RTT packet :    86  bytes
      - Link keepalive  :    14  bytes

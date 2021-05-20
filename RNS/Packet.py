@@ -186,6 +186,7 @@ class Packet:
         self.packed = True
         self.update_hash()
 
+
     def unpack(self):
         self.flags = self.raw[0]
         self.hops  = self.raw[1]
