@@ -16,8 +16,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Reference" href="reference.html" />
-    <link rel="prev" title="Getting Started Fast" href="gettingstartedfast.html" /> 
+    <link rel="prev" title="API Reference" href="reference.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -27,9 +26,6 @@
              accesskey="I">index</a></li>
         <li class="right" >
           <a href="reference.html" title="API Reference"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="gettingstartedfast.html" title="Getting Started Fast"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.1 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Examples</a></li> 
@@ -640,7 +636,7 @@ the Packet interface.</p>
             <span class="c1"># the packet times out.</span>
             <span class="k">if</span> <span class="n">timeout</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">packet_receipt</span><span class="o">.</span><span class="n">set_timeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
-                <span class="n">packet_receipt</span><span class="o">.</span><span class="n">timeout_callback</span><span class="p">(</span><span class="n">packet_timed_out</span><span class="p">)</span>
+                <span class="n">packet_receipt</span><span class="o">.</span><span class="n">set_timeout_callback</span><span class="p">(</span><span class="n">packet_timed_out</span><span class="p">)</span>
 
             <span class="c1"># We can then set a delivery callback on the receipt.</span>
             <span class="c1"># This will get automatically called when a proof for</span>
@@ -1170,7 +1166,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
             <span class="n">list_receipt</span> <span class="o">=</span> <span class="n">list_packet</span><span class="o">.</span><span class="n">send</span><span class="p">()</span>
             <span class="n">list_receipt</span><span class="o">.</span><span class="n">set_timeout</span><span class="p">(</span><span class="n">APP_TIMEOUT</span><span class="p">)</span>
             <span class="n">list_receipt</span><span class="o">.</span><span class="n">set_delivery_callback</span><span class="p">(</span><span class="n">list_delivered</span><span class="p">)</span>
-            <span class="n">list_receipt</span><span class="o">.</span><span class="n">timeout_callback</span><span class="p">(</span><span class="n">list_timeout</span><span class="p">)</span>
+            <span class="n">list_receipt</span><span class="o">.</span><span class="n">set_timeout_callback</span><span class="p">(</span><span class="n">list_timeout</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Too many files in served directory!&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span><span class="p">)</span>
             <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;You should implement a function to split the filelist over multiple packets.&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span><span class="p">)</span>
@@ -1677,11 +1673,8 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="gettingstartedfast.html"
-                        title="previous chapter">Getting Started Fast</a></p>
-  <h4>Next topic</h4>
   <p class="topless"><a href="reference.html"
-                        title="next chapter">API Reference</a></p>
+                        title="previous chapter">API Reference</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -1711,9 +1704,6 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
              >index</a></li>
         <li class="right" >
           <a href="reference.html" title="API Reference"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="gettingstartedfast.html" title="Getting Started Fast"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.1 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Examples</a></li> 
