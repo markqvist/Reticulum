@@ -157,12 +157,16 @@ destinations. Reticulum uses three different basic destination types, and one sp
 Destination Naming
 ^^^^^^^^^^^^^^^^^^
 
-Destinations are created and named in an easy to understand dotted notation of *aspects* , and
+Destinations are created and named in an easy to understand dotted notation of *aspects*, and
 represented on the network as a hash of this value. The hash is a SHA-256 truncated to 80 bits. The
 top level aspect should always be a unique identifier for the application using the destination.
-The next levels of aspects can be defined in any way by the creator of the application. For example,
-a destination for a environmental monitoring application could be made up of the application name, a
-device type and measurement type, like this:
+The next levels of aspects can be defined in any way by the creator of the application.
+
+Aspects can be as long and as plentiful as required, and a resulting long destination name will not
+impact efficiency, as names are always represented as truncated SHA-256 hashes on the network.
+
+As an example, a destination for a environmental monitoring application could be made up of the
+application name, a device type and measurement type, like this:
 
 .. code-block:: text
 
@@ -201,9 +205,8 @@ To recap, the different destination types should be used in the following situat
 * **Single**
     When private communication between two endpoints is needed. Supports multiple hops.
 * **Group**
-    When private communication between two or more endpoints is needed. More efficient in
-    data usage than *single* destinations. Supports multiple hops indirectly, but must first be
-    established through a *single* destination.
+    When private communication between two or more endpoints is needed. Supports multiple hops
+    indirectly, but must first be established through a *single* destination.
 * **Plain**
     When plain-text communication is desirable, for example when broadcasting information.
 
@@ -214,9 +217,9 @@ an unknown public key from the network, as all participating nodes serve as a di
 of public keys.
 
 Note that public key information can be shared and verified in many other ways than using the
-built-in methodology, and that it is therefore not required to use the announce/request functionality.
-It is by far the easiest though, and should definitely be used if there is not a good reason for
-doing it differently.
+built-in *announce* functionality, and that it is therefore not required to use the announce/request
+functionality to obtain public keys. It is by far the easiest though, and should definitely be used
+if there is not a good reason for doing it differently.
 
 .. _understanding-keyannouncements:
 
@@ -235,7 +238,7 @@ contain the following information:
 * The announcers public key
 * Application specific data, in this case the users nickname and availability status
 * A random blob, making each new announce unique
-* A signature of the above information, verifying authenticity
+* An Ed25519 signature of the above information, verifying authenticity
 
 With this information, any Reticulum node that receives it will be able to reconstruct an outgoing
 destination to securely communicate with that destination. You might have noticed that there is one
@@ -244,8 +247,9 @@ the aspect names of the destination. These are intentionally left out to save ba
 will be implicit in almost all cases. If a destination name is not entirely implicit, information can be
 included in the application specific data part that will allow the receiver to infer the naming.
 
-It is important to note that announcements will be forwarded throughout the network according to a
-certain pattern. This will be detailed later.
+It is important to note that announces will be forwarded throughout the network according to a
+certain pattern. This will be detailed in the section
+:ref:`The Announce Mechanism in Detail<understanding-announce>`.
 
 Seeing how *single* destinations are always tied to a private/public key pair leads us to the next topic.
 
@@ -268,8 +272,8 @@ the identity first, and then link it to created destinations.
 
 Building upon the simple messenger example, we could use an identity to represent the user of the
 application. Destinations created will then be linked to this identity to allow communication to
-reach the user. In such a case it is of great importance to store the user’s identity securely and
-privately.
+reach the user. In all cases it is of great importance to store the private keys associated with any
+Reticulum Identity securely and privately.
 
 .. _understanding-gettingfurther:
 
@@ -279,8 +283,9 @@ Getting Further
 The above functions and principles form the core of Reticulum, and would suffice to create
 functional networked applications in local clusters, for example over radio links where all interested
 nodes can directly hear each other. But to be truly useful, we need a way to direct traffic over multiple
-hops in the network. In the next sections, two concepts that allow this will be introduced, *paths* and
-*links*.
+hops in the network.
+
+In the following sections, two concepts that allow this will be introduced, *paths* and *links*.
 
 .. _understanding-transport:
 
@@ -298,85 +303,28 @@ useable over bandwidth-limited, high-latency links.
 
 To overcome such challenges, Reticulum’s *Transport* system uses public-key cryptography to
 implement the concept of *paths* that allow discovery of how to get information to a certain
-destination, and *resources* that help make reliable data transfer more efficient.
+destination. It is important to note that no single node in a Reticulum network knows the complete
+path to a destination. Every Transport node participating in a Reticulum network will only
+know what the most direct way to get a packet one hop closer to it's destination is.
 
-.. _understanding-paths:
+.. _understanding-announce:
 
-Reaching the Destination
-------------------------
+The Announce Mechanism in Detail
+--------------------------------
 
-In networks with changing topology and trustless connectivity, nodes need a way to establish
-*verified connectivity* with each other. Since the network is assumed to be trustless, Reticulum
-must provide a way to guarantee that the peer you are communicating with is actually who you
-expect. Reticulum offers two ways to do this.
-
-For exchanges of small amounts of information, Reticulum offers the *Packet* API, which works exactly like you would expect - on a per packet level. The following process is employed when sending a packet:
-
-* | A packet is always created with an associated destination and some payload data. When the packet is sent to a *single* destination type, Reticulum will automatically create an ephemeral encryption key, perform an ECDH key exchange with the destinations public key, and encrypt the information.
-
-* | It is important to note that this key exchange does not require any network traffic. The sender already knows the public key of the destination from an earlier received *announce*, and can thus perform the ECDH key exchange locally.
-
-* | The public key part of the newly generated ephemeral key is included with the encrypted token, and sent along with the encrypted payload data in the packet.
-
-* | When the destination receives the packet, it can itself perform an ECDH key exchange and decrypt the packet.
-
-* | A new ephemeral key is used for every packet sent in this way, and forward secrecy is guaranteed on a per packet level.
-
-* | In case the packet is addressed to a *group* destination type, the packet will be encrypted with the pre-shared AES-128 key associated with the destination. In case the packet is addressed to a *plain* destination type, the payload data will not be encrypted. Neither of these two destination types offer forward secrecy. In general, it is recommended to always use the *single* destination type, unless it is strictly necessary to use one of the others.
+When an *announce* is transmitted by a node, it will be forwarded by any node receiving it, but
+according to some specific rules:
 
 
-For exchanges of larger amounts of data, or when longer sessions of bidirectional communication is desired, Reticulum offers the *Link* API. To establish a *link*, the following process is employed:
+* | If this exact announce has already been received before, ignore it.
 
-* | First, the node that wishes to establish a link will send out a special packet, that
-    traverses the network and locates the desired destination. Along the way, the nodes that
-    forward the packet will take note of this *link request*.
-
-* | Second, if the destination accepts the *link request* , it will send back a packet that proves the
-    authenticity of it’s identity (and the receipt of the link request) to the initiating node. All
-    nodes that initially forwarded the packet will also be able to verify this proof, and thus
-    accept the validity of the *link* throughout the network.
-
-* | When the validity of the *link* has been accepted by forwarding nodes, these nodes will
-    remember the *link* , and it can subsequently be used by referring to a hash representing it.
-
-* | As a part of the *link request* , a Diffie-Hellman key exchange takes place, that sets up an
-    efficient symmetrically encrypted tunnel between the two nodes, using elliptic curve
-    cryptography. As such, this mode of communication is preferred, even for situations when
-    nodes can directly communicate, when the amount of data to be exchanged numbers in the
-    tens of packets.
-
-* | When a *link* has been set up, it automatically provides message receipt functionality, so the
-    sending node can obtain verified confirmation that the information reached the intended
-    recipient.
-
-In a moment, we will discuss the details of how this methodology is implemented, but let’s first
-recap what purposes this methodology serves. We first ensure that the node answering our request
-is actually the one we want to communicate with, and not a malicious actor pretending to be so.
-At the same time we establish an efficient encrypted channel. The setup of this is relatively cheap in
-terms of bandwidth, so it can be used just for a short exchange, and then recreated as needed, which will
-also rotate encryption keys. The link can also be kept alive for longer periods of time, if this is
-more suitable to the application. The procedure also inserts the *link id* , a hash calculated from the link request packet, into the memory of forwarding nodes, which means that the communicating nodes can thereafter reach each other simply by referring to this *link id*.
-
-The total bandwidth cost of setting up a link is 409 bytes (more info in the :ref:`Binary Packet Format<understanding-packetformat>` section). The amount of bandwidth used on keeping a link open is practically negligible, at 0.62 bits per second. Even on a slow 1200 bits per second packet radio channel, 100 concurrent links will still leave 95% channel capacity for actual data.
-
-Pathfinding in Detail
-^^^^^^^^^^^^^^^^^^^^^
-
-The pathfinding method builds on the *announce* functionality discussed earlier. When an announce
-is sent out by a node, it will be forwarded by any node receiving it, but according to some specific
-rules:
-
-
-* | If this announce has already been received before, ignore it.
-
-* | Record into a table which node the announce was received from, and how many times in
+* | If not, record into a table which node the announce was received from, and how many times in
     total it has been retransmitted to get here.
 
 * | If the announce has been retransmitted *m+1* times, it will not be forwarded. By default, *m* is
     set to 18.
 
-* | The announce will be assigned a delay *d* = c\ :sup:`h` seconds, where *c* is a decay constant, by
-    default 2, and *h* is the amount of times this packet has already been forwarded.
+* | The announce will be assigned a delay *d* = c\ :sup:`h` seconds, where *c* is a decay constant, and *h* is the amount of times this packet has already been forwarded.
 
 * | The packet will be given a priority *p = 1/d*.
 
@@ -385,10 +333,11 @@ rules:
     not utilized by other traffic, the announce will be forwarded.
 
 * | If no other nodes are heard retransmitting the announce with a greater hop count than when
-    it left this node, transmitting it will be retried *r* times. By default, *r* is set to 2. Retries follow
-    same rules as above, with the exception that it must wait for at least *d* = c\ :sup:`h+1` + t seconds, ie.,
-    the amount of time it would take the next node to retransmit the packet. By default, *t* is set to
-    10.
+    it left this node, transmitting it will be retried *r* times. By default, *r* is set to 1. Retries
+    follow same rules as above, with the exception that it must wait for at least *d* = c\ :sup:`h+1` +
+    t + rand(0, rw) seconds. This amount of time is equal to the amount of time it would take the next
+    node to retransmit the packet, plus a random window. By default, *t* is set to 10 seconds, and the
+    random window *rw* is set to 10 seconds.
 
 * | If a newer announce from the same destination arrives, while an identical one is already in
     the queue, the newest announce is discarded. If the newest announce contains different
@@ -407,14 +356,95 @@ distance of *Lavg =* 15 kilometers, an announce will be able to propagate outwar
 kilometers in 34 minutes, and a *maximum announce radius* of 270 kilometers in approximately 3
 days.
 
+.. _understanding-paths:
+
+Reaching the Destination
+------------------------
+
+In networks with changing topology and trustless connectivity, nodes need a way to establish
+*verified connectivity* with each other. Since the network is assumed to be trustless, Reticulum
+must provide a way to guarantee that the peer you are communicating with is actually who you
+expect. Reticulum offers two ways to do this.
+
+For exchanges of small amounts of information, Reticulum offers the *Packet* API, which works exactly like you would expect - on a per packet level. The following process is employed when sending a packet:
+
+* | A packet is always created with an associated destination and some payload data. When the packet is sent
+    to a *single* destination type, Reticulum will automatically create an ephemeral encryption key, perform
+    an ECDH key exchange with the destinations public key, and encrypt the information.
+
+* | It is important to note that this key exchange does not require any network traffic. The sender already
+    knows the public key of the destination from an earlier received *announce*, and can thus perform the ECDH
+    key exchange locally, before sending the packet.
+
+* | The public part of the newly generated ephemeral key-pair is included with the encrypted token, and sent
+    along with the encrypted payload data in the packet.
+
+* | When the destination receives the packet, it can itself perform an ECDH key exchange and decrypt the
+    packet.
+
+* | A new ephemeral key is used for every packet sent in this way, and forward secrecy is guaranteed on a
+    per packet level.
+
+* | Once the packet has been received and decrypted by the addressed destination, that destination can opt
+    to *prove* its receipt of the packet. It does this by calculating the SHA-256 hash of the received packet,
+    and signing this hash with it's Ed25519 signing key. Transport nodes in the network can then direct this
+    *proof* back to the packets origin, where the signature can be verified against the destinations known
+    public signing key.
+
+* | In case the packet is addressed to a *group* destination type, the packet will be encrypted with the
+    pre-shared AES-128 key associated with the destination. In case the packet is addressed to a *plain*
+    destination type, the payload data will not be encrypted. Neither of these two destination types offer
+    forward secrecy. In general, it is recommended to always use the *single* destination type, unless it is
+    strictly necessary to use one of the others.
+
+
+For exchanges of larger amounts of data, or when longer sessions of bidirectional communication is desired, Reticulum offers the *Link* API. To establish a *link*, the following process is employed:
+
+* | First, the node that wishes to establish a link will send out a special packet, that
+    traverses the network and locates the desired destination. Along the way, the nodes that
+    forward the packet will take note of this *link request*.
+
+* | Second, if the destination accepts the *link request* , it will send back a packet that proves the
+    authenticity of it’s identity (and the receipt of the link request) to the initiating node. All
+    nodes that initially forwarded the packet will also be able to verify this proof, and thus
+    accept the validity of the *link* throughout the network.
+
+* | When the validity of the *link* has been accepted by forwarding nodes, these nodes will
+    remember the *link* , and it can subsequently be used by referring to a hash representing it.
+
+* | As a part of the *link request* , a Diffie-Hellman key exchange takes place, that sets up an
+    efficiently encrypted tunnel between the two nodes, using elliptic curve cryptography. As such,
+    this mode of communication is preferred, even for situations when nodes can directly communicate,
+    when the amount of data to be exchanged numbers in the tens of packets.
+
+* | When a *link* has been set up, it automatically provides message receipt functionality, through
+    the same *proof* mechanism discussed before, so the sending node can obtain verified confirmation
+    that the information reached the intended recipient.
+
+In a moment, we will discuss the details of how this methodology is implemented, but let’s first
+recap what purposes this methodology serves. We first ensure that the node answering our request
+is actually the one we want to communicate with, and not a malicious actor pretending to be so.
+At the same time we establish an efficient encrypted channel. The setup of this is relatively cheap in
+terms of bandwidth, so it can be used just for a short exchange, and then recreated as needed, which will
+also rotate encryption keys. The link can also be kept alive for longer periods of time, if this is
+more suitable to the application. The procedure also inserts the *link id* , a hash calculated from the link request packet, into the memory of forwarding nodes, which means that the communicating nodes can thereafter reach each other simply by referring to this *link id*.
+
+The combined bandwidth cost of setting up a link is 3 packets totalling 409 bytes (more info in the
+:ref:`Binary Packet Format<understanding-packetformat>` section). The amount of bandwidth used on keeping
+a link open is practically negligible, at 0.62 bits per second. Even on a slow 1200 bits per second packet
+radio channel, 100 concurrent links will still leave 95% channel capacity for actual data.
+
+
 Link Establishment in Detail
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-After seeing how the conditions for finding a path through the network are created, we will now
-explore how two nodes can establish reliable communications over multiple hops. The *link* in
-Reticulum terminology should not be viewed as a direct node-to-node link on the physical layer, but
-as an abstract channel, that can be open for any amount of time, and can span an arbitrary number
-of hops, where information will be exchanged between two nodes.
+After exploring the basics of the announce mechanism, finding a path through the network, and an overview
+of the link establishment procedure, this section will go into greater detail about the Reticulum link
+establishment process.
+
+The *link* in Reticulum terminology should not be viewed as a direct node-to-node link on the
+physical layer, but as an abstract channel, that can be open for any amount of time, and can span
+an arbitrary number of hops, where information will be exchanged between two nodes.
 
 
 * | When a node in the network wants to establish verified connectivity with another node, it
@@ -427,25 +457,25 @@ of hops, where information will be exchanged between two nodes.
     considered as single public key for simplicity in this explanation.*
 
 * | The *link request* is addressed to the destination hash of the desired destination, and
-    contains the following data: The newly generated X25519 public key *LKi*. The contents 
-    are encrypted with the RSA public key of the destination and tramsitted over the network.
+    contains the following data: The newly generated X25519 public key *LKi*.
 
 * | The broadcasted packet will be directed through the network according to the rules laid out
     previously.
 
 * | Any node that forwards the link request will store a *link id* in it’s *link table* , along with the
     amount of hops the packet had taken when received. The link id is a hash of the entire link
-    request packet. If the path is not *proven* within some set amount of time, the entry will be
-    dropped from the *link table* again.
+    request packet. If the link request packet is not *proven* by the addressed destination within some
+    set amount of time, the entry will be dropped from the *link table* again.
 
-* | When the destination receives the link request packet, it will decrypt it and decide whether to
-    accept the request. If it is accepted, the destination will also generate a new X25519 private/public
-    key pair, and perform a Diffie Hellman Key Exchange, deriving a new symmetric key that will be used
-    to encrypt the channel, once it has been established.
+* | When the destination receives the link request packet, it will decide whether to accept the request.
+    If it is accepted, the destination will also generate a new X25519 private/public key pair, and
+    perform a Diffie Hellman Key Exchange, deriving a new symmetric key that will be used to encrypt the
+    channel, once it has been established.
 
 * | A *link proof* packet is now constructed and transmitted over the network. This packet is
     addressed to the *link id* of the *link*. It contains the following data: The newly generated X25519
-    public key *LKr* and an RSA-1024 signature of the *link id* and *LKr*.
+    public key *LKr* and an Ed25519 signature of the *link id* and *LKr* made by the signing key of
+    the addressed destination.
    
 * | By verifying this *link proof* packet, all nodes that originally transported the *link request*
     packet to the destination from the originator can now verify that the intended destination received
@@ -464,11 +494,6 @@ reveal any identifying information about itself. The link initiator remains comp
 
 When using *links*, Reticulum will automatically verify all data sent over the link, and can also
 automate retransmissions if *Resources* are used.
-
-Proven Delivery
-^^^^^^^^^^^^^^^
-
-TODO: Write
 
 .. _understanding-resources:
 

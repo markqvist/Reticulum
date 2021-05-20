@@ -205,12 +205,14 @@ when a node is directly reachable.</p>
 </ul>
 <div class="section" id="destination-naming">
 <span id="understanding-destinationnaming"></span><h4>Destination Naming<a class="headerlink" href="#destination-naming" title="Permalink to this headline">¶</a></h4>
-<p>Destinations are created and named in an easy to understand dotted notation of <em>aspects</em> , and
+<p>Destinations are created and named in an easy to understand dotted notation of <em>aspects</em>, and
 represented on the network as a hash of this value. The hash is a SHA-256 truncated to 80 bits. The
 top level aspect should always be a unique identifier for the application using the destination.
-The next levels of aspects can be defined in any way by the creator of the application. For example,
-a destination for a environmental monitoring application could be made up of the application name, a
-device type and measurement type, like this:</p>
+The next levels of aspects can be defined in any way by the creator of the application.</p>
+<p>Aspects can be as long and as plentiful as required, and a resulting long destination name will not
+impact efficiency, as names are always represented as truncated SHA-256 hashes on the network.</p>
+<p>As an example, a destination for a environmental monitoring application could be made up of the
+application name, a device type and measurement type, like this:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>app name  : environmentlogger
 aspects   : remotesensor, temperature
 
@@ -246,9 +248,8 @@ receives.</p>
 </dl>
 </li>
 <li><dl class="simple">
-<dt><strong>Group</strong></dt><dd><p>When private communication between two or more endpoints is needed. More efficient in
-data usage than <em>single</em> destinations. Supports multiple hops indirectly, but must first be
-established through a <em>single</em> destination.</p>
+<dt><strong>Group</strong></dt><dd><p>When private communication between two or more endpoints is needed. Supports multiple hops
+indirectly, but must first be established through a <em>single</em> destination.</p>
 </dd>
 </dl>
 </li>
@@ -264,9 +265,9 @@ nodes aware of your destinations public key, called the <em>announce</em>. It is
 an unknown public key from the network, as all participating nodes serve as a distributed ledger
 of public keys.</p>
 <p>Note that public key information can be shared and verified in many other ways than using the
-built-in methodology, and that it is therefore not required to use the announce/request functionality.
-It is by far the easiest though, and should definitely be used if there is not a good reason for
-doing it differently.</p>
+built-in <em>announce</em> functionality, and that it is therefore not required to use the announce/request
+functionality to obtain public keys. It is by far the easiest though, and should definitely be used
+if there is not a good reason for doing it differently.</p>
 </div>
 </div>
 <div class="section" id="public-key-announcements">
@@ -282,7 +283,7 @@ contain the following information:</p>
 <li><p>The announcers public key</p></li>
 <li><p>Application specific data, in this case the users nickname and availability status</p></li>
 <li><p>A random blob, making each new announce unique</p></li>
-<li><p>A signature of the above information, verifying authenticity</p></li>
+<li><p>An Ed25519 signature of the above information, verifying authenticity</p></li>
 </ul>
 <p>With this information, any Reticulum node that receives it will be able to reconstruct an outgoing
 destination to securely communicate with that destination. You might have noticed that there is one
@@ -290,8 +291,9 @@ piece of information lacking to reconstruct full knowledge of the announced dest
 the aspect names of the destination. These are intentionally left out to save bandwidth, since they
 will be implicit in almost all cases. If a destination name is not entirely implicit, information can be
 included in the application specific data part that will allow the receiver to infer the naming.</p>
-<p>It is important to note that announcements will be forwarded throughout the network according to a
-certain pattern. This will be detailed later.</p>
+<p>It is important to note that announces will be forwarded throughout the network according to a
+certain pattern. This will be detailed in the section
+<a class="reference internal" href="#understanding-announce"><span class="std std-ref">The Announce Mechanism in Detail</span></a>.</p>
 <p>Seeing how <em>single</em> destinations are always tied to a private/public key pair leads us to the next topic.</p>
 </div>
 <div class="section" id="understanding-identities">
@@ -308,16 +310,16 @@ automatically. This may be desirable in some situations, but often you will prob
 the identity first, and then link it to created destinations.</p>
 <p>Building upon the simple messenger example, we could use an identity to represent the user of the
 application. Destinations created will then be linked to this identity to allow communication to
-reach the user. In such a case it is of great importance to store the user’s identity securely and
-privately.</p>
+reach the user. In all cases it is of great importance to store the private keys associated with any
+Reticulum Identity securely and privately.</p>
 </div>
 <div class="section" id="getting-further">
 <span id="understanding-gettingfurther"></span><h3>Getting Further<a class="headerlink" href="#getting-further" title="Permalink to this headline">¶</a></h3>
 <p>The above functions and principles form the core of Reticulum, and would suffice to create
 functional networked applications in local clusters, for example over radio links where all interested
 nodes can directly hear each other. But to be truly useful, we need a way to direct traffic over multiple
-hops in the network. In the next sections, two concepts that allow this will be introduced, <em>paths</em> and
-<em>links</em>.</p>
+hops in the network.</p>
+<p>In the following sections, two concepts that allow this will be introduced, <em>paths</em> and <em>links</em>.</p>
 </div>
 </div>
 <div class="section" id="reticulum-transport">
@@ -331,7 +333,70 @@ very limited. Existing routing protocols like BGP or OSPF carry too much overhea
 useable over bandwidth-limited, high-latency links.</p>
 <p>To overcome such challenges, Reticulum’s <em>Transport</em> system uses public-key cryptography to
 implement the concept of <em>paths</em> that allow discovery of how to get information to a certain
-destination, and <em>resources</em> that help make reliable data transfer more efficient.</p>
+destination. It is important to note that no single node in a Reticulum network knows the complete
+path to a destination. Every Transport node participating in a Reticulum network will only
+know what the most direct way to get a packet one hop closer to it’s destination is.</p>
+<div class="section" id="the-announce-mechanism-in-detail">
+<span id="understanding-announce"></span><h3>The Announce Mechanism in Detail<a class="headerlink" href="#the-announce-mechanism-in-detail" title="Permalink to this headline">¶</a></h3>
+<p>When an <em>announce</em> is transmitted by a node, it will be forwarded by any node receiving it, but
+according to some specific rules:</p>
+<ul>
+<li><div class="line-block">
+<div class="line">If this exact announce has already been received before, ignore it.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">If not, record into a table which node the announce was received from, and how many times in
+total it has been retransmitted to get here.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">If the announce has been retransmitted <em>m+1</em> times, it will not be forwarded. By default, <em>m</em> is
+set to 18.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The announce will be assigned a delay <em>d</em> = c<sup>h</sup> seconds, where <em>c</em> is a decay constant, and <em>h</em> is the amount of times this packet has already been forwarded.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The packet will be given a priority <em>p = 1/d</em>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">If at least <em>d</em> seconds has passed since the announce was received, and no other packets with a
+priority higher than <em>p</em> are waiting in the queue (see Packet Prioritisation), and the channel is
+not utilized by other traffic, the announce will be forwarded.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">If no other nodes are heard retransmitting the announce with a greater hop count than when
+it left this node, transmitting it will be retried <em>r</em> times. By default, <em>r</em> is set to 1. Retries
+follow same rules as above, with the exception that it must wait for at least <em>d</em> = c<sup>h+1</sup> +
+t + rand(0, rw) seconds. This amount of time is equal to the amount of time it would take the next
+node to retransmit the packet, plus a random window. By default, <em>t</em> is set to 10 seconds, and the
+random window <em>rw</em> is set to 10 seconds.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">If a newer announce from the same destination arrives, while an identical one is already in
+the queue, the newest announce is discarded. If the newest announce contains different
+application specific data, it will replace the old announce, but will use <em>d</em> and <em>p</em> of the old
+announce.</div>
+</div>
+</li>
+</ul>
+<p>Once an announce has reached a node in the network, any other node in direct contact with that
+node will be able to reach the destination the announce originated from, simply by sending a packet
+addressed to that destination. Any node with knowledge of the announce will be able to direct the
+packet towards the destination by looking up the next node with the shortest amount of hops to the
+destination.</p>
+<p>According to these rules and default constants, an announce will propagate throughout the network
+in a predictable way. In an example network utilising the default constants, and with an average link
+distance of <em>Lavg =</em> 15 kilometers, an announce will be able to propagate outwards to a radius of 180
+kilometers in 34 minutes, and a <em>maximum announce radius</em> of 270 kilometers in approximately 3
+days.</p>
+</div>
 <div class="section" id="reaching-the-destination">
 <span id="understanding-paths"></span><h3>Reaching the Destination<a class="headerlink" href="#reaching-the-destination" title="Permalink to this headline">¶</a></h3>
 <p>In networks with changing topology and trustless connectivity, nodes need a way to establish
@@ -341,27 +406,46 @@ expect. Reticulum offers two ways to do this.</p>
 <p>For exchanges of small amounts of information, Reticulum offers the <em>Packet</em> API, which works exactly like you would expect - on a per packet level. The following process is employed when sending a packet:</p>
 <ul>
 <li><div class="line-block">
-<div class="line">A packet is always created with an associated destination and some payload data. When the packet is sent to a <em>single</em> destination type, Reticulum will automatically create an ephemeral encryption key, perform an ECDH key exchange with the destinations public key, and encrypt the information.</div>
+<div class="line">A packet is always created with an associated destination and some payload data. When the packet is sent
+to a <em>single</em> destination type, Reticulum will automatically create an ephemeral encryption key, perform
+an ECDH key exchange with the destinations public key, and encrypt the information.</div>
 </div>
 </li>
 <li><div class="line-block">
-<div class="line">It is important to note that this key exchange does not require any network traffic. The sender already knows the public key of the destination from an earlier received <em>announce</em>, and can thus perform the ECDH key exchange locally.</div>
+<div class="line">It is important to note that this key exchange does not require any network traffic. The sender already
+knows the public key of the destination from an earlier received <em>announce</em>, and can thus perform the ECDH
+key exchange locally, before sending the packet.</div>
 </div>
 </li>
 <li><div class="line-block">
-<div class="line">The public key part of the newly generated ephemeral key is included with the encrypted token, and sent along with the encrypted payload data in the packet.</div>
+<div class="line">The public part of the newly generated ephemeral key-pair is included with the encrypted token, and sent
+along with the encrypted payload data in the packet.</div>
 </div>
 </li>
 <li><div class="line-block">
-<div class="line">When the destination receives the packet, it can itself perform an ECDH key exchange and decrypt the packet.</div>
+<div class="line">When the destination receives the packet, it can itself perform an ECDH key exchange and decrypt the
+packet.</div>
 </div>
 </li>
 <li><div class="line-block">
-<div class="line">A new ephemeral key is used for every packet sent in this way, and forward secrecy is guaranteed on a per packet level.</div>
+<div class="line">A new ephemeral key is used for every packet sent in this way, and forward secrecy is guaranteed on a
+per packet level.</div>
 </div>
 </li>
 <li><div class="line-block">
-<div class="line">In case the packet is addressed to a <em>group</em> destination type, the packet will be encrypted with the pre-shared AES-128 key associated with the destination. In case the packet is addressed to a <em>plain</em> destination type, the payload data will not be encrypted. Neither of these two destination types offer forward secrecy. In general, it is recommended to always use the <em>single</em> destination type, unless it is strictly necessary to use one of the others.</div>
+<div class="line">Once the packet has been received and decrypted by the addressed destination, that destination can opt
+to <em>prove</em> its receipt of the packet. It does this by calculating the SHA-256 hash of the received packet,
+and signing this hash with it’s Ed25519 signing key. Transport nodes in the network can then direct this
+<em>proof</em> back to the packets origin, where the signature can be verified against the destinations known
+public signing key.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">In case the packet is addressed to a <em>group</em> destination type, the packet will be encrypted with the
+pre-shared AES-128 key associated with the destination. In case the packet is addressed to a <em>plain</em>
+destination type, the payload data will not be encrypted. Neither of these two destination types offer
+forward secrecy. In general, it is recommended to always use the <em>single</em> destination type, unless it is
+strictly necessary to use one of the others.</div>
 </div>
 </li>
 </ul>
@@ -387,16 +471,15 @@ remember the <em>link</em> , and it can subsequently be used by referring to a h
 </li>
 <li><div class="line-block">
 <div class="line">As a part of the <em>link request</em> , a Diffie-Hellman key exchange takes place, that sets up an
-efficient symmetrically encrypted tunnel between the two nodes, using elliptic curve
-cryptography. As such, this mode of communication is preferred, even for situations when
-nodes can directly communicate, when the amount of data to be exchanged numbers in the
-tens of packets.</div>
+efficiently encrypted tunnel between the two nodes, using elliptic curve cryptography. As such,
+this mode of communication is preferred, even for situations when nodes can directly communicate,
+when the amount of data to be exchanged numbers in the tens of packets.</div>
 </div>
 </li>
 <li><div class="line-block">
-<div class="line">When a <em>link</em> has been set up, it automatically provides message receipt functionality, so the
-sending node can obtain verified confirmation that the information reached the intended
-recipient.</div>
+<div class="line">When a <em>link</em> has been set up, it automatically provides message receipt functionality, through
+the same <em>proof</em> mechanism discussed before, so the sending node can obtain verified confirmation
+that the information reached the intended recipient.</div>
 </div>
 </li>
 </ul>
@@ -407,76 +490,18 @@ At the same time we establish an efficient encrypted channel. The setup of this 
 terms of bandwidth, so it can be used just for a short exchange, and then recreated as needed, which will
 also rotate encryption keys. The link can also be kept alive for longer periods of time, if this is
 more suitable to the application. The procedure also inserts the <em>link id</em> , a hash calculated from the link request packet, into the memory of forwarding nodes, which means that the communicating nodes can thereafter reach each other simply by referring to this <em>link id</em>.</p>
-<p>The total bandwidth cost of setting up a link is 409 bytes (more info in the <a class="reference internal" href="#understanding-packetformat"><span class="std std-ref">Binary Packet Format</span></a> section). The amount of bandwidth used on keeping a link open is practically negligible, at 0.62 bits per second. Even on a slow 1200 bits per second packet radio channel, 100 concurrent links will still leave 95% channel capacity for actual data.</p>
-<div class="section" id="pathfinding-in-detail">
-<h4>Pathfinding in Detail<a class="headerlink" href="#pathfinding-in-detail" title="Permalink to this headline">¶</a></h4>
-<p>The pathfinding method builds on the <em>announce</em> functionality discussed earlier. When an announce
-is sent out by a node, it will be forwarded by any node receiving it, but according to some specific
-rules:</p>
-<ul>
-<li><div class="line-block">
-<div class="line">If this announce has already been received before, ignore it.</div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">Record into a table which node the announce was received from, and how many times in
-total it has been retransmitted to get here.</div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">If the announce has been retransmitted <em>m+1</em> times, it will not be forwarded. By default, <em>m</em> is
-set to 18.</div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">The announce will be assigned a delay <em>d</em> = c<sup>h</sup> seconds, where <em>c</em> is a decay constant, by
-default 2, and <em>h</em> is the amount of times this packet has already been forwarded.</div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">The packet will be given a priority <em>p = 1/d</em>.</div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">If at least <em>d</em> seconds has passed since the announce was received, and no other packets with a
-priority higher than <em>p</em> are waiting in the queue (see Packet Prioritisation), and the channel is
-not utilized by other traffic, the announce will be forwarded.</div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">If no other nodes are heard retransmitting the announce with a greater hop count than when
-it left this node, transmitting it will be retried <em>r</em> times. By default, <em>r</em> is set to 2. Retries follow
-same rules as above, with the exception that it must wait for at least <em>d</em> = c<sup>h+1</sup> + t seconds, ie.,
-the amount of time it would take the next node to retransmit the packet. By default, <em>t</em> is set to
-10.</div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">If a newer announce from the same destination arrives, while an identical one is already in
-the queue, the newest announce is discarded. If the newest announce contains different
-application specific data, it will replace the old announce, but will use <em>d</em> and <em>p</em> of the old
-announce.</div>
-</div>
-</li>
-</ul>
-<p>Once an announce has reached a node in the network, any other node in direct contact with that
-node will be able to reach the destination the announce originated from, simply by sending a packet
-addressed to that destination. Any node with knowledge of the announce will be able to direct the
-packet towards the destination by looking up the next node with the shortest amount of hops to the
-destination.</p>
-<p>According to these rules and default constants, an announce will propagate throughout the network
-in a predictable way. In an example network utilising the default constants, and with an average link
-distance of <em>Lavg =</em> 15 kilometers, an announce will be able to propagate outwards to a radius of 180
-kilometers in 34 minutes, and a <em>maximum announce radius</em> of 270 kilometers in approximately 3
-days.</p>
-</div>
+<p>The combined bandwidth cost of setting up a link is 3 packets totalling 409 bytes (more info in the
+<a class="reference internal" href="#understanding-packetformat"><span class="std std-ref">Binary Packet Format</span></a> section). The amount of bandwidth used on keeping
+a link open is practically negligible, at 0.62 bits per second. Even on a slow 1200 bits per second packet
+radio channel, 100 concurrent links will still leave 95% channel capacity for actual data.</p>
 <div class="section" id="link-establishment-in-detail">
 <h4>Link Establishment in Detail<a class="headerlink" href="#link-establishment-in-detail" title="Permalink to this headline">¶</a></h4>
-<p>After seeing how the conditions for finding a path through the network are created, we will now
-explore how two nodes can establish reliable communications over multiple hops. The <em>link</em> in
-Reticulum terminology should not be viewed as a direct node-to-node link on the physical layer, but
-as an abstract channel, that can be open for any amount of time, and can span an arbitrary number
-of hops, where information will be exchanged between two nodes.</p>
+<p>After exploring the basics of the announce mechanism, finding a path through the network, and an overview
+of the link establishment procedure, this section will go into greater detail about the Reticulum link
+establishment process.</p>
+<p>The <em>link</em> in Reticulum terminology should not be viewed as a direct node-to-node link on the
+physical layer, but as an abstract channel, that can be open for any amount of time, and can span
+an arbitrary number of hops, where information will be exchanged between two nodes.</p>
 <ul>
 <li><div class="line-block">
 <div class="line">When a node in the network wants to establish verified connectivity with another node, it
@@ -491,8 +516,7 @@ considered as single public key for simplicity in this explanation.</em></div>
 </li>
 <li><div class="line-block">
 <div class="line">The <em>link request</em> is addressed to the destination hash of the desired destination, and
-contains the following data: The newly generated X25519 public key <em>LKi</em>. The contents
-are encrypted with the RSA public key of the destination and tramsitted over the network.</div>
+contains the following data: The newly generated X25519 public key <em>LKi</em>.</div>
 </div>
 </li>
 <li><div class="line-block">
@@ -503,21 +527,22 @@ previously.</div>
 <li><div class="line-block">
 <div class="line">Any node that forwards the link request will store a <em>link id</em> in it’s <em>link table</em> , along with the
 amount of hops the packet had taken when received. The link id is a hash of the entire link
-request packet. If the path is not <em>proven</em> within some set amount of time, the entry will be
-dropped from the <em>link table</em> again.</div>
+request packet. If the link request packet is not <em>proven</em> by the addressed destination within some
+set amount of time, the entry will be dropped from the <em>link table</em> again.</div>
 </div>
 </li>
 <li><div class="line-block">
-<div class="line">When the destination receives the link request packet, it will decrypt it and decide whether to
-accept the request. If it is accepted, the destination will also generate a new X25519 private/public
-key pair, and perform a Diffie Hellman Key Exchange, deriving a new symmetric key that will be used
-to encrypt the channel, once it has been established.</div>
+<div class="line">When the destination receives the link request packet, it will decide whether to accept the request.
+If it is accepted, the destination will also generate a new X25519 private/public key pair, and
+perform a Diffie Hellman Key Exchange, deriving a new symmetric key that will be used to encrypt the
+channel, once it has been established.</div>
 </div>
 </li>
 <li><div class="line-block">
 <div class="line">A <em>link proof</em> packet is now constructed and transmitted over the network. This packet is
 addressed to the <em>link id</em> of the <em>link</em>. It contains the following data: The newly generated X25519
-public key <em>LKr</em> and an RSA-1024 signature of the <em>link id</em> and <em>LKr</em>.</div>
+public key <em>LKr</em> and an Ed25519 signature of the <em>link id</em> and <em>LKr</em> made by the signing key of
+the addressed destination.</div>
 </div>
 </li>
 <li><div class="line-block">
@@ -540,10 +565,6 @@ that is used to encrypt the channel. Information can now be exchanged reliably a
 reveal any identifying information about itself. The link initiator remains completely anonymous.</p>
 <p>When using <em>links</em>, Reticulum will automatically verify all data sent over the link, and can also
 automate retransmissions if <em>Resources</em> are used.</p>
-</div>
-<div class="section" id="proven-delivery">
-<h4>Proven Delivery<a class="headerlink" href="#proven-delivery" title="Permalink to this headline">¶</a></h4>
-<p>TODO: Write</p>
 </div>
 </div>
 <div class="section" id="resources">
@@ -774,10 +795,9 @@ proof           11
 </ul>
 </li>
 <li><a class="reference internal" href="#reticulum-transport">Reticulum Transport</a><ul>
+<li><a class="reference internal" href="#the-announce-mechanism-in-detail">The Announce Mechanism in Detail</a></li>
 <li><a class="reference internal" href="#reaching-the-destination">Reaching the Destination</a><ul>
-<li><a class="reference internal" href="#pathfinding-in-detail">Pathfinding in Detail</a></li>
 <li><a class="reference internal" href="#link-establishment-in-detail">Link Establishment in Detail</a></li>
-<li><a class="reference internal" href="#proven-delivery">Proven Delivery</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#resources">Resources</a></li>

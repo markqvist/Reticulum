@@ -22,8 +22,6 @@ class Transport:
 
     APP_NAME = "rnstransport"
 
-    # TODO: Document the addition of random windows
-    # and max local rebroadcasts.
     PATHFINDER_M    = 18        # Max hops
     PATHFINDER_C    = 2.0       # Decay constant
     PATHFINDER_R    = 1         # Retransmit retries
