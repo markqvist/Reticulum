@@ -181,8 +181,18 @@ def client_loop():
             # If not, send the entered text over the link
             if text != "":
                 data = text.encode("utf-8")
-                RNS.Packet(server_link, data).send()
+                if len(data) <= RNS.Link.MDU:
+                    RNS.Packet(server_link, data).send()
+                else:
+                    RNS.log(
+                        "Cannot send this packet, the data size of "+
+                        str(len(data))+" bytes exceeds the link packet MDU of "+
+                        str(RNS.Link.MDU)+" bytes",
+                        RNS.LOG_ERROR
+                    )
+
         except Exception as e:
+            RNS.log("Error while sending data over the link: "+str(e))
             should_quit = True
             server_link.teardown()
 
