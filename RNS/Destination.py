@@ -28,8 +28,6 @@ class Destination:
     :param \*aspects: Any non-zero number of string arguments.
     """
 
-    KEYSIZE    = RNS.Identity.KEYSIZE;
-
     # Constants
     SINGLE     = 0x00
     GROUP      = 0x01
