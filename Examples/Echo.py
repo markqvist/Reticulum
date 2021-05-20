@@ -170,7 +170,7 @@ def client(destination_hexhash, configpath, timeout=None):
             # the packet times out.
             if timeout != None:
                 packet_receipt.set_timeout(timeout)
-                packet_receipt.timeout_callback(packet_timed_out)
+                packet_receipt.set_timeout_callback(packet_timed_out)
 
             # We can then set a delivery callback on the receipt.
             # This will get automatically called when a proof for

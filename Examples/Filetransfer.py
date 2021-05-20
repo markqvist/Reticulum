@@ -115,7 +115,7 @@ def client_connected(link):
             list_receipt = list_packet.send()
             list_receipt.set_timeout(APP_TIMEOUT)
             list_receipt.set_delivery_callback(list_delivered)
-            list_receipt.timeout_callback(list_timeout)
+            list_receipt.set_timeout_callback(list_timeout)
         else:
             RNS.log("Too many files in served directory!", RNS.LOG_ERROR)
             RNS.log("You should implement a function to split the filelist over multiple packets.", RNS.LOG_ERROR)
