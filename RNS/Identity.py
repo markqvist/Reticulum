@@ -50,7 +50,10 @@ class Identity:
 
     @staticmethod
     def remember(packet_hash, destination_hash, public_key, app_data = None):
-        Identity.known_destinations[destination_hash] = [time.time(), packet_hash, public_key, app_data]
+        if len(public_key) != Identity.KEYSIZE//8:
+            raise TypeError("Can't remember "+RNS.prettyhexrep(destination_hash)+", the public key size of "+str(len(public_key))+" is not valid.", RNS.LOG_ERROR)
+        else:
+            Identity.known_destinations[destination_hash] = [time.time(), packet_hash, public_key, app_data]
 
 
     @staticmethod
@@ -339,7 +342,7 @@ class Identity:
         """
         try:
             with open(path, "wb") as key_file:
-                key_file.write(self.prv_bytes)
+                key_file.write(self.get_public_key())
                 return True
             return False
         except Exception as e:
