@@ -209,14 +209,15 @@ class Destination:
             self.proof_strategy = proof_strategy
 
     def receive(self, packet):
-        plaintext = self.decrypt(packet.data)
-        if plaintext != None:
-            if packet.packet_type == RNS.Packet.LINKREQUEST:
-                self.incoming_link_request(plaintext, packet)
-
-            if packet.packet_type == RNS.Packet.DATA:
-                if self.callbacks.packet != None:
-                    self.callbacks.packet(plaintext, packet)
+        if packet.packet_type == RNS.Packet.LINKREQUEST:
+            plaintext = packet.data
+            self.incoming_link_request(plaintext, packet)
+        else:
+            plaintext = self.decrypt(packet.data)
+            if plaintext != None:
+                if packet.packet_type == RNS.Packet.DATA:
+                    if self.callbacks.packet != None:
+                        self.callbacks.packet(plaintext, packet)
 
     def incoming_link_request(self, data, packet):
         link = RNS.Link.validate_request(self, data, packet)

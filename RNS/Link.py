@@ -52,7 +52,7 @@ class Link:
     """
     TIMEOUT_FACTOR = 3
     STALE_GRACE = 2
-    KEEPALIVE = 180
+    KEEPALIVE = 360
     """
     Interval for sending keep-alive packets on established links in seconds.
     """
@@ -128,13 +128,14 @@ class Link:
         self.__encryption_disabled = False
         if self.destination == None:
             self.initiator = False
+            self.prv     = self.owner.identity.prv
+            self.sig_prv = self.owner.identity.sig_prv
         else:
             self.initiator = True
+            self.prv     = X25519PrivateKey.generate()
+            self.sig_prv = Ed25519PrivateKey.generate()
 
         self.fernet  = None
-        
-        self.prv     = X25519PrivateKey.generate()
-        self.sig_prv = Ed25519PrivateKey.generate()
         
         self.pub = self.prv.public_key()
         self.pub_bytes = self.pub.public_bytes(
@@ -155,10 +156,14 @@ class Link:
             self.load_peer(peer_pub_bytes, peer_sig_pub_bytes)
 
         if (self.initiator):
+            peer_pub_bytes = self.destination.identity.get_public_key()[:Link.ECPUBSIZE//2]
+            peer_sig_pub_bytes = self.destination.identity.get_public_key()[Link.ECPUBSIZE//2:Link.ECPUBSIZE]
             self.request_data = self.pub_bytes+self.sig_pub_bytes
             self.packet = RNS.Packet(destination, self.request_data, packet_type=RNS.Packet.LINKREQUEST)
             self.packet.pack()
             self.set_link_id(self.packet)
+            self.load_peer(peer_pub_bytes, peer_sig_pub_bytes)
+            self.handshake()
             RNS.Transport.register_link(self)
             self.request_time = time.time()
             self.start_watchdog()
@@ -195,7 +200,7 @@ class Link:
         signed_data = self.link_id+self.pub_bytes+self.sig_pub_bytes
         signature = self.owner.identity.sign(signed_data)
 
-        proof_data = self.pub_bytes+self.sig_pub_bytes+signature
+        proof_data = signature
         proof = RNS.Packet(self, proof_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.LRPROOF)
         proof.send()
         self.had_outbound()
@@ -214,15 +219,11 @@ class Link:
         self.had_outbound()
 
     def validate_proof(self, packet):
-        if self.initiator and len(packet.data) == Link.ECPUBSIZE+RNS.Identity.KEYSIZE//8:
-            peer_pub_bytes = packet.data[:Link.ECPUBSIZE//2]
-            peer_sig_pub_bytes = packet.data[Link.ECPUBSIZE//2:Link.ECPUBSIZE]
-            signed_data = self.link_id+peer_pub_bytes+peer_sig_pub_bytes
-            signature = packet.data[Link.ECPUBSIZE:RNS.Identity.KEYSIZE//8+Link.ECPUBSIZE]
-
+        if self.initiator and len(packet.data) == RNS.Identity.SIGLENGTH//8:
+            signed_data = self.link_id+self.peer_pub_bytes+self.peer_sig_pub_bytes
+            signature = packet.data[:RNS.Identity.SIGLENGTH//8]
+            
             if self.destination.identity.validate(signature, signed_data):
-                self.load_peer(peer_pub_bytes, peer_sig_pub_bytes)
-                self.handshake()
                 self.rtt = time.time() - self.request_time
                 self.attached_interface = packet.receiving_interface
                 RNS.Transport.activate_link(self)
@@ -258,8 +259,7 @@ class Link:
             if self.owner.callbacks.link_established != None:
                     self.owner.callbacks.link_established(self)
         except Exception as e:
-            RNS.log("Error occurred while processing RTT packet, tearing down link", RNS.LOG_ERROR)
-            traceback.print_exc()
+            RNS.log("Error occurred while processing RTT packet, tearing down link. The contained exception was: "+str(e), RNS.LOG_ERROR)
             self.teardown()
 
     def get_salt(self):

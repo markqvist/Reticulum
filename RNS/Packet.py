@@ -143,6 +143,9 @@ class Packet:
                 if self.packet_type == Packet.ANNOUNCE:
                     # Announce packets are not encrypted
                     self.ciphertext = self.data
+                elif self.packet_type == Packet.LINKREQUEST:
+                    # Link request packets are not encrypted
+                    self.ciphertext = self.data
                 elif self.packet_type == Packet.PROOF and self.context == Packet.RESOURCE_PRF:
                     # Resource proofs are not encrypted
                     self.ciphertext = self.data

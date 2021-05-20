@@ -429,7 +429,7 @@ terms of bandwidth, so it can be used just for a short exchange, and then recrea
 also rotate encryption keys. The link can also be kept alive for longer periods of time, if this is
 more suitable to the application. The procedure also inserts the *link id* , a hash calculated from the link request packet, into the memory of forwarding nodes, which means that the communicating nodes can thereafter reach each other simply by referring to this *link id*.
 
-The combined bandwidth cost of setting up a link is 3 packets totalling 409 bytes (more info in the
+The combined bandwidth cost of setting up a link is 3 packets totalling 240 bytes (more info in the
 :ref:`Binary Packet Format<understanding-packetformat>` section). The amount of bandwidth used on keeping
 a link open is practically negligible, at 0.62 bits per second. Even on a slow 1200 bits per second packet
 radio channel, 100 concurrent links will still leave 95% channel capacity for actual data.
@@ -699,7 +699,7 @@ Binary Packet Format
 
      - Path Request    :    33  bytes
      - Announce        :    151 bytes
-     - Link Request    :    182 bytes
-     - Link Proof      :    141 bytes
+     - Link Request    :    77  bytes
+     - Link Proof      :    77  bytes
      - Link RTT packet :    86  bytes
      - Link keepalive  :    14  bytes
