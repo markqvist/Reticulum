@@ -5,9 +5,6 @@ import RNS
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.asymmetric import padding
 
 class Callbacks:
     def __init__(self):
@@ -32,7 +29,6 @@ class Destination:
     """
 
     KEYSIZE    = RNS.Identity.KEYSIZE;
-    PADDINGSIZE= RNS.Identity.PADDINGSIZE;
 
     # Constants
     SINGLE     = 0x00
@@ -245,8 +241,8 @@ class Destination:
             raise TypeError("A single destination holds keys through an Identity instance")
 
         if self.type == Destination.GROUP:
-            self.prv_bytes = Fernet.generate_key()
-            self.prv = Fernet(self.prv_bytes)
+            self.prv_bytes = base64.urlsafe_b64decode(Fernet.generate_key())
+            self.prv = Fernet(base64.urlsafe_b64encode(self.prv_bytes))
 
 
     def get_private_key(self):
@@ -278,7 +274,7 @@ class Destination:
 
         if self.type == Destination.GROUP:
             self.prv_bytes = key
-            self.prv = Fernet(self.prv_bytes)
+            self.prv = Fernet(base64.urlsafe_b64encode(self.prv_bytes))
 
     def load_public_key(self, key):
         if self.type != Destination.SINGLE:
