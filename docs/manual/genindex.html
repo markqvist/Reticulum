@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Index &#8212; Reticulum Network Stack 0.2.0 beta documentation</title>
+    <title>Index &#8212; Reticulum Network Stack 0.2.1 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -23,7 +23,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="#" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.0 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.1 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Index</a></li> 
       </ul>
     </div>  
@@ -80,8 +80,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#RNS.Destination.create_keys">create_keys() (RNS.Destination method)</a>
 </li>
-      <li><a href="reference.html#RNS.Link.CURVE">CURVE (RNS.Link attribute)</a>
+      <li><a href="reference.html#RNS.Identity.CURVE">CURVE (RNS.Identity attribute)</a>
+
+      <ul>
+        <li><a href="reference.html#RNS.Link.CURVE">(RNS.Link attribute)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -98,8 +102,6 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#RNS.PacketReceipt.delivery_callback">delivery_callback() (RNS.PacketReceipt method)</a>
-</li>
       <li><a href="reference.html#RNS.Transport.deregister_announce_handler">deregister_announce_handler() (RNS.Transport static method)</a>
 </li>
       <li><a href="reference.html#RNS.Destination">Destination (class in RNS)</a>
@@ -119,11 +121,17 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference.html#RNS.Packet.ENCRYPTED_MDU">ENCRYPTED_MDU (RNS.Packet attribute)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference.html#RNS.Identity.from_bytes">from_bytes() (RNS.Identity static method)</a>
+</li>
       <li><a href="reference.html#RNS.Identity.from_file">from_file() (RNS.Identity static method)</a>
 </li>
   </ul></td>
@@ -144,11 +152,13 @@
         <li><a href="reference.html#RNS.Identity.get_private_key">(RNS.Identity method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#RNS.Identity.get_public_key">get_public_key() (RNS.Identity method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#RNS.Identity.get_random_hash">get_random_hash() (RNS.Identity static method)</a>
+</li>
+      <li><a href="reference.html#RNS.PacketReceipt.get_rtt">get_rtt() (RNS.PacketReceipt method)</a>
 </li>
       <li><a href="reference.html#RNS.PacketReceipt.get_status">get_status() (RNS.PacketReceipt method)</a>
 </li>
@@ -198,16 +208,14 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#RNS.Link">Link (class in RNS)</a>
 </li>
-      <li><a href="reference.html#RNS.Destination.link_established_callback">link_established_callback() (RNS.Destination method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#RNS.Destination.load_private_key">load_private_key() (RNS.Destination method)</a>
 
       <ul>
         <li><a href="reference.html#RNS.Identity.load_private_key">(RNS.Identity method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#RNS.Identity.load_public_key">load_public_key() (RNS.Identity method)</a>
 </li>
   </ul></td>
@@ -230,19 +238,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#RNS.Packet">Packet (class in RNS)</a>
 </li>
-      <li><a href="reference.html#RNS.Destination.packet_callback">packet_callback() (RNS.Destination method)</a>
-
-      <ul>
-        <li><a href="reference.html#RNS.Link.packet_callback">(RNS.Link method)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#RNS.PacketReceipt">PacketReceipt (class in RNS)</a>
 </li>
-      <li><a href="reference.html#RNS.Resource.progress">progress() (RNS.Resource method)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference.html#RNS.Packet.PLAIN_MDU">PLAIN_MDU (RNS.Packet attribute)</a>
 </li>
-      <li><a href="reference.html#RNS.Destination.proof_requested_callback">proof_requested_callback() (RNS.Destination method)</a>
+      <li><a href="reference.html#RNS.Resource.progress">progress() (RNS.Resource method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -256,23 +258,15 @@
 </li>
       <li><a href="reference.html#RNS.Transport.register_announce_handler">register_announce_handler() (RNS.Transport static method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#RNS.Transport.request_path">request_path() (RNS.Transport static method)</a>
 </li>
       <li><a href="reference.html#RNS.Packet.resend">resend() (RNS.Packet method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#RNS.Resource">Resource (class in RNS)</a>
 </li>
-      <li><a href="reference.html#RNS.Link.resource_callback">resource_callback() (RNS.Link method)</a>
-</li>
-      <li><a href="reference.html#RNS.Link.resource_concluded_callback">resource_concluded_callback() (RNS.Link method)</a>
-</li>
-      <li><a href="reference.html#RNS.Link.resource_started_callback">resource_started_callback() (RNS.Link method)</a>
-</li>
       <li><a href="reference.html#RNS.Reticulum">Reticulum (class in RNS)</a>
-</li>
-      <li><a href="reference.html#RNS.PacketReceipt.rtt">rtt() (RNS.PacketReceipt method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -284,13 +278,33 @@
 </li>
       <li><a href="reference.html#RNS.Destination.set_default_app_data">set_default_app_data() (RNS.Destination method)</a>
 </li>
+      <li><a href="reference.html#RNS.PacketReceipt.set_delivery_callback">set_delivery_callback() (RNS.PacketReceipt method)</a>
+</li>
+      <li><a href="reference.html#RNS.Destination.set_link_established_callback">set_link_established_callback() (RNS.Destination method)</a>
+</li>
+      <li><a href="reference.html#RNS.Destination.set_packet_callback">set_packet_callback() (RNS.Destination method)</a>
+
+      <ul>
+        <li><a href="reference.html#RNS.Link.set_packet_callback">(RNS.Link method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference.html#RNS.Destination.set_proof_requested_callback">set_proof_requested_callback() (RNS.Destination method)</a>
+</li>
       <li><a href="reference.html#RNS.Destination.set_proof_strategy">set_proof_strategy() (RNS.Destination method)</a>
 </li>
-      <li><a href="reference.html#RNS.Link.set_resource_strategy">set_resource_strategy() (RNS.Link method)</a>
+      <li><a href="reference.html#RNS.Link.set_resource_callback">set_resource_callback() (RNS.Link method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference.html#RNS.Link.set_resource_concluded_callback">set_resource_concluded_callback() (RNS.Link method)</a>
+</li>
+      <li><a href="reference.html#RNS.Link.set_resource_started_callback">set_resource_started_callback() (RNS.Link method)</a>
+</li>
+      <li><a href="reference.html#RNS.Link.set_resource_strategy">set_resource_strategy() (RNS.Link method)</a>
+</li>
       <li><a href="reference.html#RNS.PacketReceipt.set_timeout">set_timeout() (RNS.PacketReceipt method)</a>
+</li>
+      <li><a href="reference.html#RNS.PacketReceipt.set_timeout_callback">set_timeout_callback() (RNS.PacketReceipt method)</a>
 </li>
       <li><a href="reference.html#RNS.Reticulum.should_allow_unencrypted">should_allow_unencrypted() (RNS.Reticulum static method)</a>
 </li>
@@ -310,14 +324,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#RNS.Link.teardown">teardown() (RNS.Link method)</a>
 </li>
-      <li><a href="reference.html#RNS.PacketReceipt.timeout_callback">timeout_callback() (RNS.PacketReceipt method)</a>
-</li>
       <li><a href="reference.html#RNS.Identity.to_file">to_file() (RNS.Identity method)</a>
+</li>
+      <li><a href="reference.html#RNS.Transport">Transport (class in RNS)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#RNS.Transport">Transport (class in RNS)</a>
-</li>
       <li><a href="reference.html#RNS.Reticulum.transport_enabled">transport_enabled() (RNS.Reticulum static method)</a>
 </li>
       <li><a href="reference.html#RNS.Identity.truncated_hash">truncated_hash() (RNS.Identity static method)</a>
@@ -363,7 +375,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="#" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.0 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.1 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Index</a></li> 
       </ul>
     </div>

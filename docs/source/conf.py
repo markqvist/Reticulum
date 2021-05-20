@@ -22,7 +22,7 @@ copyright = '2021, Mark Qvist'
 author = 'Mark Qvist'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.0 beta'
+release = '0.2.1 beta'
 
 
 # -- General configuration ---------------------------------------------------

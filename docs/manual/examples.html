@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Examples &#8212; Reticulum Network Stack 0.2.0 beta documentation</title>
+    <title>Examples &#8212; Reticulum Network Stack 0.2.1 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="gettingstartedfast.html" title="Getting Started Fast"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.0 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.1 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Examples</a></li> 
       </ul>
     </div>  
@@ -380,7 +380,7 @@ over the network.</p>
 
     <span class="c1"># We specify a callback that will get called every time</span>
     <span class="c1"># the destination receives data.</span>
-    <span class="n">broadcast_destination</span><span class="o">.</span><span class="n">packet_callback</span><span class="p">(</span><span class="n">packet_callback</span><span class="p">)</span>
+    <span class="n">broadcast_destination</span><span class="o">.</span><span class="n">set_packet_callback</span><span class="p">(</span><span class="n">packet_callback</span><span class="p">)</span>
     
     <span class="c1"># Everything&#39;s ready!</span>
     <span class="c1"># Let&#39;s hand over control to the main loop</span>
@@ -522,7 +522,7 @@ the Packet interface.</p>
     <span class="c1"># Tell the destination which function in our program to</span>
     <span class="c1"># run when a packet is received. We do this so we can</span>
     <span class="c1"># print a log message when the server receives a request</span>
-    <span class="n">echo_destination</span><span class="o">.</span><span class="n">packet_callback</span><span class="p">(</span><span class="n">server_callback</span><span class="p">)</span>
+    <span class="n">echo_destination</span><span class="o">.</span><span class="n">set_packet_callback</span><span class="p">(</span><span class="n">server_callback</span><span class="p">)</span>
 
     <span class="c1"># Everything&#39;s ready!</span>
     <span class="c1"># Let&#39;s Wait for client requests or user input</span>
@@ -645,7 +645,7 @@ the Packet interface.</p>
             <span class="c1"># We can then set a delivery callback on the receipt.</span>
             <span class="c1"># This will get automatically called when a proof for</span>
             <span class="c1"># this specific packet is received from the destination.</span>
-            <span class="n">packet_receipt</span><span class="o">.</span><span class="n">delivery_callback</span><span class="p">(</span><span class="n">packet_delivered</span><span class="p">)</span>
+            <span class="n">packet_receipt</span><span class="o">.</span><span class="n">set_delivery_callback</span><span class="p">(</span><span class="n">packet_delivered</span><span class="p">)</span>
 
             <span class="c1"># Tell the user that the echo request was sent</span>
             <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Sent echo request to &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">request_destination</span><span class="o">.</span><span class="n">hash</span><span class="p">))</span>
@@ -659,7 +659,7 @@ the Packet interface.</p>
 <span class="c1"># receives a proof packet.</span>
 <span class="k">def</span> <span class="nf">packet_delivered</span><span class="p">(</span><span class="n">receipt</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">receipt</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">PacketReceipt</span><span class="o">.</span><span class="n">DELIVERED</span><span class="p">:</span>
-        <span class="n">rtt</span> <span class="o">=</span> <span class="n">receipt</span><span class="o">.</span><span class="n">rtt</span><span class="p">()</span>
+        <span class="n">rtt</span> <span class="o">=</span> <span class="n">receipt</span><span class="o">.</span><span class="n">get_rtt</span><span class="p">()</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">rtt</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
             <span class="n">rtt</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">rtt</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
             <span class="n">rttstring</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">rtt</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; seconds&quot;</span>
@@ -803,7 +803,7 @@ destination, and passing traffic back and forth over the link.</p>
 
     <span class="c1"># We configure a function that will get called every time</span>
     <span class="c1"># a new client creates a link to this destination.</span>
-    <span class="n">server_destination</span><span class="o">.</span><span class="n">link_established_callback</span><span class="p">(</span><span class="n">client_connected</span><span class="p">)</span>
+    <span class="n">server_destination</span><span class="o">.</span><span class="n">set_link_established_callback</span><span class="p">(</span><span class="n">client_connected</span><span class="p">)</span>
 
     <span class="c1"># Everything&#39;s ready!</span>
     <span class="c1"># Let&#39;s Wait for client requests or user input</span>
@@ -835,8 +835,8 @@ destination, and passing traffic back and forth over the link.</p>
     <span class="k">global</span> <span class="n">latest_client_link</span>
 
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client connected&quot;</span><span class="p">)</span>
-    <span class="n">link</span><span class="o">.</span><span class="n">link_closed_callback</span><span class="p">(</span><span class="n">client_disconnected</span><span class="p">)</span>
-    <span class="n">link</span><span class="o">.</span><span class="n">packet_callback</span><span class="p">(</span><span class="n">server_packet_received</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_link_closed_callback</span><span class="p">(</span><span class="n">client_disconnected</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_packet_callback</span><span class="p">(</span><span class="n">server_packet_received</span><span class="p">)</span>
     <span class="n">latest_client_link</span> <span class="o">=</span> <span class="n">link</span>
 
 <span class="k">def</span> <span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
@@ -908,12 +908,12 @@ destination, and passing traffic back and forth over the link.</p>
     <span class="c1"># We set a callback that will get executed</span>
     <span class="c1"># every time a packet is received over the</span>
     <span class="c1"># link</span>
-    <span class="n">link</span><span class="o">.</span><span class="n">packet_callback</span><span class="p">(</span><span class="n">client_packet_received</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_packet_callback</span><span class="p">(</span><span class="n">client_packet_received</span><span class="p">)</span>
 
     <span class="c1"># We&#39;ll also set up functions to inform the</span>
     <span class="c1"># user when the link is established or closed</span>
-    <span class="n">link</span><span class="o">.</span><span class="n">link_established_callback</span><span class="p">(</span><span class="n">link_established</span><span class="p">)</span>
-    <span class="n">link</span><span class="o">.</span><span class="n">link_closed_callback</span><span class="p">(</span><span class="n">link_closed</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_link_established_callback</span><span class="p">(</span><span class="n">link_established</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_link_closed_callback</span><span class="p">(</span><span class="n">link_closed</span><span class="p">)</span>
 
     <span class="c1"># Everything is set up, so let&#39;s enter a loop</span>
     <span class="c1"># for the user to interact with the example</span>
@@ -940,8 +940,18 @@ destination, and passing traffic back and forth over the link.</p>
             <span class="c1"># If not, send the entered text over the link</span>
             <span class="k">if</span> <span class="n">text</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-                <span class="n">RNS</span><span class="o">.</span><span class="n">Packet</span><span class="p">(</span><span class="n">server_link</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">send</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">MDU</span><span class="p">:</span>
+                    <span class="n">RNS</span><span class="o">.</span><span class="n">Packet</span><span class="p">(</span><span class="n">server_link</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">send</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                        <span class="s2">&quot;Cannot send this packet, the data size of &quot;</span><span class="o">+</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot; bytes exceeds the link packet MDU of &quot;</span><span class="o">+</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">MDU</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; bytes&quot;</span><span class="p">,</span>
+                        <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span>
+                    <span class="p">)</span>
+
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Error while sending data over the link: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
             <span class="n">should_quit</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">server_link</span><span class="o">.</span><span class="n">teardown</span><span class="p">()</span>
 
@@ -1110,7 +1120,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 
     <span class="c1"># We configure a function that will get called every time</span>
     <span class="c1"># a new client creates a link to this destination.</span>
-    <span class="n">server_destination</span><span class="o">.</span><span class="n">link_established_callback</span><span class="p">(</span><span class="n">client_connected</span><span class="p">)</span>
+    <span class="n">server_destination</span><span class="o">.</span><span class="n">set_link_established_callback</span><span class="p">(</span><span class="n">client_connected</span><span class="p">)</span>
 
     <span class="c1"># Everything&#39;s ready!</span>
     <span class="c1"># Let&#39;s Wait for client requests or user input</span>
@@ -1147,7 +1157,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">serve_path</span><span class="p">):</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client connected, sending file list...&quot;</span><span class="p">)</span>
 
-        <span class="n">link</span><span class="o">.</span><span class="n">link_closed_callback</span><span class="p">(</span><span class="n">client_disconnected</span><span class="p">)</span>
+        <span class="n">link</span><span class="o">.</span><span class="n">set_link_closed_callback</span><span class="p">(</span><span class="n">client_disconnected</span><span class="p">)</span>
 
         <span class="c1"># We pack a list of files for sending in a packet</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">umsgpack</span><span class="o">.</span><span class="n">packb</span><span class="p">(</span><span class="n">list_files</span><span class="p">())</span>
@@ -1159,7 +1169,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
             <span class="n">list_packet</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Packet</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
             <span class="n">list_receipt</span> <span class="o">=</span> <span class="n">list_packet</span><span class="o">.</span><span class="n">send</span><span class="p">()</span>
             <span class="n">list_receipt</span><span class="o">.</span><span class="n">set_timeout</span><span class="p">(</span><span class="n">APP_TIMEOUT</span><span class="p">)</span>
-            <span class="n">list_receipt</span><span class="o">.</span><span class="n">delivery_callback</span><span class="p">(</span><span class="n">list_delivered</span><span class="p">)</span>
+            <span class="n">list_receipt</span><span class="o">.</span><span class="n">set_delivery_callback</span><span class="p">(</span><span class="n">list_delivered</span><span class="p">)</span>
             <span class="n">list_receipt</span><span class="o">.</span><span class="n">timeout_callback</span><span class="p">(</span><span class="n">list_timeout</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Too many files in served directory!&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span><span class="p">)</span>
@@ -1170,7 +1180,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
         <span class="c1"># open until the client requests a file. We&#39;ll</span>
         <span class="c1"># configure a function that get&#39;s called when</span>
         <span class="c1"># the client sends a packet with a file request.</span>
-        <span class="n">link</span><span class="o">.</span><span class="n">packet_callback</span><span class="p">(</span><span class="n">client_request</span><span class="p">)</span>
+        <span class="n">link</span><span class="o">.</span><span class="n">set_packet_callback</span><span class="p">(</span><span class="n">client_request</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client connected, but served path no longer exists!&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span><span class="p">)</span>
         <span class="n">link</span><span class="o">.</span><span class="n">teardown</span><span class="p">()</span>
@@ -1299,18 +1309,18 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
     <span class="c1"># We expect any normal data packets on the link</span>
     <span class="c1"># to contain a list of served files, so we set</span>
     <span class="c1"># a callback accordingly</span>
-    <span class="n">link</span><span class="o">.</span><span class="n">packet_callback</span><span class="p">(</span><span class="n">filelist_received</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_packet_callback</span><span class="p">(</span><span class="n">filelist_received</span><span class="p">)</span>
 
     <span class="c1"># We&#39;ll also set up functions to inform the</span>
     <span class="c1"># user when the link is established or closed</span>
-    <span class="n">link</span><span class="o">.</span><span class="n">link_established_callback</span><span class="p">(</span><span class="n">link_established</span><span class="p">)</span>
-    <span class="n">link</span><span class="o">.</span><span class="n">link_closed_callback</span><span class="p">(</span><span class="n">link_closed</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_link_established_callback</span><span class="p">(</span><span class="n">link_established</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_link_closed_callback</span><span class="p">(</span><span class="n">link_closed</span><span class="p">)</span>
 
     <span class="c1"># And set the link to automatically begin</span>
     <span class="c1"># downloading advertised resources</span>
     <span class="n">link</span><span class="o">.</span><span class="n">set_resource_strategy</span><span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">ACCEPT_ALL</span><span class="p">)</span>
-    <span class="n">link</span><span class="o">.</span><span class="n">resource_started_callback</span><span class="p">(</span><span class="n">download_began</span><span class="p">)</span>
-    <span class="n">link</span><span class="o">.</span><span class="n">resource_concluded_callback</span><span class="p">(</span><span class="n">download_concluded</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_resource_started_callback</span><span class="p">(</span><span class="n">download_began</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_resource_concluded_callback</span><span class="p">(</span><span class="n">download_concluded</span><span class="p">)</span>
 
     <span class="n">menu</span><span class="p">()</span>
 
@@ -1705,7 +1715,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
         <li class="right" >
           <a href="gettingstartedfast.html" title="Getting Started Fast"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.0 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.1 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Examples</a></li> 
       </ul>
     </div>
