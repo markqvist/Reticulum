@@ -44,7 +44,7 @@ def server(configpath):
 
     # We configure a function that will get called every time
     # a new client creates a link to this destination.
-    server_destination.link_established_callback(client_connected)
+    server_destination.set_link_established_callback(client_connected)
 
     # Everything's ready!
     # Let's Wait for client requests or user input
@@ -76,8 +76,8 @@ def client_connected(link):
     global latest_client_link
 
     RNS.log("Client connected")
-    link.link_closed_callback(client_disconnected)
-    link.packet_callback(server_packet_received)
+    link.set_link_closed_callback(client_disconnected)
+    link.set_packet_callback(server_packet_received)
     latest_client_link = link
 
 def client_disconnected(link):
@@ -149,12 +149,12 @@ def client(destination_hexhash, configpath):
     # We set a callback that will get executed
     # every time a packet is received over the
     # link
-    link.packet_callback(client_packet_received)
+    link.set_packet_callback(client_packet_received)
 
     # We'll also set up functions to inform the
     # user when the link is established or closed
-    link.link_established_callback(link_established)
-    link.link_closed_callback(link_closed)
+    link.set_link_established_callback(link_established)
+    link.set_link_closed_callback(link_closed)
 
     # Everything is set up, so let's enter a loop
     # for the user to interact with the example

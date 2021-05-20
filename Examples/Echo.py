@@ -52,7 +52,7 @@ def server(configpath):
     # Tell the destination which function in our program to
     # run when a packet is received. We do this so we can
     # print a log message when the server receives a request
-    echo_destination.packet_callback(server_callback)
+    echo_destination.set_packet_callback(server_callback)
 
     # Everything's ready!
     # Let's Wait for client requests or user input
@@ -175,7 +175,7 @@ def client(destination_hexhash, configpath, timeout=None):
             # We can then set a delivery callback on the receipt.
             # This will get automatically called when a proof for
             # this specific packet is received from the destination.
-            packet_receipt.delivery_callback(packet_delivered)
+            packet_receipt.set_delivery_callback(packet_delivered)
 
             # Tell the user that the echo request was sent
             RNS.log("Sent echo request to "+RNS.prettyhexrep(request_destination.hash))
@@ -189,7 +189,7 @@ def client(destination_hexhash, configpath, timeout=None):
 # receives a proof packet.
 def packet_delivered(receipt):
     if receipt.status == RNS.PacketReceipt.DELIVERED:
-        rtt = receipt.rtt()
+        rtt = receipt.get_rtt()
         if (rtt >= 1):
             rtt = round(rtt, 3)
             rttstring = str(rtt)+" seconds"

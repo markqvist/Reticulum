@@ -17,7 +17,6 @@ class Resource:
     :param link: The :ref:`RNS.Link<api-link>` instance on which to transfer the data.
     :param advertise: Whether to automatically advertise the resource. Can be *True* or *False*.
     :param auto_compress: Whether to auto-compress the resource. Can be *True* or *False*.
-    :param auto_compress: Whether the resource must be compressed. Can be *True* or *False*. Used for debugging, will disappear in the future.
     :param callback: A *callable* with the signature *callback(resource)*. Will be called when the resource transfer concludes.
     :param progress_callback: A *callable* with the signature *callback(resource)*. Will be called whenever the resource transfer progress is updated.
     :param segment_index: Internal use, ignore.
@@ -134,7 +133,7 @@ class Resource:
     # Create a resource for transmission to a remote destination
     # The data passed can be either a bytes-array or a file opened
     # in binary read mode.
-    def __init__(self, data, link, advertise=True, auto_compress=True, must_compress=False, callback=None, progress_callback=None, segment_index = 1, original_hash = None):
+    def __init__(self, data, link, advertise=True, auto_compress=True, callback=None, progress_callback=None, segment_index = 1, original_hash = None):
         data_size = None
         resource_data = None
         if hasattr(data, "read"):
@@ -198,7 +197,7 @@ class Resource:
             self.uncompressed_data = data
 
             compression_began = time.time()
-            if must_compress or (auto_compress and len(self.uncompressed_data) < Resource.AUTO_COMPRESS_MAX_SIZE):
+            if (auto_compress and len(self.uncompressed_data) < Resource.AUTO_COMPRESS_MAX_SIZE):
                 RNS.log("Compressing resource data...", RNS.LOG_DEBUG)
                 self.compressed_data   = bz2.compress(self.uncompressed_data)
                 RNS.log("Compression completed in "+str(round(time.time()-compression_began, 3))+" seconds", RNS.LOG_DEBUG)
@@ -748,8 +747,6 @@ class Resource:
         :returns: The current progress of the resource transfer as a *float* between 0.0 and 1.0.
         """
         if self.initiator:
-            # TODO: Remove
-            # progress = self.sent_parts / len(self.parts)
             self.processed_parts  = (self.segment_index-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)
             self.processed_parts += self.sent_parts
             self.progress_total_parts = float(self.grand_total_parts)

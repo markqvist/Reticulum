@@ -4,14 +4,15 @@ import os
 import RNS
 import time
 import atexit
+import base64
 from .vendor import umsgpack as umsgpack
-from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.serialization import load_der_public_key
-from cryptography.hazmat.primitives.serialization import load_der_private_key
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
+from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.fernet import Fernet
 
 class Identity:
     """
@@ -19,26 +20,29 @@ class Identity:
     for encryption, decryption, signatures and verification, and is the basis
     for all encrypted communication over Reticulum networks.
 
-    :param public_only: Specifies whether this destination only holds a public key.
+    :param create_keys: Specifies whether new encryption and signing keys should be generated.
     """
-    KEYSIZE     = 1024
+
+    CURVE = "Curve25519"
     """
-    RSA key size in bits.
+    The curve used for Elliptic Curve DH key exchanges
     """
-    DERKEYSIZE  = KEYSIZE+272
+
+    KEYSIZE     = 256*2
+    """
+    X25519 key size in bits. A complete key is the concatenation of a 256 bit encryption key, and a 256 bit signing key.
+    """   
 
     # Non-configurable constants
-    PADDINGSIZE = 336       # In bits
-    HASHLENGTH  = 256       # In bits
-    SIGLENGTH   = KEYSIZE
-
-    ENCRYPT_CHUNKSIZE = (KEYSIZE-PADDINGSIZE)//8
-    DECRYPT_CHUNKSIZE = KEYSIZE//8
+    AES_HMAC_OVERHEAD = 58    # In bytes
+    AES128_BLOCKSIZE = 16     # In bytes
+    HASHLENGTH  = 256         # In bits
+    SIGLENGTH   = KEYSIZE     # In bits
 
     TRUNCATED_HASHLENGTH = 80 # In bits
     """
     Constant specifying the truncated hash length (in bits) used by Reticulum
-    for addressable hashes. Non-configurable.
+    for addressable hashes and other purposes. Non-configurable.
     """
 
     # Storage
@@ -60,7 +64,7 @@ class Identity:
         RNS.log("Searching for "+RNS.prettyhexrep(destination_hash)+"...", RNS.LOG_EXTREME)
         if destination_hash in Identity.known_destinations:
             identity_data = Identity.known_destinations[destination_hash]
-            identity = Identity(public_only=True)
+            identity = Identity(create_keys=False)
             identity.load_public_key(identity_data[2])
             identity.app_data = identity_data[3]
             RNS.log("Found "+RNS.prettyhexrep(destination_hash)+" in known destinations", RNS.LOG_EXTREME)
@@ -145,19 +149,19 @@ class Identity:
         if packet.packet_type == RNS.Packet.ANNOUNCE:
             RNS.log("Validating announce from "+RNS.prettyhexrep(packet.destination_hash), RNS.LOG_DEBUG)
             destination_hash = packet.destination_hash
-            public_key = packet.data[10:Identity.DERKEYSIZE//8+10]
-            random_hash = packet.data[Identity.DERKEYSIZE//8+10:Identity.DERKEYSIZE//8+20]
-            signature = packet.data[Identity.DERKEYSIZE//8+20:Identity.DERKEYSIZE//8+20+Identity.KEYSIZE//8]
+            public_key = packet.data[10:Identity.KEYSIZE//8+10]
+            random_hash = packet.data[Identity.KEYSIZE//8+10:Identity.KEYSIZE//8+20]
+            signature = packet.data[Identity.KEYSIZE//8+20:Identity.KEYSIZE//8+20+Identity.KEYSIZE//8]
             app_data = b""
-            if len(packet.data) > Identity.DERKEYSIZE//8+20+Identity.KEYSIZE//8:
-                app_data = packet.data[Identity.DERKEYSIZE//8+20+Identity.KEYSIZE//8:]
+            if len(packet.data) > Identity.KEYSIZE//8+20+Identity.KEYSIZE//8:
+                app_data = packet.data[Identity.KEYSIZE//8+20+Identity.KEYSIZE//8:]
 
             signed_data = destination_hash+public_key+random_hash+app_data
 
-            if not len(packet.data) > Identity.DERKEYSIZE//8+20+Identity.KEYSIZE//8:
+            if not len(packet.data) > Identity.KEYSIZE//8+20+Identity.KEYSIZE//8:
                 app_data = None
 
-            announced_identity = Identity(public_only=True)
+            announced_identity = Identity(create_keys=False)
             announced_identity.load_public_key(public_key)
 
             if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
@@ -184,40 +188,71 @@ class Identity:
         :param path: The full path to the saved :ref:`RNS.Identity<api-identity>` data
         :returns: A :ref:`RNS.Identity<api-identity>` instance, or *None* if the loaded data was invalid.
         """
-        identity = Identity(public_only=True)
+        identity = Identity(create_keys=False)
         if identity.load(path):
             return identity
         else:
             return None
 
+    @staticmethod
+    def from_bytes(prv_bytes):
+        """
+        Create a new :ref:`RNS.Identity<api-identity>` instance from *bytes* of private key.
+        Can be used to load previously created and saved identities into Reticulum.
 
-    def __init__(self,public_only=False):
+        :param prv_bytes: The *bytes* of private a saved private key. **HAZARD!** Never not use this to generate a new key by feeding random data in prv_bytes.
+        :returns: A :ref:`RNS.Identity<api-identity>` instance, or *None* if the *bytes* data was invalid.
+        """
+        identity = Identity(create_keys=False)
+        if identity.load_private_key(prv_bytes):
+            return identity
+        else:
+            return None
+
+
+    def __init__(self,create_keys=True):
         # Initialize keys to none
-        self.prv = None
-        self.pub = None
-        self.prv_bytes = None
-        self.pub_bytes = None
-        self.hash = None
-        self.hexhash = None
+        self.prv           = None
+        self.prv_bytes     = None
+        self.sig_prv       = None
+        self.sig_prv_bytes = None
 
-        if not public_only:
+        self.pub           = None
+        self.pub_bytes     = None
+        self.sig_pub       = None
+        self.sig_pub_bytes = None
+
+        self.hash          = None
+        self.hexhash       = None
+
+        if create_keys:
             self.create_keys()
 
     def create_keys(self):
-        self.prv = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=Identity.KEYSIZE,
-            backend=default_backend()
-        )
-        self.prv_bytes = self.prv.private_bytes(
-            encoding=serialization.Encoding.DER,
-            format=serialization.PrivateFormat.PKCS8,
+        self.prv           = X25519PrivateKey.generate()
+        self.prv_bytes     = self.prv.private_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PrivateFormat.Raw,
             encryption_algorithm=serialization.NoEncryption()
         )
-        self.pub = self.prv.public_key()
-        self.pub_bytes = self.pub.public_bytes(
-            encoding=serialization.Encoding.DER,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
+
+        self.sig_prv       = Ed25519PrivateKey.generate()
+        self.sig_prv_bytes = self.sig_prv.private_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PrivateFormat.Raw,
+            encryption_algorithm=serialization.NoEncryption()
+        )
+
+        self.pub           = self.prv.public_key()
+        self.pub_bytes     = self.pub.public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw
+        )
+
+        self.sig_pub       = self.sig_prv.public_key()
+        self.sig_pub_bytes = self.sig_pub.public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw
         )
 
         self.update_hashes()
@@ -228,13 +263,13 @@ class Identity:
         """
         :returns: The private key as *bytes*
         """
-        return self.prv_bytes
+        return self.prv_bytes+self.sig_prv_bytes
 
     def get_public_key(self):
         """
         :returns: The public key as *bytes*
         """
-        return self.pub_bytes
+        return self.pub_bytes+self.sig_pub_bytes
 
     def load_private_key(self, prv_bytes):
         """
@@ -244,42 +279,53 @@ class Identity:
         :returns: True if the key was loaded, otherwise False.
         """
         try:
-            self.prv_bytes = prv_bytes
-            self.prv = serialization.load_der_private_key(
-                self.prv_bytes,
-                password=None,
-                backend=default_backend()
+            self.prv_bytes     = prv_bytes[:Identity.KEYSIZE//8//2]
+            self.prv           = X25519PrivateKey.from_private_bytes(self.prv_bytes)
+            self.sig_prv_bytes = prv_bytes[Identity.KEYSIZE//8//2:]
+            self.sig_prv       = Ed25519PrivateKey.from_private_bytes(self.sig_prv_bytes)
+            
+            self.pub           = self.prv.public_key()
+            self.pub_bytes     = self.pub.public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw
             )
-            self.pub = self.prv.public_key()
-            self.pub_bytes = self.pub.public_bytes(
-                encoding=serialization.Encoding.DER,
-                format=serialization.PublicFormat.SubjectPublicKeyInfo
+
+            self.sig_pub       = self.sig_prv.public_key()
+            self.sig_pub_bytes = self.sig_pub.public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw
             )
+
             self.update_hashes()
 
             return True
 
         except Exception as e:
+            raise e
             RNS.log("Failed to load identity key", RNS.LOG_ERROR)
             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
             return False
 
-    def load_public_key(self, key):
+    def load_public_key(self, pub_bytes):
         """
         Load a public key into the instance.
 
-        :param prv_bytes: The public key as *bytes*.
+        :param pub_bytes: The public key as *bytes*.
         :returns: True if the key was loaded, otherwise False.
         """
         try:
-            self.pub_bytes = key
-            self.pub = load_der_public_key(self.pub_bytes, backend=default_backend())
+            self.pub_bytes     = pub_bytes[:Identity.KEYSIZE//8//2]
+            self.sig_pub_bytes = pub_bytes[Identity.KEYSIZE//8//2:]
+
+            self.pub           = X25519PublicKey.from_public_bytes(self.pub_bytes)
+            self.sig_pub       = Ed25519PublicKey.from_public_bytes(self.sig_pub_bytes)
+
             self.update_hashes()
         except Exception as e:
             RNS.log("Error while loading public key, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
     def update_hashes(self):
-        self.hash = Identity.truncated_hash(self.pub_bytes)
+        self.hash = Identity.truncated_hash(self.get_public_key())
         self.hexhash = self.hash.hex()
 
     def to_file(self, path):
@@ -310,71 +356,78 @@ class Identity:
             RNS.log("Error while loading identity from "+str(path), RNS.LOG_ERROR)
             RNS.log("The contained exception was: "+str(e))
 
+    def get_salt(self):
+        return self.hash
+
+    def get_context(self):
+        return None
+
     def encrypt(self, plaintext):
         """
         Encrypts information for the identity.
 
         :param plaintext: The plaintext to be encrypted as *bytes*.
-        :returns: Ciphertext as *bytes*.
-        :raises: *KeyError* if the instance does not hold a public key
+        :returns: Ciphertext token as *bytes*.
+        :raises: *KeyError* if the instance does not hold a public key.
         """
         if self.pub != None:
-            chunksize = Identity.ENCRYPT_CHUNKSIZE
-            chunks = int(math.ceil(len(plaintext)/(float(chunksize))))
+            ephemeral_key = X25519PrivateKey.generate()
+            ephemeral_pub_bytes = ephemeral_key.public_key().public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw
+            )
 
-            ciphertext = b"";
-            for chunk in range(chunks):
-                start = chunk*chunksize
-                end = (chunk+1)*chunksize
-                if (chunk+1)*chunksize > len(plaintext):
-                    end = len(plaintext)
-                
-                ciphertext += self.pub.encrypt(
-                    plaintext[start:end],
-                    padding.OAEP(
-                        mgf=padding.MGF1(algorithm=hashes.SHA1()),
-                        algorithm=hashes.SHA1(),
-                        label=None
-                    )
-                )
-            return ciphertext
+            shared_key = ephemeral_key.exchange(self.pub)
+            derived_key = derived_key = HKDF(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=self.get_salt(),
+                info=self.get_context(),
+            ).derive(shared_key)
+
+            fernet = Fernet(base64.urlsafe_b64encode(derived_key))
+            ciphertext = base64.urlsafe_b64decode(fernet.encrypt(plaintext))
+            token = ephemeral_pub_bytes+ciphertext
+
+            return token
         else:
             raise KeyError("Encryption failed because identity does not hold a public key")
 
 
-    def decrypt(self, ciphertext):
+    def decrypt(self, ciphertext_token):
         """
         Decrypts information for the identity.
 
         :param ciphertext: The ciphertext to be decrypted as *bytes*.
         :returns: Plaintext as *bytes*, or *None* if decryption fails.
-        :raises: *KeyError* if the instance does not hold a private key
+        :raises: *KeyError* if the instance does not hold a private key.
         """
         if self.prv != None:
-            plaintext = None
-            try:
-                chunksize = Identity.DECRYPT_CHUNKSIZE
-                chunks = int(math.ceil(len(ciphertext)/(float(chunksize))))
+            if len(ciphertext_token) > Identity.KEYSIZE//8//2:
+                plaintext = None
+                try:
+                    peer_pub_bytes = ciphertext_token[:Identity.KEYSIZE//8//2]
+                    peer_pub = X25519PublicKey.from_public_bytes(peer_pub_bytes)
 
-                plaintext = b"";
-                for chunk in range(chunks):
-                    start = chunk*chunksize
-                    end = (chunk+1)*chunksize
-                    if (chunk+1)*chunksize > len(ciphertext):
-                        end = len(ciphertext)
+                    shared_key = self.prv.exchange(peer_pub)
+                    derived_key = derived_key = HKDF(
+                        algorithm=hashes.SHA256(),
+                        length=32,
+                        salt=self.get_salt(),
+                        info=self.get_context(),
+                    ).derive(shared_key)
 
-                    plaintext += self.prv.decrypt(
-                        ciphertext[start:end],
-                        padding.OAEP(
-                            mgf=padding.MGF1(algorithm=hashes.SHA1()),
-                            algorithm=hashes.SHA1(),
-                            label=None
-                        )
-                    )
-            except:
-                RNS.log("Decryption by "+RNS.prettyhexrep(self.hash)+" failed", RNS.LOG_VERBOSE)
-                
-            return plaintext;
+                    fernet = Fernet(base64.urlsafe_b64encode(derived_key))
+                    ciphertext = ciphertext_token[Identity.KEYSIZE//8//2:]
+                    plaintext = fernet.decrypt(base64.urlsafe_b64encode(ciphertext))
+
+                except Exception as e:
+                    RNS.log("Decryption by "+RNS.prettyhexrep(self.hash)+" failed: "+str(e), RNS.LOG_DEBUG)
+                    
+                return plaintext;
+            else:
+                RNS.log("Decryption failed because the token size was invalid.", RNS.LOG_DEBUG)
+                return None
         else:
             raise KeyError("Decryption failed because identity does not hold a private key")
 
@@ -385,18 +438,14 @@ class Identity:
 
         :param message: The message to be signed as *bytes*.
         :returns: Signature as *bytes*.
-        :raises: *KeyError* if the instance does not hold a private key
+        :raises: *KeyError* if the instance does not hold a private key.
         """
-        if self.prv != None:
-            signature = self.prv.sign(
-                message,
-                padding.PSS(
-                    mgf=padding.MGF1(hashes.SHA256()),
-                    salt_length=padding.PSS.MAX_LENGTH
-                ),
-                hashes.SHA256()
-            )
-            return signature
+        if self.sig_prv != None:
+            try:
+                return self.sig_prv.sign(message)    
+            except Exception as e:
+                RNS.log("The identity "+str(self)+" could not sign the requested message. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                raise e 
         else:
             raise KeyError("Signing failed because identity does not hold a private key")
 
@@ -407,19 +456,11 @@ class Identity:
         :param signature: The signature to be validated as *bytes*.
         :param message: The message to be validated as *bytes*.
         :returns: True if the signature is valid, otherwise False.
-        :raises: *KeyError* if the instance does not hold a public key
+        :raises: *KeyError* if the instance does not hold a public key.
         """
         if self.pub != None:
             try:
-                self.pub.verify(
-                    signature,
-                    message,
-                    padding.PSS(
-                        mgf=padding.MGF1(hashes.SHA256()),
-                        salt_length=padding.PSS.MAX_LENGTH
-                    ),
-                    hashes.SHA256()
-                )
+                self.sig_pub.verify(signature, message)
                 return True
             except Exception as e:
                 return False

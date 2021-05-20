@@ -65,7 +65,7 @@ def server(configpath, path):
 
     # We configure a function that will get called every time
     # a new client creates a link to this destination.
-    server_destination.link_established_callback(client_connected)
+    server_destination.set_link_established_callback(client_connected)
 
     # Everything's ready!
     # Let's Wait for client requests or user input
@@ -102,7 +102,7 @@ def client_connected(link):
     if os.path.isdir(serve_path):
         RNS.log("Client connected, sending file list...")
 
-        link.link_closed_callback(client_disconnected)
+        link.set_link_closed_callback(client_disconnected)
 
         # We pack a list of files for sending in a packet
         data = umsgpack.packb(list_files())
@@ -114,7 +114,7 @@ def client_connected(link):
             list_packet = RNS.Packet(link, data)
             list_receipt = list_packet.send()
             list_receipt.set_timeout(APP_TIMEOUT)
-            list_receipt.delivery_callback(list_delivered)
+            list_receipt.set_delivery_callback(list_delivered)
             list_receipt.timeout_callback(list_timeout)
         else:
             RNS.log("Too many files in served directory!", RNS.LOG_ERROR)
@@ -125,7 +125,7 @@ def client_connected(link):
         # open until the client requests a file. We'll
         # configure a function that get's called when
         # the client sends a packet with a file request.
-        link.packet_callback(client_request)
+        link.set_packet_callback(client_request)
     else:
         RNS.log("Client connected, but served path no longer exists!", RNS.LOG_ERROR)
         link.teardown()
@@ -254,18 +254,18 @@ def client(destination_hexhash, configpath):
     # We expect any normal data packets on the link
     # to contain a list of served files, so we set
     # a callback accordingly
-    link.packet_callback(filelist_received)
+    link.set_packet_callback(filelist_received)
 
     # We'll also set up functions to inform the
     # user when the link is established or closed
-    link.link_established_callback(link_established)
-    link.link_closed_callback(link_closed)
+    link.set_link_established_callback(link_established)
+    link.set_link_closed_callback(link_closed)
 
     # And set the link to automatically begin
     # downloading advertised resources
     link.set_resource_strategy(RNS.Link.ACCEPT_ALL)
-    link.resource_started_callback(download_began)
-    link.resource_concluded_callback(download_concluded)
+    link.set_resource_started_callback(download_began)
+    link.set_resource_concluded_callback(download_concluded)
 
     menu()
 

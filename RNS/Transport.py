@@ -108,7 +108,7 @@ class Transport:
 
         # Create transport-specific destinations
         Transport.path_request_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
-        Transport.path_request_destination.packet_callback(Transport.path_request_handler)
+        Transport.path_request_destination.set_packet_callback(Transport.path_request_handler)
         Transport.control_destinations.append(Transport.path_request_destination)
         Transport.control_hashes.append(Transport.path_request_destination.hash)
 
@@ -652,7 +652,7 @@ class Transport:
                     # First, check that the announce is not for a destination
                     # local to this system, and that hops are less than the max
                     if (not any(packet.destination_hash == d.hash for d in Transport.destinations) and packet.hops < Transport.PATHFINDER_M+1):
-                        random_blob = packet.data[RNS.Identity.DERKEYSIZE//8+10:RNS.Identity.DERKEYSIZE//8+20]
+                        random_blob = packet.data[RNS.Identity.KEYSIZE//8+10:RNS.Identity.KEYSIZE//8+20]
                         random_blobs = []
                         if packet.destination_hash in Transport.destination_table:
                             random_blobs = Transport.destination_table[packet.destination_hash][4]

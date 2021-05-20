@@ -133,8 +133,8 @@ class Destination:
 
     def announce(self, app_data=None, path_response=False):
         """
-        Creates an announce packet for this destination and broadcasts it on
-        all interfaces. Application specific data can be added to the announce.
+        Creates an announce packet for this destination and broadcasts it on all
+        relevant interfaces. Application specific data can be added to the announce.
 
         :param app_data: *bytes* containing the app_data.
         :param path_response: Internal flag used by :ref:`RNS.Transport<api-transport>`. Ignore.
@@ -172,7 +172,7 @@ class Destination:
         RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE, context = announce_context).send()
 
 
-    def link_established_callback(self, callback):
+    def set_link_established_callback(self, callback):
         """
         Registers a function to be called when a link has been established to
         this destination.
@@ -181,7 +181,7 @@ class Destination:
         """
         self.callbacks.link_established = callback
 
-    def packet_callback(self, callback):
+    def set_packet_callback(self, callback):
         """
         Registers a function to be called when a packet has been received by
         this destination.
@@ -190,7 +190,7 @@ class Destination:
         """
         self.callbacks.packet = callback
 
-    def proof_requested_callback(self, callback):
+    def set_proof_requested_callback(self, callback):
         """
         Registers a function to be called when a proof has been requested for
         a packet sent to this destination. Allows control over when and if

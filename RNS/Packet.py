@@ -6,8 +6,16 @@ import RNS
 
 class Packet:
     """
-    The Packet class is used to create packet instances that can be
-    sent over a Reticulum network.
+    The Packet class is used to create packet instances that can be sent
+    over a Reticulum network. Packets to will automatically be encrypted if
+    they are adressed to a ``RNS.Destination.SINGLE`` destination,
+    ``RNS.Destination.GROUP`` destination or a :ref:`RNS.Link<api-link>`.
+
+    For ``RNS.Destination.GROUP`` destinations, Reticulum will use the
+    pre-shared key configured for the destination.
+
+    For ``RNS.Destination.SINGLE`` destinations and :ref:`RNS.Link<api-link>`
+    destinations, reticulum will use ephemeral keys, and offers **Forward Secrecy**.
 
     :param destination: A :ref:`RNS.Destination<api-destination>` instance to which the packet will be sent.
     :param data: The data payload to be included in the packet as *bytes*.
@@ -56,14 +64,21 @@ class Packet:
 
     # This is used to calculate allowable
     # payload sizes
-    HEADER_MAXSIZE = 23
+    HEADER_MAXSIZE = RNS.Reticulum.HEADER_MAXSIZE
     MDU            = RNS.Reticulum.MDU
 
-    # With an MTU of 500, the maximum RSA-encrypted
-    # amount of data we can send in a single packet
-    # is given by the below calculation; 258 bytes.
-    RSA_MDU   = math.floor(MDU/RNS.Identity.DECRYPT_CHUNKSIZE)*RNS.Identity.ENCRYPT_CHUNKSIZE
-    PLAIN_MDU = MDU
+    # TODO: Update this
+    # With an MTU of 500, the maximum of data we can
+    # send in a single encrypted packet is given by
+    # the below calculation; 383 bytes.
+    ENCRYPTED_MDU = math.floor((RNS.Reticulum.MDU-RNS.Identity.AES_HMAC_OVERHEAD-RNS.Identity.KEYSIZE//16)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
+    """
+    The maximum size of the payload data in a single encrypted packet 
+    """
+    PLAIN_MDU     = MDU
+    """
+    The maximum size of the payload data in a single unencrypted packet 
+    """
 
     # TODO: This should be calculated
     # more intelligently
@@ -406,7 +421,7 @@ class PacketReceipt:
         else:
             return False
 
-    def rtt(self):
+    def get_rtt(self):
         """
         :returns: The round-trip-time in seconds
         """
@@ -439,7 +454,7 @@ class PacketReceipt:
         """
         self.timeout = float(timeout)
 
-    def delivery_callback(self, callback):
+    def set_delivery_callback(self, callback):
         """
         Sets a function that gets called if a successfull delivery has been proven.
 
@@ -449,7 +464,7 @@ class PacketReceipt:
 
     # Set a function that gets called if the
     # delivery times out
-    def timeout_callback(self, callback):
+    def set_timeout_callback(self, callback):
         """
         Sets a function that gets called if the delivery times out.
 

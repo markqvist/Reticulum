@@ -33,17 +33,15 @@ class Link:
     :param peer_pub_bytes: Internal use, ignore this argument.
     :param peer_sig_pub_bytes: Internal use, ignore this argument.
     """
-    CURVE = "Curve25519"
+    CURVE = RNS.Identity.CURVE
     """
     The curve used for Elliptic Curve DH key exchanges
     """
 
-    ECPUBSIZE = 32+32
-    BLOCKSIZE = 16
-    KEYSIZE   = 32
+    ECPUBSIZE         = 32+32
+    KEYSIZE           = 32
 
-    AES_HMAC_OVERHEAD = 58
-    MDU = math.floor((RNS.Reticulum.MDU-AES_HMAC_OVERHEAD)/BLOCKSIZE)*BLOCKSIZE - 1
+    MDU = math.floor((RNS.Reticulum.MDU-RNS.Identity.AES_HMAC_OVERHEAD)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
 
     # TODO: This should not be hardcoded,
     # but calculated from something like 
@@ -89,11 +87,6 @@ class Link:
                 RNS.Transport.register_link(link)
                 link.last_inbound = time.time()
                 link.start_watchdog()
-
-                # TODO: Why was link_established callback here? Seems weird
-                # to call this before RTT packet has been received
-                #if self.owner.callbacks.link_established != None:
-                #   self.owner.callbacks.link_established(link)
                 
                 RNS.log("Incoming link request "+str(link)+" accepted", RNS.LOG_VERBOSE)
                 return link
@@ -537,13 +530,13 @@ class Link:
         except Exception as e:
             return False
 
-    def link_established_callback(self, callback):
+    def set_link_established_callback(self, callback):
         self.callbacks.link_established = callback
 
-    def link_closed_callback(self, callback):
+    def set_link_closed_callback(self, callback):
         self.callbacks.link_closed = callback
 
-    def packet_callback(self, callback):
+    def set_packet_callback(self, callback):
         """
         Registers a function to be called when a packet has been
         received over this link.
@@ -552,7 +545,7 @@ class Link:
         """
         self.callbacks.packet = callback
 
-    def resource_callback(self, callback):
+    def set_resource_callback(self, callback):
         """
         Registers a function to be called when a resource has been
         advertised over this link. If the function returns *True*
@@ -563,7 +556,7 @@ class Link:
         """
         self.callbacks.resource = callback
 
-    def resource_started_callback(self, callback):
+    def set_resource_started_callback(self, callback):
         """
         Registers a function to be called when a resource has begun
         transferring over this link.
@@ -572,7 +565,7 @@ class Link:
         """
         self.callbacks.resource_started = callback
 
-    def resource_concluded_callback(self, callback):
+    def set_resource_concluded_callback(self, callback):
         """
         Registers a function to be called when a resource has concluded
         transferring over this link.
