@@ -308,10 +308,26 @@ Reaching the Destination
 In networks with changing topology and trustless connectivity, nodes need a way to establish
 *verified connectivity* with each other. Since the network is assumed to be trustless, Reticulum
 must provide a way to guarantee that the peer you are communicating with is actually who you
-expect. To do this, the following process is employed:
+expect. Reticulum offers two ways to do this.
+
+For exchanges of small amounts of information, Reticulum offers the *Packet* API, which works exactly like you would expect - on a per packet level. The following process is employed when sending a packet:
+
+* | A packet is always created with an associated destination and some payload data. When the packet is sent to a *single* destination type, Reticulum will automatically create an ephemeral encryption key, perform an ECDH key exchange with the destinations public key, and encrypt the information.
+
+* | It is important to note that this key exchange does not require any network traffic. The sender already knows the public key of the destination from an earlier received *announce*, and can thus perform the ECDH key exchange locally.
+
+* | The public key part of the newly generated ephemeral key is included with the encrypted token, and sent along with the encrypted payload data in the packet.
+
+* | When the destination receives the packet, it can itself perform an ECDH key exchange and decrypt the packet.
+
+* | A new ephemeral key is used for every packet sent in this way, and forward secrecy is guaranteed on a per packet level.
+
+* | In case the packet is addressed to a *group* destination type, the packet will be encrypted with the pre-shared AES-128 key associated with the destination. In case the packet is addressed to a *plain* destination type, the payload data will not be encrypted. Neither of these two destination types offer forward secrecy. In general, it is recommended to always use the *single* destination type, unless it is strictly necessary to use one of the others.
 
 
-* | First, the node that wishes to establish connectivity will send out a special packet, that
+For exchanges of larger amounts of data, or when longer sessions of bidirectional communication is desired, Reticulum offers the *Link* API. To establish a *link*, the following process is employed:
+
+* | First, the node that wishes to establish a link will send out a special packet, that
     traverses the network and locates the desired destination. Along the way, the nodes that
     forward the packet will take note of this *link request*.
 
@@ -333,19 +349,19 @@ expect. To do this, the following process is employed:
     sending node can obtain verified confirmation that the information reached the intended
     recipient.
 
-In a moment, we will discuss the specifics of how this methodology is implemented, but let’s first
-recap what purposes this serves. We first ensure that the node answering our request is actually the
-one we want to communicate with, and not a malicious actor pretending to be so. At the same time
-we establish an efficient encrypted channel. The setup of this is relatively cheap in terms of
-bandwidth, so it can be used just for a short exchange, and then recreated as needed, which will also
-rotate encryption keys, but the link can also be kept alive for longer periods of time, if this is
+In a moment, we will discuss the details of how this methodology is implemented, but let’s first
+recap what purposes this methodology serves. We first ensure that the node answering our request
+is actually the one we want to communicate with, and not a malicious actor pretending to be so.
+At the same time we establish an efficient encrypted channel. The setup of this is relatively cheap in
+terms of bandwidth, so it can be used just for a short exchange, and then recreated as needed, which will
+also rotate encryption keys, but the link can also be kept alive for longer periods of time, if this is
 more suitable to the application. The amount of bandwidth used on keeping a link open is practically
 negligible. The procedure also inserts the *link id* , a hash calculated from the link request packet,
 into the memory of forwarding nodes, which means that the communicating nodes can thereafter reach each
 other simply by referring to this *link id*.
 
-Step 1: Pathfinding
-^^^^^^^^^^^^^^^^^^^
+Pathfinding in Detail
+^^^^^^^^^^^^^^^^^^^^^
 
 The pathfinding method builds on the *announce* functionality discussed earlier. When an announce
 is sent out by a node, it will be forwarded by any node receiving it, but according to some specific
@@ -392,8 +408,8 @@ distance of *Lavg =* 15 kilometers, an announce will be able to propagate outwar
 kilometers in 34 minutes, and a *maximum announce radius* of 270 kilometers in approximately 3
 days.
 
-Step 2: Link Establishment
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Link Establishment in Detail
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 After seeing how the conditions for finding a path through the network are created, we will now
 explore how two nodes can establish reliable communications over multiple hops. The *link* in
@@ -449,6 +465,11 @@ reveal any identifying information about itself. The link initiator remains comp
 
 When using *links*, Reticulum will automatically verify all data sent over the link, and can also
 automate retransmissions if *Resources* are used.
+
+Proven Delivery
+^^^^^^^^^^^^^^^
+
+TODO: Write
 
 .. _understanding-resources:
 

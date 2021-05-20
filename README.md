@@ -19,7 +19,7 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
  - Coordination-less globally unique adressing and identification
  - Fully self-configuring multi-hop routing
  - Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
- - Forward Secrecy with ephemereal Elliptic Curve Diffie-Hellman keys (on Curve25519)
+ - Forward Secrecy with ephemereal Elliptic Curve Diffie-Hellman keys on Curve25519
  - Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for encryption
     - AES-128 in CBC mode with PKCS7 padding
     - HMAC using SHA256 for authentication

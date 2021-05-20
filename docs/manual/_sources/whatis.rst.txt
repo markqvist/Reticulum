@@ -25,17 +25,19 @@ What does Reticulum Offer?
 
 * Fully self-configuring multi-hop routing
 
-* Asymmetric RSA encryption and signatures as basis for all communication
+* Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
 
-* Perfect Forward Secrecy on links with ephemereal Elliptic Curve Diffie-Hellman keys (on Curve25519)
+* Forward Secrecy with ephemereal Elliptic Curve Diffie-Hellman keys on Curve25519
 
-* Reticulum uses the Fernet specification for encryption on links and to group destinations
+* Reticulum uses the `Fernet <https://github.com/fernet/spec/blob/master/Spec.md>`_ specification for encryption
 
   * AES-128 in CBC mode with PKCS7 padding
 
   * HMAC using SHA256 for authentication
 
   * IVs are generated through os.urandom()
+
+  * Keys are ephemeral and derived from an ECDH key exchange on Curve25519
 
 * Unforgeable packet delivery confirmations
 

@@ -1,7 +1,6 @@
 ********************
 Getting Started Fast
 ********************
-What do we want to do? Something! When do we want to do it? Right now! Let's go.
 
 The best way to get started with the Reticulum Network Stack depends on what
 you want to do. This guide will outline sensible starting paths for different
@@ -23,7 +22,7 @@ in the development for the messaging and information-sharing protocol
 Develop a Program with Reticulum
 ===========================================
 If you want to develop programs that use Reticulum, the easiest way to get
-started is to install Reticulum via pip:
+started is to install the latest release of Reticulum via pip:
 
 .. code::
 
