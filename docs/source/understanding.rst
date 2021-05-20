@@ -354,11 +354,10 @@ recap what purposes this methodology serves. We first ensure that the node answe
 is actually the one we want to communicate with, and not a malicious actor pretending to be so.
 At the same time we establish an efficient encrypted channel. The setup of this is relatively cheap in
 terms of bandwidth, so it can be used just for a short exchange, and then recreated as needed, which will
-also rotate encryption keys, but the link can also be kept alive for longer periods of time, if this is
-more suitable to the application. The amount of bandwidth used on keeping a link open is practically
-negligible. The procedure also inserts the *link id* , a hash calculated from the link request packet,
-into the memory of forwarding nodes, which means that the communicating nodes can thereafter reach each
-other simply by referring to this *link id*.
+also rotate encryption keys. The link can also be kept alive for longer periods of time, if this is
+more suitable to the application. The procedure also inserts the *link id* , a hash calculated from the link request packet, into the memory of forwarding nodes, which means that the communicating nodes can thereafter reach each other simply by referring to this *link id*.
+
+The total bandwidth cost of setting up a link is 409 bytes (more info in the :ref:`Binary Packet Format<understanding-packetformat>` section). The amount of bandwidth used on keeping a link open is practically negligible, at 0.62 bits per second. Even on a slow 1200 bits per second packet radio channel, 100 concurrent links will still leave 95% channel capacity for actual data.
 
 Pathfinding in Detail
 ^^^^^^^^^^^^^^^^^^^^^
@@ -577,6 +576,8 @@ the light of Reticulums goal of equal access, doing so would need to be the subj
 investigation of the consequences first.
 
 
+.. _understanding-packetformat:
+
 Binary Packet Format
 --------------------
 
@@ -674,6 +675,6 @@ Binary Packet Format
      - Path Request    :    33  bytes
      - Announce        :    151 bytes
      - Link Request    :    182 bytes
-     - Link Proof      :    205 bytes
+     - Link Proof      :    141 bytes
      - Link RTT packet :    86  bytes
      - Link keepalive  :    14  bytes

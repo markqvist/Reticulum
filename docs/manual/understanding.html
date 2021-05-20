@@ -16,7 +16,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="API Reference" href="reference.html" /> 
+    <link rel="next" title="API Reference" href="reference.html" />
+    <link rel="prev" title="Getting Started Fast" href="gettingstartedfast.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -26,6 +27,9 @@
              accesskey="I">index</a></li>
         <li class="right" >
           <a href="reference.html" title="API Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gettingstartedfast.html" title="Getting Started Fast"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.1 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Understanding Reticulum</a></li> 
@@ -401,11 +405,9 @@ recap what purposes this methodology serves. We first ensure that the node answe
 is actually the one we want to communicate with, and not a malicious actor pretending to be so.
 At the same time we establish an efficient encrypted channel. The setup of this is relatively cheap in
 terms of bandwidth, so it can be used just for a short exchange, and then recreated as needed, which will
-also rotate encryption keys, but the link can also be kept alive for longer periods of time, if this is
-more suitable to the application. The amount of bandwidth used on keeping a link open is practically
-negligible. The procedure also inserts the <em>link id</em> , a hash calculated from the link request packet,
-into the memory of forwarding nodes, which means that the communicating nodes can thereafter reach each
-other simply by referring to this <em>link id</em>.</p>
+also rotate encryption keys. The link can also be kept alive for longer periods of time, if this is
+more suitable to the application. The procedure also inserts the <em>link id</em> , a hash calculated from the link request packet, into the memory of forwarding nodes, which means that the communicating nodes can thereafter reach each other simply by referring to this <em>link id</em>.</p>
+<p>The total bandwidth cost of setting up a link is 409 bytes (more info in the <a class="reference internal" href="#understanding-packetformat"><span class="std std-ref">Binary Packet Format</span></a> section). The amount of bandwidth used on keeping a link open is practically negligible, at 0.62 bits per second. Even on a slow 1200 bits per second packet radio channel, 100 concurrent links will still leave 95% channel capacity for actual data.</p>
 <div class="section" id="pathfinding-in-detail">
 <h4>Pathfinding in Detail<a class="headerlink" href="#pathfinding-in-detail" title="Permalink to this headline">¶</a></h4>
 <p>The pathfinding method builds on the <em>announce</em> functionality discussed earlier. When an announce
@@ -647,7 +649,7 @@ the light of Reticulums goal of equal access, doing so would need to be the subj
 investigation of the consequences first.</p>
 </div>
 <div class="section" id="binary-packet-format">
-<h3>Binary Packet Format<a class="headerlink" href="#binary-packet-format" title="Permalink to this headline">¶</a></h3>
+<span id="understanding-packetformat"></span><h3>Binary Packet Format<a class="headerlink" href="#binary-packet-format" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>== Reticulum Wire Format ======
 
 A Reticulum packet is composed of the following fields:
@@ -738,9 +740,9 @@ proof           11
  wire size including all fields.
 
  - Path Request    :    33  bytes
- - Announce        :    323 bytes
- - Link Request    :    141 bytes
- - Link Proof      :    205 bytes
+ - Announce        :    151 bytes
+ - Link Request    :    182 bytes
+ - Link Proof      :    141 bytes
  - Link RTT packet :    86  bytes
  - Link keepalive  :    14  bytes
 </pre></div>
@@ -793,8 +795,11 @@ proof           11
 </ul>
 
   <h4>Previous topic</h4>
+  <p class="topless"><a href="gettingstartedfast.html"
+                        title="previous chapter">Getting Started Fast</a></p>
+  <h4>Next topic</h4>
   <p class="topless"><a href="reference.html"
-                        title="previous chapter">API Reference</a></p>
+                        title="next chapter">API Reference</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -824,6 +829,9 @@ proof           11
              >index</a></li>
         <li class="right" >
           <a href="reference.html" title="API Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gettingstartedfast.html" title="Getting Started Fast"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.1 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Understanding Reticulum</a></li> 

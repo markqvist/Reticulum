@@ -10,9 +10,9 @@ the development of Reticulum itself.
 
    whatis
    gettingstartedfast
-   examples
-   reference
    understanding
+   reference
+   examples
 
 
 Indices and Tables

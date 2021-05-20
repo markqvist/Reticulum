@@ -32,6 +32,9 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
     - Reticulum can handle a few bytes of data or files of many gigabytes
     - Sequencing, transfer coordination and checksumming is automatic
     - The API is very easy to use, and provides transfer progress
+ - Efficient link establishment
+    - Total bandwidth cost of setting up a link is only 409 bytes
+    - Low cost of keeping links open at only 0.62 bits per second
 
 ## Where can Reticulum be used?
 Over practically any medium that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, ad-hoc WiFi, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.
