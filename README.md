@@ -74,47 +74,13 @@ Some countries still ban the use of encryption when operating under an amateur r
  - pyserial
 
 ## How do I get started?
-Full documentation and tutorials are coming with the stable alpha release. Until then, you are mostly on your own. If you want to experiment already, you could take a look in the "Examples" folder, for some well-documented example programs. The default configuration file created by Reticulum on the first run is also worth reading. Be sure to also read the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
+The best way to get started with the Reticulum Network Stack depends on what
+you want to do. For full details and examples, have a look at the [Getting Started Fast](https://markqvist.github.io/Reticulum/manual/gettingstartedfast.html) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
 
-If you just need Reticulum as a dependency for another application, the easiest way is probably via pip:
+If you just need Reticulum as a dependency for another application, the easiest way is via pip:
 
 ```bash
 pip3 install rns
-```
-
-For Reticulum development, you might want to get the latest source from GitHub. In that case, don't use pip, but try this recipe:
-
-```bash
-# Install dependencies
-pip3 install cryptography pyserial
-
-# Clone repository
-git clone https://github.com/markqvist/Reticulum.git
-
-# Move into Reticulum folder and symlink library to examples folder
-cd Reticulum
-ln -s ../RNS ./Examples/
-
-# Run an example
-python3 Examples/Echo.py -s
-
-# Unless you've manually created a config file, Reticulum will do so now,
-# and immediately exit. Make any necessary changes to the file:
-nano ~/.reticulum/config
-
-# ... and launch the example again.
-python3 Examples/Echo.py -s
-
-# You can now repeat the process on another computer,
-# and run the same example with -h to get command line options.
-python3 Examples/Echo.py -h
-
-# Run the example in client mode to "ping" the server.
-# Replace the hash below with the actual destination hash of your server.
-python3 Examples/Echo.py 3e12fc71692f8ec47bc5
-
-# Have a look at another example
-python3 Examples/Filetransfer.py -h
 ```
 
 The default config file contains examples for using Reticulum with LoRa transceivers (specifically [RNode](https://unsigned.io/projects/rnode/)), packet radio TNCs/modems and UDP. By default a UDP interface is already enabled in the default config, which will enable Reticulum communication in your local ethernet broadcast domain.
