@@ -49,6 +49,8 @@ class Transport:
     receipts             = []         # Receipts of all outgoing packets for proof processing
 
     # TODO: "destination_table" should really be renamed to "path_table"
+    # Notes on memory usage: 1 megabyte of memory can store approximately
+    # 55.100 path table entries or approximately 22.300 link table entries.
     announce_table       = {}         # A table for storing announces currently waiting to be retransmitted
     destination_table    = {}         # A lookup table containing the next hop to a given destination
     reverse_table        = {}         # A lookup table for storing packet hashes used to return proofs and replies

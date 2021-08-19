@@ -5,6 +5,8 @@ import time
 import random
 import threading
 
+from ._version import __version__
+
 from .Reticulum import Reticulum
 from .Identity import Identity
 from .Link import Link
@@ -60,6 +62,9 @@ def loglevelname(level):
     
     return "Unknown"
 
+def version():
+    return __version__
+
 def log(msg, level=3, _override_destination = False):
     global _always_override_destination
     
@@ -68,7 +73,7 @@ def log(msg, level=3, _override_destination = False):
         logstring = "["+time.strftime(logtimefmt)+"] ["+loglevelname(level)+"] "+msg
         logging_lock.acquire()
 
-        if (logdest == LOG_STDOUT or _always_override_destination):
+        if (logdest == LOG_STDOUT or _always_override_destination or _override_destination):
             print(logstring)
             logging_lock.release()
 

@@ -23,6 +23,7 @@ class LinkCallbacks:
         self.resource = None
         self.resource_started = None
         self.resource_concluded = None
+        self.remote_identified = None
 
 class Link:
     """
@@ -125,6 +126,7 @@ class Link:
         self.owner = owner
         self.destination = destination
         self.attached_interface = None
+        self.__remote_identity = None
         self.__encryption_disabled = False
         if self.destination == None:
             self.initiator = False
@@ -226,6 +228,7 @@ class Link:
             if self.destination.identity.validate(signature, signed_data):
                 self.rtt = time.time() - self.request_time
                 self.attached_interface = packet.receiving_interface
+                self.__remote_identity = self.destination.identity
                 RNS.Transport.activate_link(self)
                 RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(self.rtt), RNS.LOG_VERBOSE)
                 rtt_data = umsgpack.packb(self.rtt)
@@ -241,6 +244,25 @@ class Link:
                     thread.start()
             else:
                 RNS.log("Invalid link proof signature received by "+str(self)+". Ignoring.", RNS.LOG_DEBUG)
+
+
+    def identify(self, identity):
+        """
+        Identifies the initiator of the link to the remote peer. This can only happen
+        once the link has been established, and is carried out over the encrypted link.
+        The identity is only revealed to the remote peer, and initiator anonymity is
+        thus preserved. This method can be used for authentication.
+
+        :param identity: An RNS.Identity instance to identify as.
+        """
+        if self.initiator:
+            signed_data = self.link_id + identity.get_public_key()
+            signature = identity.sign(signed_data)
+            proof_data = identity.get_public_key() + signature
+
+            proof = RNS.Packet(self, proof_data, RNS.Packet.DATA, context = RNS.Packet.LINKIDENTIFY)
+            proof.send()
+            self.had_outbound()
 
 
     def rtt_packet(self, packet):
@@ -285,6 +307,12 @@ class Link:
         :returns: The time in seconds since activity on the link.
         """
         return min(self.no_inbound_for(), self.no_outbound_for())
+
+    def get_remote_identity(self):
+        """
+        :returns: The identity of the remote peer, if it is known
+        """
+        return self.__remote_identity
 
     def had_outbound(self):
         self.last_outbound = time.time()
@@ -423,6 +451,21 @@ class Link:
                         elif self.destination.proof_strategy == RNS.Destination.PROVE_APP:
                             if self.destination.callbacks.proof_requested:
                                 self.destination.callbacks.proof_requested(packet)
+
+                    elif packet.context == RNS.Packet.LINKIDENTIFY:
+                        plaintext = self.decrypt(packet.data)
+
+                        if not self.initiator and len(plaintext) == RNS.Identity.KEYSIZE//8 + RNS.Identity.SIGLENGTH//8:
+                            public_key   = plaintext[:RNS.Identity.KEYSIZE//8]
+                            signed_data  = self.link_id+public_key
+                            signature    = plaintext[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Identity.SIGLENGTH//8]
+                            identity     = RNS.Identity(create_keys=False)
+                            identity.load_public_key(public_key)
+
+                            if identity.validate(signature, signed_data):
+                                self.__remote_identity = identity
+                                if self.callbacks.remote_identified != None:
+                                    self.callbacks.remote_identified(self.__remote_identity)
 
                     elif packet.context == RNS.Packet.LRRTT:
                         if not self.initiator:
@@ -573,6 +616,15 @@ class Link:
         :param callback: A function or method with the signature *callback(resource)* to be called.
         """
         self.callbacks.resource_concluded = callback
+
+    def set_remote_identified_callback(self, callback):
+        """
+        Registers a function to be called when an initiating peer has
+        identified over this link.
+
+        :param callback: A function or method with the signature *callback(identity)* to be called.
+        """
+        self.callbacks.remote_identified = callback
 
     def resource_concluded(self, resource):
         if resource in self.incoming_resources:

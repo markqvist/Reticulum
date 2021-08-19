@@ -1,11 +1,13 @@
 import setuptools
 
+exec(open("RNS/_version.py", "r").read())
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="rns",
-    version="0.2.1",
+    version=__version__,
     author="Mark Qvist",
     author_email="mark@unsigned.io",
     description="Self-configuring, encrypted and resilient mesh networking stack for LoRa, packet radio, WiFi and everything in between",
