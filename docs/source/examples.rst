@@ -68,6 +68,18 @@ destination, and passing traffic back and forth over the link.
 
 This example can also be found at `<https://github.com/markqvist/Reticulum/blob/master/Examples/Link.py>`_.
 
+.. _example-identify:
+
+Identification
+==============
+
+The *Identify* example explores identifying an intiator of a link, once
+the link has been established.
+
+.. literalinclude:: ../../Examples/Identify.py
+
+This example can also be found at `<https://github.com/markqvist/Reticulum/blob/master/Examples/Identify.py>`_.
+
 .. _example-filetransfer:
 
 Filetransfer

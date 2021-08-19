@@ -772,6 +772,20 @@ from a the <em>send()</em> method of a <a class="reference internal" href="#api-
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.identify">
+<span class="sig-name descname"><span class="pre">identify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.identify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identifies the initiator of the link to the remote peer. This can only happen
+once the link has been established, and is carried out over the encrypted link.
+The identity is only revealed to the remote peer, and initiator anonymity is
+thus preserved. This method can be used for authentication.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>identity</strong> – An RNS.Identity instance to identify as.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Link.no_inbound_for">
 <span class="sig-name descname"><span class="pre">no_inbound_for</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.no_inbound_for" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -797,6 +811,16 @@ from a the <em>send()</em> method of a <a class="reference internal" href="#api-
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The time in seconds since activity on the link.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.get_remote_identity">
+<span class="sig-name descname"><span class="pre">get_remote_identity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.get_remote_identity" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The identity of the remote peer, if it is known</p>
 </dd>
 </dl>
 </dd></dl>
@@ -859,6 +883,18 @@ transferring over this link.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.set_remote_identified_callback">
+<span class="sig-name descname"><span class="pre">set_remote_identified_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.set_remote_identified_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a function to be called when an initiating peer has
+identified over this link.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method with the signature <em>callback(identity)</em> to be called.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Link.set_resource_strategy">
 <span class="sig-name descname"><span class="pre">set_resource_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_strategy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.set_resource_strategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the resource strategy for the link.</p>
@@ -898,7 +934,7 @@ compression, coordination and checksumming.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – The data to be transferred. Can be <em>bytes</em> or an open <em>file handle</em>. See the <a class="reference internal" href="examples.html#example-filetransfer"><span class="std std-ref">Filetransfer Example</span></a> for details.</p></li>
+<li><p><strong>data</strong> – The data to be transferred. Can be <em>bytes</em> or an open <em>file handle</em>. See the <span class="xref std std-ref">Filetransfer Example</span> for details.</p></li>
 <li><p><strong>link</strong> – The <a class="reference internal" href="#api-link"><span class="std std-ref">RNS.Link</span></a> instance on which to transfer the data.</p></li>
 <li><p><strong>advertise</strong> – Whether to automatically advertise the resource. Can be <em>True</em> or <em>False</em>.</p></li>
 <li><p><strong>auto_compress</strong> – Whether to auto-compress the resource. Can be <em>True</em> or <em>False</em>.</p></li>
