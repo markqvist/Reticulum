@@ -217,13 +217,27 @@ class Reticulum:
                     try:
                         if ("interface_enabled" in c) and c.as_bool("interface_enabled") == True:
                             if c["type"] == "UDPInterface":
+                                device       = c["device"] if "device" in c else None
+                                port         = int(c["port"]) if "port" in c else None
+                                listen_ip    = c["listen_ip"] if "listen_ip" in c else None
+                                listen_port  = int(c["listen_port"]) if "listen_port" in c else None
+                                forward_ip   = c["forward_ip"] if "forward_ip" in c else None
+                                forward_port = int(c["forward_port"]) if "forward_port" in c else None
+
+                                if port != None:
+                                    if listen_port == None:
+                                        listen_port = port
+                                    if forward_port == None:
+                                        forward_port = port
+
                                 interface = UDPInterface.UDPInterface(
                                     RNS.Transport,
                                     name,
-                                    c["listen_ip"],
-                                    int(c["listen_port"]),
-                                    c["forward_ip"],
-                                    int(c["forward_port"])
+                                    device,
+                                    listen_ip,
+                                    listen_port,
+                                    forward_ip,
+                                    forward_port
                                 )
 
                                 if "outgoing" in c and c.as_bool("outgoing") == True:

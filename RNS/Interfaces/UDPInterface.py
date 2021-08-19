@@ -1,17 +1,33 @@
 from .Interface import Interface
 import socketserver
 import threading
+import netifaces
 import socket
 import time
 import sys
 import RNS
 
+
 class UDPInterface(Interface):
 
-    def __init__(self, owner, name, bindip=None, bindport=None, forwardip=None, forwardport=None):
+    @staticmethod
+    def get_address_for_if(name):
+        return netifaces.ifaddresses(name)[netifaces.AF_INET][0]['addr']
+
+    def get_broadcast_for_if(name):
+        return netifaces.ifaddresses(name)[netifaces.AF_INET][0]['broadcast']
+
+    def __init__(self, owner, name, device=None, bindip=None, bindport=None, forwardip=None, forwardport=None):
         self.IN  = True
         self.OUT = False
         self.name = name
+
+        if device != None:
+            if bindip == None:
+                bindip = UDPInterface.get_broadcast_for_if(device)
+            if forwardip == None:
+                forwardip = UDPInterface.get_broadcast_for_if(device)
+
 
         if (bindip != None and bindport != None):
             self.receives = True
