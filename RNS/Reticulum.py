@@ -249,11 +249,20 @@ class Reticulum:
 
 
                             if c["type"] == "TCPServerInterface":
+                                device       = c["device"] if "device" in c else None
+                                port         = int(c["port"]) if "port" in c else None
+                                listen_ip    = c["listen_ip"] if "listen_ip" in c else None
+                                listen_port  = int(c["listen_port"]) if "listen_port" in c else None
+
+                                if port != None:
+                                    listen_port = port
+
                                 interface = TCPInterface.TCPServerInterface(
                                     RNS.Transport,
                                     name,
-                                    c["listen_ip"],
-                                    int(c["listen_port"])
+                                    device,
+                                    listen_ip,
+                                    listen_port
                                 )
 
                                 if "outgoing" in c and c.as_bool("outgoing") == True:

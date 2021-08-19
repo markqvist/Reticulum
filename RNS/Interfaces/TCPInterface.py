@@ -1,6 +1,7 @@
 from .Interface import Interface
 import socketserver
 import threading
+import netifaces
 import socket
 import time
 import sys
@@ -127,11 +128,20 @@ class TCPClientInterface(Interface):
 
 
 class TCPServerInterface(Interface):
+    @staticmethod
+    def get_address_for_if(name):
+        return netifaces.ifaddresses(name)[netifaces.AF_INET][0]['addr']
 
-    def __init__(self, owner, name, bindip=None, bindport=None):
+    def get_broadcast_for_if(name):
+        return netifaces.ifaddresses(name)[netifaces.AF_INET][0]['broadcast']
+
+    def __init__(self, owner, name, device=None, bindip=None, bindport=None):
         self.IN  = True
         self.OUT = False
         self.name = name
+
+        if device != None:
+            bindip = TCPServerInterface.get_address_for_if(device)
 
         if (bindip != None and bindport != None):
             self.receives = True
