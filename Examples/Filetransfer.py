@@ -135,7 +135,12 @@ def client_disconnected(link):
 
 def client_request(message, packet):
     global serve_path
-    filename = message.decode("utf-8")
+
+    try:
+        filename = message.decode("utf-8")
+    except Exception as e:
+        filename = None
+
     if filename in list_files():
         try:
             # If we have the requested file, we'll

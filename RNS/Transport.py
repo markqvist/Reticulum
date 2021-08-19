@@ -397,8 +397,9 @@ class Transport:
         if sent:
             packet.sent = True
             packet.sent_at = time.time()
+            Transport.packet_hashlist.append(packet.packet_hash)
 
-                # Don't generate receipt if it has been explicitly disabled
+            # Don't generate receipt if it has been explicitly disabled
             if (packet.create_receipt == True and
                 # Only generate receipts for DATA packets
                 packet.packet_type == RNS.Packet.DATA and
