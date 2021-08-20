@@ -80,6 +80,17 @@ the link has been established.
 
 This example can also be found at `<https://github.com/markqvist/Reticulum/blob/master/Examples/Identify.py>`_.
 
+.. _example-request:
+
+Requests & Responses
+====================
+
+The *Request* example explores sendig requests and receiving responses.
+
+.. literalinclude:: ../../Examples/Request.py
+
+This example can also be found at `<https://github.com/markqvist/Reticulum/blob/master/Examples/Request.py>`_.
+
 .. _example-filetransfer:
 
 Filetransfer

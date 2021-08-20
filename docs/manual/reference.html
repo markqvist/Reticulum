@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Reference &#8212; Reticulum Network Stack 0.2.1 beta documentation</title>
+    <title>API Reference &#8212; Reticulum Network Stack 0.2.2 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="understanding.html" title="Understanding Reticulum"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.1 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.2 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">API Reference</a></li> 
       </ul>
     </div>  
@@ -509,6 +509,39 @@ proofs should be returned for received packets.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.register_request_handler">
+<span class="sig-name descname"><span class="pre">register_request_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowed_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.register_request_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a request handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – The path for the request handler to be registered.</p></li>
+<li><p><strong>response_generator</strong> – A function or method with the signature <em>response_generator(path, data, remote_identity_hash, requested_at)</em> to be called. Whatever this funcion returns will be sent as a response to the requester. If the function returns <code class="docutils literal notranslate"><span class="pre">None</span></code>, no response will be sent.</p></li>
+<li><p><strong>allow</strong> – One of <code class="docutils literal notranslate"><span class="pre">RNS.Destination.ALLOW_NONE</span></code>, <code class="docutils literal notranslate"><span class="pre">RNS.Destination.ALLOW_ALL</span></code> or <code class="docutils literal notranslate"><span class="pre">RNS.Destination.ALLOW_LIST</span></code>. If <code class="docutils literal notranslate"><span class="pre">RNS.Destination.ALLOW_LIST</span></code> is set, the request handler will only respond to requests for identified peers in the supplied list.</p></li>
+<li><p><strong>allowed_list</strong> – A list of <em>bytes-like</em> <a class="reference internal" href="#api-identity"><span class="std std-ref">RNS.Identity</span></a> hashes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">ValueError</span></code> if any of the supplied arguments are invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.deregister_request_handler">
+<span class="sig-name descname"><span class="pre">deregister_request_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.deregister_request_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deregisters a request handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – The path for the request handler to be deregistered.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the handler was deregistered, otherwise False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Destination.create_keys">
 <span class="sig-name descname"><span class="pre">create_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.create_keys" title="Permalink to this definition">¶</a></dt>
 <dd><p>For a <code class="docutils literal notranslate"><span class="pre">RNS.Destination.GROUP</span></code> type destination, creates a new symmetric key.</p>
@@ -786,6 +819,21 @@ thus preserved. This method can be used for authentication.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.request">
+<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failed_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends a request to the remote peer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – The request path.</p></li>
+<li><p><strong>response_callback</strong> – A function or method with the signature <em>response_callback(request_receipt)</em> to be called when a response is received. See the <a class="reference internal" href="examples.html#example-request"><span class="std std-ref">Request Example</span></a> for more info.</p></li>
+<li><p><strong>failed_callback</strong> – A function or method with the signature <em>failed_callback(request_receipt)</em> to be called when a request fails. See the <a class="reference internal" href="examples.html#example-request"><span class="std std-ref">Request Example</span></a> for more info.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Link.no_inbound_for">
 <span class="sig-name descname"><span class="pre">no_inbound_for</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.no_inbound_for" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -934,7 +982,7 @@ compression, coordination and checksumming.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – The data to be transferred. Can be <em>bytes</em> or an open <em>file handle</em>. See the <span class="xref std std-ref">Filetransfer Example</span> for details.</p></li>
+<li><p><strong>data</strong> – The data to be transferred. Can be <em>bytes</em> or an open <em>file handle</em>. See the <a class="reference internal" href="examples.html#example-filetransfer"><span class="std std-ref">Filetransfer Example</span></a> for details.</p></li>
 <li><p><strong>link</strong> – The <a class="reference internal" href="#api-link"><span class="std std-ref">RNS.Link</span></a> instance on which to transfer the data.</p></li>
 <li><p><strong>advertise</strong> – Whether to automatically advertise the resource. Can be <em>True</em> or <em>False</em>.</p></li>
 <li><p><strong>auto_compress</strong> – Whether to auto-compress the resource. Can be <em>True</em> or <em>False</em>.</p></li>
@@ -1094,7 +1142,7 @@ will announce it.</p>
         <li class="right" >
           <a href="understanding.html" title="Understanding Reticulum"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.1 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.2 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">API Reference</a></li> 
       </ul>
     </div>

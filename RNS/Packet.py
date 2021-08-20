@@ -41,7 +41,7 @@ class Packet:
     HEADER_4     = 0x03     # Reserved
     header_types = [HEADER_1, HEADER_2, HEADER_3, HEADER_4]
 
-    # Data packet context types
+    # Packet context types
     NONE           = 0x00   # Generic data packet
     RESOURCE       = 0x01   # Packet is part of a resource
     RESOURCE_ADV   = 0x02   # Packet is a resource advertisement
@@ -68,7 +68,6 @@ class Packet:
     HEADER_MAXSIZE = RNS.Reticulum.HEADER_MAXSIZE
     MDU            = RNS.Reticulum.MDU
 
-    # TODO: Update this
     # With an MTU of 500, the maximum of data we can
     # send in a single encrypted packet is given by
     # the below calculation; 383 bytes.
@@ -326,15 +325,16 @@ class PacketReceipt:
 
     # Creates a new packet receipt from a sent packet
     def __init__(self, packet):
-        self.hash    = packet.get_hash()
-        self.sent    = True
-        self.sent_at = time.time()
-        self.timeout = Packet.TIMEOUT
-        self.proved  = False
-        self.status  = PacketReceipt.SENT
-        self.destination = packet.destination
-        self.callbacks   = PacketReceiptCallbacks()
-        self.concluded_at = None
+        self.hash           = packet.get_hash()
+        self.truncated_hash = packet.getTruncatedHash()
+        self.sent           = True
+        self.sent_at        = time.time()
+        self.timeout        = Packet.TIMEOUT
+        self.proved         = False
+        self.status         = PacketReceipt.SENT
+        self.destination    = packet.destination
+        self.callbacks      = PacketReceiptCallbacks()
+        self.concluded_at   = None
 
     def get_status(self):
         """

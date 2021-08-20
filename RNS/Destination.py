@@ -40,6 +40,11 @@ class Destination:
     PROVE_ALL  = 0x23
     proof_strategies = [PROVE_NONE, PROVE_APP, PROVE_ALL]
 
+    ALLOW_NONE = 0x00
+    ALLOW_ALL  = 0x01
+    ALLOW_LIST = 0x02
+    request_policies = [ALLOW_NONE, ALLOW_ALL, ALLOW_LIST]
+
     IN         = 0x11;
     OUT        = 0x12;
     directions = [IN, OUT]
@@ -97,6 +102,7 @@ class Destination:
         if not type in Destination.types: raise ValueError("Unknown destination type")
         if not direction in Destination.directions: raise ValueError("Unknown destination direction")
         self.callbacks = Callbacks()
+        self.request_handlers = {}
         self.type = type
         self.direction = direction
         self.proof_strategy = Destination.PROVE_NONE
@@ -207,6 +213,45 @@ class Destination:
             raise TypeError("Unsupported proof strategy")
         else:
             self.proof_strategy = proof_strategy
+
+
+    def register_request_handler(self, path, response_generator = None, allow = ALLOW_NONE, allowed_list = None):
+        """
+        Registers a request handler.
+
+        :param path: The path for the request handler to be registered.
+        :param response_generator: A function or method with the signature *response_generator(path, data, request_id, remote_identity_hash, requested_at)* to be called. Whatever this funcion returns will be sent as a response to the requester. If the function returns ``None``, no response will be sent.
+        :param allow: One of ``RNS.Destination.ALLOW_NONE``, ``RNS.Destination.ALLOW_ALL`` or ``RNS.Destination.ALLOW_LIST``. If ``RNS.Destination.ALLOW_LIST`` is set, the request handler will only respond to requests for identified peers in the supplied list.
+        :param allowed_list: A list of *bytes-like* :ref:`RNS.Identity<api-identity>` hashes.
+        :raises: ``ValueError`` if any of the supplied arguments are invalid.
+        """
+        if path == None or path == "":
+            raise ValueError("Invalid path specified")
+        elif not callable(response_generator):
+            raise ValueError("Invalid response generator specified")
+        elif not allow in Destination.request_policies:
+            raise ValueError("Invalid request policy")
+        else:
+            path_hash = RNS.Identity.truncated_hash(path.encode("utf-8"))
+            request_handler = [path, response_generator, allow, allowed_list]
+            self.request_handlers[path_hash] = request_handler
+
+
+    def deregister_request_handler(self, path):
+        """
+        Deregisters a request handler.
+
+        :param path: The path for the request handler to be deregistered.
+        :returns: True if the handler was deregistered, otherwise False.
+        """
+        path_hash = RNS.Identity.truncated_hash(path.encode("utf-8"))
+        if path_hash in self.request_handlers:
+            self.request_handlers.pop(path_hash)
+            return True
+        else:
+            return False
+
+        
 
     def receive(self, packet):
         if packet.packet_type == RNS.Packet.LINKREQUEST:
