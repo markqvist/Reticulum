@@ -505,10 +505,10 @@ allow_unencrypted = False
 
 # If you enable Transport, your system will route traffic
 # for other peers, pass announces and serve path requests.
-# Unless you really know what you're doing, this should be
-# done only for systems that are suited to act as transport
-# nodes, ie. if they are stationary and always-on. This
-# directive is optional and can be removed for brevity.
+# This should be done for systems that are suited to act
+# as transport nodes, ie. if they are stationary and
+# always-on. This directive is optional and can be removed
+# for brevity.
 
 enable_transport = False
 
@@ -556,20 +556,37 @@ loglevel = 4
 [interfaces]
 
   # This interface enables communication with other
-  # Reticulum nodes on your local ethernet networks.
-  # It's enabled by default, and provides basic
-  # connectivity to other peers in your local ethernet
-  # broadcast domain. You can modify it to suit your
-  # needs or turn it off completely.
+  # local Reticulum nodes over UDP. You can modify it
+  # to suit your needs or turn it off completely.
+  # As a minimum, you should probably specify the
+  # network device you want to communicate on, such
+  # as eth0 or wlan0.
   
   [[Default UDP Interface]]
     type = UDPInterface
     interface_enabled = True
     outgoing = True
-    listen_ip = 0.0.0.0
-    listen_port = 4242
-    forward_ip = 255.255.255.255
-    forward_port = 4242
+    device = eth0
+    port = 4242
+
+    # Assuming the eth0 device has the address
+    # 10.55.0.72/24, the above configuration would
+    # be equivalent to the following manual setup.
+    # Note that we are both listening and forwarding
+    # to the network segments broadcast address.
+    
+    # listen_ip = 10.55.0.255
+    # listen_port = 4242
+    # forward_ip = 10.55.0.255
+    # forward_port = 4242
+
+    # You can of course also communicate only with
+    # a single IP address
+
+    # listen_ip = 10.55.0.15
+    # listen_port = 4242
+    # forward_ip = 10.55.0.16
+    # forward_port = 4242
 
 
   # This example demonstrates a TCP server interface.
@@ -580,8 +597,22 @@ loglevel = 4
     type = TCPServerInterface
     interface_enabled = False
     outgoing = True
+
+    # This configuration will listen on all IP
+    # interfaces on port 4242
+    
     listen_ip = 0.0.0.0
     listen_port = 4242
+
+    # Alternatively you can bind to a specific IP
+    
+    # listen_ip = 10.0.0.88
+    # listen_port = 4242
+
+    # Or a specific network device
+    
+    # device = eth0
+    # port = 4242
 
 
   # To connect to a TCP server interface, you would
