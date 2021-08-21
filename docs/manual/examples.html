@@ -1390,7 +1390,8 @@ the link has been established.</p>
 <span class="c1"># A reference to the latest client link that connected</span>
 <span class="n">latest_client_link</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="k">def</span> <span class="nf">random_text_generator</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">remote_identity_hash</span><span class="p">,</span> <span class="n">requested_at</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">random_text_generator</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">request_id</span><span class="p">,</span> <span class="n">remote_identity</span><span class="p">,</span> <span class="n">requested_at</span><span class="p">):</span>
+    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Generating response to request &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">request_id</span><span class="p">))</span>
     <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;They looked up&quot;</span><span class="p">,</span> <span class="s2">&quot;On each full moon&quot;</span><span class="p">,</span> <span class="s2">&quot;Becky was upset&quot;</span><span class="p">,</span> <span class="s2">&quot;I’ll stay away from it&quot;</span><span class="p">,</span> <span class="s2">&quot;The pet shop stocks everything&quot;</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">texts</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
 
@@ -2159,7 +2160,6 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
     <span class="n">download_time</span> <span class="o">=</span> <span class="n">download_finished</span> <span class="o">-</span> <span class="n">download_started</span>
 
     <span class="n">saved_filename</span> <span class="o">=</span> <span class="n">current_filename</span>
-
 
     <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Resource</span><span class="o">.</span><span class="n">COMPLETE</span><span class="p">:</span>
         <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
