@@ -391,13 +391,14 @@ class Transport:
                     if should_transmit:
                         RNS.log("Transmitting "+str(len(packet.raw))+" bytes on: "+str(interface), RNS.LOG_EXTREME)
                         RNS.log("Hash is "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_EXTREME)
+                        if not packet.packet_hash in Transport.packet_hashlist:
+                            Transport.packet_hashlist.append(packet.packet_hash)
                         interface.processOutgoing(packet.raw)
                         sent = True
 
         if sent:
             packet.sent = True
             packet.sent_at = time.time()
-            Transport.packet_hashlist.append(packet.packet_hash)
 
             # Don't generate receipt if it has been explicitly disabled
             if (packet.create_receipt == True and
