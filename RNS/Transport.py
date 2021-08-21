@@ -377,6 +377,7 @@ class Transport:
         # just the relevant interface if the packet has an attached
         # interface, or belongs to a link.
         else:
+            stored_hash = False
             for interface in Transport.interfaces:
                 if interface.OUT:
                     should_transmit = True
@@ -391,8 +392,10 @@ class Transport:
                     if should_transmit:
                         RNS.log("Transmitting "+str(len(packet.raw))+" bytes on: "+str(interface), RNS.LOG_EXTREME)
                         RNS.log("Hash is "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_EXTREME)
-                        if not packet.packet_hash in Transport.packet_hashlist:
+                        
+                        if not stored_hash:
                             Transport.packet_hashlist.append(packet.packet_hash)
+
                         interface.processOutgoing(packet.raw)
                         sent = True
 
@@ -1140,13 +1143,17 @@ class Transport:
 
     @staticmethod
     def exit_handler():
-        RNS.log("Saving packet hashlist to storage...", RNS.LOG_VERBOSE)
         try:
+            if not RNS.Reticulum.transport_enabled():
+                Transport.packet_hashlist = []
+            else:
+                RNS.log("Saving packet hashlist to storage...", RNS.LOG_VERBOSE)
+
             packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
             file = open(packet_hashlist_path, "wb")
             file.write(umsgpack.packb(Transport.packet_hashlist))
             file.close()
-            RNS.log("Done packet hashlist to storage", RNS.LOG_VERBOSE)
+
         except Exception as e:
             RNS.log("Could not save packet hashlist to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
