@@ -21,6 +21,8 @@ class Resource:
     :param progress_callback: A *callable* with the signature *callback(resource)*. Will be called whenever the resource transfer progress is updated.
     :param segment_index: Internal use, ignore.
     :param original_hash: Internal use, ignore.
+    :param is_request: Internal use, ignore.
+    :param is_response: Internal use, ignore.
     """
     WINDOW_FLEXIBILITY   = 4
     WINDOW_MIN           = 1
@@ -119,7 +121,8 @@ class Resource:
             resource.link.register_incoming_resource(resource)
 
             RNS.log("Accepting resource advertisement for "+RNS.prettyhexrep(resource.hash), RNS.LOG_DEBUG)
-            resource.link.callbacks.resource_started(resource)
+            if resource.link.callbacks.resource_started != None:
+                resource.link.callbacks.resource_started(resource)
 
             resource.hashmap_update(0, resource.hashmap_raw)
 
@@ -133,7 +136,7 @@ class Resource:
     # Create a resource for transmission to a remote destination
     # The data passed can be either a bytes-array or a file opened
     # in binary read mode.
-    def __init__(self, data, link, advertise=True, auto_compress=True, callback=None, progress_callback=None, segment_index = 1, original_hash = None):
+    def __init__(self, data, link, advertise=True, auto_compress=True, callback=None, progress_callback=None, segment_index = 1, original_hash = None, request_id = None, is_response = False):
         data_size = None
         resource_data = None
         if hasattr(data, "read"):
@@ -188,6 +191,8 @@ class Resource:
         self.__watchdog_job_id = 0
         self.__progress_callback = progress_callback
         self.rtt = None
+        self.request_id = request_id
+        self.is_response = is_response
 
         self.receiver_min_consecutive_height = 0
 
@@ -250,6 +255,7 @@ class Resource:
 
                 self.random_hash       = RNS.Identity.get_random_hash()[:Resource.RANDOM_HASH_SIZE]
                 self.hash = RNS.Identity.full_hash(data+self.random_hash)
+                self.truncated_hash = RNS.Identity.truncated_hash(data+self.random_hash)
                 self.expected_proof = RNS.Identity.full_hash(data+self.hash)
 
                 if original_hash == None:
@@ -739,6 +745,9 @@ class Resource:
                 self.link.resource_concluded(self)
                 self.callback(self)
 
+    def set_callback(self, callback):
+        self.callback = callback
+
     def progress_callback(self, callback):
         self.__progress_callback = callback
 
@@ -767,24 +776,63 @@ class Resource:
 
 
 class ResourceAdvertisement:
-    HASHMAP_MAX_LEN      = 73
+    HASHMAP_MAX_LEN      = 70
     COLLISION_GUARD_SIZE = 2*Resource.WINDOW_MAX+HASHMAP_MAX_LEN
 
-    def __init__(self, resource=None):
+    @staticmethod
+    def is_request(advertisement_packet):
+        adv = ResourceAdvertisement.unpack(advertisement_packet.plaintext)
+        if adv.q != None and adv.u:
+            return True
+        else:
+            return False
+
+
+    @staticmethod
+    def is_response(advertisement_packet):
+        adv = ResourceAdvertisement.unpack(advertisement_packet.plaintext)
+
+        if adv.q != None and adv.p:
+            return True
+        else:
+            return False
+
+
+    @staticmethod
+    def get_request_id(advertisement_packet):
+        adv = ResourceAdvertisement.unpack(advertisement_packet.plaintext)
+        return adv.q
+
+
+    def __init__(self, resource=None, request_id=None, is_response=False):
         if resource != None:
-            self.t = resource.size                             # Transfer size
-            self.d = resource.total_size                       # Total uncompressed data size
-            self.n = len(resource.parts)                       # Number of parts
-            self.h = resource.hash                             # Resource hash
-            self.r = resource.random_hash                      # Resource random hash
-            self.o = resource.original_hash                    # First-segment hash
-            self.m = resource.hashmap                          # Resource hashmap
-            self.c = resource.compressed                       # Compression flag
-            self.e = resource.encrypted                        # Encryption flag
-            self.s = resource.split                            # Split flag
-            self.i = resource.segment_index                    # Segment index
-            self.l = resource.total_segments                   # Total segments
-            self.f = 0x00 | self.s << 2 | self.c << 1 | self.e # Flags
+            self.t = resource.size              # Transfer size
+            self.d = resource.total_size        # Total uncompressed data size
+            self.n = len(resource.parts)        # Number of parts
+            self.h = resource.hash              # Resource hash
+            self.r = resource.random_hash       # Resource random hash
+            self.o = resource.original_hash     # First-segment hash
+            self.m = resource.hashmap           # Resource hashmap
+            self.c = resource.compressed        # Compression flag
+            self.e = resource.encrypted         # Encryption flag
+            self.s = resource.split             # Split flag
+            self.i = resource.segment_index     # Segment index
+            self.l = resource.total_segments    # Total segments
+            self.q = resource.request_id        # ID of associated request
+            self.u = False                      # Is request flag
+            self.p = False                      # Is response flag
+
+            if self.q != None:
+                if not resource.is_response:
+                    self.u = True
+                    self.p = False
+                else:
+                    self.u = False
+                    self.p = True
+
+            # Flags
+            self.f = 0x00 | self.p << 4 | self.u << 3 | self.s << 2 | self.c << 1 | self.e
+
 
     def pack(self, segment=0):
         hashmap_start = segment*ResourceAdvertisement.HASHMAP_MAX_LEN
@@ -803,11 +851,13 @@ class ResourceAdvertisement:
             "o": self.o,    # Original hash
             "i": self.i,    # Segment index
             "l": self.l,    # Total segments
+            "q": self.q,    # Request ID
             "f": self.f,    # Resource flags
             "m": hashmap
         }
 
         return umsgpack.packb(dictionary)
+
 
     @staticmethod
     def unpack(data):
@@ -824,8 +874,11 @@ class ResourceAdvertisement:
         adv.f = dictionary["f"]
         adv.i = dictionary["i"]
         adv.l = dictionary["l"]
+        adv.q = dictionary["q"]
         adv.e = True if (adv.f & 0x01) == 0x01 else False
         adv.c = True if ((adv.f >> 1) & 0x01) == 0x01 else False
         adv.s = True if ((adv.f >> 2) & 0x01) == 0x01 else False
+        adv.u = True if ((adv.f >> 3) & 0x01) == 0x01 else False
+        adv.p = True if ((adv.f >> 4) & 0x01) == 0x01 else False
 
         return adv

@@ -23,7 +23,7 @@ APP_NAME = "example_utilities"
 # A reference to the latest client link that connected
 latest_client_link = None
 
-def random_text_generator(path, data, request_id, remote_identity_hash, requested_at):
+def random_text_generator(path, data, request_id, remote_identity, requested_at):
     RNS.log("Generating response to request "+RNS.prettyhexrep(request_id))
     texts = ["They looked up", "On each full moon", "Becky was upset", "I’ll stay away from it", "The pet shop stocks everything"]
     return texts[random.randint(0, len(texts)-1)]

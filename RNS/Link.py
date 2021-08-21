@@ -280,10 +280,25 @@ class Link:
 
         if len(packed_request) <= Link.MDU:
             request_packet   = RNS.Packet(self, packed_request, RNS.Packet.DATA, context = RNS.Packet.REQUEST)
-            return RequestReceipt(self, request_packet.send(), response_callback, failed_callback)
+
+            return RequestReceipt(
+                self,
+                packet_receipt = request_packet.send(),
+                response_callback = response_callback,
+                failed_callback = failed_callback
+            )
+
         else:
-            # TODO: Implement sending requests as Resources
-            raise IOError("Request size of "+str(len(packed_request))+" exceeds MDU of "+str(Link.MDU)+" bytes")
+            request_id = RNS.Identity.truncated_hash(packed_request)
+            RNS.log("Sending request "+RNS.prettyhexrep(request_id)+" as resource.", RNS.LOG_DEBUG)
+            request_resource = RNS.Resource(packed_request, self, request_id = request_id, is_response = False)
+
+            return RequestReceipt(
+                self,
+                resource = request_resource,
+                response_callback = response_callback,
+                failed_callback = failed_callback
+            )
 
 
     def rtt_packet(self, packet):
@@ -446,6 +461,77 @@ class Link:
         keepalive_packet.send()
         self.had_outbound()
 
+    def handle_request(self, request_id, unpacked_request):
+        requested_at = unpacked_request[0]
+        path_hash    = unpacked_request[1]
+        request_data = unpacked_request[2]
+
+        if path_hash in self.destination.request_handlers:
+            request_handler = self.destination.request_handlers[path_hash]
+            path               = request_handler[0]
+            response_generator = request_handler[1]
+            allow              = request_handler[2]
+            allowed_list       = request_handler[3]
+
+            allowed = False
+            if not allow == RNS.Destination.ALLOW_NONE:
+                if allow == RNS.Destination.ALLOW_LIST:
+                    if self.__remote_identity.hash in allowed_list:
+                        allowed = True
+                elif allow == RNS.Destination.ALLOW_ALL:
+                    allowed = True
+
+            if allowed:
+                RNS.log("Handling request "+RNS.prettyhexrep(request_id)+" for: "+str(path), RNS.LOG_DEBUG)
+                response = response_generator(path, request_data, request_id, self.__remote_identity, requested_at)
+                if response != None:
+                    packed_response = umsgpack.packb([request_id, response])
+
+                    if len(packed_response) <= Link.MDU:
+                        RNS.Packet(self, packed_response, RNS.Packet.DATA, context = RNS.Packet.RESPONSE).send()
+                    else:
+                        response_resource = RNS.Resource(packed_response, self, request_id = request_id, is_response = True)
+            else:
+                identity_string = RNS.prettyhexrep(self.get_remote_identity()) if self.get_remote_identity() != None else "<Unknown>"
+                RNS.log("Request "+RNS.prettyhexrep(request_id)+" from "+identity_string+" not allowed for: "+str(path), RNS.LOG_DEBUG)
+
+    def handle_response(self, request_id, response_data):
+        remove = None
+        for pending_request in self.pending_requests:
+            if pending_request.request_id == request_id:
+                remove = pending_request
+                try:
+                    pending_request.response_received(response_data)
+                except Exception as e:
+                    RNS.log("Error occurred while handling response. The contained exception was: "+str(e), RNS.LOG_ERROR)
+
+                break
+
+        if remove != None:
+            self.pending_requests.remove(remove)
+
+    def request_resource_concluded(self, resource):
+        if resource.status == RNS.Resource.COMPLETE:
+            packed_request    = resource.data.read()
+            unpacked_request  = umsgpack.unpackb(packed_request)
+            request_id        = RNS.Identity.truncated_hash(packed_request)
+            request_data      = unpacked_request
+
+            self.handle_request(request_id, request_data)
+        else:
+            RNS.log("Incoming request resource failed with status: "+RNS.hexrep([resource.status]), RNS.LOG_DEBUG)
+
+    def response_resource_concluded(self, resource):
+        if resource.status == RNS.Resource.COMPLETE:
+            packed_response   = resource.data.read()
+            unpacked_response = umsgpack.unpackb(packed_response)
+            request_id        = unpacked_response[0]
+            response_data     = unpacked_response[1]
+
+            self.handle_response(request_id, response_data)
+        else:
+            RNS.log("Incoming response resource failed with status: "+RNS.hexrep([resource.status]), RNS.LOG_DEBUG)
+
     def receive(self, packet):
         self.watchdog_lock = True
         if not self.status == Link.CLOSED and not (self.initiator and packet.context == RNS.Packet.KEEPALIVE and packet.data == bytes([0xFF])):
@@ -493,64 +579,19 @@ class Link:
                             request_id = packet.getTruncatedHash()
                             packed_request = self.decrypt(packet.data)
                             unpacked_request = umsgpack.unpackb(packed_request)
-                            requested_at = unpacked_request[0]
-                            path_hash    = unpacked_request[1]
-                            request_data = unpacked_request[2]
-
-                            if path_hash in self.destination.request_handlers:
-                                request_handler = self.destination.request_handlers[path_hash]
-                                path               = request_handler[0]
-                                response_generator = request_handler[1]
-                                allow              = request_handler[2]
-                                allowed_list       = request_handler[3]
-
-                                allowed = False
-                                if not allow == RNS.Destination.ALLOW_NONE:
-                                    if allow == RNS.Destination.ALLOW_LIST:
-                                        if self.__remote_identity in allowed_list:
-                                            allowed = True
-                                    elif allow == RNS.Destination.ALLOW_ALL:
-                                        allowed = True
-
-                                if allowed:
-                                    response = response_generator(path, request_data, request_id, self.__remote_identity, requested_at)
-                                    if response != None:
-                                        packed_response = umsgpack.packb([request_id, True, response])
-
-                                        if len(packed_response) <= Link.MDU:
-                                            RNS.Packet(self, packed_response, RNS.Packet.DATA, context = RNS.Packet.RESPONSE).send()
-                                        else:
-                                            # TODO: Implement transfer as resource
-                                            packed_response = umsgpack.packb([request_id, False, None])
-                                            raise Exception("Response transfer as resource not implemented")
-
+                            self.handle_request(request_id, unpacked_request)
                         except Exception as e:
                             RNS.log("Error occurred while handling request. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
                     elif packet.context == RNS.Packet.RESPONSE:
-                        packed_response = self.decrypt(packet.data)
-                        unpacked_response = umsgpack.unpackb(packed_response)
-                        request_id = unpacked_response[0]
-
-                        if unpacked_response[1] == True:
-                            remove = None
-                            for pending_request in self.pending_requests:
-                                if pending_request.request_id == request_id:
-                                    response_data = unpacked_response[2]
-                                    remove = pending_request
-                                    try:
-                                        pending_request.response_received(response_data)
-                                    except Exception as e:
-                                        RNS.log("Error occurred while handling response. The contained exception was: "+str(e), RNS.LOG_ERROR)
-
-                                    break
-
-                            if remove != None:
-                                self.pending_requests.remove(remove)
-
-                        else:
-                            # TODO: Implement receiving responses as Resources
-                            raise Exception("Response transfer as resource not implemented")
+                        try:
+                            packed_response = self.decrypt(packet.data)
+                            unpacked_response = umsgpack.unpackb(packed_response)
+                            request_id = unpacked_response[0]
+                            response_data = unpacked_response[1]
+                            self.handle_response(request_id, response_data)
+                        except Exception as e:
+                            RNS.log("Error occurred while handling response. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
                     elif packet.context == RNS.Packet.LRRTT:
                         if not self.initiator:
@@ -561,7 +602,12 @@ class Link:
 
                     elif packet.context == RNS.Packet.RESOURCE_ADV:
                         packet.plaintext = self.decrypt(packet.data)
-                        if self.resource_strategy == Link.ACCEPT_NONE:
+
+                        if RNS.ResourceAdvertisement.is_request(packet):
+                            RNS.Resource.accept(packet, callback=self.request_resource_concluded)
+                        elif RNS.ResourceAdvertisement.is_response(packet):
+                            RNS.Resource.accept(packet, callback=self.response_resource_concluded)
+                        elif self.resource_strategy == Link.ACCEPT_NONE:
                             pass
                         elif self.resource_strategy == Link.ACCEPT_APP:
                             if self.callbacks.resource != None:
@@ -785,8 +831,18 @@ class RequestReceipt():
     DELIVERED = 0x02
     READY     = 0x03
 
-    def __init__(self, link, packet_receipt, response_callback = None, failed_callback = None):
-        self.hash               = packet_receipt.truncated_hash
+    def __init__(self, link, packet_receipt = None, resource = None, response_callback = None, failed_callback = None):
+        self.packet_receipt = packet_receipt
+        self.resource = resource
+
+        if self.packet_receipt != None:
+            self.hash = packet_receipt.truncated_hash
+            self.packet_receipt.set_timeout_callback(self.request_timed_out)
+
+        elif self.resource != None:
+            self.hash = resource.request_id
+            resource.set_callback(self.request_resource_concluded)
+        
         self.link               = link
         self.request_id         = self.hash
 
@@ -800,11 +856,19 @@ class RequestReceipt():
         self.callbacks.response = response_callback
         self.callbacks.failed   = failed_callback
 
-        self.packet_receipt = packet_receipt
-        self.packet_receipt.set_timeout_callback(self.request_timed_out)
-
         self.link.pending_requests.append(self)
 
+    def request_resource_concluded(self, resource):
+        if resource.status == RNS.Resource.COMPLETE:
+            RNS.log("Request "+RNS.prettyhexrep(self.request_id)+" successfully sent as resource.", RNS.LOG_DEBUG)
+        else:
+            RNS.log("Sending request "+RNS.prettyhexrep(self.request_id)+" as resource failed with status: "+RNS.hexrep([resource.status]), RNS.LOG_DEBUG)
+            self.status = RequestReceipt.FAILED
+            self.concluded_at = time.time()
+            self.link.pending_requests.remove(self)
+
+            if self.callbacks.failed != None:
+                self.callbacks.failed(self)
 
     def request_timed_out(self, packet_receipt):
         self.status = RequestReceipt.FAILED
@@ -817,11 +881,12 @@ class RequestReceipt():
     def response_received(self, response):
         self.response = response
 
-        self.packet_receipt.status = RNS.PacketReceipt.DELIVERED
-        self.packet_receipt.proved = True
-        self.packet_receipt.concluded_at = time.time()
-        if self.packet_receipt.callbacks.delivery != None:
-            self.packet_receipt.callbacks.delivery(self)
+        if self.packet_receipt != None:
+            self.packet_receipt.status = RNS.PacketReceipt.DELIVERED
+            self.packet_receipt.proved = True
+            self.packet_receipt.concluded_at = time.time()
+            if self.packet_receipt.callbacks.delivery != None:
+                self.packet_receipt.callbacks.delivery(self)
 
         if self.callbacks.response != None:
             self.callbacks.response(self)

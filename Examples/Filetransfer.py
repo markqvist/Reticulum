@@ -502,7 +502,6 @@ def download_concluded(resource):
 
     saved_filename = current_filename
 
-
     if resource.status == RNS.Resource.COMPLETE:
         counter = 0
         while os.path.isfile(saved_filename):
