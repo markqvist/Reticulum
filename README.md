@@ -32,6 +32,7 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
     - Reticulum can handle a few bytes of data or files of many gigabytes
     - Sequencing, transfer coordination and checksumming is automatic
     - The API is very easy to use, and provides transfer progress
+ - Lightweight, flexible and expandable Request/Response mechanism
  - Efficient link establishment
     - Total bandwidth cost of setting up a link is 3 packets totalling 240 bytes
     - Low cost of keeping links open at only 0.62 bits per second
