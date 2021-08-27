@@ -242,7 +242,6 @@ class Link:
                 RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(self.rtt), RNS.LOG_VERBOSE)
                 rtt_data = umsgpack.packb(self.rtt)
                 rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
-                RNS.log("Sending RTT packet", RNS.LOG_EXTREME);
                 rtt_packet.send()
                 self.had_outbound()
 
@@ -691,6 +690,7 @@ class Link:
             return ciphertext
         except Exception as e:
             RNS.log("Encryption on link "+str(self)+" failed. The contained exception was: "+str(e), RNS.LOG_ERROR)
+            raise e
 
 
     def decrypt(self, ciphertext):
@@ -705,8 +705,8 @@ class Link:
         except Exception as e:
             RNS.log("Decryption failed on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
             RNS.log(traceback.format_exc(), RNS.LOG_ERROR)
-            # TODO: Do we really need to do this? Or can we recover somehow?
-            self.teardown()
+            # TODO: Think long about implications here
+            # self.teardown()
 
 
     def sign(self, message):

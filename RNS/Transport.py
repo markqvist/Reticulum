@@ -180,7 +180,7 @@ class Transport:
                     while len(Transport.receipts) > Transport.MAX_RECEIPTS:
                         culled_receipt = Transport.receipts.pop(0)
                         culled_receipt.timeout = -1
-                        receipt.check_timeout()
+                        culled_receipt.check_timeout()
 
                     for receipt in Transport.receipts:
                         receipt.check_timeout()
@@ -246,8 +246,8 @@ class Transport:
 
 
                 # Cull the packet hashlist if it has reached max size
-                while (len(Transport.packet_hashlist) > Transport.hashlist_maxsize):
-                    Transport.packet_hashlist.pop(0)
+                if len(Transport.packet_hashlist) > Transport.hashlist_maxsize:
+                    Transport.packet_hashlist = Transport.packet_hashlist[len(Transport.packet_hashlist)-Transport.hashlist_maxsize:len(Transport.packet_hashlist)-1]
 
                 if time.time() > Transport.tables_last_culled + Transport.tables_cull_interval:
                     # Cull the reverse table according to timeout
@@ -338,8 +338,6 @@ class Transport:
                     new_raw += packet.raw[1:2]
                     new_raw += Transport.destination_table[packet.destination_hash][1]
                     new_raw += packet.raw[2:]
-                    # TODO: Remove at some point
-                    # RNS.log("Packet was inserted into transport via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_EXTREME)
                     outbound_interface.processOutgoing(new_raw)
                     Transport.destination_table[packet.destination_hash][0] = time.time()
                     sent = True
@@ -359,8 +357,6 @@ class Transport:
                     new_raw += packet.raw[1:2]
                     new_raw += Transport.destination_table[packet.destination_hash][1]
                     new_raw += packet.raw[2:]
-                    # TODO: Remove at some point
-                    # RNS.log("Packet was inserted into transport via "+RNS.prettyhexrep(Transport.destination_table[packet.destination_hash][1])+" on: "+str(outbound_interface), RNS.LOG_EXTREME)
                     outbound_interface.processOutgoing(new_raw)
                     Transport.destination_table[packet.destination_hash][0] = time.time()
                     sent = True
@@ -390,9 +386,6 @@ class Transport:
                         should_transmit = False
                             
                     if should_transmit:
-                        RNS.log("Transmitting "+str(len(packet.raw))+" bytes on: "+str(interface), RNS.LOG_EXTREME)
-                        RNS.log("Hash is "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_EXTREME)
-                        
                         if not stored_hash:
                             Transport.packet_hashlist.append(packet.packet_hash)
 
@@ -452,8 +445,7 @@ class Transport:
     @staticmethod
     def inbound(raw, interface=None):
         while (Transport.jobs_running):
-            # TODO: Decrease this for performance
-            sleep(0.1)
+            sleep(0.01)
             
         Transport.jobs_locked = True
         
@@ -461,8 +453,6 @@ class Transport:
         packet.unpack()
         packet.receiving_interface = interface
         packet.hops += 1
-
-        RNS.log(str(interface)+" received packet with hash "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_EXTREME)
 
         if len(Transport.local_client_interfaces) > 0:
 
@@ -528,11 +518,13 @@ class Transport:
                 # accordingly if we are.
                 if packet.transport_id != None and packet.packet_type != RNS.Packet.ANNOUNCE:
                     if packet.transport_id == Transport.identity.hash:
-                        RNS.log("Received packet in transport for "+RNS.prettyhexrep(packet.destination_hash)+" with matching transport ID, transporting it...", RNS.LOG_DEBUG)
+                        # TODO: Remove at some point
+                        # RNS.log("Received packet in transport for "+RNS.prettyhexrep(packet.destination_hash)+" with matching transport ID, transporting it...", RNS.LOG_DEBUG)
                         if packet.destination_hash in Transport.destination_table:
                             next_hop = Transport.destination_table[packet.destination_hash][1]
                             remaining_hops = Transport.destination_table[packet.destination_hash][2]
-                            RNS.log("Next hop to destination is "+RNS.prettyhexrep(next_hop)+" with "+str(remaining_hops)+" hops remaining, transporting it.", RNS.LOG_DEBUG)
+                            # TODO: Remove at some point
+                            # RNS.log("Next hop to destination is "+RNS.prettyhexrep(next_hop)+" with "+str(remaining_hops)+" hops remaining, transporting it.", RNS.LOG_DEBUG)
                             if remaining_hops > 1:
                                 # Just increase hop count and transmit
                                 new_raw  = packet.raw[0:1]

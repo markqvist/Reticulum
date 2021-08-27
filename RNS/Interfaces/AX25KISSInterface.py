@@ -224,7 +224,6 @@ class AX25KISSInterface(Interface):
                 kiss_frame = bytes([KISS.FEND])+bytes([0x00])+data+bytes([KISS.FEND])
 
                 if (self.txdelay > 0):
-                    RNS.log(str(self.name)+" delaying TX for "+str(self.txdelay)+" seconds", RNS.LOG_EXTREME)
                     sleep(self.txdelay)
 
                 written = self.serial.write(kiss_frame)

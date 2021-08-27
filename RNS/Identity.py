@@ -64,16 +64,13 @@ class Identity:
         :param destination_hash: Destination hash as *bytes*.
         :returns: An :ref:`RNS.Identity<api-identity>` instance that can be used to create an outgoing :ref:`RNS.Destination<api-destination>`, or *None* if the destination is unknown.
         """
-        RNS.log("Searching for "+RNS.prettyhexrep(destination_hash)+"...", RNS.LOG_EXTREME)
         if destination_hash in Identity.known_destinations:
             identity_data = Identity.known_destinations[destination_hash]
             identity = Identity(create_keys=False)
             identity.load_public_key(identity_data[2])
             identity.app_data = identity_data[3]
-            RNS.log("Found "+RNS.prettyhexrep(destination_hash)+" in known destinations", RNS.LOG_EXTREME)
             return identity
         else:
-            RNS.log("Could not find "+RNS.prettyhexrep(destination_hash)+" in known destinations", RNS.LOG_EXTREME)
             return None
 
     @staticmethod
@@ -84,13 +81,10 @@ class Identity:
         :param destination_hash: Destination hash as *bytes*.
         :returns: *Bytes* containing app_data, or *None* if the destination is unknown.
         """
-        RNS.log("Searching for app_data for "+RNS.prettyhexrep(destination_hash)+"...", RNS.LOG_EXTREME)
         if destination_hash in Identity.known_destinations:
             app_data = Identity.known_destinations[destination_hash][3]
-            RNS.log("Found "+RNS.prettyhexrep(destination_hash)+" app_data in known destinations", RNS.LOG_EXTREME)
             return app_data
         else:
-            RNS.log("Could not find "+RNS.prettyhexrep(destination_hash)+" app_data in known destinations", RNS.LOG_EXTREME)
             return None
 
     @staticmethod
