@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Reference &#8212; Reticulum Network Stack 0.2.2 beta documentation</title>
+    <title>API Reference &#8212; Reticulum Network Stack 0.2.3 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="understanding.html" title="Understanding Reticulum"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.2 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.3 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">API Reference</a></li> 
       </ul>
     </div>  
@@ -774,12 +774,14 @@ from a the <em>send()</em> method of a <a class="reference internal" href="#api-
 <span id="api-link"></span><h3>Link<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Link">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peer_pub_bytes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peer_sig_pub_bytes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">established_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peer_pub_bytes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peer_sig_pub_bytes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>destination</strong> – A <a class="reference internal" href="#api-destination"><span class="std std-ref">RNS.Destination</span></a> instance which to establish a link to.</p></li>
+<li><p><strong>established_callback</strong> – A function or method with the signature <em>callback(link)</em> to be called when the link has been established.</p></li>
+<li><p><strong>closed_callback</strong> – A function or method with the signature <em>callback(link)</em> to be called when the link is closed.</p></li>
 <li><p><strong>owner</strong> – Internal use by <a class="reference internal" href="#api-transport"><span class="std std-ref">RNS.Transport</span></a>, ignore this argument.</p></li>
 <li><p><strong>peer_pub_bytes</strong> – Internal use, ignore this argument.</p></li>
 <li><p><strong>peer_sig_pub_bytes</strong> – Internal use, ignore this argument.</p></li>
@@ -794,7 +796,7 @@ from a the <em>send()</em> method of a <a class="reference internal" href="#api-
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="RNS.Link.DEFAULT_TIMEOUT">
-<span class="sig-name descname"><span class="pre">DEFAULT_TIMEOUT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">15.0</span></em><a class="headerlink" href="#RNS.Link.DEFAULT_TIMEOUT" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULT_TIMEOUT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">60.0</span></em><a class="headerlink" href="#RNS.Link.DEFAULT_TIMEOUT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default timeout for link establishment in seconds.</p>
 </dd></dl>
 
@@ -820,14 +822,15 @@ thus preserved. This method can be used for authentication.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Link.request">
-<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failed_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.request" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failed_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends a request to the remote peer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>path</strong> – The request path.</p></li>
-<li><p><strong>response_callback</strong> – A function or method with the signature <em>response_callback(request_receipt)</em> to be called when a response is received. See the <a class="reference internal" href="examples.html#example-request"><span class="std std-ref">Request Example</span></a> for more info.</p></li>
-<li><p><strong>failed_callback</strong> – A function or method with the signature <em>failed_callback(request_receipt)</em> to be called when a request fails. See the <a class="reference internal" href="examples.html#example-request"><span class="std std-ref">Request Example</span></a> for more info.</p></li>
+<li><p><strong>response_callback</strong> – An optional function or method with the signature <em>response_callback(request_receipt)</em> to be called when a response is received. See the <a class="reference internal" href="examples.html#example-request"><span class="std std-ref">Request Example</span></a> for more info.</p></li>
+<li><p><strong>failed_callback</strong> – An optional function or method with the signature <em>failed_callback(request_receipt)</em> to be called when a request fails. See the <a class="reference internal" href="examples.html#example-request"><span class="std std-ref">Request Example</span></a> for more info.</p></li>
+<li><p><strong>timeout</strong> – An optional timeout in seconds for the request. If <em>None</em> is supplied, this defaults to <code class="docutils literal notranslate"><span class="pre">RNS.Packet.TIMEOUT</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -975,7 +978,7 @@ client application and throw an error message to the user.</p>
 <span id="api-resource"></span><h3>Resource<a class="headerlink" href="#resource" title="Permalink to this headline">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Resource">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advertise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_hash</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advertise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_hash</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Resource class allows transferring arbitrary amounts
 of data over a link. It will automatically handle sequencing,
 compression, coordination and checksumming.</p>
@@ -1144,7 +1147,7 @@ will announce it.</p>
         <li class="right" >
           <a href="understanding.html" title="Understanding Reticulum"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.2 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.3 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">API Reference</a></li> 
       </ul>
     </div>
