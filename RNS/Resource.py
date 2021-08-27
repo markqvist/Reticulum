@@ -52,7 +52,6 @@ class Resource:
 
     # TODO: Should be allocated more
     # intelligently
-    # TODO: Set higher
     MAX_RETRIES       = 5
     SENDER_GRACE_TIME = 10
     RETRY_GRACE_TIME  = 0.25
@@ -136,7 +135,7 @@ class Resource:
     # Create a resource for transmission to a remote destination
     # The data passed can be either a bytes-array or a file opened
     # in binary read mode.
-    def __init__(self, data, link, advertise=True, auto_compress=True, callback=None, progress_callback=None, segment_index = 1, original_hash = None, request_id = None, is_response = False):
+    def __init__(self, data, link, advertise=True, auto_compress=True, callback=None, progress_callback=None, timeout = None, segment_index = 1, original_hash = None, request_id = None, is_response = False):
         data_size = None
         resource_data = None
         if hasattr(data, "read"):
@@ -183,7 +182,6 @@ class Resource:
         self.link = link
         self.max_retries = Resource.MAX_RETRIES
         self.retries_left = self.max_retries
-        self.default_timeout = self.link.default_timeout
         self.timeout_factor = self.link.timeout_factor
         self.sender_grace_time = Resource.SENDER_GRACE_TIME
         self.hmu_retry_ok = False
@@ -195,6 +193,11 @@ class Resource:
         self.is_response = is_response
 
         self.receiver_min_consecutive_height = 0
+
+        if timeout != None:
+            self.timeout = timeout
+        else:
+            self.timeout = self.link.default_timeout
 
         if data != None:
             self.initiator         = True
@@ -370,7 +373,7 @@ class Resource:
             sleep_time = None
 
             if self.status == Resource.ADVERTISED:
-                sleep_time = (self.adv_sent+self.default_timeout)-time.time()
+                sleep_time = (self.adv_sent+self.timeout)-time.time()
                 if sleep_time < 0:
                     if self.retries_left <= 0:
                         RNS.log("Resource transfer timeout after sending advertisement", RNS.LOG_DEBUG)
