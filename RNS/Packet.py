@@ -440,7 +440,7 @@ class PacketReceipt:
         return (self.sent_at+self.timeout < time.time())
 
     def check_timeout(self):
-        if self.is_timed_out():
+        if self.status == PacketReceipt.SENT and self.is_timed_out():
             if self.timeout == -1:
                 self.status = PacketReceipt.CULLED
             else:

@@ -864,6 +864,9 @@ class Transport:
                             if receipt.hash == proof_hash:
                                 receipt_validated = receipt.validate_proof_packet(packet)
                         else:
+                            # TODO: This looks like it should actually
+                            # be rewritten when implicit proofs are added.
+                            
                             # In case of an implicit proof, we have
                             # to check every single outstanding receipt
                             receipt_validated = receipt.validate_proof_packet(packet)
