@@ -120,8 +120,6 @@ class Link:
         self.rx = 0
         self.txbytes = 0
         self.rxbytes = 0
-        self.establishment_timeout = Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, RNS.Transport.hops_to(destination.hash))
-        RNS.log("Establishment timeout set to: "+str(self.establishment_timeout))
         self.traffic_timeout_factor = Link.TRAFFIC_TIMEOUT_FACTOR
         self.keepalive_timeout_factor = Link.KEEPALIVE_TIMEOUT_FACTOR
         self.keepalive = Link.KEEPALIVE
@@ -139,6 +137,7 @@ class Link:
             self.sig_prv = self.owner.identity.sig_prv
         else:
             self.initiator = True
+            self.establishment_timeout = Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, RNS.Transport.hops_to(destination.hash))
             self.prv     = X25519PrivateKey.generate()
             self.sig_prv = Ed25519PrivateKey.generate()
 
