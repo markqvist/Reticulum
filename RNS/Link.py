@@ -83,6 +83,7 @@ class Link:
                 link = Link(owner = owner, peer_pub_bytes=data[:Link.ECPUBSIZE//2], peer_sig_pub_bytes=data[Link.ECPUBSIZE//2:Link.ECPUBSIZE])
                 link.set_link_id(packet)
                 link.destination = packet.destination
+                link.establishment_timeout = Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, packet.hops)
                 RNS.log("Validating link request "+RNS.prettyhexrep(link.link_id), RNS.LOG_VERBOSE)
                 link.handshake()
                 link.attached_interface = packet.receiving_interface
