@@ -191,6 +191,24 @@ class Identity:
         else:
             return None
 
+    def to_file(self, path):
+        """
+        Saves the identity to a file. This will write the private key to disk,
+        and anyone with access to this file will be able to decrypt all
+        communication for the identity. Be very careful with this method.
+
+        :param path: The full path specifying where to save the identity.
+        :returns: True if the file was saved, otherwise False.
+        """
+        try:
+            with open(path, "wb") as key_file:
+                key_file.write(self.get_private_key())
+                return True
+            return False
+        except Exception as e:
+            RNS.log("Error while saving identity to "+str(path), RNS.LOG_ERROR)
+            RNS.log("The contained exception was: "+str(e))
+
     @staticmethod
     def from_bytes(prv_bytes):
         """
@@ -324,24 +342,6 @@ class Identity:
     def update_hashes(self):
         self.hash = Identity.truncated_hash(self.get_public_key())
         self.hexhash = self.hash.hex()
-
-    def to_file(self, path):
-        """
-        Saves the identity to a file. This will write the private key to disk,
-        and anyone with access to this file will be able to decrypt all
-        communication for the identity. Be very careful with this method.
-
-        :param path: The full path specifying where to save the identity.
-        :returns: True if the file was saved, otherwise False.
-        """
-        try:
-            with open(path, "wb") as key_file:
-                key_file.write(self.get_public_key())
-                return True
-            return False
-        except Exception as e:
-            RNS.log("Error while saving identity to "+str(path), RNS.LOG_ERROR)
-            RNS.log("The contained exception was: "+str(e))
 
     def load(self, path):
         try:
