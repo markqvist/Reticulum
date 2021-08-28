@@ -22,7 +22,10 @@ class Transport:
 
     APP_NAME = "rnstransport"
 
-    PATHFINDER_M    = 18        # Max hops
+    PATHFINDER_M    = 128       # Max hops
+    """
+    Maximum amount of hops that Reticulum will transport a packet.
+    """
     PATHFINDER_C    = 2.0       # Decay constant
     PATHFINDER_R    = 1         # Retransmit retries
     PATHFINDER_T    = 10        # Retry grace period
@@ -1024,6 +1027,17 @@ class Transport:
             return True
         else:
             return False
+
+    @staticmethod
+    def hops_to(destination_hash):
+        """
+        :param destination_hash: A destination hash as *bytes*.
+        :returns: The number of hops to the specified destination, or ``RNS.Transport.PATHFINDER_M`` if the number of hops is unknown.
+        """
+        if destination_hash in Transport.destination_table:
+            return Transport.destination_table[destination_hash][2]
+        else:
+            return Transport.PATHFINDER_M
 
     @staticmethod
     def request_path(destination_hash):

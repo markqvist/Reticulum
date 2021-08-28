@@ -71,19 +71,18 @@ class Packet:
     # With an MTU of 500, the maximum of data we can
     # send in a single encrypted packet is given by
     # the below calculation; 383 bytes.
-    ENCRYPTED_MDU = math.floor((RNS.Reticulum.MDU-RNS.Identity.AES_HMAC_OVERHEAD-RNS.Identity.KEYSIZE//16)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
+    ENCRYPTED_MDU  = math.floor((RNS.Reticulum.MDU-RNS.Identity.AES_HMAC_OVERHEAD-RNS.Identity.KEYSIZE//16)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
     """
     The maximum size of the payload data in a single encrypted packet 
     """
-    PLAIN_MDU     = MDU
+    PLAIN_MDU      = MDU
     """
     The maximum size of the payload data in a single unencrypted packet 
     """
 
-    # TODO: This should be calculated
-    # more intelligently
-    # Default packet timeout
-    TIMEOUT      = 60
+    # This value is set at a reasonable
+    # level for a 1 Kb/s channel.
+    TIMEOUT_PER_HOP = 5
 
     def __init__(self, destination, data, packet_type = DATA, context = NONE, transport_type = RNS.Transport.BROADCAST, header_type = HEADER_1, transport_id = None, attached_interface = None, create_receipt = True):
         if destination != None:
@@ -329,12 +328,17 @@ class PacketReceipt:
         self.truncated_hash = packet.getTruncatedHash()
         self.sent           = True
         self.sent_at        = time.time()
-        self.timeout        = Packet.TIMEOUT
         self.proved         = False
         self.status         = PacketReceipt.SENT
         self.destination    = packet.destination
         self.callbacks      = PacketReceiptCallbacks()
         self.concluded_at   = None
+
+        if packet.destination.type == RNS.Destination.LINK:
+            self.timeout    = packet.destination.rtt * packet.destination.traffic_timeout_factor
+        else:
+            self.timeout    = Packet.TIMEOUT_PER_HOP * RNS.Transport.hops_to(self.destination.hash)
+
 
     def get_status(self):
         """
@@ -448,7 +452,6 @@ class PacketReceipt:
                 thread = threading.Thread(target=self.callbacks.timeout, args=(self,))
                 thread.setDaemon(True)
                 thread.start()
-                #self.callbacks.timeout(self)
 
 
     def set_timeout(self, timeout):

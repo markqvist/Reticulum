@@ -182,7 +182,7 @@ class Resource:
         self.link = link
         self.max_retries = Resource.MAX_RETRIES
         self.retries_left = self.max_retries
-        self.timeout_factor = self.link.timeout_factor
+        self.timeout_factor = self.link.traffic_timeout_factor
         self.sender_grace_time = Resource.SENDER_GRACE_TIME
         self.hmu_retry_ok = False
         self.watchdog_lock = False
@@ -197,7 +197,7 @@ class Resource:
         if timeout != None:
             self.timeout = timeout
         else:
-            self.timeout = self.link.rtt * 20
+            self.timeout = self.link.rtt * self.link.traffic_timeout_factor
 
         if data != None:
             self.initiator         = True
@@ -805,6 +805,18 @@ class ResourceAdvertisement:
     def get_request_id(advertisement_packet):
         adv = ResourceAdvertisement.unpack(advertisement_packet.plaintext)
         return adv.q
+
+
+    @staticmethod
+    def get_transfer_size(advertisement_packet):
+        adv = ResourceAdvertisement.unpack(advertisement_packet.plaintext)
+        return adv.t
+
+
+    @staticmethod
+    def get_size(advertisement_packet):
+        adv = ResourceAdvertisement.unpack(advertisement_packet.plaintext)
+        return adv.d
 
 
     def __init__(self, resource=None, request_id=None, is_response=False):

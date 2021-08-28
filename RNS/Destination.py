@@ -22,7 +22,7 @@ class Destination:
     encrypted communication with it.
 
     :param identity: An instance of :ref:`RNS.Identity<api-identity>`. Can hold only public keys for an outgoing destination, or holding private keys for an ingoing.
-    :param direction: ``RNS.Destination.IN`` or ``RNS.Destination.OUT``
+    :param direction: ``RNS.Destination.IN`` or ``RNS.Destination.OUT``.
     :param type: ``RNS.Destination.SINGLE``, ``RNS.Destination.GROUP`` or ``RNS.Destination.PLAIN``.
     :param app_name: A string specifying the app name.
     :param \*aspects: Any non-zero number of string arguments.
