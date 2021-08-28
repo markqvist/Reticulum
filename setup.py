@@ -21,5 +21,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=['cryptography>=3.4.7', 'pyserial', 'netifaces>=0.10.4'],
-    python_requires='>=3.5',
+    python_requires='>=3.6',
 )

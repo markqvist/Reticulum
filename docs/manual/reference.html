@@ -398,7 +398,7 @@ encrypted communication with it.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>identity</strong> – An instance of <a class="reference internal" href="#api-identity"><span class="std std-ref">RNS.Identity</span></a>. Can hold only public keys for an outgoing destination, or holding private keys for an ingoing.</p></li>
-<li><p><strong>direction</strong> – <code class="docutils literal notranslate"><span class="pre">RNS.Destination.IN</span></code> or <code class="docutils literal notranslate"><span class="pre">RNS.Destination.OUT</span></code></p></li>
+<li><p><strong>direction</strong> – <code class="docutils literal notranslate"><span class="pre">RNS.Destination.IN</span></code> or <code class="docutils literal notranslate"><span class="pre">RNS.Destination.OUT</span></code>.</p></li>
 <li><p><strong>type</strong> – <code class="docutils literal notranslate"><span class="pre">RNS.Destination.SINGLE</span></code>, <code class="docutils literal notranslate"><span class="pre">RNS.Destination.GROUP</span></code> or <code class="docutils literal notranslate"><span class="pre">RNS.Destination.PLAIN</span></code>.</p></li>
 <li><p><strong>app_name</strong> – A string specifying the app name.</p></li>
 <li><p><strong>*aspects</strong> – Any non-zero number of string arguments.</p></li>
@@ -795,9 +795,9 @@ from a the <em>send()</em> method of a <a class="reference internal" href="#api-
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="RNS.Link.DEFAULT_TIMEOUT">
-<span class="sig-name descname"><span class="pre">DEFAULT_TIMEOUT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">60.0</span></em><a class="headerlink" href="#RNS.Link.DEFAULT_TIMEOUT" title="Permalink to this definition">¶</a></dt>
-<dd><p>Default timeout for link establishment in seconds.</p>
+<dt class="sig sig-object py" id="RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP">
+<span class="sig-name descname"><span class="pre">ESTABLISHMENT_TIMEOUT_PER_HOP</span></span><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default timeout for link establishment in seconds per hop to destination.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -822,7 +822,7 @@ thus preserved. This method can be used for authentication.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Link.request">
-<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failed_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.request" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failed_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends a request to the remote peer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -830,7 +830,8 @@ thus preserved. This method can be used for authentication.</p>
 <li><p><strong>path</strong> – The request path.</p></li>
 <li><p><strong>response_callback</strong> – An optional function or method with the signature <em>response_callback(request_receipt)</em> to be called when a response is received. See the <a class="reference internal" href="examples.html#example-request"><span class="std std-ref">Request Example</span></a> for more info.</p></li>
 <li><p><strong>failed_callback</strong> – An optional function or method with the signature <em>failed_callback(request_receipt)</em> to be called when a request fails. See the <a class="reference internal" href="examples.html#example-request"><span class="std std-ref">Request Example</span></a> for more info.</p></li>
-<li><p><strong>timeout</strong> – An optional timeout in seconds for the request. If <em>None</em> is supplied, this defaults to <code class="docutils literal notranslate"><span class="pre">RNS.Packet.TIMEOUT</span></code>.</p></li>
+<li><p><strong>progress_callback</strong> – An optional function or method with the signature <em>progress_callback(request_receipt)</em> to be called when progress is made receiving the response. Progress can be accessed as a float between 0.0 and 1.0 by the <em>request_receipt.progress</em> property.</p></li>
+<li><p><strong>timeout</strong> – An optional timeout in seconds for the request. If <em>None</em> is supplied it will be calculated based on link RTT.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1029,7 +1030,13 @@ the resource advertisement it will begin transferring.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Transport">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Transport</span></span><a class="headerlink" href="#RNS.Transport" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Transport.PATHFINDER_M">
+<span class="sig-name descname"><span class="pre">PATHFINDER_M</span></span><em class="property"> <span class="pre">=</span> <span class="pre">128</span></em><a class="headerlink" href="#RNS.Transport.PATHFINDER_M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum amount of hops that Reticulum will transport a packet.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Transport.register_announce_handler">
 <em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">register_announce_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Transport.register_announce_handler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers an announce handler.</p>
@@ -1060,6 +1067,19 @@ the resource advertisement it will begin transferring.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><em>True</em> if a path to the destination is known, otherwise <em>False</em>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Transport.hops_to">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">hops_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Transport.hops_to" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>destination_hash</strong> – A destination hash as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The number of hops to the specified destination, or <code class="docutils literal notranslate"><span class="pre">RNS.Transport.PATHFINDER_M</span></code> if the number of hops is unknown.</p>
 </dd>
 </dl>
 </dd></dl>
