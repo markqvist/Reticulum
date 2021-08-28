@@ -197,7 +197,7 @@ class Resource:
         if timeout != None:
             self.timeout = timeout
         else:
-            self.timeout = self.link.default_timeout
+            self.timeout = self.link.rtt * 20
 
         if data != None:
             self.initiator         = True
