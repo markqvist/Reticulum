@@ -118,23 +118,33 @@ def server_packet_received(message, packet):
         rc = 0
 
     if received_data > data_cap:
+        rcv_d = received_data
+        received_data = 0
+        rc = 0
+
         last_packet_at = time.time()
-        latest_client_link.teardown()
         
         # Print statistics
         download_time = last_packet_at-first_packet_at
         hours, rem = divmod(download_time, 3600)
         minutes, seconds = divmod(rem, 60)
         timestring = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds)
+
         print("")
         print("")
         print("--- Statistics -----")
         print("\tTime taken       : "+timestring)
-        print("\tData transferred : "+size_str(received_data))
-        print("\tTransfer rate    : "+size_str(received_data/download_time, suffix='b')+"/s")
+        print("\tData transferred : "+size_str(rcv_d))
+        print("\tTransfer rate    : "+size_str(rcv_d/download_time, suffix='b')+"/s")
+        print("")
 
+        sys.stdout.flush()
+        latest_client_link.teardown()
+        time.sleep(0.2)
         rc = 0
         received_data = 0
+        # latest_client_link.teardown()
+        # os._exit(0)
 
 
 ##########################################################
@@ -247,6 +257,10 @@ def link_established(link):
             print("\tTime taken       : "+timestring)
             print("\tData transferred : "+size_str(data_sent))
             print("\tTransfer rate    : "+size_str(data_sent/download_time, suffix='b')+"/s")
+            print("")
+
+            sys.stdout.flush()
+            time.sleep(0.1)
 
 
 # When a link is closed, we'll inform the
