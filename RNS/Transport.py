@@ -734,19 +734,20 @@ class Transport:
                                 announce_context = RNS.Packet.NONE
                                 announce_data = packet.data
 
-                                new_announce = RNS.Packet(
-                                    announce_destination,
-                                    announce_data,
-                                    RNS.Packet.ANNOUNCE,
-                                    context = announce_context,
-                                    header_type = RNS.Packet.HEADER_2,
-                                    transport_type = Transport.TRANSPORT,
-                                    transport_id = Transport.identity.hash,
-                                    attached_interface = attached_interface
-                                )
+                                for local_interface in Transport.local_client_interfaces:
+                                    new_announce = RNS.Packet(
+                                        announce_destination,
+                                        announce_data,
+                                        RNS.Packet.ANNOUNCE,
+                                        context = announce_context,
+                                        header_type = RNS.Packet.HEADER_2,
+                                        transport_type = Transport.TRANSPORT,
+                                        transport_id = Transport.identity.hash,
+                                        attached_interface = local_interface
+                                    )
 
-                                new_announce.hops = packet.hops
-                                new_announce.send()
+                                    new_announce.hops = packet.hops
+                                    new_announce.send()
 
                             Transport.destination_table[packet.destination_hash] = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet]
                             RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_VERBOSE)
@@ -866,7 +867,7 @@ class Transport:
                         else:
                             # TODO: This looks like it should actually
                             # be rewritten when implicit proofs are added.
-                            
+
                             # In case of an implicit proof, we have
                             # to check every single outstanding receipt
                             receipt_validated = receipt.validate_proof_packet(packet)
@@ -883,7 +884,12 @@ class Transport:
             for registered_destination in Transport.destinations:
                 if destination.hash == registered_destination.hash:
                     raise KeyError("Attempt to register an already registered destination.")
+            
             Transport.destinations.append(destination)
+
+            if Transport.owner.is_connected_to_shared_instance:
+                if destination.type == RNS.Destination.SINGLE:
+                    destination.announce(path_response=True)
 
     @staticmethod
     def deregister_destination(destination):
