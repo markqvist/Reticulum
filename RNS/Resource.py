@@ -699,6 +699,7 @@ class Resource:
                 if part_index % ResourceAdvertisement.HASHMAP_MAX_LEN != 0:
                     RNS.log("Resource sequencing error, cancelling transfer!", RNS.LOG_ERROR)
                     self.cancel()
+                    return
                 else:
                     segment = part_index // ResourceAdvertisement.HASHMAP_MAX_LEN
 
