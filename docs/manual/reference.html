@@ -231,6 +231,22 @@ Can be used to load previously created and saved identities into Reticulum.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.to_file">
+<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the identity to a file. This will write the private key to disk,
+and anyone with access to this file will be able to decrypt all
+communication for the identity. Be very careful with this method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – The full path specifying where to save the identity.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the file was saved, otherwise False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Identity.from_bytes">
 <em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prv_bytes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.from_bytes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a class="reference internal" href="#api-identity"><span class="std std-ref">RNS.Identity</span></a> instance from <em>bytes</em> of private key.
@@ -289,22 +305,6 @@ Can be used to load previously created and saved identities into Reticulum.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if the key was loaded, otherwise False.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="RNS.Identity.to_file">
-<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.to_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Saves the identity to a file. This will write the private key to disk,
-and anyone with access to this file will be able to decrypt all
-communication for the identity. Be very careful with this method.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> – The full path specifying where to save the identity.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True if the file was saved, otherwise False.</p>
 </dd>
 </dl>
 </dd></dl>
