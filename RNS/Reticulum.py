@@ -566,15 +566,30 @@ loglevel = 4
     type = UDPInterface
     interface_enabled = True
     outgoing = True
-    device = eth0
-    port = 4242
+    listen_ip = 0.0.0.0
+    listen_port = 4242
+    forward_ip = 255.255.255.255
+    forward_port = 4242
+
+    # The above configuration will allow communication
+    # within the local broadcast domains of all local
+    # IP interfaces. This is enabled by default as an
+    # easy way to get started, but you might want to
+    # consider altering it to something more specific.
+
+    # Instead of specifying listen_ip, listen_port,
+    # forward_ip and forward_port, you can also bind
+    # to a specific network device like below.
+
+    # device = eth0
+    # port = 4242
 
     # Assuming the eth0 device has the address
     # 10.55.0.72/24, the above configuration would
     # be equivalent to the following manual setup.
-    # Note that we are both listening and forwarding
-    # to the network segments broadcast address.
-    
+    # Note that we are both listening and forwarding to
+    # the broadcast address of the network segments.
+
     # listen_ip = 10.55.0.255
     # listen_port = 4242
     # forward_ip = 10.55.0.255
