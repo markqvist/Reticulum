@@ -734,20 +734,39 @@ class Transport:
                                 announce_context = RNS.Packet.NONE
                                 announce_data = packet.data
 
-                                for local_interface in Transport.local_client_interfaces:
-                                    new_announce = RNS.Packet(
-                                        announce_destination,
-                                        announce_data,
-                                        RNS.Packet.ANNOUNCE,
-                                        context = announce_context,
-                                        header_type = RNS.Packet.HEADER_2,
-                                        transport_type = Transport.TRANSPORT,
-                                        transport_id = Transport.identity.hash,
-                                        attached_interface = local_interface
-                                    )
+                                if Transport.from_local_client(packet) and packet.context == RNS.Packet.PATH_RESPONSE:
+                                    for interface in Transport.interfaces:
+                                        if packet.receiving_interface != interface:
+                                            new_announce = RNS.Packet(
+                                                announce_destination,
+                                                announce_data,
+                                                RNS.Packet.ANNOUNCE,
+                                                context = announce_context,
+                                                header_type = RNS.Packet.HEADER_2,
+                                                transport_type = Transport.TRANSPORT,
+                                                transport_id = Transport.identity.hash,
+                                                attached_interface = interface
+                                            )
+                                            
+                                            new_announce.hops = packet.hops
+                                            new_announce.send()
 
-                                    new_announce.hops = packet.hops
-                                    new_announce.send()
+                                else:
+                                    for local_interface in Transport.local_client_interfaces:
+                                        new_announce = RNS.Packet(
+                                            announce_destination,
+                                            announce_data,
+                                            RNS.Packet.ANNOUNCE,
+                                            context = announce_context,
+                                            header_type = RNS.Packet.HEADER_2,
+                                            transport_type = Transport.TRANSPORT,
+                                            transport_id = Transport.identity.hash,
+                                            attached_interface = local_interface
+                                        )
+
+                                        new_announce.hops = packet.hops
+                                        new_announce.send()
+
 
                             Transport.destination_table[packet.destination_hash] = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet]
                             RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_VERBOSE)
