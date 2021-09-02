@@ -34,12 +34,13 @@ class Identity:
     """   
 
     # Non-configurable constants
-    AES_HMAC_OVERHEAD = 58    # In bytes
+    FERNET_VERSION   = 0x80
+    FERNET_OVERHEAD  = 57     # In bytes
     AES128_BLOCKSIZE = 16     # In bytes
     HASHLENGTH  = 256         # In bits
     SIGLENGTH   = KEYSIZE     # In bits
 
-    TRUNCATED_HASHLENGTH = 80 # In bits
+    TRUNCATED_HASHLENGTH = RNS.Reticulum.TRUNCATED_HASHLENGTH
     """
     Constant specifying the truncated hash length (in bits) used by Reticulum
     for addressable hashes and other purposes. Non-configurable.

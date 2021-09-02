@@ -71,7 +71,7 @@ class Packet:
     # With an MTU of 500, the maximum of data we can
     # send in a single encrypted packet is given by
     # the below calculation; 383 bytes.
-    ENCRYPTED_MDU  = math.floor((RNS.Reticulum.MDU-RNS.Identity.AES_HMAC_OVERHEAD-RNS.Identity.KEYSIZE//16)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
+    ENCRYPTED_MDU  = math.floor((RNS.Reticulum.MDU-RNS.Identity.FERNET_OVERHEAD-RNS.Identity.KEYSIZE//16)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
     """
     The maximum size of the payload data in a single encrypted packet 
     """

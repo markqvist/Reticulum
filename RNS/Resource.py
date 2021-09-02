@@ -781,8 +781,11 @@ class Resource:
 
 
 class ResourceAdvertisement:
-    HASHMAP_MAX_LEN      = 70
+    OVERHEAD             = 128
+    HASHMAP_MAX_LEN      = math.floor((RNS.Link.MDU-OVERHEAD)/Resource.MAPHASH_LEN)
     COLLISION_GUARD_SIZE = 2*Resource.WINDOW_MAX+HASHMAP_MAX_LEN
+
+    assert HASHMAP_MAX_LEN > 0, "The configured MTU is too small to include any map hashes in resource advertisments"
 
     @staticmethod
     def is_request(advertisement_packet):

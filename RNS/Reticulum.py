@@ -36,15 +36,24 @@ class Reticulum:
     other programs to use on demand.
     """
 
-    # The default RNS MTU is 500 bytes. This number has been chosen as
-    # a balance between compatibility with existing hardware devices
-    # on one hand, and the ability to use sufficiently high cryptographic
-    # key sizes on the other. In custom RNS network implementations, it
-    # is possible to raise this value, but doing so will completely break
-    # compatibility with all other RNS networks. An identical MTU is a
-    # prerequisite for peers to communicate in the same network.
     MTU            = 500
-    HEADER_MAXSIZE = 23
+    """
+    The MTU that Reticulum adheres to, and will expect other peers to
+    adhere to. By default, the MTU is 500 bytes. In custom RNS network
+    implementations, it is possible to change this value, but doing so will
+    completely break compatibility with all other RNS networks. An identical
+    MTU is a prerequisite for peers to communicate in the same network.
+
+    The absolute minimum MTU that Reticulum will function with is 215 bytes,
+    but bandwidth efficiency will be significantly impacted.
+    """
+
+    # Length of truncated hashes in bits.
+    TRUNCATED_HASHLENGTH = 80
+
+    HEADER_MINSIZE = 2+1+(TRUNCATED_HASHLENGTH//8)*1
+    HEADER_MAXSIZE = 2+1+(TRUNCATED_HASHLENGTH//8)*2
+    
     MDU            = MTU - HEADER_MAXSIZE
 
     router         = None

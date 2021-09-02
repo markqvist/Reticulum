@@ -44,7 +44,7 @@ class Link:
     ECPUBSIZE         = 32+32
     KEYSIZE           = 32
 
-    MDU = math.floor((RNS.Reticulum.MDU-RNS.Identity.AES_HMAC_OVERHEAD)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
+    MDU = math.floor((RNS.Reticulum.MTU-RNS.Reticulum.HEADER_MINSIZE-RNS.Identity.FERNET_OVERHEAD)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
 
     # This value is set at a reasonable
     # level for a 1 Kb/s channel.
@@ -284,6 +284,7 @@ class Link:
         :param failed_callback: An optional function or method with the signature *failed_callback(request_receipt)* to be called when a request fails. See the :ref:`Request Example<example-request>` for more info.
         :param progress_callback: An optional function or method with the signature *progress_callback(request_receipt)* to be called when progress is made receiving the response. Progress can be accessed as a float between 0.0 and 1.0 by the *request_receipt.progress* property.
         :param timeout: An optional timeout in seconds for the request. If *None* is supplied it will be calculated based on link RTT.
+        :returns: A :ref:`RNS.RequestReceipt<api-requestreceipt>` instance if the request was sent, or *False* if it was not.
         """
         request_path_hash = RNS.Identity.truncated_hash(path.encode("utf-8"))
         unpacked_request  = [time.time(), request_path_hash, data]
@@ -296,17 +297,19 @@ class Link:
             request_packet   = RNS.Packet(self, packed_request, RNS.Packet.DATA, context = RNS.Packet.REQUEST)
             packet_receipt   = request_packet.send()
 
-            packet_receipt.set_timeout(timeout)
-
-            return RequestReceipt(
-                self,
-                packet_receipt = packet_receipt,
-                response_callback = response_callback,
-                failed_callback = failed_callback,
-                progress_callback = progress_callback,
-                timeout = timeout
-            )
-
+            if packet_receipt == False:
+                return False
+            else:
+                packet_receipt.set_timeout(timeout)
+                return RequestReceipt(
+                    self,
+                    packet_receipt = packet_receipt,
+                    response_callback = response_callback,
+                    failed_callback = failed_callback,
+                    progress_callback = progress_callback,
+                    timeout = timeout
+                )
+            
         else:
             request_id = RNS.Identity.truncated_hash(packed_request)
             RNS.log("Sending request "+RNS.prettyhexrep(request_id)+" as resource.", RNS.LOG_DEBUG)
