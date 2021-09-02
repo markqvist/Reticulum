@@ -651,7 +651,11 @@ class Link:
                             resource_hash = plaintext[1:RNS.Identity.HASHLENGTH//8+1]
                         for resource in self.outgoing_resources:
                             if resource.hash == resource_hash:
-                                resource.request(plaintext)
+                                # We need to check that this request has not been
+                                # received before in order to avoid sequencing errors.
+                                if not packet.packet_hash in resource.req_hashlist:
+                                    resource.req_hashlist.append(packet.packet_hash)
+                                    resource.request(plaintext)
 
                     elif packet.context == RNS.Packet.RESOURCE_HMU:
                         plaintext = self.decrypt(packet.data)

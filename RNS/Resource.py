@@ -192,6 +192,7 @@ class Resource:
         self.request_id = request_id
         self.is_response = is_response
 
+        self.req_hashlist = []
         self.receiver_min_consecutive_height = 0
 
         if timeout != None:
