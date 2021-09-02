@@ -57,7 +57,7 @@ What does Reticulum Offer?
 
 * Efficient link establishment
 
-  * Total bandwidth cost of setting up a link is only 3 packets, totalling 240 bytes
+  * Total bandwidth cost of setting up a link is only 3 packets, totalling 237 bytes
 
   * Low cost of keeping links open at only 0.62 bits per second
 

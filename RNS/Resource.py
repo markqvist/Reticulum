@@ -15,14 +15,10 @@ class Resource:
 
     :param data: The data to be transferred. Can be *bytes* or an open *file handle*. See the :ref:`Filetransfer Example<example-filetransfer>` for details.
     :param link: The :ref:`RNS.Link<api-link>` instance on which to transfer the data.
-    :param advertise: Whether to automatically advertise the resource. Can be *True* or *False*.
-    :param auto_compress: Whether to auto-compress the resource. Can be *True* or *False*.
-    :param callback: A *callable* with the signature *callback(resource)*. Will be called when the resource transfer concludes.
-    :param progress_callback: A *callable* with the signature *callback(resource)*. Will be called whenever the resource transfer progress is updated.
-    :param segment_index: Internal use, ignore.
-    :param original_hash: Internal use, ignore.
-    :param is_request: Internal use, ignore.
-    :param is_response: Internal use, ignore.
+    :param advertise: Optional. Whether to automatically advertise the resource. Can be *True* or *False*.
+    :param auto_compress: Optional. Whether to auto-compress the resource. Can be *True* or *False*.
+    :param callback: An optional *callable* with the signature *callback(resource)*. Will be called when the resource transfer concludes.
+    :param progress_callback: An optional *callable* with the signature *callback(resource)*. Will be called whenever the resource transfer progress is updated.
     """
     WINDOW_FLEXIBILITY   = 4
     WINDOW_MIN           = 1
@@ -756,7 +752,7 @@ class Resource:
     def progress_callback(self, callback):
         self.__progress_callback = callback
 
-    def progress(self):
+    def get_progress(self):
         """
         :returns: The current progress of the resource transfer as a *float* between 0.0 and 1.0.
         """

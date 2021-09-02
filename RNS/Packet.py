@@ -20,11 +20,6 @@ class Packet:
     :param destination: A :ref:`RNS.Destination<api-destination>` instance to which the packet will be sent.
     :param data: The data payload to be included in the packet as *bytes*.
     :param create_receipt: Specifies whether a :ref:`RNS.PacketReceipt<api-packetreceipt>` should be created when instantiating the packet.
-    :param type: Internal use by :ref:`RNS.Transport<api-transport>`. Defaults to ``RNS.Packet.DATA``, and should not be specified.
-    :param context: Internal use by :ref:`RNS.Transport<api-transport>`. Ignore.
-    :param transport_type: Internal use by :ref:`RNS.Transport<api-transport>`. Ignore.
-    :param transport_id: Internal use by :ref:`RNS.Transport<api-transport>`. Ignore.
-    :param attached_interface: Internal use by :ref:`RNS.Transport<api-transport>`. Ignore.
     """
 
     # Packet types
@@ -309,8 +304,8 @@ class PacketReceipt:
     """
     The PacketReceipt class is used to receive notifications about
     :ref:`RNS.Packet<api-packet>` instances sent over the network. Instances
-    of this class should never be created manually, but always returned
-    from a the *send()* method of a :ref:`RNS.Packet<api-packet>` instance.
+    of this class are never created manually, but always returned from
+    the *send()* method of a :ref:`RNS.Packet<api-packet>` instance.
     """
     # Receipt status constants
     FAILED    = 0x00

@@ -39,7 +39,7 @@ Destination
 Packet
 ------
 
-.. autoclass:: RNS.Packet
+.. autoclass:: RNS.Packet(destination, data, create_receipt = True)
    :members:
 
 .. _api-packetreceipt:
@@ -47,7 +47,7 @@ Packet
 Packet Receipt
 --------------
 
-.. autoclass:: RNS.PacketReceipt
+.. autoclass:: RNS.PacketReceipt()
    :members:
 
 .. _api-link:
@@ -55,7 +55,15 @@ Packet Receipt
 Link
 ----
 
-.. autoclass:: RNS.Link
+.. autoclass:: RNS.Link(destination, established_callback=None, closed_callback = None)
+   :members:
+
+.. _api-requestreceipt:
+
+Request Receipt
+---------------
+
+.. autoclass:: RNS.RequestReceipt()
    :members:
 
 .. _api-resource:
@@ -63,7 +71,7 @@ Link
 Resource
 --------
 
-.. autoclass:: RNS.Resource
+.. autoclass:: RNS.Resource(data, link, advertise=True, auto_compress=True, callback=None, progress_callback=None, timeout=None)
    :members:
 
 .. _api-transport:

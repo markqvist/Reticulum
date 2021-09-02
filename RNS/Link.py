@@ -27,14 +27,13 @@ class LinkCallbacks:
 
 class Link:
     """
-    This class.
+    This class is used to establish and manage links to other peers. When a
+    link instance is created, Reticulum will attempt to establish verified
+    connectivity with the specified destination.
 
     :param destination: A :ref:`RNS.Destination<api-destination>` instance which to establish a link to.
-    :param established_callback: A function or method with the signature *callback(link)* to be called when the link has been established.
-    :param closed_callback: A function or method with the signature *callback(link)* to be called when the link is closed.
-    :param owner: Internal use by :ref:`RNS.Transport<api-Transport>`, ignore this argument.
-    :param peer_pub_bytes: Internal use, ignore this argument.
-    :param peer_sig_pub_bytes: Internal use, ignore this argument.
+    :param established_callback: An optional function or method with the signature *callback(link)* to be called when the link has been established.
+    :param closed_callback: An optional function or method with the signature *callback(link)* to be called when the link is closed.
     """
     CURVE = RNS.Identity.CURVE
     """
@@ -870,6 +869,12 @@ class Link:
 
 
 class RequestReceipt():
+    """
+    An instance of this class is returned by the ``request`` method of ``RNS.Link``
+    instances. It should never be instantiated manually. It provides methods to
+    check status, response time and response data when the request concludes.
+    """
+
     FAILED    = 0x00
     SENT      = 0x01
     DELIVERED = 0x02
@@ -942,7 +947,7 @@ class RequestReceipt():
             self.callbacks.failed(self)
 
     def response_resource_progress(self, resource):
-        self.progress = resource.progress()
+        self.progress = resource.get_progress()
         self.__resource_response_timeout = time.time()+self.timeout
 
         if self.callbacks.progress != None:
@@ -979,9 +984,41 @@ class RequestReceipt():
         if self.callbacks.response != None:
             self.callbacks.response(self)
 
-    def response_time(self):
+    def get_request_id(self):
+        """
+        :returns: The request ID as *bytes*.
+        """
+        return self.request_id
+
+    def get_status(self):
+        """
+        :returns: The current status of the request, one of ``RNS.RequestReceipt.FAILED``, ``RNS.RequestReceipt.SENT``, ``RNS.RequestReceipt.DELIVERED``, ``RNS.RequestReceipt.READY``.
+        """
+        return self.status
+
+    def get_progress(self):
+        """
+        :returns: The progress of a response being received as a *float* between 0.0 and 1.0.
+        """
+        return self.progress
+
+    def get_response(self):
+        """
+        :returns: The response as *bytes* if it is ready, otherwise *None*.
+        """
+        if self.status == RequestReceipt.READY:
+            return self.response
+        else:
+            return None
+
+    def get_response_time(self):
+        """
+        :returns: The response time of the request in seconds.
+        """
         if self.status == RequestReceipt.READY:
             return self.response_concluded_at - self.started_at
+        else:
+            return None
 
 
 

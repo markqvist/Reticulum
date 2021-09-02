@@ -9,6 +9,10 @@ from time import sleep
 from .vendor import umsgpack as umsgpack
 
 class Transport:
+    """
+    Through static methods of this class you can interact with Reticulums
+    Transport system.
+    """
     # Constants
     BROADCAST    = 0x00;
     TRANSPORT    = 0x01;

@@ -178,6 +178,22 @@ class Identity:
 
 
     @staticmethod
+    def from_bytes(prv_bytes):
+        """
+        Create a new :ref:`RNS.Identity<api-identity>` instance from *bytes* of private key.
+        Can be used to load previously created and saved identities into Reticulum.
+
+        :param prv_bytes: The *bytes* of private a saved private key. **HAZARD!** Never use this to generate a new key by feeding random data in prv_bytes.
+        :returns: A :ref:`RNS.Identity<api-identity>` instance, or *None* if the *bytes* data was invalid.
+        """
+        identity = Identity(create_keys=False)
+        if identity.load_private_key(prv_bytes):
+            return identity
+        else:
+            return None
+
+
+    @staticmethod
     def from_file(path):
         """
         Create a new :ref:`RNS.Identity<api-identity>` instance from a file.
@@ -209,22 +225,6 @@ class Identity:
         except Exception as e:
             RNS.log("Error while saving identity to "+str(path), RNS.LOG_ERROR)
             RNS.log("The contained exception was: "+str(e))
-
-    @staticmethod
-    def from_bytes(prv_bytes):
-        """
-        Create a new :ref:`RNS.Identity<api-identity>` instance from *bytes* of private key.
-        Can be used to load previously created and saved identities into Reticulum.
-
-        :param prv_bytes: The *bytes* of private a saved private key. **HAZARD!** Never not use this to generate a new key by feeding random data in prv_bytes.
-        :returns: A :ref:`RNS.Identity<api-identity>` instance, or *None* if the *bytes* data was invalid.
-        """
-        identity = Identity(create_keys=False)
-        if identity.load_private_key(prv_bytes):
-            return identity
-        else:
-            return None
-
 
     def __init__(self,create_keys=True):
         # Initialize keys to none

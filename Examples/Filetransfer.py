@@ -358,7 +358,7 @@ def print_menu():
         print("")
         while menu_mode == "downloading":
             global current_download
-            percent = round(current_download.progress() * 100.0, 1)
+            percent = round(current_download.get_progress() * 100.0, 1)
             print(("\rProgress: "+str(percent)+" %   "), end=' ')
             sys.stdout.flush()
             time.sleep(0.1)

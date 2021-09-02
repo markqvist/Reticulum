@@ -34,7 +34,7 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
     - The API is very easy to use, and provides transfer progress
  - Lightweight, flexible and expandable Request/Response mechanism
  - Efficient link establishment
-    - Total bandwidth cost of setting up a link is 3 packets totalling 240 bytes
+    - Total bandwidth cost of setting up a link is 3 packets totalling 237 bytes
     - Low cost of keeping links open at only 0.62 bits per second
 
 ## Where can Reticulum be used?

@@ -36,6 +36,8 @@ class Reticulum:
     other programs to use on demand.
     """
 
+    # Future minimum will probably be locked in at 244 bytes to support
+    # networks with segments of different MTUs. Absolute minimum is 211.
     MTU            = 500
     """
     The MTU that Reticulum adheres to, and will expect other peers to
@@ -44,8 +46,8 @@ class Reticulum:
     completely break compatibility with all other RNS networks. An identical
     MTU is a prerequisite for peers to communicate in the same network.
 
-    The absolute minimum MTU that Reticulum will function with is 215 bytes,
-    but bandwidth efficiency will be significantly impacted.
+    Unless you really know what you are doing, the MTU should be left at
+    the default value.
     """
 
     # Length of truncated hashes in bits.
