@@ -706,8 +706,18 @@ class Link:
             if not self.fernet:
                 self.fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
 
-            ciphertext = base64.urlsafe_b64decode(self.fernet.encrypt(plaintext))
+            # The fernet token VERSION field is stripped here and
+            # reinserted on the receiving end, since it is always
+            # set to 0x80.
+            #
+            # Since we're also quite content with supporting time-
+            # stamps until the year 8921556 AD, we'll also strip 2
+            # bytes from the timestamp field and reinsert those as
+            # 0x00 when received.
+            ciphertext = base64.urlsafe_b64decode(self.fernet.encrypt(plaintext))[3:]
+            RNS.log("FTKN: "+RNS.hexrep(ciphertext))
             return ciphertext
+
         except Exception as e:
             RNS.log("Encryption on link "+str(self)+" failed. The contained exception was: "+str(e), RNS.LOG_ERROR)
             raise e
@@ -720,7 +730,7 @@ class Link:
             if not self.fernet:
                 self.fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
                 
-            plaintext = self.fernet.decrypt(base64.urlsafe_b64encode(ciphertext))
+            plaintext = self.fernet.decrypt(base64.urlsafe_b64encode(bytes([RNS.Identity.FERNET_VERSION, 0x00, 0x00])+ciphertext))
             return plaintext
         except Exception as e:
             RNS.log("Decryption failed on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)

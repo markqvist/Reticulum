@@ -35,7 +35,7 @@ class Identity:
 
     # Non-configurable constants
     FERNET_VERSION   = 0x80
-    FERNET_OVERHEAD  = 57     # In bytes
+    FERNET_OVERHEAD  = 54     # In bytes
     AES128_BLOCKSIZE = 16     # In bytes
     HASHLENGTH  = 256         # In bits
     SIGLENGTH   = KEYSIZE     # In bits
