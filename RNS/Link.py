@@ -715,7 +715,6 @@ class Link:
             # bytes from the timestamp field and reinsert those as
             # 0x00 when received.
             ciphertext = base64.urlsafe_b64decode(self.fernet.encrypt(plaintext))[3:]
-            RNS.log("FTKN: "+RNS.hexrep(ciphertext))
             return ciphertext
 
         except Exception as e:
