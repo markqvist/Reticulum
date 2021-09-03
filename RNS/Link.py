@@ -47,7 +47,7 @@ class Link:
 
     # This value is set at a reasonable
     # level for a 1 Kb/s channel.
-    ESTABLISHMENT_TIMEOUT_PER_HOP = 3
+    ESTABLISHMENT_TIMEOUT_PER_HOP = 20
     """
     Default timeout for link establishment in seconds per hop to destination.
     """
