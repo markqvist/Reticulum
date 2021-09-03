@@ -245,7 +245,7 @@ class Link:
                     RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(self.rtt), RNS.LOG_VERBOSE)
                     rtt_data = umsgpack.packb(self.rtt)
                     rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
-                    #rtt_packet.send()
+                    rtt_packet.send()
                     self.had_outbound()
 
                     self.status = Link.ACTIVE
