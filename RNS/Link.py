@@ -130,7 +130,6 @@ class Link:
         self.destination = destination
         self.attached_interface = None
         self.__remote_identity = None
-        self.__encryption_disabled = False
         if self.destination == None:
             self.initiator = False
             self.prv     = self.owner.identity.prv
@@ -699,8 +698,6 @@ class Link:
 
 
     def encrypt(self, plaintext):
-        if self.__encryption_disabled:
-            return plaintext
         try:
             if not self.fernet:
                 self.fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
@@ -722,8 +719,6 @@ class Link:
 
 
     def decrypt(self, ciphertext):
-        if self.__encryption_disabled:
-            return ciphertext
         try:
             if not self.fernet:
                 self.fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
@@ -841,28 +836,6 @@ class Link:
             return False
         else:
             return True
-
-    def disable_encryption(self):
-        """
-        HAZARDOUS. This will downgrade the link to encryptionless. All
-        information over the link will be sent in plaintext. Never use
-        this in production applications. Should only be used for debugging
-        purposes, and will disappear in a future version.
-
-        If encryptionless links are not explicitly allowed in the users
-        configuration file, Reticulum will terminate itself along with the
-        client application and throw an error message to the user.
-        """
-        if (RNS.Reticulum.should_allow_unencrypted()):
-            RNS.log("The link "+str(self)+" was downgraded to an encryptionless link", RNS.LOG_NOTICE)
-            self.__encryption_disabled = True
-        else:
-            RNS.log("Attempt to disable encryption on link, but encryptionless links are not allowed by config.", RNS.LOG_CRITICAL)
-            RNS.log("Shutting down Reticulum now!", RNS.LOG_CRITICAL)
-            RNS.panic()
-
-    def encryption_disabled(self):
-        return self.__encryption_disabled
 
     def __str__(self):
         return RNS.prettyhexrep(self.link_id)

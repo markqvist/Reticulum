@@ -95,7 +95,6 @@ class Reticulum:
         Reticulum.cachepath     = Reticulum.configdir+"/storage/cache"
         Reticulum.resourcepath  = Reticulum.configdir+"/storage/resources"
 
-        Reticulum.__allow_unencrypted = False
         Reticulum.__transport_enabled = False
         Reticulum.__use_implicit_proof = True
 
@@ -202,20 +201,6 @@ class Reticulum:
                         Reticulum.__use_implicit_proof = True
                     if v == False:
                         Reticulum.__use_implicit_proof = False
-                if option == "allow_unencrypted":
-                    v = self.config["reticulum"].as_bool(option)
-                    if v == True:
-                        RNS.log("", RNS.LOG_CRITICAL)
-                        RNS.log("! ! !     ! ! !     ! ! !", RNS.LOG_CRITICAL)
-                        RNS.log("", RNS.LOG_CRITICAL)
-                        RNS.log("Danger! Encryptionless links have been allowed in the config file!", RNS.LOG_CRITICAL)
-                        RNS.log("Beware of the consequences! Any data sent over a link can potentially be intercepted,", RNS.LOG_CRITICAL)
-                        RNS.log("read and modified! If you are not absolutely sure that you want this,", RNS.LOG_CRITICAL)
-                        RNS.log("you should exit Reticulum NOW and change your config file!", RNS.LOG_CRITICAL)
-                        RNS.log("", RNS.LOG_CRITICAL)
-                        RNS.log("! ! !     ! ! !     ! ! !", RNS.LOG_CRITICAL)
-                        RNS.log("", RNS.LOG_CRITICAL)
-                        Reticulum.__allow_unencrypted = True
 
         self.__start_local_interface()
 
@@ -467,16 +452,6 @@ class Reticulum:
         self.__apply_config()
 
     @staticmethod
-    def should_allow_unencrypted():
-        """
-        Returns whether unencrypted links are allowed by the
-        current configuration.
-
-        :returns: True if the current running configuration allows downgrading links to plaintext. False if not.
-        """
-        return Reticulum.__allow_unencrypted
-
-    @staticmethod
     def should_use_implicit_proof():
         """
         Returns whether proofs sent are explicit or implicit.
@@ -505,14 +480,6 @@ __default_rns_config__ = '''# This is the default Reticulum config file.
 # interfaces and settings you might need.
 
 [reticulum]
-
-# Don't allow unencrypted links by default.
-# If you REALLY need to allow unencrypted links, for example
-# for debug or regulatory purposes, this can be set to true.
-# This directive is optional and can be removed for brevity.
-
-allow_unencrypted = False
-
 
 # If you enable Transport, your system will route traffic
 # for other peers, pass announces and serve path requests.

@@ -11,5 +11,4 @@ class Interface:
         pass
 
     def get_hash(self):
-        # TODO: Maybe expand this to something more unique
         return RNS.Identity.full_hash(str(self).encode("utf-8"))

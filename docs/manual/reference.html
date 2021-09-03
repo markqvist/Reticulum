@@ -85,18 +85,6 @@ the default value.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="RNS.Reticulum.should_allow_unencrypted">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">should_allow_unencrypted</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.should_allow_unencrypted" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns whether unencrypted links are allowed by the
-current configuration.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>True if the current running configuration allows downgrading links to plaintext. False if not.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Reticulum.should_use_implicit_proof">
 <em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">should_use_implicit_proof</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.should_use_implicit_proof" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns whether proofs sent are explicit or implicit.</p>
@@ -967,18 +955,6 @@ identified over this link.</p>
 <dd class="field-even"><p><em>TypeError</em> if the resource strategy is unsupported.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="RNS.Link.disable_encryption">
-<span class="sig-name descname"><span class="pre">disable_encryption</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.disable_encryption" title="Permalink to this definition">¶</a></dt>
-<dd><p>HAZARDOUS. This will downgrade the link to encryptionless. All
-information over the link will be sent in plaintext. Never use
-this in production applications. Should only be used for debugging
-purposes, and will disappear in a future version.</p>
-<p>If encryptionless links are not explicitly allowed in the users
-configuration file, Reticulum will terminate itself along with the
-client application and throw an error message to the user.</p>
 </dd></dl>
 
 </dd></dl>

@@ -238,11 +238,8 @@ class Resource:
             # make optimal use of packet MTU on an entire
             # encrypted stream. The Resource instance will
             # use it's underlying link directly to encrypt.
-            if not self.link.encryption_disabled():
-                self.data = self.link.encrypt(self.data)
-                self.encrypted = True
-            else:
-                self.encrypted = False
+            self.data = self.link.encrypt(self.data)
+            self.encrypted = True
 
             self.size = len(self.data)
             self.sent_parts = 0
