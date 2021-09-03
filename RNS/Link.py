@@ -292,7 +292,7 @@ class Link:
         packed_request    = umsgpack.packb(unpacked_request)
 
         if timeout == None:
-            timeout = self.rtt * self.traffic_timeout_factor
+            timeout = self.rtt * self.traffic_timeout_factor + RNS.Resource.RESPONSE_MAX_GRACE_TIME
 
         if len(packed_request) <= Link.MDU:
             request_packet   = RNS.Packet(self, packed_request, RNS.Packet.DATA, context = RNS.Packet.REQUEST)
@@ -867,7 +867,8 @@ class RequestReceipt():
     FAILED    = 0x00
     SENT      = 0x01
     DELIVERED = 0x02
-    READY     = 0x03
+    RECEIVING = 0x03
+    READY     = 0x04
 
     def __init__(self, link, packet_receipt = None, resource = None, response_callback = None, failed_callback = None, progress_callback = None, timeout = None):
         self.packet_receipt = packet_receipt
@@ -914,6 +915,9 @@ class RequestReceipt():
             self.started_at = time.time()
             self.status = RequestReceipt.DELIVERED
             self.__resource_response_timeout = time.time()+self.timeout
+            response_timeout_thread = threading.Thread(target=self.__response_timeout_job)
+            response_timeout_thread.setDaemon(True)
+            response_timeout_thread.start()
         else:
             RNS.log("Sending request "+RNS.prettyhexrep(self.request_id)+" as resource failed with status: "+RNS.hexrep([resource.status]), RNS.LOG_DEBUG)
             self.status = RequestReceipt.FAILED
@@ -924,6 +928,15 @@ class RequestReceipt():
                 self.callbacks.failed(self)
 
 
+    def __response_timeout_job(self):
+        while self.status == RequestReceipt.DELIVERED:
+            now = time.time()
+            if now > self.__resource_response_timeout:
+                self.request_timed_out(None)
+
+            time.sleep(0.1)
+
+
     def request_timed_out(self, packet_receipt):
         self.status = RequestReceipt.FAILED
         self.concluded_at = time.time()
@@ -932,9 +945,10 @@ class RequestReceipt():
         if self.callbacks.failed != None:
             self.callbacks.failed(self)
 
+
     def response_resource_progress(self, resource):
         if not self.status == RequestReceipt.FAILED:
-            self.status = RequestReceipt.DELIVERED
+            self.status = RequestReceipt.RECEIVING
             if self.packet_receipt != None:
                 self.packet_receipt.status = RNS.PacketReceipt.DELIVERED
                 self.packet_receipt.proved = True
@@ -943,9 +957,7 @@ class RequestReceipt():
                     self.packet_receipt.callbacks.delivery(self.packet_receipt)
 
             self.progress = resource.get_progress()
-            now = time.time()
-            self.__resource_response_timeout = time.time()+self.timeout
-
+            
             if self.callbacks.progress != None:
                 self.callbacks.progress(self)
         else:

@@ -32,15 +32,16 @@ class Resource:
     # maximum size a resource should be, if
     # it is to be handled within reasonable
     # time constraint, even on small systems.
-    
+    #
     # A small system in this regard is
     # defined as a Raspberry Pi, which should
     # be able to compress, encrypt and hash-map
     # the resource in about 10 seconds.
-
+    #
     # This constant will be used when determining
     # how to sequence the sending of large resources.
-    MAX_EFFICIENT_SIZE   = 16 * 1024 * 1024
+    MAX_EFFICIENT_SIZE      = 16 * 1024 * 1024
+    RESPONSE_MAX_GRACE_TIME = 10
     
     # The maximum size to auto-compress with
     # bz2 before sending.
@@ -389,7 +390,12 @@ class Resource:
 
             elif self.status == Resource.TRANSFERRING:
                 if not self.initiator:
-                    rtt = self.link.rtt if self.rtt == None else self.rtt
+
+                    if self.rtt == None:
+                        rtt = self.link.rtt
+                    else:
+                        rtt = self.rtt
+
                     sleep_time = self.last_activity + (rtt*self.part_timeout_factor) + Resource.RETRY_GRACE_TIME - time.time()
 
                     if sleep_time < 0:
@@ -541,15 +547,14 @@ class Resource:
             self.req_resp = self.last_activity
             rtt = self.req_resp-self.req_sent
 
-            if rtt >= self.link.rtt:
-                self.part_timeout_factor = Resource.PART_TIMEOUT_FACTOR_AFTER_RTT
-                if self.rtt == None:
-                    self.rtt = rtt
-                    self.watchdog_job()
-                elif rtt < self.rtt:
-                    self.rtt = max(self.rtt - self.rtt*0.05, rtt)
-                elif rtt > self.rtt:
-                    self.rtt = min(self.rtt + self.rtt*0.05, rtt)
+            self.part_timeout_factor = Resource.PART_TIMEOUT_FACTOR_AFTER_RTT
+            if self.rtt == None:
+                self.rtt = self.link.rtt
+                self.watchdog_job()
+            elif rtt < self.rtt:
+                self.rtt = max(self.rtt - self.rtt*0.05, rtt)
+            elif rtt > self.rtt:
+                self.rtt = min(self.rtt + self.rtt*0.05, rtt)
 
         if not self.status == Resource.FAILED:
             self.status = Resource.TRANSFERRING
