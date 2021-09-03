@@ -52,7 +52,7 @@ class Link:
     Default timeout for link establishment in seconds per hop to destination.
     """
 
-    TRAFFIC_TIMEOUT_FACTOR = 20
+    TRAFFIC_TIMEOUT_FACTOR = 6
     KEEPALIVE_TIMEOUT_FACTOR = 4
     STALE_GRACE = 2
     KEEPALIVE = 360
@@ -920,42 +920,56 @@ class RequestReceipt():
             self.callbacks.failed(self)
 
     def response_resource_progress(self, resource):
-        self.progress = resource.get_progress()
-        self.__resource_response_timeout = time.time()+self.timeout
+        if not self.status == RequestReceipt.FAILED:
+            self.status = RequestReceipt.DELIVERED
+            if self.packet_receipt != None:
+                self.packet_receipt.status = RNS.PacketReceipt.DELIVERED
+                self.packet_receipt.proved = True
+                self.packet_receipt.concluded_at = time.time()
+                if self.packet_receipt.callbacks.delivery != None:
+                    self.packet_receipt.callbacks.delivery(self.packet_receipt)
 
-        if self.callbacks.progress != None:
-            self.callbacks.progress(self)
+            self.progress = resource.get_progress()
+            now = time.time()
+            self.__resource_response_timeout = time.time()+self.timeout
+
+            if self.callbacks.progress != None:
+                self.callbacks.progress(self)
+        else:
+            resource.cancel()
 
     def __resource_response_timeout_job(self):
         while self.status == RequestReceipt.DELIVERED:
-            if time.time() > self.__resource_response_timeout:
+            now = time.time()
+            if now > self.__resource_response_timeout:
                 self.request_timed_out(None)
 
             time.sleep(0.1)
 
     
     def response_received(self, response):
-        self.progress = 1.0
-        self.response = response
-        self.status = RequestReceipt.READY
-        self.response_concluded_at = time.time()
+        if not self.status == RequestReceipt.FAILED:
+            self.progress = 1.0
+            self.response = response
+            self.status = RequestReceipt.READY
+            self.response_concluded_at = time.time()
 
-        if len(response) <= Link.MDU:
-            self.response_size = len(response)
-            self.response_transfer_size = len(response)
+            if len(response) <= Link.MDU:
+                self.response_size = len(response)
+                self.response_transfer_size = len(response)
 
-        if self.packet_receipt != None:
-            self.packet_receipt.status = RNS.PacketReceipt.DELIVERED
-            self.packet_receipt.proved = True
-            self.packet_receipt.concluded_at = time.time()
-            if self.packet_receipt.callbacks.delivery != None:
-                self.packet_receipt.callbacks.delivery(self)
+            if self.packet_receipt != None:
+                self.packet_receipt.status = RNS.PacketReceipt.DELIVERED
+                self.packet_receipt.proved = True
+                self.packet_receipt.concluded_at = time.time()
+                if self.packet_receipt.callbacks.delivery != None:
+                    self.packet_receipt.callbacks.delivery(self.packet_receipt)
 
-        if self.callbacks.progress != None:
-            self.callbacks.progress(self)
+            if self.callbacks.progress != None:
+                self.callbacks.progress(self)
 
-        if self.callbacks.response != None:
-            self.callbacks.response(self)
+            if self.callbacks.response != None:
+                self.callbacks.response(self)
 
     def get_request_id(self):
         """

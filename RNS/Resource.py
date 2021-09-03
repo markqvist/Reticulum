@@ -48,9 +48,10 @@ class Resource:
 
     # TODO: Should be allocated more
     # intelligently
-    MAX_RETRIES       = 5
-    SENDER_GRACE_TIME = 10
-    RETRY_GRACE_TIME  = 0.25
+    PART_TIMEOUT_FACTOR = 3
+    MAX_RETRIES         = 5
+    SENDER_GRACE_TIME   = 10
+    RETRY_GRACE_TIME    = 0.25
 
     HASHMAP_IS_NOT_EXHAUSTED = 0x00
     HASHMAP_IS_EXHAUSTED = 0xFF
@@ -179,6 +180,7 @@ class Resource:
         self.max_retries = Resource.MAX_RETRIES
         self.retries_left = self.max_retries
         self.timeout_factor = self.link.traffic_timeout_factor
+        self.part_timeout_factor = Resource.PART_TIMEOUT_FACTOR
         self.sender_grace_time = Resource.SENDER_GRACE_TIME
         self.hmu_retry_ok = False
         self.watchdog_lock = False
@@ -389,7 +391,7 @@ class Resource:
             elif self.status == Resource.TRANSFERRING:
                 if not self.initiator:
                     rtt = self.link.rtt if self.rtt == None else self.rtt
-                    sleep_time = self.last_activity + (rtt*self.timeout_factor) + Resource.RETRY_GRACE_TIME - time.time()
+                    sleep_time = self.last_activity + (rtt*self.part_timeout_factor) + Resource.RETRY_GRACE_TIME - time.time()
 
                     if sleep_time < 0:
                         if self.retries_left > 0:
