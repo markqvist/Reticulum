@@ -700,7 +700,11 @@ class Link:
     def encrypt(self, plaintext):
         try:
             if not self.fernet:
-                self.fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
+                try:
+                    self.fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
+                except Exception as e:
+                    RNS.log("Could not "+str(self)+" instantiate Fernet while performin encryption on link. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                    raise e
 
             # The fernet token VERSION field is stripped here and
             # reinserted on the receiving end, since it is always
