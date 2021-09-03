@@ -47,7 +47,7 @@ class Link:
 
     # This value is set at a reasonable
     # level for a 1 Kb/s channel.
-    ESTABLISHMENT_TIMEOUT_PER_HOP = 20
+    ESTABLISHMENT_TIMEOUT_PER_HOP = 5
     """
     Default timeout for link establishment in seconds per hop to destination.
     """
@@ -446,7 +446,11 @@ class Link:
                     next_check = self.request_time + self.establishment_timeout
                     sleep_time = next_check - time.time()
                     if time.time() >= self.request_time + self.establishment_timeout:
-                        RNS.log("Timeout waiting for RTT packet from link initiator", RNS.LOG_DEBUG)
+                        if self.initiator:
+                            RNS.log("Timeout waiting link request proof", RNS.LOG_DEBUG)
+                        else:
+                            RNS.log("Timeout waiting for RTT packet from link initiator", RNS.LOG_DEBUG)
+
                         self.status = Link.CLOSED
                         self.teardown_reason = Link.TIMEOUT
                         self.link_closed()
