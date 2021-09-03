@@ -60,7 +60,7 @@ class KISSInterface(Interface):
         self.packet_queue    = []
         self.flow_control    = flow_control
         self.interface_ready = False
-        self.flow_control_timeout = 10
+        self.flow_control_timeout = 5
         self.flow_control_locked  = time.time()
 
         self.preamble    = preamble if preamble != None else 350;
@@ -259,12 +259,12 @@ class KISSInterface(Interface):
                         in_frame = False
                         command = KISS.CMD_UNKNOWN
                         escape = False
-                    sleep(0.08)
+                    sleep(0.05)
 
                     if self.flow_control:
                         if not self.interface_ready:
                             if time.time() > self.flow_control_locked + self.flow_control_timeout:
-                                RNS.log("Interface "+str(self)+" is unlocking flow control due to time-out. This should not happen. Your hardware might have missed a flow-control READY command.", RNS.LOG_WARNING)
+                                RNS.log("Interface "+str(self)+" is unlocking flow control due to time-out. This should not happen. Your hardware might have missed a flow-control READY command, or maybe it does not support flow-control.", RNS.LOG_WARNING)
                                 self.process_queue()
 
                     if self.beacon_i != None and self.beacon_d != None:

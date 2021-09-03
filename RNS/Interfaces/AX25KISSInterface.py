@@ -62,13 +62,12 @@ class AX25KISSInterface(Interface):
         self.stopbits = stopbits
         self.timeout  = 100
         self.online   = False
-        # TODO: Sane default and make this configurable
-        # TODO: Changed to 25ms instead of 100ms, check it
-        self.txdelay  = 0.025
 
         self.packet_queue    = []
         self.flow_control    = flow_control
         self.interface_ready = False
+        self.flow_control_timeout = 5
+        self.flow_control_locked  = time.time()
 
         if (len(self.src_call) < 3 or len(self.src_call) > 6):
             raise ValueError("Invalid callsign for "+str(self))
@@ -197,6 +196,7 @@ class AX25KISSInterface(Interface):
             if self.interface_ready:
                 if self.flow_control:
                     self.interface_ready = False
+                    self.flow_control_locked = time.time()
 
                 encoded_dst_ssid = bytes([0x60 | (self.dst_ssid << 1)])
                 encoded_src_ssid = bytes([0x60 | (self.src_ssid << 1) | 0x01])
@@ -222,9 +222,6 @@ class AX25KISSInterface(Interface):
                 data = data.replace(bytes([0xdb]), bytes([0xdb])+bytes([0xdd]))
                 data = data.replace(bytes([0xc0]), bytes([0xdb])+bytes([0xdc]))
                 kiss_frame = bytes([KISS.FEND])+bytes([0x00])+data+bytes([KISS.FEND])
-
-                if (self.txdelay > 0):
-                    sleep(self.txdelay)
 
                 written = self.serial.write(kiss_frame)
                 if written != len(kiss_frame):
@@ -293,7 +290,13 @@ class AX25KISSInterface(Interface):
                         in_frame = False
                         command = KISS.CMD_UNKNOWN
                         escape = False
-                    sleep(0.08)
+                    sleep(0.05)
+
+                    if self.flow_control:
+                        if not self.interface_ready:
+                            if time.time() > self.flow_control_locked + self.flow_control_timeout:
+                                RNS.log("Interface "+str(self)+" is unlocking flow control due to time-out. This should not happen. Your hardware might have missed a flow-control READY command, or maybe it does not support flow-control.", RNS.LOG_WARNING)
+                                self.process_queue()
 
         except Exception as e:
             self.online = False
