@@ -45,8 +45,10 @@ class Link:
 
     MDU = math.floor((RNS.Reticulum.MTU-RNS.Reticulum.HEADER_MINSIZE-RNS.Identity.FERNET_OVERHEAD)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
 
-    # This value is set at a reasonable
-    # level for a 1 Kb/s channel.
+    # This value is set at a reasonable level for a 1 Kb/s channel.
+    #
+    # TODO: Find a way to automatically raise or lower this according to
+    # channel bandwidth and utilisation.
     ESTABLISHMENT_TIMEOUT_PER_HOP = 5
     """
     Default timeout for link establishment in seconds per hop to destination.
@@ -230,28 +232,29 @@ class Link:
         self.had_outbound()
 
     def validate_proof(self, packet):
-        if self.initiator and len(packet.data) == RNS.Identity.SIGLENGTH//8:
-            signed_data = self.link_id+self.peer_pub_bytes+self.peer_sig_pub_bytes
-            signature = packet.data[:RNS.Identity.SIGLENGTH//8]
-            
-            if self.destination.identity.validate(signature, signed_data):
-                self.rtt = time.time() - self.request_time
-                self.attached_interface = packet.receiving_interface
-                self.__remote_identity = self.destination.identity
-                RNS.Transport.activate_link(self)
-                RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(self.rtt), RNS.LOG_VERBOSE)
-                rtt_data = umsgpack.packb(self.rtt)
-                rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
-                rtt_packet.send()
-                self.had_outbound()
+        if self.status == Link.HANDSHAKE:
+            if self.initiator and len(packet.data) == RNS.Identity.SIGLENGTH//8:
+                signed_data = self.link_id+self.peer_pub_bytes+self.peer_sig_pub_bytes
+                signature = packet.data[:RNS.Identity.SIGLENGTH//8]
+                
+                if self.destination.identity.validate(signature, signed_data):
+                    self.rtt = time.time() - self.request_time
+                    self.attached_interface = packet.receiving_interface
+                    self.__remote_identity = self.destination.identity
+                    RNS.Transport.activate_link(self)
+                    RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(self.rtt), RNS.LOG_VERBOSE)
+                    rtt_data = umsgpack.packb(self.rtt)
+                    rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
+                    rtt_packet.send()
+                    self.had_outbound()
 
-                self.status = Link.ACTIVE
-                if self.callbacks.link_established != None:
-                    thread = threading.Thread(target=self.callbacks.link_established, args=(self,))
-                    thread.setDaemon(True)
-                    thread.start()
-            else:
-                RNS.log("Invalid link proof signature received by "+str(self)+". Ignoring.", RNS.LOG_DEBUG)
+                    self.status = Link.ACTIVE
+                    if self.callbacks.link_established != None:
+                        thread = threading.Thread(target=self.callbacks.link_established, args=(self,))
+                        thread.setDaemon(True)
+                        thread.start()
+                else:
+                    RNS.log("Invalid link proof signature received by "+str(self)+". Ignoring.", RNS.LOG_DEBUG)
 
 
     def identify(self, identity):
