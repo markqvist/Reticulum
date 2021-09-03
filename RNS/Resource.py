@@ -46,10 +46,11 @@ class Resource:
     # bz2 before sending.
     AUTO_COMPRESS_MAX_SIZE = MAX_EFFICIENT_SIZE
 
-    PART_TIMEOUT_FACTOR = 3
-    MAX_RETRIES         = 5
-    SENDER_GRACE_TIME   = 10
-    RETRY_GRACE_TIME    = 0.25
+    PART_TIMEOUT_FACTOR           = 4
+    PART_TIMEOUT_FACTOR_AFTER_RTT = 2
+    MAX_RETRIES                   = 5
+    SENDER_GRACE_TIME             = 10
+    RETRY_GRACE_TIME              = 0.25
 
     HASHMAP_IS_NOT_EXHAUSTED = 0x00
     HASHMAP_IS_EXHAUSTED = 0xFF
@@ -66,11 +67,11 @@ class Resource:
     CORRUPT         = 0x08
 
     @staticmethod
-    def accept(advertisement_packet, callback=None, progress_callback = None):
+    def accept(advertisement_packet, callback=None, progress_callback = None, request_id = None):
         try:
             adv = ResourceAdvertisement.unpack(advertisement_packet.plaintext)
 
-            resource = Resource(None, advertisement_packet.link)
+            resource = Resource(None, advertisement_packet.link, request_id = request_id)
             resource.status = Resource.TRANSFERRING
 
             resource.flags               = adv.f
@@ -539,11 +540,16 @@ class Resource:
         if self.req_resp == None:
             self.req_resp = self.last_activity
             rtt = self.req_resp-self.req_sent
-            if self.rtt == None:
-                self.rtt = rtt
-                self.watchdog_job()
-            elif self.rtt < rtt:
-                self.rtt = rtt
+
+            if rtt >= self.link.rtt:
+                self.part_timeout_factor = Resource.PART_TIMEOUT_FACTOR_AFTER_RTT
+                if self.rtt == None:
+                    self.rtt = rtt
+                    self.watchdog_job()
+                elif rtt < self.rtt:
+                    self.rtt = max(self.rtt - self.rtt*0.05, rtt)
+                elif rtt > self.rtt:
+                    self.rtt = min(self.rtt + self.rtt*0.05, rtt)
 
         if not self.status == Resource.FAILED:
             self.status = Resource.TRANSFERRING

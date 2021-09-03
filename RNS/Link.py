@@ -562,6 +562,9 @@ class Link:
             self.handle_response(request_id, response_data)
         else:
             RNS.log("Incoming response resource failed with status: "+RNS.hexrep([resource.status]), RNS.LOG_DEBUG)
+            for pending_request in self.pending_requests:
+                if pending_request.request_id == resource.request_id:
+                    pending_request.request_timed_out(None)
 
     def receive(self, packet):
         self.watchdog_lock = True
@@ -640,7 +643,7 @@ class Link:
                             request_id = RNS.ResourceAdvertisement.get_request_id(packet)
                             for pending_request in self.pending_requests:
                                 if pending_request.request_id == request_id:
-                                    RNS.Resource.accept(packet, callback=self.response_resource_concluded, progress_callback=pending_request.response_resource_progress)
+                                    RNS.Resource.accept(packet, callback=self.response_resource_concluded, progress_callback=pending_request.response_resource_progress, request_id = request_id)
                                     pending_request.response_size = RNS.ResourceAdvertisement.get_size(packet)
                                     pending_request.response_transfer_size = RNS.ResourceAdvertisement.get_transfer_size(packet)
                                     pending_request.started_at = time.time()
@@ -911,9 +914,6 @@ class RequestReceipt():
             self.started_at = time.time()
             self.status = RequestReceipt.DELIVERED
             self.__resource_response_timeout = time.time()+self.timeout
-            load_thread = threading.Thread(target=self.__resource_response_timeout_job)
-            load_thread.setDaemon(True)
-            load_thread.start()
         else:
             RNS.log("Sending request "+RNS.prettyhexrep(self.request_id)+" as resource failed with status: "+RNS.hexrep([resource.status]), RNS.LOG_DEBUG)
             self.status = RequestReceipt.FAILED
@@ -950,14 +950,6 @@ class RequestReceipt():
                 self.callbacks.progress(self)
         else:
             resource.cancel()
-
-    def __resource_response_timeout_job(self):
-        while self.status == RequestReceipt.DELIVERED:
-            now = time.time()
-            if now > self.__resource_response_timeout:
-                self.request_timed_out(None)
-
-            time.sleep(0.1)
 
     
     def response_received(self, response):

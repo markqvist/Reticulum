@@ -525,13 +525,10 @@ class Transport:
                 # accordingly if we are.
                 if packet.transport_id != None and packet.packet_type != RNS.Packet.ANNOUNCE:
                     if packet.transport_id == Transport.identity.hash:
-                        # TODO: Remove at some point
-                        # RNS.log("Received packet in transport for "+RNS.prettyhexrep(packet.destination_hash)+" with matching transport ID, transporting it...", RNS.LOG_DEBUG)
                         if packet.destination_hash in Transport.destination_table:
                             next_hop = Transport.destination_table[packet.destination_hash][1]
                             remaining_hops = Transport.destination_table[packet.destination_hash][2]
-                            # TODO: Remove at some point
-                            # RNS.log("Next hop to destination is "+RNS.prettyhexrep(next_hop)+" with "+str(remaining_hops)+" hops remaining, transporting it.", RNS.LOG_DEBUG)
+                            
                             if remaining_hops > 1:
                                 # Just increase hop count and transmit
                                 new_raw  = packet.raw[0:1]
