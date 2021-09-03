@@ -40,7 +40,10 @@ class Resource:
     #
     # This constant will be used when determining
     # how to sequence the sending of large resources.
-    MAX_EFFICIENT_SIZE      = 16 * 1024 * 1024
+    #
+    # Capped at 16777215 (0xFFFFFF) per segment to
+    # fit in 3 bytes in resource advertisements.
+    MAX_EFFICIENT_SIZE      = 16 * 1024 * 1024 - 1
     RESPONSE_MAX_GRACE_TIME = 10
     
     # The maximum size to auto-compress with
@@ -115,7 +118,6 @@ class Resource:
             resource.receiving_part = False
 
             resource.consecutive_completed_height = 0
-            resource.window_index = 0
             
             resource.link.register_incoming_resource(resource)
 
@@ -404,14 +406,13 @@ class Resource:
                     sleep_time = self.last_activity + (rtt*(self.part_timeout_factor+window_remaining)) + Resource.RETRY_GRACE_TIME - time.time()
                     
                     # TODO: Remove debug info
-                    RNS.log("rtt   "+str(rtt))
-                    RNS.log("ptof  "+str(self.part_timeout_factor))
-                    RNS.log("wait  "+str((rtt*self.part_timeout_factor) + Resource.RETRY_GRACE_TIME))
-                    RNS.log("sleep "+str(sleep_time))
-                    RNS.log("wndw  "+str(self.window))
-                    RNS.log("wndwi "+str(self.window_index))
-                    RNS.log("wndwr "+str(window_remaining))
-                    RNS.log("")
+                    # RNS.log("rtt   "+str(rtt))
+                    # RNS.log("ptof  "+str(self.part_timeout_factor))
+                    # RNS.log("wait  "+str((rtt*self.part_timeout_factor) + Resource.RETRY_GRACE_TIME))
+                    # RNS.log("sleep "+str(sleep_time))
+                    # RNS.log("wndw  "+str(self.window))
+                    # RNS.log("wndwr "+str(window_remaining))
+                    # RNS.log("")
 
                     if sleep_time < 0:
                         if self.retries_left > 0:
@@ -594,18 +595,17 @@ class Resource:
                             self.consecutive_completed_height = cp
                             cp += 1
 
+                        if self.__progress_callback != None:
+                            self.__progress_callback(self)
+
+                        # TODO: Remove debug info
+                        # RNS.log("outstanding_parts "+str(self.outstanding_parts))
+                        # RNS.log("total_parts "+str(self.total_parts))
+                        # RNS.log("received_count "+str(self.received_count))
+
                 i += 1
 
-            self.window_index += 1
             self.receiving_part = False
-
-            if self.__progress_callback != None:
-                self.__progress_callback(self)
-
-            # TODO: Remove debug info
-            RNS.log("outstanding_parts "+str(self.outstanding_parts))
-            RNS.log("total_parts "+str(self.total_parts))
-            RNS.log("received_count "+str(self.received_count))
 
             # TODO: Remove
             #if self.outstanding_parts == 0 and self.received_count == self.total_parts:
@@ -667,7 +667,6 @@ class Resource:
                     self.last_activity = time.time()
                     self.req_sent = self.last_activity
                     self.req_resp = None
-                    self.window_index = 0
                 except Exception as e:
                     RNS.log("Could not send resource request packet, cancelling resource", RNS.LOG_DEBUG)
                     RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
