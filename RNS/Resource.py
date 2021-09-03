@@ -399,11 +399,11 @@ class Resource:
                     else:
                         rtt = self.rtt
 
-                    window_remaining = self.window - self.window_index
+                    window_remaining = self.outstanding_parts
 
                     sleep_time = self.last_activity + (rtt*(self.part_timeout_factor+window_remaining)) + Resource.RETRY_GRACE_TIME - time.time()
                     
-                    # TODO: Remove
+                    # TODO: Remove debug info
                     RNS.log("rtt   "+str(rtt))
                     RNS.log("ptof  "+str(self.part_timeout_factor))
                     RNS.log("wait  "+str((rtt*self.part_timeout_factor) + Resource.RETRY_GRACE_TIME))
@@ -602,9 +602,14 @@ class Resource:
             if self.__progress_callback != None:
                 self.__progress_callback(self)
 
-            # TODO: Remove
+            # TODO: Remove debug info
             RNS.log("outstanding_parts "+str(self.outstanding_parts))
-            if self.outstanding_parts == 0 and self.received_count == self.total_parts:
+            RNS.log("total_parts "+str(self.total_parts))
+            RNS.log("received_count "+str(self.received_count))
+
+            # TODO: Remove
+            #if self.outstanding_parts == 0 and self.received_count == self.total_parts:
+            if self.received_count == self.total_parts:
                 self.assemble()
             elif self.outstanding_parts == 0:
                 # TODO: Figure out if there is a mathematically
