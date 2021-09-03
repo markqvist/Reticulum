@@ -46,8 +46,6 @@ class Resource:
     # bz2 before sending.
     AUTO_COMPRESS_MAX_SIZE = MAX_EFFICIENT_SIZE
 
-    # TODO: Should be allocated more
-    # intelligently
     PART_TIMEOUT_FACTOR = 3
     MAX_RETRIES         = 5
     SENDER_GRACE_TIME   = 10

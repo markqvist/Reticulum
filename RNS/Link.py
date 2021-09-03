@@ -245,7 +245,7 @@ class Link:
                     RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(self.rtt), RNS.LOG_VERBOSE)
                     rtt_data = umsgpack.packb(self.rtt)
                     rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
-                    rtt_packet.send()
+                    #rtt_packet.send()
                     self.had_outbound()
 
                     self.status = Link.ACTIVE
@@ -491,53 +491,55 @@ class Link:
         self.had_outbound()
 
     def handle_request(self, request_id, unpacked_request):
-        requested_at = unpacked_request[0]
-        path_hash    = unpacked_request[1]
-        request_data = unpacked_request[2]
+        if self.status == Link.ACTIVE:
+            requested_at = unpacked_request[0]
+            path_hash    = unpacked_request[1]
+            request_data = unpacked_request[2]
 
-        if path_hash in self.destination.request_handlers:
-            request_handler = self.destination.request_handlers[path_hash]
-            path               = request_handler[0]
-            response_generator = request_handler[1]
-            allow              = request_handler[2]
-            allowed_list       = request_handler[3]
+            if path_hash in self.destination.request_handlers:
+                request_handler = self.destination.request_handlers[path_hash]
+                path               = request_handler[0]
+                response_generator = request_handler[1]
+                allow              = request_handler[2]
+                allowed_list       = request_handler[3]
 
-            allowed = False
-            if not allow == RNS.Destination.ALLOW_NONE:
-                if allow == RNS.Destination.ALLOW_LIST:
-                    if self.__remote_identity.hash in allowed_list:
+                allowed = False
+                if not allow == RNS.Destination.ALLOW_NONE:
+                    if allow == RNS.Destination.ALLOW_LIST:
+                        if self.__remote_identity.hash in allowed_list:
+                            allowed = True
+                    elif allow == RNS.Destination.ALLOW_ALL:
                         allowed = True
-                elif allow == RNS.Destination.ALLOW_ALL:
-                    allowed = True
 
-            if allowed:
-                RNS.log("Handling request "+RNS.prettyhexrep(request_id)+" for: "+str(path), RNS.LOG_DEBUG)
-                response = response_generator(path, request_data, request_id, self.__remote_identity, requested_at)
-                if response != None:
-                    packed_response = umsgpack.packb([request_id, response])
+                if allowed:
+                    RNS.log("Handling request "+RNS.prettyhexrep(request_id)+" for: "+str(path), RNS.LOG_DEBUG)
+                    response = response_generator(path, request_data, request_id, self.__remote_identity, requested_at)
+                    if response != None:
+                        packed_response = umsgpack.packb([request_id, response])
 
-                    if len(packed_response) <= Link.MDU:
-                        RNS.Packet(self, packed_response, RNS.Packet.DATA, context = RNS.Packet.RESPONSE).send()
-                    else:
-                        response_resource = RNS.Resource(packed_response, self, request_id = request_id, is_response = True)
-            else:
-                identity_string = RNS.prettyhexrep(self.get_remote_identity()) if self.get_remote_identity() != None else "<Unknown>"
-                RNS.log("Request "+RNS.prettyhexrep(request_id)+" from "+identity_string+" not allowed for: "+str(path), RNS.LOG_DEBUG)
+                        if len(packed_response) <= Link.MDU:
+                            RNS.Packet(self, packed_response, RNS.Packet.DATA, context = RNS.Packet.RESPONSE).send()
+                        else:
+                            response_resource = RNS.Resource(packed_response, self, request_id = request_id, is_response = True)
+                else:
+                    identity_string = RNS.prettyhexrep(self.get_remote_identity()) if self.get_remote_identity() != None else "<Unknown>"
+                    RNS.log("Request "+RNS.prettyhexrep(request_id)+" from "+identity_string+" not allowed for: "+str(path), RNS.LOG_DEBUG)
 
     def handle_response(self, request_id, response_data):
-        remove = None
-        for pending_request in self.pending_requests:
-            if pending_request.request_id == request_id:
-                remove = pending_request
-                try:
-                    pending_request.response_received(response_data)
-                except Exception as e:
-                    RNS.log("Error occurred while handling response. The contained exception was: "+str(e), RNS.LOG_ERROR)
+        if self.status == Link.ACTIVE:
+            remove = None
+            for pending_request in self.pending_requests:
+                if pending_request.request_id == request_id:
+                    remove = pending_request
+                    try:
+                        pending_request.response_received(response_data)
+                    except Exception as e:
+                        RNS.log("Error occurred while handling response. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
-                break
+                    break
 
-        if remove != None:
-            self.pending_requests.remove(remove)
+            if remove != None:
+                self.pending_requests.remove(remove)
 
     def request_resource_concluded(self, resource):
         if resource.status == RNS.Resource.COMPLETE:
