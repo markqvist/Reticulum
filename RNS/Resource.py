@@ -53,6 +53,8 @@ class Resource:
     SENDER_GRACE_TIME             = 10
     RETRY_GRACE_TIME              = 0.25
 
+    WATCHDOG_MAX_SLEEP            = 1
+
     HASHMAP_IS_NOT_EXHAUSTED = 0x00
     HASHMAP_IS_EXHAUSTED = 0xFF
 
@@ -113,6 +115,7 @@ class Resource:
             resource.receiving_part = False
 
             resource.consecutive_completed_height = 0
+            resource.window_index = 0
             
             resource.link.register_incoming_resource(resource)
 
@@ -396,7 +399,19 @@ class Resource:
                     else:
                         rtt = self.rtt
 
-                    sleep_time = self.last_activity + (rtt*self.part_timeout_factor) + Resource.RETRY_GRACE_TIME - time.time()
+                    window_remaining = self.window - self.window_index
+
+                    sleep_time = self.last_activity + (rtt*(self.part_timeout_factor+window_remaining)) + Resource.RETRY_GRACE_TIME - time.time()
+                    
+                    # TODO: Remove
+                    RNS.log("rtt   "+str(rtt))
+                    RNS.log("ptof  "+str(self.part_timeout_factor))
+                    RNS.log("wait  "+str((rtt*self.part_timeout_factor) + Resource.RETRY_GRACE_TIME))
+                    RNS.log("sleep "+str(sleep_time))
+                    RNS.log("wndw  "+str(self.window))
+                    RNS.log("wndwi "+str(self.window_index))
+                    RNS.log("wndwr "+str(window_remaining))
+                    RNS.log("")
 
                     if sleep_time < 0:
                         if self.retries_left > 0:
@@ -447,7 +462,7 @@ class Resource:
                 self.cancel()
             
             if sleep_time != None:
-                sleep(sleep_time)
+                sleep(min(sleep_time, Resource.WATCHDOG_MAX_SLEEP))
 
     def assemble(self):
         if not self.status == Resource.FAILED:
@@ -581,11 +596,14 @@ class Resource:
 
                 i += 1
 
+            self.window_index += 1
             self.receiving_part = False
 
             if self.__progress_callback != None:
                 self.__progress_callback(self)
 
+            # TODO: Remove
+            RNS.log("outstanding_parts "+str(self.outstanding_parts))
             if self.outstanding_parts == 0 and self.received_count == self.total_parts:
                 self.assemble()
             elif self.outstanding_parts == 0:
@@ -644,6 +662,7 @@ class Resource:
                     self.last_activity = time.time()
                     self.req_sent = self.last_activity
                     self.req_resp = None
+                    self.window_index = 0
                 except Exception as e:
                     RNS.log("Could not send resource request packet, cancelling resource", RNS.LOG_DEBUG)
                     RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
