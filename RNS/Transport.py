@@ -893,7 +893,8 @@ class Transport:
                             receipt_validated = receipt.validate_proof_packet(packet)
 
                         if receipt_validated:
-                            Transport.receipts.remove(receipt)
+                            if receipt in Transport.receipts:
+                                Transport.receipts.remove(receipt)
 
         Transport.jobs_locked = False
 
