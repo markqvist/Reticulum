@@ -525,13 +525,15 @@ class Link:
                     identity_string = RNS.prettyhexrep(self.get_remote_identity()) if self.get_remote_identity() != None else "<Unknown>"
                     RNS.log("Request "+RNS.prettyhexrep(request_id)+" from "+identity_string+" not allowed for: "+str(path), RNS.LOG_DEBUG)
 
-    def handle_response(self, request_id, response_data):
+    def handle_response(self, request_id, response_data, response_size, response_transfer_size):
         if self.status == Link.ACTIVE:
             remove = None
             for pending_request in self.pending_requests:
                 if pending_request.request_id == request_id:
                     remove = pending_request
                     try:
+                        pending_request.response_size = response_size
+                        pending_request.response_transfer_size = response_transfer_size
                         pending_request.response_received(response_data)
                     except Exception as e:
                         RNS.log("Error occurred while handling response. The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -559,7 +561,7 @@ class Link:
             request_id        = unpacked_response[0]
             response_data     = unpacked_response[1]
 
-            self.handle_response(request_id, response_data)
+            self.handle_response(request_id, response_data, resource.total_size, resource.size)
         else:
             RNS.log("Incoming response resource failed with status: "+RNS.hexrep([resource.status]), RNS.LOG_DEBUG)
             for pending_request in self.pending_requests:
@@ -623,7 +625,8 @@ class Link:
                             unpacked_response = umsgpack.unpackb(packed_response)
                             request_id = unpacked_response[0]
                             response_data = unpacked_response[1]
-                            self.handle_response(request_id, response_data)
+                            transfer_size = len(umsgpack.packb(response_data))-2
+                            self.handle_response(request_id, response_data, transfer_size, transfer_size)
                         except Exception as e:
                             RNS.log("Error occurred while handling response. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
@@ -970,10 +973,6 @@ class RequestReceipt():
             self.response = response
             self.status = RequestReceipt.READY
             self.response_concluded_at = time.time()
-
-            if len(response) <= Link.MDU:
-                self.response_size = len(response)
-                self.response_transfer_size = len(response)
 
             if self.packet_receipt != None:
                 self.packet_receipt.status = RNS.PacketReceipt.DELIVERED
