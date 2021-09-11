@@ -19,7 +19,7 @@ import sys
 
 from codecs import BOM_UTF8, BOM_UTF16, BOM_UTF16_BE, BOM_UTF16_LE
 
-import six
+import RNS.vendor.six as six
 __version__ = '5.0.6'
 
 # imported lazily to avoid startup performance hit if it isn't used
