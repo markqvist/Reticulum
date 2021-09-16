@@ -419,6 +419,11 @@ class Link:
         self.shared_key = None
         self.derived_key = None
 
+        if self.destination != None:
+            if self.destination.direction == RNS.Destination.IN:
+                if self in self.destination.links:
+                    self.destination.links.remove(self)
+
         if self.callbacks.link_closed != None:
             self.callbacks.link_closed(self)
 
