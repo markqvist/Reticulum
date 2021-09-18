@@ -788,10 +788,10 @@ class Transport:
                             # If the receiving interface is a tunnel, we add the
                             # announce to the tunnels table
                             if hasattr(packet.receiving_interface, "tunnel_id") and packet.receiving_interface.tunnel_id != None:
-                                RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" associated with tunnel "+RNS.prettyhexrep(packet.receiving_interface.tunnel_id), RNS.LOG_VERBOSE)
                                 tunnel_entry = Transport.tunnels[packet.receiving_interface.tunnel_id]
-                                #paths = tunnel_entry[2]
-                                #paths[packet.destination_hash] = destination_table_entry
+                                paths = tunnel_entry[2]
+                                paths[packet.destination_hash] = destination_table_entry
+                                RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" associated with tunnel "+RNS.prettyhexrep(packet.receiving_interface.tunnel_id), RNS.LOG_VERBOSE)
 
                             # Call externally registered callbacks from apps
                             # wanting to know when an announce arrives
@@ -988,7 +988,7 @@ class Transport:
     def handle_tunnel(tunnel_id, interface):
         if not tunnel_id in Transport.tunnels:
             RNS.log("Tunnel endpoint "+RNS.prettyhexrep(tunnel_id)+" established.", RNS.LOG_DEBUG)
-            paths = []
+            paths = {}
             tunnel_entry = [tunnel_id, interface, paths]
             interface.tunnel_id = tunnel_id
             Transport.tunnels[tunnel_id] = tunnel_entry
