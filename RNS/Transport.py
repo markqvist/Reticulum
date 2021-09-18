@@ -131,6 +131,8 @@ class Transport:
 
         if RNS.Reticulum.transport_enabled():
             destination_table_path = RNS.Reticulum.storagepath+"/destination_table"
+            tunnel_table_path = RNS.Reticulum.storagepath+"/tunnels"
+
             if os.path.isfile(destination_table_path) and not Transport.owner.is_connected_to_shared_instance:
                 serialised_destinations = []
                 try:
@@ -173,6 +175,56 @@ class Transport:
 
                 except Exception as e:
                     RNS.log("Could not load destination table from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+
+            if os.path.isfile(tunnel_table_path) and not Transport.owner.is_connected_to_shared_instance:
+                serialised_tunnels = []
+                try:
+                    file = open(tunnel_table_path, "rb")
+                    serialised_tunnels = umsgpack.unpackb(file.read())
+                    file.close()
+
+                    for serialised_tunnel in serialised_tunnels:
+                        tunnel_id = serialised_tunnel[0]
+                        interface_hash = serialised_tunnel[1]
+                        serialised_paths = serialised_tunnel[2]
+                        expires = serialised_tunnel[3]
+
+                        tunnel_paths = {}
+                        for serialised_entry in serialised_paths:
+                            destination_hash = serialised_entry[0]
+                            timestamp = serialised_entry[1]
+                            received_from = serialised_entry[2]
+                            hops = serialised_entry[3]
+                            expires = serialised_entry[4]
+                            random_blobs = serialised_entry[5]
+                            receiving_interface = Transport.find_interface_from_hash(serialised_entry[6])
+                            announce_packet = Transport.get_cached_packet(serialised_entry[7])
+
+                            if announce_packet != None:
+                                announce_packet.unpack()
+                                # We increase the hops, since reading a packet
+                                # from cache is equivalent to receiving it again
+                                # over an interface. It is cached with it's non-
+                                # increased hop-count.
+                                announce_packet.hops += 1
+
+                                tunnel_path = [timestamp, received_from, hops, expires, random_blobs, receiving_interface, announce_packet]
+                                tunnel_paths[destination_hash] = tunnel_path
+
+                        tunnel = [tunnel_id, None, tunnel_paths, expires]
+                        Transport.tunnels[tunnel_id] = tunnel
+
+                    if len(Transport.destination_table) == 1:
+                        specifier = "entry"
+                    else:
+                        specifier = "entries"
+
+                    RNS.log("Loaded "+str(len(Transport.tunnels))+" tunnel table "+specifier+" from storage", RNS.LOG_VERBOSE)
+
+                except Exception as e:
+                    RNS.log("Could not load tunnel table from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+
+
 
             RNS.log("Transport instance "+str(Transport.identity)+" started")
 
@@ -291,8 +343,7 @@ class Transport:
                         if time.time() > destination_entry[0] + Transport.DESTINATION_TIMEOUT:
                             stale_paths.append(destination_hash)
                             RNS.log("Path to "+RNS.prettyhexrep(destination_hash)+" timed out and was removed", RNS.LOG_DEBUG)
-
-                        if not attached_interface in Transport.interfaces:
+                        elif not attached_interface in Transport.interfaces:
                             stale_paths.append(destination_hash)
                             RNS.log("Path to "+RNS.prettyhexrep(destination_hash)+" was removed since the attached interface no longer exists", RNS.LOG_DEBUG)
 
@@ -1393,3 +1444,55 @@ class Transport:
                 RNS.log("Done saving "+str(len(serialised_destinations))+" path table entries to storage", RNS.LOG_VERBOSE)
             except Exception as e:
                 RNS.log("Could not save path table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+
+            RNS.log("Saving tunnel table to storage...", RNS.LOG_VERBOSE)
+            try:
+                serialised_tunnels = []
+                for tunnel_id in Transport.tunnels:
+                    te = Transport.tunnels[tunnel_id]
+                    interface = te[1]
+                    tunnel_paths = te[2]
+                    expires = te[3]
+
+                    if interface != None:
+                        interface_hash = interface.get_hash()
+                    else:
+                        interface_hash = None
+
+                    serialised_paths = []
+                    for destination_hash in tunnel_paths:
+                        de = tunnel_paths[destination_hash]
+
+                        timestamp = de[0]
+                        received_from = de[1]
+                        hops = de[2]
+                        expires = de[3]
+                        random_blobs = de[4]
+                        packet_hash = de[6].get_hash()
+
+                        serialised_entry = [
+                            destination_hash,
+                            timestamp,
+                            received_from,
+                            hops,
+                            expires,
+                            random_blobs,
+                            interface_hash,
+                            packet_hash
+                        ]
+
+                        serialised_paths.append(serialised_entry)
+
+                        Transport.cache(de[6], force_cache=True)
+
+
+                    serialised_tunnel = [tunnel_id, interface_hash, serialised_paths, expires]
+                    serialised_tunnels.append(serialised_tunnel)
+
+                tunnels_path = RNS.Reticulum.storagepath+"/tunnels"
+                file = open(tunnels_path, "wb")
+                file.write(umsgpack.packb(serialised_tunnels))
+                file.close()
+                RNS.log("Done saving "+str(len(serialised_tunnels))+" tunnel table entries to storage", RNS.LOG_VERBOSE)
+            except Exception as e:
+                RNS.log("Could not save tunnel table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
