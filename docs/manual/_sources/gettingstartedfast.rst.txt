@@ -12,12 +12,24 @@ If you simply want to try using a program built with Reticulum, you can take
 a look at `Nomad Network <https://github.com/markqvist/nomadnet>`_, which
 provides a basic encrypted communications suite built completely on Reticulum.
 
-.. image:: screenshots/nomadnet3.png
-    :target: _images/nomadnet3.png
+.. image:: screenshots/nomadnet_3.png
+    :target: _images/nomadnet_3.png
 
 `Nomad Network <https://github.com/markqvist/nomadnet>`_ is a user-facing client
 in the development for the messaging and information-sharing protocol
 `LXMF <https://github.com/markqvist/lxmf>`_, another project built with Reticulum.
+
+You can install Nomad Network via pip:
+
+.. code::
+
+   # Install
+   pip3 install nomadnet
+
+   # And run
+   nomadnet
+
+
 
 Develop a Program with Reticulum
 ===========================================
