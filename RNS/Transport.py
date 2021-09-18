@@ -930,7 +930,7 @@ class Transport:
         RNS.log("Transport ID : "+str(Transport.identity))
         RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
         RNS.log("IF hash      : "+RNS.hexrep(interface_hash))
-        RNS.log("Rnd has      : "+RNS.hexrep(random_hash))
+        RNS.log("Rnd hash     : "+RNS.hexrep(random_hash))
         RNS.log("Public key   : "+RNS.hexrep(public_key))
         RNS.log("Signature    : "+RNS.hexrep(signature))
 
@@ -951,7 +951,7 @@ class Transport:
             interface_hash = data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8]
             tunnel_id_data = public_key+interface_hash
             tunnel_id      = RNS.Identity.full_hash(tunnel_id_data)
-            random_hash    = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
+            random_hash    = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
             
             signature      = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8:expected_length]
             signed_data    = tunnel_id_data+random_hash
@@ -962,7 +962,7 @@ class Transport:
             RNS.log("Transport ID : "+str(Transport.identity))
             RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
             RNS.log("IF hash      : "+RNS.hexrep(interface_hash))
-            RNS.log("Rnd has      : "+RNS.hexrep(random_hash))
+            RNS.log("Rnd hash     : "+RNS.hexrep(random_hash))
             RNS.log("Public key   : "+RNS.hexrep(public_key))
             RNS.log("Signature    : "+RNS.hexrep(signature))
 
