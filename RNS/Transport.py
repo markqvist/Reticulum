@@ -34,7 +34,7 @@ class Transport:
     PATHFINDER_R    = 1         # Retransmit retries
     PATHFINDER_T    = 10        # Retry grace period
     PATHFINDER_RW   = 10        # Random window for announce rebroadcast
-    PATHFINDER_E    = 25  # Path expiration in seconds
+    PATHFINDER_E    = 96*60*60  # Path expiration in seconds
 
     # TODO: Calculate an optimal number for this in
     # various situations
