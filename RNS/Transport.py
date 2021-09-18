@@ -64,7 +64,7 @@ class Transport:
     link_table           = {}         # A lookup table containing hops for links
     held_announces       = {}         # A table containing temporarily held announce-table entries
     announce_handlers    = []         # A table storing externally registered announce handlers
-    transport_tunnels    = {}         # A table storing tunnels to other transport instances
+    tunnels              = {}         # A table storing tunnels to other transport instances
 
     # Transport control destinations are used
     # for control purposes like path requests
@@ -178,6 +178,7 @@ class Transport:
 
         # Synthesize tunnels for any interfaces wanting it
         for interface in Transport.interfaces:
+            interface.tunnel_id = None
             if hasattr(interface, "wants_tunnel") and interface.wants_tunnel:
                 Transport.synthesize_tunnel(interface)
 
@@ -946,7 +947,6 @@ class Transport:
         RNS.log("Received tunnel synthesize packet ("+str(len(data))+"):\n"+RNS.hexrep(data))
 
         expected_length = RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8+RNS.Identity.SIGLENGTH//8
-
         if len(data) == expected_length:
             public_key     = data[:RNS.Identity.KEYSIZE//8]
             interface_hash = data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8]
@@ -960,6 +960,7 @@ class Transport:
             remote_transport_identity = RNS.Identity(create_keys=False)
             remote_transport_identity.load_public_key(public_key)
 
+            # TODO: Remove
             RNS.log("Transport ID : "+str(remote_transport_identity))
             RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
             RNS.log("IF hash      : "+RNS.hexrep(interface_hash))
@@ -969,9 +970,29 @@ class Transport:
 
             if remote_transport_identity.validate(signature, signed_data):
                 RNS.log("Signature is valid")
-                tunnel_entry = []
+                Transport.handle_tunnel(tunnel_id, packet.receiving_interface)
             else:
+                # TODO: Remove
                 RNS.log("Signature is invalid")
+
+    @staticmethod
+    def handle_tunnel(tunnel_id, interface):
+        if not tunnel_id in Transport.tunnels:
+            RNS.log("Tunnel endpoint "+RNS.prettyhexrep(tunnel_id)+" established.", RNS.LOG_DEBUG)
+            announces = []
+            tunnel_entry = [tunnel_id, interface, announces]
+            interface.tunnel_id = tunnel_id
+            Transport.tunnels.append(tunnel_entry)
+        else:
+            RNS.log("Tunnel endpoint "+RNS.prettyhexrep(tunnel_id)+" reappeared. Restoring paths...", RNS.LOG_DEBUG)
+            tunnel_entry = Transport.tunnels[tunnel_id]
+            tunnel_entry[1] = interface
+            interface.tunnel_id = tunnel_id
+            announces = tunnel_entry[2]
+
+            for announce in announces:
+                # Reassign paths
+                pass
 
 
     @staticmethod
