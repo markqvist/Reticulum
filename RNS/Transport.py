@@ -999,9 +999,33 @@ class Transport:
             interface.tunnel_id = tunnel_id
             paths = tunnel_entry[2]
 
-            for path_entry in paths:
-                # Reassign paths
-                pass
+            for destination_hash, path_entry in paths.items():
+                received_from = path_entry[1]
+                announce_hops = path_entry[2]
+                expires = path_entry[3]
+                random_blobs = path_entry[4]
+                receiving_interface = interface
+                packet = path_entry[6]
+                new_entry = [time.time(), received_from, announce_hops, expires, random_blobs, receiving_interface, packet]
+
+                should_add = False
+                if destination_hash in Transport.destination_table:
+                    old_entry = Transport.destination_table[destination_hash]
+                    old_hops = old_entry[2]
+                    old_expires = old_entry[3]
+                    if announce_hops <= old_hops or time.time() > old_expires:
+                        should_add = True
+                    else:
+                        RNS.log("Did not restore path to "+RNS.prettyhexrep(packet.destination_hash)+" because a newer path with fewer hops exist", RNS.LOG_DEBUG)
+                else:
+                    should_add = True
+
+                if should_add:
+                    Transport.destination_table[destination_hash] = new_entry
+                    RNS.log("Restored path to "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_VERBOSE)
+
+
+                
 
 
     @staticmethod
