@@ -930,7 +930,7 @@ class Transport:
         RNS.log("Transport ID : "+str(Transport.identity))
         RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
         RNS.log("IF hash      : "+RNS.hexrep(interface_hash))
-        RNS.log("Rnd has      : "+RNS.hexrep(interface_hash))
+        RNS.log("Rnd has      : "+RNS.hexrep(random_hash))
         RNS.log("Public key   : "+RNS.hexrep(public_key))
         RNS.log("Signature    : "+RNS.hexrep(signature))
 
@@ -962,7 +962,7 @@ class Transport:
             RNS.log("Transport ID : "+str(Transport.identity))
             RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
             RNS.log("IF hash      : "+RNS.hexrep(interface_hash))
-            RNS.log("Rnd has      : "+RNS.hexrep(interface_hash))
+            RNS.log("Rnd has      : "+RNS.hexrep(random_hash))
             RNS.log("Public key   : "+RNS.hexrep(public_key))
             RNS.log("Signature    : "+RNS.hexrep(signature))
 
