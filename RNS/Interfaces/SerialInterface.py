@@ -130,7 +130,10 @@ class SerialInterface(Interface):
         except Exception as e:
             self.online = False
             RNS.log("A serial port error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log("The interface "+str(self.name)+" is now offline. Restart Reticulum to attempt reconnection.", RNS.LOG_ERROR)
+            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
+
+            if RNS.Reticulum.panic_on_interface_error:
+                RNS.panic()
 
     def __str__(self):
         return "SerialInterface["+self.name+"]"

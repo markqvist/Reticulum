@@ -98,6 +98,8 @@ class Reticulum:
         Reticulum.__transport_enabled = False
         Reticulum.__use_implicit_proof = True
 
+        Reticulum.panic_on_interface_error = False
+
         self.local_interface_port = 37428
         self.share_instance = True
 
@@ -195,6 +197,10 @@ class Reticulum:
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:
                         Reticulum.__transport_enabled = True
+                if option == "panic_on_interface_error":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v == True:
+                        Reticulum.panic_on_interface_error = True
                 if option == "use_implicit_proof":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:
@@ -509,6 +515,14 @@ share_instance = Yes
 # and again, this option is optional and can be left out.
 
 shared_instance_port = 37428
+
+# You can configure Reticulum to panic and forcibly close
+# if an unrecoverable interface error occurs, such as the
+# hardware device for an interface disappearing. This is
+# an optional directive, and can be left out for brevity.
+# This behaviour is disabled by default.
+
+panic_on_interface_error = No
 
 
 [logging]

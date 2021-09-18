@@ -23,13 +23,21 @@ class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 class TCPClientInterface(Interface):
+    RECONNECT_WAIT = 5
+    RECONNECT_MAX_TRIES = None
 
-    def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None):
+    def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None, max_reconnect_tries=None):
         self.IN               = True
         self.OUT              = False
         self.socket           = None
         self.parent_interface = None
         self.name             = name
+        self.initiator        = False
+
+        if max_reconnect_tries == None:
+            self.max_reconnect_tries = TCPClientInterface.RECONNECT_MAX_TRIES
+        else:
+            self.max_reconnect_tries = max_reconnect_tries
 
         if connected_socket != None:
             self.receives    = True
@@ -50,10 +58,42 @@ class TCPClientInterface(Interface):
         self.writing = False
 
         if connected_socket == None:
+            self.initiator = True
             thread = threading.Thread(target=self.read_loop)
             thread.setDaemon(True)
             thread.start()
             self.wants_tunnel = True
+
+    def reconnect(self):
+        if self.initiator:
+            attempts = 0
+            while not self.online:
+                attempts += 1
+
+                if self.max_reconnect_tries != None and attempts > self.max_reconnect_tries:
+                    RNS.log("Max reconnection attempts reached for "+str(self), RNS.LOG_ERROR)
+                    self.teardown()
+                    break
+
+                try:
+                    self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self.socket.connect((self.target_ip, self.target_port))
+                    self.online  = True
+                    self.writing = False
+
+                    thread = threading.Thread(target=self.read_loop)
+                    thread.setDaemon(True)
+                    thread.start()
+                    RNS.Transport.synthesize_tunnel(self)
+
+                except Exception as e:
+                    RNS.log("Reconnection attempt for "+str(self)+" failed. The contained exception was: "+str(e), RNS.LOG_ERROR)
+
+                time.sleep(TCPClientInterface.RECONNECT_WAIT)
+
+        else:
+            RNS.log("Attempt to reconnect on a non-initiator TCP interface. This should not happen.", RNS.LOG_ERROR)
+            raise IOError("Attempt to reconnect on a non-initiator TCP interface")
 
     def processIncoming(self, data):
         self.owner.inbound(data, self)
@@ -105,23 +145,29 @@ class TCPClientInterface(Interface):
                                     escape = False
                                 data_buffer = data_buffer+bytes([byte])
                 else:
-                    RNS.log("TCP socket for "+str(self)+" was closed, tearing down interface", RNS.LOG_VERBOSE)
-                    self.teardown()
+                    RNS.log("TCP socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
+                    self.online = False
+                    if self.initiator:
+                        self.reconnect()
+
                     break
 
                 
         except Exception as e:
             self.online = False
             RNS.log("An interface error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log("Tearing down "+str(self), RNS.LOG_ERROR)
             self.teardown()
 
     def teardown(self):
+        RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
         self.online = False
         self.OUT = False
         self.IN = False
         if self in RNS.Transport.interfaces:
             RNS.Transport.interfaces.remove(self)
+
+        if RNS.Reticulum.panic_on_interface_error:
+            RNS.panic()
 
 
     def __str__(self):

@@ -127,6 +127,10 @@ class LocalClientInterface(Interface):
         if self in RNS.Transport.local_client_interfaces:
             RNS.Transport.local_client_interfaces.remove(self)
 
+        RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
+        if RNS.Reticulum.panic_on_interface_error:
+            RNS.panic()
+
 
     def __str__(self):
         return "LocalInterface["+str(self.target_port)+"]"
