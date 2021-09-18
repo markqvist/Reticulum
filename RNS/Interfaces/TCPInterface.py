@@ -53,6 +53,7 @@ class TCPClientInterface(Interface):
             thread = threading.Thread(target=self.read_loop)
             thread.setDaemon(True)
             thread.start()
+            self.wants_tunnel = True
 
     def processIncoming(self, data):
         self.owner.inbound(data, self)

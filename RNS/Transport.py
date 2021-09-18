@@ -64,6 +64,7 @@ class Transport:
     link_table           = {}         # A lookup table containing hops for links
     held_announces       = {}         # A table containing temporarily held announce-table entries
     announce_handlers    = []         # A table storing externally registered announce handlers
+    transport_tunnels    = {}         # A table storing tunnels to other transport instances
 
     # Transport control destinations are used
     # for control purposes like path requests
@@ -119,6 +120,11 @@ class Transport:
         Transport.control_destinations.append(Transport.path_request_destination)
         Transport.control_hashes.append(Transport.path_request_destination.hash)
 
+        Transport.tunnel_synthesize_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "tunnel", "synthesize")
+        Transport.tunnel_synthesize_destination.set_packet_callback(Transport.tunnel_synthesize_handler)
+        Transport.control_destinations.append(Transport.tunnel_synthesize_handler)
+        Transport.control_hashes.append(Transport.tunnel_synthesize_destination.hash)
+
         thread = threading.Thread(target=Transport.jobloop)
         thread.setDaemon(True)
         thread.start()
@@ -169,6 +175,10 @@ class Transport:
                     RNS.log("Could not load destination table from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
             RNS.log("Transport instance "+str(Transport.identity)+" started")
+
+        for interface in Transport.interfaces:
+            if hasattr(interface, "wants_tunnel") and interface.wants_tunnel:
+                Transport.synthesize_tunnel(interface)
 
     @staticmethod
     def jobloop():
@@ -395,6 +405,7 @@ class Transport:
                     if should_transmit:
                         if not stored_hash:
                             Transport.packet_hashlist.append(packet.packet_hash)
+                            stored_hash = True
 
                         interface.processOutgoing(packet.raw)
                         sent = True
@@ -897,6 +908,60 @@ class Transport:
                                 Transport.receipts.remove(receipt)
 
         Transport.jobs_locked = False
+
+    @staticmethod
+    def synthesize_tunnel(interface):
+        interface_hash = interface.get_hash()
+        public_key     = RNS.Transport.identity.get_public_key()
+        random_hash    = RNS.Identity.get_random_hash()
+        
+        tunnel_id_data = public_key+interface_hash
+        tunnel_id      = RNS.Identity.full_hash(tunnel_id_data)
+
+        signed_data    = tunnel_id_data+random_hash
+        signature      = Transport.identity.sign(signed_data)
+        
+        data           = signed_data+signature
+
+        tnl_snth_dst   = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "tunnel", "synthesize")
+
+        # TODO: Remove
+        RNS.log("Tunnel synth for "+str(interface))
+        RNS.log("Transport ID : "+str(Transport.identity))
+        RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
+        RNS.log("Public key   : "+RNS.hexrep(public_key))
+        RNS.log("Signature    : "+RNS.hexrep(signature))
+
+        packet = RNS.Packet(tnl_snth_dst, data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = interface)
+        packet.send()
+
+        interface.wants_tunnel = False
+
+    @staticmethod
+    def tunnel_synthesize_handler(data, packet):
+        # TODO: Remove
+        RNS.log("Received tunnel synthesize packet ("+str(len(data))+"):\n"+RNS.hexrep(data))
+
+        expected_length = RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8+RNS.Identity.SIGLENGTH//8
+
+        if len(data) == expected_length:
+            tunnel_id  = RNS.Identity.full_hash(data[:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH])
+            public_key = data[:RNS.Identity.KEYSIZE//8]
+            signature  = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8:expected_length]
+
+            remote_transport_identity = RNS.Identity(create_keys=False)
+            remote_transport_identity.load_public_key(public_key)
+
+            RNS.log("Transport ID : "+str(Transport.identity))
+            RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
+            RNS.log("Public key   : "+RNS.hexrep(public_key))
+            RNS.log("Signature    : "+RNS.hexrep(signature))
+
+            if remote_transport_identity.validate(signature):
+                RNS.log("Signature is valid")
+            else:
+                RNS.log("Signature is invalid")
+
 
     @staticmethod
     def register_destination(destination):
