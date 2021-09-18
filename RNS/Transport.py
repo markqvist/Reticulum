@@ -945,9 +945,10 @@ class Transport:
         expected_length = RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8+RNS.Identity.SIGLENGTH//8
 
         if len(data) == expected_length:
-            tunnel_id  = RNS.Identity.full_hash(data[:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH])
-            public_key = data[:RNS.Identity.KEYSIZE//8]
-            signature  = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8:expected_length]
+            public_key  = data[:RNS.Identity.KEYSIZE//8]
+            tunnel_id   = RNS.Identity.full_hash(data[:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH])
+            random_hash = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
+            signature   = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8:expected_length]
 
             remote_transport_identity = RNS.Identity(create_keys=False)
             remote_transport_identity.load_public_key(public_key)
@@ -957,7 +958,7 @@ class Transport:
             RNS.log("Public key   : "+RNS.hexrep(public_key))
             RNS.log("Signature    : "+RNS.hexrep(signature))
 
-            if remote_transport_identity.validate(signature):
+            if remote_transport_identity.validate(signature, signed_data):
                 RNS.log("Signature is valid")
             else:
                 RNS.log("Signature is invalid")
