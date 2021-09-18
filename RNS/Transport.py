@@ -781,9 +781,17 @@ class Transport:
                                         new_announce.hops = packet.hops
                                         new_announce.send()
 
-
-                            Transport.destination_table[packet.destination_hash] = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet]
+                            destination_table_entry = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet]
+                            Transport.destination_table[packet.destination_hash] = destination_table_entry
                             RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_VERBOSE)
+
+                            # If the receiving interface is a tunnel, we add the
+                            # announce to the tunnels table
+                            if hasattr(packet.receiving_interface, "tunnel_id") and packet.receiving_interface.tunnel_id != None:
+                                tunnel_entry = Transport.tunnels[packet.receiving_interface.tunnel_id]
+                                paths = tunnel_entry[2]
+                                paths[packet.destination_hash] = destination_table_entry
+                                RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" associated with tunnel "+RNS.prettyhexrep(packet.receiving_interface.tunnel_id), RNS.LOG_VERBOSE)
 
                             # Call externally registered callbacks from apps
                             # wanting to know when an announce arrives
@@ -928,13 +936,13 @@ class Transport:
         tnl_snth_dst   = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "tunnel", "synthesize")
 
         # TODO: Remove
-        RNS.log("Tunnel synth for "+str(interface))
-        RNS.log("Transport ID : "+str(Transport.identity))
-        RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
-        RNS.log("IF hash      : "+RNS.hexrep(interface_hash))
-        RNS.log("Rnd hash     : "+RNS.hexrep(random_hash))
-        RNS.log("Public key   : "+RNS.hexrep(public_key))
-        RNS.log("Signature    : "+RNS.hexrep(signature))
+        # RNS.log("Tunnel synth for "+str(interface))
+        # RNS.log("Transport ID : "+str(Transport.identity))
+        # RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
+        # RNS.log("IF hash      : "+RNS.hexrep(interface_hash))
+        # RNS.log("Rnd hash     : "+RNS.hexrep(random_hash))
+        # RNS.log("Public key   : "+RNS.hexrep(public_key))
+        # RNS.log("Signature    : "+RNS.hexrep(signature))
 
         packet = RNS.Packet(tnl_snth_dst, data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = interface)
         packet.send()
@@ -943,44 +951,45 @@ class Transport:
 
     @staticmethod
     def tunnel_synthesize_handler(data, packet):
-        # TODO: Remove
-        RNS.log("Received tunnel synthesize packet ("+str(len(data))+"):\n"+RNS.hexrep(data))
+        try:
+            expected_length = RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8+RNS.Identity.SIGLENGTH//8
+            if len(data) == expected_length:
+                public_key     = data[:RNS.Identity.KEYSIZE//8]
+                interface_hash = data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8]
+                tunnel_id_data = public_key+interface_hash
+                tunnel_id      = RNS.Identity.full_hash(tunnel_id_data)
+                random_hash    = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
+                
+                signature      = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8:expected_length]
+                signed_data    = tunnel_id_data+random_hash
 
-        expected_length = RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8+RNS.Identity.SIGLENGTH//8
-        if len(data) == expected_length:
-            public_key     = data[:RNS.Identity.KEYSIZE//8]
-            interface_hash = data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8]
-            tunnel_id_data = public_key+interface_hash
-            tunnel_id      = RNS.Identity.full_hash(tunnel_id_data)
-            random_hash    = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
-            
-            signature      = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8:expected_length]
-            signed_data    = tunnel_id_data+random_hash
+                remote_transport_identity = RNS.Identity(create_keys=False)
+                remote_transport_identity.load_public_key(public_key)
 
-            remote_transport_identity = RNS.Identity(create_keys=False)
-            remote_transport_identity.load_public_key(public_key)
-
-            # TODO: Remove
-            RNS.log("Transport ID : "+str(remote_transport_identity))
-            RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
-            RNS.log("IF hash      : "+RNS.hexrep(interface_hash))
-            RNS.log("Rnd hash     : "+RNS.hexrep(random_hash))
-            RNS.log("Public key   : "+RNS.hexrep(public_key))
-            RNS.log("Signature    : "+RNS.hexrep(signature))
-
-            if remote_transport_identity.validate(signature, signed_data):
-                RNS.log("Signature is valid")
-                Transport.handle_tunnel(tunnel_id, packet.receiving_interface)
-            else:
                 # TODO: Remove
-                RNS.log("Signature is invalid")
+                # RNS.log("Transport ID : "+str(remote_transport_identity))
+                # RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
+                # RNS.log("IF hash      : "+RNS.hexrep(interface_hash))
+                # RNS.log("Rnd hash     : "+RNS.hexrep(random_hash))
+                # RNS.log("Public key   : "+RNS.hexrep(public_key))
+                # RNS.log("Signature    : "+RNS.hexrep(signature))
+
+                if remote_transport_identity.validate(signature, signed_data):
+                    # RNS.log("Signature is valid")
+                    Transport.handle_tunnel(tunnel_id, packet.receiving_interface)
+                # else:
+                    # TODO: Remove
+                    # RNS.log("Signature is invalid")
+        except Exception as e:
+            RNS.log("An error occurred while validating tunnel establishment packet.", RNS.LOG_DEBUG)
+            RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
 
     @staticmethod
     def handle_tunnel(tunnel_id, interface):
         if not tunnel_id in Transport.tunnels:
             RNS.log("Tunnel endpoint "+RNS.prettyhexrep(tunnel_id)+" established.", RNS.LOG_DEBUG)
-            announces = []
-            tunnel_entry = [tunnel_id, interface, announces]
+            paths = []
+            tunnel_entry = [tunnel_id, interface, paths]
             interface.tunnel_id = tunnel_id
             Transport.tunnels[tunnel_id] = tunnel_entry
         else:
@@ -988,9 +997,9 @@ class Transport:
             tunnel_entry = Transport.tunnels[tunnel_id]
             tunnel_entry[1] = interface
             interface.tunnel_id = tunnel_id
-            announces = tunnel_entry[2]
+            paths = tunnel_entry[2]
 
-            for announce in announces:
+            for path_entry in paths:
                 # Reassign paths
                 pass
 
