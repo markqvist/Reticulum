@@ -30,41 +30,41 @@ class Transport:
     """
     Maximum amount of hops that Reticulum will transport a packet.
     """
-    PATHFINDER_C    = 2.0       # Decay constant
-    PATHFINDER_R    = 1         # Retransmit retries
-    PATHFINDER_T    = 10        # Retry grace period
-    PATHFINDER_RW   = 10        # Random window for announce rebroadcast
-    PATHFINDER_E    = 96*60*60  # Path expiration in seconds
+    PATHFINDER_C    = 2.0        # Decay constant
+    PATHFINDER_R    = 1          # Retransmit retries
+    PATHFINDER_T    = 10         # Retry grace period
+    PATHFINDER_RW   = 10         # Random window for announce rebroadcast
+    PATHFINDER_E    = 30 # Path expiration in seconds
 
     # TODO: Calculate an optimal number for this in
     # various situations
-    LOCAL_REBROADCASTS_MAX = 2        # How many local rebroadcasts of an announce is allowed
+    LOCAL_REBROADCASTS_MAX = 2          # How many local rebroadcasts of an announce is allowed
 
-    PATH_REQUEST_GRACE  = 0.35        # Grace time before a path announcement is made, allows directly reachable peers to respond first
-    PATH_REQUEST_RW     = 2           # Path request random window
+    PATH_REQUEST_GRACE  = 0.35          # Grace time before a path announcement is made, allows directly reachable peers to respond first
+    PATH_REQUEST_RW     = 2             # Path request random window
 
     LINK_TIMEOUT         = RNS.Link.KEEPALIVE * 2
-    REVERSE_TIMEOUT      = 30*60      # Reverse table entries are removed after max 30 minutes
-    DESTINATION_TIMEOUT  = 60*60*24*7 # Destination table entries are removed if unused for one week
-    MAX_RECEIPTS         = 1024       # Maximum number of receipts to keep track of
+    REVERSE_TIMEOUT      = 30*60        # Reverse table entries are removed after max 30 minutes
+    DESTINATION_TIMEOUT  = PATHFINDER_E # Destination table entries are removed if unused for one week
+    MAX_RECEIPTS         = 1024         # Maximum number of receipts to keep track of
 
-    interfaces           = []         # All active interfaces
-    destinations         = []         # All active destinations
-    pending_links        = []         # Links that are being established
-    active_links         = []         # Links that are active
-    packet_hashlist      = []         # A list of packet hashes for duplicate detection
-    receipts             = []         # Receipts of all outgoing packets for proof processing
+    interfaces           = []           # All active interfaces
+    destinations         = []           # All active destinations
+    pending_links        = []           # Links that are being established
+    active_links         = []           # Links that are active
+    packet_hashlist      = []           # A list of packet hashes for duplicate detection
+    receipts             = []           # Receipts of all outgoing packets for proof processing
 
     # TODO: "destination_table" should really be renamed to "path_table"
     # Notes on memory usage: 1 megabyte of memory can store approximately
     # 55.100 path table entries or approximately 22.300 link table entries.
-    announce_table       = {}         # A table for storing announces currently waiting to be retransmitted
-    destination_table    = {}         # A lookup table containing the next hop to a given destination
-    reverse_table        = {}         # A lookup table for storing packet hashes used to return proofs and replies
-    link_table           = {}         # A lookup table containing hops for links
-    held_announces       = {}         # A table containing temporarily held announce-table entries
-    announce_handlers    = []         # A table storing externally registered announce handlers
-    tunnels              = {}         # A table storing tunnels to other transport instances
+    announce_table       = {}           # A table for storing announces currently waiting to be retransmitted
+    destination_table    = {}           # A lookup table containing the next hop to a given destination
+    reverse_table        = {}           # A lookup table for storing packet hashes used to return proofs and replies
+    link_table           = {}           # A lookup table containing hops for links
+    held_announces       = {}           # A table containing temporarily held announce-table entries
+    announce_handlers    = []           # A table storing externally registered announce handlers
+    tunnels              = {}           # A table storing tunnels to other transport instances
 
     # Transport control destinations are used
     # for control purposes like path requests
@@ -298,6 +298,7 @@ class Transport:
 
                     # Cull the tunnel table
                     stale_tunnels = []
+                    ti = 0
                     for tunnel_id in Transport.tunnels:
                         tunnel_entry = Transport.tunnels[tunnel_id]
 
@@ -305,6 +306,26 @@ class Transport:
                         if time.time() > expires:
                             stale_tunnels.append(tunnel_id)
                             RNS.log("Tunnel "+RNS.prettyhexrep(tunnel_id)+" timed out and was removed", RNS.LOG_DEBUG)
+                        else:
+                            stale_tunnel_paths = []
+                            tunnel_paths = tunnel_entry[2]
+                            for tunnel_path in tunnel_paths:
+                                tunnel_path_entry = tunnel_paths[tunnel_path]
+
+                                if time.time() > tunnel_path_entry[0] + Transport.DESTINATION_TIMEOUT:
+                                    stale_tunnel_paths.append(tunnel_path)
+                                    RNS.log("Tunnel path to "+RNS.prettyhexrep(tunnel_path)+" timed out and was removed", RNS.LOG_DEBUG)
+
+                            for tunnel_path in stale_tunnel_paths:
+                                tunnel_paths.pop(tunnel_path)
+                                ti += 1
+
+
+                    if ti > 0:
+                        if ti == 1:
+                            RNS.log("Removed "+str(i)+" tunnel path", RNS.LOG_DEBUG)
+                        else:
+                            RNS.log("Removed "+str(i)+" tunnel paths", RNS.LOG_DEBUG)
 
                     i = 0
                     for link_id in stale_links:
@@ -812,7 +833,7 @@ class Transport:
                                 tunnel_entry = Transport.tunnels[packet.receiving_interface.tunnel_id]
                                 paths = tunnel_entry[2]
                                 paths[packet.destination_hash] = destination_table_entry
-                                expires = time.time() + Transport.PATHFINDER_E
+                                expires = time.time() + Transport.DESTINATION_TIMEOUT
                                 tunnel_entry[3] = expires
                                 RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" associated with tunnel "+RNS.prettyhexrep(packet.receiving_interface.tunnel_id), RNS.LOG_VERBOSE)
 
@@ -1009,7 +1030,7 @@ class Transport:
 
     @staticmethod
     def handle_tunnel(tunnel_id, interface):
-        expires = time.time() + Transport.PATHFINDER_E
+        expires = time.time() + Transport.DESTINATION_TIMEOUT
         if not tunnel_id in Transport.tunnels:
             RNS.log("Tunnel endpoint "+RNS.prettyhexrep(tunnel_id)+" established.", RNS.LOG_DEBUG)
             paths = {}
