@@ -176,6 +176,7 @@ class Transport:
 
             RNS.log("Transport instance "+str(Transport.identity)+" started")
 
+        # Synthesize tunnels for any interfaces wanting it
         for interface in Transport.interfaces:
             if hasattr(interface, "wants_tunnel") and interface.wants_tunnel:
                 Transport.synthesize_tunnel(interface)
@@ -959,7 +960,7 @@ class Transport:
             remote_transport_identity = RNS.Identity(create_keys=False)
             remote_transport_identity.load_public_key(public_key)
 
-            RNS.log("Transport ID : "+str(Transport.identity))
+            RNS.log("Transport ID : "+str(remote_transport_identity))
             RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
             RNS.log("IF hash      : "+RNS.hexrep(interface_hash))
             RNS.log("Rnd hash     : "+RNS.hexrep(random_hash))
@@ -968,6 +969,7 @@ class Transport:
 
             if remote_transport_identity.validate(signature, signed_data):
                 RNS.log("Signature is valid")
+                tunnel_entry = 
             else:
                 RNS.log("Signature is invalid")
 
