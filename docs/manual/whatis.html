@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>What is Reticulum? &#8212; Reticulum Network Stack 0.2.4 beta documentation</title>
+    <title>What is Reticulum? &#8212; Reticulum Network Stack 0.2.5 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="index.html" title="Reticulum Network Stack Manual"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.4 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.5 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">What is Reticulum?</a></li> 
       </ul>
     </div>  
@@ -62,12 +62,12 @@
 <li><p>Fully self-configuring multi-hop routing</p></li>
 <li><p>Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication</p></li>
 <li><p>Forward Secrecy with ephemereal Elliptic Curve Diffie-Hellman keys on Curve25519</p></li>
-<li><p>Reticulum uses the <a class="reference external" href="https://github.com/fernet/spec/blob/master/Spec.md">Fernet</a> specification for encryption</p>
+<li><p>Reticulum uses the <a class="reference external" href="https://github.com/fernet/spec/blob/master/Spec.md">Fernet</a> specification for on-the-wire / over-the-air encryption</p>
 <ul>
+<li><p>All keys are ephemeral and derived from an ECDH key exchange on Curve25519</p></li>
 <li><p>AES-128 in CBC mode with PKCS7 padding</p></li>
 <li><p>HMAC using SHA256 for authentication</p></li>
 <li><p>IVs are generated through os.urandom()</p></li>
-<li><p>Keys are ephemeral and derived from an ECDH key exchange on Curve25519</p></li>
 </ul>
 </li>
 <li><p>Unforgeable packet delivery confirmations</p></li>
@@ -182,7 +182,7 @@ network, and vice versa.</p>
         <li class="right" >
           <a href="index.html" title="Reticulum Network Stack Manual"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.4 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.5 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">What is Reticulum?</a></li> 
       </ul>
     </div>

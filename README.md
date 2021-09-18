@@ -20,11 +20,11 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
  - Fully self-configuring multi-hop routing
  - Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
  - Forward Secrecy with ephemereal Elliptic Curve Diffie-Hellman keys on Curve25519
- - Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for encryption
+ - Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for on-the-wire / over-the-air encryption
+    - Keys are ephemeral and derived from an ECDH key exchange on Curve25519
     - AES-128 in CBC mode with PKCS7 padding
     - HMAC using SHA256 for authentication
     - IVs are generated through os.urandom()
-    - Keys are ephemeral and derived from an ECDH key exchange on Curve25519
  - Unforgeable packet delivery confirmations
  - A variety of supported interface types
  - An intuitive and easy-to-use API

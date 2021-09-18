@@ -31,15 +31,15 @@ What does Reticulum Offer?
 
 * Forward Secrecy with ephemereal Elliptic Curve Diffie-Hellman keys on Curve25519
 
-* Reticulum uses the `Fernet <https://github.com/fernet/spec/blob/master/Spec.md>`_ specification for encryption
+* Reticulum uses the `Fernet <https://github.com/fernet/spec/blob/master/Spec.md>`_ specification for on-the-wire / over-the-air encryption
+
+  * All keys are ephemeral and derived from an ECDH key exchange on Curve25519
 
   * AES-128 in CBC mode with PKCS7 padding
 
   * HMAC using SHA256 for authentication
 
   * IVs are generated through os.urandom()
-
-  * Keys are ephemeral and derived from an ECDH key exchange on Curve25519
 
 * Unforgeable packet delivery confirmations
 
