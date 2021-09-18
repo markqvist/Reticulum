@@ -311,7 +311,7 @@ class Reticulum:
                                     stopbits
                                 )
 
-                                if "outgoing" in c and c["outgoing"].lower() == "true":
+                                if "outgoing" in c and c.as_bool("outgoing") == True:
                                     interface.OUT = True
                                 else:
                                     interface.OUT = False
@@ -352,7 +352,7 @@ class Reticulum:
                                     beacon_data
                                 )
 
-                                if "outgoing" in c and c["outgoing"].lower() == "true":
+                                if "outgoing" in c and c.as_bool("outgoing") == True:
                                     interface.OUT = True
                                 else:
                                     interface.OUT = False
@@ -394,7 +394,7 @@ class Reticulum:
                                     flow_control
                                 )
 
-                                if "outgoing" in c and c["outgoing"].lower() == "true":
+                                if "outgoing" in c and c.as_bool("outgoing") == True:
                                     interface.OUT = True
                                 else:
                                     interface.OUT = False
@@ -430,7 +430,7 @@ class Reticulum:
                                     id_callsign = id_callsign
                                 )
 
-                                if "outgoing" in c and c["outgoing"].lower() == "true":
+                                if "outgoing" in c and c.as_bool("outgoing") == True:
                                     interface.OUT = True
                                 else:
                                     interface.OUT = False
