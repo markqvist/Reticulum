@@ -34,7 +34,7 @@ class Transport:
     PATHFINDER_R    = 1         # Retransmit retries
     PATHFINDER_T    = 10        # Retry grace period
     PATHFINDER_RW   = 10        # Random window for announce rebroadcast
-    PATHFINDER_E    = 60*15     # Path expiration in seconds
+    PATHFINDER_E    = 25  # Path expiration in seconds
 
     # TODO: Calculate an optimal number for this in
     # various situations
@@ -296,6 +296,16 @@ class Transport:
                             stale_paths.append(destination_hash)
                             RNS.log("Path to "+RNS.prettyhexrep(destination_hash)+" was removed since the attached interface no longer exists", RNS.LOG_DEBUG)
 
+                    # Cull the tunnel table
+                    stale_tunnels = []
+                    for tunnel_id in Transport.tunnels:
+                        tunnel_entry = Transport.tunnels[tunnel_id]
+
+                        expires = tunnel_entry[3]
+                        if time.time() > expires:
+                            stale_tunnels.append(tunnel_id)
+                            RNS.log("Tunnel "+RNS.prettyhexrep(tunnel_id)+" timed out and was removed", RNS.LOG_DEBUG)
+
                     i = 0
                     for link_id in stale_links:
                         Transport.link_table.pop(link_id)
@@ -317,6 +327,17 @@ class Transport:
                             RNS.log("Removed "+str(i)+" path", RNS.LOG_DEBUG)
                         else:
                             RNS.log("Removed "+str(i)+" paths", RNS.LOG_DEBUG)
+
+                    i = 0
+                    for tunnel_id in stale_tunnels:
+                        Transport.tunnels.pop(tunnel_id)
+                        i += 1
+
+                    if i > 0:
+                        if i == 1:
+                            RNS.log("Removed "+str(i)+" tunnel", RNS.LOG_DEBUG)
+                        else:
+                            RNS.log("Removed "+str(i)+" tunnels", RNS.LOG_DEBUG)
 
                     Transport.tables_last_culled = time.time()
 
@@ -791,6 +812,8 @@ class Transport:
                                 tunnel_entry = Transport.tunnels[packet.receiving_interface.tunnel_id]
                                 paths = tunnel_entry[2]
                                 paths[packet.destination_hash] = destination_table_entry
+                                expires = time.time() + Transport.PATHFINDER_E
+                                tunnel_entry[3] = expires
                                 RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" associated with tunnel "+RNS.prettyhexrep(packet.receiving_interface.tunnel_id), RNS.LOG_VERBOSE)
 
                             # Call externally registered callbacks from apps
@@ -986,16 +1009,18 @@ class Transport:
 
     @staticmethod
     def handle_tunnel(tunnel_id, interface):
+        expires = time.time() + Transport.PATHFINDER_E
         if not tunnel_id in Transport.tunnels:
             RNS.log("Tunnel endpoint "+RNS.prettyhexrep(tunnel_id)+" established.", RNS.LOG_DEBUG)
             paths = {}
-            tunnel_entry = [tunnel_id, interface, paths]
+            tunnel_entry = [tunnel_id, interface, paths, expires]
             interface.tunnel_id = tunnel_id
             Transport.tunnels[tunnel_id] = tunnel_entry
         else:
             RNS.log("Tunnel endpoint "+RNS.prettyhexrep(tunnel_id)+" reappeared. Restoring paths...", RNS.LOG_DEBUG)
             tunnel_entry = Transport.tunnels[tunnel_id]
             tunnel_entry[1] = interface
+            tunnel_entry[3] = expires
             interface.tunnel_id = tunnel_id
             paths = tunnel_entry[2]
 
@@ -1022,7 +1047,7 @@ class Transport:
 
                 if should_add:
                     Transport.destination_table[destination_hash] = new_entry
-                    RNS.log("Restored path to "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_VERBOSE)
+                    RNS.log("Restored path to "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(receiving_interface), RNS.LOG_VERBOSE)
 
 
                 
