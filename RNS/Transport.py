@@ -969,7 +969,7 @@ class Transport:
 
             if remote_transport_identity.validate(signature, signed_data):
                 RNS.log("Signature is valid")
-                tunnel_entry = 
+                tunnel_entry = []
             else:
                 RNS.log("Signature is invalid")
 
