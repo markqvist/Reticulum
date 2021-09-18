@@ -982,7 +982,7 @@ class Transport:
             announces = []
             tunnel_entry = [tunnel_id, interface, announces]
             interface.tunnel_id = tunnel_id
-            Transport.tunnels.append(tunnel_entry)
+            Transport.tunnels[tunnel_id] = tunnel_entry
         else:
             RNS.log("Tunnel endpoint "+RNS.prettyhexrep(tunnel_id)+" reappeared. Restoring paths...", RNS.LOG_DEBUG)
             tunnel_entry = Transport.tunnels[tunnel_id]
