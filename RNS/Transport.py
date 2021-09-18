@@ -323,9 +323,9 @@ class Transport:
 
                     if ti > 0:
                         if ti == 1:
-                            RNS.log("Removed "+str(i)+" tunnel path", RNS.LOG_DEBUG)
+                            RNS.log("Removed "+str(ti)+" tunnel path", RNS.LOG_DEBUG)
                         else:
-                            RNS.log("Removed "+str(i)+" tunnel paths", RNS.LOG_DEBUG)
+                            RNS.log("Removed "+str(ti)+" tunnel paths", RNS.LOG_DEBUG)
 
                     i = 0
                     for link_id in stale_links:
