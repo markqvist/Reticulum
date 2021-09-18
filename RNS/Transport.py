@@ -10,8 +10,8 @@ from .vendor import umsgpack as umsgpack
 
 class Transport:
     """
-    Through static methods of this class you can interact with Reticulums
-    Transport system.
+    Through static methods of this class you can interact with the
+    Transport system of Reticulum.
     """
     # Constants
     BROADCAST    = 0x00;
