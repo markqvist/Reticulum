@@ -34,7 +34,7 @@ class Transport:
     PATHFINDER_R    = 1          # Retransmit retries
     PATHFINDER_T    = 10         # Retry grace period
     PATHFINDER_RW   = 10         # Random window for announce rebroadcast
-    PATHFINDER_E    = 30 # Path expiration in seconds
+    PATHFINDER_E    = 60*60*24*7 # Path expiration in seconds
 
     # TODO: Calculate an optimal number for this in
     # various situations
@@ -979,15 +979,6 @@ class Transport:
 
         tnl_snth_dst   = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "tunnel", "synthesize")
 
-        # TODO: Remove
-        # RNS.log("Tunnel synth for "+str(interface))
-        # RNS.log("Transport ID : "+str(Transport.identity))
-        # RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
-        # RNS.log("IF hash      : "+RNS.hexrep(interface_hash))
-        # RNS.log("Rnd hash     : "+RNS.hexrep(random_hash))
-        # RNS.log("Public key   : "+RNS.hexrep(public_key))
-        # RNS.log("Signature    : "+RNS.hexrep(signature))
-
         packet = RNS.Packet(tnl_snth_dst, data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = interface)
         packet.send()
 
@@ -1010,20 +1001,9 @@ class Transport:
                 remote_transport_identity = RNS.Identity(create_keys=False)
                 remote_transport_identity.load_public_key(public_key)
 
-                # TODO: Remove
-                # RNS.log("Transport ID : "+str(remote_transport_identity))
-                # RNS.log("Tunnel ID    : "+RNS.hexrep(tunnel_id))
-                # RNS.log("IF hash      : "+RNS.hexrep(interface_hash))
-                # RNS.log("Rnd hash     : "+RNS.hexrep(random_hash))
-                # RNS.log("Public key   : "+RNS.hexrep(public_key))
-                # RNS.log("Signature    : "+RNS.hexrep(signature))
-
                 if remote_transport_identity.validate(signature, signed_data):
-                    # RNS.log("Signature is valid")
                     Transport.handle_tunnel(tunnel_id, packet.receiving_interface)
-                # else:
-                    # TODO: Remove
-                    # RNS.log("Signature is invalid")
+
         except Exception as e:
             RNS.log("An error occurred while validating tunnel establishment packet.", RNS.LOG_DEBUG)
             RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
