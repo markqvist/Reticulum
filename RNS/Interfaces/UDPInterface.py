@@ -57,9 +57,12 @@ class UDPInterface(Interface):
         self.owner.inbound(data, self)
 
     def processOutgoing(self,data):
-        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        udp_socket.sendto(data, (self.forward_ip, self.forward_port))
+        try:
+            udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            udp_socket.sendto(data, (self.forward_ip, self.forward_port))
+        except Exception as e:
+            RNS.log("Could not transmit on "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
 
     def __str__(self):
