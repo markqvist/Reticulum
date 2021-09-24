@@ -10,7 +10,7 @@ from RNS._version import __version__
 
 DEFAULT_PROBE_SIZE = 16
 
-def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_name = None):
+def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_name = None, verbosity = 0):
     if full_name == None:
         print("The full destination name including application name aspects must be specified for the destination")
         exit()
@@ -35,7 +35,7 @@ def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_
         exit()
 
 
-    reticulum = RNS.Reticulum(configdir = configdir)
+    reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
 
     if not RNS.Transport.has_path(destination_hash):
         RNS.Transport.request_path(destination_hash)
@@ -75,7 +75,12 @@ def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_
     print("\b\b ")
     sys.stdout.flush()
 
-    hops = str(RNS.Transport.hops_to(destination_hash))
+    hops = RNS.Transport.hops_to(destination_hash)
+    if hops > 1:
+        ms = "s"
+    else:
+        ms = ""
+
     rtt = receipt.get_rtt()
     if (rtt >= 1):
         rtt = round(rtt, 3)
@@ -87,8 +92,8 @@ def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_
     print(
         "Valid reply received from "+
         RNS.prettyhexrep(receipt.destination.hash)+
-        ", round-trip time is "+rttstring+
-        " over "+hops+" hops"
+        "\nRound-trip time is "+rttstring+
+        " over "+str(hops)+" hop"+ms
     )
 
     
@@ -126,6 +131,8 @@ def main():
             type=str
         )
 
+        parser.add_argument('-v', '--verbose', action='count', default=0)
+
         args = parser.parse_args()
 
         if args.config:
@@ -141,7 +148,8 @@ def main():
             program_setup(
                 configdir = configarg,
                 destination_hexhash = args.destination_hash,
-                full_name = args.full_name
+                full_name = args.full_name,
+                verbosity = args.verbose
             )
 
     except KeyboardInterrupt:

@@ -8,7 +8,7 @@ import argparse
 from RNS._version import __version__
 
 
-def program_setup(configdir, destination_hexhash):
+def program_setup(configdir, destination_hexhash, verbosity):
     try:
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
         if len(destination_hexhash) != dest_len:
@@ -21,8 +21,7 @@ def program_setup(configdir, destination_hexhash):
         print(str(e))
         exit()
 
-
-    reticulum = RNS.Reticulum(configdir = configdir)
+    reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
 
     if not RNS.Transport.has_path(destination_hash):
         RNS.Transport.request_path(destination_hash)
@@ -37,11 +36,16 @@ def program_setup(configdir, destination_hexhash):
         sys.stdout.flush()
         i = (i+1)%len(syms)
 
-    hops = str(RNS.Transport.hops_to(destination_hash))
+    hops = RNS.Transport.hops_to(destination_hash)
     next_hop = RNS.prettyhexrep(RNS.Transport.next_hop(destination_hash))
     next_hop_interface = str(RNS.Transport.next_hop_interface(destination_hash))
 
-    print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+hops+" hops away via "+next_hop+" on "+next_hop_interface)
+    if hops > 1:
+        ms = "s"
+    else:
+        ms = ""
+
+    print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+str(hops)+" hop"+ms+" away via "+next_hop+" on "+next_hop_interface)
     
 
 def main():
@@ -68,6 +72,8 @@ def main():
             help="hexadecimal hash of the destination",
             type=str
         )
+
+        parser.add_argument('-v', '--verbose', action='count', default=0)
         
         args = parser.parse_args()
 
@@ -81,7 +87,7 @@ def main():
             parser.print_help()
             print("")
         else:
-            program_setup(configdir = configarg, destination_hexhash = args.destination)
+            program_setup(configdir = configarg, destination_hexhash = args.destination, verbosity = args.verbose)
 
     except KeyboardInterrupt:
         print("")

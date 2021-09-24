@@ -104,6 +104,13 @@ class Reticulum:
         self.share_instance = True
 
         self.requested_loglevel = loglevel
+        if self.requested_loglevel != None:
+            if self.requested_loglevel > RNS.LOG_EXTREME:
+                self.requested_loglevel = RNS.LOG_EXTREME
+            if self.requested_loglevel < RNS.LOG_CRITICAL:
+                self.requested_loglevel = RNS.LOG_CRITICAL
+                
+            RNS.loglevel = self.requested_loglevel
 
         self.is_shared_instance = False
         self.is_connected_to_shared_instance = False
