@@ -14,7 +14,7 @@ def program_setup(configdir):
 
 def main():
     try:
-        parser = argparse.ArgumentParser(description="Nomad Network Client")
+        parser = argparse.ArgumentParser(description="Reticulum Network Stack Daemon")
         parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
         parser.add_argument("--version", action="version", version="rnsd {version}".format(version=__version__))
         
