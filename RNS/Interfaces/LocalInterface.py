@@ -106,7 +106,7 @@ class LocalClientInterface(Interface):
                                 data_buffer = data_buffer+bytes([byte])
                 else:
                     RNS.log("Socket for "+str(self)+" was closed, tearing down interface", RNS.LOG_VERBOSE)
-                    self.teardown()
+                    self.teardown(nowarning=True)
                     break
 
                 
@@ -116,7 +116,7 @@ class LocalClientInterface(Interface):
             RNS.log("Tearing down "+str(self), RNS.LOG_ERROR)
             self.teardown()
 
-    def teardown(self):
+    def teardown(self, nowarning=False):
         self.online = False
         self.OUT = False
         self.IN = False
@@ -127,9 +127,10 @@ class LocalClientInterface(Interface):
         if self in RNS.Transport.local_client_interfaces:
             RNS.Transport.local_client_interfaces.remove(self)
 
-        RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
-        if RNS.Reticulum.panic_on_interface_error:
-            RNS.panic()
+        if nowarning == False:
+            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
+            if RNS.Reticulum.panic_on_interface_error:
+                RNS.panic()
 
 
     def __str__(self):
