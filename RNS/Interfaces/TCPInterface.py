@@ -42,6 +42,9 @@ class TCPClientInterface(Interface):
         self.initiator        = False
         self.reconnecting     = False
         self.never_connected  = True
+        self.owner            = owner
+        self.writing          = False
+        self.online           = False
 
         if max_reconnect_tries == None:
             self.max_reconnect_tries = TCPClientInterface.RECONNECT_MAX_TRIES
@@ -63,18 +66,18 @@ class TCPClientInterface(Interface):
             self.receives    = True
             self.target_ip   = target_ip
             self.target_port = target_port
-            self.connect()
+            self.initiator   = True
+            
+            if not self.connect(initial=True):
+                thread = threading.Thread(target=self.reconnect)
+                thread.setDaemon(False)
+                thread.start()
+            else:
+                thread = threading.Thread(target=self.read_loop)
+                thread.setDaemon(True)
+                thread.start()
+                self.wants_tunnel = True
 
-        self.owner   = owner
-        self.online  = True
-        self.writing = False
-
-        if connected_socket == None:
-            self.initiator = True
-            thread = threading.Thread(target=self.read_loop)
-            thread.setDaemon(True)
-            thread.start()
-            self.wants_tunnel = True
 
     def set_timeouts_linux(self):
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_USER_TIMEOUT, int(TCPClientInterface.TCP_USER_TIMEOUT * 1000))
@@ -93,9 +96,20 @@ class TCPClientInterface(Interface):
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         sock.setsockopt(socket.IPPROTO_TCP, TCP_KEEPIDLE, int(TCPClientInterface.TCP_PROBE_AFTER))
 
-    def connect(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((self.target_ip, self.target_port))
+    def connect(self, initial=False):
+        try:
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket.connect((self.target_ip, self.target_port))
+            self.online  = True
+        
+        except Exception as e:
+            if initial:
+                RNS.log("Initial connection for "+str(self)+" could not be established: "+str(e), RNS.LOG_ERROR)
+                RNS.log("Leaving unconnected and retrying connection in "+str(TCPClientInterface.RECONNECT_WAIT)+" seconds.", RNS.LOG_ERROR)
+                return False
+            
+            else:
+                raise e
 
         if platform.system() == "Linux":
             self.set_timeouts_linux()
@@ -105,6 +119,8 @@ class TCPClientInterface(Interface):
         self.online  = True
         self.writing = False
         self.never_connected = False
+
+        return True
 
 
     def reconnect(self):
