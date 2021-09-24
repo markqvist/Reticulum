@@ -37,7 +37,11 @@ def program_setup(configdir, destination_hexhash):
         sys.stdout.flush()
         i = (i+1)%len(syms)
 
-    print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+str(RNS.Transport.hops_to(destination_hash))+" hops away via "+RNS.prettyhexrep(RNS.Transport.next_hop(destination_hash))+" on "+str(RNS.Transport.next_hop_interface(destination_hash)))
+    hops = str(RNS.Transport.hops_to(destination_hash))
+    next_hop = RNS.prettyhexrep(RNS.Transport.next_hop(destination_hash))
+    next_hop_interface = str(RNS.Transport.next_hop_interface(destination_hash))
+
+    print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+hops+" hops away via "+next_hop+" on "+next_hop_interface)
     
 
 def main():
