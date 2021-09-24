@@ -1277,6 +1277,28 @@ class Transport:
             return Transport.PATHFINDER_M
 
     @staticmethod
+    def next_hop(destination_hash):
+        """
+        :param destination_hash: A destination hash as *bytes*.
+        :returns: The destination hash as *bytes* for the next hop to the specified destination, or *None* if the next hop is unknown.
+        """
+        if destination_hash in Transport.destination_table:
+            return Transport.destination_table[destination_hash][1]
+        else:
+            return None
+
+    @staticmethod
+    def next_hop_interface(destination_hash):
+        """
+        :param destination_hash: A destination hash as *bytes*.
+        :returns: The interface for the next hop to the specified destination, or *None* if the interface is unknown.
+        """
+        if destination_hash in Transport.destination_table:
+            return Transport.destination_table[destination_hash][5]
+        else:
+            return None
+
+    @staticmethod
     def request_path(destination_hash):
         """
         Requests a path to the destination from the network. If
