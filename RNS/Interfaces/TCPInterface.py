@@ -70,7 +70,7 @@ class TCPClientInterface(Interface):
             
             if not self.connect(initial=True):
                 thread = threading.Thread(target=self.reconnect)
-                thread.setDaemon(False)
+                thread.setDaemon(True)
                 thread.start()
             else:
                 thread = threading.Thread(target=self.read_loop)
@@ -292,6 +292,7 @@ class TCPServerInterface(Interface):
         spawned_interface.target_ip = handler.client_address[0]
         spawned_interface.target_port = str(handler.client_address[1])
         spawned_interface.parent_interface = self
+        spawned_interface.online = True
         RNS.log("Spawned new TCPClient Interface: "+str(spawned_interface), RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)
         spawned_interface.read_loop()
