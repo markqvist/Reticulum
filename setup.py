@@ -20,6 +20,15 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
+    entry_points= {
+        'console_scripts': [
+            'rnsd=RNS.Utilities.rnsd:main',
+            'rnsconfig=RNS.Utilities.rnsconfig:main',
+            'rnping=RNS.Utilities.rnping:main',
+            'rnpath=RNS.Utilities.rnpath:main',
+
+        ]
+    },
     install_requires=['cryptography>=3.4.7', 'pyserial', 'netifaces>=0.10.4'],
     python_requires='>=3.6',
 )
