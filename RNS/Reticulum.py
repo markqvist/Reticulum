@@ -119,7 +119,6 @@ class Reticulum:
         if os.path.isfile(self.configpath):
             try:
                 self.config = ConfigObj(self.configpath)
-                RNS.log("Configuration loaded from "+self.configpath)
             except Exception as e:
                 RNS.log("Could not parse the configuration at "+self.configpath, RNS.LOG_ERROR)
                 RNS.log("Check your configuration file for errors!", RNS.LOG_ERROR)
@@ -132,6 +131,8 @@ class Reticulum:
             exit(1)
 
         self.__apply_config()
+        RNS.log("Configuration loaded from "+self.configpath, RNS.LOG_VERBOSE)
+        
         RNS.Identity.load_known_destinations()
 
         RNS.Transport.start(self)
@@ -510,11 +511,13 @@ share_instance = Yes
 
 
 # If you want to run multiple *different* shared instances
-# on the same system, you will need to specify a different
-# shared instance port for each. The default is given below,
-# and again, this option is optional and can be left out.
+# on the same system, you will need to specify different
+# shared instance ports for each. The defaults are given
+# below, and again, these options can be left out if you
+# don't need them.
 
 shared_instance_port = 37428
+instance_control_port = 37429
 
 # You can configure Reticulum to panic and forcibly close
 # if an unrecoverable interface error occurs, such as the
