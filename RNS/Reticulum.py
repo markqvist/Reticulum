@@ -2,6 +2,7 @@ from .Interfaces import *
 import configparser
 from .vendor.configobj import ConfigObj
 import RNS
+import signal
 import atexit
 import struct
 import array
@@ -78,6 +79,12 @@ class Reticulum:
         RNS.Transport.exit_handler()
         RNS.Identity.exit_handler()
 
+    @staticmethod
+    def sigint_handler(signal, frame):
+        RNS.Transport.detach_interfaces()
+        RNS.exit()
+
+
     def __init__(self,configdir=None, loglevel=None):
         """
         Initialises and starts a Reticulum instance. This must be
@@ -109,7 +116,7 @@ class Reticulum:
                 self.requested_loglevel = RNS.LOG_EXTREME
             if self.requested_loglevel < RNS.LOG_CRITICAL:
                 self.requested_loglevel = RNS.LOG_CRITICAL
-                
+
             RNS.loglevel = self.requested_loglevel
 
         self.is_shared_instance = False
@@ -147,6 +154,7 @@ class Reticulum:
         RNS.Transport.start(self)
 
         atexit.register(Reticulum.exit_handler)
+        signal.signal(signal.SIGINT, Reticulum.sigint_handler)
 
     def __start_local_interface(self):
         if self.share_instance:

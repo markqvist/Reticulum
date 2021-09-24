@@ -1423,6 +1423,12 @@ class Transport:
             return False
 
     @staticmethod
+    def detach_interfaces():
+        for interface in Transport.interfaces:
+            interface.detach()
+
+
+    @staticmethod
     def exit_handler():
         try:
             if not RNS.Reticulum.transport_enabled():

@@ -96,6 +96,15 @@ class TCPClientInterface(Interface):
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         sock.setsockopt(socket.IPPROTO_TCP, TCP_KEEPIDLE, int(TCPClientInterface.TCP_PROBE_AFTER))
 
+    def detach(self):
+        if self.socket != None:
+            if hasattr(self.socket, "close"):
+                if callable(self.socket.close):
+                    RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
+                    self.socket.shutdown(socket.SHUT_RDWR)
+                    self.socket.close()
+                    self.socket = None
+
     def connect(self, initial=False):
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -276,6 +285,7 @@ class TCPServerInterface(Interface):
 
             self.owner = owner
             address = (self.bind_ip, self.bind_port)
+            ThreadingTCPServer.allow_reuse_address = True
             self.server = ThreadingTCPServer(address, handlerFactory(self.incoming_connection))
 
             thread = threading.Thread(target=self.server.serve_forever)

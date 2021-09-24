@@ -109,3 +109,6 @@ def prettyhexrep(data):
 
 def panic():
     os._exit(255)
+
+def exit():
+    sys.exit(0)

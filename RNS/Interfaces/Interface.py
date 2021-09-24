@@ -12,3 +12,6 @@ class Interface:
 
     def get_hash(self):
         return RNS.Identity.full_hash(str(self).encode("utf-8"))
+
+    def detach(self):
+        pass
