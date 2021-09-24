@@ -61,10 +61,8 @@ Reticulum implements a range of generalised interface types that covers most of 
  - UDP over IP networks
 
 ## What is currently being worked on?
- - API documentation
- - Useful example programs and utilities
  - A delay and disruption tolerant message transfer protocol built on Reticulum, see [LXMF](https://github.com/markqvist/lxmf)
- - A few useful-in-the-real-world apps built with Reticulum
+ - A few useful-in-the-real-world apps built with Reticulum, see [Nofad Network](https://github.com/markqvist/NomadNet)
 
 ## Can I use Reticulum on amateur radio spectrum?
 Some countries still ban the use of encryption when operating under an amateur radio license. Reticulum offers several encryptionless modes, while still using cryptographic principles for station verification, link establishment, data integrity verification, acknowledgements and routing. It is therefore perfectly possible to include Reticulum in amateur radio use, even if your country bans encryption.
