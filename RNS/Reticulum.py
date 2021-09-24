@@ -78,7 +78,7 @@ class Reticulum:
         RNS.Transport.exit_handler()
         RNS.Identity.exit_handler()
 
-    def __init__(self,configdir=None):
+    def __init__(self,configdir=None, loglevel=None):
         """
         Initialises and starts a Reticulum instance. This must be
         done before any other operations, and Reticulum will not
@@ -102,6 +102,8 @@ class Reticulum:
 
         self.local_interface_port = 37428
         self.share_instance = True
+
+        self.requested_loglevel = loglevel
 
         self.is_shared_instance = False
         self.is_connected_to_shared_instance = False
@@ -178,7 +180,7 @@ class Reticulum:
         if "logging" in self.config:
             for option in self.config["logging"]:
                 value = self.config["logging"][option]
-                if option == "loglevel":
+                if option == "loglevel" and self.requested_loglevel == None:
                     RNS.loglevel = int(value)
                     if RNS.loglevel < 0:
                         RNS.loglevel = 0
