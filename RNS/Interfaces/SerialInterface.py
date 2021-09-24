@@ -31,6 +31,9 @@ class SerialInterface(Interface):
     serial   = None
 
     def __init__(self, owner, name, port, speed, databits, parity, stopbits):
+        self.rxb = 0
+        self.txb = 0
+        
         self.serial   = None
         self.owner    = owner
         self.name     = name
@@ -79,6 +82,7 @@ class SerialInterface(Interface):
 
 
     def processIncoming(self, data):
+        self.rxb += len(data)            
         self.owner.inbound(data, self)
 
 
@@ -86,6 +90,7 @@ class SerialInterface(Interface):
         if self.online:
             data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
             written = self.serial.write(data)
+            self.txb += len(data)            
             if written != len(data):
                 raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))
 

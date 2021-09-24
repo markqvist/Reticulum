@@ -48,6 +48,9 @@ class AX25KISSInterface(Interface):
     serial   = None
 
     def __init__(self, owner, name, callsign, ssid, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime, flow_control):
+        self.rxb = 0
+        self.txb = 0
+        
         self.serial   = None
         self.owner    = owner
         self.name     = name
@@ -188,10 +191,12 @@ class AX25KISSInterface(Interface):
 
     def processIncoming(self, data):
         if (len(data) > AX25.HEADER_SIZE):
+            self.rxb += len(data)
             self.owner.inbound(data[AX25.HEADER_SIZE:], self)
 
 
     def processOutgoing(self,data):
+        datalen = len(data)
         if self.online:
             if self.interface_ready:
                 if self.flow_control:
@@ -224,6 +229,8 @@ class AX25KISSInterface(Interface):
                 kiss_frame = bytes([KISS.FEND])+bytes([0x00])+data+bytes([KISS.FEND])
 
                 written = self.serial.write(kiss_frame)
+                self.txb += datalen
+
                 if written != len(kiss_frame):
                     if self.flow_control:
                         self.interface_ready = True

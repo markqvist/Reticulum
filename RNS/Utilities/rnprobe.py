@@ -124,7 +124,7 @@ def main():
         parser.add_argument(
             "--version",
             action="version",
-            version="rnpath {version}".format(version=__version__)
+            version="rnprobe {version}".format(version=__version__)
         )
 
         parser.add_argument(

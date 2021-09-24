@@ -40,6 +40,9 @@ class KISSInterface(Interface):
     serial   = None
 
     def __init__(self, owner, name, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime, flow_control, beacon_interval, beacon_data):
+        self.rxb = 0
+        self.txb = 0
+        
         if beacon_data == None:
             beacon_data = ""
 
@@ -174,10 +177,12 @@ class KISSInterface(Interface):
 
 
     def processIncoming(self, data):
+        self.rxb += len(data)  
         self.owner.inbound(data, self)
 
 
     def processOutgoing(self,data):
+        datalen = len(data)
         if self.online:
             if self.interface_ready:
                 if self.flow_control:
@@ -189,6 +194,7 @@ class KISSInterface(Interface):
                 frame = bytes([KISS.FEND])+bytes([0x00])+data+bytes([KISS.FEND])
 
                 written = self.serial.write(frame)
+                self.txb += datalen
 
                 if data == self.beacon_d:
                     self.first_tx = None

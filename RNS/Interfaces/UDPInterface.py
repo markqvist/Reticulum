@@ -18,9 +18,12 @@ class UDPInterface(Interface):
         return netifaces.ifaddresses(name)[netifaces.AF_INET][0]['broadcast']
 
     def __init__(self, owner, name, device=None, bindip=None, bindport=None, forwardip=None, forwardport=None):
+        self.rxb = 0
+        self.txb = 0
         self.IN  = True
         self.OUT = False
         self.name = name
+        self.online = False
 
         if device != None:
             if bindip == None:
@@ -47,6 +50,8 @@ class UDPInterface(Interface):
             thread.setDaemon(True)
             thread.start()
 
+            self.online = True
+
         if (forwardip != None and forwardport != None):
             self.forwards = True
             self.forward_ip = forwardip
@@ -54,6 +59,7 @@ class UDPInterface(Interface):
 
 
     def processIncoming(self, data):
+        self.rxb += len(data)
         self.owner.inbound(data, self)
 
     def processOutgoing(self,data):
@@ -61,6 +67,8 @@ class UDPInterface(Interface):
             udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             udp_socket.sendto(data, (self.forward_ip, self.forward_port))
+            self.txb += len(data)
+            
         except Exception as e:
             RNS.log("Could not transmit on "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 

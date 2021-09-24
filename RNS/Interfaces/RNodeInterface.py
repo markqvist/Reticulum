@@ -72,6 +72,9 @@ class RNodeInterface(Interface):
     CALLSIGN_MAX_LEN    = 32
 
     def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None):
+        self.rxb = 0
+        self.txb = 0
+        
         self.serial      = None
         self.owner       = owner
         self.name        = name
@@ -278,10 +281,12 @@ class RNodeInterface(Interface):
             self.bitrate = 0
 
     def processIncoming(self, data):
+        self.rxb += len(data)            
         self.owner.inbound(data, self)
 
 
     def processOutgoing(self,data):
+        datalen = len(data)
         if self.online:
             if self.interface_ready:
                 if self.flow_control:
@@ -297,6 +302,7 @@ class RNodeInterface(Interface):
                 frame   = bytes([0xc0])+bytes([0x00])+data+bytes([0xc0])
 
                 written = self.serial.write(frame)
+                self.txb += datalen
 
                 if written != len(frame):
                     raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))

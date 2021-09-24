@@ -24,6 +24,10 @@ class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 class LocalClientInterface(Interface):
 
     def __init__(self, owner, name, target_port = None, connected_socket=None):
+        self.rxb = 0
+        self.txb = 0
+        self.online  = False
+        
         self.IN               = True
         self.OUT              = False
         self.socket           = None
@@ -58,6 +62,10 @@ class LocalClientInterface(Interface):
             thread.start()
 
     def processIncoming(self, data):
+        self.rxb += len(data)
+        if hasattr(self, "parent_interface") and self.parent_interface != None:
+            self.parent_interface.rxb += len(data)
+            
         self.owner.inbound(data, self)
 
     def processOutgoing(self, data):
@@ -70,6 +78,10 @@ class LocalClientInterface(Interface):
                 data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
                 self.socket.sendall(data)
                 self.writing = False
+                self.txb += len(data)
+                if hasattr(self, "parent_interface") and self.parent_interface != None:
+                    self.parent_interface.txb += len(data)
+
             except Exception as e:
                 RNS.log("Exception occurred while transmitting via "+str(self)+", tearing down interface", RNS.LOG_ERROR)
                 RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -147,6 +159,8 @@ class LocalClientInterface(Interface):
 
         if self in RNS.Transport.local_client_interfaces:
             RNS.Transport.local_client_interfaces.remove(self)
+            if hasattr(self, "parent_interface") and self.parent_interface != None:
+                self.parent_interface.clients -= 1
 
         if nowarning == False:
             RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
@@ -170,6 +184,11 @@ class LocalClientInterface(Interface):
 class LocalServerInterface(Interface):
 
     def __init__(self, owner, bindport=None):
+        self.rxb = 0
+        self.txb = 0
+        self.online = False
+        self.clients = 0
+        
         self.IN  = True
         self.OUT = False
         self.name = "Reticulum"
@@ -196,6 +215,9 @@ class LocalServerInterface(Interface):
             thread.setDaemon(True)
             thread.start()
 
+            self.online = True
+
+
 
     def incoming_connection(self, handler):
         interface_name = str(str(handler.client_address[1]))
@@ -208,13 +230,14 @@ class LocalServerInterface(Interface):
         RNS.log("Accepting new connection to shared instance: "+str(spawned_interface), RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)
         RNS.Transport.local_client_interfaces.append(spawned_interface)
+        self.clients += 1
         spawned_interface.read_loop()
 
     def processOutgoing(self, data):
         pass
 
     def __str__(self):
-        return "Shared Instance ["+str(self.bind_port)+"]"
+        return "Shared Instance["+str(self.bind_port)+"]"
 
 class LocalInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):

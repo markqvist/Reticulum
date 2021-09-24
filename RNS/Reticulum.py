@@ -1,8 +1,10 @@
 from .Interfaces import *
-import configparser
 from .vendor.configobj import ConfigObj
+import configparser
+import multiprocessing.connection
 import RNS
 import signal
+import threading
 import atexit
 import struct
 import array
@@ -108,7 +110,9 @@ class Reticulum:
         Reticulum.panic_on_interface_error = False
 
         self.local_interface_port = 37428
-        self.share_instance = True
+        self.local_control_port   = 37429
+        self.share_instance       = True
+        self.rpc_listener         = None
 
         self.requested_loglevel = loglevel
         if self.requested_loglevel != None:
@@ -153,6 +157,15 @@ class Reticulum:
 
         RNS.Transport.start(self)
 
+        self.rpc_addr = ("127.0.0.1", self.local_control_port)
+        self.rpc_key  = RNS.Identity.full_hash(RNS.Transport.identity.get_private_key())
+        
+        if self.is_shared_instance:
+            self.rpc_listener = multiprocessing.connection.Listener(self.rpc_addr, authkey=self.rpc_key)
+            thread = threading.Thread(target=self.rpc_loop)
+            thread.setDaemon(True)
+            thread.start()
+
         atexit.register(Reticulum.exit_handler)
         signal.signal(signal.SIGINT, Reticulum.sigint_handler)
 
@@ -165,6 +178,7 @@ class Reticulum:
                 )
                 interface.OUT = True
                 RNS.Transport.interfaces.append(interface)
+                
                 self.is_shared_instance = True
                 RNS.log("Started shared instance interface: "+str(interface), RNS.LOG_DEBUG)
             except Exception as e:
@@ -211,6 +225,9 @@ class Reticulum:
                 if option == "shared_instance_port":
                     value = int(self.config["reticulum"][option])
                     self.local_interface_port = value
+                if option == "instance_control_port":
+                    value = int(self.config["reticulum"][option])
+                    self.local_control_port = value
                 if option == "enable_transport":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:
@@ -455,7 +472,7 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
                         else:
-                            RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_NOTICE)
+                            RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_INFO)
 
                     except Exception as e:
                         RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
@@ -474,6 +491,47 @@ class Reticulum:
             os.makedirs(Reticulum.configdir)
         self.config.write()
         self.__apply_config()
+
+    def rpc_loop(self):
+        while True:
+            try:
+                rpc_connection = self.rpc_listener.accept()
+                call = rpc_connection.recv()
+
+                if "get" in call:
+                    path = call["get"]
+
+                    if path == "interface_stats":
+                        rpc_connection.send(self.get_interface_stats())
+
+                rpc_connection.close()
+            except Exception as e:
+                RNS.log("An error ocurred while handling RPC call from local client: "+str(e), RNS.LOG_ERROR)
+
+    def get_interface_stats(self):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection.send({"get": "interface_stats"})
+            response = rpc_connection.recv()
+            return response
+        else:
+            stats = []
+            for interface in RNS.Transport.interfaces:
+                ifstats = {}
+                
+                if hasattr(interface, "clients"):
+                    ifstats["clients"] = interface.clients
+                else:
+                    ifstats["clients"] = None
+
+                ifstats["name"] = str(interface)
+                ifstats["rxb"] = interface.rxb
+                ifstats["txb"] = interface.txb
+                ifstats["status"] = interface.online
+                stats.append(ifstats)
+
+            return stats
+
 
     @staticmethod
     def should_use_implicit_proof():

@@ -34,6 +34,9 @@ class TCPClientInterface(Interface):
     TCP_PROBES = 5
 
     def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None, max_reconnect_tries=None):
+        self.rxb = 0
+        self.txb = 0
+        
         self.IN               = True
         self.OUT              = False
         self.socket           = None
@@ -177,6 +180,10 @@ class TCPClientInterface(Interface):
             raise IOError("Attempt to reconnect on a non-initiator TCP interface")
 
     def processIncoming(self, data):
+        self.rxb += len(data)
+        if hasattr(self, "parent_interface") and self.parent_interface != None:
+            self.parent_interface.rxb += len(data)
+                    
         self.owner.inbound(data, self)
 
     def processOutgoing(self, data):
@@ -189,6 +196,10 @@ class TCPClientInterface(Interface):
                 data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
                 self.socket.sendall(data)
                 self.writing = False
+                self.txb += len(data)
+                if hasattr(self, "parent_interface") and self.parent_interface != None:
+                    self.parent_interface.txb += len(data)
+
             except Exception as e:
                 RNS.log("Exception occurred while transmitting via "+str(self)+", tearing down interface", RNS.LOG_ERROR)
                 RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -248,7 +259,7 @@ class TCPClientInterface(Interface):
                 self.teardown()
 
     def teardown(self):
-        if self.initiator:
+        if self.initiator and not self.detached:
             RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
@@ -259,6 +270,9 @@ class TCPClientInterface(Interface):
         self.online = False
         self.OUT = False
         self.IN = False
+
+        if hasattr(self, "parent_interface") and self.parent_interface != None:
+            self.parent_interface.clients -= 1
 
         if self in RNS.Transport.interfaces:
             RNS.Transport.interfaces.remove(self)
@@ -277,6 +291,11 @@ class TCPServerInterface(Interface):
         return netifaces.ifaddresses(name)[netifaces.AF_INET][0]['broadcast']
 
     def __init__(self, owner, name, device=None, bindip=None, bindport=None):
+        self.rxb = 0
+        self.txb = 0
+        self.online = False
+        self.clients = 0
+        
         self.IN  = True
         self.OUT = False
         self.name = name
@@ -304,6 +323,8 @@ class TCPServerInterface(Interface):
             thread.setDaemon(True)
             thread.start()
 
+            self.online = True
+
 
     def incoming_connection(self, handler):
         RNS.log("Accepting incoming TCP connection", RNS.LOG_VERBOSE)
@@ -317,6 +338,7 @@ class TCPServerInterface(Interface):
         spawned_interface.online = True
         RNS.log("Spawned new TCPClient Interface: "+str(spawned_interface), RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)
+        self.clients += 1
         spawned_interface.read_loop()
 
     def processOutgoing(self, data):
