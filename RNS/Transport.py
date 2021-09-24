@@ -226,7 +226,7 @@ class Transport:
 
 
 
-            RNS.log("Transport instance "+str(Transport.identity)+" started")
+            RNS.log("Transport instance "+str(Transport.identity)+" started", RNS.LOG_VERBOSE)
 
         # Synthesize tunnels for any interfaces wanting it
         for interface in Transport.interfaces:
@@ -322,10 +322,11 @@ class Transport:
 
                 if time.time() > Transport.tables_last_culled + Transport.tables_cull_interval:
                     # Cull the reverse table according to timeout
+                    stale_reverse_entries = []
                     for truncated_packet_hash in Transport.reverse_table:
                         reverse_entry = Transport.reverse_table[truncated_packet_hash]
                         if time.time() > reverse_entry[2] + Transport.REVERSE_TIMEOUT:
-                            Transport.reverse_table.pop(truncated_packet_hash)
+                            stale_reverse_entries.append(truncated_packet_hash)
 
                     # Cull the link table according to timeout
                     stale_links = []
@@ -377,6 +378,21 @@ class Transport:
                             RNS.log("Removed "+str(ti)+" tunnel path", RNS.LOG_DEBUG)
                         else:
                             RNS.log("Removed "+str(ti)+" tunnel paths", RNS.LOG_DEBUG)
+
+
+                    
+                    i = 0
+                    for truncated_packet_hash in stale_reverse_entries:
+                        Transport.reverse_table.pop(truncated_packet_hash)
+                        i += 1
+
+                    if i > 0:
+                        if i == 1:
+                            RNS.log("Dropped "+str(i)+" reverse table entry", RNS.LOG_DEBUG)
+                        else:
+                            RNS.log("Dropped "+str(i)+" reverse table entries", RNS.LOG_DEBUG)
+
+                    
 
                     i = 0
                     for link_id in stale_links:
