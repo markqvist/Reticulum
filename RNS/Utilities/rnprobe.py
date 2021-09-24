@@ -34,6 +34,13 @@ def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_
         print(str(e))
         exit()
 
+    if verbosity > 0:
+        more_output = True
+        verbosity -= 1
+    else:
+        more_output = False
+        verbosity -= 1
+
 
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
 
@@ -63,7 +70,12 @@ def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_
     probe = RNS.Packet(request_destination, os.urandom(size))
     receipt = probe.send()
 
-    print("\rSent "+str(size)+" byte probe to "+RNS.prettyhexrep(destination_hash)+" via "+RNS.prettyhexrep(RNS.Transport.next_hop(destination_hash))+" on "+str(RNS.Transport.next_hop_interface(destination_hash))+"  ", end=" ")
+    if more_output:
+        more = " via "+RNS.prettyhexrep(RNS.Transport.next_hop(destination_hash))+" on "+str(RNS.Transport.next_hop_interface(destination_hash))
+    else:
+        more = ""
+
+    print("\rSent "+str(size)+" byte probe to "+RNS.prettyhexrep(destination_hash)+more+"  ", end=" ")
 
     i = 0
     while not receipt.status == RNS.PacketReceipt.DELIVERED:
