@@ -45,6 +45,7 @@ class TCPClientInterface(Interface):
         self.owner            = owner
         self.writing          = False
         self.online           = False
+        self.detached         = False
 
         if max_reconnect_tries == None:
             self.max_reconnect_tries = TCPClientInterface.RECONNECT_MAX_TRIES
@@ -101,8 +102,18 @@ class TCPClientInterface(Interface):
             if hasattr(self.socket, "close"):
                 if callable(self.socket.close):
                     RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
-                    self.socket.shutdown(socket.SHUT_RDWR)
-                    self.socket.close()
+                    self.detached = True
+                    
+                    try:
+                        self.socket.shutdown(socket.SHUT_RDWR)
+                    except Exception as e:
+                        RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
+
+                    try:
+                        self.socket.close()
+                    except Exception as e:
+                        RNS.log("Error while closing socket for "+str(self)+": "+str(e))
+
                     self.socket = None
 
     def connect(self, initial=False):
@@ -216,7 +227,7 @@ class TCPClientInterface(Interface):
                                 data_buffer = data_buffer+bytes([byte])
                 else:
                     self.online = False
-                    if self.initiator:
+                    if self.initiator and not self.detached:
                         RNS.log("TCP socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
                         self.reconnect()
                     else:
@@ -285,6 +296,7 @@ class TCPServerInterface(Interface):
 
             self.owner = owner
             address = (self.bind_ip, self.bind_port)
+
             ThreadingTCPServer.allow_reuse_address = True
             self.server = ThreadingTCPServer(address, handlerFactory(self.incoming_connection))
 

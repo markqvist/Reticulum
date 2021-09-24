@@ -1427,6 +1427,9 @@ class Transport:
         for interface in Transport.interfaces:
             interface.detach()
 
+        for interface in Transport.local_client_interfaces:
+            interface.detach()
+
 
     @staticmethod
     def exit_handler():

@@ -36,6 +36,8 @@ class LocalClientInterface(Interface):
             self.target_port = None
             self.socket      = connected_socket
 
+            self.is_connected_to_shared_instance = False
+
         elif target_port != None:
             self.receives    = True
             self.target_ip   = "127.0.0.1"
@@ -116,6 +118,25 @@ class LocalClientInterface(Interface):
             RNS.log("Tearing down "+str(self), RNS.LOG_ERROR)
             self.teardown()
 
+    def detach(self):
+        if self.socket != None:
+            if hasattr(self.socket, "close"):
+                if callable(self.socket.close):
+                    RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
+                    self.detached = True
+                    
+                    try:
+                        self.socket.shutdown(socket.SHUT_RDWR)
+                    except Exception as e:
+                        RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
+
+                    try:
+                        self.socket.close()
+                    except Exception as e:
+                        RNS.log("Error while closing socket for "+str(self)+": "+str(e))
+
+                    self.socket = None
+
     def teardown(self, nowarning=False):
         self.online = False
         self.OUT = False
@@ -131,6 +152,15 @@ class LocalClientInterface(Interface):
             RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
+
+        if self.is_connected_to_shared_instance:
+            # TODO: Maybe add automatic recovery here.
+            # Needs thinking through, since user needs
+            # to now that all connectivity has been cut
+            # while service is recovering. Better for
+            # now to take down entire stack.
+            RNS.log("Lost connection to local shared RNS instance. Exiting now.", RNS.LOG_CRITICAL)
+            RNS.panic()
 
 
     def __str__(self):
@@ -158,6 +188,8 @@ class LocalServerInterface(Interface):
             self.is_local_shared_instance = True
 
             address = (self.bind_ip, self.bind_port)
+
+            ThreadingTCPServer.allow_reuse_address = True
             self.server = ThreadingTCPServer(address, handlerFactory(self.incoming_connection))
 
             thread = threading.Thread(target=self.server.serve_forever)
