@@ -1,0 +1,418 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supported Interfaces &#8212; Reticulum Network Stack 0.2.6 beta documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Understanding Reticulum" href="understanding.html" />
+    <link rel="prev" title="Building Networks" href="networks.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="understanding.html" title="Understanding Reticulum"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="networks.html" title="Building Networks"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.6 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Supported Interfaces</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="supported-interfaces">
+<span id="interfaces-main"></span><h1>Supported Interfaces<a class="headerlink" href="#supported-interfaces" title="Permalink to this headline">¶</a></h1>
+<p>Reticulum supports using many kinds of devices as networking interfaces, and
+allows you to mix and match them in any way you choose. The number of distinct
+network topologies you can create with Reticulum is more or less endless, but
+common to them all is that you will need to define one or more <em>interfaces</em>
+for Reticulum to use.</p>
+<p>The following sections describe the interfaces currently available in Reticulum,
+and gives example configurations for the respective interface types.</p>
+<div class="section" id="udp-interface">
+<span id="interfaces-udp"></span><h2>UDP Interface<a class="headerlink" href="#udp-interface" title="Permalink to this headline">¶</a></h2>
+<p>A UDP interface can be useful for communicating over IP networks, both
+private and the internet. It can also allow broadcast communication
+over IP networks, so it can provide an easy way to enable connectivity
+with all other peers on a local area network.</p>
+<p>The below example is enabled by default on new Reticulum installations,
+as it provides an easy way to get started and to test Reticulum on a
+pre-existing LAN.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example enables communication with other</span>
+<span class="c1"># local Reticulum peers over UDP.</span>
+
+<span class="p">[[</span><span class="n">Default</span> <span class="n">UDP</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">UDPInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">listen_ip</span> <span class="o">=</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span>
+  <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">4242</span>
+  <span class="n">forward_ip</span> <span class="o">=</span> <span class="mf">255.255</span><span class="o">.</span><span class="mf">255.255</span>
+  <span class="n">forward_port</span> <span class="o">=</span> <span class="mi">4242</span>
+
+  <span class="c1"># The above configuration will allow communication</span>
+  <span class="c1"># within the local broadcast domains of all local</span>
+  <span class="c1"># IP interfaces. This is enabled by default as an</span>
+  <span class="c1"># easy way to get started, but you might want to</span>
+  <span class="c1"># consider altering it to something more specific.</span>
+
+  <span class="c1"># Instead of specifying listen_ip, listen_port,</span>
+  <span class="c1"># forward_ip and forward_port, you can also bind</span>
+  <span class="c1"># to a specific network device like below.</span>
+
+  <span class="c1"># device = eth0</span>
+  <span class="c1"># port = 4242</span>
+
+  <span class="c1"># Assuming the eth0 device has the address</span>
+  <span class="c1"># 10.55.0.72/24, the above configuration would</span>
+  <span class="c1"># be equivalent to the following manual setup.</span>
+  <span class="c1"># Note that we are both listening and forwarding to</span>
+  <span class="c1"># the broadcast address of the network segments.</span>
+
+  <span class="c1"># listen_ip = 10.55.0.255</span>
+  <span class="c1"># listen_port = 4242</span>
+  <span class="c1"># forward_ip = 10.55.0.255</span>
+  <span class="c1"># forward_port = 4242</span>
+
+  <span class="c1"># You can of course also communicate only with</span>
+  <span class="c1"># a single IP address</span>
+
+  <span class="c1"># listen_ip = 10.55.0.15</span>
+  <span class="c1"># listen_port = 4242</span>
+  <span class="c1"># forward_ip = 10.55.0.16</span>
+  <span class="c1"># forward_port = 4242</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="tcp-server-interface">
+<span id="interfaces-tcps"></span><h2>TCP Server Interface<a class="headerlink" href="#tcp-server-interface" title="Permalink to this headline">¶</a></h2>
+<p>The TCP Server interface is suitable for allowing other peers to connect over
+the Internet or private IP networks. When a TCP server interface has been
+configured, other Reticulum peers can connect to it with a TCP Client interface.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example demonstrates a TCP server interface.</span>
+<span class="c1"># It will listen for incoming connections on the</span>
+<span class="c1"># specified IP address and port number.</span>
+
+<span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># This configuration will listen on all IP</span>
+  <span class="c1"># interfaces on port 4242</span>
+
+  <span class="n">listen_ip</span> <span class="o">=</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span>
+  <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">4242</span>
+
+  <span class="c1"># Alternatively you can bind to a specific IP</span>
+
+  <span class="c1"># listen_ip = 10.0.0.88</span>
+  <span class="c1"># listen_port = 4242</span>
+
+  <span class="c1"># Or a specific network device</span>
+
+  <span class="c1"># device = eth0</span>
+  <span class="c1"># port = 4242</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="tcp-client-interface">
+<span id="interfaces-tcpc"></span><h2>TCP Client Interface<a class="headerlink" href="#tcp-client-interface" title="Permalink to this headline">¶</a></h2>
+<p>To connect to a TCP server interface, you would naturally use the TCP client
+interface. Many TCP Client interfaces from different peers can connect to the
+same TCP Server interface at the same time.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of a TCP Client interface. The</span>
+<span class="c1"># target_host can either be an IP address or a hostname.</span>
+
+<span class="p">[[</span><span class="n">TCP</span> <span class="n">Client</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
+  <span class="n">target_port</span> <span class="o">=</span> <span class="mi">4242</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="rnode-lora-interface">
+<span id="interfaces-rnode"></span><h2>RNode LoRa Interface<a class="headerlink" href="#rnode-lora-interface" title="Permalink to this headline">¶</a></h2>
+<p>To use Reticulum over LoRa, the <a class="reference external" href="https://unsigned.io/rnode/">RNode</a> interface
+can be used, and offers full control over LoRa parameters.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of how to add a LoRa interface</span>
+<span class="c1"># using the RNode LoRa transceiver.</span>
+
+<span class="p">[[</span><span class="n">RNode</span> <span class="n">LoRa</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">RNodeInterface</span>
+
+  <span class="c1"># Enable interface if you want use it!</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># Allow transmit on interface. Setting</span>
+  <span class="c1"># this to false will create a listen-</span>
+  <span class="c1"># only interface.</span>
+  <span class="n">outgoing</span> <span class="o">=</span> <span class="n">true</span>
+
+  <span class="c1"># Serial port for the device</span>
+  <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB0</span>
+
+  <span class="c1"># Set frequency to 867.2 MHz</span>
+  <span class="n">frequency</span> <span class="o">=</span> <span class="mi">867200000</span>
+
+  <span class="c1"># Set LoRa bandwidth to 125 KHz</span>
+  <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">125000</span>
+
+  <span class="c1"># Set TX power to 7 dBm (5 mW)</span>
+  <span class="n">txpower</span> <span class="o">=</span> <span class="mi">7</span>
+
+  <span class="c1"># Select spreading factor 8. Valid</span>
+  <span class="c1"># range is 7 through 12, with 7</span>
+  <span class="c1"># being the fastest and 12 having</span>
+  <span class="c1"># the longest range.</span>
+  <span class="n">spreadingfactor</span> <span class="o">=</span> <span class="mi">8</span>
+
+  <span class="c1"># Select coding rate 5. Valid range</span>
+  <span class="c1"># is 5 throough 8, with 5 being the</span>
+  <span class="c1"># fastest, and 8 the longest range.</span>
+  <span class="n">codingrate</span> <span class="o">=</span> <span class="mi">5</span>
+
+  <span class="c1"># You can configure the RNode to send</span>
+  <span class="c1"># out identification on the channel with</span>
+  <span class="c1"># a set interval by configuring the</span>
+  <span class="c1"># following two parameters.</span>
+  <span class="c1"># id_callsign = MYCALL-0</span>
+  <span class="c1"># id_interval = 600</span>
+
+  <span class="c1"># For certain homebrew RNode interfaces</span>
+  <span class="c1"># with low amounts of RAM, using packet</span>
+  <span class="c1"># flow control can be useful. By default</span>
+  <span class="c1"># it is disabled.</span>
+  <span class="n">flow_control</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="serial-interface">
+<span id="interfaces-serial"></span><h2>Serial Interface<a class="headerlink" href="#serial-interface" title="Permalink to this headline">¶</a></h2>
+<p>Reticulum can be used over serial ports directly, or over any device with a
+serial port, that will transparently pass data. Useful for communicating
+directly over a wire-pair, or for using devices such as data radios and lasers.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Serial</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">SerialInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># Serial port for the device</span>
+  <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB0</span>
+
+  <span class="c1"># Set the serial baud-rate and other</span>
+  <span class="c1"># configuration parameters.</span>
+  <span class="n">speed</span> <span class="o">=</span> <span class="mi">115200</span>
+  <span class="n">databits</span> <span class="o">=</span> <span class="mi">8</span>
+  <span class="n">parity</span> <span class="o">=</span> <span class="n">none</span>
+  <span class="n">stopbits</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="kiss-interface">
+<span id="interfaces-kiss"></span><h2>KISS Interface<a class="headerlink" href="#kiss-interface" title="Permalink to this headline">¶</a></h2>
+<p>With the KISS interface, you can use Reticulum over a variety of packet
+radio modems and TNCs, including <a class="reference external" href="https://unsigned.io/openmodem/">OpenModem</a>.
+KISS interfaces can also be configured to periodically send out beacons
+for station identification purposes.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Packet</span> <span class="n">Radio</span> <span class="n">KISS</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">KISSInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">outgoing</span> <span class="o">=</span> <span class="n">true</span>
+
+  <span class="c1"># Serial port for the device</span>
+  <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB1</span>
+
+  <span class="c1"># Set the serial baud-rate and other</span>
+  <span class="c1"># configuration parameters.</span>
+  <span class="n">speed</span> <span class="o">=</span> <span class="mi">115200</span>
+  <span class="n">databits</span> <span class="o">=</span> <span class="mi">8</span>
+  <span class="n">parity</span> <span class="o">=</span> <span class="n">none</span>
+  <span class="n">stopbits</span> <span class="o">=</span> <span class="mi">1</span>
+
+  <span class="c1"># Set the modem preamble.</span>
+  <span class="n">preamble</span> <span class="o">=</span> <span class="mi">150</span>
+
+  <span class="c1"># Set the modem TX tail.</span>
+  <span class="n">txtail</span> <span class="o">=</span> <span class="mi">10</span>
+
+  <span class="c1"># Configure CDMA parameters. These</span>
+  <span class="c1"># settings are reasonable defaults.</span>
+  <span class="n">persistence</span> <span class="o">=</span> <span class="mi">200</span>
+  <span class="n">slottime</span> <span class="o">=</span> <span class="mi">20</span>
+
+  <span class="c1"># You can configure the interface to send</span>
+  <span class="c1"># out identification on the channel with</span>
+  <span class="c1"># a set interval by configuring the</span>
+  <span class="c1"># following two parameters. The KISS</span>
+  <span class="c1"># interface will only ID if the set</span>
+  <span class="c1"># interval has elapsed since it&#39;s last</span>
+  <span class="c1"># actual transmission. The interval is</span>
+  <span class="c1"># configured in seconds.</span>
+  <span class="c1"># This option is commented out and not</span>
+  <span class="c1"># used by default.</span>
+  <span class="c1"># id_callsign = MYCALL-0</span>
+  <span class="c1"># id_interval = 600</span>
+
+  <span class="c1"># Whether to use KISS flow-control.</span>
+  <span class="c1"># This is useful for modems that have</span>
+  <span class="c1"># a small internal packet buffer, but</span>
+  <span class="c1"># support packet flow control instead.</span>
+  <span class="n">flow_control</span> <span class="o">=</span> <span class="n">false</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ax-25-kiss-interface">
+<span id="interfaces-ax25"></span><h2>AX.25 KISS Interface<a class="headerlink" href="#ax-25-kiss-interface" title="Permalink to this headline">¶</a></h2>
+<p>If you’re using Reticulum on amateur radio spectrum, you might want to
+use the AX.25 KISS interface. This way, Reticulum will automatically
+encapsulate it’s traffic in AX.25 and also identify your stations
+transmissions with your callsign and SSID.</p>
+<p>Only do this if you really need to! Reticulum doesn’t need the AX.25
+layer for anything, and it incurs extra overhead on every packet to
+encapsulate in AX.25.</p>
+<p>A more efficient way is to use the plain KISS interface with the
+beaconing functionality described above.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Packet</span> <span class="n">Radio</span> <span class="n">AX</span><span class="o">.</span><span class="mi">25</span> <span class="n">KISS</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">AX25KISSInterface</span>
+
+  <span class="c1"># Set the station callsign and SSID</span>
+  <span class="n">callsign</span> <span class="o">=</span> <span class="n">NO1CLL</span>
+  <span class="n">ssid</span> <span class="o">=</span> <span class="mi">0</span>
+
+  <span class="c1"># Enable interface if you want use it!</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># Allow transmit on interface.</span>
+  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># Serial port for the device</span>
+  <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB2</span>
+
+  <span class="c1"># Set the serial baud-rate and other</span>
+  <span class="c1"># configuration parameters.</span>
+  <span class="n">speed</span> <span class="o">=</span> <span class="mi">115200</span>
+  <span class="n">databits</span> <span class="o">=</span> <span class="mi">8</span>
+  <span class="n">parity</span> <span class="o">=</span> <span class="n">none</span>
+  <span class="n">stopbits</span> <span class="o">=</span> <span class="mi">1</span>
+
+  <span class="c1"># Set the modem preamble. A 150ms</span>
+  <span class="c1"># preamble should be a reasonable</span>
+  <span class="c1"># default, but may need to be</span>
+  <span class="c1"># increased for radios with slow-</span>
+  <span class="c1"># opening squelch and long TX/RX</span>
+  <span class="c1"># turnaround</span>
+  <span class="n">preamble</span> <span class="o">=</span> <span class="mi">150</span>
+
+  <span class="c1"># Set the modem TX tail. In most</span>
+  <span class="c1"># cases this should be kept as low</span>
+  <span class="c1"># as possible to not waste airtime.</span>
+  <span class="n">txtail</span> <span class="o">=</span> <span class="mi">10</span>
+
+  <span class="c1"># Configure CDMA parameters. These</span>
+  <span class="c1"># settings are reasonable defaults.</span>
+  <span class="n">persistence</span> <span class="o">=</span> <span class="mi">200</span>
+  <span class="n">slottime</span> <span class="o">=</span> <span class="mi">20</span>
+
+  <span class="c1"># Whether to use KISS flow-control.</span>
+  <span class="c1"># This is useful for modems with a</span>
+  <span class="c1"># small internal packet buffer.</span>
+  <span class="n">flow_control</span> <span class="o">=</span> <span class="n">false</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Supported Interfaces</a><ul>
+<li><a class="reference internal" href="#udp-interface">UDP Interface</a></li>
+<li><a class="reference internal" href="#tcp-server-interface">TCP Server Interface</a></li>
+<li><a class="reference internal" href="#tcp-client-interface">TCP Client Interface</a></li>
+<li><a class="reference internal" href="#rnode-lora-interface">RNode LoRa Interface</a></li>
+<li><a class="reference internal" href="#serial-interface">Serial Interface</a></li>
+<li><a class="reference internal" href="#kiss-interface">KISS Interface</a></li>
+<li><a class="reference internal" href="#ax-25-kiss-interface">AX.25 KISS Interface</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="networks.html"
+                        title="previous chapter">Building Networks</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="understanding.html"
+                        title="next chapter">Understanding Reticulum</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/interfaces.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="understanding.html" title="Understanding Reticulum"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="networks.html" title="Building Networks"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.6 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Supported Interfaces</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Mark Qvist.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+  </body>
+</html>

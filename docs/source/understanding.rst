@@ -52,7 +52,7 @@ by using multiple hops).
 Goals
 =====
 
-To be as widely usable and easy to implement as possible, the following goals have been used to
+To be as widely usable and easy to use as possible, the following goals have been used to
 guide the design of Reticulum:
 
 

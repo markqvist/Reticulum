@@ -1,8 +1,9 @@
 .. _examples-main:
 
-********
-Examples
-********
+*************
+Code Examples
+*************
+
 A number of examples are included in the source distribution of Reticulum.
 You can use these examples to learn how to write your own programs.
 

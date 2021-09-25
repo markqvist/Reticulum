@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Using Reticulum on Your System &#8212; Reticulum Network Stack 0.2.6 beta documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Building Networks" href="networks.html" />
+    <link rel="prev" title="Getting Started Fast" href="gettingstartedfast.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="networks.html" title="Building Networks"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gettingstartedfast.html" title="Getting Started Fast"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.6 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Using Reticulum on Your System</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="using-reticulum-on-your-system">
+<span id="using-main"></span><h1>Using Reticulum on Your System<a class="headerlink" href="#using-reticulum-on-your-system" title="Permalink to this headline">¶</a></h1>
+<p>Reticulum is not installed as a driver or kernel module, as one might expect
+of a networking stack. Instead, Reticulum is distributed as a Python module.
+This means that no special privileges are required to install or use it.
+Any program or application that uses Reticulum will automatically load and
+initialise Reticulum when it starts.</p>
+<p>In many cases, this approach is sufficient. When any program needs to use
+Reticulum, it is loaded, initialised, interfaces are brought up, and the
+program can now communicate over Reticulum. If another program starts up
+and also wants access to the same Reticulum network, the instance is simply
+shared. This works for any number of programs running concurrently, and is
+very easy to use, but depending on your use case, there are other options.</p>
+<div class="section" id="included-utility-programs">
+<h2>Included Utility Programs<a class="headerlink" href="#included-utility-programs" title="Permalink to this headline">¶</a></h2>
+<p>If you often use Reticulum from several different programs, or simply want
+Reticulum to stay available all the time, for example if you are hosting
+a transport node, you might want to run Reticulum as a separate service that
+other programs, applications and services can utilise.</p>
+<div class="section" id="the-rnsd-utility">
+<h3>The rnsd Utility<a class="headerlink" href="#the-rnsd-utility" title="Permalink to this headline">¶</a></h3>
+<p>To do so is very easy. Simply run the included <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> command. When <code class="docutils literal notranslate"><span class="pre">rnsd</span></code>
+is running, it will keep all configured interfaces open, handle transport if
+it is enabled, and allow any other programs to immediately utilise the
+Reticulum network it is configured for.</p>
+<p>You can even run multiple instances of rnsd with different configurations on
+the same system.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Install Reticulum
+pip3 install rns
+
+# Run rnsd
+rnsd
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnsd [-h] [--config CONFIG] [-v] [-q] [--version]
+
+Reticulum Network Stack Daemon
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --config CONFIG  path to alternative Reticulum config directory
+  -v, --verbose
+  -q, --quiet
+  --version        show program&#39;s version number and exit
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-rnstatus-utility">
+<h3>The rnstatus Utility<a class="headerlink" href="#the-rnstatus-utility" title="Permalink to this headline">¶</a></h3>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> utility, you can view the status of configured Reticulum
+interfaces, similar to the <code class="docutils literal notranslate"><span class="pre">ifconfig</span></code> program.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rnstatus
+rnstatus
+
+# Example output
+Shared Instance[37428]
+       Status: Up
+       Connected applications: 1
+       RX: 1.13 KB
+       TX: 1.07 KB
+
+UDPInterface[Default UDP Interface/0.0.0.0:4242]
+       Status: Up
+       RX: 1.01 KB
+       TX: 1.01 KB
+
+TCPInterface[RNS Testnet Frankfurt/frankfurt.rns.unsigned.io:4965]
+       Status: Up
+       RX: 1.37 KB
+       TX: 9.02 KB
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnsd [-h] [--config CONFIG] [-v] [-q] [--version]
+
+Reticulum Network Stack Daemon
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --config CONFIG  path to alternative Reticulum config directory
+  -v, --verbose
+  -q, --quiet
+  --version        show program&#39;s version number and exit
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-rnpath-utility">
+<h3>The rnpath Utility<a class="headerlink" href="#the-rnpath-utility" title="Permalink to this headline">¶</a></h3>
+<p>With the <code class="docutils literal notranslate"><span class="pre">rnpath</span></code> utility, you can look up and view paths for
+destinations on the Reticulum network.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rnpath
+rnpath eca6f4e4dc26ae329e61
+
+# Example output
+Path found, destination &lt;eca6f4e4dc26ae329e61&gt; is 4 hops away via &lt;56b115c30cd386cad69c&gt; on TCPInterface[Testnet/frankfurt.rns.unsigned.io:4965]
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnpath.py [-h] [--config CONFIG] [--version] [-v] [destination]
+
+Reticulum Path Discovery Utility
+
+positional arguments:
+  destination      hexadecimal hash of the destination
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --config CONFIG  path to alternative Reticulum config directory
+  --version        show program&#39;s version number and exit
+  -v, --verbose
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-rnprobe-utility">
+<h3>The rnprobe Utility<a class="headerlink" href="#the-rnprobe-utility" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">rnprobe</span></code> utility lets you probe a destination for connectivity, similar
+to the <code class="docutils literal notranslate"><span class="pre">ping</span></code> program. Please note that probes will only be answered if the
+specified destination is configured to send proofs for received packets. Many
+destinations will not have this option enabled, and will not be probable.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rnprobe
+python3 -m RNS.Utilities.rnprobe example_utilities.echo.request 9382f334de63217a4278
+
+# Example output
+Sent 16 byte probe to &lt;9382f334de63217a4278&gt;
+Valid reply received from &lt;9382f334de63217a4278&gt;
+Round-trip time is 38.469 milliseconds over 2 hops
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnprobe.py [-h] [--config CONFIG] [--version] [-v] [full_name] [destination_hash]
+
+Reticulum Probe Utility
+
+positional arguments:
+  full_name         full destination name in dotted notation
+  destination_hash  hexadecimal hash of the destination
+
+optional arguments:
+  -h, --help        show this help message and exit
+  --config CONFIG   path to alternative Reticulum config directory
+  --version         show program&#39;s version number and exit
+  -v, --verbose
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Using Reticulum on Your System</a><ul>
+<li><a class="reference internal" href="#included-utility-programs">Included Utility Programs</a><ul>
+<li><a class="reference internal" href="#the-rnsd-utility">The rnsd Utility</a></li>
+<li><a class="reference internal" href="#the-rnstatus-utility">The rnstatus Utility</a></li>
+<li><a class="reference internal" href="#the-rnpath-utility">The rnpath Utility</a></li>
+<li><a class="reference internal" href="#the-rnprobe-utility">The rnprobe Utility</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gettingstartedfast.html"
+                        title="previous chapter">Getting Started Fast</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="networks.html"
+                        title="next chapter">Building Networks</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/using.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="networks.html" title="Building Networks"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gettingstartedfast.html" title="Getting Started Fast"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.6 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Using Reticulum on Your System</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Mark Qvist.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+  </body>
+</html>

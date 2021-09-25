@@ -47,9 +47,9 @@ To communicate further, you will have to add one or more interfaces. The default
 configuration includes a number of examples, ranging from using TCP over the
 internet, to LoRa and Packet Radio interfaces.
 
-Possibly, the examples in the config file are enough to gen you started. If
-you want more information, you can read the :ref:`Interfaces<interfaces-main>`
-chapter of this manual.
+Possibly, the examples in the config file are enough to get you started. If
+you want more information, you can read the :ref:`Building Networks<networks-main>`
+and :ref:`Interfaces<interfaces-main>` chapters of this manual.
 
 
 Develop a Program with Reticulum

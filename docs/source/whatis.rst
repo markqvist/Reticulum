@@ -18,7 +18,7 @@ Reticulum should currently be considered beta software. All core protocol featur
 
 Caveat Emptor
 ==============
-Reticulum is an experimental networking stack, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it has not been externally security audited, and there could very well be privacy-breaking bugs. To be considered even remotely secure, Reticulum needs a very thourough security review by independt cryptographers and security researchers. If you want to help out, or help sponsor an audit, please do get in touch.
+Reticulum is an experimental networking stack, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it has not been externally security audited, and there could very well be privacy-breaking bugs. To be considered secure, Reticulum needs a thourough security review by independt cryptographers and security researchers. If you want to help out, or help sponsor an audit, please do get in touch.
 
 
 What does Reticulum Offer?
@@ -87,8 +87,8 @@ configured, Reticulum will take care of the rest, and any device on the WiFi
 network can communicate with nodes on the LoRa and packet radio sides of the
 network, and vice versa.
 
-Supported Interface Types and Devices
-=====================================
+Interface Types and Devices
+===========================
 Reticulum implements a range of generalised interface types that covers most of the communications hardware that Reticulum can run over. If your hardware is not supported, it's relatively simple to implement an interface class. Currently, the following interfaces are supported:
 
 * Any ethernet device
@@ -102,3 +102,5 @@ Reticulum implements a range of generalised interface types that covers most of 
 * TCP over IP networks
 
 * UDP over IP networks
+
+For a full list and more details, see the :ref:`Supported Interfaces<interfaces-main>` chapter.

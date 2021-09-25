@@ -71,7 +71,7 @@ def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_
     receipt = probe.send()
 
     if more_output:
-        more = " via "+RNS.prettyhexrep(RNS.Transport.next_hop(destination_hash))+" on "+str(RNS.Transport.next_hop_interface(destination_hash))
+        more = " via "+RNS.prettyhexrep(reticulum.get_next_hop(destination_hash))+" on "+str(reticulum.get_next_hop_if_name(destination_hash))
     else:
         more = ""
 
@@ -88,7 +88,7 @@ def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_
     sys.stdout.flush()
 
     hops = RNS.Transport.hops_to(destination_hash)
-    if hops > 1:
+    if hops != 1:
         ms = "s"
     else:
         ms = ""
