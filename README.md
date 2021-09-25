@@ -65,9 +65,12 @@ Reticulum implements a range of generalised interface types that covers most of 
 ## Feature Roadmap
  - More interface types for even broader compatibility
    - ESP32 devices (ESP-Now, Bluetooth, etc.)
-   - AT-compatible voice modems
+   - AT-compatible modems
+   - CAN-bus
    - ZeroMQ
    - MQTT
+   - SPI
+   - i²c
  - A delay and disruption tolerant message transfer protocol built on Reticulum, see [LXMF](https://github.com/markqvist/lxmf)
  - A few useful-in-the-real-world apps built with Reticulum, see [Nomad Network](https://github.com/markqvist/NomadNet)
 
