@@ -54,6 +54,8 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                 if clients != None:
                     print("\t"+clients_string)
                 print("\tRX: {rxb}\n\tTX: {txb}".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
+
+        print("")
                 
     else:
         print("Could not get RNS status")
