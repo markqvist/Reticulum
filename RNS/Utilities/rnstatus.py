@@ -42,7 +42,7 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                 if ifstat["clients"] != None:
                     clients = ifstat["clients"]
                     if name.startswith("Shared Instance["):
-                        clients_string = "Connected applications: "+str(clients-1)
+                        clients_string = "Connected applications: "+str(max(clients-1,0))
                     else:
                         clients_string = "Connected clients: "+str(clients)
 
