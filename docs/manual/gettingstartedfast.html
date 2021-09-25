@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Getting Started Fast &#8212; Reticulum Network Stack 0.2.5 beta documentation</title>
+    <title>Getting Started Fast &#8212; Reticulum Network Stack 0.2.6 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -16,7 +16,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Understanding Reticulum" href="understanding.html" />
+    <link rel="next" title="Building Networks" href="networks.html" />
     <link rel="prev" title="What is Reticulum?" href="whatis.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -26,12 +26,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="understanding.html" title="Understanding Reticulum"
+          <a href="networks.html" title="Building Networks"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="whatis.html" title="What is Reticulum?"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.5 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.6 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Getting Started Fast</a></li> 
       </ul>
     </div>  
@@ -56,13 +56,29 @@ provides a basic encrypted communications suite built completely on Reticulum.</
 in the development for the messaging and information-sharing protocol
 <a class="reference external" href="https://github.com/markqvist/lxmf">LXMF</a>, another project built with Reticulum.</p>
 <p>You can install Nomad Network via pip:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install ...</span>
 <span class="n">pip3</span> <span class="n">install</span> <span class="n">nomadnet</span>
 
-<span class="c1"># And run</span>
+<span class="c1"># ... and run</span>
 <span class="n">nomadnet</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="creating-a-network-with-reticulum">
+<h2>Creating a Network With Reticulum<a class="headerlink" href="#creating-a-network-with-reticulum" title="Permalink to this headline">¶</a></h2>
+<p>To create a network, you will need to specify one or more <em>interfaces</em> for
+Reticulum to use. This is done in the Reticulum configuration file, which by
+default is located at <code class="docutils literal notranslate"><span class="pre">~/.reticulum/config</span></code>.</p>
+<p>When Reticulum is started for the first time, it will create a default
+configuration file, with one active interface. This default interface uses
+your existing ethernet network (if there is one), and only allows you to
+communicate with other Reticulum peers within your local broadcast domain.</p>
+<p>To communicate further, you will have to add one or more interfaces. The default
+configuration includes a number of examples, ranging from using TCP over the
+internet, to LoRa and Packet Radio interfaces.</p>
+<p>Possibly, the examples in the config file are enough to gen you started. If
+you want more information, you can read the <a class="reference internal" href="networks.html#interfaces-main"><span class="std std-ref">Interfaces</span></a>
+chapter of this manual.</p>
 </div>
 <div class="section" id="develop-a-program-with-reticulum">
 <h2>Develop a Program with Reticulum<a class="headerlink" href="#develop-a-program-with-reticulum" title="Permalink to this headline">¶</a></h2>
@@ -82,7 +98,7 @@ likely be to look at some <a class="reference internal" href="examples.html#exam
 utilities, you’ll want to get the latest source from GitHub. In that case,
 don’t use pip, but try this recipe:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
-<span class="n">pip3</span> <span class="n">install</span> <span class="n">cryptography</span> <span class="n">pyserial</span>
+<span class="n">pip3</span> <span class="n">install</span> <span class="n">cryptography</span> <span class="n">pyserial</span> <span class="n">netifaces</span>
 
 <span class="c1"># Clone repository</span>
 <span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">markqvist</span><span class="o">/</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">git</span>
@@ -129,6 +145,7 @@ don’t use pip, but try this recipe:</p>
   <ul>
 <li><a class="reference internal" href="#">Getting Started Fast</a><ul>
 <li><a class="reference internal" href="#try-using-a-reticulum-based-program">Try Using a Reticulum-based Program</a></li>
+<li><a class="reference internal" href="#creating-a-network-with-reticulum">Creating a Network With Reticulum</a></li>
 <li><a class="reference internal" href="#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
 <li><a class="reference internal" href="#participate-in-reticulum-development">Participate in Reticulum Development</a></li>
 </ul>
@@ -139,8 +156,8 @@ don’t use pip, but try this recipe:</p>
   <p class="topless"><a href="whatis.html"
                         title="previous chapter">What is Reticulum?</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="understanding.html"
-                        title="next chapter">Understanding Reticulum</a></p>
+  <p class="topless"><a href="networks.html"
+                        title="next chapter">Building Networks</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -169,12 +186,12 @@ don’t use pip, but try this recipe:</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="understanding.html" title="Understanding Reticulum"
+          <a href="networks.html" title="Building Networks"
              >next</a> |</li>
         <li class="right" >
           <a href="whatis.html" title="What is Reticulum?"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.5 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.2.6 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Getting Started Fast</a></li> 
       </ul>
     </div>

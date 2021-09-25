@@ -23,12 +23,33 @@ You can install Nomad Network via pip:
 
 .. code::
 
-   # Install
+   # Install ...
    pip3 install nomadnet
 
-   # And run
+   # ... and run
    nomadnet
 
+
+
+Creating a Network With Reticulum
+=============================================
+
+To create a network, you will need to specify one or more *interfaces* for
+Reticulum to use. This is done in the Reticulum configuration file, which by
+default is located at ``~/.reticulum/config``.
+
+When Reticulum is started for the first time, it will create a default
+configuration file, with one active interface. This default interface uses
+your existing ethernet network (if there is one), and only allows you to
+communicate with other Reticulum peers within your local broadcast domain.
+
+To communicate further, you will have to add one or more interfaces. The default
+configuration includes a number of examples, ranging from using TCP over the
+internet, to LoRa and Packet Radio interfaces.
+
+Possibly, the examples in the config file are enough to gen you started. If
+you want more information, you can read the :ref:`Interfaces<interfaces-main>`
+chapter of this manual.
 
 
 Develop a Program with Reticulum
@@ -56,7 +77,7 @@ don't use pip, but try this recipe:
 .. code::
 
     # Install dependencies
-    pip3 install cryptography pyserial
+    pip3 install cryptography pyserial netifaces
 
     # Clone repository
     git clone https://github.com/markqvist/Reticulum.git

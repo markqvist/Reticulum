@@ -10,6 +10,7 @@ the development of Reticulum itself.
 
    whatis
    gettingstartedfast
+   networks
    understanding
    reference
    examples
