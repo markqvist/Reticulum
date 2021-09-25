@@ -37,8 +37,8 @@ def program_setup(configdir, destination_hexhash, verbosity):
         i = (i+1)%len(syms)
 
     hops = RNS.Transport.hops_to(destination_hash)
-    next_hop = RNS.prettyhexrep(RNS.Transport.next_hop(destination_hash))
-    next_hop_interface = str(RNS.Transport.next_hop_interface(destination_hash))
+    next_hop = RNS.prettyhexrep(reticulum.get_next_hop(destination_hash))
+    next_hop_interface = reticulum.get_next_hop_if_name(destination_hash)
 
     if hops > 1:
         ms = "s"

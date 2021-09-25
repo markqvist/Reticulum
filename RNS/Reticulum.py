@@ -504,6 +504,12 @@ class Reticulum:
                     if path == "interface_stats":
                         rpc_connection.send(self.get_interface_stats())
 
+                    if path == "next_hop_if_name":
+                        rpc_connection.send(self.get_next_hop_if_name(call["destination_hash"]))
+
+                    if path == "next_hop":
+                        rpc_connection.send(self.get_next_hop(call["destination_hash"]))
+
                 rpc_connection.close()
             except Exception as e:
                 RNS.log("An error ocurred while handling RPC call from local client: "+str(e), RNS.LOG_ERROR)
@@ -531,6 +537,24 @@ class Reticulum:
                 stats.append(ifstats)
 
             return stats
+
+    def get_next_hop_if_name(self, destination):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection.send({"get": "next_hop_if_name", "destination_hash": destination})
+            response = rpc_connection.recv()
+            return response
+        else:
+            return str(RNS.Transport.next_hop_interface(destination))
+
+    def get_next_hop(self, destination):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection.send({"get": "next_hop", "destination_hash": destination})
+            response = rpc_connection.recv()
+            return response
+        else:
+            return RNS.Transport.next_hop(destination)
 
 
     @staticmethod
