@@ -23,7 +23,7 @@ setuptools.setup(
     entry_points= {
         'console_scripts': [
             'rnsd=RNS.Utilities.rnsd:main',
-            'rnsconfig=RNS.Utilities.rnsconfig:main',
+            'rnstatus=RNS.Utilities.rnstatus:main',
             'rnprobe=RNS.Utilities.rnprobe:main',
             'rnpath=RNS.Utilities.rnpath:main',
 
