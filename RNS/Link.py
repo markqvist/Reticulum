@@ -527,7 +527,7 @@ class Link:
                         else:
                             response_resource = RNS.Resource(packed_response, self, request_id = request_id, is_response = True)
                 else:
-                    identity_string = RNS.prettyhexrep(self.get_remote_identity()) if self.get_remote_identity() != None else "<Unknown>"
+                    identity_string = str(self.get_remote_identity()) if self.get_remote_identity() != None else "<Unknown>"
                     RNS.log("Request "+RNS.prettyhexrep(request_id)+" from "+identity_string+" not allowed for: "+str(path), RNS.LOG_DEBUG)
 
     def handle_response(self, request_id, response_data, response_size, response_transfer_size):
