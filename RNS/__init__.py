@@ -31,6 +31,8 @@ LOG_EXTREME  = 7
 LOG_STDOUT   = 0x91
 LOG_FILE     = 0x92
 
+LOG_MAXSIZE  = 5*1024*1024
+
 loglevel     = LOG_NOTICE
 logfile      = None
 logdest      = LOG_STDOUT
@@ -82,6 +84,13 @@ def log(msg, level=3, _override_destination = False):
                 file = open(logfile, "a")
                 file.write(logstring+"\n")
                 file.close()
+                
+                if os.path.getsize(logfile) > LOG_MAXSIZE:
+                    prevfile = logfile+".1"
+                    if os.path.isfile(prevfile):
+                        os.unlink(prevfile)
+                    os.rename(logfile, prevfile)
+
                 logging_lock.release()
             except Exception as e:
                 logging_lock.release()
