@@ -1115,7 +1115,10 @@ class Transport:
                     else:
                         RNS.log("Did not restore path to "+RNS.prettyhexrep(packet.destination_hash)+" because a newer path with fewer hops exist", RNS.LOG_DEBUG)
                 else:
-                    should_add = True
+                    if time.time() < expires
+                        should_add = True
+                    else:
+                        RNS.log("Did not restore path to "+RNS.prettyhexrep(packet.destination_hash)+" because it has expired", RNS.LOG_DEBUG)
 
                 if should_add:
                     Transport.destination_table[destination_hash] = new_entry
