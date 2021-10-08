@@ -90,11 +90,27 @@ class Identity:
 
     @staticmethod
     def save_known_destinations():
-        RNS.log("Saving known destinations to storage...", RNS.LOG_VERBOSE)
-        file = open(RNS.Reticulum.storagepath+"/known_destinations","wb")
-        umsgpack.dump(Identity.known_destinations, file)
-        file.close()
-        RNS.log("Done saving known destinations to storage", RNS.LOG_VERBOSE)
+        try:
+            storage_known_destinations = {}
+            if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
+                try:
+                    file = open(RNS.Reticulum.storagepath+"/known_destinations","rb")
+                    storage_known_destinations = umsgpack.load(file)
+                    file.close()
+                except:
+                    pass
+
+            for destination_hash in storage_known_destinations:
+                if not destination_hash in Identity.known_destinations:
+                    Identity.known_destinations[destination_hash] = storage_known_destinations[destination_hash]
+
+            RNS.log("Saving known destinations to storage...", RNS.LOG_VERBOSE)
+            file = open(RNS.Reticulum.storagepath+"/known_destinations","wb")
+            umsgpack.dump(Identity.known_destinations, file)
+            file.close()
+            RNS.log("Done saving known destinations to storage", RNS.LOG_VERBOSE)
+        except Exception as e:
+            RNS.log("Error while saving known destinations to disk, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
     @staticmethod
     def load_known_destinations():
@@ -107,7 +123,7 @@ class Identity:
             except:
                 RNS.log("Error loading known destinations from disk, file will be recreated on exit", RNS.LOG_ERROR)
         else:
-            RNS.log("Destinations file does not exist, so no known destinations loaded", RNS.LOG_VERBOSE)
+            RNS.log("Destinations file does not exist, no known destinations loaded", RNS.LOG_VERBOSE)
 
     @staticmethod
     def full_hash(data):
