@@ -455,7 +455,7 @@ class Link:
                     sleep_time = next_check - time.time()
                     if time.time() >= self.request_time + self.establishment_timeout:
                         if self.initiator:
-                            RNS.log("Timeout waiting link request proof", RNS.LOG_DEBUG)
+                            RNS.log("Timeout waiting for link request proof", RNS.LOG_DEBUG)
                         else:
                             RNS.log("Timeout waiting for RTT packet from link initiator", RNS.LOG_DEBUG)
 
