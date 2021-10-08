@@ -27,6 +27,8 @@ What does Reticulum Offer?
 
 * Fully self-configuring multi-hop routing
 
+* Complete initiator anonymity - communicate without revealing your identity
+
 * Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
 
 * Forward Secrecy with ephemereal Elliptic Curve Diffie-Hellman keys on Curve25519
