@@ -14,6 +14,10 @@ for Reticulum to use.
 The following sections describe the interfaces currently available in Reticulum,
 and gives example configurations for the respective interface types.
 
+For a high-level overview of how networks can be formed over different interface
+types, have a look at the :ref:`Building Networks<networks-main>` chapter of this
+manual.
+
 .. _interfaces-udp:
 
 UDP Interface

@@ -10,7 +10,7 @@ Try Using a Reticulum-based Program
 =============================================
 If you simply want to try using a program built with Reticulum, you can take
 a look at `Nomad Network <https://github.com/markqvist/nomadnet>`_, which
-provides a basic encrypted communications suite built completely on Reticulum.
+provides a complete encrypted communications suite built with Reticulum.
 
 .. image:: screenshots/nomadnet_3.png
     :target: _images/nomadnet_3.png
@@ -31,9 +31,21 @@ You can install Nomad Network via pip:
 
 
 
+Using the Included Utilities
+=============================================
+Reticulum comes with a range of included utilities that make it easier to
+manage your network, check connectivity and make Reticulum available to other
+programs on your system.
+
+You can use ``rnsd`` to run Reticulum as a background or foreground service,
+and the ``rnstatus``, ``rnpath`` and ``rnprobe`` utilities to view and query
+network status and connectivity.
+
+To learn more about these utility programs, have a look at the
+:ref:`Using Reticulum on Your System<using-main>` chapter of this manual.
+
 Creating a Network With Reticulum
 =============================================
-
 To create a network, you will need to specify one or more *interfaces* for
 Reticulum to use. This is done in the Reticulum configuration file, which by
 default is located at ``~/.reticulum/config``.

@@ -32,8 +32,8 @@ def program_setup(configdir, dispall=False, verbosity = 0):
         for ifstat in ifstats:
             name = ifstat["name"]
 
-            print("")
             if dispall or not (name.startswith("LocalInterface[") or name.startswith("TCPInterface[Client")):
+                print("")
                 if ifstat["status"]:
                     ss = "Up"
                 else:
