@@ -37,6 +37,12 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
     - Total bandwidth cost of setting up a link is 3 packets totalling 237 bytes
     - Low cost of keeping links open at only 0.62 bits per second
 
+## Examples of Reticulum Applications
+If you want to quickly get an idea of what Reticulum can do, take a look at the following resources.
+
+ - For an off-grid, encrypted and resilient mesh communications platform, see [Nomad Network](https://github.com/markqvist/NomadNet)
+ - For a distributed, delay and disruption tolerant message transfer protocol built on Reticulum, see [LXMF](https://github.com/markqvist/lxmf)
+
 ## Where can Reticulum be used?
 Over practically any medium that can support at least a half-duplex channel with 1.000 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, ad-hoc WiFi, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.
 
@@ -63,10 +69,10 @@ Reticulum implements a range of generalised interface types that covers most of 
 
 
 ## Feature Roadmap
- - A delay and disruption tolerant message transfer protocol built on Reticulum, see [LXMF](https://github.com/markqvist/lxmf)
- - A few useful-in-the-real-world apps built with Reticulum, see [Nomad Network](https://github.com/markqvist/NomadNet)
+ - Stream mode for links
  - More interface types for even broader compatibility
    - ESP32 devices (ESP-Now, Bluetooth, etc.)
+   - More LoRa transceivers
    - AT-compatible modems
    - CAN-bus
    - ZeroMQ
