@@ -182,7 +182,7 @@ class Link:
             self.start_watchdog()
             self.packet.send()
             self.had_outbound()
-            RNS.log("Link request "+RNS.prettyhexrep(self.link_id)+" sent to "+str(self.destination), RNS.LOG_VERBOSE)
+            RNS.log("Link request "+RNS.prettyhexrep(self.link_id)+" sent to "+str(self.destination), RNS.LOG_DEBUG)
 
 
     def load_peer(self, peer_pub_bytes, peer_sig_pub_bytes):

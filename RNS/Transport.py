@@ -698,7 +698,7 @@ class Transport:
                             # TODO: There should probably be some kind of REJECT
                             # mechanism here, to signal to the source that their
                             # expected path failed.
-                            RNS.log("Got packet in transport, but no known path to final destination. Dropping packet.", RNS.LOG_DEBUG)
+                            RNS.log("Got packet in transport, but no known path to final destination "+RNS.prettyhexrep(packet.destination_hash)+". Dropping packet.", RNS.LOG_DEBUG)
 
                 # Link transport handling. Directs packets according
                 # to entries in the link tables
@@ -1095,6 +1095,7 @@ class Transport:
             interface.tunnel_id = tunnel_id
             paths = tunnel_entry[2]
 
+            deprecated_paths = []
             for destination_hash, path_entry in paths.items():
                 received_from = path_entry[1]
                 announce_hops = path_entry[2]
@@ -1119,6 +1120,12 @@ class Transport:
                 if should_add:
                     Transport.destination_table[destination_hash] = new_entry
                     RNS.log("Restored path to "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(receiving_interface), RNS.LOG_DEBUG)
+                else:
+                    deprecated_paths.append(destination_hash)
+
+            for deprecated_path in deprecated_paths:
+                RNS.log("Removing path to "+RNS.prettyhexrep(deprecated_path)+" from tunnel "+RNS.prettyhexrep(tunnel_id), RNS.LOG_DEBUG)
+                paths.pop(deprecated_path)
 
 
                 

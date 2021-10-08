@@ -275,7 +275,8 @@ class TCPClientInterface(Interface):
             self.parent_interface.clients -= 1
 
         if self in RNS.Transport.interfaces:
-            RNS.Transport.interfaces.remove(self)
+            if not self.initiator:
+                RNS.Transport.interfaces.remove(self)
 
 
     def __str__(self):
