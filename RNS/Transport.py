@@ -776,8 +776,10 @@ class Transport:
                     # local to this system, and that hops are less than the max
                     if (not any(packet.destination_hash == d.hash for d in Transport.destinations) and packet.hops < Transport.PATHFINDER_M+1):
                         random_blob = packet.data[RNS.Identity.KEYSIZE//8+10:RNS.Identity.KEYSIZE//8+20]
+                        
                         announce_emitted = int.from_bytes(random_blob[5:10], "big")
                         # TODO: Remove
+                        RNS.log("ArB: "+RNS.hexrep(random_blob))
                         RNS.log("Announce timestamp is: "+str(announce_emitted))
                         random_blobs = []
                         if packet.destination_hash in Transport.destination_table:
