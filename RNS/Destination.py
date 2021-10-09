@@ -149,9 +149,6 @@ class Destination:
         destination_hash = self.hash
         random_hash = RNS.Identity.get_random_hash()[0:5]+int(time.time()).to_bytes(5, "big")
 
-        # TODO: Remove
-        RNS.log("ArB: "+RNS.hexrep(random_hash))
-
         if app_data == None and self.default_app_data != None:
             if isinstance(self.default_app_data, bytes):
                 app_data = self.default_app_data

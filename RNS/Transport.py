@@ -775,12 +775,8 @@ class Transport:
                     # First, check that the announce is not for a destination
                     # local to this system, and that hops are less than the max
                     if (not any(packet.destination_hash == d.hash for d in Transport.destinations) and packet.hops < Transport.PATHFINDER_M+1):
-                        random_blob = packet.data[RNS.Identity.KEYSIZE//8+10:RNS.Identity.KEYSIZE//8+20]
-                        
+                        random_blob = packet.data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
                         announce_emitted = int.from_bytes(random_blob[5:10], "big")
-                        # TODO: Remove
-                        RNS.log("ArB: "+RNS.hexrep(random_blob))
-                        RNS.log("Announce timestamp is: "+str(announce_emitted))
                         random_blobs = []
                         if packet.destination_hash in Transport.destination_table:
                             random_blobs = Transport.destination_table[packet.destination_hash][4]
@@ -807,17 +803,12 @@ class Transport:
                                 path_expires = Transport.destination_table[packet.destination_hash][3]
                                 
                                 path_announce_emitted = 0
-                                for random_blob in random_blobs:
-                                    path_announce_emitted = max(path_announce_emitted, int.from_bytes(random_blob[5:10], "big"))
-                                    if path_announce_emitted > announce_emitted:
+                                for path_random_blob in random_blobs:
+                                    path_announce_emitted = max(path_announce_emitted, int.from_bytes(path_random_blob[5:10], "big"))
+                                    if path_announce_emitted >= announce_emitted:
                                         break
 
-                                # TODO: Remove
-                                RNS.log("PA e: "+str(path_announce_emitted))
-                                RNS.log("A  e: "+str(announce_emitted))
-                                ##############
-
-                                if (now >= path_expires or announce_emitted >= path_announce_emitted):
+                                if (now >= path_expires):
                                     # We also check that the announce hash is
                                     # different from ones we've already heard,
                                     # to avoid loops in the network
@@ -829,7 +820,13 @@ class Transport:
                                     else:
                                         should_add = False
                                 else:
-                                    should_add = False
+                                    if (announce_emitted > path_announce_emitted):
+                                        if not random_blob in random_blobs:
+                                            RNS.log("Replacing destination table entry for "+str(RNS.prettyhexrep(packet.destination_hash))+" with new announce, since it was more recently emitted", RNS.LOG_DEBUG)
+                                            should_add = True
+                                        else:
+                                            should_add = False
+
                         else:
                             # If this destination is unknown in our table
                             # we should add it
