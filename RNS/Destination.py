@@ -1,5 +1,6 @@
 import base64
 import math
+import time
 import RNS
 
 from cryptography.fernet import Fernet
@@ -146,7 +147,7 @@ class Destination:
         :param path_response: Internal flag used by :ref:`RNS.Transport<api-transport>`. Ignore.
         """
         destination_hash = self.hash
-        random_hash = RNS.Identity.get_random_hash()
+        random_hash = RNS.Identity.get_random_hash()[0:5]+int(time.time()).to_bytes(5, "big")
 
         if app_data == None and self.default_app_data != None:
             if isinstance(self.default_app_data, bytes):

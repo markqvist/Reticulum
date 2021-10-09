@@ -776,6 +776,9 @@ class Transport:
                     # local to this system, and that hops are less than the max
                     if (not any(packet.destination_hash == d.hash for d in Transport.destinations) and packet.hops < Transport.PATHFINDER_M+1):
                         random_blob = packet.data[RNS.Identity.KEYSIZE//8+10:RNS.Identity.KEYSIZE//8+20]
+                        announce_emitted = int.from_bytes(random_blob[5:10], "big")
+                        # TODO: Remove
+                        RNS.log("Announce timestamp is: "+str(announce_emitted))
                         random_blobs = []
                         if packet.destination_hash in Transport.destination_table:
                             random_blobs = Transport.destination_table[packet.destination_hash][4]
@@ -796,8 +799,23 @@ class Transport:
                             else:
                                 # If an announce arrives with a larger hop
                                 # count than we already have in the table,
-                                # ignore it, unless the path is expired
-                                if (time.time() > Transport.destination_table[packet.destination_hash][3]):
+                                # ignore it, unless the path is expired, or
+                                # the emission timestamp is more recent.
+                                now = time.time()
+                                path_expires = Transport.destination_table[packet.destination_hash][3]
+                                
+                                path_announce_emitted = 0
+                                for random_blob in random_blobs:
+                                    path_announce_emitted = max(path_announce_emitted, int.from_bytes(random_blob[5:10], "big"))
+                                    if path_announce_emitted > announce_emitted:
+                                        break
+
+                                # TODO: Remove
+                                RNS.log("PA e: "+str(path_announce_emitted))
+                                RNS.log("A  e: "+str(announce_emitted))
+                                ##############
+
+                                if (now >= path_expires or announce_emitted >= path_announce_emitted):
                                     # We also check that the announce hash is
                                     # different from ones we've already heard,
                                     # to avoid loops in the network

@@ -804,7 +804,7 @@ class Resource:
         return progress
 
     def __str__(self):
-        return RNS.prettyhexrep(self.hash)+str(self.link)
+        return "<"+RNS.hexrep(self.hash)+"/"+RNS.hexrep(self.link.link_id)+">"
 
 
 class ResourceAdvertisement:
