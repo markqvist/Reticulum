@@ -283,6 +283,8 @@ class RNodeInterface(Interface):
     def processIncoming(self, data):
         self.rxb += len(data)            
         self.owner.inbound(data, self)
+        self.r_stat_rssi = None
+        self.r_stat_snr = None
 
 
     def processOutgoing(self,data):

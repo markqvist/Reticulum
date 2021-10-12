@@ -113,6 +113,8 @@ class Packet:
 
         self.attached_interface = attached_interface
         self.receiving_interface = None
+        self.rssi = None
+        self.snr = None
 
     def get_packed_flags(self):
         if self.context == Packet.LRPROOF:
@@ -328,6 +330,7 @@ class PacketReceipt:
         self.destination    = packet.destination
         self.callbacks      = PacketReceiptCallbacks()
         self.concluded_at   = None
+        self.proof_packet   = None
 
         if packet.destination.type == RNS.Destination.LINK:
             self.timeout    = packet.destination.rtt * packet.destination.traffic_timeout_factor
@@ -344,12 +347,12 @@ class PacketReceipt:
     # Validate a proof packet
     def validate_proof_packet(self, proof_packet):
         if hasattr(proof_packet, "link") and proof_packet.link:
-            return self.validate_link_proof(proof_packet.data, proof_packet.link)
+            return self.validate_link_proof(proof_packet.data, proof_packet.link, proof_packet)
         else:
-            return self.validate_proof(proof_packet.data)
+            return self.validate_proof(proof_packet.data, proof_packet)
 
     # Validate a raw proof for a link
-    def validate_link_proof(self, proof, link):
+    def validate_link_proof(self, proof, link, proof_packet=None):
         # TODO: Hardcoded as explicit proofs for now
         if True or len(proof) == PacketReceipt.EXPL_LENGTH:
             # This is an explicit proof
@@ -361,6 +364,8 @@ class PacketReceipt:
                     self.status = PacketReceipt.DELIVERED
                     self.proved = True
                     self.concluded_at = time.time()
+                    self.proof_packet = proof_packet
+
                     if self.callbacks.delivery != None:
                         self.callbacks.delivery(self)
                     return True
@@ -388,7 +393,7 @@ class PacketReceipt:
             return False
 
     # Validate a raw proof
-    def validate_proof(self, proof):
+    def validate_proof(self, proof, proof_packet=None):
         if len(proof) == PacketReceipt.EXPL_LENGTH:
             # This is an explicit proof
             proof_hash = proof[:RNS.Identity.HASHLENGTH//8]
@@ -399,6 +404,8 @@ class PacketReceipt:
                     self.status = PacketReceipt.DELIVERED
                     self.proved = True
                     self.concluded_at = time.time()
+                    self.proof_packet = proof_packet
+
                     if self.callbacks.delivery != None:
                         self.callbacks.delivery(self)
                     return True
@@ -417,6 +424,8 @@ class PacketReceipt:
                     self.status = PacketReceipt.DELIVERED
                     self.proved = True
                     self.concluded_at = time.time()
+                    self.proof_packet = proof_packet
+                    
                     if self.callbacks.delivery != None:
                         self.callbacks.delivery(self)
                     return True

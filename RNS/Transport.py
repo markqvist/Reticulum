@@ -76,6 +76,10 @@ class Transport:
     # Reticulum instance
     local_client_interfaces = []
 
+    local_client_rssi_cache    = []
+    local_client_snr_cache     = []
+    LOCAL_CLIENT_CACHE_MAXSIZE = 512
+
     jobs_locked = False
     jobs_running = False
     job_interval = 0.250
@@ -583,10 +587,29 @@ class Transport:
         packet.receiving_interface = interface
         packet.hops += 1
 
-        if len(Transport.local_client_interfaces) > 0:
+        if interface != None:
+            if hasattr(interface, "r_stat_rssi"):
+                if interface.r_stat_rssi != None:
+                    packet.rssi = interface.r_stat_rssi
+                    if len(Transport.local_client_interfaces) > 0:
+                        Transport.local_client_rssi_cache.append([packet.packet_hash, packet.rssi])
 
+                        while len(Transport.local_client_rssi_cache) > Transport.LOCAL_CLIENT_CACHE_MAXSIZE:
+                            Transport.local_client_rssi_cache.pop()
+
+            if hasattr(interface, "r_stat_snr"):
+                if interface.r_stat_rssi != None:
+                    packet.snr = interface.r_stat_snr
+                    if len(Transport.local_client_interfaces) > 0:
+                        Transport.local_client_snr_cache.append([packet.packet_hash, packet.snr])
+
+                        while len(Transport.local_client_snr_cache) > Transport.LOCAL_CLIENT_CACHE_MAXSIZE:
+                            Transport.local_client_snr_cache.pop()
+
+        if len(Transport.local_client_interfaces) > 0:
             if Transport.is_local_client_interface(interface):
                 packet.hops -= 1
+
         elif Transport.interface_to_shared_instance(interface):
             packet.hops -= 1
 

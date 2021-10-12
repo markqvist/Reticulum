@@ -511,6 +511,12 @@ class Reticulum:
                     if path == "next_hop":
                         rpc_connection.send(self.get_next_hop(call["destination_hash"]))
 
+                    if path == "packet_rssi":
+                        rpc_connection.send(self.get_packet_rssi(call["packet_hash"]))
+
+                    if path == "packet_snr":
+                        rpc_connection.send(self.get_packet_snr(call["packet_hash"]))
+
                 rpc_connection.close()
             except Exception as e:
                 RNS.log("An error ocurred while handling RPC call from local client: "+str(e), RNS.LOG_ERROR)
@@ -545,6 +551,7 @@ class Reticulum:
             rpc_connection.send({"get": "next_hop_if_name", "destination_hash": destination})
             response = rpc_connection.recv()
             return response
+
         else:
             return str(RNS.Transport.next_hop_interface(destination))
 
@@ -554,8 +561,37 @@ class Reticulum:
             rpc_connection.send({"get": "next_hop", "destination_hash": destination})
             response = rpc_connection.recv()
             return response
+
         else:
             return RNS.Transport.next_hop(destination)
+
+    def get_packet_rssi(self, packet_hash):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection.send({"get": "packet_rssi", "packet_hash": packet_hash})
+            response = rpc_connection.recv()
+            return response
+
+        else:
+            for entry in RNS.Transport.local_client_rssi_cache:
+                if entry[0] == packet_hash:
+                    return entry[1]
+
+            return None
+
+    def get_packet_snr(self, packet_hash):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection.send({"get": "packet_snr", "packet_hash": packet_hash})
+            response = rpc_connection.recv()
+            return response
+
+        else:
+            for entry in RNS.Transport.local_client_snr_cache:
+                if entry[0] == packet_hash:
+                    return entry[1]
+
+            return None
 
 
     @staticmethod

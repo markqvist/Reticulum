@@ -101,11 +101,31 @@ def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_
         rtt = round(rtt*1000, 3)
         rttstring = str(rtt)+" milliseconds"
 
+    reception_stats = ""
+    if reticulum.is_connected_to_shared_instance:
+        reception_rssi = reticulum.get_packet_rssi(receipt.proof_packet.packet_hash)
+        reception_snr  = reticulum.get_packet_snr(receipt.proof_packet.packet_hash)
+
+        if reception_rssi != None:
+            reception_stats += " [RSSI "+str(reception_rssi)+" dBm]"
+        
+        if reception_snr != None:
+            reception_stats += " [SNR "+str(reception_snr)+" dBm]"
+
+    else:
+        if receipt.proof_packet != None:
+            if receipt.proof_packet.rssi != None:
+                reception_stats += " [RSSI "+str(receipt.proof_packet.rssi)+" dBm]"
+            
+            if receipt.proof_packet.snr != None:
+                reception_stats += " [SNR "+str(receipt.proof_packet.snr)+" dBm]"
+
     print(
         "Valid reply received from "+
         RNS.prettyhexrep(receipt.destination.hash)+
         "\nRound-trip time is "+rttstring+
-        " over "+str(hops)+" hop"+ms
+        " over "+str(hops)+" hop"+ms+
+        reception_stats
     )
 
     
