@@ -105,7 +105,7 @@ def server_callback(message, packet):
         if packet.snr != None:
             reception_stats += " [SNR "+str(packet.snr)+" dB]"
 
-    RNS.log("Received packet from echo client, proof sent")
+    RNS.log("Received packet from echo client, proof sent"+reception_stats)
 
 
 ##########################################################
