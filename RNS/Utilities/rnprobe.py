@@ -118,7 +118,7 @@ def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_
                 reception_stats += " [RSSI "+str(receipt.proof_packet.rssi)+" dBm]"
             
             if receipt.proof_packet.snr != None:
-                reception_stats += " [SNR "+str(receipt.proof_packet.snr)+" dBm]"
+                reception_stats += " [SNR "+str(receipt.proof_packet.snr)+" dB]"
 
     print(
         "Valid reply received from "+
