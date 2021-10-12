@@ -22,6 +22,8 @@ APP_NAME = "example_utilities"
 # This initialisation is executed when the users chooses
 # to run as a server
 def server(configpath):
+    global reticulum
+
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
     
@@ -78,6 +80,8 @@ def announceLoop(destination):
 
 
 def server_callback(message, packet):
+    global reticulum
+    
     # Tell the user that we received an echo request, and
     # that we are going to send a reply to the requester.
     # Sending the proof is handled automatically, since we
@@ -111,6 +115,8 @@ def server_callback(message, packet):
 # This initialisation is executed when the users chooses
 # to run as a client
 def client(destination_hexhash, configpath, timeout=None):
+    global reticulum
+    
     # We need a binary representation of the destination
     # hash that was entered on the command line
     try:
@@ -207,6 +213,8 @@ def client(destination_hexhash, configpath, timeout=None):
 # This function is called when our reply destination
 # receives a proof packet.
 def packet_delivered(receipt):
+    global reticulum
+
     if receipt.status == RNS.PacketReceipt.DELIVERED:
         rtt = receipt.get_rtt()
         if (rtt >= 1):
