@@ -110,7 +110,7 @@ def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_
             reception_stats += " [RSSI "+str(reception_rssi)+" dBm]"
         
         if reception_snr != None:
-            reception_stats += " [SNR "+str(reception_snr)+" dBm]"
+            reception_stats += " [SNR "+str(reception_snr)+" dB]"
 
     else:
         if receipt.proof_packet != None:

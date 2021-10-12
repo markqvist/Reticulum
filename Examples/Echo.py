@@ -82,6 +82,25 @@ def server_callback(message, packet):
     # that we are going to send a reply to the requester.
     # Sending the proof is handled automatically, since we
     # set up the destination to prove all incoming packets.
+
+    reception_stats = ""
+    if reticulum.is_connected_to_shared_instance:
+        reception_rssi = reticulum.get_packet_rssi(packet.packet_hash)
+        reception_snr  = reticulum.get_packet_snr(packet.packet_hash)
+
+        if reception_rssi != None:
+            reception_stats += " [RSSI "+str(reception_rssi)+" dBm]"
+        
+        if reception_snr != None:
+            reception_stats += " [SNR "+str(reception_snr)+" dBm]"
+
+    else:
+        if packet.rssi != None:
+            reception_stats += " [RSSI "+str(packet.rssi)+" dBm]"
+        
+        if packet.snr != None:
+            reception_stats += " [SNR "+str(packet.snr)+" dB]"
+
     RNS.log("Received packet from echo client, proof sent")
 
 
@@ -197,10 +216,30 @@ def packet_delivered(receipt):
             rtt = round(rtt*1000, 3)
             rttstring = str(rtt)+" milliseconds"
 
+        reception_stats = ""
+        if reticulum.is_connected_to_shared_instance:
+            reception_rssi = reticulum.get_packet_rssi(receipt.proof_packet.packet_hash)
+            reception_snr  = reticulum.get_packet_snr(receipt.proof_packet.packet_hash)
+
+            if reception_rssi != None:
+                reception_stats += " [RSSI "+str(reception_rssi)+" dBm]"
+            
+            if reception_snr != None:
+                reception_stats += " [SNR "+str(reception_snr)+" dB]"
+
+        else:
+            if receipt.proof_packet != None:
+                if receipt.proof_packet.rssi != None:
+                    reception_stats += " [RSSI "+str(receipt.proof_packet.rssi)+" dBm]"
+                
+                if receipt.proof_packet.snr != None:
+                    reception_stats += " [SNR "+str(receipt.proof_packet.snr)+" dB]"
+
         RNS.log(
             "Valid reply received from "+
             RNS.prettyhexrep(receipt.destination.hash)+
-            ", round-trip time is "+rttstring
+            ", round-trip time is "+rttstring+
+            reception_stats
         )
 
 # This function is called if a packet times out.
