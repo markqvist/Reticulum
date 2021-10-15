@@ -488,6 +488,8 @@ the Packet interface.</p>
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a server</span>
 <span class="k">def</span> <span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">reticulum</span>
+
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
@@ -544,11 +546,32 @@ the Packet interface.</p>
 
 
 <span class="k">def</span> <span class="nf">server_callback</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">reticulum</span>
+    
     <span class="c1"># Tell the user that we received an echo request, and</span>
     <span class="c1"># that we are going to send a reply to the requester.</span>
     <span class="c1"># Sending the proof is handled automatically, since we</span>
     <span class="c1"># set up the destination to prove all incoming packets.</span>
-    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Received packet from echo client, proof sent&quot;</span><span class="p">)</span>
+
+    <span class="n">reception_stats</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">reticulum</span><span class="o">.</span><span class="n">is_connected_to_shared_instance</span><span class="p">:</span>
+        <span class="n">reception_rssi</span> <span class="o">=</span> <span class="n">reticulum</span><span class="o">.</span><span class="n">get_packet_rssi</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">packet_hash</span><span class="p">)</span>
+        <span class="n">reception_snr</span>  <span class="o">=</span> <span class="n">reticulum</span><span class="o">.</span><span class="n">get_packet_snr</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">packet_hash</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">reception_rssi</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reception_stats</span> <span class="o">+=</span> <span class="s2">&quot; [RSSI &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">reception_rssi</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; dBm]&quot;</span>
+        
+        <span class="k">if</span> <span class="n">reception_snr</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reception_stats</span> <span class="o">+=</span> <span class="s2">&quot; [SNR &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">reception_snr</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; dBm]&quot;</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">packet</span><span class="o">.</span><span class="n">rssi</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reception_stats</span> <span class="o">+=</span> <span class="s2">&quot; [RSSI &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">rssi</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; dBm]&quot;</span>
+        
+        <span class="k">if</span> <span class="n">packet</span><span class="o">.</span><span class="n">snr</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reception_stats</span> <span class="o">+=</span> <span class="s2">&quot; [SNR &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">snr</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; dB]&quot;</span>
+
+    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Received packet from echo client, proof sent&quot;</span><span class="o">+</span><span class="n">reception_stats</span><span class="p">)</span>
 
 
 <span class="c1">##########################################################</span>
@@ -558,6 +581,8 @@ the Packet interface.</p>
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a client</span>
 <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">reticulum</span>
+    
     <span class="c1"># We need a binary representation of the destination</span>
     <span class="c1"># hash that was entered on the command line</span>
     <span class="k">try</span><span class="p">:</span>
@@ -654,6 +679,8 @@ the Packet interface.</p>
 <span class="c1"># This function is called when our reply destination</span>
 <span class="c1"># receives a proof packet.</span>
 <span class="k">def</span> <span class="nf">packet_delivered</span><span class="p">(</span><span class="n">receipt</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">reticulum</span>
+
     <span class="k">if</span> <span class="n">receipt</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">PacketReceipt</span><span class="o">.</span><span class="n">DELIVERED</span><span class="p">:</span>
         <span class="n">rtt</span> <span class="o">=</span> <span class="n">receipt</span><span class="o">.</span><span class="n">get_rtt</span><span class="p">()</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">rtt</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
@@ -663,10 +690,30 @@ the Packet interface.</p>
             <span class="n">rtt</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">rtt</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
             <span class="n">rttstring</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">rtt</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; milliseconds&quot;</span>
 
+        <span class="n">reception_stats</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">reticulum</span><span class="o">.</span><span class="n">is_connected_to_shared_instance</span><span class="p">:</span>
+            <span class="n">reception_rssi</span> <span class="o">=</span> <span class="n">reticulum</span><span class="o">.</span><span class="n">get_packet_rssi</span><span class="p">(</span><span class="n">receipt</span><span class="o">.</span><span class="n">proof_packet</span><span class="o">.</span><span class="n">packet_hash</span><span class="p">)</span>
+            <span class="n">reception_snr</span>  <span class="o">=</span> <span class="n">reticulum</span><span class="o">.</span><span class="n">get_packet_snr</span><span class="p">(</span><span class="n">receipt</span><span class="o">.</span><span class="n">proof_packet</span><span class="o">.</span><span class="n">packet_hash</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">reception_rssi</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">reception_stats</span> <span class="o">+=</span> <span class="s2">&quot; [RSSI &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">reception_rssi</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; dBm]&quot;</span>
+            
+            <span class="k">if</span> <span class="n">reception_snr</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">reception_stats</span> <span class="o">+=</span> <span class="s2">&quot; [SNR &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">reception_snr</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; dB]&quot;</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">receipt</span><span class="o">.</span><span class="n">proof_packet</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">receipt</span><span class="o">.</span><span class="n">proof_packet</span><span class="o">.</span><span class="n">rssi</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">reception_stats</span> <span class="o">+=</span> <span class="s2">&quot; [RSSI &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">receipt</span><span class="o">.</span><span class="n">proof_packet</span><span class="o">.</span><span class="n">rssi</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; dBm]&quot;</span>
+                
+                <span class="k">if</span> <span class="n">receipt</span><span class="o">.</span><span class="n">proof_packet</span><span class="o">.</span><span class="n">snr</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">reception_stats</span> <span class="o">+=</span> <span class="s2">&quot; [SNR &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">receipt</span><span class="o">.</span><span class="n">proof_packet</span><span class="o">.</span><span class="n">snr</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; dB]&quot;</span>
+
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
             <span class="s2">&quot;Valid reply received from &quot;</span><span class="o">+</span>
             <span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">receipt</span><span class="o">.</span><span class="n">destination</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span><span class="o">+</span>
-            <span class="s2">&quot;, round-trip time is &quot;</span><span class="o">+</span><span class="n">rttstring</span>
+            <span class="s2">&quot;, round-trip time is &quot;</span><span class="o">+</span><span class="n">rttstring</span><span class="o">+</span>
+            <span class="n">reception_stats</span>
         <span class="p">)</span>
 
 <span class="c1"># This function is called if a packet times out.</span>

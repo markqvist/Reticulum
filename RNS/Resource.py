@@ -619,8 +619,6 @@ class Resource:
 
             self.receiving_part = False
 
-            # TODO: Remove
-            #if self.outstanding_parts == 0 and self.received_count == self.total_parts:
             if self.received_count == self.total_parts:
                 self.assemble()
             elif self.outstanding_parts == 0:
