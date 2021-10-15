@@ -998,8 +998,11 @@ class Transport:
 
                             elif destination.proof_strategy == RNS.Destination.PROVE_APP:
                                 if destination.callbacks.proof_requested:
-                                    if destination.callbacks.proof_requested(packet):
-                                        packet.prove()
+                                    try:
+                                        if destination.callbacks.proof_requested(packet):
+                                            packet.prove()
+                                    except Exception as e:
+                                        RNS.log("Error while executing proof request callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
             # Handling for proofs and link-request proofs
             elif packet.packet_type == RNS.Packet.PROOF:
@@ -1390,12 +1393,15 @@ class Transport:
 
     @staticmethod
     def path_request_handler(data, packet):
-        if len(data) >= RNS.Identity.TRUNCATED_HASHLENGTH//8:
-            Transport.path_request(
-                data[:RNS.Identity.TRUNCATED_HASHLENGTH//8],
-                Transport.from_local_client(packet),
-                packet.receiving_interface
-            )
+        try:
+            if len(data) >= RNS.Identity.TRUNCATED_HASHLENGTH//8:
+                Transport.path_request(
+                    data[:RNS.Identity.TRUNCATED_HASHLENGTH//8],
+                    Transport.from_local_client(packet),
+                    packet.receiving_interface
+                )
+        except Exception as e:
+            RNS.log("Error while handling path request. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     @staticmethod
     def path_request(destination_hash, is_from_local_client, attached_interface):

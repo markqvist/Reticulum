@@ -407,7 +407,11 @@ class PacketReceipt:
                     self.proof_packet = proof_packet
 
                     if self.callbacks.delivery != None:
-                        self.callbacks.delivery(self)
+                        try:
+                            self.callbacks.delivery(self)
+                        except Exception as e:
+                            RNS.log("Error while executing proof validated callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
+
                     return True
                 else:
                     return False
@@ -425,9 +429,13 @@ class PacketReceipt:
                     self.proved = True
                     self.concluded_at = time.time()
                     self.proof_packet = proof_packet
-                    
+
                     if self.callbacks.delivery != None:
-                        self.callbacks.delivery(self)
+                        try:
+                            self.callbacks.delivery(self)
+                        except Exception as e:
+                            RNS.log("Error while executing proof validated callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                            
                     return True
             else:
                 return False

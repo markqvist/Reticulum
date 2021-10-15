@@ -123,7 +123,10 @@ class Resource:
 
             RNS.log("Accepting resource advertisement for "+RNS.prettyhexrep(resource.hash), RNS.LOG_DEBUG)
             if resource.link.callbacks.resource_started != None:
-                resource.link.callbacks.resource_started(resource)
+                try:
+                    resource.link.callbacks.resource_started(resource)
+                except Exception as e:
+                    RNS.log("Error while executing resource started callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
             resource.hashmap_update(0, resource.hashmap_raw)
 
@@ -506,7 +509,10 @@ class Resource:
             if self.segment_index == self.total_segments:
                 if self.callback != None:
                     self.data = open(self.storagepath, "rb")
-                    self.callback(self)
+                    try:
+                        self.callback(self)
+                    except Exception as e:
+                        RNS.log("Error while executing resource assembled callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
                 try:
                     self.data.close()
@@ -540,7 +546,10 @@ class Resource:
                         # If all segments were processed, we'll
                         # signal that the resource sending concluded
                         if self.callback != None:
-                            self.callback(self)
+                            try:
+                                self.callback(self)
+                            except Exception as e:
+                                RNS.log("Error while executing resource concluded callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
                     else:
                         # Otherwise we'll recursively create the
                         # next segment of the resource
@@ -596,7 +605,10 @@ class Resource:
                             cp += 1
 
                         if self.__progress_callback != None:
-                            self.__progress_callback(self)
+                            try:
+                                self.__progress_callback(self)
+                            except Exception as e:
+                                RNS.log("Error while executing progress callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
                         # TODO: Remove debug info
                         # RNS.log("outstanding_parts "+str(self.outstanding_parts))
@@ -754,7 +766,10 @@ class Resource:
                 self.status = Resource.AWAITING_PROOF
 
             if self.__progress_callback != None:
-                self.__progress_callback(self)
+                try:
+                    self.__progress_callback(self)
+                except Exception as e:
+                    RNS.log("Error while executing progress callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     def cancel(self):
         """
@@ -774,8 +789,11 @@ class Resource:
                 self.link.cancel_incoming_resource(self)
             
             if self.callback != None:
-                self.link.resource_concluded(self)
-                self.callback(self)
+                try:
+                    self.link.resource_concluded(self)
+                    self.callback(self)
+                except Exception as e:
+                    RNS.log("Error while executing callbacks on resource cancel from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     def set_callback(self, callback):
         self.callback = callback

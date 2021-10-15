@@ -425,7 +425,11 @@ class Link:
                     self.destination.links.remove(self)
 
         if self.callbacks.link_closed != None:
-            self.callbacks.link_closed(self)
+            try:
+                self.callbacks.link_closed(self)
+            except Exception as e:
+                RNS.log("Error while executing link closed callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+
 
     def start_watchdog(self):
         thread = threading.Thread(target=self.__watchdog_job)
@@ -598,7 +602,10 @@ class Link:
 
                         elif self.destination.proof_strategy == RNS.Destination.PROVE_APP:
                             if self.destination.callbacks.proof_requested:
-                                self.destination.callbacks.proof_requested(packet)
+                                try:
+                                    self.destination.callbacks.proof_requested(packet)
+                                except Exception as e:
+                                    RNS.log("Error while executing proof request callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
                     elif packet.context == RNS.Packet.LINKIDENTIFY:
                         plaintext = self.decrypt(packet.data)
@@ -613,7 +620,10 @@ class Link:
                             if identity.validate(signature, signed_data):
                                 self.__remote_identity = identity
                                 if self.callbacks.remote_identified != None:
-                                    self.callbacks.remote_identified(self.__remote_identity)
+                                    try:
+                                        self.callbacks.remote_identified(self.__remote_identity)
+                                    except Exception as e:
+                                        RNS.log("Error while executing remote identified callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
                     elif packet.context == RNS.Packet.REQUEST:
                         try:
@@ -659,8 +669,11 @@ class Link:
                             pass
                         elif self.resource_strategy == Link.ACCEPT_APP:
                             if self.callbacks.resource != None:
-                                if self.callbacks.resource(resource):
-                                    RNS.Resource.accept(packet, self.callbacks.resource_concluded)
+                                try:
+                                    if self.callbacks.resource(resource):
+                                        RNS.Resource.accept(packet, self.callbacks.resource_concluded)
+                                except Exception as e:
+                                    RNS.log("Error while executing resource accept callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
                         elif self.resource_strategy == Link.ACCEPT_ALL:
                             RNS.Resource.accept(packet, self.callbacks.resource_concluded)
 
@@ -933,7 +946,10 @@ class RequestReceipt():
             self.link.pending_requests.remove(self)
 
             if self.callbacks.failed != None:
-                self.callbacks.failed(self)
+                try:
+                    self.callbacks.failed(self)
+                except Exception as e:
+                    RNS.log("Error while executing request failed callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
 
     def __response_timeout_job(self):
@@ -951,7 +967,10 @@ class RequestReceipt():
         self.link.pending_requests.remove(self)
 
         if self.callbacks.failed != None:
-            self.callbacks.failed(self)
+            try:
+                self.callbacks.failed(self)
+            except Exception as e:
+                RNS.log("Error while executing request timed out callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
 
     def response_resource_progress(self, resource):
@@ -967,7 +986,10 @@ class RequestReceipt():
             self.progress = resource.get_progress()
             
             if self.callbacks.progress != None:
-                self.callbacks.progress(self)
+                try:
+                    self.callbacks.progress(self)
+                except Exception as e:
+                    RNS.log("Error while executing response progress callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
         else:
             resource.cancel()
 
@@ -987,10 +1009,16 @@ class RequestReceipt():
                     self.packet_receipt.callbacks.delivery(self.packet_receipt)
 
             if self.callbacks.progress != None:
-                self.callbacks.progress(self)
+                try:
+                    self.callbacks.progress(self)
+                except Exception as e:
+                    RNS.log("Error while executing response progress callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
             if self.callbacks.response != None:
-                self.callbacks.response(self)
+                try:
+                    self.callbacks.response(self)
+                except Exception as e:
+                    RNS.log("Error while executing response received callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     def get_request_id(self):
         """
