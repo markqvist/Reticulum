@@ -173,8 +173,10 @@ class LocalClientInterface(Interface):
             # to now that all connectivity has been cut
             # while service is recovering. Better for
             # now to take down entire stack.
-            RNS.log("Lost connection to local shared RNS instance. Exiting now.", RNS.LOG_CRITICAL)
-            RNS.panic()
+            if nowarning == False:
+                RNS.log("Lost connection to local shared RNS instance. Exiting now.", RNS.LOG_CRITICAL)
+
+            RNS.exit()
 
 
     def __str__(self):

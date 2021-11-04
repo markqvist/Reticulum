@@ -120,4 +120,5 @@ def panic():
     os._exit(255)
 
 def exit():
+    print("")
     sys.exit(0)
