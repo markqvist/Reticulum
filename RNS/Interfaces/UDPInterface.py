@@ -12,7 +12,7 @@ class UDPInterface(Interface):
     @staticmethod
     def get_address_for_if(name):
         import importlib
-        if importlib.find_loader('netifaces') != None:
+        if importlib.util.find_spec('netifaces') != None:
             import netifaces
             return netifaces.ifaddresses(name)[netifaces.AF_INET][0]['addr']
         else:
@@ -23,7 +23,7 @@ class UDPInterface(Interface):
     @staticmethod
     def get_broadcast_for_if(name):
         import importlib
-        if importlib.find_loader('netifaces') != None:
+        if importlib.util.find_spec('netifaces') != None:
             import netifaces
             return netifaces.ifaddresses(name)[netifaces.AF_INET][0]['broadcast']
         else:
