@@ -2,7 +2,6 @@
 from .Interface import Interface
 from time import sleep
 import sys
-import serial
 import threading
 import time
 import math
@@ -72,6 +71,13 @@ class RNodeInterface(Interface):
     CALLSIGN_MAX_LEN    = 32
 
     def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None):
+        if importlib.util.find_spec('serial') != None:
+            import serial
+        else:
+            RNS.log("Using the RNode interface requires a serial communication module to be installed.", RNS.LOG_CRITICAL)
+            RNS.log("You can install one with the command: python3 -m pip install pyserial", RNS.LOG_CRITICAL)
+            RNS.panic()
+
         self.rxb = 0
         self.txb = 0
         

@@ -1,7 +1,6 @@
 from .Interface import Interface
 from time import sleep
 import sys
-import serial
 import threading
 import time
 import RNS
@@ -40,6 +39,13 @@ class KISSInterface(Interface):
     serial   = None
 
     def __init__(self, owner, name, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime, flow_control, beacon_interval, beacon_data):
+        if importlib.util.find_spec('serial') != None:
+            import serial
+        else:
+            RNS.log("Using the KISS interface requires a serial communication module to be installed.", RNS.LOG_CRITICAL)
+            RNS.log("You can install one with the command: python3 -m pip install pyserial", RNS.LOG_CRITICAL)
+            RNS.panic()
+
         self.rxb = 0
         self.txb = 0
         
