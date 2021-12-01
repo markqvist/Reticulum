@@ -39,6 +39,7 @@ class KISSInterface(Interface):
     serial   = None
 
     def __init__(self, owner, name, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime, flow_control, beacon_interval, beacon_data):
+        import importlib
         if importlib.util.find_spec('serial') != None:
             import serial
         else:

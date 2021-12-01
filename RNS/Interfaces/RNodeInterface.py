@@ -71,6 +71,7 @@ class RNodeInterface(Interface):
     CALLSIGN_MAX_LEN    = 32
 
     def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None):
+        import importlib
         if importlib.util.find_spec('serial') != None:
             import serial
         else:

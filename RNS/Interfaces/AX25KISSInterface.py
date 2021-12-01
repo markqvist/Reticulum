@@ -47,6 +47,7 @@ class AX25KISSInterface(Interface):
     serial   = None
 
     def __init__(self, owner, name, callsign, ssid, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime, flow_control):
+        import importlib
         if importlib.util.find_spec('serial') != None:
             import serial
         else:
