@@ -67,6 +67,10 @@ def loglevelname(level):
 def version():
     return __version__
 
+def host_os():
+    from .vendor.platformutils import get_platform
+    return get_platform()
+
 def log(msg, level=3, _override_destination = False):
     global _always_override_destination
     

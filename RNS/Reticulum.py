@@ -1,8 +1,14 @@
-from .Interfaces import *
+from .vendor.platformutils import get_platform
+
+if get_platform() == "android":
+    # TODO: Selectively import Android-relevant interfaces
+    pass
+else:
+    from .Interfaces import *
+
 from .vendor.configobj import ConfigObj
 import configparser
 import multiprocessing.connection
-import RNS
 import signal
 import threading
 import atexit
