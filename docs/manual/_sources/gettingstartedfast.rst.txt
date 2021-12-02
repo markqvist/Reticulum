@@ -77,6 +77,13 @@ The above command will install Reticulum and dependencies, and you will be
 ready to import and use RNS in your own programs. The next step will most
 likely be to look at some :ref:`Example Programs<examples-main>`.
 
+For extended functionality, you can install optional dependencies:
+
+.. code::
+
+   pip3 install pyserial netifaces
+
+
 Further information can be found in the :ref:`API Reference<api-main>`.
 
 

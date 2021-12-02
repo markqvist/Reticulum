@@ -82,9 +82,8 @@ Reticulum implements a range of generalised interface types that covers most of 
    - i²c
 
 ## Dependencies:
- - Python 3
+ - Python 3.6
  - cryptography.io
- - pyserial
 
 ## How do I get started?
 The best way to get started with the Reticulum Network Stack depends on what
