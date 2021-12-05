@@ -147,6 +147,41 @@ don’t use pip, but try this recipe:</p>
 <p>When you have experimented with the basic examples, it’s time to go read the
 <a class="reference internal" href="understanding.html#understanding-main"><span class="std std-ref">Understanding Reticulum</span></a> chapter.</p>
 </div>
+<div class="section" id="reticulum-on-android">
+<h2>Reticulum on Android<a class="headerlink" href="#reticulum-on-android" title="Permalink to this headline">¶</a></h2>
+<p>Reticulum can be used on Android in different ways. The easiest way to get
+started is using the <a class="reference external" href="https://termux.com/">Termux app</a>, at the time of writing
+available on <a class="reference external" href="https://f-droid.org">F-droid</a>. Termux is a terminal emulator and
+Linux environment for Android based devices, which includes the ability to use
+many different programs and libraries, including Reticulum.</p>
+<p>Since the Python cryptography.io module does not offer pre-built wheels for
+Android, the standard one-line install of Reticulum does not work on Android,
+and a few extra commands are required.</p>
+<p>From within Termux, execute the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># First, make sure indexes and packages are up to date.</span>
+<span class="n">pkg</span> <span class="n">update</span>
+<span class="n">pkg</span> <span class="n">upgrade</span>
+
+    <span class="c1"># Then install dependencies for cryptography library.</span>
+<span class="n">pkg</span> <span class="n">install</span> <span class="n">python</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">openssl</span> <span class="n">libffi</span> <span class="n">rust</span>
+
+    <span class="c1"># Make sure pip is up to date, and install the wheel module.</span>
+<span class="n">pip3</span> <span class="n">install</span> <span class="n">wheel</span> <span class="n">pip</span> <span class="o">--</span><span class="n">upgrade</span>
+
+<span class="c1"># Start the install process for the cryptography module.</span>
+<span class="c1"># Depending on your device, this can take several minutes,</span>
+<span class="c1"># since the module must be compiled locally on your device.</span>
+<span class="n">pip3</span> <span class="n">install</span> <span class="n">cryptography</span>
+
+<span class="c1"># If the above installation succeeds, you can now install</span>
+<span class="c1"># Reticulum and any related software</span>
+<span class="n">pip3</span> <span class="n">install</span> <span class="n">rns</span>
+</pre></div>
+</div>
+<p>It is also possible to include Reticulum in apps compiled and distributed as
+Android APKs. A detailed tutorial and example source code will be included
+here at a later point.</p>
+</div>
 </div>
 
 
@@ -164,6 +199,7 @@ don’t use pip, but try this recipe:</p>
 <li><a class="reference internal" href="#creating-a-network-with-reticulum">Creating a Network With Reticulum</a></li>
 <li><a class="reference internal" href="#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
 <li><a class="reference internal" href="#participate-in-reticulum-development">Participate in Reticulum Development</a></li>
+<li><a class="reference internal" href="#reticulum-on-android">Reticulum on Android</a></li>
 </ul>
 </li>
 </ul>

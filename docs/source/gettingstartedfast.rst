@@ -128,3 +128,43 @@ don't use pip, but try this recipe:
 
 When you have experimented with the basic examples, it's time to go read the
 :ref:`Understanding Reticulum<understanding-main>` chapter.
+
+
+Reticulum on Android
+==============================================
+Reticulum can be used on Android in different ways. The easiest way to get
+started is using the `Termux app <https://termux.com/>`_, at the time of writing
+available on `F-droid <https://f-droid.org>`_. Termux is a terminal emulator and
+Linux environment for Android based devices, which includes the ability to use
+many different programs and libraries, including Reticulum.
+
+Since the Python cryptography.io module does not offer pre-built wheels for
+Android, the standard one-line install of Reticulum does not work on Android,
+and a few extra commands are required.
+
+From within Termux, execute the following:
+
+.. code::
+
+    # First, make sure indexes and packages are up to date.
+    pkg update
+    pkg upgrade
+
+	# Then install dependencies for cryptography library.
+    pkg install python build-essential openssl libffi rust
+
+	# Make sure pip is up to date, and install the wheel module.
+    pip3 install wheel pip --upgrade
+
+    # Start the install process for the cryptography module.
+    # Depending on your device, this can take several minutes,
+    # since the module must be compiled locally on your device.
+    pip3 install cryptography
+
+    # If the above installation succeeds, you can now install
+    # Reticulum and any related software
+    pip3 install rns
+
+It is also possible to include Reticulum in apps compiled and distributed as
+Android APKs. A detailed tutorial and example source code will be included
+here at a later point.
