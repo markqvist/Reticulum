@@ -152,10 +152,10 @@ From within Termux, execute the following:
     pkg update
     pkg upgrade
 
-	# Then install dependencies for cryptography library.
+    # Then install dependencies for cryptography library.
     pkg install python build-essential openssl libffi rust
 
-	# Make sure pip is up to date, and install the wheel module.
+    # Make sure pip is up to date, and install the wheel module.
     pip3 install wheel pip --upgrade
 
     # Start the install process for the cryptography module.
