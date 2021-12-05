@@ -134,9 +134,11 @@ Reticulum on Android
 ==============================================
 Reticulum can be used on Android in different ways. The easiest way to get
 started is using the `Termux app <https://termux.com/>`_, at the time of writing
-available on `F-droid <https://f-droid.org>`_. Termux is a terminal emulator and
-Linux environment for Android based devices, which includes the ability to use
-many different programs and libraries, including Reticulum.
+available on `F-droid <https://f-droid.org>`_.
+
+Termux is a terminal emulator and Linux environment for Android based devices,
+which includes the ability to use many different programs and libraries,
+including Reticulum.
 
 Since the Python cryptography.io module does not offer pre-built wheels for
 Android, the standard one-line install of Reticulum does not work on Android,
