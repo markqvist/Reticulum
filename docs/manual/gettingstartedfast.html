@@ -151,9 +151,10 @@ don’t use pip, but try this recipe:</p>
 <h2>Reticulum on Android<a class="headerlink" href="#reticulum-on-android" title="Permalink to this headline">¶</a></h2>
 <p>Reticulum can be used on Android in different ways. The easiest way to get
 started is using the <a class="reference external" href="https://termux.com/">Termux app</a>, at the time of writing
-available on <a class="reference external" href="https://f-droid.org">F-droid</a>. Termux is a terminal emulator and
-Linux environment for Android based devices, which includes the ability to use
-many different programs and libraries, including Reticulum.</p>
+available on <a class="reference external" href="https://f-droid.org">F-droid</a>.</p>
+<p>Termux is a terminal emulator and Linux environment for Android based devices,
+which includes the ability to use many different programs and libraries,
+including Reticulum.</p>
 <p>Since the Python cryptography.io module does not offer pre-built wheels for
 Android, the standard one-line install of Reticulum does not work on Android,
 and a few extra commands are required.</p>
@@ -162,10 +163,10 @@ and a few extra commands are required.</p>
 <span class="n">pkg</span> <span class="n">update</span>
 <span class="n">pkg</span> <span class="n">upgrade</span>
 
-    <span class="c1"># Then install dependencies for cryptography library.</span>
+<span class="c1"># Then install dependencies for cryptography library.</span>
 <span class="n">pkg</span> <span class="n">install</span> <span class="n">python</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">openssl</span> <span class="n">libffi</span> <span class="n">rust</span>
 
-    <span class="c1"># Make sure pip is up to date, and install the wheel module.</span>
+<span class="c1"># Make sure pip is up to date, and install the wheel module.</span>
 <span class="n">pip3</span> <span class="n">install</span> <span class="n">wheel</span> <span class="n">pip</span> <span class="o">--</span><span class="n">upgrade</span>
 
 <span class="c1"># Start the install process for the cryptography module.</span>
