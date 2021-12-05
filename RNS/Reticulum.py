@@ -101,6 +101,12 @@ class Reticulum:
         RNS.exit()
 
 
+    @staticmethod
+    def sigterm_handler(signal, frame):
+        RNS.Transport.detach_interfaces()
+        RNS.exit()
+
+
     def __init__(self,configdir=None, loglevel=None):
         """
         Initialises and starts a Reticulum instance. This must be
@@ -182,6 +188,7 @@ class Reticulum:
 
         atexit.register(Reticulum.exit_handler)
         signal.signal(signal.SIGINT, Reticulum.sigint_handler)
+        signal.signal(signal.SIGTERM, Reticulum.sigterm_handler)
 
     def __start_local_interface(self):
         if self.share_instance:

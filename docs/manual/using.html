@@ -184,6 +184,79 @@ optional arguments:
 </div>
 </div>
 </div>
+<div class="section" id="improving-system-configuration">
+<h2>Improving System Configuration<a class="headerlink" href="#improving-system-configuration" title="Permalink to this headline">¶</a></h2>
+<p>If you are setting up a system for permanent use with Reticulum, there is a
+few system configuration changes that can make this easier to administrate.
+These changes will be detailed here.</p>
+<div class="section" id="fixed-serial-port-names">
+<h3>Fixed Serial Port Names<a class="headerlink" href="#fixed-serial-port-names" title="Permalink to this headline">¶</a></h3>
+<p>On a Reticulum node with several serial port based interfaces, it can be
+beneficial to use the fixed name device nodes for the serial ports, instead
+of the dynamically allocated shorthands such as <code class="docutils literal notranslate"><span class="pre">/dev/ttyUSB0</span></code>. Under most
+Debian-based distributions, including Ubuntu and Raspberry Pi OS, these nodes
+can be found under <code class="docutils literal notranslate"><span class="pre">/dev/serial/by-id</span></code>.</p>
+<p>You can use such a device path directly in place of the numbered shorthands.
+Here is an example of a packet radio TNC configured as such:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[[Packet Radio KISS Interface]]
+  type = KISSInterface
+  interface_enabled = True
+  outgoing = true
+  port = /dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_43891CKM-if00-port0
+  speed = 115200
+  databits = 8
+  parity = none
+  stopbits = 1
+  preamble = 150
+  txtail = 10
+  persistence = 200
+  slottime = 20
+</pre></div>
+</div>
+<p>Using this methodology avoids potential naming mix-ups where physical devices
+might be plugged and unplugged in different orders, or when node name
+assignment varies from one boot to another.</p>
+</div>
+<div class="section" id="run-reticulum-as-a-service">
+<h3>Run Reticulum as a Service<a class="headerlink" href="#run-reticulum-as-a-service" title="Permalink to this headline">¶</a></h3>
+<p>Instead of starting Reticulum manually, you can install <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> as a system
+service and have it start automatically at boot.</p>
+<p>If you installed Reticulum with <code class="docutils literal notranslate"><span class="pre">pip</span></code>, the <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> program will most likely
+be located in a user-local installation path only, which means <code class="docutils literal notranslate"><span class="pre">systemd</span></code> will not
+be able to execute it. In this case, you can simply symlink the <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> program
+into a directory that is in systemd’s path:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo ln -s $(which rnsd) /usr/local/bin/
+</pre></div>
+</div>
+<p>You can then create the service file <code class="docutils literal notranslate"><span class="pre">/etc/systemd/system/rnsd.service</span></code> with the
+following content:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[Unit]
+Description=Reticulum Network Stack Daemon
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+User=USERNAMEHERE
+ExecStart=rnsd --service
+
+[Install]
+WantedBy=multi-user.target
+</pre></div>
+</div>
+<p>Be sure to replace <code class="docutils literal notranslate"><span class="pre">USERNAMEHERE</span></code> with the user you want to run <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> as.</p>
+<p>To manually start <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo systemctl start rnsd
+</pre></div>
+</div>
+<p>If you want to automatically start <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> at boot, run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo systemctl enable rnsd
+</pre></div>
+</div>
+</div>
+</div>
 </div>
 
 
@@ -201,6 +274,11 @@ optional arguments:
 <li><a class="reference internal" href="#the-rnstatus-utility">The rnstatus Utility</a></li>
 <li><a class="reference internal" href="#the-rnpath-utility">The rnpath Utility</a></li>
 <li><a class="reference internal" href="#the-rnprobe-utility">The rnprobe Utility</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#improving-system-configuration">Improving System Configuration</a><ul>
+<li><a class="reference internal" href="#fixed-serial-port-names">Fixed Serial Port Names</a></li>
+<li><a class="reference internal" href="#run-reticulum-as-a-service">Run Reticulum as a Service</a></li>
 </ul>
 </li>
 </ul>

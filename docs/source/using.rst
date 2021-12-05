@@ -163,3 +163,94 @@ destinations will not have this option enabled, and will not be probable.
     --config CONFIG   path to alternative Reticulum config directory
     --version         show program's version number and exit
     -v, --verbose
+
+
+Improving System Configuration
+------------------------------
+
+If you are setting up a system for permanent use with Reticulum, there is a
+few system configuration changes that can make this easier to administrate.
+These changes will be detailed here.
+
+
+Fixed Serial Port Names
+=======================
+
+On a Reticulum node with several serial port based interfaces, it can be
+beneficial to use the fixed name device nodes for the serial ports, instead
+of the dynamically allocated shorthands such as ``/dev/ttyUSB0``. Under most
+Debian-based distributions, including Ubuntu and Raspberry Pi OS, these nodes
+can be found under ``/dev/serial/by-id``.
+
+You can use such a device path directly in place of the numbered shorthands.
+Here is an example of a packet radio TNC configured as such:
+
+.. code:: text
+
+  [[Packet Radio KISS Interface]]
+    type = KISSInterface
+    interface_enabled = True
+    outgoing = true
+    port = /dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_43891CKM-if00-port0
+    speed = 115200    
+    databits = 8
+    parity = none
+    stopbits = 1
+    preamble = 150
+    txtail = 10
+    persistence = 200
+    slottime = 20
+
+Using this methodology avoids potential naming mix-ups where physical devices
+might be plugged and unplugged in different orders, or when node name
+assignment varies from one boot to another.
+
+
+Run Reticulum as a Service
+==========================
+
+Instead of starting Reticulum manually, you can install ``rnsd`` as a system
+service and have it start automatically at boot.
+
+If you installed Reticulum with ``pip``, the ``rnsd`` program will most likely
+be located in a user-local installation path only, which means ``systemd`` will not
+be able to execute it. In this case, you can simply symlink the ``rnsd`` program
+into a directory that is in systemd's path:
+
+.. code:: text
+
+  sudo ln -s $(which rnsd) /usr/local/bin/
+
+You can then create the service file ``/etc/systemd/system/rnsd.service`` with the
+following content:
+
+.. code:: text
+
+  [Unit]
+  Description=Reticulum Network Stack Daemon
+  After=network.target
+  StartLimitIntervalSec=0
+
+  [Service]
+  Type=simple
+  Restart=always
+  RestartSec=3
+  User=USERNAMEHERE
+  ExecStart=rnsd --service
+
+  [Install]
+  WantedBy=multi-user.target
+
+Be sure to replace ``USERNAMEHERE`` with the user you want to run ``rnsd`` as.
+
+To manually start ``rnsd`` run:
+
+.. code:: text
+
+  sudo systemctl start rnsd
+
+If you want to automatically start ``rnsd`` at boot, run:
+
+.. code:: text
+
+  sudo systemctl enable rnsd
