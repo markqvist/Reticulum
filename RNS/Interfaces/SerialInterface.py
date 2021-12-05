@@ -41,6 +41,7 @@ class SerialInterface(Interface):
         self.rxb = 0
         self.txb = 0
         
+        self.pyserial = serial
         self.serial   = None
         self.owner    = owner
         self.name     = name
@@ -59,33 +60,41 @@ class SerialInterface(Interface):
             self.parity = serial.PARITY_ODD
 
         try:
-            RNS.log("Opening serial port "+self.port+"...")
-            self.serial = serial.Serial(
-                port = self.port,
-                baudrate = self.speed,
-                bytesize = self.databits,
-                parity = self.parity,
-                stopbits = self.stopbits,
-                xonxoff = False,
-                rtscts = False,
-                timeout = 0,
-                inter_byte_timeout = None,
-                write_timeout = None,
-                dsrdtr = False,
-            )
+            self.open_port()
         except Exception as e:
             RNS.log("Could not open serial port for interface "+str(self), RNS.LOG_ERROR)
             raise e
 
         if self.serial.is_open:
-            sleep(0.5)
-            thread = threading.Thread(target=self.readLoop)
-            thread.setDaemon(True)
-            thread.start()
-            self.online = True
-            RNS.log("Serial port "+self.port+" is now open")
+            self.configure_device()
         else:
             raise IOError("Could not open serial port")
+
+
+    def open_port(self):
+        RNS.log("Opening serial port "+self.port+"...", RNS.LOG_VERBOSE)
+        self.serial = self.pyserial.Serial(
+            port = self.port,
+            baudrate = self.speed,
+            bytesize = self.databits,
+            parity = self.parity,
+            stopbits = self.stopbits,
+            xonxoff = False,
+            rtscts = False,
+            timeout = 0,
+            inter_byte_timeout = None,
+            write_timeout = None,
+            dsrdtr = False,
+        )
+
+
+    def configure_device(self):
+        sleep(0.5)
+        thread = threading.Thread(target=self.readLoop)
+        thread.setDaemon(True)
+        thread.start()
+        self.online = True
+        RNS.log("Serial port "+self.port+" is now open")
 
 
     def processIncoming(self, data):
@@ -139,13 +148,33 @@ class SerialInterface(Interface):
                         in_frame = False
                         escape = False
                     sleep(0.08)
+                    
         except Exception as e:
             self.online = False
             RNS.log("A serial port error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
-
+            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
+            
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
+
+            RNS.log("Reticulum will attempt to reconnect the interface periodically.", RNS.LOG_ERROR)
+
+        self.online = False
+        self.serial.close()
+        self.reconnect_port()
+
+    def reconnect_port(self):
+        while not self.online:
+            try:
+                time.sleep(5)
+                RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
+                self.open_port()
+                if self.serial.is_open:
+                    self.configure_device()
+            except Exception as e:
+                RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
+
+        RNS.log("Reconnected serial port for "+str(self))
 
     def __str__(self):
         return "SerialInterface["+self.name+"]"

@@ -98,7 +98,7 @@ class KISSInterface(Interface):
 
 
     def open_port(self):
-        RNS.log("Opening serial port "+self.port+"...")
+        RNS.log("Opening serial port "+self.port+"...", RNS.LOG_VERBOSE)
         self.serial = self.pyserial.Serial(
             port = self.port,
             baudrate = self.speed,
@@ -299,10 +299,12 @@ class KISSInterface(Interface):
         except Exception as e:
             self.online = False
             RNS.log("A serial port error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
-
+            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
+            
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
+
+            RNS.log("Reticulum will attempt to reconnect the interface periodically.", RNS.LOG_ERROR)
 
         self.online = False
         self.serial.close()
@@ -312,12 +314,14 @@ class KISSInterface(Interface):
         while not self.online:
             try:
                 time.sleep(5)
-                RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...")
+                RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
                 self.open_port()
                 if self.serial.is_open:
                     self.configure_device()
             except Exception as e:
                 RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
+
+        RNS.log("Reconnected serial port for "+str(self))
 
     def __str__(self):
         return "KISSInterface["+self.name+"]"
