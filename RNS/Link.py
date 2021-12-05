@@ -45,11 +45,7 @@ class Link:
 
     MDU = math.floor((RNS.Reticulum.MTU-RNS.Reticulum.HEADER_MINSIZE-RNS.Identity.FERNET_OVERHEAD)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
 
-    # This value is set at a reasonable level for a 1 Kb/s channel.
-    #
-    # TODO: Find a way to automatically raise or lower this according to
-    # channel bandwidth and utilisation.
-    ESTABLISHMENT_TIMEOUT_PER_HOP = 5
+    ESTABLISHMENT_TIMEOUT_PER_HOP = RNS.Reticulum.DEFAULT_PER_HOP_TIMEOUT
     """
     Default timeout for link establishment in seconds per hop to destination.
     """

@@ -75,9 +75,7 @@ class Packet:
     The maximum size of the payload data in a single unencrypted packet 
     """
 
-    # This value is set at a reasonable
-    # level for a 1 Kb/s channel.
-    TIMEOUT_PER_HOP = 5
+    TIMEOUT_PER_HOP = RNS.Reticulum.DEFAULT_PER_HOP_TIMEOUT
 
     def __init__(self, destination, data, packet_type = DATA, context = NONE, transport_type = RNS.Transport.BROADCAST, header_type = HEADER_1, transport_id = None, attached_interface = None, create_receipt = True):
         if destination != None:

@@ -59,6 +59,14 @@ class Reticulum:
     the default value.
     """
 
+    # TODO: To reach the 300bps level without unreasonably impacting
+    # performance on faster links, we need a mechanism for setting
+    # this value more intelligently. One option could be inferring it
+    # from interface speed, but a better general approach would most
+    # probably be to let Reticulum somehow continously build a map of
+    # per-hop latencies and use this map for the timeout calculation. 
+    DEFAULT_PER_HOP_TIMEOUT = 5
+
     # Length of truncated hashes in bits.
     TRUNCATED_HASHLENGTH = 80
 
