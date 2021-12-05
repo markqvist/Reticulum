@@ -206,8 +206,8 @@ might be plugged and unplugged in different orders, or when node name
 assignment varies from one boot to another.
 
 
-Run Reticulum as a Service
-==========================
+Reticulum as a System Service
+=============================
 
 Instead of starting Reticulum manually, you can install ``rnsd`` as a system
 service and have it start automatically at boot.
