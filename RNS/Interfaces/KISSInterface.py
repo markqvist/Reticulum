@@ -53,6 +53,7 @@ class KISSInterface(Interface):
         if beacon_data == None:
             beacon_data = ""
 
+        self.pyserial = serial
         self.serial   = None
         self.owner    = owner
         self.name     = name
@@ -85,42 +86,50 @@ class KISSInterface(Interface):
             self.parity = serial.PARITY_ODD
 
         try:
-            RNS.log("Opening serial port "+self.port+"...")
-            self.serial = serial.Serial(
-                port = self.port,
-                baudrate = self.speed,
-                bytesize = self.databits,
-                parity = self.parity,
-                stopbits = self.stopbits,
-                xonxoff = False,
-                rtscts = False,
-                timeout = 0,
-                inter_byte_timeout = None,
-                write_timeout = None,
-                dsrdtr = False,
-            )
+            self.open_port()
         except Exception as e:
             RNS.log("Could not open serial port "+self.port, RNS.LOG_ERROR)
             raise e
 
         if self.serial.is_open:
-            # Allow time for interface to initialise before config
-            sleep(2.0)
-            thread = threading.Thread(target=self.readLoop)
-            thread.setDaemon(True)
-            thread.start()
-            self.online = True
-            RNS.log("Serial port "+self.port+" is now open")
-            RNS.log("Configuring KISS interface parameters...")
-            self.setPreamble(self.preamble)
-            self.setTxTail(self.txtail)
-            self.setPersistence(self.persistence)
-            self.setSlotTime(self.slottime)
-            self.setFlowControl(self.flow_control)
-            self.interface_ready = True
-            RNS.log("KISS interface configured")
+            self.configure_device()
         else:
             raise IOError("Could not open serial port")
+
+
+    def open_port(self):
+        RNS.log("Opening serial port "+self.port+"...")
+        self.serial = self.pyserial.Serial(
+            port = self.port,
+            baudrate = self.speed,
+            bytesize = self.databits,
+            parity = self.parity,
+            stopbits = self.stopbits,
+            xonxoff = False,
+            rtscts = False,
+            timeout = 0,
+            inter_byte_timeout = None,
+            write_timeout = None,
+            dsrdtr = False,
+        )
+
+
+    def configure_device(self):
+        # Allow time for interface to initialise before config
+        sleep(2.0)
+        thread = threading.Thread(target=self.readLoop)
+        thread.setDaemon(True)
+        thread.start()
+        self.online = True
+        RNS.log("Serial port "+self.port+" is now open")
+        RNS.log("Configuring KISS interface parameters...")
+        self.setPreamble(self.preamble)
+        self.setTxTail(self.txtail)
+        self.setPersistence(self.persistence)
+        self.setSlotTime(self.slottime)
+        self.setFlowControl(self.flow_control)
+        self.interface_ready = True
+        RNS.log("KISS interface configured")
 
 
     def setPreamble(self, preamble):
@@ -294,6 +303,21 @@ class KISSInterface(Interface):
 
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
+
+        self.online = False
+        self.serial.close()
+        self.reconnect_port()
+
+    def reconnect_port(self):
+        while not self.online:
+            try:
+                time.sleep(5)
+                RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...")
+                self.open_port()
+                if self.serial.is_open:
+                    self.configure_device()
+            except Exception as e:
+                RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
     def __str__(self):
         return "KISSInterface["+self.name+"]"
