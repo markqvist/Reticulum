@@ -19,6 +19,20 @@ class HDLC():
         data = data.replace(bytes([HDLC.FLAG]), bytes([HDLC.ESC, HDLC.FLAG^HDLC.ESC_MASK]))
         return data
 
+class KISS():
+    FEND              = 0xC0
+    FESC              = 0xDB
+    TFEND             = 0xDC
+    TFESC             = 0xDD
+    CMD_DATA          = 0x00
+    CMD_UNKNOWN       = 0xFE
+
+    @staticmethod
+    def escape(data):
+        data = data.replace(bytes([0xdb]), bytes([0xdb, 0xdd]))
+        data = data.replace(bytes([0xc0]), bytes([0xdb, 0xdc]))
+        return data
+
 class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
@@ -32,7 +46,7 @@ class TCPClientInterface(Interface):
     TCP_PROBE_INTERVAL = 3
     TCP_PROBES = 5
 
-    def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None, max_reconnect_tries=None):
+    def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None, max_reconnect_tries=None, kiss_framing=False):
         self.rxb = 0
         self.txb = 0
         
@@ -48,6 +62,7 @@ class TCPClientInterface(Interface):
         self.writing          = False
         self.online           = False
         self.detached         = False
+        self.kiss_framing     = kiss_framing
 
         if max_reconnect_tries == None:
             self.max_reconnect_tries = TCPClientInterface.RECONNECT_MAX_TRIES
@@ -79,7 +94,8 @@ class TCPClientInterface(Interface):
                 thread = threading.Thread(target=self.read_loop)
                 thread.setDaemon(True)
                 thread.start()
-                self.wants_tunnel = True
+                if not self.kiss_framing:
+                    self.wants_tunnel = True
 
 
     def set_timeouts_linux(self):
@@ -172,7 +188,8 @@ class TCPClientInterface(Interface):
                 thread = threading.Thread(target=self.read_loop)
                 thread.setDaemon(True)
                 thread.start()
-                RNS.Transport.synthesize_tunnel(self)
+                if not self.kiss_framing:
+                    RNS.Transport.synthesize_tunnel(self)
 
         else:
             RNS.log("Attempt to reconnect on a non-initiator TCP interface. This should not happen.", RNS.LOG_ERROR)
@@ -192,7 +209,12 @@ class TCPClientInterface(Interface):
 
             try:
                 self.writing = True
-                data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
+
+                if self.kiss_framing:
+                    data = bytes([KISS.FEND])+bytes([KISS.CMD_DATA])+KISS.escape(data)+bytes([KISS.FEND])
+                else:
+                    data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
+
                 self.socket.sendall(data)
                 self.writing = False
                 self.txb += len(data)
@@ -210,6 +232,7 @@ class TCPClientInterface(Interface):
             in_frame = False
             escape = False
             data_buffer = b""
+            command = KISS.CMD_UNKNOWN
 
             while True:
                 data_in = self.socket.recv(4096)
@@ -218,23 +241,53 @@ class TCPClientInterface(Interface):
                     while pointer < len(data_in):
                         byte = data_in[pointer]
                         pointer += 1
-                        if (in_frame and byte == HDLC.FLAG):
-                            in_frame = False
-                            self.processIncoming(data_buffer)
-                        elif (byte == HDLC.FLAG):
-                            in_frame = True
-                            data_buffer = b""
-                        elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
-                            if (byte == HDLC.ESC):
-                                escape = True
-                            else:
-                                if (escape):
-                                    if (byte == HDLC.FLAG ^ HDLC.ESC_MASK):
-                                        byte = HDLC.FLAG
-                                    if (byte == HDLC.ESC  ^ HDLC.ESC_MASK):
-                                        byte = HDLC.ESC
-                                    escape = False
-                                data_buffer = data_buffer+bytes([byte])
+
+                        if self.kiss_framing:
+                            # Read loop for KISS framing
+                            if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
+                                in_frame = False
+                                self.processIncoming(data_buffer)
+                            elif (byte == KISS.FEND):
+                                in_frame = True
+                                command = KISS.CMD_UNKNOWN
+                                data_buffer = b""
+                            elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
+                                if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
+                                    # We only support one HDLC port for now, so
+                                    # strip off the port nibble
+                                    byte = byte & 0x0F
+                                    command = byte
+                                elif (command == KISS.CMD_DATA):
+                                    if (byte == KISS.FESC):
+                                        escape = True
+                                    else:
+                                        if (escape):
+                                            if (byte == KISS.TFEND):
+                                                byte = KISS.FEND
+                                            if (byte == KISS.TFESC):
+                                                byte = KISS.FESC
+                                            escape = False
+                                        data_buffer = data_buffer+bytes([byte])
+
+                        else:
+                            # Read loop for HDLC framing
+                            if (in_frame and byte == HDLC.FLAG):
+                                in_frame = False
+                                self.processIncoming(data_buffer)
+                            elif (byte == HDLC.FLAG):
+                                in_frame = True
+                                data_buffer = b""
+                            elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
+                                if (byte == HDLC.ESC):
+                                    escape = True
+                                else:
+                                    if (escape):
+                                        if (byte == HDLC.FLAG ^ HDLC.ESC_MASK):
+                                            byte = HDLC.FLAG
+                                        if (byte == HDLC.ESC  ^ HDLC.ESC_MASK):
+                                            byte = HDLC.ESC
+                                        escape = False
+                                    data_buffer = data_buffer+bytes([byte])
                 else:
                     self.online = False
                     if self.initiator and not self.detached:

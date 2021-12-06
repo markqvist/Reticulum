@@ -333,11 +333,16 @@ class Reticulum:
 
 
                             if c["type"] == "TCPClientInterface":
+                                kiss_framing = False
+                                if "kiss_framing" in c and c.as_bool("kiss_framing") == True:
+                                    kiss_framing = True
+
                                 interface = TCPInterface.TCPClientInterface(
                                     RNS.Transport,
                                     name,
                                     c["target_host"],
-                                    int(c["target_port"])
+                                    int(c["target_port"]),
+                                    kiss_framing = kiss_framing
                                 )
 
                                 if "outgoing" in c and c.as_bool("outgoing") == True:
