@@ -107,6 +107,8 @@ pre-existing LAN.</p>
   <span class="c1"># forward_port = 4242</span>
 </pre></div>
 </div>
+<p><em>Please Note!</em> If you use the <code class="docutils literal notranslate"><span class="pre">device</span></code> option, you will need the Python module
+<code class="docutils literal notranslate"><span class="pre">netifaces</span></code> installed on your system. You can install it with <code class="docutils literal notranslate"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">netifaces</span></code>.</p>
 </div>
 <div class="section" id="tcp-server-interface">
 <span id="interfaces-tcps"></span><h2>TCP Server Interface<a class="headerlink" href="#tcp-server-interface" title="Permalink to this headline">¶</a></h2>
@@ -139,6 +141,8 @@ configured, other Reticulum peers can connect to it with a TCP Client interface.
   <span class="c1"># port = 4242</span>
 </pre></div>
 </div>
+<p><em>Please Note!</em> If you use the <code class="docutils literal notranslate"><span class="pre">device</span></code> option, you will need the Python module
+<code class="docutils literal notranslate"><span class="pre">netifaces</span></code> installed on your system. You can install it with <code class="docutils literal notranslate"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">netifaces</span></code>.</p>
 </div>
 <div class="section" id="tcp-client-interface">
 <span id="interfaces-tcpc"></span><h2>TCP Client Interface<a class="headerlink" href="#tcp-client-interface" title="Permalink to this headline">¶</a></h2>
@@ -156,6 +160,27 @@ same TCP Server interface at the same time.</p>
   <span class="n">target_port</span> <span class="o">=</span> <span class="mi">4242</span>
 </pre></div>
 </div>
+<p>It is also possible to use this interface type to connect via other programs
+or hardware devices that expose a KISS interface on a TCP port, for example
+software-based soundmodems. To do this, use the <code class="docutils literal notranslate"><span class="pre">kiss_framing</span></code> option:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of a TCP Client interface that connects</span>
+<span class="c1"># to a software TNC soundmodem on a KISS over TCP port.</span>
+
+<span class="p">[[</span><span class="n">TCP</span> <span class="n">KISS</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">kiss_framing</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
+  <span class="n">target_port</span> <span class="o">=</span> <span class="mi">8001</span>
+</pre></div>
+</div>
+<p><strong>Caution!</strong> Only use the KISS framing option when connecting to external devices
+and programs like soundmodems and similar over TCP. When using the
+<code class="docutils literal notranslate"><span class="pre">TCPClientInterface</span></code> in conjunction with the <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> you should
+never enable <code class="docutils literal notranslate"><span class="pre">kiss_framing</span></code>, since this will disable internal reliability and
+recovery mechanisms that greatly improves performance over unreliable and
+intermittent TCP links.</p>
 </div>
 <div class="section" id="rnode-lora-interface">
 <span id="interfaces-rnode"></span><h2>RNode LoRa Interface<a class="headerlink" href="#rnode-lora-interface" title="Permalink to this headline">¶</a></h2>

@@ -53,7 +53,7 @@ a look at <a class="reference external" href="https://github.com/markqvist/nomad
 provides a complete encrypted communications suite built with Reticulum.</p>
 <a class="reference external image-reference" href="_images/nomadnet_3.png"><img alt="_images/nomadnet_3.png" src="_images/nomadnet_3.png" /></a>
 <p><a class="reference external" href="https://github.com/markqvist/nomadnet">Nomad Network</a> is a user-facing client
-in the development for the messaging and information-sharing protocol
+for the messaging and information-sharing protocol
 <a class="reference external" href="https://github.com/markqvist/lxmf">LXMF</a>, another project built with Reticulum.</p>
 <p>You can install Nomad Network via pip:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install ...</span>
@@ -79,7 +79,8 @@ network status and connectivity.</p>
 <h2>Creating a Network With Reticulum<a class="headerlink" href="#creating-a-network-with-reticulum" title="Permalink to this headline">¶</a></h2>
 <p>To create a network, you will need to specify one or more <em>interfaces</em> for
 Reticulum to use. This is done in the Reticulum configuration file, which by
-default is located at <code class="docutils literal notranslate"><span class="pre">~/.reticulum/config</span></code>.</p>
+default is located at <code class="docutils literal notranslate"><span class="pre">~/.reticulum/config</span></code>. You can edit this file by hand,
+or use the interactive <code class="docutils literal notranslate"><span class="pre">rnsconfig</span></code> utility.</p>
 <p>When Reticulum is started for the first time, it will create a default
 configuration file, with one active interface. This default interface uses
 your existing ethernet network (if there is one), and only allows you to
@@ -163,7 +164,7 @@ and a few extra commands are required.</p>
 <span class="n">pkg</span> <span class="n">update</span>
 <span class="n">pkg</span> <span class="n">upgrade</span>
 
-<span class="c1"># Then install dependencies for cryptography library.</span>
+<span class="c1"># Then install dependencies for the cryptography library.</span>
 <span class="n">pkg</span> <span class="n">install</span> <span class="n">python</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">openssl</span> <span class="n">libffi</span> <span class="n">rust</span>
 
 <span class="c1"># Make sure pip is up to date, and install the wheel module.</span>

@@ -16,7 +16,7 @@ provides a complete encrypted communications suite built with Reticulum.
     :target: _images/nomadnet_3.png
 
 `Nomad Network <https://github.com/markqvist/nomadnet>`_ is a user-facing client
-in the development for the messaging and information-sharing protocol
+for the messaging and information-sharing protocol
 `LXMF <https://github.com/markqvist/lxmf>`_, another project built with Reticulum.
 
 You can install Nomad Network via pip:
@@ -48,7 +48,8 @@ Creating a Network With Reticulum
 =============================================
 To create a network, you will need to specify one or more *interfaces* for
 Reticulum to use. This is done in the Reticulum configuration file, which by
-default is located at ``~/.reticulum/config``.
+default is located at ``~/.reticulum/config``. You can edit this file by hand,
+or use the interactive ``rnsconfig`` utility. 
 
 When Reticulum is started for the first time, it will create a default
 configuration file, with one active interface. This default interface uses
@@ -152,7 +153,7 @@ From within Termux, execute the following:
     pkg update
     pkg upgrade
 
-    # Then install dependencies for cryptography library.
+    # Then install dependencies for the cryptography library.
     pkg install python build-essential openssl libffi rust
 
     # Make sure pip is up to date, and install the wheel module.

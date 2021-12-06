@@ -100,12 +100,18 @@ it can be easily replicated.</p>
 </li>
 <li><dl class="simple">
 <dt><strong>Very low bandwidth requirements</strong></dt><dd><p>Reticulum should be able to function reliably over links with a transmission capacity as low
-as <em>1,000 bps</em>.</p>
+as <em>500 bps</em>.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt><strong>Encryption by default</strong></dt><dd><p>Reticulum must use encryption by default where possible and applicable.</p>
+<dt><strong>Encryption by default</strong></dt><dd><p>Reticulum must use strong encryption by default for all communication.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Initiator Anonymity</strong></dt><dd><p>It must be possible to communicate over a Reticulum network without revealing any identifying
+information about oneself.</p>
 </dd>
 </dl>
 </li>
@@ -148,7 +154,7 @@ needs to be purchased.</p>
 <p>Reticulum is a networking stack suited for high-latency, low-bandwidth links. Reticulum is at it’s
 core a <em>message oriented</em> system. It is suited for both local point-to-point or point-to-multipoint
 scenarios where alle nodes are within range of each other, as well as scenarios where packets need
-to be transported over multiple hops to reach the recipient.</p>
+to be transported over multiple hops in a complex network to reach the recipient.</p>
 <p>Reticulum does away with the idea of addresses and ports known from IP, TCP and UDP. Instead
 Reticulum uses the singular concept of <em>destinations</em>. Any application using Reticulum as it’s
 networking stack will need to create one or more destinations to receive data, and know the
@@ -156,9 +162,9 @@ destinations it needs to send data to.</p>
 <p>All destinations in Reticulum are represented internally as 10 bytes, derived from truncating a full
 SHA-256 hash of identifying characteristics of the destination. To users, the destination addresses
 will be displayed as 10 bytes in hexadecimal representation, as in the following example: <code class="docutils literal notranslate"><span class="pre">&lt;80e29bf7cccaf31431b3&gt;</span></code>.</p>
-<p>By default Reticulum encrypts all data using public-key cryptography. Any message sent to a
-destination is encrypted with that destinations public key. Reticulum can also set up an encrypted
-channel to a destination with <em>Perfect Forward Secrecy</em> and <em>Initiator Anonymity</em> using a elliptic
+<p>By default Reticulum encrypts all data using elliptic curve cryptography. Any packet sent to a
+destination is encrypted with a derived ephemeral key. Reticulum can also set up an encrypted
+channel to a destination with <em>Forward Secrecy</em> and <em>Initiator Anonymity</em> using a elliptic
 curve cryptography and ephemeral keys derived from a Diffie Hellman exchange on Curve25519. In
 Reticulum terminology, this is called a <em>Link</em>.</p>
 <p>Reticulum also offers symmetric key encryption for group-oriented communications, as well as
@@ -174,23 +180,23 @@ private IP networks.</p>
 destinations. Reticulum uses three different basic destination types, and one special:</p>
 <ul class="simple">
 <li><dl class="simple">
-<dt><strong>Single</strong></dt><dd><p>The <em>single</em> destination type defines a public-key encrypted destination. Any data sent to this
-destination will be encrypted with the destination’s public key, and will only be readable by
-the creator of the destination.</p>
+<dt><strong>Single</strong></dt><dd><p>The <em>single</em> destination type is always identified by a unique public key. Any data sent to this
+destination will be encrypted using ephemeral keys derived from an ECDH key exchange, and will
+only be readable by the creator of the destination, who holds the corresponding private key.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt><strong>Group</strong></dt><dd><p>The <em>group</em> destination type defines a symmetrically encrypted destination. Data sent to this
 destination will be encrypted with a symmetric key, and will be readable by anyone in
-possession of the key. The <em>group</em> destination can be used just as well by only two peers, as it
-can by many.</p>
+possession of the key.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt><strong>Plain</strong></dt><dd><p>A <em>plain</em> destination type is unencrypted, and suited for traffic that should be broadcast to a
-number of users, or should be readable by anyone. Traffic to a <em>plain</em> destination is not encrypted.</p>
+number of users, or should be readable by anyone. Traffic to a <em>plain</em> destination is not encrypted.
+Generally, <em>plain</em> destinations can be used for broadcast information intended to be public.</p>
 </dd>
 </dl>
 </li>
@@ -575,7 +581,7 @@ the transfer is needed.</p>
 <p>This is the purpose of the Reticulum <a class="reference internal" href="reference.html#api-resource"><span class="std std-ref">Resource</span></a>. A <em>Resource</em> can automatically
 handle the reliable transfer of an arbitrary amount of data over an established <a class="reference internal" href="reference.html#api-link"><span class="std std-ref">Link</span></a>.
 Resources can auto-compress data, will handle breaking the data into individual packets, sequencing
-the transfer and reassembling the data on the other end.</p>
+the transfer, integrity verification and reassembling the data on the other end.</p>
 <p><a class="reference internal" href="reference.html#api-resource"><span class="std std-ref">Resources</span></a> are programmatically very simple to use, and only requires a few lines
 of codes to reliably transfer any amount of data. They can be used to transfer data stored in memory,
 or stream data directly from files.</p>
@@ -654,8 +660,8 @@ treated more as a reference than as essential reading.</p>
 <div class="section" id="node-types">
 <h3>Node Types<a class="headerlink" href="#node-types" title="Permalink to this headline">¶</a></h3>
 <p>Currently Reticulum defines two node types, the <em>Station</em> and the <em>Peer</em>. A node is a <em>station</em> if it fixed
-in one place, and if it is intended to be kept online most of the time. Otherwise the node is a <em>peer</em>.
-This distinction is made by the user configuring the node, and is used to determine what nodes on the
+in one place, and if it is intended to be kept online most of the time. Otherwise the node is a <em>peer</em>.</p>
+<p>This distinction is made by the user configuring the node, and is used to determine what nodes on the
 network will help forward traffic, and what nodes rely on other nodes for connectivity.</p>
 <p>If a node is a <em>Peer</em> it should be given the configuration directive <code class="docutils literal notranslate"><span class="pre">enable_transport</span> <span class="pre">=</span> <span class="pre">No</span></code>.</p>
 <p>If it is a <em>Station</em>, it should be given the configuration directive <code class="docutils literal notranslate"><span class="pre">enable_transport</span> <span class="pre">=</span> <span class="pre">Yes</span></code>.</p>
@@ -665,9 +671,6 @@ network will help forward traffic, and what nodes rely on other nodes for connec
 <p>Currently, Reticulum is completely priority-agnostic regarding general traffic. All traffic is handled
 on a first-come, first-serve basis. Announce re-transmission are handled according to the re-transmission
 times and priorities described earlier in this chapter.</p>
-<p>It is possible that a prioritisation engine could be added to Reticulum in the future, but in
-the light of Reticulums goal of equal access, doing so would need to be the subject of careful
-investigation of the consequences first.</p>
 </div>
 <div class="section" id="binary-packet-format">
 <span id="understanding-packetformat"></span><h3>Binary Packet Format<a class="headerlink" href="#binary-packet-format" title="Permalink to this headline">¶</a></h3>

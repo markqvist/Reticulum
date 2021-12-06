@@ -78,6 +78,9 @@ pre-existing LAN.
     # forward_ip = 10.55.0.16
     # forward_port = 4242
 
+*Please Note!* If you use the ``device`` option, you will need the Python module
+``netifaces`` installed on your system. You can install it with ``pip3 install netifaces``.
+
 .. _interfaces-tcps:
 
 TCP Server Interface
@@ -114,6 +117,8 @@ configured, other Reticulum peers can connect to it with a TCP Client interface.
     # device = eth0
     # port = 4242
 
+*Please Note!* If you use the ``device`` option, you will need the Python module
+``netifaces`` installed on your system. You can install it with ``pip3 install netifaces``.
 
 .. _interfaces-tcpc:
 
@@ -135,6 +140,30 @@ same TCP Server interface at the same time.
     outgoing = True
     target_host = 127.0.0.1
     target_port = 4242
+
+It is also possible to use this interface type to connect via other programs
+or hardware devices that expose a KISS interface on a TCP port, for example
+software-based soundmodems. To do this, use the ``kiss_framing`` option:
+
+.. code::
+
+  # Here's an example of a TCP Client interface that connects
+  # to a software TNC soundmodem on a KISS over TCP port.
+
+  [[TCP KISS Interface]]
+    type = TCPClientInterface
+    interface_enabled = True
+    outgoing = True
+    kiss_framing = True
+    target_host = 127.0.0.1
+    target_port = 8001
+
+**Caution!** Only use the KISS framing option when connecting to external devices
+and programs like soundmodems and similar over TCP. When using the
+``TCPClientInterface`` in conjunction with the ``TCPServerInterface`` you should
+never enable ``kiss_framing``, since this will disable internal reliability and
+recovery mechanisms that greatly improves performance over unreliable and
+intermittent TCP links.
 
 
 .. _interfaces-rnode:

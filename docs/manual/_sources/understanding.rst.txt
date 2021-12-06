@@ -67,9 +67,12 @@ guide the design of Reticulum:
     it can be easily replicated.
 * **Very low bandwidth requirements**
     Reticulum should be able to function reliably over links with a transmission capacity as low
-    as *1,000 bps*.
+    as *500 bps*.
 * **Encryption by default**
-    Reticulum must use encryption by default where possible and applicable.
+    Reticulum must use strong encryption by default for all communication.
+* **Initiator Anonymity**
+    It must be possible to communicate over a Reticulum network without revealing any identifying
+    information about oneself.
 * **Unlicensed use**
     Reticulum shall be functional over physical communication mediums that do not require any
     form of license to use. Reticulum must be designed in a way, so it is usable over ISM radio
@@ -99,7 +102,7 @@ Introduction & Basic Functionality
 Reticulum is a networking stack suited for high-latency, low-bandwidth links. Reticulum is at it’s
 core a *message oriented* system. It is suited for both local point-to-point or point-to-multipoint
 scenarios where alle nodes are within range of each other, as well as scenarios where packets need
-to be transported over multiple hops to reach the recipient.
+to be transported over multiple hops in a complex network to reach the recipient.
 
 Reticulum does away with the idea of addresses and ports known from IP, TCP and UDP. Instead
 Reticulum uses the singular concept of *destinations*. Any application using Reticulum as it’s
@@ -110,9 +113,9 @@ All destinations in Reticulum are represented internally as 10 bytes, derived fr
 SHA-256 hash of identifying characteristics of the destination. To users, the destination addresses
 will be displayed as 10 bytes in hexadecimal representation, as in the following example: ``<80e29bf7cccaf31431b3>``.
 
-By default Reticulum encrypts all data using public-key cryptography. Any message sent to a
-destination is encrypted with that destinations public key. Reticulum can also set up an encrypted
-channel to a destination with *Perfect Forward Secrecy* and *Initiator Anonymity* using a elliptic
+By default Reticulum encrypts all data using elliptic curve cryptography. Any packet sent to a
+destination is encrypted with a derived ephemeral key. Reticulum can also set up an encrypted
+channel to a destination with *Forward Secrecy* and *Initiator Anonymity* using a elliptic
 curve cryptography and ephemeral keys derived from a Diffie Hellman exchange on Curve25519. In
 Reticulum terminology, this is called a *Link*.
 
@@ -135,17 +138,17 @@ destinations. Reticulum uses three different basic destination types, and one sp
 
 
 * **Single**
-    The *single* destination type defines a public-key encrypted destination. Any data sent to this
-    destination will be encrypted with the destination’s public key, and will only be readable by
-    the creator of the destination.
+    The *single* destination type is always identified by a unique public key. Any data sent to this
+    destination will be encrypted using ephemeral keys derived from an ECDH key exchange, and will
+    only be readable by the creator of the destination, who holds the corresponding private key.
 * **Group**
     The *group* destination type defines a symmetrically encrypted destination. Data sent to this
     destination will be encrypted with a symmetric key, and will be readable by anyone in
-    possession of the key. The *group* destination can be used just as well by only two peers, as it
-    can by many.
+    possession of the key.
 * **Plain**
     A *plain* destination type is unencrypted, and suited for traffic that should be broadcast to a
     number of users, or should be readable by anyone. Traffic to a *plain* destination is not encrypted.
+    Generally, *plain* destinations can be used for broadcast information intended to be public.
 * **Link**
     A *link* is a special destination type, that serves as an abstract channel to a *single*
     destination, directly connected or over multiple hops. The *link* also offers reliability and
@@ -507,7 +510,7 @@ the transfer is needed.
 This is the purpose of the Reticulum :ref:`Resource<api-resource>`. A *Resource* can automatically
 handle the reliable transfer of an arbitrary amount of data over an established :ref:`Link<api-link>`.
 Resources can auto-compress data, will handle breaking the data into individual packets, sequencing
-the transfer and reassembling the data on the other end.
+the transfer, integrity verification and reassembling the data on the other end.
 
 :ref:`Resources<api-resource>` are programmatically very simple to use, and only requires a few lines
 of codes to reliably transfer any amount of data. They can be used to transfer data stored in memory,
@@ -581,6 +584,7 @@ Node Types
 
 Currently Reticulum defines two node types, the *Station* and the *Peer*. A node is a *station* if it fixed
 in one place, and if it is intended to be kept online most of the time. Otherwise the node is a *peer*.
+
 This distinction is made by the user configuring the node, and is used to determine what nodes on the
 network will help forward traffic, and what nodes rely on other nodes for connectivity.
 
@@ -595,10 +599,6 @@ Packet Prioritisation
 Currently, Reticulum is completely priority-agnostic regarding general traffic. All traffic is handled
 on a first-come, first-serve basis. Announce re-transmission are handled according to the re-transmission
 times and priorities described earlier in this chapter.
-
-It is possible that a prioritisation engine could be added to Reticulum in the future, but in
-the light of Reticulums goal of equal access, doing so would need to be the subject of careful
-investigation of the consequences first.
 
 
 .. _understanding-packetformat:
