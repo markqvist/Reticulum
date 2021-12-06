@@ -71,6 +71,7 @@ Reticulum implements a range of generalised interface types that covers most of 
 
 ## Feature Roadmap
  - Stream mode for links
+ - Globally routable multicast
  - More interface types for even broader compatibility
    - ESP32 devices (ESP-Now, Bluetooth, etc.)
    - More LoRa transceivers
