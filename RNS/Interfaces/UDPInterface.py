@@ -58,6 +58,7 @@ class UDPInterface(Interface):
 
             self.owner = owner
             address = (self.bind_ip, self.bind_port)
+            socketserver.UDPServer.address_family = socket.AF_INET
             self.server = socketserver.UDPServer(address, handlerFactory(self.processIncoming))
 
             thread = threading.Thread(target=self.server.serve_forever)
