@@ -15,7 +15,7 @@ import RNS
 APP_NAME = "example_utilities"
 
 # We initialise two lists of strings to use as app_data
-fruits = ["Peach", "Quince", "Date palm", "Tangerine", "Pomelo", "Carambola", "Grape"]
+fruits = ["Peach", "Quince", "Date", "Tangerine", "Pomelo", "Carambola", "Grape"]
 noble_gases = ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon", "Oganesson"]
 
 # This initialisation is executed when the program is started
