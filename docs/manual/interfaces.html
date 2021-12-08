@@ -53,12 +53,65 @@ and gives example configurations for the respective interface types.</p>
 <p>For a high-level overview of how networks can be formed over different interface
 types, have a look at the <a class="reference internal" href="networks.html#networks-main"><span class="std std-ref">Building Networks</span></a> chapter of this
 manual.</p>
+<div class="section" id="auto-interface">
+<span id="interfaces-auto"></span><h2>Auto Interface<a class="headerlink" href="#auto-interface" title="Permalink to this headline">¶</a></h2>
+<p>The Auto Interface enables communication with other discoverable Reticulum
+nodes over UDP. It does not need any functional IP infrastructure like
+routers or DHCP servers, but will require at least some sort of switching
+medium between peers (a wired switch, a WiFi access point or similar), and
+that link-local IPv6 is enabled in your operating system, which should be
+enabled by default in almost all OSes.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example demonstrates a TCP server interface.</span>
+<span class="c1"># It will listen for incoming connections on the</span>
+<span class="c1"># specified IP address and port number.</span>
+
+<span class="p">[[</span><span class="n">Default</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">AutoInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># You can create multiple isolated Reticulum</span>
+  <span class="c1"># networks on the same physical LAN by</span>
+  <span class="c1"># specifying different Group IDs.</span>
+
+  <span class="n">group_id</span> <span class="o">=</span> <span class="n">reticulum</span>
+</pre></div>
+</div>
+<p>If you are connected to the Internet with IPv6, and your provider will route
+IPv6 multicast, you can potentially configure the Auto Interface to globally
+autodiscover other Reticulum nodes within your selected Group ID. You can specify
+the discovery scope by setting it to one of <code class="docutils literal notranslate"><span class="pre">link</span></code>, <code class="docutils literal notranslate"><span class="pre">admin</span></code>, <code class="docutils literal notranslate"><span class="pre">site</span></code>,
+<code class="docutils literal notranslate"><span class="pre">organisation</span></code> or <code class="docutils literal notranslate"><span class="pre">global</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Default</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">AutoInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># Configure global discovery</span>
+
+  <span class="n">group_id</span> <span class="o">=</span> <span class="n">custom_network_name</span>
+  <span class="n">discovery_scope</span> <span class="o">=</span> <span class="k">global</span>
+
+  <span class="c1"># Other configuration options</span>
+
+  <span class="n">discovery_port</span> <span class="o">=</span> <span class="mi">48555</span>
+  <span class="n">data_port</span> <span class="o">=</span> <span class="mi">49555</span>
+</pre></div>
+</div>
+<p><em>Please Note!</em> If you use the Auto Interface, you will need the Python module
+<code class="docutils literal notranslate"><span class="pre">netifaces</span></code> installed on your system. You can install it with <code class="docutils literal notranslate"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">netifaces</span></code>.</p>
+</div>
 <div class="section" id="udp-interface">
 <span id="interfaces-udp"></span><h2>UDP Interface<a class="headerlink" href="#udp-interface" title="Permalink to this headline">¶</a></h2>
 <p>A UDP interface can be useful for communicating over IP networks, both
 private and the internet. It can also allow broadcast communication
 over IP networks, so it can provide an easy way to enable connectivity
 with all other peers on a local area network.</p>
+<p><em>Please Note!</em> Using broadcast UDP traffic has performance implications,
+especially on WiFi. If your goal is simply to enable easy communication
+with all peers in your local ethernet broadcast domain, the
+<a class="reference internal" href="#interfaces-auto"><span class="std std-ref">Auto Interface</span></a> performs better, and is just as
+easy to use.</p>
 <p>The below example is enabled by default on new Reticulum installations,
 as it provides an easy way to get started and to test Reticulum on a
 pre-existing LAN.</p>
@@ -76,9 +129,7 @@ pre-existing LAN.</p>
 
   <span class="c1"># The above configuration will allow communication</span>
   <span class="c1"># within the local broadcast domains of all local</span>
-  <span class="c1"># IP interfaces. This is enabled by default as an</span>
-  <span class="c1"># easy way to get started, but you might want to</span>
-  <span class="c1"># consider altering it to something more specific.</span>
+  <span class="c1"># IP interfaces.</span>
 
   <span class="c1"># Instead of specifying listen_ip, listen_port,</span>
   <span class="c1"># forward_ip and forward_port, you can also bind</span>
@@ -384,6 +435,7 @@ beaconing functionality described above.</p>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Supported Interfaces</a><ul>
+<li><a class="reference internal" href="#auto-interface">Auto Interface</a></li>
 <li><a class="reference internal" href="#udp-interface">UDP Interface</a></li>
 <li><a class="reference internal" href="#tcp-server-interface">TCP Server Interface</a></li>
 <li><a class="reference internal" href="#tcp-client-interface">TCP Client Interface</a></li>

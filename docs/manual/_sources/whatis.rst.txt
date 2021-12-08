@@ -2,7 +2,7 @@
 What is Reticulum?
 ******************
 
-Reticulum is a cryptography-based networking stack for wide-area networks built on readily available hardware, and can operate even with very high latency and extremely low bandwidth.
+Reticulum is a cryptography-based networking stack for wide-area networks built on readily available hardware, that can operate even with very high latency and extremely low bandwidth.
 
 Reticulum allows you to build very wide-area networks with off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable packet acknowledgements and more.
 

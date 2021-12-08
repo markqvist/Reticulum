@@ -18,6 +18,62 @@ For a high-level overview of how networks can be formed over different interface
 types, have a look at the :ref:`Building Networks<networks-main>` chapter of this
 manual.
 
+.. _interfaces-auto:
+
+Auto Interface
+==============
+
+The Auto Interface enables communication with other discoverable Reticulum
+nodes over UDP. It does not need any functional IP infrastructure like
+routers or DHCP servers, but will require at least some sort of switching
+medium between peers (a wired switch, a WiFi access point or similar), and
+that link-local IPv6 is enabled in your operating system, which should be
+enabled by default in almost all OSes.
+
+.. code::
+
+  # This example demonstrates a TCP server interface.
+  # It will listen for incoming connections on the
+  # specified IP address and port number.
+  
+  [[Default Interface]]
+    type = AutoInterface
+    interface_enabled = True
+    outgoing = True
+
+    # You can create multiple isolated Reticulum
+    # networks on the same physical LAN by
+    # specifying different Group IDs.
+
+    group_id = reticulum
+
+If you are connected to the Internet with IPv6, and your provider will route
+IPv6 multicast, you can potentially configure the Auto Interface to globally
+autodiscover other Reticulum nodes within your selected Group ID. You can specify
+the discovery scope by setting it to one of ``link``, ``admin``, ``site``,
+``organisation`` or ``global``.
+
+.. code::
+  
+  [[Default Interface]]
+    type = AutoInterface
+    interface_enabled = True
+    outgoing = True
+
+    # Configure global discovery
+
+    group_id = custom_network_name
+    discovery_scope = global
+
+    # Other configuration options
+
+    discovery_port = 48555
+    data_port = 49555
+
+*Please Note!* If you use the Auto Interface, you will need the Python module
+``netifaces`` installed on your system. You can install it with ``pip3 install netifaces``.
+
+
 .. _interfaces-udp:
 
 UDP Interface
@@ -27,6 +83,12 @@ A UDP interface can be useful for communicating over IP networks, both
 private and the internet. It can also allow broadcast communication
 over IP networks, so it can provide an easy way to enable connectivity
 with all other peers on a local area network.
+
+*Please Note!* Using broadcast UDP traffic has performance implications,
+especially on WiFi. If your goal is simply to enable easy communication
+with all peers in your local ethernet broadcast domain, the
+:ref:`Auto Interface<interfaces-auto>` performs better, and is just as
+easy to use.
 
 The below example is enabled by default on new Reticulum installations,
 as it provides an easy way to get started and to test Reticulum on a
@@ -48,9 +110,7 @@ pre-existing LAN.
 
     # The above configuration will allow communication
     # within the local broadcast domains of all local
-    # IP interfaces. This is enabled by default as an
-    # easy way to get started, but you might want to
-    # consider altering it to something more specific.
+    # IP interfaces.
 
     # Instead of specifying listen_ip, listen_port,
     # forward_ip and forward_port, you can also bind
