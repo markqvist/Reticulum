@@ -29,6 +29,6 @@ setuptools.setup(
 
         ]
     },
-    install_requires=['cryptography>=3.4.7'],
+    install_requires=['cryptography>=3.4.7', 'pyserial', 'netifaces'],
     python_requires='>=3.6',
 )
