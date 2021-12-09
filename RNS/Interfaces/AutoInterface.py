@@ -19,7 +19,7 @@ class AutoInterface(Interface):
     SCOPE_ORGANISATION = "8"
     SCOPE_GLOBAL       = "e"
 
-    PEERING_TIMEOUT    = 120
+    PEERING_TIMEOUT    = 9.0
 
     def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None):
         import importlib
@@ -203,7 +203,7 @@ class AutoInterface(Interface):
 
             for peer_addr in timed_out_peers:
                 self.peers.pop(peer_addr)
-                RNS.log(str(self)+" removed peer "+str(peer_addr)+" due to timeout.", RNS.LOG_DEBUG)
+                RNS.log(str(self)+" removed peer "+str(peer_addr)+" due to timeout", RNS.LOG_DEBUG)
                 
 
     def announce_handler(self, ifname):
@@ -231,7 +231,8 @@ class AutoInterface(Interface):
 
     def refresh_peer(self, addr):
         self.peers[addr][1] = time.time()
-        RNS.log(str(self)+" refreshed peer "+str(addr)+" on "+str(self.peers[addr][0]), RNS.LOG_EXTREME)
+        # TODO: Remove at some point
+        # RNS.log(str(self)+" refreshed peer "+str(addr)+" on "+str(self.peers[addr][0]), RNS.LOG_EXTREME)
 
     def processIncoming(self, data):
         self.rxb += len(data)
