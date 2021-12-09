@@ -53,6 +53,22 @@ Reticulum can also be encapsulated over existing IP networks, so there's nothing
 
 As an example, it's possible to set up a Raspberry Pi connected to both a LoRa radio, a packet radio TNC and a WiFi network. Once the interfaces are configured, Reticulum will take care of the rest, and any device on the WiFi network can communicate with nodes on the LoRa and packet radio sides of the network, and vice versa.
 
+## How do I get started?
+The best way to get started with the Reticulum Network Stack depends on what
+you want to do. For full details and examples, have a look at the [Getting Started Fast](https://markqvist.github.io/Reticulum/manual/gettingstartedfast.html) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
+
+To simply install Reticulum and related utilities on your system, the easiest way is via pip:
+
+```bash
+pip3 install rns
+```
+
+You can then start any program that uses Reticulum, or start Reticulum as a system service with [the rnsd utility](https://markqvist.github.io/Reticulum/manual/using.html#the-rnsd-utility).
+
+When first started, Reticulum will create a default configuration file, providing basic connectivity to other Reticulum peers. The default config file contains examples for using Reticulum with LoRa transceivers (specifically [RNode](https://unsigned.io/projects/rnode/)), packet radio TNCs/modems, TCP and UDP.
+
+You can use the examples in the config file to expand communication over other many mediums such as packet radio or LoRa (with [RNode](https://unsigned.io/projects/rnode/)), serial ports, or over fast IP links using the UDP and TCP interfaces. For more detailed examples, take a look at the [Supported Interfaces](https://markqvist.github.io/Reticulum/manual/interfaces.html) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
+
 ## Current Status
 Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. There will be bugs. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.
 
@@ -88,22 +104,6 @@ Reticulum implements a range of generalised interface types that covers most of 
  - cryptography.io
  - netifaces
  - pyserial
-
-## How do I get started?
-The best way to get started with the Reticulum Network Stack depends on what
-you want to do. For full details and examples, have a look at the [Getting Started Fast](https://markqvist.github.io/Reticulum/manual/gettingstartedfast.html) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
-
-To simply install Reticulum and related utilities on your system, the easiest way is via pip:
-
-```bash
-pip3 install rns
-```
-
-You can then start any program that uses Reticulum, or start Reticulum as a system daemon with [the rnsd utility](https://markqvist.github.io/Reticulum/manual/using.html#the-rnsd-utility).
-
-The default config file contains examples for using Reticulum with LoRa transceivers (specifically [RNode](https://unsigned.io/projects/rnode/)), packet radio TNCs/modems and UDP. By default a UDP interface is already enabled in the default config, which will enable Reticulum communication in your local ethernet broadcast domain.
-
-You can use the examples in the config file to expand communication over other mediums such as packet radio or LoRa, or over fast IP links using the UDP interface. I'll add in-depth tutorials and explanations on these topics later. For now, the included examples will hopefully be enough to get started.
 
 ## Support Reticulum
 You can help support the continued development of open, free and private communications systems by donating via one of the following channels:
