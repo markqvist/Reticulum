@@ -56,9 +56,6 @@ class AutoInterface(Interface):
             self.ignored_interfaces = []
         else:
             self.ignored_interfaces = ignored_interfaces
-        RNS.log("aifs_arg: "+str(allowed_interfaces))
-        RNS.log("iifs_arg: "+str(ignored_interfaces))
-        RNS.log("Ignored ifs: "+str(self.ignored_interfaces))
 
         if group_id == None:
             self.group_id = AutoInterface.DEFAULT_GROUP_ID
