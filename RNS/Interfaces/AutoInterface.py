@@ -17,31 +17,11 @@ class AutoInterface(Interface):
     SCOPE_ADMIN        = "4"
     SCOPE_SITE         = "5"
     SCOPE_ORGANISATION = "8"
-    SCOPE_GLOBAL       = "E"
+    SCOPE_GLOBAL       = "e"
 
-    @staticmethod
-    def get_address_for_if(name):
-        import importlib
-        if importlib.util.find_spec('netifaces') != None:
-            import netifaces
-            return netifaces.ifaddresses(name)[netifaces.AF_INET][0]['addr']
-        else:
-            RNS.log("Getting interface addresses from device names requires the netifaces module.", RNS.LOG_CRITICAL)
-            RNS.log("You can install it with the command: python3 -m pip install netifaces", RNS.LOG_CRITICAL)
-            RNS.panic()
+    PEERING_TIMEOUT    = 120
 
-    @staticmethod
-    def get_broadcast_for_if(name):
-        import importlib
-        if importlib.util.find_spec('netifaces') != None:
-            import netifaces
-            return netifaces.ifaddresses(name)[netifaces.AF_INET][0]['broadcast']
-        else:
-            RNS.log("Getting interface addresses from device names requires the netifaces module.", RNS.LOG_CRITICAL)
-            RNS.log("You can install it with the command: python3 -m pip install netifaces", RNS.LOG_CRITICAL)
-            RNS.panic()
-
-    def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, data_port=None):
+    def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None):
         import importlib
         if importlib.util.find_spec('netifaces') != None:
             import netifaces
@@ -58,15 +38,32 @@ class AutoInterface(Interface):
         self.name = name
         self.online = False
         self.peers = {}
+        self.link_local_addresses = []
+        self.adopted_interfaces = {}
 
         self.outbound_udp_socket = None
+
+        self.announce_interval = AutoInterface.PEERING_TIMEOUT/3.0
+        self.peer_job_interval = AutoInterface.PEERING_TIMEOUT/2.0
+        self.peering_timeout   = AutoInterface.PEERING_TIMEOUT
+
+        if allowed_interfaces == None:
+            self.allowed_interfaces = []
+        else:
+            self.allowed_interfaces = allowed_interfaces
+
+        if ignored_interfaces == None:
+            self.ignored_interfaces = []
+        else:
+            self.ignored_interfaces = ignored_interfaces
+        RNS.log("aifs_arg: "+str(allowed_interfaces))
+        RNS.log("iifs_arg: "+str(ignored_interfaces))
+        RNS.log("Ignored ifs: "+str(self.ignored_interfaces))
 
         if group_id == None:
             self.group_id = AutoInterface.DEFAULT_GROUP_ID
         else:
             self.group_id = group_id.encode("utf-8")
-
-        self.group_hash = RNS.Identity.full_hash(self.group_id)
 
         if discovery_port == None:
             self.discovery_port = AutoInterface.DEFAULT_DISCOVERY_PORT
@@ -91,51 +88,68 @@ class AutoInterface(Interface):
         elif str(discovery_scope).lower() == "global":
             self.discovery_scope = AutoInterface.SCOPE_GLOBAL
 
+        self.group_hash = RNS.Identity.full_hash(self.group_id)
+        g = self.group_hash
+        #gt  = "{:02x}".format(g[1]+(g[0]<<8))
+        gt  = "0"
+        gt += ":"+"{:02x}".format(g[3]+(g[2]<<8))
+        gt += ":"+"{:02x}".format(g[5]+(g[4]<<8))
+        gt += ":"+"{:02x}".format(g[7]+(g[6]<<8))
+        gt += ":"+"{:02x}".format(g[9]+(g[8]<<8))
+        gt += ":"+"{:02x}".format(g[11]+(g[10]<<8))
+        gt += ":"+"{:02x}".format(g[13]+(g[12]<<8))
+        self.mcast_discovery_address = "ff1"+self.discovery_scope+":"+gt
+
         suitable_interfaces = 0
         for ifname in self.netifaces.interfaces():
-            addresses = self.netifaces.ifaddresses(ifname)
-            if self.netifaces.AF_INET6 in addresses:
-                link_local_addr = None
-                for address in addresses[self.netifaces.AF_INET6]:
-                    if "addr" in address:
-                        if address["addr"].startswith("fe80:"):
-                            link_local_addr = address["addr"]
-                            RNS.log(str(self)+" Selecting link-local address "+str(link_local_addr)+" for interface "+str(ifname), RNS.LOG_EXTREME)
-
-                if link_local_addr == None:
-                    RNS.log(str(self)+" No link-local IPv6 address configured for "+str(ifname)+", skipping interface", RNS.LOG_EXTREME)
+            if ifname in self.ignored_interfaces:
+                RNS.log(str(self)+" ignoring disallowed interface "+str(ifname), RNS.LOG_EXTREME)
+            else:
+                if len(self.allowed_interfaces) > 0 and not ifname in self.allowed_interfaces:
+                    RNS.log(str(self)+" ignoring interface "+str(ifname)+" since it was not allowed", RNS.LOG_EXTREME)
                 else:
-                    g = self.group_hash
-                    gt = "{:02x}".format(g[1]+(g[0]<<8))+":"+"{:02x}".format(g[3]+(g[2]<<8))+":"+"{:02x}".format(g[5]+(g[4]<<8))+":"+"{:02x}".format(g[7]+(g[6]<<8))+":"+"{:02x}".format(g[9]+(g[8]<<8))+":"+"{:02x}".format(g[11]+(g[10]<<8))+":"+"{:02x}".format(g[13]+(g[12]<<8))
-                    mcast_addr = "ff1"+self.discovery_scope+":"+gt
+                    addresses = self.netifaces.ifaddresses(ifname)
+                    if self.netifaces.AF_INET6 in addresses:
+                        link_local_addr = None
+                        for address in addresses[self.netifaces.AF_INET6]:
+                            if "addr" in address:
+                                if address["addr"].startswith("fe80:"):
+                                    link_local_addr = address["addr"]
+                                    self.link_local_addresses.append(link_local_addr.split("%")[0])
+                                    self.adopted_interfaces[ifname] = link_local_addr.split("%")[0]
+                                    RNS.log(str(self)+" Selecting link-local address "+str(link_local_addr)+" for interface "+str(ifname), RNS.LOG_EXTREME)
 
-                    RNS.log(str(self)+" Creating multicast discovery listener on "+str(ifname)+" with address "+str(mcast_addr), RNS.LOG_EXTREME)
+                        if link_local_addr == None:
+                            RNS.log(str(self)+" No link-local IPv6 address configured for "+str(ifname)+", skipping interface", RNS.LOG_EXTREME)
+                        else:
+                            mcast_addr = self.mcast_discovery_address
+                            RNS.log(str(self)+" Creating multicast discovery listener on "+str(ifname)+" with address "+str(mcast_addr), RNS.LOG_EXTREME)
 
-                    # Struct with interface index
-                    if_struct = struct.pack("I", socket.if_nametoindex(ifname))
+                            # Struct with interface index
+                            if_struct = struct.pack("I", socket.if_nametoindex(ifname))
 
-                    # Set up multicast socket
-                    discovery_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
-                    discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                    discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-                    discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, if_struct)
+                            # Set up multicast socket
+                            discovery_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+                            discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                            discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                            discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, if_struct)
 
-                    # Join multicast group
-                    discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, socket.inet_pton(socket.AF_INET6, mcast_addr) + if_struct)
+                            # Join multicast group
+                            discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, socket.inet_pton(socket.AF_INET6, mcast_addr) + if_struct)
 
-                    # Bind socket
-                    addr_info = socket.getaddrinfo(mcast_addr+"%"+ifname, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
-                    discovery_socket.bind(addr_info[0][4])
+                            # Bind socket
+                            addr_info = socket.getaddrinfo(mcast_addr+"%"+ifname, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                            discovery_socket.bind(addr_info[0][4])
 
-                    # Set up thread for discovery packets
-                    def discovery_loop():
-                        self.discovery_handler(discovery_socket, ifname)
+                            # Set up thread for discovery packets
+                            def discovery_loop():
+                                self.discovery_handler(discovery_socket, ifname)
 
-                    thread = threading.Thread(target=discovery_loop)
-                    thread.setDaemon(True)
-                    thread.start()
+                            thread = threading.Thread(target=discovery_loop)
+                            thread.setDaemon(True)
+                            thread.start()
 
-                    suitable_interfaces += 1
+                            suitable_interfaces += 1
 
         if suitable_interfaces == 0:
             RNS.log(str(self)+" could not autoconfigure connectivity. You will need to manually configure this instance.", RNS.LOG_WARNING)
@@ -156,27 +170,71 @@ class AutoInterface(Interface):
             thread.setDaemon(True)
             thread.start()
 
+            job_thread = threading.Thread(target=self.peer_jobs)
+            job_thread.setDaemon(True)
+            job_thread.start()
+
             self.online = True
 
 
     def discovery_handler(self, socket, ifname):
+        def announce_loop():
+            self.announce_handler(ifname)
+            
+        thread = threading.Thread(target=announce_loop)
+        thread.setDaemon(True)
+        thread.start()
+        
         while True:
             data, ipv6_src = socket.recvfrom(1024)
-
-            # TODO: Add real peer discovery integrity check
-            if data.decode("utf-8") == "peer":
+            expected_hash = RNS.Identity.full_hash(self.group_id+ipv6_src[0].encode("utf-8"))
+            if data == expected_hash:
                 self.add_peer(ipv6_src[0], ifname)
+            else:
+                RNS.log(str(self)+" received peering packet on "+str(ifname)+" from "+str(ipv6_src[0])+", but authentication hash was incorrect.", RNS.LOG_DEBUG)
+
+    def peer_jobs(self):
+        while True:
+            time.sleep(self.peer_job_interval)
+            now = time.time()
+            timed_out_peers = []
+            for peer_addr in self.peers:
+                peer = self.peers[peer_addr]
+                last_heard = peer[1]
+                if now > last_heard+self.peering_timeout:
+                    timed_out_peers.append(peer_addr)
+
+            for peer_addr in timed_out_peers:
+                self.peers.pop(peer_addr)
+                RNS.log(str(self)+" removed peer "+str(peer_addr)+" due to timeout.", RNS.LOG_DEBUG)
+                
+
+    def announce_handler(self, ifname):
+        while True:
+            self.peer_announce(ifname)
+            time.sleep(self.announce_interval)
+            
+    def peer_announce(self, ifname):
+        link_local_address = self.adopted_interfaces[ifname]
+        discovery_token = RNS.Identity.full_hash(self.group_id+link_local_address.encode("utf-8"))
+        announce_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+        addr_info = socket.getaddrinfo(self.mcast_discovery_address, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+
+        ifis = struct.pack("I", socket.if_nametoindex(ifname))
+        announce_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, ifis)
+        announce_socket.sendto(discovery_token, addr_info[0][4])
 
     def add_peer(self, addr, ifname):
-        if not addr in self.peers:
-            self.peers[addr] = [ifname, time.time()]
-            RNS.log(str(self)+" added peer "+str(addr)+" on "+str(ifname), RNS.LOG_EXTREME)
-        else:
-            self.heard_peer(addr)
+        if not addr in self.link_local_addresses:
+            if not addr in self.peers:
+                self.peers[addr] = [ifname, time.time()]
+                RNS.log(str(self)+" added peer "+str(addr)+" on "+str(ifname), RNS.LOG_DEBUG)
+            else:
+                self.refresh_peer(addr)
 
-    def heard_peer(self, addr):
+    def refresh_peer(self, addr):
         self.peers[addr][1] = time.time()
-        RNS.log(str(self)+" heard peer "+str(addr)+" on "+str(self.peers[addr][0]), RNS.LOG_EXTREME)
+        RNS.log(str(self)+" refreshed peer "+str(addr)+" on "+str(self.peers[addr][0]), RNS.LOG_EXTREME)
 
     def processIncoming(self, data):
         self.rxb += len(data)
@@ -184,8 +242,6 @@ class AutoInterface(Interface):
 
     def processOutgoing(self,data):
             for peer in self.peers:
-                # TODO: Remove
-                # RNS.log("Send to "+str(peer))
                 try:
                     if self.outbound_udp_socket == None:
                         self.outbound_udp_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)

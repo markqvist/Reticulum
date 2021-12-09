@@ -166,9 +166,9 @@ class Reticulum:
         else:
             RNS.log("Could not load config file, creating default configuration file...")
             self.__create_default_config()
-            RNS.log("Default config file created. Make any necessary changes in "+Reticulum.configdir+"/config and start Reticulum again.")
-            RNS.log("Exiting now!")
-            exit(1)
+            RNS.log("Default config file created. Make any necessary changes in "+Reticulum.configdir+"/config and restart Reticulum if needed.")
+            import time
+            time.sleep(1.5)
 
         self.__apply_config()
         RNS.log("Configuration loaded from "+self.configpath, RNS.LOG_VERBOSE)
@@ -275,6 +275,33 @@ class Reticulum:
 
                     try:
                         if ("interface_enabled" in c) and c.as_bool("interface_enabled") == True:
+                            if c["type"] == "AutoInterface":
+                                group_id        = c["group_id"] if "group_id" in c else None
+                                discovery_scope = c["discovery_scope"] if "discovery_scope" in c else None
+                                discovery_port  = int(c["discovery_port"]) if "discovery_port" in c else None
+                                data_port  = int(c["data_port"]) if "data_port" in c else None
+                                allowed_interfaces = c.as_list("interfaces") if "interfaces" in c else None
+                                ignored_interfaces = c.as_list("ignored_interfaces") if "ignored_interfaces" in c else None
+
+                                interface = AutoInterface.AutoInterface(
+                                    RNS.Transport,
+                                    name,
+                                    group_id,
+                                    discovery_scope,
+                                    discovery_port,
+                                    data_port,
+                                    allowed_interfaces,
+                                    ignored_interfaces
+                                )
+
+                                if "outgoing" in c and c.as_bool("outgoing") == True:
+                                    interface.OUT = True
+                                else:
+                                    interface.OUT = False
+
+                                RNS.Transport.interfaces.append(interface)
+
+
                             if c["type"] == "UDPInterface":
                                 device       = c["device"] if "device" in c else None
                                 port         = int(c["port"]) if "port" in c else None
@@ -517,7 +544,6 @@ class Reticulum:
         if not os.path.isdir(Reticulum.configdir):
             os.makedirs(Reticulum.configdir)
         self.config.write()
-        self.__apply_config()
 
     def rpc_loop(self):
         while True:
@@ -713,15 +739,25 @@ loglevel = 4
 [interfaces]
 
   # This interface enables communication with other
-  # local Reticulum nodes over UDP. You can modify it
-  # to suit your needs or turn it off completely.
-  # As a minimum, you should probably specify the
-  # network device you want to communicate on, such
-  # as eth0 or wlan0.
-  
-  [[Default UDP Interface]]
-    type = UDPInterface
+  # link-local Reticulum nodes over UDP. It does not
+  # need any functional IP infrastructure like routers
+  # or DHCP servers, but will require that at least link-
+  # local IPv6 is enabled in your operating system, which
+  # should be enabled by default in almost any OS. See
+  # the Reticulum Manual for more configuration options.
+
+  [[Default Interface]]
+    type = AutoInterface
     interface_enabled = True
+    outgoing = True
+
+
+  # The following example enables communication with other
+  # local Reticulum peers using UDP broadcasts.
+  
+  [[UDP Interface]]
+    type = UDPInterface
+    interface_enabled = False
     outgoing = True
     listen_ip = 0.0.0.0
     listen_port = 4242
@@ -730,9 +766,7 @@ loglevel = 4
 
     # The above configuration will allow communication
     # within the local broadcast domains of all local
-    # IP interfaces. This is enabled by default as an
-    # easy way to get started, but you might want to
-    # consider altering it to something more specific.
+    # IP interfaces.
 
     # Instead of specifying listen_ip, listen_port,
     # forward_ip and forward_port, you can also bind
