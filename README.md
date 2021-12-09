@@ -76,6 +76,7 @@ Reticulum implements a range of generalised interface types that covers most of 
    - ESP32 devices (ESP-Now, Bluetooth, etc.)
    - More LoRa transceivers
    - AT-compatible modems
+   - AWDL / OWL
    - CAN-bus
    - ZeroMQ
    - MQTT
