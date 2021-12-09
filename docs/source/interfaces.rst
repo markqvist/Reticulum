@@ -26,7 +26,7 @@ Auto Interface
 The Auto Interface enables communication with other discoverable Reticulum
 nodes over UDP. It does not need any functional IP infrastructure like
 routers or DHCP servers, but will require at least some sort of switching
-medium between peers (a wired switch, a WiFi access point or similar), and
+medium between peers (a wired switch, a hub, a WiFi access point or similar), and
 that link-local IPv6 is enabled in your operating system, which should be
 enabled by default in almost all OSes.
 
@@ -46,6 +46,17 @@ enabled by default in almost all OSes.
     # specifying different Group IDs.
 
     group_id = reticulum
+
+    # You can also select specifically which
+    # kernel networking devices to use.
+
+    devices = wlan0,eth1
+
+    # Or let AutoInterface use all suitable
+    # devices except for a list of ignored ones.
+
+    ignored_devices = tun0,eth0
+
 
 If you are connected to the Internet with IPv6, and your provider will route
 IPv6 multicast, you can potentially configure the Auto Interface to globally

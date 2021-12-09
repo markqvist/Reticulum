@@ -148,6 +148,20 @@ don’t use pip, but try this recipe:</p>
 <p>When you have experimented with the basic examples, it’s time to go read the
 <a class="reference internal" href="understanding.html#understanding-main"><span class="std std-ref">Understanding Reticulum</span></a> chapter.</p>
 </div>
+<div class="section" id="reticulum-on-arm64">
+<h2>Reticulum on ARM64<a class="headerlink" href="#reticulum-on-arm64" title="Permalink to this headline">¶</a></h2>
+<p>On some architectures, including ARM64, not all dependencies have precompiled
+binaries. On such systems, you will need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> before
+installing Reticulum or programs that depend on Reticulum.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Python and development packages</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">dev</span>
+
+<span class="c1"># Install Reticulum</span>
+<span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="reticulum-on-android">
 <h2>Reticulum on Android<a class="headerlink" href="#reticulum-on-android" title="Permalink to this headline">¶</a></h2>
 <p>Reticulum can be used on Android in different ways. The easiest way to get
@@ -201,6 +215,7 @@ here at a later point.</p>
 <li><a class="reference internal" href="#creating-a-network-with-reticulum">Creating a Network With Reticulum</a></li>
 <li><a class="reference internal" href="#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
 <li><a class="reference internal" href="#participate-in-reticulum-development">Participate in Reticulum Development</a></li>
+<li><a class="reference internal" href="#reticulum-on-arm64">Reticulum on ARM64</a></li>
 <li><a class="reference internal" href="#reticulum-on-android">Reticulum on Android</a></li>
 </ul>
 </li>

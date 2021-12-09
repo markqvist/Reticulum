@@ -87,6 +87,7 @@ optional arguments:
   --version        show program&#39;s version number and exit
 </pre></div>
 </div>
+<p>You can easily add <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> as an always-on service by <a class="reference internal" href="#using-systemd"><span class="std std-ref">configuring a service</span></a>.</p>
 </div>
 <div class="section" id="the-rnstatus-utility">
 <h3>The rnstatus Utility<a class="headerlink" href="#the-rnstatus-utility" title="Permalink to this headline">¶</a></h3>
@@ -218,7 +219,7 @@ might be plugged and unplugged in different orders, or when node name
 assignment varies from one boot to another.</p>
 </div>
 <div class="section" id="reticulum-as-a-system-service">
-<h3>Reticulum as a System Service<a class="headerlink" href="#reticulum-as-a-system-service" title="Permalink to this headline">¶</a></h3>
+<span id="using-systemd"></span><h3>Reticulum as a System Service<a class="headerlink" href="#reticulum-as-a-system-service" title="Permalink to this headline">¶</a></h3>
 <p>Instead of starting Reticulum manually, you can install <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> as a system
 service and have it start automatically at boot.</p>
 <p>If you installed Reticulum with <code class="docutils literal notranslate"><span class="pre">pip</span></code>, the <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> program will most likely

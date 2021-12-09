@@ -86,16 +86,20 @@ Reticulum implements a range of generalised interface types that covers most of 
 ## Dependencies:
  - Python 3.6
  - cryptography.io
+ - netifaces
+ - pyserial
 
 ## How do I get started?
 The best way to get started with the Reticulum Network Stack depends on what
 you want to do. For full details and examples, have a look at the [Getting Started Fast](https://markqvist.github.io/Reticulum/manual/gettingstartedfast.html) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
 
-If you just need Reticulum as a dependency for another application, the easiest way is via pip:
+To simply install Reticulum and related utilities on your system, the easiest way is via pip:
 
 ```bash
 pip3 install rns
 ```
+
+You can then start any program that uses Reticulum, or start Reticulum as a system daemon with [the rnsd utility](https://markqvist.github.io/Reticulum/manual/using.html#the-rnsd-utility).
 
 The default config file contains examples for using Reticulum with LoRa transceivers (specifically [RNode](https://unsigned.io/projects/rnode/)), packet radio TNCs/modems and UDP. By default a UDP interface is already enabled in the default config, which will enable Reticulum communication in your local ethernet broadcast domain.
 

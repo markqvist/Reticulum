@@ -280,8 +280,8 @@ class Reticulum:
                                 discovery_scope = c["discovery_scope"] if "discovery_scope" in c else None
                                 discovery_port  = int(c["discovery_port"]) if "discovery_port" in c else None
                                 data_port  = int(c["data_port"]) if "data_port" in c else None
-                                allowed_interfaces = c.as_list("interfaces") if "interfaces" in c else None
-                                ignored_interfaces = c.as_list("ignored_interfaces") if "ignored_interfaces" in c else None
+                                allowed_interfaces = c.as_list("devices") if "devices" in c else None
+                                ignored_interfaces = c.as_list("ignored_devices") if "ignored_devices" in c else None
 
                                 interface = AutoInterface.AutoInterface(
                                     RNS.Transport,

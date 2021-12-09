@@ -57,6 +57,7 @@ the same system.
     -q, --quiet
     --version        show program's version number and exit
 
+You can easily add ``rnsd`` as an always-on service by :ref:`configuring a service<using-systemd>`.
 
 The rnstatus Utility
 ====================
@@ -205,6 +206,7 @@ Using this methodology avoids potential naming mix-ups where physical devices
 might be plugged and unplugged in different orders, or when node name
 assignment varies from one boot to another.
 
+.. _using-systemd:
 
 Reticulum as a System Service
 =============================

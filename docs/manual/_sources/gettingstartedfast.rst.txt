@@ -131,6 +131,22 @@ When you have experimented with the basic examples, it's time to go read the
 :ref:`Understanding Reticulum<understanding-main>` chapter.
 
 
+Reticulum on ARM64
+==============================================
+On some architectures, including ARM64, not all dependencies have precompiled
+binaries. On such systems, you will need to install ``python3-dev`` before
+installing Reticulum or programs that depend on Reticulum.
+
+.. code::
+
+   # Install Python and development packages
+   sudo apt update
+   sudo apt install python3 python3-pip python3-dev
+
+   # Install Reticulum
+   python3 -m pip install rns
+
+
 Reticulum on Android
 ==============================================
 Reticulum can be used on Android in different ways. The easiest way to get
