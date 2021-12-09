@@ -175,6 +175,10 @@ From within Termux, execute the following:
     # Make sure pip is up to date, and install the wheel module.
     pip3 install wheel pip --upgrade
 
+    # To allow the installer to build the cryptography module,
+    # we need to let it know what platform we are compiling for:
+    export CARGO_BUILD_TARGET="aarch64-linux-android"
+
     # Start the install process for the cryptography module.
     # Depending on your device, this can take several minutes,
     # since the module must be compiled locally on your device.

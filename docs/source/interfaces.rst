@@ -24,11 +24,11 @@ Auto Interface
 ==============
 
 The Auto Interface enables communication with other discoverable Reticulum
-nodes over UDP. It does not need any functional IP infrastructure like
-routers or DHCP servers, but will require at least some sort of switching
-medium between peers (a wired switch, a hub, a WiFi access point or similar), and
-that link-local IPv6 is enabled in your operating system, which should be
-enabled by default in almost all OSes.
+nodes over autoconfigured IPv6 and UDP. It does not need any functional IP
+infrastructure like routers or DHCP servers, but will require at least some
+sort of switching medium between peers (a wired switch, a hub, a WiFi access
+point or similar), and that link-local IPv6 is enabled in your operating
+system, which should be enabled by default in almost all OSes.
 
 .. code::
 

@@ -184,6 +184,10 @@ and a few extra commands are required.</p>
 <span class="c1"># Make sure pip is up to date, and install the wheel module.</span>
 <span class="n">pip3</span> <span class="n">install</span> <span class="n">wheel</span> <span class="n">pip</span> <span class="o">--</span><span class="n">upgrade</span>
 
+<span class="c1"># To allow the installer to build the cryptography module,</span>
+<span class="c1"># we need to let it know what platform we are compiling for:</span>
+<span class="n">export</span> <span class="n">CARGO_BUILD_TARGET</span><span class="o">=</span><span class="s2">&quot;aarch64-linux-android&quot;</span>
+
 <span class="c1"># Start the install process for the cryptography module.</span>
 <span class="c1"># Depending on your device, this can take several minutes,</span>
 <span class="c1"># since the module must be compiled locally on your device.</span>

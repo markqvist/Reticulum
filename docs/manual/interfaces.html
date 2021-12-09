@@ -56,11 +56,11 @@ manual.</p>
 <div class="section" id="auto-interface">
 <span id="interfaces-auto"></span><h2>Auto Interface<a class="headerlink" href="#auto-interface" title="Permalink to this headline">¶</a></h2>
 <p>The Auto Interface enables communication with other discoverable Reticulum
-nodes over UDP. It does not need any functional IP infrastructure like
-routers or DHCP servers, but will require at least some sort of switching
-medium between peers (a wired switch, a hub, a WiFi access point or similar), and
-that link-local IPv6 is enabled in your operating system, which should be
-enabled by default in almost all OSes.</p>
+nodes over autoconfigured IPv6 and UDP. It does not need any functional IP
+infrastructure like routers or DHCP servers, but will require at least some
+sort of switching medium between peers (a wired switch, a hub, a WiFi access
+point or similar), and that link-local IPv6 is enabled in your operating
+system, which should be enabled by default in almost all OSes.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example demonstrates a TCP server interface.</span>
 <span class="c1"># It will listen for incoming connections on the</span>
 <span class="c1"># specified IP address and port number.</span>
