@@ -21,7 +21,7 @@ class AutoInterface(Interface):
 
     PEERING_TIMEOUT    = 9.0
 
-    DARWIN_IGNORE_IFS  = ["awdl0", "llw0", "lo0"]
+    DARWIN_IGNORE_IFS  = ["awdl0", "llw0", "lo0", "en5"]
 
     def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None):
         import importlib
@@ -101,7 +101,9 @@ class AutoInterface(Interface):
 
         suitable_interfaces = 0
         for ifname in self.netifaces.interfaces():
-            if ifname in self.ignored_interfaces or (RNS.vendor.platformutils.get_platform() == "darwin" and ifname in AutoInterface.DARWIN_IGNORE_IFS):
+            if RNS.vendor.platformutils.get_platform() == "darwin" and ifname in AutoInterface.DARWIN_IGNORE_IFS:
+                RNS.log(str(self)+" skipping Darwin AWDL or tethering interface "+str(ifname), RNS.LOG_EXTREME)
+            elif ifname in self.ignored_interfaces:
                 RNS.log(str(self)+" ignoring disallowed interface "+str(ifname), RNS.LOG_EXTREME)
             else:
                 if len(self.allowed_interfaces) > 0 and not ifname in self.allowed_interfaces:
