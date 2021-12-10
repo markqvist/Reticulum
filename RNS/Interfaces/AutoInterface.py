@@ -21,7 +21,7 @@ class AutoInterface(Interface):
 
     PEERING_TIMEOUT    = 9.0
 
-    DARWIN_IGNORE_IFS  = ["awdl0", "llw0"]
+    DARWIN_IGNORE_IFS  = ["awdl0", "llw0", "lo0"]
 
     def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None):
         import importlib
