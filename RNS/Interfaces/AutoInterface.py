@@ -21,6 +21,8 @@ class AutoInterface(Interface):
 
     PEERING_TIMEOUT    = 9.0
 
+    DARWIN_IGNORE_IFS  = ["awdl0", "llw0"]
+
     def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None):
         import importlib
         if importlib.util.find_spec('netifaces') != None:
@@ -99,7 +101,7 @@ class AutoInterface(Interface):
 
         suitable_interfaces = 0
         for ifname in self.netifaces.interfaces():
-            if ifname in self.ignored_interfaces:
+            if ifname in self.ignored_interfaces or (RNS.vendor.platformutils.get_platform() == "darwin" and ifname in AutoInterface.DARWIN_IGNORE_IFS):
                 RNS.log(str(self)+" ignoring disallowed interface "+str(ifname), RNS.LOG_EXTREME)
             else:
                 if len(self.allowed_interfaces) > 0 and not ifname in self.allowed_interfaces:
@@ -129,7 +131,6 @@ class AutoInterface(Interface):
                             discovery_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
                             discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                             discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-                            
                             discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, if_struct)
 
                             # Join multicast group
