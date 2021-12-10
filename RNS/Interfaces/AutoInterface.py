@@ -129,10 +129,12 @@ class AutoInterface(Interface):
                             discovery_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
                             discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                             discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                            
                             discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, if_struct)
 
                             # Join multicast group
-                            discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, socket.inet_pton(socket.AF_INET6, mcast_addr) + if_struct)
+                            mcast_group = socket.inet_pton(socket.AF_INET6, mcast_addr) + if_struct
+                            discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mcast_group)
 
                             # Bind socket
                             addr_info = socket.getaddrinfo(mcast_addr+"%"+ifname, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
@@ -160,12 +162,19 @@ class AutoInterface(Interface):
 
             self.owner = owner
             socketserver.UDPServer.address_family = socket.AF_INET6
-            address = ("::", self.data_port)
-            self.server = socketserver.UDPServer(address, handlerFactory(self.processIncoming))
 
-            thread = threading.Thread(target=self.server.serve_forever)
-            thread.setDaemon(True)
-            thread.start()
+            for ifname in self.adopted_interfaces:
+                local_addr = self.adopted_interfaces[ifname]+"%"+ifname
+                addr_info = socket.getaddrinfo(local_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                address = addr_info[0][4]
+
+                RNS.log("Binding data listener to: "+str(address), RNS.LOG_EXTREME)
+
+                self.server = socketserver.UDPServer(address, handlerFactory(self.processIncoming))
+                
+                thread = threading.Thread(target=self.server.serve_forever)
+                thread.setDaemon(True)
+                thread.start()
 
             job_thread = threading.Thread(target=self.peer_jobs)
             job_thread.setDaemon(True)
