@@ -324,10 +324,6 @@ class Resource:
             self.request_next()
 
     def get_map_hash(self, data):
-        # TODO: This will break if running unencrypted,
-        # uncompressed transfers on streams with long blocks
-        # of identical bytes. Doing so would be very silly
-        # anyways but maybe it should be handled gracefully.
         return RNS.Identity.full_hash(data+self.random_hash)[:Resource.MAPHASH_LEN]
 
     def advertise(self):

@@ -245,8 +245,6 @@ class AutoInterface(Interface):
 
     def refresh_peer(self, addr):
         self.peers[addr][1] = time.time()
-        # TODO: Remove at some point
-        # RNS.log(str(self)+" refreshed peer "+str(addr)+" on "+str(self.peers[addr][0]), RNS.LOG_EXTREME)
 
     def processIncoming(self, data):
         self.rxb += len(data)

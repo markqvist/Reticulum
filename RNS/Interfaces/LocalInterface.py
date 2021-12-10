@@ -22,6 +22,7 @@ class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 class LocalClientInterface(Interface):
+    RECONNECT_WAIT = 3
 
     def __init__(self, owner, name, target_port = None, connected_socket=None):
         self.rxb = 0
@@ -32,6 +33,9 @@ class LocalClientInterface(Interface):
         self.OUT              = False
         self.socket           = None
         self.parent_interface = None
+        self.reconnecting     = False
+        self.never_connected  = True
+        self.detached         = False
         self.name             = name
 
         if connected_socket != None:
@@ -46,11 +50,7 @@ class LocalClientInterface(Interface):
             self.receives    = True
             self.target_ip   = "127.0.0.1"
             self.target_port = target_port
-
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.connect((self.target_ip, self.target_port))
-
-            self.is_connected_to_shared_instance = True
+            self.connect()
 
         self.owner   = owner
         self.online  = True
@@ -61,12 +61,54 @@ class LocalClientInterface(Interface):
             thread.setDaemon(True)
             thread.start()
 
+    def connect(self):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect((self.target_ip, self.target_port))
+
+        self.online = True
+        self.is_connected_to_shared_instance = True
+        self.never_connected = False
+
+        return True
+
+
+    def reconnect(self):
+        if self.is_connected_to_shared_instance:
+            if not self.reconnecting:
+                self.reconnecting = True
+                attempts = 0
+
+                while not self.online:
+                    time.sleep(LocalClientInterface.RECONNECT_WAIT)
+                    attempts += 1
+
+                    try:
+                        self.connect()
+
+                    except Exception as e:
+                        RNS.log("Connection attempt for "+str(self)+" failed: "+str(e), RNS.LOG_DEBUG)
+
+                if not self.never_connected:
+                    RNS.log("Reconnected TCP socket for "+str(self)+".", RNS.LOG_INFO)
+
+                self.reconnecting = False
+                thread = threading.Thread(target=self.read_loop)
+                thread.setDaemon(True)
+                thread.start()
+                RNS.Transport.shared_connection_reappeared()
+        
+        else:
+            RNS.log("Attempt to reconnect on a non-initiator shared local interface. This should not happen.", RNS.LOG_ERROR)
+            raise IOError("Attempt to reconnect on a non-initiator local interface")
+
+
     def processIncoming(self, data):
         self.rxb += len(data)
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.rxb += len(data)
             
         self.owner.inbound(data, self)
+
 
     def processOutgoing(self, data):
         if self.online:
@@ -119,8 +161,14 @@ class LocalClientInterface(Interface):
                                     escape = False
                                 data_buffer = data_buffer+bytes([byte])
                 else:
-                    RNS.log("Socket for "+str(self)+" was closed, tearing down interface", RNS.LOG_VERBOSE)
-                    self.teardown(nowarning=True)
+                    self.online = False
+                    if self.is_connected_to_shared_instance and not self.detached:
+                        RNS.log("Socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
+                        RNS.Transport.shared_connection_disappeared()
+                        self.reconnect()
+                    else:
+                        self.teardown(nowarning=True)
+
                     break
 
                 
@@ -168,14 +216,9 @@ class LocalClientInterface(Interface):
                 RNS.panic()
 
         if self.is_connected_to_shared_instance:
-            # TODO: Maybe add automatic recovery here.
-            # Needs thinking through, since user needs
-            # to now that all connectivity has been cut
-            # while service is recovering. Better for
-            # now to take down entire stack.
             if nowarning == False:
-                RNS.log("Lost connection to local shared RNS instance. Exiting now.", RNS.LOG_CRITICAL)
-
+                RNS.log("Permanently lost connection to local shared RNS instance. Exiting now.", RNS.LOG_CRITICAL)
+    
             RNS.exit()
 
 

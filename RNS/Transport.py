@@ -1491,6 +1491,31 @@ class Transport:
 
 
     @staticmethod
+    def shared_connection_disappeared():
+        for link in Transport.active_links:
+            link.teardown()
+
+        for link in Transport.pending_links:
+            link.teardown()
+
+        Transport.announce_table    = {}
+        Transport.destination_table = {}
+        Transport.reverse_table     = {}
+        Transport.link_table        = {}
+        Transport.held_announces    = {}
+        Transport.announce_handlers = []
+        Transport.tunnels           = {}
+
+
+    @staticmethod
+    def shared_connection_reappeared():
+        if Transport.owner.is_connected_to_shared_instance:
+            for registered_destination in Transport.destinations:
+                if registered_destination.type == RNS.Destination.SINGLE:
+                    registered_destination.announce(path_response=True)
+
+
+    @staticmethod
     def exit_handler():
         try:
             if not RNS.Reticulum.transport_enabled():

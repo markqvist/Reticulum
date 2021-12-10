@@ -299,8 +299,6 @@ class AX25KISSInterface(Interface):
                                     escape = False
                                 data_buffer = data_buffer+bytes([byte])
                         elif (command == KISS.CMD_READY):
-                            # TODO: add timeout and reset if ready
-                            # command never arrives
                             self.process_queue()
                 else:
                     time_since_last = int(time.time()*1000) - last_read_ms
