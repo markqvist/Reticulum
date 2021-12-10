@@ -230,8 +230,7 @@ following content:
 
   [Unit]
   Description=Reticulum Network Stack Daemon
-  After=network.target
-  StartLimitIntervalSec=0
+  After=multi-user.target
 
   [Service]
   Type=simple
@@ -239,6 +238,13 @@ following content:
   RestartSec=3
   User=USERNAMEHERE
   ExecStart=rnsd --service
+
+  # If you run Reticulum on WiFi devices,
+  # or other devices that need some extra
+  # time to initialise, you might want to
+  # add a short delay before Reticulum is
+  # started:
+  # ExecStartPre=/bin/sleep 5
 
   [Install]
   WantedBy=multi-user.target

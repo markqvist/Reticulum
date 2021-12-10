@@ -258,7 +258,9 @@ class AutoInterface(Interface):
                     if self.outbound_udp_socket == None:
                         self.outbound_udp_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
                     
-                    self.outbound_udp_socket.sendto(data, (peer, self.data_port))
+                    peer_addr = str(peer)+"%"+str(self.peers[peer][0])
+                    addr_info = socket.getaddrinfo(peer_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                    self.outbound_udp_socket.sendto(data, addr_info[0][4])
                 except Exception as e:
                     RNS.log("Could not transmit on "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 

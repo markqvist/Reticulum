@@ -230,10 +230,15 @@ following content:
 
   [Unit]
   Description=Reticulum Network Stack Daemon
-  After=network.target
-  StartLimitIntervalSec=0
+  After=multi-user.target
 
   [Service]
+  # If you run Reticulum on WiFi devices,
+  # or other devices that need some extra
+  # time to initialise, you might want to
+  # add a short delay before Reticulum is
+  # started by systemd:
+  # ExecStartPre=/bin/sleep 10
   Type=simple
   Restart=always
   RestartSec=3

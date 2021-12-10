@@ -233,8 +233,7 @@ into a directory that is in systemd’s path:</p>
 following content:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[Unit]
 Description=Reticulum Network Stack Daemon
-After=network.target
-StartLimitIntervalSec=0
+After=multi-user.target
 
 [Service]
 Type=simple
@@ -242,6 +241,13 @@ Restart=always
 RestartSec=3
 User=USERNAMEHERE
 ExecStart=rnsd --service
+
+# If you run Reticulum on WiFi devices,
+# or other devices that need some extra
+# time to initialise, you might want to
+# add a short delay before Reticulum is
+# started:
+# ExecStartPre=/bin/sleep 5
 
 [Install]
 WantedBy=multi-user.target
