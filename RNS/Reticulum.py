@@ -526,7 +526,7 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
                         else:
-                            RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_INFO)
+                            RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_DEBUG)
 
                     except Exception as e:
                         RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
