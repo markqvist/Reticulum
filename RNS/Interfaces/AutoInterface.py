@@ -173,8 +173,6 @@ class AutoInterface(Interface):
                 addr_info = socket.getaddrinfo(local_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
                 address = addr_info[0][4]
 
-                RNS.log("Binding data listener to: "+str(address), RNS.LOG_EXTREME)
-
                 self.server = socketserver.UDPServer(address, handlerFactory(self.processIncoming))
                 
                 thread = threading.Thread(target=self.server.serve_forever)
