@@ -103,6 +103,8 @@ class AutoInterface(Interface):
         for ifname in self.netifaces.interfaces():
             if RNS.vendor.platformutils.get_platform() == "darwin" and ifname in AutoInterface.DARWIN_IGNORE_IFS:
                 RNS.log(str(self)+" skipping Darwin AWDL or tethering interface "+str(ifname), RNS.LOG_EXTREME)
+            elif RNS.vendor.platformutils.get_platform() == "darwin" and ifname == "lo0":
+                RNS.log(str(self)+" skipping Darwin loopback interface "+str(ifname), RNS.LOG_EXTREME)
             elif ifname in self.ignored_interfaces:
                 RNS.log(str(self)+" ignoring disallowed interface "+str(ifname), RNS.LOG_EXTREME)
             else:
@@ -214,8 +216,8 @@ class AutoInterface(Interface):
                     timed_out_peers.append(peer_addr)
 
             for peer_addr in timed_out_peers:
-                self.peers.pop(peer_addr)
-                RNS.log(str(self)+" removed peer "+str(peer_addr)+" due to timeout", RNS.LOG_DEBUG)
+                removed_peer = self.peers.pop(peer_addr)
+                RNS.log(str(self)+" removed peer "+str(peer_addr)+" on "+str(removed_peer[0]), RNS.LOG_DEBUG)
                 
 
     def announce_handler(self, ifname):
