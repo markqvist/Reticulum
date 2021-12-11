@@ -95,7 +95,7 @@ class Link:
 
             except Exception as e:
                 RNS.log("Validating link request failed", RNS.LOG_VERBOSE)
-                traceback.print_exc()
+                RNS.log("exc: "+str(e))
                 return None
 
         else:
@@ -216,11 +216,11 @@ class Link:
         self.had_outbound()
 
         # TODO: Remove debug
-        if packet.sent:
+        if proof.sent:
             RNS.log("The LR proof was sent")
         else:
             RNS.log("The LR proof was not sent")
-            
+
 
     def prove_packet(self, packet):
         signature = self.sign(packet.packet_hash)
