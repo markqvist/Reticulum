@@ -19,7 +19,7 @@ class AutoInterface(Interface):
     SCOPE_ORGANISATION = "8"
     SCOPE_GLOBAL       = "e"
 
-    PEERING_TIMEOUT    = 2.0
+    PEERING_TIMEOUT    = 6.0
 
     DARWIN_IGNORE_IFS  = ["awdl0", "llw0", "lo0", "en5"]
 
@@ -45,7 +45,7 @@ class AutoInterface(Interface):
 
         self.outbound_udp_socket = None
 
-        self.announce_interval = AutoInterface.PEERING_TIMEOUT/3.0
+        self.announce_interval = AutoInterface.PEERING_TIMEOUT/4.0
         self.peer_job_interval = AutoInterface.PEERING_TIMEOUT*1.1
         self.peering_timeout   = AutoInterface.PEERING_TIMEOUT
 
@@ -160,8 +160,8 @@ class AutoInterface(Interface):
         else:
             self.receives = True
 
-            peering_wait = self.announce_interval*2.1
-            RNS.log(str(self)+" discovering peers for "+str(round(peering_wait, 2))+" seconds before starting...", RNS.LOG_VERBOSE)
+            peering_wait = self.announce_interval*1.2
+            RNS.log(str(self)+" discovering peers for "+str(round(peering_wait, 2))+" seconds...", RNS.LOG_VERBOSE)
 
             def handlerFactory(callback):
                 def createHandler(*args, **keys):
