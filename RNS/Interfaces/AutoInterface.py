@@ -19,7 +19,7 @@ class AutoInterface(Interface):
     SCOPE_ORGANISATION = "8"
     SCOPE_GLOBAL       = "e"
 
-    PEERING_TIMEOUT    = 9.0
+    PEERING_TIMEOUT    = 2.0
 
     DARWIN_IGNORE_IFS  = ["awdl0", "llw0", "lo0", "en5"]
 
@@ -46,7 +46,7 @@ class AutoInterface(Interface):
         self.outbound_udp_socket = None
 
         self.announce_interval = AutoInterface.PEERING_TIMEOUT/3.0
-        self.peer_job_interval = AutoInterface.PEERING_TIMEOUT/2.0
+        self.peer_job_interval = AutoInterface.PEERING_TIMEOUT*1.1
         self.peering_timeout   = AutoInterface.PEERING_TIMEOUT
 
         if allowed_interfaces == None:
@@ -156,9 +156,12 @@ class AutoInterface(Interface):
                             suitable_interfaces += 1
 
         if suitable_interfaces == 0:
-            RNS.log(str(self)+" could not autoconfigure connectivity. You will need to manually configure this instance.", RNS.LOG_WARNING)
+            RNS.log(str(self)+" could not autoconfigure. This interface currently provides no connectivity.", RNS.LOG_WARNING)
         else:
             self.receives = True
+
+            peering_wait = self.announce_interval*2.1
+            RNS.log(str(self)+" discovering peers for "+str(round(peering_wait, 2))+" seconds before starting...", RNS.LOG_VERBOSE)
 
             def handlerFactory(callback):
                 def createHandler(*args, **keys):
@@ -182,6 +185,8 @@ class AutoInterface(Interface):
             job_thread = threading.Thread(target=self.peer_jobs)
             job_thread.setDaemon(True)
             job_thread.start()
+
+            time.sleep(peering_wait)
 
             self.online = True
 
