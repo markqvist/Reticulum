@@ -123,6 +123,7 @@ class Link:
         self.keepalive = Link.KEEPALIVE
         self.watchdog_lock = False
         self.status = Link.PENDING
+        self.activated_at = None
         self.type = RNS.Destination.LINK
         self.owner = owner
         self.destination = destination
@@ -245,6 +246,7 @@ class Link:
                     self.had_outbound()
 
                     self.status = Link.ACTIVE
+                    self.activated_at = time.time()
                     if self.callbacks.link_established != None:
                         thread = threading.Thread(target=self.callbacks.link_established, args=(self,))
                         thread.setDaemon(True)
@@ -334,6 +336,8 @@ class Link:
             rtt = umsgpack.unpackb(plaintext)
             self.rtt = max(measured_rtt, rtt)
             self.status = Link.ACTIVE
+            self.activated_at = time.time()
+
             
             if self.owner.callbacks.link_established != None:
                     self.owner.callbacks.link_established(self)
