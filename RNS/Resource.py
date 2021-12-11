@@ -404,15 +404,6 @@ class Resource:
 
                     sleep_time = self.last_activity + (rtt*(self.part_timeout_factor+window_remaining)) + Resource.RETRY_GRACE_TIME - time.time()
                     
-                    # TODO: Remove debug info
-                    # RNS.log("rtt   "+str(rtt))
-                    # RNS.log("ptof  "+str(self.part_timeout_factor))
-                    # RNS.log("wait  "+str((rtt*self.part_timeout_factor) + Resource.RETRY_GRACE_TIME))
-                    # RNS.log("sleep "+str(sleep_time))
-                    # RNS.log("wndw  "+str(self.window))
-                    # RNS.log("wndwr "+str(window_remaining))
-                    # RNS.log("")
-
                     if sleep_time < 0:
                         if self.retries_left > 0:
                             RNS.log("Timed out waiting for parts, requesting retry", RNS.LOG_DEBUG)
@@ -605,11 +596,6 @@ class Resource:
                                 self.__progress_callback(self)
                             except Exception as e:
                                 RNS.log("Error while executing progress callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
-
-                        # TODO: Remove debug info
-                        # RNS.log("outstanding_parts "+str(self.outstanding_parts))
-                        # RNS.log("total_parts "+str(self.total_parts))
-                        # RNS.log("received_count "+str(self.received_count))
 
                 i += 1
 
