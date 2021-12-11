@@ -455,6 +455,16 @@ class Transport:
         packet.update_hash()
         sent = False
 
+        # TODO: Remove debug
+        if packet.context == RNS.Packet.LRPROOF:
+            RNS.log("Outbound LR proof")
+            RNS.log("Dest: "+RNS.prettyhexrep(packet.destination_hash))
+            if packet.destination_hash in Transport.destination_table:
+                RNS.log("Exists in path table")
+            else:
+                RNS.log("Not in path table")
+
+
         # Check if we have a known path for the destination in the path table
         if packet.packet_type != RNS.Packet.ANNOUNCE and packet.destination_hash in Transport.destination_table:
             outbound_interface = Transport.destination_table[packet.destination_hash][5]

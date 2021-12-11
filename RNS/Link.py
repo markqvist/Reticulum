@@ -215,6 +215,13 @@ class Link:
         proof.send()
         self.had_outbound()
 
+        # TODO: Remove debug
+        if packet.sent:
+            RNS.log("The LR proof was sent")
+        else:
+            RNS.log("The LR proof was not sent")
+            
+
     def prove_packet(self, packet):
         signature = self.sign(packet.packet_hash)
         # TODO: Hardcoded as explicit proof for now
