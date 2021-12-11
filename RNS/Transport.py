@@ -80,6 +80,8 @@ class Transport:
     local_client_snr_cache     = []
     LOCAL_CLIENT_CACHE_MAXSIZE = 512
 
+    pending_local_path_requests = {}
+
     jobs_locked = False
     jobs_running = False
     job_interval = 0.250
@@ -868,11 +870,11 @@ class Transport:
                             random_blobs.append(random_blob)
 
                             if (RNS.Reticulum.transport_enabled() or Transport.from_local_client(packet)) and packet.context != RNS.Packet.PATH_RESPONSE:
-                                # If the announce is from a local client,
-                                # we announce it immediately, but only one
-                                # time.
+                                # Insert announce into announce table for retransmission
 
                                 if Transport.from_local_client(packet):
+                                    # If the announce is from a local client,
+                                    # it is announced immediately, but only one time.
                                     retransmit_timeout = now
                                     retries = Transport.PATHFINDER_R
 
@@ -887,6 +889,29 @@ class Transport:
                                     block_rebroadcasts,
                                     attached_interface
                                 ]
+
+                            # TODO: Check from_local_client once and store result
+                            elif Transport.from_local_client(packet) and packet.context == RNS.Packet.PATH_RESPONSE:
+                                # If this is a path response from a local client,
+                                # check if any external interfaces have pending
+                                # path requests.
+                                if packet.destination_hash in Transport.pending_local_path_requests:
+                                    desiring_interface = Transport.pending_local_path_requests.pop(packet.destination_hash)
+                                    retransmit_timeout = now
+                                    retries = Transport.PATHFINDER_R
+
+                                    Transport.announce_table[packet.destination_hash] = [
+                                        now,
+                                        retransmit_timeout,
+                                        retries,
+                                        received_from,
+                                        announce_hops,
+                                        packet,
+                                        local_rebroadcasts,
+                                        block_rebroadcasts,
+                                        attached_interface
+                                    ]
+
 
                             # If we have any local clients connected, we re-
                             # transmit the announce to them immediately
@@ -1406,14 +1431,24 @@ class Transport:
     @staticmethod
     def path_request(destination_hash, is_from_local_client, attached_interface):
         RNS.log("Path request for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
+
+        destination_exists_on_local_client = False
+        if len(Transport.local_client_interfaces) > 0:
+            if destination_hash in Transport.destination_table:
+                destination_interface = Transport.destination_table[destination_hash][5]
+                
+                if Transport.is_local_client_interface(destination_interface):
+                    destination_exists_on_local_client = True
+                    Transport.pending_local_path_requests[destination_hash] = attached_interface
         
         local_destination = next((d for d in Transport.destinations if d.hash == destination_hash), None)
         if local_destination != None:
             RNS.log("Destination is local to this system, announcing", RNS.LOG_DEBUG)
             local_destination.announce(path_response=True)
 
-        elif (RNS.Reticulum.transport_enabled() or is_from_local_client or len(Transport.local_client_interfaces) > 0) and destination_hash in Transport.destination_table:
+        elif (RNS.Reticulum.transport_enabled() or is_from_local_client) and (destination_hash in Transport.destination_table):
             RNS.log("Path found, inserting announce for transmission", RNS.LOG_DEBUG)
+
             packet = Transport.destination_table[destination_hash][6]
             received_from = Transport.destination_table[destination_hash][5]
 
