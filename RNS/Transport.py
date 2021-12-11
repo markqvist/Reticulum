@@ -455,16 +455,6 @@ class Transport:
         packet.update_hash()
         sent = False
 
-        # TODO: Remove debug
-        if packet.context == RNS.Packet.LRPROOF:
-            RNS.log("Outbound LR proof")
-            RNS.log("Dest: "+RNS.prettyhexrep(packet.destination_hash))
-            if packet.destination_hash in Transport.destination_table:
-                RNS.log("Exists in path table")
-            else:
-                RNS.log("Not in path table")
-
-
         # Check if we have a known path for the destination in the path table
         if packet.packet_type != RNS.Packet.ANNOUNCE and packet.destination_hash in Transport.destination_table:
             outbound_interface = Transport.destination_table[packet.destination_hash][5]
@@ -1042,9 +1032,6 @@ class Transport:
             # Handling for proofs and link-request proofs
             elif packet.packet_type == RNS.Packet.PROOF:
                 if packet.context == RNS.Packet.LRPROOF:
-                    # TODO: Remove debug
-                    RNS.log("Link request proof received")
-
                     # This is a link request proof, check if it
                     # needs to be transported
                     if (RNS.Reticulum.transport_enabled() or for_local_client_link or from_local_client) and packet.destination_hash in Transport.link_table:
@@ -1061,15 +1048,10 @@ class Transport:
                         else:
                             RNS.log("Link request proof received on wrong interface, not transporting it.", RNS.LOG_DEBUG)
                     else:
-                        # TODO: Remove debug
-                        RNS.log("Could not transport link request proof")
-                        
                         # Check if we can deliver it to a local
                         # pending link
                         for link in Transport.pending_links:
                             if link.link_id == packet.destination_hash:
-                                # TODO: Remove debug
-                                RNS.log("Delivering link request proof to local pending link", RNS.LOG_DEBUG)
                                 link.validate_proof(packet)
 
                 elif packet.context == RNS.Packet.RESOURCE_PRF:
