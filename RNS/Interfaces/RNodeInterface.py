@@ -30,8 +30,11 @@ class KISS():
     CMD_STAT_SNR    = 0x24
     CMD_BLINK       = 0x30
     CMD_RANDOM      = 0x40
+    CMD_PLATFORM    = 0x48
+    CMD_MCU         = 0x49
     CMD_FW_VERSION  = 0x50
     CMD_ROM_READ    = 0x51
+    CMD_RESET       = 0x55
 
     DETECT_REQ      = 0x73
     DETECT_RESP     = 0x46
@@ -44,6 +47,9 @@ class KISS():
     ERROR_INITRADIO     = 0x01
     ERROR_TXFAILED      = 0x02
     ERROR_EEPROM_LOCKED = 0x03
+
+    PLATFORM_AVR   = 0x90
+    PLATFORM_ESP32 = 0x80
 
     @staticmethod
     def escape(data):
@@ -101,6 +107,9 @@ class RNodeInterface(Interface):
         self.cr          = cr
         self.state       = KISS.RADIO_STATE_OFF
         self.bitrate     = 0
+        self.platform    = None
+        self.mcu         = None
+        self.detected    = False
 
         self.last_id     = 0
         self.first_tx    = None
@@ -190,6 +199,17 @@ class RNodeInterface(Interface):
         thread = threading.Thread(target=self.readLoop)
         thread.setDaemon(True)
         thread.start()
+
+        self.detect()
+        sleep(0.1)
+        
+        if not self.detected:
+            raise IOError("Could not detect device")
+        else:
+            if self.platform == KISS.PLATFORM_ESP32:
+                RNS.log("Resetting ESP32-based device before configuration...", RNS.LOG_VERBOSE)
+                self.hard_reset()
+
         self.online = True
         RNS.log("Serial port "+self.port+" is now open")
         RNS.log("Configuring RNode interface...", RNS.LOG_VERBOSE)
@@ -213,6 +233,19 @@ class RNodeInterface(Interface):
         self.setSpreadingFactor()
         self.setCodingRate()
         self.setRadioState(KISS.RADIO_STATE_ON)
+
+    def detect(self):
+        kiss_command = bytes([KISS.FEND, KISS.CMD_DETECT, KISS.DETECT_REQ, KISS.FEND, KISS.CMD_FW_VERSION, 0x00, KISS.FEND, KISS.CMD_PLATFORM, 0x00, KISS.FEND, KISS.CMD_MCU, 0x00, KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while detecting hardware for "+self(str))
+
+    def hard_reset(self):
+        kiss_command = bytes([KISS.FEND, KISS.CMD_RESET, 0xf8, KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while restarting device")
+        sleep(2);
 
     def setFrequency(self):
         c1 = self.frequency >> 24
@@ -420,6 +453,11 @@ class RNodeInterface(Interface):
                             self.updateBitrate()
                         elif (command == KISS.CMD_RADIO_STATE):
                             self.r_state = byte
+                            # if self.r_state:
+                            #     RNS.log(str(self)+" Radio reporting state is online ("+RNS.hexrep([self.r_state])+")", RNS.LOG_DEBUG)
+                            # else:
+                            #     RNS.log(str(self)+" Radio reporting state is offline ("+RNS.hexrep([self.r_state])+")", RNS.LOG_DEBUG)
+
                         elif (command == KISS.CMD_RADIO_LOCK):
                             self.r_lock = byte
                         elif (command == KISS.CMD_STAT_RX):
@@ -456,6 +494,10 @@ class RNodeInterface(Interface):
                             self.r_stat_snr = int.from_bytes(bytes([byte]), byteorder="big", signed=True) * 0.25
                         elif (command == KISS.CMD_RANDOM):
                             self.r_random = byte
+                        elif (command == KISS.CMD_PLATFORM):
+                            self.platform = byte
+                        elif (command == KISS.CMD_MCU):
+                            self.mcu = byte
                         elif (command == KISS.CMD_ERROR):
                             if (byte == KISS.ERROR_INITRADIO):
                                 RNS.log(str(self)+" hardware initialisation error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
@@ -463,8 +505,19 @@ class RNodeInterface(Interface):
                                 RNS.log(str(self)+" hardware TX error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
                             else:
                                 RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
+                        elif (command == KISS.CMD_RESET):
+                            if (byte == 0xF8):
+                                if self.platform == KISS.PLATFORM_ESP32:
+                                    if self.online:
+                                        RNS.log("Detected reset while device was online, reinitialising device...", RNS.LOG_ERROR)
+                                        raise IOError("ESP32 reset")
                         elif (command == KISS.CMD_READY):
                             self.process_queue()
+                        elif (command == KISS.CMD_DETECT):
+                            if byte == KISS.DETECT_RESP:
+                                self.detected = True
+                            else:
+                                self.detected = False
                         
                 else:
                     time_since_last = int(time.time()*1000) - last_read_ms
@@ -500,7 +553,7 @@ class RNodeInterface(Interface):
     def reconnect_port(self):
         while not self.online:
             try:
-                time.sleep(5)
+                time.sleep(3.5)
                 RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
                 self.open_port()
                 if self.serial.is_open:
