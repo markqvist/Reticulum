@@ -1,6 +1,12 @@
 ##########################################################
 # This RNS example demonstrates a simple speedtest       #
 # program to measure link throughput.                    #
+#                                                        #
+# The current configuration is suited for testing fast   #
+# links. If you want to measure slow links like LoRa or  #
+# packet radio, you must significantly lower the         #
+# data_cap variable, which defines how much data is sent #
+# for each test.                                         #
 ##########################################################
 
 import os
