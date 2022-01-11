@@ -185,27 +185,33 @@ class Packet:
 
 
     def unpack(self):
-        self.flags = self.raw[0]
-        self.hops  = self.raw[1]
+        try:
+            self.flags = self.raw[0]
+            self.hops  = self.raw[1]
 
-        self.header_type      = (self.flags & 0b11000000) >> 6
-        self.transport_type   = (self.flags & 0b00110000) >> 4
-        self.destination_type = (self.flags & 0b00001100) >> 2
-        self.packet_type      = (self.flags & 0b00000011)
+            self.header_type      = (self.flags & 0b11000000) >> 6
+            self.transport_type   = (self.flags & 0b00110000) >> 4
+            self.destination_type = (self.flags & 0b00001100) >> 2
+            self.packet_type      = (self.flags & 0b00000011)
 
-        if self.header_type == Packet.HEADER_2:
-            self.transport_id = self.raw[2:12]
-            self.destination_hash = self.raw[12:22]
-            self.context = ord(self.raw[22:23])
-            self.data = self.raw[23:]
-        else:
-            self.transport_id = None
-            self.destination_hash = self.raw[2:12]
-            self.context = ord(self.raw[12:13])
-            self.data = self.raw[13:]
+            if self.header_type == Packet.HEADER_2:
+                self.transport_id = self.raw[2:12]
+                self.destination_hash = self.raw[12:22]
+                self.context = ord(self.raw[22:23])
+                self.data = self.raw[23:]
+            else:
+                self.transport_id = None
+                self.destination_hash = self.raw[2:12]
+                self.context = ord(self.raw[12:13])
+                self.data = self.raw[13:]
 
-        self.packed = False
-        self.update_hash()
+            self.packed = False
+            self.update_hash()
+            return True
+
+        except Exception as e:
+            RNS.log("Received malformed packet, dropping it. The contained exception was: "+str(e), RNS.LOG_EXTREME)
+            return False
 
     def send(self):
         """

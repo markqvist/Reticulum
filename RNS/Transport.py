@@ -585,7 +585,9 @@ class Transport:
         Transport.jobs_locked = True
         
         packet = RNS.Packet(None, raw)
-        packet.unpack()
+        if not packet.unpack():
+            return
+            
         packet.receiving_interface = interface
         packet.hops += 1
 

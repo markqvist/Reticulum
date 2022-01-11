@@ -765,7 +765,7 @@ class Link:
             return plaintext
         except Exception as e:
             RNS.log("Decryption failed on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log(traceback.format_exc(), RNS.LOG_ERROR)
+            # RNS.log(traceback.format_exc(), RNS.LOG_ERROR)
             # TODO: Think long about implications here
             # self.teardown()
 
