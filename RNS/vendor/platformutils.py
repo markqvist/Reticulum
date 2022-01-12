@@ -6,8 +6,14 @@ def get_platform():
         import sys
         return sys.platform
 
+def is_windows():
+    if str(get_platform()).startswith("win"):
+        return True
+    else:
+        return False
+
 def platform_checks():
-    if str(get_platform()).startswith("win32"):
+    if is_windows():
         import sys
         if sys.version_info.major >= 3 and sys.version_info.minor >= 8:
             pass
