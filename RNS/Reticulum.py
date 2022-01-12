@@ -116,6 +116,8 @@ class Reticulum:
         :param configdir: Full path to a Reticulum configuration directory.
         """
 
+        RNS.vendor.platformutils.platform_checks()
+
         if configdir != None:
             Reticulum.configdir = configdir
         
