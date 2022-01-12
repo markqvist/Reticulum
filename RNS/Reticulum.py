@@ -1,8 +1,11 @@
 from .vendor.platformutils import get_platform
 
 if get_platform() == "android":
-    # TODO: Selectively import Android-relevant interfaces
-    pass
+    from .Interfaces import Interface
+    from .Interfaces import LocalInterface
+    from .Interfaces import AutoInterface
+    from .Interfaces import TCPInterface
+    from .Interfaces import UDPInterface
 else:
     from .Interfaces import *
 
