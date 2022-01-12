@@ -281,30 +281,35 @@ class Reticulum:
                     try:
                         if ("interface_enabled" in c) and c.as_bool("interface_enabled") == True:
                             if c["type"] == "AutoInterface":
-                                group_id        = c["group_id"] if "group_id" in c else None
-                                discovery_scope = c["discovery_scope"] if "discovery_scope" in c else None
-                                discovery_port  = int(c["discovery_port"]) if "discovery_port" in c else None
-                                data_port  = int(c["data_port"]) if "data_port" in c else None
-                                allowed_interfaces = c.as_list("devices") if "devices" in c else None
-                                ignored_interfaces = c.as_list("ignored_devices") if "ignored_devices" in c else None
+                                if not RNS.vendor.platformutils.is_windows():
+                                    group_id        = c["group_id"] if "group_id" in c else None
+                                    discovery_scope = c["discovery_scope"] if "discovery_scope" in c else None
+                                    discovery_port  = int(c["discovery_port"]) if "discovery_port" in c else None
+                                    data_port  = int(c["data_port"]) if "data_port" in c else None
+                                    allowed_interfaces = c.as_list("devices") if "devices" in c else None
+                                    ignored_interfaces = c.as_list("ignored_devices") if "ignored_devices" in c else None
 
-                                interface = AutoInterface.AutoInterface(
-                                    RNS.Transport,
-                                    name,
-                                    group_id,
-                                    discovery_scope,
-                                    discovery_port,
-                                    data_port,
-                                    allowed_interfaces,
-                                    ignored_interfaces
-                                )
+                                    interface = AutoInterface.AutoInterface(
+                                        RNS.Transport,
+                                        name,
+                                        group_id,
+                                        discovery_scope,
+                                        discovery_port,
+                                        data_port,
+                                        allowed_interfaces,
+                                        ignored_interfaces
+                                    )
 
-                                if "outgoing" in c and c.as_bool("outgoing") == True:
-                                    interface.OUT = True
+                                    if "outgoing" in c and c.as_bool("outgoing") == True:
+                                        interface.OUT = True
+                                    else:
+                                        interface.OUT = False
+
+                                    RNS.Transport.interfaces.append(interface)
                                 else:
-                                    interface.OUT = False
-
-                                RNS.Transport.interfaces.append(interface)
+                                    RNS.log("AutoInterface is not currently supported on Windows, disabling interface.", RNS.LOG_ERROR);
+                                    RNS.log("Please remove this AutoInterface instance from your configuration file.", RNS.LOG_ERROR);
+                                    RNS.log("You will have to manually configure other interfaces for connectivity.", RNS.LOG_ERROR);
 
 
                             if c["type"] == "UDPInterface":
@@ -536,6 +541,8 @@ class Reticulum:
                     except Exception as e:
                         RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
                         RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                        # TODO: Remove
+                        raise e
                         RNS.panic()
                 else:
                     RNS.log("The interface name \""+name+"\" was already used. Check your configuration file for errors!", RNS.LOG_ERROR)
