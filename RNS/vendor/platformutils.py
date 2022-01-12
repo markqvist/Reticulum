@@ -1,10 +1,24 @@
 def get_platform():
     from os import environ
-    if 'ANDROID_ARGUMENT' in environ:
-        return 'android'
+    if "ANDROID_ARGUMENT" in environ:
+        return "android"
+    elif "ANDROID_ROOT" in environ:
+        return "android"
     else:
         import sys
         return sys.platform
+
+def is_darwin():
+    if get_platform() == "darwin":
+        return True
+    else:
+        return False
+
+def is_android():
+    if get_platform() == "android":
+        return True
+    else:
+        return False
 
 def is_windows():
     if str(get_platform()).startswith("win"):
