@@ -109,6 +109,11 @@ def rand():
     return result
 
 def hexrep(data, delimit=True):
+    try:
+        iter(data)
+    except TypeError:
+        data = [data]
+        
     delimiter = ":"
     if not delimit:
         delimiter = ""

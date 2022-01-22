@@ -223,7 +223,7 @@ class RNodeInterface(Interface):
             RNS.log("Make sure that your hardware actually supports the parameters specified in the configuration", RNS.LOG_ERROR)
             RNS.log("Aborting RNode startup", RNS.LOG_ERROR)
             self.serial.close()
-            raise IOError("RNode interface did not pass validation")
+            raise IOError("RNode interface did not pass configuration validation")
             
 
     def initRadio(self):
@@ -245,7 +245,7 @@ class RNodeInterface(Interface):
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while restarting device")
-        sleep(2);
+        sleep(2.25);
 
     def setFrequency(self):
         c1 = self.frequency >> 24
@@ -293,13 +293,14 @@ class RNodeInterface(Interface):
             raise IOError("An IO error occurred while configuring coding rate for "+self(str))
 
     def setRadioState(self, state):
+        self.state = state
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_RADIO_STATE])+bytes([state])+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while configuring radio state for "+self(str))
 
     def validateRadioState(self):
-        RNS.log("Validating radio configuration for "+str(self)+"...", RNS.LOG_VERBOSE)
+        RNS.log("Wating for radio configuration validation for "+str(self)+"...", RNS.LOG_VERBOSE)
         sleep(0.25);
         if (self.frequency != self.r_frequency):
             RNS.log("Frequency mismatch", RNS.LOG_ERROR)
@@ -312,6 +313,9 @@ class RNodeInterface(Interface):
             self.validcfg = False
         if (self.sf != self.r_sf):
             RNS.log("Spreading factor mismatch", RNS.LOG_ERROR)
+            self.validcfg = False
+        if (self.state != self.r_state):
+            RNS.log("Radio state mismatch", RNS.LOG_ERROR)
             self.validcfg = False
 
         if (self.validcfg):
@@ -453,10 +457,11 @@ class RNodeInterface(Interface):
                             self.updateBitrate()
                         elif (command == KISS.CMD_RADIO_STATE):
                             self.r_state = byte
-                            # if self.r_state:
-                            #     RNS.log(str(self)+" Radio reporting state is online ("+RNS.hexrep([self.r_state])+")", RNS.LOG_DEBUG)
-                            # else:
-                            #     RNS.log(str(self)+" Radio reporting state is offline ("+RNS.hexrep([self.r_state])+")", RNS.LOG_DEBUG)
+                            if self.r_state:
+                                pass
+                                #RNS.log(str(self)+" Radio reporting state is online", RNS.LOG_DEBUG)
+                            else:
+                                RNS.log(str(self)+" Radio reporting state is offline", RNS.LOG_DEBUG)
 
                         elif (command == KISS.CMD_RADIO_LOCK):
                             self.r_lock = byte
@@ -501,10 +506,13 @@ class RNodeInterface(Interface):
                         elif (command == KISS.CMD_ERROR):
                             if (byte == KISS.ERROR_INITRADIO):
                                 RNS.log(str(self)+" hardware initialisation error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
+                                raise IOError("Radio initialisation failure")
                             elif (byte == KISS.ERROR_INITRADIO):
                                 RNS.log(str(self)+" hardware TX error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
+                                raise IOError("Hardware transmit failure")
                             else:
                                 RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
+                                raise IOError("Unknown hardware failure")
                         elif (command == KISS.CMD_RESET):
                             if (byte == 0xF8):
                                 if self.platform == KISS.PLATFORM_ESP32:
@@ -540,7 +548,7 @@ class RNodeInterface(Interface):
             self.online = False
             RNS.log("A serial port error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
             RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
-            
+
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
 
@@ -564,5 +572,5 @@ class RNodeInterface(Interface):
         RNS.log("Reconnected serial port for "+str(self))
 
     def __str__(self):
-        return "RNodeInterface["+self.name+"]"
+        return "RNodeInterface["+str(self.name)+"]"
 
