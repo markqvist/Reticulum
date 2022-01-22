@@ -76,6 +76,9 @@ class RNodeInterface(Interface):
 
     CALLSIGN_MAX_LEN    = 32
 
+    REQUIRED_FW_VER_MAJ = 1
+    REQUIRED_FW_VER_MIN = 26
+
     def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None):
         import importlib
         if importlib.util.find_spec('serial') != None:
@@ -110,6 +113,9 @@ class RNodeInterface(Interface):
         self.platform    = None
         self.mcu         = None
         self.detected    = False
+        self.firmware_ok = False
+        self.maj_version = 0
+        self.min_version = 0
 
         self.last_id     = 0
         self.first_tx    = None
@@ -299,6 +305,20 @@ class RNodeInterface(Interface):
         if written != len(kiss_command):
             raise IOError("An IO error occurred while configuring radio state for "+self(str))
 
+    def validate_firmware(self):
+        if (self.maj_version >= RNodeInterface.REQUIRED_FW_VER_MAJ):
+            if (self.min_version >= RNodeInterface.REQUIRED_FW_VER_MIN):
+                self.firmware_ok = True
+        
+        if self.firmware_ok:
+            return
+
+        RNS.log("The firmware version of the connected RNode is "+str(self.maj_version)+"."+str(self.min_version), RNS.LOG_ERROR)
+        RNS.log("This version of Reticulum requires at least version "+str(RNodeInterface.REQUIRED_FW_VER_MAJ)+"."+str(RNodeInterface.REQUIRED_FW_VER_MIN), RNS.LOG_ERROR)
+        RNS.log("Please update your RNode firmware with rnodeconf (https://github.com/markqvist/rnodeconfigutil/)")
+        RNS.panic()
+
+
     def validateRadioState(self):
         RNS.log("Wating for radio configuration validation for "+str(self)+"...", RNS.LOG_VERBOSE)
         sleep(0.25);
@@ -465,6 +485,22 @@ class RNodeInterface(Interface):
 
                         elif (command == KISS.CMD_RADIO_LOCK):
                             self.r_lock = byte
+                        elif (command == KISS.CMD_FW_VERSION):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 2):
+                                    self.maj_version = int(command_buffer[0])
+                                    self.min_version = int(command_buffer[1])
+                                    self.validate_firmware()
+
                         elif (command == KISS.CMD_STAT_RX):
                             if (byte == KISS.FESC):
                                 escape = True
