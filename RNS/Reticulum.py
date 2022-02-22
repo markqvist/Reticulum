@@ -350,6 +350,7 @@ class Reticulum:
                                 port         = int(c["port"]) if "port" in c else None
                                 listen_ip    = c["listen_ip"] if "listen_ip" in c else None
                                 listen_port  = int(c["listen_port"]) if "listen_port" in c else None
+                                i2p_tunneled = c.as_bool("i2p_tunneled") if "i2p_tunneled" in c else False
 
                                 if port != None:
                                     listen_port = port
@@ -359,7 +360,8 @@ class Reticulum:
                                     name,
                                     device,
                                     listen_ip,
-                                    listen_port
+                                    listen_port,
+                                    i2p_tunneled
                                 )
 
                                 if "outgoing" in c and c.as_bool("outgoing") == True:
@@ -374,13 +376,16 @@ class Reticulum:
                                 kiss_framing = False
                                 if "kiss_framing" in c and c.as_bool("kiss_framing") == True:
                                     kiss_framing = True
+                                i2p_tunneled = c.as_bool("i2p_tunneled") if "i2p_tunneled" in c else False
+
 
                                 interface = TCPInterface.TCPClientInterface(
                                     RNS.Transport,
                                     name,
                                     c["target_host"],
                                     int(c["target_port"]),
-                                    kiss_framing = kiss_framing
+                                    kiss_framing = kiss_framing,
+                                    i2p_tunneled
                                 )
 
                                 if "outgoing" in c and c.as_bool("outgoing") == True:

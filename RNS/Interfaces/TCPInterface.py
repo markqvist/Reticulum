@@ -46,7 +46,12 @@ class TCPClientInterface(Interface):
     TCP_PROBE_INTERVAL = 3
     TCP_PROBES = 5
 
-    def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None, max_reconnect_tries=None, kiss_framing=False):
+    I2P_USER_TIMEOUT = 40
+    I2P_PROBE_AFTER = 10
+    I2P_PROBE_INTERVAL = 5
+    I2P_PROBES = 6
+
+    def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None, max_reconnect_tries=None, kiss_framing=False, i2p_tunneled = False):
         self.rxb = 0
         self.txb = 0
         
@@ -63,6 +68,7 @@ class TCPClientInterface(Interface):
         self.online           = False
         self.detached         = False
         self.kiss_framing     = kiss_framing
+        self.i2p_tunneled     = i2p_tunneled
 
         if max_reconnect_tries == None:
             self.max_reconnect_tries = TCPClientInterface.RECONNECT_MAX_TRIES
@@ -99,12 +105,18 @@ class TCPClientInterface(Interface):
 
 
     def set_timeouts_linux(self):
-        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_USER_TIMEOUT, int(TCPClientInterface.TCP_USER_TIMEOUT * 1000))
-
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, int(TCPClientInterface.TCP_PROBE_AFTER))
-        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, int(TCPClientInterface.TCP_PROBE_INTERVAL))
-        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, int(TCPClientInterface.TCP_PROBES))
+        if not self.i2p_tunneled:
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_USER_TIMEOUT, int(TCPClientInterface.TCP_USER_TIMEOUT * 1000))
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, int(TCPClientInterface.TCP_PROBE_AFTER))
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, int(TCPClientInterface.TCP_PROBE_INTERVAL))
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, int(TCPClientInterface.TCP_PROBES))
+        else:
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_USER_TIMEOUT, int(TCPClientInterface.I2P_USER_TIMEOUT * 1000))
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, int(TCPClientInterface.I2P_PROBE_AFTER))
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, int(TCPClientInterface.I2P_PROBE_INTERVAL))
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, int(TCPClientInterface.I2P_PROBES))
 
     def set_timeouts_osx(self):
         if hasattr(socket, "TCP_KEEPALIVE"):
@@ -113,8 +125,12 @@ class TCPClientInterface(Interface):
             TCP_KEEPIDLE = 0x10
 
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-        self.socket.setsockopt(socket.IPPROTO_TCP, TCP_KEEPIDLE, int(TCPClientInterface.TCP_PROBE_AFTER))
-
+        
+        if not self.i2p_tunneled:
+            self.socket.setsockopt(socket.IPPROTO_TCP, TCP_KEEPIDLE, int(TCPClientInterface.TCP_PROBE_AFTER))
+        else:
+            self.socket.setsockopt(socket.IPPROTO_TCP, TCP_KEEPIDLE, int(TCPClientInterface.I2P_PROBE_AFTER))
+        
     def detach(self):
         if self.socket != None:
             if hasattr(self.socket, "close"):
@@ -358,7 +374,7 @@ class TCPServerInterface(Interface):
             RNS.log("You can install it with the command: python3 -m pip install netifaces", RNS.LOG_CRITICAL)
             RNS.panic()
 
-    def __init__(self, owner, name, device=None, bindip=None, bindport=None):
+    def __init__(self, owner, name, device=None, bindip=None, bindport=None, i2p_tunneled=False):
         self.rxb = 0
         self.txb = 0
         self.online = False
@@ -367,6 +383,8 @@ class TCPServerInterface(Interface):
         self.IN  = True
         self.OUT = False
         self.name = name
+
+        self.i2p_tunneled = i2p_tunneled
 
         if device != None:
             bindip = TCPServerInterface.get_address_for_if(device)
@@ -397,7 +415,7 @@ class TCPServerInterface(Interface):
     def incoming_connection(self, handler):
         RNS.log("Accepting incoming TCP connection", RNS.LOG_VERBOSE)
         interface_name = "Client on "+self.name
-        spawned_interface = TCPClientInterface(self.owner, interface_name, target_ip=None, target_port=None, connected_socket=handler.request)
+        spawned_interface = TCPClientInterface(self.owner, interface_name, target_ip=None, target_port=None, connected_socket=handler.request, i2p_tunneled=self.i2p_tunneled)
         spawned_interface.OUT = self.OUT
         spawned_interface.IN  = self.IN
         spawned_interface.target_ip = handler.client_address[0]
