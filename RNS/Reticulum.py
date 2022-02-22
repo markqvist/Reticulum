@@ -385,7 +385,7 @@ class Reticulum:
                                     c["target_host"],
                                     int(c["target_port"]),
                                     kiss_framing = kiss_framing,
-                                    i2p_tunneled
+                                    i2p_tunneled = i2p_tunneled
                                 )
 
                                 if "outgoing" in c and c.as_bool("outgoing") == True:
