@@ -44,12 +44,14 @@ class AutoInterface(Interface):
         self.link_local_addresses = []
         self.adopted_interfaces = {}
         self.multicast_echoes = {}
+        self.timed_out_interfaces = {}
 
         self.outbound_udp_socket = None
 
         self.announce_interval = AutoInterface.PEERING_TIMEOUT/4.0
         self.peer_job_interval = AutoInterface.PEERING_TIMEOUT*1.1
         self.peering_timeout   = AutoInterface.PEERING_TIMEOUT
+        self.multicast_echo_timeout = AutoInterface.PEERING_TIMEOUT
 
         if allowed_interfaces == None:
             self.allowed_interfaces = []
@@ -229,6 +231,20 @@ class AutoInterface(Interface):
             for peer_addr in timed_out_peers:
                 removed_peer = self.peers.pop(peer_addr)
                 RNS.log(str(self)+" removed peer "+str(peer_addr)+" on "+str(removed_peer[0]), RNS.LOG_DEBUG)
+
+            for ifname in self.adopted_interfaces:
+                last_multicast_echo = 0
+                if ifname in self.multicast_echoes:
+                    last_multicast_echo = self.multicast_echoes[ifname]
+
+                if now - last_multicast_echo > self.multicast_echo_timeout:
+                    if ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == False:
+                        RNS.log("Multicast echo timeout for "+str(ifname)+". Carrier lost.", RNS.LOG_WARNING)
+                    self.timed_out_interfaces[ifname] = True
+                else:
+                    if ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == True:
+                        RNS.log(str(self)+" Carrier recovered on "+str(ifname), RNS.LOG_WARNING)
+                    self.timed_out_interfaces[ifname] = False
                 
 
     def announce_handler(self, ifname):
@@ -247,7 +263,10 @@ class AutoInterface(Interface):
             announce_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, ifis)
             announce_socket.sendto(discovery_token, addr_info[0][4])
         except Exception as e:
-            RNS.log(str(self)+" Exception while sending multicast peer announce: "+str(e))
+            if (ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == False) or not ifname in self.timed_out_interfaces:
+                RNS.log(str(self)+" Detected possible carrier loss on "+str(ifname)+": "+str(e), RNS.LOG_WARNING)
+            else:
+                pass
 
     def add_peer(self, addr, ifname):
         if addr in self.link_local_addresses:
