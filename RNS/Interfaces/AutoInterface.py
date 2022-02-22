@@ -258,8 +258,6 @@ class AutoInterface(Interface):
 
             if ifname != None:
                 self.multicast_echoes[ifname] = time.time()
-                # TODO: Remove
-                RNS.log(str(self)+" updated multicast echo time to "+str(self.multicast_echoes[ifname])+" for "+str(addr)+".", RNS.LOG_DEBUG)
             else:
                 RNS.log("Received multicast echo on unexpected interface", RNS.LOG_WARNING)
 
