@@ -43,6 +43,7 @@ class AutoInterface(Interface):
         self.peers = {}
         self.link_local_addresses = []
         self.adopted_interfaces = {}
+        self.multicast_echoes = {}
 
         self.outbound_udp_socket = None
 
@@ -123,6 +124,7 @@ class AutoInterface(Interface):
                                     link_local_addr = address["addr"]
                                     self.link_local_addresses.append(link_local_addr.split("%")[0])
                                     self.adopted_interfaces[ifname] = link_local_addr.split("%")[0]
+                                    self.multicast_echoes[ifname] = time.time()
                                     RNS.log(str(self)+" Selecting link-local address "+str(link_local_addr)+" for interface "+str(ifname), RNS.LOG_EXTREME)
 
                         if link_local_addr == None:
@@ -215,12 +217,15 @@ class AutoInterface(Interface):
             time.sleep(self.peer_job_interval)
             now = time.time()
             timed_out_peers = []
+
+            # Check for timed out peers
             for peer_addr in self.peers:
                 peer = self.peers[peer_addr]
                 last_heard = peer[1]
                 if now > last_heard+self.peering_timeout:
                     timed_out_peers.append(peer_addr)
 
+            # Remove any timed out peers
             for peer_addr in timed_out_peers:
                 removed_peer = self.peers.pop(peer_addr)
                 RNS.log(str(self)+" removed peer "+str(peer_addr)+" on "+str(removed_peer[0]), RNS.LOG_DEBUG)
@@ -232,17 +237,33 @@ class AutoInterface(Interface):
             time.sleep(self.announce_interval)
             
     def peer_announce(self, ifname):
-        link_local_address = self.adopted_interfaces[ifname]
-        discovery_token = RNS.Identity.full_hash(self.group_id+link_local_address.encode("utf-8"))
-        announce_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
-        addr_info = socket.getaddrinfo(self.mcast_discovery_address, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+        try:
+            link_local_address = self.adopted_interfaces[ifname]
+            discovery_token = RNS.Identity.full_hash(self.group_id+link_local_address.encode("utf-8"))
+            announce_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+            addr_info = socket.getaddrinfo(self.mcast_discovery_address, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
 
-        ifis = struct.pack("I", socket.if_nametoindex(ifname))
-        announce_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, ifis)
-        announce_socket.sendto(discovery_token, addr_info[0][4])
+            ifis = struct.pack("I", socket.if_nametoindex(ifname))
+            announce_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, ifis)
+            announce_socket.sendto(discovery_token, addr_info[0][4])
+        except Exception as e:
+            RNS.log(str(self)+" Exception while sending multicast peer announce: "+str(e))
 
     def add_peer(self, addr, ifname):
-        if not addr in self.link_local_addresses:
+        if addr in self.link_local_addresses:
+            ifname = None
+            for interface_name in self.adopted_interfaces:
+                if self.adopted_interfaces[interface_name] == addr:
+                    ifname = interface_name
+
+            if ifname != None:
+                self.multicast_echoes[ifname] = time.time()
+                # TODO: Remove
+                RNS.log(str(self)+" updated multicast echo time to "+str(self.multicast_echoes[ifname])+" for "+str(addr)+".", RNS.LOG_DEBUG)
+            else:
+                RNS.log("Received multicast echo on unexpected interface", RNS.LOG_WARNING)
+
+        else:
             if not addr in self.peers:
                 self.peers[addr] = [ifname, time.time()]
                 RNS.log(str(self)+" added peer "+str(addr)+" on "+str(ifname), RNS.LOG_DEBUG)

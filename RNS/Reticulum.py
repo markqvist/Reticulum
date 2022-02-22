@@ -273,6 +273,7 @@ class Reticulum:
         self.__start_local_interface()
 
         if self.is_shared_instance or self.is_standalone_instance:
+            RNS.log("Bringing up system interfaces...", RNS.LOG_DEBUG)
             interface_names = []
             for name in self.config["interfaces"]:
                 if not name in interface_names:
@@ -545,6 +546,9 @@ class Reticulum:
                 else:
                     RNS.log("The interface name \""+name+"\" was already used. Check your configuration file for errors!", RNS.LOG_ERROR)
                     RNS.panic()
+
+            RNS.log("System interfaces are ready", RNS.LOG_DEBUG)
+
                 
 
     def __create_default_config(self):
