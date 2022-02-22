@@ -191,6 +191,19 @@ configured, other Reticulum peers can connect to it with a TCP Client interface.
 *Please Note!* If you use the ``device`` option, you will need the Python module
 ``netifaces`` installed on your system. You can install it with ``pip3 install netifaces``.
 
+**Caution!** The TCP interfaces support tunneling over I2P, but to do so reliably,
+you should use the i2p_tunneled option:
+
+.. code::
+
+  [[TCP Server on I2P]]
+      type = TCPServerInterface
+      interface_enabled = yes
+      outgoing = yes
+      listen_ip = 127.0.0.1
+      listen_port = 5001
+      i2p_tunneled = yes
+
 .. _interfaces-tcpc:
 
 TCP Client Interface
@@ -235,6 +248,19 @@ and programs like soundmodems and similar over TCP. When using the
 never enable ``kiss_framing``, since this will disable internal reliability and
 recovery mechanisms that greatly improves performance over unreliable and
 intermittent TCP links.
+
+**Caution!** The TCP interfaces support tunneling over I2P, but to do so reliably,
+you should use the i2p_tunneled option:
+
+.. code::
+
+  [[TCP Client over I2P]]
+      type = TCPClientInterface
+      interface_enabled = yes
+      outgoing = yes
+      target_host = 127.0.0.1
+      target_port = 5001
+      i2p_tunneled = yes
 
 
 .. _interfaces-rnode:

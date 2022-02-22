@@ -6,6 +6,7 @@ The best way to get started with the Reticulum Network Stack depends on what
 you want to do. This guide will outline sensible starting paths for different
 scenarios.
 
+
 Try Using a Reticulum-based Program
 =============================================
 If you simply want to try using a program built with Reticulum, you can take
@@ -29,6 +30,10 @@ You can install Nomad Network via pip:
    # ... and run
    nomadnet
 
+**Please Note**: If this is the very first time you use pip to install a program
+on your system, you might need to reboot your system for your program to become
+available. If you get a "command not found" error or similar when running the
+program, reboot your system and try again.
 
 
 Using the Included Utilities
@@ -43,6 +48,7 @@ network status and connectivity.
 
 To learn more about these utility programs, have a look at the
 :ref:`Using Reticulum on Your System<using-main>` chapter of this manual.
+
 
 Creating a Network With Reticulum
 =============================================

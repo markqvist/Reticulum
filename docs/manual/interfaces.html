@@ -204,6 +204,17 @@ configured, other Reticulum peers can connect to it with a TCP Client interface.
 </div>
 <p><em>Please Note!</em> If you use the <code class="docutils literal notranslate"><span class="pre">device</span></code> option, you will need the Python module
 <code class="docutils literal notranslate"><span class="pre">netifaces</span></code> installed on your system. You can install it with <code class="docutils literal notranslate"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">netifaces</span></code>.</p>
+<p><strong>Caution!</strong> The TCP interfaces support tunneling over I2P, but to do so reliably,
+you should use the i2p_tunneled option:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">on</span> <span class="n">I2P</span><span class="p">]]</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+    <span class="n">outgoing</span> <span class="o">=</span> <span class="n">yes</span>
+    <span class="n">listen_ip</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
+    <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">5001</span>
+    <span class="n">i2p_tunneled</span> <span class="o">=</span> <span class="n">yes</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="tcp-client-interface">
 <span id="interfaces-tcpc"></span><h2>TCP Client Interface<a class="headerlink" href="#tcp-client-interface" title="Permalink to this headline">¶</a></h2>
@@ -242,6 +253,17 @@ and programs like soundmodems and similar over TCP. When using the
 never enable <code class="docutils literal notranslate"><span class="pre">kiss_framing</span></code>, since this will disable internal reliability and
 recovery mechanisms that greatly improves performance over unreliable and
 intermittent TCP links.</p>
+<p><strong>Caution!</strong> The TCP interfaces support tunneling over I2P, but to do so reliably,
+you should use the i2p_tunneled option:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">TCP</span> <span class="n">Client</span> <span class="n">over</span> <span class="n">I2P</span><span class="p">]]</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+    <span class="n">outgoing</span> <span class="o">=</span> <span class="n">yes</span>
+    <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
+    <span class="n">target_port</span> <span class="o">=</span> <span class="mi">5001</span>
+    <span class="n">i2p_tunneled</span> <span class="o">=</span> <span class="n">yes</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="rnode-lora-interface">
 <span id="interfaces-rnode"></span><h2>RNode LoRa Interface<a class="headerlink" href="#rnode-lora-interface" title="Permalink to this headline">¶</a></h2>
