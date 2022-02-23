@@ -510,6 +510,9 @@ class I2PInterface(Interface):
             for peer_addr in peers:
                 interface_name = peer_addr
                 peer_interface = I2PInterfacePeer(self, interface_name, peer_addr)
+                peer_interface.OUT = self.OUT
+                peer_interface.IN  = self.IN
+                peer_interface.parent_interface = self
                 RNS.Transport.interfaces.append(peer_interface)
 
         self.online = True
