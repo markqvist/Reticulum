@@ -6,6 +6,7 @@ if get_platform() == "android":
     from .Interfaces import AutoInterface
     from .Interfaces import TCPInterface
     from .Interfaces import UDPInterface
+    from .Interfaces import I2PInterface
 else:
     from .Interfaces import *
 
@@ -386,6 +387,24 @@ class Reticulum:
                                     int(c["target_port"]),
                                     kiss_framing = kiss_framing,
                                     i2p_tunneled = i2p_tunneled
+                                )
+
+                                if "outgoing" in c and c.as_bool("outgoing") == True:
+                                    interface.OUT = True
+                                else:
+                                    interface.OUT = False
+
+                                RNS.Transport.interfaces.append(interface)
+
+
+                            if c["type"] == "I2PInterface":
+                                i2p_peers = c.as_list("peers") if "peers" in c else None
+
+                                interface = I2PInterface.I2PInterface(
+                                    RNS.Transport,
+                                    name,
+                                    Reticulum.storagepath,
+                                    i2p_peers
                                 )
 
                                 if "outgoing" in c and c.as_bool("outgoing") == True:
