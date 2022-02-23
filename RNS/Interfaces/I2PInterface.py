@@ -9,11 +9,6 @@ import os
 import RNS
 import asyncio
 
-# TODO: Remove
-import logging
-logging.basicConfig()
-logging.getLogger().setLevel(logging.DEBUG)
-
 class HDLC():
     FLAG              = 0x7E
     ESC               = 0x7D
@@ -64,6 +59,7 @@ class I2PController:
         finally:
             self.loop.close()
 
+        # TODO: Remove
         RNS.log("EVENT LOOP DOWN")
 
     def stop(self):
@@ -100,15 +96,11 @@ class I2PController:
             key_file = open(i2p_keyfile, "w")
             key_file.write(i2p_dest.private_key.base64)
             key_file.close()
-            # TODO: Remove
-            RNS.log("Created")
         else:
             key_file = open(i2p_keyfile, "r")
             prvd = key_file.read()
             key_file.close()
             i2p_dest = self.i2plib.Destination(data=prvd, has_private_key=True)
-            # TODO: Remove
-            RNS.log("Loaded")
 
         i2p_b32 = i2p_dest.base32
 
@@ -132,15 +124,10 @@ class ThreadingI2PServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 class I2PInterfacePeer(Interface):
-    RECONNECT_WAIT = 10
+    RECONNECT_WAIT = 15
     RECONNECT_MAX_TRIES = None
 
     # TCP socket options
-    TCP_USER_TIMEOUT = 20
-    TCP_PROBE_AFTER = 5
-    TCP_PROBE_INTERVAL = 3
-    TCP_PROBES = 5
-
     I2P_USER_TIMEOUT = 40
     I2P_PROBE_AFTER = 10
     I2P_PROBE_INTERVAL = 5
@@ -194,9 +181,6 @@ class I2PInterfacePeer(Interface):
             self.target_port = self.bind_port
 
             self.owner.i2p.client_tunnel(self, target_i2p_dest)
-
-            # TODO: Remove
-            RNS.log("TCP params: "+str((self.bind_ip, self.bind_port)))
             
             if not self.connect(initial=True):
                 # TODO: Remove
@@ -318,8 +302,8 @@ class I2PInterfacePeer(Interface):
                     RNS.Transport.synthesize_tunnel(self)
 
         else:
-            RNS.log("Attempt to reconnect on a non-initiator TCP interface. This should not happen.", RNS.LOG_ERROR)
-            raise IOError("Attempt to reconnect on a non-initiator TCP interface")
+            RNS.log("Attempt to reconnect on a non-initiator I2P interface. This should not happen.", RNS.LOG_ERROR)
+            raise IOError("Attempt to reconnect on a non-initiator I2P interface")
 
     def processIncoming(self, data):
         self.rxb += len(data)
@@ -363,8 +347,6 @@ class I2PInterfacePeer(Interface):
             while True:
                 data_in = self.socket.recv(4096)
                 if len(data_in) > 0:
-                    # TODO: Remove
-                    RNS.log("Read "+str(len(data_in)))
                     pointer = 0
                     while pointer < len(data_in):
                         byte = data_in[pointer]
@@ -501,17 +483,14 @@ class I2PInterface(Interface):
         thread.setDaemon(True)
         thread.start()
 
-        # TODO: Remove
-        RNS.log("Started TCP server for I2P on "+str(self.address)+" "+str(self.server))
-
         self.i2p.server_tunnel(self)
 
         if peers != None:
             for peer_addr in peers:
                 interface_name = peer_addr
                 peer_interface = I2PInterfacePeer(self, interface_name, peer_addr)
-                peer_interface.OUT = self.OUT
-                peer_interface.IN  = self.IN
+                peer_interface.OUT = True
+                peer_interface.IN  = True
                 peer_interface.parent_interface = self
                 RNS.Transport.interfaces.append(peer_interface)
 
@@ -522,8 +501,8 @@ class I2PInterface(Interface):
         RNS.log("Accepting incoming I2P connection", RNS.LOG_VERBOSE)
         interface_name = "Connected peer on "+self.name
         spawned_interface = I2PInterfacePeer(self.owner, interface_name, connected_socket=handler.request)
-        spawned_interface.OUT = self.OUT
-        spawned_interface.IN  = self.IN
+        spawned_interface.OUT = True
+        spawned_interface.IN  = True
         spawned_interface.parent_interface = self
         spawned_interface.online = True
         RNS.log("Spawned new I2PInterface Peer: "+str(spawned_interface), RNS.LOG_VERBOSE)
