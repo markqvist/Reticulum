@@ -59,9 +59,6 @@ class I2PController:
         finally:
             self.loop.close()
 
-        # TODO: Remove
-        RNS.log("EVENT LOOP DOWN")
-
     def stop(self):
         for task in asyncio.Task.all_tasks(loop=self.loop):
             task.cancel()
@@ -109,6 +106,7 @@ class I2PController:
                 RNS.log(str(owner)+" Bringing up I2P tunnel in background, this may take a while...", RNS.LOG_INFO)
                 tunnel = self.i2plib.ServerTunnel((owner.bind_ip, owner.bind_port), loop=self.loop, destination=i2p_dest, sam_address=self.sam_address)
                 await tunnel.run()
+                owner.awaiting_i2p_tunnel = False
                 RNS.log(str(owner)+ " tunnel setup complete, instance reachable at: "+str(i2p_dest.base32)+".b32.i2p", RNS.LOG_VERBOSE)
 
             asyncio.run_coroutine_threadsafe(tunnel_up(), self.loop)
@@ -133,14 +131,14 @@ class I2PInterfacePeer(Interface):
     I2P_PROBE_INTERVAL = 5
     I2P_PROBES = 6
 
-    def __init__(self, owner, name, target_i2p_dest=None, connected_socket=None, max_reconnect_tries=None):
+    def __init__(self, parent_interface, owner, name, target_i2p_dest=None, connected_socket=None, max_reconnect_tries=None):
         self.rxb = 0
         self.txb = 0
         
         self.IN               = True
         self.OUT              = False
         self.socket           = None
-        self.parent_interface = None
+        self.parent_interface = parent_interface
         self.name             = name
         self.initiator        = False
         self.reconnecting     = False
@@ -175,22 +173,19 @@ class I2PInterfacePeer(Interface):
             self.initiator   = True
 
             self.bind_ip     = "127.0.0.1"
-            self.bind_port   = self.owner.i2p.get_free_port()
+            self.bind_port   = self.parent_interface.i2p.get_free_port()
             self.local_addr  = (self.bind_ip, self.bind_port)
             self.target_ip = self.bind_ip
             self.target_port = self.bind_port
 
-            self.owner.i2p.client_tunnel(self, target_i2p_dest)
+            self.awaiting_i2p_tunnel = True
+            self.parent_interface.i2p.client_tunnel(self, target_i2p_dest)
             
             if not self.connect(initial=True):
-                # TODO: Remove
-                RNS.log("Initial TCP attempt failed, trying reconnects...")
                 thread = threading.Thread(target=self.reconnect)
                 thread.setDaemon(True)
                 thread.start()
             else:
-                # TODO: Remove
-                RNS.log("Initial TCP attempt OK, entering read loop")
                 thread = threading.Thread(target=self.read_loop)
                 thread.setDaemon(True)
                 thread.start()
@@ -252,8 +247,10 @@ class I2PInterfacePeer(Interface):
         
         except Exception as e:
             if initial:
-                RNS.log("Initial connection for "+str(self)+" could not be established: "+str(e), RNS.LOG_ERROR)
-                RNS.log("Leaving unconnected and retrying connection in "+str(I2PInterfacePeer.RECONNECT_WAIT)+" seconds.", RNS.LOG_ERROR)
+                if not self.awaiting_i2p_tunnel:
+                    RNS.log("Initial connection for "+str(self)+" could not be established: "+str(e), RNS.LOG_ERROR)
+                    RNS.log("Leaving unconnected and retrying connection in "+str(I2PInterfacePeer.RECONNECT_WAIT)+" seconds.", RNS.LOG_ERROR)
+
                 return False
             
             else:
@@ -289,10 +286,13 @@ class I2PInterfacePeer(Interface):
                         self.connect()
 
                     except Exception as e:
-                        RNS.log("Connection attempt for "+str(self)+" failed: "+str(e), RNS.LOG_DEBUG)
+                        if not self.awaiting_i2p_tunnel:
+                            RNS.log("Connection attempt for "+str(self)+" failed: "+str(e), RNS.LOG_DEBUG)
+                        else:
+                            RNS.log(str(self)+" still waiting for I2P tunnel to appear", RNS.LOG_VERBOSE)
 
                 if not self.never_connected:
-                    RNS.log("Reconnected TCP socket for "+str(self)+".", RNS.LOG_INFO)
+                    RNS.log(str(self)+" Re-established connection via I2P tunnel", RNS.LOG_INFO)
 
                 self.reconnecting = False
                 thread = threading.Thread(target=self.read_loop)
@@ -401,10 +401,10 @@ class I2PInterfacePeer(Interface):
                 else:
                     self.online = False
                     if self.initiator and not self.detached:
-                        RNS.log("TCP socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
+                        RNS.log("Socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
                         self.reconnect()
                     else:
-                        RNS.log("TCP socket for remote client "+str(self)+" was closed.", RNS.LOG_VERBOSE)
+                        RNS.log("Socket for remote client "+str(self)+" was closed.", RNS.LOG_VERBOSE)
                         self.teardown()
 
                     break
@@ -488,7 +488,7 @@ class I2PInterface(Interface):
         if peers != None:
             for peer_addr in peers:
                 interface_name = peer_addr
-                peer_interface = I2PInterfacePeer(self, interface_name, peer_addr)
+                peer_interface = I2PInterfacePeer(self, self.owner, interface_name, peer_addr)
                 peer_interface.OUT = True
                 peer_interface.IN  = True
                 peer_interface.parent_interface = self
@@ -500,7 +500,7 @@ class I2PInterface(Interface):
     def incoming_connection(self, handler):
         RNS.log("Accepting incoming I2P connection", RNS.LOG_VERBOSE)
         interface_name = "Connected peer on "+self.name
-        spawned_interface = I2PInterfacePeer(self.owner, interface_name, connected_socket=handler.request)
+        spawned_interface = I2PInterfacePeer(self, self.owner, interface_name, connected_socket=handler.request)
         spawned_interface.OUT = True
         spawned_interface.IN  = True
         spawned_interface.parent_interface = self
