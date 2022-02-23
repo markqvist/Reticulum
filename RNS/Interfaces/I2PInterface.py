@@ -81,7 +81,6 @@ class I2PController:
                 RNS.log("Bringing up I2P tunnel to "+str(owner)+" in background, this may take a while...", RNS.LOG_INFO)
                 tunnel = self.i2plib.ClientTunnel(i2p_destination, owner.local_addr, sam_address=self.sam_address)
                 await tunnel.run()
-                tunnel.aclose()
                 RNS.log(str(owner)+ " tunnel setup complete", RNS.LOG_VERBOSE)
 
             asyncio.run_coroutine_threadsafe(tunnel_up(), self.loop)
@@ -118,7 +117,6 @@ class I2PController:
                 RNS.log(str(owner)+" Bringing up I2P tunnel in background, this may take a while...", RNS.LOG_INFO)
                 tunnel = self.i2plib.ServerTunnel((owner.bind_ip, owner.bind_port), loop=self.loop, destination=i2p_dest, sam_address=self.sam_address)
                 await tunnel.run()
-                tunnel.aclose()
                 RNS.log(str(owner)+ " tunnel setup complete, instance reachable at: "+str(i2p_dest.base32)+".b32.i2p", RNS.LOG_VERBOSE)
 
             asyncio.run_coroutine_threadsafe(tunnel_up(), self.loop)
