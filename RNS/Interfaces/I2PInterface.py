@@ -363,6 +363,8 @@ class I2PInterfacePeer(Interface):
             while True:
                 data_in = self.socket.recv(4096)
                 if len(data_in) > 0:
+                    # TODO: Remove
+                    RNS.log("Read "+str(len(data_in)))
                     pointer = 0
                     while pointer < len(data_in):
                         byte = data_in[pointer]
@@ -508,6 +510,7 @@ class I2PInterface(Interface):
             for peer_addr in peers:
                 interface_name = peer_addr
                 peer_interface = I2PInterfacePeer(self, interface_name, peer_addr)
+                RNS.Transport.interfaces.append(peer_interface)
 
         self.online = True
 
