@@ -399,12 +399,14 @@ class Reticulum:
 
                             if c["type"] == "I2PInterface":
                                 i2p_peers = c.as_list("peers") if "peers" in c else None
+                                connectable = c.as_bool("connectable") if "connectable" in c else False
 
                                 interface = I2PInterface.I2PInterface(
                                     RNS.Transport,
                                     name,
                                     Reticulum.storagepath,
-                                    i2p_peers
+                                    i2p_peers,
+                                    connectable = connectable,
                                 )
 
                                 if "outgoing" in c and c.as_bool("outgoing") == True:

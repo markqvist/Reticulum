@@ -95,8 +95,7 @@ class ClientTunnel(I2PTunnel):
             asyncio.ensure_future(proxy_data(client_reader, remote_writer),
                                   loop=self.loop)
 
-        self.server = await asyncio.start_server(handle_client, *self.local_address, 
-                                         loop=self.loop)
+        self.server = await asyncio.start_server(handle_client, *self.local_address, loop=self.loop)
 
     def stop(self):
         super().stop()
