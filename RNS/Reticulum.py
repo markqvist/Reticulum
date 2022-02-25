@@ -384,6 +384,10 @@ class Reticulum:
                                 else:
                                     interface.OUT = True
 
+                                if interface_mode != Interface.Interface.MODE_FULL:
+                                    RNS.log(str(interface)+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
+                                    interface_mode = Interface.Interface.MODE_FULL
+                                
                                 interface.mode = interface_mode
 
                                 RNS.Transport.interfaces.append(interface)
@@ -410,6 +414,10 @@ class Reticulum:
                                 else:
                                     interface.OUT = True
 
+                                if interface_mode != Interface.Interface.MODE_FULL:
+                                    RNS.log(str(interface)+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
+                                    interface_mode = Interface.Interface.MODE_FULL
+                                
                                 interface.mode = interface_mode
 
                                 RNS.Transport.interfaces.append(interface)
@@ -432,6 +440,10 @@ class Reticulum:
                                 else:
                                     interface.OUT = True
 
+                                if interface_mode != Interface.Interface.MODE_FULL:
+                                    RNS.log(str(interface)+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
+                                    interface_mode = Interface.Interface.MODE_FULL
+                                
                                 interface.mode = interface_mode
 
                                 RNS.Transport.interfaces.append(interface)
