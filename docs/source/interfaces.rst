@@ -39,7 +39,6 @@ system, which should be enabled by default in almost all OSes.
   [[Default Interface]]
     type = AutoInterface
     interface_enabled = True
-    outgoing = True
 
     # You can create multiple isolated Reticulum
     # networks on the same physical LAN by
@@ -69,7 +68,6 @@ the discovery scope by setting it to one of ``link``, ``admin``, ``site``,
   [[Default Interface]]
     type = AutoInterface
     interface_enabled = True
-    outgoing = True
 
     # Configure global discovery
 
@@ -80,9 +78,6 @@ the discovery scope by setting it to one of ``link``, ``admin``, ``site``,
 
     discovery_port = 48555
     data_port = 49555
-
-*Please Note!* If you use the Auto Interface, you will need the Python module
-``netifaces`` installed on your system. You can install it with ``pip3 install netifaces``.
 
 
 .. _interfaces-udp:
@@ -113,7 +108,7 @@ pre-existing LAN.
   [[Default UDP Interface]]
     type = UDPInterface
     interface_enabled = True
-    outgoing = True
+
     listen_ip = 0.0.0.0
     listen_port = 4242
     forward_ip = 255.255.255.255
@@ -149,8 +144,70 @@ pre-existing LAN.
     # forward_ip = 10.55.0.16
     # forward_port = 4242
 
-*Please Note!* If you use the ``device`` option, you will need the Python module
-``netifaces`` installed on your system. You can install it with ``pip3 install netifaces``.
+
+.. _interfaces-i2p:
+
+I2P Interface
+=============
+
+The I2P interface lets you connect Reticulum instances over the
+`Invisible Internet Protocol <https://i2pd.website>`_. This can be
+especially useful in cases where you want to host a globally reachable
+Reticulum instance, but do not have access to any public IP addresses,
+have a frequently changing IP address, or have firewalls blocking
+inbound traffic.
+
+Using the I2P interface, you will get a globally reachable, portable
+and persistent I2P address that your Reticulum instance can be reached
+at. The I2P
+
+To use the I2P interface, you must have an I2P router running
+on your system. The easiest way to acheive this is to download and
+install the `latest release <https://github.com/PurpleI2P/i2pd/releases/latest>`_
+of the ``ì2pd```package. For more details about I2P, see the
+`geti2p.net website <https://geti2p.net/en/about/intro>`_.`
+
+When an I2P router is running on your system, you can simply add
+an I2P interface to reticulum:
+
+.. code::
+
+  [[I2P]]
+    type = I2PInterface
+    interface_enabled = yes
+
+On the first start, Reticulum will generate a new I2P address for the
+interface and start listening for inbound traffic on it. This can take
+a while the first time, especially if your I2P router was also just
+started, and is not yet well-connected to the I2P network. When ready,
+you should see I2P base32 address printed to your log file. You can
+also inspect the status of the interface using the ``rnstatus`` utility.
+
+To connect to other Reticulum instances over I2P, just add a comma-separated
+list of I2P base32 addresses to the ``peers```option of the interface:
+
+.. code::
+
+  [[I2P]]
+    type = I2PInterface
+    interface_enabled = yes
+    peers = 5urvjicpzi7q3ybztsef4i5ow2aq4soktfj7zedz53s47r54jnqq.b32.i2p
+
+It can take anywhere from a few seconds to a few minutes to establish
+I2P connections to the desired peers, so Reticulum handles the process
+in the background, and will output relevant events to the log.
+
+**Please Note!** While the I2P interface is the simplest way to use
+Reticulum over I2P, it is also possible to tunnel the TCP server and
+client interfaces over I2P manually. This can be useful in situations
+where more control is needed, but requires manual tunnel setup through
+the I2P daemon configuration.
+
+It is important to note that the two methods are *interchangably compatible*.
+You can use the I2PInterface to connect to a TCPServerInterface that
+was manually tunneled over I2P, for example. This offers a high degree
+of flexibility in network setup, while retaining ease of use in simpler
+use-cases.
 
 .. _interfaces-tcps:
 
@@ -170,7 +227,6 @@ configured, other Reticulum peers can connect to it with a TCP Client interface.
   [[TCP Server Interface]]
     type = TCPServerInterface
     interface_enabled = True
-    outgoing = True
 
     # This configuration will listen on all IP
     # interfaces on port 4242
@@ -188,18 +244,14 @@ configured, other Reticulum peers can connect to it with a TCP Client interface.
     # device = eth0
     # port = 4242
 
-*Please Note!* If you use the ``device`` option, you will need the Python module
-``netifaces`` installed on your system. You can install it with ``pip3 install netifaces``.
-
-**Caution!** The TCP interfaces support tunneling over I2P, but to do so reliably,
-you should use the i2p_tunneled option:
+**Please Note!** The TCP interfaces support tunneling over I2P, but to do so reliably,
+you must use the i2p_tunneled option:
 
 .. code::
 
   [[TCP Server on I2P]]
       type = TCPServerInterface
       interface_enabled = yes
-      outgoing = yes
       listen_ip = 127.0.0.1
       listen_port = 5001
       i2p_tunneled = yes
@@ -221,7 +273,6 @@ same TCP Server interface at the same time.
   [[TCP Client Interface]]
     type = TCPClientInterface
     interface_enabled = True
-    outgoing = True
     target_host = 127.0.0.1
     target_port = 4242
 
@@ -237,7 +288,6 @@ software-based soundmodems. To do this, use the ``kiss_framing`` option:
   [[TCP KISS Interface]]
     type = TCPClientInterface
     interface_enabled = True
-    outgoing = True
     kiss_framing = True
     target_host = 127.0.0.1
     target_port = 8001
@@ -249,15 +299,14 @@ never enable ``kiss_framing``, since this will disable internal reliability and
 recovery mechanisms that greatly improves performance over unreliable and
 intermittent TCP links.
 
-**Caution!** The TCP interfaces support tunneling over I2P, but to do so reliably,
-you should use the i2p_tunneled option:
+**Please Note!** The TCP interfaces support tunneling over I2P, but to do so reliably,
+you must use the i2p_tunneled option:
 
 .. code::
 
   [[TCP Client over I2P]]
       type = TCPClientInterface
       interface_enabled = yes
-      outgoing = yes
       target_host = 127.0.0.1
       target_port = 5001
       i2p_tunneled = yes
@@ -281,11 +330,6 @@ can be used, and offers full control over LoRa parameters.
 
     # Enable interface if you want use it!
     interface_enabled = True
-
-    # Allow transmit on interface. Setting
-    # this to false will create a listen-
-    # only interface.
-    outgoing = true
 
     # Serial port for the device
     port = /dev/ttyUSB0
@@ -337,7 +381,6 @@ directly over a wire-pair, or for using devices such as data radios and lasers.
   [[Serial Interface]]
     type = SerialInterface
     interface_enabled = True
-    outgoing = True
 
     # Serial port for the device
     port = /dev/ttyUSB0
@@ -364,7 +407,6 @@ for station identification purposes.
   [[Packet Radio KISS Interface]]
     type = KISSInterface
     interface_enabled = True
-    outgoing = true
 
     # Serial port for the device
     port = /dev/ttyUSB1
@@ -435,9 +477,6 @@ beaconing functionality described above.
     # Enable interface if you want use it!
     interface_enabled = True
 
-    # Allow transmit on interface.
-    outgoing = True
-
     # Serial port for the device
     port = /dev/ttyUSB2
 
@@ -470,3 +509,38 @@ beaconing functionality described above.
     # This is useful for modems with a
     # small internal packet buffer.
     flow_control = false
+
+
+.. _interfaces-options:
+
+Common Interface Options
+========================
+
+A number of general options can be used to control various
+aspects of interface behaviour.
+
+The ``outgoing`` option sets whether an interface is allowed
+to transmit. Defaults to ``True``. If set to ``False`` the
+interface will only receive data, and never transmit.
+
+The ``interface_mode`` option allows selecting the high-level
+behaviour of the interface from a number of options.
+
+ - The default value is ``full``. In this mode, all discovery,
+   meshing and transpor functionality is available.
+
+ - In the ``access_point`` (or shorthand ``ap``) mode, the
+   interface will operate as a network access point. In this
+   mode, announces will not be automatically broadcasted on
+   the interface, and paths to destinations on the interface
+   will have a much shorter expiry time. This mode is useful
+   for creating interfaces that are mostly quiet, unless when
+   someone is actually using them. An example of this could
+   be a radio interface serving a wide area, where users are
+   expected to connect momentarily, use the network, and then
+   disappear again.
+
+The ``interface_enabled`` option tells Reticulum whether or not
+to bring up the interface. Defaults to ``False``. For any
+interface to be brought up, the ``interface_enabled`` option
+must be set to ``True`` or ``Yes``.
