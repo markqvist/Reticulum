@@ -69,7 +69,8 @@ class TCPClientInterface(Interface):
         self.detached         = False
         self.kiss_framing     = kiss_framing
         self.i2p_tunneled     = i2p_tunneled
-
+        self.mode             = RNS.Interfaces.Interface.Interface.MODE_FULL
+        
         if max_reconnect_tries == None:
             self.max_reconnect_tries = TCPClientInterface.RECONNECT_MAX_TRIES
         else:
@@ -385,6 +386,7 @@ class TCPServerInterface(Interface):
         self.name = name
 
         self.i2p_tunneled = i2p_tunneled
+        self.mode         = RNS.Interfaces.Interface.Interface.MODE_FULL
 
         if device != None:
             bindip = TCPServerInterface.get_address_for_if(device)
