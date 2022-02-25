@@ -759,6 +759,7 @@ __default_rns_config__ = '''# This is the default Reticulum config file.
 # configuration example, you can run the command:
 # rnsd --exampleconfig
 
+
 [reticulum]
 
 # If you enable Transport, your system will route traffic
@@ -791,6 +792,7 @@ share_instance = Yes
 
 shared_instance_port = 37428
 instance_control_port = 37429
+
 
 # You can configure Reticulum to panic and forcibly close
 # if an unrecoverable interface error occurs, such as the
