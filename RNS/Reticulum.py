@@ -302,10 +302,10 @@ class Reticulum:
                                         ignored_interfaces
                                     )
 
-                                    if "outgoing" in c and c.as_bool("outgoing") == True:
-                                        interface.OUT = True
-                                    else:
+                                    if "outgoing" in c and c.as_bool("outgoing") == False:
                                         interface.OUT = False
+                                    else:
+                                        interface.OUT = True
 
                                     RNS.Transport.interfaces.append(interface)
                                 else:
@@ -338,10 +338,10 @@ class Reticulum:
                                     forward_port
                                 )
 
-                                if "outgoing" in c and c.as_bool("outgoing") == True:
-                                    interface.OUT = True
-                                else:
+                                if "outgoing" in c and c.as_bool("outgoing") == False:
                                     interface.OUT = False
+                                else:
+                                    interface.OUT = True
 
                                 RNS.Transport.interfaces.append(interface)
 
@@ -365,10 +365,10 @@ class Reticulum:
                                     i2p_tunneled
                                 )
 
-                                if "outgoing" in c and c.as_bool("outgoing") == True:
-                                    interface.OUT = True
-                                else:
+                                if "outgoing" in c and c.as_bool("outgoing") == False:
                                     interface.OUT = False
+                                else:
+                                    interface.OUT = True
 
                                 RNS.Transport.interfaces.append(interface)
 
@@ -389,10 +389,10 @@ class Reticulum:
                                     i2p_tunneled = i2p_tunneled
                                 )
 
-                                if "outgoing" in c and c.as_bool("outgoing") == True:
-                                    interface.OUT = True
-                                else:
+                                if "outgoing" in c and c.as_bool("outgoing") == False:
                                     interface.OUT = False
+                                else:
+                                    interface.OUT = True
 
                                 RNS.Transport.interfaces.append(interface)
 
@@ -409,10 +409,10 @@ class Reticulum:
                                     connectable = connectable,
                                 )
 
-                                if "outgoing" in c and c.as_bool("outgoing") == True:
-                                    interface.OUT = True
-                                else:
+                                if "outgoing" in c and c.as_bool("outgoing") == False:
                                     interface.OUT = False
+                                else:
+                                    interface.OUT = True
 
                                 RNS.Transport.interfaces.append(interface)
 
@@ -437,10 +437,10 @@ class Reticulum:
                                     stopbits
                                 )
 
-                                if "outgoing" in c and c.as_bool("outgoing") == True:
-                                    interface.OUT = True
-                                else:
+                                if "outgoing" in c and c.as_bool("outgoing") == False:
                                     interface.OUT = False
+                                else:
+                                    interface.OUT = True
 
                                 RNS.Transport.interfaces.append(interface)
 
@@ -478,10 +478,10 @@ class Reticulum:
                                     beacon_data
                                 )
 
-                                if "outgoing" in c and c.as_bool("outgoing") == True:
-                                    interface.OUT = True
-                                else:
+                                if "outgoing" in c and c.as_bool("outgoing") == False:
                                     interface.OUT = False
+                                else:
+                                    interface.OUT = True
 
                                 RNS.Transport.interfaces.append(interface)
 
@@ -520,10 +520,10 @@ class Reticulum:
                                     flow_control
                                 )
 
-                                if "outgoing" in c and c.as_bool("outgoing") == True:
-                                    interface.OUT = True
-                                else:
+                                if "outgoing" in c and c.as_bool("outgoing") == False:
                                     interface.OUT = False
+                                else:
+                                    interface.OUT = True
 
                                 RNS.Transport.interfaces.append(interface)
 
@@ -556,10 +556,10 @@ class Reticulum:
                                     id_callsign = id_callsign
                                 )
 
-                                if "outgoing" in c and c.as_bool("outgoing") == True:
-                                    interface.OUT = True
-                                else:
+                                if "outgoing" in c and c.as_bool("outgoing") == False:
                                     interface.OUT = False
+                                else:
+                                    interface.OUT = True
 
                                 RNS.Transport.interfaces.append(interface)
                         else:
@@ -789,7 +789,6 @@ loglevel = 4
   [[Default Interface]]
     type = AutoInterface
     interface_enabled = True
-    outgoing = True
 
 
   # The following example enables communication with other
@@ -798,7 +797,6 @@ loglevel = 4
   [[UDP Interface]]
     type = UDPInterface
     interface_enabled = False
-    outgoing = True
     listen_ip = 0.0.0.0
     listen_port = 4242
     forward_ip = 255.255.255.255
@@ -842,7 +840,6 @@ loglevel = 4
   [[TCP Server Interface]]
     type = TCPServerInterface
     interface_enabled = False
-    outgoing = True
 
     # This configuration will listen on all IP
     # interfaces on port 4242
@@ -869,7 +866,6 @@ loglevel = 4
   [[TCP Client Interface]]
     type = TCPClientInterface
     interface_enabled = False
-    outgoing = True
     target_host = 127.0.0.1
     target_port = 4242
 
@@ -882,11 +878,6 @@ loglevel = 4
 
     # Enable interface if you want use it!
     interface_enabled = False
-
-    # Allow transmit on interface. Setting
-    # this to false will create a listen-
-    # only interface.
-    outgoing = true
 
     # Serial port for the device
     port = /dev/ttyUSB0
@@ -939,9 +930,6 @@ loglevel = 4
 
     # Enable interface if you want use it!
     interface_enabled = False
-
-    # Allow transmit on interface.
-    outgoing = true
 
     # Serial port for the device
     port = /dev/ttyUSB1
@@ -1013,9 +1001,6 @@ loglevel = 4
 
     # Enable interface if you want use it!
     interface_enabled = False
-
-    # Allow transmit on interface.
-    outgoing = true
 
     # Serial port for the device
     port = /dev/ttyUSB2
