@@ -80,71 +80,6 @@ the discovery scope by setting it to one of ``link``, ``admin``, ``site``,
     data_port = 49555
 
 
-.. _interfaces-udp:
-
-UDP Interface
-=============
-
-A UDP interface can be useful for communicating over IP networks, both
-private and the internet. It can also allow broadcast communication
-over IP networks, so it can provide an easy way to enable connectivity
-with all other peers on a local area network.
-
-*Please Note!* Using broadcast UDP traffic has performance implications,
-especially on WiFi. If your goal is simply to enable easy communication
-with all peers in your local ethernet broadcast domain, the
-:ref:`Auto Interface<interfaces-auto>` performs better, and is just as
-easy to use.
-
-The below example is enabled by default on new Reticulum installations,
-as it provides an easy way to get started and to test Reticulum on a
-pre-existing LAN.
-
-.. code::
-
-  # This example enables communication with other
-  # local Reticulum peers over UDP.
-  
-  [[Default UDP Interface]]
-    type = UDPInterface
-    interface_enabled = True
-
-    listen_ip = 0.0.0.0
-    listen_port = 4242
-    forward_ip = 255.255.255.255
-    forward_port = 4242
-
-    # The above configuration will allow communication
-    # within the local broadcast domains of all local
-    # IP interfaces.
-
-    # Instead of specifying listen_ip, listen_port,
-    # forward_ip and forward_port, you can also bind
-    # to a specific network device like below.
-
-    # device = eth0
-    # port = 4242
-
-    # Assuming the eth0 device has the address
-    # 10.55.0.72/24, the above configuration would
-    # be equivalent to the following manual setup.
-    # Note that we are both listening and forwarding to
-    # the broadcast address of the network segments.
-
-    # listen_ip = 10.55.0.255
-    # listen_port = 4242
-    # forward_ip = 10.55.0.255
-    # forward_port = 4242
-
-    # You can of course also communicate only with
-    # a single IP address
-
-    # listen_ip = 10.55.0.15
-    # listen_port = 4242
-    # forward_ip = 10.55.0.16
-    # forward_port = 4242
-
-
 .. _interfaces-i2p:
 
 I2P Interface
@@ -208,6 +143,7 @@ You can use the I2PInterface to connect to a TCPServerInterface that
 was manually tunneled over I2P, for example. This offers a high degree
 of flexibility in network setup, while retaining ease of use in simpler
 use-cases.
+
 
 .. _interfaces-tcps:
 
@@ -310,6 +246,71 @@ you must use the i2p_tunneled option:
       target_host = 127.0.0.1
       target_port = 5001
       i2p_tunneled = yes
+
+
+.. _interfaces-udp:
+
+UDP Interface
+=============
+
+A UDP interface can be useful for communicating over IP networks, both
+private and the internet. It can also allow broadcast communication
+over IP networks, so it can provide an easy way to enable connectivity
+with all other peers on a local area network.
+
+*Please Note!* Using broadcast UDP traffic has performance implications,
+especially on WiFi. If your goal is simply to enable easy communication
+with all peers in your local ethernet broadcast domain, the
+:ref:`Auto Interface<interfaces-auto>` performs better, and is just as
+easy to use.
+
+The below example is enabled by default on new Reticulum installations,
+as it provides an easy way to get started and to test Reticulum on a
+pre-existing LAN.
+
+.. code::
+
+  # This example enables communication with other
+  # local Reticulum peers over UDP.
+  
+  [[Default UDP Interface]]
+    type = UDPInterface
+    interface_enabled = True
+
+    listen_ip = 0.0.0.0
+    listen_port = 4242
+    forward_ip = 255.255.255.255
+    forward_port = 4242
+
+    # The above configuration will allow communication
+    # within the local broadcast domains of all local
+    # IP interfaces.
+
+    # Instead of specifying listen_ip, listen_port,
+    # forward_ip and forward_port, you can also bind
+    # to a specific network device like below.
+
+    # device = eth0
+    # port = 4242
+
+    # Assuming the eth0 device has the address
+    # 10.55.0.72/24, the above configuration would
+    # be equivalent to the following manual setup.
+    # Note that we are both listening and forwarding to
+    # the broadcast address of the network segments.
+
+    # listen_ip = 10.55.0.255
+    # listen_port = 4242
+    # forward_ip = 10.55.0.255
+    # forward_port = 4242
+
+    # You can of course also communicate only with
+    # a single IP address
+
+    # listen_ip = 10.55.0.15
+    # listen_port = 4242
+    # forward_ip = 10.55.0.16
+    # forward_port = 4242
 
 
 .. _interfaces-rnode:
