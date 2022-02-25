@@ -37,6 +37,7 @@ class LocalClientInterface(Interface):
         self.never_connected  = True
         self.detached         = False
         self.name             = name
+        self.mode             = RNS.Interfaces.Interface.Interface.MODE_FULL
 
         if connected_socket != None:
             self.receives    = True
@@ -237,6 +238,7 @@ class LocalServerInterface(Interface):
         self.IN  = True
         self.OUT = False
         self.name = "Reticulum"
+        self.mode = RNS.Interfaces.Interface.Interface.MODE_FULL
 
         if (bindport != None):
             self.receives = True

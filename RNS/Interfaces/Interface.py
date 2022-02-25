@@ -7,6 +7,10 @@ class Interface:
     RPT = False
     name = None
 
+    MODE_FULL           = 0x01
+    MODE_POINT_TO_POINT = 0x02
+    MODE_ACCESS_POINT   = 0x03
+
     def __init__(self):
         self.rxb = 0
         self.txb = 0

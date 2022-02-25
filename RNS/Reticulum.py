@@ -280,6 +280,16 @@ class Reticulum:
                 if not name in interface_names:
                     c = self.config["interfaces"][name]
 
+                    interface_mode = Interface.Interface.MODE_FULL
+                    
+                    if "mode" in c:
+                        if c["mode"] == "full":
+                            interface_mode = Interface.Interface.MODE_FULL
+                        elif c["mode"] == "accesspoint" or c["mode"] == "ap":
+                            interface_mode = Interface.Interface.MODE_ACCESS_POINT
+                        elif c["mode"] == "pointtopoint" or c["mode"] == "ptp":
+                            interface_mode = Interface.Interface.MODE_POINT_TO_POINT
+
                     try:
                         if ("interface_enabled" in c) and c.as_bool("interface_enabled") == True:
                             if c["type"] == "AutoInterface":
@@ -306,6 +316,8 @@ class Reticulum:
                                         interface.OUT = False
                                     else:
                                         interface.OUT = True
+
+                                    interface.mode = interface_mode
 
                                     RNS.Transport.interfaces.append(interface)
                                 else:
@@ -343,6 +355,8 @@ class Reticulum:
                                 else:
                                     interface.OUT = True
 
+                                interface.mode = interface_mode
+
                                 RNS.Transport.interfaces.append(interface)
 
 
@@ -370,6 +384,8 @@ class Reticulum:
                                 else:
                                     interface.OUT = True
 
+                                interface.mode = interface_mode
+
                                 RNS.Transport.interfaces.append(interface)
 
 
@@ -394,6 +410,8 @@ class Reticulum:
                                 else:
                                     interface.OUT = True
 
+                                interface.mode = interface_mode
+
                                 RNS.Transport.interfaces.append(interface)
 
 
@@ -413,6 +431,8 @@ class Reticulum:
                                     interface.OUT = False
                                 else:
                                     interface.OUT = True
+
+                                interface.mode = interface_mode
 
                                 RNS.Transport.interfaces.append(interface)
 
@@ -441,6 +461,8 @@ class Reticulum:
                                     interface.OUT = False
                                 else:
                                     interface.OUT = True
+
+                                interface.mode = interface_mode
 
                                 RNS.Transport.interfaces.append(interface)
 
@@ -482,6 +504,8 @@ class Reticulum:
                                     interface.OUT = False
                                 else:
                                     interface.OUT = True
+
+                                interface.mode = interface_mode
 
                                 RNS.Transport.interfaces.append(interface)
 
@@ -525,6 +549,8 @@ class Reticulum:
                                 else:
                                     interface.OUT = True
 
+                                interface.mode = interface_mode
+
                                 RNS.Transport.interfaces.append(interface)
 
                             if c["type"] == "RNodeInterface":
@@ -560,6 +586,8 @@ class Reticulum:
                                     interface.OUT = False
                                 else:
                                     interface.OUT = True
+
+                                interface.mode = interface_mode
 
                                 RNS.Transport.interfaces.append(interface)
                         else:

@@ -86,19 +86,19 @@ Reticulum implements a range of generalised interface types that covers most of 
 
 
 
-## Feature Roadmap
- - Stream mode for links
- - Globally routable multicast
+## Planned Features
  - More interface types for even broader compatibility
    - ESP32 devices (ESP-Now, Bluetooth, etc.)
    - More LoRa transceivers
    - AT-compatible modems
    - AWDL / OWL
+   - HF Modems
    - CAN-bus
    - ZeroMQ
    - MQTT
    - SPI
    - i²c
+ - Globally routable multicast
 
 ## Dependencies:
  - Python 3.6

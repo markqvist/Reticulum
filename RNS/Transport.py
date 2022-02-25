@@ -35,6 +35,7 @@ class Transport:
     PATHFINDER_T    = 10         # Retry grace period
     PATHFINDER_RW   = 10         # Random window for announce rebroadcast
     PATHFINDER_E    = 60*60*24*7 # Path expiration in seconds
+    AP_PATH_TIME    = 60*60*24   # Expiration for Access Point paths 
 
     # TODO: Calculate an optimal number for this in
     # various situations
@@ -511,13 +512,19 @@ class Transport:
             for interface in Transport.interfaces:
                 if interface.OUT:
                     should_transmit = True
+
                     if packet.destination.type == RNS.Destination.LINK:
                         if packet.destination.status == RNS.Link.CLOSED:
                             should_transmit = False
                         if interface != packet.destination.attached_interface:
                             should_transmit = False
+                    
                     if packet.attached_interface != None and interface != packet.attached_interface:
                         should_transmit = False
+
+                    if packet.packet_type == RNS.Packet.ANNOUNCE:
+                        if packet.attached_interface == None and interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
+                            should_transmit = False
                             
                     if should_transmit:
                         if not stored_hash:
@@ -862,12 +869,16 @@ class Transport:
                         if should_add:
                             now                = time.time()
                             retries            = 0
-                            expires            = now + Transport.PATHFINDER_E
                             announce_hops      = packet.hops
                             local_rebroadcasts = 0
                             block_rebroadcasts = False
                             attached_interface = None
                             retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops) + (RNS.rand() * Transport.PATHFINDER_RW)
+
+                            if packet.receiving_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
+                                expires            = now + Transport.AP_PATH_TIME
+                            else:
+                                expires            = now + Transport.PATHFINDER_E
                             
                             random_blobs.append(random_blob)
 
