@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Supported Interfaces &#8212; Reticulum Network Stack 0.3.2 beta documentation</title>
+    <title>Supported Interfaces &#8212; Reticulum Network Stack 0.3.3 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="networks.html" title="Building Networks"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.2 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.3 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Supported Interfaces</a></li> 
       </ul>
     </div>  
@@ -68,7 +68,6 @@ system, which should be enabled by default in almost all OSes.</p>
 <span class="p">[[</span><span class="n">Default</span> <span class="n">Interface</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">AutoInterface</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
-  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
 
   <span class="c1"># You can create multiple isolated Reticulum</span>
   <span class="c1"># networks on the same physical LAN by</span>
@@ -95,7 +94,6 @@ the discovery scope by setting it to one of <code class="docutils literal notran
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Default</span> <span class="n">Interface</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">AutoInterface</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
-  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
 
   <span class="c1"># Configure global discovery</span>
 
@@ -108,8 +106,144 @@ the discovery scope by setting it to one of <code class="docutils literal notran
   <span class="n">data_port</span> <span class="o">=</span> <span class="mi">49555</span>
 </pre></div>
 </div>
-<p><em>Please Note!</em> If you use the Auto Interface, you will need the Python module
-<code class="docutils literal notranslate"><span class="pre">netifaces</span></code> installed on your system. You can install it with <code class="docutils literal notranslate"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">netifaces</span></code>.</p>
+</div>
+<div class="section" id="i2p-interface">
+<span id="interfaces-i2p"></span><h2>I2P Interface<a class="headerlink" href="#i2p-interface" title="Permalink to this headline">¶</a></h2>
+<p>The I2P interface lets you connect Reticulum instances over the
+<a class="reference external" href="https://i2pd.website">Invisible Internet Protocol</a>. This can be
+especially useful in cases where you want to host a globally reachable
+Reticulum instance, but do not have access to any public IP addresses,
+have a frequently changing IP address, or have firewalls blocking
+inbound traffic.</p>
+<p>Using the I2P interface, you will get a globally reachable, portable
+and persistent I2P address that your Reticulum instance can be reached
+at. The I2P</p>
+<p>To use the I2P interface, you must have an I2P router running
+on your system. The easiest way to acheive this is to download and
+install the <a class="reference external" href="https://github.com/PurpleI2P/i2pd/releases/latest">latest release</a>
+of the <a href="#id1"><span class="problematic" id="id2">``</span></a>ì2pd```package. For more details about I2P, see the
+<a class="reference external" href="https://geti2p.net/en/about/intro">geti2p.net website</a>.`</p>
+<p>When an I2P router is running on your system, you can simply add
+an I2P interface to reticulum:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">I2P</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">I2PInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+</pre></div>
+</div>
+<p>On the first start, Reticulum will generate a new I2P address for the
+interface and start listening for inbound traffic on it. This can take
+a while the first time, especially if your I2P router was also just
+started, and is not yet well-connected to the I2P network. When ready,
+you should see I2P base32 address printed to your log file. You can
+also inspect the status of the interface using the <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> utility.</p>
+<p>To connect to other Reticulum instances over I2P, just add a comma-separated
+list of I2P base32 addresses to the <a href="#id3"><span class="problematic" id="id4">``</span></a>peers```option of the interface:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">I2P</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">I2PInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+  <span class="n">peers</span> <span class="o">=</span> <span class="mi">5</span><span class="n">urvjicpzi7q3ybztsef4i5ow2aq4soktfj7zedz53s47r54jnqq</span><span class="o">.</span><span class="n">b32</span><span class="o">.</span><span class="n">i2p</span>
+</pre></div>
+</div>
+<p>It can take anywhere from a few seconds to a few minutes to establish
+I2P connections to the desired peers, so Reticulum handles the process
+in the background, and will output relevant events to the log.</p>
+<p><strong>Please Note!</strong> While the I2P interface is the simplest way to use
+Reticulum over I2P, it is also possible to tunnel the TCP server and
+client interfaces over I2P manually. This can be useful in situations
+where more control is needed, but requires manual tunnel setup through
+the I2P daemon configuration.</p>
+<p>It is important to note that the two methods are <em>interchangably compatible</em>.
+You can use the I2PInterface to connect to a TCPServerInterface that
+was manually tunneled over I2P, for example. This offers a high degree
+of flexibility in network setup, while retaining ease of use in simpler
+use-cases.</p>
+</div>
+<div class="section" id="tcp-server-interface">
+<span id="interfaces-tcps"></span><h2>TCP Server Interface<a class="headerlink" href="#tcp-server-interface" title="Permalink to this headline">¶</a></h2>
+<p>The TCP Server interface is suitable for allowing other peers to connect over
+the Internet or private IP networks. When a TCP server interface has been
+configured, other Reticulum peers can connect to it with a TCP Client interface.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example demonstrates a TCP server interface.</span>
+<span class="c1"># It will listen for incoming connections on the</span>
+<span class="c1"># specified IP address and port number.</span>
+
+<span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># This configuration will listen on all IP</span>
+  <span class="c1"># interfaces on port 4242</span>
+
+  <span class="n">listen_ip</span> <span class="o">=</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span>
+  <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">4242</span>
+
+  <span class="c1"># Alternatively you can bind to a specific IP</span>
+
+  <span class="c1"># listen_ip = 10.0.0.88</span>
+  <span class="c1"># listen_port = 4242</span>
+
+  <span class="c1"># Or a specific network device</span>
+
+  <span class="c1"># device = eth0</span>
+  <span class="c1"># port = 4242</span>
+</pre></div>
+</div>
+<p><strong>Please Note!</strong> The TCP interfaces support tunneling over I2P, but to do so reliably,
+you must use the i2p_tunneled option:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">on</span> <span class="n">I2P</span><span class="p">]]</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+    <span class="n">listen_ip</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
+    <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">5001</span>
+    <span class="n">i2p_tunneled</span> <span class="o">=</span> <span class="n">yes</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="tcp-client-interface">
+<span id="interfaces-tcpc"></span><h2>TCP Client Interface<a class="headerlink" href="#tcp-client-interface" title="Permalink to this headline">¶</a></h2>
+<p>To connect to a TCP server interface, you would naturally use the TCP client
+interface. Many TCP Client interfaces from different peers can connect to the
+same TCP Server interface at the same time.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of a TCP Client interface. The</span>
+<span class="c1"># target_host can either be an IP address or a hostname.</span>
+
+<span class="p">[[</span><span class="n">TCP</span> <span class="n">Client</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
+  <span class="n">target_port</span> <span class="o">=</span> <span class="mi">4242</span>
+</pre></div>
+</div>
+<p>It is also possible to use this interface type to connect via other programs
+or hardware devices that expose a KISS interface on a TCP port, for example
+software-based soundmodems. To do this, use the <code class="docutils literal notranslate"><span class="pre">kiss_framing</span></code> option:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of a TCP Client interface that connects</span>
+<span class="c1"># to a software TNC soundmodem on a KISS over TCP port.</span>
+
+<span class="p">[[</span><span class="n">TCP</span> <span class="n">KISS</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">kiss_framing</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
+  <span class="n">target_port</span> <span class="o">=</span> <span class="mi">8001</span>
+</pre></div>
+</div>
+<p><strong>Caution!</strong> Only use the KISS framing option when connecting to external devices
+and programs like soundmodems and similar over TCP. When using the
+<code class="docutils literal notranslate"><span class="pre">TCPClientInterface</span></code> in conjunction with the <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> you should
+never enable <code class="docutils literal notranslate"><span class="pre">kiss_framing</span></code>, since this will disable internal reliability and
+recovery mechanisms that greatly improves performance over unreliable and
+intermittent TCP links.</p>
+<p><strong>Please Note!</strong> The TCP interfaces support tunneling over I2P, but to do so reliably,
+you must use the i2p_tunneled option:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">TCP</span> <span class="n">Client</span> <span class="n">over</span> <span class="n">I2P</span><span class="p">]]</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+    <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
+    <span class="n">target_port</span> <span class="o">=</span> <span class="mi">5001</span>
+    <span class="n">i2p_tunneled</span> <span class="o">=</span> <span class="n">yes</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="udp-interface">
 <span id="interfaces-udp"></span><h2>UDP Interface<a class="headerlink" href="#udp-interface" title="Permalink to this headline">¶</a></h2>
@@ -131,7 +265,7 @@ pre-existing LAN.</p>
 <span class="p">[[</span><span class="n">Default</span> <span class="n">UDP</span> <span class="n">Interface</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">UDPInterface</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
-  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
+
   <span class="n">listen_ip</span> <span class="o">=</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span>
   <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">4242</span>
   <span class="n">forward_ip</span> <span class="o">=</span> <span class="mf">255.255</span><span class="o">.</span><span class="mf">255.255</span>
@@ -168,102 +302,6 @@ pre-existing LAN.</p>
   <span class="c1"># forward_port = 4242</span>
 </pre></div>
 </div>
-<p><em>Please Note!</em> If you use the <code class="docutils literal notranslate"><span class="pre">device</span></code> option, you will need the Python module
-<code class="docutils literal notranslate"><span class="pre">netifaces</span></code> installed on your system. You can install it with <code class="docutils literal notranslate"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">netifaces</span></code>.</p>
-</div>
-<div class="section" id="tcp-server-interface">
-<span id="interfaces-tcps"></span><h2>TCP Server Interface<a class="headerlink" href="#tcp-server-interface" title="Permalink to this headline">¶</a></h2>
-<p>The TCP Server interface is suitable for allowing other peers to connect over
-the Internet or private IP networks. When a TCP server interface has been
-configured, other Reticulum peers can connect to it with a TCP Client interface.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example demonstrates a TCP server interface.</span>
-<span class="c1"># It will listen for incoming connections on the</span>
-<span class="c1"># specified IP address and port number.</span>
-
-<span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">Interface</span><span class="p">]]</span>
-  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
-  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
-  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
-
-  <span class="c1"># This configuration will listen on all IP</span>
-  <span class="c1"># interfaces on port 4242</span>
-
-  <span class="n">listen_ip</span> <span class="o">=</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span>
-  <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">4242</span>
-
-  <span class="c1"># Alternatively you can bind to a specific IP</span>
-
-  <span class="c1"># listen_ip = 10.0.0.88</span>
-  <span class="c1"># listen_port = 4242</span>
-
-  <span class="c1"># Or a specific network device</span>
-
-  <span class="c1"># device = eth0</span>
-  <span class="c1"># port = 4242</span>
-</pre></div>
-</div>
-<p><em>Please Note!</em> If you use the <code class="docutils literal notranslate"><span class="pre">device</span></code> option, you will need the Python module
-<code class="docutils literal notranslate"><span class="pre">netifaces</span></code> installed on your system. You can install it with <code class="docutils literal notranslate"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">netifaces</span></code>.</p>
-<p><strong>Caution!</strong> The TCP interfaces support tunneling over I2P, but to do so reliably,
-you should use the i2p_tunneled option:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">on</span> <span class="n">I2P</span><span class="p">]]</span>
-    <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
-    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
-    <span class="n">outgoing</span> <span class="o">=</span> <span class="n">yes</span>
-    <span class="n">listen_ip</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
-    <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">5001</span>
-    <span class="n">i2p_tunneled</span> <span class="o">=</span> <span class="n">yes</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="tcp-client-interface">
-<span id="interfaces-tcpc"></span><h2>TCP Client Interface<a class="headerlink" href="#tcp-client-interface" title="Permalink to this headline">¶</a></h2>
-<p>To connect to a TCP server interface, you would naturally use the TCP client
-interface. Many TCP Client interfaces from different peers can connect to the
-same TCP Server interface at the same time.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of a TCP Client interface. The</span>
-<span class="c1"># target_host can either be an IP address or a hostname.</span>
-
-<span class="p">[[</span><span class="n">TCP</span> <span class="n">Client</span> <span class="n">Interface</span><span class="p">]]</span>
-  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
-  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
-  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
-  <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
-  <span class="n">target_port</span> <span class="o">=</span> <span class="mi">4242</span>
-</pre></div>
-</div>
-<p>It is also possible to use this interface type to connect via other programs
-or hardware devices that expose a KISS interface on a TCP port, for example
-software-based soundmodems. To do this, use the <code class="docutils literal notranslate"><span class="pre">kiss_framing</span></code> option:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of a TCP Client interface that connects</span>
-<span class="c1"># to a software TNC soundmodem on a KISS over TCP port.</span>
-
-<span class="p">[[</span><span class="n">TCP</span> <span class="n">KISS</span> <span class="n">Interface</span><span class="p">]]</span>
-  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
-  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
-  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
-  <span class="n">kiss_framing</span> <span class="o">=</span> <span class="kc">True</span>
-  <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
-  <span class="n">target_port</span> <span class="o">=</span> <span class="mi">8001</span>
-</pre></div>
-</div>
-<p><strong>Caution!</strong> Only use the KISS framing option when connecting to external devices
-and programs like soundmodems and similar over TCP. When using the
-<code class="docutils literal notranslate"><span class="pre">TCPClientInterface</span></code> in conjunction with the <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> you should
-never enable <code class="docutils literal notranslate"><span class="pre">kiss_framing</span></code>, since this will disable internal reliability and
-recovery mechanisms that greatly improves performance over unreliable and
-intermittent TCP links.</p>
-<p><strong>Caution!</strong> The TCP interfaces support tunneling over I2P, but to do so reliably,
-you should use the i2p_tunneled option:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">TCP</span> <span class="n">Client</span> <span class="n">over</span> <span class="n">I2P</span><span class="p">]]</span>
-    <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
-    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
-    <span class="n">outgoing</span> <span class="o">=</span> <span class="n">yes</span>
-    <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
-    <span class="n">target_port</span> <span class="o">=</span> <span class="mi">5001</span>
-    <span class="n">i2p_tunneled</span> <span class="o">=</span> <span class="n">yes</span>
-</pre></div>
-</div>
 </div>
 <div class="section" id="rnode-lora-interface">
 <span id="interfaces-rnode"></span><h2>RNode LoRa Interface<a class="headerlink" href="#rnode-lora-interface" title="Permalink to this headline">¶</a></h2>
@@ -277,11 +315,6 @@ can be used, and offers full control over LoRa parameters.</p>
 
   <span class="c1"># Enable interface if you want use it!</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
-
-  <span class="c1"># Allow transmit on interface. Setting</span>
-  <span class="c1"># this to false will create a listen-</span>
-  <span class="c1"># only interface.</span>
-  <span class="n">outgoing</span> <span class="o">=</span> <span class="n">true</span>
 
   <span class="c1"># Serial port for the device</span>
   <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB0</span>
@@ -329,7 +362,6 @@ directly over a wire-pair, or for using devices such as data radios and lasers.<
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Serial</span> <span class="n">Interface</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">SerialInterface</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
-  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
 
   <span class="c1"># Serial port for the device</span>
   <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB0</span>
@@ -352,7 +384,6 @@ for station identification purposes.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Packet</span> <span class="n">Radio</span> <span class="n">KISS</span> <span class="n">Interface</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">KISSInterface</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
-  <span class="n">outgoing</span> <span class="o">=</span> <span class="n">true</span>
 
   <span class="c1"># Serial port for the device</span>
   <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB1</span>
@@ -417,9 +448,6 @@ beaconing functionality described above.</p>
   <span class="c1"># Enable interface if you want use it!</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
 
-  <span class="c1"># Allow transmit on interface.</span>
-  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
-
   <span class="c1"># Serial port for the device</span>
   <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB2</span>
 
@@ -455,6 +483,36 @@ beaconing functionality described above.</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="common-interface-options">
+<span id="interfaces-options"></span><h2>Common Interface Options<a class="headerlink" href="#common-interface-options" title="Permalink to this headline">¶</a></h2>
+<p>A number of general options can be used to control various
+aspects of interface behaviour.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">outgoing</span></code> option sets whether an interface is allowed
+to transmit. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>. If set to <code class="docutils literal notranslate"><span class="pre">False</span></code> the
+interface will only receive data, and never transmit.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">interface_mode</span></code> option allows selecting the high-level
+behaviour of the interface from a number of options.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The default value is <code class="docutils literal notranslate"><span class="pre">full</span></code>. In this mode, all discovery,
+meshing and transpor functionality is available.</p></li>
+<li><p>In the <code class="docutils literal notranslate"><span class="pre">access_point</span></code> (or shorthand <code class="docutils literal notranslate"><span class="pre">ap</span></code>) mode, the
+interface will operate as a network access point. In this
+mode, announces will not be automatically broadcasted on
+the interface, and paths to destinations on the interface
+will have a much shorter expiry time. This mode is useful
+for creating interfaces that are mostly quiet, unless when
+someone is actually using them. An example of this could
+be a radio interface serving a wide area, where users are
+expected to connect momentarily, use the network, and then
+disappear again.</p></li>
+</ul>
+</div></blockquote>
+<p>The <code class="docutils literal notranslate"><span class="pre">interface_enabled</span></code> option tells Reticulum whether or not
+to bring up the interface. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>. For any
+interface to be brought up, the <code class="docutils literal notranslate"><span class="pre">interface_enabled</span></code> option
+must be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">Yes</span></code>.</p>
+</div>
 </div>
 
 
@@ -468,13 +526,15 @@ beaconing functionality described above.</p>
   <ul>
 <li><a class="reference internal" href="#">Supported Interfaces</a><ul>
 <li><a class="reference internal" href="#auto-interface">Auto Interface</a></li>
-<li><a class="reference internal" href="#udp-interface">UDP Interface</a></li>
+<li><a class="reference internal" href="#i2p-interface">I2P Interface</a></li>
 <li><a class="reference internal" href="#tcp-server-interface">TCP Server Interface</a></li>
 <li><a class="reference internal" href="#tcp-client-interface">TCP Client Interface</a></li>
+<li><a class="reference internal" href="#udp-interface">UDP Interface</a></li>
 <li><a class="reference internal" href="#rnode-lora-interface">RNode LoRa Interface</a></li>
 <li><a class="reference internal" href="#serial-interface">Serial Interface</a></li>
 <li><a class="reference internal" href="#kiss-interface">KISS Interface</a></li>
 <li><a class="reference internal" href="#ax-25-kiss-interface">AX.25 KISS Interface</a></li>
+<li><a class="reference internal" href="#common-interface-options">Common Interface Options</a></li>
 </ul>
 </li>
 </ul>
@@ -518,7 +578,7 @@ beaconing functionality described above.</p>
         <li class="right" >
           <a href="networks.html" title="Building Networks"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.2 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.3 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Supported Interfaces</a></li> 
       </ul>
     </div>
