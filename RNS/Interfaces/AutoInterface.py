@@ -19,7 +19,7 @@ class AutoInterface(Interface):
     SCOPE_ORGANISATION = "8"
     SCOPE_GLOBAL       = "e"
 
-    PEERING_TIMEOUT    = 6.0
+    PEERING_TIMEOUT    = 7.5
 
     DARWIN_IGNORE_IFS  = ["awdl0", "llw0", "lo0", "en5"]
     ANDROID_IGNORE_IFS = ["dummy0", "lo", "tun0"]
@@ -48,10 +48,10 @@ class AutoInterface(Interface):
 
         self.outbound_udp_socket = None
 
-        self.announce_interval = AutoInterface.PEERING_TIMEOUT/4.0
+        self.announce_interval = AutoInterface.PEERING_TIMEOUT/5.0
         self.peer_job_interval = AutoInterface.PEERING_TIMEOUT*1.1
         self.peering_timeout   = AutoInterface.PEERING_TIMEOUT
-        self.multicast_echo_timeout = AutoInterface.PEERING_TIMEOUT
+        self.multicast_echo_timeout = AutoInterface.PEERING_TIMEOUT/2
 
         if allowed_interfaces == None:
             self.allowed_interfaces = []
@@ -278,7 +278,7 @@ class AutoInterface(Interface):
             if ifname != None:
                 self.multicast_echoes[ifname] = time.time()
             else:
-                RNS.log("Received multicast echo on unexpected interface", RNS.LOG_WARNING)
+                RNS.log(str(self)+" received multicast echo on unexpected interface "+str(ifname), RNS.LOG_WARNING)
 
         else:
             if not addr in self.peers:
