@@ -94,12 +94,12 @@ inbound traffic.
 
 Using the I2P interface, you will get a globally reachable, portable
 and persistent I2P address that your Reticulum instance can be reached
-at. The I2P
+at.
 
 To use the I2P interface, you must have an I2P router running
 on your system. The easiest way to acheive this is to download and
 install the `latest release <https://github.com/PurpleI2P/i2pd/releases/latest>`_
-of the ``ì2pd```package. For more details about I2P, see the
+of the ``ì2pd`` package. For more details about I2P, see the
 `geti2p.net website <https://geti2p.net/en/about/intro>`_.`
 
 When an I2P router is running on your system, you can simply add
@@ -119,7 +119,7 @@ you should see I2P base32 address printed to your log file. You can
 also inspect the status of the interface using the ``rnstatus`` utility.
 
 To connect to other Reticulum instances over I2P, just add a comma-separated
-list of I2P base32 addresses to the ``peers```option of the interface:
+list of I2P base32 addresses to the ``peers`` option of the interface:
 
 .. code::
 
@@ -520,6 +520,11 @@ Common Interface Options
 A number of general options can be used to control various
 aspects of interface behaviour.
 
+The ``interface_enabled`` option tells Reticulum whether or not
+to bring up the interface. Defaults to ``False``. For any
+interface to be brought up, the ``interface_enabled`` option
+must be set to ``True`` or ``Yes``.
+
 The ``outgoing`` option sets whether an interface is allowed
 to transmit. Defaults to ``True``. If set to ``False`` the
 interface will only receive data, and never transmit.
@@ -540,8 +545,3 @@ behaviour of the interface from a number of options.
    be a radio interface serving a wide area, where users are
    expected to connect momentarily, use the network, and then
    disappear again.
-
-The ``interface_enabled`` option tells Reticulum whether or not
-to bring up the interface. Defaults to ``False``. For any
-interface to be brought up, the ``interface_enabled`` option
-must be set to ``True`` or ``Yes``.

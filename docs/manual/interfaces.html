@@ -117,11 +117,11 @@ have a frequently changing IP address, or have firewalls blocking
 inbound traffic.</p>
 <p>Using the I2P interface, you will get a globally reachable, portable
 and persistent I2P address that your Reticulum instance can be reached
-at. The I2P</p>
+at.</p>
 <p>To use the I2P interface, you must have an I2P router running
 on your system. The easiest way to acheive this is to download and
 install the <a class="reference external" href="https://github.com/PurpleI2P/i2pd/releases/latest">latest release</a>
-of the <a href="#id1"><span class="problematic" id="id2">``</span></a>ì2pd```package. For more details about I2P, see the
+of the <code class="docutils literal notranslate"><span class="pre">ì2pd</span></code> package. For more details about I2P, see the
 <a class="reference external" href="https://geti2p.net/en/about/intro">geti2p.net website</a>.`</p>
 <p>When an I2P router is running on your system, you can simply add
 an I2P interface to reticulum:</p>
@@ -137,7 +137,7 @@ started, and is not yet well-connected to the I2P network. When ready,
 you should see I2P base32 address printed to your log file. You can
 also inspect the status of the interface using the <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> utility.</p>
 <p>To connect to other Reticulum instances over I2P, just add a comma-separated
-list of I2P base32 addresses to the <a href="#id3"><span class="problematic" id="id4">``</span></a>peers```option of the interface:</p>
+list of I2P base32 addresses to the <code class="docutils literal notranslate"><span class="pre">peers</span></code> option of the interface:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">I2P</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">I2PInterface</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
@@ -487,6 +487,10 @@ beaconing functionality described above.</p>
 <span id="interfaces-options"></span><h2>Common Interface Options<a class="headerlink" href="#common-interface-options" title="Permalink to this headline">¶</a></h2>
 <p>A number of general options can be used to control various
 aspects of interface behaviour.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">interface_enabled</span></code> option tells Reticulum whether or not
+to bring up the interface. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>. For any
+interface to be brought up, the <code class="docutils literal notranslate"><span class="pre">interface_enabled</span></code> option
+must be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">Yes</span></code>.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">outgoing</span></code> option sets whether an interface is allowed
 to transmit. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>. If set to <code class="docutils literal notranslate"><span class="pre">False</span></code> the
 interface will only receive data, and never transmit.</p>
@@ -508,10 +512,6 @@ expected to connect momentarily, use the network, and then
 disappear again.</p></li>
 </ul>
 </div></blockquote>
-<p>The <code class="docutils literal notranslate"><span class="pre">interface_enabled</span></code> option tells Reticulum whether or not
-to bring up the interface. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>. For any
-interface to be brought up, the <code class="docutils literal notranslate"><span class="pre">interface_enabled</span></code> option
-must be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">Yes</span></code>.</p>
 </div>
 </div>
 
