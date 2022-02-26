@@ -187,6 +187,7 @@ class I2PInterfacePeer(Interface):
         self.i2p_tunneled     = True
         self.i2p_dest         = None
         self.i2p_tunnel_ready = False
+        self.mode             = RNS.Interfaces.Interface.Interface.MODE_FULL
 
         if max_reconnect_tries == None:
             self.max_reconnect_tries = I2PInterfacePeer.RECONNECT_MAX_TRIES
@@ -509,6 +510,7 @@ class I2PInterface(Interface):
         self.owner = owner
         self.connectable = connectable
         self.i2p_tunneled = True
+        self.mode = RNS.Interfaces.Interface.Interface.MODE_FULL
 
         self.b32 = None
         self.i2p = I2PController(rns_storagepath)
