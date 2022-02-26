@@ -551,7 +551,8 @@ class Link:
                     break
 
             if remove != None:
-                self.pending_requests.remove(remove)
+                if remove in self.pending_requests:
+                    self.pending_requests.remove(remove)
 
     def request_resource_concluded(self, resource):
         if resource.status == RNS.Resource.COMPLETE:

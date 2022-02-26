@@ -143,6 +143,8 @@ class Resource:
     def __init__(self, data, link, advertise=True, auto_compress=True, callback=None, progress_callback=None, timeout = None, segment_index = 1, original_hash = None, request_id = None, is_response = False):
         data_size = None
         resource_data = None
+        self.assembly_lock = False
+
         if hasattr(data, "read"):
             data_size = os.stat(data.name).st_size
             self.total_size  = data_size
@@ -601,7 +603,8 @@ class Resource:
 
             self.receiving_part = False
 
-            if self.received_count == self.total_parts:
+            if self.received_count == self.total_parts and not self.assembly_lock:
+                self.assembly_lock = True
                 self.assemble()
             elif self.outstanding_parts == 0:
                 # TODO: Figure out if there is a mathematically
