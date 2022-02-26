@@ -129,6 +129,7 @@ class I2PController:
             i2p_dest = self.i2plib.Destination(data=prvd, has_private_key=True)
 
         i2p_b32 = i2p_dest.base32
+        owner.b32 = i2p_b32
 
         self.server_tunnels[i2p_b32] = False
 
@@ -509,8 +510,9 @@ class I2PInterface(Interface):
         self.connectable = connectable
         self.i2p_tunneled = True
 
+        self.b32 = None
         self.i2p = I2PController(rns_storagepath)
-        
+
         self.IN  = True
         self.OUT = False
         self.name = name

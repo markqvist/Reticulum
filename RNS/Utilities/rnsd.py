@@ -216,6 +216,7 @@ loglevel = 4
   [[I2P]]
     type = I2PInterface
     interface_enabled = yes
+    connectable = yes
     peers = 5urvjicpzi7q3ybztsef4i5ow2aq4soktfj7zedz53s47r54jnqq.b32.i2p
 
 

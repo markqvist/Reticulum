@@ -51,6 +51,10 @@ def program_setup(configdir, dispall=False, verbosity = 0):
 
                 print(" {n}".format(n=ifstat["name"]))
                 print("\tStatus: {ss}".format(ss=ss))
+
+                if "i2p_b32" in ifstat:
+                    print("\tI2P B32: {ep}".format(ep=str(ifstat["i2p_b32"])))
+
                 if clients != None:
                     print("\t"+clients_string)
                 print("\tRX: {rxb}\n\tTX: {txb}".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
