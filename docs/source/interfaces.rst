@@ -110,6 +110,7 @@ an I2P interface to reticulum:
   [[I2P]]
     type = I2PInterface
     interface_enabled = yes
+    connectable = yes
 
 On the first start, Reticulum will generate a new I2P address for the
 interface and start listening for inbound traffic on it. This can take
@@ -126,6 +127,7 @@ list of I2P base32 addresses to the ``peers`` option of the interface:
   [[I2P]]
     type = I2PInterface
     interface_enabled = yes
+    connectable = yes
     peers = 5urvjicpzi7q3ybztsef4i5ow2aq4soktfj7zedz53s47r54jnqq.b32.i2p
 
 It can take anywhere from a few seconds to a few minutes to establish
