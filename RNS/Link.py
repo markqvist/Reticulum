@@ -15,6 +15,8 @@ import RNS
 
 import traceback
 
+cio_default_backend = default_backend()
+
 class LinkCallbacks:
     def __init__(self):
         self.link_established = None
@@ -199,11 +201,14 @@ class Link:
     def handshake(self):
         self.status = Link.HANDSHAKE
         self.shared_key = self.prv.exchange(self.peer_pub)
+
+        # TODO: Improve this re-allocation of HKDF
         self.derived_key = HKDF(
             algorithm=hashes.SHA256(),
             length=32,
             salt=self.get_salt(),
             info=self.get_context(),
+            backend=cio_default_backend,
         ).derive(self.shared_key)
 
     def prove(self):

@@ -36,3 +36,10 @@ def platform_checks():
             RNS.log("On Windows, Reticulum requires Python 3.8 or higher.", RNS.LOG_ERROR)
             RNS.log("Please update Python to run Reticulum.", RNS.LOG_ERROR)
             RNS.panic()
+
+def cryptography_old_api():
+    import cryptography
+    if cryptography.__version__ == "2.8":
+        return True
+    else:
+        return False

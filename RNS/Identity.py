@@ -14,6 +14,8 @@ from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.fernet import Fernet
 
+cio_default_backend = default_backend()
+
 class Identity:
     """
     This class is used to manage identities in Reticulum. It provides methods
@@ -392,11 +394,14 @@ class Identity:
             )
 
             shared_key = ephemeral_key.exchange(self.pub)
-            derived_key = derived_key = HKDF(
+            
+            # TODO: Improve this re-allocation of HKDF
+            derived_key = HKDF(
                 algorithm=hashes.SHA256(),
                 length=32,
                 salt=self.get_salt(),
                 info=self.get_context(),
+                backend=cio_default_backend,
             ).derive(shared_key)
 
             fernet = Fernet(base64.urlsafe_b64encode(derived_key))
@@ -424,11 +429,14 @@ class Identity:
                     peer_pub = X25519PublicKey.from_public_bytes(peer_pub_bytes)
 
                     shared_key = self.prv.exchange(peer_pub)
-                    derived_key = derived_key = HKDF(
+
+                    # TODO: Improve this re-allocation of HKDF
+                    derived_key = HKDF(
                         algorithm=hashes.SHA256(),
                         length=32,
                         salt=self.get_salt(),
                         info=self.get_context(),
+                        backend=cio_default_backend,
                     ).derive(shared_key)
 
                     fernet = Fernet(base64.urlsafe_b64encode(derived_key))
