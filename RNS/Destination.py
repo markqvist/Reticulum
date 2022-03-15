@@ -118,6 +118,9 @@ class Destination:
             identity = RNS.Identity()
             aspects = aspects+(identity.hexhash,)
 
+        if identity != None and self.type == Destination.PLAIN:
+            raise TypeError("Selected destination type PLAIN cannot hold an identity")
+
         self.identity = identity
 
         self.name = Destination.full_name(app_name, *aspects)      
@@ -146,6 +149,9 @@ class Destination:
         :param app_data: *bytes* containing the app_data.
         :param path_response: Internal flag used by :ref:`RNS.Transport<api-transport>`. Ignore.
         """
+        if self.type != Destination.SINGLE:
+            raise TypeError("Only SINGLE destination types can be announced")
+            
         destination_hash = self.hash
         random_hash = RNS.Identity.get_random_hash()[0:5]+int(time.time()).to_bytes(5, "big")
 

@@ -457,7 +457,7 @@ class Transport:
         sent = False
 
         # Check if we have a known path for the destination in the path table
-        if packet.packet_type != RNS.Packet.ANNOUNCE and packet.destination_hash in Transport.destination_table:
+        if packet.packet_type != RNS.Packet.ANNOUNCE and packet.destination.type != RNS.Destination.PLAIN and packet.destination.type != RNS.Destination.GROUP and packet.destination_hash in Transport.destination_table:
             outbound_interface = Transport.destination_table[packet.destination_hash][5]
 
             # If there's more than one hop to the destination, and we know
@@ -572,14 +572,38 @@ class Transport:
             return True
         if packet.context == RNS.Packet.CACHE_REQUEST:
             return True
+
         if packet.destination_type == RNS.Destination.PLAIN:
-            return True
+            if packet.packet_type != RNS.Packet.ANNOUNCE:
+                if packet.hops > 1:
+                    RNS.log("Dropped PLAIN packet "+RNS.prettyhexrep(packet.hash)+" with "+str(packet.hops)+" hops", RNS.LOG_DEBUG)
+                    return False
+                else:
+                    return True
+            else:
+                RNS.log("Dropped invalid PLAIN announce packet", RNS.LOG_DEBUG)
+                return False
+
+        if packet.destination_type == RNS.Destination.GROUP:
+            if packet.packet_type != RNS.Packet.ANNOUNCE:
+                if packet.hops > 1:
+                    RNS.log("Dropped GROUP packet "+RNS.prettyhexrep(packet.hash)+" with "+str(packet.hops)+" hops", RNS.LOG_DEBUG)
+                    return False
+                else:
+                    return True
+            else:
+                RNS.log("Dropped invalid GROUP announce packet", RNS.LOG_DEBUG)
+                return False
 
         if not packet.packet_hash in Transport.packet_hashlist:
             return True
         else:
             if packet.packet_type == RNS.Packet.ANNOUNCE:
-                return True
+                if packet.destination_type == RNS.Destination.SINGLE:
+                    return True
+                else:
+                    RNS.log("Dropped invalid announce packet", RNS.LOG_DEBUG)
+                    return False
 
         RNS.log("Filtered packet with hash "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_DEBUG)
         return False
