@@ -42,8 +42,9 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
 ## Examples of Reticulum Applications
 If you want to quickly get an idea of what Reticulum can do, take a look at the following resources.
 
+ - [LXMF](https://github.com/markqvist/lxmf) is a distributed, delay and disruption tolerant message transfer protocol built on Reticulum
  - For an off-grid, encrypted and resilient mesh communications platform, see [Nomad Network](https://github.com/markqvist/NomadNet)
- - For a distributed, delay and disruption tolerant message transfer protocol built on Reticulum, see [LXMF](https://github.com/markqvist/lxmf)
+ - The Android, Linux and macOS app [Sideband](https://unsigned.io/sideband) has a graphical interface and focuses on ease of use.
 
 ## Where can Reticulum be used?
 Over practically any medium that can support at least a half-duplex channel with 500 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, ad-hoc WiFi, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.
@@ -84,8 +85,6 @@ Reticulum implements a range of generalised interface types that covers most of 
  - TCP over IP networks
  - UDP over IP networks
 
-
-
 ## Planned Features
  - More interface types for even broader compatibility
    - ESP32 devices (ESP-Now, Bluetooth, etc.)
@@ -113,5 +112,7 @@ You can help support the continued development of open, free and private communi
 - Bitcoin: 3CPmacGm34qYvR6XWLVEJmi2aNe3PZqUuq
 - Ko-Fi: https://ko-fi.com/markqvist
 
+Are certain features in the development roadmap are important to you or your organisation? Make them a reality quickly by sponsoring their implementation.
+
 ## Caveat Emptor
-Reticulum is experimental software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy-breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
+Reticulum is relatively young software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy-breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
