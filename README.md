@@ -91,6 +91,9 @@ Reticulum implements a range of generalised interface types that covers most of 
 ## Development Roadmap
  - Transport layer segmentation & authentication, see #23
  - Globally routable multicast
+ - GUI interface configuration tool
+ - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
+ - Easy way to share interface configurations, see #19
  - More interface types for even broader compatibility
    - ESP32 devices (ESP-Now, Bluetooth, etc.)
    - More LoRa transceivers
