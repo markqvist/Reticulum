@@ -83,6 +83,7 @@ Reticulum implements a range of generalised interface types that covers most of 
  - Any ethernet device
  - LoRa using [RNode](https://unsigned.io/projects/rnode/)
  - Packet Radio TNCs (with or without AX.25)
+ - KISS-compatible hardware and software modems
  - Any device with a serial port
  - TCP over IP networks
  - UDP over IP networks
