@@ -111,7 +111,7 @@ Reticulum implements a range of generalised interface types that covers most of 
 
 If you just want to get started experimenting without building any physical networks, you are welcome to join the Unsigned.io RNS Testnet. The testnet is just that, an informal network for testing and experimenting. It will be up most of the time, and anyone can join, but it also means that there's no guarantees for service availability.
 
-The Testnet runs the latest version of Reticulum, often even a short while before it is publicly released, which means strange behaviour might occur. If none of that scares you, you can join the testnet via eihter TCP or I2P. Just add one of the following interfaces to your Reticulum configuration file:
+The testnet runs the very latest version of Reticulum (often even a short while before it is publicly released). Sometimes experimental versions of Reticulum might be deployed to nodes on the testnet, which means strange behaviour might occur. If none of that scares you, you can join the testnet via eihter TCP or I2P. Just add one of the following interfaces to your Reticulum configuration file:
 
 ```
 # For connecting over TCP/IP:
