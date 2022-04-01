@@ -88,7 +88,9 @@ Reticulum implements a range of generalised interface types that covers most of 
  - TCP over IP networks
  - UDP over IP networks
 
-## Planned Features
+## Development Roadmap
+ - Transport layer segmentation & authentication, see #23
+ - Globally routable multicast
  - More interface types for even broader compatibility
    - ESP32 devices (ESP-Now, Bluetooth, etc.)
    - More LoRa transceivers
@@ -101,7 +103,6 @@ Reticulum implements a range of generalised interface types that covers most of 
    - MQTT
    - SPI
    - i²c
- - Globally routable multicast
 
 ## Dependencies:
  - Python 3.6
