@@ -96,6 +96,54 @@ internet, to LoRa and Packet Radio interfaces.</p>
 you want more information, you can read the <a class="reference internal" href="networks.html#networks-main"><span class="std std-ref">Building Networks</span></a>
 and <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> chapters of this manual.</p>
 </div>
+<div class="section" id="bridging-over-the-internet">
+<h2>Bridging Over the Internet<a class="headerlink" href="#bridging-over-the-internet" title="Permalink to this headline">¶</a></h2>
+<p>Reticulum currently offers two interfaces for connecting nodes over the internet:
+<a class="reference external" href="https://markqvist.github.io/Reticulum/manual/interfaces.html#tcp-server-interface">TCP</a> and <a class="reference external" href="https://markqvist.github.io/Reticulum/manual/interfaces.html#i2p-interface">I2P</a>. Each interface offers a different set of features, and Reticulum
+users should carefully choose the interface which best suites their needs.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> allows users to host a node accessible over TCP/IP. This
+method is generally faster, lower latency, and more energy efficient than using <code class="docutils literal notranslate"><span class="pre">I2PInterface</span></code>,
+however it leaks considerable metadata about the server host.</p>
+<p>Direct TCP client connections are able to see your node’s IP address and may be able
+to use this information to determine your location or identity. Adversaries
+inspecting your network’s internet packets may be able to record packet metadata
+like time of transmission and packet size. By default TCP does not encrypt traffic,
+so an adversary may be able to use packet inspection to learn that a system is running
+Reticulum, and what other IP adresses connect to it. Hosting a node via TCP server also
+requires a public IP address.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">I2PInterface</span></code> routes messages through the <a class="reference external" href="https://geti2p.net/en/">Invisible Internet Protocol
+(I2P)</a>. To properly use this interface, users must also run an I2P daemon in
+parallel to <code class="docutils literal notranslate"><span class="pre">rnsd</span></code>. For always-on nodes it is recommended to use <a class="reference external" href="https://i2pd.website/">i2pd</a> because it
+generally runs more efficiently.</p>
+<p>By default, I2P will fully encrypt all traffic sent over the network, and
+obfuscate both the sender’s and receiver’s IP addresses. Running an I2P node
+will also relay other I2P user’s encrypted packets, which will use extra
+bandwidth and compute power, but also makes timing attacks and other forms of
+deep-packet-inspection much more difficult. Similar to RNS, I2P uses cryptographic
+public keys as destination addresses, which allows users to host nodes on non-static IPs.</p>
+<p>In general it is recommended to use an I2P node if you are hosting your node
+publicly.</p>
+<p>There is a experimental public testnet you can join by adding the following
+interfaces to your <code class="docutils literal notranslate"><span class="pre">.reticulum/config</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># For connecting over TCP/IP:</span>
+
+<span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">Frankfurt</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">target_host</span> <span class="o">=</span> <span class="n">frankfurt</span><span class="o">.</span><span class="n">rns</span><span class="o">.</span><span class="n">unsigned</span><span class="o">.</span><span class="n">io</span>
+  <span class="n">target_port</span> <span class="o">=</span> <span class="mi">4965</span>
+
+
+<span class="c1"># For connecting over I2P:</span>
+
+<span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">I2P</span> <span class="n">Node</span> <span class="n">A</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">I2PInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+  <span class="n">peers</span> <span class="o">=</span> <span class="n">ykzlw5ujbaqc2xkec4cpvgyxj257wcrmmgkuxqmqcur7cq3w3lha</span><span class="o">.</span><span class="n">b32</span><span class="o">.</span><span class="n">i2p</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="develop-a-program-with-reticulum">
 <h2>Develop a Program with Reticulum<a class="headerlink" href="#develop-a-program-with-reticulum" title="Permalink to this headline">¶</a></h2>
 <p>If you want to develop programs that use Reticulum, the easiest way to get
@@ -221,6 +269,7 @@ here at a later point.</p>
 <li><a class="reference internal" href="#try-using-a-reticulum-based-program">Try Using a Reticulum-based Program</a></li>
 <li><a class="reference internal" href="#using-the-included-utilities">Using the Included Utilities</a></li>
 <li><a class="reference internal" href="#creating-a-network-with-reticulum">Creating a Network With Reticulum</a></li>
+<li><a class="reference internal" href="#bridging-over-the-internet">Bridging Over the Internet</a></li>
 <li><a class="reference internal" href="#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
 <li><a class="reference internal" href="#participate-in-reticulum-development">Participate in Reticulum Development</a></li>
 <li><a class="reference internal" href="#reticulum-on-arm64">Reticulum on ARM64</a></li>

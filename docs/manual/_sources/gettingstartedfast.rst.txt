@@ -78,15 +78,16 @@ Reticulum currently offers two interfaces for connecting nodes over the internet
 users should carefully choose the interface which best suites their needs. 
 
 The ``TCPServerInterface`` allows users to host a node accessible over TCP/IP. This
-method is generally faster, lower latency, and more energy efficient than using ``I2PInterface``, however it leaks considerable
-metadata about the server host.
+method is generally faster, lower latency, and more energy efficient than using ``I2PInterface``,
+however it leaks considerable metadata about the server host.
 
 Direct TCP client connections are able to see your node's IP address and may be able
 to use this information to determine your location or identity. Adversaries 
 inspecting your network's internet packets may be able to record packet metadata 
 like time of transmission and packet size. By default TCP does not encrypt traffic,
-so unencrypted Reticulum packets will be transmitted in clear text. Hosting a 
-node via TCP server also requires a static IP address.
+so an adversary may be able to use packet inspection to learn that a system is running
+Reticulum, and what other IP adresses connect to it. Hosting a node via TCP server also
+requires a public IP address.
 
 The ``I2PInterface`` routes messages through the `Invisible Internet Protocol 
 (I2P) <https://geti2p.net/en/>`_. To properly use this interface, users must also run an I2P daemon in
