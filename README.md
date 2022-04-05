@@ -89,7 +89,7 @@ Reticulum implements a range of generalised interface types that covers most of 
  - UDP over IP networks
 
 ## Development Roadmap
- - Transport layer segmentation & authentication, see #23
+ - Physical layer segmentation & authentication, see #23
  - Globally routable multicast
  - GUI interface configuration tool
  - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
