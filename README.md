@@ -89,12 +89,12 @@ Reticulum implements a range of generalised interface types that covers most of 
  - UDP over IP networks
 
 ## Development Roadmap
- - Transport layer segmentation & authentication, see #23
+ - Physical layer segmentation & authentication, see [#23](https://github.com/markqvist/Reticulum/discussions/23)
  - Globally routable multicast
  - GUI interface configuration tool
  - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
- - Easy way to share interface configurations, see #19
- - A portable Reticulum implementation in C, see #21
+ - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
+ - A portable Reticulum implementation in C, see [#21](https://github.com/markqvist/Reticulum/discussions/21)
  - More interface types for even broader compatibility
    - ESP32 devices (ESP-Now, Bluetooth, etc.)
    - More LoRa transceivers
