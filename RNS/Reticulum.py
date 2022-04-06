@@ -792,8 +792,8 @@ __default_rns_config__ = '''# This is the default Reticulum config file.
 
 # If you enable Transport, your system will route traffic
 # for other peers, pass announces and serve path requests.
-# This should be done for systems that are suited to act
-# as transport nodes, ie. if they are stationary and
+# This should only be done for systems that are suited to
+# act as transport nodes, ie. if they are stationary and
 # always-on. This directive is optional and can be removed
 # for brevity.
 
