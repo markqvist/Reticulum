@@ -52,7 +52,7 @@ class Transport:
     """
     Maximum amount of hops that Reticulum will transport a packet.
     """
-    PATHFINDER_C    = 2.0        # Decay constant
+    PATHFINDER_C    = 1.8        # Decay constant
     PATHFINDER_R    = 1          # Retransmit retries
     PATHFINDER_T    = 10         # Retry grace period
     PATHFINDER_RW   = 10         # Random window for announce rebroadcast
