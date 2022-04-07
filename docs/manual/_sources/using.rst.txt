@@ -177,8 +177,8 @@ These changes will be detailed here.
 Fixed Serial Port Names
 =======================
 
-On a Reticulum node with several serial port based interfaces, it can be
-beneficial to use the fixed name device nodes for the serial ports, instead
+On a Reticulum instance with several serial port based interfaces, it can be
+beneficial to use the fixed device names for the serial ports, instead
 of the dynamically allocated shorthands such as ``/dev/ttyUSB0``. Under most
 Debian-based distributions, including Ubuntu and Raspberry Pi OS, these nodes
 can be found under ``/dev/serial/by-id``.
@@ -203,7 +203,7 @@ Here is an example of a packet radio TNC configured as such:
     slottime = 20
 
 Using this methodology avoids potential naming mix-ups where physical devices
-might be plugged and unplugged in different orders, or when node name
+might be plugged and unplugged in different orders, or when device name
 assignment varies from one boot to another.
 
 .. _using-systemd:

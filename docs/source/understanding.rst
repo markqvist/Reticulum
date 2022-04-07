@@ -42,9 +42,9 @@ Since Reticulum is completely medium agnostic, this could be whatever is best su
 In some cases, this might be 1200 baud packet radio links over VHF frequencies, in other cases it might
 be a microwave network using off-the-shelf radios. At the time of release of this document, the
 recommended setup for development and testing is using LoRa radio modules with an open source firmware
-(see the section :ref:`Reference System Setup<understanding-referencesystem>`), connected to a small
+(see the section :ref:`Reference Setup<understanding-referencesystem>`), connected to a small
 computer like a Raspberry Pi. As an example, the default reference setup provides a channel capacity
-of 5.4 Kbps, and a usable direct node-to-node range of around 15 kilometers (extendable by using multiple hops).
+of 3.1 Kbps, and a usable direct node-to-node range of around 15 kilometers (extendable by using multiple hops).
 
 .. _understanding-goals:
 
@@ -334,7 +334,7 @@ If it is a *Transport Node*, it should be given the configuration directive ``en
 The Announce Mechanism in Detail
 --------------------------------
 
-When an *announce* is transmitted by a node, it will be forwarded by any node receiving it, but
+When an *announce* is transmitted by from a Reticulum instance, it will be forwarded by any transport node receiving it, but
 according to some specific rules:
 
 

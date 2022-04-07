@@ -192,8 +192,8 @@ few system configuration changes that can make this easier to administrate.
 These changes will be detailed here.</p>
 <div class="section" id="fixed-serial-port-names">
 <h3>Fixed Serial Port Names<a class="headerlink" href="#fixed-serial-port-names" title="Permalink to this headline">¶</a></h3>
-<p>On a Reticulum node with several serial port based interfaces, it can be
-beneficial to use the fixed name device nodes for the serial ports, instead
+<p>On a Reticulum instance with several serial port based interfaces, it can be
+beneficial to use the fixed device names for the serial ports, instead
 of the dynamically allocated shorthands such as <code class="docutils literal notranslate"><span class="pre">/dev/ttyUSB0</span></code>. Under most
 Debian-based distributions, including Ubuntu and Raspberry Pi OS, these nodes
 can be found under <code class="docutils literal notranslate"><span class="pre">/dev/serial/by-id</span></code>.</p>
@@ -215,7 +215,7 @@ Here is an example of a packet radio TNC configured as such:</p>
 </pre></div>
 </div>
 <p>Using this methodology avoids potential naming mix-ups where physical devices
-might be plugged and unplugged in different orders, or when node name
+might be plugged and unplugged in different orders, or when device name
 assignment varies from one boot to another.</p>
 </div>
 <div class="section" id="reticulum-as-a-system-service">

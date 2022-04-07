@@ -73,9 +73,9 @@ traffic, and censor or persecute unwanted actors.</p>
 In some cases, this might be 1200 baud packet radio links over VHF frequencies, in other cases it might
 be a microwave network using off-the-shelf radios. At the time of release of this document, the
 recommended setup for development and testing is using LoRa radio modules with an open source firmware
-(see the section <a class="reference internal" href="#understanding-referencesystem"><span class="std std-ref">Reference System Setup</span></a>), connected to a small
+(see the section <a class="reference internal" href="#understanding-referencesystem"><span class="std std-ref">Reference Setup</span></a>), connected to a small
 computer like a Raspberry Pi. As an example, the default reference setup provides a channel capacity
-of 5.4 Kbps, and a usable direct node-to-node range of around 15 kilometers (extendable by using multiple hops).</p>
+of 3.1 Kbps, and a usable direct node-to-node range of around 15 kilometers (extendable by using multiple hops).</p>
 </div>
 <div class="section" id="goals">
 <span id="understanding-goals"></span><h2>Goals<a class="headerlink" href="#goals" title="Permalink to this headline">¶</a></h2>
@@ -355,7 +355,7 @@ is the default setting.</p>
 </div>
 <div class="section" id="the-announce-mechanism-in-detail">
 <span id="understanding-announce"></span><h3>The Announce Mechanism in Detail<a class="headerlink" href="#the-announce-mechanism-in-detail" title="Permalink to this headline">¶</a></h3>
-<p>When an <em>announce</em> is transmitted by a node, it will be forwarded by any node receiving it, but
+<p>When an <em>announce</em> is transmitted by from a Reticulum instance, it will be forwarded by any transport node receiving it, but
 according to some specific rules:</p>
 <ul>
 <li><div class="line-block">
