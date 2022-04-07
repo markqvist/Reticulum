@@ -35,6 +35,15 @@ on your system, you might need to reboot your system for your program to become
 available. If you get a "command not found" error or similar when running the
 program, reboot your system and try again.
 
+If you would rather use a program with a graphical user interface, you can take
+a look at `Sideband <https://unsigned.io/sideband>`_, which is available for Android,
+Linux and macOS.
+
+.. image:: screenshots/sideband_1.png
+    :width: 400px
+    :align: center
+    :target: _images/sideband_1.png
+
 
 Using the Included Utilities
 =============================================
@@ -59,27 +68,34 @@ or use the interactive ``rnsconfig`` utility.
 
 When Reticulum is started for the first time, it will create a default
 configuration file, with one active interface. This default interface uses
-your existing ethernet network (if there is one), and only allows you to
-communicate with other Reticulum peers within your local broadcast domain.
+your existing ethernet and WiFi networks (if any), and only allows you to
+communicate with other Reticulum peers within your local broadcast domains.
 
 To communicate further, you will have to add one or more interfaces. The default
 configuration includes a number of examples, ranging from using TCP over the
 internet, to LoRa and Packet Radio interfaces.
 
+With Reticulum, you only need to configure what interfaces you want to communicate
+over. There is no need to configure address spaces, subnets, routing tables,
+or other things you might be used to from other network types.
+
+Once Reticulums knows which interfaces it should use, it will automatically
+discover topography and configure transport of data to any destinations it
+knows about.
+
 Possibly, the examples in the config file are enough to get you started. If
 you want more information, you can read the :ref:`Building Networks<networks-main>`
 and :ref:`Interfaces<interfaces-main>` chapters of this manual.
 
-
-Bridging Over the Internet
-=============================================
-Reticulum currently offers two interfaces for connecting nodes over the internet: 
-`TCP <https://markqvist.github.io/Reticulum/manual/interfaces.html#tcp-server-interface>`_ and `I2P <https://markqvist.github.io/Reticulum/manual/interfaces.html#i2p-interface>`_. Each interface offers a different set of features, and Reticulum 
+Connecting Reticulum Instances Over the Internet
+================================================
+Reticulum currently offers two interfaces for connecting instances over the Internet: :ref:`TCP<interfaces-tcps>`
+and :ref:`I2P<interfaces-i2p>`. Each interface offers a different set of features, and Reticulum 
 users should carefully choose the interface which best suites their needs. 
 
-The ``TCPServerInterface`` allows users to host a node accessible over TCP/IP. This
+The ``TCPServerInterface`` allows users to host an instance accessible over TCP/IP. This
 method is generally faster, lower latency, and more energy efficient than using ``I2PInterface``,
-however it leaks considerable metadata about the server host.
+however it also leaks considerable metadata about the server host.
 
 Direct TCP client connections are able to see your node's IP address and may be able
 to use this information to determine your location or identity. Adversaries 
@@ -101,16 +117,16 @@ bandwidth and compute power, but also makes timing attacks and other forms of
 deep-packet-inspection much more difficult. Similar to RNS, I2P uses cryptographic 
 public keys as destination addresses, which allows users to host nodes on non-static IPs.
 
-In general it is recommended to use an I2P node if you are hosting your node 
-publicly.
+In general it is recommended to use an I2P node if you want to host a publically accessible
+instance, while preserving anonymity. If you care more about performance, and a slightly
+easier setup, use TCP.
 
-There is a experimental public testnet you can join by adding the following
+There is a experimental public testnet you can join by adding one of the following
 interfaces to your ``.reticulum/config`` file:
 
 .. code::
 
   # For connecting over TCP/IP:
-
   [[RNS Testnet Frankfurt]]
     type = TCPClientInterface
     interface_enabled = yes
@@ -120,7 +136,6 @@ interfaces to your ``.reticulum/config`` file:
 
 
   # For connecting over I2P:
-
   [[RNS Testnet I2P Node A]]
     type = I2PInterface
     interface_enabled = yes
@@ -212,8 +227,11 @@ installing Reticulum or programs that depend on Reticulum.
 Reticulum on Android
 ==============================================
 Reticulum can be used on Android in different ways. The easiest way to get
-started is using the `Termux app <https://termux.com/>`_, at the time of writing
-available on `F-droid <https://f-droid.org>`_.
+started is using an app like `Sideband <https://unsigned.io/sideband>`_.
+
+For more control and features, you can use Reticulum and related programs via
+the `Termux app <https://termux.com/>`_, at the time of writing available on
+`F-droid <https://f-droid.org>`_.
 
 Termux is a terminal emulator and Linux environment for Android based devices,
 which includes the ability to use many different programs and libraries,
@@ -253,3 +271,18 @@ From within Termux, execute the following:
 It is also possible to include Reticulum in apps compiled and distributed as
 Android APKs. A detailed tutorial and example source code will be included
 here at a later point.
+
+Adding Radio Interfaces
+==============================================
+Once you have Reticulum installed and working, you can add radio interfaces with
+any compatible hardware you have available. For information on how to configure
+this, see the :ref:`Interfaces<interfaces-main>` section of this manual.
+
+A range of common LoRa development boards and transceiver modules can be used
+as interfaces with Reticulum. You can refer to the following external resources
+for more information:
+
+* `How To Make Your Own RNodes <https://unsigned.io/how-to-make-your-own-rnodes/>`_
+* `Installing RNode Firmware on Compatible LoRa Devices <https://unsigned.io/installing-rnode-firmware-on-t-beam-and-lora32-devices/>`_
+* `Private, Secure and Uncensorable Messaging Over a LoRa Mesh <https://unsigned.io/private-messaging-over-lora/>`_
+* `RNode Firmware <https://github.com/markqvist/RNode_Firmware/>`_

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Getting Started Fast &#8212; Reticulum Network Stack 0.3.3 beta documentation</title>
+    <title>Getting Started Fast &#8212; Reticulum Network Stack 0.3.4 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="whatis.html" title="What is Reticulum?"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.3 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.4 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Getting Started Fast</a></li> 
       </ul>
     </div>  
@@ -67,6 +67,10 @@ for the messaging and information-sharing protocol
 on your system, you might need to reboot your system for your program to become
 available. If you get a “command not found” error or similar when running the
 program, reboot your system and try again.</p>
+<p>If you would rather use a program with a graphical user interface, you can take
+a look at <a class="reference external" href="https://unsigned.io/sideband">Sideband</a>, which is available for Android,
+Linux and macOS.</p>
+<a class="reference external image-reference" href="_images/sideband_1.png"><img alt="_images/sideband_1.png" class="align-center" src="_images/sideband_1.png" style="width: 400px;" /></a>
 </div>
 <div class="section" id="using-the-included-utilities">
 <h2>Using the Included Utilities<a class="headerlink" href="#using-the-included-utilities" title="Permalink to this headline">¶</a></h2>
@@ -87,23 +91,29 @@ default is located at <code class="docutils literal notranslate"><span class="pr
 or use the interactive <code class="docutils literal notranslate"><span class="pre">rnsconfig</span></code> utility.</p>
 <p>When Reticulum is started for the first time, it will create a default
 configuration file, with one active interface. This default interface uses
-your existing ethernet network (if there is one), and only allows you to
-communicate with other Reticulum peers within your local broadcast domain.</p>
+your existing ethernet and WiFi networks (if any), and only allows you to
+communicate with other Reticulum peers within your local broadcast domains.</p>
 <p>To communicate further, you will have to add one or more interfaces. The default
 configuration includes a number of examples, ranging from using TCP over the
 internet, to LoRa and Packet Radio interfaces.</p>
+<p>With Reticulum, you only need to configure what interfaces you want to communicate
+over. There is no need to configure address spaces, subnets, routing tables,
+or other things you might be used to from other network types.</p>
+<p>Once Reticulums knows which interfaces it should use, it will automatically
+discover topography and configure transport of data to any destinations it
+knows about.</p>
 <p>Possibly, the examples in the config file are enough to get you started. If
 you want more information, you can read the <a class="reference internal" href="networks.html#networks-main"><span class="std std-ref">Building Networks</span></a>
 and <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> chapters of this manual.</p>
 </div>
-<div class="section" id="bridging-over-the-internet">
-<h2>Bridging Over the Internet<a class="headerlink" href="#bridging-over-the-internet" title="Permalink to this headline">¶</a></h2>
-<p>Reticulum currently offers two interfaces for connecting nodes over the internet:
-<a class="reference external" href="https://markqvist.github.io/Reticulum/manual/interfaces.html#tcp-server-interface">TCP</a> and <a class="reference external" href="https://markqvist.github.io/Reticulum/manual/interfaces.html#i2p-interface">I2P</a>. Each interface offers a different set of features, and Reticulum
+<div class="section" id="connecting-reticulum-instances-over-the-internet">
+<h2>Connecting Reticulum Instances Over the Internet<a class="headerlink" href="#connecting-reticulum-instances-over-the-internet" title="Permalink to this headline">¶</a></h2>
+<p>Reticulum currently offers two interfaces for connecting instances over the Internet: <a class="reference internal" href="interfaces.html#interfaces-tcps"><span class="std std-ref">TCP</span></a>
+and <a class="reference internal" href="interfaces.html#interfaces-i2p"><span class="std std-ref">I2P</span></a>. Each interface offers a different set of features, and Reticulum
 users should carefully choose the interface which best suites their needs.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> allows users to host a node accessible over TCP/IP. This
+<p>The <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> allows users to host an instance accessible over TCP/IP. This
 method is generally faster, lower latency, and more energy efficient than using <code class="docutils literal notranslate"><span class="pre">I2PInterface</span></code>,
-however it leaks considerable metadata about the server host.</p>
+however it also leaks considerable metadata about the server host.</p>
 <p>Direct TCP client connections are able to see your node’s IP address and may be able
 to use this information to determine your location or identity. Adversaries
 inspecting your network’s internet packets may be able to record packet metadata
@@ -121,12 +131,12 @@ will also relay other I2P user’s encrypted packets, which will use extra
 bandwidth and compute power, but also makes timing attacks and other forms of
 deep-packet-inspection much more difficult. Similar to RNS, I2P uses cryptographic
 public keys as destination addresses, which allows users to host nodes on non-static IPs.</p>
-<p>In general it is recommended to use an I2P node if you are hosting your node
-publicly.</p>
-<p>There is a experimental public testnet you can join by adding the following
+<p>In general it is recommended to use an I2P node if you want to host a publically accessible
+instance, while preserving anonymity. If you care more about performance, and a slightly
+easier setup, use TCP.</p>
+<p>There is a experimental public testnet you can join by adding one of the following
 interfaces to your <code class="docutils literal notranslate"><span class="pre">.reticulum/config</span></code> file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># For connecting over TCP/IP:</span>
-
 <span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">Frankfurt</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
@@ -136,7 +146,6 @@ interfaces to your <code class="docutils literal notranslate"><span class="pre">
 
 
 <span class="c1"># For connecting over I2P:</span>
-
 <span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">I2P</span> <span class="n">Node</span> <span class="n">A</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">I2PInterface</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
@@ -217,8 +226,10 @@ installing Reticulum or programs that depend on Reticulum.</p>
 <div class="section" id="reticulum-on-android">
 <h2>Reticulum on Android<a class="headerlink" href="#reticulum-on-android" title="Permalink to this headline">¶</a></h2>
 <p>Reticulum can be used on Android in different ways. The easiest way to get
-started is using the <a class="reference external" href="https://termux.com/">Termux app</a>, at the time of writing
-available on <a class="reference external" href="https://f-droid.org">F-droid</a>.</p>
+started is using an app like <a class="reference external" href="https://unsigned.io/sideband">Sideband</a>.</p>
+<p>For more control and features, you can use Reticulum and related programs via
+the <a class="reference external" href="https://termux.com/">Termux app</a>, at the time of writing available on
+<a class="reference external" href="https://f-droid.org">F-droid</a>.</p>
 <p>Termux is a terminal emulator and Linux environment for Android based devices,
 which includes the ability to use many different programs and libraries,
 including Reticulum.</p>
@@ -254,6 +265,21 @@ and a few extra commands are required.</p>
 Android APKs. A detailed tutorial and example source code will be included
 here at a later point.</p>
 </div>
+<div class="section" id="adding-radio-interfaces">
+<h2>Adding Radio Interfaces<a class="headerlink" href="#adding-radio-interfaces" title="Permalink to this headline">¶</a></h2>
+<p>Once you have Reticulum installed and working, you can add radio interfaces with
+any compatible hardware you have available. For information on how to configure
+this, see the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> section of this manual.</p>
+<p>A range of common LoRa development boards and transceiver modules can be used
+as interfaces with Reticulum. You can refer to the following external resources
+for more information:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://unsigned.io/how-to-make-your-own-rnodes/">How To Make Your Own RNodes</a></p></li>
+<li><p><a class="reference external" href="https://unsigned.io/installing-rnode-firmware-on-t-beam-and-lora32-devices/">Installing RNode Firmware on Compatible LoRa Devices</a></p></li>
+<li><p><a class="reference external" href="https://unsigned.io/private-messaging-over-lora/">Private, Secure and Uncensorable Messaging Over a LoRa Mesh</a></p></li>
+<li><p><a class="reference external" href="https://github.com/markqvist/RNode_Firmware/">RNode Firmware</a></p></li>
+</ul>
+</div>
 </div>
 
 
@@ -269,11 +295,12 @@ here at a later point.</p>
 <li><a class="reference internal" href="#try-using-a-reticulum-based-program">Try Using a Reticulum-based Program</a></li>
 <li><a class="reference internal" href="#using-the-included-utilities">Using the Included Utilities</a></li>
 <li><a class="reference internal" href="#creating-a-network-with-reticulum">Creating a Network With Reticulum</a></li>
-<li><a class="reference internal" href="#bridging-over-the-internet">Bridging Over the Internet</a></li>
+<li><a class="reference internal" href="#connecting-reticulum-instances-over-the-internet">Connecting Reticulum Instances Over the Internet</a></li>
 <li><a class="reference internal" href="#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
 <li><a class="reference internal" href="#participate-in-reticulum-development">Participate in Reticulum Development</a></li>
 <li><a class="reference internal" href="#reticulum-on-arm64">Reticulum on ARM64</a></li>
 <li><a class="reference internal" href="#reticulum-on-android">Reticulum on Android</a></li>
+<li><a class="reference internal" href="#adding-radio-interfaces">Adding Radio Interfaces</a></li>
 </ul>
 </li>
 </ul>
@@ -317,7 +344,7 @@ here at a later point.</p>
         <li class="right" >
           <a href="whatis.html" title="What is Reticulum?"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.3 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.4 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Getting Started Fast</a></li> 
       </ul>
     </div>

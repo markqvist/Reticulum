@@ -300,15 +300,35 @@ networks are fundamentally incompatible with the physical link types that Reticu
 These routing methodologies assume trust at the physical layer, and often needs a lot more bandwidth than
 Reticulum can assume is available.
 
-Since Reticulum is designed to run over open radio spectrum, no such trust exists, and bandwidth is often
-very limited. Existing routing protocols like BGP or OSPF carry too much overhead to be practically
+Since Reticulum is designed to survive running over open radio spectrum, no such trust exists, and bandwidth
+is often very limited. Existing routing protocols like BGP or OSPF carry too much overhead to be practically
 useable over bandwidth-limited, high-latency links.
 
 To overcome such challenges, Reticulum’s *Transport* system uses public-key cryptography to
-implement the concept of *paths* that allow discovery of how to get information to a certain
+implement the concept of *paths* that allow discovery of how to get information closer to a certain
 destination. It is important to note that no single node in a Reticulum network knows the complete
 path to a destination. Every Transport node participating in a Reticulum network will only
 know what the most direct way to get a packet one hop closer to it's destination is.
+
+
+.. _understanding-nodetypes:
+
+Node Types
+----------
+
+Currently, Reticulum distinguishes between two types of network nodes. All nodes on a Reticulum network
+are *Reticulum Instances*, and some are alo *Transport Nodes*. If a system running Reticulum is fixed in
+one place, and is intended to be kept available most of the time, it can be a *Transport Node*, by enabling
+it in the configuration.
+
+This distinction is made by the user configuring the node, and is used to determine what nodes on the
+network will help forward traffic, and what nodes rely on other nodes for wider connectivity.
+
+If a node is a *Instance* it should be given the configuration directive ``enable_transport = No``, which
+is the default setting.
+
+If it is a *Transport Node*, it should be given the configuration directive ``enable_transport = Yes``.
+
 
 .. _understanding-announce:
 
@@ -325,14 +345,14 @@ according to some specific rules:
     total it has been retransmitted to get here.
 
 * | If the announce has been retransmitted *m+1* times, it will not be forwarded. By default, *m* is
-    set to 18.
+    set to 128.
 
 * | The announce will be assigned a delay *d* = c\ :sup:`h` seconds, where *c* is a decay constant, and *h* is the amount of times this packet has already been forwarded.
 
 * | The packet will be given a priority *p = 1/d*.
 
 * | If at least *d* seconds has passed since the announce was received, and no other packets with a
-    priority higher than *p* are waiting in the queue (see Packet Prioritisation), and the channel is
+    priority higher than *p* are waiting in the queue, and the channel is
     not utilized by other traffic, the announce will be forwarded.
 
 * | If no other nodes are heard retransmitting the announce with a greater hop count than when
@@ -354,10 +374,15 @@ packet towards the destination by looking up the next node with the shortest amo
 destination.
 
 According to these rules and default constants, an announce will propagate throughout the network
-in a predictable way. In an example network utilising the default constants, and with an average link
-distance of *Lavg =* 15 kilometers, an announce will be able to propagate outwards to a radius of 180
-kilometers in 34 minutes, and a *maximum announce radius* of 270 kilometers in approximately 3
-days.
+in a predictable way.
+
+As an example, in a network based only on radio transceivers with an average link distance of 15
+kilometers, an announce will be able to propagate outwards over 12 hops, to a radius of 180
+kilometers, in approximately 20 minutes.
+
+The design and constants of the decay and delay functionality in the announce propagation is subject
+to change and optimisation as real-world usage is explored. The announce propagation speed can be
+increased at the cost of increased bandwidth consumption.
 
 .. _understanding-paths:
 
@@ -577,20 +602,6 @@ Protocol Specifics
 This chapter will detail protocol specific information that is essential to the implementation of
 Reticulum, but non critical in understanding how the protocol works on a general level. It should be
 treated more as a reference than as essential reading.
-
-
-Node Types
-----------
-
-Currently Reticulum defines two node types, the *Station* and the *Peer*. A node is a *station* if it fixed
-in one place, and if it is intended to be kept online most of the time. Otherwise the node is a *peer*.
-
-This distinction is made by the user configuring the node, and is used to determine what nodes on the
-network will help forward traffic, and what nodes rely on other nodes for connectivity.
-
-If a node is a *Peer* it should be given the configuration directive ``enable_transport = No``.
-
-If it is a *Station*, it should be given the configuration directive ``enable_transport = Yes``.
 
 
 Packet Prioritisation

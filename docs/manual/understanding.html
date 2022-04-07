@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Understanding Reticulum &#8212; Reticulum Network Stack 0.3.3 beta documentation</title>
+    <title>Understanding Reticulum &#8212; Reticulum Network Stack 0.3.4 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="interfaces.html" title="Supported Interfaces"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.3 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.4 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Understanding Reticulum</a></li> 
       </ul>
     </div>  
@@ -334,14 +334,26 @@ hops in the network.</p>
 networks are fundamentally incompatible with the physical link types that Reticulum was designed to handle.
 These routing methodologies assume trust at the physical layer, and often needs a lot more bandwidth than
 Reticulum can assume is available.</p>
-<p>Since Reticulum is designed to run over open radio spectrum, no such trust exists, and bandwidth is often
-very limited. Existing routing protocols like BGP or OSPF carry too much overhead to be practically
+<p>Since Reticulum is designed to survive running over open radio spectrum, no such trust exists, and bandwidth
+is often very limited. Existing routing protocols like BGP or OSPF carry too much overhead to be practically
 useable over bandwidth-limited, high-latency links.</p>
 <p>To overcome such challenges, Reticulum’s <em>Transport</em> system uses public-key cryptography to
-implement the concept of <em>paths</em> that allow discovery of how to get information to a certain
+implement the concept of <em>paths</em> that allow discovery of how to get information closer to a certain
 destination. It is important to note that no single node in a Reticulum network knows the complete
 path to a destination. Every Transport node participating in a Reticulum network will only
 know what the most direct way to get a packet one hop closer to it’s destination is.</p>
+<div class="section" id="node-types">
+<span id="understanding-nodetypes"></span><h3>Node Types<a class="headerlink" href="#node-types" title="Permalink to this headline">¶</a></h3>
+<p>Currently, Reticulum distinguishes between two types of network nodes. All nodes on a Reticulum network
+are <em>Reticulum Instances</em>, and some are alo <em>Transport Nodes</em>. If a system running Reticulum is fixed in
+one place, and is intended to be kept available most of the time, it can be a <em>Transport Node</em>, by enabling
+it in the configuration.</p>
+<p>This distinction is made by the user configuring the node, and is used to determine what nodes on the
+network will help forward traffic, and what nodes rely on other nodes for wider connectivity.</p>
+<p>If a node is a <em>Instance</em> it should be given the configuration directive <code class="docutils literal notranslate"><span class="pre">enable_transport</span> <span class="pre">=</span> <span class="pre">No</span></code>, which
+is the default setting.</p>
+<p>If it is a <em>Transport Node</em>, it should be given the configuration directive <code class="docutils literal notranslate"><span class="pre">enable_transport</span> <span class="pre">=</span> <span class="pre">Yes</span></code>.</p>
+</div>
 <div class="section" id="the-announce-mechanism-in-detail">
 <span id="understanding-announce"></span><h3>The Announce Mechanism in Detail<a class="headerlink" href="#the-announce-mechanism-in-detail" title="Permalink to this headline">¶</a></h3>
 <p>When an <em>announce</em> is transmitted by a node, it will be forwarded by any node receiving it, but
@@ -358,7 +370,7 @@ total it has been retransmitted to get here.</div>
 </li>
 <li><div class="line-block">
 <div class="line">If the announce has been retransmitted <em>m+1</em> times, it will not be forwarded. By default, <em>m</em> is
-set to 18.</div>
+set to 128.</div>
 </div>
 </li>
 <li><div class="line-block">
@@ -371,7 +383,7 @@ set to 18.</div>
 </li>
 <li><div class="line-block">
 <div class="line">If at least <em>d</em> seconds has passed since the announce was received, and no other packets with a
-priority higher than <em>p</em> are waiting in the queue (see Packet Prioritisation), and the channel is
+priority higher than <em>p</em> are waiting in the queue, and the channel is
 not utilized by other traffic, the announce will be forwarded.</div>
 </div>
 </li>
@@ -398,10 +410,13 @@ addressed to that destination. Any node with knowledge of the announce will be a
 packet towards the destination by looking up the next node with the shortest amount of hops to the
 destination.</p>
 <p>According to these rules and default constants, an announce will propagate throughout the network
-in a predictable way. In an example network utilising the default constants, and with an average link
-distance of <em>Lavg =</em> 15 kilometers, an announce will be able to propagate outwards to a radius of 180
-kilometers in 34 minutes, and a <em>maximum announce radius</em> of 270 kilometers in approximately 3
-days.</p>
+in a predictable way.</p>
+<p>As an example, in a network based only on radio transceivers with an average link distance of 15
+kilometers, an announce will be able to propagate outwards over 12 hops, to a radius of 180
+kilometers, in approximately 20 minutes.</p>
+<p>The design and constants of the decay and delay functionality in the announce propagation is subject
+to change and optimisation as real-world usage is explored. The announce propagation speed can be
+increased at the cost of increased bandwidth consumption.</p>
 </div>
 <div class="section" id="reaching-the-destination">
 <span id="understanding-paths"></span><h3>Reaching the Destination<a class="headerlink" href="#reaching-the-destination" title="Permalink to this headline">¶</a></h3>
@@ -657,15 +672,6 @@ even if you have none of the hardware already, and need to purchase everything.<
 <p>This chapter will detail protocol specific information that is essential to the implementation of
 Reticulum, but non critical in understanding how the protocol works on a general level. It should be
 treated more as a reference than as essential reading.</p>
-<div class="section" id="node-types">
-<h3>Node Types<a class="headerlink" href="#node-types" title="Permalink to this headline">¶</a></h3>
-<p>Currently Reticulum defines two node types, the <em>Station</em> and the <em>Peer</em>. A node is a <em>station</em> if it fixed
-in one place, and if it is intended to be kept online most of the time. Otherwise the node is a <em>peer</em>.</p>
-<p>This distinction is made by the user configuring the node, and is used to determine what nodes on the
-network will help forward traffic, and what nodes rely on other nodes for connectivity.</p>
-<p>If a node is a <em>Peer</em> it should be given the configuration directive <code class="docutils literal notranslate"><span class="pre">enable_transport</span> <span class="pre">=</span> <span class="pre">No</span></code>.</p>
-<p>If it is a <em>Station</em>, it should be given the configuration directive <code class="docutils literal notranslate"><span class="pre">enable_transport</span> <span class="pre">=</span> <span class="pre">Yes</span></code>.</p>
-</div>
 <div class="section" id="packet-prioritisation">
 <h3>Packet Prioritisation<a class="headerlink" href="#packet-prioritisation" title="Permalink to this headline">¶</a></h3>
 <p>Currently, Reticulum is completely priority-agnostic regarding general traffic. All traffic is handled
@@ -798,6 +804,7 @@ proof           11
 </ul>
 </li>
 <li><a class="reference internal" href="#reticulum-transport">Reticulum Transport</a><ul>
+<li><a class="reference internal" href="#node-types">Node Types</a></li>
 <li><a class="reference internal" href="#the-announce-mechanism-in-detail">The Announce Mechanism in Detail</a></li>
 <li><a class="reference internal" href="#reaching-the-destination">Reaching the Destination</a><ul>
 <li><a class="reference internal" href="#link-establishment-in-detail">Link Establishment in Detail</a></li>
@@ -808,7 +815,6 @@ proof           11
 </li>
 <li><a class="reference internal" href="#reference-system-setup">Reference System Setup</a></li>
 <li><a class="reference internal" href="#protocol-specifics">Protocol Specifics</a><ul>
-<li><a class="reference internal" href="#node-types">Node Types</a></li>
 <li><a class="reference internal" href="#packet-prioritisation">Packet Prioritisation</a></li>
 <li><a class="reference internal" href="#binary-packet-format">Binary Packet Format</a></li>
 </ul>
@@ -856,7 +862,7 @@ proof           11
         <li class="right" >
           <a href="interfaces.html" title="Supported Interfaces"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.3 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.4 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Understanding Reticulum</a></li> 
       </ul>
     </div>
