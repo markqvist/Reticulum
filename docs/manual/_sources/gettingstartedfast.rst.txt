@@ -97,32 +97,36 @@ The ``TCPServerInterface`` allows users to host an instance accessible over TCP/
 method is generally faster, lower latency, and more energy efficient than using ``I2PInterface``,
 however it also leaks considerable metadata about the server host.
 
-Direct TCP client connections are able to see your node's IP address and may be able
+Direct TCP client connections are able to see the IP address of your instance and may be able
 to use this information to determine your location or identity. Adversaries 
-inspecting your network's internet packets may be able to record packet metadata 
-like time of transmission and packet size. By default TCP does not encrypt traffic,
-so an adversary may be able to use packet inspection to learn that a system is running
-Reticulum, and what other IP adresses connect to it. Hosting a node via TCP server also
-requires a public IP address.
+inspecting your packets may be able to record packet metadata like time of transmission and packet size.
+Even though Reticulum encrypts traffic, TCP does not, so an adversary may be able to use
+packet inspection to learn that a system is running Reticulum, and what other IP adresses connect to it.
+Hosting a publicly reachable instance over TCP also requires a publicly reachable IP address,
+which most Internet connections don't offer anymore.
 
 The ``I2PInterface`` routes messages through the `Invisible Internet Protocol 
 (I2P) <https://geti2p.net/en/>`_. To properly use this interface, users must also run an I2P daemon in
-parallel to ``rnsd``. For always-on nodes it is recommended to use `i2pd <https://i2pd.website/>`_ because it
+parallel to ``rnsd``. For always-on I2P nodes it is recommended to use `i2pd <https://i2pd.website/>`_ because it
 generally runs more efficiently. 
 
-By default, I2P will fully encrypt all traffic sent over the network, and 
-obfuscate both the sender's and receiver's IP addresses. Running an I2P node 
+By default, I2P will encrypt all traffic sent over the Internet, and 
+hide both the sender and receiver Reticulum instance IP addresses. Running an I2P node 
 will also relay other I2P user's encrypted packets, which will use extra
 bandwidth and compute power, but also makes timing attacks and other forms of 
-deep-packet-inspection much more difficult. Similar to RNS, I2P uses cryptographic 
-public keys as destination addresses, which allows users to host nodes on non-static IPs.
+deep-packet-inspection much more difficult.
+
+I2P also allows users to host globally available Reticulum instances from non-public IPs and behind firewalls.
 
 In general it is recommended to use an I2P node if you want to host a publically accessible
 instance, while preserving anonymity. If you care more about performance, and a slightly
 easier setup, use TCP.
 
-There is a experimental public testnet you can join by adding one of the following
-interfaces to your ``.reticulum/config`` file:
+Connect to the Public Testnet
+===========================================
+
+An experimental public testnet has been made accessible over both I2P and TCP. You can join it
+by adding one of the following interfaces to your ``.reticulum/config`` file:
 
 .. code::
 
@@ -141,6 +145,10 @@ interfaces to your ``.reticulum/config`` file:
     interface_enabled = yes
     peers = ykzlw5ujbaqc2xkec4cpvgyxj257wcrmmgkuxqmqcur7cq3w3lha.b32.i2p
 
+Many other Reticulum instances are connecting to this testnet, and you can also join it
+via other entry points if you know them. There is absolutely no control over the network
+topography, usage or what types of instances connect. It will also occasionally be used
+to test various failure scenarios, and there are no availability or service guarantees.
 
 Develop a Program with Reticulum
 ===========================================

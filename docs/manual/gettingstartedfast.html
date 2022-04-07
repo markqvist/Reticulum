@@ -114,28 +114,31 @@ users should carefully choose the interface which best suites their needs.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> allows users to host an instance accessible over TCP/IP. This
 method is generally faster, lower latency, and more energy efficient than using <code class="docutils literal notranslate"><span class="pre">I2PInterface</span></code>,
 however it also leaks considerable metadata about the server host.</p>
-<p>Direct TCP client connections are able to see your node’s IP address and may be able
+<p>Direct TCP client connections are able to see the IP address of your instance and may be able
 to use this information to determine your location or identity. Adversaries
-inspecting your network’s internet packets may be able to record packet metadata
-like time of transmission and packet size. By default TCP does not encrypt traffic,
-so an adversary may be able to use packet inspection to learn that a system is running
-Reticulum, and what other IP adresses connect to it. Hosting a node via TCP server also
-requires a public IP address.</p>
+inspecting your packets may be able to record packet metadata like time of transmission and packet size.
+Even though Reticulum encrypts traffic, TCP does not, so an adversary may be able to use
+packet inspection to learn that a system is running Reticulum, and what other IP adresses connect to it.
+Hosting a publicly reachable instance over TCP also requires a publicly reachable IP address,
+which most Internet connections don’t offer anymore.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">I2PInterface</span></code> routes messages through the <a class="reference external" href="https://geti2p.net/en/">Invisible Internet Protocol
 (I2P)</a>. To properly use this interface, users must also run an I2P daemon in
-parallel to <code class="docutils literal notranslate"><span class="pre">rnsd</span></code>. For always-on nodes it is recommended to use <a class="reference external" href="https://i2pd.website/">i2pd</a> because it
+parallel to <code class="docutils literal notranslate"><span class="pre">rnsd</span></code>. For always-on I2P nodes it is recommended to use <a class="reference external" href="https://i2pd.website/">i2pd</a> because it
 generally runs more efficiently.</p>
-<p>By default, I2P will fully encrypt all traffic sent over the network, and
-obfuscate both the sender’s and receiver’s IP addresses. Running an I2P node
+<p>By default, I2P will encrypt all traffic sent over the Internet, and
+hide both the sender and receiver Reticulum instance IP addresses. Running an I2P node
 will also relay other I2P user’s encrypted packets, which will use extra
 bandwidth and compute power, but also makes timing attacks and other forms of
-deep-packet-inspection much more difficult. Similar to RNS, I2P uses cryptographic
-public keys as destination addresses, which allows users to host nodes on non-static IPs.</p>
+deep-packet-inspection much more difficult.</p>
+<p>I2P also allows users to host globally available Reticulum instances from non-public IPs and behind firewalls.</p>
 <p>In general it is recommended to use an I2P node if you want to host a publically accessible
 instance, while preserving anonymity. If you care more about performance, and a slightly
 easier setup, use TCP.</p>
-<p>There is a experimental public testnet you can join by adding one of the following
-interfaces to your <code class="docutils literal notranslate"><span class="pre">.reticulum/config</span></code> file:</p>
+</div>
+<div class="section" id="connect-to-the-public-testnet">
+<h2>Connect to the Public Testnet<a class="headerlink" href="#connect-to-the-public-testnet" title="Permalink to this headline">¶</a></h2>
+<p>An experimental public testnet has been made accessible over both I2P and TCP. You can join it
+by adding one of the following interfaces to your <code class="docutils literal notranslate"><span class="pre">.reticulum/config</span></code> file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># For connecting over TCP/IP:</span>
 <span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">Frankfurt</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
@@ -152,6 +155,10 @@ interfaces to your <code class="docutils literal notranslate"><span class="pre">
   <span class="n">peers</span> <span class="o">=</span> <span class="n">ykzlw5ujbaqc2xkec4cpvgyxj257wcrmmgkuxqmqcur7cq3w3lha</span><span class="o">.</span><span class="n">b32</span><span class="o">.</span><span class="n">i2p</span>
 </pre></div>
 </div>
+<p>Many other Reticulum instances are connecting to this testnet, and you can also join it
+via other entry points if you know them. There is absolutely no control over the network
+topography, usage or what types of instances connect. It will also occasionally be used
+to test various failure scenarios, and there are no availability or service guarantees.</p>
 </div>
 <div class="section" id="develop-a-program-with-reticulum">
 <h2>Develop a Program with Reticulum<a class="headerlink" href="#develop-a-program-with-reticulum" title="Permalink to this headline">¶</a></h2>
@@ -296,6 +303,7 @@ for more information:</p>
 <li><a class="reference internal" href="#using-the-included-utilities">Using the Included Utilities</a></li>
 <li><a class="reference internal" href="#creating-a-network-with-reticulum">Creating a Network With Reticulum</a></li>
 <li><a class="reference internal" href="#connecting-reticulum-instances-over-the-internet">Connecting Reticulum Instances Over the Internet</a></li>
+<li><a class="reference internal" href="#connect-to-the-public-testnet">Connect to the Public Testnet</a></li>
 <li><a class="reference internal" href="#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
 <li><a class="reference internal" href="#participate-in-reticulum-development">Participate in Reticulum Development</a></li>
 <li><a class="reference internal" href="#reticulum-on-arm64">Reticulum on ARM64</a></li>

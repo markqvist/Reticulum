@@ -44,8 +44,7 @@ be a microwave network using off-the-shelf radios. At the time of release of thi
 recommended setup for development and testing is using LoRa radio modules with an open source firmware
 (see the section :ref:`Reference System Setup<understanding-referencesystem>`), connected to a small
 computer like a Raspberry Pi. As an example, the default reference setup provides a channel capacity
-of 5.4 Kbps, and a usable direct node-to-node range of around 15 kilometers (indefinitely extendable
-by using multiple hops).
+of 5.4 Kbps, and a usable direct node-to-node range of around 15 kilometers (extendable by using multiple hops).
 
 .. _understanding-goals:
 
@@ -543,56 +542,61 @@ or stream data directly from files.
 
 .. _understanding-referencesystem:
 
-Reference System Setup
+Reference Setup
 ======================
 
-This section will detail the recommended *Reference System Setup* for Reticulum. It is important to
-note that Reticulum is designed to be usable over more or less any medium that allows you to send
-and receive data in a digital form, and satisfies some very low minimum requirements. The
-communication channel must support at least half-duplex operation, and provide an average
-throughput of around 1000 bits per second, and supports a physical layer MTU of 500 bytes. The
-Reticulum software should be able to run on more or less any hardware that can provide a Python 3.x 
+This section will detail a recommended *Reference Setup* for Reticulum. It is important to
+note that Reticulum is designed to be usable on more or less any computing device, and over more
+or less any medium that allows you to send and receive data, which satisfies some very low
+minimum requirements.
+
+The communication channel must support at least half-duplex operation, and provide an average
+throughput of around 500 bits per second, and supports a physical layer MTU of 500 bytes. The
+Reticulum stack should be able to run on more or less any hardware that can provide a Python 3.x 
 runtime environment.
 
-That being said, the reference setup has been outlined to provide a common platform for anyone
+That being said, this reference setup has been outlined to provide a common platform for anyone
 who wants to help in the development of Reticulum, and for everyone who wants to know a
-recommended setup to get started. A reference system consists of three parts:
+recommended setup to get started experimenting. A reference system consists of three parts:
 
-* **A channel access device**
-    Or *CAD* , in short, provides access to the physical medium whereupon the communication
+* **An Interface Device**
+    Which provides access to the physical medium whereupon the communication
     takes place, for example a radio with an integrated modem. A setup with a separate modem
-    connected to a radio would also be termed a “channel access device”.
-* **A host device**
-    Some sort of computing device that can run the necessary software, communicates with the
-    channel access device, and provides user interaction.
-* **A software stack**
+    connected to a radio would also be an interface device.
+* **A Host Device**
+    Some sort of computing device that can run the necessary software, communicate with the
+    interface device, and provide user interaction.
+* **A Software Stack**
     The software implementing the Reticulum protocol and applications using it.
 
 The reference setup can be considered a relatively stable platform to develop on, and also to start
-building networks on. While details of the implementation might change at the current stage of
+building networks or applications on. While details of the implementation might change at the current stage of
 development, it is the goal to maintain hardware compatibility for as long as entirely possible, and
 the current reference setup has been determined to provide a functional platform for many years
 into the future. The current Reference System Setup is as follows:
 
 
-* **Channel Access Device**
+* **Interface Device**
     A data radio consisting of a LoRa radio module, and a microcontroller with open source
     firmware, that can connect to host devices via USB. It operates in either the 430, 868 or 900
     MHz frequency bands. More details can be found on the `RNode Page <https://unsigned.io/rnode>`_.
-* **Host device**
+* **Host Device**
     Any computer device running Linux and Python. A Raspberry Pi with a Debian based OS is
     recommended.
-* **Software stack**
-    The current Reference Implementation Release of Reticulum, running on a Debian based
+* **Software Stack**
+    The most recently released Python Implementation of Reticulum, running on a Debian based
     operating system.
 
-It is very important to note, that the reference channel access device **does not** use the LoRaWAN
-standard, but uses a custom MAC layer on top of the plain LoRa modulation! As such, you will
-need a plain LoRa radio module connected to an MCU with the correct firmware. Full details on how to
+To avoid confusion, it is very important to note, that the reference interface device **does not**
+use the LoRaWAN standard, but uses a custom MAC layer on top of the plain LoRa modulation! As such, you will
+need a plain LoRa radio module connected to an controller with the correct firmware. Full details on how to
 get or make such a device is available on the `RNode Page <https://unsigned.io/rnode>`_.
 
 With the current reference setup, it should be possible to get on a Reticulum network for around 100$
 even if you have none of the hardware already, and need to purchase everything.
+
+This reference setup is of course just a recommendation for getting started easily, and you should
+tailor it to your own specific needs, or whatever hardware you have available.
 
 .. _understanding-protocolspecifics:
 
@@ -675,7 +679,7 @@ Binary Packet Format
 
     +- Packet Example -+
 
-       HEADER FIELD             ADDRESSES FIELD             CONTEXT FIELD  DATA FIELD
+       HEADER FIELD           DESTINATION FIELDS            CONTEXT FIELD  DATA FIELD
      _______|_______   ________________|________________   ________|______   __|_
     |               | |                                 | |               | |    |
     01010000 00000100 [ADDR1, 10 bytes] [ADDR2, 10 bytes] [CONTEXT, 1 byte] [DATA]
@@ -689,7 +693,7 @@ Binary Packet Format
 
      +- Packet Example -+
 
-       HEADER FIELD    ADDRESSES FIELD    CONTEXT FIELD  DATA FIELD
+       HEADER FIELD   DESTINATION FIELD   CONTEXT FIELD  DATA FIELD
      _______|_______   _______|_______   ________|______   __|_
     |               | |               | |               | |    |
     00000000 00000111 [ADDR1, 10 bytes] [CONTEXT, 1 byte] [DATA]
