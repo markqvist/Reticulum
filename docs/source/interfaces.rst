@@ -535,7 +535,7 @@ The ``interface_mode`` option allows selecting the high-level
 behaviour of the interface from a number of options.
 
  - The default value is ``full``. In this mode, all discovery,
-   meshing and transpor functionality is available.
+   meshing and transport functionality is available.
 
  - In the ``access_point`` (or shorthand ``ap``) mode, the
    interface will operate as a network access point. In this
