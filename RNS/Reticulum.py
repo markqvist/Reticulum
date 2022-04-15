@@ -307,7 +307,7 @@ class Reticulum:
                     if "mode" in c:
                         if c["mode"] == "full":
                             interface_mode = Interface.Interface.MODE_FULL
-                        elif c["mode"] == "accesspoint" or c["mode"] == "ap":
+                        elif c["mode"] == "access_point" or c["mode"] == "accesspoint" or c["mode"] == "ap":
                             interface_mode = Interface.Interface.MODE_ACCESS_POINT
                         elif c["mode"] == "pointtopoint" or c["mode"] == "ptp":
                             interface_mode = Interface.Interface.MODE_POINT_TO_POINT
