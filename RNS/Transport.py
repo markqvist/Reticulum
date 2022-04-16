@@ -430,9 +430,9 @@ class Transport:
 
                     if i > 0:
                         if i == 1:
-                            RNS.log("Dropped "+str(i)+" link", RNS.LOG_DEBUG)
+                            RNS.log("Released "+str(i)+" link", RNS.LOG_DEBUG)
                         else:
-                            RNS.log("Dropped "+str(i)+" links", RNS.LOG_DEBUG)
+                            RNS.log("Released "+str(i)+" links", RNS.LOG_DEBUG)
 
                     i = 0
                     for destination_hash in stale_paths:
@@ -546,6 +546,7 @@ class Transport:
 
                     if packet.packet_type == RNS.Packet.ANNOUNCE:
                         if packet.attached_interface == None and interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
+                            RNS.log("Blocking announce broadcast on "+str(interface)+" due to AP mode", RNS.LOG_DEBUG)
                             should_transmit = False
                             
                     if should_transmit:
