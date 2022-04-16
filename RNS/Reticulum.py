@@ -709,6 +709,8 @@ class Reticulum:
                 ifstats["rxb"] = interface.rxb
                 ifstats["txb"] = interface.txb
                 ifstats["status"] = interface.online
+                ifstats["mode"] = interface.mode
+                
                 stats.append(ifstats)
 
             return stats

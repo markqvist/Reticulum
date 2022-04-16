@@ -61,25 +61,43 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                 else:
                     ss = "Down"
 
+                if ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
+                    modestr = "Access Point"
+                elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_POINT_TO_POINT:
+                    modestr = "Point-to-Point"
+                else:
+                    modestr = "Full"
+
+
                 if ifstat["clients"] != None:
                     clients = ifstat["clients"]
                     if name.startswith("Shared Instance["):
-                        clients_string = "Connected applications: "+str(max(clients-1,0))
+                        cnum = max(clients-1,0)
+                        if cnum == 1:
+                            spec_str = " program"
+                        else:
+                            spec_str = " programs"
+
+                        clients_string = "Serving : "+str(cnum)+spec_str
                     else:
-                        clients_string = "Connected clients: "+str(clients)
+                        clients_string = "Clients : "+str(clients)
 
                 else:
                     clients = None
 
                 print(" {n}".format(n=ifstat["name"]))
-                print("\tStatus: {ss}".format(ss=ss))
+                print("    Status  : {ss}".format(ss=ss))
+                
+                if clients != None:
+                    print("    "+clients_string)
+
+                if not (name.startswith("Shared Instance[") or name.startswith("TCPInterface[Client")):
+                    print("    Mode    : {mode}".format(mode=modestr))
 
                 if "i2p_b32" in ifstat:
-                    print("\tI2P B32: {ep}".format(ep=str(ifstat["i2p_b32"])))
+                    print("    I2P B32 : {ep}".format(ep=str(ifstat["i2p_b32"])))
 
-                if clients != None:
-                    print("\t"+clients_string)
-                print("\tRX: {rxb}\n\tTX: {txb}".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
+                print("    RX      : {rxb}\n    TX      : {txb}".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
 
         print("")
                 
