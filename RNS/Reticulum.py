@@ -304,7 +304,15 @@ class Reticulum:
 
                     interface_mode = Interface.Interface.MODE_FULL
                     
-                    if "mode" in c:
+                    if "interface_mode" in c:
+                        if c["interface_mode"] == "full":
+                            interface_mode = Interface.Interface.MODE_FULL
+                        elif c["interface_mode"] == "access_point" or c["interface_mode"] == "accesspoint" or c["interface_mode"] == "ap":
+                            interface_mode = Interface.Interface.MODE_ACCESS_POINT
+                        elif c["interface_mode"] == "pointtopoint" or c["interface_mode"] == "ptp":
+                            interface_mode = Interface.Interface.MODE_POINT_TO_POINT
+
+                    elif "mode" in c:
                         if c["mode"] == "full":
                             interface_mode = Interface.Interface.MODE_FULL
                         elif c["mode"] == "access_point" or c["mode"] == "accesspoint" or c["mode"] == "ap":
@@ -313,7 +321,7 @@ class Reticulum:
                             interface_mode = Interface.Interface.MODE_POINT_TO_POINT
 
                     try:
-                        if ("interface_enabled" in c) and c.as_bool("interface_enabled") == True:
+                        if (("interface_enabled" in c) and c.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
                             if c["type"] == "AutoInterface":
                                 if not RNS.vendor.platformutils.is_windows():
                                     group_id        = c["group_id"] if "group_id" in c else None
