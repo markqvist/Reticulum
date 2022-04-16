@@ -519,20 +519,21 @@ beaconing functionality described above.
 Common Interface Options
 ========================
 
-A number of general options can be used to control various
-aspects of interface behaviour.
+A number of general options are available on most interfaces.
+These can be used to control various aspects of interface behaviour.
 
-The ``interface_enabled`` option tells Reticulum whether or not
+
+The ``enabled`` option tells Reticulum whether or not
 to bring up the interface. Defaults to ``False``. For any
-interface to be brought up, the ``interface_enabled`` option
+interface to be brought up, the ``enabled`` option
 must be set to ``True`` or ``Yes``.
 
 The ``outgoing`` option sets whether an interface is allowed
-to transmit. Defaults to ``True``. If set to ``False`` the
-interface will only receive data, and never transmit.
+to transmit. Defaults to ``True``. If set to ``False`` or ``No``
+the interface will only receive data, and never transmit.
 
-The ``interface_mode`` option allows selecting the high-level
-behaviour of the interface from a number of options.
+The ``mode`` option allows selecting the high-level behaviour
+of the interface from a number of options.
 
  - The default value is ``full``. In this mode, all discovery,
    meshing and transport functionality is available.
