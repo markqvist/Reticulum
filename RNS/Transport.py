@@ -52,12 +52,13 @@ class Transport:
     """
     Maximum amount of hops that Reticulum will transport a packet.
     """
-    PATHFINDER_C    = 1.8        # Decay constant
+    PATHFINDER_C    = 1.094334   # Exponential delay coefficient
+    PATHFINDER_D    = 10         # Fixed per-hop delay
     PATHFINDER_R    = 1          # Retransmit retries
     PATHFINDER_T    = 10         # Retry grace period
-    PATHFINDER_RW   = 10         # Random window for announce rebroadcast
-    PATHFINDER_E    = 60*60*24*7 # Path expiration in seconds
-    AP_PATH_TIME    = 60*60*24   # Expiration for Access Point paths 
+    PATHFINDER_RW   = 5          # Random window for announce rebroadcast
+    PATHFINDER_E    = 60*60*24*7 # Path expiration of one week
+    AP_PATH_TIME    = 60*60*24   # Path expiration of one day for Access Point paths
 
     # TODO: Calculate an optimal number for this in
     # various situations
@@ -299,6 +300,7 @@ class Transport:
                             break
                         else:
                             if time.time() > announce_entry[1]:
+                                # announce_entry[1] = time.time() + math.pow(Transport.PATHFINDER_C, announce_entry[4]) + Transport.PATHFINDER_T + Transport.PATHFINDER_RW
                                 announce_entry[1] = time.time() + math.pow(Transport.PATHFINDER_C, announce_entry[4]) + Transport.PATHFINDER_T + Transport.PATHFINDER_RW
                                 announce_entry[2] += 1
                                 packet = announce_entry[5]
@@ -329,6 +331,7 @@ class Transport:
                                     RNS.log("Rebroadcasting announce as path response for "+RNS.prettyhexrep(announce_destination.hash)+" with hop count "+str(new_packet.hops), RNS.LOG_DEBUG)
                                 else:
                                     RNS.log("Rebroadcasting announce for "+RNS.prettyhexrep(announce_destination.hash)+" with hop count "+str(new_packet.hops), RNS.LOG_DEBUG)
+                                
                                 outgoing.append(new_packet)
 
                                 # This handles an edge case where a peer sends a past
@@ -920,7 +923,7 @@ class Transport:
                             local_rebroadcasts = 0
                             block_rebroadcasts = False
                             attached_interface = None
-                            retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops) + (RNS.rand() * Transport.PATHFINDER_RW)
+                            retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops) + (PATHFINDER_D*packet.hops) + (RNS.rand() * Transport.PATHFINDER_RW)
 
                             if packet.receiving_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
                                 expires            = now + Transport.AP_PATH_TIME
