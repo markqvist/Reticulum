@@ -85,6 +85,24 @@ class Reticulum:
     the default value.
     """
 
+    ANNOUNCE_CAP = 2
+    """
+    The maximum percentage of interface bandwidth that, at any given time,
+    may be used to propagate announces. If an announce was scheduled for
+    broadcasting on an interface, but doing so would exceed the allowed
+    bandwidth allocation, the announce will be queued for transmission
+    when there is bandwidth available.
+
+    Reticulum will always prioritise propagating announces with fewer
+    hops, ensuring that distant, large networks with many peers on fast
+    links don't overwhelm the capacity of smaller networks on slower
+    mediums. If an announce remains queued for an extended amount of time,
+    it will eventually be dropped.
+
+    This value will be applied by default to all created interfaces,
+    but it can be configured individually on a per-interface basis.
+    """
+
     MINIMUM_BITRATE = 500
 
     # TODO: To reach the 300bps level without unreasonably impacting
@@ -327,6 +345,11 @@ class Reticulum:
                         if c.as_int("bitrate") >= Reticulum.MINIMUM_BITRATE:
                             configured_bitrate = c.as_int("bitrate")
                             
+                    announce_cap = Reticulum.ANNOUNCE_CAP/100.0
+                    if "announce_cap" in c:
+                        if c.as_float("announce_cap") > 0 and c.as_float("announce_cap") <= 100:
+                            announce_cap = c.as_float("announce_cap")/100.0
+                            
                     try:
                         if (("interface_enabled" in c) and c.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
                             if c["type"] == "AutoInterface":
@@ -358,6 +381,7 @@ class Reticulum:
 
                                     RNS.Transport.interfaces.append(interface)
 
+                                    interface.announce_cap = announce_cap
                                     if configured_bitrate:
                                         interface.bitrate = configured_bitrate
 
@@ -400,6 +424,7 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
 
+                                interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
 
@@ -436,6 +461,7 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
 
+                                interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
 
@@ -469,6 +495,7 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
 
+                                interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
 
@@ -498,6 +525,7 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
 
+                                interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
 
@@ -531,6 +559,7 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
 
+                                interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
 
@@ -577,6 +606,7 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
 
+                                interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
 
@@ -624,6 +654,7 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
 
+                                interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
 
@@ -665,9 +696,10 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
 
+                                interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
-                                
+
                         else:
                             RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_DEBUG)
 
