@@ -121,6 +121,7 @@ class Transport:
 
     @staticmethod
     def start(reticulum_instance):
+        Transport.jobs_running = True
         Transport.owner = reticulum_instance
 
         if Transport.identity == None:
@@ -155,6 +156,7 @@ class Transport:
         Transport.control_destinations.append(Transport.tunnel_synthesize_handler)
         Transport.control_hashes.append(Transport.tunnel_synthesize_destination.hash)
 
+        Transport.jobs_running = False
         thread = threading.Thread(target=Transport.jobloop)
         thread.setDaemon(True)
         thread.start()
