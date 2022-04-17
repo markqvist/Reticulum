@@ -210,6 +210,7 @@ class I2PInterfacePeer(Interface):
         self.i2p_dest         = None
         self.i2p_tunnel_ready = False
         self.mode             = RNS.Interfaces.Interface.Interface.MODE_FULL
+        self.bitrate          = I2PInterface.BITRATE_GUESS
 
         if max_reconnect_tries == None:
             self.max_reconnect_tries = I2PInterfacePeer.RECONNECT_MAX_TRIES
@@ -523,6 +524,7 @@ class I2PInterfacePeer(Interface):
 
 
 class I2PInterface(Interface):
+    BITRATE_GUESS      = 256*1000
 
     def __init__(self, owner, name, rns_storagepath, peers, connectable = True):
         self.rxb = 0
@@ -546,6 +548,7 @@ class I2PInterface(Interface):
         self.bind_ip     = "127.0.0.1"
         self.bind_port   = self.i2p.get_free_port()
         self.address = (self.bind_ip, self.bind_port)
+        self.bitrate = I2PInterface.BITRATE_GUESS
 
         i2p_thread = threading.Thread(target=self.i2p.start)
         i2p_thread.setDaemon(True)

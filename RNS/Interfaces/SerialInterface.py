@@ -74,6 +74,7 @@ class SerialInterface(Interface):
         self.stopbits = stopbits
         self.timeout  = 100
         self.online   = False
+        self.bitrate  = self.speed
 
         if parity.lower() == "e" or parity.lower() == "even":
             self.parity = serial.PARITY_EVEN

@@ -51,6 +51,7 @@ class KISS():
 
 class KISSInterface(Interface):
     MAX_CHUNK = 32768
+    BITRATE_GUESS = 1200
 
     owner    = None
     port     = None
@@ -89,6 +90,7 @@ class KISSInterface(Interface):
         self.beacon_i = beacon_interval
         self.beacon_d = beacon_data.encode("utf-8")
         self.first_tx = None
+        self.bitrate  = KISSInterface.BITRATE_GUESS
 
         self.packet_queue    = []
         self.flow_control    = flow_control

@@ -85,6 +85,8 @@ class Reticulum:
     the default value.
     """
 
+    MINIMUM_BITRATE = 500
+
     # TODO: To reach the 300bps level without unreasonably impacting
     # performance on faster links, we need a mechanism for setting
     # this value more intelligently. One option could be inferring it
@@ -320,6 +322,11 @@ class Reticulum:
                         elif c["mode"] == "pointtopoint" or c["mode"] == "ptp":
                             interface_mode = Interface.Interface.MODE_POINT_TO_POINT
 
+                    configured_bitrate = None
+                    if "bitrate" in c:
+                        if c.as_int("bitrate") >= Reticulum.MINIMUM_BITRATE:
+                            configured_bitrate = c.as_int("bitrate")
+                            
                     try:
                         if (("interface_enabled" in c) and c.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
                             if c["type"] == "AutoInterface":
@@ -350,6 +357,10 @@ class Reticulum:
                                     interface.mode = interface_mode
 
                                     RNS.Transport.interfaces.append(interface)
+
+                                    if configured_bitrate:
+                                        interface.bitrate = configured_bitrate
+
                                 else:
                                     RNS.log("AutoInterface is not currently supported on Windows, disabling interface.", RNS.LOG_ERROR);
                                     RNS.log("Please remove this AutoInterface instance from your configuration file.", RNS.LOG_ERROR);
@@ -389,6 +400,9 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
 
+                                if configured_bitrate:
+                                    interface.bitrate = configured_bitrate
+
 
                             if c["type"] == "TCPServerInterface":
                                 device       = c["device"] if "device" in c else None
@@ -422,6 +436,9 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
 
+                                if configured_bitrate:
+                                    interface.bitrate = configured_bitrate
+
 
                             if c["type"] == "TCPClientInterface":
                                 kiss_framing = False
@@ -452,6 +469,9 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
 
+                                if configured_bitrate:
+                                    interface.bitrate = configured_bitrate
+
 
                             if c["type"] == "I2PInterface":
                                 i2p_peers = c.as_list("peers") if "peers" in c else None
@@ -477,6 +497,9 @@ class Reticulum:
                                 interface.mode = interface_mode
 
                                 RNS.Transport.interfaces.append(interface)
+
+                                if configured_bitrate:
+                                    interface.bitrate = configured_bitrate
 
 
                             if c["type"] == "SerialInterface":
@@ -507,6 +530,9 @@ class Reticulum:
                                 interface.mode = interface_mode
 
                                 RNS.Transport.interfaces.append(interface)
+
+                                if configured_bitrate:
+                                    interface.bitrate = configured_bitrate
 
                             if c["type"] == "KISSInterface":
                                 preamble = int(c["preamble"]) if "preamble" in c else None
@@ -550,6 +576,9 @@ class Reticulum:
                                 interface.mode = interface_mode
 
                                 RNS.Transport.interfaces.append(interface)
+
+                                if configured_bitrate:
+                                    interface.bitrate = configured_bitrate
 
                             if c["type"] == "AX25KISSInterface":
                                 preamble = int(c["preamble"]) if "preamble" in c else None
@@ -595,6 +624,9 @@ class Reticulum:
 
                                 RNS.Transport.interfaces.append(interface)
 
+                                if configured_bitrate:
+                                    interface.bitrate = configured_bitrate
+
                             if c["type"] == "RNodeInterface":
                                 frequency = int(c["frequency"]) if "frequency" in c else None
                                 bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
@@ -632,6 +664,10 @@ class Reticulum:
                                 interface.mode = interface_mode
 
                                 RNS.Transport.interfaces.append(interface)
+
+                                if configured_bitrate:
+                                    interface.bitrate = configured_bitrate
+                                
                         else:
                             RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_DEBUG)
 
