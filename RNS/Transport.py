@@ -1258,10 +1258,6 @@ class Transport:
                 RNS.log("Removing path to "+RNS.prettyhexrep(deprecated_path)+" from tunnel "+RNS.prettyhexrep(tunnel_id), RNS.LOG_DEBUG)
                 paths.pop(deprecated_path)
 
-
-                
-
-
     @staticmethod
     def register_destination(destination):
         destination.MTU = RNS.Reticulum.MTU
@@ -1584,7 +1580,6 @@ class Transport:
         for interface in Transport.local_client_interfaces:
             interface.detach()
 
-
     @staticmethod
     def shared_connection_disappeared():
         for link in Transport.active_links:
@@ -1601,14 +1596,12 @@ class Transport:
         Transport.announce_handlers = []
         Transport.tunnels           = {}
 
-
     @staticmethod
     def shared_connection_reappeared():
         if Transport.owner.is_connected_to_shared_instance:
             for registered_destination in Transport.destinations:
                 if registered_destination.type == RNS.Destination.SINGLE:
                     registered_destination.announce(path_response=True)
-
 
     @staticmethod
     def exit_handler():
