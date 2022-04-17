@@ -84,6 +84,23 @@ MTU is a prerequisite for peers to communicate in the same network.</p>
 the default value.</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Reticulum.ANNOUNCE_CAP">
+<span class="sig-name descname"><span class="pre">ANNOUNCE_CAP</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#RNS.Reticulum.ANNOUNCE_CAP" title="Permalink to this definition">¶</a></dt>
+<dd><p>The maximum percentage of interface bandwidth that, at any given time,
+may be used to propagate announces. If an announce was scheduled for
+broadcasting on an interface, but doing so would exceed the allowed
+bandwidth allocation, the announce will be queued for transmission
+when there is bandwidth available.</p>
+<p>Reticulum will always prioritise propagating announces with fewer
+hops, ensuring that distant, large networks with many peers on fast
+links don’t overwhelm the capacity of smaller networks on slower
+mediums. If an announce remains queued for an extended amount of time,
+it will eventually be dropped.</p>
+<p>This value will be applied by default to all created interfaces,
+but it can be configured individually on a per-interface basis.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Reticulum.should_use_implicit_proof">
 <em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">should_use_implicit_proof</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.should_use_implicit_proof" title="Permalink to this definition">¶</a></dt>

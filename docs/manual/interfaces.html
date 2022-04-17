@@ -487,21 +487,21 @@ beaconing functionality described above.</p>
 </div>
 <div class="section" id="common-interface-options">
 <span id="interfaces-options"></span><h2>Common Interface Options<a class="headerlink" href="#common-interface-options" title="Permalink to this headline">¶</a></h2>
-<p>A number of general options can be used to control various
-aspects of interface behaviour.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">interface_enabled</span></code> option tells Reticulum whether or not
+<p>A number of general options are available on most interfaces.
+These can be used to control various aspects of interface behaviour.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">enabled</span></code> option tells Reticulum whether or not
 to bring up the interface. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>. For any
-interface to be brought up, the <code class="docutils literal notranslate"><span class="pre">interface_enabled</span></code> option
+interface to be brought up, the <code class="docutils literal notranslate"><span class="pre">enabled</span></code> option
 must be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">Yes</span></code>.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">outgoing</span></code> option sets whether an interface is allowed
-to transmit. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>. If set to <code class="docutils literal notranslate"><span class="pre">False</span></code> the
-interface will only receive data, and never transmit.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">interface_mode</span></code> option allows selecting the high-level
-behaviour of the interface from a number of options.</p>
+to transmit. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>. If set to <code class="docutils literal notranslate"><span class="pre">False</span></code> or <code class="docutils literal notranslate"><span class="pre">No</span></code>
+the interface will only receive data, and never transmit.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">mode</span></code> option allows selecting the high-level behaviour
+of the interface from a number of options.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>The default value is <code class="docutils literal notranslate"><span class="pre">full</span></code>. In this mode, all discovery,
-meshing and transpor functionality is available.</p></li>
+meshing and transport functionality is available.</p></li>
 <li><p>In the <code class="docutils literal notranslate"><span class="pre">access_point</span></code> (or shorthand <code class="docutils literal notranslate"><span class="pre">ap</span></code>) mode, the
 interface will operate as a network access point. In this
 mode, announces will not be automatically broadcasted on
