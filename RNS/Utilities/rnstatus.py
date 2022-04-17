@@ -91,7 +91,7 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                 if clients != None:
                     print("    "+clients_string)
 
-                if not (name.startswith("Shared Instance[") or name.startswith("TCPInterface[Client")):
+                if not (name.startswith("Shared Instance[") or name.startswith("TCPInterface[Client") or name.startswith("LocalInterface[")):
                     print("    Mode    : {mode}".format(mode=modestr))
 
                 if "i2p_b32" in ifstat:
