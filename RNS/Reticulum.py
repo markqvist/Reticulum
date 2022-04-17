@@ -705,12 +705,24 @@ class Reticulum:
                     else:
                         ifstats["i2p_b32"] = None
 
+                if hasattr(interface, "bitrate"):
+                    if interface.bitrate != None:
+                        ifstats["bitrate"] = interface.bitrate
+                    else:
+                        ifstats["bitrate"] = None
+
+                if hasattr(interface, "peers"):
+                    if interface.peers != None:
+                        ifstats["peers"] = len(interface.peers)
+                    else:
+                        ifstats["peers"] = None
+
                 ifstats["name"] = str(interface)
                 ifstats["rxb"] = interface.rxb
                 ifstats["txb"] = interface.txb
                 ifstats["status"] = interface.online
                 ifstats["mode"] = interface.mode
-                
+
                 stats.append(ifstats)
 
             return stats

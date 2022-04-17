@@ -87,17 +87,23 @@ def program_setup(configdir, dispall=False, verbosity = 0):
 
                 print(" {n}".format(n=ifstat["name"]))
                 print("    Status  : {ss}".format(ss=ss))
-                
+
                 if clients != None:
                     print("    "+clients_string)
 
                 if not (name.startswith("Shared Instance[") or name.startswith("TCPInterface[Client") or name.startswith("LocalInterface[")):
                     print("    Mode    : {mode}".format(mode=modestr))
 
+                if "bitrate" in ifstat and ifstat["bitrate"] != None:
+                    print("    Rate    : {ss}".format(ss=speed_str(ifstat["bitrate"])))
+                
+                if "peers" in ifstat and ifstat["peers"] != None:
+                    print("    Peers   : {np} reachable".format(np=ifstat["peers"]))
+                
                 if "i2p_b32" in ifstat:
                     print("    I2P B32 : {ep}".format(ep=str(ifstat["i2p_b32"])))
 
-                print("    RX      : {rxb}\n    TX      : {txb}".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
+                print("    Traffic : ↑ {txb}\n              ↓ {rxb}".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
 
         print("")
                 
@@ -132,6 +138,22 @@ def main():
     except KeyboardInterrupt:
         print("")
         exit()
+
+def speed_str(num, suffix='bps'):
+    units = ['','k','M','G','T','P','E','Z']
+    last_unit = 'Y'
+
+    if suffix == 'Bps':
+        num /= 8
+        units = ['','K','M','G','T','P','E','Z']
+        last_unit = 'Y'
+
+    for unit in units:
+        if abs(num) < 1000.0:
+            return "%3.2f %s%s" % (num, unit, suffix)
+        num /= 1000.0
+
+    return "%.2f %s%s" % (num, last_unit, suffix)
 
 if __name__ == "__main__":
     main()

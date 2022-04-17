@@ -76,6 +76,7 @@ class LocalClientInterface(Interface):
             self.connect()
 
         self.owner   = owner
+        self.bitrate = 1000*1000*1000
         self.online  = True
         self.writing = False
 
@@ -284,6 +285,7 @@ class LocalServerInterface(Interface):
             thread.setDaemon(True)
             thread.start()
 
+            self.bitrate = 1000*1000*1000
             self.online = True
 
 

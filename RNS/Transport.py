@@ -551,6 +551,7 @@ class Transport:
                         if packet.attached_interface == None and interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
                             RNS.log("Blocking announce broadcast on "+str(interface)+" due to AP mode", RNS.LOG_DEBUG)
                             should_transmit = False
+                        # TODO: Add capacity limit based on interface bandwidth
                             
                     if should_transmit:
                         if not stored_hash:
@@ -923,7 +924,7 @@ class Transport:
                             local_rebroadcasts = 0
                             block_rebroadcasts = False
                             attached_interface = None
-                            retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops) + (PATHFINDER_D*packet.hops) + (RNS.rand() * Transport.PATHFINDER_RW)
+                            retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops) + (Transport.PATHFINDER_D*packet.hops) + (RNS.rand() * Transport.PATHFINDER_RW)
 
                             if packet.receiving_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
                                 expires            = now + Transport.AP_PATH_TIME

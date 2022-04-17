@@ -46,7 +46,9 @@ class AutoInterface(Interface):
     DARWIN_IGNORE_IFS  = ["awdl0", "llw0", "lo0", "en5"]
     ANDROID_IGNORE_IFS = ["dummy0", "lo", "tun0"]
 
-    def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None):
+    BITRATE_GUESS      = 10*1000*1000
+
+    def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None, configured_bitrate=None):
         import importlib
         if importlib.util.find_spec('netifaces') != None:
             import netifaces
@@ -216,6 +218,11 @@ class AutoInterface(Interface):
             job_thread.start()
 
             time.sleep(peering_wait)
+
+            if configured_bitrate != None:
+                self.bitrate = configured_bitrate
+            else:
+                self.bitrate = AutoInterface.BITRATE_GUESS
 
             self.online = True
 
