@@ -103,7 +103,7 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                 if "i2p_b32" in ifstat:
                     print("    I2P B32 : {ep}".format(ep=str(ifstat["i2p_b32"])))
 
-                print("    Traffic : ↑ {txb}\n              ↓ {rxb}".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
+                print("    Traffic : {txb}↑\n              {rxb}↓".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
 
         print("")
                 
