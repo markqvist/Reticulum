@@ -788,6 +788,12 @@ class Reticulum:
                     else:
                         ifstats["peers"] = None
 
+                if hasattr(interface, "announce_queue"):
+                    if interface.announce_queue != None:
+                        ifstats["announce_queue"] = len(interface.announce_queue)
+                    else:
+                        ifstats["announce_queue"] = None
+
                 ifstats["name"] = str(interface)
                 ifstats["rxb"] = interface.rxb
                 ifstats["txb"] = interface.txb

@@ -48,8 +48,13 @@ def size_str(num, suffix='B'):
 
 def program_setup(configdir, dispall=False, verbosity = 0):
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
-    
-    ifstats = reticulum.get_interface_stats()
+
+    ifstats = None
+    try:
+        ifstats = reticulum.get_interface_stats()
+    except Exception as e:
+        pass
+
     if ifstats != None:
         for ifstat in ifstats:
             name = ifstat["name"]
@@ -103,6 +108,13 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                 if "i2p_b32" in ifstat and ifstat["i2p_b32"] != None:
                     print("    I2P B32 : {ep}".format(ep=str(ifstat["i2p_b32"])))
 
+                if "announce_queue" in ifstat and ifstat["announce_queue"] != None and ifstat["announce_queue"] > 0:
+                    aqn = ifstat["announce_queue"]
+                    if aqn == 1:
+                        print("    Queued  : {np} announce".format(np=aqn))
+                    else:
+                        print("    Queued  : {np} announces".format(np=aqn))
+                
                 print("    Traffic : {txb}↑\n              {rxb}↓".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
 
         print("")
