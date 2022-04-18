@@ -30,6 +30,7 @@ import RNS
 
 
 class UDPInterface(Interface):
+    BITRATE_GUESS = 10*1000*1000
 
     @staticmethod
     def get_address_for_if(name):
@@ -60,6 +61,7 @@ class UDPInterface(Interface):
         self.OUT = False
         self.name = name
         self.online = False
+        self.bitrate = UDPInterface.BITRATE_GUESS
 
         if device != None:
             if bindip == None:

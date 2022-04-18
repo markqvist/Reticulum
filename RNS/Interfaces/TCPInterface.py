@@ -59,6 +59,8 @@ class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 class TCPClientInterface(Interface):
+    BITRATE_GUESS = 10*1000*1000
+
     RECONNECT_WAIT = 5
     RECONNECT_MAX_TRIES = None
 
@@ -92,6 +94,7 @@ class TCPClientInterface(Interface):
         self.kiss_framing     = kiss_framing
         self.i2p_tunneled     = i2p_tunneled
         self.mode             = RNS.Interfaces.Interface.Interface.MODE_FULL
+        self.bitrate          = TCPClientInterface.BITRATE_GUESS
         
         if max_reconnect_tries == None:
             self.max_reconnect_tries = TCPClientInterface.RECONNECT_MAX_TRIES
@@ -375,6 +378,8 @@ class TCPClientInterface(Interface):
 
 
 class TCPServerInterface(Interface):
+    BITRATE_GUESS      = 10*1000*1000
+
     @staticmethod
     def get_address_for_if(name):
         import importlib
@@ -429,6 +434,8 @@ class TCPServerInterface(Interface):
             ThreadingTCPServer.allow_reuse_address = True
             self.server = ThreadingTCPServer(address, handlerFactory(self.incoming_connection))
 
+            self.bitrate = TCPServerInterface.BITRATE_GUESS
+
             thread = threading.Thread(target=self.server.serve_forever)
             thread.setDaemon(True)
             thread.start()
@@ -445,6 +452,7 @@ class TCPServerInterface(Interface):
         spawned_interface.target_ip = handler.client_address[0]
         spawned_interface.target_port = str(handler.client_address[1])
         spawned_interface.parent_interface = self
+        spawned_interface.bitrate = self.bitrate
         spawned_interface.online = True
         RNS.log("Spawned new TCPClient Interface: "+str(spawned_interface), RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)
