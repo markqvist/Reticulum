@@ -82,7 +82,7 @@ class Transport:
     # TODO: "destination_table" should really be renamed to "path_table"
     # Notes on memory usage: 1 megabyte of memory can store approximately
     # 55.100 path table entries or approximately 22.300 link table entries.
-    
+
     announce_table       = {}           # A table for storing announces currently waiting to be retransmitted
     destination_table    = {}           # A lookup table containing the next hop to a given destination
     reverse_table        = {}           # A lookup table for storing packet hashes used to return proofs and replies
@@ -558,7 +558,6 @@ class Transport:
                                 should_transmit = False
                             
                             else:
-                                # TODO: Remove logging statements
                                 if packet.hops > 0:
 
                                     if not hasattr(interface, "announce_cap"):
@@ -583,30 +582,18 @@ class Transport:
                                             entry = {"time": outbound_time, "hops": packet.hops, "raw": packet.raw}
                                             queued_announces = True if len(interface.announce_queue) > 0 else False
                                             interface.announce_queue.append(entry)
-                                            # TODO: Clean
-                                            # RNS.log("Added announce to queue on "+str(interface), RNS.LOG_DEBUG)
 
                                             if not queued_announces:
-                                                # TODO: Clean
-                                                # RNS.log("Interface "+str(interface)+" still waiting for announce allowance", RNS.LOG_DEBUG)
                                                 wait_time = max(interface.announce_allowed_at - time.time(), 0)
                                                 timer = threading.Timer(wait_time, interface.process_announce_queue)
                                                 timer.start()
-                                                # TODO: Clean
-                                                # RNS.log("Triggering run in "+str(wait_time)+" seconds", RNS.LOG_DEBUG)
                                             else:
-                                                # TODO: Clean
-                                                # RNS.log("Interface "+str(interface)+" has announces in queue, adding directly to it", RNS.LOG_DEBUG)
                                                 pass
 
                                         else:
-                                            # TODO: Clean
-                                            # RNS.log("Not retransmitting announce on "+str(interface)+" since the queue is full", RNS.LOG_DEBUG)
                                             pass
-
+                                
                                 else:
-                                    # TODO: Clean
-                                    # RNS.log("Skipping announce cap calculations for "+str(packet.hops)+" hop packet", RNS.LOG_DEBUG)
                                     pass
                             
                     if should_transmit:

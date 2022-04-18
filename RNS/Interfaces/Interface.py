@@ -43,26 +43,11 @@ class Interface:
     def get_hash(self):
         return RNS.Identity.full_hash(str(self).encode("utf-8"))
 
-    # TODO: Clean
-    # def bogus_queue(self):
-    #     self.announce_queue = []
-
-    #     import random
-    #     import time
-
-    #     now = time.time()
-    #     random.seed(45)
-    #     for i in range(1,32):
-    #         entry = {"time": now+i*3, "hops":random.randint(4,16), "raw": str("bogus_data_"+str(i)).encode("utf-8")}
-    #         self.announce_queue.append(entry)
-
     def process_announce_queue(self):
         if not hasattr(self, "announce_cap"):
             self.announce_cap = RNS.Reticulum.ANNOUNCE_CAP
 
         if hasattr(self, "announce_queue"):
-            # TODO: Clean
-            # RNS.log("Processing announce queue on "+str(self), RNS.LOG_DEBUG)
             try:
                 now = time.time()
                 stale = []
@@ -86,11 +71,7 @@ class Interface:
 
                     self.processOutgoing(selected["raw"])
                     self.announce_queue.remove(selected)
-                    # TODO: Clean debug statements
-                    # RNS.log("Sent queued announce with "+str(selected["hops"])+" hops on "+str(self))
                     if len(self.announce_queue) > 0:
-                        # TODO: Clean debug statements
-                        # RNS.log("Still have "+str(len(self.announce_queue))+" announces in queue, scheduling next for tx in "+str(round(wait_time*1000,6))+"ms", RNS.LOG_DEBUG)
                         timer = threading.Timer(wait_time, self.process_announce_queue)
                         timer.start()
 
