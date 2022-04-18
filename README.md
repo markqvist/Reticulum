@@ -19,34 +19,34 @@ You can also [download the Reticulum manual as a PDF](https://github.com/markqvi
 For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects/reticulum/)
 
 ## Notable Features
- - Coordination-less globally unique adressing and identification
- - Fully self-configuring multi-hop routing
- - Complete initiator anonymity, communicate without revealing your identity
- - Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
- - Forward Secrecy with ephemereal Elliptic Curve Diffie-Hellman keys on Curve25519
- - Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for on-the-wire / over-the-air encryption
-    - Keys are ephemeral and derived from an ECDH key exchange on Curve25519
-    - AES-128 in CBC mode with PKCS7 padding
-    - HMAC using SHA256 for authentication
-    - IVs are generated through os.urandom()
- - Unforgeable packet delivery confirmations
- - A variety of supported interface types
- - An intuitive and easy-to-use API
- - Reliable and efficient transfer of arbritrary amounts of data
-    - Reticulum can handle a few bytes of data or files of many gigabytes
-    - Sequencing, transfer coordination and checksumming is automatic
-    - The API is very easy to use, and provides transfer progress
- - Lightweight, flexible and expandable Request/Response mechanism
- - Efficient link establishment
-    - Total bandwidth cost of setting up a link is 3 packets totalling 237 bytes
-    - Low cost of keeping links open at only 0.62 bits per second
+- Coordination-less globally unique adressing and identification
+- Fully self-configuring multi-hop routing
+- Complete initiator anonymity, communicate without revealing your identity
+- Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
+- Forward Secrecy with ephemereal Elliptic Curve Diffie-Hellman keys on Curve25519
+- Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for on-the-wire / over-the-air encryption
+  - Keys are ephemeral and derived from an ECDH key exchange on Curve25519
+  - AES-128 in CBC mode with PKCS7 padding
+  - HMAC using SHA256 for authentication
+  - IVs are generated through os.urandom()
+- Unforgeable packet delivery confirmations
+- A variety of supported interface types
+- An intuitive and easy-to-use API
+- Reliable and efficient transfer of arbritrary amounts of data
+  - Reticulum can handle a few bytes of data or files of many gigabytes
+  - Sequencing, transfer coordination and checksumming is automatic
+  - The API is very easy to use, and provides transfer progress
+- Lightweight, flexible and expandable Request/Response mechanism
+- Efficient link establishment
+  - Total bandwidth cost of setting up an encrypted link is 3 packets totalling 237 bytes
+  - Low cost of keeping links open at only 0.62 bits per second
 
 ## Examples of Reticulum Applications
 If you want to quickly get an idea of what Reticulum can do, take a look at the following resources.
 
- - [LXMF](https://github.com/markqvist/lxmf) is a distributed, delay and disruption tolerant message transfer protocol built on Reticulum
- - For an off-grid, encrypted and resilient mesh communications platform, see [Nomad Network](https://github.com/markqvist/NomadNet)
- - The Android, Linux and macOS app [Sideband](https://unsigned.io/sideband) has a graphical interface and focuses on ease of use.
+- [LXMF](https://github.com/markqvist/lxmf) is a distributed, delay and disruption tolerant message transfer protocol built on Reticulum
+- For an off-grid, encrypted and resilient mesh communications platform, see [Nomad Network](https://github.com/markqvist/NomadNet)
+- The Android, Linux and macOS app [Sideband](https://unsigned.io/sideband) has a graphical interface and focuses on ease of use.
 
 ## Where can Reticulum be used?
 Over practically any medium that can support at least a half-duplex channel with 500 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, ad-hoc WiFi, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.
@@ -78,41 +78,43 @@ Reticulum should currently be considered beta software. All core protocol featur
 
 ## Supported interface types and devices
 
-Reticulum implements a range of generalised interface types that covers most of the communications hardware that Reticulum can run over. If your hardware is not supported, it's relatively simple to implement an interface class. Currently, the following interfaces are supported:
+Reticulum implements a range of generalised interface types that covers most of the communications hardware that Reticulum can run over. If your hardware is not supported, it's relatively simple to implement an interface class. I will gratefully accept pull requests for custom interfaces if they are generally useful.
 
- - Any ethernet device
- - LoRa using [RNode](https://unsigned.io/projects/rnode/)
- - Packet Radio TNCs (with or without AX.25)
- - KISS-compatible hardware and software modems
- - Any device with a serial port
- - TCP over IP networks
- - UDP over IP networks
+Currently, the following interfaces are supported:
+
+- Any ethernet device
+- LoRa using [RNode](https://unsigned.io/projects/rnode/)
+- Packet Radio TNCs (with or without AX.25)
+- KISS-compatible hardware and software modems
+- Any device with a serial port
+- TCP over IP networks
+- UDP over IP networks
 
 ## Development Roadmap
- - Physical layer segmentation & authentication, see [#23](https://github.com/markqvist/Reticulum/discussions/23)
- - Globally routable multicast
- - GUI interface configuration tool
- - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
- - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
- - A portable Reticulum implementation in C, see [#21](https://github.com/markqvist/Reticulum/discussions/21)
- - More interface types for even broader compatibility
-   - ESP32 devices (ESP-Now, Bluetooth, etc.)
-   - More LoRa transceivers
-   - AT-compatible modems
-   - IR Transceivers
-   - AWDL / OWL
-   - HF Modems
-   - CAN-bus
-   - ZeroMQ
-   - MQTT
-   - SPI
-   - i²c
+- Physical layer segmentation & authentication, see [#23](https://github.com/markqvist/Reticulum/discussions/23)
+- Globally routable multicast
+- GUI interface configuration tool
+- Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
+- Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
+- A portable Reticulum implementation in C, see [#21](https://github.com/markqvist/Reticulum/discussions/21)
+- More interface types for even broader compatibility
+  - ESP32 devices (ESP-Now, Bluetooth, etc.)
+  - More LoRa transceivers
+  - AT-compatible modems
+  - IR Transceivers
+  - AWDL / OWL
+  - HF Modems
+  - CAN-bus
+  - ZeroMQ
+  - MQTT
+  - SPI
+  - i²c
 
 ## Dependencies:
- - Python 3.6
- - cryptography.io
- - netifaces
- - pyserial
+- Python 3.6
+- cryptography.io
+- netifaces
+- pyserial
 
 ## Public Testnet
 
