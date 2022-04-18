@@ -298,7 +298,7 @@ class LocalServerInterface(Interface):
         spawned_interface.target_ip = handler.client_address[0]
         spawned_interface.target_port = str(handler.client_address[1])
         spawned_interface.parent_interface = self
-        RNS.log("Accepting new connection to shared instance: "+str(spawned_interface), RNS.LOG_VERBOSE)
+        RNS.log("Accepting new connection to shared instance: "+str(spawned_interface), RNS.LOG_EXTREME)
         RNS.Transport.interfaces.append(spawned_interface)
         RNS.Transport.local_client_interfaces.append(spawned_interface)
         self.clients += 1
