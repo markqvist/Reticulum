@@ -95,7 +95,7 @@ Currently, the following interfaces are supported:
   - Improved announce propagation and flexible scalability
   - Physical layer segmentation & authentication, see [#23](https://github.com/markqvist/Reticulum/discussions/23)
   - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
-  - Foundational support for networks of multi-planetary scale and size
+  - Foundational support for global-scale networks
 - Version 0.3.6
   - Support for radio and modem interfaces on Android
   - GUI interface configuration tool
