@@ -91,24 +91,32 @@ Currently, the following interfaces are supported:
 - UDP over IP networks
 
 ## Development Roadmap
-- Physical layer segmentation & authentication, see [#23](https://github.com/markqvist/Reticulum/discussions/23)
-- Globally routable multicast
-- GUI interface configuration tool
-- Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
-- Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
-- A portable Reticulum implementation in C, see [#21](https://github.com/markqvist/Reticulum/discussions/21)
-- More interface types for even broader compatibility
-  - ESP32 devices (ESP-Now, Bluetooth, etc.)
-  - More LoRa transceivers
-  - AT-compatible modems
-  - IR Transceivers
-  - AWDL / OWL
-  - HF Modems
-  - CAN-bus
-  - ZeroMQ
-  - MQTT
-  - SPI
-  - i²c
+- Version 0.3.5
+  - Improved announce propagation and flexible scalability
+  - Physical layer segmentation & authentication, see [#23](https://github.com/markqvist/Reticulum/discussions/23)
+  - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
+- Version 0.3.6
+  - Support for radio and modem interfaces on Android
+  - GUI interface configuration tool
+  - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
+- Version 0.3.7
+  - More interface types for even broader compatibility
+    - Plain ESP32 devices (ESP-Now, WiFi, Bluetooth, etc.)
+    - More LoRa transceivers
+    - AT-compatible modems
+    - IR Transceivers
+    - AWDL / OWL
+    - HF Modems
+    - CAN-bus
+    - ZeroMQ
+    - MQTT
+    - SPI
+    - i²c
+- Planned, but not yet scheduled
+  - Globally routable multicast
+  - A portable Reticulum implementation in C, see [#21](https://github.com/markqvist/Reticulum/discussions/21)
+
+
 
 ## Dependencies:
 - Python 3.6
