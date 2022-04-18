@@ -85,6 +85,9 @@ class Reticulum:
     the default value.
     """
 
+    MAX_QUEUED_ANNOUNCES = 16384
+    QUEUED_ANNOUNCE_LIFE = 60*60*24
+
     ANNOUNCE_CAP = 2
     """
     The maximum percentage of interface bandwidth that, at any given time,
