@@ -753,7 +753,14 @@ class Reticulum:
                     if path == "packet_snr":
                         rpc_connection.send(self.get_packet_snr(call["packet_hash"]))
 
+                if "drop" in call:
+                    path = call["drop"]
+
+                    if path == "path":
+                        rpc_connection.send(self.drop_path(call["destination_hash"]))
+
                 rpc_connection.close()
+
             except Exception as e:
                 RNS.log("An error ocurred while handling RPC call from local client: "+str(e), RNS.LOG_ERROR)
 
@@ -833,6 +840,16 @@ class Reticulum:
                 path_table.append(entry)
 
             return path_table
+
+    def drop_path(self, destination):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection.send({"drop": "path", "destination_hash": destination})
+            response = rpc_connection.recv()
+            return response
+
+        else:
+            return RNS.Transport.expire_path(destination)
 
     def get_next_hop_if_name(self, destination):
         if self.is_connected_to_shared_instance:

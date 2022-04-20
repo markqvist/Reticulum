@@ -1523,6 +1523,15 @@ class Transport:
             return None
 
     @staticmethod
+    def expire_path(destination_hash):
+        if destination_hash in Transport.destination_table:
+            Transport.destination_table[destination_hash][0] = 0
+            Transport.tables_last_culled = 0
+            return True
+        else:
+            return False
+
+    @staticmethod
     def request_path(destination_hash):
         """
         Requests a path to the destination from the network. If

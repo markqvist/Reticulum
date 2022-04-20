@@ -30,7 +30,7 @@ import argparse
 from RNS._version import __version__
 
 
-def program_setup(configdir, table, destination_hexhash, verbosity):
+def program_setup(configdir, table, drop, destination_hexhash, verbosity):
     if table:
         reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
         table = sorted(reticulum.get_path_table(), key=lambda e: (e["interface"], e["hops"]) )
@@ -38,6 +38,26 @@ def program_setup(configdir, table, destination_hexhash, verbosity):
         for path in table:
             exp_str = RNS.timestamp_str(path["expires"])
             print(RNS.prettyhexrep(path["hash"])+" is "+str(path["hops"])+" hops away via "+RNS.prettyhexrep(path["via"])+" on "+path["interface"]+" expires "+RNS.timestamp_str(path["expires"]))
+
+    elif drop:
+        try:
+            dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
+            if len(destination_hexhash) != dest_len:
+                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            try:
+                destination_hash = bytes.fromhex(destination_hexhash)
+            except Exception as e:
+                raise ValueError("Invalid destination entered. Check your input.")
+        except Exception as e:
+            print(str(e))
+            exit()
+
+        reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
+
+        if reticulum.drop_path(destination_hash):
+            print("Dropped path to "+RNS.prettyhexrep(destination_hash))
+        else:
+            print("Unable to drop path to "+RNS.prettyhexrep(destination_hash)+". Does it exist?")
 
     else:
         try:
@@ -105,6 +125,14 @@ def main():
         )
 
         parser.add_argument(
+            "-d",
+            "--drop",
+            action="store_true",
+            help="remove the path to a destination",
+            default=False
+        )
+
+        parser.add_argument(
             "destination",
             nargs="?",
             default=None,
@@ -126,7 +154,13 @@ def main():
             parser.print_help()
             print("")
         else:
-            program_setup(configdir = configarg, table = args.table, destination_hexhash = args.destination, verbosity = args.verbose)
+            program_setup(
+                configdir = configarg,
+                table = args.table,
+                drop = args.drop,
+                destination_hexhash = args.destination,
+                verbosity = args.verbose
+            )
 
     except KeyboardInterrupt:
         print("")
