@@ -298,7 +298,7 @@ class Transport:
                     for destination_hash in Transport.announce_table:
                         announce_entry = Transport.announce_table[destination_hash]
                         if announce_entry[2] > Transport.PATHFINDER_R:
-                            RNS.log("Dropping announce for "+RNS.prettyhexrep(destination_hash)+", retries exceeded", RNS.LOG_DEBUG)
+                            RNS.log("Completed announce for "+RNS.prettyhexrep(destination_hash)+", retries exceeded", RNS.LOG_EXTREME)
                             Transport.announce_table.pop(destination_hash)
                             break
                         else:
@@ -422,9 +422,9 @@ class Transport:
 
                     if i > 0:
                         if i == 1:
-                            RNS.log("Dropped "+str(i)+" reverse table entry", RNS.LOG_DEBUG)
+                            RNS.log("Released "+str(i)+" reverse table entry", RNS.LOG_DEBUG)
                         else:
-                            RNS.log("Dropped "+str(i)+" reverse table entries", RNS.LOG_DEBUG)
+                            RNS.log("Released "+str(i)+" reverse table entries", RNS.LOG_DEBUG)
 
                     
 
@@ -558,6 +558,9 @@ class Transport:
                                 should_transmit = False
                             
                             else:
+                                # Currently, annouces originating locally are always
+                                # allowed, and do not conform to bandwidth caps.
+                                # TODO: Rethink whether this is actually optimal.
                                 if packet.hops > 0:
 
                                     if not hasattr(interface, "announce_cap"):
@@ -575,6 +578,10 @@ class Transport:
                                         tx_time   = (len(packet.raw)*8) / interface.bitrate
                                         wait_time = (tx_time / interface.announce_cap)
                                         interface.announce_allowed_at = outbound_time + wait_time
+
+                                        # TODO: Clean
+                                        # wait_time_str = str(round(wait_time*1000,3))+"ms"
+                                        # RNS.log("Next announce on "+str(interface)+" allowed in "+wait_time_str, RNS.LOG_EXTREME)
                                     
                                     else:
                                         should_transmit = False
@@ -587,8 +594,16 @@ class Transport:
                                                 wait_time = max(interface.announce_allowed_at - time.time(), 0)
                                                 timer = threading.Timer(wait_time, interface.process_announce_queue)
                                                 timer.start()
+
+                                                wait_time_str = str(round(wait_time*1000,3))+"ms"
+                                                ql_str = str(len(interface.announce_queue))
+                                                RNS.log("Added announce to queue (height "+ql_str+") on "+str(interface)+" for processing in "+wait_time_str, RNS.LOG_EXTREME)
+
                                             else:
-                                                pass
+                                                wait_time = max(interface.announce_allowed_at - time.time(), 0)
+                                                wait_time_str = str(round(wait_time*1000,3))+"ms"
+                                                ql_str = str(len(interface.announce_queue))
+                                                RNS.log("Added announce to queue (height "+ql_str+") on "+str(interface)+" for processing in "+wait_time_str, RNS.LOG_EXTREME)
 
                                         else:
                                             pass
@@ -1542,7 +1557,12 @@ class Transport:
 
     @staticmethod
     def path_request(destination_hash, is_from_local_client, attached_interface):
-        RNS.log("Path request for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
+        if attached_interface != None:
+            interface_str = " on "+str(attached_interface)
+        else:
+            interface_str = ""
+
+        RNS.log("Path request for "+RNS.prettyhexrep(destination_hash)+interface_str, RNS.LOG_DEBUG)
 
         destination_exists_on_local_client = False
         if len(Transport.local_client_interfaces) > 0:
