@@ -680,8 +680,8 @@ treated more as a reference than as essential reading.</p>
 on a first-come, first-serve basis. Announce re-transmission are handled according to the re-transmission
 times and priorities described earlier in this chapter.</p>
 </div>
-<div class="section" id="binary-packet-format">
-<span id="understanding-packetformat"></span><h3>Binary Packet Format<a class="headerlink" href="#binary-packet-format" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="wire-format">
+<span id="understanding-packetformat"></span><h3>Wire Format<a class="headerlink" href="#wire-format" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>== Reticulum Wire Format ======
 
 A Reticulum packet is composed of the following fields:
@@ -769,7 +769,7 @@ proof           11
 
  The following table lists example sizes of various
  packet types. The size listed are the complete on-
- wire size including all fields.
+ wire size counting all fields including headers.
 
  - Path Request    :    33  bytes
  - Announce        :    151 bytes
@@ -818,7 +818,7 @@ proof           11
 <li><a class="reference internal" href="#reference-setup">Reference Setup</a></li>
 <li><a class="reference internal" href="#protocol-specifics">Protocol Specifics</a><ul>
 <li><a class="reference internal" href="#packet-prioritisation">Packet Prioritisation</a></li>
-<li><a class="reference internal" href="#binary-packet-format">Binary Packet Format</a></li>
+<li><a class="reference internal" href="#wire-format">Wire Format</a></li>
 </ul>
 </li>
 </ul>

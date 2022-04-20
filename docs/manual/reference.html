@@ -1173,13 +1173,16 @@ Transport system of Reticulum.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Transport.request_path">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">request_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Transport.request_path" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">request_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_interface</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Transport.request_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Requests a path to the destination from the network. If
 another reachable peer on the network knows a path, it
 will announce it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>destination_hash</strong> – A destination hash as <em>bytes</em>.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>destination_hash</strong> – A destination hash as <em>bytes</em>.</p></li>
+<li><p><strong>on_interface</strong> – If specified, the path request will only be sent on this interface. In normal use, Reticulum handles this automatically, and this parameter should not be used.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

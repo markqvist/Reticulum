@@ -618,8 +618,8 @@ times and priorities described earlier in this chapter.
 
 .. _understanding-packetformat:
 
-Binary Packet Format
---------------------
+Wire Format
+-----------
 
 .. code-block:: text
 
@@ -710,7 +710,7 @@ Binary Packet Format
 
      The following table lists example sizes of various
      packet types. The size listed are the complete on-
-     wire size including all fields.
+     wire size counting all fields including headers.
 
      - Path Request    :    33  bytes
      - Announce        :    151 bytes
