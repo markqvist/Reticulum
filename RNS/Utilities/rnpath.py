@@ -37,7 +37,11 @@ def program_setup(configdir, table, drop, destination_hexhash, verbosity):
 
         for path in table:
             exp_str = RNS.timestamp_str(path["expires"])
-            print(RNS.prettyhexrep(path["hash"])+" is "+str(path["hops"])+" hops away via "+RNS.prettyhexrep(path["via"])+" on "+path["interface"]+" expires "+RNS.timestamp_str(path["expires"]))
+            if path["hops"] == 1:
+                m_str = " "
+            else:
+                m_str = "s"
+            print(RNS.prettyhexrep(path["hash"])+" is "+str(path["hops"])+" hop"+m_str+" away via "+RNS.prettyhexrep(path["via"])+" on "+path["interface"]+" expires "+RNS.timestamp_str(path["expires"]))
 
     elif drop:
         try:

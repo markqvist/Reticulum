@@ -391,7 +391,7 @@ class Transport:
                         expires = tunnel_entry[3]
                         if time.time() > expires:
                             stale_tunnels.append(tunnel_id)
-                            RNS.log("Tunnel "+RNS.prettyhexrep(tunnel_id)+" timed out and was removed", RNS.LOG_DEBUG)
+                            RNS.log("Tunnel "+RNS.prettyhexrep(tunnel_id)+" timed out and was removed", RNS.LOG_EXTREME)
                         else:
                             stale_tunnel_paths = []
                             tunnel_paths = tunnel_entry[2]
@@ -400,7 +400,7 @@ class Transport:
 
                                 if time.time() > tunnel_path_entry[0] + Transport.DESTINATION_TIMEOUT:
                                     stale_tunnel_paths.append(tunnel_path)
-                                    RNS.log("Tunnel path to "+RNS.prettyhexrep(tunnel_path)+" timed out and was removed", RNS.LOG_DEBUG)
+                                    RNS.log("Tunnel path to "+RNS.prettyhexrep(tunnel_path)+" timed out and was removed", RNS.LOG_EXTREME)
 
                             for tunnel_path in stale_tunnel_paths:
                                 tunnel_paths.pop(tunnel_path)
@@ -409,9 +409,9 @@ class Transport:
 
                     if ti > 0:
                         if ti == 1:
-                            RNS.log("Removed "+str(ti)+" tunnel path", RNS.LOG_DEBUG)
+                            RNS.log("Removed "+str(ti)+" tunnel path", RNS.LOG_EXTREME)
                         else:
-                            RNS.log("Removed "+str(ti)+" tunnel paths", RNS.LOG_DEBUG)
+                            RNS.log("Removed "+str(ti)+" tunnel paths", RNS.LOG_EXTREME)
 
 
                     
@@ -422,9 +422,9 @@ class Transport:
 
                     if i > 0:
                         if i == 1:
-                            RNS.log("Released "+str(i)+" reverse table entry", RNS.LOG_DEBUG)
+                            RNS.log("Released "+str(i)+" reverse table entry", RNS.LOG_EXTREME)
                         else:
-                            RNS.log("Released "+str(i)+" reverse table entries", RNS.LOG_DEBUG)
+                            RNS.log("Released "+str(i)+" reverse table entries", RNS.LOG_EXTREME)
 
                     
 
@@ -435,9 +435,9 @@ class Transport:
 
                     if i > 0:
                         if i == 1:
-                            RNS.log("Released "+str(i)+" link", RNS.LOG_DEBUG)
+                            RNS.log("Released "+str(i)+" link", RNS.LOG_EXTREME)
                         else:
-                            RNS.log("Released "+str(i)+" links", RNS.LOG_DEBUG)
+                            RNS.log("Released "+str(i)+" links", RNS.LOG_EXTREME)
 
                     i = 0
                     for destination_hash in stale_paths:
@@ -446,9 +446,9 @@ class Transport:
 
                     if i > 0:
                         if i == 1:
-                            RNS.log("Removed "+str(i)+" path", RNS.LOG_DEBUG)
+                            RNS.log("Removed "+str(i)+" path", RNS.LOG_EXTREME)
                         else:
-                            RNS.log("Removed "+str(i)+" paths", RNS.LOG_DEBUG)
+                            RNS.log("Removed "+str(i)+" paths", RNS.LOG_EXTREME)
 
                     i = 0
                     for tunnel_id in stale_tunnels:
@@ -457,9 +457,9 @@ class Transport:
 
                     if i > 0:
                         if i == 1:
-                            RNS.log("Removed "+str(i)+" tunnel", RNS.LOG_DEBUG)
+                            RNS.log("Removed "+str(i)+" tunnel", RNS.LOG_EXTREME)
                         else:
-                            RNS.log("Removed "+str(i)+" tunnels", RNS.LOG_DEBUG)
+                            RNS.log("Removed "+str(i)+" tunnels", RNS.LOG_EXTREME)
 
                     Transport.tables_last_culled = time.time()
 
@@ -696,7 +696,7 @@ class Transport:
                     RNS.log("Dropped invalid announce packet", RNS.LOG_DEBUG)
                     return False
 
-        RNS.log("Filtered packet with hash "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_DEBUG)
+        RNS.log("Filtered packet with hash "+RNS.prettyhexrep(packet.packet_hash), RNS.LOG_EXTREME)
         return False
 
     @staticmethod
