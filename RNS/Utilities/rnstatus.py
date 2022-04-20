@@ -119,7 +119,7 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                 print("    Traffic : {txb}↑\n              {rxb}↓".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
 
         if "transport_id" in stats and stats["transport_id"] != None:
-            print("\n Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" running")
+            print("\n Reticulum Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" running")
 
         print("")
                 

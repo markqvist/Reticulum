@@ -961,7 +961,7 @@ class Transport:
                                         break
 
                                 if (now >= path_expires):
-                                    # We also check that the announce hash is
+                                    # We also check that the announce is
                                     # different from ones we've already heard,
                                     # to avoid loops in the network
                                     if not random_blob in random_blobs:
@@ -1532,40 +1532,51 @@ class Transport:
             return False
 
     @staticmethod
-    def request_path(destination_hash):
+    def request_path(destination_hash, on_interface=None):
         """
         Requests a path to the destination from the network. If
         another reachable peer on the network knows a path, it
         will announce it.
 
         :param destination_hash: A destination hash as *bytes*.
+        :param on_interface: If specified, the path request will only be sent on this interface. In normal use, Reticulum handles this automatically, and this parameter should not be used.
         """
-        path_request_data = destination_hash + RNS.Identity.get_random_hash()
-        path_request_dst = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
-        packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1)
-        packet.send()
+        if RNS.Reticulum.transport_enabled():
+            path_request_data = destination_hash+Transport.identity.hash+RNS.Identity.get_random_hash()
+        else:
+            path_request_data = destination_hash+RNS.Identity.get_random_hash()
 
-    @staticmethod
-    def request_path_on_interface(destination_hash, interface):
-        path_request_data = destination_hash + RNS.Identity.get_random_hash()
         path_request_dst = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
-        packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = interface)
+        packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = on_interface)
         packet.send()
 
     @staticmethod
     def path_request_handler(data, packet):
         try:
+            # If there is at least bytes enough for a destination
+            # hash in the packet, we assume those bytes are the
+            # destination being requested.
             if len(data) >= RNS.Identity.TRUNCATED_HASHLENGTH//8:
+                # If there is also enough bytes for a trasport
+                # instance ID and at least one random byte, we
+                # assume the next bytes to be the trasport ID
+                # of the requesting transport instance.
+                if len(data) > (RNS.Identity.TRUNCATED_HASHLENGTH//8)*2:
+                    requesting_transport_instance = data[RNS.Identity.TRUNCATED_HASHLENGTH//8:(RNS.Identity.TRUNCATED_HASHLENGTH//8)*2]
+                else:
+                    requesting_transport_instance = None
+
                 Transport.path_request(
                     data[:RNS.Identity.TRUNCATED_HASHLENGTH//8],
                     Transport.from_local_client(packet),
-                    packet.receiving_interface
+                    packet.receiving_interface,
+                    requesting_transport_instance,
                 )
         except Exception as e:
             RNS.log("Error while handling path request. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     @staticmethod
-    def path_request(destination_hash, is_from_local_client, attached_interface):
+    def path_request(destination_hash, is_from_local_client, attached_interface, requestor_transport_id=None):
         if attached_interface != None:
             interface_str = " on "+str(attached_interface)
         else:
@@ -1590,49 +1601,59 @@ class Transport:
 
 
         elif (RNS.Reticulum.transport_enabled() or is_from_local_client) and (destination_hash in Transport.destination_table):
-            RNS.log("Answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", path is known", RNS.LOG_DEBUG)
-
             packet = Transport.destination_table[destination_hash][6]
+            next_hop = Transport.destination_table[destination_hash][1]
             received_from = Transport.destination_table[destination_hash][5]
-
-            now = time.time()
-            retries = Transport.PATHFINDER_R
-            local_rebroadcasts = 0
-            block_rebroadcasts = True
-            announce_hops      = packet.hops
-
-            if is_from_local_client:
-                retransmit_timeout = now
+    
+            if requestor_transport_id != None and next_hop == requestor_transport_id:
+                # TODO: Find a bandwidth efficient way to invalidate our
+                # known path on this signal. The obvious way of signing
+                # path requests with transport instance keys is quite
+                # inefficient. There is probably a better way. Doing
+                # path invalidation here would decrease the network
+                # convergence time.
+                RNS.log("Not answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", since next hop is the requestor", RNS.LOG_DEBUG)
             else:
-                # TODO: Look at this timing
-                retransmit_timeout = now + Transport.PATH_REQUEST_GRACE # + (RNS.rand() * Transport.PATHFINDER_RW)
+                RNS.log("Answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", path is known", RNS.LOG_DEBUG)
 
-            # This handles an edge case where a peer sends a past
-            # request for a destination just after an announce for
-            # said destination has arrived, but before it has been
-            # rebroadcast locally. In such a case the actual announce
-            # is temporarily held, and then reinserted when the path
-            # request has been served to the peer.
-            if packet.destination_hash in Transport.announce_table:
-                held_entry = Transport.announce_table[packet.destination_hash]
-                Transport.held_announces[packet.destination_hash] = held_entry
-            
-            Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, announce_hops, packet, local_rebroadcasts, block_rebroadcasts, attached_interface]
+                now = time.time()
+                retries = Transport.PATHFINDER_R
+                local_rebroadcasts = 0
+                block_rebroadcasts = True
+                announce_hops      = packet.hops
+
+                if is_from_local_client:
+                    retransmit_timeout = now
+                else:
+                    # TODO: Look at this timing
+                    retransmit_timeout = now + Transport.PATH_REQUEST_GRACE # + (RNS.rand() * Transport.PATHFINDER_RW)
+
+                # This handles an edge case where a peer sends a past
+                # request for a destination just after an announce for
+                # said destination has arrived, but before it has been
+                # rebroadcast locally. In such a case the actual announce
+                # is temporarily held, and then reinserted when the path
+                # request has been served to the peer.
+                if packet.destination_hash in Transport.announce_table:
+                    held_entry = Transport.announce_table[packet.destination_hash]
+                    Transport.held_announces[packet.destination_hash] = held_entry
+                
+                Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, announce_hops, packet, local_rebroadcasts, block_rebroadcasts, attached_interface]
 
         elif is_from_local_client:
             # Forward path request on all interfaces
             # except the local client
-            RNS.log("Forwarding path request for "+RNS.prettyhexrep(destination_hash)+interface_str+" from local client to other local clients", RNS.LOG_DEBUG)
+            RNS.log("Forwarding path request from local client for "+RNS.prettyhexrep(destination_hash)+interface_str+" to all other interfaces", RNS.LOG_DEBUG)
             for interface in Transport.interfaces:
                 if not interface == attached_interface:
-                    Transport.request_path_on_interface(destination_hash, interface)
+                    Transport.request_path(destination_hash, interface)
 
         elif not is_from_local_client and len(Transport.local_client_interfaces) > 0:
             # Forward the path request on all local
             # client interfaces
             RNS.log("Forwarding path request for "+RNS.prettyhexrep(destination_hash)+interface_str+" to local clients", RNS.LOG_DEBUG)
             for interface in Transport.local_client_interfaces:
-                Transport.request_path_on_interface(destination_hash, interface)
+                Transport.request_path(destination_hash, interface)
 
         else:
             RNS.log("Ignoring path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", no path known", RNS.LOG_DEBUG)
