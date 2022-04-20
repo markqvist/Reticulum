@@ -30,7 +30,7 @@ import argparse
 from RNS._version import __version__
 
 
-def program_setup(configdir, table, drop, destination_hexhash, verbosity):
+def program_setup(configdir, table, drop, destination_hexhash, verbosity, timeout):
     if table:
         reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
         table = sorted(reticulum.get_path_table(), key=lambda e: (e["interface"], e["hops"]) )
@@ -85,22 +85,26 @@ def program_setup(configdir, table, drop, destination_hexhash, verbosity):
 
         i = 0
         syms = "⢄⢂⢁⡁⡈⡐⡠"
-        while not RNS.Transport.has_path(destination_hash):
+        limit = time.time()+timeout
+        while not RNS.Transport.has_path(destination_hash) and time.time()<limit:
             time.sleep(0.1)
             print(("\b\b"+syms[i]+" "), end="")
             sys.stdout.flush()
             i = (i+1)%len(syms)
 
-        hops = RNS.Transport.hops_to(destination_hash)
-        next_hop = RNS.prettyhexrep(reticulum.get_next_hop(destination_hash))
-        next_hop_interface = reticulum.get_next_hop_if_name(destination_hash)
+        if RNS.Transport.has_path(destination_hash):
+            hops = RNS.Transport.hops_to(destination_hash)
+            next_hop = RNS.prettyhexrep(reticulum.get_next_hop(destination_hash))
+            next_hop_interface = reticulum.get_next_hop_if_name(destination_hash)
 
-        if hops != 1:
-            ms = "s"
+            if hops != 1:
+                ms = "s"
+            else:
+                ms = ""
+
+            print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+str(hops)+" hop"+ms+" away via "+next_hop+" on "+next_hop_interface)
         else:
-            ms = ""
-
-        print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+str(hops)+" hop"+ms+" away via "+next_hop+" on "+next_hop_interface)
+            print("\r                                                \rPath not found")
     
 
 def main():
@@ -137,6 +141,15 @@ def main():
         )
 
         parser.add_argument(
+            "-w",
+            action="store",
+            metavar="seconds",
+            type=float,
+            help="timeout before giving up",
+            default=15
+        )
+
+        parser.add_argument(
             "destination",
             nargs="?",
             default=None,
@@ -163,7 +176,8 @@ def main():
                 table = args.table,
                 drop = args.drop,
                 destination_hexhash = args.destination,
-                verbosity = args.verbose
+                verbosity = args.verbose,
+                timeout = args.w,
             )
 
     except KeyboardInterrupt:
