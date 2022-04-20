@@ -52,9 +52,7 @@ class Transport:
     """
     Maximum amount of hops that Reticulum will transport a packet.
     """
-    # TODO: Remove after verifying new timing
-    # PATHFINDER_C    = 1.094334   # Exponential delay coefficient
-    # PATHFINDER_D    = 10         # Fixed per-hop delay
+    
     PATHFINDER_R    = 1          # Retransmit retries
     PATHFINDER_G    = 5          # Retry grace period
     PATHFINDER_RW   = 0.5        # Random window for announce rebroadcast
@@ -304,8 +302,6 @@ class Transport:
                             break
                         else:
                             if time.time() > announce_entry[1]:
-                                # TODO: Remove after verifying new timing
-                                # announce_entry[1] = time.time() + math.pow(Transport.PATHFINDER_C, announce_entry[4]) + Transport.PATHFINDER_G + Transport.PATHFINDER_RW
                                 announce_entry[1] = time.time() + Transport.PATHFINDER_G + Transport.PATHFINDER_RW
                                 announce_entry[2] += 1
                                 packet = announce_entry[5]
@@ -994,8 +990,7 @@ class Transport:
                             local_rebroadcasts = 0
                             block_rebroadcasts = False
                             attached_interface = None
-                            # TODO: Remove when new timing verified
-                            # retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops) + (Transport.PATHFINDER_D*packet.hops) + (RNS.rand() * Transport.PATHFINDER_RW)
+                            
                             retransmit_timeout = now + (RNS.rand() * Transport.PATHFINDER_RW)
 
                             if packet.receiving_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
