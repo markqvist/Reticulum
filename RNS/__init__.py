@@ -93,12 +93,15 @@ def host_os():
     from .vendor.platformutils import get_platform
     return get_platform()
 
+def timestamp_str(time_s):
+    timestamp = time.localtime(time_s)
+    return time.strftime(logtimefmt, timestamp)
+
 def log(msg, level=3, _override_destination = False):
     global _always_override_destination
     
     if loglevel >= level:
-        timestamp = time.time()
-        logstring = "["+time.strftime(logtimefmt)+"] ["+loglevelname(level)+"] "+msg
+        logstring = "["+timestamp_str(time.time())+"] ["+loglevelname(level)+"] "+msg
         logging_lock.acquire()
 
         if (logdest == LOG_STDOUT or _always_override_destination or _override_destination):

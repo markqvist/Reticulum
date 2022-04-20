@@ -738,6 +738,9 @@ class Reticulum:
                     if path == "interface_stats":
                         rpc_connection.send(self.get_interface_stats())
 
+                    if path == "path_table":
+                        rpc_connection.send(self.get_path_table())
+
                     if path == "next_hop_if_name":
                         rpc_connection.send(self.get_next_hop_if_name(call["destination_hash"]))
 
@@ -808,6 +811,28 @@ class Reticulum:
                 stats["transport_id"] = RNS.Transport.identity.hash
 
             return stats
+
+    def get_path_table(self):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection.send({"get": "path_table"})
+            response = rpc_connection.recv()
+            return response
+
+        else:
+            path_table = []
+            for dst_hash in RNS.Transport.destination_table:
+                entry = {
+                    "hash": dst_hash,
+                    "timestamp": RNS.Transport.destination_table[dst_hash][0],
+                    "via": RNS.Transport.destination_table[dst_hash][1],
+                    "hops": RNS.Transport.destination_table[dst_hash][2],
+                    "expires": RNS.Transport.destination_table[dst_hash][3],
+                    "interface": str(RNS.Transport.destination_table[dst_hash][5]),
+                }
+                path_table.append(entry)
+
+            return path_table
 
     def get_next_hop_if_name(self, destination):
         if self.is_connected_to_shared_instance:

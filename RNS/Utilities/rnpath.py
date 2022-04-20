@@ -30,44 +30,53 @@ import argparse
 from RNS._version import __version__
 
 
-def program_setup(configdir, destination_hexhash, verbosity):
-    try:
-        dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
-        if len(destination_hexhash) != dest_len:
-            raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
-        try:
-            destination_hash = bytes.fromhex(destination_hexhash)
-        except Exception as e:
-            raise ValueError("Invalid destination entered. Check your input.")
-    except Exception as e:
-        print(str(e))
-        exit()
+def program_setup(configdir, table, destination_hexhash, verbosity):
+    if table:
+        reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
+        table = sorted(reticulum.get_path_table(), key=lambda e: (e["interface"], e["hops"]) )
 
-    reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
+        for path in table:
+            exp_str = RNS.timestamp_str(path["expires"])
+            print(RNS.prettyhexrep(path["hash"])+" is "+str(path["hops"])+" hops away via "+RNS.prettyhexrep(path["via"])+" on "+path["interface"]+" expires "+RNS.timestamp_str(path["expires"]))
 
-    if not RNS.Transport.has_path(destination_hash):
-        RNS.Transport.request_path(destination_hash)
-        print("Path to "+RNS.prettyhexrep(destination_hash)+" requested  ", end=" ")
-        sys.stdout.flush()
-
-    i = 0
-    syms = "⢄⢂⢁⡁⡈⡐⡠"
-    while not RNS.Transport.has_path(destination_hash):
-        time.sleep(0.1)
-        print(("\b\b"+syms[i]+" "), end="")
-        sys.stdout.flush()
-        i = (i+1)%len(syms)
-
-    hops = RNS.Transport.hops_to(destination_hash)
-    next_hop = RNS.prettyhexrep(reticulum.get_next_hop(destination_hash))
-    next_hop_interface = reticulum.get_next_hop_if_name(destination_hash)
-
-    if hops != 1:
-        ms = "s"
     else:
-        ms = ""
+        try:
+            dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
+            if len(destination_hexhash) != dest_len:
+                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            try:
+                destination_hash = bytes.fromhex(destination_hexhash)
+            except Exception as e:
+                raise ValueError("Invalid destination entered. Check your input.")
+        except Exception as e:
+            print(str(e))
+            exit()
 
-    print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+str(hops)+" hop"+ms+" away via "+next_hop+" on "+next_hop_interface)
+        reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
+
+        if not RNS.Transport.has_path(destination_hash):
+            RNS.Transport.request_path(destination_hash)
+            print("Path to "+RNS.prettyhexrep(destination_hash)+" requested  ", end=" ")
+            sys.stdout.flush()
+
+        i = 0
+        syms = "⢄⢂⢁⡁⡈⡐⡠"
+        while not RNS.Transport.has_path(destination_hash):
+            time.sleep(0.1)
+            print(("\b\b"+syms[i]+" "), end="")
+            sys.stdout.flush()
+            i = (i+1)%len(syms)
+
+        hops = RNS.Transport.hops_to(destination_hash)
+        next_hop = RNS.prettyhexrep(reticulum.get_next_hop(destination_hash))
+        next_hop_interface = reticulum.get_next_hop_if_name(destination_hash)
+
+        if hops != 1:
+            ms = "s"
+        else:
+            ms = ""
+
+        print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+str(hops)+" hop"+ms+" away via "+next_hop+" on "+next_hop_interface)
     
 
 def main():
@@ -88,6 +97,14 @@ def main():
         )
 
         parser.add_argument(
+            "-t",
+            "--table",
+            action="store_true",
+            help="show all known paths",
+            default=False
+        )
+
+        parser.add_argument(
             "destination",
             nargs="?",
             default=None,
@@ -104,12 +121,12 @@ def main():
         else:
             configarg = None
 
-        if not args.destination:
+        if not args.table and not args.destination:
             print("")
             parser.print_help()
             print("")
         else:
-            program_setup(configdir = configarg, destination_hexhash = args.destination, verbosity = args.verbose)
+            program_setup(configdir = configarg, table = args.table, destination_hexhash = args.destination, verbosity = args.verbose)
 
     except KeyboardInterrupt:
         print("")
