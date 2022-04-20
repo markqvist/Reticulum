@@ -298,7 +298,7 @@ class Transport:
                     for destination_hash in Transport.announce_table:
                         announce_entry = Transport.announce_table[destination_hash]
                         if announce_entry[2] > Transport.PATHFINDER_R:
-                            RNS.log("Completed announce for "+RNS.prettyhexrep(destination_hash)+", retries exceeded", RNS.LOG_EXTREME)
+                            RNS.log("Completed announce processing for "+RNS.prettyhexrep(destination_hash)+", retry limit reached", RNS.LOG_EXTREME)
                             Transport.announce_table.pop(destination_hash)
                             break
                         else:
@@ -1571,7 +1571,8 @@ class Transport:
         else:
             interface_str = ""
 
-        RNS.log("Path request for "+RNS.prettyhexrep(destination_hash)+interface_str, RNS.LOG_DEBUG)
+        # TODO: Clean
+        # RNS.log("Path request for "+RNS.prettyhexrep(destination_hash)+interface_str, RNS.LOG_DEBUG)
 
         destination_exists_on_local_client = False
         if len(Transport.local_client_interfaces) > 0:
@@ -1584,11 +1585,12 @@ class Transport:
         
         local_destination = next((d for d in Transport.destinations if d.hash == destination_hash), None)
         if local_destination != None:
-            RNS.log("Destination is local to this system, announcing", RNS.LOG_DEBUG)
             local_destination.announce(path_response=True)
+            RNS.log("Answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", destination is local to this system", RNS.LOG_DEBUG)
+
 
         elif (RNS.Reticulum.transport_enabled() or is_from_local_client) and (destination_hash in Transport.destination_table):
-            RNS.log("Path found, inserting announce for transmission", RNS.LOG_DEBUG)
+            RNS.log("Answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", path is known", RNS.LOG_DEBUG)
 
             packet = Transport.destination_table[destination_hash][6]
             received_from = Transport.destination_table[destination_hash][5]
@@ -1620,6 +1622,7 @@ class Transport:
         elif is_from_local_client:
             # Forward path request on all interfaces
             # except the local client
+            RNS.log("Forwarding path request for "+RNS.prettyhexrep(destination_hash)+interface_str+" from local client to other local clients", RNS.LOG_DEBUG)
             for interface in Transport.interfaces:
                 if not interface == attached_interface:
                     Transport.request_path_on_interface(destination_hash, interface)
@@ -1627,11 +1630,12 @@ class Transport:
         elif not is_from_local_client and len(Transport.local_client_interfaces) > 0:
             # Forward the path request on all local
             # client interfaces
+            RNS.log("Forwarding path request for "+RNS.prettyhexrep(destination_hash)+interface_str+" to local clients", RNS.LOG_DEBUG)
             for interface in Transport.local_client_interfaces:
                 Transport.request_path_on_interface(destination_hash, interface)
 
         else:
-            RNS.log("No known path to requested destination, ignoring request", RNS.LOG_DEBUG)
+            RNS.log("Ignoring path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", no path known", RNS.LOG_DEBUG)
 
     @staticmethod
     def from_local_client(packet):
