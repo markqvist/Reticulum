@@ -1100,7 +1100,7 @@ class Transport:
                                 paths[packet.destination_hash] = destination_table_entry
                                 expires = time.time() + Transport.DESTINATION_TIMEOUT
                                 tunnel_entry[3] = expires
-                                RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" associated with tunnel "+RNS.prettyhexrep(packet.receiving_interface.tunnel_id), RNS.LOG_VERBOSE)
+                                RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" associated with tunnel "+RNS.prettyhexrep(packet.receiving_interface.tunnel_id), RNS.LOG_DEBUG)
 
                             # Call externally registered callbacks from apps
                             # wanting to know when an announce arrives
