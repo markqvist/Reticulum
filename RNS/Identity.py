@@ -184,33 +184,42 @@ class Identity:
 
     @staticmethod
     def validate_announce(packet):
-        if packet.packet_type == RNS.Packet.ANNOUNCE:
-            RNS.log("Validating announce from "+RNS.prettyhexrep(packet.destination_hash), RNS.LOG_DEBUG)
-            destination_hash = packet.destination_hash
-            public_key = packet.data[:Identity.KEYSIZE//8]
-            random_hash = packet.data[Identity.KEYSIZE//8:Identity.KEYSIZE//8+10]
-            signature = packet.data[Identity.KEYSIZE//8+10:Identity.KEYSIZE//8+10+Identity.KEYSIZE//8]
-            app_data = b""
-            if len(packet.data) > Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:
-                app_data = packet.data[Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:]
+        try:
+            if packet.packet_type == RNS.Packet.ANNOUNCE:
+                destination_hash = packet.destination_hash
+                public_key = packet.data[:Identity.KEYSIZE//8]
+                random_hash = packet.data[Identity.KEYSIZE//8:Identity.KEYSIZE//8+10]
+                signature = packet.data[Identity.KEYSIZE//8+10:Identity.KEYSIZE//8+10+Identity.KEYSIZE//8]
+                app_data = b""
+                if len(packet.data) > Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:
+                    app_data = packet.data[Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:]
 
-            signed_data = destination_hash+public_key+random_hash+app_data
+                signed_data = destination_hash+public_key+random_hash+app_data
 
-            if not len(packet.data) > Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:
-                app_data = None
+                if not len(packet.data) > Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:
+                    app_data = None
 
-            announced_identity = Identity(create_keys=False)
-            announced_identity.load_public_key(public_key)
+                announced_identity = Identity(create_keys=False)
+                announced_identity.load_public_key(public_key)
 
-            if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
-                RNS.Identity.remember(packet.get_hash(), destination_hash, public_key, app_data)
-                RNS.log("Stored valid announce from "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
-                del announced_identity
-                return True
-            else:
-                RNS.log("Received invalid announce", RNS.LOG_DEBUG)
-                del announced_identity
-                return False
+                if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
+                    RNS.Identity.remember(packet.get_hash(), destination_hash, public_key, app_data)
+                    del announced_identity
+
+                    if hasattr(packet, "transport_id") and packet.transport_id != None:
+                        RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" received via "+RNS.prettyhexrep(packet.transport_id)+" on "+str(packet.receiving_interface), RNS.LOG_DEBUG)
+                    else:
+                        RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" received on "+str(packet.receiving_interface), RNS.LOG_DEBUG)
+
+                    return True
+                else:
+                    RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
+                    del announced_identity
+                    return False
+        
+        except Exception as e:
+            RNS.log("Error occurred while validating announce. The contained exception was: "+str(e), RNS.LOG_ERROR)
+            return False
 
     @staticmethod
     def exit_handler():
