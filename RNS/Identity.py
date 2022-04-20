@@ -180,7 +180,7 @@ class Identity:
         :param data: Data to be hashed as *bytes*.
         :returns: Truncated SHA-256 hash of random data as *bytes*
         """
-        return Identity.truncated_hash(os.urandom(10))
+        return Identity.truncated_hash(os.urandom(Identity.TRUNCATED_HASHLENGTH//8))
 
     @staticmethod
     def validate_announce(packet):
