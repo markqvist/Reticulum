@@ -52,11 +52,12 @@ class Transport:
     """
     Maximum amount of hops that Reticulum will transport a packet.
     """
-    PATHFINDER_C    = 1.094334   # Exponential delay coefficient
-    PATHFINDER_D    = 10         # Fixed per-hop delay
+    # TODO: Remove after verifying new timing
+    # PATHFINDER_C    = 1.094334   # Exponential delay coefficient
+    # PATHFINDER_D    = 10         # Fixed per-hop delay
     PATHFINDER_R    = 1          # Retransmit retries
-    PATHFINDER_T    = 10         # Retry grace period
-    PATHFINDER_RW   = 4          # Random window for announce rebroadcast
+    PATHFINDER_G    = 5          # Retry grace period
+    PATHFINDER_RW   = 0.5        # Random window for announce rebroadcast
     PATHFINDER_E    = 60*60*24*7 # Path expiration of one week
     AP_PATH_TIME    = 60*60*24   # Path expiration of one day for Access Point paths
 
@@ -303,7 +304,9 @@ class Transport:
                             break
                         else:
                             if time.time() > announce_entry[1]:
-                                announce_entry[1] = time.time() + math.pow(Transport.PATHFINDER_C, announce_entry[4]) + Transport.PATHFINDER_T + Transport.PATHFINDER_RW
+                                # TODO: Remove after verifying new timing
+                                # announce_entry[1] = time.time() + math.pow(Transport.PATHFINDER_C, announce_entry[4]) + Transport.PATHFINDER_G + Transport.PATHFINDER_RW
+                                announce_entry[1] = time.time() + Transport.PATHFINDER_G + Transport.PATHFINDER_RW
                                 announce_entry[2] += 1
                                 packet = announce_entry[5]
                                 block_rebroadcasts = announce_entry[7]
@@ -991,7 +994,9 @@ class Transport:
                             local_rebroadcasts = 0
                             block_rebroadcasts = False
                             attached_interface = None
-                            retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops) + (Transport.PATHFINDER_D*packet.hops) + (RNS.rand() * Transport.PATHFINDER_RW)
+                            # TODO: Remove when new timing verified
+                            # retransmit_timeout = now + math.pow(Transport.PATHFINDER_C, packet.hops) + (Transport.PATHFINDER_D*packet.hops) + (RNS.rand() * Transport.PATHFINDER_RW)
+                            retransmit_timeout = now + (RNS.rand() * Transport.PATHFINDER_RW)
 
                             if packet.receiving_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
                                 expires            = now + Transport.AP_PATH_TIME
