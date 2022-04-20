@@ -207,9 +207,9 @@ class Identity:
                     del announced_identity
 
                     if hasattr(packet, "transport_id") and packet.transport_id != None:
-                        RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" received via "+RNS.prettyhexrep(packet.transport_id)+" on "+str(packet.receiving_interface), RNS.LOG_DEBUG)
+                        RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" received via "+RNS.prettyhexrep(packet.transport_id)+" on "+str(packet.receiving_interface), RNS.LOG_EXTREME)
                     else:
-                        RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" received on "+str(packet.receiving_interface), RNS.LOG_DEBUG)
+                        RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" received on "+str(packet.receiving_interface), RNS.LOG_EXTREME)
 
                     return True
                 else:

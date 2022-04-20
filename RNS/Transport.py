@@ -850,7 +850,7 @@ class Transport:
                             # TODO: There should probably be some kind of REJECT
                             # mechanism here, to signal to the source that their
                             # expected path failed.
-                            RNS.log("Got packet in transport, but no known path to final destination "+RNS.prettyhexrep(packet.destination_hash)+". Dropping packet.", RNS.LOG_DEBUG)
+                            RNS.log("Got packet in transport, but no known path to final destination "+RNS.prettyhexrep(packet.destination_hash)+". Dropping packet.", RNS.LOG_EXTREME)
 
                 # Link transport handling. Directs packets according
                 # to entries in the link tables
@@ -1090,7 +1090,7 @@ class Transport:
 
                             destination_table_entry = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet]
                             Transport.destination_table[packet.destination_hash] = destination_table_entry
-                            RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_VERBOSE)
+                            RNS.log("Destination "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_DEBUG)
 
                             # If the receiving interface is a tunnel, we add the
                             # announce to the tunnels table
