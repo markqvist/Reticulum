@@ -49,18 +49,19 @@ def size_str(num, suffix='B'):
 def program_setup(configdir, dispall=False, verbosity = 0):
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
 
-    ifstats = None
+    stats = None
     try:
-        ifstats = reticulum.get_interface_stats()
+        stats = reticulum.get_interface_stats()
     except Exception as e:
         pass
 
-    if ifstats != None:
-        for ifstat in ifstats:
+    if stats != None:
+        for ifstat in stats["interfaces"]:
             name = ifstat["name"]
 
             if dispall or not (name.startswith("LocalInterface[") or name.startswith("TCPInterface[Client")):
                 print("")
+
                 if ifstat["status"]:
                     ss = "Up"
                 else:
@@ -116,6 +117,9 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                         print("    Queued  : {np} announces".format(np=aqn))
                 
                 print("    Traffic : {txb}↑\n              {rxb}↓".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
+
+        if "transport_id" in stats and stats["transport_id"] != None:
+            print("\n Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" running")
 
         print("")
                 

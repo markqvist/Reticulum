@@ -761,7 +761,7 @@ class Reticulum:
             response = rpc_connection.recv()
             return response
         else:
-            stats = []
+            interfaces = []
             for interface in RNS.Transport.interfaces:
                 ifstats = {}
                 
@@ -800,7 +800,12 @@ class Reticulum:
                 ifstats["status"] = interface.online
                 ifstats["mode"] = interface.mode
 
-                stats.append(ifstats)
+                interfaces.append(ifstats)
+
+            stats = {}
+            stats["interfaces"] = interfaces
+            if Reticulum.transport_enabled():
+                stats["transport_id"] = RNS.Transport.identity.hash
 
             return stats
 
