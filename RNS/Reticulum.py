@@ -421,7 +421,6 @@ class Reticulum:
                                     RNS.log("Please remove this AutoInterface instance from your configuration file.", RNS.LOG_ERROR);
                                     RNS.log("You will have to manually configure other interfaces for connectivity.", RNS.LOG_ERROR);
 
-
                             if c["type"] == "UDPInterface":
                                 device       = c["device"] if "device" in c else None
                                 port         = int(c["port"]) if "port" in c else None
@@ -463,7 +462,6 @@ class Reticulum:
                                 else:
                                     interface.ifac_size = 16
 
-
                             if c["type"] == "TCPServerInterface":
                                 device       = c["device"] if "device" in c else None
                                 port         = int(c["port"]) if "port" in c else None
@@ -504,7 +502,6 @@ class Reticulum:
                                 else:
                                     interface.ifac_size = 16
 
-
                             if c["type"] == "TCPClientInterface":
                                 kiss_framing = False
                                 if "kiss_framing" in c and c.as_bool("kiss_framing") == True:
@@ -542,7 +539,6 @@ class Reticulum:
                                 else:
                                     interface.ifac_size = 16
 
-
                             if c["type"] == "I2PInterface":
                                 i2p_peers = c.as_list("peers") if "peers" in c else None
                                 connectable = c.as_bool("connectable") if "connectable" in c else False
@@ -575,7 +571,6 @@ class Reticulum:
                                     interface.ifac_size = ifac_size
                                 else:
                                     interface.ifac_size = 16
-
 
                             if c["type"] == "SerialInterface":
                                 port = c["port"] if "port" in c else None
