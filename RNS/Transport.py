@@ -473,6 +473,10 @@ class Transport:
             packet.send()
 
     @staticmethod
+    def transmit(interface, raw):
+        interface.processOutgoing(raw)
+
+    @staticmethod
     def outbound(packet):
         while (Transport.jobs_running):
             # TODO: Profile actual impact here on faster links
@@ -501,7 +505,7 @@ class Transport:
                     new_raw += packet.raw[1:2]
                     new_raw += Transport.destination_table[packet.destination_hash][1]
                     new_raw += packet.raw[2:]
-                    outbound_interface.processOutgoing(new_raw)
+                    Transport.transmit(outbound_interface, new_raw)
                     Transport.destination_table[packet.destination_hash][0] = time.time()
                     sent = True
 
@@ -520,7 +524,7 @@ class Transport:
                     new_raw += packet.raw[1:2]
                     new_raw += Transport.destination_table[packet.destination_hash][1]
                     new_raw += packet.raw[2:]
-                    outbound_interface.processOutgoing(new_raw)
+                    Transport.transmit(outbound_interface, new_raw)
                     Transport.destination_table[packet.destination_hash][0] = time.time()
                     sent = True
 
@@ -528,7 +532,7 @@ class Transport:
             # directly reachable, and also on which interface, so we
             # simply transmit the packet directly on that one.
             else:
-                outbound_interface.processOutgoing(packet.raw)
+                Transport.transmit(outbound_interface, packet.raw)
                 sent = True
 
         # If we don't have a known path for the destination, we'll
@@ -616,7 +620,7 @@ class Transport:
                             stored_hash = True
 
                         def send_packet():
-                            interface.processOutgoing(packet.raw)
+                            Transport.transmit(interface, packet.raw)
 
                         thread = threading.Thread(target=send_packet)
                         thread.daemon = True
@@ -763,12 +767,12 @@ class Transport:
                     if from_local_client:
                         for interface in Transport.interfaces:
                             if interface != packet.receiving_interface:
-                                interface.processOutgoing(packet.raw)
+                                Transport.transmit(interface, packet.raw)
                     # If the packet was not from a local client, send
                     # it directly to all local clients
                     else:
                         for interface in Transport.local_client_interfaces:
-                            interface.processOutgoing(packet.raw)
+                            Transport.transmit(interface, packet.raw)
 
 
             # General transport handling. Takes care of directing
@@ -821,7 +825,7 @@ class Transport:
                                 new_raw += packet.raw[2:]
 
                             outbound_interface = Transport.destination_table[packet.destination_hash][5]
-                            outbound_interface.processOutgoing(new_raw)
+                            Transport.transmit(outbound_interface, new_raw)
                             Transport.destination_table[packet.destination_hash][0] = time.time()
 
                             if packet.packet_type == RNS.Packet.LINKREQUEST:
@@ -882,7 +886,7 @@ class Transport:
                             new_raw = packet.raw[0:1]
                             new_raw += struct.pack("!B", packet.hops)
                             new_raw += packet.raw[2:]
-                            outbound_interface.processOutgoing(new_raw)
+                            Transport.transmit(outbound_interface, new_raw)
                             Transport.link_table[packet.destination_hash][0] = time.time()
                         else:
                             pass
@@ -1175,7 +1179,7 @@ class Transport:
                             new_raw += struct.pack("!B", packet.hops)
                             new_raw += packet.raw[2:]
                             Transport.link_table[packet.destination_hash][7] = True
-                            link_entry[4].processOutgoing(new_raw)
+                            Transport.transmit(link_entry[4], new_raw)
                         else:
                             RNS.log("Link request proof received on wrong interface, not transporting it.", RNS.LOG_DEBUG)
                     else:
@@ -1208,7 +1212,7 @@ class Transport:
                             new_raw = packet.raw[0:1]
                             new_raw += struct.pack("!B", packet.hops)
                             new_raw += packet.raw[2:]
-                            reverse_entry[0].processOutgoing(new_raw)
+                            Transport.transmit(reverse_entry[0], new_raw)
                         else:
                             RNS.log("Proof received on wrong interface, not transporting it.", RNS.LOG_DEBUG)
 
