@@ -474,7 +474,23 @@ class Transport:
 
     @staticmethod
     def transmit(interface, raw):
-        interface.processOutgoing(raw)
+        try:
+            if hasattr(interface, "ifac_identity") and interface.ifac_identity != None:
+                # Calculate packet access code
+                ifac       = interface.ifac_identity.sign(raw)[-interface.ifac_size:]
+
+                # Set IFAC flag
+                new_header = bytes([raw[0] | 0x80, raw[1]])
+
+                # Assemble new payload with IFAC and send it
+                new_raw    = new_header+ifac+raw[2:]
+                interface.processOutgoing(new_raw)
+
+            else:
+                interface.processOutgoing(raw)
+
+        except Exception as e:
+            RNS.log("Error while transmitting on "+str(interface)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     @staticmethod
     def outbound(packet):
@@ -704,6 +720,44 @@ class Transport:
 
     @staticmethod
     def inbound(raw, interface=None):
+        # If interface access codes are enabled,
+        # we must authenticate each packet.
+        if interface != None and hasattr(interface, "ifac_identity") and interface.ifac_identity != None:
+            # Check that IFAC flag is set
+            if raw[0] & 0x80 == 0x80:
+                if len(raw) > 2+interface.ifac_size:
+                    # Extract IFAC
+                    ifac = raw[2:2+interface.ifac_size]
+
+                    # Unset IFAC flag
+                    new_header = bytes([raw[0] & 0x7f, raw[1]])
+
+                    # Re-assemble packet
+                    new_raw = new_header+raw[2+interface.ifac_size:]
+
+                    # Calculate expected IFAC
+                    expected_ifac = interface.ifac_identity.sign(new_raw)[-interface.ifac_size:]
+
+                    # Check it
+                    if ifac == expected_ifac:
+                        # TODO: Remove log statements
+                        RNS.log("Packet IFAC match, allowing", RNS.LOG_EXTREME)
+                        raw = new_raw
+                    else:
+                        # TODO: Remove log statements
+                        RNS.log("Packet IFAC mismatch, dropping packet", RNS.LOG_EXTREME)
+                        return
+
+                else:
+                    return
+
+            else:
+                # If the IFAC flag is not set, but should be,
+                # we drop the packet.
+                # TODO: Remove log statements
+                RNS.log(str(interface)+" with IFAC enabled received packet without access code, dropping.", RNS.LOG_EXTREME)
+                return
+
         while (Transport.jobs_running):
             sleep(0.01)
 

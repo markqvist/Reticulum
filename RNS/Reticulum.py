@@ -21,6 +21,11 @@
 # SOFTWARE.
 
 from .vendor.platformutils import get_platform
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.backends import default_backend
+
+cio_default_backend = default_backend()
 
 if get_platform() == "android":
     from .Interfaces import Interface
@@ -122,6 +127,7 @@ class Reticulum:
     HEADER_MINSIZE = 2+1+(TRUNCATED_HASHLENGTH//8)*1
     HEADER_MAXSIZE = 2+1+(TRUNCATED_HASHLENGTH//8)*2
     IFAC_MIN_SIZE  = 1
+    IFAC_SALT      = bytes.fromhex("adf54d882c9a9b80771eb4995d702d4a3e733391b2a0f53f416d9f907e55cff8")
     
     MDU            = MTU - HEADER_MAXSIZE - IFAC_MIN_SIZE
 
@@ -185,6 +191,8 @@ class Reticulum:
         self.local_control_port   = 37429
         self.share_instance       = True
         self.rpc_listener         = None
+
+        self.ifac_salt = Reticulum.IFAC_SALT
 
         self.requested_loglevel = loglevel
         if self.requested_loglevel != None:
@@ -356,14 +364,20 @@ class Reticulum:
                             ifac_size = c.as_int("ifac_size")
                             
                     ifac_netname = None
-                    if "ifac_netname" in c:
-                        if c.as_int("ifac_netname") >= Reticulum.IFAC_MIN_SIZE:
-                            ifac_netname = c.as_int("ifac_netname")
-                            
+                    if "networkname" in c:
+                        if c["networkname"] != "":
+                            ifac_netname = c["networkname"]
+                    if "network_name" in c:
+                        if c["network_name"] != "":
+                            ifac_netname = c["network_name"]
+
                     ifac_netkey = None
-                    if "ifac_netkey" in c:
-                        if c.as_int("ifac_netkey") >= Reticulum.IFAC_MIN_SIZE:
-                            ifac_netkey = c.as_int("ifac_netkey")
+                    if "passphrase" in c:
+                        if c["passphrase"] != "":
+                            ifac_netkey = c["passphrase"]
+                    if "pass_phrase" in c:
+                        if c["pass_phrase"] != "":
+                            ifac_netkey = c["pass_phrase"]
                             
                     configured_bitrate = None
                     if "bitrate" in c:
@@ -405,8 +419,6 @@ class Reticulum:
                                         interface.OUT = True
 
                                     interface.mode = interface_mode
-
-                                    RNS.Transport.interfaces.append(interface)
 
                                     interface.announce_cap = announce_cap
                                     if configured_bitrate:
@@ -452,8 +464,6 @@ class Reticulum:
 
                                 interface.mode = interface_mode
 
-                                RNS.Transport.interfaces.append(interface)
-
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
@@ -492,8 +502,6 @@ class Reticulum:
                                 
                                 interface.mode = interface_mode
 
-                                RNS.Transport.interfaces.append(interface)
-
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
@@ -529,8 +537,6 @@ class Reticulum:
                                 
                                 interface.mode = interface_mode
 
-                                RNS.Transport.interfaces.append(interface)
-
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
@@ -561,8 +567,6 @@ class Reticulum:
                                     interface_mode = Interface.Interface.MODE_FULL
                                 
                                 interface.mode = interface_mode
-
-                                RNS.Transport.interfaces.append(interface)
 
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
@@ -598,8 +602,6 @@ class Reticulum:
                                     interface.OUT = True
 
                                 interface.mode = interface_mode
-
-                                RNS.Transport.interfaces.append(interface)
 
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
@@ -649,8 +651,6 @@ class Reticulum:
                                     interface.OUT = True
 
                                 interface.mode = interface_mode
-
-                                RNS.Transport.interfaces.append(interface)
 
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
@@ -702,8 +702,6 @@ class Reticulum:
 
                                 interface.mode = interface_mode
 
-                                RNS.Transport.interfaces.append(interface)
-
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
@@ -748,8 +746,6 @@ class Reticulum:
 
                                 interface.mode = interface_mode
 
-                                RNS.Transport.interfaces.append(interface)
-
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
@@ -761,6 +757,27 @@ class Reticulum:
                             if interface != None:
                                 interface.ifac_netname = ifac_netname
                                 interface.ifac_netkey = ifac_netkey
+
+                                if interface.ifac_netname != None or interface.ifac_netkey != None:
+                                    ifac_origin = b""
+
+                                    if interface.ifac_netname != None:
+                                        ifac_origin += RNS.Identity.full_hash(interface.ifac_netname.encode("utf-8"))
+
+                                    if interface.ifac_netkey != None:
+                                        ifac_origin += RNS.Identity.full_hash(interface.ifac_netkey.encode("utf-8"))
+
+                                    ifac_origin_hash = RNS.Identity.full_hash(ifac_origin)
+                                    interface.ifac_key = HKDF(
+                                        algorithm=hashes.SHA256(),
+                                        length=64,
+                                        salt=self.ifac_salt,
+                                        info=None,
+                                        backend=cio_default_backend,
+                                    ).derive(ifac_origin_hash)
+
+                                    interface.ifac_identity = RNS.Identity.from_bytes(interface.ifac_key)
+                                    interface.ifac_signature = interface.ifac_identity.sign(RNS.Identity.full_hash(interface.ifac_key))
 
                                 RNS.Transport.interfaces.append(interface)
 
@@ -858,6 +875,15 @@ class Reticulum:
                         ifstats["peers"] = len(interface.peers)
                     else:
                         ifstats["peers"] = None
+
+                if hasattr(interface, "ifac_signature"):
+                    ifstats["ifac_signature"] = interface.ifac_signature
+                    ifstats["ifac_size"] = interface.ifac_size
+                    ifstats["ifac_netname"] = interface.ifac_netname
+                else:
+                    ifstats["ifac_signature"] = None
+                    ifstats["ifac_size"] = None
+                    ifstats["ifac_netname"] = None
 
                 if hasattr(interface, "announce_queue"):
                     if interface.announce_queue != None:

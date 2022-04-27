@@ -92,6 +92,10 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                     clients = None
 
                 print(" {n}".format(n=ifstat["name"]))
+
+                if "ifac_netname" in ifstat and ifstat["ifac_netname"] != None:
+                    print("    Network : {nn}".format(nn=ifstat["ifac_netname"]))
+
                 print("    Status  : {ss}".format(ss=ss))
 
                 if clients != None:
@@ -105,6 +109,10 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                 
                 if "peers" in ifstat and ifstat["peers"] != None:
                     print("    Peers   : {np} reachable".format(np=ifstat["peers"]))
+
+                if "ifac_signature" in ifstat and ifstat["ifac_signature"] != None:
+                    sigstr = "<…"+RNS.hexrep(ifstat["ifac_signature"][-5:], delimit=False)+">"
+                    print("    Access  : {nb}-bit IFAC by {sig}".format(nb=ifstat["ifac_size"]*8, sig=sigstr))
                 
                 if "i2p_b32" in ifstat and ifstat["i2p_b32"] != None:
                     print("    I2P B32 : {ep}".format(ep=str(ifstat["i2p_b32"])))

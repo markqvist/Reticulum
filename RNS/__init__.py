@@ -60,7 +60,8 @@ logfile      = None
 logdest      = LOG_STDOUT
 logtimefmt   = "%Y-%m-%d %H:%M:%S"
 
-random.seed(os.urandom(10))
+instance_random = random.Random()
+instance_random.seed(os.urandom(10))
 
 _always_override_destination = False
 
@@ -130,7 +131,7 @@ def log(msg, level=3, _override_destination = False):
                 
 
 def rand():
-    result = random.random()
+    result = instance_random.random()
     return result
 
 def hexrep(data, delimit=True):
