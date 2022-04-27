@@ -689,8 +689,13 @@ A Reticulum packet is composed of the following fields:
 [HEADER 2 bytes] [ADDRESSES 10/20 bytes] [CONTEXT 1 byte] [DATA 0-477 bytes]
 
 * The HEADER field is 2 bytes long.
-  * Byte 1: [Header Type], [Propagation Type], [Destination Type] and [Packet Type]
+  * Byte 1: [IFAC Flag], [Header Type], [Propagation Type], [Destination Type] and [Packet Type]
   * Byte 2: Number of hops
+
+* Interface Access Code field if the IFAC flag was set.
+  * The length of the Interface Access Code can vary from
+    1 to 64 bytes according to physical interface
+    capabilities and configuration.
 
 * The ADDRESSES field contains either 1 or 2 addresses.
   * Each address is 10 bytes long.
@@ -704,12 +709,16 @@ A Reticulum packet is composed of the following fields:
 * The DATA field is between 0 and 477 bytes.
   * It contains the packets data payload.
 
+IFAC Flag
+-----------------
+open             0  Packet for publically accessible interface
+authenticated    1  Interface authentication is included in packet
+
+
 Header Types
 -----------------
-type 1          00  Two byte header, one 10 byte address field
-type 2          01  Two byte header, two 10 byte address fields
-type 3          10  Reserved
-type 4          11  Reserved
+type 1           0  Two byte header, one 10 byte address field
+type 2           1  Two byte header, two 10 byte address fields
 
 
 Propagation Types
@@ -741,42 +750,60 @@ proof           11
    HEADER FIELD           DESTINATION FIELDS            CONTEXT FIELD  DATA FIELD
  _______|_______   ________________|________________   ________|______   __|_
 |               | |                                 | |               | |    |
-01010000 00000100 [ADDR1, 10 bytes] [ADDR2, 10 bytes] [CONTEXT, 1 byte] [DATA]
- | | | |    |
- | | | |    +-- Hops             = 4
- | | | +------- Packet Type      = DATA
- | | +--------- Destination Type = SINGLE
- | +----------- Propagation Type = TRANSPORT
- +------------- Header Type      = HEADER_2 (two byte header, two address fields)
+01010000 00000100 [HASH1, 10 bytes] [HASH2, 10 bytes] [CONTEXT, 1 byte] [DATA]
+|| | | |    |
+|| | | |    +-- Hops             = 4
+|| | | +------- Packet Type      = DATA
+|| | +--------- Destination Type = SINGLE
+|| +----------- Propagation Type = TRANSPORT
+|+------------- Header Type      = HEADER_2 (two byte header, two address fields)
++-------------- Access Codes     = DISABLED
 
 
- +- Packet Example -+
++- Packet Example -+
 
    HEADER FIELD   DESTINATION FIELD   CONTEXT FIELD  DATA FIELD
  _______|_______   _______|_______   ________|______   __|_
 |               | |               | |               | |    |
-00000000 00000111 [ADDR1, 10 bytes] [CONTEXT, 1 byte] [DATA]
- | | | |    |
- | | | |    +-- Hops             = 7
- | | | +------- Packet Type      = DATA
- | | +--------- Destination Type = SINGLE
- | +----------- Propagation Type = BROADCAST
- +------------- Header Type      = HEADER_1 (two byte header, one address field)
+00000000 00000111 [HASH1, 10 bytes] [CONTEXT, 1 byte] [DATA]
+|| | | |    |
+|| | | |    +-- Hops             = 0
+|| | | +------- Packet Type      = DATA
+|| | +--------- Destination Type = SINGLE
+|| +----------- Propagation Type = BROADCAST
+|+------------- Header Type      = HEADER_1 (two byte header, one address field)
++-------------- Access Codes     = DISABLED
 
 
- Size examples of different packet types
- ---------------------------------------
++- Packet Example -+
 
- The following table lists example sizes of various
- packet types. The size listed are the complete on-
- wire size counting all fields including headers.
+   HEADER FIELD     IFAC FIELD    DESTINATION FIELD   CONTEXT FIELD  DATA FIELD
+ _______|_______   ______|______   _______|_______   ________|______   __|_
+|               | |             | |               | |               | |    |
+10000000 00000111 [IFAC, N bytes] [HASH1, 10 bytes] [CONTEXT, 1 byte] [DATA]
+|| | | |    |
+|| | | |    +-- Hops             = 0
+|| | | +------- Packet Type      = DATA
+|| | +--------- Destination Type = SINGLE
+|| +----------- Propagation Type = BROADCAST
+|+------------- Header Type      = HEADER_1 (two byte header, one address field)
++-------------- Access Codes     = ENABLED
 
- - Path Request    :    33  bytes
- - Announce        :    151 bytes
- - Link Request    :    77  bytes
- - Link Proof      :    77  bytes
- - Link RTT packet :    83  bytes
- - Link keepalive  :    14  bytes
+
+Size examples of different packet types
+---------------------------------------
+
+The following table lists example sizes of various
+packet types. The size listed are the complete on-
+wire size counting all fields including headers,
+but excluding any interface access codes.
+
+- Path Request    :    33  bytes
+- Announce        :    151 bytes
+- Link Request    :    77  bytes
+- Link Proof      :    77  bytes
+- Link RTT packet :    83  bytes
+- Link keepalive  :    14  bytes
 </pre></div>
 </div>
 </div>
