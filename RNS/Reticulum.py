@@ -766,9 +766,6 @@ class Reticulum:
                             if interface != None:
                                 interface.ifac_netname = ifac_netname
                                 interface.ifac_netkey = ifac_netkey
-                                
-                                # TODO: Remove
-                                RNS.log("Interface ready: "+str(interface))
 
                                 RNS.Transport.interfaces.append(interface)
 
