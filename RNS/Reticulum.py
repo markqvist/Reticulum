@@ -71,12 +71,12 @@ class Reticulum:
     other programs to use on demand.
     """
 
-    # Future minimum will probably be locked in at 244 bytes to support
-    # networks with segments of different MTUs. Absolute minimum is 211.
+    # Future minimum will probably be locked in at 251 bytes to support
+    # networks with segments of different MTUs. Absolute minimum is 219.
     MTU            = 500
     """
     The MTU that Reticulum adheres to, and will expect other peers to
-    adhere to. By default, the MTU is 500 bytes. In custom RNS network
+    adhere to. By default, the MTU is 507 bytes. In custom RNS network
     implementations, it is possible to change this value, but doing so will
     completely break compatibility with all other RNS networks. An identical
     MTU is a prerequisite for peers to communicate in the same network.
@@ -121,8 +121,9 @@ class Reticulum:
 
     HEADER_MINSIZE = 2+1+(TRUNCATED_HASHLENGTH//8)*1
     HEADER_MAXSIZE = 2+1+(TRUNCATED_HASHLENGTH//8)*2
+    IFAC_MIN_SIZE  = 1
     
-    MDU            = MTU - HEADER_MAXSIZE
+    MDU            = MTU - HEADER_MAXSIZE - IFAC_MIN_SIZE
 
     router         = None
     config         = None
@@ -323,6 +324,12 @@ class Reticulum:
             interface_names = []
             for name in self.config["interfaces"]:
                 if not name in interface_names:
+                    # TODO: We really need to generalise this way of instantiating
+                    # and configuring interfaces. Ideally, interfaces should just
+                    # have a conrfig dict passed to their init method, and return
+                    # a ready interface, onto which this routine can configure any
+                    # generic or extra parameters.
+
                     c = self.config["interfaces"][name]
 
                     interface_mode = Interface.Interface.MODE_FULL
@@ -343,6 +350,21 @@ class Reticulum:
                         elif c["mode"] == "pointtopoint" or c["mode"] == "ptp":
                             interface_mode = Interface.Interface.MODE_POINT_TO_POINT
 
+                    ifac_size = None
+                    if "ifac_size" in c:
+                        if c.as_int("ifac_size") >= Reticulum.IFAC_MIN_SIZE:
+                            ifac_size = c.as_int("ifac_size")
+                            
+                    ifac_netname = None
+                    if "ifac_netname" in c:
+                        if c.as_int("ifac_netname") >= Reticulum.IFAC_MIN_SIZE:
+                            ifac_netname = c.as_int("ifac_netname")
+                            
+                    ifac_netkey = None
+                    if "ifac_netkey" in c:
+                        if c.as_int("ifac_netkey") >= Reticulum.IFAC_MIN_SIZE:
+                            ifac_netkey = c.as_int("ifac_netkey")
+                            
                     configured_bitrate = None
                     if "bitrate" in c:
                         if c.as_int("bitrate") >= Reticulum.MINIMUM_BITRATE:
@@ -354,6 +376,8 @@ class Reticulum:
                             announce_cap = c.as_float("announce_cap")/100.0
                             
                     try:
+                        interface = None
+
                         if (("interface_enabled" in c) and c.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
                             if c["type"] == "AutoInterface":
                                 if not RNS.vendor.platformutils.is_windows():
@@ -387,6 +411,10 @@ class Reticulum:
                                     interface.announce_cap = announce_cap
                                     if configured_bitrate:
                                         interface.bitrate = configured_bitrate
+                                    if ifac_size != None:
+                                        interface.ifac_size = ifac_size
+                                    else:
+                                        interface.ifac_size = 16
 
                                 else:
                                     RNS.log("AutoInterface is not currently supported on Windows, disabling interface.", RNS.LOG_ERROR);
@@ -430,6 +458,10 @@ class Reticulum:
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
+                                if ifac_size != None:
+                                    interface.ifac_size = ifac_size
+                                else:
+                                    interface.ifac_size = 16
 
 
                             if c["type"] == "TCPServerInterface":
@@ -467,6 +499,10 @@ class Reticulum:
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
+                                if ifac_size != None:
+                                    interface.ifac_size = ifac_size
+                                else:
+                                    interface.ifac_size = 16
 
 
                             if c["type"] == "TCPClientInterface":
@@ -501,6 +537,10 @@ class Reticulum:
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
+                                if ifac_size != None:
+                                    interface.ifac_size = ifac_size
+                                else:
+                                    interface.ifac_size = 16
 
 
                             if c["type"] == "I2PInterface":
@@ -531,6 +571,10 @@ class Reticulum:
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
+                                if ifac_size != None:
+                                    interface.ifac_size = ifac_size
+                                else:
+                                    interface.ifac_size = 16
 
 
                             if c["type"] == "SerialInterface":
@@ -565,6 +609,10 @@ class Reticulum:
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
+                                if ifac_size != None:
+                                    interface.ifac_size = ifac_size
+                                else:
+                                    interface.ifac_size = 8
 
                             if c["type"] == "KISSInterface":
                                 preamble = int(c["preamble"]) if "preamble" in c else None
@@ -612,6 +660,10 @@ class Reticulum:
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
+                                if ifac_size != None:
+                                    interface.ifac_size = ifac_size
+                                else:
+                                    interface.ifac_size = 8
 
                             if c["type"] == "AX25KISSInterface":
                                 preamble = int(c["preamble"]) if "preamble" in c else None
@@ -660,6 +712,10 @@ class Reticulum:
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
+                                if ifac_size != None:
+                                    interface.ifac_size = ifac_size
+                                else:
+                                    interface.ifac_size = 8
 
                             if c["type"] == "RNodeInterface":
                                 frequency = int(c["frequency"]) if "frequency" in c else None
@@ -702,6 +758,19 @@ class Reticulum:
                                 interface.announce_cap = announce_cap
                                 if configured_bitrate:
                                     interface.bitrate = configured_bitrate
+                                if ifac_size != None:
+                                    interface.ifac_size = ifac_size
+                                else:
+                                    interface.ifac_size = 8
+
+                            if interface != None:
+                                interface.ifac_netname = ifac_netname
+                                interface.ifac_netkey = ifac_netkey
+                                
+                                # TODO: Remove
+                                RNS.log("Interface ready: "+str(interface))
+
+                                RNS.Transport.interfaces.append(interface)
 
                         else:
                             RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_DEBUG)

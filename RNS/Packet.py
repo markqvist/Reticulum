@@ -94,7 +94,7 @@ class Packet:
     """
     PLAIN_MDU      = MDU
     """
-    The maximum size of the payload data in a single unencrypted packet 
+    The maximum size of the payload data in a single unencrypted packet
     """
 
     TIMEOUT_PER_HOP = RNS.Reticulum.DEFAULT_PER_HOP_TIMEOUT
