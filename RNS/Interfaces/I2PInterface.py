@@ -595,6 +595,10 @@ class I2PInterface(Interface):
         spawned_interface.IN  = True
         spawned_interface.parent_interface = self
         spawned_interface.online = True
+        spawned_interface.bitrate = self.bitrate
+        spawned_interface.ifac_size = self.ifac_size
+        spawned_interface.ifac_netname = self.ifac_netname
+        spawned_interface.ifac_netkey = self.ifac_netkey
         RNS.log("Spawned new I2PInterface Peer: "+str(spawned_interface), RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)
         self.clients += 1
