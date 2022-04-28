@@ -716,6 +716,21 @@ treated more as a reference than as essential reading.</p>
 on a first-come, first-serve basis. Announce re-transmission are handled according to the re-transmission
 times and priorities described earlier in this chapter.</p>
 </div>
+<div class="section" id="interface-access-codes">
+<h3>Interface Access Codes<a class="headerlink" href="#interface-access-codes" title="Permalink to this headline">¶</a></h3>
+<p>Reticulum can create named virtual networks, and networks that are only accessible by knowing a preshared
+passphrase. The configuration of this is detailed in the <a class="reference internal" href="interfaces.html#interfaces-options"><span class="std std-ref">Common Interface Options</span></a>
+section. To implement these feature, Reticulum uses the concept of Interface Access Codes, that are calculated
+and verified per packet.</p>
+<p>An interface with a named virtual network or passphrase authentication enabled will derive a shared Ed25519
+signing identity, and for every outbound packet generate a signature of the entire packet. This signature is
+then inserted into the packet as an Interface Access Code before transmission. Depending on the speed and
+capabilities of the interface, the IFAC can be the full 512-bit Ed25519 signature, or a truncated version.
+Configured IFAC length can be inspected for all interfaces with the <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> utility.</p>
+<p>Upon receipt, the interface will check that the signature matches the expected value, and drop the packet if it
+does not. This ensures that only packets sent with the correct naming and/or passphrase parameters are allowed to
+pass onto the network.</p>
+</div>
 <div class="section" id="wire-format">
 <span id="understanding-packetformat"></span><h3>Wire Format<a class="headerlink" href="#wire-format" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>== Reticulum Wire Format ======
@@ -881,6 +896,7 @@ but excluding any interface access codes.
 <li><a class="reference internal" href="#reference-setup">Reference Setup</a></li>
 <li><a class="reference internal" href="#protocol-specifics">Protocol Specifics</a><ul>
 <li><a class="reference internal" href="#packet-prioritisation">Packet Prioritisation</a></li>
+<li><a class="reference internal" href="#interface-access-codes">Interface Access Codes</a></li>
 <li><a class="reference internal" href="#wire-format">Wire Format</a></li>
 </ul>
 </li>

@@ -654,6 +654,25 @@ on a first-come, first-serve basis. Announce re-transmission are handled accordi
 times and priorities described earlier in this chapter.
 
 
+Interface Access Codes
+----------------------
+
+Reticulum can create named virtual networks, and networks that are only accessible by knowing a preshared
+passphrase. The configuration of this is detailed in the :ref:`Common Interface Options<interfaces-options>`
+section. To implement these feature, Reticulum uses the concept of Interface Access Codes, that are calculated
+and verified per packet.
+
+An interface with a named virtual network or passphrase authentication enabled will derive a shared Ed25519
+signing identity, and for every outbound packet generate a signature of the entire packet. This signature is
+then inserted into the packet as an Interface Access Code before transmission. Depending on the speed and
+capabilities of the interface, the IFAC can be the full 512-bit Ed25519 signature, or a truncated version.
+Configured IFAC length can be inspected for all interfaces with the ``rnstatus`` utility.
+
+Upon receipt, the interface will check that the signature matches the expected value, and drop the packet if it
+does not. This ensures that only packets sent with the correct naming and/or passphrase parameters are allowed to
+pass onto the network.
+
+
 .. _understanding-packetformat:
 
 Wire Format
