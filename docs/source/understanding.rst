@@ -3,20 +3,21 @@
 ***********************
 Understanding Reticulum
 ***********************
-This chapter will briefly describe the overall purpose and operating principles of Reticulum, a
-networking stack designed for reliable and secure communication over high-latency, low-bandwidth
-links. It should give you an overview of how the stack works, and an understanding of how to
+This chapter will briefly describe the overall purpose and operating principles of Reticulum.
+It should give you an overview of how the stack works, and an understanding of how to
 develop networked applications using Reticulum.
 
-This document is not an exhaustive source of information on Reticulum, at least not yet. Currently,
-the best place to go for such information is the Python reference implementation of Reticulum, along
-with the code examples and API reference. It is however an essential resource to understanding the
-general principles of Reticulum, how to apply them when creating your own networks or software.
+This chapter is not an exhaustive source of information on Reticulum, at least not yet. Currently,
+the only complete repository, and final authority on how Reticulum actually functions, is the Python
+reference implementation and API reference. That being said, this chapter is an essential resource in
+understanding how Reticulum works from a high-level perspective, along with the general principles of
+Reticulum, and how to apply them when creating your own networks or software.
 
 After reading this document, you should be well-equipped to understand how a Reticulum network
 operates, what it can achieve, and how you can use it yourself. If you want to help out with the
 development, this is also the place to start, since it will provide a pretty clear overview of the
-sentiments and the philosophy behind Reticulum.
+sentiments and the philosophy behind Reticulum, what problems it seeks to solve, and how it
+approaches those solutions.
 
 .. _understanding-motivation:
 
@@ -25,33 +26,42 @@ Motivation
 
 The primary motivation for designing and implementing Reticulum has been the current lack of
 reliable, functional and secure minimal-infrastructure modes of digital communication. It is my
-belief that it is highly desirable to create a cheap and reliable way to set up a wide-range digital
-communication network that can securely allow exchange of information between people and
+belief that it is highly desirable to create a reliable and efficient way to set up long-range digital
+communication networks that can securely allow exchange of information between people and
 machines, with no central point of authority, control, censorship or barrier to entry.
 
-Almost all of the various networking systems in use today share a common limitation, namely that they
-require large amounts of coordination and trust to work, and to join the networks you need approval
+Almost all of the various networking systems in use today share a common limitation: They
+require large amounts of coordination and centralised trust and power to function. To join such networks, you need approval
 of gatekeepers in control. This need for coordination and trust inevitably leads to an environment of
 central control, where it's very easy for infrastructure operators or governments to control or alter
-traffic, and censor or persecute unwanted actors.
+traffic, and censor or persecute unwanted actors. It also makes it completely impossible to freely deploy
+and use networks at will, like one would use other common tools that enhance individual agency and freedom.
 
-Reticulum aims to require as little coordination and trust as possible. In fact, the only
-“coordination” required is to know the characteristics of physical medium carrying Reticulum traffic.
+Reticulum aims to require as little coordination and trust as possible. It aims to make secure,
+anonymous and permissionless networking and information exchange a tool that anyone can just pick up and use.
 
-Since Reticulum is completely medium agnostic, this could be whatever is best suited to the situation.
-In some cases, this might be 1200 baud packet radio links over VHF frequencies, in other cases it might
-be a microwave network using off-the-shelf radios. At the time of release of this document, the
-recommended setup for development and testing is using LoRa radio modules with an open source firmware
-(see the section :ref:`Reference Setup<understanding-referencesystem>`), connected to a small
-computer like a Raspberry Pi. As an example, the default reference setup provides a channel capacity
-of 3.1 Kbps, and a usable direct node-to-node range of around 15 kilometers (extendable by using multiple hops).
+Since Reticulum is completely medium agnostic, it can be used to build networks on whatever is best
+suited to the situation, or whatever you have available. In some cases, this might be packet radio
+links over VHF frequencies, in other cases it might be a 2.4 GHz
+network using off-the-shelf radios, or it might be using common LoRa development boards.
+
+At the time of release of this document, the fastest and easiest setup for development and testing is using
+LoRa radio modules with an open source firmware (see the section :ref:`Reference Setup<understanding-referencesystem>`),
+connected to any kind of computer or mobile device that Reticulum can run on.
+
+The ultimate aim of Reticulum is to allow anyone to be their own network operator, and to make it
+cheap and easy to cover vast areas with a myriad of independent, interconnectable and autonomous networks.
+Reticulum **is not** *one network*, it **is a tool** to build *thousands of networks*.
+
+Networks without kill-switches, surveillance, censorship and control. Networks that can freely interoperate, associate and disassociate
+with each other, and require no central oversight. Networks for human beings. *Networks for the people*.
 
 .. _understanding-goals:
 
 Goals
 =====
 
-To be as widely usable and easy to use as possible, the following goals have been used to
+To be as widely usable and efficient to deploy as possible, the following goals have been used to
 guide the design of Reticulum:
 
 
@@ -59,14 +69,14 @@ guide the design of Reticulum:
     Reticulum must be implemented with, and be able to run using only open source software. This is
     critical to ensuring the availability, security and transparency of the system.
 * **Hardware layer agnosticism**
-    Reticulum shall be fully hardware agnostic, and shall be useable over a wide range
+    Reticulum must be fully hardware agnostic, and shall be useable over a wide range of
     physical networking layers, such as data radios, serial lines, modems, handheld transceivers,
     wired ethernet, wifi, or anything else that can carry a digital data stream. Hardware made for
     dedicated Reticulum use shall be as cheap as possible and use off-the-shelf components, so
-    it can be easily replicated.
+    it can be easily modified and replicated by anyone interested in doing so.
 * **Very low bandwidth requirements**
     Reticulum should be able to function reliably over links with a transmission capacity as low
-    as *500 bps*.
+    as *500 bits per second*.
 * **Encryption by default**
     Reticulum must use strong encryption by default for all communication.
 * **Initiator Anonymity**
@@ -78,15 +88,15 @@ guide the design of Reticulum:
     frequency bands, and can provide functional long distance links in such conditions, for example
     by connecting a modem to a PMR or CB radio, or by using LoRa or WiFi modules.
 * **Supplied software**
-    Apart from the core networking stack and API, that allows a developer to build
-    applications with Reticulum, a basic communication suite using Reticulum must be
-    implemented and released at the same time as Reticulum itself. This shall serve both as a
-    functional communication suite, and as an example and learning resource to others wishing
+    In addition to the core networking stack and API, that allows a developer to build
+    applications with Reticulum, a basic set of Reticulum-based communication tools must be
+    implemented and released along with Reticulum itself. These shall serve both as a
+    functional, basic communication suite, and as an example and learning resource to others wishing
     to build applications with Reticulum.
 * **Ease of use**
     The reference implementation of Reticulum is written in Python, to make it easy to use
     and understand. A programmer with only basic experience should be able to use
-    Reticulum in their own applications.
+    Reticulum to write networked applications.
 * **Low cost**
     It shall be as cheap as possible to deploy a communication system based on Reticulum. This
     should be achieved by using cheap off-the-shelf hardware that potential users might already
@@ -108,20 +118,29 @@ Reticulum uses the singular concept of *destinations*. Any application using Ret
 networking stack will need to create one or more destinations to receive data, and know the
 destinations it needs to send data to.
 
-All destinations in Reticulum are represented internally as 10 bytes, derived from truncating a full
+All destinations in Reticulum are represented as a 10 byte hash, derived from truncating a full
 SHA-256 hash of identifying characteristics of the destination. To users, the destination addresses
 will be displayed as 10 bytes in hexadecimal representation, as in the following example: ``<80e29bf7cccaf31431b3>``.
+
+The truncation size of 10 bytes (80 bits) for destinations has been choosen as a reasonable tradeoff between address space
+and packet overhead. The address space accomodated by this size can support many billions of
+simultaneously active devices on the same network, while keeping packet overhead low, which is
+essential on low-bandwidth networks. In the very unlikely case that this address space nears
+congestion, a one-line code change can upgrade the Reticulum address space all the way up to 256
+bits, ensuring the Reticulum address space could potentially support galactic-scale networks.
+This is obviusly complete and ridiculous over-allocation, and as such, the current 80 bits should
+be sufficient, even far into the future.
 
 By default Reticulum encrypts all data using elliptic curve cryptography. Any packet sent to a
 destination is encrypted with a derived ephemeral key. Reticulum can also set up an encrypted
 channel to a destination with *Forward Secrecy* and *Initiator Anonymity* using a elliptic
 curve cryptography and ephemeral keys derived from a Diffie Hellman exchange on Curve25519. In
-Reticulum terminology, this is called a *Link*.
+Reticulum terminology, this is called a *Link*. The multi-hop transport, coordination, verification
+and reliability layers are fully autonomous and also based on elliptic curve cryptography.
 
 Reticulum also offers symmetric key encryption for group-oriented communications, as well as
 unencrypted packets for broadcast purposes, or situations where you need the communication to be in
-plain text. The multi-hop transport, coordination, verification and reliability layers are fully
-autonomous and based on public key cryptography.
+plain text.
 
 Reticulum can connect to a variety of interfaces such as radio modems, data radios and serial ports,
 and offers the possibility to easily tunnel Reticulum traffic over IP links such as the Internet or
@@ -137,22 +156,30 @@ destinations. Reticulum uses three different basic destination types, and one sp
 
 
 * **Single**
-    The *single* destination type is always identified by a unique public key. Any data sent to this
+    The *single* destination type is the most common type in Reticulum, and should be used for
+    most purposes. It is always identified by a unique public key. Any data sent to this
     destination will be encrypted using ephemeral keys derived from an ECDH key exchange, and will
     only be readable by the creator of the destination, who holds the corresponding private key.
-* **Group**
-    The *group* destination type defines a symmetrically encrypted destination. Data sent to this
-    destination will be encrypted with a symmetric key, and will be readable by anyone in
-    possession of the key.
 * **Plain**
     A *plain* destination type is unencrypted, and suited for traffic that should be broadcast to a
     number of users, or should be readable by anyone. Traffic to a *plain* destination is not encrypted.
     Generally, *plain* destinations can be used for broadcast information intended to be public.
+    Plain destinations are only reachable directly, and packets adressed to plain destinations are
+    never transported over multiple hops in the network. To be transportable over multiple hops in Reticulum, information
+    *must* be encrypted, since Reticulum uses the per-packet encryption to verify routing paths and
+    keep them alive.
+* **Group**
+    The *group* special destination type, that defines a symmetrically encrypted virtual destination.
+    Data sent to this destination will be encrypted with a symmetric key, and will be readable by
+    anyone in possession of the key, but as with the *plain* destination type, packets to this type
+    of destination are not currently transported over multiple hops, although a planned upgrade
+    to Reticulum will allow globally reachable *group* destinations.
 * **Link**
     A *link* is a special destination type, that serves as an abstract channel to a *single*
     destination, directly connected or over multiple hops. The *link* also offers reliability and
     more efficient encryption, forward secrecy, initiator anonymity, and as such can be useful even
-    when a node is directly reachable.
+    when a node is directly reachable. It also offers a more capable API and allows easily carrying
+    out requests and responses, large data transfers and more.
 
 .. _understanding-destinationnaming:
 
@@ -194,7 +221,7 @@ packet.
 In actual use of *single* destination naming, it is advisable not to use any uniquely identifying
 features in aspect naming. Aspect names should be general terms describing what kind of destination
 is represented. The uniquely identifying aspect is always acheived by the appending the public key,
-which expands the destination into a uniquely identifyable one.
+which expands the destination into a uniquely identifyable one. Reticulum does this automatically.
 
 Any destination on a Reticulum network can be addressed and reached simply by knowning its
 destination hash (and public key, but if the public key is not known, it can be requested from the
@@ -210,30 +237,32 @@ To recap, the different destination types should be used in the following situat
     When private communication between two or more endpoints is needed. Supports multiple hops
     indirectly, but must first be established through a *single* destination.
 * **Plain**
-    When plain-text communication is desirable, for example when broadcasting information.
+    When plain-text communication is desirable, for example when broadcasting information, or for local discovery purposes.
 
 To communicate with a *single* destination, you need to know it’s public key. Any method for
 obtaining the public key is valid, but Reticulum includes a simple mechanism for making other
 nodes aware of your destinations public key, called the *announce*. It is also possible to request
-an unknown public key from the network, as all participating nodes serve as a distributed ledger
+an unknown public key from the network, as all transport instances serve as a distributed ledger
 of public keys.
 
-Note that public key information can be shared and verified in many other ways than using the
-built-in *announce* functionality, and that it is therefore not required to use the announce/request
+Note that public key information can be shared and verified in other ways than using the
+built-in *announce* functionality, and that it is therefore not required to use the *announce* and *path request*
 functionality to obtain public keys. It is by far the easiest though, and should definitely be used
-if there is not a good reason for doing it differently.
+if there is not a very good reason for doing it differently.
 
 .. _understanding-keyannouncements:
 
 Public Key Announcements
 ------------------------
 
-An *announce* will send a special packet over any configured interfaces, containing all needed
+An *announce* will send a special packet over any relevant interfaces, containing all needed
 information about the destination hash and public key, and can also contain some additional,
 application specific data. The entire packet is signed by the sender to ensure authenticity. It is not
 required to use the announce functionality, but in many cases it will be the simplest way to share
-public keys on the network. As an example, an announce in a simple messenger application might
-contain the following information:
+public keys on the network. The announce mechanism also serves to establish end-to-end connectivity
+to the announced destination, as the announce propagates through the network.
+
+As an example, an announce in a simple messenger application might contain the following information:
 
 
 * The announcers destination hash
@@ -246,12 +275,20 @@ With this information, any Reticulum node that receives it will be able to recon
 destination to securely communicate with that destination. You might have noticed that there is one
 piece of information lacking to reconstruct full knowledge of the announced destination, and that is
 the aspect names of the destination. These are intentionally left out to save bandwidth, since they
-will be implicit in almost all cases. If a destination name is not entirely implicit, information can be
-included in the application specific data part that will allow the receiver to infer the naming.
+will be implicit in almost all cases. The receiving application will already know them. If a destination
+name is not entirely implicit, information can be included in the application specific data part that
+will allow the receiver to infer the naming.
 
 It is important to note that announces will be forwarded throughout the network according to a
 certain pattern. This will be detailed in the section
 :ref:`The Announce Mechanism in Detail<understanding-announce>`.
+
+In Reticulum, destinations are allowed to move around the network at will. This is very different from
+protocols such as IP, where an address is always expected to stay within the network segment it was assigned in.
+This limitation does not exist in Reticulum, and any destination is *completely portable* over the entire topography
+of the network, and *can even be moved to other Reticulum networks* than the one it was created in, and
+still be reachable. To update it's reachability, a destination simply needs to send an announce on any
+networks it is part of.
 
 Seeing how *single* destinations are always tied to a private/public key pair leads us to the next topic.
 
@@ -264,13 +301,13 @@ In Reticulum, an *identity* does not necessarily represent a personal identity, 
 can represent any kind of *verified entity*. This could very well be a person, but it could also be the
 control interface of a machine, a program, robot, computer, sensor or something else entirely. In
 general, any kind of agent that can act, or be acted upon, or store or manipulate information, can be
-represented as an identity.
+represented as an identity. An *identity* can be used to create any number of destinations.
 
 As we have seen, a *single* destination will always have an *identity* tied to it, but not *plain* or *group*
 destinations. Destinations and identities share a multilateral connection. You can create a
 destination, and if it is not connected to an identity upon creation, it will just create a new one to use
 automatically. This may be desirable in some situations, but often you will probably want to create
-the identity first, and then link it to created destinations.
+the identity first, and then use it to create new destinations.
 
 Building upon the simple messenger example, we could use an identity to represent the user of the
 application. Destinations created will then be linked to this identity to allow communication to

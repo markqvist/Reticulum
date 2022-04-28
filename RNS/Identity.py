@@ -500,7 +500,7 @@ class Identity:
                 return self.sig_prv.sign(message)    
             except Exception as e:
                 RNS.log("The identity "+str(self)+" could not sign the requested message. The contained exception was: "+str(e), RNS.LOG_ERROR)
-                raise e 
+                raise e
         else:
             raise KeyError("Signing failed because identity does not hold a private key")
 
