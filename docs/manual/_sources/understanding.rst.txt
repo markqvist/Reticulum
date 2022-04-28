@@ -287,8 +287,8 @@ In Reticulum, destinations are allowed to move around the network at will. This 
 protocols such as IP, where an address is always expected to stay within the network segment it was assigned in.
 This limitation does not exist in Reticulum, and any destination is *completely portable* over the entire topography
 of the network, and *can even be moved to other Reticulum networks* than the one it was created in, and
-still be reachable. To update it's reachability, a destination simply needs to send an announce on any
-networks it is part of.
+still become reachable. To update it's reachability, a destination simply needs to send an announce on any
+networks it is part of. After a short while, it will be globally reachable in the network.
 
 Seeing how *single* destinations are always tied to a private/public key pair leads us to the next topic.
 
@@ -298,21 +298,22 @@ Identities
 ----------
 
 In Reticulum, an *identity* does not necessarily represent a personal identity, but is an abstraction that
-can represent any kind of *verified entity*. This could very well be a person, but it could also be the
+can represent any kind of *verifiable entity*. This could very well be a person, but it could also be the
 control interface of a machine, a program, robot, computer, sensor or something else entirely. In
 general, any kind of agent that can act, or be acted upon, or store or manipulate information, can be
 represented as an identity. An *identity* can be used to create any number of destinations.
 
-As we have seen, a *single* destination will always have an *identity* tied to it, but not *plain* or *group*
+A *single* destination will always have an *identity* tied to it, but not *plain* or *group*
 destinations. Destinations and identities share a multilateral connection. You can create a
 destination, and if it is not connected to an identity upon creation, it will just create a new one to use
 automatically. This may be desirable in some situations, but often you will probably want to create
 the identity first, and then use it to create new destinations.
 
-Building upon the simple messenger example, we could use an identity to represent the user of the
-application. Destinations created will then be linked to this identity to allow communication to
-reach the user. In all cases it is of great importance to store the private keys associated with any
-Reticulum Identity securely and privately.
+As an example, we could use an identity to represent the user of a messaging application.
+Destinations can then be created by this identity to allow communication to reach the user.
+In all cases it is of great importance to store the private keys associated with any
+Reticulum Identity securely and privately, since obtaining access to the identity keys equals
+obtaining access and controlling reachability to any destinations created by that identity.
 
 .. _understanding-gettingfurther:
 
@@ -331,20 +332,16 @@ In the following sections, two concepts that allow this will be introduced, *pat
 Reticulum Transport
 ===================
 
-The term routing has been purposefully avoided until now. The current methods of routing used in IP-based
-networks are fundamentally incompatible with the physical link types that Reticulum was designed to handle.
-These routing methodologies assume trust at the physical layer, and often needs a lot more bandwidth than
-Reticulum can assume is available.
+The methods of routing used in traditional networks are fundamentally incompatible with the physical medium
+types and circumstances that Reticulum was designed to handle. These mechanisms mostly assume trust at the physical layer,
+and often needs a lot more bandwidth than Reticulum can assume is available. Since Reticulum is designed to
+survive running over open radio spectrum, no such trust can be assumed, and bandwidth is often very limited.
 
-Since Reticulum is designed to survive running over open radio spectrum, no such trust exists, and bandwidth
-is often very limited. Existing routing protocols like BGP or OSPF carry too much overhead to be practically
-useable over bandwidth-limited, high-latency links.
-
-To overcome such challenges, Reticulum’s *Transport* system uses public-key cryptography to
+To overcome such challenges, Reticulum’s *Transport* system uses asymmetric elliptic curve cryptography to
 implement the concept of *paths* that allow discovery of how to get information closer to a certain
 destination. It is important to note that no single node in a Reticulum network knows the complete
 path to a destination. Every Transport node participating in a Reticulum network will only
-know what the most direct way to get a packet one hop closer to it's destination is.
+know the most direct way to get a packet one hop closer to it's destination.
 
 
 .. _understanding-nodetypes:
@@ -354,13 +351,13 @@ Node Types
 
 Currently, Reticulum distinguishes between two types of network nodes. All nodes on a Reticulum network
 are *Reticulum Instances*, and some are alo *Transport Nodes*. If a system running Reticulum is fixed in
-one place, and is intended to be kept available most of the time, it can be a *Transport Node*, by enabling
-it in the configuration.
+one place, and is intended to be kept available most of the time, it is a good contender to be a *Transport Node*.
 
+Any Reticulum Instance can become a Transport Node by enabling it in the configuration.
 This distinction is made by the user configuring the node, and is used to determine what nodes on the
 network will help forward traffic, and what nodes rely on other nodes for wider connectivity.
 
-If a node is a *Instance* it should be given the configuration directive ``enable_transport = No``, which
+If a node is an *Instance* it should be given the configuration directive ``enable_transport = No``, which
 is the default setting.
 
 If it is a *Transport Node*, it should be given the configuration directive ``enable_transport = Yes``.
@@ -371,37 +368,37 @@ If it is a *Transport Node*, it should be given the configuration directive ``en
 The Announce Mechanism in Detail
 --------------------------------
 
-When an *announce* is transmitted by from a Reticulum instance, it will be forwarded by any transport node receiving it, but
-according to some specific rules:
+When an *announce* for a destination is transmitted by from a Reticulum instance, it will be forwarded by
+any transport node receiving it, but according to some specific rules:
 
 
 * | If this exact announce has already been received before, ignore it.
 
-* | If not, record into a table which node the announce was received from, and how many times in
+* | If not, record into a table which Transport Node the announce was received from, and how many times in
     total it has been retransmitted to get here.
 
-* | If the announce has been retransmitted *m+1* times, it will not be forwarded. By default, *m* is
+* | If the announce has been retransmitted *m+1* times, it will not be forwarded any more. By default, *m* is
     set to 128.
 
-* | The announce will be assigned a delay *d* = c\ :sup:`h` seconds, where *c* is a decay constant, and *h* is the amount of times this packet has already been forwarded.
+* | After a randomised delay, the announce will be retransmitted on all interfaces that have bandwidth
+    available for processing announces. By default, the maximum bandwidth allocation for processing
+    announces is set at 2%, but can be configured on a per-interface basis.
 
-* | The packet will be given a priority *p = 1/d*.
+* | If any given interface does not have enough bandwidth available for retransmitting the announce,
+    the announce will be assigned a priority inversely proportional to it's hop count, and be inserted
+    into a queue managed by the interface.
 
-* | If at least *d* seconds has passed since the announce was received, and no other packets with a
-    priority higher than *p* are waiting in the queue, and the channel is
-    not utilized by other traffic, the announce will be forwarded.
+* | When the interface has bandwidth available for processing an announce, it will prioritise announces
+    for destinations that are closest in terms of hops, thus prioritising reachability and connectivity
+    of local nodes, even on slow networks that connect to wider and faster networks.
 
-* | If no other nodes are heard retransmitting the announce with a greater hop count than when
-    it left this node, transmitting it will be retried *r* times. By default, *r* is set to 1. Retries
-    follow same rules as above, with the exception that it must wait for at least *d* = c\ :sup:`h+1` +
-    t + rand(0, rw) seconds. This amount of time is equal to the amount of time it would take the next
-    node to retransmit the packet, plus a random window. By default, *t* is set to 10 seconds, and the
-    random window *rw* is set to 10 seconds.
+* | After the announce has been re-transmitted, and if no other nodes are heard retransmitting the announce
+    with a greater hop count than when it left this node, transmitting it will be retried *r* times. By default,
+    *r* is set to 1.
 
-* | If a newer announce from the same destination arrives, while an identical one is already in
-    the queue, the newest announce is discarded. If the newest announce contains different
-    application specific data, it will replace the old announce, but will use *d* and *p* of the old
-    announce.
+* | If a newer announce from the same destination arrives, while an identical one is already waiting
+    to be transmitted, the newest announce is discarded. If the newest announce contains different
+    application specific data, it will replace the old announce.
 
 Once an announce has reached a node in the network, any other node in direct contact with that
 node will be able to reach the destination the announce originated from, simply by sending a packet
@@ -409,16 +406,16 @@ addressed to that destination. Any node with knowledge of the announce will be a
 packet towards the destination by looking up the next node with the shortest amount of hops to the
 destination.
 
-According to these rules and default constants, an announce will propagate throughout the network
-in a predictable way.
+According to these rules, an announce will propagate throughout the network in a predictable way,
+and make the announced destination reachable in a short amount of time. Fast networks that have the
+capacity to process many announces can reach full convergence very quickly, even when constantly adding
+new destinations. Slower segments of such networks might take a bit longer to gain full knowledge about
+the wide and fast networks they are connected to, but can still do so over time, while prioritising full
+and quickly converging end-to-end connectivity for their local, slower segments.
 
-As an example, in a network based only on radio transceivers with an average link distance of 15
-kilometers, an announce will be able to propagate outwards over 12 hops, to a radius of 180
-kilometers, in approximately 20 minutes.
-
-The design and constants of the decay and delay functionality in the announce propagation is subject
-to change and optimisation as real-world usage is explored. The announce propagation speed can be
-increased at the cost of increased bandwidth consumption.
+In general, even extremely complex networks, that utilize the maximum 128 hops will converge to full
+end-to-end connectivity in about one minute, given there is enough bandwidth available to process
+the required amount of announces.
 
 .. _understanding-paths:
 
@@ -465,7 +462,7 @@ For exchanges of small amounts of information, Reticulum offers the *Packet* API
 For exchanges of larger amounts of data, or when longer sessions of bidirectional communication is desired, Reticulum offers the *Link* API. To establish a *link*, the following process is employed:
 
 * | First, the node that wishes to establish a link will send out a special packet, that
-    traverses the network and locates the desired destination. Along the way, the nodes that
+    traverses the network and locates the desired destination. Along the way, the Transport Nodes that
     forward the packet will take note of this *link request*.
 
 * | Second, if the destination accepts the *link request* , it will send back a packet that proves the
@@ -476,14 +473,18 @@ For exchanges of larger amounts of data, or when longer sessions of bidirectiona
 * | When the validity of the *link* has been accepted by forwarding nodes, these nodes will
     remember the *link* , and it can subsequently be used by referring to a hash representing it.
 
-* | As a part of the *link request* , a Diffie-Hellman key exchange takes place, that sets up an
-    efficiently encrypted tunnel between the two nodes, using elliptic curve cryptography. As such,
-    this mode of communication is preferred, even for situations when nodes can directly communicate,
-    when the amount of data to be exchanged numbers in the tens of packets.
+* | As a part of the *link request*, an Elliptic Curve Diffie-Hellman key exchange takes place, that sets up an
+    efficiently encrypted tunnel between the two nodes. As such, this mode of communication is preferred,
+    even for situations when nodes can directly communicate, when the amount of data to be exchanged numbers
+    in the tens of packets, or whenever the use of the more advanced API functions is desired.
 
 * | When a *link* has been set up, it automatically provides message receipt functionality, through
     the same *proof* mechanism discussed before, so the sending node can obtain verified confirmation
     that the information reached the intended recipient.
+
+* | Once the *link* has been set up, the initiator can remain anonymous, or choose to authenticate towards
+    the destination using a Reticulum Identity. This authentication is happening inside the encrypted
+    link, and is only revealed to the verified destination, and no intermediaries.
 
 In a moment, we will discuss the details of how this methodology is implemented, but let’s first
 recap what purposes this methodology serves. We first ensure that the node answering our request
