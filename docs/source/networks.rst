@@ -27,6 +27,11 @@ with Reticulum:
      While the adress space can support billions of endpoints, Reticulum is
      also very useful when just a few devices needs to communicate.
 
+ * | Low-bandwidth networks, like LoRa and packet radio, can interoperate and
+     interconnect with much larger and higher bandwidth networks without issue.
+     Reticulum automatically manages the flow of information to and from various
+     network segments, and when bandwidth is limited, local traffic is prioritised.
+
  * | Reticulum provides sender/initiator anonymity by default. There is no way
      to filter traffic or discriminate it based on the source of the traffic.
 
@@ -47,18 +52,32 @@ with Reticulum:
      transport node. Letting every node be a transport node will in most cases
      degrade the performance and reliability of the network.
 
-     In general terms, if a node is stationary, well-connected and kept running
+     *In general terms, if a node is stationary, well-connected and kept running
      most of the time, it is a good candidate to be a transport node. For optimal
      performance, a network should contain the amount of transport nodes that
      provides connectivity to the intended area / topography, and not many more
-     than that. 
+     than that.*
+
+ * | Reticulum is designed to work reliably in open, trustless environments. This
+     means you can use it to create open-access networks, where participants can
+     join and leave in an free and unorganised manner. This property allows an
+     entirely new, and so far, mostly unexplored class of networked applications,
+     where networks, and the information flow within them can form and dissolve
+     organically.
+
+ * | You can just as easily create closed networks, since Reticulum allows you to
+     add authentication to any interface. This means you can restrict access on
+     any interface type, even when using legacy devices, such as modems. You can
+     also mix authenticated and open interfaces on the same system. See the
+     :ref:`Common Interface Options<interfaces-options>` section of the :ref:`Interfaces<interfaces-main>`
+     chapter of this manual for information on how to set up interface authentication.
 
 
 Reticulum allows you to mix very different kinds of networking mediums into a
 unified mesh, or to keep everything within one medium. You could build a "virtual
 network" running entirely over the Internet, where all nodes communicate over TCP
-and UDP "channels". You could also build such a network using MQTT or ZeroMQ as
-the underlying carrier for Reticulum.
+and UDP "channels". You could also build such a network using other already-established
+communications channels as the underlying carrier for Reticulum.
 
 However, most real-world networks will probably involve either some form of
 wireless or direct hardline communications. To allow Reticulum to communicate

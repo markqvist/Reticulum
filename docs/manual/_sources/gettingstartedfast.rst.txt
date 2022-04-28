@@ -324,3 +324,7 @@ for more information:
 * `Installing RNode Firmware on Compatible LoRa Devices <https://unsigned.io/installing-rnode-firmware-on-t-beam-and-lora32-devices/>`_
 * `Private, Secure and Uncensorable Messaging Over a LoRa Mesh <https://unsigned.io/private-messaging-over-lora/>`_
 * `RNode Firmware <https://github.com/markqvist/RNode_Firmware/>`_
+
+If you have communications hardware that you think would be suitable for use with Reticulum,
+you are welcome to head over to the `GitHub discussion pages <https://github.com/markqvist/Reticulum/discussions>`_
+and propose adding an interface for the hardware.

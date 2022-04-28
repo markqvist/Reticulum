@@ -18,6 +18,72 @@ For a high-level overview of how networks can be formed over different interface
 types, have a look at the :ref:`Building Networks<networks-main>` chapter of this
 manual.
 
+
+.. _interfaces-options:
+
+Common Interface Options
+========================
+
+A number of general configuration options are available on most interfaces.
+These can be used to control various aspects of interface behaviour.
+
+
+ * | The ``enabled`` option tells Reticulum whether or not
+     to bring up the interface. Defaults to ``False``. For any
+     interface to be brought up, the ``enabled`` option
+     must be set to ``True`` or ``Yes``.
+
+ * | The ``mode`` option allows selecting the high-level behaviour
+     of the interface from a number of options.
+
+     - The default value is ``full``. In this mode, all discovery,
+       meshing and transport functionality is available.
+
+     - In the ``access_point`` (or shorthand ``ap``) mode, the
+       interface will operate as a network access point. In this
+       mode, announces will not be automatically broadcasted on
+       the interface, and paths to destinations on the interface
+       will have a much shorter expiry time. This mode is useful
+       for creating interfaces that are mostly quiet, unless when
+       someone is actually using them. An example of this could
+       be a radio interface serving a wide area, where users are
+       expected to connect momentarily, use the network, and then
+       disappear again.
+
+ * | The ``outgoing`` option sets whether an interface is allowed
+     to transmit. Defaults to ``True``. If set to ``False`` or ``No``
+     the interface will only receive data, and never transmit.
+
+ * | The ``network_name`` option sets the virtual network name for
+     the interface. This allows multiple separate network segments
+     to exist on the same physical channel or medium.
+
+ * | The ``passphrase`` option sets an authentication passphrase on
+     the interface. This option can be used in conjunction with the
+     ``network_name`` option, or be used alone.
+
+ * | The ``ifac_size`` option allows customising the length of the
+     Interface Authentication Codes carried by each packet on named
+     and/or authenticated network segments. It is set by default to
+     a size suitable for the interface in question, but can be set
+     to a custom size between 8 and 512 bits by using this option.
+     In normal usage, this option should not be changed from the
+     default.
+
+ * | The ``announce_cap`` option lets you configure the maximum
+     bandwidth to allocate, at any given time, to propagating
+     announces and other network upkeep traffic. It is configured at
+     2% by default, and should normally not need to be changed. Can
+     be set to any value between ``1`` and ``100``.
+
+ * | The ``bitrate`` option configures the interface bitrate.
+     Reticulum will use interface speeds reported by hardware, or
+     try to guess a suitable rate when the hardware doesn't report
+     any. In most cases, the automatically found rate should be
+     sufficient, but it can be configured by using the ``bitrate``
+     option, to set the interface speed in *bits per second*.
+
+
 .. _interfaces-auto:
 
 Auto Interface
@@ -512,39 +578,3 @@ beaconing functionality described above.
     # This is useful for modems with a
     # small internal packet buffer.
     flow_control = false
-
-
-.. _interfaces-options:
-
-Common Interface Options
-========================
-
-A number of general options are available on most interfaces.
-These can be used to control various aspects of interface behaviour.
-
-
-The ``enabled`` option tells Reticulum whether or not
-to bring up the interface. Defaults to ``False``. For any
-interface to be brought up, the ``enabled`` option
-must be set to ``True`` or ``Yes``.
-
-The ``outgoing`` option sets whether an interface is allowed
-to transmit. Defaults to ``True``. If set to ``False`` or ``No``
-the interface will only receive data, and never transmit.
-
-The ``mode`` option allows selecting the high-level behaviour
-of the interface from a number of options.
-
- - The default value is ``full``. In this mode, all discovery,
-   meshing and transport functionality is available.
-
- - In the ``access_point`` (or shorthand ``ap``) mode, the
-   interface will operate as a network access point. In this
-   mode, announces will not be automatically broadcasted on
-   the interface, and paths to destinations on the interface
-   will have a much shorter expiry time. This mode is useful
-   for creating interfaces that are mostly quiet, unless when
-   someone is actually using them. An example of this could
-   be a radio interface serving a wide area, where users are
-   expected to connect momentarily, use the network, and then
-   disappear again.

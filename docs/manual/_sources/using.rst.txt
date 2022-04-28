@@ -6,7 +6,8 @@ Using Reticulum on Your System
 
 Reticulum is not installed as a driver or kernel module, as one might expect
 of a networking stack. Instead, Reticulum is distributed as a Python module.
-This means that no special privileges are required to install or use it.
+This means that no special privileges are required to install or use it. It
+is also very light-weight, and easy to transfer to and install on new systems.
 Any program or application that uses Reticulum will automatically load and
 initialise Reticulum when it starts.
 

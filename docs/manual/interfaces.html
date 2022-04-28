@@ -53,6 +53,88 @@ and gives example configurations for the respective interface types.</p>
 <p>For a high-level overview of how networks can be formed over different interface
 types, have a look at the <a class="reference internal" href="networks.html#networks-main"><span class="std std-ref">Building Networks</span></a> chapter of this
 manual.</p>
+<div class="section" id="common-interface-options">
+<span id="interfaces-options"></span><h2>Common Interface Options<a class="headerlink" href="#common-interface-options" title="Permalink to this headline">¶</a></h2>
+<p>A number of general configuration options are available on most interfaces.
+These can be used to control various aspects of interface behaviour.</p>
+<blockquote>
+<div><ul>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">enabled</span></code> option tells Reticulum whether or not
+to bring up the interface. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>. For any
+interface to be brought up, the <code class="docutils literal notranslate"><span class="pre">enabled</span></code> option
+must be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">Yes</span></code>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">mode</span></code> option allows selecting the high-level behaviour
+of the interface from a number of options.</div>
+</div>
+<blockquote>
+<div><ul class="simple">
+<li><p>The default value is <code class="docutils literal notranslate"><span class="pre">full</span></code>. In this mode, all discovery,
+meshing and transport functionality is available.</p></li>
+<li><p>In the <code class="docutils literal notranslate"><span class="pre">access_point</span></code> (or shorthand <code class="docutils literal notranslate"><span class="pre">ap</span></code>) mode, the
+interface will operate as a network access point. In this
+mode, announces will not be automatically broadcasted on
+the interface, and paths to destinations on the interface
+will have a much shorter expiry time. This mode is useful
+for creating interfaces that are mostly quiet, unless when
+someone is actually using them. An example of this could
+be a radio interface serving a wide area, where users are
+expected to connect momentarily, use the network, and then
+disappear again.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">outgoing</span></code> option sets whether an interface is allowed
+to transmit. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>. If set to <code class="docutils literal notranslate"><span class="pre">False</span></code> or <code class="docutils literal notranslate"><span class="pre">No</span></code>
+the interface will only receive data, and never transmit.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">network_name</span></code> option sets the virtual network name for
+the interface. This allows multiple separate network segments
+to exist on the same physical channel or medium.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">passphrase</span></code> option sets an authentication passphrase on
+the interface. This option can be used in conjunction with the
+<code class="docutils literal notranslate"><span class="pre">network_name</span></code> option, or be used alone.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ifac_size</span></code> option allows customising the length of the
+Interface Authentication Codes carried by each packet on named
+and/or authenticated network segments. It is set by default to
+a size suitable for the interface in question, but can be set
+to a custom size between 8 and 512 bits by using this option.
+In normal usage, this option should not be changed from the
+default.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">announce_cap</span></code> option lets you configure the maximum
+bandwidth to allocate, at any given time, to propagating
+announces and other network upkeep traffic. It is configured at
+2% by default, and should normally not need to be changed. Can
+be set to any value between <code class="docutils literal notranslate"><span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">100</span></code>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">bitrate</span></code> option configures the interface bitrate.
+Reticulum will use interface speeds reported by hardware, or
+try to guess a suitable rate when the hardware doesn’t report
+any. In most cases, the automatically found rate should be
+sufficient, but it can be configured by using the <code class="docutils literal notranslate"><span class="pre">bitrate</span></code>
+option, to set the interface speed in <em>bits per second</em>.</div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</div>
 <div class="section" id="auto-interface">
 <span id="interfaces-auto"></span><h2>Auto Interface<a class="headerlink" href="#auto-interface" title="Permalink to this headline">¶</a></h2>
 <p>The Auto Interface enables communication with other discoverable Reticulum
@@ -485,36 +567,6 @@ beaconing functionality described above.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="common-interface-options">
-<span id="interfaces-options"></span><h2>Common Interface Options<a class="headerlink" href="#common-interface-options" title="Permalink to this headline">¶</a></h2>
-<p>A number of general options are available on most interfaces.
-These can be used to control various aspects of interface behaviour.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">enabled</span></code> option tells Reticulum whether or not
-to bring up the interface. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>. For any
-interface to be brought up, the <code class="docutils literal notranslate"><span class="pre">enabled</span></code> option
-must be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">Yes</span></code>.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">outgoing</span></code> option sets whether an interface is allowed
-to transmit. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>. If set to <code class="docutils literal notranslate"><span class="pre">False</span></code> or <code class="docutils literal notranslate"><span class="pre">No</span></code>
-the interface will only receive data, and never transmit.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">mode</span></code> option allows selecting the high-level behaviour
-of the interface from a number of options.</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>The default value is <code class="docutils literal notranslate"><span class="pre">full</span></code>. In this mode, all discovery,
-meshing and transport functionality is available.</p></li>
-<li><p>In the <code class="docutils literal notranslate"><span class="pre">access_point</span></code> (or shorthand <code class="docutils literal notranslate"><span class="pre">ap</span></code>) mode, the
-interface will operate as a network access point. In this
-mode, announces will not be automatically broadcasted on
-the interface, and paths to destinations on the interface
-will have a much shorter expiry time. This mode is useful
-for creating interfaces that are mostly quiet, unless when
-someone is actually using them. An example of this could
-be a radio interface serving a wide area, where users are
-expected to connect momentarily, use the network, and then
-disappear again.</p></li>
-</ul>
-</div></blockquote>
-</div>
 </div>
 
 
@@ -527,6 +579,7 @@ disappear again.</p></li>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Supported Interfaces</a><ul>
+<li><a class="reference internal" href="#common-interface-options">Common Interface Options</a></li>
 <li><a class="reference internal" href="#auto-interface">Auto Interface</a></li>
 <li><a class="reference internal" href="#i2p-interface">I2P Interface</a></li>
 <li><a class="reference internal" href="#tcp-server-interface">TCP Server Interface</a></li>
@@ -536,7 +589,6 @@ disappear again.</p></li>
 <li><a class="reference internal" href="#serial-interface">Serial Interface</a></li>
 <li><a class="reference internal" href="#kiss-interface">KISS Interface</a></li>
 <li><a class="reference internal" href="#ax-25-kiss-interface">AX.25 KISS Interface</a></li>
-<li><a class="reference internal" href="#common-interface-options">Common Interface Options</a></li>
 </ul>
 </li>
 </ul>
