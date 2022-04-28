@@ -740,12 +740,8 @@ class Transport:
 
                     # Check it
                     if ifac == expected_ifac:
-                        # TODO: Remove log statements
-                        RNS.log("Packet IFAC match, allowing", RNS.LOG_EXTREME)
                         raw = new_raw
                     else:
-                        # TODO: Remove log statements
-                        RNS.log("Packet IFAC mismatch, dropping packet", RNS.LOG_EXTREME)
                         return
 
                 else:
