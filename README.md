@@ -93,12 +93,8 @@ Currently, the following interfaces are supported:
 - UDP over IP networks
 
 ## Development Roadmap
-- Version 0.3.5
-  - Improved announce propagation and flexible scalability
-  - Physical layer segmentation & authentication, see [#23](https://github.com/markqvist/Reticulum/discussions/23)
-  - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
-  - Foundational support for global-scale networks
 - Version 0.3.6
+  - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
   - Support for radio and modem interfaces on Android
   - GUI interface configuration tool
   - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
