@@ -360,8 +360,8 @@ class Reticulum:
 
                     ifac_size = None
                     if "ifac_size" in c:
-                        if c.as_int("ifac_size") >= Reticulum.IFAC_MIN_SIZE:
-                            ifac_size = c.as_int("ifac_size")
+                        if c.as_int("ifac_size") >= Reticulum.IFAC_MIN_SIZE*8:
+                            ifac_size = c.as_int("ifac_size")//8
                             
                     ifac_netname = None
                     if "networkname" in c:
