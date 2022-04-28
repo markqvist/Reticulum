@@ -753,9 +753,7 @@ class Transport:
 
             else:
                 # If the IFAC flag is not set, but should be,
-                # we drop the packet.
-                # TODO: Remove log statements
-                RNS.log(str(interface)+" with IFAC enabled received packet without access code, dropping.", RNS.LOG_EXTREME)
+                # drop the packet.
                 return
 
         else:
@@ -763,8 +761,6 @@ class Transport:
             # check the received packet IFAC flag.
             if raw[0] & 0x80 == 0x80:
                 # If the flag is set, drop the packet
-                # TODO: Remove log statements
-                RNS.log(str(interface)+" with IFAC disabled received packet with access code, dropping.", RNS.LOG_EXTREME)
                 return
 
         while (Transport.jobs_running):
