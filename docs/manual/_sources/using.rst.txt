@@ -12,10 +12,11 @@ initialise Reticulum when it starts.
 
 In many cases, this approach is sufficient. When any program needs to use
 Reticulum, it is loaded, initialised, interfaces are brought up, and the
-program can now communicate over Reticulum. If another program starts up
-and also wants access to the same Reticulum network, the instance is simply
-shared. This works for any number of programs running concurrently, and is
-very easy to use, but depending on your use case, there are other options.
+program can now communicate over any Reticulum networks available. If another
+program starts up and also wants access to the same Reticulum network, the
+instance is simply shared. This works for any number of programs running
+concurrently, and is very easy to use, but depending on your use case, there
+are other options.
 
 Included Utility Programs
 -------------------------
@@ -72,33 +73,49 @@ interfaces, similar to the ``ifconfig`` program.
 
   # Example output
   Shared Instance[37428]
-         Status: Up
-         Connected applications: 1
-         RX: 1.13 KB
-         TX: 1.07 KB
+     Status  : Up
+     Serving : 1 program
+     Rate    : 1.00 Gbps
+     Traffic : 83.13 KB↑
+               86.10 KB↓
 
-  UDPInterface[Default UDP Interface/0.0.0.0:4242]
-         Status: Up
-         RX: 1.01 KB
-         TX: 1.01 KB
+  AutoInterface[Local]
+     Status  : Up
+     Mode    : Full
+     Rate    : 10.00 Mbps
+     Peers   : 1 reachable
+     Traffic : 63.23 KB↑
+               80.17 KB↓
 
   TCPInterface[RNS Testnet Frankfurt/frankfurt.rns.unsigned.io:4965]
-         Status: Up
-         RX: 1.37 KB
-         TX: 9.02 KB
+     Status  : Up
+     Mode    : Full
+     Rate    : 10.00 Mbps
+     Traffic : 187.27 KB↑
+               74.17 KB↓
+
+  RNodeInterface[RNode UHF]
+     Status  : Up
+     Mode    : Access Point
+     Rate    : 1.30 kbps
+     Access  : 64-bit IFAC by <…e702c42ba8>
+     Traffic : 8.49 KB↑
+               9.23 KB↓
+
+  Reticulum Transport Instance <5245a8efe1788c6a70e1> running
 
 .. code:: text
 
-  usage: rnsd [-h] [--config CONFIG] [-v] [-q] [--version]
+  usage: rnstatus [-h] [--config CONFIG] [--version] [-a] [-v]
 
-  Reticulum Network Stack Daemon
+  Reticulum Network Stack Status
 
   optional arguments:
     -h, --help       show this help message and exit
     --config CONFIG  path to alternative Reticulum config directory
-    -v, --verbose
-    -q, --quiet
     --version        show program's version number and exit
+    -a, --all        show all interfaces
+    -v, --verbose
 
 
 The rnpath Utility
@@ -117,7 +134,8 @@ destinations on the Reticulum network.
 
 .. code:: text
 
-  usage: rnpath.py [-h] [--config CONFIG] [--version] [-v] [destination]
+  usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-d] [-w seconds] [-v]
+                [destination]
 
   Reticulum Path Discovery Utility
 
@@ -128,6 +146,9 @@ destinations on the Reticulum network.
     -h, --help       show this help message and exit
     --config CONFIG  path to alternative Reticulum config directory
     --version        show program's version number and exit
+    -t, --table      show all known paths
+    -d, --drop       remove the path to a destination
+    -w seconds       timeout before giving up
     -v, --verbose
 
 

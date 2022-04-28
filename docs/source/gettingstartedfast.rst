@@ -9,9 +9,28 @@ scenarios.
 
 Try Using a Reticulum-based Program
 =============================================
-If you simply want to try using a program built with Reticulum, you can take
-a look at `Nomad Network <https://github.com/markqvist/nomadnet>`_, which
-provides a complete encrypted communications suite built with Reticulum.
+
+If you simply want to try using a program built with Reticulum, a few different
+programs exist that allow basic communication and a range of other useful functions
+over even extremely low-bandwidth Reticulum networks.
+
+These programs will let you get a feel for how Reticulum works. They have been designed
+to run well over networks based on LoRa or packet radio, but can also be used completely
+over local WiFi, wired ethernet, the Internet, or any combination.
+
+As such, it is easy to get started experimenting, without having to set up any radio
+transceivers or infrastructure just to try it out. Launching the programs on separate
+devices connected to the same WiFi network is enough to get started, and physical
+radio interfaces can then be added later.
+
+Nomad Network
+^^^^^^^^^^^^^
+
+The terminal-based program `Nomad Network <https://github.com/markqvist/nomadnet>`_
+provides a complete encrypted communications suite built with Reticulum. It features
+encrypted messaging (both direct and delayed-delivery for offline users), file sharing,
+and has a built-in text-browser and page server with support for dynamically rendered pages,
+user authentication and more.
 
 .. image:: screenshots/nomadnet_3.png
     :target: _images/nomadnet_3.png
@@ -35,6 +54,9 @@ on your system, you might need to reboot your system for your program to become
 available. If you get a "command not found" error or similar when running the
 program, reboot your system and try again.
 
+Sideband
+^^^^^^^^
+
 If you would rather use a program with a graphical user interface, you can take
 a look at `Sideband <https://unsigned.io/sideband>`_, which is available for Android,
 Linux and macOS.
@@ -44,6 +66,8 @@ Linux and macOS.
     :align: center
     :target: _images/sideband_1.png
 
+Sideband is currently in the early stages of development, but already provides basic
+communication features, and interoperates with Nomad Network, or any other LXMF client.
 
 Using the Included Utilities
 =============================================
@@ -83,22 +107,29 @@ Once Reticulums knows which interfaces it should use, it will automatically
 discover topography and configure transport of data to any destinations it
 knows about.
 
+In situations where you already have an established WiFi or ethernet network, and
+many devices that want to utilise the same external Reticulum network (for example over
+LoRa), it will often be sufficient to let one system act as a Reticulum gateway, by
+adding any external interfaces to this systems configuration, and enabling transport. Any
+other device on your local WiFi will then be able to connect to this wider Reticulum
+network just using the default interface configuration.
+
 Possibly, the examples in the config file are enough to get you started. If
 you want more information, you can read the :ref:`Building Networks<networks-main>`
 and :ref:`Interfaces<interfaces-main>` chapters of this manual.
 
 Connecting Reticulum Instances Over the Internet
 ================================================
-Reticulum currently offers two interfaces for connecting instances over the Internet: :ref:`TCP<interfaces-tcps>`
+Reticulum currently offers two interfaces suitable for connecting instances over the Internet: :ref:`TCP<interfaces-tcps>`
 and :ref:`I2P<interfaces-i2p>`. Each interface offers a different set of features, and Reticulum 
 users should carefully choose the interface which best suites their needs. 
 
 The ``TCPServerInterface`` allows users to host an instance accessible over TCP/IP. This
 method is generally faster, lower latency, and more energy efficient than using ``I2PInterface``,
-however it also leaks considerable metadata about the server host.
+however it also leaks more data about the server host.
 
-Direct TCP client connections are able to see the IP address of your instance and may be able
-to use this information to determine your location or identity. Adversaries 
+TCP connections reveal the IP address of both your instance and the server to anyone who can
+inspect the connection. Someone could use this information to determine your location or identity. Adversaries 
 inspecting your packets may be able to record packet metadata like time of transmission and packet size.
 Even though Reticulum encrypts traffic, TCP does not, so an adversary may be able to use
 packet inspection to learn that a system is running Reticulum, and what other IP adresses connect to it.
@@ -107,10 +138,9 @@ which most Internet connections don't offer anymore.
 
 The ``I2PInterface`` routes messages through the `Invisible Internet Protocol 
 (I2P) <https://geti2p.net/en/>`_. To properly use this interface, users must also run an I2P daemon in
-parallel to ``rnsd``. For always-on I2P nodes it is recommended to use `i2pd <https://i2pd.website/>`_ because it
-generally runs more efficiently. 
+parallel to ``rnsd``. For always-on I2P nodes it is recommended to use `i2pd <https://i2pd.website/>`_. 
 
-By default, I2P will encrypt all traffic sent over the Internet, and 
+By default, I2P will encrypt and mix all traffic sent over the Internet, and 
 hide both the sender and receiver Reticulum instance IP addresses. Running an I2P node 
 will also relay other I2P user's encrypted packets, which will use extra
 bandwidth and compute power, but also makes timing attacks and other forms of 

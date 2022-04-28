@@ -50,10 +50,11 @@ Any program or application that uses Reticulum will automatically load and
 initialise Reticulum when it starts.</p>
 <p>In many cases, this approach is sufficient. When any program needs to use
 Reticulum, it is loaded, initialised, interfaces are brought up, and the
-program can now communicate over Reticulum. If another program starts up
-and also wants access to the same Reticulum network, the instance is simply
-shared. This works for any number of programs running concurrently, and is
-very easy to use, but depending on your use case, there are other options.</p>
+program can now communicate over any Reticulum networks available. If another
+program starts up and also wants access to the same Reticulum network, the
+instance is simply shared. This works for any number of programs running
+concurrently, and is very easy to use, but depending on your use case, there
+are other options.</p>
 <div class="section" id="included-utility-programs">
 <h2>Included Utility Programs<a class="headerlink" href="#included-utility-programs" title="Permalink to this headline">¶</a></h2>
 <p>If you often use Reticulum from several different programs, or simply want
@@ -98,32 +99,48 @@ rnstatus
 
 # Example output
 Shared Instance[37428]
-       Status: Up
-       Connected applications: 1
-       RX: 1.13 KB
-       TX: 1.07 KB
+   Status  : Up
+   Serving : 1 program
+   Rate    : 1.00 Gbps
+   Traffic : 83.13 KB↑
+             86.10 KB↓
 
-UDPInterface[Default UDP Interface/0.0.0.0:4242]
-       Status: Up
-       RX: 1.01 KB
-       TX: 1.01 KB
+AutoInterface[Local]
+   Status  : Up
+   Mode    : Full
+   Rate    : 10.00 Mbps
+   Peers   : 1 reachable
+   Traffic : 63.23 KB↑
+             80.17 KB↓
 
 TCPInterface[RNS Testnet Frankfurt/frankfurt.rns.unsigned.io:4965]
-       Status: Up
-       RX: 1.37 KB
-       TX: 9.02 KB
+   Status  : Up
+   Mode    : Full
+   Rate    : 10.00 Mbps
+   Traffic : 187.27 KB↑
+             74.17 KB↓
+
+RNodeInterface[RNode UHF]
+   Status  : Up
+   Mode    : Access Point
+   Rate    : 1.30 kbps
+   Access  : 64-bit IFAC by &lt;…e702c42ba8&gt;
+   Traffic : 8.49 KB↑
+             9.23 KB↓
+
+Reticulum Transport Instance &lt;5245a8efe1788c6a70e1&gt; running
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnsd [-h] [--config CONFIG] [-v] [-q] [--version]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnstatus [-h] [--config CONFIG] [--version] [-a] [-v]
 
-Reticulum Network Stack Daemon
+Reticulum Network Stack Status
 
 optional arguments:
   -h, --help       show this help message and exit
   --config CONFIG  path to alternative Reticulum config directory
-  -v, --verbose
-  -q, --quiet
   --version        show program&#39;s version number and exit
+  -a, --all        show all interfaces
+  -v, --verbose
 </pre></div>
 </div>
 </div>
@@ -138,7 +155,8 @@ rnpath eca6f4e4dc26ae329e61
 Path found, destination &lt;eca6f4e4dc26ae329e61&gt; is 4 hops away via &lt;56b115c30cd386cad69c&gt; on TCPInterface[Testnet/frankfurt.rns.unsigned.io:4965]
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnpath.py [-h] [--config CONFIG] [--version] [-v] [destination]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-d] [-w seconds] [-v]
+              [destination]
 
 Reticulum Path Discovery Utility
 
@@ -149,6 +167,9 @@ optional arguments:
   -h, --help       show this help message and exit
   --config CONFIG  path to alternative Reticulum config directory
   --version        show program&#39;s version number and exit
+  -t, --table      show all known paths
+  -d, --drop       remove the path to a destination
+  -w seconds       timeout before giving up
   -v, --verbose
 </pre></div>
 </div>
