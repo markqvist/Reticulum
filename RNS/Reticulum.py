@@ -837,6 +837,9 @@ class Reticulum:
                     if path == "path":
                         rpc_connection.send(self.drop_path(call["destination_hash"]))
 
+                    if path == "announce_queues":
+                        rpc_connection.send(self.drop_announce_queues())
+
                 rpc_connection.close()
 
             except Exception as e:
@@ -937,6 +940,16 @@ class Reticulum:
 
         else:
             return RNS.Transport.expire_path(destination)
+
+    def drop_announce_queues(self):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection.send({"drop": "announce_queues"})
+            response = rpc_connection.recv()
+            return response
+
+        else:
+            return RNS.Transport.drop_announce_queues()
 
     def get_next_hop_if_name(self, destination):
         if self.is_connected_to_shared_instance:

@@ -56,7 +56,8 @@ class Interface:
                         stale.append(a)
 
                 for s in stale:
-                    self.announce_queue.remove(s)
+                    if s in self.announce_queue:
+                        self.announce_queue.remove(s)
 
                 if len(self.announce_queue) > 0:
                     min_hops = min(entry["hops"] for entry in self.announce_queue)
@@ -70,7 +71,10 @@ class Interface:
                     self.announce_allowed_at = now + wait_time
 
                     self.processOutgoing(selected["raw"])
-                    self.announce_queue.remove(selected)
+
+                    if selected in self.announce_queue:
+                        self.announce_queue.remove(selected)
+
                     if len(self.announce_queue) > 0:
                         timer = threading.Timer(wait_time, self.process_announce_queue)
                         timer.start()

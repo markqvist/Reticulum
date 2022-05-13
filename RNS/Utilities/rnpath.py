@@ -30,7 +30,7 @@ import argparse
 from RNS._version import __version__
 
 
-def program_setup(configdir, table, drop, destination_hexhash, verbosity, timeout):
+def program_setup(configdir, table, drop, destination_hexhash, verbosity, timeout, drop_queues):
     if table:
         reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
         table = sorted(reticulum.get_path_table(), key=lambda e: (e["interface"], e["hops"]) )
@@ -43,6 +43,11 @@ def program_setup(configdir, table, drop, destination_hexhash, verbosity, timeou
                 m_str = "s"
             print(RNS.prettyhexrep(path["hash"])+" is "+str(path["hops"])+" hop"+m_str+" away via "+RNS.prettyhexrep(path["via"])+" on "+path["interface"]+" expires "+RNS.timestamp_str(path["expires"]))
 
+    elif drop_queues:
+        reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
+        RNS.log("Dropping announce queues on all interfaces...")
+        reticulum.drop_announce_queues()
+    
     elif drop:
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
@@ -141,6 +146,14 @@ def main():
         )
 
         parser.add_argument(
+            "-D",
+            "--drop-announces",
+            action="store_true",
+            help="drop all queued announces",
+            default=False
+        )
+
+        parser.add_argument(
             "-w",
             action="store",
             metavar="seconds",
@@ -166,7 +179,7 @@ def main():
         else:
             configarg = None
 
-        if not args.table and not args.destination:
+        if not args.drop_announces and not args.table and not args.destination:
             print("")
             parser.print_help()
             print("")
@@ -178,6 +191,7 @@ def main():
                 destination_hexhash = args.destination,
                 verbosity = args.verbose,
                 timeout = args.w,
+                drop_queues = args.drop_announces,
             )
 
     except KeyboardInterrupt:

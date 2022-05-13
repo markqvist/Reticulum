@@ -1799,6 +1799,20 @@ class Transport:
                     registered_destination.announce(path_response=True)
 
     @staticmethod
+    def drop_announce_queues():
+        for interface in Transport.interfaces:
+            if hasattr(interface, "announce_queue") and interface.announce_queue != None:
+                na = len(interface.announce_queue)
+                if na > 0:
+                    if na == 1:
+                        na_str = "1 announce"
+                    else:
+                        na_str = str(na)+" announces"
+
+                    interface.announce_queue = []
+                    RNS.log("Dropped "+na_str+" on "+str(interface), RNS.LOG_VERBOSE)
+
+    @staticmethod
     def announce_emitted(packet):
         random_blob = packet.data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
         announce_emitted = int.from_bytes(random_blob[5:10], "big")
