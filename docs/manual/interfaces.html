@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Supported Interfaces &#8212; Reticulum Network Stack 0.3.5 beta documentation</title>
+    <title>Supported Interfaces &#8212; Reticulum Network Stack 0.3.6 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="networks.html" title="Building Networks"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.5 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.6 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Supported Interfaces</a></li> 
       </ul>
     </div>  
@@ -134,6 +134,67 @@ option, to set the interface speed in <em>bits per second</em>.</div>
 </li>
 </ul>
 </div></blockquote>
+</div>
+<div class="section" id="interface-modes">
+<span id="interfaces-modes"></span><h2>Interface Modes<a class="headerlink" href="#interface-modes" title="Permalink to this headline">¶</a></h2>
+<p>The optional <code class="docutils literal notranslate"><span class="pre">mode</span></code> option is available on all interfaces, and allows
+selecting the high-level behaviour of the interface from a number of modes.
+These modes affect how Reticulum selects paths in the network, how announces
+are propagated and how long paths are valid.</p>
+<p>Configuring modes on interfaces is not strictly necessary, but can be useful
+when building or connecting to more complex networks. When not running a
+Transport Node, it is rarely useful to configure an interface mode.</p>
+<blockquote>
+<div><ul>
+<li><div class="line-block">
+<div class="line">The default value is <code class="docutils literal notranslate"><span class="pre">full</span></code>. In this mode, all discovery,
+meshing and transport functionality is activated.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">In the <code class="docutils literal notranslate"><span class="pre">access_point</span></code> (or shorthand <code class="docutils literal notranslate"><span class="pre">ap</span></code>) mode, the
+interface will operate as a network access point. In this
+mode, announces will not be automatically broadcasted on
+the interface, and paths to destinations on the interface
+will have a much shorter expiry time. This mode is useful
+for creating interfaces that are mostly quiet, unless when
+someone is actually using them. An example of this could
+be a radio interface serving a wide area, where users are
+expected to connect momentarily, use the network, and then
+disappear again.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">roaming</span></code> mode should be used on interfaces that are
+roaming (physically mobile), seen from the perspective of
+other nodes in the network. As an example, if a vehicle is
+equipped with an external LoRa interface, and an internal,
+WiFi-based interface, that serves devices that are moving
+_with_ the vehicle, the external LoRa interface should be
+configured as <code class="docutils literal notranslate"><span class="pre">roaming</span></code>, and the internal interface can
+be left in the default mode. With transport enabled, such
+a setup will allow all internal devices to reach each other,
+and all other devices that are available on the LoRa side
+of the network, when they are in range. Devices on the LoRa
+side of the network will also be able to reach devices
+internal to the vehicle, when it is in range. Paths via
+<code class="docutils literal notranslate"><span class="pre">roaming</span></code> interfaces also expire faster.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The purpose of the <code class="docutils literal notranslate"><span class="pre">boundary</span></code> mode is to specify interfaces
+that establish connectivity with network segments that are
+significantly different than the one this node exists on.
+As an example, if a Reticulum instance is part of a LoRa-based
+network, but also has a high-speed connection to a
+public Transport Node available on the Internet, the interface
+connecting over the Internet should be set to <code class="docutils literal notranslate"><span class="pre">boundary</span></code> mode.</div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+<p>For a table describing the impact of all modes on announce propagation,
+please see the <a class="reference internal" href="understanding.html#understanding-announcepropagation"><span class="std std-ref">Announce Propagation Rules</span></a> section.</p>
 </div>
 <div class="section" id="auto-interface">
 <span id="interfaces-auto"></span><h2>Auto Interface<a class="headerlink" href="#auto-interface" title="Permalink to this headline">¶</a></h2>
@@ -580,6 +641,7 @@ beaconing functionality described above.</p>
   <ul>
 <li><a class="reference internal" href="#">Supported Interfaces</a><ul>
 <li><a class="reference internal" href="#common-interface-options">Common Interface Options</a></li>
+<li><a class="reference internal" href="#interface-modes">Interface Modes</a></li>
 <li><a class="reference internal" href="#auto-interface">Auto Interface</a></li>
 <li><a class="reference internal" href="#i2p-interface">I2P Interface</a></li>
 <li><a class="reference internal" href="#tcp-server-interface">TCP Server Interface</a></li>
@@ -632,12 +694,12 @@ beaconing functionality described above.</p>
         <li class="right" >
           <a href="networks.html" title="Building Networks"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.5 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.6 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Supported Interfaces</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Mark Qvist.
+        &#169; Copyright 2022, Mark Qvist.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
     </div>
   </body>

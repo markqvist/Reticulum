@@ -84,6 +84,60 @@ These can be used to control various aspects of interface behaviour.
      option, to set the interface speed in *bits per second*.
 
 
+.. _interfaces-modes:
+
+Interface Modes
+===============
+
+The optional ``mode`` option is available on all interfaces, and allows
+selecting the high-level behaviour of the interface from a number of modes.
+These modes affect how Reticulum selects paths in the network, how announces
+are propagated and how long paths are valid.
+
+Configuring modes on interfaces is not strictly necessary, but can be useful
+when building or connecting to more complex networks. When not running a
+Transport Node, it is rarely useful to configure an interface mode.
+
+ * | The default value is ``full``. In this mode, all discovery,
+     meshing and transport functionality is activated.
+
+ * | In the ``access_point`` (or shorthand ``ap``) mode, the
+     interface will operate as a network access point. In this
+     mode, announces will not be automatically broadcasted on
+     the interface, and paths to destinations on the interface
+     will have a much shorter expiry time. This mode is useful
+     for creating interfaces that are mostly quiet, unless when
+     someone is actually using them. An example of this could
+     be a radio interface serving a wide area, where users are
+     expected to connect momentarily, use the network, and then
+     disappear again.
+
+ * | The ``roaming`` mode should be used on interfaces that are
+     roaming (physically mobile), seen from the perspective of
+     other nodes in the network. As an example, if a vehicle is
+     equipped with an external LoRa interface, and an internal,
+     WiFi-based interface, that serves devices that are moving
+     _with_ the vehicle, the external LoRa interface should be
+     configured as ``roaming``, and the internal interface can
+     be left in the default mode. With transport enabled, such
+     a setup will allow all internal devices to reach each other,
+     and all other devices that are available on the LoRa side
+     of the network, when they are in range. Devices on the LoRa
+     side of the network will also be able to reach devices
+     internal to the vehicle, when it is in range. Paths via
+     ``roaming`` interfaces also expire faster.
+
+ * | The purpose of the ``boundary`` mode is to specify interfaces
+     that establish connectivity with network segments that are
+     significantly different than the one this node exists on.
+     As an example, if a Reticulum instance is part of a LoRa-based
+     network, but also has a high-speed connection to a
+     public Transport Node available on the Internet, the interface
+     connecting over the Internet should be set to ``boundary`` mode.
+
+For a table describing the impact of all modes on announce propagation,
+please see the :ref:`Announce Propagation Rules<understanding-announcepropagation>` section.
+
 .. _interfaces-auto:
 
 Auto Interface

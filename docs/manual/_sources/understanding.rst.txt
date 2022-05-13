@@ -802,3 +802,38 @@ Wire Format
     - Link Proof      :    77  bytes
     - Link RTT packet :    83  bytes
     - Link keepalive  :    14  bytes
+
+
+.. _understanding-announcepropagation:
+
+Announce Propagation Rules
+--------------------------
+
+The following table illustrates the rules for automatically propagating announces
+from one interface type to another, for all possible combinations. See the
+:ref:`Interface Modes<interfaces-modes>` section for a conceptual overview of the
+different interface modes, and how they are configured.
+
+.. code-block:: text
+
+    Full ────── ✓ ──┐              ┌── ✓ ── Full
+    AP ──────── ✓ ──┼──── Full ────┼── ✕ ── AP
+    Boundary ── ✓ ──┤              ├── ✓ ── Boundary
+    Roaming ─── ✓ ──┘              └── ✓ ── Roaming
+
+    Full ────── ✕ ──┐              ┌── ✓ ── Full
+    AP ──────── ✕ ──┼───── AP ─────┼── ✕ ── AP
+    Boundary ── ✕ ──┤              ├── ✓ ── Boundary
+    Roaming ─── ✕ ──┘              └── ✓ ── Roaming
+
+    Full ────── ✓ ──┐              ┌── ✓ ── Full
+    AP ──────── ✓ ──┼── Roaming ───┼── ✕ ── AP
+    Boundary ── ✕ ──┤              ├── ✕ ── Boundary
+    Roaming ─── ✕ ──┘              └── ✕ ── Roaming
+
+    Full ────── ✓ ──┐              ┌── ✓ ── Full
+    AP ──────── ✓ ──┼── Boundary ──┼── ✕ ── AP
+    Boundary ── ✓ ──┤              ├── ✓ ── Boundary
+    Roaming ─── ✕ ──┘              └── ✕ ── Roaming
+
+

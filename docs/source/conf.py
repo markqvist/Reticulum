@@ -18,11 +18,11 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'Reticulum Network Stack'
-copyright = '2021, Mark Qvist'
+copyright = '2022, Mark Qvist'
 author = 'Mark Qvist'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3.5 beta'
+release = '0.3.6 beta'
 
 
 # -- General configuration ---------------------------------------------------
