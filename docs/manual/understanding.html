@@ -865,22 +865,22 @@ from one interface type to another, for all possible combinations. See the
 <a class="reference internal" href="interfaces.html#interfaces-modes"><span class="std std-ref">Interface Modes</span></a> section for a conceptual overview of the
 different interface modes, and how they are configured.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Full ────── ✓ ──┐              ┌── ✓ ── Full
-AP ──────── ✓ ──┼──── Full ────┼── ✕ ── AP
+AP ──────── ✓ ──┼───&gt; Full &gt;───┼── ✕ ── AP
 Boundary ── ✓ ──┤              ├── ✓ ── Boundary
 Roaming ─── ✓ ──┘              └── ✓ ── Roaming
 
 Full ────── ✕ ──┐              ┌── ✓ ── Full
-AP ──────── ✕ ──┼───── AP ─────┼── ✕ ── AP
+AP ──────── ✕ ──┼────&gt; AP &gt;────┼── ✕ ── AP
 Boundary ── ✕ ──┤              ├── ✓ ── Boundary
 Roaming ─── ✕ ──┘              └── ✓ ── Roaming
 
 Full ────── ✓ ──┐              ┌── ✓ ── Full
-AP ──────── ✓ ──┼── Roaming ───┼── ✕ ── AP
+AP ──────── ✓ ──┼─&gt; Roaming &gt;──┼── ✕ ── AP
 Boundary ── ✕ ──┤              ├── ✕ ── Boundary
 Roaming ─── ✕ ──┘              └── ✕ ── Roaming
 
 Full ────── ✓ ──┐              ┌── ✓ ── Full
-AP ──────── ✓ ──┼── Boundary ──┼── ✕ ── AP
+AP ──────── ✓ ──┼─&gt; Boundary &gt;─┼── ✕ ── AP
 Boundary ── ✓ ──┤              ├── ✓ ── Boundary
 Roaming ─── ✕ ──┘              └── ✕ ── Roaming
 </pre></div>

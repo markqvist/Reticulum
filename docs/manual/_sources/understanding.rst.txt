@@ -817,22 +817,22 @@ different interface modes, and how they are configured.
 .. code-block:: text
 
     Full ────── ✓ ──┐              ┌── ✓ ── Full
-    AP ──────── ✓ ──┼──── Full ────┼── ✕ ── AP
+    AP ──────── ✓ ──┼───> Full >───┼── ✕ ── AP
     Boundary ── ✓ ──┤              ├── ✓ ── Boundary
     Roaming ─── ✓ ──┘              └── ✓ ── Roaming
 
     Full ────── ✕ ──┐              ┌── ✓ ── Full
-    AP ──────── ✕ ──┼───── AP ─────┼── ✕ ── AP
+    AP ──────── ✕ ──┼────> AP >────┼── ✕ ── AP
     Boundary ── ✕ ──┤              ├── ✓ ── Boundary
     Roaming ─── ✕ ──┘              └── ✓ ── Roaming
 
     Full ────── ✓ ──┐              ┌── ✓ ── Full
-    AP ──────── ✓ ──┼── Roaming ───┼── ✕ ── AP
+    AP ──────── ✓ ──┼─> Roaming >──┼── ✕ ── AP
     Boundary ── ✕ ──┤              ├── ✕ ── Boundary
     Roaming ─── ✕ ──┘              └── ✕ ── Roaming
 
     Full ────── ✓ ──┐              ┌── ✓ ── Full
-    AP ──────── ✓ ──┼── Boundary ──┼── ✕ ── AP
+    AP ──────── ✓ ──┼─> Boundary >─┼── ✕ ── AP
     Boundary ── ✓ ──┤              ├── ✓ ── Boundary
     Roaming ─── ✕ ──┘              └── ✕ ── Roaming
 

@@ -106,7 +106,7 @@ Transport Node, it is rarely useful to configure an interface mode.
      mode, announces will not be automatically broadcasted on
      the interface, and paths to destinations on the interface
      will have a much shorter expiry time. This mode is useful
-     for creating interfaces that are mostly quiet, unless when
+     for creating interfaces that remain quiet, unless when
      someone is actually using them. An example of this could
      be a radio interface serving a wide area, where users are
      expected to connect momentarily, use the network, and then
