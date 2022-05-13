@@ -71,6 +71,10 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                     modestr = "Access Point"
                 elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_POINT_TO_POINT:
                     modestr = "Point-to-Point"
+                elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                    modestr = "Roaming"
+                elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
+                    modestr = "Boundary"
                 else:
                     modestr = "Full"
 

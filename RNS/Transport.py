@@ -53,11 +53,12 @@ class Transport:
     Maximum amount of hops that Reticulum will transport a packet.
     """
     
-    PATHFINDER_R    = 1          # Retransmit retries
-    PATHFINDER_G    = 5          # Retry grace period
-    PATHFINDER_RW   = 0.5        # Random window for announce rebroadcast
-    PATHFINDER_E    = 60*60*24*7 # Path expiration of one week
-    AP_PATH_TIME    = 60*60*24   # Path expiration of one day for Access Point paths
+    PATHFINDER_R      = 1          # Retransmit retries
+    PATHFINDER_G      = 5          # Retry grace period
+    PATHFINDER_RW     = 0.5        # Random window for announce rebroadcast
+    PATHFINDER_E      = 60*60*24*7 # Path expiration of one week
+    AP_PATH_TIME      = 60*60*24   # Path expiration of one day for Access Point paths
+    ROAMING_PATH_TIME = 60*60*6    # Path expiration of 6 hours for Roaming paths
 
     # TODO: Calculate an optimal number for this in
     # various situations
@@ -575,7 +576,30 @@ class Transport:
                             if interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
                                 RNS.log("Blocking announce broadcast on "+str(interface)+" due to AP mode", RNS.LOG_EXTREME)
                                 should_transmit = False
-                            
+
+                            elif interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                                from_interface = Transport.next_hop_interface(packet.destination_hash)
+                                if from_interface == None or not hasattr(from_interface, "mode"):
+                                    RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface is non-existing or has no mode configured", RNS.LOG_EXTREME)
+                                    should_transmit = False
+                                else:
+                                    if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", RNS.LOG_EXTREME)
+                                        should_transmit = False
+                                    elif from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" due to boundary-mode next-hop interface", RNS.LOG_EXTREME)
+                                        should_transmit = False
+
+                            elif interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
+                                from_interface = Transport.next_hop_interface(packet.destination_hash)
+                                if from_interface == None or not hasattr(from_interface, "mode"):
+                                    RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface is non-existing or has no mode configured", RNS.LOG_EXTREME)
+                                    should_transmit = False
+                                else:
+                                    if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", RNS.LOG_EXTREME)
+                                        should_transmit = False
+
                             else:
                                 # Currently, annouces originating locally are always
                                 # allowed, and do not conform to bandwidth caps.
@@ -1080,6 +1104,8 @@ class Transport:
 
                             if packet.receiving_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
                                 expires            = now + Transport.AP_PATH_TIME
+                            elif packet.receiving_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                                expires            = now + Transport.ROAMING_PATH_TIME
                             else:
                                 expires            = now + Transport.PATHFINDER_E
                             

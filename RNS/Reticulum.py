@@ -343,20 +343,30 @@ class Reticulum:
                     interface_mode = Interface.Interface.MODE_FULL
                     
                     if "interface_mode" in c:
+                        c["interface_mode"] = str(c["interface_mode"]).lower()
                         if c["interface_mode"] == "full":
                             interface_mode = Interface.Interface.MODE_FULL
                         elif c["interface_mode"] == "access_point" or c["interface_mode"] == "accesspoint" or c["interface_mode"] == "ap":
                             interface_mode = Interface.Interface.MODE_ACCESS_POINT
                         elif c["interface_mode"] == "pointtopoint" or c["interface_mode"] == "ptp":
                             interface_mode = Interface.Interface.MODE_POINT_TO_POINT
+                        elif c["interface_mode"] == "roaming":
+                            interface_mode = Interface.Interface.MODE_ROAMING
+                        elif c["interface_mode"] == "boundary":
+                            interface_mode = Interface.Interface.MODE_BOUNDARY
 
                     elif "mode" in c:
+                        c["mode"] = str(c["mode"]).lower()
                         if c["mode"] == "full":
                             interface_mode = Interface.Interface.MODE_FULL
                         elif c["mode"] == "access_point" or c["mode"] == "accesspoint" or c["mode"] == "ap":
                             interface_mode = Interface.Interface.MODE_ACCESS_POINT
                         elif c["mode"] == "pointtopoint" or c["mode"] == "ptp":
                             interface_mode = Interface.Interface.MODE_POINT_TO_POINT
+                        elif c["mode"] == "roaming":
+                            interface_mode = Interface.Interface.MODE_ROAMING
+                        elif c["mode"] == "boundary":
+                            interface_mode = Interface.Interface.MODE_BOUNDARY
 
                     ifac_size = None
                     if "ifac_size" in c:

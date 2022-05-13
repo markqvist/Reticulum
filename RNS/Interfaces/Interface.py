@@ -34,6 +34,8 @@ class Interface:
     MODE_FULL           = 0x01
     MODE_POINT_TO_POINT = 0x02
     MODE_ACCESS_POINT   = 0x03
+    MODE_ROAMING        = 0x04
+    MODE_BOUNDARY       = 0x05
 
     def __init__(self):
         self.rxb = 0
