@@ -156,21 +156,22 @@ rnpath eca6f4e4dc26ae329e61
 Path found, destination &lt;eca6f4e4dc26ae329e61&gt; is 4 hops away via &lt;56b115c30cd386cad69c&gt; on TCPInterface[Testnet/frankfurt.rns.unsigned.io:4965]
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-d] [-w seconds] [-v]
-              [destination]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnpath.py [-h] [--config CONFIG] [--version] [-t] [-r] [-d] [-D] [-w seconds] [-v] [destination]
 
 Reticulum Path Discovery Utility
 
 positional arguments:
-  destination      hexadecimal hash of the destination
+  destination           hexadecimal hash of the destination
 
 optional arguments:
-  -h, --help       show this help message and exit
-  --config CONFIG  path to alternative Reticulum config directory
-  --version        show program&#39;s version number and exit
-  -t, --table      show all known paths
-  -d, --drop       remove the path to a destination
-  -w seconds       timeout before giving up
+  -h, --help            show this help message and exit
+  --config CONFIG       path to alternative Reticulum config directory
+  --version             show program&#39;s version number and exit
+  -t, --table           show all known paths
+  -r, --rates           show announce rate info
+  -d, --drop            remove the path to a destination
+  -D, --drop-announces  drop all queued announces
+  -w seconds            timeout before giving up
   -v, --verbose
 </pre></div>
 </div>

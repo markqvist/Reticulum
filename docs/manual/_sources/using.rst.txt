@@ -135,21 +135,22 @@ destinations on the Reticulum network.
 
 .. code:: text
 
-  usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-d] [-w seconds] [-v]
-                [destination]
-
+  usage: rnpath.py [-h] [--config CONFIG] [--version] [-t] [-r] [-d] [-D] [-w seconds] [-v] [destination]
+  
   Reticulum Path Discovery Utility
-
+  
   positional arguments:
-    destination      hexadecimal hash of the destination
-
+    destination           hexadecimal hash of the destination
+  
   optional arguments:
-    -h, --help       show this help message and exit
-    --config CONFIG  path to alternative Reticulum config directory
-    --version        show program's version number and exit
-    -t, --table      show all known paths
-    -d, --drop       remove the path to a destination
-    -w seconds       timeout before giving up
+    -h, --help            show this help message and exit
+    --config CONFIG       path to alternative Reticulum config directory
+    --version             show program's version number and exit
+    -t, --table           show all known paths
+    -r, --rates           show announce rate info
+    -d, --drop            remove the path to a destination
+    -D, --drop-announces  drop all queued announces
+    -w seconds            timeout before giving up
     -v, --verbose
 
 
