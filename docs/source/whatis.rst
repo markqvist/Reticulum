@@ -122,6 +122,14 @@ Reticulum implements a range of generalised interface types that covers the comm
 
 * UDP over IP networks
 
+* Anything you can connect via stdio
+
+  * Reticulum can use external programs and pipes as interfaces
+
+  * This can be used to easily hack in virtual interfaces
+
+  * Or to quickly create interfaces with custom hardware
+
 For a full list and more details, see the :ref:`Supported Interfaces<interfaces-main>` chapter.
 
 

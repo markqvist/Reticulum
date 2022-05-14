@@ -522,6 +522,31 @@ directly over a wire-pair, or for using devices such as data radios and lasers.
     parity = none
     stopbits = 1
 
+.. _interfaces-pipe:
+
+Pipe Interface
+==============
+
+Using this interface, reticulum can use any program as an interface via `stdin` and
+`stdout`. This can be used to easily create virtual interfaces, or to interface with
+custom hardware or other systems.
+
+.. code::
+
+  [[Pipe Interface]]
+    type = PipeInterface
+    interface_enabled = True
+
+    # External command to execute
+    command = netcat -l 5757
+
+    # Optional respawn delay, in seconds
+    respawn_delay = 5
+
+Reticulum will write all packets to `stdin` of the ``command`` option, and will
+continously read and scan its `stdout` for Reticulum packets. If ``EOF`` is reached,
+Reticulum will try to respawn the program after waiting for ``respawn_interval`` seconds.
+
 .. _interfaces-kiss:
 
 KISS Interface

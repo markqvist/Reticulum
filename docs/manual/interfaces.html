@@ -525,6 +525,26 @@ directly over a wire-pair, or for using devices such as data radios and lasers.<
 </pre></div>
 </div>
 </div>
+<div class="section" id="pipe-interface">
+<span id="interfaces-pipe"></span><h2>Pipe Interface<a class="headerlink" href="#pipe-interface" title="Permalink to this headline">¶</a></h2>
+<p>Using this interface, reticulum can use any program as an interface via <cite>stdin</cite> and
+<cite>stdout</cite>. This can be used to easily create virtual interfaces, or to interface with
+custom hardware or other systems.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Pipe</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">PipeInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># External command to execute</span>
+  <span class="n">command</span> <span class="o">=</span> <span class="n">netcat</span> <span class="o">-</span><span class="n">l</span> <span class="mi">5757</span>
+
+  <span class="c1"># Optional respawn delay, in seconds</span>
+  <span class="n">respawn_delay</span> <span class="o">=</span> <span class="mi">5</span>
+</pre></div>
+</div>
+<p>Reticulum will write all packets to <cite>stdin</cite> of the <code class="docutils literal notranslate"><span class="pre">command</span></code> option, and will
+continously read and scan its <cite>stdout</cite> for Reticulum packets. If <code class="docutils literal notranslate"><span class="pre">EOF</span></code> is reached,
+Reticulum will try to respawn the program after waiting for <code class="docutils literal notranslate"><span class="pre">respawn_interval</span></code> seconds.</p>
+</div>
 <div class="section" id="kiss-interface">
 <span id="interfaces-kiss"></span><h2>KISS Interface<a class="headerlink" href="#kiss-interface" title="Permalink to this headline">¶</a></h2>
 <p>With the KISS interface, you can use Reticulum over a variety of packet
@@ -654,6 +674,7 @@ beaconing functionality described above.</p>
 <li><a class="reference internal" href="#udp-interface">UDP Interface</a></li>
 <li><a class="reference internal" href="#rnode-lora-interface">RNode LoRa Interface</a></li>
 <li><a class="reference internal" href="#serial-interface">Serial Interface</a></li>
+<li><a class="reference internal" href="#pipe-interface">Pipe Interface</a></li>
 <li><a class="reference internal" href="#kiss-interface">KISS Interface</a></li>
 <li><a class="reference internal" href="#ax-25-kiss-interface">AX.25 KISS Interface</a></li>
 </ul>
