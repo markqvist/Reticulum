@@ -80,6 +80,10 @@ class LocalClientInterface(Interface):
         self.online  = True
         self.writing = False
 
+        self.announce_rate_target  = None
+        self.announce_rate_grace   = None
+        self.announce_rate_penalty = None
+
         if connected_socket == None:
             thread = threading.Thread(target=self.read_loop)
             thread.setDaemon(True)
@@ -284,6 +288,10 @@ class LocalServerInterface(Interface):
             thread = threading.Thread(target=self.server.serve_forever)
             thread.setDaemon(True)
             thread.start()
+
+            self.announce_rate_target  = None
+            self.announce_rate_grace   = None
+            self.announce_rate_penalty = None
 
             self.bitrate = 1000*1000*1000
             self.online = True

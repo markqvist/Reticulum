@@ -71,6 +71,7 @@ class Transport:
     REVERSE_TIMEOUT      = 30*60        # Reverse table entries are removed after max 30 minutes
     DESTINATION_TIMEOUT  = PATHFINDER_E # Destination table entries are removed if unused for one week
     MAX_RECEIPTS         = 1024         # Maximum number of receipts to keep track of
+    MAX_RATE_TIMESTAMPS  = 16           # Maximum number of announce timestamps to keep per destination
 
     interfaces           = []           # All active interfaces
     destinations         = []           # All active destinations
@@ -90,6 +91,7 @@ class Transport:
     held_announces       = {}           # A table containing temporarily held announce-table entries
     announce_handlers    = []           # A table storing externally registered announce handlers
     tunnels              = {}           # A table storing tunnels to other transport instances
+    announce_rate_table  = {}           # A table for keeping track of announce rates
 
     # Transport control destinations are used
     # for control purposes like path requests
@@ -1094,6 +1096,42 @@ class Transport:
 
                         if should_add:
                             now                = time.time()
+
+                            rate_blocked = False
+                            if packet.context != RNS.Packet.PATH_RESPONSE and packet.receiving_interface.announce_rate_target != None:
+                                if not packet.destination_hash in Transport.announce_rate_table:
+                                    rate_entry = { "last": now, "rate_violations": 0, "blocked_until": 0, "timestamps": [now]}
+                                    Transport.announce_rate_table[packet.destination_hash] = rate_entry
+
+                                else:
+                                    rate_entry = Transport.announce_rate_table[packet.destination_hash]
+                                    rate_entry["timestamps"].append(now)
+
+                                    while len(rate_entry["timestamps"]) > Transport.MAX_RATE_TIMESTAMPS:
+                                        rate_entry["timestamps"].pop(0)
+
+                                    current_rate = now - rate_entry["last"]
+
+                                    if now > rate_entry["blocked_until"]:
+
+                                        if current_rate < packet.receiving_interface.announce_rate_target:
+                                            rate_entry["rate_violations"] += 1
+
+                                        else:
+                                            rate_entry["rate_violations"] = max(0, rate_entry["rate_violations"]-1)
+
+                                        if rate_entry["rate_violations"] > packet.receiving_interface.announce_rate_grace:
+                                            rate_target = packet.receiving_interface.announce_rate_target
+                                            rate_penalty = packet.receiving_interface.announce_rate_penalty
+                                            rate_entry["blocked_until"] = rate_entry["last"] + rate_target + rate_penalty
+                                            rate_blocked = True
+                                        else:
+                                            rate_entry["last"] = now
+
+                                    else:
+                                        rate_blocked = True
+                                        
+
                             retries            = 0
                             announce_hops      = packet.hops
                             local_rebroadcasts = 0
@@ -1114,23 +1152,27 @@ class Transport:
                             if (RNS.Reticulum.transport_enabled() or Transport.from_local_client(packet)) and packet.context != RNS.Packet.PATH_RESPONSE:
                                 # Insert announce into announce table for retransmission
 
-                                if Transport.from_local_client(packet):
-                                    # If the announce is from a local client,
-                                    # it is announced immediately, but only one time.
-                                    retransmit_timeout = now
-                                    retries = Transport.PATHFINDER_R
+                                if rate_blocked:
+                                    RNS.log("Blocking rebroadcast of announce from "+RNS.prettyhexrep(packet.destination_hash)+" due to excessive announce rate", RNS.LOG_DEBUG)
+                                
+                                else:
+                                    if Transport.from_local_client(packet):
+                                        # If the announce is from a local client,
+                                        # it is announced immediately, but only one time.
+                                        retransmit_timeout = now
+                                        retries = Transport.PATHFINDER_R
 
-                                Transport.announce_table[packet.destination_hash] = [
-                                    now,
-                                    retransmit_timeout,
-                                    retries,
-                                    received_from,
-                                    announce_hops,
-                                    packet,
-                                    local_rebroadcasts,
-                                    block_rebroadcasts,
-                                    attached_interface
-                                ]
+                                    Transport.announce_table[packet.destination_hash] = [
+                                        now,
+                                        retransmit_timeout,
+                                        retries,
+                                        received_from,
+                                        announce_hops,
+                                        packet,
+                                        local_rebroadcasts,
+                                        block_rebroadcasts,
+                                        attached_interface
+                                    ]
 
                             # TODO: Check from_local_client once and store result
                             elif Transport.from_local_client(packet) and packet.context == RNS.Packet.PATH_RESPONSE:

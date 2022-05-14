@@ -393,6 +393,27 @@ class Reticulum:
                     if "bitrate" in c:
                         if c.as_int("bitrate") >= Reticulum.MINIMUM_BITRATE:
                             configured_bitrate = c.as_int("bitrate")
+
+                    announce_rate_target = None
+                    if "announce_rate_target" in c:
+                        if c.as_int("announce_rate_target") > 0:
+                            announce_rate_target = c.as_int("announce_rate_target")
+                            
+                    announce_rate_grace = None
+                    if "announce_rate_grace" in c:
+                        if c.as_int("announce_rate_grace") >= 0:
+                            announce_rate_grace = c.as_int("announce_rate_grace")
+                            
+                    announce_rate_penalty = None
+                    if "announce_rate_penalty" in c:
+                        if c.as_int("announce_rate_penalty") >= 0:
+                            announce_rate_penalty = c.as_int("announce_rate_penalty")
+
+                    if announce_rate_target != None and announce_rate_grace == None:
+                        announce_rate_grace = 0
+
+                    if announce_rate_target != None and announce_rate_penalty == None:
+                        announce_rate_penalty = 0
                             
                     announce_cap = Reticulum.ANNOUNCE_CAP/100.0
                     if "announce_cap" in c:
@@ -765,6 +786,10 @@ class Reticulum:
                                     interface.ifac_size = 8
 
                             if interface != None:
+                                interface.announce_rate_target = announce_rate_target
+                                interface.announce_rate_grace = announce_rate_grace
+                                interface.announce_rate_penalty = announce_rate_penalty
+
                                 interface.ifac_netname = ifac_netname
                                 interface.ifac_netkey = ifac_netkey
 
