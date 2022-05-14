@@ -883,6 +883,9 @@ class Reticulum:
                     if path == "path_table":
                         rpc_connection.send(self.get_path_table())
 
+                    if path == "rate_table":
+                        rpc_connection.send(self.get_rate_table())
+
                     if path == "next_hop_if_name":
                         rpc_connection.send(self.get_next_hop_if_name(call["destination_hash"]))
 
@@ -994,6 +997,27 @@ class Reticulum:
                 path_table.append(entry)
 
             return path_table
+
+    def get_rate_table(self):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection.send({"get": "rate_table"})
+            response = rpc_connection.recv()
+            return response
+
+        else:
+            rate_table = []
+            for dst_hash in RNS.Transport.announce_rate_table:
+                entry = {
+                    "hash": dst_hash,
+                    "last": RNS.Transport.announce_rate_table[dst_hash]["last"],
+                    "rate_violations": RNS.Transport.announce_rate_table[dst_hash]["rate_violations"],
+                    "blocked_until": RNS.Transport.announce_rate_table[dst_hash]["blocked_until"],
+                    "timestamps": RNS.Transport.announce_rate_table[dst_hash]["timestamps"],
+                }
+                rate_table.append(entry)
+
+            return rate_table
 
     def drop_path(self, destination):
         if self.is_connected_to_shared_instance:
