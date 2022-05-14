@@ -137,7 +137,7 @@ option, to set the interface speed in <em>bits per second</em>.</div>
 </div>
 <div class="section" id="interface-modes">
 <span id="interfaces-modes"></span><h2>Interface Modes<a class="headerlink" href="#interface-modes" title="Permalink to this headline">¶</a></h2>
-<p>The optional <code class="docutils literal notranslate"><span class="pre">mode</span></code> option is available on all interfaces, and allows
+<p>The optional <code class="docutils literal notranslate"><span class="pre">mode</span></code> setting is available on all interfaces, and allows
 selecting the high-level behaviour of the interface from a number of modes.
 These modes affect how Reticulum selects paths in the network, how announces
 are propagated and how long paths are valid.</p>
@@ -343,12 +343,17 @@ you must use the i2p_tunneled option:</p>
     <span class="n">i2p_tunneled</span> <span class="o">=</span> <span class="n">yes</span>
 </pre></div>
 </div>
+<p>In almost all cases, it is easier to use the dedicated <code class="docutils literal notranslate"><span class="pre">I2PInterface</span></code>, but for complete
+control, and using I2P routers running on external systems, this option also exists.</p>
 </div>
 <div class="section" id="tcp-client-interface">
 <span id="interfaces-tcpc"></span><h2>TCP Client Interface<a class="headerlink" href="#tcp-client-interface" title="Permalink to this headline">¶</a></h2>
 <p>To connect to a TCP server interface, you would naturally use the TCP client
 interface. Many TCP Client interfaces from different peers can connect to the
 same TCP Server interface at the same time.</p>
+<p>The TCP interface types can also tolerate intermittency in the IP link layer.
+This means that Reticulum will gracefully handle IP links that go up and down,
+and restore connectivity after a failure, once the other end of a TCP interface reappears.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of a TCP Client interface. The</span>
 <span class="c1"># target_host can either be an IP address or a hostname.</span>
 
@@ -399,15 +404,15 @@ with all other peers on a local area network.</p>
 <p><em>Please Note!</em> Using broadcast UDP traffic has performance implications,
 especially on WiFi. If your goal is simply to enable easy communication
 with all peers in your local ethernet broadcast domain, the
-<a class="reference internal" href="#interfaces-auto"><span class="std std-ref">Auto Interface</span></a> performs better, and is just as
-easy to use.</p>
+<a class="reference internal" href="#interfaces-auto"><span class="std std-ref">Auto Interface</span></a> performs better, and is even
+easier to use.</p>
 <p>The below example is enabled by default on new Reticulum installations,
 as it provides an easy way to get started and to test Reticulum on a
 pre-existing LAN.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example enables communication with other</span>
 <span class="c1"># local Reticulum peers over UDP.</span>
 
-<span class="p">[[</span><span class="n">Default</span> <span class="n">UDP</span> <span class="n">Interface</span><span class="p">]]</span>
+<span class="p">[[</span><span class="n">UDP</span> <span class="n">Interface</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">UDPInterface</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
 

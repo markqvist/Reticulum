@@ -89,7 +89,7 @@ These can be used to control various aspects of interface behaviour.
 Interface Modes
 ===============
 
-The optional ``mode`` option is available on all interfaces, and allows
+The optional ``mode`` setting is available on all interfaces, and allows
 selecting the high-level behaviour of the interface from a number of modes.
 These modes affect how Reticulum selects paths in the network, how announces
 are propagated and how long paths are valid.
@@ -314,6 +314,9 @@ you must use the i2p_tunneled option:
       listen_port = 5001
       i2p_tunneled = yes
 
+In almost all cases, it is easier to use the dedicated ``I2PInterface``, but for complete
+control, and using I2P routers running on external systems, this option also exists.
+
 .. _interfaces-tcpc:
 
 TCP Client Interface
@@ -322,6 +325,10 @@ TCP Client Interface
 To connect to a TCP server interface, you would naturally use the TCP client
 interface. Many TCP Client interfaces from different peers can connect to the
 same TCP Server interface at the same time.
+
+The TCP interface types can also tolerate intermittency in the IP link layer.
+This means that Reticulum will gracefully handle IP links that go up and down,
+and restore connectivity after a failure, once the other end of a TCP interface reappears.
 
 .. code::
 
@@ -383,8 +390,8 @@ with all other peers on a local area network.
 *Please Note!* Using broadcast UDP traffic has performance implications,
 especially on WiFi. If your goal is simply to enable easy communication
 with all peers in your local ethernet broadcast domain, the
-:ref:`Auto Interface<interfaces-auto>` performs better, and is just as
-easy to use.
+:ref:`Auto Interface<interfaces-auto>` performs better, and is even
+easier to use.
 
 The below example is enabled by default on new Reticulum installations,
 as it provides an easy way to get started and to test Reticulum on a
@@ -395,7 +402,7 @@ pre-existing LAN.
   # This example enables communication with other
   # local Reticulum peers over UDP.
   
-  [[Default UDP Interface]]
+  [[UDP Interface]]
     type = UDPInterface
     interface_enabled = True
 

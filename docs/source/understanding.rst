@@ -51,9 +51,8 @@ connected to any kind of computer or mobile device that Reticulum can run on.
 
 The ultimate aim of Reticulum is to allow anyone to be their own network operator, and to make it
 cheap and easy to cover vast areas with a myriad of independent, interconnectable and autonomous networks.
-Reticulum **is not** *one network*, it **is a tool** to build *thousands of networks*.
-
-Networks without kill-switches, surveillance, censorship and control. Networks that can freely interoperate, associate and disassociate
+Reticulum **is not** *one network*, it **is a tool** to build *thousands of networks*. Networks without
+kill-switches, surveillance, censorship and control. Networks that can freely interoperate, associate and disassociate
 with each other, and require no central oversight. Networks for human beings. *Networks for the people*.
 
 .. _understanding-goals:
