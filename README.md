@@ -91,14 +91,16 @@ Currently, the following interfaces are supported:
 - Any device with a serial port
 - TCP over IP networks
 - UDP over IP networks
+- External programs via stdio or pipes
+- Custom hardware via stdio or pipes
 
 ## Development Roadmap
 - Version 0.3.6
   - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
+- Version 0.3.7
   - Support for radio and modem interfaces on Android
   - GUI interface configuration tool
   - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
-- Version 0.3.7
   - More interface types for even broader compatibility
     - Plain ESP32 devices (ESP-Now, WiFi, Bluetooth, etc.)
     - More LoRa transceivers
