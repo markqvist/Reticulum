@@ -56,6 +56,117 @@ program starts up and also wants access to the same Reticulum network, the
 instance is simply shared. This works for any number of programs running
 concurrently, and is very easy to use, but depending on your use case, there
 are other options.</p>
+<div class="section" id="configuration-data">
+<h2>Configuration &amp; Data<a class="headerlink" href="#configuration-data" title="Permalink to this headline">¶</a></h2>
+<p>A Reticulum stores all information that it needs to function in a single file-
+system directory. By default, this directory is <code class="docutils literal notranslate"><span class="pre">~/.reticulum</span></code>, but you can
+use any directory you wish. You can also run multiple separate Reticulum
+instances on the same physical system, in complete isolation from each other,
+or connected together.</p>
+<p>In most cases, a single physical system will only need to run one Reticulum
+instance. This can either be launched at boot, as a system service, or simply
+be brought up when a program needs it. In either case, any number of programs
+running on the same system will automatically share the same Reticulum instance,
+if the configuration allows for it, which it does by default.</p>
+<p>The entire configuration of Reticulum is found in the <code class="docutils literal notranslate"><span class="pre">~/.reticulum/config</span></code>
+file. When Reticulum is first started on a new system, a basic, functional
+configuration file is created. The default configuration looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This is the default Reticulum config file.</span>
+<span class="c1"># You should probably edit it to include any additional,</span>
+<span class="c1"># interfaces and settings you might need.</span>
+
+<span class="c1"># Only the most basic options are included in this default</span>
+<span class="c1"># configuration. To see a more verbose, and much longer,</span>
+<span class="c1"># configuration example, you can run the command:</span>
+<span class="c1"># rnsd --exampleconfig</span>
+
+
+<span class="p">[</span><span class="n">reticulum</span><span class="p">]</span>
+
+<span class="c1"># If you enable Transport, your system will route traffic</span>
+<span class="c1"># for other peers, pass announces and serve path requests.</span>
+<span class="c1"># This should only be done for systems that are suited to</span>
+<span class="c1"># act as transport nodes, ie. if they are stationary and</span>
+<span class="c1"># always-on. This directive is optional and can be removed</span>
+<span class="c1"># for brevity.</span>
+
+<span class="n">enable_transport</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="c1"># By default, the first program to launch the Reticulum</span>
+<span class="c1"># Network Stack will create a shared instance, that other</span>
+<span class="c1"># programs can communicate with. Only the shared instance</span>
+<span class="c1"># opens all the configured interfaces directly, and other</span>
+<span class="c1"># local programs communicate with the shared instance over</span>
+<span class="c1"># a local socket. This is completely transparent to the</span>
+<span class="c1"># user, and should generally be turned on. This directive</span>
+<span class="c1"># is optional and can be removed for brevity.</span>
+
+<span class="n">share_instance</span> <span class="o">=</span> <span class="n">Yes</span>
+
+
+<span class="c1"># If you want to run multiple *different* shared instances</span>
+<span class="c1"># on the same system, you will need to specify different</span>
+<span class="c1"># shared instance ports for each. The defaults are given</span>
+<span class="c1"># below, and again, these options can be left out if you</span>
+<span class="c1"># don&#39;t need them.</span>
+
+<span class="n">shared_instance_port</span> <span class="o">=</span> <span class="mi">37428</span>
+<span class="n">instance_control_port</span> <span class="o">=</span> <span class="mi">37429</span>
+
+
+<span class="c1"># You can configure Reticulum to panic and forcibly close</span>
+<span class="c1"># if an unrecoverable interface error occurs, such as the</span>
+<span class="c1"># hardware device for an interface disappearing. This is</span>
+<span class="c1"># an optional directive, and can be left out for brevity.</span>
+<span class="c1"># This behaviour is disabled by default.</span>
+
+<span class="n">panic_on_interface_error</span> <span class="o">=</span> <span class="n">No</span>
+
+
+<span class="p">[</span><span class="n">logging</span><span class="p">]</span>
+<span class="c1"># Valid log levels are 0 through 7:</span>
+<span class="c1">#   0: Log only critical information</span>
+<span class="c1">#   1: Log errors and lower log levels</span>
+<span class="c1">#   2: Log warnings and lower log levels</span>
+<span class="c1">#   3: Log notices and lower log levels</span>
+<span class="c1">#   4: Log info and lower (this is the default)</span>
+<span class="c1">#   5: Verbose logging</span>
+<span class="c1">#   6: Debug logging</span>
+<span class="c1">#   7: Extreme logging</span>
+
+<span class="n">loglevel</span> <span class="o">=</span> <span class="mi">4</span>
+
+
+<span class="c1"># The interfaces section defines the physical and virtual</span>
+<span class="c1"># interfaces Reticulum will use to communicate on. This</span>
+<span class="c1"># section will contain examples for a variety of interface</span>
+<span class="c1"># types. You can modify these or use them as a basis for</span>
+<span class="c1"># your own config, or simply remove the unused ones.</span>
+
+<span class="p">[</span><span class="n">interfaces</span><span class="p">]</span>
+
+  <span class="c1"># This interface enables communication with other</span>
+  <span class="c1"># link-local Reticulum nodes over UDP. It does not</span>
+  <span class="c1"># need any functional IP infrastructure like routers</span>
+  <span class="c1"># or DHCP servers, but will require that at least link-</span>
+  <span class="c1"># local IPv6 is enabled in your operating system, which</span>
+  <span class="c1"># should be enabled by default in almost any OS. See</span>
+  <span class="c1"># the Reticulum Manual for more configuration options.</span>
+
+  <span class="p">[[</span><span class="n">Default</span> <span class="n">Interface</span><span class="p">]]</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">AutoInterface</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>If Reticulum infrastructure already exists locally, you probably don’t need to
+change anything, and you may already be connected to a wider network. If not,
+you will probably need to add relevant <em>interfaces</em> to the configuration, in
+order to communicate with other systems. It is a good idea to read the comments
+and explanations in the above default config. It will teach you the basic
+concepts you need to understand to configure your network. Once you have done that,
+take a look at the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> chapter of this manual.</p>
+</div>
 <div class="section" id="included-utility-programs">
 <h2>Included Utility Programs<a class="headerlink" href="#included-utility-programs" title="Permalink to this headline">¶</a></h2>
 <p>If you often use Reticulum from several different programs, or simply want
@@ -64,8 +175,8 @@ a transport node, you might want to run Reticulum as a separate service that
 other programs, applications and services can utilise.</p>
 <div class="section" id="the-rnsd-utility">
 <h3>The rnsd Utility<a class="headerlink" href="#the-rnsd-utility" title="Permalink to this headline">¶</a></h3>
-<p>To do so is very easy. Simply run the included <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> command. When <code class="docutils literal notranslate"><span class="pre">rnsd</span></code>
-is running, it will keep all configured interfaces open, handle transport if
+<p>It is very easy to run Reticulum as a service. Simply run the included <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> command.
+When <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> is running, it will keep all configured interfaces open, handle transport if
 it is enabled, and allow any other programs to immediately utilise the
 Reticulum network it is configured for.</p>
 <p>You can even run multiple instances of rnsd with different configurations on
@@ -298,6 +409,7 @@ WantedBy=multi-user.target
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Using Reticulum on Your System</a><ul>
+<li><a class="reference internal" href="#configuration-data">Configuration &amp; Data</a></li>
 <li><a class="reference internal" href="#included-utility-programs">Included Utility Programs</a><ul>
 <li><a class="reference internal" href="#the-rnsd-utility">The rnsd Utility</a></li>
 <li><a class="reference internal" href="#the-rnstatus-utility">The rnstatus Utility</a></li>

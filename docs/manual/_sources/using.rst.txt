@@ -19,6 +19,122 @@ instance is simply shared. This works for any number of programs running
 concurrently, and is very easy to use, but depending on your use case, there
 are other options.
 
+Configuration & Data
+--------------------
+
+A Reticulum stores all information that it needs to function in a single file-
+system directory. By default, this directory is ``~/.reticulum``, but you can
+use any directory you wish. You can also run multiple separate Reticulum
+instances on the same physical system, in complete isolation from each other,
+or connected together.
+
+In most cases, a single physical system will only need to run one Reticulum
+instance. This can either be launched at boot, as a system service, or simply
+be brought up when a program needs it. In either case, any number of programs
+running on the same system will automatically share the same Reticulum instance,
+if the configuration allows for it, which it does by default.
+
+The entire configuration of Reticulum is found in the ``~/.reticulum/config``
+file. When Reticulum is first started on a new system, a basic, functional
+configuration file is created. The default configuration looks like this:
+
+.. code::
+
+  # This is the default Reticulum config file.
+  # You should probably edit it to include any additional,
+  # interfaces and settings you might need.
+
+  # Only the most basic options are included in this default
+  # configuration. To see a more verbose, and much longer,
+  # configuration example, you can run the command:
+  # rnsd --exampleconfig
+
+
+  [reticulum]
+
+  # If you enable Transport, your system will route traffic
+  # for other peers, pass announces and serve path requests.
+  # This should only be done for systems that are suited to
+  # act as transport nodes, ie. if they are stationary and
+  # always-on. This directive is optional and can be removed
+  # for brevity.
+
+  enable_transport = False
+
+
+  # By default, the first program to launch the Reticulum
+  # Network Stack will create a shared instance, that other
+  # programs can communicate with. Only the shared instance
+  # opens all the configured interfaces directly, and other
+  # local programs communicate with the shared instance over
+  # a local socket. This is completely transparent to the
+  # user, and should generally be turned on. This directive
+  # is optional and can be removed for brevity.
+
+  share_instance = Yes
+
+
+  # If you want to run multiple *different* shared instances
+  # on the same system, you will need to specify different
+  # shared instance ports for each. The defaults are given
+  # below, and again, these options can be left out if you
+  # don't need them.
+
+  shared_instance_port = 37428
+  instance_control_port = 37429
+
+
+  # You can configure Reticulum to panic and forcibly close
+  # if an unrecoverable interface error occurs, such as the
+  # hardware device for an interface disappearing. This is
+  # an optional directive, and can be left out for brevity.
+  # This behaviour is disabled by default.
+
+  panic_on_interface_error = No
+
+
+  [logging]
+  # Valid log levels are 0 through 7:
+  #   0: Log only critical information
+  #   1: Log errors and lower log levels
+  #   2: Log warnings and lower log levels
+  #   3: Log notices and lower log levels
+  #   4: Log info and lower (this is the default)
+  #   5: Verbose logging
+  #   6: Debug logging
+  #   7: Extreme logging
+
+  loglevel = 4
+
+
+  # The interfaces section defines the physical and virtual
+  # interfaces Reticulum will use to communicate on. This
+  # section will contain examples for a variety of interface
+  # types. You can modify these or use them as a basis for
+  # your own config, or simply remove the unused ones.
+
+  [interfaces]
+
+    # This interface enables communication with other
+    # link-local Reticulum nodes over UDP. It does not
+    # need any functional IP infrastructure like routers
+    # or DHCP servers, but will require that at least link-
+    # local IPv6 is enabled in your operating system, which
+    # should be enabled by default in almost any OS. See
+    # the Reticulum Manual for more configuration options.
+
+    [[Default Interface]]
+      type = AutoInterface
+      interface_enabled = True
+
+If Reticulum infrastructure already exists locally, you probably don't need to
+change anything, and you may already be connected to a wider network. If not,
+you will probably need to add relevant *interfaces* to the configuration, in
+order to communicate with other systems. It is a good idea to read the comments
+and explanations in the above default config. It will teach you the basic
+concepts you need to understand to configure your network. Once you have done that,
+take a look at the :ref:`Interfaces<interfaces-main>` chapter of this manual.
+
 Included Utility Programs
 -------------------------
 
@@ -30,8 +146,8 @@ other programs, applications and services can utilise.
 The rnsd Utility
 ================
 
-To do so is very easy. Simply run the included ``rnsd`` command. When ``rnsd``
-is running, it will keep all configured interfaces open, handle transport if
+It is very easy to run Reticulum as a service. Simply run the included ``rnsd`` command.
+When ``rnsd`` is running, it will keep all configured interfaces open, handle transport if
 it is enabled, and allow any other programs to immediately utilise the
 Reticulum network it is configured for.
 

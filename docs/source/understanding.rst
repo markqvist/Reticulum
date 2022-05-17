@@ -813,26 +813,27 @@ from one interface type to another, for all possible combinations. See the
 :ref:`Interface Modes<interfaces-modes>` section for a conceptual overview of the
 different interface modes, and how they are configured.
 
-.. code-block:: text
+.. image:: graphics/if_mode_graph_b.png
 
-    Full ────── ✓ ──┐              ┌── ✓ ── Full
-    AP ──────── ✓ ──┼───> Full >───┼── ✕ ── AP
-    Boundary ── ✓ ──┤              ├── ✓ ── Boundary
-    Roaming ─── ✓ ──┘              └── ✓ ── Roaming
+.. 
+      (.. code-block:: text)
+      Full ────── ✓ ──┐              ┌── ✓ ── Full
+      AP ──────── ✓ ──┼───> Full >───┼── ✕ ── AP
+      Boundary ── ✓ ──┤              ├── ✓ ── Boundary
+      Roaming ─── ✓ ──┘              └── ✓ ── Roaming
 
-    Full ────── ✕ ──┐              ┌── ✓ ── Full
-    AP ──────── ✕ ──┼────> AP >────┼── ✕ ── AP
-    Boundary ── ✕ ──┤              ├── ✓ ── Boundary
-    Roaming ─── ✕ ──┘              └── ✓ ── Roaming
+      Full ────── ✕ ──┐              ┌── ✓ ── Full
+      AP ──────── ✕ ──┼────> AP >────┼── ✕ ── AP
+      Boundary ── ✕ ──┤              ├── ✓ ── Boundary
+      Roaming ─── ✕ ──┘              └── ✓ ── Roaming
 
-    Full ────── ✓ ──┐              ┌── ✓ ── Full
-    AP ──────── ✓ ──┼─> Roaming >──┼── ✕ ── AP
-    Boundary ── ✕ ──┤              ├── ✕ ── Boundary
-    Roaming ─── ✕ ──┘              └── ✕ ── Roaming
+      Full ────── ✓ ──┐              ┌── ✓ ── Full
+      AP ──────── ✓ ──┼─> Roaming >──┼── ✕ ── AP
+      Boundary ── ✕ ──┤              ├── ✕ ── Boundary
+      Roaming ─── ✕ ──┘              └── ✕ ── Roaming
 
-    Full ────── ✓ ──┐              ┌── ✓ ── Full
-    AP ──────── ✓ ──┼─> Boundary >─┼── ✕ ── AP
-    Boundary ── ✓ ──┤              ├── ✓ ── Boundary
-    Roaming ─── ✕ ──┘              └── ✕ ── Roaming
-
+      Full ────── ✓ ──┐              ┌── ✓ ── Full
+      AP ──────── ✓ ──┼─> Boundary >─┼── ✕ ── AP
+      Boundary ── ✓ ──┤              ├── ✓ ── Boundary
+      Roaming ─── ✕ ──┘              └── ✕ ── Roaming
 

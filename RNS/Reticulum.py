@@ -414,7 +414,7 @@ class Reticulum:
 
                     if announce_rate_target != None and announce_rate_penalty == None:
                         announce_rate_penalty = 0
-                            
+
                     announce_cap = Reticulum.ANNOUNCE_CAP/100.0
                     if "announce_cap" in c:
                         if c.as_float("announce_cap") > 0 and c.as_float("announce_cap") <= 100:

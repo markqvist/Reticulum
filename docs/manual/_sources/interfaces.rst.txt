@@ -19,125 +19,6 @@ types, have a look at the :ref:`Building Networks<networks-main>` chapter of thi
 manual.
 
 
-.. _interfaces-options:
-
-Common Interface Options
-========================
-
-A number of general configuration options are available on most interfaces.
-These can be used to control various aspects of interface behaviour.
-
-
- * | The ``enabled`` option tells Reticulum whether or not
-     to bring up the interface. Defaults to ``False``. For any
-     interface to be brought up, the ``enabled`` option
-     must be set to ``True`` or ``Yes``.
-
- * | The ``mode`` option allows selecting the high-level behaviour
-     of the interface from a number of options.
-
-     - The default value is ``full``. In this mode, all discovery,
-       meshing and transport functionality is available.
-
-     - In the ``access_point`` (or shorthand ``ap``) mode, the
-       interface will operate as a network access point. In this
-       mode, announces will not be automatically broadcasted on
-       the interface, and paths to destinations on the interface
-       will have a much shorter expiry time. This mode is useful
-       for creating interfaces that are mostly quiet, unless when
-       someone is actually using them. An example of this could
-       be a radio interface serving a wide area, where users are
-       expected to connect momentarily, use the network, and then
-       disappear again.
-
- * | The ``outgoing`` option sets whether an interface is allowed
-     to transmit. Defaults to ``True``. If set to ``False`` or ``No``
-     the interface will only receive data, and never transmit.
-
- * | The ``network_name`` option sets the virtual network name for
-     the interface. This allows multiple separate network segments
-     to exist on the same physical channel or medium.
-
- * | The ``passphrase`` option sets an authentication passphrase on
-     the interface. This option can be used in conjunction with the
-     ``network_name`` option, or be used alone.
-
- * | The ``ifac_size`` option allows customising the length of the
-     Interface Authentication Codes carried by each packet on named
-     and/or authenticated network segments. It is set by default to
-     a size suitable for the interface in question, but can be set
-     to a custom size between 8 and 512 bits by using this option.
-     In normal usage, this option should not be changed from the
-     default.
-
- * | The ``announce_cap`` option lets you configure the maximum
-     bandwidth to allocate, at any given time, to propagating
-     announces and other network upkeep traffic. It is configured at
-     2% by default, and should normally not need to be changed. Can
-     be set to any value between ``1`` and ``100``.
-
- * | The ``bitrate`` option configures the interface bitrate.
-     Reticulum will use interface speeds reported by hardware, or
-     try to guess a suitable rate when the hardware doesn't report
-     any. In most cases, the automatically found rate should be
-     sufficient, but it can be configured by using the ``bitrate``
-     option, to set the interface speed in *bits per second*.
-
-
-.. _interfaces-modes:
-
-Interface Modes
-===============
-
-The optional ``mode`` setting is available on all interfaces, and allows
-selecting the high-level behaviour of the interface from a number of modes.
-These modes affect how Reticulum selects paths in the network, how announces
-are propagated and how long paths are valid.
-
-Configuring modes on interfaces is not strictly necessary, but can be useful
-when building or connecting to more complex networks. When not running a
-Transport Node, it is rarely useful to configure an interface mode.
-
- * | The default value is ``full``. In this mode, all discovery,
-     meshing and transport functionality is activated.
-
- * | In the ``access_point`` (or shorthand ``ap``) mode, the
-     interface will operate as a network access point. In this
-     mode, announces will not be automatically broadcasted on
-     the interface, and paths to destinations on the interface
-     will have a much shorter expiry time. This mode is useful
-     for creating interfaces that remain quiet, unless when
-     someone is actually using them. An example of this could
-     be a radio interface serving a wide area, where users are
-     expected to connect momentarily, use the network, and then
-     disappear again.
-
- * | The ``roaming`` mode should be used on interfaces that are
-     roaming (physically mobile), seen from the perspective of
-     other nodes in the network. As an example, if a vehicle is
-     equipped with an external LoRa interface, and an internal,
-     WiFi-based interface, that serves devices that are moving
-     _with_ the vehicle, the external LoRa interface should be
-     configured as ``roaming``, and the internal interface can
-     be left in the default mode. With transport enabled, such
-     a setup will allow all internal devices to reach each other,
-     and all other devices that are available on the LoRa side
-     of the network, when they are in range. Devices on the LoRa
-     side of the network will also be able to reach devices
-     internal to the vehicle, when it is in range. Paths via
-     ``roaming`` interfaces also expire faster.
-
- * | The purpose of the ``boundary`` mode is to specify interfaces
-     that establish connectivity with network segments that are
-     significantly different than the one this node exists on.
-     As an example, if a Reticulum instance is part of a LoRa-based
-     network, but also has a high-speed connection to a
-     public Transport Node available on the Internet, the interface
-     connecting over the Internet should be set to ``boundary`` mode.
-
-For a table describing the impact of all modes on announce propagation,
-please see the :ref:`Announce Propagation Rules<understanding-announcepropagation>` section.
-
 .. _interfaces-auto:
 
 Auto Interface
@@ -664,3 +545,182 @@ beaconing functionality described above.
     # This is useful for modems with a
     # small internal packet buffer.
     flow_control = false
+
+.. _interfaces-options:
+
+Common Interface Options
+========================
+
+A number of general configuration options are available on most interfaces.
+These can be used to control various aspects of interface behaviour.
+
+
+ * | The ``enabled`` option tells Reticulum whether or not
+     to bring up the interface. Defaults to ``False``. For any
+     interface to be brought up, the ``enabled`` option
+     must be set to ``True`` or ``Yes``.
+
+ * | The ``mode`` option allows selecting the high-level behaviour
+     of the interface from a number of options.
+
+     - The default value is ``full``. In this mode, all discovery,
+       meshing and transport functionality is available.
+
+     - In the ``access_point`` (or shorthand ``ap``) mode, the
+       interface will operate as a network access point. In this
+       mode, announces will not be automatically broadcasted on
+       the interface, and paths to destinations on the interface
+       will have a much shorter expiry time. This mode is useful
+       for creating interfaces that are mostly quiet, unless when
+       someone is actually using them. An example of this could
+       be a radio interface serving a wide area, where users are
+       expected to connect momentarily, use the network, and then
+       disappear again.
+
+ * | The ``outgoing`` option sets whether an interface is allowed
+     to transmit. Defaults to ``True``. If set to ``False`` or ``No``
+     the interface will only receive data, and never transmit.
+
+ * | The ``network_name`` option sets the virtual network name for
+     the interface. This allows multiple separate network segments
+     to exist on the same physical channel or medium.
+
+ * | The ``passphrase`` option sets an authentication passphrase on
+     the interface. This option can be used in conjunction with the
+     ``network_name`` option, or be used alone.
+
+ * | The ``ifac_size`` option allows customising the length of the
+     Interface Authentication Codes carried by each packet on named
+     and/or authenticated network segments. It is set by default to
+     a size suitable for the interface in question, but can be set
+     to a custom size between 8 and 512 bits by using this option.
+     In normal usage, this option should not be changed from the
+     default.
+
+ * | The ``announce_cap`` option lets you configure the maximum
+     bandwidth to allocate, at any given time, to propagating
+     announces and other network upkeep traffic. It is configured at
+     2% by default, and should normally not need to be changed. Can
+     be set to any value between ``1`` and ``100``.
+
+     *If an interface exceeds its announce cap, it will queue announces
+     for later transmission. Reticulum will always prioritise propagating
+     announces from nearby nodes first. This ensures that the local
+     topology is prioritised, and that slow networks are not overwhelmed
+     by interconnected fast networks.*
+
+     *Destinations that are rapidly re-announcing will be down-prioritised
+     further. Trying to get "first-in-line" by announce spamming will have
+     the exact opposite effect: Getting moved to the back of the queue every
+     time a new announce from the excessively announcing destination is received.*
+
+     *This means that it is always beneficial to select a balanced
+     announce rate, and not announce more often than is actually necesarry
+     for your application to function.*
+
+ * | The ``bitrate`` option configures the interface bitrate.
+     Reticulum will use interface speeds reported by hardware, or
+     try to guess a suitable rate when the hardware doesn't report
+     any. In most cases, the automatically found rate should be
+     sufficient, but it can be configured by using the ``bitrate``
+     option, to set the interface speed in *bits per second*.
+
+
+.. _interfaces-modes:
+
+Interface Modes
+===============
+
+The optional ``mode`` setting is available on all interfaces, and allows
+selecting the high-level behaviour of the interface from a number of modes.
+These modes affect how Reticulum selects paths in the network, how announces
+are propagated and how long paths are valid.
+
+Configuring modes on interfaces is not strictly necessary, but can be useful
+when building or connecting to more complex networks. When not running a
+Transport Node, it is rarely useful to configure an interface mode.
+
+ * | The default value is ``full``. In this mode, all discovery,
+     meshing and transport functionality is activated.
+
+ * | In the ``access_point`` (or shorthand ``ap``) mode, the
+     interface will operate as a network access point. In this
+     mode, announces will not be automatically broadcasted on
+     the interface, and paths to destinations on the interface
+     will have a much shorter expiry time. This mode is useful
+     for creating interfaces that remain quiet, unless when
+     someone is actually using them. An example of this could
+     be a radio interface serving a wide area, where users are
+     expected to connect momentarily, use the network, and then
+     disappear again.
+
+ * | The ``roaming`` mode should be used on interfaces that are
+     roaming (physically mobile), seen from the perspective of
+     other nodes in the network. As an example, if a vehicle is
+     equipped with an external LoRa interface, and an internal,
+     WiFi-based interface, that serves devices that are moving
+     _with_ the vehicle, the external LoRa interface should be
+     configured as ``roaming``, and the internal interface can
+     be left in the default mode. With transport enabled, such
+     a setup will allow all internal devices to reach each other,
+     and all other devices that are available on the LoRa side
+     of the network, when they are in range. Devices on the LoRa
+     side of the network will also be able to reach devices
+     internal to the vehicle, when it is in range. Paths via
+     ``roaming`` interfaces also expire faster.
+
+ * | The purpose of the ``boundary`` mode is to specify interfaces
+     that establish connectivity with network segments that are
+     significantly different than the one this node exists on.
+     As an example, if a Reticulum instance is part of a LoRa-based
+     network, but also has a high-speed connection to a
+     public Transport Node available on the Internet, the interface
+     connecting over the Internet should be set to ``boundary`` mode.
+
+For a table describing the impact of all modes on announce propagation,
+please see the :ref:`Announce Propagation Rules<understanding-announcepropagation>` section.
+
+.. _interfaces-announcerates:
+
+Announce Rate Control
+=====================
+
+The built-in announce control mechanisms and the default ``announce_cap``
+option described above are sufficient most of the time, but in some cases, especially on fast
+interfaces, it may be useful to control the target announce rate. Using the
+``announce_rate_target``, ``announce_rate_grace`` and ``announce_rate_penalty``
+options, this can be done on a per-interface basis, and moderates the *rate at
+which received announces are re-broadcasted to other interfaces*.
+
+ * | The ``announce_rate_target`` option sets the minimum amount of time,
+     in seconds, that should pass between received announces, for any one
+     destination. As an example, setting this value to ``3600`` means that
+     announces *received* on this interface will only be re-transmitted and
+     propagated to other interfaces once every hour, no matter how often they
+     are received.
+
+ * | The optional ``announce_rate_grace`` defines the number of times a destination
+     can violate the announce rate before the target rate is enforced.
+
+ * | The optional ``announce_rate_penalty`` configures an extra amount of
+     time that is added to the normal rate target. As an example, if a penalty
+     of ``7200`` seconds is defined, once the rate target is enforced, the
+     destination in question will only have its announces propagated every
+     3 hours, until it lowers its actual announce rate to within the target.
+
+These mechanisms, in conjunction with the ``annouce_cap`` mechanisms mentioned
+above means that it is essential to select a balanced announce strategy for
+your destinations. The more balanced you can make this decision, the easier
+it will be for your destinations to make it into slower networks that many hops
+away. Or you can prioritise only reaching high-capacity networks with more frequent
+announces.
+
+Current statistics and information about announce rates can be viewed using the
+``rnpath -r`` command.
+
+It is important to note that there is no one right or wrong way to set up announce
+rates. Slower networks will naturally tend towards using less frequent announces to
+conserve bandwidth, while very fast networks can support applications that
+need very frequent announces. Reticulum implements these mechanisms to ensure
+that a large span of network types can seamlessly *co-exist* and interconnect.
+
