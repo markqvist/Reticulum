@@ -321,7 +321,7 @@ def pretty_date(time=False):
         if second_diff < 3600:
             return str(int(second_diff / 60)) + " minutes"
         if second_diff < 7200:
-            return "an hour ago"
+            return "an hour"
         if second_diff < 86400:
             return str(int(second_diff / 3600)) + " hours"
     if day_diff == 1:
