@@ -275,7 +275,7 @@ class Reticulum:
                     self.is_standalone_instance = False
                     self.is_connected_to_shared_instance = True
                     Reticulum.__transport_enabled = False
-                    RNS.log("Connected to local shared instance via: "+str(interface), RNS.LOG_DEBUG)
+                    RNS.log("Connected to locally available Reticulum instance via: "+str(interface), RNS.LOG_DEBUG)
                 except Exception as e:
                     RNS.log("Local shared instance appears to be running, but it could not be connected", RNS.LOG_ERROR)
                     RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)

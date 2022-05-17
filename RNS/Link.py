@@ -267,7 +267,7 @@ class Link:
                     self.attached_interface = packet.receiving_interface
                     self.__remote_identity = self.destination.identity
                     RNS.Transport.activate_link(self)
-                    RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(self.rtt), RNS.LOG_VERBOSE)
+                    RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(round(self.rtt, 3))+"s", RNS.LOG_VERBOSE)
                     rtt_data = umsgpack.packb(self.rtt)
                     rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
                     rtt_packet.send()
