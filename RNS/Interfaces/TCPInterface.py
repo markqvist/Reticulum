@@ -459,6 +459,7 @@ class TCPServerInterface(Interface):
         spawned_interface.announce_rate_target = self.announce_rate_target
         spawned_interface.announce_rate_grace = self.announce_rate_grace
         spawned_interface.announce_rate_penalty = self.announce_rate_penalty
+        spawned_interface.mode = self.mode
         spawned_interface.online = True
         RNS.log("Spawned new TCPClient Interface: "+str(spawned_interface), RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)

@@ -602,6 +602,7 @@ class I2PInterface(Interface):
         spawned_interface.announce_rate_target = self.announce_rate_target
         spawned_interface.announce_rate_grace = self.announce_rate_grace
         spawned_interface.announce_rate_penalty = self.announce_rate_penalty
+        spawned_interface.mode = self.mode
         RNS.log("Spawned new I2PInterface Peer: "+str(spawned_interface), RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)
         self.clients += 1
