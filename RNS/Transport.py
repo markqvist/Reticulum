@@ -543,8 +543,10 @@ class Transport:
             sleep(0.01)
 
         Transport.jobs_locked = True
+
         # TODO: This updateHash call might be redundant
         packet.update_hash()
+
         sent = False
         outbound_time = time.time()
 
