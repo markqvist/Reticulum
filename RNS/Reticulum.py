@@ -354,6 +354,8 @@ class Reticulum:
                             interface_mode = Interface.Interface.MODE_ROAMING
                         elif c["interface_mode"] == "boundary":
                             interface_mode = Interface.Interface.MODE_BOUNDARY
+                        elif c["mode"] == "gateway" or c["mode"] == "gw":
+                            interface_mode = Interface.Interface.MODE_GATEWAY
 
                     elif "mode" in c:
                         c["mode"] = str(c["mode"]).lower()
@@ -367,6 +369,8 @@ class Reticulum:
                             interface_mode = Interface.Interface.MODE_ROAMING
                         elif c["mode"] == "boundary":
                             interface_mode = Interface.Interface.MODE_BOUNDARY
+                        elif c["mode"] == "gateway" or c["mode"] == "gw":
+                            interface_mode = Interface.Interface.MODE_GATEWAY
 
                     ifac_size = None
                     if "ifac_size" in c:

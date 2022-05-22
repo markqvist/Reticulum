@@ -31,11 +31,17 @@ class Interface:
     RPT = False
     name = None
 
+    # Interface mode definitions
     MODE_FULL           = 0x01
     MODE_POINT_TO_POINT = 0x02
     MODE_ACCESS_POINT   = 0x03
     MODE_ROAMING        = 0x04
     MODE_BOUNDARY       = 0x05
+    MODE_GATEWAY        = 0x06
+
+    # Which interface modes a Transport Node
+    # must act as path request agent for.
+    PATH_REQUEST_AGENT_FOR = [MODE_ACCESS_POINT, MODE_GATEWAY]
 
     def __init__(self):
         self.rxb = 0
