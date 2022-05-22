@@ -384,7 +384,14 @@ class Transport:
                         destination_entry = Transport.destination_table[destination_hash]
                         attached_interface = destination_entry[5]
 
-                        if time.time() > destination_entry[0] + Transport.DESTINATION_TIMEOUT:
+                        if attached_interface != None and hasattr(attached_interface, "mode") and attached_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
+                            destination_expiry = destination_entry[0] + Transport.AP_PATH_TIME
+                        elif attached_interface != None and hasattr(attached_interface, "mode") and attached_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                            destination_expiry = destination_entry[0] + Transport.ROAMING_PATH_TIME
+                        else:
+                            destination_expiry = destination_entry[0] + Transport.DESTINATION_TIMEOUT
+
+                        if time.time() > destination_expiry:
                             stale_paths.append(destination_hash)
                             RNS.log("Path to "+RNS.prettyhexrep(destination_hash)+" timed out and was removed", RNS.LOG_DEBUG)
                         elif not attached_interface in Transport.interfaces:
