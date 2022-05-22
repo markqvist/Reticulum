@@ -257,7 +257,7 @@ def main():
             metavar="seconds",
             type=float,
             help="timeout before giving up",
-            default=15
+            default=RNS.Transport.PATH_REQUEST_TIMEOUT
         )
 
         parser.add_argument(

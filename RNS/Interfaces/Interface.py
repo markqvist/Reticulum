@@ -40,8 +40,8 @@ class Interface:
     MODE_GATEWAY        = 0x06
 
     # Which interface modes a Transport Node
-    # must act as path request agent for.
-    PATH_REQUEST_AGENT_FOR = [MODE_ACCESS_POINT, MODE_GATEWAY]
+    # should actively discover paths for.
+    DISCOVER_PATHS_FOR  = [MODE_ACCESS_POINT, MODE_GATEWAY]
 
     def __init__(self):
         self.rxb = 0

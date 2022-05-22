@@ -64,8 +64,9 @@ class Transport:
     # various situations
     LOCAL_REBROADCASTS_MAX = 2          # How many local rebroadcasts of an announce is allowed
 
-    PATH_REQUEST_GRACE  = 0.35          # Grace time before a path announcement is made, allows directly reachable peers to respond first
-    PATH_REQUEST_RW     = 2             # Path request random window
+    PATH_REQUEST_TIMEOUT = 15           # Default timuout for client path requests in seconds
+    PATH_REQUEST_GRACE   = 0.35         # Grace time before a path announcement is made, allows directly reachable peers to respond first
+    PATH_REQUEST_RW      = 2            # Path request random window
 
     LINK_TIMEOUT         = RNS.Link.KEEPALIVE * 2
     REVERSE_TIMEOUT      = 30*60        # Reverse table entries are removed after max 30 minutes
@@ -92,6 +93,8 @@ class Transport:
     announce_handlers    = []           # A table storing externally registered announce handlers
     tunnels              = {}           # A table storing tunnels to other transport instances
     announce_rate_table  = {}           # A table for keeping track of announce rates
+    
+    discovery_path_requests  = {}       # A table for keeping track of path requests on behalf of other nodes
 
     # Transport control destinations are used
     # for control purposes like path requests
@@ -279,6 +282,10 @@ class Transport:
     def jobs():
         outgoing = []
         Transport.jobs_running = True
+        
+        # TODO: Remove at some point
+        # start_time = time.time()
+
         try:
             if not Transport.jobs_locked:
                 # Process receipts list for timed-out packets
@@ -384,6 +391,15 @@ class Transport:
                             stale_paths.append(destination_hash)
                             RNS.log("Path to "+RNS.prettyhexrep(destination_hash)+" was removed since the attached interface no longer exists", RNS.LOG_DEBUG)
 
+                    # Cull the pending discovery path requests table
+                    stale_discovery_path_requests = []
+                    for destination_hash in Transport.discovery_path_requests:
+                        entry = Transport.discovery_path_requests[destination_hash]
+
+                        if time.time() > entry["timeout"]:
+                            stale_discovery_path_requests.append(destination_hash)
+                            RNS.log("Waiting path request for "+RNS.prettyhexrep(destination_hash)+" timed out and was removed", RNS.LOG_DEBUG)
+
                     # Cull the tunnel table
                     stale_tunnels = []
                     ti = 0
@@ -453,6 +469,17 @@ class Transport:
                             RNS.log("Removed "+str(i)+" paths", RNS.LOG_EXTREME)
 
                     i = 0
+                    for destination_hash in stale_discovery_path_requests:
+                        Transport.discovery_path_requests.pop(destination_hash)
+                        i += 1
+
+                    if i > 0:
+                        if i == 1:
+                            RNS.log("Removed "+str(i)+" waiting path request", RNS.LOG_EXTREME)
+                        else:
+                            RNS.log("Removed "+str(i)+" waiting path requests", RNS.LOG_EXTREME)
+
+                    i = 0
                     for tunnel_id in stale_tunnels:
                         Transport.tunnels.pop(tunnel_id)
                         i += 1
@@ -471,6 +498,13 @@ class Transport:
             traceback.print_exc()
 
         Transport.jobs_running = False
+
+        # TODO: Remove at some point
+        # end_time = time.time()
+        # if RNS.loglevel >= RNS.LOG_EXTREME:
+        #     duration = round((end_time - start_time) * 1000, 2)
+        #     if duration > 1:
+        #         RNS.log("Transport jobs took "+str(duration)+"ms", RNS.LOG_EXTREME)
 
         for packet in outgoing:
             packet.send()
@@ -1207,6 +1241,7 @@ class Transport:
                                 announce_context = RNS.Packet.NONE
                                 announce_data = packet.data
 
+                                # TODO: Shouldn't the context be PATH_RESPONSE in the first case here?
                                 if Transport.from_local_client(packet) and packet.context == RNS.Packet.PATH_RESPONSE:
                                     for local_interface in Transport.local_client_interfaces:
                                         if packet.receiving_interface != local_interface:
@@ -1240,6 +1275,38 @@ class Transport:
 
                                             new_announce.hops = packet.hops
                                             new_announce.send()
+
+                            # If we have any waiting discovery path requests
+                            # for this destination, we retransmit to that
+                            # interface immediately
+                            if packet.destination_hash in Transport.discovery_path_requests:
+                                pr_entry = Transport.discovery_path_requests[packet.destination_hash]
+                                attached_interface = pr_entry["requesting_interface"]
+
+                                interface_str = " on "+str(attached_interface)
+
+                                RNS.log("Got matching announce, answering waiting discovery path request for "+RNS.prettyhexrep(packet.destination_hash)+interface_str, RNS.LOG_DEBUG)
+                                announce_identity = RNS.Identity.recall(packet.destination_hash)
+                                announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
+                                announce_destination.hash = packet.destination_hash
+                                announce_destination.hexhash = announce_destination.hash.hex()
+                                announce_context = RNS.Packet.NONE
+                                announce_data = packet.data
+
+                                new_announce = RNS.Packet(
+                                    announce_destination,
+                                    announce_data,
+                                    RNS.Packet.ANNOUNCE,
+                                    context = RNS.Packet.PATH_RESPONSE,
+                                    header_type = RNS.Packet.HEADER_2,
+                                    transport_type = Transport.TRANSPORT,
+                                    transport_id = Transport.identity.hash,
+                                    attached_interface = attached_interface
+                                )
+
+                                new_announce.hops = packet.hops
+                                new_announce.send()
+
 
                             destination_table_entry = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet]
                             Transport.destination_table[packet.destination_hash] = destination_table_entry
@@ -1323,7 +1390,7 @@ class Transport:
                         if packet.receiving_interface == link_entry[2]:
                             # TODO: Should we validate the LR proof at each transport
                             # step before transporting it?
-                            RNS.log("Link request proof received on correct interface, transporting it via "+str(link_entry[4]), RNS.LOG_DEBUG)
+                            # RNS.log("Link request proof received on correct interface, transporting it via "+str(link_entry[4]), RNS.LOG_EXTREME)
                             new_raw = packet.raw[0:1]
                             new_raw += struct.pack("!B", packet.hops)
                             new_raw += packet.raw[2:]
@@ -1730,13 +1797,17 @@ class Transport:
 
     @staticmethod
     def path_request(destination_hash, is_from_local_client, attached_interface, requestor_transport_id=None):
+        should_search_for_unknown = False
+
         if attached_interface != None:
+            if RNS.Reticulum.transport_enabled() and attached_interface.mode in RNS.Interfaces.Interface.Interface.DISCOVER_PATHS_FOR:
+                should_search_for_unknown = True
+
             interface_str = " on "+str(attached_interface)
         else:
             interface_str = ""
 
-        # TODO: Clean
-        # RNS.log("Path request for "+RNS.prettyhexrep(destination_hash)+interface_str, RNS.LOG_DEBUG)
+        RNS.log("Path request for "+RNS.prettyhexrep(destination_hash)+interface_str, RNS.LOG_DEBUG)
 
         destination_exists_on_local_client = False
         if len(Transport.local_client_interfaces) > 0:
@@ -1764,7 +1835,7 @@ class Transport:
                 # path requests with transport instance keys is quite
                 # inefficient. There is probably a better way. Doing
                 # path invalidation here would decrease the network
-                # convergence time.
+                # convergence time. Maybe just drop it?
                 RNS.log("Not answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", since next hop is the requestor", RNS.LOG_DEBUG)
             else:
                 RNS.log("Answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", path is known", RNS.LOG_DEBUG)
@@ -1800,6 +1871,20 @@ class Transport:
             for interface in Transport.interfaces:
                 if not interface == attached_interface:
                     Transport.request_path(destination_hash, interface)
+
+        elif should_search_for_unknown:
+            if destination_hash in Transport.discovery_path_requests:
+                RNS.log("There is already a waiting path request for "+RNS.prettyhexrep(destination_hash)+" on behalf of path request"+interface_str, RNS.LOG_DEBUG)
+            else:
+                # Forward path request on all interfaces
+                # except the requestor interface
+                RNS.log("Attempting to discover unknown path to "+RNS.prettyhexrep(destination_hash)+" on behalf of path request"+interface_str, RNS.LOG_DEBUG)
+                pr_entry = { "destination_hash": destination_hash, "timeout": time.time()+Transport.PATH_REQUEST_TIMEOUT, "requesting_interface": attached_interface }
+                Transport.discovery_path_requests[destination_hash] = pr_entry
+
+                for interface in Transport.interfaces:
+                    if not interface == attached_interface:
+                        Transport.request_path(destination_hash, interface)
 
         elif not is_from_local_client and len(Transport.local_client_interfaces) > 0:
             # Forward the path request on all local
