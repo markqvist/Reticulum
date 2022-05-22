@@ -181,6 +181,7 @@ class Reticulum:
         Reticulum.storagepath   = Reticulum.configdir+"/storage"
         Reticulum.cachepath     = Reticulum.configdir+"/storage/cache"
         Reticulum.resourcepath  = Reticulum.configdir+"/storage/resources"
+        Reticulum.identitypath  = Reticulum.configdir+"/storage/identities"
 
         Reticulum.__transport_enabled = False
         Reticulum.__use_implicit_proof = True
@@ -215,6 +216,9 @@ class Reticulum:
 
         if not os.path.isdir(Reticulum.resourcepath):
             os.makedirs(Reticulum.resourcepath)
+
+        if not os.path.isdir(Reticulum.identitypath):
+            os.makedirs(Reticulum.identitypath)
 
         if os.path.isfile(self.configpath):
             try:
