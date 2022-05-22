@@ -209,7 +209,7 @@ class Destination:
         Registers a function to be called when a link has been established to
         this destination.
 
-        :param callback: A function or method to be called.
+        :param callback: A function or method with the signature *callback(link)* to be called when a new link is established with this destination.
         """
         self.callbacks.link_established = callback
 
@@ -218,7 +218,7 @@ class Destination:
         Registers a function to be called when a packet has been received by
         this destination.
 
-        :param callback: A function or method to be called.
+        :param callback: A function or method with the signature *callback(data, packet)* to be called when this destination receives a packet.
         """
         self.callbacks.packet = callback
 
@@ -228,7 +228,7 @@ class Destination:
         a packet sent to this destination. Allows control over when and if
         proofs should be returned for received packets.
 
-        :param callback: A function or method to be called. The callback must return one of True or False. If the callback returns True, a proof will be sent. If it returns False, a proof will not be sent.
+        :param callback: A function or method to with the signature *callback(packet)* be called when a packet that requests a proof is received. The callback must return one of True or False. If the callback returns True, a proof will be sent. If it returns False, a proof will not be sent.
         """
         self.callbacks.proof_requested = callback
 
