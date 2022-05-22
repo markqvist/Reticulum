@@ -96,6 +96,9 @@ Currently, the following interfaces are supported:
 
 ## Development Roadmap
 - Version 0.3.7
+  - Announce and path request improvements
+  - Improving management utilities
+- Version 0.3.8
   - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
   - Support for radio and modem interfaces on Android
   - GUI interface configuration tool
