@@ -567,7 +567,7 @@ class Resource:
                     else:
                         # Otherwise we'll recursively create the
                         # next segment of the resource
-                        Resource(self.input_file, self.link, callback = self.callback, segment_index = self.segment_index+1, original_hash=self.original_hash)
+                        Resource(self.input_file, self.link, callback = self.callback, segment_index = self.segment_index+1, original_hash=self.original_hash, progress_callback = self.__progress_callback)
                 else:
                     pass
             else:
