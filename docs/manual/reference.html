@@ -484,7 +484,7 @@ relevant interfaces. Application specific data can be added to the announce.</p>
 this destination.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>callback</strong> – A function or method to be called.</p>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method with the signature <em>callback(link)</em> to be called when a new link is established with this destination.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -496,7 +496,7 @@ this destination.</p>
 this destination.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>callback</strong> – A function or method to be called.</p>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method with the signature <em>callback(data, packet)</em> to be called when this destination receives a packet.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -509,7 +509,7 @@ a packet sent to this destination. Allows control over when and if
 proofs should be returned for received packets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>callback</strong> – A function or method to be called. The callback must return one of True or False. If the callback returns True, a proof will be sent. If it returns False, a proof will not be sent.</p>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method to with the signature <em>callback(packet)</em> be called when a packet that requests a proof is received. The callback must return one of True or False. If the callback returns True, a proof will be sent. If it returns False, a proof will not be sent.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -919,7 +919,7 @@ the resource will be accepted. If it returns <em>False</em> it will
 be ignored.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>callback</strong> – A function or method with the signature <em>callback(resource)</em> to be called.</p>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method with the signature <em>callback(resource)</em> to be called. Please note that only the basic information of the resource is available at this time, such as <em>get_transfer_size()</em>, <em>get_data_size()</em>, <em>get_parts()</em> and <em>is_compressed()</em>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -955,7 +955,7 @@ transferring over this link.</p>
 identified over this link.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>callback</strong> – A function or method with the signature <em>callback(identity)</em> to be called.</p>
+<dd class="field-odd"><p><strong>callback</strong> – A function or method with the signature <em>callback(link, identity)</em> to be called.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1077,6 +1077,66 @@ the resource advertisement it will begin transferring.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The current progress of the resource transfer as a <em>float</em> between 0.0 and 1.0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Resource.get_transfer_size">
+<span class="sig-name descname"><span class="pre">get_transfer_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource.get_transfer_size" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of bytes needed to transfer the resource.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Resource.get_data_size">
+<span class="sig-name descname"><span class="pre">get_data_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource.get_data_size" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The total data size of the resource.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Resource.get_parts">
+<span class="sig-name descname"><span class="pre">get_parts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource.get_parts" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of parts the resource will be transferred in.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Resource.get_segments">
+<span class="sig-name descname"><span class="pre">get_segments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource.get_segments" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of segments the resource is divided into.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Resource.get_hash">
+<span class="sig-name descname"><span class="pre">get_hash</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource.get_hash" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The hash of the resource.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Resource.is_compressed">
+<span class="sig-name descname"><span class="pre">is_compressed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource.is_compressed" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Whether the resource is compressed.</p>
 </dd>
 </dl>
 </dd></dl>
