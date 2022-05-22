@@ -75,6 +75,8 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                     modestr = "Roaming"
                 elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
                     modestr = "Boundary"
+                elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_GATEWAY:
+                    modestr = "Gateway"
                 else:
                     modestr = "Full"
 
