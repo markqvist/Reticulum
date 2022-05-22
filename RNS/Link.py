@@ -650,7 +650,7 @@ class Link:
                                 self.__remote_identity = identity
                                 if self.callbacks.remote_identified != None:
                                     try:
-                                        self.callbacks.remote_identified(self.__remote_identity)
+                                        self.callbacks.remote_identified(self, self.__remote_identity)
                                     except Exception as e:
                                         RNS.log("Error while executing remote identified callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
@@ -699,7 +699,9 @@ class Link:
                         elif self.resource_strategy == Link.ACCEPT_APP:
                             if self.callbacks.resource != None:
                                 try:
-                                    if self.callbacks.resource(resource):
+                                    resource_advertisement = RNS.ResourceAdvertisement.unpack(packet.plaintext)
+                                    resource_advertisement.link = self
+                                    if self.callbacks.resource(resource_advertisement):
                                         RNS.Resource.accept(packet, self.callbacks.resource_concluded)
                                 except Exception as e:
                                     RNS.log("Error while executing resource accept callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -830,7 +832,7 @@ class Link:
         the resource will be accepted. If it returns *False* it will
         be ignored.
 
-        :param callback: A function or method with the signature *callback(resource)* to be called.
+        :param callback: A function or method with the signature *callback(resource)* to be called. Please note that only the basic information of the resource is available at this time, such as *get_transfer_size()*, *get_data_size()*, *get_parts()* and *is_compressed()*.
         """
         self.callbacks.resource = callback
 
@@ -857,7 +859,7 @@ class Link:
         Registers a function to be called when an initiating peer has
         identified over this link.
 
-        :param callback: A function or method with the signature *callback(identity)* to be called.
+        :param callback: A function or method with the signature *callback(link, identity)* to be called.
         """
         self.callbacks.remote_identified = callback
 
