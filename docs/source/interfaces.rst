@@ -634,25 +634,51 @@ Interface Modes
 The optional ``mode`` setting is available on all interfaces, and allows
 selecting the high-level behaviour of the interface from a number of modes.
 These modes affect how Reticulum selects paths in the network, how announces
-are propagated and how long paths are valid.
+are propagated, how long paths are valid and how paths are discovered.
 
-Configuring modes on interfaces is not strictly necessary, but can be useful
-when building or connecting to more complex networks. When not running a
-Transport Node, it is rarely useful to configure an interface mode.
+Configuring modes on interfaces is **not** strictly necessary, but can be useful
+when building or connecting to more complex networks. If your Reticulum
+instance is not running a Transport Node, it is rarely useful to configure
+interface modes, and in such cases interfaces should generally be left in
+the default mode.
 
- * | The default value is ``full``. In this mode, all discovery,
+ * | The default mode is ``full``. In this mode, all discovery,
      meshing and transport functionality is activated.
+
+ * | The ``gateway`` mode (or shorthand ``gw``) also has all
+     discovery, meshing and transport functionality available,
+     but will additionally try to discover unknown paths on
+     behalf of other nodes residing on the ``gateway`` interface.
+     If Reticulum receives a path request for an unknown
+     destination, from a node on a ``gateway`` interface, it
+     will try to discover this path via all other active interfaces,
+     and forward the discovered path to the requestor if one is
+     found.
+
+   | If you want to allow other nodes to widely resolve paths or connect
+     to a network via an interface, it might be useful to put it in this
+     mode. By creating a chain of ``gateway`` interfaces, other
+     nodes will be able to immediately discover paths to any
+     destination along the chain.
+
+   | *Please note!* It is the interface *facing the clients* that
+     must be put into ``gateway`` mode for this to work, not
+     the interface facing the wider network (for this, the ``boundary``
+     mode can be useful, though).
 
  * | In the ``access_point`` (or shorthand ``ap``) mode, the
      interface will operate as a network access point. In this
      mode, announces will not be automatically broadcasted on
      the interface, and paths to destinations on the interface
-     will have a much shorter expiry time. This mode is useful
-     for creating interfaces that remain quiet, unless when
-     someone is actually using them. An example of this could
-     be a radio interface serving a wide area, where users are
-     expected to connect momentarily, use the network, and then
-     disappear again.
+     will have a much shorter expiry time. In addition, path
+     requests from clients on the access point interface will
+     be handled in the same way as the ``gateway`` interface.
+
+   | This mode is useful for creating interfaces that remain
+     quiet, until someone actually starts using them. An example
+     of this could be a radio interface serving a wide area,
+     where users are expected to connect momentarily, use the
+     network, and then disappear again.
 
  * | The ``roaming`` mode should be used on interfaces that are
      roaming (physically mobile), seen from the perspective of
