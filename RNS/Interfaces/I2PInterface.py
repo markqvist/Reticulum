@@ -212,6 +212,10 @@ class I2PInterfacePeer(Interface):
         self.mode             = RNS.Interfaces.Interface.Interface.MODE_FULL
         self.bitrate          = I2PInterface.BITRATE_GUESS
 
+        self.announce_rate_target  = None
+        self.announce_rate_grace   = None
+        self.announce_rate_penalty = None
+
         if max_reconnect_tries == None:
             self.max_reconnect_tries = I2PInterfacePeer.RECONNECT_MAX_TRIES
         else:
