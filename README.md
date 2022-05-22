@@ -95,9 +95,8 @@ Currently, the following interfaces are supported:
 - Custom hardware via stdio or pipes
 
 ## Development Roadmap
-- Version 0.3.6
-  - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
 - Version 0.3.7
+  - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
   - Support for radio and modem interfaces on Android
   - GUI interface configuration tool
   - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
@@ -111,10 +110,12 @@ Currently, the following interfaces are supported:
     - CAN-bus
     - ZeroMQ
     - MQTT
+    - IrDA / IrPHY
     - SPI
     - i²c
 - Planned, but not yet scheduled
   - Globally routable multicast
+  - Bindings for other programming languages
   - A portable Reticulum implementation in C, see [#21](https://github.com/markqvist/Reticulum/discussions/21)
 
 
