@@ -251,7 +251,7 @@ destinations on the Reticulum network.
 
 .. code:: text
 
-  usage: rnpath.py [-h] [--config CONFIG] [--version] [-t] [-r] [-d] [-D] [-w seconds] [-v] [destination]
+  usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-r] [-d] [-D] [-w seconds] [-v] [destination]
   
   Reticulum Path Discovery Utility
   
@@ -281,7 +281,7 @@ destinations will not have this option enabled, and will not be probable.
 .. code:: text
 
   # Run rnprobe
-  python3 -m RNS.Utilities.rnprobe example_utilities.echo.request 9382f334de63217a4278
+  rnprobe example_utilities.echo.request 9382f334de63217a4278
 
   # Example output
   Sent 16 byte probe to <9382f334de63217a4278>
@@ -290,7 +290,7 @@ destinations will not have this option enabled, and will not be probable.
 
 .. code:: text
 
-  usage: rnprobe.py [-h] [--config CONFIG] [--version] [-v] [full_name] [destination_hash]
+  usage: rnprobe [-h] [--config CONFIG] [--version] [-v] [full_name] [destination_hash]
 
   Reticulum Probe Utility
 
@@ -303,6 +303,47 @@ destinations will not have this option enabled, and will not be probable.
     --config CONFIG   path to alternative Reticulum config directory
     --version         show program's version number and exit
     -v, --verbose
+
+
+The rncp Utility
+================
+
+The ``rncp`` utility is a simple file transfer tool. Using it, you can transfer
+files through Reticulum.
+
+.. code:: text
+
+  # Run rncp on the receiving system, specifying which identities
+  # are allowed to send files.
+  rncp --receive --allow 940ea3f9e1037d38758f --allow e28d5aee4317c24a9041
+
+  # From another system, copy a file to the receiving system
+  rncp ~/path/to/file.tgz 256320d405d6d525d1e9
+
+You can specify as many allowed senders as needed, or complete disable authentication.
+
+.. code:: text
+
+  usage: rncp.py [-h] [--config path] [-v] [-q] [-i] [-r] [-b] [-a ALLOW] [-n] [-w seconds] [--version] [file] [destination]
+
+  Reticulum File Transfer Utility
+
+  positional arguments:
+    file                     file to be transferred
+    destination              hexadecimal hash of the receiver
+
+  optional arguments:
+    -h, --help               show this help message and exit
+    --config path            path to alternative Reticulum config directory
+    -v, --verbose            increase verbosity
+    -q, --quiet              decrease verbosity
+    -i, --identity           print identity and destination info and exit
+    -r, --receive            wait for incoming files
+    -b, --no-announce        don't announce at program start
+    -a ALLOW, --allow ALLOW  accept from this identity
+    -n, --no-auth            accept files from anyone
+    -w seconds               sender timeout before giving up
+    --version                show program's version number and exit
 
 
 Improving System Configuration
