@@ -526,8 +526,11 @@ class Resource:
                         RNS.log("Error while executing resource assembled callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
                 try:
-                    self.data.close()
+                    if hasattr(self.data, "close") and callable(self.data.close):
+                        self.data.close()
+
                     os.unlink(self.storagepath)
+
                 except Exception as e:
                     RNS.log("Error while cleaning up resource files, the contained exception was:", RNS.LOG_ERROR)
                     RNS.log(str(e))
@@ -826,8 +829,44 @@ class Resource:
         progress = self.processed_parts / self.progress_total_parts
         return progress
 
+    def get_transfer_size(self):
+        """
+        :returns: The number of bytes needed to transfer the resource.
+        """
+        return self.size
+
+    def get_data_size(self):
+        """
+        :returns: The total data size of the resource.
+        """
+        return self.total_size
+
+    def get_parts(self):
+        """
+        :returns: The number of parts the resource will be transferred in.
+        """
+        return self.total_parts
+
+    def get_segments(self):
+        """
+        :returns: The number of segments the resource is divided into.
+        """
+        return self.total_segments
+
+    def get_hash(self):
+        """
+        :returns: The hash of the resource.
+        """
+        return self.hash
+
+    def is_compressed(self):
+        """
+        :returns: Whether the resource is compressed.
+        """
+        return self.compressed
+
     def __str__(self):
-        return "<"+RNS.hexrep(self.hash)+"/"+RNS.hexrep(self.link.link_id)+">"
+        return "<"+RNS.hexrep(self.hash,delimit=False)+"/"+RNS.hexrep(self.link.link_id,delimit=False)+">"
 
 
 class ResourceAdvertisement:
@@ -903,6 +942,23 @@ class ResourceAdvertisement:
             # Flags
             self.f = 0x00 | self.p << 4 | self.u << 3 | self.s << 2 | self.c << 1 | self.e
 
+    def get_transfer_size(self):
+        return self.t
+
+    def get_data_size(self):
+        return self.d
+
+    def get_parts(self):
+        return self.n
+
+    def get_segments(self):
+        return self.l
+
+    def get_hash(self):
+        return self.h
+
+    def is_compressed(self):
+        return self.c
 
     def pack(self, segment=0):
         hashmap_start = segment*ResourceAdvertisement.HASHMAP_MAX_LEN
