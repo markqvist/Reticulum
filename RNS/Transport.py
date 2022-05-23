@@ -95,6 +95,8 @@ class Transport:
     announce_rate_table  = {}           # A table for keeping track of announce rates
     
     discovery_path_requests  = {}       # A table for keeping track of path requests on behalf of other nodes
+    discovery_pr_tags        = []       # A table for keeping track of tagged path requests
+    max_pr_tags              = 32000    # Maximum amount of unique path request tags to remember
 
     # Transport control destinations are used
     # for control purposes like path requests
@@ -359,9 +361,13 @@ class Transport:
                     Transport.announces_last_checked = time.time()
 
 
-                # Cull the packet hashlist if it has reached max size
+                # Cull the packet hashlist if it has reached its max size
                 if len(Transport.packet_hashlist) > Transport.hashlist_maxsize:
                     Transport.packet_hashlist = Transport.packet_hashlist[len(Transport.packet_hashlist)-Transport.hashlist_maxsize:len(Transport.packet_hashlist)-1]
+
+                # Cull the path request tags list if it has reached its max size
+                if len(Transport.discovery_pr_tags) > Transport.max_pr_tags:
+                    Transport.discovery_pr_tags = Transport.discovery_pr_tags[len(Transport.discovery_pr_tags)-Transport.max_pr_tags:len(Transport.discovery_pr_tags)-1]
 
                 if time.time() > Transport.tables_last_culled + Transport.tables_cull_interval:
                     # Cull the reverse table according to timeout
@@ -1761,7 +1767,7 @@ class Transport:
             return False
 
     @staticmethod
-    def request_path(destination_hash, on_interface=None):
+    def request_path(destination_hash, on_interface=None, tag=None):
         """
         Requests a path to the destination from the network. If
         another reachable peer on the network knows a path, it
@@ -1770,10 +1776,15 @@ class Transport:
         :param destination_hash: A destination hash as *bytes*.
         :param on_interface: If specified, the path request will only be sent on this interface. In normal use, Reticulum handles this automatically, and this parameter should not be used.
         """
-        if RNS.Reticulum.transport_enabled():
-            path_request_data = destination_hash+Transport.identity.hash+RNS.Identity.get_random_hash()
+        if tag == None:
+            request_tag = RNS.Identity.get_random_hash()
         else:
-            path_request_data = destination_hash+RNS.Identity.get_random_hash()
+            request_tag = tag
+
+        if RNS.Reticulum.transport_enabled():
+            path_request_data = destination_hash+Transport.identity.hash+request_tag
+        else:
+            path_request_data = destination_hash+request_tag
 
         path_request_dst = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
         packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = on_interface)
@@ -1786,8 +1797,9 @@ class Transport:
             # hash in the packet, we assume those bytes are the
             # destination being requested.
             if len(data) >= RNS.Identity.TRUNCATED_HASHLENGTH//8:
-                # If there is also enough bytes for a trasport
-                # instance ID and at least one random byte, we
+                destination_hash = data[:RNS.Identity.TRUNCATED_HASHLENGTH//8]
+                # If there is also enough bytes for a transport
+                # instance ID and at least one tag byte, we
                 # assume the next bytes to be the trasport ID
                 # of the requesting transport instance.
                 if len(data) > (RNS.Identity.TRUNCATED_HASHLENGTH//8)*2:
@@ -1795,17 +1807,43 @@ class Transport:
                 else:
                     requesting_transport_instance = None
 
-                Transport.path_request(
-                    data[:RNS.Identity.TRUNCATED_HASHLENGTH//8],
-                    Transport.from_local_client(packet),
-                    packet.receiving_interface,
-                    requesting_transport_instance,
-                )
+                tag_bytes = None
+                if len(data) > (RNS.Identity.TRUNCATED_HASHLENGTH//8)*2:
+                    tag_bytes = data[RNS.Identity.TRUNCATED_HASHLENGTH//8*2:]
+
+                elif len(data) > (RNS.Identity.TRUNCATED_HASHLENGTH//8):
+                    tag_bytes = data[RNS.Identity.TRUNCATED_HASHLENGTH//8:]
+
+                if tag_bytes != None:
+                    if len(tag_bytes) > RNS.Identity.TRUNCATED_HASHLENGTH//8:
+                        tag_bytes = tag_bytes[:RNS.Identity.TRUNCATED_HASHLENGTH//8]
+
+                    unique_tag = destination_hash+tag_bytes
+
+                    if not unique_tag in Transport.discovery_pr_tags:
+                        Transport.discovery_pr_tags.append(unique_tag)
+
+                        Transport.path_request(
+                            destination_hash,
+                            Transport.from_local_client(packet),
+                            packet.receiving_interface,
+                            requestor_transport_id = requesting_transport_instance,
+                            tag=tag_bytes
+                        )
+
+                    else:
+                        # TODO: Reset this to debug level
+                        RNS.log("Ignoring duplicate path request for "+RNS.prettyhexrep(destination_hash)+" with tag "+RNS.prettyhexrep(unique_tag), RNS.LOG_WARNING)
+
+                else:
+                    # TODO: Reset this to debug level
+                    RNS.log("Ignoring tagless path request for "+RNS.prettyhexrep(destination_hash), RNS.LOG_WARNING)
+
         except Exception as e:
             RNS.log("Error while handling path request. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     @staticmethod
-    def path_request(destination_hash, is_from_local_client, attached_interface, requestor_transport_id=None):
+    def path_request(destination_hash, is_from_local_client, attached_interface, requestor_transport_id=None, tag=None):
         should_search_for_unknown = False
 
         if attached_interface != None:
@@ -1893,14 +1931,16 @@ class Transport:
 
                 for interface in Transport.interfaces:
                     if not interface == attached_interface:
-                        Transport.request_path(destination_hash, interface)
+                        # Use the previously extracted tag from this path request
+                        # on the new path requests as well, to avoid potential loops
+                        Transport.request_path(destination_hash, on_interface=interface, tag=tag)
 
         elif not is_from_local_client and len(Transport.local_client_interfaces) > 0:
             # Forward the path request on all local
             # client interfaces
             RNS.log("Forwarding path request for "+RNS.prettyhexrep(destination_hash)+interface_str+" to local clients", RNS.LOG_DEBUG)
             for interface in Transport.local_client_interfaces:
-                Transport.request_path(destination_hash, interface)
+                Transport.request_path(destination_hash, on_interface=interface)
 
         else:
             RNS.log("Ignoring path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", no path known", RNS.LOG_DEBUG)
