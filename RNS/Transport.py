@@ -1767,7 +1767,7 @@ class Transport:
             return False
 
     @staticmethod
-    def request_path(destination_hash, on_interface=None, tag=None):
+    def request_path(destination_hash, on_interface=None, tag=None, recursive=False):
         """
         Requests a path to the destination from the network. If
         another reachable peer on the network knows a path, it
@@ -1788,6 +1788,33 @@ class Transport:
 
         path_request_dst = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
         packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = on_interface)
+
+        if on_interface != None and recursive:
+            if not hasattr(on_interface, "announce_cap"):
+                on_interface.announce_cap = RNS.Reticulum.ANNOUNCE_CAP
+
+            if not hasattr(on_interface, "announce_allowed_at"):
+                on_interface.announce_allowed_at = 0
+
+            if not hasattr(on_interface, "announce_queue"):
+                on_interface.announce_queue = []
+
+            queued_announces = True if len(on_interface.announce_queue) > 0 else False
+            if queued_announces:
+                # TODO: Reset to extra level, probably
+                RNS.log("Blocking recursive path request on "+str(on_interface)+" due to queued announces", RNS.LOG_DEBUG)
+                return
+            else:
+                now = time.time()
+                if now < on_interface.announce_allowed_at:
+                    # TODO: Reset to extra level, probably
+                    RNS.log("Blocking recursive path request on "+str(on_interface)+" due to active announce cap", RNS.LOG_DEBUG)
+                    return
+                else:
+                    tx_time   = ((len(path_request_data)+RNS.Reticulum.HEADER_MINSIZE)*8) / on_interface.bitrate
+                    wait_time = (tx_time / on_interface.announce_cap)
+                    on_interface.announce_allowed_at = now + wait_time
+
         packet.send()
 
     @staticmethod
@@ -1933,7 +1960,7 @@ class Transport:
                     if not interface == attached_interface:
                         # Use the previously extracted tag from this path request
                         # on the new path requests as well, to avoid potential loops
-                        Transport.request_path(destination_hash, on_interface=interface, tag=tag)
+                        Transport.request_path(destination_hash, on_interface=interface, tag=tag, recursive=True)
 
         elif not is_from_local_client and len(Transport.local_client_interfaces) > 0:
             # Forward the path request on all local
