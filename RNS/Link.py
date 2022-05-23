@@ -687,12 +687,12 @@ class Link:
                         if RNS.ResourceAdvertisement.is_request(packet):
                             RNS.Resource.accept(packet, callback=self.request_resource_concluded)
                         elif RNS.ResourceAdvertisement.is_response(packet):
-                            request_id = RNS.ResourceAdvertisement.get_request_id(packet)
+                            request_id = RNS.ResourceAdvertisement.read_request_id(packet)
                             for pending_request in self.pending_requests:
                                 if pending_request.request_id == request_id:
                                     RNS.Resource.accept(packet, callback=self.response_resource_concluded, progress_callback=pending_request.response_resource_progress, request_id = request_id)
-                                    pending_request.response_size = RNS.ResourceAdvertisement.get_size(packet)
-                                    pending_request.response_transfer_size = RNS.ResourceAdvertisement.get_transfer_size(packet)
+                                    pending_request.response_size = RNS.ResourceAdvertisement.read_size(packet)
+                                    pending_request.response_transfer_size = RNS.ResourceAdvertisement.read_transfer_size(packet)
                                     pending_request.started_at = time.time()
                         elif self.resource_strategy == Link.ACCEPT_NONE:
                             pass

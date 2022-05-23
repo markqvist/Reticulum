@@ -896,19 +896,19 @@ class ResourceAdvertisement:
 
 
     @staticmethod
-    def get_request_id(advertisement_packet):
+    def read_request_id(advertisement_packet):
         adv = ResourceAdvertisement.unpack(advertisement_packet.plaintext)
         return adv.q
 
 
     @staticmethod
-    def get_transfer_size(advertisement_packet):
+    def read_transfer_size(advertisement_packet):
         adv = ResourceAdvertisement.unpack(advertisement_packet.plaintext)
         return adv.t
 
 
     @staticmethod
-    def get_size(advertisement_packet):
+    def read_size(advertisement_packet):
         adv = ResourceAdvertisement.unpack(advertisement_packet.plaintext)
         return adv.d
 
