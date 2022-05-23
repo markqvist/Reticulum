@@ -297,7 +297,7 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
         print("\r                                                \rThe transfer failed")
         exit(1)
     else:
-        print("\r                                                \r"+str(file_path)+" copied to "+RNS.prettyhexrep(destination_hash))
+        print("\r                                                                                  \r"+str(file_path)+" copied to "+RNS.prettyhexrep(destination_hash))
         link.teardown()
         time.sleep(0.25)
         real_file.close()
