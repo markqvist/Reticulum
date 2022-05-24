@@ -27,6 +27,7 @@ setuptools.setup(
             'rnprobe=RNS.Utilities.rnprobe:main',
             'rnpath=RNS.Utilities.rnpath:main',
             'rncp=RNS.Utilities.rncp:main',
+            'rnx=RNS.Utilities.rnx:main',
         ]
     },
     install_requires=['cryptography>=3.4.7', 'pyserial>=3.5', 'netifaces'],

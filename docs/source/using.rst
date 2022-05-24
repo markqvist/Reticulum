@@ -340,7 +340,7 @@ You can specify as many allowed senders as needed, or complete disable authentic
     -i, --identity           print identity and destination info and exit
     -r, --receive            wait for incoming files
     -b, --no-announce        don't announce at program start
-    -a ALLOW, --allow ALLOW  accept from this identity
+    -a allowed_hash          accept from this identity
     -n, --no-auth            accept files from anyone
     -w seconds               sender timeout before giving up
     --version                show program's version number and exit
