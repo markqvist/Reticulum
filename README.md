@@ -75,6 +75,16 @@ When first started, Reticulum will create a default configuration file, providin
 
 You can use the examples in the config file to expand communication over many mediums such as packet radio or LoRa (with [RNode](https://unsigned.io/projects/rnode/)), serial ports, or over fast IP links and the Internet using the UDP and TCP interfaces. For more detailed examples, take a look at the [Supported Interfaces](https://markqvist.github.io/Reticulum/manual/interfaces.html) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
 
+## Included Utilities
+Reticulum includes a range of useful utilities for managing your networks, viewing status and information, and other tasks. You can read more about these programs in the [Included Utility Programs](https://markqvist.github.io/Reticulum/manual/using.html#included-utility-programs) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
+
+- The system daemon `rnsd` for running Reticulum as an always available service
+- An interface status utility called `rnstatus`, that displays information on interfaces
+- The path lookup and and management tool `rnpath`, letting you access and modify path tables
+- A diagnostics tool called `rnprobe`, for checking connectivity to destinations
+- A simple file transfer program called `rncp`, making easy to copy files to remote systems
+- The remote command execution program `rnx`, that let's you run commands and programs and retrieve output from remote systems
+
 ## Current Status
 Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. There will be bugs. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.
 
