@@ -138,6 +138,10 @@ take a look at the :ref:`Interfaces<interfaces-main>` chapter of this manual.
 Included Utility Programs
 -------------------------
 
+Reticulum includes a range of useful utilities, both for managing your Reticulum
+networks, and for carrying out common tasks over Reticulum networks, such as
+transferring files to remote systems, and executing commands and programs remotely.
+
 If you often use Reticulum from several different programs, or simply want
 Reticulum to stay available all the time, for example if you are hosting
 a transport node, you might want to run Reticulum as a separate service that
@@ -314,8 +318,8 @@ files through Reticulum.
 .. code:: text
 
   # Run rncp on the receiving system, specifying which identities
-  # are allowed to send files.
-  rncp --receive --allow 940ea3f9e1037d38758f --allow e28d5aee4317c24a9041
+  # are allowed to send files
+  rncp --receive -a 940ea3f9e1037d38758f -a e28d5aee4317c24a9041
 
   # From another system, copy a file to the receiving system
   rncp ~/path/to/file.tgz 256320d405d6d525d1e9
@@ -324,26 +328,88 @@ You can specify as many allowed senders as needed, or complete disable authentic
 
 .. code:: text
 
-  usage: rncp.py [-h] [--config path] [-v] [-q] [-i] [-r] [-b] [-a ALLOW] [-n] [-w seconds] [--version] [file] [destination]
+  usage: rncp [-h] [--config path] [-v] [-q] [-p] [-r] [-b] [-a allowed_hash] [-n] [-w seconds] [--version] [file] [destination]
 
   Reticulum File Transfer Utility
 
   positional arguments:
-    file                     file to be transferred
-    destination              hexadecimal hash of the receiver
+    file                  file to be transferred
+    destination           hexadecimal hash of the receiver
 
   optional arguments:
-    -h, --help               show this help message and exit
-    --config path            path to alternative Reticulum config directory
-    -v, --verbose            increase verbosity
-    -q, --quiet              decrease verbosity
-    -i, --identity           print identity and destination info and exit
-    -r, --receive            wait for incoming files
-    -b, --no-announce        don't announce at program start
-    -a allowed_hash          accept from this identity
-    -n, --no-auth            accept files from anyone
-    -w seconds               sender timeout before giving up
-    --version                show program's version number and exit
+    -h, --help            show this help message and exit
+    --config path         path to alternative Reticulum config directory
+    -v, --verbose         increase verbosity
+    -q, --quiet           decrease verbosity
+    -p, --print-identity  print identity and destination info and exit
+    -r, --receive         wait for incoming files
+    -b, --no-announce     don't announce at program start
+    -a allowed_hash       accept from this identity
+    -n, --no-auth         accept files from anyone
+    -w seconds            sender timeout before giving up
+    --version             show program's version number and exit
+    -v, --verbose
+
+
+The rnx Utility
+================
+
+The ``rnx`` utility is a basic remote command execution program. It allows you to
+execute commands on remote systems over Reticulum, and to view returned command
+output.
+
+.. code:: text
+
+  # Run rnx on the listening system, specifying which identities
+  # are allowed to execute commands
+  rncp --listen -a 8111c4ff2968ab0c1286 -a 590256654482b4ba4038
+
+  # From another system, run a command 
+  rnx ad9a4c9da60089d41c29 "cat /proc/cpuinfo"
+
+  # Or enter the interactive mode pseudo-shell
+  rnx ad9a4c9da60089d41c29 -x
+
+  # The default identity file is stored in
+  # ~/.reticulum/identities/rnx, but you can use
+  # another one, which will be created if it does
+  # not already exist
+  rnx ad9a4c9da60089d41c29 -i /path/to/identity
+
+You can specify as many allowed senders as needed, or complete disable authentication.
+
+.. code:: text
+
+  usage: rnx [-h] [--config path] [-v] [-q] [-p] [-l] [-i identity] [-x] [-b] [-a allowed_hash] [-n] [-N] [-d] [-m] [-w seconds] [-W seconds] [--stdin STDIN] [--stdout STDOUT] [--stderr STDERR] [--version]
+             [destination] [command]
+
+  Reticulum Remote Execution Utility
+
+  positional arguments:
+    destination           hexadecimal hash of the listener
+    command               command to be execute
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    --config path         path to alternative Reticulum config directory
+    -v, --verbose         increase verbosity
+    -q, --quiet           decrease verbosity
+    -p, --print-identity  print identity and destination info and exit
+    -l, --listen          listen for incoming commands
+    -i identity           path to identity to use
+    -x, --interactive     enter interactive mode
+    -b, --no-announce     don't announce at program start
+    -a allowed_hash       accept from this identity
+    -n, --noauth          accept files from anyone
+    -N, --noid            don't identify to listener
+    -d, --detailed        show detailed result output
+    -m                    mirror exit code of remote command
+    -w seconds            connect and request timeout before giving up
+    -W seconds            max result download time
+    --stdin STDIN         pass input to stdin
+    --stdout STDOUT       max size in bytes of returned stdout
+    --stderr STDERR       max size in bytes of returned stderr
+    --version             show program's version number and exit
 
 
 Improving System Configuration
