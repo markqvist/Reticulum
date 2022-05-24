@@ -78,12 +78,12 @@ You can use the examples in the config file to expand communication over many me
 ## Included Utilities
 Reticulum includes a range of useful utilities for managing your networks, viewing status and information, and other tasks. You can read more about these programs in the [Included Utility Programs](https://markqvist.github.io/Reticulum/manual/using.html#included-utility-programs) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
 
-- The system daemon `rnsd` for running Reticulum as an always available service
-- An interface status utility called `rnstatus`, that displays information on interfaces
-- The path lookup and and management tool `rnpath`, letting you access and modify path tables
-- A diagnostics tool called `rnprobe`, for checking connectivity to destinations
-- A simple file transfer program called `rncp`, making easy to copy files to remote systems
-- The remote command execution program `rnx`, that let's you run commands and programs and retrieve output from remote systems
+- The system daemon `rnsd` for running Reticulum as an always-available service
+- An interface status utility called `rnstatus`, that displays information about interfaces
+- The path lookup and and management tool `rnpath` letting you view and modify path tables
+- A diagnostics tool called `rnprobe` for checking connectivity to destinations
+- A simple file transfer program called `rncp` making easy to copy files to remote systems
+- The remote command execution program `rnx` that let's you run commands and programs and retrieve output from remote systems
 
 ## Current Status
 Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. There will be bugs. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.
