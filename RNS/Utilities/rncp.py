@@ -312,10 +312,10 @@ def main():
         parser.add_argument("--config", metavar="path", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
         parser.add_argument('-v', '--verbose', action='count', default=0, help="increase verbosity")
         parser.add_argument('-q', '--quiet', action='count', default=0, help="decrease verbosity")
-        parser.add_argument('-i', '--identity', action='store_true', default=False, help="print identity and destination info and exit")
+        parser.add_argument('-p', '--print-identity', action='store_true', default=False, help="print identity and destination info and exit")
         parser.add_argument("-r", '--receive', action='store_true', default=False, help="wait for incoming files")
         parser.add_argument("-b", '--no-announce', action='store_true', default=False, help="don't announce at program start")
-        parser.add_argument('-a', '--allow', action='append', help="accept from this identity", type=str)
+        parser.add_argument('-a', metavar="allowed_hash", dest="allowed", action='append', help="accept from this identity", type=str)
         parser.add_argument('-n', '--no-auth', action='store_true', default=False, help="accept files from anyone")
         parser.add_argument("-w", action="store", metavar="seconds", type=float, help="sender timeout before giving up", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
         # parser.add_argument("--limit", action="store", metavar="files", type=float, help="maximum number of files to accept", default=None)
@@ -323,13 +323,13 @@ def main():
         
         args = parser.parse_args()
 
-        if args.receive or args.identity:
+        if args.receive or args.print_identity:
             receive(
                 configdir = args.config,
                 verbosity=args.verbose,
                 quietness=args.quiet,
-                allowed = args.allow,
-                display_identity=args.identity,
+                allowed = args.allowed,
+                display_identity=args.print_identity,
                 # limit=args.limit,
                 disable_auth=args.no_auth,
                 disable_announce=args.no_announce,
