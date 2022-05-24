@@ -85,7 +85,7 @@ Reticulum includes a range of useful utilities for managing your networks, viewi
 - A simple file transfer program called `rncp` making easy to copy files to remote systems
 - The remote command execution program `rnx` that let's you run commands and programs and retrieve output from remote systems
 
-All tools work reliably and well even over very low-bandwidth links like LoRa or Packet Radio.
+All tools, including `rnx` and `rncp`, work reliably and well even over very low-bandwidth links like LoRa or Packet Radio.
 
 ## Current Status
 Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. There will be bugs. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.
