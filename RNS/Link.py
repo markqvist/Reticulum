@@ -334,7 +334,8 @@ class Link:
                     response_callback = response_callback,
                     failed_callback = failed_callback,
                     progress_callback = progress_callback,
-                    timeout = timeout
+                    timeout = timeout,
+                    request_size = len(packed_request),
                 )
             
         else:
@@ -348,7 +349,8 @@ class Link:
                 response_callback = response_callback,
                 failed_callback = failed_callback,
                 progress_callback = progress_callback,
-                timeout = timeout
+                timeout = timeout,
+                request_size = len(packed_request),
             )
 
 
@@ -383,7 +385,9 @@ class Link:
         """
         :returns: The time in seconds since last inbound packet on the link.
         """
-        return time.time() - self.last_inbound
+        activated_at = self.activated_at if self.activated_at != None else 0
+        last_inbound = max(self.last_inbound, activated_at)
+        return time.time() - last_inbound
 
     def no_outbound_for(self):
         """
@@ -497,13 +501,15 @@ class Link:
                         sleep_time = 0.001
 
                 elif self.status == Link.ACTIVE:
-                    if time.time() >= self.last_inbound + self.keepalive:
+                    activated_at = self.activated_at if self.activated_at != None else 0
+                    last_inbound = max(self.last_inbound, activated_at)
+                    if time.time() >= last_inbound + self.keepalive:
                         sleep_time = self.rtt * self.keepalive_timeout_factor + Link.STALE_GRACE
                         self.status = Link.STALE
                         if self.initiator:
                             self.send_keepalive()
                     else:
-                        sleep_time = (self.last_inbound + self.keepalive) - time.time()
+                        sleep_time = (last_inbound + self.keepalive) - time.time()
 
                 elif self.status == Link.STALE:
                     sleep_time = 0.001
@@ -543,7 +549,7 @@ class Link:
                 allowed = False
                 if not allow == RNS.Destination.ALLOW_NONE:
                     if allow == RNS.Destination.ALLOW_LIST:
-                        if self.__remote_identity.hash in allowed_list:
+                        if self.__remote_identity != None and self.__remote_identity.hash in allowed_list:
                             allowed = True
                     elif allow == RNS.Destination.ALLOW_ALL:
                         allowed = True
@@ -814,6 +820,12 @@ class Link:
         self.callbacks.link_established = callback
 
     def set_link_closed_callback(self, callback):
+        """
+        Registers a function to be called when a link has been
+        torn down.
+
+        :param callback: A function or method with the signature *callback(link)* to be called.
+        """
         self.callbacks.link_closed = callback
 
     def set_packet_callback(self, callback):
@@ -922,7 +934,7 @@ class RequestReceipt():
     RECEIVING = 0x03
     READY     = 0x04
 
-    def __init__(self, link, packet_receipt = None, resource = None, response_callback = None, failed_callback = None, progress_callback = None, timeout = None):
+    def __init__(self, link, packet_receipt = None, resource = None, response_callback = None, failed_callback = None, progress_callback = None, timeout = None, request_size = None):
         self.packet_receipt = packet_receipt
         self.resource = resource
         self.started_at = None
@@ -938,6 +950,7 @@ class RequestReceipt():
         
         self.link                   = link
         self.request_id             = self.hash
+        self.request_size           = request_size
 
         self.response               = None
         self.response_transfer_size = None
