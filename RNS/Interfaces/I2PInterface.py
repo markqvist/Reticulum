@@ -562,7 +562,8 @@ class I2PInterfacePeer(Interface):
         self.IN = False
 
         if hasattr(self, "parent_interface") and self.parent_interface != None:
-            self.parent_interface.clients -= 1
+            if self.parent_interface.clients > 0:
+                self.parent_interface.clients -= 1
 
         if self in RNS.Transport.interfaces:
             if not self.initiator:

@@ -100,7 +100,7 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                             clients_string = "Serving : "+str(cnum)+spec_str
                         elif name.startswith("I2PInterface["):
                             if "i2p_connectable" in ifstat and ifstat["i2p_connectable"] == True:
-                                cnum = max(clients-1,0)
+                                cnum = clients
                                 if cnum == 1:
                                     spec_str = " connected I2P endpoint"
                                 else:
