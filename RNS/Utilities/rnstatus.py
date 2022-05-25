@@ -59,7 +59,7 @@ def program_setup(configdir, dispall=False, verbosity = 0):
         for ifstat in stats["interfaces"]:
             name = ifstat["name"]
 
-            if dispall or not (name.startswith("LocalInterface[") or name.startswith("TCPInterface[Client")):
+            if dispall or not (name.startswith("LocalInterface[") or name.startswith("TCPInterface[Client") or name.startswith("I2PInterfacePeer[Connected peer")):
                 print("")
 
                 if ifstat["status"]:
@@ -91,6 +91,14 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                             spec_str = " programs"
 
                         clients_string = "Serving : "+str(cnum)+spec_str
+                    elif name.startswith("I2PInterface["):
+                        cnum = max(clients-1,0)
+                        if cnum == 1:
+                            spec_str = " connected I2P endpoint"
+                        else:
+                            spec_str = " connected I2P endpoints"
+
+                        clients_string = "Peers   : "+str(cnum)+spec_str
                     else:
                         clients_string = "Clients : "+str(clients)
 
@@ -133,7 +141,7 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                 print("    Traffic : {txb}↑\n              {rxb}↓".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
 
         if "transport_id" in stats and stats["transport_id"] != None:
-            print("\n Reticulum Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" running")
+            print("\n Reticulum Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" is running")
 
         print("")
                 
