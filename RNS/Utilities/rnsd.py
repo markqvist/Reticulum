@@ -147,7 +147,7 @@ loglevel = 4
 
   [[Default Interface]]
     type = AutoInterface
-    interface_enabled = True
+    enabled = yes
 
 
   # The following example enables communication with other
@@ -155,7 +155,7 @@ loglevel = 4
   
   [[UDP Interface]]
     type = UDPInterface
-    interface_enabled = False
+    enabled = no
     listen_ip = 0.0.0.0
     listen_port = 4242
     forward_ip = 255.255.255.255
@@ -198,7 +198,7 @@ loglevel = 4
   
   [[TCP Server Interface]]
     type = TCPServerInterface
-    interface_enabled = False
+    enabled = no
 
     # This configuration will listen on all IP
     # interfaces on port 4242
@@ -224,7 +224,7 @@ loglevel = 4
 
   [[TCP Client Interface]]
     type = TCPClientInterface
-    interface_enabled = False
+    enabled = no
     target_host = 127.0.0.1
     target_port = 4242
 
@@ -237,9 +237,9 @@ loglevel = 4
 
   [[I2P]]
     type = I2PInterface
-    interface_enabled = yes
+    enabled = no
     connectable = yes
-    peers = 5urvjicpzi7q3ybztsef4i5ow2aq4soktfj7zedz53s47r54jnqq.b32.i2p
+    peers = ykzlw5ujbaqc2xkec4cpvgyxj257wcrmmgkuxqmqcur7cq3w3lha.b32.i2p
 
 
   # Here's an example of how to add a LoRa interface
@@ -249,7 +249,7 @@ loglevel = 4
     type = RNodeInterface
 
     # Enable interface if you want use it!
-    interface_enabled = False
+    enabled = no
 
     # Serial port for the device
     port = /dev/ttyUSB0
@@ -301,7 +301,7 @@ loglevel = 4
     type = KISSInterface
 
     # Enable interface if you want use it!
-    interface_enabled = False
+    enabled = no
 
     # Serial port for the device
     port = /dev/ttyUSB1
@@ -372,7 +372,7 @@ loglevel = 4
     ssid = 0
 
     # Enable interface if you want use it!
-    interface_enabled = False
+    enabled = no
 
     # Serial port for the device
     port = /dev/ttyUSB2

@@ -1211,6 +1211,6 @@ loglevel = 4
 
   [[Default Interface]]
     type = AutoInterface
-    interface_enabled = True
+    enabled = Yes
 
 '''.splitlines()
