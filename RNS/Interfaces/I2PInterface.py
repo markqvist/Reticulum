@@ -85,6 +85,12 @@ class I2PController:
     def start(self):
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.loop = asyncio.get_event_loop()
+
+        RNS.log("Could not get event loop for "+str(self)+", waiting for event loop to appear", RNS.LOG_WARNING)
+        while self.loop == None:
+            self.loop = asyncio.get_event_loop()
+            sleep(0.25)
+
         try:
             self.loop.run_forever()
         except Exception as e:

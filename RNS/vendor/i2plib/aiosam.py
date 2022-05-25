@@ -25,7 +25,7 @@ async def get_sam_socket(sam_address=sam.DEFAULT_ADDRESS, loop=None):
     :param loop: (optional) event loop instance
     :return: A (reader, writer) pair
     """
-    reader, writer = await asyncio.open_connection(*sam_address, loop=loop)
+    reader, writer = await asyncio.open_connection(*sam_address)
     writer.write(sam.hello("3.1", "3.1"))
     reply = parse_reply(await reader.readline())
     if reply.ok:

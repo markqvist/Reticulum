@@ -102,7 +102,7 @@ class ClientTunnel(I2PTunnel):
                 self.status["setup_failed"] = True
                 self.status["exception"] = e
 
-        self.server = await asyncio.start_server(handle_client, *self.local_address, loop=self.loop)
+        self.server = await asyncio.start_server(handle_client, *self.local_address)
         self.status["setup_ran"] = True
 
     def stop(self):
@@ -136,8 +136,8 @@ class ServerTunnel(I2PTunnel):
                 remote_reader, remote_writer = await asyncio.wait_for(
                         asyncio.open_connection(
                            host=self.local_address[0], 
-                           port=self.local_address[1], loop=self.loop),
-                        timeout=5, loop=self.loop)
+                           port=self.local_address[1]),
+                        timeout=5)
                 if data: remote_writer.write(data)
                 asyncio.ensure_future(proxy_data(remote_reader, client_writer),
                                       loop=self.loop)
