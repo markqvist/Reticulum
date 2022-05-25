@@ -158,8 +158,22 @@ class I2PController:
 
 
     def server_tunnel(self, owner):
-        i2p_dest_hash = RNS.Identity.full_hash(RNS.Identity.full_hash(owner.name.encode("utf-8")))
-        i2p_keyfile   = self.storagepath+"/"+RNS.hexrep(i2p_dest_hash, delimit=False)+".i2p"
+        while RNS.Transport.identity == None:
+            time.sleep(1)
+
+        # Old format
+        i2p_dest_hash_of = RNS.Identity.full_hash(RNS.Identity.full_hash(owner.name.encode("utf-8")))
+        i2p_keyfile_of   = self.storagepath+"/"+RNS.hexrep(i2p_dest_hash_of, delimit=False)+".i2p"
+
+        # New format
+        i2p_dest_hash_nf = RNS.Identity.full_hash(RNS.Identity.full_hash(owner.name.encode("utf-8"))+RNS.Identity.full_hash(RNS.Transport.identity.hash))
+        i2p_keyfile_nf   = self.storagepath+"/"+RNS.hexrep(i2p_dest_hash_nf, delimit=False)+".i2p"
+
+        # Use old format if a key is already present
+        if os.path.isfile(i2p_keyfile_of):
+            i2p_keyfile = i2p_keyfile_of
+        else:
+            i2p_keyfile = i2p_keyfile_nf
 
         i2p_dest = None
         if not os.path.isfile(i2p_keyfile):
@@ -189,9 +203,10 @@ class I2PController:
 
                 asyncio.run_coroutine_threadsafe(tunnel_up(), self.loop).result()
                 self.server_tunnels[i2p_b32] = True
+                return True
 
             except Exception as e:
-                raise IOError("Could not connect to I2P SAM API while configuring "+str(self)+". Check that I2P is running and SAM is enabled.")
+                raise e
 
             time.sleep(5)
 
@@ -585,6 +600,8 @@ class I2PInterface(Interface):
         self.address = (self.bind_ip, self.bind_port)
         self.bitrate = I2PInterface.BITRATE_GUESS
 
+        self.online = False
+
         i2p_thread = threading.Thread(target=self.i2p.start)
         i2p_thread.setDaemon(True)
         i2p_thread.start()
@@ -603,7 +620,18 @@ class I2PInterface(Interface):
 
         if self.connectable:
             def tunnel_job():
-                self.i2p.server_tunnel(self)
+                tunnel_ready = False
+                while not tunnel_ready:
+                    try:
+                        tunnel_ready = self.i2p.server_tunnel(self)
+                        self.online = True
+
+                    except Exception as e:
+                        RNS.log("Error while while configuring "+str(self)+": "+str(e), RNS.LOG_ERROR)
+                        RNS.log("Check that I2P is installed and running, and that SAM is enabled. Retrying tunnel setup later.", RNS.LOG_ERROR)
+
+                    time.sleep(15)
+
 
             thread = threading.Thread(target=tunnel_job)
             thread.setDaemon(True)
@@ -618,9 +646,6 @@ class I2PInterface(Interface):
                 peer_interface.parent_interface = self
                 peer_interface.parent_count = False
                 RNS.Transport.interfaces.append(peer_interface)
-
-        self.online = True
-
 
     def incoming_connection(self, handler):
         RNS.log("Accepting incoming I2P connection", RNS.LOG_VERBOSE)
