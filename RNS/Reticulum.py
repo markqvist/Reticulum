@@ -936,6 +936,12 @@ class Reticulum:
                 else:
                     ifstats["clients"] = None
 
+                if hasattr(interface, "i2p") and hasattr(interface, "connectable"):
+                    if interface.connectable:
+                        ifstats["i2p_connectable"] = True
+                    else:
+                        ifstats["i2p_connectable"] = False
+
                 if hasattr(interface, "b32"):
                     if interface.b32 != None:
                         ifstats["i2p_b32"] = interface.b32+".b32.i2p"

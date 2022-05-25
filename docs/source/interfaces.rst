@@ -100,8 +100,8 @@ at.
 To use the I2P interface, you must have an I2P router running
 on your system. The easiest way to acheive this is to download and
 install the `latest release <https://github.com/PurpleI2P/i2pd/releases/latest>`_
-of the ``ì2pd`` package. For more details about I2P, see the
-`geti2p.net website <https://geti2p.net/en/about/intro>`_.`
+of the ``i2pd`` package. For more details about I2P, see the
+`geti2p.net website <https://geti2p.net/en/about/intro>`_.
 
 When an I2P router is running on your system, you can simply add
 an I2P interface to reticulum:

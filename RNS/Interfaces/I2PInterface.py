@@ -530,7 +530,7 @@ class I2PInterfacePeer(Interface):
 class I2PInterface(Interface):
     BITRATE_GUESS      = 256*1000
 
-    def __init__(self, owner, name, rns_storagepath, peers, connectable = True):
+    def __init__(self, owner, name, rns_storagepath, peers, connectable = False):
         self.rxb = 0
         self.txb = 0
         self.online = False
@@ -580,7 +580,7 @@ class I2PInterface(Interface):
 
         if peers != None:
             for peer_addr in peers:
-                interface_name = peer_addr
+                interface_name = self.name+" to "+peer_addr
                 peer_interface = I2PInterfacePeer(self, self.owner, interface_name, peer_addr)
                 peer_interface.OUT = True
                 peer_interface.IN  = True
