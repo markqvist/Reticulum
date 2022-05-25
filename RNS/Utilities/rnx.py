@@ -28,6 +28,7 @@ import argparse
 import shlex
 import time
 import sys
+import tty
 import os
 
 from RNS._version import __version__
@@ -565,13 +566,26 @@ def main():
             )
 
         if args.destination != None and args.interactive:
+            # command_history_max = 5000
+            # command_history = []
+            # command_current = ""
+            # history_idx = 0
+            # tty.setcbreak(sys.stdin.fileno())
+
             code = None
             while True:
                 try:
                     cstr = str(code) if code and code != 0 else ""
-                    print(cstr+"> ",end="")
-                    command = input()
+                    prompt = cstr+"> "
+                    print(prompt,end="")
 
+                    # cmdbuf = b""
+                    # while True:
+                    #     ch = sys.stdin.read(1)
+                    #     cmdbuf += ch.encode("utf-8")
+                    #     print("\r"+prompt+cmdbuf.decode("utf-8"), end="")    
+                    
+                    command = input()
                     if command.lower() == "exit" or command.lower() == "quit":
                         exit(0)
 
@@ -582,6 +596,10 @@ def main():
 
                 if command.lower() == "clear":
                     print('\033c', end='')
+
+                # command_history.append(command)
+                # while len(command_history) > command_history_max:
+                #     command_history.pop(0)
 
                 else:
                     code = execute(
@@ -608,9 +626,8 @@ def main():
             print("")
 
     except KeyboardInterrupt:
+        # tty.setnocbreak(sys.stdin.fileno())
         print("")
-        if resource != None:
-            resource.cancel()
         if link != None:
             link.teardown()
         exit()
