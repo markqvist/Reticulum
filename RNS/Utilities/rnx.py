@@ -530,7 +530,7 @@ def main():
         parser.add_argument("--stdin", action='store', default=None, help="pass input to stdin", type=str)
         parser.add_argument("--stdout", action='store', default=None, help="max size in bytes of returned stdout", type=int)
         parser.add_argument("--stderr", action='store', default=None, help="max size in bytes of returned stderr", type=int)
-        parser.add_argument("--version", action="version", version="rncp {version}".format(version=__version__))
+        parser.add_argument("--version", action="version", version="rnx {version}".format(version=__version__))
         
         args = parser.parse_args()
 
