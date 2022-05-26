@@ -71,15 +71,31 @@ class Link:
 
     ESTABLISHMENT_TIMEOUT_PER_HOP = RNS.Reticulum.DEFAULT_PER_HOP_TIMEOUT
     """
-    Default timeout for link establishment in seconds per hop to destination.
+    Timeout for link establishment in seconds per hop to destination.
     """
 
     TRAFFIC_TIMEOUT_FACTOR = 6
     KEEPALIVE_TIMEOUT_FACTOR = 4
+    """
+    RTT timeout factor used in link timeout calculation.
+    """
     STALE_GRACE = 2
-    KEEPALIVE = 360
+    """
+    Grace period in seconds used in link timeout calculation.
+    """
+    # TODO: Reset
+    # KEEPALIVE = 360
+    KEEPALIVE = 10
     """
     Interval for sending keep-alive packets on established links in seconds.
+    """
+    STALE_TIME = 2*KEEPALIVE
+    """
+    If no traffic or keep-alive packets are received within this period, the
+    link will be marked as stale, and a final keep-alive packet will be sent.
+    If after this no traffic or keep-alive packets are received within ``RTT`` *
+    ``KEEPALIVE_TIMEOUT_FACTOR`` + ``STALE_GRACE``, the link is considered timed out,
+    and will be torn down.
     """
 
     PENDING   = 0x00
@@ -145,6 +161,7 @@ class Link:
         self.traffic_timeout_factor = Link.TRAFFIC_TIMEOUT_FACTOR
         self.keepalive_timeout_factor = Link.KEEPALIVE_TIMEOUT_FACTOR
         self.keepalive = Link.KEEPALIVE
+        self.stale_time = Link.STALE_TIME
         self.watchdog_lock = False
         self.status = Link.PENDING
         self.activated_at = None
@@ -503,15 +520,32 @@ class Link:
                 elif self.status == Link.ACTIVE:
                     activated_at = self.activated_at if self.activated_at != None else 0
                     last_inbound = max(self.last_inbound, activated_at)
+
                     if time.time() >= last_inbound + self.keepalive:
-                        sleep_time = self.rtt * self.keepalive_timeout_factor + Link.STALE_GRACE
-                        self.status = Link.STALE
+                        # TODO: Remove
+                        RNS.log(str(self)+" keepalive interval passed", RNS.LOG_DEBUG)
+                        
                         if self.initiator:
+                            # TODO: Remove
+                            ss = self.stale_time - (time.time() - last_inbound)
+                            RNS.log(str(self)+" sending keepalive, "+str(ss)+"s to stale", RNS.LOG_DEBUG)
                             self.send_keepalive()
+
+                        if time.time() >= last_inbound + self.stale_time:
+                            sleep_time = self.rtt * self.keepalive_timeout_factor + Link.STALE_GRACE
+                            self.status = Link.STALE
+                            # TODO: Remove
+                            RNS.log("Link "+str(self)+" became stale", RNS.LOG_DEBUG)
+                        else:
+                            sleep_time = self.keepalive
+                    
                     else:
                         sleep_time = (last_inbound + self.keepalive) - time.time()
 
                 elif self.status == Link.STALE:
+                    # TODO: Remove
+                    RNS.log(str(self)+" closed stale link")
+
                     sleep_time = 0.001
                     self.status = Link.CLOSED
                     self.teardown_reason = Link.TIMEOUT

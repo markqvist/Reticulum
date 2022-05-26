@@ -68,7 +68,7 @@ class Transport:
     PATH_REQUEST_GRACE   = 0.35         # Grace time before a path announcement is made, allows directly reachable peers to respond first
     PATH_REQUEST_RW      = 2            # Path request random window
 
-    LINK_TIMEOUT         = RNS.Link.KEEPALIVE * 2
+    LINK_TIMEOUT         = RNS.Link.STALE_TIME * 1.25
     REVERSE_TIMEOUT      = 30*60        # Reverse table entries are removed after max 30 minutes
     DESTINATION_TIMEOUT  = PATHFINDER_E # Destination table entries are removed if unused for one week
     MAX_RECEIPTS         = 1024         # Maximum number of receipts to keep track of
