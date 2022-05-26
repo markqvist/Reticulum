@@ -808,13 +808,35 @@ connectivity with the specified destination.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP">
 <span class="sig-name descname"><span class="pre">ESTABLISHMENT_TIMEOUT_PER_HOP</span></span><em class="property"> <span class="pre">=</span> <span class="pre">5</span></em><a class="headerlink" href="#RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Default timeout for link establishment in seconds per hop to destination.</p>
+<dd><p>Timeout for link establishment in seconds per hop to destination.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Link.KEEPALIVE_TIMEOUT_FACTOR">
+<span class="sig-name descname"><span class="pre">KEEPALIVE_TIMEOUT_FACTOR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#RNS.Link.KEEPALIVE_TIMEOUT_FACTOR" title="Permalink to this definition">¶</a></dt>
+<dd><p>RTT timeout factor used in link timeout calculation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Link.STALE_GRACE">
+<span class="sig-name descname"><span class="pre">STALE_GRACE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#RNS.Link.STALE_GRACE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grace period in seconds used in link timeout calculation.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="RNS.Link.KEEPALIVE">
-<span class="sig-name descname"><span class="pre">KEEPALIVE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">360</span></em><a class="headerlink" href="#RNS.Link.KEEPALIVE" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">KEEPALIVE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">10</span></em><a class="headerlink" href="#RNS.Link.KEEPALIVE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interval for sending keep-alive packets on established links in seconds.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Link.STALE_TIME">
+<span class="sig-name descname"><span class="pre">STALE_TIME</span></span><em class="property"> <span class="pre">=</span> <span class="pre">20</span></em><a class="headerlink" href="#RNS.Link.STALE_TIME" title="Permalink to this definition">¶</a></dt>
+<dd><p>If no traffic or keep-alive packets are received within this period, the
+link will be marked as stale, and a final keep-alive packet will be sent.
+If after this no traffic or keep-alive packets are received within <code class="docutils literal notranslate"><span class="pre">RTT</span></code> *
+<code class="docutils literal notranslate"><span class="pre">KEEPALIVE_TIMEOUT_FACTOR</span></code> + <code class="docutils literal notranslate"><span class="pre">STALE_GRACE</span></code>, the link is considered timed out,
+and will be torn down.</p>
 </dd></dl>
 
 <dl class="py method">
