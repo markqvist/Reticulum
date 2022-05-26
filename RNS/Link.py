@@ -83,9 +83,7 @@ class Link:
     """
     Grace period in seconds used in link timeout calculation.
     """
-    # TODO: Reset
-    # KEEPALIVE = 360
-    KEEPALIVE = 10
+    KEEPALIVE = 360
     """
     Interval for sending keep-alive packets on established links in seconds.
     """
@@ -522,20 +520,12 @@ class Link:
                     last_inbound = max(self.last_inbound, activated_at)
 
                     if time.time() >= last_inbound + self.keepalive:
-                        # TODO: Remove
-                        RNS.log(str(self)+" keepalive interval passed", RNS.LOG_DEBUG)
-                        
                         if self.initiator:
-                            # TODO: Remove
-                            ss = self.stale_time - (time.time() - last_inbound)
-                            RNS.log(str(self)+" sending keepalive, "+str(ss)+"s to stale", RNS.LOG_DEBUG)
                             self.send_keepalive()
 
                         if time.time() >= last_inbound + self.stale_time:
                             sleep_time = self.rtt * self.keepalive_timeout_factor + Link.STALE_GRACE
                             self.status = Link.STALE
-                            # TODO: Remove
-                            RNS.log("Link "+str(self)+" became stale", RNS.LOG_DEBUG)
                         else:
                             sleep_time = self.keepalive
                     
@@ -543,9 +533,6 @@ class Link:
                         sleep_time = (last_inbound + self.keepalive) - time.time()
 
                 elif self.status == Link.STALE:
-                    # TODO: Remove
-                    RNS.log(str(self)+" closed stale link")
-
                     sleep_time = 0.001
                     self.status = Link.CLOSED
                     self.teardown_reason = Link.TIMEOUT
