@@ -76,6 +76,7 @@ class I2PController:
         self.i2plib = i2plib
         self.utils = i2plib.utils
         self.sam_address = i2plib.get_sam_address()
+        self.ready = False
 
         self.storagepath = rns_storagepath+"/i2p"
         if not os.path.isdir(self.storagepath):
@@ -86,14 +87,19 @@ class I2PController:
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.loop = asyncio.get_event_loop()
 
-        RNS.log("Could not get event loop for "+str(self)+", waiting for event loop to appear", RNS.LOG_WARNING)
+        time.sleep(0.10)
+        if self.loop == None:
+            RNS.log("Could not get event loop for "+str(self)+", waiting for event loop to appear", RNS.LOG_VERBOSE)
+
         while self.loop == None:
             self.loop = asyncio.get_event_loop()
             sleep(0.25)
 
         try:
+            self.ready = True
             self.loop.run_forever()
         except Exception as e:
+            self.ready = False
             RNS.log("Exception on event loop for "+str(self)+": "+str(e), RNS.LOG_ERROR)
         finally:
             self.loop.close()
@@ -612,6 +618,19 @@ class I2PInterface(Interface):
         i2p_thread = threading.Thread(target=self.i2p.start)
         i2p_thread.setDaemon(True)
         i2p_thread.start()
+
+        i2p_notready_warning = False
+        time.sleep(0.25)
+
+        if not self.i2p.ready:
+            RNS.log("I2P controller did not become available in time, waiting for controller", RNS.LOG_VERBOSE)
+            i2p_notready_warning = True
+
+        while not self.i2p.ready:
+            time.sleep(0.25)
+
+        if i2p_notready_warning == True:
+            RNS.log("I2P controller ready, continuing setup", RNS.LOG_VERBOSE)
 
         def handlerFactory(callback):
             def createHandler(*args, **keys):
