@@ -85,25 +85,35 @@ class ClientTunnel(I2PTunnel):
         """A coroutine used to run the tunnel"""
         await self._pre_run()
 
-        self.status = { "setup_ran": False, "setup_failed": False, "exception": None }
+        self.status = { "setup_ran": False, "setup_failed": False, "exception": None, "connect_tasks": [] }
         async def handle_client(client_reader, client_writer):
             """Handle local client connection"""
             try:
-                remote_reader, remote_writer = await aiosam.stream_connect(
+                sc_task = aiosam.stream_connect(
                         self.session_name, self.remote_destination, 
                         sam_address=self.sam_address, loop=self.loop)
+                self.status["connect_tasks"].append(sc_task)
+                
+                remote_reader, remote_writer = await sc_task
                 asyncio.ensure_future(proxy_data(remote_reader, client_writer), 
                                       loop=self.loop)
                 asyncio.ensure_future(proxy_data(client_reader, remote_writer),
                                       loop=self.loop)
-            
+
             except Exception as e:
                 self.status["setup_ran"] = True
                 self.status["setup_failed"] = True
                 self.status["exception"] = e
 
-        self.server = await asyncio.start_server(handle_client, *self.local_address)
-        self.status["setup_ran"] = True
+
+        try:
+            self.server = await asyncio.start_server(handle_client, *self.local_address)
+            self.status["setup_ran"] = True
+
+        except Exception as e:
+            self.status["setup_ran"] = True
+            self.status["setup_failed"] = True
+            self.status["exception"] = e
 
     def stop(self):
         super().stop()
@@ -125,26 +135,38 @@ class ServerTunnel(I2PTunnel):
         """A coroutine used to run the tunnel"""
         await self._pre_run()
 
+        self.status = { "setup_ran": False, "setup_failed": False, "exception": None, "connect_tasks": [] }
         async def handle_client(incoming, client_reader, client_writer):
-            # data and dest may come in one chunk
-            dest, data = incoming.split(b"\n", 1) 
-            remote_destination = sam.Destination(dest.decode())
-            logger.debug("{} client connected: {}.b32.i2p".format(
-                self.session_name, remote_destination.base32))
+            try:
+                # data and dest may come in one chunk
+                dest, data = incoming.split(b"\n", 1) 
+                remote_destination = sam.Destination(dest.decode())
+                logger.debug("{} client connected: {}.b32.i2p".format(
+                    self.session_name, remote_destination.base32))
+            
+            except Exception as e:
+                self.status["exception"] = e
+                self.status["setup_failed"] = True
 
             try:
-                remote_reader, remote_writer = await asyncio.wait_for(
+                sc_task = asyncio.wait_for(
                         asyncio.open_connection(
                            host=self.local_address[0], 
                            port=self.local_address[1]),
                         timeout=5)
+                self.status["connect_tasks"].append(sc_task)
+
+                remote_reader, remote_writer = await sc_task
                 if data: remote_writer.write(data)
                 asyncio.ensure_future(proxy_data(remote_reader, client_writer),
                                       loop=self.loop)
                 asyncio.ensure_future(proxy_data(client_reader, remote_writer),
                                       loop=self.loop)
+
             except ConnectionRefusedError:
                 client_writer.close()
+                self.status["exception"] = e
+                self.status["setup_failed"] = True
 
         async def server_loop():
             try:
@@ -159,6 +181,7 @@ class ServerTunnel(I2PTunnel):
                 pass
 
         self.server_loop = asyncio.ensure_future(server_loop(), loop=self.loop)
+        self.status["setup_ran"] = True
 
     def stop(self):
         super().stop()
