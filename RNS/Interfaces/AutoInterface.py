@@ -60,6 +60,9 @@ class AutoInterface(Interface):
         self.netifaces = netifaces
         self.rxb = 0
         self.txb = 0
+
+        self.HW_MTU = 1064
+
         self.IN  = True
         self.OUT = False
         self.name = name

@@ -79,6 +79,8 @@ class TCPClientInterface(Interface):
         self.rxb = 0
         self.txb = 0
         
+        self.HW_MTU = 1064
+        
         self.IN               = True
         self.OUT              = False
         self.socket           = None
@@ -293,7 +295,7 @@ class TCPClientInterface(Interface):
                                 in_frame = True
                                 command = KISS.CMD_UNKNOWN
                                 data_buffer = b""
-                            elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
+                            elif (in_frame and len(data_buffer) < self.HW_MTU):
                                 if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
                                     # We only support one HDLC port for now, so
                                     # strip off the port nibble
@@ -319,7 +321,7 @@ class TCPClientInterface(Interface):
                             elif (byte == HDLC.FLAG):
                                 in_frame = True
                                 data_buffer = b""
-                            elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
+                            elif (in_frame and len(data_buffer) < self.HW_MTU):
                                 if (byte == HDLC.ESC):
                                     escape = True
                                 else:
@@ -405,6 +407,9 @@ class TCPServerInterface(Interface):
     def __init__(self, owner, name, device=None, bindip=None, bindport=None, i2p_tunneled=False):
         self.rxb = 0
         self.txb = 0
+
+        self.HW_MTU = 1064
+
         self.online = False
         self.clients = 0
         
@@ -460,6 +465,7 @@ class TCPServerInterface(Interface):
         spawned_interface.announce_rate_grace = self.announce_rate_grace
         spawned_interface.announce_rate_penalty = self.announce_rate_penalty
         spawned_interface.mode = self.mode
+        spawned_interface.HW_MTU = self.HW_MTU
         spawned_interface.online = True
         RNS.log("Spawned new TCPClient Interface: "+str(spawned_interface), RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)

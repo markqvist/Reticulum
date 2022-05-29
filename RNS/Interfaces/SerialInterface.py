@@ -62,6 +62,8 @@ class SerialInterface(Interface):
 
         self.rxb = 0
         self.txb = 0
+
+        self.HW_MTU = 564
         
         self.pyserial = serial
         self.serial   = None
@@ -152,7 +154,7 @@ class SerialInterface(Interface):
                     elif (byte == HDLC.FLAG):
                         in_frame = True
                         data_buffer = b""
-                    elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
+                    elif (in_frame and len(data_buffer) < self.HW_MTU):
                         if (byte == HDLC.ESC):
                             escape = True
                         else:

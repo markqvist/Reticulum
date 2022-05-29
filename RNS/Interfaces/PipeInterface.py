@@ -56,6 +56,8 @@ class PipeInterface(Interface):
 
         self.rxb = 0
         self.txb = 0
+
+        self.HW_MTU = 1064
         
         self.owner    = owner
         self.name     = name
@@ -137,7 +139,7 @@ class PipeInterface(Interface):
                     elif (byte == HDLC.FLAG):
                         in_frame = True
                         data_buffer = b""
-                    elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
+                    elif (in_frame and len(data_buffer) < self.HW_MTU):
                         if (byte == HDLC.ESC):
                             escape = True
                         else:

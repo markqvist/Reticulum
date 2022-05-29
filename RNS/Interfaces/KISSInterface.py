@@ -73,6 +73,8 @@ class KISSInterface(Interface):
         self.rxb = 0
         self.txb = 0
         
+        self.HW_MTU = 564
+        
         if beacon_data == None:
             beacon_data = ""
 
@@ -279,7 +281,7 @@ class KISSInterface(Interface):
                         in_frame = True
                         command = KISS.CMD_UNKNOWN
                         data_buffer = b""
-                    elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
+                    elif (in_frame and len(data_buffer) < self.HW_MTU):
                         if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
                             # We only support one HDLC port for now, so
                             # strip off the port nibble

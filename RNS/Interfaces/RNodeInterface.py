@@ -111,6 +111,8 @@ class RNodeInterface(Interface):
 
         self.rxb = 0
         self.txb = 0
+
+        self.HW_MTU = 508
         
         self.pyserial    = serial
         self.serial      = None
@@ -439,7 +441,7 @@ class RNodeInterface(Interface):
                         command = KISS.CMD_UNKNOWN
                         data_buffer = b""
                         command_buffer = b""
-                    elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
+                    elif (in_frame and len(data_buffer) < self.HW_MTU):
                         if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
                             command = byte
                         elif (command == KISS.CMD_DATA):

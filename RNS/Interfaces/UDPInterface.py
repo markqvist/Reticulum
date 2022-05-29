@@ -57,6 +57,9 @@ class UDPInterface(Interface):
     def __init__(self, owner, name, device=None, bindip=None, bindport=None, forwardip=None, forwardport=None):
         self.rxb = 0
         self.txb = 0
+
+        self.HW_MTU = 1064
+
         self.IN  = True
         self.OUT = False
         self.name = name

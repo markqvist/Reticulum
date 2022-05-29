@@ -49,6 +49,9 @@ class LocalClientInterface(Interface):
     def __init__(self, owner, name, target_port = None, connected_socket=None):
         self.rxb = 0
         self.txb = 0
+        
+        self.HW_MTU = 1064
+
         self.online  = False
         
         self.IN               = True
@@ -177,7 +180,7 @@ class LocalClientInterface(Interface):
                         elif (byte == HDLC.FLAG):
                             in_frame = True
                             data_buffer = b""
-                        elif (in_frame and len(data_buffer) < RNS.Reticulum.MTU):
+                        elif (in_frame and len(data_buffer) < self.HW_MTU):
                             if (byte == HDLC.ESC):
                                 escape = True
                             else:
