@@ -5,9 +5,9 @@ Reticulum Network Stack β
 
 Reticulum is the cryptography-based networking stack for wide-area networks built on readily available hardware. It can operate even with very high latency and extremely low bandwidth. Reticulum allows you to build wide-area networks with off-the-shelf tools, and offers end-to-end encryption and connectivity, initiator anonymity, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable delivery acknowledgements and more.
 
-The vision of Reticulum is to allow anyone to be their own network operator, and to make it cheap and easy to cover vast areas with a myriad of independent, interconnectable and autonomous networks. Reticulum **is not** *one network*, it **is a tool** for building *thousands of networks*. Networks without kill-switches, surveillance, censorship and control. Networks that can freely interoperate, associate and disassociate with each other, and require no central oversight. Networks for human beings. *Networks for the people*.
+The vision of Reticulum is to allow anyone to be their own network operator, and to make it cheap and easy to cover vast areas with a myriad of independent, interconnectable and autonomous networks. Reticulum **is not** *one network*. It is **a tool** for building *thousands of networks*. Networks without kill-switches, surveillance, censorship and control. Networks that can freely interoperate, associate and disassociate with each other, and require no central oversight. Networks for human beings. *Networks for the people*.
 
-Reticulum is a complete networking stack, and does not need IP or higher layers, although it is easy to use IP (with TCP or UDP) as the underlying carrier for Reticulum. It is therefore trivial to tunnel Reticulum over the Internet or private IP networks.
+Reticulum is a complete networking stack, and does not rely on IP or higher layers, but it is possible to use IP (with TCP or UDP) as the underlying carrier for Reticulum. It is therefore trivial to tunnel Reticulum over the Internet or private IP networks.
 
 Having no dependencies on traditional networking stacks free up overhead that has been utilised to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.
 
@@ -107,13 +107,11 @@ Currently, the following interfaces are supported:
 - Custom hardware via stdio or pipes
 
 ## Development Roadmap
-- Version 0.3.7
-  - Announce and path request improvements
-  - Improving management utilities
 - Version 0.3.8
   - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
+  - Utilities for managing identities, signing and encryption
   - Support for radio and modem interfaces on Android
-  - GUI interface configuration tool
+  - User friendly interface configuration tool
   - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
   - More interface types for even broader compatibility
     - Plain ESP32 devices (ESP-Now, WiFi, Bluetooth, etc.)
@@ -128,6 +126,10 @@ Currently, the following interfaces are supported:
     - IrDA / IrPHY
     - SPI
     - i²c
+- Version 0.3.9
+  - A portable cryptography core, supporting multiple backends
+  - Performance optimisations
+  - Memory optimisations
 - Planned, but not yet scheduled
   - Globally routable multicast
   - Bindings for other programming languages
