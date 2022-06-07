@@ -6,7 +6,7 @@ def hkdf(length=None, derive_from=None, salt=None, context=None):
     hash_len = 32
 
     def hmac_sha256(key, data):
-        return HMAC.new(key, data, hashlib.sha256).digest()
+        return HMAC.new(key, data).digest()
 
     if length == None or length < 1:
         raise ValueError("Invalid output key length")

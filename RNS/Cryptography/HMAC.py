@@ -24,7 +24,7 @@ class HMAC:
         "_hmac", "_inner", "_outer", "block_size", "digest_size"
     )
 
-    def __init__(self, key, msg=None, digestmod=''):
+    def __init__(self, key, msg=None, digestmod=_hashlib.sha256):
         """Create a new HMAC object.
         key: bytes or buffer, key for the keyed hash object.
         msg: bytes or buffer, Initial input for the hash or None.
@@ -137,7 +137,7 @@ class HMAC:
         h = self._current()
         return h.hexdigest()
 
-def new(key, msg=None, digestmod=''):
+def new(key, msg=None, digestmod=_hashlib.sha256):
     """Create a new hashing object and return it.
     key: bytes or buffer, The starting key for the hash.
     msg: bytes or buffer, Initial input for the hash, or None.
