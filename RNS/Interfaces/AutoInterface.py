@@ -168,7 +168,8 @@ class AutoInterface(Interface):
                             # Set up multicast socket
                             discovery_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
                             discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                            discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                            if hasattr(socket, "SO_REUSEPORT"):
+                                discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
                             discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, if_struct)
 
                             # Join multicast group
