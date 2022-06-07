@@ -26,7 +26,6 @@ import time
 import RNS
 
 from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 
 class Callbacks:
@@ -97,10 +96,7 @@ class Destination:
         name = Destination.full_name(app_name, *aspects)
 
         # Create a digest for the destination
-        digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
-        digest.update(name.encode("UTF-8"))
-
-        return digest.finalize()[:10]
+        return RNS.Identity.full_hash(name.encode("utf-8"))[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
 
     @staticmethod
     def app_and_aspects_from_name(full_name):

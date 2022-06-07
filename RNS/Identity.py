@@ -27,9 +27,10 @@ import RNS
 import time
 import atexit
 import base64
+import hashlib
+
 from .vendor import umsgpack as umsgpack
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
@@ -158,10 +159,10 @@ class Identity:
         :param data: Data to be hashed as *bytes*.
         :returns: SHA-256 hash as *bytes*
         """
-        digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
+        digest = hashlib.sha256()
         digest.update(data)
 
-        return digest.finalize()
+        return digest.digest()
 
     @staticmethod
     def truncated_hash(data):
