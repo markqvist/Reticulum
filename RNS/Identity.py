@@ -34,10 +34,8 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
-from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.fernet import Fernet
 
-cio_default_backend = default_backend()
 
 class Identity:
     """
@@ -159,10 +157,7 @@ class Identity:
         :param data: Data to be hashed as *bytes*.
         :returns: SHA-256 hash as *bytes*
         """
-        digest = hashlib.sha256()
-        digest.update(data)
-
-        return digest.digest()
+        return RNS.Cryptography.sha256(data)
 
     @staticmethod
     def truncated_hash(data):
@@ -429,14 +424,12 @@ class Identity:
 
             shared_key = ephemeral_key.exchange(self.pub)
             
-            # TODO: Improve this re-allocation of HKDF
-            derived_key = HKDF(
-                algorithm=hashes.SHA256(),
+            derived_key = RNS.Cryptography.hkdf(
                 length=32,
+                derive_from=shared_key,
                 salt=self.get_salt(),
-                info=self.get_context(),
-                backend=cio_default_backend,
-            ).derive(shared_key)
+                context=self.get_context(),
+            )
 
             fernet = Fernet(base64.urlsafe_b64encode(derived_key))
             ciphertext = base64.urlsafe_b64decode(fernet.encrypt(plaintext))
@@ -464,14 +457,12 @@ class Identity:
 
                     shared_key = self.prv.exchange(peer_pub)
 
-                    # TODO: Improve this re-allocation of HKDF
-                    derived_key = HKDF(
-                        algorithm=hashes.SHA256(),
+                    derived_key = RNS.Cryptography.hkdf(
                         length=32,
+                        derive_from=shared_key,
                         salt=self.get_salt(),
-                        info=self.get_context(),
-                        backend=cio_default_backend,
-                    ).derive(shared_key)
+                        context=self.get_context(),
+                    )
 
                     fernet = Fernet(base64.urlsafe_b64encode(derived_key))
                     ciphertext = ciphertext_token[Identity.KEYSIZE//8//2:]

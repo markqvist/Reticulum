@@ -25,7 +25,6 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
-from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.fernet import Fernet
 from time import sleep
 from .vendor import umsgpack as umsgpack
@@ -35,9 +34,6 @@ import math
 import time
 import RNS
 
-import traceback
-
-cio_default_backend = default_backend()
 
 class LinkCallbacks:
     def __init__(self):
@@ -239,14 +235,13 @@ class Link:
         self.status = Link.HANDSHAKE
         self.shared_key = self.prv.exchange(self.peer_pub)
 
-        # TODO: Improve this re-allocation of HKDF
-        self.derived_key = HKDF(
-            algorithm=hashes.SHA256(),
+        self.derived_key = RNS.Cryptography.hkdf(
             length=32,
+            derive_from=self.shared_key,
             salt=self.get_salt(),
-            info=self.get_context(),
-            backend=cio_default_backend,
-        ).derive(self.shared_key)
+            context=self.get_context(),
+        )
+
 
     def prove(self):
         signed_data = self.link_id+self.pub_bytes+self.sig_pub_bytes
@@ -822,9 +817,6 @@ class Link:
             return plaintext
         except Exception as e:
             RNS.log("Decryption failed on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
-            # RNS.log(traceback.format_exc(), RNS.LOG_ERROR)
-            # TODO: Think long about implications here
-            # self.teardown()
 
 
     def sign(self, message):

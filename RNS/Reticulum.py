@@ -21,11 +21,6 @@
 # SOFTWARE.
 
 from .vendor.platformutils import get_platform
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-from cryptography.hazmat.backends import default_backend
-
-cio_default_backend = default_backend()
 
 if get_platform() == "android":
     from .Interfaces import Interface
@@ -840,13 +835,12 @@ class Reticulum:
                                         ifac_origin += RNS.Identity.full_hash(interface.ifac_netkey.encode("utf-8"))
 
                                     ifac_origin_hash = RNS.Identity.full_hash(ifac_origin)
-                                    interface.ifac_key = HKDF(
-                                        algorithm=hashes.SHA256(),
+                                    interface.ifac_key = RNS.Cryptography.hkdf(
                                         length=64,
+                                        derive_from=ifac_origin_hash,
                                         salt=self.ifac_salt,
-                                        info=None,
-                                        backend=cio_default_backend,
-                                    ).derive(ifac_origin_hash)
+                                        context=None
+                                    )
 
                                     interface.ifac_identity = RNS.Identity.from_bytes(interface.ifac_key)
                                     interface.ifac_signature = interface.ifac_identity.sign(RNS.Identity.full_hash(interface.ifac_key))
