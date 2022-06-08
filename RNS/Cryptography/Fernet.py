@@ -28,6 +28,9 @@ from RNS.Cryptography import PKCS7
 from RNS.Cryptography.AES import AES_128_CBC
 
 class Fernet():
+    FERNET_VERSION            = 0x80
+    FERNET_OVERHEAD           = 57          # In bytes
+    OPTIMISED_FERNET_OVERHEAD = 54          # In bytes
 
     @staticmethod
     def generate_key():
@@ -71,7 +74,7 @@ class Fernet():
         )
 
         signed_parts = b"\x80"+current_time.to_bytes(length=8, byteorder="big")+iv+ciphertext
-        
+
         return signed_parts + HMAC.new(self._signing_key, signed_parts).digest()
 
 
