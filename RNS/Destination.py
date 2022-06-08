@@ -20,13 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import base64
 import math
 import time
 import RNS
 
-from cryptography.fernet import Fernet
-from cryptography.hazmat.backends import default_backend
+from RNS.Cryptography import Fernet
 
 class Callbacks:
     def __init__(self):
@@ -311,8 +309,8 @@ class Destination:
             raise TypeError("A single destination holds keys through an Identity instance")
 
         if self.type == Destination.GROUP:
-            self.prv_bytes = base64.urlsafe_b64decode(Fernet.generate_key())
-            self.prv = Fernet(base64.urlsafe_b64encode(self.prv_bytes))
+            self.prv_bytes = Fernet.generate_key()
+            self.prv = Fernet(self.prv_bytes)
 
 
     def get_private_key(self):
@@ -344,7 +342,7 @@ class Destination:
 
         if self.type == Destination.GROUP:
             self.prv_bytes = key
-            self.prv = Fernet(base64.urlsafe_b64encode(self.prv_bytes))
+            self.prv = Fernet(self.prv_bytes)
 
     def load_public_key(self, key):
         if self.type != Destination.SINGLE:
@@ -369,7 +367,7 @@ class Destination:
         if self.type == Destination.GROUP:
             if hasattr(self, "prv") and self.prv != None:
                 try:
-                    return base64.urlsafe_b64decode(self.prv.encrypt(plaintext))
+                    return self.prv.encrypt(plaintext)
                 except Exception as e:
                     RNS.log("The GROUP destination could not encrypt data", RNS.LOG_ERROR)
                     RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -394,7 +392,7 @@ class Destination:
         if self.type == Destination.GROUP:
             if hasattr(self, "prv") and self.prv != None:
                 try:
-                    return self.prv.decrypt(base64.urlsafe_b64encode(ciphertext))
+                    return self.prv.decrypt(ciphertext)
                 except Exception as e:
                     RNS.log("The GROUP destination could not decrypt data", RNS.LOG_ERROR)
                     RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
