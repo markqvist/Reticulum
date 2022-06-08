@@ -28,10 +28,8 @@ import atexit
 import hashlib
 
 from .vendor import umsgpack as umsgpack
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 
-from RNS.Cryptography import X25519PrivateKey, X25519PublicKey
+from RNS.Cryptography import X25519PrivateKey, X25519PublicKey, Ed25519PrivateKey, Ed25519PublicKey
 from RNS.Cryptography import Fernet
 
 
@@ -294,20 +292,13 @@ class Identity:
         self.prv_bytes     = self.prv.private_bytes()
 
         self.sig_prv       = Ed25519PrivateKey.generate()
-        self.sig_prv_bytes = self.sig_prv.private_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PrivateFormat.Raw,
-            encryption_algorithm=serialization.NoEncryption()
-        )
+        self.sig_prv_bytes = self.sig_prv.private_bytes()
 
         self.pub           = self.prv.public_key()
         self.pub_bytes     = self.pub.public_bytes()
 
         self.sig_pub       = self.sig_prv.public_key()
-        self.sig_pub_bytes = self.sig_pub.public_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PublicFormat.Raw
-        )
+        self.sig_pub_bytes = self.sig_pub.public_bytes()
 
         self.update_hashes()
 
@@ -342,10 +333,7 @@ class Identity:
             self.pub_bytes     = self.pub.public_bytes()
 
             self.sig_pub       = self.sig_prv.public_key()
-            self.sig_pub_bytes = self.sig_pub.public_bytes(
-                encoding=serialization.Encoding.Raw,
-                format=serialization.PublicFormat.Raw
-            )
+            self.sig_pub_bytes = self.sig_pub.public_bytes()
 
             self.update_hashes()
 
