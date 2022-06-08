@@ -5,7 +5,7 @@ import os
 import time
 import unittest
 
-class TestSHA256(unittest.TestCase):
+class SHA256(unittest.TestCase):
     def setUp(self):
         self.f = RNS.Cryptography.sha256
 
@@ -29,7 +29,7 @@ class TestSHA256(unittest.TestCase):
             self.f('a'.encode("utf-8")*1000000),
             bytes.fromhex("cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0"))
 
-    def test_random(self):
+    def test_random_blocks(self):
         max_rounds = 10000
 
         b = 0
@@ -59,7 +59,7 @@ class TestSHA256(unittest.TestCase):
         self.assertEqual(ok, True)
 
 
-class TestSHA512(unittest.TestCase):
+class SHA512(unittest.TestCase):
     def setUp(self):
         self.f = RNS.Cryptography.sha512
 
@@ -88,7 +88,7 @@ class TestSHA512(unittest.TestCase):
                 'e718483d0ce769644e2e42c7bc15b4638e1f98b13b2044285632a803afa973eb'+
                 'de0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b'))
 
-    def test_random(self):
+    def test_random_blocks(self):
         max_rounds = 10000
 
         b = 0
@@ -119,9 +119,4 @@ class TestSHA512(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    sha256_suite = unittest.TestLoader().loadTestsFromTestCase(TestSHA256)
-    sha512_suite = unittest.TestLoader().loadTestsFromTestCase(TestSHA512)
-
-    all_tests = unittest.TestSuite([sha256_suite, sha512_suite])
-
-    unittest.TextTestRunner(verbosity=2).run(all_tests)
+    unittest.main(verbosity=2)
