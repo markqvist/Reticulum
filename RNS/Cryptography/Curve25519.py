@@ -1,33 +1,18 @@
-"""A pure Python implementation of Curve25519
-This module supports both a low-level interface through curve25519(base_point, secret)
-and curve25519_base(secret) that take 32-byte blocks of data as inputs and a higher
-level interface using the X25519PrivateKey and X25519PublicKey classes that are
-compatible with the classes in cryptography.hazmat.primitives.asymmetric.x25519 with
-the same names.
-"""
-
 # By Nicko van Someren, 2021. This code is released into the public domain.
+# Small modifications for use in Reticulum, and constant time key exchange
+# added by Mark Qvist in 2022.
 
-#                                  #### WARNING ####
+# WARNING! Only the X25519PrivateKey.exchange() method attempts to hide execution time.
+# In the context of Reticulum, this is sufficient, but it may not be in other systems. If
+# this code is to be used to provide cryptographic security in an environment where the
+# start and end times of the execution can be guessed, inferred or measured then it is
+# critical that steps are taken to hide the execution time, for instance by adding a
+# delay so that encrypted packets are not sent until a fixed time after the _start_ of
+# execution.
 
-# Since this code makes use of Python's built-in large integer types, it is NOT EXPECTED
-# to run in constant time. While some effort is made to minimise the time variations,
-# the underlying math functions are likely to have running times that are highly
-# value-dependent, leaving this code potentially vulnerable to timing attacks. If this
-# code is to be used to provide cryptographic security in an environment where the start
-# and end times of the execution can be guessed, inferred or measured then it is critical
-# that steps are taken to hide the execution time, for instance by adding a delay so that
-# encrypted packets are not sent until a fixed time after the _start_ of execution.
-
-
-# Implements ladder multiplication as described in "Montgomery curves and the Montgomery
-# ladder" by Daniel J. Bernstein and Tanja Lange. https://eprint.iacr.org/2017/293.pdf
-
-# Curve25519 is a Montgomery curve defined by:
-# y**2 = x**3 + A * x**2 + x  mod P
-# where P = 2**255-19 and A = 486662
 
 import os
+import time
 
 P = 2 ** 255 - 19
 _A = 486662
@@ -124,6 +109,13 @@ class X25519PublicKey:
 
 
 class X25519PrivateKey:
+    MIN_EXEC_TIME = 0.002
+    MAX_EXEC_TIME = 0.5
+    DELAY_WINDOW = 10
+
+    T_CLEAR = None
+    T_MAX = 0
+
     def __init__(self, a):
         self.a = a
 
@@ -145,4 +137,35 @@ class X25519PrivateKey:
         if isinstance(peer_public_key, bytes):
             peer_public_key = X25519PublicKey.from_public_bytes(peer_public_key)
 
-        return _pack_number(_raw_curve25519(peer_public_key.x, self.a))
+        start = time.time()
+        
+        shared = _pack_number(_raw_curve25519(peer_public_key.x, self.a))
+        
+        end = time.time()
+        duration = end-start
+
+        if X25519PrivateKey.T_CLEAR == None:
+            X25519PrivateKey.T_CLEAR = end + X25519PrivateKey.DELAY_WINDOW
+
+        if end > X25519PrivateKey.T_CLEAR:
+            X25519PrivateKey.T_CLEAR = end + X25519PrivateKey.DELAY_WINDOW
+            X25519PrivateKey.T_MAX = 0
+        
+        if duration < X25519PrivateKey.T_MAX or duration < X25519PrivateKey.MIN_EXEC_TIME:
+            target = start+X25519PrivateKey.T_MAX
+
+            if target > start+X25519PrivateKey.MAX_EXEC_TIME:
+                target = start+X25519PrivateKey.MAX_EXEC_TIME
+
+            if target < start+X25519PrivateKey.MIN_EXEC_TIME:
+                target = start+X25519PrivateKey.MIN_EXEC_TIME
+
+            try:
+                time.sleep(target-time.time())
+            except Exception as e:
+                pass
+
+        elif duration > X25519PrivateKey.T_MAX:
+            X25519PrivateKey.T_MAX = duration
+
+        return shared
