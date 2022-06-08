@@ -24,7 +24,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 
-from RNS.Cryptography.X25519 import X25519PrivateKey, X25519PublicKey
+from RNS.Cryptography import X25519PrivateKey, X25519PublicKey
 from RNS.Cryptography import Fernet
 
 from time import sleep

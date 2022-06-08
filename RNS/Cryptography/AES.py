@@ -20,14 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-PROVIDER_INTERNAL = 0x01
-PROVIDER_PYCA     = 0x02
+import RNS.Cryptography.Provider as cp
 
-provider = PROVIDER_PYCA
-
-if provider == PROVIDER_INTERNAL:
-    pass
-elif provider == PROVIDER_PYCA:
+if cp.PROVIDER == cp.PROVIDER_INTERNAL:
+    # TODO: Use internal AES
+    from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+    
+elif cp.PROVIDER == cp.PROVIDER_PYCA:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
@@ -35,9 +34,14 @@ class AES_128_CBC:
 
     @staticmethod
     def encrypt(plaintext, key, iv):
-        if provider == PROVIDER_INTERNAL:
-            pass
-        elif provider == PROVIDER_PYCA:
+        if cp.PROVIDER == cp.PROVIDER_INTERNAL:
+            # TODO: Use internal AES
+            cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+            encryptor = cipher.encryptor()
+            ciphertext = encryptor.update(plaintext) + encryptor.finalize()
+            return ciphertext
+
+        elif cp.PROVIDER == cp.PROVIDER_PYCA:
             cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
             encryptor = cipher.encryptor()
             ciphertext = encryptor.update(plaintext) + encryptor.finalize()
@@ -45,9 +49,14 @@ class AES_128_CBC:
 
     @staticmethod
     def decrypt(ciphertext, key, iv):
-        if provider == PROVIDER_INTERNAL:
-            pass
-        elif provider == PROVIDER_PYCA:
+        if cp.PROVIDER == cp.PROVIDER_INTERNAL:
+            # TODO: Use internal AES
+            cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+            decryptor = cipher.decryptor()
+            plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+            return plaintext
+
+        elif cp.PROVIDER == cp.PROVIDER_PYCA:
             cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
             decryptor = cipher.decryptor()
             plaintext = decryptor.update(ciphertext) + decryptor.finalize()
