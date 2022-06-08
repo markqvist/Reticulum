@@ -30,7 +30,7 @@ class TestSHA256(unittest.TestCase):
             bytes.fromhex("cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0"))
 
     def test_random_blocks(self):
-        max_rounds = 10000
+        max_rounds = 5000
 
         b = 0
         i = 0
@@ -89,7 +89,7 @@ class TestSHA512(unittest.TestCase):
                 'de0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b'))
 
     def test_random_blocks(self):
-        max_rounds = 10000
+        max_rounds = 5000
 
         b = 0
         i = 0
