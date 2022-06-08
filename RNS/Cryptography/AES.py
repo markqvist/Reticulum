@@ -20,38 +20,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import hashlib
-from math import ceil
-from RNS.Cryptography import HMAC
+PROVIDER_INTERNAL = 0x01
+PROVIDER_PYCA     = 0x02
 
-def hkdf(length=None, derive_from=None, salt=None, context=None):
-    hash_len = 32
+provider = PROVIDER_PYCA
 
-    def hmac_sha256(key, data):
-        return HMAC.new(key, data).digest()
+if provider == PROVIDER_INTERNAL:
+    pass
+elif provider == PROVIDER_PYCA:
+    from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-    if length == None or length < 1:
-        raise ValueError("Invalid output key length")
 
-    if derive_from == "None" or derive_from == "":
-        raise ValueError("Cannot derive key from empty input material")
+class AES_128_CBC:
 
-    if salt == None or len(salt) == 0:
-        salt = bytes([0] * hash_len)
+    @staticmethod
+    def encrypt(plaintext, key, iv):
+        if provider == PROVIDER_INTERNAL:
+            pass
+        elif provider == PROVIDER_PYCA:
+            cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+            encryptor = cipher.encryptor()
+            ciphertext = encryptor.update(plaintext) + encryptor.finalize()
+            return ciphertext
 
-    if salt == None:
-        salt = b""
+    @staticmethod
+    def decrypt(ciphertext, key, iv):
+        if provider == PROVIDER_INTERNAL:
+            pass
+        elif provider == PROVIDER_PYCA:
+            cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+            decryptor = cipher.decryptor()
+            plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+            return plaintext
 
-    if context == None:
-        context = b""
-
-    pseudorandom_key = hmac_sha256(salt, derive_from)
-
-    block = b""
-    derived = b""
-
-    for i in range(ceil(length / hash_len)):
-        block = hmac_sha256(pseudorandom_key, block + context + bytes([i + 1]))
-        derived += block
-
-    return derived[:length]

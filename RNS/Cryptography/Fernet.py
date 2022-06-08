@@ -1,3 +1,26 @@
+# MIT License
+#
+# Copyright (c) 2022 Mark Qvist / unsigned.io
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+import os
 import time
 
 from RNS.Cryptography import HMAC
@@ -10,9 +33,12 @@ class Fernet():
     def generate_key():
         return os.urandom(32)
 
-    def __init__(key = None):
-        if not len(key) != 32:
-            raise ValueError("Fernet key must be 256 bits (32 bytes) long")
+    def __init__(self, key = None):
+        if key == None:
+            raise ValueError("Fernet key cannot be None")
+
+        if len(key) != 32:
+            raise ValueError("Fernet key must be 32 bytes, not "+str(len(key)))
             
         self._signing_key = key[:16]
         self._encryption_key = key[16:]
@@ -33,7 +59,7 @@ class Fernet():
 
     def encrypt(self, data = None):
         iv = os.urandom(16)
-        current_time = time.time()
+        current_time = int(time.time())
 
         if not isinstance(data, bytes):
             raise TypeError("Fernet token plaintext input must be bytes")
@@ -57,13 +83,13 @@ class Fernet():
             raise ValueError("Fernet token HMAC was invalid")
 
         iv = token[9:25]
-        ciphertext = [25:-32]
+        ciphertext = token[25:-32]
 
         try:
             plaintext = PKCS7.unpad(
                 AES_128_CBC.decrypt(
-                    self._encryption_key,
                     ciphertext,
+                    self._encryption_key,
                     iv,
                 )
             )
