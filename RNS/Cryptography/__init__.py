@@ -9,14 +9,12 @@ from .Fernet import Fernet
 import RNS.Cryptography.Provider as cp
 
 if cp.PROVIDER == cp.PROVIDER_INTERNAL:
-    print("INTERNAL")
     from RNS.Cryptography.X25519 import X25519PrivateKey, X25519PublicKey
 
     # TODO: Use internal Ed25519
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 
 elif cp.PROVIDER == cp.PROVIDER_PYCA:
-    print("PYCA")
     from RNS.Cryptography.Proxies import X25519PrivateKeyProxy as X25519PrivateKey
     from RNS.Cryptography.Proxies import X25519PublicKeyProxy as X25519PublicKey
 
