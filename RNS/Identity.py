@@ -34,7 +34,8 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
-from cryptography.fernet import Fernet
+
+from RNS.Cryptography import Fernet
 
 
 class Identity:
@@ -431,8 +432,8 @@ class Identity:
                 context=self.get_context(),
             )
 
-            fernet = Fernet(base64.urlsafe_b64encode(derived_key))
-            ciphertext = base64.urlsafe_b64decode(fernet.encrypt(plaintext))
+            fernet = Fernet(derived_key)
+            ciphertext = fernet.encrypt(plaintext)
             token = ephemeral_pub_bytes+ciphertext
 
             return token
@@ -464,9 +465,9 @@ class Identity:
                         context=self.get_context(),
                     )
 
-                    fernet = Fernet(base64.urlsafe_b64encode(derived_key))
+                    fernet = Fernet(derived_key)
                     ciphertext = ciphertext_token[Identity.KEYSIZE//8//2:]
-                    plaintext = fernet.decrypt(base64.urlsafe_b64encode(ciphertext))
+                    plaintext = fernet.decrypt(ciphertext)
 
                 except Exception as e:
                     RNS.log("Decryption by "+RNS.prettyhexrep(self.hash)+" failed: "+str(e), RNS.LOG_DEBUG)
