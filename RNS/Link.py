@@ -20,12 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
-from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
 
+from RNS.Cryptography.Curve25519 import X25519PrivateKey, X25519PublicKey
 from RNS.Cryptography import Fernet
 
 from time import sleep
@@ -178,10 +177,7 @@ class Link:
         self.fernet  = None
         
         self.pub = self.prv.public_key()
-        self.pub_bytes = self.pub.public_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PublicFormat.Raw
-        )
+        self.pub_bytes = self.pub.public_bytes()
 
         self.sig_pub = self.sig_prv.public_key()
         self.sig_pub_bytes = self.sig_pub.public_bytes(

@@ -28,11 +28,10 @@ import atexit
 import hashlib
 
 from .vendor import umsgpack as umsgpack
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
-from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
 
+from RNS.Cryptography.Curve25519 import X25519PrivateKey, X25519PublicKey
 from RNS.Cryptography import Fernet
 
 
@@ -292,11 +291,7 @@ class Identity:
 
     def create_keys(self):
         self.prv           = X25519PrivateKey.generate()
-        self.prv_bytes     = self.prv.private_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PrivateFormat.Raw,
-            encryption_algorithm=serialization.NoEncryption()
-        )
+        self.prv_bytes     = self.prv.private_bytes()
 
         self.sig_prv       = Ed25519PrivateKey.generate()
         self.sig_prv_bytes = self.sig_prv.private_bytes(
@@ -306,10 +301,7 @@ class Identity:
         )
 
         self.pub           = self.prv.public_key()
-        self.pub_bytes     = self.pub.public_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PublicFormat.Raw
-        )
+        self.pub_bytes     = self.pub.public_bytes()
 
         self.sig_pub       = self.sig_prv.public_key()
         self.sig_pub_bytes = self.sig_pub.public_bytes(
@@ -347,10 +339,7 @@ class Identity:
             self.sig_prv       = Ed25519PrivateKey.from_private_bytes(self.sig_prv_bytes)
             
             self.pub           = self.prv.public_key()
-            self.pub_bytes     = self.pub.public_bytes(
-                encoding=serialization.Encoding.Raw,
-                format=serialization.PublicFormat.Raw
-            )
+            self.pub_bytes     = self.pub.public_bytes()
 
             self.sig_pub       = self.sig_prv.public_key()
             self.sig_pub_bytes = self.sig_pub.public_bytes(
@@ -416,10 +405,7 @@ class Identity:
         """
         if self.pub != None:
             ephemeral_key = X25519PrivateKey.generate()
-            ephemeral_pub_bytes = ephemeral_key.public_key().public_bytes(
-                encoding=serialization.Encoding.Raw,
-                format=serialization.PublicFormat.Raw
-            )
+            ephemeral_pub_bytes = ephemeral_key.public_key().public_bytes()
 
             shared_key = ephemeral_key.exchange(self.pub)
             
