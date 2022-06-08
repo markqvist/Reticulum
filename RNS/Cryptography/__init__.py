@@ -6,6 +6,7 @@ from .Hashes import sha512
 from .HKDF import hkdf
 from .PKCS7 import PKCS7
 from .Fernet import Fernet
+from .Provider import backend
 
 import RNS.Cryptography.Provider as cp
 
