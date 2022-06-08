@@ -25,11 +25,12 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
-from cryptography.fernet import Fernet
+
+from RNS.Cryptography import Fernet
+
 from time import sleep
 from .vendor import umsgpack as umsgpack
 import threading
-import base64
 import math
 import time
 import RNS
@@ -787,7 +788,7 @@ class Link:
         try:
             if not self.fernet:
                 try:
-                    self.fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
+                    self.fernet = Fernet(self.derived_key)
                 except Exception as e:
                     RNS.log("Could not "+str(self)+" instantiate Fernet while performin encryption on link. The contained exception was: "+str(e), RNS.LOG_ERROR)
                     raise e
@@ -800,7 +801,7 @@ class Link:
             # stamps until the year 8921556 AD, we'll also strip 2
             # bytes from the timestamp field and reinsert those as
             # 0x00 when received.
-            ciphertext = base64.urlsafe_b64decode(self.fernet.encrypt(plaintext))[3:]
+            ciphertext = self.fernet.encrypt(plaintext)[3:]
             return ciphertext
 
         except Exception as e:
@@ -811,9 +812,9 @@ class Link:
     def decrypt(self, ciphertext):
         try:
             if not self.fernet:
-                self.fernet = Fernet(base64.urlsafe_b64encode(self.derived_key))
+                self.fernet = Fernet(self.derived_key)
                 
-            plaintext = self.fernet.decrypt(base64.urlsafe_b64encode(bytes([RNS.Identity.FERNET_VERSION, 0x00, 0x00])+ciphertext))
+            plaintext = self.fernet.decrypt(bytes([RNS.Identity.FERNET_VERSION, 0x00, 0x00]) + ciphertext)
             return plaintext
         except Exception as e:
             RNS.log("Decryption failed on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)

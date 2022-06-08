@@ -20,13 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import base64
 import math
 import os
 import RNS
 import time
 import atexit
-import base64
 import hashlib
 
 from .vendor import umsgpack as umsgpack
