@@ -9,7 +9,7 @@ The vision of Reticulum is to allow anyone to be their own network operator, and
 
 Reticulum is a complete networking stack, and does not rely on IP or higher layers, but it is possible to use IP as the underlying carrier for Reticulum. It is therefore trivial to tunnel Reticulum over the Internet or private IP networks.
 
-Having no dependencies on traditional networking stacks free up overhead that has been utilised to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.
+Having no dependencies on traditional networking stacks frees up overhead that has been used to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality, even in open and trustless networks.
 
 No kernel modules or drivers are required. Reticulum runs completely in userland, and can run on practically any system that runs Python 3.
 
