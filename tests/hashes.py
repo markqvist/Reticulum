@@ -5,7 +5,7 @@ import os
 import time
 import unittest
 
-class SHA256(unittest.TestCase):
+class TestSHA256(unittest.TestCase):
     def setUp(self):
         self.f = RNS.Cryptography.sha256
 
@@ -59,7 +59,7 @@ class SHA256(unittest.TestCase):
         self.assertEqual(ok, True)
 
 
-class SHA512(unittest.TestCase):
+class TestSHA512(unittest.TestCase):
     def setUp(self):
         self.f = RNS.Cryptography.sha512
 

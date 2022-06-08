@@ -1,7 +1,8 @@
 import unittest
 
-from .hashes import SHA256
-from .hashes import SHA512
+from .hashes import TestSHA256
+from .hashes import TestSHA512
+from .identity import TestIdentity
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
