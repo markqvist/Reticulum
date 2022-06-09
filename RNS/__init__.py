@@ -153,6 +153,25 @@ def prettyhexrep(data):
     hexrep = "<"+delimiter.join("{:02x}".format(c) for c in data)+">"
     return hexrep
 
+def prettysize(num, suffix='B'):
+    units = ['','K','M','G','T','P','E','Z']
+    last_unit = 'Y'
+
+    if suffix == 'b':
+        num *= 8
+        units = ['','K','M','G','T','P','E','Z']
+        last_unit = 'Y'
+
+    for unit in units:
+        if abs(num) < 1000.0:
+            if unit == "":
+                return "%.0f %s%s" % (num, unit, suffix)
+            else:
+                return "%.2f %s%s" % (num, unit, suffix)
+        num /= 1000.0
+
+    return "%.2f%s%s" % (num, last_unit, suffix)
+
 def panic():
     os._exit(255)
 
