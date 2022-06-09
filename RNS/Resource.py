@@ -44,8 +44,17 @@ class Resource:
     """
     WINDOW_FLEXIBILITY   = 4
     WINDOW_MIN           = 1
-    WINDOW_MAX           = 10
-    WINDOW               = 4
+    WINDOW_MAX_SLOW      = 10
+    WINDOW_MAX_FAST      = 76
+    
+    WINDOW_MAX           = 76
+    WINDOW               = WINDOW_MAX
+    # TODO: Reset
+    # WINDOW               = 4
+    
+    RATE_SLOW            = 1000
+    RATE_FAST            = 10*1000*1000
+
     MAPHASH_LEN          = 4
     SDU                  = RNS.Packet.MDU
     RANDOM_HASH_SIZE     = 4
@@ -710,27 +719,34 @@ class Resource:
 
             requested_hashes = request_data[pad+RNS.Identity.HASHLENGTH//8:]
 
-            for i in range(0,len(requested_hashes)//Resource.MAPHASH_LEN):
-                requested_hash = requested_hashes[i*Resource.MAPHASH_LEN:(i+1)*Resource.MAPHASH_LEN]
-                
-                search_start = self.receiver_min_consecutive_height
-                search_end   = self.receiver_min_consecutive_height+ResourceAdvertisement.COLLISION_GUARD_SIZE
-                for part in self.parts[search_start:search_end]:
-                    if part.map_hash == requested_hash:
-                        try:
-                            if not part.sent:
-                                part.send()
-                                self.sent_parts += 1
-                            else:
-                                part.resend()
-                            self.last_activity = time.time()
-                            self.last_part_sent = self.last_activity
-                            break
-                        except Exception as e:
-                            RNS.log("Resource could not send parts, cancelling transfer!", RNS.LOG_DEBUG)
-                            RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
-                            self.cancel()
+            # Define the search scope
+            search_start = self.receiver_min_consecutive_height
+            search_end   = self.receiver_min_consecutive_height+ResourceAdvertisement.COLLISION_GUARD_SIZE
 
+            map_hashes = []
+            for i in range(0,len(requested_hashes)//Resource.MAPHASH_LEN):
+                map_hash = requested_hashes[i*Resource.MAPHASH_LEN:(i+1)*Resource.MAPHASH_LEN]
+                map_hashes.append(map_hash)
+
+            search_scope = self.parts[search_start:search_end]
+            requested_parts = list(filter(lambda part: part.map_hash in map_hashes, search_scope))
+
+            for part in requested_parts:
+                try:
+                    if not part.sent:
+                        part.send()
+                        self.sent_parts += 1
+                    else:
+                        part.resend()
+
+                    self.last_activity = time.time()
+                    self.last_part_sent = self.last_activity
+
+                except Exception as e:
+                    RNS.log("Resource could not send parts, cancelling transfer!", RNS.LOG_DEBUG)
+                    RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
+                    self.cancel()
+            
             if wants_more_hashmap:
                 last_map_hash = request_data[1:Resource.MAPHASH_LEN+1]
                 
