@@ -165,8 +165,9 @@ def targets():
     def resource_concluded(resource):
         print("Resource concluded")
 
-        rx_pr = (resource.link.attached_interface.rxb*8)/resource.link.attached_interface.rxptime
-        print("Average RX proccessing rate: "+size_str(rx_pr, "b")+"ps")
+        if hasattr(resource.link.attached_interface, "rxptime"):
+            rx_pr = (resource.link.attached_interface.rxb*8)/resource.link.attached_interface.rxptime
+            print("Average RX proccessing rate: "+size_str(rx_pr, "b")+"ps")
 
     def link_established(link):
         print("Link established")

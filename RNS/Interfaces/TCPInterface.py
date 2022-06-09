@@ -248,8 +248,8 @@ class TCPClientInterface(Interface):
 
     def processOutgoing(self, data):
         if self.online:
-            while self.writing:
-                time.sleep(0.01)
+            # while self.writing:
+            #     time.sleep(0.01)
 
             try:
                 self.writing = True
