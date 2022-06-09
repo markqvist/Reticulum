@@ -51,8 +51,7 @@ class TestIdentity(unittest.TestCase):
             self.assertEqual(True, id2.validate(signature, msg))
             t += time.time() - start
 
-        # print("Sign/validate: "+self.size_str(b)+", "+self.size_str(b, "b")+"/s")
-        print("Sign/validate chunks < MTU: "+self.size_str(b/t, "b")+"/s")
+        print("Sign/validate chunks < MTU: "+self.size_str(b/t, "b")+"ps")
 
         for i in range(1, 500):
             mlen = 16*1024
@@ -67,8 +66,7 @@ class TestIdentity(unittest.TestCase):
             self.assertEqual(True, id2.validate(signature, msg))
             t += time.time() - start
 
-        # print("Sign/validate: "+self.size_str(b)+", "+self.size_str(b, "b")+"/s")
-        print("Sign/validate 16KB chunks: "+self.size_str(b/t, "b")+"/s")
+        print("Sign/validate 16KB chunks: "+self.size_str(b/t, "b")+"ps")
 
     def test_encrypt(self):
         print("")
@@ -99,8 +97,8 @@ class TestIdentity(unittest.TestCase):
             self.assertEqual(msg, id1.decrypt(token))
             d_t += time.time() - d_start
 
-        print("Encrypt chunks < MTU: "+self.size_str(b/e_t, "b")+"/s")
-        print("Decrypt chunks < MTU: "+self.size_str(b/d_t, "b")+"/s")
+        print("Encrypt chunks < MTU: "+self.size_str(b/e_t, "b")+"ps")
+        print("Decrypt chunks < MTU: "+self.size_str(b/d_t, "b")+"ps")
         print("")
 
         # Test encrypt and decrypt of large chunks
@@ -120,8 +118,8 @@ class TestIdentity(unittest.TestCase):
             self.assertEqual(msg, id1.decrypt(token))
             d_t += time.time() - d_start
 
-        print("Encrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/e_t, "b")+"/s")
-        print("Decrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/d_t, "b")+"/s")
+        print("Encrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/e_t, "b")+"ps")
+        print("Decrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/d_t, "b")+"ps")
 
     def size_str(self, num, suffix='B'):
         units = ['','K','M','G','T','P','E','Z']

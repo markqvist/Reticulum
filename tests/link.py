@@ -97,10 +97,79 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-
-    def test_resource(self):
+    def test_micro_resource(self):
         init_rns()
         print("")
+        print("Micro resource test")
+
+        # TODO: Load this from public bytes only
+        id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
+        self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
+
+        dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
+        self.assertEqual(dest.hash, bytes.fromhex("be0c90339fce3db5b4e5"))
+        
+        l1 = RNS.Link(dest)
+        time.sleep(0.5)
+        self.assertEqual(l1.status, RNS.Link.ACTIVE)
+
+        resource_timeout = 120
+        resource_size = 128
+        data = os.urandom(resource_size)
+        print("Sending "+self.size_str(resource_size)+" resource...")
+        resource = RNS.Resource(data, l1, timeout=resource_timeout)
+        start = time.time()
+
+        while resource.status < RNS.Resource.COMPLETE:
+            time.sleep(0.01)
+
+        t = time.time() - start
+        self.assertEqual(resource.status, RNS.Resource.COMPLETE)
+        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+
+        l1.teardown()
+        time.sleep(0.5)
+        self.assertEqual(l1.status, RNS.Link.CLOSED)
+
+    def test_small_resource(self):
+        init_rns()
+        print("")
+        print("Small resource test")
+
+        # TODO: Load this from public bytes only
+        id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
+        self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
+
+        dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
+        self.assertEqual(dest.hash, bytes.fromhex("be0c90339fce3db5b4e5"))
+        
+        l1 = RNS.Link(dest)
+        time.sleep(0.5)
+        self.assertEqual(l1.status, RNS.Link.ACTIVE)
+
+        resource_timeout = 120
+        resource_size = 1000*1000
+        data = os.urandom(resource_size)
+        print("Sending "+self.size_str(resource_size)+" resource...")
+        resource = RNS.Resource(data, l1, timeout=resource_timeout)
+        start = time.time()
+
+        while resource.status < RNS.Resource.COMPLETE:
+            time.sleep(0.01)
+
+        t = time.time() - start
+        self.assertEqual(resource.status, RNS.Resource.COMPLETE)
+        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+
+        l1.teardown()
+        time.sleep(0.5)
+        self.assertEqual(l1.status, RNS.Link.CLOSED)
+
+
+    def test_medium_resource(self):
+        init_rns()
+        print("")
+        print("Medium resource test")
 
         # TODO: Load this from public bytes only
         id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
@@ -131,6 +200,39 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
+    def test_large_resource(self):
+        init_rns()
+        print("")
+        print("Large resource test")
+
+        # TODO: Load this from public bytes only
+        id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
+        self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
+
+        dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
+        self.assertEqual(dest.hash, bytes.fromhex("be0c90339fce3db5b4e5"))
+        
+        l1 = RNS.Link(dest)
+        time.sleep(0.5)
+        self.assertEqual(l1.status, RNS.Link.ACTIVE)
+
+        resource_timeout = 120
+        resource_size = 35*1000*1000
+        data = os.urandom(resource_size)
+        print("Sending "+self.size_str(resource_size)+" resource...")
+        resource = RNS.Resource(data, l1, timeout=resource_timeout)
+        start = time.time()
+
+        while resource.status < RNS.Resource.COMPLETE:
+            time.sleep(0.01)
+
+        t = time.time() - start
+        self.assertEqual(resource.status, RNS.Resource.COMPLETE)
+        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+
+        l1.teardown()
+        time.sleep(0.5)
+        self.assertEqual(l1.status, RNS.Link.CLOSED)
 
 
     def size_str(self, num, suffix='B'):
@@ -216,7 +318,7 @@ def resource_profiling():
     time.sleep(0.5)
 
     resource_timeout = 120
-    resource_size = 4*1000*1000
+    resource_size = 5*1000*1000
     data = os.urandom(resource_size)
     print("Sending "+size_str(resource_size)+" resource...")
     resource = RNS.Resource(data, l1, timeout=resource_timeout)
