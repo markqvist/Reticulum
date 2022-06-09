@@ -1,5 +1,7 @@
 import unittest
 
+import subprocess
+import shlex
 import threading
 import time
 import RNS
@@ -15,20 +17,34 @@ fixed_keys = [
     ("08bb35f92b06a0832991165a0d9b4fd91af7b7765ce4572aa6222070b11b767092b61b0fd18b3a59cae6deb9db6d4bfb1c7fcfe076cfd66eea7ddd5f877543b9", "d13712efc45ef87674fb"),
 ]
 
+def targets_job(caller):
+    cmd = "python -c \"from tests.link import targets; targets()\""
+    print("Opening subprocess for "+str(caller)+"...", RNS.LOG_VERBOSE)
+    ppath = os.getcwd()
+
+    try:
+        caller.process = subprocess.Popen(shlex.split(cmd), cwd=ppath)
+    except Exception as e:
+        raise e
+        caller.pipe_is_open = False
+
 c_rns = None
-def init_rns():
+def init_rns(caller=None):
     global c_rns
     if c_rns == None:
+        targets_job(caller)
+        time.sleep(2)
         print("Starting local RNS instance...")
         c_rns = RNS.Reticulum("./tests/rnsconfig")
+        c_rns.m_proc = caller.process
         print("Done starting local RNS instance...")
 
 class TestLink(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_establish(self):
-        init_rns()
+    def test_0_establish(self):
+        init_rns(self)
         print("")
 
         id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
@@ -45,8 +61,8 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    def test_packets(self):
-        init_rns()
+    def test_1_packets(self):
+        init_rns(self)
         print("")
 
         # TODO: Load this from public bytes only
@@ -97,8 +113,8 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    def test_micro_resource(self):
-        init_rns()
+    def test_2_micro_resource(self):
+        init_rns(self)
         print("")
         print("Micro resource test")
 
@@ -131,8 +147,8 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    def test_small_resource(self):
-        init_rns()
+    def test_3_small_resource(self):
+        init_rns(self)
         print("")
         print("Small resource test")
 
@@ -166,8 +182,8 @@ class TestLink(unittest.TestCase):
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
 
-    def test_medium_resource(self):
-        init_rns()
+    def test_4_medium_resource(self):
+        init_rns(self)
         print("")
         print("Medium resource test")
 
@@ -200,8 +216,8 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    def test_large_resource(self):
-        init_rns()
+    def test_5_large_resource(self):
+        init_rns(self)
         print("")
         print("Large resource test")
 
@@ -257,8 +273,6 @@ class TestLink(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main(verbosity=1)
 
-def targets_job():
-    cmd = "python -c \"from test.link import targets; targets()\""
 
 def targets():
     def resource_started(resource):
@@ -283,7 +297,8 @@ def targets():
     d1.set_proof_strategy(RNS.Destination.PROVE_ALL)
     d1.set_link_established_callback(link_established)
 
-    input()
+    while True:
+        time.sleep(1)
 
 def targets_profiling():
     targets()
