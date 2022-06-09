@@ -152,10 +152,6 @@ class LocalClientInterface(Interface):
 
     def processOutgoing(self, data):
         if self.online:
-            # TODO: Reset maybe?
-            while self.writing:
-                time.sleep(0.0005)
-
             try:
                 self.writing = True
                 data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
