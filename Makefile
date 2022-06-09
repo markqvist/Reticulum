@@ -1,5 +1,9 @@
 all: release
 
+test:
+	@echo Running tests...
+	python -m tests.all
+
 clean:
 	@echo Cleaning...
 	-rm -r ./build
@@ -18,7 +22,7 @@ create_symlinks:
 build_wheel:
 	python3 setup.py sdist bdist_wheel
 
-release: remove_symlinks build_wheel create_symlinks
+release: test remove_symlinks build_wheel create_symlinks
 
 upload:
 	@echo Uploading to PyPi...
