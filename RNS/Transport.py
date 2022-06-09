@@ -545,13 +545,12 @@ class Transport:
     @staticmethod
     def outbound(packet):
         while (Transport.jobs_running):
-            # TODO: Profile actual impact here on faster links
-            sleep(0.01)
+            sleep(0.0005)
 
         Transport.jobs_locked = True
 
         # TODO: This updateHash call might be redundant
-        packet.update_hash()
+        # packet.update_hash()
 
         sent = False
         outbound_time = time.time()
@@ -735,13 +734,14 @@ class Transport:
                             Transport.packet_hashlist.append(packet.packet_hash)
                             stored_hash = True
 
-                        def send_packet():
-                            Transport.transmit(interface, packet.raw)
+                        # TODO: Re-evaluate potential for blocking
+                        # def send_packet():
+                        #     Transport.transmit(interface, packet.raw)
+                        # thread = threading.Thread(target=send_packet)
+                        # thread.daemon = True
+                        # thread.start()
 
-                        thread = threading.Thread(target=send_packet)
-                        thread.daemon = True
-                        thread.start()
-
+                        Transport.transmit(interface, packet.raw)
                         sent = True
 
         if sent:
@@ -860,7 +860,7 @@ class Transport:
                 return
 
         while (Transport.jobs_running):
-            sleep(0.01)
+            sleep(0.0005)
 
         if Transport.identity == None:
             return
