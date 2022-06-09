@@ -20,14 +20,70 @@ fixed_keys = [
 
 class TestIdentity(unittest.TestCase):
 
-    def test_create_from_bytes(self):
+    def test_0_create_from_bytes(self):
         for entry in fixed_keys:
             key, id_hash = entry
             i = RNS.Identity.from_bytes(bytes.fromhex(key))
             self.assertEqual(i.hash, bytes.fromhex(id_hash))
             self.assertEqual(i.get_private_key(), bytes.fromhex(key))
 
-    def test_sign(self):
+    def test_1_encrypt(self):
+        print("")
+
+        # Test decryption of known token
+        fid = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
+        self.assertEqual(fid.hash, bytes.fromhex(fixed_keys[0][1]))
+        plaintext = fid.decrypt(bytes.fromhex(fixed_token))
+        self.assertEqual(plaintext, bytes.fromhex(encrypted_message))
+
+        # Test encrypt and decrypt of random chunks
+        print("Testing random small chunk encrypt/decrypt")
+        b = 0
+        e_t = 0
+        d_t = 0
+        for i in range(1, 500):
+            mlen = i % (RNS.Reticulum.MTU//2) + (RNS.Reticulum.MTU//2)
+            msg = os.urandom(mlen)
+            b += mlen
+            id1 = RNS.Identity()
+            id2 = RNS.Identity(create_keys=False)
+            id2.load_public_key(id1.get_public_key())
+
+            e_start = time.time()
+            token = id2.encrypt(msg)
+            e_t += time.time() - e_start
+
+            d_start = time.time()
+            decrypted = id1.decrypt(token)
+            self.assertEqual(msg, decrypted)
+            d_t += time.time() - d_start
+
+        print("Encrypt chunks < MTU: "+self.size_str(b/e_t, "b")+"ps")
+        print("Decrypt chunks < MTU: "+self.size_str(b/d_t, "b")+"ps")
+        print("")
+
+        # Test encrypt and decrypt of large chunks
+        print("Testing large chunk encrypt/decrypt")
+        mlen = 8*1000*1000
+        for i in range(1, 3):
+            msg = os.urandom(mlen)
+            b += mlen
+            id1 = RNS.Identity()
+            id2 = RNS.Identity(create_keys=False)
+            id2.load_public_key(id1.get_public_key())
+
+            e_start = time.time()
+            token = id2.encrypt(msg)
+            e_t += time.time() - e_start
+
+            d_start = time.time()
+            self.assertEqual(msg, id1.decrypt(token))
+            d_t += time.time() - d_start
+
+        print("Encrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/e_t, "b")+"ps")
+        print("Decrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/d_t, "b")+"ps")
+
+    def test_2_sign(self):
         print("")
 
         # Test known signature
@@ -68,58 +124,6 @@ class TestIdentity(unittest.TestCase):
 
         print("Sign/validate 16KB chunks: "+self.size_str(b/t, "b")+"ps")
 
-    def test_encrypt(self):
-        print("")
-
-        # Test decryption of known token
-        fid = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
-        self.assertEqual(fid.hash, bytes.fromhex(fixed_keys[0][1]))
-        plaintext = fid.decrypt(bytes.fromhex(fixed_token))
-        self.assertEqual(plaintext, bytes.fromhex(encrypted_message))
-
-        # Test encrypt and decrypt of random chunks
-        b = 0
-        e_t = 0
-        d_t = 0
-        for i in range(1, 500):
-            mlen = i % (RNS.Reticulum.MTU//2) + (RNS.Reticulum.MTU//2)
-            msg = os.urandom(mlen)
-            b += mlen
-            id1 = RNS.Identity()
-            id2 = RNS.Identity(create_keys=False)
-            id2.load_public_key(id1.get_public_key())
-
-            e_start = time.time()
-            token = id2.encrypt(msg)
-            e_t += time.time() - e_start
-
-            d_start = time.time()
-            self.assertEqual(msg, id1.decrypt(token))
-            d_t += time.time() - d_start
-
-        print("Encrypt chunks < MTU: "+self.size_str(b/e_t, "b")+"ps")
-        print("Decrypt chunks < MTU: "+self.size_str(b/d_t, "b")+"ps")
-        print("")
-
-        # Test encrypt and decrypt of large chunks
-        mlen = 8*1000*1000
-        for i in range(1, 8):
-            msg = os.urandom(mlen)
-            b += mlen
-            id1 = RNS.Identity()
-            id2 = RNS.Identity(create_keys=False)
-            id2.load_public_key(id1.get_public_key())
-
-            e_start = time.time()
-            token = id2.encrypt(msg)
-            e_t += time.time() - e_start
-
-            d_start = time.time()
-            self.assertEqual(msg, id1.decrypt(token))
-            d_t += time.time() - d_start
-
-        print("Encrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/e_t, "b")+"ps")
-        print("Decrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/d_t, "b")+"ps")
 
     def size_str(self, num, suffix='B'):
         units = ['','K','M','G','T','P','E','Z']
@@ -141,4 +145,4 @@ class TestIdentity(unittest.TestCase):
         return "%.2f%s%s" % (num, last_unit, suffix)
 
 if __name__ == '__main__':
-    unittest.main(verbosity=1)
+    unittest.main(verbosity=2)
