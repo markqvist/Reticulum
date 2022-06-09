@@ -23,7 +23,7 @@ def init_rns():
         c_rns = RNS.Reticulum("./tests/rnsconfig")
         print("Done starting local RNS instance...")
 
-class TestIdentity(unittest.TestCase):
+class TestLink(unittest.TestCase):
     def setUp(self):
         pass
 
@@ -63,8 +63,9 @@ class TestIdentity(unittest.TestCase):
         b = 0
         pr_t = 0
         receipts = []
-        num_packets = 250
+        num_packets = 500
         packet_size = RNS.Link.MDU
+        pstart = time.time()
         print("Sending "+str(num_packets)+" link packets of "+str(packet_size)+" bytes...")
         for i in range(0, num_packets):
             b += packet_size
@@ -74,19 +75,23 @@ class TestIdentity(unittest.TestCase):
             receipts.append(p.send())
             pr_t += time.time() - start
 
-        print("Sent "+self.size_str(b)+", "+self.size_str(b/pr_t, "b")+"/s")
-        print("Checking receipts...")
+        print("Sent "+self.size_str(b)+", "+self.size_str(b/pr_t, "b")+"ps")
+        print("Checking receipts...", end=" ")
 
         all_ok = False
-        receipt_timeout = time.time() + 5
+        receipt_timeout = time.time() + 10
         while not all_ok and time.time() < receipt_timeout:
             for r in receipts:
                 all_ok = True
                 if not r.status == RNS.PacketReceipt.DELIVERED:
                     all_ok = False
+                    break
+
+        pduration = time.time()-pstart
                 
         self.assertEqual(all_ok, True)
-        print("All packets received by destination")
+        print("OK!")
+        print("Single packet and proof round-trip throughput is "+self.size_str(b/pduration, "b")+"ps")
 
         l1.teardown()
         time.sleep(0.5)
@@ -109,7 +114,7 @@ class TestIdentity(unittest.TestCase):
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         resource_timeout = 120
-        resource_size = 10*1000*1000
+        resource_size = 5*1000*1000
         data = os.urandom(resource_size)
         print("Sending "+self.size_str(resource_size)+" resource...")
         resource = RNS.Resource(data, l1, timeout=resource_timeout)
@@ -120,7 +125,7 @@ class TestIdentity(unittest.TestCase):
 
         t = time.time() - start
         self.assertEqual(resource.status, RNS.Resource.COMPLETE)
-        print("Resource completed at "+self.size_str(resource_size/t, "b")+"/s")
+        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
 
         l1.teardown()
         time.sleep(0.5)
@@ -157,10 +162,17 @@ def targets():
     def resource_started(resource):
         print("Resource started")
 
+    def resource_concluded(resource):
+        print("Resource concluded")
+
+        rx_pr = (resource.link.attached_interface.rxb*8)/resource.link.attached_interface.rxptime
+        print("Average proccessing rates: RX "+size_str(rx_pr, "b")+"ps")
+
     def link_established(link):
         print("Link established")
         link.set_resource_strategy(RNS.Link.ACCEPT_ALL)
         link.set_resource_started_callback(resource_started)
+        link.set_resource_concluded_callback(resource_concluded)
 
     m_rns = RNS.Reticulum("./tests/rnsconfig")
     id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
@@ -168,19 +180,29 @@ def targets():
     d1.set_proof_strategy(RNS.Destination.PROVE_ALL)
     d1.set_link_established_callback(link_established)
 
-    while True:
-        time.sleep(1)
+    input()
 
-def profile():
+def targets_profiling():
+    targets()
+
+def profile_resource():
     import cProfile
     import pstats
     from pstats import SortKey
-    cProfile.runctx("entry()", {"entry": profile_resource, "size_str": size_str}, {}, "profile.data")
-    p = pstats.Stats("profile.data")
+    cProfile.runctx("entry()", {"entry": resource_profiling, "size_str": size_str}, {}, "profile-resource.data")
+    p = pstats.Stats("profile-resource.data")
+    # p.strip_dirs().sort_stats(SortKey.TIME, SortKey.CUMULATIVE).print_stats()
+
+def profile_targets():
+    import cProfile
+    import pstats
+    from pstats import SortKey
+    cProfile.runctx("entry()", {"entry": targets_profiling, "size_str": size_str}, {}, "profile-targets.data")
+    p = pstats.Stats("profile-targets.data")
     p.strip_dirs().sort_stats(SortKey.TIME, SortKey.CUMULATIVE).print_stats()
 
 
-def profile_resource():
+def resource_profiling():
     init_rns()
     print("")
 
@@ -193,38 +215,41 @@ def profile_resource():
     time.sleep(0.5)
 
     resource_timeout = 120
-    resource_size = 1*1000*1000
+    resource_size = 4*1000*1000
     data = os.urandom(resource_size)
     print("Sending "+size_str(resource_size)+" resource...")
     resource = RNS.Resource(data, l1, timeout=resource_timeout)
     start = time.time()
 
+    time.sleep(1)
+
     while resource.status < RNS.Resource.COMPLETE:
         time.sleep(0.01)
 
     t = time.time() - start
-    print("Resource completed at "+size_str(resource_size/t, "b")+"/s")
-    print("Press enter for profile")
-    input()
+    print("Resource completed at "+size_str(resource_size/t, "b")+"ps")
+
+    rx_pr = (resource.link.attached_interface.rxb*8)/resource.link.attached_interface.rxptime
+    print("Average proccessing rates: RX "+size_str(rx_pr, "b")+"ps")
 
     l1.teardown()
     time.sleep(0.5)
 
 def size_str(num, suffix='B'):
+    units = ['','K','M','G','T','P','E','Z']
+    last_unit = 'Y'
+
+    if suffix == 'b':
+        num *= 8
         units = ['','K','M','G','T','P','E','Z']
         last_unit = 'Y'
 
-        if suffix == 'b':
-            num *= 8
-            units = ['','K','M','G','T','P','E','Z']
-            last_unit = 'Y'
+    for unit in units:
+        if abs(num) < 1000.0:
+            if unit == "":
+                return "%.0f %s%s" % (num, unit, suffix)
+            else:
+                return "%.2f %s%s" % (num, unit, suffix)
+        num /= 1000.0
 
-        for unit in units:
-            if abs(num) < 1000.0:
-                if unit == "":
-                    return "%.0f %s%s" % (num, unit, suffix)
-                else:
-                    return "%.2f %s%s" % (num, unit, suffix)
-            num /= 1000.0
-
-        return "%.2f%s%s" % (num, last_unit, suffix)
+    return "%.2f%s%s" % (num, last_unit, suffix)
