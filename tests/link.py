@@ -95,7 +95,7 @@ class TestLink(unittest.TestCase):
         print("Checking receipts...", end=" ")
 
         all_ok = False
-        receipt_timeout = time.time() + 10
+        receipt_timeout = time.time() + 30
         while not all_ok and time.time() < receipt_timeout:
             for r in receipts:
                 all_ok = True
