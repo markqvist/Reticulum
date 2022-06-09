@@ -23,8 +23,7 @@
 import RNS.Cryptography.Provider as cp
 
 if cp.PROVIDER == cp.PROVIDER_INTERNAL:
-    # TODO: Use internal AES
-    from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+    from .aes import AES
     
 elif cp.PROVIDER == cp.PROVIDER_PYCA:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -35,11 +34,8 @@ class AES_128_CBC:
     @staticmethod
     def encrypt(plaintext, key, iv):
         if cp.PROVIDER == cp.PROVIDER_INTERNAL:
-            # TODO: Use internal AES
-            cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
-            encryptor = cipher.encryptor()
-            ciphertext = encryptor.update(plaintext) + encryptor.finalize()
-            return ciphertext
+            cipher = AES(key)
+            return cipher.encrypt(plaintext, iv)
 
         elif cp.PROVIDER == cp.PROVIDER_PYCA:
             cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
@@ -50,15 +46,11 @@ class AES_128_CBC:
     @staticmethod
     def decrypt(ciphertext, key, iv):
         if cp.PROVIDER == cp.PROVIDER_INTERNAL:
-            # TODO: Use internal AES
-            cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
-            decryptor = cipher.decryptor()
-            plaintext = decryptor.update(ciphertext) + decryptor.finalize()
-            return plaintext
+            cipher = AES(key)
+            return cipher.decrypt(ciphertext, iv)
 
         elif cp.PROVIDER == cp.PROVIDER_PYCA:
             cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
             decryptor = cipher.decryptor()
             plaintext = decryptor.update(ciphertext) + decryptor.finalize()
             return plaintext
-
