@@ -111,6 +111,7 @@ class Link:
                 link.set_link_id(packet)
                 link.destination = packet.destination
                 link.establishment_timeout = Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, packet.hops)
+                link.establishment_cost += len(packet.raw)
                 RNS.log("Validating link request "+RNS.prettyhexrep(link.link_id), RNS.LOG_VERBOSE)
                 link.handshake()
                 link.attached_interface = packet.receiving_interface
@@ -137,6 +138,7 @@ class Link:
         if destination != None and destination.type != RNS.Destination.SINGLE:
             raise TypeError("Links can only be established to the \"single\" destination type")
         self.rtt = None
+        self.establishment_cost = 0
         self.callbacks = LinkCallbacks()
         self.resource_strategy = Link.ACCEPT_NONE
         self.outgoing_resources = []
@@ -196,6 +198,7 @@ class Link:
             self.request_data = self.pub_bytes+self.sig_pub_bytes
             self.packet = RNS.Packet(destination, self.request_data, packet_type=RNS.Packet.LINKREQUEST)
             self.packet.pack()
+            self.establishment_cost += len(self.packet.raw)
             self.set_link_id(self.packet)
             self.load_peer(peer_pub_bytes, peer_sig_pub_bytes)
             self.handshake()
@@ -240,6 +243,7 @@ class Link:
         proof_data = signature
         proof = RNS.Packet(self, proof_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.LRPROOF)
         proof.send()
+        self.establishment_cost += len(proof.raw)
         self.had_outbound()
 
 
@@ -259,6 +263,7 @@ class Link:
     def validate_proof(self, packet):
         if self.status == Link.HANDSHAKE:
             if self.initiator and len(packet.data) == RNS.Identity.SIGLENGTH//8:
+                self.establishment_cost += len(packet.raw)
                 signed_data = self.link_id+self.peer_pub_bytes+self.peer_sig_pub_bytes
                 signature = packet.data[:RNS.Identity.SIGLENGTH//8]
                 
