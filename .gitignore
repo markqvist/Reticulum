@@ -10,3 +10,5 @@ docs/build
 rns*.egg-info
 profile.data
 tests/rnsconfig/storage
+*.data
+*.result
