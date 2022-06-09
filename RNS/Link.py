@@ -726,6 +726,7 @@ class Link:
                             resource_hash = plaintext[1+RNS.Resource.MAPHASH_LEN:RNS.Identity.HASHLENGTH//8+1+RNS.Resource.MAPHASH_LEN]
                         else:
                             resource_hash = plaintext[1:RNS.Identity.HASHLENGTH//8+1]
+
                         for resource in self.outgoing_resources:
                             if resource.hash == resource_hash:
                                 # We need to check that this request has not been
