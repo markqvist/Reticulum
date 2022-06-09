@@ -49,6 +49,9 @@ class LocalClientInterface(Interface):
     def __init__(self, owner, name, target_port = None, connected_socket=None):
         self.rxb = 0
         self.txb = 0
+
+        # TODO: Remove at some point
+        self.rxptime = 0
         
         self.HW_MTU = 1064
 
@@ -137,14 +140,21 @@ class LocalClientInterface(Interface):
         self.rxb += len(data)
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.rxb += len(data)
-            
+        
+        # TODO: Remove at some point
+        processing_start = time.time()
+        
         self.owner.inbound(data, self)
 
+        # TODO: Remove at some point
+        duration = time.time() - processing_start
+        self.rxptime += duration
 
     def processOutgoing(self, data):
         if self.online:
+            # TODO: Reset maybe?
             while self.writing:
-                time.sleep(0.01)
+                time.sleep(0.0005)
 
             try:
                 self.writing = True
