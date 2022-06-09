@@ -42,19 +42,39 @@ class Resource:
     :param callback: An optional *callable* with the signature *callback(resource)*. Will be called when the resource transfer concludes.
     :param progress_callback: An optional *callable* with the signature *callback(resource)*. Will be called whenever the resource transfer progress is updated.
     """
-    WINDOW_FLEXIBILITY   = 4
+
+    # The initial window size at beginning of transfer
+    WINDOW               = 4
+
+    # Absolute minimum window size during transfer
     WINDOW_MIN           = 1
+
+    # The maximum window size for transfers on slow links
     WINDOW_MAX_SLOW      = 10
+
+    # The maximum window size for transfers on fast links
     WINDOW_MAX_FAST      = 76
     
-    WINDOW_MAX           = 76
-    WINDOW               = WINDOW_MAX
-    # TODO: Reset
-    # WINDOW               = 4
+    # For calculating maps and guard segments, this
+    # must be set to the global maximum window.
+    WINDOW_MAX           = WINDOW_MAX_FAST
     
-    RATE_SLOW            = 1000
-    RATE_FAST            = 10*1000*1000
+    # If the fast rate is sustained for this many request
+    # rounds, the fast link window size will be allowed.
+    FAST_RATE_THRESHOLD  = WINDOW_MAX_SLOW - WINDOW - 2
 
+    # If the RTT rate is higher than this value,
+    # the max window size for fast links will be used.
+    # The default is 3 Mbps (the value is stored in
+    # bytes per second).
+    RATE_FAST            = (3*1000*1000)/8
+
+    # The minimum allowed flexibility of the window size.
+    # The difference between window_max and window_min
+    # will never be smaller than this value.
+    WINDOW_FLEXIBILITY   = 4
+
+    # Number of bytes in a map hash
     MAPHASH_LEN          = 4
     SDU                  = RNS.Packet.MDU
     RANDOM_HASH_SIZE     = 4
@@ -129,7 +149,7 @@ class Resource:
             resource.outstanding_parts   = 0
             resource.parts                 = [None] * resource.total_parts
             resource.window              = Resource.WINDOW
-            resource.window_max          = Resource.WINDOW_MAX
+            resource.window_max          = Resource.WINDOW_MAX_SLOW
             resource.window_min          = Resource.WINDOW_MIN
             resource.window_flexibility  = Resource.WINDOW_FLEXIBILITY
             resource.last_activity       = time.time()
@@ -228,6 +248,8 @@ class Resource:
         self.__watchdog_job_id = 0
         self.__progress_callback = progress_callback
         self.rtt = None
+        self.req_resp_rtt_rate = 0
+        self.fast_rate_rounds = 0
         self.request_id = request_id
         self.is_response = is_response
 
@@ -594,7 +616,7 @@ class Resource:
         if self.req_resp == None:
             self.req_resp = self.last_activity
             rtt = self.req_resp-self.req_sent
-
+            
             self.part_timeout_factor = Resource.PART_TIMEOUT_FACTOR_AFTER_RTT
             if self.rtt == None:
                 self.rtt = self.link.rtt
@@ -603,6 +625,16 @@ class Resource:
                 self.rtt = max(self.rtt - self.rtt*0.05, rtt)
             elif rtt > self.rtt:
                 self.rtt = min(self.rtt + self.rtt*0.05, rtt)
+
+            if rtt > 0:
+                req_resp_cost = len(packet.raw)+self.req_sent_bytes
+                self.req_resp_rtt_rate = req_resp_cost / rtt
+
+                if self.req_resp_rtt_rate > Resource.RATE_FAST and self.fast_rate_rounds < Resource.FAST_RATE_THRESHOLD:
+                    self.fast_rate_rounds += 1
+
+                    if self.fast_rate_rounds == Resource.FAST_RATE_THRESHOLD:
+                        self.window_max = Resource.WINDOW_MAX_FAST
 
         if not self.status == Resource.FAILED:
             self.status = Resource.TRANSFERRING
@@ -695,6 +727,7 @@ class Resource:
                     request_packet.send()
                     self.last_activity = time.time()
                     self.req_sent = self.last_activity
+                    self.req_sent_bytes = len(request_packet.raw)
                     self.req_resp = None
                 except Exception as e:
                     RNS.log("Could not send resource request packet, cancelling resource", RNS.LOG_DEBUG)
