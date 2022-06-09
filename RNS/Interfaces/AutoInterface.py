@@ -295,6 +295,7 @@ class AutoInterface(Interface):
             ifis = struct.pack("I", socket.if_nametoindex(ifname))
             announce_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, ifis)
             announce_socket.sendto(discovery_token, addr_info[0][4])
+            announce_socket.close()
         except Exception as e:
             if (ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == False) or not ifname in self.timed_out_interfaces:
                 RNS.log(str(self)+" Detected possible carrier loss on "+str(ifname)+": "+str(e), RNS.LOG_WARNING)
