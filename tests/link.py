@@ -88,7 +88,11 @@ class TestLink(unittest.TestCase):
         b = 0
         pr_t = 0
         receipts = []
-        num_packets = 500
+        if RNS.Cryptography.backend() == "internal":
+            num_packets = 50
+        else:
+            num_packets = 500
+
         packet_size = RNS.Link.MDU
         pstart = time.time()
         print("Sending "+str(num_packets)+" link packets of "+str(packet_size)+" bytes...")
@@ -104,7 +108,7 @@ class TestLink(unittest.TestCase):
         print("Checking receipts...", end=" ")
 
         all_ok = False
-        receipt_timeout = time.time() + 30
+        receipt_timeout = time.time() + 35
         while not all_ok and time.time() < receipt_timeout:
             for r in receipts:
                 all_ok = True
@@ -192,6 +196,10 @@ class TestLink(unittest.TestCase):
 
 
     def test_4_medium_resource(self):
+        if RNS.Cryptography.backend() == "internal":
+            print("Skipping medium resource test...")
+            return
+        
         init_rns(self)
         print("")
         print("Medium resource test")
@@ -226,6 +234,10 @@ class TestLink(unittest.TestCase):
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
     def test_5_large_resource(self):
+        if RNS.Cryptography.backend() == "internal":
+            print("Skipping large resource test...")
+            return
+
         init_rns(self)
         print("")
         print("Large resource test")

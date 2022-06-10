@@ -183,7 +183,12 @@ class TestIdentity(unittest.TestCase):
         # Test encrypt and decrypt of large chunks
         print("Testing large chunk encrypt/decrypt")
         mlen = 8*1000*1000
-        for i in range(1, 3):
+        if RNS.Cryptography.backend() == "internal":
+            lb = 1
+        else:
+            lb = 8
+        
+        for i in range(1, lb):
             msg = os.urandom(mlen)
             b += mlen
             id1 = RNS.Identity()
