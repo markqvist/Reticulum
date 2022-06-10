@@ -106,6 +106,9 @@ Currently, the following interfaces are supported:
 - External programs via stdio or pipes
 - Custom hardware via stdio or pipes
 
+## Performance
+Reticulum targets a *very* wide usable performance envelope, but prioritises functionality and performance over low-bandwidth links. The goal is to provide a dynamic performance envelope from 250 bits per second, to 1 gigabit per second on normal hardware. Currently the usable performance envelope is approximately 500 bits per second to 20 megabits per second, with links faster than that not being saturated. Performance beyond the current level is planned for the future, but not highly prioritised at this point.
+
 ## Development Roadmap
 - Version 0.3.8
   - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
