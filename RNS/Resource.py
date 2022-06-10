@@ -65,9 +65,10 @@ class Resource:
 
     # If the RTT rate is higher than this value,
     # the max window size for fast links will be used.
-    # The default is 3 Mbps (the value is stored in
-    # bytes per second).
-    RATE_FAST            = (3*1000*1000)/8
+    # The default is 675 Kbps (the value is stored in
+    # bytes per second, hence the "/ 8").
+    # TODO: Reset
+    RATE_FAST            = (675*1000) / 8
 
     # The minimum allowed flexibility of the window size.
     # The difference between window_max and window_min
