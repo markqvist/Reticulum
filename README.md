@@ -209,5 +209,23 @@ Reticulum also includes a *complete implementation* of all necessary primitives 
 
 If you want to use the internal pure-python primitives, it is **highly advisable** that you have a good understanding of the risks that this pose, and make an informed decision on whether those risks are acceptable for your.
 
+## Acknowledgements & Credits
+Reticulum can only exist because of the mountain of Open Source work it was built on top of, the contributions of everyone involved, and everyone that has supported the project through the years.
+
+A number of other modules and projects are either part of, or used by Reticulum. Sincere thanks to the authors and contributors of the following projects:
+
+- [Python](https://www.python.org)
+- [PyCA/cryptography](https://github.com/pyca/cryptography), *BSD License*
+- [Pure-25519](https://github.com/warner/python-pure25519) by [Brian Warner](https://github.com/warner), *MIT License*
+- [Pysha2](https://github.com/thomdixon/pysha2) by [Thom Dixon](https://github.com/thomdixon), *MIT License*
+- [Python-AES](https://github.com/orgurar/python-aes) by [Or Gur Arie](https://github.com/orgurar), *MIT License*
+- [Curve25519.py](https://gist.github.com/nickovs/cc3c22d15f239a2640c185035c06f8a3#file-curve25519-py) by [Nicko van Someren](https://gist.github.com/nickovs), *Public Domain*
+- [I2plib]() by [Viktor Villainov]()
+- [Configobj]() by Michael Foord, Nicola Larosa, Rob Dennis & Eli Courtwright, *BSD License*
+- [Six](https://github.com/benjaminp/six) by [Benjamin Peterson](https://github.com/benjaminp), *MIT License*
+- [Umsgpack.py](https://github.com/vsergeev/u-msgpack-python) by [Ivan A. Sergeev](https://github.com/vsergeev)
+
+To everyone who helped me, thank you so much.
+
 ## Caveat Emptor
 Reticulum is relatively young software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy or security breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
