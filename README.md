@@ -209,6 +209,8 @@ Reticulum also includes a *complete implementation* of all necessary primitives 
 
 If you want to use the internal pure-python primitives, it is **highly advisable** that you have a good understanding of the risks that this pose, and make an informed decision on whether those risks are acceptable for your.
 
+Reticulum is relatively young software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy or security breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
+
 ## Acknowledgements & Credits
 Reticulum can only exist because of the mountain of Open Source work it was built on top of, the contributions of everyone involved, and everyone that has supported the project through the years.
 
@@ -226,6 +228,3 @@ A number of other modules and projects are either part of, or used by Reticulum.
 - [Python](https://www.python.org)
 
 To everyone who helped me, thank you so much.
-
-## Caveat Emptor
-Reticulum is relatively young software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy or security breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
