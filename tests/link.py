@@ -19,11 +19,11 @@ fixed_keys = [
 
 def targets_job(caller):
     cmd = "python -c \"from tests.link import targets; targets()\""
-    print("Opening subprocess for "+str(caller)+"...", RNS.LOG_VERBOSE)
+    print("Opening subprocess for "+str(cmd)+"...", RNS.LOG_VERBOSE)
     ppath = os.getcwd()
 
     try:
-        caller.process = subprocess.Popen(shlex.split(cmd), cwd=ppath)
+        caller.process = subprocess.Popen(shlex.split(cmd), cwd=ppath, stdout=subprocess.PIPE)
     except Exception as e:
         raise e
         caller.pipe_is_open = False
@@ -39,9 +39,18 @@ def init_rns(caller=None):
         c_rns.m_proc = caller.process
         print("Done starting local RNS instance...")
 
+def close_rns():
+    global c_rns
+    if c_rns != None:
+        c_rns.m_proc.kill()
+
 class TestLink(unittest.TestCase):
     def setUp(self):
         pass
+
+    @classmethod
+    def tearDownClass(cls):
+        close_rns()
 
     def test_0_establish(self):
         init_rns(self)
