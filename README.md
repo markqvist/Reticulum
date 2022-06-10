@@ -201,7 +201,7 @@ In the default installation configuration, Reticulum primarily uses cryptograhic
 
 Reticulum also includes a *complete implementation* of all necessary primitives *written in pure Python*. If [OpenSSL](https://www.openssl.org/) & [PyCA](https://github.com/pyca/cryptography) are *not* available on the system when Reticulum is started, Reticulum will instead use the internal pure-python primitives. A trivial consequence of this is performance, with the OpenSSL backend being *much* faster. The most important consequence however, is the potential loss of security by using primitives that has not seen the same amount of scrutiny, testing and review as those from OpenSSL.
 
-If you want to use the internal pure-python primitives, it is **highly advisable** that you have a good understanding of the risks that this pose, and make an informed decision on whether those risks are acceptable in your usage scenario.
+If you want to use the internal pure-python primitives, it is **highly advisable** that you have a good understanding of the risks that this pose, and make an informed decision on whether those risks are acceptable for your.
 
 ## Caveat Emptor
 Reticulum is relatively young software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy or security breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
