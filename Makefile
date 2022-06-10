@@ -41,7 +41,7 @@ build_wheel:
 build_pure_wheel:
 	python3 setup.py sdist bdist_wheel --pure
 
-release: remove_symlinks build_wheel build_pure_wheel create_symlinks
+release: test remove_symlinks build_wheel build_pure_wheel create_symlinks
 
 upload:
 	@echo Ready to publish release, hit enter to continue
