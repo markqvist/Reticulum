@@ -137,7 +137,7 @@ Currently, the following interfaces are supported:
 
 
 
-## Dependencies:
+## Dependencies
 The installation of the default `rns` package requires the dependencies listed below. Almost all systems and distributions have readily available packages for the above dependencies, and when the `rns` package is installed with `pip`, the dependencies will automatically be downloaded and installed as well.
 
 - [PyCA/cryptography](https://github.com/pyca/cryptography)
