@@ -296,6 +296,7 @@ class AutoInterface(Interface):
             announce_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, ifis)
             announce_socket.sendto(discovery_token, addr_info[0][4])
             announce_socket.close()
+            
         except Exception as e:
             if (ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == False) or not ifname in self.timed_out_interfaces:
                 RNS.log(str(self)+" Detected possible carrier loss on "+str(ifname)+": "+str(e), RNS.LOG_WARNING)
@@ -337,6 +338,7 @@ class AutoInterface(Interface):
                     peer_addr = str(peer)+"%"+str(self.peers[peer][0])
                     addr_info = socket.getaddrinfo(peer_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
                     self.outbound_udp_socket.sendto(data, addr_info[0][4])
+
                 except Exception as e:
                     RNS.log("Could not transmit on "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 

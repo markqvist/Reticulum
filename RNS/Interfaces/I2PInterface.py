@@ -525,7 +525,7 @@ class I2PInterfacePeer(Interface):
     def processOutgoing(self, data):
         if self.online:
             while self.writing:
-                time.sleep(0.01)
+                time.sleep(0.001)
 
             try:
                 self.writing = True
@@ -538,6 +538,7 @@ class I2PInterfacePeer(Interface):
                 self.socket.sendall(data)
                 self.writing = False
                 self.txb += len(data)
+                
                 if hasattr(self, "parent_interface") and self.parent_interface != None and self.parent_count:
                     self.parent_interface.txb += len(data)
 

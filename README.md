@@ -113,32 +113,32 @@ Reticulum should currently be considered beta software. All core protocol featur
 
 ## Development Roadmap
 - Version 0.3.8
-  - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
+  - A portable cryptography core, supporting multiple backends
   - Utilities for managing identities, signing and encryption
-  - Support for radio and modem interfaces on Android
-  - User friendly interface configuration tool
-  - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
   - More interface types for even broader compatibility
     - Plain ESP32 devices (ESP-Now, WiFi, Bluetooth, etc.)
     - More LoRa transceivers
-    - AT-compatible modems
     - IR Transceivers
-    - AWDL / OWL
-    - HF Modems
-    - CAN-bus
-    - ZeroMQ
-    - MQTT
-    - IrDA / IrPHY
-    - SPI
-    - i²c
 - Version 0.3.9
-  - A portable cryptography core, supporting multiple backends
+  - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
+  - Support for radio and modem interfaces on Android
+  - User friendly interface configuration tool
   - Performance optimisations
   - Memory optimisations
 - Planned, but not yet scheduled
   - Globally routable multicast
   - Bindings for other programming languages
   - A portable Reticulum implementation in C, see [#21](https://github.com/markqvist/Reticulum/discussions/21)
+  - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
+  - More interface types
+    - AT-compatible modems
+    - AWDL / OWL
+    - HF Modems
+    - CAN-bus
+    - ZeroMQ
+    - MQTT
+    - SPI
+    - i²c
 
 
 
