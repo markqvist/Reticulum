@@ -197,7 +197,13 @@ Reticulum has been designed to use a simple suite of efficient, strong and moder
 - SHA-256
 - SHA-512
 
-In the default installation configuration, Reticulum primarily uses cryptograhic primitives from [OpenSSL](https://www.openssl.org/) (via the [PyCA/cryptography](https://github.com/pyca/cryptography) package). The hashing functions `SHA-256` and `SHA-512` are provided by the standard Python [hashlib](https://docs.python.org/3/library/hashlib.html), and `Fernet` is provided by [an internal implementation](RNS/Cryptography/Fernet.py). All other primitives are provided by OpenSSL & PyCA.
+In the default installation configuration, the `X25519`, `Ed25519` and `AES-128-CBC` primitives are provided by [OpenSSL](https://www.openssl.org/) (via the [PyCA/cryptography](https://github.com/pyca/cryptography) package). The hashing functions `SHA-256` and `SHA-512` are provided by the standard Python [hashlib](https://docs.python.org/3/library/hashlib.html). The `HKDF`, `HMAC`, `Fernet` primitives, and the `PKCS7` padding function are always provided by the following internal implementations:
+
+- [HKDF.py](RNS/Cryptography/HKDF.py)
+- [HMAC.py](RNS/Cryptography/HMAC.py)
+- [Fernet.py](RNS/Cryptography/Fernet.py)
+- [PKCS7.py](RNS/Cryptography/PKCS7.py)
+
 
 Reticulum also includes a *complete implementation* of all necessary primitives *written in pure Python*. If OpenSSL & PyCA are *not* available on the system when Reticulum is started, Reticulum will instead use the internal pure-python primitives. A trivial consequence of this is performance, with the OpenSSL backend being *much* faster. The most important consequence however, is the potential loss of security by using primitives that has not seen the same amount of scrutiny, testing and review as those from OpenSSL.
 
