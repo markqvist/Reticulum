@@ -87,9 +87,6 @@ Reticulum includes a range of useful utilities for managing your networks, viewi
 
 All tools, including `rnx` and `rncp`, work reliably and well even over very low-bandwidth links like LoRa or Packet Radio.
 
-## Current Status
-Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. There will be bugs. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.
-
 ## Supported interface types and devices
 
 Reticulum implements a range of generalised interface types that covers most of the communications hardware that Reticulum can run over. If your hardware is not supported, it's relatively simple to implement an interface class. I will gratefully accept pull requests for custom interfaces if they are generally useful.
@@ -108,6 +105,9 @@ Currently, the following interfaces are supported:
 
 ## Performance
 Reticulum targets a *very* wide usable performance envelope, but prioritises functionality and performance over low-bandwidth links. The goal is to provide a dynamic performance envelope from 250 bits per second, to 1 gigabit per second on normal hardware. Currently the usable performance envelope is approximately 500 bits per second to 20 megabits per second, with links faster than that not being saturated. Performance beyond the current level is planned for the future, but not highly prioritised at this point.
+
+## Current Status
+Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. There will be bugs. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.
 
 ## Development Roadmap
 - Version 0.3.8
