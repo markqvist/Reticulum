@@ -138,13 +138,19 @@ Currently, the following interfaces are supported:
 
 
 ## Dependencies:
-- Python 3.6
-- cryptography.io
-- netifaces
-- pyserial
+The installation of the default `rns` package requires the dependencies listed below. Almost all systems and distributions have readily available packages for the above dependencies, and when the `rns` package is installed with `pip`, the dependencies will automatically be downloaded and installed as well.
+
+- [PyCA/cryptography](https://github.com/pyca/cryptography)
+- [netifaces](https://github.com/al45tair/netifaces)
+- [pyserial](https://github.com/pyserial/pyserial)
+
+On more unusual systems, and in some rare cases, it might not be possible to install or even compile one or more of the above modules. In such situations, you can use the `rnspure` package instead, which require no external dependencies for installation. Please note that the contents of the `rns` and `rnspure` packages are *identical*. The only difference is that the `rnspure` package lists no dependencies required for installation.
+
+No matter how Reticulum is installed and started, it will load external dependencies only if they are *needed* and *available*. If for example you want to use Reticulum on a system that cannot support [pyserial](https://github.com/pyserial/pyserial), it is perfectly possible to do so using the `rnspure` package, but Reticulum will not be able to use serial-based interfaces. All other available modules will still be loaded when needed.
+
+**Please Note!** If you use the `rnspure` package to run Reticulum on systems that do not support [PyCA/cryptography](https://github.com/pyca/cryptography), it is important that you read and understand the [Cryptographic Primitives](#cryptographic-primitives) section of this document.
 
 ## Public Testnet
-
 If you just want to get started experimenting without building any physical networks, you are welcome to join the Unsigned.io RNS Testnet. The testnet is just that, an informal network for testing and experimenting. It will be up most of the time, and anyone can join, but it also means that there's no guarantees for service availability.
 
 The testnet runs the very latest version of Reticulum (often even a short while before it is publicly released). Sometimes experimental versions of Reticulum might be deployed to nodes on the testnet, which means strange behaviour might occur. If none of that scares you, you can join the testnet via eihter TCP or I2P. Just add one of the following interfaces to your Reticulum configuration file:
@@ -179,5 +185,21 @@ You can help support the continued development of open, free and private communi
 
 Are certain features in the development roadmap are important to you or your organisation? Make them a reality quickly by sponsoring their implementation.
 
+## Cryptographic Primitives
+Reticulum has been designed to use a simple suite of efficient, strong and modern cryptographic primitives, with widely available implementations that can be used both on general-purpose CPUs and on microcontrollers. The necessary primitives are:
+
+- Ed25519 for signatures
+- X22519 for ECDH key exchanges
+- HKDF for key derivation
+- Fernet for encrypted tokens
+  - AES-128 in CBC mode
+  - HMAC for message authentication
+- SHA-256
+- SHA-512
+
+In the default installation configuration, Reticulum primarily uses cryptograhic primitives from [OpenSSL](https://www.openssl.org/) (via the [PyCA/cryptography](https://github.com/pyca/cryptography) package). The hashing functions `SHA-256` and `SHA-512` are provided by the standard Python `hashlib`, and `Fernet` is provided by [an internal implementation](blob/master/RNS/Cryptography/Fernet.py). All other primitives are provided by [OpenSSL](https://www.openssl.org/) & [PyCA](https://github.com/pyca/cryptography).
+
+Reticulum also includes a complete implementation of all necessary primitives in pure Python. If [OpenSSL](https://www.openssl.org/) & [PyCA](https://github.com/pyca/cryptography) are *not* available on the system when Reticulum is started, Reticulum will instead use the internal pure-python primitives. A trivial consequence of this is performance, with the OpenSSL backend being *much* faster. The most important consequence however, is the potential loss of security by using primitives that has not seen the same amount of scrutiny, testing and review as those from OpenSSL. If you still want to use the internal pure-python primitives, it is highly advisable that you have a good understanding of which risks this pose, and make a decision on whether those are acceptable in your usage scenario.
+
 ## Caveat Emptor
-Reticulum is relatively young software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy-breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
+Reticulum is relatively young software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy or security breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
