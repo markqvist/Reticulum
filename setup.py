@@ -2,6 +2,8 @@ import setuptools
 import sys
 
 pure_python = False
+pure_notice = "\n\n**Warning!** *This package is the zero-dependency version of Reticulum. You should almost certainly use the [normal package](https://pypi.org/project/rns) instead. Do NOT install this package unless you know exactly why you are doing it!*"
+
 if '--pure' in sys.argv:
     pure_python = True
     sys.argv.remove('--pure')
@@ -15,6 +17,7 @@ with open("README.md", "r") as fh:
 if pure_python:
     pkg_name = "rnspure"
     requirements = []
+    long_description = long_description.replace("</p>", "</p>"+pure_notice)
 else:
     pkg_name = "rns"
     requirements = ['cryptography>=3.4.7', 'pyserial>=3.5', 'netifaces']
