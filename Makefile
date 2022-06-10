@@ -8,6 +8,17 @@ clean:
 	@echo Cleaning...
 	-rm -r ./build
 	-rm -r ./dist
+	-rm -r ./__pycache__
+	-rm -r ./RNS/__pycache__
+	-rm -r ./RNS/Cryptography/__pycache__
+	-rm -r ./RNS/Cryptography/aes/__pycache__
+	-rm -r ./RNS/Cryptography/pure25519/__pycache__
+	-rm -r ./RNS/Interfaces/__pycache__
+	-rm -r ./RNS/Utilities/__pycache__
+	-rm -r ./RNS/vendor/__pycache__
+	-rm -r ./RNS/vendor/i2plib/__pycache__
+	-rm -r ./tests/__pycache__
+	-rm -r ./tests/rnsconfig/storage
 
 remove_symlinks:
 	@echo Removing symlinks for build...
