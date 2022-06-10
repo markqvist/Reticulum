@@ -1,12 +1,26 @@
 import setuptools
+import sys
+
+pure_python = False
+if '--pure' in sys.argv:
+    pure_python = True
+    sys.argv.remove('--pure')
+    print("Building pure-python wheel")
 
 exec(open("RNS/_version.py", "r").read())
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+if pure_python:
+    pkg_name = "rnspure"
+    requirements = []
+else:
+    pkg_name = "rns"
+    requirements = ['cryptography>=3.4.7', 'pyserial>=3.5', 'netifaces']
+
 setuptools.setup(
-    name="rns",
+    name=pkg_name,
     version=__version__,
     author="Mark Qvist",
     author_email="mark@unsigned.io",
@@ -30,6 +44,6 @@ setuptools.setup(
             'rnx=RNS.Utilities.rnx:main',
         ]
     },
-    install_requires=['cryptography>=3.4.7', 'pyserial>=3.5', 'netifaces'],
+    install_requires=requirements,
     python_requires='>=3.6',
 )
