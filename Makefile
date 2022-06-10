@@ -6,19 +6,21 @@ test:
 
 clean:
 	@echo Cleaning...
-	-rm -r ./build
-	-rm -r ./dist
-	-rm -r ./__pycache__
-	-rm -r ./RNS/__pycache__
-	-rm -r ./RNS/Cryptography/__pycache__
-	-rm -r ./RNS/Cryptography/aes/__pycache__
-	-rm -r ./RNS/Cryptography/pure25519/__pycache__
-	-rm -r ./RNS/Interfaces/__pycache__
-	-rm -r ./RNS/Utilities/__pycache__
-	-rm -r ./RNS/vendor/__pycache__
-	-rm -r ./RNS/vendor/i2plib/__pycache__
-	-rm -r ./tests/__pycache__
-	-rm -r ./tests/rnsconfig/storage
+	@-rm -rf ./build
+	@-rm -rf ./dist
+	@-rm -rf ./__pycache__
+	@-rm -rf ./RNS/__pycache__
+	@-rm -rf ./RNS/Cryptography/__pycache__
+	@-rm -rf ./RNS/Cryptography/aes/__pycache__
+	@-rm -rf ./RNS/Cryptography/pure25519/__pycache__
+	@-rm -rf ./RNS/Interfaces/__pycache__
+	@-rm -rf ./RNS/Utilities/__pycache__
+	@-rm -rf ./RNS/vendor/__pycache__
+	@-rm -rf ./RNS/vendor/i2plib/__pycache__
+	@-rm -rf ./tests/__pycache__
+	@-rm -rf ./tests/rnsconfig/storage
+	@-rm -rf ./*.egg-info
+	@echo Done
 
 remove_symlinks:
 	@echo Removing symlinks for build...
