@@ -107,8 +107,13 @@ class I2PController:
 
 
     def stop(self):
-        for task in asyncio.Task.all_tasks(loop=self.loop):
-            task.cancel()
+        for i2ptunnel in self.i2plib_tunnels:
+            if hasattr(i2ptunnel, "stop") and callable(i2ptunnel.stop):
+                i2ptunnel.stop()
+
+        if hasattr(asyncio.Task, "all_tasks") and callable(asyncio.Task.all_tasks):
+            for task in asyncio.Task.all_tasks(loop=self.loop):
+                task.cancel()
 
         self.loop.stop()
 
@@ -182,25 +187,35 @@ class I2PController:
             else:
                 i2ptunnel = self.i2plib_tunnels[i2p_destination]
                 if hasattr(i2ptunnel, "status"):
-                    # TODO: Remove
-                    # RNS.log(str(i2ptunnel.status))
                     i2p_exception = i2ptunnel.status["exception"]
 
                     if i2ptunnel.status["setup_ran"] == False:
                         RNS.log(str(self)+" I2P tunnel setup did not complete", RNS.LOG_ERROR)
+
+                        if hasattr(i2ptunnel, "stop") and callable(i2ptunnel.stop):
+                            i2ptunnel.stop()
                         return False
 
                     elif i2p_exception != None:
                         RNS.log(str(self)+" An error ocurred while setting up I2P tunnel. The contained exception was: "+str(i2p_exception), RNS.LOG_ERROR)
                         RNS.log("Resetting I2P tunnel", RNS.LOG_ERROR)
+
+                        if hasattr(i2ptunnel, "stop") and callable(i2ptunnel.stop):
+                            i2ptunnel.stop()
                         return False
 
                     elif i2ptunnel.status["setup_failed"] == True:
                         RNS.log(str(self)+" Unspecified I2P tunnel setup error, resetting I2P tunnel", RNS.LOG_ERROR)
+
+                        if hasattr(i2ptunnel, "stop") and callable(i2ptunnel.stop):
+                            i2ptunnel.stop()
                         return False
 
                 else:
                     RNS.log(str(self)+" Got no status from SAM API, resetting I2P tunnel", RNS.LOG_ERROR)
+
+                    if hasattr(i2ptunnel, "stop") and callable(i2ptunnel.stop):
+                        i2ptunnel.stop()
                     return False
 
             time.sleep(5)
@@ -260,7 +275,6 @@ class I2PController:
                     raise e
 
             else:
-
                 i2ptunnel = self.i2plib_tunnels[i2p_b32]
                 if hasattr(i2ptunnel, "status"):
                     # TODO: Remove
@@ -269,19 +283,31 @@ class I2PController:
 
                     if i2ptunnel.status["setup_ran"] == False:
                         RNS.log(str(self)+" I2P tunnel setup did not complete", RNS.LOG_ERROR)
+
+                        if hasattr(i2ptunnel, "stop") and callable(i2ptunnel.stop):
+                            i2ptunnel.stop()
                         return False
 
                     elif i2p_exception != None:
                         RNS.log(str(self)+" An error ocurred while setting up I2P tunnel. The contained exception was: "+str(i2p_exception), RNS.LOG_ERROR)
                         RNS.log("Resetting I2P tunnel", RNS.LOG_ERROR)
+
+                        if hasattr(i2ptunnel, "stop") and callable(i2ptunnel.stop):
+                            i2ptunnel.stop()
                         return False
 
                     elif i2ptunnel.status["setup_failed"] == True:
                         RNS.log(str(self)+" Unspecified I2P tunnel setup error, resetting I2P tunnel", RNS.LOG_ERROR)
+
+                        if hasattr(i2ptunnel, "stop") and callable(i2ptunnel.stop):
+                            i2ptunnel.stop()
                         return False
 
                 else:
                     RNS.log(str(self)+" Got no status from SAM API, resetting I2P tunnel", RNS.LOG_ERROR)
+
+                    if hasattr(i2ptunnel, "stop") and callable(i2ptunnel.stop):
+                        i2ptunnel.stop()
                     return False
 
             time.sleep(5)
@@ -426,7 +452,20 @@ class I2PInterfacePeer(Interface):
             self.socket.setsockopt(socket.IPPROTO_TCP, TCP_KEEPIDLE, int(I2PInterfacePeer.TCP_PROBE_AFTER))
         else:
             self.socket.setsockopt(socket.IPPROTO_TCP, TCP_KEEPIDLE, int(I2PInterfacePeer.I2P_PROBE_AFTER))
-        
+    
+    def shutdown_socket(self, socket):
+        if callable(socket.close):
+            
+            try:
+                socket.shutdown(socket.SHUT_RDWR)
+            except Exception as e:
+                RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
+
+            try:
+                socket.close()
+            except Exception as e:
+                RNS.log("Error while closing socket for "+str(self)+": "+str(e))    
+    
     def detach(self):
         if self.socket != None:
             if hasattr(self.socket, "close"):
