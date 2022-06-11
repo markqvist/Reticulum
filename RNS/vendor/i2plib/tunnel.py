@@ -147,6 +147,7 @@ class ServerTunnel(I2PTunnel):
             except Exception as e:
                 self.status["exception"] = e
                 self.status["setup_failed"] = True
+                data = None
 
             try:
                 sc_task = asyncio.wait_for(
