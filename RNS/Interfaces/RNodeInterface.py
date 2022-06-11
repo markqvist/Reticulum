@@ -376,7 +376,7 @@ class RNodeInterface(Interface):
             self.bitrate = 0
 
     def processIncoming(self, data):
-        self.rxb += len(data)            
+        self.rxb += len(data)
         self.owner.inbound(data, self)
         self.r_stat_rssi = None
         self.r_stat_snr = None

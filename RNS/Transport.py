@@ -26,7 +26,6 @@ import time
 import math
 import struct
 import threading
-import traceback
 from time import sleep
 from .vendor import umsgpack as umsgpack
 
@@ -284,9 +283,6 @@ class Transport:
     def jobs():
         outgoing = []
         Transport.jobs_running = True
-        
-        # TODO: Remove at some point
-        # start_time = time.time()
 
         try:
             if not Transport.jobs_locked:
@@ -508,16 +504,8 @@ class Transport:
         except Exception as e:
             RNS.log("An exception occurred while running Transport jobs.", RNS.LOG_ERROR)
             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
-            traceback.print_exc()
 
         Transport.jobs_running = False
-
-        # TODO: Remove at some point
-        # end_time = time.time()
-        # if RNS.loglevel >= RNS.LOG_EXTREME:
-        #     duration = round((end_time - start_time) * 1000, 2)
-        #     if duration > 1:
-        #         RNS.log("Transport jobs took "+str(duration)+"ms", RNS.LOG_EXTREME)
 
         for packet in outgoing:
             packet.send()
@@ -822,42 +810,43 @@ class Transport:
     def inbound(raw, interface=None):
         # If interface access codes are enabled,
         # we must authenticate each packet.
-        if interface != None and hasattr(interface, "ifac_identity") and interface.ifac_identity != None:
-            # Check that IFAC flag is set
-            if raw[0] & 0x80 == 0x80:
-                if len(raw) > 2+interface.ifac_size:
-                    # Extract IFAC
-                    ifac = raw[2:2+interface.ifac_size]
+        if len(raw) > 1:
+            if interface != None and hasattr(interface, "ifac_identity") and interface.ifac_identity != None:
+                # Check that IFAC flag is set
+                if raw[0] & 0x80 == 0x80:
+                    if len(raw) > 2+interface.ifac_size:
+                        # Extract IFAC
+                        ifac = raw[2:2+interface.ifac_size]
 
-                    # Unset IFAC flag
-                    new_header = bytes([raw[0] & 0x7f, raw[1]])
+                        # Unset IFAC flag
+                        new_header = bytes([raw[0] & 0x7f, raw[1]])
 
-                    # Re-assemble packet
-                    new_raw = new_header+raw[2+interface.ifac_size:]
+                        # Re-assemble packet
+                        new_raw = new_header+raw[2+interface.ifac_size:]
 
-                    # Calculate expected IFAC
-                    expected_ifac = interface.ifac_identity.sign(new_raw)[-interface.ifac_size:]
+                        # Calculate expected IFAC
+                        expected_ifac = interface.ifac_identity.sign(new_raw)[-interface.ifac_size:]
 
-                    # Check it
-                    if ifac == expected_ifac:
-                        raw = new_raw
+                        # Check it
+                        if ifac == expected_ifac:
+                            raw = new_raw
+                        else:
+                            return
+
                     else:
                         return
 
                 else:
+                    # If the IFAC flag is not set, but should be,
+                    # drop the packet.
                     return
 
             else:
-                # If the IFAC flag is not set, but should be,
-                # drop the packet.
-                return
-
-        else:
-            # If the interface does not have IFAC enabled,
-            # check the received packet IFAC flag.
-            if raw[0] & 0x80 == 0x80:
-                # If the flag is set, drop the packet
-                return
+                # If the interface does not have IFAC enabled,
+                # check the received packet IFAC flag.
+                if raw[0] & 0x80 == 0x80:
+                    # If the flag is set, drop the packet
+                    return
 
         while (Transport.jobs_running):
             sleep(0.0005)
