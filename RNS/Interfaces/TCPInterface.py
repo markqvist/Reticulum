@@ -227,7 +227,7 @@ class TCPClientInterface(Interface):
                         RNS.log("Connection attempt for "+str(self)+" failed: "+str(e), RNS.LOG_DEBUG)
 
                 if not self.never_connected:
-                    RNS.log("Reconnected TCP socket for "+str(self)+".", RNS.LOG_INFO)
+                    RNS.log("Reconnected socket for "+str(self)+".", RNS.LOG_INFO)
 
                 self.reconnecting = False
                 thread = threading.Thread(target=self.read_loop)
@@ -336,10 +336,10 @@ class TCPClientInterface(Interface):
                 else:
                     self.online = False
                     if self.initiator and not self.detached:
-                        RNS.log("TCP socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
+                        RNS.log("The socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
                         self.reconnect()
                     else:
-                        RNS.log("TCP socket for remote client "+str(self)+" was closed.", RNS.LOG_VERBOSE)
+                        RNS.log("The socket for remote client "+str(self)+" was closed.", RNS.LOG_VERBOSE)
                         self.teardown()
 
                     break

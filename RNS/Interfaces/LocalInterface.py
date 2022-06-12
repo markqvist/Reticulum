@@ -123,7 +123,7 @@ class LocalClientInterface(Interface):
                         RNS.log("Connection attempt for "+str(self)+" failed: "+str(e), RNS.LOG_DEBUG)
 
                 if not self.never_connected:
-                    RNS.log("Reconnected TCP socket for "+str(self)+".", RNS.LOG_INFO)
+                    RNS.log("Reconnected socket for "+str(self)+".", RNS.LOG_INFO)
 
                 self.reconnecting = False
                 thread = threading.Thread(target=self.read_loop)
