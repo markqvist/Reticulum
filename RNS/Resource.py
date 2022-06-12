@@ -65,10 +65,9 @@ class Resource:
 
     # If the RTT rate is higher than this value,
     # the max window size for fast links will be used.
-    # The default is 675 Kbps (the value is stored in
+    # The default is 50 Kbps (the value is stored in
     # bytes per second, hence the "/ 8").
-    # TODO: Reset
-    RATE_FAST            = (675*1000) / 8
+    RATE_FAST            = (50*1000) / 8
 
     # The minimum allowed flexibility of the window size.
     # The difference between window_max and window_min
@@ -252,7 +251,10 @@ class Resource:
         self.__watchdog_job_id = 0
         self.__progress_callback = progress_callback
         self.rtt = None
+        self.rtt_rxd_bytes = 0
+        self.req_sent = 0
         self.req_resp_rtt_rate = 0
+        self.rtt_rxd_bytes_at_part_req = 0
         self.fast_rate_rounds = 0
         self.request_id = request_id
         self.is_response = is_response
@@ -655,6 +657,7 @@ class Resource:
                     if self.parts[i] == None:
                         # Insert data into parts list
                         self.parts[i] = part_data
+                        self.rtt_rxd_bytes += len(part_data)
                         self.received_count += 1
                         self.outstanding_parts -= 1
 
@@ -687,6 +690,20 @@ class Resource:
                     self.window += 1
                     if (self.window - self.window_min) > (self.window_flexibility-1):
                         self.window_min += 1
+
+                if self.req_sent != 0:
+                    rtt = time.time()-self.req_sent
+                    req_transferred = self.rtt_rxd_bytes - self.rtt_rxd_bytes_at_part_req
+
+                    if rtt != 0:
+                        self.req_data_rtt_rate = req_transferred/rtt
+                        self.rtt_rxd_bytes_at_part_req = self.rtt_rxd_bytes
+
+                        if self.req_data_rtt_rate > Resource.RATE_FAST and self.fast_rate_rounds < Resource.FAST_RATE_THRESHOLD:
+                            self.fast_rate_rounds += 1
+
+                            if self.fast_rate_rounds == Resource.FAST_RATE_THRESHOLD:
+                                self.window_max = Resource.WINDOW_MAX_FAST
 
                 self.request_next()
         else:
