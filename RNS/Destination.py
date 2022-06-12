@@ -118,6 +118,8 @@ class Destination:
         if "." in app_name: raise ValueError("Dots can't be used in app names") 
         if not type in Destination.types: raise ValueError("Unknown destination type")
         if not direction in Destination.directions: raise ValueError("Unknown destination direction")
+
+        self.accept_link_requests = True
         self.callbacks = Callbacks()
         self.request_handlers = {}
         self.type = type
@@ -197,6 +199,20 @@ class Destination:
 
         RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE, context = announce_context).send()
 
+    def accepts_links(self, accepts = None):
+        """
+        Set or query whether the destination accepts incoming link requests.
+
+        :param accepts: If ``True`` or ``False``, this method sets whether the destination accepts incoming link requests. If not provided or ``None``, the method returns whether the destination currently accepts link requests.
+        :returns: ``True`` or ``False`` depending on whether the destination accepts incoming link requests, if the *accepts* parameter is not provided or ``None``.
+        """
+        if accepts == None:
+            return self.accept_link_requests
+
+        if accepts:
+            self.accept_link_requests = True
+        else:
+            self.accept_link_requests = False
 
     def set_link_established_callback(self, callback):
         """
@@ -292,9 +308,10 @@ class Destination:
 
 
     def incoming_link_request(self, data, packet):
-        link = RNS.Link.validate_request(self, data, packet)
-        if link != None:
-            self.links.append(link)
+        if self.accept_link_requests:
+            link = RNS.Link.validate_request(self, data, packet)
+            if link != None:
+                self.links.append(link)
 
     def create_keys(self):
         """
