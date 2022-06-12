@@ -65,15 +65,15 @@ class TCPClientInterface(Interface):
     RECONNECT_MAX_TRIES = None
 
     # TCP socket options
-    TCP_USER_TIMEOUT = 20
+    TCP_USER_TIMEOUT = 24
     TCP_PROBE_AFTER = 5
-    TCP_PROBE_INTERVAL = 3
-    TCP_PROBES = 5
+    TCP_PROBE_INTERVAL = 2
+    TCP_PROBES = 12
 
-    I2P_USER_TIMEOUT = 40
+    I2P_USER_TIMEOUT = 45
     I2P_PROBE_AFTER = 10
-    I2P_PROBE_INTERVAL = 5
-    I2P_PROBES = 6
+    I2P_PROBE_INTERVAL = 9
+    I2P_PROBES = 5
 
     def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None, max_reconnect_tries=None, kiss_framing=False, i2p_tunneled = False):
         self.rxb = 0
@@ -139,6 +139,7 @@ class TCPClientInterface(Interface):
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, int(TCPClientInterface.TCP_PROBE_AFTER))
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, int(TCPClientInterface.TCP_PROBE_INTERVAL))
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, int(TCPClientInterface.TCP_PROBES))
+
         else:
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_USER_TIMEOUT, int(TCPClientInterface.I2P_USER_TIMEOUT * 1000))
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
