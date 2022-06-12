@@ -46,7 +46,7 @@ def size_str(num, suffix='B'):
 
     return "%.2f%s%s" % (num, last_unit, suffix)
 
-def program_setup(configdir, dispall=False, verbosity = 0):
+def program_setup(configdir, dispall=False, verbosity=0, name_filter=None):
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
 
     stats = None
@@ -67,88 +67,89 @@ def program_setup(configdir, dispall=False, verbosity = 0):
                 ):
 
                 if not (name.startswith("I2PInterface[") and ("i2p_connectable" in ifstat and ifstat["i2p_connectable"] == False)):
-                    print("")
+                    if name_filter == None or name_filter.lower() in name.lower():
+                        print("")
 
-                    if ifstat["status"]:
-                        ss = "Up"
-                    else:
-                        ss = "Down"
+                        if ifstat["status"]:
+                            ss = "Up"
+                        else:
+                            ss = "Down"
 
-                    if ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
-                        modestr = "Access Point"
-                    elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_POINT_TO_POINT:
-                        modestr = "Point-to-Point"
-                    elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
-                        modestr = "Roaming"
-                    elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
-                        modestr = "Boundary"
-                    elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_GATEWAY:
-                        modestr = "Gateway"
-                    else:
-                        modestr = "Full"
+                        if ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
+                            modestr = "Access Point"
+                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_POINT_TO_POINT:
+                            modestr = "Point-to-Point"
+                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                            modestr = "Roaming"
+                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
+                            modestr = "Boundary"
+                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_GATEWAY:
+                            modestr = "Gateway"
+                        else:
+                            modestr = "Full"
 
 
-                    if ifstat["clients"] != None:
-                        clients = ifstat["clients"]
-                        if name.startswith("Shared Instance["):
-                            cnum = max(clients-1,0)
-                            if cnum == 1:
-                                spec_str = " program"
-                            else:
-                                spec_str = " programs"
-
-                            clients_string = "Serving : "+str(cnum)+spec_str
-                        elif name.startswith("I2PInterface["):
-                            if "i2p_connectable" in ifstat and ifstat["i2p_connectable"] == True:
-                                cnum = clients
+                        if ifstat["clients"] != None:
+                            clients = ifstat["clients"]
+                            if name.startswith("Shared Instance["):
+                                cnum = max(clients-1,0)
                                 if cnum == 1:
-                                    spec_str = " connected I2P endpoint"
+                                    spec_str = " program"
                                 else:
-                                    spec_str = " connected I2P endpoints"
+                                    spec_str = " programs"
 
-                                clients_string = "Peers   : "+str(cnum)+spec_str
+                                clients_string = "Serving : "+str(cnum)+spec_str
+                            elif name.startswith("I2PInterface["):
+                                if "i2p_connectable" in ifstat and ifstat["i2p_connectable"] == True:
+                                    cnum = clients
+                                    if cnum == 1:
+                                        spec_str = " connected I2P endpoint"
+                                    else:
+                                        spec_str = " connected I2P endpoints"
+
+                                    clients_string = "Peers   : "+str(cnum)+spec_str
+                                else:
+                                    clients_string = ""
                             else:
-                                clients_string = ""
+                                clients_string = "Clients : "+str(clients)
+
                         else:
-                            clients_string = "Clients : "+str(clients)
+                            clients = None
 
-                    else:
-                        clients = None
+                        print(" {n}".format(n=ifstat["name"]))
 
-                    print(" {n}".format(n=ifstat["name"]))
+                        if "ifac_netname" in ifstat and ifstat["ifac_netname"] != None:
+                            print("    Network : {nn}".format(nn=ifstat["ifac_netname"]))
 
-                    if "ifac_netname" in ifstat and ifstat["ifac_netname"] != None:
-                        print("    Network : {nn}".format(nn=ifstat["ifac_netname"]))
+                        print("    Status  : {ss}".format(ss=ss))
 
-                    print("    Status  : {ss}".format(ss=ss))
+                        if clients != None and clients_string != "":
+                            print("    "+clients_string)
 
-                    if clients != None and clients_string != "":
-                        print("    "+clients_string)
+                        if not (name.startswith("Shared Instance[") or name.startswith("TCPInterface[Client") or name.startswith("LocalInterface[")):
+                            print("    Mode    : {mode}".format(mode=modestr))
 
-                    if not (name.startswith("Shared Instance[") or name.startswith("TCPInterface[Client") or name.startswith("LocalInterface[")):
-                        print("    Mode    : {mode}".format(mode=modestr))
+                        if "bitrate" in ifstat and ifstat["bitrate"] != None:
+                            print("    Rate    : {ss}".format(ss=speed_str(ifstat["bitrate"])))
+                        
+                        if "peers" in ifstat and ifstat["peers"] != None:
+                            print("    Peers   : {np} reachable".format(np=ifstat["peers"]))
 
-                    if "bitrate" in ifstat and ifstat["bitrate"] != None:
-                        print("    Rate    : {ss}".format(ss=speed_str(ifstat["bitrate"])))
-                    
-                    if "peers" in ifstat and ifstat["peers"] != None:
-                        print("    Peers   : {np} reachable".format(np=ifstat["peers"]))
+                        if "ifac_signature" in ifstat and ifstat["ifac_signature"] != None:
+                            sigstr = "<…"+RNS.hexrep(ifstat["ifac_signature"][-5:], delimit=False)+">"
+                            print("    Access  : {nb}-bit IFAC by {sig}".format(nb=ifstat["ifac_size"]*8, sig=sigstr))
+                        
+                        if "i2p_b32" in ifstat and ifstat["i2p_b32"] != None:
+                            print("    I2P B32 : {ep}".format(ep=str(ifstat["i2p_b32"])))
 
-                    if "ifac_signature" in ifstat and ifstat["ifac_signature"] != None:
-                        sigstr = "<…"+RNS.hexrep(ifstat["ifac_signature"][-5:], delimit=False)+">"
-                        print("    Access  : {nb}-bit IFAC by {sig}".format(nb=ifstat["ifac_size"]*8, sig=sigstr))
-                    
-                    if "i2p_b32" in ifstat and ifstat["i2p_b32"] != None:
-                        print("    I2P B32 : {ep}".format(ep=str(ifstat["i2p_b32"])))
-
-                    if "announce_queue" in ifstat and ifstat["announce_queue"] != None and ifstat["announce_queue"] > 0:
-                        aqn = ifstat["announce_queue"]
-                        if aqn == 1:
-                            print("    Queued  : {np} announce".format(np=aqn))
-                        else:
-                            print("    Queued  : {np} announces".format(np=aqn))
-                    
-                    print("    Traffic : {txb}↑\n              {rxb}↓".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
+                        if "announce_queue" in ifstat and ifstat["announce_queue"] != None and ifstat["announce_queue"] > 0:
+                            aqn = ifstat["announce_queue"]
+                            if aqn == 1:
+                                print("    Queued  : {np} announce".format(np=aqn))
+                            else:
+                                print("    Queued  : {np} announces".format(np=aqn))
+                        
+                        print("    Traffic : {txb}↑\n              {rxb}↓".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
 
         if "transport_id" in stats and stats["transport_id"] != None:
             print("\n Reticulum Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" is running")
@@ -173,6 +174,8 @@ def main():
         )
 
         parser.add_argument('-v', '--verbose', action='count', default=0)
+
+        parser.add_argument("filter", nargs="?", default=None, help="only display interfaces with names including filter", type=str)
         
         args = parser.parse_args()
 
@@ -181,7 +184,7 @@ def main():
         else:
             configarg = None
 
-        program_setup(configdir = configarg, dispall = args.all, verbosity=args.verbose)
+        program_setup(configdir = configarg, dispall = args.all, verbosity=args.verbose, name_filter=args.filter)
 
     except KeyboardInterrupt:
         print("")
