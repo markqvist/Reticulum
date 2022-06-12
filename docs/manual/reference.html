@@ -478,6 +478,20 @@ relevant interfaces. Application specific data can be added to the announce.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.accepts_links">
+<span class="sig-name descname"><span class="pre">accepts_links</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">accepts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.accepts_links" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set or query whether the destination accepts incoming link requests.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>accepts</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>, this method sets whether the destination accepts incoming link requests. If not provided or <code class="docutils literal notranslate"><span class="pre">None</span></code>, the method returns whether the destination currently accepts link requests.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code> depending on whether the destination accepts incoming link requests, if the <em>accepts</em> parameter is not provided or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Destination.set_link_established_callback">
 <span class="sig-name descname"><span class="pre">set_link_established_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.set_link_established_callback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a function to be called when a link has been established to
