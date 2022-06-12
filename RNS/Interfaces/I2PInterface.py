@@ -298,6 +298,7 @@ class I2PController:
                         tunnel = self.i2plib.ServerTunnel((owner.bind_ip, owner.bind_port), loop=self.loop, destination=i2p_dest, sam_address=self.sam_address)
                         self.i2plib_tunnels[i2p_b32] = tunnel
                         await tunnel.run()
+                        owner.online = True
                         RNS.log(str(owner)+ " endpoint setup complete. Now reachable at: "+str(i2p_dest.base32)+".b32.i2p", RNS.LOG_VERBOSE)
 
                     asyncio.run_coroutine_threadsafe(tunnel_up(), self.loop).result()
