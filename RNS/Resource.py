@@ -104,9 +104,11 @@ class Resource:
 
     PART_TIMEOUT_FACTOR           = 4
     PART_TIMEOUT_FACTOR_AFTER_RTT = 2
-    MAX_RETRIES                   = 5
+    MAX_RETRIES                   = 8
+    MAX_ADV_RETRIES               = 4
     SENDER_GRACE_TIME             = 10
     RETRY_GRACE_TIME              = 0.25
+    PER_RETRY_DELAY               = 0.5
 
     WATCHDOG_MAX_SLEEP            = 1
 
@@ -240,6 +242,7 @@ class Resource:
         self.status = Resource.NONE
         self.link = link
         self.max_retries = Resource.MAX_RETRIES
+        self.max_adv_retries = Resource.MAX_ADV_RETRIES
         self.retries_left = self.max_retries
         self.timeout_factor = self.link.traffic_timeout_factor
         self.part_timeout_factor = Resource.PART_TIMEOUT_FACTOR
@@ -404,6 +407,7 @@ class Resource:
             self.adv_sent = self.last_activity
             self.rtt = None
             self.status = Resource.ADVERTISED
+            self.retries_left = self.max_adv_retries
             self.link.register_outgoing_resource(self)
             RNS.log("Sent resource advertisement for "+RNS.prettyhexrep(self.hash), RNS.LOG_DEBUG)
         except Exception as e:
@@ -458,7 +462,9 @@ class Resource:
 
                     window_remaining = self.outstanding_parts
 
-                    sleep_time = self.last_activity + (rtt*(self.part_timeout_factor+window_remaining)) + Resource.RETRY_GRACE_TIME - time.time()
+                    retries_used = self.max_retries - self.retries_left
+                    extra_wait = retries_used * Resource.PER_RETRY_DELAY
+                    sleep_time = self.last_activity + (rtt*(self.part_timeout_factor+window_remaining)) + Resource.RETRY_GRACE_TIME + extra_wait - time.time()
                     
                     if sleep_time < 0:
                         if self.retries_left > 0:
@@ -478,7 +484,8 @@ class Resource:
                             self.cancel()
                             sleep_time = 0.001
                 else:
-                    max_wait = self.rtt * self.timeout_factor * self.max_retries + self.sender_grace_time
+                    max_extra_wait = sum([(r+1) * Resource.PER_RETRY_DELAY for r in range(self.MAX_RETRIES)])
+                    max_wait = self.rtt * self.timeout_factor * self.max_retries + self.sender_grace_time + max_extra_wait
                     sleep_time = self.last_activity + max_wait - time.time()
                     if sleep_time < 0:
                         RNS.log("Resource timed out waiting for part requests", RNS.LOG_DEBUG)
