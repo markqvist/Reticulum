@@ -117,7 +117,16 @@ class TestLink(unittest.TestCase):
                     break
 
         pduration = time.time()-pstart
-                
+
+        n_failed = 0
+        for r in receipts:
+            if not r.status == RNS.PacketReceipt.DELIVERED:
+                n_failed += 1
+
+        if n_failed > 0:
+            ns = "s" if n_failed != 1 else ""
+            print("Failed to receive proof for "+str(n_failed)+" packet"+ns)
+            
         self.assertEqual(all_ok, True)
         print("OK!")
         print("Single packet and proof round-trip throughput is "+self.size_str(b/pduration, "b")+"ps")
