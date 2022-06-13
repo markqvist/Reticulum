@@ -381,10 +381,10 @@ class I2PInterfacePeer(Interface):
     RECONNECT_MAX_TRIES = None
 
     # TCP socket options
-    I2P_USER_TIMEOUT = 40
+    I2P_USER_TIMEOUT = 45
     I2P_PROBE_AFTER = 10
-    I2P_PROBE_INTERVAL = 5
-    I2P_PROBES = 6
+    I2P_PROBE_INTERVAL = 9
+    I2P_PROBES = 5
 
     def __init__(self, parent_interface, owner, name, target_i2p_dest=None, connected_socket=None, max_reconnect_tries=None):
         self.rxb = 0
