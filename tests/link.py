@@ -32,11 +32,14 @@ c_rns = None
 def init_rns(caller=None):
     global c_rns
     if c_rns == None:
-        targets_job(caller)
-        time.sleep(2)
+        if caller != None:
+            targets_job(caller)
+            time.sleep(2)
         print("Starting local RNS instance...")
         c_rns = RNS.Reticulum("./tests/rnsconfig")
-        c_rns.m_proc = caller.process
+        if caller != None:
+            c_rns.m_proc = caller.process
+
         print("Done starting local RNS instance...")
 
 def close_rns():
@@ -88,7 +91,7 @@ class TestLink(unittest.TestCase):
         b = 0
         pr_t = 0
         receipts = []
-        if RNS.Cryptography.backend() == "internal":
+        if RNS.Cryptography.backend() == "internal" or RNS.Reticulum.MTU > 500:
             num_packets = 50
         else:
             num_packets = 500
@@ -304,12 +307,30 @@ if __name__ == '__main__':
     unittest.main(verbosity=1)
 
 
-def targets():
+def targets(yp=False):
+    if yp:
+        import yappi
+
     def resource_started(resource):
         print("Resource started")
+        if yp:
+            yappi.start()
 
     def resource_concluded(resource):
         print("Resource concluded")
+        if yp:
+            try:
+                yappi.stop()
+                yappi.get_func_stats().save("receiver_main_calls.data", type="pstat")
+                threads = yappi.get_thread_stats()
+                for thread in threads:
+                    print(
+                        "Function stats for (%s) (%d)" % (thread.name, thread.id)
+                    )  # it is the Thread.__class__.__name__
+                    yappi.get_func_stats(ctx_id=thread.id).save("receiver_thread_"+str(thread.id)+".data", type="pstat")
+            except Exception as e:
+                print("Error: "+str(e))
+
 
         if hasattr(resource.link.attached_interface, "rxptime"):
             rx_pr = (resource.link.attached_interface.rxb*8)/resource.link.attached_interface.rxptime
@@ -330,24 +351,24 @@ def targets():
     while True:
         time.sleep(1)
 
-def targets_profiling():
-    targets()
+def targets_profiling(yp=False):
+    targets(yp)
 
 def profile_resource():
-    import cProfile
-    import pstats
-    from pstats import SortKey
-    cProfile.runctx("entry()", {"entry": resource_profiling, "size_str": size_str}, {}, "profile-resource.data")
-    p = pstats.Stats("profile-resource.data")
-    # p.strip_dirs().sort_stats(SortKey.TIME, SortKey.CUMULATIVE).print_stats()
+    # import cProfile
+    # import pstats
+    # from pstats import SortKey
+    # cProfile.runctx("entry()", {"entry": resource_profiling, "size_str": size_str}, {}, "profile-resource.data")
+    # p = pstats.Stats("profile-resource.data")
+
+    resource_profiling()
 
 def profile_targets():
-    import cProfile
-    import pstats
-    from pstats import SortKey
-    cProfile.runctx("entry()", {"entry": targets_profiling, "size_str": size_str}, {}, "profile-targets.data")
-    p = pstats.Stats("profile-targets.data")
-    p.strip_dirs().sort_stats(SortKey.TIME, SortKey.CUMULATIVE).print_stats()
+    
+    targets_profiling(yp=True)
+    # cProfile.runctx("entry()", {"entry": targets_profiling, "size_str": size_str}, {}, "profile-targets.data")
+    # p = pstats.Stats("profile-targets.data")
+    # p.strip_dirs().sort_stats(SortKey.TIME, SortKey.CUMULATIVE).print_stats()
 
 
 def resource_profiling():
@@ -366,6 +387,10 @@ def resource_profiling():
     resource_size = 5*1000*1000
     data = os.urandom(resource_size)
     print("Sending "+size_str(resource_size)+" resource...")
+
+    import yappi
+    yappi.start()
+    
     resource = RNS.Resource(data, l1, timeout=resource_timeout)
     start = time.time()
 
@@ -376,6 +401,17 @@ def resource_profiling():
 
     t = time.time() - start
     print("Resource completed at "+size_str(resource_size/t, "b")+"ps")
+
+    yappi.get_func_stats().save("sender_main_calls.data", type="pstat")
+    threads = yappi.get_thread_stats()
+    for thread in threads:
+        print(
+            "Function stats for (%s) (%d)" % (thread.name, thread.id)
+        )  # it is the Thread.__class__.__name__
+        yappi.get_func_stats(ctx_id=thread.id).save("sender_thread_"+str(thread.id)+".data", type="pstat")
+
+    # t_pstats = yappi.convert2pstats(tstats)
+    # t_pstats.save("resource_tstat.data", type="pstat")
 
     if hasattr(resource.link.attached_interface, "rxptime"):
         rx_pr = (resource.link.attached_interface.rxb*8)/resource.link.attached_interface.rxptime
