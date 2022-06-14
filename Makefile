@@ -8,6 +8,7 @@ clean:
 	@echo Cleaning...
 	@-rm -rf ./build
 	@-rm -rf ./dist
+	@-rm -rf ./*.data
 	@-rm -rf ./__pycache__
 	@-rm -rf ./RNS/__pycache__
 	@-rm -rf ./RNS/Cryptography/__pycache__
