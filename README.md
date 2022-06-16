@@ -144,7 +144,7 @@ Reticulum should currently be considered beta software. All core protocol featur
 
 
 ## Dependencies
-The installation of the default `rns` package requires the dependencies listed below. Almost all systems and distributions have readily available packages for the above dependencies, and when the `rns` package is installed with `pip`, the dependencies will automatically be downloaded and installed as well.
+The installation of the default `rns` package requires the dependencies listed below. Almost all systems and distributions have readily available packages for these dependencies, and when the `rns` package is installed with `pip`, they will be downloaded and installed as well.
 
 - [PyCA/cryptography](https://github.com/pyca/cryptography)
 - [netifaces](https://github.com/al45tair/netifaces)
