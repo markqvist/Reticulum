@@ -210,11 +210,13 @@ and start communicating over them using Reticulum. It is not necessary to enable
 infrastructure such as DHCP servers, DNS or similar, as long as at least Ethernet is
 available, and packets are passed transparently over the physical WiFi-based devices.
 
-.. image:: graphics/radio_rblhg5.png
-    :width: 49%
+.. only:: html
 
-.. image:: graphics/radio_is5ac.png
-    :width: 49%
+    .. image:: graphics/radio_rblhg5.png
+        :width: 49%
+
+    .. image:: graphics/radio_is5ac.png
+        :width: 49%
 
 Below is a list of example WiFi (and similar) radios that work well for high capacity
 Reticulum links over long distances:
