@@ -79,7 +79,7 @@ boards. The following boards are supported by the auto-installer.
 LilyGO LoRa32 v2.1
 """"""""""""""""""
 .. image:: graphics/board_t3v21.png
-    :width: 50%
+    :width: 46%
     :align: center
 
 - **Supported Firmware Lines** v1.x & v2.x
@@ -91,7 +91,7 @@ LilyGO LoRa32 v2.1
 LilyGO LoRa32 v2.0
 """"""""""""""""""
 .. image:: graphics/board_t3v20.png
-    :width: 50%
+    :width: 46%
     :align: center
 
 - **Supported Firmware Lines** v1.x & v2.x
@@ -103,7 +103,7 @@ LilyGO LoRa32 v2.0
 LilyGO T-Beam
 """""""""""""
 .. image:: graphics/board_tbeam.png
-    :width: 65%
+    :width: 75%
     :align: center
 
 - **Supported Firmware Lines** v1.x & v2.x
@@ -115,7 +115,7 @@ LilyGO T-Beam
 Heltec LoRa32 v2.0
 """"""""""""""""""
 .. image:: graphics/board_heltec32.png
-    :width: 50%
+    :width: 58%
     :align: center
 
 - **Supported Firmware Lines** v1.x & v2.x
@@ -124,7 +124,19 @@ Heltec LoRa32 v2.0
 - **Manufacturer** `Heltec Automation <https://heltec.org>`_
 
 
-Original RNode v1.x
+Unsigned RNode v2.x
+"""""""""""""""""""
+.. image:: graphics/board_rnodev2.png
+    :width: 58%
+    :align: center
+
+- **Supported Firmware Lines** v1.x & v2.x
+- **Transceiver IC** Semtech SX1276
+- **Device Platform** ESP32
+- **Manufacturer** `unsigned.io <https://unsigned.io>`_
+
+
+Unsigned RNode v1.x
 """""""""""""""""""
 .. image:: graphics/board_rnode.png
     :width: 50%
