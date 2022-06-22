@@ -112,19 +112,18 @@ Currently, the usable performance envelope is approximately 500 bits per second 
 Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. There will be bugs. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.
 
 ## Development Roadmap
-- Version 0.3.8
-  - A portable cryptography core, supporting multiple backends
+- Version 0.3.9
+  - Expansion of address space to 128 bits
+  - Performance and memory optimisations
   - Utilities for managing identities, signing and encryption
+- Version 0.4.0
+  - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
+  - User friendly interface configuration tool
+  - Support for radio and modem interfaces on Android
   - More interface types for even broader compatibility
     - Plain ESP32 devices (ESP-Now, WiFi, Bluetooth, etc.)
     - More LoRa transceivers
     - IR Transceivers
-- Version 0.3.9
-  - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
-  - Support for radio and modem interfaces on Android
-  - User friendly interface configuration tool
-  - Performance optimisations
-  - Memory optimisations
 - Planned, but not yet scheduled
   - Network-wide path balancing
   - Globally routable multicast
