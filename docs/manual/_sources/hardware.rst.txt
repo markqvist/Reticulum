@@ -21,9 +21,13 @@ While this broad support and flexibility is very useful, an abundance of options
 can sometimes make it difficult to know where to begin, especially when you are
 starting from scratch.
 
-This chapter will outline a few different sensible easy starting paths to get
+This chapter will outline a few different sensible starting paths to get
 real-world functional wireless communications up and running with minimal cost
-and effort. Two fundamental devices types will be covered, *RNodes* and *WiFi-based radios*.
+and effort. Two fundamental devices categories will be covered, *RNodes* and
+*WiFi-based radios*. While there are many other device categories that are
+useful in building Reticulum networks, knowing how to just employ these two
+will make it possible to build a wide range of useful networks with little
+effort.
 
 .. _rnode-main:
 

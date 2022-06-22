@@ -11,10 +11,10 @@ to participate in the development of Reticulum itself.
    whatis
    gettingstartedfast
    using
-   networks
-   interfaces
-   hardware
    understanding
+   hardware
+   interfaces
+   networks
    reference
    examples
    support
