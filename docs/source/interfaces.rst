@@ -681,7 +681,7 @@ the default mode.
      other nodes in the network. As an example, if a vehicle is
      equipped with an external LoRa interface, and an internal,
      WiFi-based interface, that serves devices that are moving
-     _with_ the vehicle, the external LoRa interface should be
+     *with* the vehicle, the external LoRa interface should be
      configured as ``roaming``, and the internal interface can
      be left in the default mode. With transport enabled, such
      a setup will allow all internal devices to reach each other,
