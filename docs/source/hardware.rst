@@ -24,10 +24,11 @@ starting from scratch.
 This chapter will outline a few different sensible starting paths to get
 real-world functional wireless communications up and running with minimal cost
 and effort. Two fundamental devices categories will be covered, *RNodes* and
-*WiFi-based radios*. While there are many other device categories that are
-useful in building Reticulum networks, knowing how to just employ these two
-will make it possible to build a wide range of useful networks with little
-effort.
+*WiFi-based radios*.
+
+While there are many other device categories that are useful in building Reticulum
+networks, knowing how to employ just these two will make it possible to build
+a wide range of useful networks with little effort.
 
 .. _rnode-main:
 
@@ -39,8 +40,8 @@ commonly either very expensive, difficult to set up and operate, hard to source,
 power-hungry, or all of the above at the same time. In an attempt to alleviate
 this situation, the transceiver system *RNode* was designed. It is important to
 note that RNode is not one specific device, from one particular vendor, but
-*an open plaform* that anyone can use to build digital transceivers suited to
-their needs and particular situations.
+*an open plaform* that anyone can use to build interoperable digital transceivers
+suited to their needs and particular situations.
 
 An RNode is a general purpose, interoperable, low-power and long-range, reliable,
 open and flexible radio communications device. Depending on its components, it can
@@ -48,11 +49,11 @@ operate on many different frequency bands, and use many different modulation
 schemes, but most commonly, and for the purposes of this chapter, we will limit
 the discussion to RNodes using *LoRa* modulation in common ISM bands.
 
-**Avoid Confusion!** An RNode can use LoRa as a *physical-layer modulation*, but it
+**Avoid Confusion!** RNodes can use LoRa as a *physical-layer modulation*, but it
 does not use, and has nothing to do with the *LoRaWAN* protocol and standard, commonly
-used for IoT devices. RNodes use *raw LoRa modulation*, without any additional
-protocol overhead. All high-level protocol funcionality is handled directly by
-Reticulum.
+used for centrally controlled IoT devices. RNodes use *raw LoRa modulation*, without
+any additional protocol overhead. All high-level protocol funcionality is handled
+directly by Reticulum.
 
 .. _rnode-creating:
 
@@ -60,9 +61,9 @@ Creating RNodes
 ^^^^^^^^^^^^^^^
 RNode has been designed as a system that is easy to replicate across time and
 space. You can put together a functioning transceiver using commonly available
-components, and a few software tools. While you can design and build RNodes
+components, and a few open source software tools. While you can design and build RNodes
 completely from scratch, to your exact desired specifications, this chapter
-will explain the easiest possible approach to creating RNodes, which is using common
+will explain the easiest possible approach to creating RNodes: Using common
 LoRa development boards. This approach can be boiled down to two simple steps:
 
 1. Obtain one or more supported development boards
@@ -237,7 +238,7 @@ networks running concurrently on such devices.
 Combining Hardware Types
 ========================
 
-It is a useful tool to combine different link and hardware types when designing and
+It is useful to combine different link and hardware types when designing and
 building a network. One useful design pattern is to employ high-capacity point-to-point
 links based on WiFi or millimeter-wave radios (with high-gain directional antennas)
 for the network backbone, and using LoRa-based RNodes for covering large areas with

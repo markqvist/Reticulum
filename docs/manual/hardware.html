@@ -60,10 +60,10 @@ starting from scratch.</p>
 <p>This chapter will outline a few different sensible starting paths to get
 real-world functional wireless communications up and running with minimal cost
 and effort. Two fundamental devices categories will be covered, <em>RNodes</em> and
-<em>WiFi-based radios</em>. While there are many other device categories that are
-useful in building Reticulum networks, knowing how to just employ these two
-will make it possible to build a wide range of useful networks with little
-effort.</p>
+<em>WiFi-based radios</em>.</p>
+<p>While there are many other device categories that are useful in building Reticulum
+networks, knowing how to employ just these two will make it possible to build
+a wide range of useful networks with little effort.</p>
 <div class="section" id="rnode">
 <span id="rnode-main"></span><h2>RNode<a class="headerlink" href="#rnode" title="Permalink to this headline">¶</a></h2>
 <p>Reliable and general-purpose long-range digital radio transceiver systems are
@@ -71,25 +71,25 @@ commonly either very expensive, difficult to set up and operate, hard to source,
 power-hungry, or all of the above at the same time. In an attempt to alleviate
 this situation, the transceiver system <em>RNode</em> was designed. It is important to
 note that RNode is not one specific device, from one particular vendor, but
-<em>an open plaform</em> that anyone can use to build digital transceivers suited to
-their needs and particular situations.</p>
+<em>an open plaform</em> that anyone can use to build interoperable digital transceivers
+suited to their needs and particular situations.</p>
 <p>An RNode is a general purpose, interoperable, low-power and long-range, reliable,
 open and flexible radio communications device. Depending on its components, it can
 operate on many different frequency bands, and use many different modulation
 schemes, but most commonly, and for the purposes of this chapter, we will limit
 the discussion to RNodes using <em>LoRa</em> modulation in common ISM bands.</p>
-<p><strong>Avoid Confusion!</strong> An RNode can use LoRa as a <em>physical-layer modulation</em>, but it
+<p><strong>Avoid Confusion!</strong> RNodes can use LoRa as a <em>physical-layer modulation</em>, but it
 does not use, and has nothing to do with the <em>LoRaWAN</em> protocol and standard, commonly
-used for IoT devices. RNodes use <em>raw LoRa modulation</em>, without any additional
-protocol overhead. All high-level protocol funcionality is handled directly by
-Reticulum.</p>
+used for centrally controlled IoT devices. RNodes use <em>raw LoRa modulation</em>, without
+any additional protocol overhead. All high-level protocol funcionality is handled
+directly by Reticulum.</p>
 <div class="section" id="creating-rnodes">
 <span id="rnode-creating"></span><h3>Creating RNodes<a class="headerlink" href="#creating-rnodes" title="Permalink to this headline">¶</a></h3>
 <p>RNode has been designed as a system that is easy to replicate across time and
 space. You can put together a functioning transceiver using commonly available
-components, and a few software tools. While you can design and build RNodes
+components, and a few open source software tools. While you can design and build RNodes
 completely from scratch, to your exact desired specifications, this chapter
-will explain the easiest possible approach to creating RNodes, which is using common
+will explain the easiest possible approach to creating RNodes: Using common
 LoRa development boards. This approach can be boiled down to two simple steps:</p>
 <ol class="arabic simple">
 <li><p>Obtain one or more supported development boards</p></li>
@@ -228,7 +228,7 @@ networks running concurrently on such devices.</p>
 </div>
 <div class="section" id="combining-hardware-types">
 <h2>Combining Hardware Types<a class="headerlink" href="#combining-hardware-types" title="Permalink to this headline">¶</a></h2>
-<p>It is a useful tool to combine different link and hardware types when designing and
+<p>It is useful to combine different link and hardware types when designing and
 building a network. One useful design pattern is to employ high-capacity point-to-point
 links based on WiFi or millimeter-wave radios (with high-gain directional antennas)
 for the network backbone, and using LoRa-based RNodes for covering large areas with
