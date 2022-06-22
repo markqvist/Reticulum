@@ -17,7 +17,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="API Reference" href="reference.html" />
-    <link rel="prev" title="Supported Interfaces" href="interfaces.html" /> 
+    <link rel="prev" title="Communications Hardware" href="hardware.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,7 +29,7 @@
           <a href="reference.html" title="API Reference"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="interfaces.html" title="Supported Interfaces"
+          <a href="hardware.html" title="Communications Hardware"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.8 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Understanding Reticulum</a></li> 
@@ -867,6 +867,46 @@ of announce propagation, the <em>Full</em> and <em>Gateway</em> modes are identi
 <p>See the <a class="reference internal" href="interfaces.html#interfaces-modes"><span class="std std-ref">Interface Modes</span></a> section for a conceptual overview
 of the different interface modes, and how they are configured.</p>
 </div>
+<div class="section" id="cryptographic-primitives">
+<span id="understanding-primitives"></span><h3>Cryptographic Primitives<a class="headerlink" href="#cryptographic-primitives" title="Permalink to this headline">¶</a></h3>
+<p>Reticulum has been designed to use a simple suite of efficient, strong and modern
+cryptographic primitives, with widely available implementations that can be used
+both on general-purpose CPUs and on microcontrollers. The necessary primitives are:</p>
+<ul class="simple">
+<li><p>Ed25519 for signatures</p></li>
+<li><p>X22519 for ECDH key exchanges</p></li>
+<li><p>HKDF for key derivation</p></li>
+<li><p>Fernet for encrypted tokens</p>
+<ul>
+<li><p>AES-128 in CBC mode</p></li>
+<li><p>HMAC for message authentication</p></li>
+</ul>
+</li>
+<li><p>SHA-256</p></li>
+<li><p>SHA-512</p></li>
+</ul>
+<p>In the default installation configuration, the <code class="docutils literal notranslate"><span class="pre">X25519</span></code>, <code class="docutils literal notranslate"><span class="pre">Ed25519</span></code> and <code class="docutils literal notranslate"><span class="pre">AES-128-CBC</span></code>
+primitives are provided by <a class="reference external" href="https://www.openssl.org/">OpenSSL</a> (via the <a class="reference external" href="https://github.com/pyca/cryptography">PyCA/cryptography</a>
+package). The hashing functions <code class="docutils literal notranslate"><span class="pre">SHA-256</span></code> and <code class="docutils literal notranslate"><span class="pre">SHA-512</span></code> are provided by the standard
+Python <a class="reference external" href="https://docs.python.org/3/library/hashlib.html">hashlib</a>. The <code class="docutils literal notranslate"><span class="pre">HKDF</span></code>, <code class="docutils literal notranslate"><span class="pre">HMAC</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Fernet</span></code> primitives, and the <code class="docutils literal notranslate"><span class="pre">PKCS7</span></code> padding function are always provided by the
+following internal implementations:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RNS/Cryptography/HKDF.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RNS/Cryptography/HMAC.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RNS/Cryptography/Fernet.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RNS/Cryptography/PKCS7.py</span></code></p></li>
+</ul>
+<p>Reticulum also includes a complete implementation of all necessary primitives in pure Python.
+If OpenSSL &amp; PyCA are not available on the system when Reticulum is started, Reticulum will
+instead use the internal pure-python primitives. A trivial consequence of this is performance,
+with the OpenSSL backend being <em>much</em> faster. The most important consequence however, is the
+potential loss of security by using primitives that has not seen the same amount of scrutiny,
+testing and review as those from OpenSSL.</p>
+<p>If you want to use the internal pure-python primitives, it is <strong>highly advisable</strong> that you
+have a good understanding of the risks that this pose, and make an informed decision on whether
+those risks are acceptable to you.</p>
+</div>
 </div>
 </div>
 
@@ -908,6 +948,7 @@ of the different interface modes, and how they are configured.</p>
 <li><a class="reference internal" href="#interface-access-codes">Interface Access Codes</a></li>
 <li><a class="reference internal" href="#wire-format">Wire Format</a></li>
 <li><a class="reference internal" href="#announce-propagation-rules">Announce Propagation Rules</a></li>
+<li><a class="reference internal" href="#cryptographic-primitives">Cryptographic Primitives</a></li>
 </ul>
 </li>
 </ul>
@@ -915,8 +956,8 @@ of the different interface modes, and how they are configured.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="interfaces.html"
-                        title="previous chapter">Supported Interfaces</a></p>
+  <p class="topless"><a href="hardware.html"
+                        title="previous chapter">Communications Hardware</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="reference.html"
                         title="next chapter">API Reference</a></p>
@@ -951,7 +992,7 @@ of the different interface modes, and how they are configured.</p>
           <a href="reference.html" title="API Reference"
              >next</a> |</li>
         <li class="right" >
-          <a href="interfaces.html" title="Supported Interfaces"
+          <a href="hardware.html" title="Communications Hardware"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.8 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Understanding Reticulum</a></li> 

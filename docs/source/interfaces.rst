@@ -274,10 +274,6 @@ with all peers in your local ethernet broadcast domain, the
 :ref:`Auto Interface<interfaces-auto>` performs better, and is even
 easier to use.
 
-The below example is enabled by default on new Reticulum installations,
-as it provides an easy way to get started and to test Reticulum on a
-pre-existing LAN.
-
 .. code::
 
   # This example enables communication with other

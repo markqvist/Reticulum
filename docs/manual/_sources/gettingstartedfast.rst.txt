@@ -103,16 +103,16 @@ With Reticulum, you only need to configure what interfaces you want to communica
 over. There is no need to configure address spaces, subnets, routing tables,
 or other things you might be used to from other network types.
 
-Once Reticulums knows which interfaces it should use, it will automatically
+Once Reticulum knows which interfaces it should use, it will automatically
 discover topography and configure transport of data to any destinations it
 knows about.
 
 In situations where you already have an established WiFi or ethernet network, and
-many devices that want to utilise the same external Reticulum network (for example over
+many devices that want to utilise the same external Reticulum network paths (for example over
 LoRa), it will often be sufficient to let one system act as a Reticulum gateway, by
-adding any external interfaces to this systems configuration, and enabling transport. Any
+adding any external interfaces to the configuration of this system, and then enabling transport on it. Any
 other device on your local WiFi will then be able to connect to this wider Reticulum
-network just using the default interface configuration.
+network just using the default (:ref:`AutoInterface<interfaces-auto>`) configuration.
 
 Possibly, the examples in the config file are enough to get you started. If
 you want more information, you can read the :ref:`Building Networks<networks-main>`
@@ -137,7 +137,7 @@ Hosting a publicly reachable instance over TCP also requires a publicly reachabl
 which most Internet connections don't offer anymore.
 
 The ``I2PInterface`` routes messages through the `Invisible Internet Protocol 
-(I2P) <https://geti2p.net/en/>`_. To properly use this interface, users must also run an I2P daemon in
+(I2P) <https://geti2p.net/en/>`_. To use this interface, users must also run an I2P daemon in
 parallel to ``rnsd``. For always-on I2P nodes it is recommended to use `i2pd <https://i2pd.website/>`_. 
 
 By default, I2P will encrypt and mix all traffic sent over the Internet, and 
@@ -146,11 +146,12 @@ will also relay other I2P user's encrypted packets, which will use extra
 bandwidth and compute power, but also makes timing attacks and other forms of 
 deep-packet-inspection much more difficult.
 
-I2P also allows users to host globally available Reticulum instances from non-public IPs and behind firewalls.
+I2P also allows users to host globally available Reticulum instances from non-public IPs and behind firewalls and NAT.
 
 In general it is recommended to use an I2P node if you want to host a publically accessible
 instance, while preserving anonymity. If you care more about performance, and a slightly
 easier setup, use TCP.
+
 
 Connect to the Public Testnet
 ===========================================
@@ -179,6 +180,36 @@ Many other Reticulum instances are connecting to this testnet, and you can also 
 via other entry points if you know them. There is absolutely no control over the network
 topography, usage or what types of instances connect. It will also occasionally be used
 to test various failure scenarios, and there are no availability or service guarantees.
+
+
+Adding Radio Interfaces
+==============================================
+Once you have Reticulum installed and working, you can add radio interfaces with
+any compatible hardware you have available. Reticulum supports a wide range of radio
+hardware, and if you already have any available, it is very likely that it will
+work with Reticulum. For information on how to configure this, see the
+:ref:`Interfaces<interfaces-main>` section of this manual.
+
+If you do not already have transceiver hardware available, you can easily and
+cheaply build an :ref:`RNode<rnode-main>`, which is a general-purpose long-range
+digital radio transceiver, that integrates easily with Reticulum.
+
+To build one yourself requires installing a custom firmware on a supported LoRa
+development board with an auto-install script. Please see the :ref:`Communications Hardware<hardware-main>`
+chapter for a guide. If you prefer purchasing a ready-made unit, you can refer to the
+:ref:`list of suppliers<rnode-suppliers>`. For more information on RNode, you can also
+refer to these additional external resources:
+
+* `How To Make Your Own RNodes <https://unsigned.io/how-to-make-your-own-rnodes/>`_
+* `Installing RNode Firmware on Compatible LoRa Devices <https://unsigned.io/installing-rnode-firmware-on-t-beam-and-lora32-devices/>`_
+* `Private, Secure and Uncensorable Messaging Over a LoRa Mesh <https://unsigned.io/private-messaging-over-lora/>`_
+* `RNode Firmware <https://github.com/markqvist/RNode_Firmware/>`_
+
+If you have communications hardware that is not already supported by any of the
+:ref:`existing interface types<interfaces-main>`, but you think would be suitable for use with Reticulum,
+you are welcome to head over to the `GitHub discussion pages <https://github.com/markqvist/Reticulum/discussions>`_
+and propose adding an interface for the hardware.
+
 
 Develop a Program with Reticulum
 ===========================================
@@ -310,21 +341,26 @@ It is also possible to include Reticulum in apps compiled and distributed as
 Android APKs. A detailed tutorial and example source code will be included
 here at a later point.
 
-Adding Radio Interfaces
+Pure-Python Reticulum
 ==============================================
-Once you have Reticulum installed and working, you can add radio interfaces with
-any compatible hardware you have available. For information on how to configure
-this, see the :ref:`Interfaces<interfaces-main>` section of this manual.
+In some rare cases, and on more obscure system types, it is not possible to
+install one or more dependencies
 
-A range of common LoRa development boards and transceiver modules can be used
-as interfaces with Reticulum. You can refer to the following external resources
-for more information:
+On more unusual systems, and in some rare cases, it might not be possible to
+install or even compile one or more of the above modules. In such situations,
+you can use the ``rnspure`` package instead of the ``rns`` package. The ``rnspure``
+package requires no external dependencies for installation. Please note that the
+actual contents of the ``rns`` and ``rnspure`` packages are *completely identical*.
+The only difference is that the ``rnspure`` package lists no dependencies required
+for installation.
 
-* `How To Make Your Own RNodes <https://unsigned.io/how-to-make-your-own-rnodes/>`_
-* `Installing RNode Firmware on Compatible LoRa Devices <https://unsigned.io/installing-rnode-firmware-on-t-beam-and-lora32-devices/>`_
-* `Private, Secure and Uncensorable Messaging Over a LoRa Mesh <https://unsigned.io/private-messaging-over-lora/>`_
-* `RNode Firmware <https://github.com/markqvist/RNode_Firmware/>`_
+No matter how Reticulum is installed and started, it will load external dependencies
+only if they are *needed* and *available*. If for example you want to use Reticulum
+on a system that cannot support ``pyserial``, it is perfectly possible to do so using
+the `rnspure` package, but Reticulum will not be able to use serial-based interfaces.
+All other available modules will still be loaded when needed.
 
-If you have communications hardware that you think would be suitable for use with Reticulum,
-you are welcome to head over to the `GitHub discussion pages <https://github.com/markqvist/Reticulum/discussions>`_
-and propose adding an interface for the hardware.
+**Please Note!** If you use the `rnspure` package to run Reticulum on systems that
+do not support `PyCA/cryptography <https://github.com/pyca/cryptography>`_, it is
+important that you read and understand the :ref:`Cryptographic Primitives <understanding-primitives>`
+section of this manual.

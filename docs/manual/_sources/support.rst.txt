@@ -1,0 +1,36 @@
+.. _support-main:
+
+*****************
+Support Reticulum
+*****************
+This reference guide lists and explains all classes exposed by the RNS API.
+
+Donations
+=========
+You can help support the continued development of open, free and private communications systems by donating via one of the following channels:
+
+    Monero:
+
+    84FpY1QbxHcgdseePYNmhTHcrgMX4nFf
+    BYtz2GKYToqHVVhJp8Eaw1Z1EedRnKD1
+    9b3B8NiLCGVxzKV17UMmmeEsCrPyA5w
+
+    Ethereum
+
+    0x81F7B979fEa6134bA9FD5c701b3501A2e61E897a
+
+    Bitcoin
+
+    3CPmacGm34qYvR6XWLVEJmi2aNe3PZqUuq
+
+    Ko-Fi: https://ko-fi.com/markqvist
+
+Are certain features in the development roadmap are important to you or your organisation? Make them a reality quickly by sponsoring their implementation.
+
+Provide Feedback
+================
+All feedback on the usage, functioning and potential dysfunctioning of any and
+all components of the system is very valuable to the continued development and
+improvement of Reticulum. Absolutely no automated analytics, telemetly, error
+reporting or statistics is collected and reported by Reticulum under any
+circumstances, so we rely on old-fashioned human feedback.

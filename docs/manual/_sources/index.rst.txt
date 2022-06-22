@@ -13,9 +13,11 @@ to participate in the development of Reticulum itself.
    using
    networks
    interfaces
+   hardware
    understanding
    reference
    examples
+   support
 
 
 .. only:: html

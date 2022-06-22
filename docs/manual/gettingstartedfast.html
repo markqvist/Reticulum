@@ -119,15 +119,15 @@ internet, to LoRa and Packet Radio interfaces.</p>
 <p>With Reticulum, you only need to configure what interfaces you want to communicate
 over. There is no need to configure address spaces, subnets, routing tables,
 or other things you might be used to from other network types.</p>
-<p>Once Reticulums knows which interfaces it should use, it will automatically
+<p>Once Reticulum knows which interfaces it should use, it will automatically
 discover topography and configure transport of data to any destinations it
 knows about.</p>
 <p>In situations where you already have an established WiFi or ethernet network, and
-many devices that want to utilise the same external Reticulum network (for example over
+many devices that want to utilise the same external Reticulum network paths (for example over
 LoRa), it will often be sufficient to let one system act as a Reticulum gateway, by
-adding any external interfaces to this systems configuration, and enabling transport. Any
+adding any external interfaces to the configuration of this system, and then enabling transport on it. Any
 other device on your local WiFi will then be able to connect to this wider Reticulum
-network just using the default interface configuration.</p>
+network just using the default (<a class="reference internal" href="interfaces.html#interfaces-auto"><span class="std std-ref">AutoInterface</span></a>) configuration.</p>
 <p>Possibly, the examples in the config file are enough to get you started. If
 you want more information, you can read the <a class="reference internal" href="networks.html#networks-main"><span class="std std-ref">Building Networks</span></a>
 and <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> chapters of this manual.</p>
@@ -148,14 +148,14 @@ packet inspection to learn that a system is running Reticulum, and what other IP
 Hosting a publicly reachable instance over TCP also requires a publicly reachable IP address,
 which most Internet connections don’t offer anymore.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">I2PInterface</span></code> routes messages through the <a class="reference external" href="https://geti2p.net/en/">Invisible Internet Protocol
-(I2P)</a>. To properly use this interface, users must also run an I2P daemon in
+(I2P)</a>. To use this interface, users must also run an I2P daemon in
 parallel to <code class="docutils literal notranslate"><span class="pre">rnsd</span></code>. For always-on I2P nodes it is recommended to use <a class="reference external" href="https://i2pd.website/">i2pd</a>.</p>
 <p>By default, I2P will encrypt and mix all traffic sent over the Internet, and
 hide both the sender and receiver Reticulum instance IP addresses. Running an I2P node
 will also relay other I2P user’s encrypted packets, which will use extra
 bandwidth and compute power, but also makes timing attacks and other forms of
 deep-packet-inspection much more difficult.</p>
-<p>I2P also allows users to host globally available Reticulum instances from non-public IPs and behind firewalls.</p>
+<p>I2P also allows users to host globally available Reticulum instances from non-public IPs and behind firewalls and NAT.</p>
 <p>In general it is recommended to use an I2P node if you want to host a publically accessible
 instance, while preserving anonymity. If you care more about performance, and a slightly
 easier setup, use TCP.</p>
@@ -184,6 +184,32 @@ by adding one of the following interfaces to your <code class="docutils literal 
 via other entry points if you know them. There is absolutely no control over the network
 topography, usage or what types of instances connect. It will also occasionally be used
 to test various failure scenarios, and there are no availability or service guarantees.</p>
+</div>
+<div class="section" id="adding-radio-interfaces">
+<h2>Adding Radio Interfaces<a class="headerlink" href="#adding-radio-interfaces" title="Permalink to this headline">¶</a></h2>
+<p>Once you have Reticulum installed and working, you can add radio interfaces with
+any compatible hardware you have available. Reticulum supports a wide range of radio
+hardware, and if you already have any available, it is very likely that it will
+work with Reticulum. For information on how to configure this, see the
+<a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> section of this manual.</p>
+<p>If you do not already have transceiver hardware available, you can easily and
+cheaply build an <a class="reference internal" href="hardware.html#rnode-main"><span class="std std-ref">RNode</span></a>, which is a general-purpose long-range
+digital radio transceiver, that integrates easily with Reticulum.</p>
+<p>To build one yourself requires installing a custom firmware on a supported LoRa
+development board with an auto-install script. Please see the <a class="reference internal" href="hardware.html#hardware-main"><span class="std std-ref">Communications Hardware</span></a>
+chapter for a guide. If you prefer purchasing a ready-made unit, you can refer to the
+<a class="reference internal" href="hardware.html#rnode-suppliers"><span class="std std-ref">list of suppliers</span></a>. For more information on RNode, you can also
+refer to these additional external resources:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://unsigned.io/how-to-make-your-own-rnodes/">How To Make Your Own RNodes</a></p></li>
+<li><p><a class="reference external" href="https://unsigned.io/installing-rnode-firmware-on-t-beam-and-lora32-devices/">Installing RNode Firmware on Compatible LoRa Devices</a></p></li>
+<li><p><a class="reference external" href="https://unsigned.io/private-messaging-over-lora/">Private, Secure and Uncensorable Messaging Over a LoRa Mesh</a></p></li>
+<li><p><a class="reference external" href="https://github.com/markqvist/RNode_Firmware/">RNode Firmware</a></p></li>
+</ul>
+<p>If you have communications hardware that is not already supported by any of the
+<a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">existing interface types</span></a>, but you think would be suitable for use with Reticulum,
+you are welcome to head over to the <a class="reference external" href="https://github.com/markqvist/Reticulum/discussions">GitHub discussion pages</a>
+and propose adding an interface for the hardware.</p>
 </div>
 <div class="section" id="develop-a-program-with-reticulum">
 <h2>Develop a Program with Reticulum<a class="headerlink" href="#develop-a-program-with-reticulum" title="Permalink to this headline">¶</a></h2>
@@ -297,23 +323,26 @@ and a few extra commands are required.</p>
 Android APKs. A detailed tutorial and example source code will be included
 here at a later point.</p>
 </div>
-<div class="section" id="adding-radio-interfaces">
-<h2>Adding Radio Interfaces<a class="headerlink" href="#adding-radio-interfaces" title="Permalink to this headline">¶</a></h2>
-<p>Once you have Reticulum installed and working, you can add radio interfaces with
-any compatible hardware you have available. For information on how to configure
-this, see the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> section of this manual.</p>
-<p>A range of common LoRa development boards and transceiver modules can be used
-as interfaces with Reticulum. You can refer to the following external resources
-for more information:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://unsigned.io/how-to-make-your-own-rnodes/">How To Make Your Own RNodes</a></p></li>
-<li><p><a class="reference external" href="https://unsigned.io/installing-rnode-firmware-on-t-beam-and-lora32-devices/">Installing RNode Firmware on Compatible LoRa Devices</a></p></li>
-<li><p><a class="reference external" href="https://unsigned.io/private-messaging-over-lora/">Private, Secure and Uncensorable Messaging Over a LoRa Mesh</a></p></li>
-<li><p><a class="reference external" href="https://github.com/markqvist/RNode_Firmware/">RNode Firmware</a></p></li>
-</ul>
-<p>If you have communications hardware that you think would be suitable for use with Reticulum,
-you are welcome to head over to the <a class="reference external" href="https://github.com/markqvist/Reticulum/discussions">GitHub discussion pages</a>
-and propose adding an interface for the hardware.</p>
+<div class="section" id="pure-python-reticulum">
+<h2>Pure-Python Reticulum<a class="headerlink" href="#pure-python-reticulum" title="Permalink to this headline">¶</a></h2>
+<p>In some rare cases, and on more obscure system types, it is not possible to
+install one or more dependencies</p>
+<p>On more unusual systems, and in some rare cases, it might not be possible to
+install or even compile one or more of the above modules. In such situations,
+you can use the <code class="docutils literal notranslate"><span class="pre">rnspure</span></code> package instead of the <code class="docutils literal notranslate"><span class="pre">rns</span></code> package. The <code class="docutils literal notranslate"><span class="pre">rnspure</span></code>
+package requires no external dependencies for installation. Please note that the
+actual contents of the <code class="docutils literal notranslate"><span class="pre">rns</span></code> and <code class="docutils literal notranslate"><span class="pre">rnspure</span></code> packages are <em>completely identical</em>.
+The only difference is that the <code class="docutils literal notranslate"><span class="pre">rnspure</span></code> package lists no dependencies required
+for installation.</p>
+<p>No matter how Reticulum is installed and started, it will load external dependencies
+only if they are <em>needed</em> and <em>available</em>. If for example you want to use Reticulum
+on a system that cannot support <code class="docutils literal notranslate"><span class="pre">pyserial</span></code>, it is perfectly possible to do so using
+the <cite>rnspure</cite> package, but Reticulum will not be able to use serial-based interfaces.
+All other available modules will still be loaded when needed.</p>
+<p><strong>Please Note!</strong> If you use the <cite>rnspure</cite> package to run Reticulum on systems that
+do not support <a class="reference external" href="https://github.com/pyca/cryptography">PyCA/cryptography</a>, it is
+important that you read and understand the <a class="reference internal" href="understanding.html#understanding-primitives"><span class="std std-ref">Cryptographic Primitives</span></a>
+section of this manual.</p>
 </div>
 </div>
 
@@ -336,11 +365,12 @@ and propose adding an interface for the hardware.</p>
 <li><a class="reference internal" href="#creating-a-network-with-reticulum">Creating a Network With Reticulum</a></li>
 <li><a class="reference internal" href="#connecting-reticulum-instances-over-the-internet">Connecting Reticulum Instances Over the Internet</a></li>
 <li><a class="reference internal" href="#connect-to-the-public-testnet">Connect to the Public Testnet</a></li>
+<li><a class="reference internal" href="#adding-radio-interfaces">Adding Radio Interfaces</a></li>
 <li><a class="reference internal" href="#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
 <li><a class="reference internal" href="#participate-in-reticulum-development">Participate in Reticulum Development</a></li>
 <li><a class="reference internal" href="#reticulum-on-arm64">Reticulum on ARM64</a></li>
 <li><a class="reference internal" href="#reticulum-on-android">Reticulum on Android</a></li>
-<li><a class="reference internal" href="#adding-radio-interfaces">Adding Radio Interfaces</a></li>
+<li><a class="reference internal" href="#pure-python-reticulum">Pure-Python Reticulum</a></li>
 </ul>
 </li>
 </ul>
