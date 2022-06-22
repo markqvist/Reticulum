@@ -45,7 +45,10 @@ build_pure_wheel:
 documentation:
 	make -C docs html
 
-release: test remove_symlinks build_wheel build_pure_wheel documentation create_symlinks
+manual:
+	make -C docs latexpdf
+
+release: test remove_symlinks build_wheel build_pure_wheel documentation manual create_symlinks
 
 upload:
 	@echo Ready to publish release, hit enter to continue
