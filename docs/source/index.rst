@@ -18,8 +18,10 @@ to participate in the development of Reticulum itself.
    examples
 
 
-Indices and Tables
-==================
+.. only:: html
 
-* :ref:`genindex`
-* :ref:`search`
+   Indices and Tables
+   ==================
+
+   * :ref:`genindex`
+   * :ref:`search`
