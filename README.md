@@ -125,6 +125,7 @@ Reticulum should currently be considered beta software. All core protocol featur
     - More LoRa transceivers
     - IR Transceivers
 - Planned, but not yet scheduled
+  - Destination Naming System
   - Network-wide path balancing
   - Globally routable multicast
   - Bindings for other programming languages
@@ -139,6 +140,7 @@ Reticulum should currently be considered beta software. All core protocol featur
     - MQTT
     - SPI
     - i²c
+    - Tor
 
 
 
