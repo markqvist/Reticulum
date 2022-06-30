@@ -212,9 +212,10 @@ Reticulum has been designed to use a simple suite of efficient, strong and moder
 - Ed25519 for signatures
 - X22519 for ECDH key exchanges
 - HKDF for key derivation
-- Fernet for encrypted tokens
+- Modified Fernet for encrypted tokens
   - AES-128 in CBC mode
   - HMAC for message authentication
+  - No Fernet version and timestamp fields
 - SHA-256
 - SHA-512
 
