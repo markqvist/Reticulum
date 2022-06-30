@@ -310,8 +310,6 @@ class I2PController:
             else:
                 i2ptunnel = self.i2plib_tunnels[i2p_b32]
                 if hasattr(i2ptunnel, "status"):
-                    # TODO: Remove
-                    # RNS.log(str(i2ptunnel.status))
                     i2p_exception = i2ptunnel.status["exception"]
 
                     if i2ptunnel.status["setup_ran"] == False:
