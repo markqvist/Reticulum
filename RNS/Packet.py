@@ -323,7 +323,7 @@ class Packet:
 
 class ProofDestination:
     def __init__(self, packet):
-        self.hash = packet.get_hash()[:10];
+        self.hash = packet.get_hash()[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8];
         self.type = RNS.Destination.SINGLE
 
     def encrypt(self, plaintext):
