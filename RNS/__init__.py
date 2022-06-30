@@ -172,6 +172,15 @@ def prettysize(num, suffix='B'):
 
     return "%.2f%s%s" % (num, last_unit, suffix)
 
+def phyparams():
+    print("Required Physical Layer MTU : "+str(Reticulum.MTU)+" bytes")
+    print("Plaintext Packet MDU        : "+str(Packet.PLAIN_MDU)+" bytes")
+    print("Encrypted Packet MDU        : "+str(Packet.ENCRYPTED_MDU)+" bytes")
+    print("Link Curve                  : "+str(Link.CURVE))
+    print("Link Packet MDU             : "+str(Packet.ENCRYPTED_MDU)+" bytes")
+    print("Link Public Key Size        : "+str(Link.ECPUBSIZE*8)+" bits")
+    print("Link Private Key Size       : "+str(Link.KEYSIZE*8)+" bits")
+
 def panic():
     os._exit(255)
 

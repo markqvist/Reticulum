@@ -212,7 +212,7 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
     temp_file.write(real_file.read())
     temp_file.seek(0)
 
-    print("\r                                                \r", end="")
+    print("\r                                                            \r", end="")
 
     reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
 
@@ -240,10 +240,10 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
         i = (i+1)%len(syms)
 
     if not RNS.Transport.has_path(destination_hash):
-        print("\r                                                \rPath not found")
+        print("\r                                                            \rPath not found")
         exit(1)
     else:
-        print("\r                                                \rEstablishing link with "+RNS.prettyhexrep(destination_hash)+" ", end=" ")
+        print("\r                                                            \rEstablishing link with "+RNS.prettyhexrep(destination_hash)+" ", end=" ")
 
     receiver_identity = RNS.Identity.recall(destination_hash)
     receiver_destination = RNS.Destination(
@@ -262,10 +262,10 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
         i = (i+1)%len(syms)
 
     if not RNS.Transport.has_path(destination_hash):
-        print("\r                                                \rCould not establish link with "+RNS.prettyhexrep(destination_hash))
+        print("\r                                                            \rCould not establish link with "+RNS.prettyhexrep(destination_hash))
         exit(1)
     else:
-        print("\r                                                \rAdvertising file resource  ", end=" ")
+        print("\r                                                            \rAdvertising file resource  ", end=" ")
 
     link.identify(identity)
     resource = RNS.Resource(temp_file, link, callback = sender_progress, progress_callback = sender_progress)
@@ -279,10 +279,10 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
 
     
     if resource.status > RNS.Resource.COMPLETE:
-        print("\r                                                \rFile was not accepted by "+RNS.prettyhexrep(destination_hash))
+        print("\r                                                            \rFile was not accepted by "+RNS.prettyhexrep(destination_hash))
         exit(1)
     else:
-        print("\r                                                \rTransferring file  ", end=" ")
+        print("\r                                                            \rTransferring file  ", end=" ")
 
     while not resource_done:
         time.sleep(0.1)
@@ -294,7 +294,7 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
         i = (i+1)%len(syms)
 
     if current_resource.status != RNS.Resource.COMPLETE:
-        print("\r                                                \rThe transfer failed")
+        print("\r                                                            \rThe transfer failed")
         exit(1)
     else:
         print("\r                                                                                  \r"+str(file_path)+" copied to "+RNS.prettyhexrep(destination_hash))

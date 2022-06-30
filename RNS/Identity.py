@@ -55,7 +55,6 @@ class Identity:
     # Non-configurable constants
     FERNET_VERSION            = RNS.Cryptography.Fernet.FERNET_VERSION
     FERNET_OVERHEAD           = RNS.Cryptography.Fernet.FERNET_OVERHEAD
-    OPTIMISED_FERNET_OVERHEAD = RNS.Cryptography.Fernet.OPTIMISED_FERNET_OVERHEAD
     AES128_BLOCKSIZE          = 16          # In bytes
     HASHLENGTH                = 256         # In bits
     SIGLENGTH                 = KEYSIZE     # In bits

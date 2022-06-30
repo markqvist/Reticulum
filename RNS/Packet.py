@@ -216,16 +216,18 @@ class Packet:
             self.destination_type = (self.flags & 0b00001100) >> 2
             self.packet_type      = (self.flags & 0b00000011)
 
+            DST_LEN = RNS.Reticulum.TRUNCATED_HASHLENGTH//8
+
             if self.header_type == Packet.HEADER_2:
-                self.transport_id = self.raw[2:12]
-                self.destination_hash = self.raw[12:22]
-                self.context = ord(self.raw[22:23])
-                self.data = self.raw[23:]
+                self.transport_id = self.raw[2:DST_LEN+2]
+                self.destination_hash = self.raw[DST_LEN+2:2*DST_LEN+2]
+                self.context = ord(self.raw[2*DST_LEN+2:2*DST_LEN+3])
+                self.data = self.raw[2*DST_LEN+3:]
             else:
                 self.transport_id = None
-                self.destination_hash = self.raw[2:12]
-                self.context = ord(self.raw[12:13])
-                self.data = self.raw[13:]
+                self.destination_hash = self.raw[2:DST_LEN+2]
+                self.context = ord(self.raw[DST_LEN+2:DST_LEN+3])
+                self.data = self.raw[DST_LEN+3:]
 
             self.packed = False
             self.update_hash()

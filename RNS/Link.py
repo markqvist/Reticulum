@@ -59,7 +59,7 @@ class Link:
     ECPUBSIZE         = 32+32
     KEYSIZE           = 32
 
-    MDU = math.floor((RNS.Reticulum.MTU-RNS.Reticulum.IFAC_MIN_SIZE-RNS.Reticulum.HEADER_MINSIZE-RNS.Identity.OPTIMISED_FERNET_OVERHEAD)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
+    MDU = math.floor((RNS.Reticulum.MTU-RNS.Reticulum.IFAC_MIN_SIZE-RNS.Reticulum.HEADER_MINSIZE-RNS.Identity.FERNET_OVERHEAD)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
 
     ESTABLISHMENT_TIMEOUT_PER_HOP = RNS.Reticulum.DEFAULT_PER_HOP_TIMEOUT
     """
@@ -788,16 +788,7 @@ class Link:
                     RNS.log("Could not "+str(self)+" instantiate Fernet while performin encryption on link. The contained exception was: "+str(e), RNS.LOG_ERROR)
                     raise e
 
-            # The fernet token VERSION field is stripped here and
-            # reinserted on the receiving end, since it is always
-            # set to 0x80.
-            #
-            # Since we're also quite content with supporting time-
-            # stamps until the year 8921556 AD, we'll also strip 2
-            # bytes from the timestamp field and reinsert those as
-            # 0x00 when received.
-            ciphertext = self.fernet.encrypt(plaintext)[3:]
-            return ciphertext
+            return self.fernet.encrypt(plaintext)
 
         except Exception as e:
             RNS.log("Encryption on link "+str(self)+" failed. The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -809,8 +800,8 @@ class Link:
             if not self.fernet:
                 self.fernet = Fernet(self.derived_key)
                 
-            plaintext = self.fernet.decrypt(bytes([RNS.Identity.FERNET_VERSION, 0x00, 0x00]) + ciphertext)
-            return plaintext
+            return self.fernet.decrypt(ciphertext)
+
         except Exception as e:
             RNS.log("Decryption failed on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 

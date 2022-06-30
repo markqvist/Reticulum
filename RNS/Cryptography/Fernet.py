@@ -29,8 +29,7 @@ from RNS.Cryptography.AES import AES_128_CBC
 
 class Fernet():
     FERNET_VERSION            = 0x80
-    FERNET_OVERHEAD           = 57          # In bytes
-    OPTIMISED_FERNET_OVERHEAD = 54          # In bytes
+    FERNET_OVERHEAD           = 48   # In bytes
 
     @staticmethod
     def generate_key():
@@ -73,7 +72,7 @@ class Fernet():
             iv = iv,
         )
 
-        signed_parts = b"\x80"+current_time.to_bytes(length=8, byteorder="big")+iv+ciphertext
+        signed_parts = iv+ciphertext
 
         return signed_parts + HMAC.new(self._signing_key, signed_parts).digest()
 
@@ -85,8 +84,8 @@ class Fernet():
         if not self.verify_hmac(token):
             raise ValueError("Fernet token HMAC was invalid")
 
-        iv = token[9:25]
-        ciphertext = token[25:-32]
+        iv = token[:16]
+        ciphertext = token[16:-32]
 
         try:
             plaintext = PKCS7.unpad(
