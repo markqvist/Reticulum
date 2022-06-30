@@ -28,8 +28,16 @@ from RNS.Cryptography import PKCS7
 from RNS.Cryptography.AES import AES_128_CBC
 
 class Fernet():
-    FERNET_VERSION            = 0x80
-    FERNET_OVERHEAD           = 48   # In bytes
+    """
+    This class provides a slightly modified implementation of the Fernet spec
+    found at: https://github.com/fernet/spec/blob/master/Spec.md
+
+    According to the spec, a Fernet token includes a one byte VERSION and
+    eight byte TIMESTAMP field at the start of each token. These fields are
+    not relevant to Reticulum. They are therefore stripped from this
+    implementation, since they incur overhead and leak initiator metadata.
+    """
+    FERNET_OVERHEAD  = 48 # Bytes
 
     @staticmethod
     def generate_key():
