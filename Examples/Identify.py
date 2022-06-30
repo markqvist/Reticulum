@@ -84,7 +84,7 @@ def client_connected(link):
 def client_disconnected(link):
     RNS.log("Client disconnected")
 
-def remote_identified(identity):
+def remote_identified(link, identity):
     RNS.log("Remote identified as: "+str(identity))
 
 def server_packet_received(message, packet):
@@ -124,8 +124,12 @@ def client(destination_hexhash, configpath):
     # We need a binary representation of the destination
     # hash that was entered on the command line
     try:
-        if len(destination_hexhash) != 20:
-            raise ValueError("Destination length is invalid, must be 20 hexadecimal characters (10 bytes)")
+        dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
+        if len(destination_hexhash) != dest_len:
+            raise ValueError(
+                "Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2)
+            )
+
         destination_hash = bytes.fromhex(destination_hexhash)
     except:
         RNS.log("Invalid destination entered. Check your input!\n")
