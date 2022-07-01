@@ -658,10 +658,6 @@ class Transport:
                                         tx_time   = (len(packet.raw)*8) / interface.bitrate
                                         wait_time = (tx_time / interface.announce_cap)
                                         interface.announce_allowed_at = outbound_time + wait_time
-
-                                        # TODO: Clean
-                                        # wait_time_str = str(round(wait_time*1000,3))+"ms"
-                                        # RNS.log("Next announce on "+str(interface)+" allowed in "+wait_time_str, RNS.LOG_EXTREME)
                                     
                                     else:
                                         should_transmit = False
@@ -955,13 +951,13 @@ class Transport:
                                 new_raw  = packet.raw[0:1]
                                 new_raw += struct.pack("!B", packet.hops)
                                 new_raw += next_hop
-                                new_raw += packet.raw[12:]
+                                new_raw += packet.raw[(RNS.Identity.TRUNCATED_HASHLENGTH//8)+2:]
                             elif remaining_hops == 1:
                                 # Strip transport headers and transmit
                                 new_flags = (RNS.Packet.HEADER_1) << 6 | (Transport.BROADCAST) << 4 | (packet.flags & 0b00001111)
                                 new_raw = struct.pack("!B", new_flags)
                                 new_raw += struct.pack("!B", packet.hops)
-                                new_raw += packet.raw[12:]
+                                new_raw += packet.raw[(RNS.Identity.TRUNCATED_HASHLENGTH//8)+2:]
                             elif remaining_hops == 0:
                                 # Just increase hop count and transmit
                                 new_raw  = packet.raw[0:1]
@@ -1848,12 +1844,10 @@ class Transport:
                         )
 
                     else:
-                        # TODO: Reset this to debug level
-                        RNS.log("Ignoring duplicate path request for "+RNS.prettyhexrep(destination_hash)+" with tag "+RNS.prettyhexrep(unique_tag), RNS.LOG_WARNING)
+                        RNS.log("Ignoring duplicate path request for "+RNS.prettyhexrep(destination_hash)+" with tag "+RNS.prettyhexrep(unique_tag), RNS.LOG_DEBUG)
 
                 else:
-                    # TODO: Reset this to debug level
-                    RNS.log("Ignoring tagless path request for "+RNS.prettyhexrep(destination_hash), RNS.LOG_WARNING)
+                    RNS.log("Ignoring tagless path request for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
 
         except Exception as e:
             RNS.log("Error while handling path request. The contained exception was: "+str(e), RNS.LOG_ERROR)

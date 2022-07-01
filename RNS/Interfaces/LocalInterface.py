@@ -51,7 +51,7 @@ class LocalClientInterface(Interface):
         self.txb = 0
 
         # TODO: Remove at some point
-        self.rxptime = 0
+        # self.rxptime = 0
         
         self.HW_MTU = 1064
 
@@ -142,13 +142,13 @@ class LocalClientInterface(Interface):
             self.parent_interface.rxb += len(data)
         
         # TODO: Remove at some point
-        processing_start = time.time()
+        # processing_start = time.time()
         
         self.owner.inbound(data, self)
 
         # TODO: Remove at some point
-        duration = time.time() - processing_start
-        self.rxptime += duration
+        # duration = time.time() - processing_start
+        # self.rxptime += duration
 
     def processOutgoing(self, data):
         if self.online:

@@ -315,7 +315,7 @@ class Packet:
     def get_hashable_part(self):
         hashable_part = bytes([self.raw[0] & 0b00001111])
         if self.header_type == Packet.HEADER_2:
-            hashable_part += self.raw[12:]
+            hashable_part += self.raw[(RNS.Identity.TRUNCATED_HASHLENGTH//8)+2:]
         else:
             hashable_part += self.raw[2:]
 
