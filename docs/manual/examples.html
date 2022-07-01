@@ -16,6 +16,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Support Reticulum" href="support.html" />
     <link rel="prev" title="API Reference" href="reference.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -24,6 +25,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="support.html" title="Support Reticulum"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="reference.html" title="API Reference"
              accesskey="P">previous</a> |</li>
@@ -586,14 +590,16 @@ the Packet interface.</p>
     <span class="c1"># We need a binary representation of the destination</span>
     <span class="c1"># hash that was entered on the command line</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">20</span><span class="p">:</span>
+        <span class="n">dest_len</span> <span class="o">=</span> <span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">TRUNCATED_HASHLENGTH</span><span class="o">//</span><span class="mi">8</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dest_len</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Destination length is invalid, must be 20 hexadecimal characters (10 bytes)&quot;</span>
+                <span class="s2">&quot;Destination length is invalid, must be </span><span class="si">{hex}</span><span class="s2"> hexadecimal characters (</span><span class="si">{byte}</span><span class="s2"> bytes).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">hex</span><span class="o">=</span><span class="n">dest_len</span><span class="p">,</span> <span class="n">byte</span><span class="o">=</span><span class="n">dest_len</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
             <span class="p">)</span>
 
         <span class="n">destination_hash</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span>
-    <span class="k">except</span><span class="p">:</span>
-        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!&quot;</span><span class="p">)</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">exit</span><span class="p">()</span>
 
     <span class="c1"># We must first initialise Reticulum</span>
@@ -912,8 +918,12 @@ destination, and passing traffic back and forth over the link.</p>
     <span class="c1"># We need a binary representation of the destination</span>
     <span class="c1"># hash that was entered on the command line</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">20</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Destination length is invalid, must be 20 hexadecimal characters (10 bytes)&quot;</span><span class="p">)</span>
+        <span class="n">dest_len</span> <span class="o">=</span> <span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">TRUNCATED_HASHLENGTH</span><span class="o">//</span><span class="mi">8</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dest_len</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Destination length is invalid, must be </span><span class="si">{hex}</span><span class="s2"> hexadecimal characters (</span><span class="si">{byte}</span><span class="s2"> bytes).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">hex</span><span class="o">=</span><span class="n">dest_len</span><span class="p">,</span> <span class="n">byte</span><span class="o">=</span><span class="n">dest_len</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+            <span class="p">)</span>
+            
         <span class="n">destination_hash</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1181,7 +1191,7 @@ the link has been established.</p>
 <span class="k">def</span> <span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client disconnected&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">remote_identified</span><span class="p">(</span><span class="n">identity</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">remote_identified</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">identity</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Remote identified as: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">identity</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">server_packet_received</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
@@ -1221,8 +1231,12 @@ the link has been established.</p>
     <span class="c1"># We need a binary representation of the destination</span>
     <span class="c1"># hash that was entered on the command line</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">20</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Destination length is invalid, must be 20 hexadecimal characters (10 bytes)&quot;</span><span class="p">)</span>
+        <span class="n">dest_len</span> <span class="o">=</span> <span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">TRUNCATED_HASHLENGTH</span><span class="o">//</span><span class="mi">8</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dest_len</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Destination length is invalid, must be </span><span class="si">{hex}</span><span class="s2"> hexadecimal characters (</span><span class="si">{byte}</span><span class="s2"> bytes).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">hex</span><span class="o">=</span><span class="n">dest_len</span><span class="p">,</span> <span class="n">byte</span><span class="o">=</span><span class="n">dest_len</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+            <span class="p">)</span>
+
         <span class="n">destination_hash</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1524,8 +1538,12 @@ the link has been established.</p>
     <span class="c1"># We need a binary representation of the destination</span>
     <span class="c1"># hash that was entered on the command line</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">20</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Destination length is invalid, must be 20 hexadecimal characters (10 bytes)&quot;</span><span class="p">)</span>
+        <span class="n">dest_len</span> <span class="o">=</span> <span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">TRUNCATED_HASHLENGTH</span><span class="o">//</span><span class="mi">8</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dest_len</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Destination length is invalid, must be </span><span class="si">{hex}</span><span class="s2"> hexadecimal characters (</span><span class="si">{byte}</span><span class="s2"> bytes).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">hex</span><span class="o">=</span><span class="n">dest_len</span><span class="p">,</span> <span class="n">byte</span><span class="o">=</span><span class="n">dest_len</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+            <span class="p">)</span>
+            
         <span class="n">destination_hash</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1921,8 +1939,12 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
     <span class="c1"># We need a binary representation of the destination</span>
     <span class="c1"># hash that was entered on the command line</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">20</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Destination length is invalid, must be 20 hexadecimal characters (10 bytes)&quot;</span><span class="p">)</span>
+        <span class="n">dest_len</span> <span class="o">=</span> <span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">TRUNCATED_HASHLENGTH</span><span class="o">//</span><span class="mi">8</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dest_len</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Destination length is invalid, must be </span><span class="si">{hex}</span><span class="s2"> hexadecimal characters (</span><span class="si">{byte}</span><span class="s2"> bytes).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">hex</span><span class="o">=</span><span class="n">dest_len</span><span class="p">,</span> <span class="n">byte</span><span class="o">=</span><span class="n">dest_len</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+            <span class="p">)</span>
+            
         <span class="n">destination_hash</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -2336,6 +2358,9 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
   <h4>Previous topic</h4>
   <p class="topless"><a href="reference.html"
                         title="previous chapter">API Reference</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="support.html"
+                        title="next chapter">Support Reticulum</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -2363,6 +2388,9 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="support.html" title="Support Reticulum"
+             >next</a> |</li>
         <li class="right" >
           <a href="reference.html" title="API Reference"
              >previous</a> |</li>
