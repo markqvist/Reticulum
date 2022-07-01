@@ -84,7 +84,7 @@ Reticulum includes a range of useful utilities for managing your networks, viewi
 - An interface status utility called `rnstatus`, that displays information about interfaces
 - The path lookup and and management tool `rnpath` letting you view and modify path tables
 - A diagnostics tool called `rnprobe` for checking connectivity to destinations
-- A simple file transfer program called `rncp` making easy to copy files to remote systems
+- A simple file transfer program called `rncp` making it easy to copy files to remote systems
 - The remote command execution program `rnx` that let's you run commands and programs and retrieve output from remote systems
 
 All tools, including `rnx` and `rncp`, work reliably and well even over very low-bandwidth links like LoRa or Packet Radio.
@@ -165,8 +165,7 @@ If you just want to get started experimenting without building any physical netw
 The testnet runs the very latest version of Reticulum (often even a short while before it is publicly released). Sometimes experimental versions of Reticulum might be deployed to nodes on the testnet, which means strange behaviour might occur. If none of that scares you, you can join the testnet via eihter TCP or I2P. Just add one of the following interfaces to your Reticulum configuration file:
 
 ```
-# For connecting over TCP/IP:
-
+# For connecting over TCP/IP on v0.3.8:
   [[RNS Testnet Frankfurt]]
     type = TCPClientInterface
     interface_enabled = yes
@@ -175,12 +174,25 @@ The testnet runs the very latest version of Reticulum (often even a short while 
     target_port = 4965
 
 
-# For connecting over I2P:
-
+# For connecting over I2P on v0.3.8:
   [[RNS Testnet I2P Node A]]
     type = I2PInterface
     interface_enabled = yes
     peers = ykzlw5ujbaqc2xkec4cpvgyxj257wcrmmgkuxqmqcur7cq3w3lha.b32.i2p
+
+# For connecting over TCP/IP on v0.3.9+:
+  [[RNS Testnet Dublin]]
+    type = TCPClientInterface
+    enabled = yes
+    target_host = dublin.connect.reticulum.network
+    target_port = 4965
+
+
+# For connecting over I2P on v0.3.9+:
+  [[RNS Testnet I2P Hub A]]
+    type = I2PInterface
+    enabled = yes
+    peers = uxg5kubabakh3jtnvsipingbr5574dle7bubvip7llfvwx2tgrua.b32.i2p
 ```
 
 The testnet also contains a number of [Nomad Network](https://github.com/markqvist/nomadnet) nodes, and LXMF propagation nodes.
