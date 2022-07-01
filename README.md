@@ -53,11 +53,11 @@ If you want to quickly get an idea of what Reticulum can do, take a look at the 
 - The Android, Linux and macOS app [Sideband](https://unsigned.io/sideband) has a graphical interface and focuses on ease of use.
 
 ## Where can Reticulum be used?
-Over practically any medium that can support at least a half-duplex channel with 500 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, ad-hoc WiFi, free-space optical links and similar systems are all examples of the types of interfaces Reticulum was designed for.
+Over practically any medium that can support at least a half-duplex channel with 500 bits per second throughput, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, WiFi and Ethernet devices, free-space optical links, and similar systems are all examples of the types of physical devices Reticulum can use.
 
-An open-source LoRa-based interface called [RNode](https://unsigned.io/projects/rnode/) has been designed specifically for use with Reticulum. It is possible to build yourself, or it can be purchased as a complete transceiver that just needs a USB connection to the host.
+An open-source LoRa-based interface called [RNode](https://markqvist.github.io/Reticulum/manual/hardware.html#rnode) has been designed specifically for use with Reticulum. It is possible to build yourself, or it can be purchased as a complete transceiver that just needs a USB connection to the host.
 
-Reticulum can also be encapsulated over existing IP networks, so there's nothing stopping you from using it over wired ethernet or your local WiFi network, where it'll work just as well. In fact, one of the strengths of Reticulum is how easily it allows you to connect different mediums into a self-configuring, resilient and encrypted mesh.
+Reticulum can also be encapsulated over existing IP networks, so there's nothing stopping you from using it over wired ethernet, your local WiFi network or the Internet, where it'll work just as well. In fact, one of the strengths of Reticulum is how easily it allows you to connect different mediums into a self-configuring, resilient and encrypted mesh, using any available mixture of available infrastructure.
 
 As an example, it's possible to set up a Raspberry Pi connected to both a LoRa radio, a packet radio TNC and a WiFi network. Once the interfaces are configured, Reticulum will take care of the rest, and any device on the WiFi network can communicate with nodes on the LoRa and packet radio sides of the network, and vice versa.
 
@@ -73,9 +73,9 @@ pip3 install rns
 
 You can then start any program that uses Reticulum, or start Reticulum as a system service with [the rnsd utility](https://markqvist.github.io/Reticulum/manual/using.html#the-rnsd-utility).
 
-When first started, Reticulum will create a default configuration file, providing basic connectivity to other Reticulum peers. The default config file contains examples for using Reticulum with LoRa transceivers (specifically [RNode](https://unsigned.io/projects/rnode/)), packet radio TNCs/modems, TCP and UDP.
+When first started, Reticulum will create a default configuration file, providing basic connectivity to other Reticulum peers that might be locally reachable. The default config file contains a few examples, and references for creating a more complex configuration.
 
-You can use the examples in the config file to expand communication over many mediums such as packet radio or LoRa (with [RNode](https://unsigned.io/projects/rnode/)), serial ports, or over fast IP links and the Internet using the UDP and TCP interfaces. For more detailed examples, take a look at the [Supported Interfaces](https://markqvist.github.io/Reticulum/manual/interfaces.html) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
+For more detailed examples on how to expand communication over many mediums such as packet radio or LoRa, serial ports, or over fast IP links and the Internet using the UDP and TCP interfaces, take a look at the [Supported Interfaces](https://markqvist.github.io/Reticulum/manual/interfaces.html) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
 
 ## Included Utilities
 Reticulum includes a range of useful utilities for managing your networks, viewing status and information, and other tasks. You can read more about these programs in the [Included Utility Programs](https://markqvist.github.io/Reticulum/manual/using.html#included-utility-programs) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
@@ -127,7 +127,7 @@ Reticulum should currently be considered beta software. All core protocol featur
     - More LoRa transceivers
     - IR Transceivers
 - Planned, but not yet scheduled
-  - Destination Naming System
+  - Distributed Destination Naming System
   - Network-wide path balancing
   - Globally routable multicast
   - Bindings for other programming languages
@@ -207,7 +207,7 @@ You can help support the continued development of open, free and private communi
 Are certain features in the development roadmap are important to you or your organisation? Make them a reality quickly by sponsoring their implementation.
 
 ## Cryptographic Primitives
-Reticulum has been designed to use a simple suite of efficient, strong and modern cryptographic primitives, with widely available implementations that can be used both on general-purpose CPUs and on microcontrollers. The necessary primitives are:
+Reticulum has been uses a simple suite of efficient, strong and modern cryptographic primitives, with widely available implementations that can be used both on general-purpose CPUs and on microcontrollers. The necessary primitives are:
 
 - Ed25519 for signatures
 - X22519 for ECDH key exchanges
