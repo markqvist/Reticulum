@@ -30,7 +30,7 @@ setuptools.setup(
     description="Self-configuring, encrypted and resilient mesh networking stack for LoRa, packet radio, WiFi and everything in between",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/markqvist/reticulum",
+    url="https://reticulum.network/",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
