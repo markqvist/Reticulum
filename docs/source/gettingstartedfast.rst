@@ -161,20 +161,25 @@ by adding one of the following interfaces to your ``.reticulum/config`` file:
 
 .. code::
 
-  # For connecting over TCP/IP:
-  [[RNS Testnet Frankfurt]]
+  # TCP/IP interface to the Dublin hub
+  [[RNS Testnet Dublin]]
     type = TCPClientInterface
-    interface_enabled = yes
-    outgoing = True
-    target_host = frankfurt.rns.unsigned.io
+    enabled = yes
+    target_host = dublin.connect.reticulum.network
     target_port = 4965
 
+  # TCP/IP interface to the Frankfurt hub
+  [[RNS Testnet Dublin]]
+    type = TCPClientInterface
+    enabled = yes
+    target_host = frankfurt.connect.reticulum.network
+    target_port = 5377
 
-  # For connecting over I2P:
-  [[RNS Testnet I2P Node A]]
+  # Interface to I2P hub A
+  [[RNS Testnet I2P Hub A]]
     type = I2PInterface
-    interface_enabled = yes
-    peers = ykzlw5ujbaqc2xkec4cpvgyxj257wcrmmgkuxqmqcur7cq3w3lha.b32.i2p
+    enabled = yes
+    peers = uxg5kubabakh3jtnvsipingbr5574dle7bubvip7llfvwx2tgrua.b32.i2p
 
 Many other Reticulum instances are connecting to this testnet, and you can also join it
 via other entry points if you know them. There is absolutely no control over the network
