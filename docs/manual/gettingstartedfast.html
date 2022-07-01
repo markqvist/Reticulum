@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Getting Started Fast &#8212; Reticulum Network Stack 0.3.8 beta documentation</title>
+    <title>Getting Started Fast &#8212; Reticulum Network Stack 0.3.9 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="whatis.html" title="What is Reticulum?"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.8 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.9 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Getting Started Fast</a></li> 
       </ul>
     </div>  
@@ -164,20 +164,25 @@ easier setup, use TCP.</p>
 <h2>Connect to the Public Testnet<a class="headerlink" href="#connect-to-the-public-testnet" title="Permalink to this headline">¶</a></h2>
 <p>An experimental public testnet has been made accessible over both I2P and TCP. You can join it
 by adding one of the following interfaces to your <code class="docutils literal notranslate"><span class="pre">.reticulum/config</span></code> file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># For connecting over TCP/IP:</span>
-<span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">Frankfurt</span><span class="p">]]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># TCP/IP interface to the Dublin hub</span>
+<span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">Dublin</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
-  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
-  <span class="n">outgoing</span> <span class="o">=</span> <span class="kc">True</span>
-  <span class="n">target_host</span> <span class="o">=</span> <span class="n">frankfurt</span><span class="o">.</span><span class="n">rns</span><span class="o">.</span><span class="n">unsigned</span><span class="o">.</span><span class="n">io</span>
+  <span class="n">enabled</span> <span class="o">=</span> <span class="n">yes</span>
+  <span class="n">target_host</span> <span class="o">=</span> <span class="n">dublin</span><span class="o">.</span><span class="n">connect</span><span class="o">.</span><span class="n">reticulum</span><span class="o">.</span><span class="n">network</span>
   <span class="n">target_port</span> <span class="o">=</span> <span class="mi">4965</span>
 
+<span class="c1"># TCP/IP interface to the Frankfurt hub</span>
+<span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">Dublin</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+  <span class="n">enabled</span> <span class="o">=</span> <span class="n">yes</span>
+  <span class="n">target_host</span> <span class="o">=</span> <span class="n">frankfurt</span><span class="o">.</span><span class="n">connect</span><span class="o">.</span><span class="n">reticulum</span><span class="o">.</span><span class="n">network</span>
+  <span class="n">target_port</span> <span class="o">=</span> <span class="mi">5377</span>
 
-<span class="c1"># For connecting over I2P:</span>
-<span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">I2P</span> <span class="n">Node</span> <span class="n">A</span><span class="p">]]</span>
+<span class="c1"># Interface to I2P hub A</span>
+<span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">I2P</span> <span class="n">Hub</span> <span class="n">A</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">I2PInterface</span>
-  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
-  <span class="n">peers</span> <span class="o">=</span> <span class="n">ykzlw5ujbaqc2xkec4cpvgyxj257wcrmmgkuxqmqcur7cq3w3lha</span><span class="o">.</span><span class="n">b32</span><span class="o">.</span><span class="n">i2p</span>
+  <span class="n">enabled</span> <span class="o">=</span> <span class="n">yes</span>
+  <span class="n">peers</span> <span class="o">=</span> <span class="n">uxg5kubabakh3jtnvsipingbr5574dle7bubvip7llfvwx2tgrua</span><span class="o">.</span><span class="n">b32</span><span class="o">.</span><span class="n">i2p</span>
 </pre></div>
 </div>
 <p>Many other Reticulum instances are connecting to this testnet, and you can also join it
@@ -414,7 +419,7 @@ section of this manual.</p>
         <li class="right" >
           <a href="whatis.html" title="What is Reticulum?"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.8 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.9 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Getting Started Fast</a></li> 
       </ul>
     </div>

@@ -117,29 +117,29 @@ Reticulum uses the singular concept of *destinations*. Any application using Ret
 networking stack will need to create one or more destinations to receive data, and know the
 destinations it needs to send data to.
 
-All destinations in Reticulum are represented as a 10 byte hash, derived from truncating a full
+All destinations in Reticulum are _represented_ as a 16 byte hash. This hash is derived from truncating a full
 SHA-256 hash of identifying characteristics of the destination. To users, the destination addresses
-will be displayed as 10 bytes in hexadecimal representation, as in the following example: ``<80e29bf7cccaf31431b3>``.
+will be displayed as 16 hexadecimal bytes, like this example: ``<13425ec15b621c1d928589718000d814>``.
 
-The truncation size of 10 bytes (80 bits) for destinations has been choosen as a reasonable tradeoff between address space
+The truncation size of 16 bytes (128 bits) for destinations has been choosen as a reasonable tradeoff
+between address space
 and packet overhead. The address space accomodated by this size can support many billions of
 simultaneously active devices on the same network, while keeping packet overhead low, which is
 essential on low-bandwidth networks. In the very unlikely case that this address space nears
 congestion, a one-line code change can upgrade the Reticulum address space all the way up to 256
 bits, ensuring the Reticulum address space could potentially support galactic-scale networks.
-This is obviusly complete and ridiculous over-allocation, and as such, the current 80 bits should
+This is obviusly complete and ridiculous over-allocation, and as such, the current 128 bits should
 be sufficient, even far into the future.
 
 By default Reticulum encrypts all data using elliptic curve cryptography. Any packet sent to a
 destination is encrypted with a derived ephemeral key. Reticulum can also set up an encrypted
-channel to a destination with *Forward Secrecy* and *Initiator Anonymity* using a elliptic
-curve cryptography and ephemeral keys derived from a Diffie Hellman exchange on Curve25519. In
-Reticulum terminology, this is called a *Link*. The multi-hop transport, coordination, verification
+channel to a destination, called a *Link*. Both data sent over Links and single packets offer
+*Forward Secrecy* and *Initiator Anonymity*, by using an Elliptic Curve Diffie Hellman key exchange
+on Curve25519 to derive ephemeral keys. The multi-hop transport, coordination, verification
 and reliability layers are fully autonomous and also based on elliptic curve cryptography.
 
 Reticulum also offers symmetric key encryption for group-oriented communications, as well as
-unencrypted packets for broadcast purposes, or situations where you need the communication to be in
-plain text.
+unencrypted packets for local broadcast purposes.
 
 Reticulum can connect to a variety of interfaces such as radio modems, data radios and serial ports,
 and offers the possibility to easily tunnel Reticulum traffic over IP links such as the Internet or
@@ -186,7 +186,7 @@ Destination Naming
 ^^^^^^^^^^^^^^^^^^
 
 Destinations are created and named in an easy to understand dotted notation of *aspects*, and
-represented on the network as a hash of this value. The hash is a SHA-256 truncated to 80 bits. The
+represented on the network as a hash of this value. The hash is a SHA-256 truncated to 128 bits. The
 top level aspect should always be a unique identifier for the application using the destination.
 The next levels of aspects can be defined in any way by the creator of the application.
 
@@ -202,7 +202,7 @@ application name, a device type and measurement type, like this:
    aspects   : remotesensor, temperature
 
    full name : environmentlogger.remotesensor.temperature
-   hash      : fa7ddfab5213f916dea
+   hash      : 4faf1b2e0a077e6a9d92fa051f256038
 
 For the *single* destination, Reticulum will automatically append the associated public key as a
 destination aspect before hashing. This is done to ensure only the correct destination is reached,
@@ -683,7 +683,7 @@ Wire Format
 
     A Reticulum packet is composed of the following fields:
 
-    [HEADER 2 bytes] [ADDRESSES 10/20 bytes] [CONTEXT 1 byte] [DATA 0-477 bytes]
+    [HEADER 2 bytes] [ADDRESSES 16/32 bytes] [CONTEXT 1 byte] [DATA 0-465 bytes]
 
     * The HEADER field is 2 bytes long.
       * Byte 1: [IFAC Flag], [Header Type], [Propagation Type], [Destination Type] and [Packet Type]
@@ -695,15 +695,15 @@ Wire Format
         capabilities and configuration.
 
     * The ADDRESSES field contains either 1 or 2 addresses.
-      * Each address is 10 bytes long.
+      * Each address is 16 bytes long.
       * The Header Type flag in the HEADER field determines
         whether the ADDRESSES field contains 1 or 2 addresses.
-      * Addresses are Reticulum hashes truncated to 10 bytes.
+      * Addresses are SHA-256 hashes truncated to 16 bytes.
 
     * The CONTEXT field is 1 byte.
       * It is used by Reticulum to determine packet context.
 
-    * The DATA field is between 0 and 477 bytes.
+    * The DATA field is between 0 and 465 bytes.
       * It contains the packets data payload.
 
     IFAC Flag
@@ -714,8 +714,8 @@ Wire Format
 
     Header Types
     -----------------
-    type 1           0  Two byte header, one 10 byte address field
-    type 2           1  Two byte header, two 10 byte address fields
+    type 1           0  Two byte header, one 16 byte address field
+    type 2           1  Two byte header, two 16 byte address fields
 
 
     Propagation Types
@@ -747,7 +747,7 @@ Wire Format
        HEADER FIELD           DESTINATION FIELDS            CONTEXT FIELD  DATA FIELD
      _______|_______   ________________|________________   ________|______   __|_
     |               | |                                 | |               | |    |
-    01010000 00000100 [HASH1, 10 bytes] [HASH2, 10 bytes] [CONTEXT, 1 byte] [DATA]
+    01010000 00000100 [HASH1, 16 bytes] [HASH2, 16 bytes] [CONTEXT, 1 byte] [DATA]
     || | | |    |
     || | | |    +-- Hops             = 4
     || | | +------- Packet Type      = DATA
@@ -762,7 +762,7 @@ Wire Format
        HEADER FIELD   DESTINATION FIELD   CONTEXT FIELD  DATA FIELD
      _______|_______   _______|_______   ________|______   __|_
     |               | |               | |               | |    |
-    00000000 00000111 [HASH1, 10 bytes] [CONTEXT, 1 byte] [DATA]
+    00000000 00000111 [HASH1, 16 bytes] [CONTEXT, 1 byte] [DATA]
     || | | |    |
     || | | |    +-- Hops             = 0
     || | | +------- Packet Type      = DATA
@@ -777,7 +777,7 @@ Wire Format
        HEADER FIELD     IFAC FIELD    DESTINATION FIELD   CONTEXT FIELD  DATA FIELD
      _______|_______   ______|______   _______|_______   ________|______   __|_
     |               | |             | |               | |               | |    |
-    10000000 00000111 [IFAC, N bytes] [HASH1, 10 bytes] [CONTEXT, 1 byte] [DATA]
+    10000000 00000111 [IFAC, N bytes] [HASH1, 16 bytes] [CONTEXT, 1 byte] [DATA]
     || | | |    |
     || | | |    +-- Hops             = 0
     || | | +------- Packet Type      = DATA

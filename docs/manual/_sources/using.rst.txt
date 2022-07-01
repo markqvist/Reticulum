@@ -223,7 +223,7 @@ interfaces, similar to the ``ifconfig`` program.
      Traffic : 8.49 KB↑
                9.23 KB↓
 
-  Reticulum Transport Instance <5245a8efe1788c6a70e1> running
+  Reticulum Transport Instance <5245a8efe1788c6a1cd36144a270e13b> running
 
 .. code:: text
 
@@ -248,10 +248,10 @@ destinations on the Reticulum network.
 .. code:: text
 
   # Run rnpath
-  rnpath eca6f4e4dc26ae329e61
+  rnpath c89b4da064bf66d280f0e4d8abfd9806
 
   # Example output
-  Path found, destination <eca6f4e4dc26ae329e61> is 4 hops away via <56b115c30cd386cad69c> on TCPInterface[Testnet/frankfurt.rns.unsigned.io:4965]
+  Path found, destination <c89b4da064bf66d280f0e4d8abfd9806> is 4 hops away via <f53a1c4278e0726bb73fcc623d6ce763> on TCPInterface[Testnet/frankfurt.connect.reticulu.network:4965]
 
 .. code:: text
 
@@ -285,11 +285,11 @@ destinations will not have this option enabled, and will not be probable.
 .. code:: text
 
   # Run rnprobe
-  rnprobe example_utilities.echo.request 9382f334de63217a4278
+  rnprobe example_utilities.echo.request 2d03725b327348980d570f739a3a5708
 
   # Example output
-  Sent 16 byte probe to <9382f334de63217a4278>
-  Valid reply received from <9382f334de63217a4278>
+  Sent 16 byte probe to <2d03725b327348980d570f739a3a5708>
+  Valid reply received from <2d03725b327348980d570f739a3a5708>
   Round-trip time is 38.469 milliseconds over 2 hops
 
 .. code:: text
@@ -319,10 +319,10 @@ files through Reticulum.
 
   # Run rncp on the receiving system, specifying which identities
   # are allowed to send files
-  rncp --receive -a 940ea3f9e1037d38758f -a e28d5aee4317c24a9041
+  rncp --receive -a 1726dbad538775b5bf9b0ea25a4079c8 -a c50cc4e4f7838b6c31f60ab9032cbc62
 
   # From another system, copy a file to the receiving system
-  rncp ~/path/to/file.tgz 256320d405d6d525d1e9
+  rncp ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
 
 You can specify as many allowed senders as needed, or complete disable authentication.
 
@@ -362,21 +362,21 @@ output.
 
   # Run rnx on the listening system, specifying which identities
   # are allowed to execute commands
-  rncp --listen -a 8111c4ff2968ab0c1286 -a 590256654482b4ba4038
+  rncp --listen -a 941bed5e228775e5a8079fc38b1ccf3f -a 1b03013c25f1c2ca068a4f080b844a10
 
   # From another system, run a command 
-  rnx ad9a4c9da60089d41c29 "cat /proc/cpuinfo"
+  rnx 7a55144adf826958a9529a3bcf08b149 "cat /proc/cpuinfo"
 
   # Or enter the interactive mode pseudo-shell
-  rnx ad9a4c9da60089d41c29 -x
+  rnx 7a55144adf826958a9529a3bcf08b149 -x
 
   # The default identity file is stored in
   # ~/.reticulum/identities/rnx, but you can use
   # another one, which will be created if it does
   # not already exist
-  rnx ad9a4c9da60089d41c29 -i /path/to/identity
+  rnx 7a55144adf826958a9529a3bcf08b149 -i /path/to/identity -x
 
-You can specify as many allowed senders as needed, or complete disable authentication.
+You can specify as many allowed senders as needed, or completely disable authentication.
 
 .. code:: text
 

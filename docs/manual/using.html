@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Using Reticulum on Your System &#8212; Reticulum Network Stack 0.3.8 beta documentation</title>
+    <title>Using Reticulum on Your System &#8212; Reticulum Network Stack 0.3.9 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -16,7 +16,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Building Networks" href="networks.html" />
+    <link rel="next" title="Understanding Reticulum" href="understanding.html" />
     <link rel="prev" title="Getting Started Fast" href="gettingstartedfast.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -26,12 +26,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="networks.html" title="Building Networks"
+          <a href="understanding.html" title="Understanding Reticulum"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="gettingstartedfast.html" title="Getting Started Fast"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.8 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.9 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Using Reticulum on Your System</a></li> 
       </ul>
     </div>  
@@ -243,7 +243,7 @@ RNodeInterface[RNode UHF]
    Traffic : 8.49 KB↑
              9.23 KB↓
 
-Reticulum Transport Instance &lt;5245a8efe1788c6a70e1&gt; running
+Reticulum Transport Instance &lt;5245a8efe1788c6a1cd36144a270e13b&gt; running
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnstatus [-h] [--config CONFIG] [--version] [-a] [-v]
@@ -264,10 +264,10 @@ optional arguments:
 <p>With the <code class="docutils literal notranslate"><span class="pre">rnpath</span></code> utility, you can look up and view paths for
 destinations on the Reticulum network.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rnpath
-rnpath eca6f4e4dc26ae329e61
+rnpath c89b4da064bf66d280f0e4d8abfd9806
 
 # Example output
-Path found, destination &lt;eca6f4e4dc26ae329e61&gt; is 4 hops away via &lt;56b115c30cd386cad69c&gt; on TCPInterface[Testnet/frankfurt.rns.unsigned.io:4965]
+Path found, destination &lt;c89b4da064bf66d280f0e4d8abfd9806&gt; is 4 hops away via &lt;f53a1c4278e0726bb73fcc623d6ce763&gt; on TCPInterface[Testnet/frankfurt.connect.reticulu.network:4965]
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-r] [-d] [-D] [-w seconds] [-v] [destination]
@@ -297,11 +297,11 @@ to the <code class="docutils literal notranslate"><span class="pre">ping</span><
 specified destination is configured to send proofs for received packets. Many
 destinations will not have this option enabled, and will not be probable.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rnprobe
-rnprobe example_utilities.echo.request 9382f334de63217a4278
+rnprobe example_utilities.echo.request 2d03725b327348980d570f739a3a5708
 
 # Example output
-Sent 16 byte probe to &lt;9382f334de63217a4278&gt;
-Valid reply received from &lt;9382f334de63217a4278&gt;
+Sent 16 byte probe to &lt;2d03725b327348980d570f739a3a5708&gt;
+Valid reply received from &lt;2d03725b327348980d570f739a3a5708&gt;
 Round-trip time is 38.469 milliseconds over 2 hops
 </pre></div>
 </div>
@@ -327,10 +327,10 @@ optional arguments:
 files through Reticulum.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rncp on the receiving system, specifying which identities
 # are allowed to send files
-rncp --receive -a 940ea3f9e1037d38758f -a e28d5aee4317c24a9041
+rncp --receive -a 1726dbad538775b5bf9b0ea25a4079c8 -a c50cc4e4f7838b6c31f60ab9032cbc62
 
 # From another system, copy a file to the receiving system
-rncp ~/path/to/file.tgz 256320d405d6d525d1e9
+rncp ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
 </pre></div>
 </div>
 <p>You can specify as many allowed senders as needed, or complete disable authentication.</p>
@@ -365,22 +365,22 @@ execute commands on remote systems over Reticulum, and to view returned command
 output.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rnx on the listening system, specifying which identities
 # are allowed to execute commands
-rncp --listen -a 8111c4ff2968ab0c1286 -a 590256654482b4ba4038
+rncp --listen -a 941bed5e228775e5a8079fc38b1ccf3f -a 1b03013c25f1c2ca068a4f080b844a10
 
 # From another system, run a command
-rnx ad9a4c9da60089d41c29 &quot;cat /proc/cpuinfo&quot;
+rnx 7a55144adf826958a9529a3bcf08b149 &quot;cat /proc/cpuinfo&quot;
 
 # Or enter the interactive mode pseudo-shell
-rnx ad9a4c9da60089d41c29 -x
+rnx 7a55144adf826958a9529a3bcf08b149 -x
 
 # The default identity file is stored in
 # ~/.reticulum/identities/rnx, but you can use
 # another one, which will be created if it does
 # not already exist
-rnx ad9a4c9da60089d41c29 -i /path/to/identity
+rnx 7a55144adf826958a9529a3bcf08b149 -i /path/to/identity -x
 </pre></div>
 </div>
-<p>You can specify as many allowed senders as needed, or complete disable authentication.</p>
+<p>You can specify as many allowed senders as needed, or completely disable authentication.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnx [-h] [--config path] [-v] [-q] [-p] [-l] [-i identity] [-x] [-b] [-a allowed_hash] [-n] [-N] [-d] [-m] [-w seconds] [-W seconds] [--stdin STDIN] [--stdout STDOUT] [--stderr STDERR] [--version]
            [destination] [command]
 
@@ -528,8 +528,8 @@ WantedBy=multi-user.target
   <p class="topless"><a href="gettingstartedfast.html"
                         title="previous chapter">Getting Started Fast</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="networks.html"
-                        title="next chapter">Building Networks</a></p>
+  <p class="topless"><a href="understanding.html"
+                        title="next chapter">Understanding Reticulum</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -558,12 +558,12 @@ WantedBy=multi-user.target
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="networks.html" title="Building Networks"
+          <a href="understanding.html" title="Understanding Reticulum"
              >next</a> |</li>
         <li class="right" >
           <a href="gettingstartedfast.html" title="Getting Started Fast"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.8 beta documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.9 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Using Reticulum on Your System</a></li> 
       </ul>
     </div>

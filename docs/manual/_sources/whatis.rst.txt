@@ -50,7 +50,7 @@ What does Reticulum Offer?
 
   * Low cost of keeping links open at only 0.62 bits per second
 
-* Reliable and efficient transfer of arbritrary amounts of data
+* Reliable and efficient transfer of arbitrary amounts of data
 
   * Reticulum can handle a few bytes of data or files of many gigabytes
 

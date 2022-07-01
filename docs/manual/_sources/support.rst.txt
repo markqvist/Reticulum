@@ -14,9 +14,7 @@ Donations are gratefully accepted via the following channels:
 .. code:: text
 
     Monero:
-    84FpY1QbxHcgdseePYNmhTHcrgMX4nFf
-    BYtz2GKYToqHVVhJp8Eaw1Z1EedRnKD1
-    9b3B8NiLCGVxzKV17UMmmeEsCrPyA5w
+    84FpY1QbxHcgdseePYNmhTHcrgMX4nFfBYtz2GKYToqHVVhJp8Eaw1Z1EedRnKD19b3B8NiLCGVxzKV17UMmmeEsCrPyA5w
 
     Ethereum:
     0x81F7B979fEa6134bA9FD5c701b3501A2e61E897a
