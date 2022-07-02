@@ -337,13 +337,15 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
 
     if link == None or link.status == RNS.Link.CLOSED or link.status == RNS.Link.PENDING:
         link = RNS.Link(listener_destination)
+        link.did_identify = False
     
     if not spin(until=lambda: link.status == RNS.Link.ACTIVE, msg="Establishing link with "+RNS.prettyhexrep(destination_hash), timeout=timeout):
         print("Could not establish link with "+RNS.prettyhexrep(destination_hash))
         exit(243)
 
-    if not noid:
+    if not noid and not link.did_identify:
         link.identify(identity)
+        link.did_identify = True
 
     if stdin != None:
         stdin = stdin.encode("utf-8")
@@ -380,7 +382,10 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
 
     if request_receipt.status == RNS.RequestReceipt.FAILED:
         print("Could not request remote execution")
-        exit(244)
+        if interactive:
+            return
+        else:
+            exit(244)
 
     spin(
         until=lambda:request_receipt.status != RNS.RequestReceipt.DELIVERED,
@@ -390,7 +395,10 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
 
     if request_receipt.status == RNS.RequestReceipt.FAILED:
         print("No result was received")
-        exit(245)
+        if interactive:
+            return
+        else:
+            exit(245)
 
     spin_stat(
         until=lambda:request_receipt.status != RNS.RequestReceipt.RECEIVING,
@@ -399,7 +407,10 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
 
     if request_receipt.status == RNS.RequestReceipt.FAILED:
         print("Receiving result failed")
-        exit(246)
+        if interactive:
+            return
+        else:
+            exit(246)
 
     if request_receipt.response != None:
         try:
@@ -414,7 +425,10 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
 
         except Exception as e:
             print("Received invalid result")
-            exit(247)
+            if interactive:
+                return
+            else:
+                exit(247)
 
         if executed:
             if detailed:
@@ -484,7 +498,10 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
                 exit(248)
     else:
         print("No response")
-        exit(249)
+        if interactive:
+            return
+        else:
+            exit(249)
 
     try:
         if not interactive:
