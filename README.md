@@ -7,7 +7,7 @@ Reticulum Network Stack β
 
 Reticulum is the cryptography-based networking stack for wide-area networks built on readily available hardware. It can operate even with very high latency and extremely low bandwidth. Reticulum allows you to build wide-area networks with off-the-shelf tools, and offers end-to-end encryption and connectivity, initiator anonymity, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable delivery acknowledgements and more.
 
-The vision of Reticulum is to allow anyone to be their own network operator, and to make it cheap and easy to cover vast areas with a myriad of independent, interconnectable and autonomous networks. Reticulum **is not** *one* network. It is **a tool** for building *thousands of networks*. Networks without kill-switches, surveillance, censorship and control. Networks that can freely interoperate, associate and disassociate with each other, and require no central oversight. Networks for human beings. *Networks for the people*.
+The vision of Reticulum is to allow anyone to be their own network operator, and to make it cheap and easy to cover vast areas with a myriad of independent, inter-connectable and autonomous networks. Reticulum **is not** *one* network. It is **a tool** for building *thousands of networks*. Networks without kill-switches, surveillance, censorship and control. Networks that can freely interoperate, associate and disassociate with each other, and require no central oversight. Networks for human beings. *Networks for the people*.
 
 Reticulum is a complete networking stack, and does not rely on IP or higher layers, but it is possible to use IP as the underlying carrier for Reticulum. It is therefore trivial to tunnel Reticulum over the Internet or private IP networks.
 
@@ -23,11 +23,11 @@ You can also [download the Reticulum manual as a PDF](https://github.com/markqvi
 For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects/reticulum/)
 
 ## Notable Features
-- Coordination-less globally unique adressing and identification
+- Coordination-less globally unique addressing and identification
 - Fully self-configuring multi-hop routing
 - Complete initiator anonymity, communicate without revealing your identity
 - Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
-- Forward Secrecy with ephemereal Elliptic Curve Diffie-Hellman keys on Curve25519
+- Forward Secrecy with ephemeral Elliptic Curve Diffie-Hellman keys on Curve25519
 - Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for on-the-wire / over-the-air encryption
   - Keys are ephemeral and derived from an ECDH key exchange on Curve25519
   - AES-128 in CBC mode with PKCS7 padding
@@ -36,13 +36,13 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
 - Unforgeable packet delivery confirmations
 - A variety of supported interface types
 - An intuitive and easy-to-use API
-- Reliable and efficient transfer of arbritrary amounts of data
+- Reliable and efficient transfer of arbitrary amounts of data
   - Reticulum can handle a few bytes of data or files of many gigabytes
-  - Sequencing, transfer coordination and checksumming is automatic
+  - Sequencing, transfer coordination and checksumming are automatic
   - The API is very easy to use, and provides transfer progress
 - Lightweight, flexible and expandable Request/Response mechanism
 - Efficient link establishment
-  - Total bandwidth cost of setting up an encrypted link is 3 packets totalling 265 bytes
+  - Total bandwidth cost of setting up an encrypted link is 3 packets totaling 265 bytes
   - Low cost of keeping links open at only 0.44 bits per second
 
 ## Examples of Reticulum Applications
@@ -82,10 +82,10 @@ Reticulum includes a range of useful utilities for managing your networks, viewi
 
 - The system daemon `rnsd` for running Reticulum as an always-available service
 - An interface status utility called `rnstatus`, that displays information about interfaces
-- The path lookup and and management tool `rnpath` letting you view and modify path tables
+- The path lookup and management tool `rnpath` letting you view and modify path tables
 - A diagnostics tool called `rnprobe` for checking connectivity to destinations
 - A simple file transfer program called `rncp` making it easy to copy files to remote systems
-- The remote command execution program `rnx` that let's you run commands and programs and retrieve output from remote systems
+- The remote command execution program `rnx` let's you run commands and programs and retrieve output from remote systems
 
 All tools, including `rnx` and `rncp`, work reliably and well even over very low-bandwidth links like LoRa or Packet Radio.
 
@@ -162,7 +162,7 @@ No matter how Reticulum is installed and started, it will load external dependen
 ## Public Testnet
 If you just want to get started experimenting without building any physical networks, you are welcome to join the Unsigned.io RNS Testnet. The testnet is just that, an informal network for testing and experimenting. It will be up most of the time, and anyone can join, but it also means that there's no guarantees for service availability.
 
-The testnet runs the very latest version of Reticulum (often even a short while before it is publicly released). Sometimes experimental versions of Reticulum might be deployed to nodes on the testnet, which means strange behaviour might occur. If none of that scares you, you can join the testnet via eihter TCP or I2P. Just add one of the following interfaces to your Reticulum configuration file:
+The testnet runs the very latest version of Reticulum (often even a short while before it is publicly released). Sometimes experimental versions of Reticulum might be deployed to nodes on the testnet, which means strange behaviour might occur. If none of that scares you, you can join the testnet via either TCP or I2P. Just add one of the following interfaces to your Reticulum configuration file:
 
 ```
 # For connecting over TCP/IP on v0.3.8:
@@ -219,7 +219,7 @@ You can help support the continued development of open, free and private communi
 Are certain features in the development roadmap are important to you or your organisation? Make them a reality quickly by sponsoring their implementation.
 
 ## Cryptographic Primitives
-Reticulum has been uses a simple suite of efficient, strong and modern cryptographic primitives, with widely available implementations that can be used both on general-purpose CPUs and on microcontrollers. The necessary primitives are:
+Reticulum has been using a simple suite of efficient, strong and modern cryptographic primitives, with widely available implementations that can be used both on general-purpose CPUs and on microcontrollers. The necessary primitives are:
 
 - Ed25519 for signatures
 - X22519 for ECDH key exchanges
