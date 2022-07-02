@@ -96,6 +96,8 @@ def receive_link_established(link):
     link.set_resource_concluded_callback(receive_resource_concluded)
 
 def receive_sender_identified(link, identity):
+    global allow_all
+
     if identity.hash in allowed_identity_hashes:
         RNS.log("Authenticated sender", RNS.LOG_VERBOSE)
     else:
@@ -106,14 +108,17 @@ def receive_sender_identified(link, identity):
             pass
 
 def receive_resource_callback(resource):
+    global allow_all
+    
     sender_identity = resource.link.get_remote_identity()
 
     if sender_identity != None:
         if sender_identity.hash in allowed_identity_hashes:
-            print("Allowing sender")
             return True
 
-    print("Rejecting sender")
+    if allow_all:
+        return True
+
     return False
 
 def receive_resource_started(resource):
