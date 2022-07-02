@@ -34,7 +34,7 @@ APP_NAME = "rncp"
 allow_all = False
 allowed_identity_hashes = []
 
-def receive(configdir, verbosity = 0, quietness = 0, allowed = [], display_identity = False, limit = None, disable_auth = None,disable_announce=False):
+def receive(configdir, verbosity = 0, quietness = 0, allowed = [], display_identity = False, limit = None, disable_auth = None, disable_announce = False):
     global allow_all, allowed_identity_hashes
     identity = None
 
@@ -99,8 +99,11 @@ def receive_sender_identified(link, identity):
     if identity.hash in allowed_identity_hashes:
         RNS.log("Authenticated sender", RNS.LOG_VERBOSE)
     else:
-        RNS.log("Sender not allowed, tearing down link", RNS.LOG_VERBOSE)
-        link.teardown()
+        if not allow_all:
+            RNS.log("Sender not allowed, tearing down link", RNS.LOG_VERBOSE)
+            link.teardown()
+        else:
+            pass
 
 def receive_resource_callback(resource):
     sender_identity = resource.link.get_remote_identity()
