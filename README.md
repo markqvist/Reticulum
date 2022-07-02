@@ -1,7 +1,7 @@
 Reticulum Network Stack β
 ==========
 
-***Please Know!** Reticulum is transitioning to 128-bit address space. The code currently in the master branch is incompatible with the latest release, version 0.3.8. The next release of Reticulum, version 0.3.9, will bring the released version up to compatibility with the source code in this repository. Reticulum version 0.3.9 will not be compatible with any prior releases. Please transition your systems accordingly.*
+***Please Know!** Reticulum is transitioning to 128-bit address space. The code currently in the master branch is incompatible with the latest release, version 0.3.8. The next release of Reticulum, version 0.3.9, will bring the released version up to compatibility with the source code in this repository. Reticulum version 0.3.9 will not be compatible with any prior releases. Please transition your systems accordingly. See [this post](https://github.com/markqvist/Reticulum/discussions/75) for more information.*
 
 <p align="center"><img width="200" src="https://unsigned.io/wp-content/uploads/2022/03/reticulum_logo_512.png"></p>
 

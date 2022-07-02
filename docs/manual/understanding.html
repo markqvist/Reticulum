@@ -546,10 +546,10 @@ At the same time we establish an efficient encrypted channel. The setup of this 
 terms of bandwidth, so it can be used just for a short exchange, and then recreated as needed, which will
 also rotate encryption keys. The link can also be kept alive for longer periods of time, if this is
 more suitable to the application. The procedure also inserts the <em>link id</em> , a hash calculated from the link request packet, into the memory of forwarding nodes, which means that the communicating nodes can thereafter reach each other simply by referring to this <em>link id</em>.</p>
-<p>The combined bandwidth cost of setting up a link is 3 packets totalling 237 bytes (more info in the
+<p>The combined bandwidth cost of setting up a link is 3 packets totalling 265 bytes (more info in the
 <a class="reference internal" href="#understanding-packetformat"><span class="std std-ref">Binary Packet Format</span></a> section). The amount of bandwidth used on keeping
-a link open is practically negligible, at 0.62 bits per second. Even on a slow 1200 bits per second packet
-radio channel, 100 concurrent links will still leave 95% channel capacity for actual data.</p>
+a link open is practically negligible, at 0.45 bits per second. Even on a slow 1200 bits per second packet
+radio channel, 100 concurrent links will still leave 96% channel capacity for actual data.</p>
 <div class="section" id="link-establishment-in-detail">
 <h4>Link Establishment in Detail<a class="headerlink" href="#link-establishment-in-detail" title="Permalink to this headline">¶</a></h4>
 <p>After exploring the basics of the announce mechanism, finding a path through the network, and an overview
@@ -849,12 +849,12 @@ packet types. The size listed are the complete on-
 wire size counting all fields including headers,
 but excluding any interface access codes.
 
-- Path Request    :    33  bytes
-- Announce        :    151 bytes
-- Link Request    :    77  bytes
-- Link Proof      :    77  bytes
-- Link RTT packet :    83  bytes
-- Link keepalive  :    14  bytes
+- Path Request    :    51  bytes
+- Announce        :    157 bytes
+- Link Request    :    83  bytes
+- Link Proof      :    83  bytes
+- Link RTT packet :    99  bytes
+- Link keepalive  :    20  bytes
 </pre></div>
 </div>
 </div>
