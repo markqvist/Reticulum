@@ -135,8 +135,14 @@ class Identity:
         if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
             try:
                 file = open(RNS.Reticulum.storagepath+"/known_destinations","rb")
-                Identity.known_destinations = umsgpack.load(file)
+                loaded_known_destinations = umsgpack.load(file)
                 file.close()
+
+                Identity.known_destinations = {}
+                for known_destination in loaded_known_destinations:
+                    if len(known_destination) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8:
+                        Identity.known_destinations[known_destination] = loaded_known_destinations[known_destination]
+
                 RNS.log("Loaded "+str(len(Identity.known_destinations))+" known destination from storage", RNS.LOG_VERBOSE)
             except:
                 RNS.log("Error loading known destinations from disk, file will be recreated on exit", RNS.LOG_ERROR)

@@ -68,7 +68,7 @@ class Transport:
     PATH_REQUEST_RW      = 2            # Path request random window
 
     LINK_TIMEOUT         = RNS.Link.STALE_TIME * 1.25
-    REVERSE_TIMEOUT      = 30*60        # Reverse table entries are removed after max 30 minutes
+    REVERSE_TIMEOUT      = 30*60        # Reverse table entries are removed after 30 minutes
     DESTINATION_TIMEOUT  = 60*60*24*7   # Destination table entries are removed if unused for one week
     MAX_RECEIPTS         = 1024         # Maximum number of receipts to keep track of
     MAX_RATE_TIMESTAMPS  = 16           # Maximum number of announce timestamps to keep per destination
@@ -181,29 +181,31 @@ class Transport:
 
                     for serialised_entry in serialised_destinations:
                         destination_hash = serialised_entry[0]
-                        timestamp = serialised_entry[1]
-                        received_from = serialised_entry[2]
-                        hops = serialised_entry[3]
-                        expires = serialised_entry[4]
-                        random_blobs = serialised_entry[5]
-                        receiving_interface = Transport.find_interface_from_hash(serialised_entry[6])
-                        announce_packet = Transport.get_cached_packet(serialised_entry[7])
 
-                        if announce_packet != None and receiving_interface != None:
-                            announce_packet.unpack()
-                            # We increase the hops, since reading a packet
-                            # from cache is equivalent to receiving it again
-                            # over an interface. It is cached with it's non-
-                            # increased hop-count.
-                            announce_packet.hops += 1
-                            Transport.destination_table[destination_hash] = [timestamp, received_from, hops, expires, random_blobs, receiving_interface, announce_packet]
-                            RNS.log("Loaded path table entry for "+RNS.prettyhexrep(destination_hash)+" from storage", RNS.LOG_DEBUG)
-                        else:
-                            RNS.log("Could not reconstruct path table entry from storage for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
-                            if announce_packet == None:
-                                RNS.log("The announce packet could not be loaded from cache", RNS.LOG_DEBUG)
-                            if receiving_interface == None:
-                                RNS.log("The interface is no longer available", RNS.LOG_DEBUG)
+                        if len(destination_hash) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8:
+                            timestamp = serialised_entry[1]
+                            received_from = serialised_entry[2]
+                            hops = serialised_entry[3]
+                            expires = serialised_entry[4]
+                            random_blobs = serialised_entry[5]
+                            receiving_interface = Transport.find_interface_from_hash(serialised_entry[6])
+                            announce_packet = Transport.get_cached_packet(serialised_entry[7])
+
+                            if announce_packet != None and receiving_interface != None:
+                                announce_packet.unpack()
+                                # We increase the hops, since reading a packet
+                                # from cache is equivalent to receiving it again
+                                # over an interface. It is cached with it's non-
+                                # increased hop-count.
+                                announce_packet.hops += 1
+                                Transport.destination_table[destination_hash] = [timestamp, received_from, hops, expires, random_blobs, receiving_interface, announce_packet]
+                                RNS.log("Loaded path table entry for "+RNS.prettyhexrep(destination_hash)+" from storage", RNS.LOG_DEBUG)
+                            else:
+                                RNS.log("Could not reconstruct path table entry from storage for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
+                                if announce_packet == None:
+                                    RNS.log("The announce packet could not be loaded from cache", RNS.LOG_DEBUG)
+                                if receiving_interface == None:
+                                    RNS.log("The interface is no longer available", RNS.LOG_DEBUG)
 
                     if len(Transport.destination_table) == 1:
                         specifier = "entry"

@@ -126,7 +126,7 @@ class Reticulum:
     
     MDU            = MTU - HEADER_MAXSIZE - IFAC_MIN_SIZE
 
-    CACHE_TIME     = 24*60*60
+    RESOURCE_CACHE = 24*60*60
     JOB_INTERVAL   = 15*60
 
     router         = None
@@ -893,7 +893,7 @@ class Reticulum:
                     filepath = self.resourcepath + "/" + filename
                     mtime = os.path.getmtime(filepath)
                     age = now - mtime
-                    if age > Reticulum.CACHE_TIME:
+                    if age > Reticulum.RESOURCE_CACHE:
                         os.unlink(filepath)
 
             except Exception as e:
@@ -906,7 +906,7 @@ class Reticulum:
                     filepath = self.cachepath + "/" + filename
                     mtime = os.path.getmtime(filepath)
                     age = now - mtime
-                    if age > Reticulum.CACHE_TIME:
+                    if age > RNS.Transport.DESTINATION_TIMEOUT:
                         os.unlink(filepath)
             
             except Exception as e:
