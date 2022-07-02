@@ -127,7 +127,7 @@ class Reticulum:
     MDU            = MTU - HEADER_MAXSIZE - IFAC_MIN_SIZE
 
     CACHE_TIME     = 24*60*60
-    JOB_INTERVAL   = 300
+    JOB_INTERVAL   = 15*60
 
     router         = None
     config         = None
@@ -883,7 +883,7 @@ class Reticulum:
                 
 
     def __clean_caches(self):
-        RNS.log("Cleaning resource and packet caches...", RNS.LOG_DEBUG)
+        RNS.log("Cleaning resource and packet caches...", RNS.LOG_EXTREME)
         now = time.time()
 
         # Clean resource caches
