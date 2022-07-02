@@ -254,7 +254,7 @@ class Packet:
 
             if not self.packed:
                 self.pack()
-    
+
             if RNS.Transport.outbound(self):
                 return self.receipt
             else:
