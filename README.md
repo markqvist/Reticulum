@@ -42,8 +42,8 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
   - The API is very easy to use, and provides transfer progress
 - Lightweight, flexible and expandable Request/Response mechanism
 - Efficient link establishment
-  - Total bandwidth cost of setting up an encrypted link is 3 packets totalling 237 bytes
-  - Low cost of keeping links open at only 0.62 bits per second
+  - Total bandwidth cost of setting up an encrypted link is 3 packets totalling 265 bytes
+  - Low cost of keeping links open at only 0.44 bits per second
 
 ## Examples of Reticulum Applications
 If you want to quickly get an idea of what Reticulum can do, take a look at the following resources.
