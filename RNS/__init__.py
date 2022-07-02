@@ -172,6 +172,48 @@ def prettysize(num, suffix='B'):
 
     return "%.2f%s%s" % (num, last_unit, suffix)
 
+def prettytime(time, verbose=False):
+    days = int(time // (24 * 3600))
+    time = time % (24 * 3600)
+    hours = int(time // 3600)
+    time %= 3600
+    minutes = int(time // 60)
+    time %= 60
+    seconds = round(time, 2)
+    
+    ss = "" if seconds == 1 else "s"
+    sm = "" if minutes == 1 else "s"
+    sh = "" if hours == 1 else "s"
+    sd = "" if days == 1 else "s"
+
+    components = []
+    if days > 0:
+        components.append(str(days)+" day"+sd if verbose else str(days)+"d")
+
+    if hours > 0:
+        components.append(str(hours)+" hour"+sh if verbose else str(hours)+"h")
+
+    if minutes > 0:
+        components.append(str(minutes)+" minute"+sm if verbose else str(minutes)+"m")
+
+    if seconds > 0:
+        components.append(str(seconds)+" second"+ss if verbose else str(seconds)+"s")
+
+    i = 0
+    tstr = ""
+    for c in components:
+        i += 1
+        if i == 1:
+            pass
+        elif i < len(components):
+            tstr += ", "
+        elif i == len(components):
+            tstr += " and "
+
+        tstr += c
+
+    return tstr
+
 def phyparams():
     print("Required Physical Layer MTU : "+str(Reticulum.MTU)+" bytes")
     print("Plaintext Packet MDU        : "+str(Packet.PLAIN_MDU)+" bytes")

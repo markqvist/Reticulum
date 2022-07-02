@@ -40,7 +40,7 @@ import threading
 import atexit
 import struct
 import array
-import os.path
+import time
 import os
 import RNS
 
@@ -126,6 +126,8 @@ class Reticulum:
     
     MDU            = MTU - HEADER_MAXSIZE - IFAC_MIN_SIZE
 
+    CACHE_TIME     = 24*60*60
+
     router         = None
     config         = None
     
@@ -142,6 +144,12 @@ class Reticulum:
         # shut down, and will in turn call exit handlers in other
         # classes, saving necessary information to disk and carrying
         # out cleanup operations.
+
+        if RNS.Transport.owner.share_instance:
+            if RNS.Transport.owner.is_shared_instance:
+                RNS.Transport.owner.__clean_caches()
+        else:
+            RNS.Transport.owner.__clean_caches()
 
         RNS.Transport.exit_handler()
         RNS.Identity.exit_handler()
@@ -261,6 +269,8 @@ class Reticulum:
                 
                 self.is_shared_instance = True
                 RNS.log("Started shared instance interface: "+str(interface), RNS.LOG_DEBUG)
+                self.__clean_caches()
+
             except Exception as e:
                 try:
                     interface = LocalInterface.LocalClientInterface(
@@ -285,6 +295,7 @@ class Reticulum:
             self.is_shared_instance = False
             self.is_standalone_instance = True
             self.is_connected_to_shared_instance = False
+            self.__clean_caches()
 
     def __apply_config(self):
         if "logging" in self.config:
@@ -861,6 +872,36 @@ class Reticulum:
             RNS.log("System interfaces are ready", RNS.LOG_VERBOSE)
 
                 
+
+    def __clean_caches(self):
+        RNS.log("Cleaning resource and packet caches...", RNS.LOG_DEBUG)
+        now = time.time()
+
+        # Clean resource caches
+        for filename in os.listdir(self.resourcepath):
+            try:
+                if len(filename) == (RNS.Identity.HASHLENGTH//8)*2:
+                    filepath = self.resourcepath + "/" + filename
+                    mtime = os.path.getmtime(filepath)
+                    age = now - mtime
+                    if age > Reticulum.CACHE_TIME:
+                        os.unlink(filepath)
+
+            except Exception as e:
+                RNS.log("Error while cleaning resources cache, the contained exception was: "+str(e), RNS.LOG_ERROR)
+
+        # Clean packet caches
+        for filename in os.listdir(self.cachepath):
+            try:
+                if len(filename) == (RNS.Identity.HASHLENGTH//8)*2:
+                    filepath = self.cachepath + "/" + filename
+                    mtime = os.path.getmtime(filepath)
+                    age = now - mtime
+                    if age > Reticulum.CACHE_TIME:
+                        os.unlink(filepath)
+            
+            except Exception as e:
+                RNS.log("Error while cleaning resources cache, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
     def __create_default_config(self):
         self.config = ConfigObj(__default_rns_config__)
