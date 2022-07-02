@@ -127,6 +127,7 @@ class Reticulum:
     MDU            = MTU - HEADER_MAXSIZE - IFAC_MIN_SIZE
 
     CACHE_TIME     = 24*60*60
+    JOB_INTERVAL   = 300
 
     router         = None
     config         = None
@@ -144,12 +145,6 @@ class Reticulum:
         # shut down, and will in turn call exit handlers in other
         # classes, saving necessary information to disk and carrying
         # out cleanup operations.
-
-        if RNS.Transport.owner.share_instance:
-            if RNS.Transport.owner.is_shared_instance:
-                RNS.Transport.owner.__clean_caches()
-        else:
-            RNS.Transport.owner.__clean_caches()
 
         RNS.Transport.exit_handler()
         RNS.Identity.exit_handler()
@@ -210,6 +205,7 @@ class Reticulum:
         self.is_shared_instance = False
         self.is_connected_to_shared_instance = False
         self.is_standalone_instance = False
+        self.jobs_thread = None
 
         if not os.path.isdir(Reticulum.storagepath):
             os.makedirs(Reticulum.storagepath)
@@ -257,6 +253,19 @@ class Reticulum:
         signal.signal(signal.SIGINT, Reticulum.sigint_handler)
         signal.signal(signal.SIGTERM, Reticulum.sigterm_handler)
 
+    def __start_jobs(self):
+        if self.jobs_thread == None:
+            self.jobs_thread = threading.Thread(target=self.__jobs)
+            self.jobs_thread.setDaemon(True)
+            self.jobs_thread.start()
+
+    def __jobs(self):
+        while True:
+            # Clean caches
+            self.__clean_caches()
+            
+            time.sleep(Reticulum.JOB_INTERVAL)
+
     def __start_local_interface(self):
         if self.share_instance:
             try:
@@ -269,7 +278,7 @@ class Reticulum:
                 
                 self.is_shared_instance = True
                 RNS.log("Started shared instance interface: "+str(interface), RNS.LOG_DEBUG)
-                self.__clean_caches()
+                self.__start_jobs()
 
             except Exception as e:
                 try:
@@ -295,7 +304,7 @@ class Reticulum:
             self.is_shared_instance = False
             self.is_standalone_instance = True
             self.is_connected_to_shared_instance = False
-            self.__clean_caches()
+            self.__start_jobs()
 
     def __apply_config(self):
         if "logging" in self.config:
