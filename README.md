@@ -1,8 +1,6 @@
 Reticulum Network Stack β
 ==========
 
-***Please Know!** Reticulum is transitioning to 128-bit address space. The code currently in the master branch is incompatible with the latest release, version 0.3.8. The next release of Reticulum, version 0.3.9, will bring the released version up to compatibility with the source code in this repository. Reticulum version 0.3.9 will not be compatible with any prior releases. Please transition your systems accordingly. See [this post](https://github.com/markqvist/Reticulum/discussions/75) for more information.*
-
 <p align="center"><img width="200" src="https://unsigned.io/wp-content/uploads/2022/03/reticulum_logo_512.png"></p>
 
 Reticulum is the cryptography-based networking stack for wide-area networks built on readily available hardware. It can operate even with very high latency and extremely low bandwidth. Reticulum allows you to build wide-area networks with off-the-shelf tools, and offers end-to-end encryption and connectivity, initiator anonymity, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable delivery acknowledgements and more.
@@ -114,12 +112,10 @@ Currently, the usable performance envelope is approximately 500 bits per second 
 Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. There will be bugs. The API and wire-format can be considered relatively stable at the moment, but could change if warranted.
 
 ## Development Roadmap
-- Version 0.3.9
-  - Expansion of address space to 128 bits
-  - Performance and memory optimisations
-  - Utilities for managing identities, signing and encryption
 - Version 0.4.0
   - Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
+  - Performance and memory optimisations
+  - Utilities for managing identities, signing and encryption
   - User friendly interface configuration tool
   - Support for radio and modem interfaces on Android
   - More interface types for even broader compatibility
@@ -143,8 +139,6 @@ Reticulum should currently be considered beta software. All core protocol featur
     - SPI
     - i²c
     - Tor
-
-
 
 ## Dependencies
 The installation of the default `rns` package requires the dependencies listed below. Almost all systems and distributions have readily available packages for these dependencies, and when the `rns` package is installed with `pip`, they will be downloaded and installed as well.
