@@ -159,34 +159,31 @@ If you just want to get started experimenting without building any physical netw
 The testnet runs the very latest version of Reticulum (often even a short while before it is publicly released). Sometimes experimental versions of Reticulum might be deployed to nodes on the testnet, which means strange behaviour might occur. If none of that scares you, you can join the testnet via either TCP or I2P. Just add one of the following interfaces to your Reticulum configuration file:
 
 ```
-# For connecting over TCP/IP on v0.3.8:
-  [[RNS Testnet Frankfurt]]
-    type = TCPClientInterface
-    interface_enabled = yes
-    outgoing = True
-    target_host = frankfurt.rns.unsigned.io
-    target_port = 4965
-
-
-# For connecting over I2P on v0.3.8:
-  [[RNS Testnet I2P Node A]]
-    type = I2PInterface
-    interface_enabled = yes
-    peers = ykzlw5ujbaqc2xkec4cpvgyxj257wcrmmgkuxqmqcur7cq3w3lha.b32.i2p
-
-# For connecting over TCP/IP on v0.3.9+:
+# TCP/IP interface to the Dublin Hub
   [[RNS Testnet Dublin]]
     type = TCPClientInterface
     enabled = yes
     target_host = dublin.connect.reticulum.network
     target_port = 4965
 
+# TCP/IP interface to the Frankfurt Hub
+  [[RNS Testnet Frankfurt]]
+    type = TCPClientInterface
+    enabled = yes
+    target_host = frankfurt.connect.reticulum.network
+    target_port = 5377
 
-# For connecting over I2P on v0.3.9+:
+# Interface to I2P Hub A
   [[RNS Testnet I2P Hub A]]
     type = I2PInterface
     enabled = yes
-    peers = uxg5kubabakh3jtnvsipingbr5574dle7bubvip7llfvwx2tgrua.b32.i2p
+    peers = mrwqlsioq4hoo2lmeeud7dkfscnm7yxak7dmiyvsrnpfag3z5tsq.b32.i2p
+
+# Interface to I2P Hub B
+  [[RNS Testnet I2P Hub B]]
+    type = I2PInterface
+    enabled = yes
+    peers = iwoqtz22dsr73aemwpw7guocplsjjoamyl7sogj33qtcd6ds4mza.b32.i2p
 ```
 
 The testnet also contains a number of [Nomad Network](https://github.com/markqvist/nomadnet) nodes, and LXMF propagation nodes.
