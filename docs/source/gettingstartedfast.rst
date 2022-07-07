@@ -62,7 +62,6 @@ a look at `Sideband <https://unsigned.io/sideband>`_, which is available for And
 Linux and macOS.
 
 .. image:: screenshots/sideband_1.png
-    :width: 400px
     :align: center
     :target: _images/sideband_1.png
 
