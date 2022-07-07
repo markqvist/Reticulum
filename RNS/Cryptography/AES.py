@@ -21,12 +21,16 @@
 # SOFTWARE.
 
 import RNS.Cryptography.Provider as cp
+import RNS.vendor.platformutils as pu
 
 if cp.PROVIDER == cp.PROVIDER_INTERNAL:
     from .aes import AES
     
 elif cp.PROVIDER == cp.PROVIDER_PYCA:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+    if pu.cryptography_old_api():
+        from cryptography.hazmat.backends import default_backend
 
 
 class AES_128_CBC:
@@ -38,7 +42,11 @@ class AES_128_CBC:
             return cipher.encrypt(plaintext, iv)
 
         elif cp.PROVIDER == cp.PROVIDER_PYCA:
-            cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+            if not pu.cryptography_old_api():
+                cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+            else:
+                cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+            
             encryptor = cipher.encryptor()
             ciphertext = encryptor.update(plaintext) + encryptor.finalize()
             return ciphertext
@@ -50,7 +58,11 @@ class AES_128_CBC:
             return cipher.decrypt(ciphertext, iv)
 
         elif cp.PROVIDER == cp.PROVIDER_PYCA:
-            cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+            if not pu.cryptography_old_api():
+                cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+            else:
+                cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+
             decryptor = cipher.decryptor()
             plaintext = decryptor.update(ciphertext) + decryptor.finalize()
             return plaintext
