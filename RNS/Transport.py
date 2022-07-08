@@ -967,8 +967,6 @@ class Transport:
                                 new_raw += packet.raw[2:]
 
                             outbound_interface = Transport.destination_table[packet.destination_hash][5]
-                            Transport.transmit(outbound_interface, new_raw)
-                            Transport.destination_table[packet.destination_hash][0] = time.time()
 
                             if packet.packet_type == RNS.Packet.LINKREQUEST:
                                 # Entry format is
@@ -990,6 +988,9 @@ class Transport:
                                                     time.time()]                # 2: Timestamp
 
                                 Transport.reverse_table[packet.getTruncatedHash()] = reverse_entry
+
+                            Transport.transmit(outbound_interface, new_raw)
+                            Transport.destination_table[packet.destination_hash][0] = time.time()
 
                         else:
                             # TODO: There should probably be some kind of REJECT
