@@ -22,7 +22,8 @@ copyright = '2022, Mark Qvist'
 author = 'Mark Qvist'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3.10 beta'
+import RNS
+release = RNS._version.__version__+" beta"
 
 
 # -- General configuration ---------------------------------------------------
