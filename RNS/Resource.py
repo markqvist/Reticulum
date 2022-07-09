@@ -53,7 +53,7 @@ class Resource:
     WINDOW_MAX_SLOW      = 10
 
     # The maximum window size for transfers on fast links
-    WINDOW_MAX_FAST      = 76
+    WINDOW_MAX_FAST      = 75
     
     # For calculating maps and guard segments, this
     # must be set to the global maximum window.
@@ -944,7 +944,7 @@ class Resource:
 
 
 class ResourceAdvertisement:
-    OVERHEAD             = 128
+    OVERHEAD             = 134
     HASHMAP_MAX_LEN      = math.floor((RNS.Link.MDU-OVERHEAD)/Resource.MAPHASH_LEN)
     COLLISION_GUARD_SIZE = 2*Resource.WINDOW_MAX+HASHMAP_MAX_LEN
 
