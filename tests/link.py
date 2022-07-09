@@ -175,7 +175,42 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    def test_3_small_resource(self):
+    def test_3_mini_resource(self):
+        init_rns(self)
+        print("")
+        print("Mini resource test")
+
+        # TODO: Load this from public bytes only
+        id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
+        self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
+
+        dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
+
+        self.assertEqual(dest.hash, bytes.fromhex("6bbe8b43a9842b77867ad99fd090fff3"))
+        
+        l1 = RNS.Link(dest)
+        time.sleep(0.5)
+        self.assertEqual(l1.status, RNS.Link.ACTIVE)
+
+        resource_timeout = 120
+        resource_size = 256*1000
+        data = os.urandom(resource_size)
+        print("Sending "+self.size_str(resource_size)+" resource...")
+        resource = RNS.Resource(data, l1, timeout=resource_timeout)
+        start = time.time()
+
+        while resource.status < RNS.Resource.COMPLETE:
+            time.sleep(0.01)
+
+        t = time.time() - start
+        self.assertEqual(resource.status, RNS.Resource.COMPLETE)
+        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+
+        l1.teardown()
+        time.sleep(0.5)
+        self.assertEqual(l1.status, RNS.Link.CLOSED)
+
+    def test_4_small_resource(self):
         init_rns(self)
         print("")
         print("Small resource test")
@@ -210,7 +245,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
 
-    def test_4_medium_resource(self):
+    def test_5_medium_resource(self):
         if RNS.Cryptography.backend() == "internal":
             print("Skipping medium resource test...")
             return
@@ -248,7 +283,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    def test_5_large_resource(self):
+    def test_6_large_resource(self):
         if RNS.Cryptography.backend() == "internal":
             print("Skipping large resource test...")
             return
