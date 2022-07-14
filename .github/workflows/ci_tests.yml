@@ -1,4 +1,4 @@
-name: On Pull Request
+name: CI Tests
 
 on: [push, pull_request]
 jobs:
