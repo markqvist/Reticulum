@@ -1,0 +1,49 @@
+name: On Pull Request
+
+on: [pull_request]
+jobs:
+  run-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
+
+      - name: Lint Code Base
+        uses: github/super-linter@v4
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: "master"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U sphinx
+          sudo apt-get install latexmk texlive-latex-extra
+
+      - name: Run make clean
+        run: make clean
+      - name: Run tests
+        run: make tests
+      - name: Make build_wheel
+        run: make build_wheel
+      - name: Make build_pure_wheel
+        run: make build_pure_wheel
+      - name: Make documentation
+        run: make documentation
+      - name: Make manual
+        run: make manual
