@@ -52,7 +52,7 @@ the discussion to RNodes using *LoRa* modulation in common ISM bands.
 **Avoid Confusion!** RNodes can use LoRa as a *physical-layer modulation*, but it
 does not use, and has nothing to do with the *LoRaWAN* protocol and standard, commonly
 used for centrally controlled IoT devices. RNodes use *raw LoRa modulation*, without
-any additional protocol overhead. All high-level protocol funcionality is handled
+any additional protocol overhead. All high-level protocol functionality is handled
 directly by Reticulum.
 
 .. _rnode-creating:
@@ -205,8 +205,8 @@ get started with producing RNodes.
 WiFi-based Hardware
 ===================
 
-It is possible to use all kinds of both short- and long-range Wifi-based hardware
-with Reticulum. Any kind of hardware that fully supports bridged ethernet over the
+It is possible to use all kinds of both short- and long-range WiFi-based hardware
+with Reticulum. Any kind of hardware that fully supports bridged Ethernet over the
 WiFi interface will work with the :ref:`AutoInterface<interfaces-auto>` in Reticulum.
 Most devices will behave like this by default, or allow it via configuration options.
 
