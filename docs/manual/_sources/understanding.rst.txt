@@ -70,7 +70,7 @@ guide the design of Reticulum:
 * **Hardware layer agnosticism**
     Reticulum must be fully hardware agnostic, and shall be useable over a wide range of
     physical networking layers, such as data radios, serial lines, modems, handheld transceivers,
-    wired ethernet, wifi, or anything else that can carry a digital data stream. Hardware made for
+    wired Ethernet, WiFi, or anything else that can carry a digital data stream. Hardware made for
     dedicated Reticulum use shall be as cheap as possible and use off-the-shelf components, so
     it can be easily modified and replicated by anyone interested in doing so.
 * **Very low bandwidth requirements**
@@ -109,7 +109,7 @@ Introduction & Basic Functionality
 
 Reticulum is a networking stack suited for high-latency, low-bandwidth links. Reticulum is at it’s
 core a *message oriented* system. It is suited for both local point-to-point or point-to-multipoint
-scenarios where alle nodes are within range of each other, as well as scenarios where packets need
+scenarios where all nodes are within range of each other, as well as scenarios where packets need
 to be transported over multiple hops in a complex network to reach the recipient.
 
 Reticulum does away with the idea of addresses and ports known from IP, TCP and UDP. Instead
@@ -121,14 +121,14 @@ All destinations in Reticulum are _represented_ as a 16 byte hash. This hash is 
 SHA-256 hash of identifying characteristics of the destination. To users, the destination addresses
 will be displayed as 16 hexadecimal bytes, like this example: ``<13425ec15b621c1d928589718000d814>``.
 
-The truncation size of 16 bytes (128 bits) for destinations has been choosen as a reasonable tradeoff
+The truncation size of 16 bytes (128 bits) for destinations has been chosen as a reasonable trade-off
 between address space
-and packet overhead. The address space accomodated by this size can support many billions of
+and packet overhead. The address space accommodated by this size can support many billions of
 simultaneously active devices on the same network, while keeping packet overhead low, which is
 essential on low-bandwidth networks. In the very unlikely case that this address space nears
 congestion, a one-line code change can upgrade the Reticulum address space all the way up to 256
 bits, ensuring the Reticulum address space could potentially support galactic-scale networks.
-This is obviusly complete and ridiculous over-allocation, and as such, the current 128 bits should
+This is obviously complete and ridiculous over-allocation, and as such, the current 128 bits should
 be sufficient, even far into the future.
 
 By default Reticulum encrypts all data using elliptic curve cryptography. Any packet sent to a
@@ -163,7 +163,7 @@ destinations. Reticulum uses three different basic destination types, and one sp
     A *plain* destination type is unencrypted, and suited for traffic that should be broadcast to a
     number of users, or should be readable by anyone. Traffic to a *plain* destination is not encrypted.
     Generally, *plain* destinations can be used for broadcast information intended to be public.
-    Plain destinations are only reachable directly, and packets adressed to plain destinations are
+    Plain destinations are only reachable directly, and packets addressed to plain destinations are
     never transported over multiple hops in the network. To be transportable over multiple hops in Reticulum, information
     *must* be encrypted, since Reticulum uses the per-packet encryption to verify routing paths and
     keep them alive.
@@ -219,10 +219,10 @@ packet.
 
 In actual use of *single* destination naming, it is advisable not to use any uniquely identifying
 features in aspect naming. Aspect names should be general terms describing what kind of destination
-is represented. The uniquely identifying aspect is always acheived by the appending the public key,
-which expands the destination into a uniquely identifyable one. Reticulum does this automatically.
+is represented. The uniquely identifying aspect is always achieved by the appending the public key,
+which expands the destination into a uniquely identifiable one. Reticulum does this automatically.
 
-Any destination on a Reticulum network can be addressed and reached simply by knowning its
+Any destination on a Reticulum network can be addressed and reached simply by knowing its
 destination hash (and public key, but if the public key is not known, it can be requested from the
 network simply by knowing the destination hash). The use of app names and aspects makes it easy to
 structure Reticulum programs and makes it possible to filter what information and data your program
@@ -349,7 +349,7 @@ Node Types
 ----------
 
 Currently, Reticulum distinguishes between two types of network nodes. All nodes on a Reticulum network
-are *Reticulum Instances*, and some are alo *Transport Nodes*. If a system running Reticulum is fixed in
+are *Reticulum Instances*, and some are also *Transport Nodes*. If a system running Reticulum is fixed in
 one place, and is intended to be kept available most of the time, it is a good contender to be a *Transport Node*.
 
 Any Reticulum Instance can become a Transport Node by enabling it in the configuration.
@@ -485,13 +485,18 @@ For exchanges of larger amounts of data, or when longer sessions of bidirectiona
     the destination using a Reticulum Identity. This authentication is happening inside the encrypted
     link, and is only revealed to the verified destination, and no intermediaries.
 
-In a moment, we will discuss the details of how this methodology is implemented, but let’s first
-recap what purposes this methodology serves. We first ensure that the node answering our request
-is actually the one we want to communicate with, and not a malicious actor pretending to be so.
-At the same time we establish an efficient encrypted channel. The setup of this is relatively cheap in
-terms of bandwidth, so it can be used just for a short exchange, and then recreated as needed, which will
-also rotate encryption keys. The link can also be kept alive for longer periods of time, if this is
-more suitable to the application. The procedure also inserts the *link id* , a hash calculated from the link request packet, into the memory of forwarding nodes, which means that the communicating nodes can thereafter reach each other simply by referring to this *link id*.
+In a moment, we will discuss the details of how this methodology is
+implemented, but let’s first recap what purposes this methodology serves. We
+first ensure that the node answering our request is actually the one we want to
+communicate with, and not a malicious actor pretending to be so.  At the same
+time we establish an efficient encrypted channel. The setup of this is
+relatively cheap in terms of bandwidth, so it can be used just for a short
+exchange, and then recreated as needed, which will also rotate encryption keys.
+The link can also be kept alive for longer periods of time, if this is more
+suitable to the application. The procedure also inserts the *link id* , a hash
+calculated from the link request packet, into the memory of forwarding nodes,
+which means that the communicating nodes can thereafter reach each other simply
+by referring to this *link id*.
 
 The combined bandwidth cost of setting up a link is 3 packets totalling 265 bytes (more info in the
 :ref:`Binary Packet Format<understanding-packetformat>` section). The amount of bandwidth used on keeping
@@ -544,7 +549,7 @@ an arbitrary number of hops, where information will be exchanged between two nod
 * | By verifying this *link proof* packet, all nodes that originally transported the *link request*
     packet to the destination from the originator can now verify that the intended destination received
     the request and accepted it, and that the path they chose for forwarding the request was valid.
-    In sucessfully carrying out this verification, the transporting nodes marks the link as active.
+    In successfully carrying out this verification, the transporting nodes marks the link as active.
     An abstract bi-directional communication channel has now been established along a path in the network.
 
 * | When the source receives the *proof* , it will know unequivocally that a verified path has been

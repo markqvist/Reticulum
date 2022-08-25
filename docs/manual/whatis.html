@@ -43,22 +43,37 @@
             
   <div class="section" id="what-is-reticulum">
 <h1>What is Reticulum?<a class="headerlink" href="#what-is-reticulum" title="Permalink to this headline">¶</a></h1>
-<p>Reticulum is a cryptography-based networking stack for building wide-area networks with readily available hardware, that can continue to operate even with extremely low bandwidth and very high latency.</p>
-<p>Reticulum allows you to build wide-area networks with off-the-shelf tools, and offers end-to-end encryption, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable packet acknowledgements and more.</p>
-<p>Reticulum is a complete networking stack, and does not need IP or higher layers, although it is easy to utilise IP (with TCP or UDP) as the underlying carrier for Reticulum. It is therefore trivial to tunnel Reticulum over the Internet or private IP networks. Reticulum is built directly on cryptographic principles, allowing resilience and stable functionality in open and trustless networks.</p>
-<p>No kernel modules or drivers are required. Reticulum runs completely in userland, and can run on practically any system that runs Python 3. Reticulum runs well even on small single-board computers like the Pi Zero.</p>
+<p>Reticulum is a cryptography-based networking stack for building wide-area
+networks with readily available hardware, that can continue to operate even
+with extremely low bandwidth and very high latency.</p>
+<p>Reticulum allows you to build wide-area networks with off-the-shelf tools, and
+offers end-to-end encryption, autoconfiguring cryptographically backed
+multi-hop transport, efficient addressing, unforgeable packet acknowledgements
+and more.</p>
+<p>Reticulum is a complete networking stack, and does not need IP or higher
+layers, although it is easy to utilise IP (with TCP or UDP) as the underlying
+carrier for Reticulum. It is therefore trivial to tunnel Reticulum over the
+Internet or private IP networks. Reticulum is built directly on cryptographic
+principles, allowing resilience and stable functionality in open and trustless
+networks.</p>
+<p>No kernel modules or drivers are required. Reticulum runs completely in
+userland, and can run on practically any system that runs Python 3. Reticulum
+runs well even on small single-board computers like the Pi Zero.</p>
 <div class="section" id="current-status">
 <h2>Current Status<a class="headerlink" href="#current-status" title="Permalink to this headline">¶</a></h2>
-<p>Reticulum should currently be considered beta software. All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored. There will be bugs. The API and wire-format can be considered stable at the moment, but could change if absolutely warranted.</p>
+<p>Reticulum should currently be considered beta software. All core protocol
+features are implemented and functioning, but additions will probably occur as
+real-world use is explored. There will be bugs. The API and wire-format can be
+considered stable at the moment, but could change if absolutely warranted.</p>
 </div>
 <div class="section" id="what-does-reticulum-offer">
 <h2>What does Reticulum Offer?<a class="headerlink" href="#what-does-reticulum-offer" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Coordination-less globally unique adressing and identification</p></li>
+<li><p>Coordination-less globally unique addressing and identification</p></li>
 <li><p>Fully self-configuring multi-hop routing</p></li>
 <li><p>Complete initiator anonymity, communicate without revealing your identity</p></li>
 <li><p>Asymmetric encryption based on X25519, and Ed25519 signatures as a basis for all communication</p></li>
-<li><p>Forward Secrecy by using ephemereal Elliptic Curve Diffie-Hellman keys on Curve25519</p></li>
+<li><p>Forward Secrecy by using ephemeral Elliptic Curve Diffie-Hellman keys on Curve25519</p></li>
 <li><p>Reticulum uses the <a class="reference external" href="https://github.com/fernet/spec/blob/master/Spec.md">Fernet</a> specification for on-the-wire / over-the-air encryption</p>
 <ul>
 <li><p>All keys are ephemeral and derived from an ECDH key exchange on Curve25519</p></li>
@@ -99,7 +114,7 @@ has been designed as an example transceiver that is very suitable for
 Reticulum. It is possible to build it yourself, to transform a common LoRa
 development board into one, or it can be purchased as a complete transceiver.</p>
 <p>Reticulum can also be encapsulated over existing IP networks, so there’s
-nothing stopping you from using it over wired ethernet or your local WiFi
+nothing stopping you from using it over wired Ethernet or your local WiFi
 network, where it’ll work just as well. In fact, one of the strengths of
 Reticulum is how easily it allows you to connect different mediums into a
 self-configuring, resilient and encrypted mesh.</p>
@@ -113,12 +128,12 @@ network, and vice versa.</p>
 <h2>Interface Types and Devices<a class="headerlink" href="#interface-types-and-devices" title="Permalink to this headline">¶</a></h2>
 <p>Reticulum implements a range of generalised interface types that covers the communications hardware that Reticulum can run over. If your hardware is not supported, it’s relatively simple to implement an interface class. Currently, Reticulum can use the following devices and communication mediums:</p>
 <ul class="simple">
-<li><p>Any ethernet device</p>
+<li><p>Any Ethernet device</p>
 <ul>
 <li><p>WiFi devices</p></li>
-<li><p>Wired ethernet devices</p></li>
+<li><p>Wired Ethernet devices</p></li>
 <li><p>Fibre-optic transceivers</p></li>
-<li><p>Data radios with ethernet ports</p></li>
+<li><p>Data radios with Ethernet ports</p></li>
 </ul>
 </li>
 <li><p>LoRa using <a class="reference external" href="https://unsigned.io/rnode">RNode</a></p>
@@ -149,7 +164,12 @@ network, and vice versa.</p>
 </div>
 <div class="section" id="caveat-emptor">
 <h2>Caveat Emptor<a class="headerlink" href="#caveat-emptor" title="Permalink to this headline">¶</a></h2>
-<p>Reticulum is an experimental networking stack, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it has not been externally security audited, and there could very well be privacy-breaking bugs. To be considered secure, Reticulum needs a thourough security review by independt cryptographers and security researchers. If you want to help out, or help sponsor an audit, please do get in touch.</p>
+<p>Reticulum is an experimental networking stack, and should be considered as
+such. While it has been built with cryptography best-practices very foremost in
+mind, it has not been externally security audited, and there could very well be
+privacy-breaking bugs. To be considered secure, Reticulum needs a thorough
+security review by independent cryptographers and security researchers. If you
+want to help out, or help sponsor an audit, please do get in touch.</p>
 </div>
 </div>
 

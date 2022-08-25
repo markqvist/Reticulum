@@ -119,12 +119,12 @@ inbound traffic.</p>
 and persistent I2P address that your Reticulum instance can be reached
 at.</p>
 <p>To use the I2P interface, you must have an I2P router running
-on your system. The easiest way to acheive this is to download and
+on your system. The easiest way to achieve this is to download and
 install the <a class="reference external" href="https://github.com/PurpleI2P/i2pd/releases/latest">latest release</a>
 of the <code class="docutils literal notranslate"><span class="pre">i2pd</span></code> package. For more details about I2P, see the
 <a class="reference external" href="https://geti2p.net/en/about/intro">geti2p.net website</a>.</p>
 <p>When an I2P router is running on your system, you can simply add
-an I2P interface to reticulum:</p>
+an I2P interface to Reticulum:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">I2P</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">I2PInterface</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
@@ -260,7 +260,7 @@ over IP networks, so it can provide an easy way to enable connectivity
 with all other peers on a local area network.</p>
 <p><em>Please Note!</em> Using broadcast UDP traffic has performance implications,
 especially on WiFi. If your goal is simply to enable easy communication
-with all peers in your local ethernet broadcast domain, the
+with all peers in your local Ethernet broadcast domain, the
 <a class="reference internal" href="#interfaces-auto"><span class="std std-ref">Auto Interface</span></a> performs better, and is even
 easier to use.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example enables communication with other</span>
@@ -381,7 +381,7 @@ directly over a wire-pair, or for using devices such as data radios and lasers.<
 </div>
 <div class="section" id="pipe-interface">
 <span id="interfaces-pipe"></span><h2>Pipe Interface<a class="headerlink" href="#pipe-interface" title="Permalink to this headline">¶</a></h2>
-<p>Using this interface, reticulum can use any program as an interface via <cite>stdin</cite> and
+<p>Using this interface, Reticulum can use any program as an interface via <cite>stdin</cite> and
 <cite>stdout</cite>. This can be used to easily create virtual interfaces, or to interface with
 custom hardware or other systems.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Pipe</span> <span class="n">Interface</span><span class="p">]]</span>
@@ -396,7 +396,7 @@ custom hardware or other systems.</p>
 </pre></div>
 </div>
 <p>Reticulum will write all packets to <cite>stdin</cite> of the <code class="docutils literal notranslate"><span class="pre">command</span></code> option, and will
-continously read and scan its <cite>stdout</cite> for Reticulum packets. If <code class="docutils literal notranslate"><span class="pre">EOF</span></code> is reached,
+continuously read and scan its <cite>stdout</cite> for Reticulum packets. If <code class="docutils literal notranslate"><span class="pre">EOF</span></code> is reached,
 Reticulum will try to respawn the program after waiting for <code class="docutils literal notranslate"><span class="pre">respawn_interval</span></code> seconds.</p>
 </div>
 <div class="section" id="kiss-interface">

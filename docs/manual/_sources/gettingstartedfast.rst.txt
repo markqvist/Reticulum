@@ -16,7 +16,7 @@ over even extremely low-bandwidth Reticulum networks.
 
 These programs will let you get a feel for how Reticulum works. They have been designed
 to run well over networks based on LoRa or packet radio, but can also be used completely
-over local WiFi, wired ethernet, the Internet, or any combination.
+over local WiFi, wired Ethernet, the Internet, or any combination.
 
 As such, it is easy to get started experimenting, without having to set up any radio
 transceivers or infrastructure just to try it out. Launching the programs on separate
@@ -91,7 +91,7 @@ or use the interactive ``rnsconfig`` utility.
 
 When Reticulum is started for the first time, it will create a default
 configuration file, with one active interface. This default interface uses
-your existing ethernet and WiFi networks (if any), and only allows you to
+your existing Ethernet and WiFi networks (if any), and only allows you to
 communicate with other Reticulum peers within your local broadcast domains.
 
 To communicate further, you will have to add one or more interfaces. The default
@@ -106,7 +106,7 @@ Once Reticulum knows which interfaces it should use, it will automatically
 discover topography and configure transport of data to any destinations it
 knows about.
 
-In situations where you already have an established WiFi or ethernet network, and
+In situations where you already have an established WiFi or Ethernet network, and
 many devices that want to utilise the same external Reticulum network paths (for example over
 LoRa), it will often be sufficient to let one system act as a Reticulum gateway, by
 adding any external interfaces to the configuration of this system, and then enabling transport on it. Any
@@ -131,7 +131,7 @@ TCP connections reveal the IP address of both your instance and the server to an
 inspect the connection. Someone could use this information to determine your location or identity. Adversaries 
 inspecting your packets may be able to record packet metadata like time of transmission and packet size.
 Even though Reticulum encrypts traffic, TCP does not, so an adversary may be able to use
-packet inspection to learn that a system is running Reticulum, and what other IP adresses connect to it.
+packet inspection to learn that a system is running Reticulum, and what other IP addresses connect to it.
 Hosting a publicly reachable instance over TCP also requires a publicly reachable IP address,
 which most Internet connections don't offer anymore.
 
@@ -145,9 +145,9 @@ will also relay other I2P user's encrypted packets, which will use extra
 bandwidth and compute power, but also makes timing attacks and other forms of 
 deep-packet-inspection much more difficult.
 
-I2P also allows users to host globally available Reticulum instances from non-public IPs and behind firewalls and NAT.
+I2P also allows users to host globally available Reticulum instances from non-public IP's and behind firewalls and NAT.
 
-In general it is recommended to use an I2P node if you want to host a publically accessible
+In general it is recommended to use an I2P node if you want to host a publicly accessible
 instance, while preserving anonymity. If you care more about performance, and a slightly
 easier setup, use TCP.
 

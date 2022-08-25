@@ -98,13 +98,13 @@ and persistent I2P address that your Reticulum instance can be reached
 at.
 
 To use the I2P interface, you must have an I2P router running
-on your system. The easiest way to acheive this is to download and
+on your system. The easiest way to achieve this is to download and
 install the `latest release <https://github.com/PurpleI2P/i2pd/releases/latest>`_
 of the ``i2pd`` package. For more details about I2P, see the
 `geti2p.net website <https://geti2p.net/en/about/intro>`_.
 
 When an I2P router is running on your system, you can simply add
-an I2P interface to reticulum:
+an I2P interface to Reticulum:
 
 .. code::
 
@@ -270,7 +270,7 @@ with all other peers on a local area network.
 
 *Please Note!* Using broadcast UDP traffic has performance implications,
 especially on WiFi. If your goal is simply to enable easy communication
-with all peers in your local ethernet broadcast domain, the
+with all peers in your local Ethernet broadcast domain, the
 :ref:`Auto Interface<interfaces-auto>` performs better, and is even
 easier to use.
 
@@ -404,7 +404,7 @@ directly over a wire-pair, or for using devices such as data radios and lasers.
 Pipe Interface
 ==============
 
-Using this interface, reticulum can use any program as an interface via `stdin` and
+Using this interface, Reticulum can use any program as an interface via `stdin` and
 `stdout`. This can be used to easily create virtual interfaces, or to interface with
 custom hardware or other systems.
 
@@ -421,7 +421,7 @@ custom hardware or other systems.
     respawn_delay = 5
 
 Reticulum will write all packets to `stdin` of the ``command`` option, and will
-continously read and scan its `stdout` for Reticulum packets. If ``EOF`` is reached,
+continuously read and scan its `stdout` for Reticulum packets. If ``EOF`` is reached,
 Reticulum will try to respawn the program after waiting for ``respawn_interval`` seconds.
 
 .. _interfaces-kiss:

@@ -9,7 +9,7 @@ Reticulum, which can often be easier than using traditional stacks, since you
 don't have to worry about coordinating addresses, subnets and routing for an
 entire network that you might not know how will evolve in the future. With
 Reticulum, you can simply add more segments to your network when it becomes
-necesarry, and Reticulum will handle the convergence of the entire network
+necessary, and Reticulum will handle the convergence of the entire network
 automatically.
 
 Concepts & Overview
@@ -18,13 +18,13 @@ Concepts & Overview
 There are important points that need to be kept in mind when building networks
 with Reticulum:
 
- * | In a Reticulum network, any node can autonomously generate as many adresses
+ * | In a Reticulum network, any node can autonomously generate as many addresses
      (called *destinations* in Reticulum terminology) as it needs, which become
      globally reachable to the rest of the network. There is no central point of
-     control over the adress space.
+     control over the address space.
 
  * | Reticulum was designed to handle both very small, and very large networks.
-     While the adress space can support billions of endpoints, Reticulum is
+     While the address space can support billions of endpoints, Reticulum is
      also very useful when just a few devices needs to communicate.
 
  * | Low-bandwidth networks, like LoRa and packet radio, can interoperate and
@@ -113,8 +113,8 @@ WiFi based radios for interconnecting the sites.
 
 At each site, a Raspberry Pi is installed to function as a gateway. A LoRa radio
 is connected to the Pi with a USB cable, and the WiFi radio is connected to the
-ethernet port of the Pi. At site B, two WiFi radios are needed to be able to reach
-both site A and site C, so an extra ethernet adapter is connected to the Pi in
+Ethernet port of the Pi. At site B, two WiFi radios are needed to be able to reach
+both site A and site C, so an extra Ethernet adapter is connected to the Pi in
 this location.
 
 Once the hardware has been installed, Reticulum is installed on all the Pis, and at
