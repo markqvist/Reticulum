@@ -123,10 +123,13 @@ Reticulum should currently be considered beta software. All core protocol featur
     - More LoRa transceivers
     - IR Transceivers
 - Planned, but not yet scheduled
+  - OpenWRT support
+  - Metric-based path selection
   - Distributed Destination Naming System
   - Network-wide path balancing
   - Globally routable multicast
   - Bindings for other programming languages
+  - Multiple paths in path table for quick recovery on link failures
   - A portable Reticulum implementation in C, see [#21](https://github.com/markqvist/Reticulum/discussions/21)
   - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
   - More interface types
