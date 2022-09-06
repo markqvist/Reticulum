@@ -417,6 +417,7 @@ class TCPServerInterface(Interface):
         self.IN  = True
         self.OUT = False
         self.name = name
+        self.detached = False
 
         self.i2p_tunneled = i2p_tunneled
         self.mode         = RNS.Interfaces.Interface.Interface.MODE_FULL
@@ -475,6 +476,21 @@ class TCPServerInterface(Interface):
 
     def processOutgoing(self, data):
         pass
+
+
+    def detach(self):
+        if self.server != None:
+            if hasattr(self.server, "shutdown"):
+                if callable(self.server.shutdown):
+                    try:
+                        RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
+                        self.server.shutdown()
+                        self.detached = True
+                        self.server = None
+
+                    except Exception as e:
+                        RNS.log("Error while shutting down server for "+str(self)+": "+str(e))
+
 
     def __str__(self):
         return "TCPServerInterface["+self.name+"/"+self.bind_ip+":"+str(self.bind_port)+"]"
