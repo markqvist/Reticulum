@@ -1984,10 +1984,27 @@ class Transport:
 
     @staticmethod
     def detach_interfaces():
-        for interface in Transport.interfaces:
-            interface.detach()
+        detachable_interfaces = []
 
+        for interface in Transport.interfaces:
+            # Currently no rules are being applied
+            # here, and all interfaces will be sent
+            # the detach call on RNS teardown.
+            if True:
+                detachable_interfaces.append(interface)
+            else:
+                pass
+        
         for interface in Transport.local_client_interfaces:
+            # Currently no rules are being applied
+            # here, and all interfaces will be sent
+            # the detach call on RNS teardown.
+            if True:
+                detachable_interfaces.append(interface)
+            else:
+                pass
+
+        for interface in detachable_interfaces:
             interface.detach()
 
     @staticmethod
@@ -2035,8 +2052,10 @@ class Transport:
         return announce_emitted
 
     @staticmethod
-    def exit_handler():
+    def save_packet_hashlist():
         try:
+            save_start = time.time()
+
             if not RNS.Reticulum.transport_enabled():
                 Transport.packet_hashlist = []
             else:
@@ -2047,10 +2066,21 @@ class Transport:
             file.write(umsgpack.packb(Transport.packet_hashlist))
             file.close()
 
+            save_time = time.time() - save_start
+            if save_time < 1:
+                time_str = str(round(save_time*1000,2))+"ms"
+            else:
+                time_str = str(round(save_time,2))+"s"
+            RNS.log("Saved packet hashlist in "+time_str, RNS.LOG_VERBOSE)
+
         except Exception as e:
             RNS.log("Could not save packet hashlist to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
+
+    @staticmethod
+    def save_path_table():
         if not Transport.owner.is_connected_to_shared_instance:
+            save_start = time.time()
             RNS.log("Saving path table to storage...", RNS.LOG_VERBOSE)
             try:
                 serialised_destinations = []
@@ -2091,10 +2121,21 @@ class Transport:
                 file = open(destination_table_path, "wb")
                 file.write(umsgpack.packb(serialised_destinations))
                 file.close()
-                RNS.log("Done saving "+str(len(serialised_destinations))+" path table entries to storage", RNS.LOG_VERBOSE)
+
+                save_time = time.time() - save_start
+                if save_time < 1:
+                    time_str = str(round(save_time*1000,2))+"ms"
+                else:
+                    time_str = str(round(save_time,2))+"s"
+                RNS.log("Saved "+str(len(serialised_destinations))+" path table entries in "+time_str, RNS.LOG_VERBOSE)
+
             except Exception as e:
                 RNS.log("Could not save path table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
+    @staticmethod
+    def save_tunnel_table():
+        if not Transport.owner.is_connected_to_shared_instance:
+            save_start = time.time()
             RNS.log("Saving tunnel table to storage...", RNS.LOG_VERBOSE)
             try:
                 serialised_tunnels = []
@@ -2143,6 +2184,18 @@ class Transport:
                 file = open(tunnels_path, "wb")
                 file.write(umsgpack.packb(serialised_tunnels))
                 file.close()
-                RNS.log("Done saving "+str(len(serialised_tunnels))+" tunnel table entries to storage", RNS.LOG_VERBOSE)
+
+                save_time = time.time() - save_start
+                if save_time < 1:
+                    time_str = str(round(save_time*1000,2))+"ms"
+                else:
+                    time_str = str(round(save_time,2))+"s"
+                RNS.log("Saved "+str(len(serialised_tunnels))+" tunnel table entries in "+time_str, RNS.LOG_VERBOSE)
             except Exception as e:
                 RNS.log("Could not save tunnel table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+
+    @staticmethod
+    def exit_handler():
+        Transport.save_packet_hashlist()
+        Transport.save_path_table()
+        Transport.save_tunnel_table()
