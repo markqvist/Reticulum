@@ -50,6 +50,8 @@ manual:
 
 release: test remove_symlinks build_wheel build_pure_wheel documentation manual create_symlinks
 
+debug: remove_symlinks build_wheel build_pure_wheel create_symlinks
+
 upload:
 	@echo Ready to publish release, hit enter to continue
 	@read VOID
