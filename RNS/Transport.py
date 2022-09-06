@@ -2023,12 +2023,14 @@ class Transport:
         Transport.announce_handlers = []
         Transport.tunnels           = {}
 
+
     @staticmethod
     def shared_connection_reappeared():
         if Transport.owner.is_connected_to_shared_instance:
             for registered_destination in Transport.destinations:
                 if registered_destination.type == RNS.Destination.SINGLE:
                     registered_destination.announce(path_response=True)
+
 
     @staticmethod
     def drop_announce_queues():
@@ -2044,6 +2046,7 @@ class Transport:
                     interface.announce_queue = []
                     RNS.log("Dropped "+na_str+" on "+str(interface), RNS.LOG_VERBOSE)
 
+
     @staticmethod
     def announce_emitted(packet):
         random_blob = packet.data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
@@ -2051,9 +2054,21 @@ class Transport:
 
         return announce_emitted
 
+
     @staticmethod
     def save_packet_hashlist():
+        if hasattr(Transport, "saving_packet_hashlist"):
+            wait_interval = 0.2
+            wait_timeout = 5
+            wait_start = time.time()
+            while Transport.saving_packet_hashlist:
+                time.sleep(wait_interval)
+                if time.time() > wait_start+wait_timeout:
+                    RNS.log("Could not save packet hashlist to storage, waiting for previous save operation timed out.", RNS.LOG_ERROR)
+                    return False
+
         try:
+            Transport.saving_packet_hashlist = True
             save_start = time.time()
 
             if not RNS.Reticulum.transport_enabled():
@@ -2076,13 +2091,27 @@ class Transport:
         except Exception as e:
             RNS.log("Could not save packet hashlist to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
+        Transport.saving_packet_hashlist = False
+
 
     @staticmethod
     def save_path_table():
         if not Transport.owner.is_connected_to_shared_instance:
-            save_start = time.time()
-            RNS.log("Saving path table to storage...", RNS.LOG_VERBOSE)
+            if hasattr(Transport, "saving_path_table"):
+                wait_interval = 0.2
+                wait_timeout = 5
+                wait_start = time.time()
+                while Transport.saving_path_table:
+                    time.sleep(wait_interval)
+                    if time.time() > wait_start+wait_timeout:
+                        RNS.log("Could not save path table to storage, waiting for previous save operation timed out.", RNS.LOG_ERROR)
+                        return False
+
             try:
+                Transport.saving_path_table = True
+                save_start = time.time()
+                RNS.log("Saving path table to storage...", RNS.LOG_VERBOSE)
+
                 serialised_destinations = []
                 for destination_hash in Transport.destination_table:
                     # Get the destination entry from the destination table
@@ -2132,12 +2161,27 @@ class Transport:
             except Exception as e:
                 RNS.log("Could not save path table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
+            Transport.saving_path_table = False
+
+
     @staticmethod
     def save_tunnel_table():
         if not Transport.owner.is_connected_to_shared_instance:
-            save_start = time.time()
-            RNS.log("Saving tunnel table to storage...", RNS.LOG_VERBOSE)
+            if hasattr(Transport, "saving_tunnel_table"):
+                wait_interval = 0.2
+                wait_timeout = 5
+                wait_start = time.time()
+                while Transport.saving_tunnel_table:
+                    time.sleep(wait_interval)
+                    if time.time() > wait_start+wait_timeout:
+                        RNS.log("Could not save tunnel table to storage, waiting for previous save operation timed out.", RNS.LOG_ERROR)
+                        return False
+
             try:
+                Transport.saving_tunnel_table = True
+                save_start = time.time()
+                RNS.log("Saving tunnel table to storage...", RNS.LOG_VERBOSE)
+
                 serialised_tunnels = []
                 for tunnel_id in Transport.tunnels:
                     te = Transport.tunnels[tunnel_id]
@@ -2193,6 +2237,9 @@ class Transport:
                 RNS.log("Saved "+str(len(serialised_tunnels))+" tunnel table entries in "+time_str, RNS.LOG_VERBOSE)
             except Exception as e:
                 RNS.log("Could not save tunnel table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+
+            Transport.saving_tunnel_table = False
+
 
     @staticmethod
     def exit_handler():
