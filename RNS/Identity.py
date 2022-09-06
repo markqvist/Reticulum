@@ -108,7 +108,24 @@ class Identity:
 
     @staticmethod
     def save_known_destinations():
+        # TODO: Improve the storage method so we don't have to
+        # deserialize and serialize the entire table on every
+        # save, but the only changes.
+        
         try:
+            if hasattr(Identity, "saving_known_destinations"):
+                wait_interval = 0.2
+                wait_timeout = 5
+                wait_start = time.time()
+                while Identity.saving_known_destinations:
+                    time.sleep(wait_interval)
+                    if time.time() > wait_start+wait_timeout:
+                        RNS.log("Could not save known destinations to storage, waiting for previous save operation timed out.", RNS.LOG_ERROR)
+                        return False
+
+            Identity.saving_known_destinations = True
+            save_start = time.time()
+
             storage_known_destinations = {}
             if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
                 try:
@@ -126,9 +143,19 @@ class Identity:
             file = open(RNS.Reticulum.storagepath+"/known_destinations","wb")
             umsgpack.dump(Identity.known_destinations, file)
             file.close()
-            RNS.log("Done saving known destinations to storage", RNS.LOG_VERBOSE)
+
+            save_time = time.time() - save_start
+            if save_time < 1:
+                time_str = str(round(save_time*1000,2))+"ms"
+            else:
+                time_str = str(round(save_time,2))+"s"
+
+            RNS.log("Saved known destinations to storage in "+time_str, RNS.LOG_VERBOSE)
+
         except Exception as e:
             RNS.log("Error while saving known destinations to disk, the contained exception was: "+str(e), RNS.LOG_ERROR)
+
+        Identity.saving_known_destinations = False
 
     @staticmethod
     def load_known_destinations():
