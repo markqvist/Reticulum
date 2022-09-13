@@ -108,8 +108,6 @@ To simply install Reticulum and related utilities on your system, the easiest wa
 pip3 install rns
 ```
 
-On Arch Linux it is also possible to install using the `python-rns` package from the [AUR](https://aur.archlinux.org/packages/python-rns).
-
 You can then start any program that uses Reticulum, or start Reticulum as a
 system service with [the rnsd utility](https://markqvist.github.io/Reticulum/manual/using.html#the-rnsd-utility).
 
