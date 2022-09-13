@@ -938,6 +938,9 @@ class Reticulum:
 
                 RNS.Transport.interfaces.append(interface)
 
+    def _should_persist_data(self):
+        self.__persist_data()
+
     def __persist_data(self):
         RNS.Transport.persist_data()
         RNS.Identity.persist_data()

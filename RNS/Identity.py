@@ -110,7 +110,9 @@ class Identity:
     def save_known_destinations():
         # TODO: Improve the storage method so we don't have to
         # deserialize and serialize the entire table on every
-        # save, but the only changes.
+        # save, but the only changes. It might be possible to
+        # simply overwrite on exit now that every local client
+        # disconnect triggers a data persist.
         
         try:
             if hasattr(Identity, "saving_known_destinations"):
