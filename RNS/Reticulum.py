@@ -119,25 +119,27 @@ class Reticulum:
     # Length of truncated hashes in bits.
     TRUNCATED_HASHLENGTH = 128
 
-    HEADER_MINSIZE = 2+1+(TRUNCATED_HASHLENGTH//8)*1
-    HEADER_MAXSIZE = 2+1+(TRUNCATED_HASHLENGTH//8)*2
-    IFAC_MIN_SIZE  = 1
-    IFAC_SALT      = bytes.fromhex("adf54d882c9a9b80771eb4995d702d4a3e733391b2a0f53f416d9f907e55cff8")
+    HEADER_MINSIZE   = 2+1+(TRUNCATED_HASHLENGTH//8)*1
+    HEADER_MAXSIZE   = 2+1+(TRUNCATED_HASHLENGTH//8)*2
+    IFAC_MIN_SIZE    = 1
+    IFAC_SALT        = bytes.fromhex("adf54d882c9a9b80771eb4995d702d4a3e733391b2a0f53f416d9f907e55cff8")
     
-    MDU            = MTU - HEADER_MAXSIZE - IFAC_MIN_SIZE
+    MDU              = MTU - HEADER_MAXSIZE - IFAC_MIN_SIZE
 
-    RESOURCE_CACHE = 24*60*60
-    JOB_INTERVAL   = 15*60
+    RESOURCE_CACHE   = 24*60*60
+    JOB_INTERVAL     = 5*60
+    CLEAN_INTERVAL   = 15*60
+    PERSIST_INTERVAL = 60*60*12
 
-    router         = None
-    config         = None
+    router           = None
+    config           = None
     
     # The default configuration path will be expanded to a directory
     # named ".reticulum" inside the current users home directory
-    configdir    = os.path.expanduser("~")+"/.reticulum"
-    configpath   = ""
-    storagepath  = ""
-    cachepath    = ""
+    configdir        = os.path.expanduser("~")+"/.reticulum"
+    configpath       = ""
+    storagepath      = ""
+    cachepath        = ""
     
     @staticmethod
     def exit_handler():
@@ -206,6 +208,8 @@ class Reticulum:
         self.is_connected_to_shared_instance = False
         self.is_standalone_instance = False
         self.jobs_thread = None
+        self.last_data_persist = time.time()
+        self.last_cache_clean = 0
 
         if not os.path.isdir(Reticulum.storagepath):
             os.makedirs(Reticulum.storagepath)
@@ -230,7 +234,6 @@ class Reticulum:
             RNS.log("Could not load config file, creating default configuration file...")
             self.__create_default_config()
             RNS.log("Default config file created. Make any necessary changes in "+Reticulum.configdir+"/config and restart Reticulum if needed.")
-            import time
             time.sleep(1.5)
 
         self.__apply_config()
@@ -261,8 +264,15 @@ class Reticulum:
 
     def __jobs(self):
         while True:
-            # Clean caches
-            self.__clean_caches()
+            now = time.time()
+
+            if now > self.last_cache_clean+Reticulum.CLEAN_INTERVAL:
+                self.__clean_caches()
+                self.last_cache_clean = time.time()
+
+            if now > self.last_data_persist+Reticulum.PERSIST_INTERVAL:
+                self.__persist_data()
+                self.last_data_persist = time.time()
             
             time.sleep(Reticulum.JOB_INTERVAL)
 
@@ -928,7 +938,9 @@ class Reticulum:
 
                 RNS.Transport.interfaces.append(interface)
 
-
+    def __persist_data(self):
+        RNS.Transport.persist_data()
+        RNS.Identity.persist_data()
 
     def __clean_caches(self):
         RNS.log("Cleaning resource and packet caches...", RNS.LOG_EXTREME)

@@ -139,7 +139,7 @@ class Identity:
                 if not destination_hash in Identity.known_destinations:
                     Identity.known_destinations[destination_hash] = storage_known_destinations[destination_hash]
 
-            RNS.log("Saving known destinations to storage...", RNS.LOG_VERBOSE)
+            RNS.log("Saving "+str(len(Identity.known_destinations))+" known destinations to storage...", RNS.LOG_VERBOSE)
             file = open(RNS.Reticulum.storagepath+"/known_destinations","wb")
             umsgpack.dump(Identity.known_destinations, file)
             file.close()
@@ -247,8 +247,13 @@ class Identity:
             return False
 
     @staticmethod
+    def persist_data():
+        if not RNS.Transport.owner.is_connected_to_shared_instance:
+            Identity.save_known_destinations()
+
+    @staticmethod
     def exit_handler():
-        Identity.save_known_destinations()
+        Identity.persist_data()
 
 
     @staticmethod

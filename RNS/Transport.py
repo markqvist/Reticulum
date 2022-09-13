@@ -2240,9 +2240,13 @@ class Transport:
 
             Transport.saving_tunnel_table = False
 
-
     @staticmethod
-    def exit_handler():
+    def persist_data():
         Transport.save_packet_hashlist()
         Transport.save_path_table()
         Transport.save_tunnel_table()
+
+    @staticmethod
+    def exit_handler():
+        if not Transport.owner.is_connected_to_shared_instance:
+            Transport.persist_data()
