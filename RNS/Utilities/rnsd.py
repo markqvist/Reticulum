@@ -38,7 +38,11 @@ def program_setup(configdir, verbosity = 0, quietness = 0, service = False):
         targetloglevel = None
 
     reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
-    RNS.log("Started rnsd version {version}".format(version=__version__), RNS.LOG_NOTICE)
+    if reticulum.is_connected_to_shared_instance:
+        RNS.log("Started rnsd version {version} connected to another shared local instance, this is probably NOT what you want!".format(version=__version__), RNS.LOG_WARNING)
+    else:
+        RNS.log("Started rnsd version {version}".format(version=__version__), RNS.LOG_NOTICE)
+
     while True:
         time.sleep(1)
 
