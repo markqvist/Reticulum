@@ -197,7 +197,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
 
             print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+str(hops)+" hop"+ms+" away via "+next_hop+" on "+next_hop_interface)
         else:
-            print("\r                                                \rPath not found")
+            print("\r                                                       \rPath not found")
             sys.exit(1)
 
     
