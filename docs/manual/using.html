@@ -59,7 +59,7 @@ are other options.</p>
 <div class="section" id="configuration-data">
 <h2>Configuration &amp; Data<a class="headerlink" href="#configuration-data" title="Permalink to this headline">¶</a></h2>
 <p>A Reticulum stores all information that it needs to function in a single file-
-system directory. By default, this directory is <code class="docutils literal notranslate"><span class="pre">~/.reticulum</span></code>, but you can
+system directory. By default, this directory is <code class="docutils literal notranslate"><span class="pre">~/.config/reticulum</span></code>, but you can
 use any directory you wish. You can also run multiple separate Reticulum
 instances on the same physical system, in complete isolation from each other,
 or connected together.</p>
@@ -68,7 +68,7 @@ instance. This can either be launched at boot, as a system service, or simply
 be brought up when a program needs it. In either case, any number of programs
 running on the same system will automatically share the same Reticulum instance,
 if the configuration allows for it, which it does by default.</p>
-<p>The entire configuration of Reticulum is found in the <code class="docutils literal notranslate"><span class="pre">~/.reticulum/config</span></code>
+<p>The entire configuration of Reticulum is found in the <code class="docutils literal notranslate"><span class="pre">~/.config/reticulum/config</span></code>
 file. When Reticulum is first started on a new system, a basic, functional
 configuration file is created. The default configuration looks like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This is the default Reticulum config file.</span>
@@ -374,7 +374,7 @@ rnx 7a55144adf826958a9529a3bcf08b149 &quot;cat /proc/cpuinfo&quot;
 rnx 7a55144adf826958a9529a3bcf08b149 -x
 
 # The default identity file is stored in
-# ~/.reticulum/identities/rnx, but you can use
+# ~/.config/reticulum/identities/rnx, but you can use
 # another one, which will be created if it does
 # not already exist
 rnx 7a55144adf826958a9529a3bcf08b149 -i /path/to/identity -x

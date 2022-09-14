@@ -82,7 +82,7 @@ communications channels as the underlying carrier for Reticulum.
 However, most real-world networks will probably involve either some form of
 wireless or direct hardline communications. To allow Reticulum to communicate
 over any type of medium, you must specify it in the configuration file, by default
-located at ``~/.reticulum/config``. See the :ref:`Supported Interfaces<interfaces-main>`
+located at ``~/.config/reticulum/config``. See the :ref:`Supported Interfaces<interfaces-main>`
 chapter of this manual for interface configuration examples.
 
 Any number of interfaces can be configured, and Reticulum will automatically

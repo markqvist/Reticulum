@@ -23,7 +23,7 @@ Configuration & Data
 --------------------
 
 A Reticulum stores all information that it needs to function in a single file-
-system directory. By default, this directory is ``~/.reticulum``, but you can
+system directory. By default, this directory is ``~/.config/reticulum``, but you can
 use any directory you wish. You can also run multiple separate Reticulum
 instances on the same physical system, in complete isolation from each other,
 or connected together.
@@ -34,7 +34,7 @@ be brought up when a program needs it. In either case, any number of programs
 running on the same system will automatically share the same Reticulum instance,
 if the configuration allows for it, which it does by default.
 
-The entire configuration of Reticulum is found in the ``~/.reticulum/config``
+The entire configuration of Reticulum is found in the ``~/.config/reticulum/config``
 file. When Reticulum is first started on a new system, a basic, functional
 configuration file is created. The default configuration looks like this:
 
@@ -371,7 +371,7 @@ output.
   rnx 7a55144adf826958a9529a3bcf08b149 -x
 
   # The default identity file is stored in
-  # ~/.reticulum/identities/rnx, but you can use
+  # ~/.config/reticulum/identities/rnx, but you can use
   # another one, which will be created if it does
   # not already exist
   rnx 7a55144adf826958a9529a3bcf08b149 -i /path/to/identity -x

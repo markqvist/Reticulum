@@ -107,7 +107,7 @@ network status and connectivity.</p>
 <h2>Creating a Network With Reticulum<a class="headerlink" href="#creating-a-network-with-reticulum" title="Permalink to this headline">¶</a></h2>
 <p>To create a network, you will need to specify one or more <em>interfaces</em> for
 Reticulum to use. This is done in the Reticulum configuration file, which by
-default is located at <code class="docutils literal notranslate"><span class="pre">~/.reticulum/config</span></code>. You can edit this file by hand,
+default is located at <code class="docutils literal notranslate"><span class="pre">~/.config/reticulum/config</span></code>. You can edit this file by hand,
 or use the interactive <code class="docutils literal notranslate"><span class="pre">rnsconfig</span></code> utility.</p>
 <p>When Reticulum is started for the first time, it will create a default
 configuration file, with one active interface. This default interface uses
@@ -252,7 +252,7 @@ don’t use pip, but try this recipe:</p>
 
 <span class="c1"># Unless you&#39;ve manually created a config file, Reticulum will do so now,</span>
 <span class="c1"># and immediately exit. Make any necessary changes to the file:</span>
-<span class="n">nano</span> <span class="o">~/.</span><span class="n">reticulum</span><span class="o">/</span><span class="n">config</span>
+<span class="n">nano</span> <span class="o">~/.</span><span class="n">config</span><span class="o">/</span><span class="n">reticulum</span><span class="o">/</span><span class="n">config</span>
 
 <span class="c1"># ... and launch the example again.</span>
 <span class="n">python3</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">s</span>
