@@ -136,7 +136,8 @@ class Reticulum:
     
     # The default configuration path will be expanded to a directory
     # named ".reticulum" inside the current users home directory
-    configdir        = os.path.expanduser("~")+"/.reticulum"
+    userdir          = os.path.expanduser("~")
+    configdir        = None
     configpath       = ""
     storagepath      = ""
     cachepath        = ""
@@ -163,7 +164,7 @@ class Reticulum:
         RNS.exit()
 
 
-    def __init__(self,configdir=None, loglevel=None):
+    def __init__(self,configdir=None, loglevel=None, logdest=None):
         """
         Initialises and starts a Reticulum instance. This must be
         done before any other operations, and Reticulum will not
@@ -176,6 +177,15 @@ class Reticulum:
 
         if configdir != None:
             Reticulum.configdir = configdir
+        else:
+            if os.path.isdir(Reticulum.userdir+"/.reticulum") and os.path.isfile(Reticulum.userdir+"/.reticulum/config"):
+                Reticulum.configdir = Reticulum.userdir+"/.reticulum"
+            else:
+                Reticulum.configdir = Reticulum.userdir+"/.config/reticulum"
+
+        if logdest == RNS.LOG_FILE:
+            RNS.logdest = RNS.LOG_FILE
+            RNS.logfile = Reticulum.configdir+"/logfile"
         
         Reticulum.configpath    = Reticulum.configdir+"/config"
         Reticulum.storagepath   = Reticulum.configdir+"/storage"
