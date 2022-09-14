@@ -197,14 +197,20 @@ class RNodeInterface(Interface):
 
         try:
             self.open_port()
+
+            if self.serial.is_open:
+                self.configure_device()
+            else:
+                raise IOError("Could not open serial port")
+
         except Exception as e:
             RNS.log("Could not open serial port for interface "+str(self), RNS.LOG_ERROR)
-            raise e
+            RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log("Reticulum will attempt to bring up this interface periodically", RNS.LOG_ERROR)
+            thread = threading.Thread(target=self.reconnect_port)
+            thread.setDaemon(True)
+            thread.start()
 
-        if self.serial.is_open:
-            self.configure_device()
-        else:
-            raise IOError("Could not open serial port")
 
     def open_port(self):
         RNS.log("Opening serial port "+self.port+"...")
@@ -620,7 +626,7 @@ class RNodeInterface(Interface):
     def reconnect_port(self):
         while not self.online:
             try:
-                time.sleep(3.5)
+                time.sleep(5)
                 RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
                 self.open_port()
                 if self.serial.is_open:

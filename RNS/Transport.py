@@ -699,13 +699,22 @@ class Transport:
                                                     timer = threading.Timer(wait_time, interface.process_announce_queue)
                                                     timer.start()
 
-                                                    wait_time_str = str(round(wait_time*1000,3))+"ms"
+                                                    if wait_time < 1:
+                                                        wait_time_str = str(round(wait_time*1000,2))+"ms"
+                                                    else:
+                                                        wait_time_str = str(round(wait_time*1,2))+"s"
+
                                                     ql_str = str(len(interface.announce_queue))
                                                     RNS.log("Added announce to queue (height "+ql_str+") on "+str(interface)+" for processing in "+wait_time_str, RNS.LOG_EXTREME)
 
                                                 else:
                                                     wait_time = max(interface.announce_allowed_at - time.time(), 0)
-                                                    wait_time_str = str(round(wait_time*1000,3))+"ms"
+
+                                                    if wait_time < 1:
+                                                        wait_time_str = str(round(wait_time*1000,2))+"ms"
+                                                    else:
+                                                        wait_time_str = str(round(wait_time*1,2))+"s"
+
                                                     ql_str = str(len(interface.announce_queue))
                                                     RNS.log("Added announce to queue (height "+ql_str+") on "+str(interface)+" for processing in "+wait_time_str, RNS.LOG_EXTREME)
 
