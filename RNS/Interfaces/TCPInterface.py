@@ -70,12 +70,15 @@ class TCPClientInterface(Interface):
     TCP_PROBE_INTERVAL = 2
     TCP_PROBES = 12
 
+    INITIAL_CONNECT_TIMEOUT = 5
+    SYNCHRONOUS_START = True
+
     I2P_USER_TIMEOUT = 45
     I2P_PROBE_AFTER = 10
     I2P_PROBE_INTERVAL = 9
     I2P_PROBES = 5
 
-    def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None, max_reconnect_tries=None, kiss_framing=False, i2p_tunneled = False):
+    def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None, max_reconnect_tries=None, kiss_framing=False, i2p_tunneled = False, connect_timeout = None):
         self.rxb = 0
         self.txb = 0
         
@@ -119,18 +122,30 @@ class TCPClientInterface(Interface):
             self.target_ip   = target_ip
             self.target_port = target_port
             self.initiator   = True
-            
-            if not self.connect(initial=True):
-                thread = threading.Thread(target=self.reconnect)
-                thread.setDaemon(True)
-                thread.start()
-            else:
-                thread = threading.Thread(target=self.read_loop)
-                thread.setDaemon(True)
-                thread.start()
-                if not self.kiss_framing:
-                    self.wants_tunnel = True
 
+            if connect_timeout != None:
+                self.connect_timeout = connect_timeout
+            else:
+                self.connect_timeout = TCPClientInterface.INITIAL_CONNECT_TIMEOUT
+            
+            if TCPClientInterface.SYNCHRONOUS_START:
+                self.initial_connect()
+            else:
+                thread = threading.Thread(target=self.initial_connect)
+                thread.setDaemon(True)
+                thread.start()
+            
+    def initial_connect(self):
+        if not self.connect(initial=True):
+            thread = threading.Thread(target=self.reconnect)
+            thread.setDaemon(True)
+            thread.start()
+        else:
+            thread = threading.Thread(target=self.read_loop)
+            thread.setDaemon(True)
+            thread.start()
+            if not self.kiss_framing:
+                self.wants_tunnel = True
 
     def set_timeouts_linux(self):
         if not self.i2p_tunneled:
@@ -181,9 +196,17 @@ class TCPClientInterface(Interface):
 
     def connect(self, initial=False):
         try:
+            if initial:
+                RNS.log("Establishing TCP connection for "+str(self)+"...", RNS.LOG_DEBUG)
+
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket.settimeout(TCPClientInterface.INITIAL_CONNECT_TIMEOUT)
             self.socket.connect((self.target_ip, self.target_port))
+            self.socket.settimeout(None)
             self.online  = True
+
+            if initial:
+                RNS.log("TCP connection for "+str(self)+" established", RNS.LOG_DEBUG)
         
         except Exception as e:
             if initial:

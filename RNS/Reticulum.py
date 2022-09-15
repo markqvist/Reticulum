@@ -590,6 +590,7 @@ class Reticulum:
                                     if "kiss_framing" in c and c.as_bool("kiss_framing") == True:
                                         kiss_framing = True
                                     i2p_tunneled = c.as_bool("i2p_tunneled") if "i2p_tunneled" in c else False
+                                    tcp_connect_timeout = c.as_int("connect_timeout") if "connect_timeout" in c else None
 
 
                                     interface = TCPInterface.TCPClientInterface(
@@ -598,7 +599,8 @@ class Reticulum:
                                         c["target_host"],
                                         int(c["target_port"]),
                                         kiss_framing = kiss_framing,
-                                        i2p_tunneled = i2p_tunneled
+                                        i2p_tunneled = i2p_tunneled,
+                                        connect_timeout = tcp_connect_timeout,
                                     )
 
                                     if "outgoing" in c and c.as_bool("outgoing") == False:
