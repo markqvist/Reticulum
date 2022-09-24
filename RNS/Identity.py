@@ -141,7 +141,7 @@ class Identity:
                 if not destination_hash in Identity.known_destinations:
                     Identity.known_destinations[destination_hash] = storage_known_destinations[destination_hash]
 
-            RNS.log("Saving "+str(len(Identity.known_destinations))+" known destinations to storage...", RNS.LOG_VERBOSE)
+            RNS.log("Saving "+str(len(Identity.known_destinations))+" known destinations to storage...", RNS.LOG_DEBUG)
             file = open(RNS.Reticulum.storagepath+"/known_destinations","wb")
             umsgpack.dump(Identity.known_destinations, file)
             file.close()
@@ -152,7 +152,7 @@ class Identity:
             else:
                 time_str = str(round(save_time,2))+"s"
 
-            RNS.log("Saved known destinations to storage in "+time_str, RNS.LOG_VERBOSE)
+            RNS.log("Saved known destinations to storage in "+time_str, RNS.LOG_DEBUG)
 
         except Exception as e:
             RNS.log("Error while saving known destinations to disk, the contained exception was: "+str(e), RNS.LOG_ERROR)

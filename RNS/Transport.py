@@ -2083,7 +2083,7 @@ class Transport:
             if not RNS.Reticulum.transport_enabled():
                 Transport.packet_hashlist = []
             else:
-                RNS.log("Saving packet hashlist to storage...", RNS.LOG_VERBOSE)
+                RNS.log("Saving packet hashlist to storage...", RNS.LOG_DEBUG)
 
             packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
             file = open(packet_hashlist_path, "wb")
@@ -2095,7 +2095,7 @@ class Transport:
                 time_str = str(round(save_time*1000,2))+"ms"
             else:
                 time_str = str(round(save_time,2))+"s"
-            RNS.log("Saved packet hashlist in "+time_str, RNS.LOG_VERBOSE)
+            RNS.log("Saved packet hashlist in "+time_str, RNS.LOG_DEBUG)
 
         except Exception as e:
             RNS.log("Could not save packet hashlist to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -2119,7 +2119,7 @@ class Transport:
             try:
                 Transport.saving_path_table = True
                 save_start = time.time()
-                RNS.log("Saving path table to storage...", RNS.LOG_VERBOSE)
+                RNS.log("Saving path table to storage...", RNS.LOG_DEBUG)
 
                 serialised_destinations = []
                 for destination_hash in Transport.destination_table:
@@ -2165,7 +2165,7 @@ class Transport:
                     time_str = str(round(save_time*1000,2))+"ms"
                 else:
                     time_str = str(round(save_time,2))+"s"
-                RNS.log("Saved "+str(len(serialised_destinations))+" path table entries in "+time_str, RNS.LOG_VERBOSE)
+                RNS.log("Saved "+str(len(serialised_destinations))+" path table entries in "+time_str, RNS.LOG_DEBUG)
 
             except Exception as e:
                 RNS.log("Could not save path table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -2189,7 +2189,7 @@ class Transport:
             try:
                 Transport.saving_tunnel_table = True
                 save_start = time.time()
-                RNS.log("Saving tunnel table to storage...", RNS.LOG_VERBOSE)
+                RNS.log("Saving tunnel table to storage...", RNS.LOG_DEBUG)
 
                 serialised_tunnels = []
                 for tunnel_id in Transport.tunnels:
@@ -2243,7 +2243,7 @@ class Transport:
                     time_str = str(round(save_time*1000,2))+"ms"
                 else:
                     time_str = str(round(save_time,2))+"s"
-                RNS.log("Saved "+str(len(serialised_tunnels))+" tunnel table entries in "+time_str, RNS.LOG_VERBOSE)
+                RNS.log("Saved "+str(len(serialised_tunnels))+" tunnel table entries in "+time_str, RNS.LOG_DEBUG)
             except Exception as e:
                 RNS.log("Could not save tunnel table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
