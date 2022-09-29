@@ -1,10 +1,11 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
     <title>Understanding Reticulum &#8212; Reticulum Network Stack 0.3.12 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
@@ -12,7 +13,9 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -41,8 +44,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="understanding-reticulum">
-<span id="understanding-main"></span><h1>Understanding Reticulum<a class="headerlink" href="#understanding-reticulum" title="Permalink to this headline">¶</a></h1>
+  <section id="understanding-reticulum">
+<span id="understanding-main"></span><h1>Understanding Reticulum<a class="headerlink" href="#understanding-reticulum" title="Permalink to this heading">¶</a></h1>
 <p>This chapter will briefly describe the overall purpose and operating principles of Reticulum.
 It should give you an overview of how the stack works, and an understanding of how to
 develop networked applications using Reticulum.</p>
@@ -56,8 +59,8 @@ operates, what it can achieve, and how you can use it yourself. If you want to h
 development, this is also the place to start, since it will provide a pretty clear overview of the
 sentiments and the philosophy behind Reticulum, what problems it seeks to solve, and how it
 approaches those solutions.</p>
-<div class="section" id="motivation">
-<span id="understanding-motivation"></span><h2>Motivation<a class="headerlink" href="#motivation" title="Permalink to this headline">¶</a></h2>
+<section id="motivation">
+<span id="understanding-motivation"></span><h2>Motivation<a class="headerlink" href="#motivation" title="Permalink to this heading">¶</a></h2>
 <p>The primary motivation for designing and implementing Reticulum has been the current lack of
 reliable, functional and secure minimal-infrastructure modes of digital communication. It is my
 belief that it is highly desirable to create a reliable and efficient way to set up long-range digital
@@ -83,9 +86,9 @@ cheap and easy to cover vast areas with a myriad of independent, interconnectabl
 Reticulum <strong>is not</strong> <em>one network</em>, it <strong>is a tool</strong> to build <em>thousands of networks</em>. Networks without
 kill-switches, surveillance, censorship and control. Networks that can freely interoperate, associate and disassociate
 with each other, and require no central oversight. Networks for human beings. <em>Networks for the people</em>.</p>
-</div>
-<div class="section" id="goals">
-<span id="understanding-goals"></span><h2>Goals<a class="headerlink" href="#goals" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="goals">
+<span id="understanding-goals"></span><h2>Goals<a class="headerlink" href="#goals" title="Permalink to this heading">¶</a></h2>
 <p>To be as widely usable and efficient to deploy as possible, the following goals have been used to
 guide the design of Reticulum:</p>
 <ul class="simple">
@@ -154,9 +157,9 @@ needs to be purchased.</p>
 </dl>
 </li>
 </ul>
-</div>
-<div class="section" id="introduction-basic-functionality">
-<span id="understanding-basicfunctionality"></span><h2>Introduction &amp; Basic Functionality<a class="headerlink" href="#introduction-basic-functionality" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="introduction-basic-functionality">
+<span id="understanding-basicfunctionality"></span><h2>Introduction &amp; Basic Functionality<a class="headerlink" href="#introduction-basic-functionality" title="Permalink to this heading">¶</a></h2>
 <p>Reticulum is a networking stack suited for high-latency, low-bandwidth links. Reticulum is at it’s
 core a <em>message oriented</em> system. It is suited for both local point-to-point or point-to-multipoint
 scenarios where all nodes are within range of each other, as well as scenarios where packets need
@@ -188,8 +191,8 @@ unencrypted packets for local broadcast purposes.</p>
 <p>Reticulum can connect to a variety of interfaces such as radio modems, data radios and serial ports,
 and offers the possibility to easily tunnel Reticulum traffic over IP links such as the Internet or
 private IP networks.</p>
-<div class="section" id="destinations">
-<span id="understanding-destinations"></span><h3>Destinations<a class="headerlink" href="#destinations" title="Permalink to this headline">¶</a></h3>
+<section id="destinations">
+<span id="understanding-destinations"></span><h3>Destinations<a class="headerlink" href="#destinations" title="Permalink to this heading">¶</a></h3>
 <p>To receive and send data with the Reticulum stack, an application needs to create one or more
 destinations. Reticulum uses three different basic destination types, and one special:</p>
 <ul class="simple">
@@ -231,8 +234,8 @@ out requests and responses, large data transfers and more.</p>
 </dl>
 </li>
 </ul>
-<div class="section" id="destination-naming">
-<span id="understanding-destinationnaming"></span><h4>Destination Naming<a class="headerlink" href="#destination-naming" title="Permalink to this headline">¶</a></h4>
+<section id="destination-naming">
+<span id="understanding-destinationnaming"></span><h4>Destination Naming<a class="headerlink" href="#destination-naming" title="Permalink to this heading">¶</a></h4>
 <p>Destinations are created and named in an easy to understand dotted notation of <em>aspects</em>, and
 represented on the network as a hash of this value. The hash is a SHA-256 truncated to 128 bits. The
 top level aspect should always be a unique identifier for the application using the destination.
@@ -296,10 +299,10 @@ of public keys.</p>
 built-in <em>announce</em> functionality, and that it is therefore not required to use the <em>announce</em> and <em>path request</em>
 functionality to obtain public keys. It is by far the easiest though, and should definitely be used
 if there is not a very good reason for doing it differently.</p>
-</div>
-</div>
-<div class="section" id="public-key-announcements">
-<span id="understanding-keyannouncements"></span><h3>Public Key Announcements<a class="headerlink" href="#public-key-announcements" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="public-key-announcements">
+<span id="understanding-keyannouncements"></span><h3>Public Key Announcements<a class="headerlink" href="#public-key-announcements" title="Permalink to this heading">¶</a></h3>
 <p>An <em>announce</em> will send a special packet over any relevant interfaces, containing all needed
 information about the destination hash and public key, and can also contain some additional,
 application specific data. The entire packet is signed by the sender to ensure authenticity. It is not
@@ -331,9 +334,9 @@ of the network, and <em>can even be moved to other Reticulum networks</em> than 
 still become reachable. To update it’s reachability, a destination simply needs to send an announce on any
 networks it is part of. After a short while, it will be globally reachable in the network.</p>
 <p>Seeing how <em>single</em> destinations are always tied to a private/public key pair leads us to the next topic.</p>
-</div>
-<div class="section" id="understanding-identities">
-<span id="identities"></span><h3>Identities<a class="headerlink" href="#understanding-identities" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="understanding-identities">
+<span id="identities"></span><h3>Identities<a class="headerlink" href="#understanding-identities" title="Permalink to this heading">¶</a></h3>
 <p>In Reticulum, an <em>identity</em> does not necessarily represent a personal identity, but is an abstraction that
 can represent any kind of <em>verifiable entity</em>. This could very well be a person, but it could also be the
 control interface of a machine, a program, robot, computer, sensor or something else entirely. In
@@ -349,18 +352,18 @@ Destinations can then be created by this identity to allow communication to reac
 In all cases it is of great importance to store the private keys associated with any
 Reticulum Identity securely and privately, since obtaining access to the identity keys equals
 obtaining access and controlling reachability to any destinations created by that identity.</p>
-</div>
-<div class="section" id="getting-further">
-<span id="understanding-gettingfurther"></span><h3>Getting Further<a class="headerlink" href="#getting-further" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="getting-further">
+<span id="understanding-gettingfurther"></span><h3>Getting Further<a class="headerlink" href="#getting-further" title="Permalink to this heading">¶</a></h3>
 <p>The above functions and principles form the core of Reticulum, and would suffice to create
 functional networked applications in local clusters, for example over radio links where all interested
 nodes can directly hear each other. But to be truly useful, we need a way to direct traffic over multiple
 hops in the network.</p>
 <p>In the following sections, two concepts that allow this will be introduced, <em>paths</em> and <em>links</em>.</p>
-</div>
-</div>
-<div class="section" id="reticulum-transport">
-<span id="understanding-transport"></span><h2>Reticulum Transport<a class="headerlink" href="#reticulum-transport" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="reticulum-transport">
+<span id="understanding-transport"></span><h2>Reticulum Transport<a class="headerlink" href="#reticulum-transport" title="Permalink to this heading">¶</a></h2>
 <p>The methods of routing used in traditional networks are fundamentally incompatible with the physical medium
 types and circumstances that Reticulum was designed to handle. These mechanisms mostly assume trust at the physical layer,
 and often needs a lot more bandwidth than Reticulum can assume is available. Since Reticulum is designed to
@@ -370,8 +373,8 @@ implement the concept of <em>paths</em> that allow discovery of how to get infor
 destination. It is important to note that no single node in a Reticulum network knows the complete
 path to a destination. Every Transport node participating in a Reticulum network will only
 know the most direct way to get a packet one hop closer to it’s destination.</p>
-<div class="section" id="node-types">
-<span id="understanding-nodetypes"></span><h3>Node Types<a class="headerlink" href="#node-types" title="Permalink to this headline">¶</a></h3>
+<section id="node-types">
+<span id="understanding-nodetypes"></span><h3>Node Types<a class="headerlink" href="#node-types" title="Permalink to this heading">¶</a></h3>
 <p>Currently, Reticulum distinguishes between two types of network nodes. All nodes on a Reticulum network
 are <em>Reticulum Instances</em>, and some are also <em>Transport Nodes</em>. If a system running Reticulum is fixed in
 one place, and is intended to be kept available most of the time, it is a good contender to be a <em>Transport Node</em>.</p>
@@ -381,9 +384,9 @@ network will help forward traffic, and what nodes rely on other nodes for wider 
 <p>If a node is an <em>Instance</em> it should be given the configuration directive <code class="docutils literal notranslate"><span class="pre">enable_transport</span> <span class="pre">=</span> <span class="pre">No</span></code>, which
 is the default setting.</p>
 <p>If it is a <em>Transport Node</em>, it should be given the configuration directive <code class="docutils literal notranslate"><span class="pre">enable_transport</span> <span class="pre">=</span> <span class="pre">Yes</span></code>.</p>
-</div>
-<div class="section" id="the-announce-mechanism-in-detail">
-<span id="understanding-announce"></span><h3>The Announce Mechanism in Detail<a class="headerlink" href="#the-announce-mechanism-in-detail" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="the-announce-mechanism-in-detail">
+<span id="understanding-announce"></span><h3>The Announce Mechanism in Detail<a class="headerlink" href="#the-announce-mechanism-in-detail" title="Permalink to this heading">¶</a></h3>
 <p>When an <em>announce</em> for a destination is transmitted by from a Reticulum instance, it will be forwarded by
 any transport node receiving it, but according to some specific rules:</p>
 <ul>
@@ -446,9 +449,9 @@ and quickly converging end-to-end connectivity for their local, slower segments.
 <p>In general, even extremely complex networks, that utilize the maximum 128 hops will converge to full
 end-to-end connectivity in about one minute, given there is enough bandwidth available to process
 the required amount of announces.</p>
-</div>
-<div class="section" id="reaching-the-destination">
-<span id="understanding-paths"></span><h3>Reaching the Destination<a class="headerlink" href="#reaching-the-destination" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="reaching-the-destination">
+<span id="understanding-paths"></span><h3>Reaching the Destination<a class="headerlink" href="#reaching-the-destination" title="Permalink to this heading">¶</a></h3>
 <p>In networks with changing topology and trustless connectivity, nodes need a way to establish
 <em>verified connectivity</em> with each other. Since the network is assumed to be trustless, Reticulum
 must provide a way to guarantee that the peer you are communicating with is actually who you
@@ -551,12 +554,12 @@ suitable to the application. The procedure also inserts the <em>link id</em> , a
 calculated from the link request packet, into the memory of forwarding nodes,
 which means that the communicating nodes can thereafter reach each other simply
 by referring to this <em>link id</em>.</p>
-<p>The combined bandwidth cost of setting up a link is 3 packets totalling 265 bytes (more info in the
+<p>The combined bandwidth cost of setting up a link is 3 packets totalling 297 bytes (more info in the
 <a class="reference internal" href="#understanding-packetformat"><span class="std std-ref">Binary Packet Format</span></a> section). The amount of bandwidth used on keeping
 a link open is practically negligible, at 0.45 bits per second. Even on a slow 1200 bits per second packet
 radio channel, 100 concurrent links will still leave 96% channel capacity for actual data.</p>
-<div class="section" id="link-establishment-in-detail">
-<h4>Link Establishment in Detail<a class="headerlink" href="#link-establishment-in-detail" title="Permalink to this headline">¶</a></h4>
+<section id="link-establishment-in-detail">
+<h4>Link Establishment in Detail<a class="headerlink" href="#link-establishment-in-detail" title="Permalink to this heading">¶</a></h4>
 <p>After exploring the basics of the announce mechanism, finding a path through the network, and an overview
 of the link establishment procedure, this section will go into greater detail about the Reticulum link
 establishment process.</p>
@@ -626,10 +629,10 @@ that is used to encrypt the channel. Information can now be exchanged reliably a
 reveal any identifying information about itself. The link initiator remains completely anonymous.</p>
 <p>When using <em>links</em>, Reticulum will automatically verify all data sent over the link, and can also
 automate retransmissions if <em>Resources</em> are used.</p>
-</div>
-</div>
-<div class="section" id="resources">
-<span id="understanding-resources"></span><h3>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="resources">
+<span id="understanding-resources"></span><h3>Resources<a class="headerlink" href="#resources" title="Permalink to this heading">¶</a></h3>
 <p>For exchanging small amounts of data over a Reticulum network, the <a class="reference internal" href="reference.html#api-packet"><span class="std std-ref">Packet</span></a> interface
 is sufficient, but for exchanging data that would require many packets, an efficient way to coordinate
 the transfer is needed.</p>
@@ -640,10 +643,10 @@ the transfer, integrity verification and reassembling the data on the other end.
 <p><a class="reference internal" href="reference.html#api-resource"><span class="std std-ref">Resources</span></a> are programmatically very simple to use, and only requires a few lines
 of codes to reliably transfer any amount of data. They can be used to transfer data stored in memory,
 or stream data directly from files.</p>
-</div>
-</div>
-<div class="section" id="reference-setup">
-<span id="understanding-referencesystem"></span><h2>Reference Setup<a class="headerlink" href="#reference-setup" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="reference-setup">
+<span id="understanding-referencesystem"></span><h2>Reference Setup<a class="headerlink" href="#reference-setup" title="Permalink to this heading">¶</a></h2>
 <p>This section will detail a recommended <em>Reference Setup</em> for Reticulum. It is important to
 note that Reticulum is designed to be usable on more or less any computing device, and over more
 or less any medium that allows you to send and receive data, which satisfies some very low
@@ -709,20 +712,20 @@ get or make such a device is available on the <a class="reference external" href
 even if you have none of the hardware already, and need to purchase everything.</p>
 <p>This reference setup is of course just a recommendation for getting started easily, and you should
 tailor it to your own specific needs, or whatever hardware you have available.</p>
-</div>
-<div class="section" id="protocol-specifics">
-<span id="understanding-protocolspecifics"></span><h2>Protocol Specifics<a class="headerlink" href="#protocol-specifics" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="protocol-specifics">
+<span id="understanding-protocolspecifics"></span><h2>Protocol Specifics<a class="headerlink" href="#protocol-specifics" title="Permalink to this heading">¶</a></h2>
 <p>This chapter will detail protocol specific information that is essential to the implementation of
 Reticulum, but non critical in understanding how the protocol works on a general level. It should be
 treated more as a reference than as essential reading.</p>
-<div class="section" id="packet-prioritisation">
-<h3>Packet Prioritisation<a class="headerlink" href="#packet-prioritisation" title="Permalink to this headline">¶</a></h3>
+<section id="packet-prioritisation">
+<h3>Packet Prioritisation<a class="headerlink" href="#packet-prioritisation" title="Permalink to this heading">¶</a></h3>
 <p>Currently, Reticulum is completely priority-agnostic regarding general traffic. All traffic is handled
 on a first-come, first-serve basis. Announce re-transmission are handled according to the re-transmission
 times and priorities described earlier in this chapter.</p>
-</div>
-<div class="section" id="interface-access-codes">
-<h3>Interface Access Codes<a class="headerlink" href="#interface-access-codes" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="interface-access-codes">
+<h3>Interface Access Codes<a class="headerlink" href="#interface-access-codes" title="Permalink to this heading">¶</a></h3>
 <p>Reticulum can create named virtual networks, and networks that are only accessible by knowing a preshared
 passphrase. The configuration of this is detailed in the <a class="reference internal" href="interfaces.html#interfaces-options"><span class="std std-ref">Common Interface Options</span></a>
 section. To implement these feature, Reticulum uses the concept of Interface Access Codes, that are calculated
@@ -735,9 +738,9 @@ Configured IFAC length can be inspected for all interfaces with the <code class=
 <p>Upon receipt, the interface will check that the signature matches the expected value, and drop the packet if it
 does not. This ensures that only packets sent with the correct naming and/or passphrase parameters are allowed to
 pass onto the network.</p>
-</div>
-<div class="section" id="wire-format">
-<span id="understanding-packetformat"></span><h3>Wire Format<a class="headerlink" href="#wire-format" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="wire-format">
+<span id="understanding-packetformat"></span><h3>Wire Format<a class="headerlink" href="#wire-format" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>== Reticulum Wire Format ======
 
 A Reticulum packet is composed of the following fields:
@@ -857,23 +860,23 @@ but excluding any interface access codes.
 - Path Request    :    51  bytes
 - Announce        :    157 bytes
 - Link Request    :    83  bytes
-- Link Proof      :    83  bytes
+- Link Proof      :    115 bytes
 - Link RTT packet :    99  bytes
 - Link keepalive  :    20  bytes
 </pre></div>
 </div>
-</div>
-<div class="section" id="announce-propagation-rules">
-<span id="understanding-announcepropagation"></span><h3>Announce Propagation Rules<a class="headerlink" href="#announce-propagation-rules" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="announce-propagation-rules">
+<span id="understanding-announcepropagation"></span><h3>Announce Propagation Rules<a class="headerlink" href="#announce-propagation-rules" title="Permalink to this heading">¶</a></h3>
 <p>The following table illustrates the rules for automatically propagating announces
 from one interface type to another, for all possible combinations. For the purpose
 of announce propagation, the <em>Full</em> and <em>Gateway</em> modes are identical.</p>
 <img alt="_images/if_mode_graph_b.png" src="_images/if_mode_graph_b.png" />
 <p>See the <a class="reference internal" href="interfaces.html#interfaces-modes"><span class="std std-ref">Interface Modes</span></a> section for a conceptual overview
 of the different interface modes, and how they are configured.</p>
-</div>
-<div class="section" id="cryptographic-primitives">
-<span id="understanding-primitives"></span><h3>Cryptographic Primitives<a class="headerlink" href="#cryptographic-primitives" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="cryptographic-primitives">
+<span id="understanding-primitives"></span><h3>Cryptographic Primitives<a class="headerlink" href="#cryptographic-primitives" title="Permalink to this heading">¶</a></h3>
 <p>Reticulum has been designed to use a simple suite of efficient, strong and modern
 cryptographic primitives, with widely available implementations that can be used
 both on general-purpose CPUs and on microcontrollers. The necessary primitives are:</p>
@@ -911,9 +914,9 @@ testing and review as those from OpenSSL.</p>
 <p>If you want to use the internal pure-python primitives, it is <strong>highly advisable</strong> that you
 have a good understanding of the risks that this pose, and make an informed decision on whether
 those risks are acceptable to you.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -922,8 +925,9 @@ those risks are acceptable to you.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Understanding Reticulum</a><ul>
 <li><a class="reference internal" href="#motivation">Motivation</a></li>
 <li><a class="reference internal" href="#goals">Goals</a></li>
@@ -960,12 +964,17 @@ those risks are acceptable to you.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="using.html"
-                        title="previous chapter">Using Reticulum on Your System</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="hardware.html"
-                        title="next chapter">Communications Hardware</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="using.html"
+                          title="previous chapter">Using Reticulum on Your System</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="hardware.html"
+                          title="next chapter">Communications Hardware</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -977,12 +986,12 @@ those risks are acceptable to you.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -1005,7 +1014,7 @@ those risks are acceptable to you.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, Mark Qvist.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.2.
     </div>
   </body>
 </html>

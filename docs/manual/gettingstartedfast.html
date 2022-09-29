@@ -1,10 +1,11 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
     <title>Getting Started Fast &#8212; Reticulum Network Stack 0.3.12 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
@@ -12,7 +13,9 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -41,13 +44,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="getting-started-fast">
-<h1>Getting Started Fast<a class="headerlink" href="#getting-started-fast" title="Permalink to this headline">¶</a></h1>
+  <section id="getting-started-fast">
+<h1>Getting Started Fast<a class="headerlink" href="#getting-started-fast" title="Permalink to this heading">¶</a></h1>
 <p>The best way to get started with the Reticulum Network Stack depends on what
 you want to do. This guide will outline sensible starting paths for different
 scenarios.</p>
-<div class="section" id="try-using-a-reticulum-based-program">
-<h2>Try Using a Reticulum-based Program<a class="headerlink" href="#try-using-a-reticulum-based-program" title="Permalink to this headline">¶</a></h2>
+<section id="try-using-a-reticulum-based-program">
+<h2>Try Using a Reticulum-based Program<a class="headerlink" href="#try-using-a-reticulum-based-program" title="Permalink to this heading">¶</a></h2>
 <p>If you simply want to try using a program built with Reticulum, a few different
 programs exist that allow basic communication and a range of other useful functions
 over even extremely low-bandwidth Reticulum networks.</p>
@@ -58,8 +61,8 @@ over local WiFi, wired Ethernet, the Internet, or any combination.</p>
 transceivers or infrastructure just to try it out. Launching the programs on separate
 devices connected to the same WiFi network is enough to get started, and physical
 radio interfaces can then be added later.</p>
-<div class="section" id="nomad-network">
-<h3>Nomad Network<a class="headerlink" href="#nomad-network" title="Permalink to this headline">¶</a></h3>
+<section id="nomad-network">
+<h3>Nomad Network<a class="headerlink" href="#nomad-network" title="Permalink to this heading">¶</a></h3>
 <p>The terminal-based program <a class="reference external" href="https://github.com/markqvist/nomadnet">Nomad Network</a>
 provides a complete encrypted communications suite built with Reticulum. It features
 encrypted messaging (both direct and delayed-delivery for offline users), file sharing,
@@ -81,19 +84,19 @@ for the messaging and information-sharing protocol
 on your system, you might need to reboot your system for your program to become
 available. If you get a “command not found” error or similar when running the
 program, reboot your system and try again.</p>
-</div>
-<div class="section" id="sideband">
-<h3>Sideband<a class="headerlink" href="#sideband" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="sideband">
+<h3>Sideband<a class="headerlink" href="#sideband" title="Permalink to this heading">¶</a></h3>
 <p>If you would rather use a program with a graphical user interface, you can take
 a look at <a class="reference external" href="https://unsigned.io/sideband">Sideband</a>, which is available for Android,
 Linux and macOS.</p>
 <a class="reference external image-reference" href="_images/sideband_1.png"><img alt="_images/sideband_1.png" class="align-center" src="_images/sideband_1.png" /></a>
 <p>Sideband is currently in the early stages of development, but already provides basic
 communication features, and interoperates with Nomad Network, or any other LXMF client.</p>
-</div>
-</div>
-<div class="section" id="using-the-included-utilities">
-<h2>Using the Included Utilities<a class="headerlink" href="#using-the-included-utilities" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="using-the-included-utilities">
+<h2>Using the Included Utilities<a class="headerlink" href="#using-the-included-utilities" title="Permalink to this heading">¶</a></h2>
 <p>Reticulum comes with a range of included utilities that make it easier to
 manage your network, check connectivity and make Reticulum available to other
 programs on your system.</p>
@@ -102,9 +105,9 @@ and the <code class="docutils literal notranslate"><span class="pre">rnstatus</s
 network status and connectivity.</p>
 <p>To learn more about these utility programs, have a look at the
 <a class="reference internal" href="using.html#using-main"><span class="std std-ref">Using Reticulum on Your System</span></a> chapter of this manual.</p>
-</div>
-<div class="section" id="creating-a-network-with-reticulum">
-<h2>Creating a Network With Reticulum<a class="headerlink" href="#creating-a-network-with-reticulum" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="creating-a-network-with-reticulum">
+<h2>Creating a Network With Reticulum<a class="headerlink" href="#creating-a-network-with-reticulum" title="Permalink to this heading">¶</a></h2>
 <p>To create a network, you will need to specify one or more <em>interfaces</em> for
 Reticulum to use. This is done in the Reticulum configuration file, which by
 default is located at <code class="docutils literal notranslate"><span class="pre">~/.config/reticulum/config</span></code>. You can edit this file by hand,
@@ -131,9 +134,9 @@ network just using the default (<a class="reference internal" href="interfaces.h
 <p>Possibly, the examples in the config file are enough to get you started. If
 you want more information, you can read the <a class="reference internal" href="networks.html#networks-main"><span class="std std-ref">Building Networks</span></a>
 and <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> chapters of this manual.</p>
-</div>
-<div class="section" id="connecting-reticulum-instances-over-the-internet">
-<h2>Connecting Reticulum Instances Over the Internet<a class="headerlink" href="#connecting-reticulum-instances-over-the-internet" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="connecting-reticulum-instances-over-the-internet">
+<h2>Connecting Reticulum Instances Over the Internet<a class="headerlink" href="#connecting-reticulum-instances-over-the-internet" title="Permalink to this heading">¶</a></h2>
 <p>Reticulum currently offers two interfaces suitable for connecting instances over the Internet: <a class="reference internal" href="interfaces.html#interfaces-tcps"><span class="std std-ref">TCP</span></a>
 and <a class="reference internal" href="interfaces.html#interfaces-i2p"><span class="std std-ref">I2P</span></a>. Each interface offers a different set of features, and Reticulum
 users should carefully choose the interface which best suites their needs.</p>
@@ -159,9 +162,9 @@ deep-packet-inspection much more difficult.</p>
 <p>In general it is recommended to use an I2P node if you want to host a publicly accessible
 instance, while preserving anonymity. If you care more about performance, and a slightly
 easier setup, use TCP.</p>
-</div>
-<div class="section" id="connect-to-the-public-testnet">
-<h2>Connect to the Public Testnet<a class="headerlink" href="#connect-to-the-public-testnet" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="connect-to-the-public-testnet">
+<h2>Connect to the Public Testnet<a class="headerlink" href="#connect-to-the-public-testnet" title="Permalink to this heading">¶</a></h2>
 <p>An experimental public testnet has been made accessible over both I2P and TCP. You can join it
 by adding one of the following interfaces to your <code class="docutils literal notranslate"><span class="pre">.reticulum/config</span></code> file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># TCP/IP interface to the Dublin hub</span>
@@ -189,9 +192,9 @@ by adding one of the following interfaces to your <code class="docutils literal 
 via other entry points if you know them. There is absolutely no control over the network
 topography, usage or what types of instances connect. It will also occasionally be used
 to test various failure scenarios, and there are no availability or service guarantees.</p>
-</div>
-<div class="section" id="adding-radio-interfaces">
-<h2>Adding Radio Interfaces<a class="headerlink" href="#adding-radio-interfaces" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="adding-radio-interfaces">
+<h2>Adding Radio Interfaces<a class="headerlink" href="#adding-radio-interfaces" title="Permalink to this heading">¶</a></h2>
 <p>Once you have Reticulum installed and working, you can add radio interfaces with
 any compatible hardware you have available. Reticulum supports a wide range of radio
 hardware, and if you already have any available, it is very likely that it will
@@ -215,9 +218,9 @@ refer to these additional external resources:</p>
 <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">existing interface types</span></a>, but you think would be suitable for use with Reticulum,
 you are welcome to head over to the <a class="reference external" href="https://github.com/markqvist/Reticulum/discussions">GitHub discussion pages</a>
 and propose adding an interface for the hardware.</p>
-</div>
-<div class="section" id="develop-a-program-with-reticulum">
-<h2>Develop a Program with Reticulum<a class="headerlink" href="#develop-a-program-with-reticulum" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="develop-a-program-with-reticulum">
+<h2>Develop a Program with Reticulum<a class="headerlink" href="#develop-a-program-with-reticulum" title="Permalink to this heading">¶</a></h2>
 <p>If you want to develop programs that use Reticulum, the easiest way to get
 started is to install the latest release of Reticulum via pip:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">rns</span>
@@ -231,9 +234,9 @@ likely be to look at some <a class="reference internal" href="examples.html#exam
 </pre></div>
 </div>
 <p>Further information can be found in the <a class="reference internal" href="reference.html#api-main"><span class="std std-ref">API Reference</span></a>.</p>
-</div>
-<div class="section" id="participate-in-reticulum-development">
-<h2>Participate in Reticulum Development<a class="headerlink" href="#participate-in-reticulum-development" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="participate-in-reticulum-development">
+<h2>Participate in Reticulum Development<a class="headerlink" href="#participate-in-reticulum-development" title="Permalink to this heading">¶</a></h2>
 <p>If you want to participate in the development of Reticulum and associated
 utilities, you’ll want to get the latest source from GitHub. In that case,
 don’t use pip, but try this recipe:</p>
@@ -271,9 +274,9 @@ don’t use pip, but try this recipe:</p>
 </div>
 <p>When you have experimented with the basic examples, it’s time to go read the
 <a class="reference internal" href="understanding.html#understanding-main"><span class="std std-ref">Understanding Reticulum</span></a> chapter.</p>
-</div>
-<div class="section" id="reticulum-on-arm64">
-<h2>Reticulum on ARM64<a class="headerlink" href="#reticulum-on-arm64" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="reticulum-on-arm64">
+<h2>Reticulum on ARM64<a class="headerlink" href="#reticulum-on-arm64" title="Permalink to this heading">¶</a></h2>
 <p>On some architectures, including ARM64, not all dependencies have precompiled
 binaries. On such systems, you will need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> before
 installing Reticulum or programs that depend on Reticulum.</p>
@@ -285,9 +288,9 @@ installing Reticulum or programs that depend on Reticulum.</p>
 <span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="reticulum-on-android">
-<h2>Reticulum on Android<a class="headerlink" href="#reticulum-on-android" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="reticulum-on-android">
+<h2>Reticulum on Android<a class="headerlink" href="#reticulum-on-android" title="Permalink to this heading">¶</a></h2>
 <p>Reticulum can be used on Android in different ways. The easiest way to get
 started is using an app like <a class="reference external" href="https://unsigned.io/sideband">Sideband</a>.</p>
 <p>For more control and features, you can use Reticulum and related programs via
@@ -327,9 +330,9 @@ and a few extra commands are required.</p>
 <p>It is also possible to include Reticulum in apps compiled and distributed as
 Android APKs. A detailed tutorial and example source code will be included
 here at a later point.</p>
-</div>
-<div class="section" id="pure-python-reticulum">
-<h2>Pure-Python Reticulum<a class="headerlink" href="#pure-python-reticulum" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pure-python-reticulum">
+<h2>Pure-Python Reticulum<a class="headerlink" href="#pure-python-reticulum" title="Permalink to this heading">¶</a></h2>
 <p>In some rare cases, and on more obscure system types, it is not possible to
 install one or more dependencies</p>
 <p>On more unusual systems, and in some rare cases, it might not be possible to
@@ -348,8 +351,8 @@ All other available modules will still be loaded when needed.</p>
 do not support <a class="reference external" href="https://github.com/pyca/cryptography">PyCA/cryptography</a>, it is
 important that you read and understand the <a class="reference internal" href="understanding.html#understanding-primitives"><span class="std std-ref">Cryptographic Primitives</span></a>
 section of this manual.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -358,8 +361,9 @@ section of this manual.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Getting Started Fast</a><ul>
 <li><a class="reference internal" href="#try-using-a-reticulum-based-program">Try Using a Reticulum-based Program</a><ul>
 <li><a class="reference internal" href="#nomad-network">Nomad Network</a></li>
@@ -380,12 +384,17 @@ section of this manual.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="whatis.html"
-                        title="previous chapter">What is Reticulum?</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="using.html"
-                        title="next chapter">Using Reticulum on Your System</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="whatis.html"
+                          title="previous chapter">What is Reticulum?</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="using.html"
+                          title="next chapter">Using Reticulum on Your System</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -397,12 +406,12 @@ section of this manual.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -425,7 +434,7 @@ section of this manual.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, Mark Qvist.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.2.
     </div>
   </body>
 </html>

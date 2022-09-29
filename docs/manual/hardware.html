@@ -1,10 +1,11 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
     <title>Communications Hardware &#8212; Reticulum Network Stack 0.3.12 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
@@ -12,7 +13,9 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -41,8 +44,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="communications-hardware">
-<span id="hardware-main"></span><h1>Communications Hardware<a class="headerlink" href="#communications-hardware" title="Permalink to this headline">¶</a></h1>
+  <section id="communications-hardware">
+<span id="hardware-main"></span><h1>Communications Hardware<a class="headerlink" href="#communications-hardware" title="Permalink to this heading">¶</a></h1>
 <p>One of the truly valuable aspects of Reticulum is the ability to use it over
 almost any conceivable kind of communications medium. The <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">interface types</span></a>
 available for configuration in Reticulum are flexible enough to cover the use
@@ -64,8 +67,8 @@ and effort. Two fundamental devices categories will be covered, <em>RNodes</em> 
 <p>While there are many other device categories that are useful in building Reticulum
 networks, knowing how to employ just these two will make it possible to build
 a wide range of useful networks with little effort.</p>
-<div class="section" id="rnode">
-<span id="rnode-main"></span><h2>RNode<a class="headerlink" href="#rnode" title="Permalink to this headline">¶</a></h2>
+<section id="rnode">
+<span id="rnode-main"></span><h2>RNode<a class="headerlink" href="#rnode" title="Permalink to this heading">¶</a></h2>
 <p>Reliable and general-purpose long-range digital radio transceiver systems are
 commonly either very expensive, difficult to set up and operate, hard to source,
 power-hungry, or all of the above at the same time. In an attempt to alleviate
@@ -83,8 +86,8 @@ does not use, and has nothing to do with the <em>LoRaWAN</em> protocol and stand
 used for centrally controlled IoT devices. RNodes use <em>raw LoRa modulation</em>, without
 any additional protocol overhead. All high-level protocol functionality is handled
 directly by Reticulum.</p>
-<div class="section" id="creating-rnodes">
-<span id="rnode-creating"></span><h3>Creating RNodes<a class="headerlink" href="#creating-rnodes" title="Permalink to this headline">¶</a></h3>
+<section id="creating-rnodes">
+<span id="rnode-creating"></span><h3>Creating RNodes<a class="headerlink" href="#creating-rnodes" title="Permalink to this heading">¶</a></h3>
 <p>RNode has been designed as a system that is easy to replicate across time and
 space. You can put together a functioning transceiver using commonly available
 components, and a few open source software tools. While you can design and build RNodes
@@ -99,13 +102,13 @@ LoRa development boards. This approach can be boiled down to two simple steps:</
 is ready to use with any software that supports RNodes, including Reticulum.
 The device can be used with Reticulum by adding an <a class="reference internal" href="interfaces.html#interfaces-rnode"><span class="std std-ref">RNodeInterface</span></a>
 to the configuration.</p>
-</div>
-<div class="section" id="supported-boards">
-<span id="rnode-supported"></span><h3>Supported Boards<a class="headerlink" href="#supported-boards" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="supported-boards">
+<span id="rnode-supported"></span><h3>Supported Boards<a class="headerlink" href="#supported-boards" title="Permalink to this heading">¶</a></h3>
 <p>To create one or more RNodes, you will need to obtain supported development
 boards. The following boards are supported by the auto-installer.</p>
-<div class="section" id="lilygo-lora32-v2-1">
-<h4>LilyGO LoRa32 v2.1<a class="headerlink" href="#lilygo-lora32-v2-1" title="Permalink to this headline">¶</a></h4>
+<section id="lilygo-lora32-v2-1">
+<h4>LilyGO LoRa32 v2.1<a class="headerlink" href="#lilygo-lora32-v2-1" title="Permalink to this heading">¶</a></h4>
 <a class="reference internal image-reference" href="_images/board_t3v21.png"><img alt="_images/board_t3v21.png" class="align-center" src="_images/board_t3v21.png" style="width: 46%;" /></a>
 <ul class="simple">
 <li><p><strong>Supported Firmware Lines</strong> v1.x &amp; v2.x</p></li>
@@ -113,9 +116,9 @@ boards. The following boards are supported by the auto-installer.</p>
 <li><p><strong>Device Platform</strong> ESP32</p></li>
 <li><p><strong>Manufacturer</strong> <a class="reference external" href="https://lilygo.cn">LilyGO</a></p></li>
 </ul>
-</div>
-<div class="section" id="lilygo-lora32-v2-0">
-<h4>LilyGO LoRa32 v2.0<a class="headerlink" href="#lilygo-lora32-v2-0" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="lilygo-lora32-v2-0">
+<h4>LilyGO LoRa32 v2.0<a class="headerlink" href="#lilygo-lora32-v2-0" title="Permalink to this heading">¶</a></h4>
 <a class="reference internal image-reference" href="_images/board_t3v20.png"><img alt="_images/board_t3v20.png" class="align-center" src="_images/board_t3v20.png" style="width: 46%;" /></a>
 <ul class="simple">
 <li><p><strong>Supported Firmware Lines</strong> v1.x &amp; v2.x</p></li>
@@ -123,9 +126,9 @@ boards. The following boards are supported by the auto-installer.</p>
 <li><p><strong>Device Platform</strong> ESP32</p></li>
 <li><p><strong>Manufacturer</strong> <a class="reference external" href="https://lilygo.cn">LilyGO</a></p></li>
 </ul>
-</div>
-<div class="section" id="lilygo-t-beam">
-<h4>LilyGO T-Beam<a class="headerlink" href="#lilygo-t-beam" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="lilygo-t-beam">
+<h4>LilyGO T-Beam<a class="headerlink" href="#lilygo-t-beam" title="Permalink to this heading">¶</a></h4>
 <a class="reference internal image-reference" href="_images/board_tbeam.png"><img alt="_images/board_tbeam.png" class="align-center" src="_images/board_tbeam.png" style="width: 75%;" /></a>
 <ul class="simple">
 <li><p><strong>Supported Firmware Lines</strong> v1.x &amp; v2.x</p></li>
@@ -133,9 +136,9 @@ boards. The following boards are supported by the auto-installer.</p>
 <li><p><strong>Device Platform</strong> ESP32</p></li>
 <li><p><strong>Manufacturer</strong> <a class="reference external" href="https://lilygo.cn">LilyGO</a></p></li>
 </ul>
-</div>
-<div class="section" id="heltec-lora32-v2-0">
-<h4>Heltec LoRa32 v2.0<a class="headerlink" href="#heltec-lora32-v2-0" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="heltec-lora32-v2-0">
+<h4>Heltec LoRa32 v2.0<a class="headerlink" href="#heltec-lora32-v2-0" title="Permalink to this heading">¶</a></h4>
 <a class="reference internal image-reference" href="_images/board_heltec32.png"><img alt="_images/board_heltec32.png" class="align-center" src="_images/board_heltec32.png" style="width: 58%;" /></a>
 <ul class="simple">
 <li><p><strong>Supported Firmware Lines</strong> v1.x &amp; v2.x</p></li>
@@ -143,9 +146,9 @@ boards. The following boards are supported by the auto-installer.</p>
 <li><p><strong>Device Platform</strong> ESP32</p></li>
 <li><p><strong>Manufacturer</strong> <a class="reference external" href="https://heltec.org">Heltec Automation</a></p></li>
 </ul>
-</div>
-<div class="section" id="unsigned-rnode-v2-x">
-<h4>Unsigned RNode v2.x<a class="headerlink" href="#unsigned-rnode-v2-x" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="unsigned-rnode-v2-x">
+<h4>Unsigned RNode v2.x<a class="headerlink" href="#unsigned-rnode-v2-x" title="Permalink to this heading">¶</a></h4>
 <a class="reference internal image-reference" href="_images/board_rnodev2.png"><img alt="_images/board_rnodev2.png" class="align-center" src="_images/board_rnodev2.png" style="width: 58%;" /></a>
 <ul class="simple">
 <li><p><strong>Supported Firmware Lines</strong> v1.x &amp; v2.x</p></li>
@@ -153,9 +156,9 @@ boards. The following boards are supported by the auto-installer.</p>
 <li><p><strong>Device Platform</strong> ESP32</p></li>
 <li><p><strong>Manufacturer</strong> <a class="reference external" href="https://unsigned.io">unsigned.io</a></p></li>
 </ul>
-</div>
-<div class="section" id="unsigned-rnode-v1-x">
-<h4>Unsigned RNode v1.x<a class="headerlink" href="#unsigned-rnode-v1-x" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="unsigned-rnode-v1-x">
+<h4>Unsigned RNode v1.x<a class="headerlink" href="#unsigned-rnode-v1-x" title="Permalink to this heading">¶</a></h4>
 <a class="reference internal image-reference" href="_images/board_rnode.png"><img alt="_images/board_rnode.png" class="align-center" src="_images/board_rnode.png" style="width: 50%;" /></a>
 <ul class="simple">
 <li><p><strong>Supported Firmware Lines</strong> v1.x</p></li>
@@ -163,10 +166,10 @@ boards. The following boards are supported by the auto-installer.</p>
 <li><p><strong>Device Platform</strong> AVR ATmega1284p</p></li>
 <li><p><strong>Manufacturer</strong> <a class="reference external" href="https://unsigned.io">unsigned.io</a></p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="installation">
-<span id="rnode-installation"></span><h3>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="installation">
+<span id="rnode-installation"></span><h3>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h3>
 <p>Once you have obtained compatible boards, you can install the <a class="reference external" href="https://github.com/markqvist/RNode_Firmware">RNode Firmware</a>
 using the <a class="reference external" href="https://github.com/markqvist/rnodeconfigutil">RNode Configuration Utility</a>.
 Make sure that <code class="docutils literal notranslate"><span class="pre">Python3</span></code> and <code class="docutils literal notranslate"><span class="pre">pip</span></code> is installed on your system, and then install
@@ -186,24 +189,24 @@ auto-install and configure your devices</p>
 even though the v2.x line is available for early testing. The v2.x line should still be
 considered an experimental pre-release. Only use the v2.x firmware line if you want to test
 out the absolutely newest version, and don’t care about stability.</p>
-</div>
-<div class="section" id="usage-with-reticulum">
-<span id="rnode-usage"></span><h3>Usage with Reticulum<a class="headerlink" href="#usage-with-reticulum" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="usage-with-reticulum">
+<span id="rnode-usage"></span><h3>Usage with Reticulum<a class="headerlink" href="#usage-with-reticulum" title="Permalink to this heading">¶</a></h3>
 <p>When the devices have been installed and provisioned, you can use them with Reticulum
 by adding the <a class="reference internal" href="interfaces.html#interfaces-rnode"><span class="std std-ref">relevant interface section</span></a> to the configuration
 file of Reticulum. For v1.x firmwares, you will have to specify all interface parameters,
 such as serial port and on-air parameters. For v2.x firmwares, you just need to specify
 the Connection ID of the RNode, and Reticulum will automatically locate and connect to the
 RNode, using the parameters stored in the RNode itself.</p>
-</div>
-<div class="section" id="suppliers">
-<span id="rnode-suppliers"></span><h3>Suppliers<a class="headerlink" href="#suppliers" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="suppliers">
+<span id="rnode-suppliers"></span><h3>Suppliers<a class="headerlink" href="#suppliers" title="Permalink to this heading">¶</a></h3>
 <p>Get in touch if you want to have your RNode supplier listed here, or if you want help to
 get started with producing RNodes.</p>
-</div>
-</div>
-<div class="section" id="wifi-based-hardware">
-<h2>WiFi-based Hardware<a class="headerlink" href="#wifi-based-hardware" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="wifi-based-hardware">
+<h2>WiFi-based Hardware<a class="headerlink" href="#wifi-based-hardware" title="Permalink to this heading">¶</a></h2>
 <p>It is possible to use all kinds of both short- and long-range WiFi-based hardware
 with Reticulum. Any kind of hardware that fully supports bridged Ethernet over the
 WiFi interface will work with the <a class="reference internal" href="interfaces.html#interfaces-auto"><span class="std std-ref">AutoInterface</span></a> in Reticulum.
@@ -225,16 +228,16 @@ Reticulum links over long distances:</p>
 that is relatively cheap while providing long range and high capacity for Reticulum
 networks. As in all other cases, it is also possible for Reticulum to co-exist with IP
 networks running concurrently on such devices.</p>
-</div>
-<div class="section" id="combining-hardware-types">
-<h2>Combining Hardware Types<a class="headerlink" href="#combining-hardware-types" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="combining-hardware-types">
+<h2>Combining Hardware Types<a class="headerlink" href="#combining-hardware-types" title="Permalink to this heading">¶</a></h2>
 <p>It is useful to combine different link and hardware types when designing and
 building a network. One useful design pattern is to employ high-capacity point-to-point
 links based on WiFi or millimeter-wave radios (with high-gain directional antennas)
 for the network backbone, and using LoRa-based RNodes for covering large areas with
 connectivity for client devices.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -243,8 +246,9 @@ connectivity for client devices.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Communications Hardware</a><ul>
 <li><a class="reference internal" href="#rnode">RNode</a><ul>
 <li><a class="reference internal" href="#creating-rnodes">Creating RNodes</a></li>
@@ -268,12 +272,17 @@ connectivity for client devices.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="understanding.html"
-                        title="previous chapter">Understanding Reticulum</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="interfaces.html"
-                        title="next chapter">Supported Interfaces</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="understanding.html"
+                          title="previous chapter">Understanding Reticulum</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="interfaces.html"
+                          title="next chapter">Supported Interfaces</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -285,12 +294,12 @@ connectivity for client devices.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -313,7 +322,7 @@ connectivity for client devices.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, Mark Qvist.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.2.
     </div>
   </body>
 </html>

@@ -1,10 +1,11 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
     <title>Using Reticulum on Your System &#8212; Reticulum Network Stack 0.3.12 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
@@ -12,7 +13,9 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -41,8 +44,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="using-reticulum-on-your-system">
-<span id="using-main"></span><h1>Using Reticulum on Your System<a class="headerlink" href="#using-reticulum-on-your-system" title="Permalink to this headline">¶</a></h1>
+  <section id="using-reticulum-on-your-system">
+<span id="using-main"></span><h1>Using Reticulum on Your System<a class="headerlink" href="#using-reticulum-on-your-system" title="Permalink to this heading">¶</a></h1>
 <p>Reticulum is not installed as a driver or kernel module, as one might expect
 of a networking stack. Instead, Reticulum is distributed as a Python module.
 This means that no special privileges are required to install or use it. It
@@ -56,8 +59,8 @@ program starts up and also wants access to the same Reticulum network, the
 instance is simply shared. This works for any number of programs running
 concurrently, and is very easy to use, but depending on your use case, there
 are other options.</p>
-<div class="section" id="configuration-data">
-<h2>Configuration &amp; Data<a class="headerlink" href="#configuration-data" title="Permalink to this headline">¶</a></h2>
+<section id="configuration-data">
+<h2>Configuration &amp; Data<a class="headerlink" href="#configuration-data" title="Permalink to this heading">¶</a></h2>
 <p>A Reticulum stores all information that it needs to function in a single file-
 system directory. By default, this directory is <code class="docutils literal notranslate"><span class="pre">~/.config/reticulum</span></code>, but you can
 use any directory you wish. You can also run multiple separate Reticulum
@@ -166,9 +169,9 @@ order to communicate with other systems. It is a good idea to read the comments
 and explanations in the above default config. It will teach you the basic
 concepts you need to understand to configure your network. Once you have done that,
 take a look at the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> chapter of this manual.</p>
-</div>
-<div class="section" id="included-utility-programs">
-<h2>Included Utility Programs<a class="headerlink" href="#included-utility-programs" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="included-utility-programs">
+<h2>Included Utility Programs<a class="headerlink" href="#included-utility-programs" title="Permalink to this heading">¶</a></h2>
 <p>Reticulum includes a range of useful utilities, both for managing your Reticulum
 networks, and for carrying out common tasks over Reticulum networks, such as
 transferring files to remote systems, and executing commands and programs remotely.</p>
@@ -176,8 +179,8 @@ transferring files to remote systems, and executing commands and programs remote
 Reticulum to stay available all the time, for example if you are hosting
 a transport node, you might want to run Reticulum as a separate service that
 other programs, applications and services can utilise.</p>
-<div class="section" id="the-rnsd-utility">
-<h3>The rnsd Utility<a class="headerlink" href="#the-rnsd-utility" title="Permalink to this headline">¶</a></h3>
+<section id="the-rnsd-utility">
+<h3>The rnsd Utility<a class="headerlink" href="#the-rnsd-utility" title="Permalink to this heading">¶</a></h3>
 <p>It is very easy to run Reticulum as a service. Simply run the included <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> command.
 When <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> is running, it will keep all configured interfaces open, handle transport if
 it is enabled, and allow any other programs to immediately utilise the
@@ -204,9 +207,9 @@ optional arguments:
 </pre></div>
 </div>
 <p>You can easily add <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> as an always-on service by <a class="reference internal" href="#using-systemd"><span class="std std-ref">configuring a service</span></a>.</p>
-</div>
-<div class="section" id="the-rnstatus-utility">
-<h3>The rnstatus Utility<a class="headerlink" href="#the-rnstatus-utility" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="the-rnstatus-utility">
+<h3>The rnstatus Utility<a class="headerlink" href="#the-rnstatus-utility" title="Permalink to this heading">¶</a></h3>
 <p>Using the <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> utility, you can view the status of configured Reticulum
 interfaces, similar to the <code class="docutils literal notranslate"><span class="pre">ifconfig</span></code> program.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rnstatus
@@ -258,9 +261,9 @@ optional arguments:
   -v, --verbose
 </pre></div>
 </div>
-</div>
-<div class="section" id="the-rnpath-utility">
-<h3>The rnpath Utility<a class="headerlink" href="#the-rnpath-utility" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="the-rnpath-utility">
+<h3>The rnpath Utility<a class="headerlink" href="#the-rnpath-utility" title="Permalink to this heading">¶</a></h3>
 <p>With the <code class="docutils literal notranslate"><span class="pre">rnpath</span></code> utility, you can look up and view paths for
 destinations on the Reticulum network.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rnpath
@@ -289,9 +292,9 @@ optional arguments:
   -v, --verbose
 </pre></div>
 </div>
-</div>
-<div class="section" id="the-rnprobe-utility">
-<h3>The rnprobe Utility<a class="headerlink" href="#the-rnprobe-utility" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="the-rnprobe-utility">
+<h3>The rnprobe Utility<a class="headerlink" href="#the-rnprobe-utility" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">rnprobe</span></code> utility lets you probe a destination for connectivity, similar
 to the <code class="docutils literal notranslate"><span class="pre">ping</span></code> program. Please note that probes will only be answered if the
 specified destination is configured to send proofs for received packets. Many
@@ -320,9 +323,9 @@ optional arguments:
   -v, --verbose
 </pre></div>
 </div>
-</div>
-<div class="section" id="the-rncp-utility">
-<h3>The rncp Utility<a class="headerlink" href="#the-rncp-utility" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="the-rncp-utility">
+<h3>The rncp Utility<a class="headerlink" href="#the-rncp-utility" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">rncp</span></code> utility is a simple file transfer tool. Using it, you can transfer
 files through Reticulum.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rncp on the receiving system, specifying which identities
@@ -357,9 +360,9 @@ optional arguments:
   -v, --verbose
 </pre></div>
 </div>
-</div>
-<div class="section" id="the-rnx-utility">
-<h3>The rnx Utility<a class="headerlink" href="#the-rnx-utility" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="the-rnx-utility">
+<h3>The rnx Utility<a class="headerlink" href="#the-rnx-utility" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">rnx</span></code> utility is a basic remote command execution program. It allows you to
 execute commands on remote systems over Reticulum, and to view returned command
 output.</p>
@@ -413,15 +416,15 @@ optional arguments:
   --version             show program&#39;s version number and exit
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="improving-system-configuration">
-<h2>Improving System Configuration<a class="headerlink" href="#improving-system-configuration" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="improving-system-configuration">
+<h2>Improving System Configuration<a class="headerlink" href="#improving-system-configuration" title="Permalink to this heading">¶</a></h2>
 <p>If you are setting up a system for permanent use with Reticulum, there is a
 few system configuration changes that can make this easier to administrate.
 These changes will be detailed here.</p>
-<div class="section" id="fixed-serial-port-names">
-<h3>Fixed Serial Port Names<a class="headerlink" href="#fixed-serial-port-names" title="Permalink to this headline">¶</a></h3>
+<section id="fixed-serial-port-names">
+<h3>Fixed Serial Port Names<a class="headerlink" href="#fixed-serial-port-names" title="Permalink to this heading">¶</a></h3>
 <p>On a Reticulum instance with several serial port based interfaces, it can be
 beneficial to use the fixed device names for the serial ports, instead
 of the dynamically allocated shorthands such as <code class="docutils literal notranslate"><span class="pre">/dev/ttyUSB0</span></code>. Under most
@@ -447,9 +450,9 @@ Here is an example of a packet radio TNC configured as such:</p>
 <p>Using this methodology avoids potential naming mix-ups where physical devices
 might be plugged and unplugged in different orders, or when device name
 assignment varies from one boot to another.</p>
-</div>
-<div class="section" id="reticulum-as-a-system-service">
-<span id="using-systemd"></span><h3>Reticulum as a System Service<a class="headerlink" href="#reticulum-as-a-system-service" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="reticulum-as-a-system-service">
+<span id="using-systemd"></span><h3>Reticulum as a System Service<a class="headerlink" href="#reticulum-as-a-system-service" title="Permalink to this heading">¶</a></h3>
 <p>Instead of starting Reticulum manually, you can install <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> as a system
 service and have it start automatically at boot.</p>
 <p>If you installed Reticulum with <code class="docutils literal notranslate"><span class="pre">pip</span></code>, the <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> program will most likely
@@ -491,9 +494,9 @@ WantedBy=multi-user.target
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo systemctl enable rnsd
 </pre></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -502,8 +505,9 @@ WantedBy=multi-user.target
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Using Reticulum on Your System</a><ul>
 <li><a class="reference internal" href="#configuration-data">Configuration &amp; Data</a></li>
 <li><a class="reference internal" href="#included-utility-programs">Included Utility Programs</a><ul>
@@ -524,12 +528,17 @@ WantedBy=multi-user.target
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="gettingstartedfast.html"
-                        title="previous chapter">Getting Started Fast</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="understanding.html"
-                        title="next chapter">Understanding Reticulum</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="gettingstartedfast.html"
+                          title="previous chapter">Getting Started Fast</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="understanding.html"
+                          title="next chapter">Understanding Reticulum</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -541,12 +550,12 @@ WantedBy=multi-user.target
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -569,7 +578,7 @@ WantedBy=multi-user.target
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, Mark Qvist.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.2.
     </div>
   </body>
 </html>

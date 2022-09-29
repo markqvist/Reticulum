@@ -1,10 +1,11 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
     <title>Building Networks &#8212; Reticulum Network Stack 0.3.12 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
@@ -12,7 +13,9 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -41,8 +44,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="building-networks">
-<span id="networks-main"></span><h1>Building Networks<a class="headerlink" href="#building-networks" title="Permalink to this headline">¶</a></h1>
+  <section id="building-networks">
+<span id="networks-main"></span><h1>Building Networks<a class="headerlink" href="#building-networks" title="Permalink to this heading">¶</a></h1>
 <p>This chapter will provide you with the knowledge needed to build networks with
 Reticulum, which can often be easier than using traditional stacks, since you
 don’t have to worry about coordinating addresses, subnets and routing for an
@@ -50,8 +53,8 @@ entire network that you might not know how will evolve in the future. With
 Reticulum, you can simply add more segments to your network when it becomes
 necessary, and Reticulum will handle the convergence of the entire network
 automatically.</p>
-<div class="section" id="concepts-overview">
-<h2>Concepts &amp; Overview<a class="headerlink" href="#concepts-overview" title="Permalink to this headline">¶</a></h2>
+<section id="concepts-overview">
+<h2>Concepts &amp; Overview<a class="headerlink" href="#concepts-overview" title="Permalink to this heading">¶</a></h2>
 <p>There are important points that need to be kept in mind when building networks
 with Reticulum:</p>
 <blockquote>
@@ -144,13 +147,13 @@ chapter of this manual for interface configuration examples.</p>
 <p>Any number of interfaces can be configured, and Reticulum will automatically
 decide which are suitable to use in any given situation, depending on where
 traffic needs to flow.</p>
-</div>
-<div class="section" id="example-scenarios">
-<h2>Example Scenarios<a class="headerlink" href="#example-scenarios" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="example-scenarios">
+<h2>Example Scenarios<a class="headerlink" href="#example-scenarios" title="Permalink to this heading">¶</a></h2>
 <p>This section illustrates a few example scenarios, and how they would, in general
 terms, be planned, implemented and configured.</p>
-<div class="section" id="interconnected-lora-sites">
-<h3>Interconnected LoRa Sites<a class="headerlink" href="#interconnected-lora-sites" title="Permalink to this headline">¶</a></h3>
+<section id="interconnected-lora-sites">
+<h3>Interconnected LoRa Sites<a class="headerlink" href="#interconnected-lora-sites" title="Permalink to this heading">¶</a></h3>
 <p>An organisation wants to provide communication and information services to it’s
 members, which are located mainly in three separate areas. Three suitable hill-top
 locations are found, where the organisation can install equipment: Site A, B and C.</p>
@@ -177,9 +180,9 @@ with a Reticulum configuration file, that contains the right parameters for
 communicating with the LoRa radios installed at the gateway sites.</p>
 <p>Once users connect to the network, anyone will be able to communicate with anyone
 else across all three sites.</p>
-</div>
-<div class="section" id="bridging-over-the-internet">
-<h3>Bridging Over the Internet<a class="headerlink" href="#bridging-over-the-internet" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="bridging-over-the-internet">
+<h3>Bridging Over the Internet<a class="headerlink" href="#bridging-over-the-internet" title="Permalink to this heading">¶</a></h3>
 <p>As the organisation grows, several new communities form in places too far away
 from the core network to be reachable over WiFi links. New gateways similar to those
 previously installed are set up for the new communities at the new sites D and E, but
@@ -194,9 +197,9 @@ enabled Internet interface on the gateway at site A. Dori is now connected to bo
 all the nodes at her own local site (through the hill-top LoRa gateway), and all the
 combined users of sites A, B and C. She then enables transport on her node, and
 traffic from site D can now reach everyone at site A, B and C, and vice versa.</p>
-</div>
-<div class="section" id="growth-and-convergence">
-<h3>Growth and Convergence<a class="headerlink" href="#growth-and-convergence" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="growth-and-convergence">
+<h3>Growth and Convergence<a class="headerlink" href="#growth-and-convergence" title="Permalink to this heading">¶</a></h3>
 <p>As the organisation grows, more gateways are added to keep up with the growing user
 base. Some local gateways even add VHF radios and packet modems to reach outlying users
 and communities that are out of reach for the LoRa radios and WiFi backhauls.</p>
@@ -208,9 +211,9 @@ space or routing tables.</p>
 the original internet bridged interfaces are no longer utilised. The network has
 converged to be completely self-connected, and the sites that were once poorly
 connected outliers are now an integral part of the network.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -219,8 +222,9 @@ connected outliers are now an integral part of the network.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Building Networks</a><ul>
 <li><a class="reference internal" href="#concepts-overview">Concepts &amp; Overview</a></li>
 <li><a class="reference internal" href="#example-scenarios">Example Scenarios</a><ul>
@@ -233,12 +237,17 @@ connected outliers are now an integral part of the network.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="interfaces.html"
-                        title="previous chapter">Supported Interfaces</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="reference.html"
-                        title="next chapter">API Reference</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="interfaces.html"
+                          title="previous chapter">Supported Interfaces</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="reference.html"
+                          title="next chapter">API Reference</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -250,12 +259,12 @@ connected outliers are now an integral part of the network.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -278,7 +287,7 @@ connected outliers are now an integral part of the network.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, Mark Qvist.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.2.
     </div>
   </body>
 </html>

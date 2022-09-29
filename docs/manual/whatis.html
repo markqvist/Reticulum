@@ -1,10 +1,11 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
     <title>What is Reticulum? &#8212; Reticulum Network Stack 0.3.12 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
@@ -12,7 +13,9 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -41,8 +44,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="what-is-reticulum">
-<h1>What is Reticulum?<a class="headerlink" href="#what-is-reticulum" title="Permalink to this headline">¶</a></h1>
+  <section id="what-is-reticulum">
+<h1>What is Reticulum?<a class="headerlink" href="#what-is-reticulum" title="Permalink to this heading">¶</a></h1>
 <p>Reticulum is a cryptography-based networking stack for building wide-area
 networks with readily available hardware, that can continue to operate even
 with extremely low bandwidth and very high latency.</p>
@@ -59,15 +62,15 @@ networks.</p>
 <p>No kernel modules or drivers are required. Reticulum runs completely in
 userland, and can run on practically any system that runs Python 3. Reticulum
 runs well even on small single-board computers like the Pi Zero.</p>
-<div class="section" id="current-status">
-<h2>Current Status<a class="headerlink" href="#current-status" title="Permalink to this headline">¶</a></h2>
+<section id="current-status">
+<h2>Current Status<a class="headerlink" href="#current-status" title="Permalink to this heading">¶</a></h2>
 <p>Reticulum should currently be considered beta software. All core protocol
 features are implemented and functioning, but additions will probably occur as
 real-world use is explored. There will be bugs. The API and wire-format can be
 considered stable at the moment, but could change if absolutely warranted.</p>
-</div>
-<div class="section" id="what-does-reticulum-offer">
-<h2>What does Reticulum Offer?<a class="headerlink" href="#what-does-reticulum-offer" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="what-does-reticulum-offer">
+<h2>What does Reticulum Offer?<a class="headerlink" href="#what-does-reticulum-offer" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Coordination-less globally unique addressing and identification</p></li>
 <li><p>Fully self-configuring multi-hop routing</p></li>
@@ -87,7 +90,7 @@ considered stable at the moment, but could change if absolutely warranted.</p>
 <li><p>An intuitive and developer-friendly API</p></li>
 <li><p>Efficient link establishment</p>
 <ul>
-<li><p>Total bandwidth cost of setting up a link is only 3 packets, totalling 265 bytes</p></li>
+<li><p>Total bandwidth cost of setting up a link is only 3 packets, totalling 297 bytes</p></li>
 <li><p>Low cost of keeping links open at only 0.44 bits per second</p></li>
 </ul>
 </li>
@@ -101,9 +104,9 @@ considered stable at the moment, but could change if absolutely warranted.</p>
 <li><p>Authentication and virtual network segmentation on all supported interface types</p></li>
 <li><p>Flexible scalability allowing extremely low-bandwidth networks to co-exist and interoperate with large, high-bandwidth networks</p></li>
 </ul>
-</div>
-<div class="section" id="where-can-reticulum-be-used">
-<h2>Where can Reticulum be Used?<a class="headerlink" href="#where-can-reticulum-be-used" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="where-can-reticulum-be-used">
+<h2>Where can Reticulum be Used?<a class="headerlink" href="#where-can-reticulum-be-used" title="Permalink to this heading">¶</a></h2>
 <p>Over practically any medium that can support at least a half-duplex channel
 with 500 bits per second throughput, and an MTU of 500 bytes. Data radios,
 modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes,
@@ -123,9 +126,9 @@ LoRa radio, a packet radio TNC and a WiFi network. Once the interfaces are
 added, Reticulum will take care of the rest, and any device on the WiFi
 network can communicate with nodes on the LoRa and packet radio sides of the
 network, and vice versa.</p>
-</div>
-<div class="section" id="interface-types-and-devices">
-<h2>Interface Types and Devices<a class="headerlink" href="#interface-types-and-devices" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="interface-types-and-devices">
+<h2>Interface Types and Devices<a class="headerlink" href="#interface-types-and-devices" title="Permalink to this heading">¶</a></h2>
 <p>Reticulum implements a range of generalised interface types that covers the communications hardware that Reticulum can run over. If your hardware is not supported, it’s relatively simple to implement an interface class. Currently, Reticulum can use the following devices and communication mediums:</p>
 <ul class="simple">
 <li><p>Any Ethernet device</p>
@@ -161,17 +164,17 @@ network, and vice versa.</p>
 </li>
 </ul>
 <p>For a full list and more details, see the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Supported Interfaces</span></a> chapter.</p>
-</div>
-<div class="section" id="caveat-emptor">
-<h2>Caveat Emptor<a class="headerlink" href="#caveat-emptor" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="caveat-emptor">
+<h2>Caveat Emptor<a class="headerlink" href="#caveat-emptor" title="Permalink to this heading">¶</a></h2>
 <p>Reticulum is an experimental networking stack, and should be considered as
 such. While it has been built with cryptography best-practices very foremost in
 mind, it has not been externally security audited, and there could very well be
 privacy-breaking bugs. To be considered secure, Reticulum needs a thorough
 security review by independent cryptographers and security researchers. If you
 want to help out, or help sponsor an audit, please do get in touch.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -180,8 +183,9 @@ want to help out, or help sponsor an audit, please do get in touch.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">What is Reticulum?</a><ul>
 <li><a class="reference internal" href="#current-status">Current Status</a></li>
 <li><a class="reference internal" href="#what-does-reticulum-offer">What does Reticulum Offer?</a></li>
@@ -192,12 +196,17 @@ want to help out, or help sponsor an audit, please do get in touch.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Reticulum Network Stack Manual</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="gettingstartedfast.html"
-                        title="next chapter">Getting Started Fast</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">Reticulum Network Stack Manual</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="gettingstartedfast.html"
+                          title="next chapter">Getting Started Fast</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -209,12 +218,12 @@ want to help out, or help sponsor an audit, please do get in touch.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -237,7 +246,7 @@ want to help out, or help sponsor an audit, please do get in touch.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, Mark Qvist.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.2.
     </div>
   </body>
 </html>

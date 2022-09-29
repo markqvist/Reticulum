@@ -498,7 +498,7 @@ calculated from the link request packet, into the memory of forwarding nodes,
 which means that the communicating nodes can thereafter reach each other simply
 by referring to this *link id*.
 
-The combined bandwidth cost of setting up a link is 3 packets totalling 265 bytes (more info in the
+The combined bandwidth cost of setting up a link is 3 packets totalling 297 bytes (more info in the
 :ref:`Binary Packet Format<understanding-packetformat>` section). The amount of bandwidth used on keeping
 a link open is practically negligible, at 0.45 bits per second. Even on a slow 1200 bits per second packet
 radio channel, 100 concurrent links will still leave 96% channel capacity for actual data.
@@ -803,7 +803,7 @@ Wire Format
     - Path Request    :    51  bytes
     - Announce        :    157 bytes
     - Link Request    :    83  bytes
-    - Link Proof      :    83  bytes
+    - Link Proof      :    115 bytes
     - Link RTT packet :    99  bytes
     - Link keepalive  :    20  bytes
 

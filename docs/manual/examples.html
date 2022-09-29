@@ -1,10 +1,11 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
     <title>Code Examples &#8212; Reticulum Network Stack 0.3.12 beta documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
@@ -12,7 +13,9 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -41,12 +44,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="code-examples">
-<span id="examples-main"></span><h1>Code Examples<a class="headerlink" href="#code-examples" title="Permalink to this headline">¶</a></h1>
+  <section id="code-examples">
+<span id="examples-main"></span><h1>Code Examples<a class="headerlink" href="#code-examples" title="Permalink to this heading">¶</a></h1>
 <p>A number of examples are included in the source distribution of Reticulum.
 You can use these examples to learn how to write your own programs.</p>
-<div class="section" id="minimal">
-<span id="example-minimal"></span><h2>Minimal<a class="headerlink" href="#minimal" title="Permalink to this headline">¶</a></h2>
+<section id="minimal">
+<span id="example-minimal"></span><h2>Minimal<a class="headerlink" href="#minimal" title="Permalink to this heading">¶</a></h2>
 <p>The <em>Minimal</em> example demonstrates the bare-minimum setup required to connect to
 a Reticulum network from your program. In about five lines of code, you will
 have the Reticulum Network Stack initialised, and ready to pass traffic in your
@@ -155,9 +158,9 @@ program.</p>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Minimal.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Minimal.py</a>.</p>
-</div>
-<div class="section" id="announce">
-<span id="example-announce"></span><h2>Announce<a class="headerlink" href="#announce" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="announce">
+<span id="example-announce"></span><h2>Announce<a class="headerlink" href="#announce" title="Permalink to this heading">¶</a></h2>
 <p>The <em>Announce</em> example builds upon the previous example by exploring how to
 announce a destination on the network, and how to let your program receive
 notifications about announces from relevant destinations.</p>
@@ -334,9 +337,9 @@ notifications about announces from relevant destinations.</p>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Announce.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Announce.py</a>.</p>
-</div>
-<div class="section" id="broadcast">
-<span id="example-broadcast"></span><h2>Broadcast<a class="headerlink" href="#broadcast" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="broadcast">
+<span id="example-broadcast"></span><h2>Broadcast<a class="headerlink" href="#broadcast" title="Permalink to this heading">¶</a></h2>
 <p>The <em>Broadcast</em> example explores how to transmit plaintext broadcast messages
 over the network.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##########################################################</span>
@@ -463,9 +466,9 @@ over the network.</p>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Broadcast.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Broadcast.py</a>.</p>
-</div>
-<div class="section" id="echo">
-<span id="example-echo"></span><h2>Echo<a class="headerlink" href="#echo" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="echo">
+<span id="example-echo"></span><h2>Echo<a class="headerlink" href="#echo" title="Permalink to this heading">¶</a></h2>
 <p>The <em>Echo</em> example demonstrates communication between two destinations using
 the Packet interface.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##########################################################</span>
@@ -801,9 +804,9 @@ the Packet interface.</p>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Echo.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Echo.py</a>.</p>
-</div>
-<div class="section" id="link">
-<span id="example-link"></span><h2>Link<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="link">
+<span id="example-link"></span><h2>Link<a class="headerlink" href="#link" title="Permalink to this heading">¶</a></h2>
 <p>The <em>Link</em> example explores establishing an encrypted link to a remote
 destination, and passing traffic back and forth over the link.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##########################################################</span>
@@ -1100,9 +1103,9 @@ destination, and passing traffic back and forth over the link.</p>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Link.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Link.py</a>.</p>
-</div>
-<div class="section" id="example-identify">
-<span id="identification"></span><h2>Identification<a class="headerlink" href="#example-identify" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="example-identify">
+<span id="identification"></span><h2>Identification<a class="headerlink" href="#example-identify" title="Permalink to this heading">¶</a></h2>
 <p>The <em>Identify</em> example explores identifying an intiator of a link, once
 the link has been established.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##########################################################</span>
@@ -1422,9 +1425,9 @@ the link has been established.</p>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Identify.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Identify.py</a>.</p>
-</div>
-<div class="section" id="requests-responses">
-<span id="example-request"></span><h2>Requests &amp; Responses<a class="headerlink" href="#requests-responses" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="requests-responses">
+<span id="example-request"></span><h2>Requests &amp; Responses<a class="headerlink" href="#requests-responses" title="Permalink to this heading">¶</a></h2>
 <p>The <em>Request</em> example explores sendig requests and receiving responses.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##########################################################</span>
 <span class="c1"># This RNS example demonstrates how to set perform       #</span>
@@ -1716,9 +1719,9 @@ the link has been established.</p>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Request.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Request.py</a>.</p>
-</div>
-<div class="section" id="filetransfer">
-<span id="example-filetransfer"></span><h2>Filetransfer<a class="headerlink" href="#filetransfer" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="filetransfer">
+<span id="example-filetransfer"></span><h2>Filetransfer<a class="headerlink" href="#filetransfer" title="Permalink to this heading">¶</a></h2>
 <p>The <em>Filetransfer</em> example implements a basic file-server program that
 allow clients to connect and download files. The program uses the Resource
 interface to efficiently pass files of any size over a Reticulum <a class="reference internal" href="reference.html#api-link"><span class="std std-ref">Link</span></a>.</p>
@@ -2330,8 +2333,8 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Filetransfer.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Filetransfer.py</a>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -2340,8 +2343,9 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Code Examples</a><ul>
 <li><a class="reference internal" href="#minimal">Minimal</a></li>
 <li><a class="reference internal" href="#announce">Announce</a></li>
@@ -2355,12 +2359,17 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="reference.html"
-                        title="previous chapter">API Reference</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="support.html"
-                        title="next chapter">Support Reticulum</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="reference.html"
+                          title="previous chapter">API Reference</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="support.html"
+                          title="next chapter">Support Reticulum</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -2372,12 +2381,12 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -2400,7 +2409,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, Mark Qvist.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.2.
     </div>
   </body>
 </html>
