@@ -164,7 +164,7 @@ class Link:
         self.__remote_identity = None
         if self.destination == None:
             self.initiator = False
-            self.prv     = self.owner.identity.prv
+            self.prv     = X25519PrivateKey.generate()
             self.sig_prv = self.owner.identity.sig_prv
         else:
             self.initiator = True
@@ -193,15 +193,11 @@ class Link:
             self.set_link_closed_callback(closed_callback)
 
         if (self.initiator):
-            peer_pub_bytes = self.destination.identity.get_public_key()[:Link.ECPUBSIZE//2]
-            peer_sig_pub_bytes = self.destination.identity.get_public_key()[Link.ECPUBSIZE//2:Link.ECPUBSIZE]
             self.request_data = self.pub_bytes+self.sig_pub_bytes
             self.packet = RNS.Packet(destination, self.request_data, packet_type=RNS.Packet.LINKREQUEST)
             self.packet.pack()
             self.establishment_cost += len(self.packet.raw)
             self.set_link_id(self.packet)
-            self.load_peer(peer_pub_bytes, peer_sig_pub_bytes)
-            self.handshake()
             RNS.Transport.register_link(self)
             self.request_time = time.time()
             self.start_watchdog()
@@ -240,7 +236,7 @@ class Link:
         signed_data = self.link_id+self.pub_bytes+self.sig_pub_bytes
         signature = self.owner.identity.sign(signed_data)
 
-        proof_data = signature
+        proof_data = signature+self.pub_bytes
         proof = RNS.Packet(self, proof_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.LRPROOF)
         proof.send()
         self.establishment_cost += len(proof.raw)
@@ -261,8 +257,13 @@ class Link:
         self.had_outbound()
 
     def validate_proof(self, packet):
-        if self.status == Link.HANDSHAKE:
-            if self.initiator and len(packet.data) == RNS.Identity.SIGLENGTH//8:
+        if self.status == Link.PENDING:
+            if self.initiator and len(packet.data) == RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:
+                peer_pub_bytes = packet.data[RNS.Identity.SIGLENGTH//8:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2]
+                peer_sig_pub_bytes = self.destination.identity.get_public_key()[Link.ECPUBSIZE//2:Link.ECPUBSIZE]
+                self.load_peer(peer_pub_bytes, peer_sig_pub_bytes)
+                self.handshake()
+
                 self.establishment_cost += len(packet.raw)
                 signed_data = self.link_id+self.peer_pub_bytes+self.peer_sig_pub_bytes
                 signature = packet.data[:RNS.Identity.SIGLENGTH//8]
