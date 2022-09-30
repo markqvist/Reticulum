@@ -144,7 +144,7 @@ class KISSInterface(Interface):
         # Allow time for interface to initialise before config
         sleep(2.0)
         thread = threading.Thread(target=self.readLoop)
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()
         self.online = True
         RNS.log("Serial port "+self.port+" is now open")

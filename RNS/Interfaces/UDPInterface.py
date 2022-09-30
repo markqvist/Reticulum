@@ -89,7 +89,7 @@ class UDPInterface(Interface):
             self.server = socketserver.UDPServer(address, handlerFactory(self.processIncoming))
 
             thread = threading.Thread(target=self.server.serve_forever)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
 
             self.online = True

@@ -92,7 +92,7 @@ class LocalClientInterface(Interface):
 
         if connected_socket == None:
             thread = threading.Thread(target=self.read_loop)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
 
     def connect(self):
@@ -127,7 +127,7 @@ class LocalClientInterface(Interface):
 
                 self.reconnecting = False
                 thread = threading.Thread(target=self.read_loop)
-                thread.setDaemon(True)
+                thread.daemon = True
                 thread.start()
                 RNS.Transport.shared_connection_reappeared()
         
@@ -296,7 +296,7 @@ class LocalServerInterface(Interface):
             self.server = ThreadingTCPServer(address, handlerFactory(self.incoming_connection))
 
             thread = threading.Thread(target=self.server.serve_forever)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
 
             self.announce_rate_target  = None

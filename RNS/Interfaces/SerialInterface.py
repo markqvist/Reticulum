@@ -116,7 +116,7 @@ class SerialInterface(Interface):
     def configure_device(self):
         sleep(0.5)
         thread = threading.Thread(target=self.readLoop)
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()
         self.online = True
         RNS.log("Serial port "+self.port+" is now open", RNS.LOG_VERBOSE)

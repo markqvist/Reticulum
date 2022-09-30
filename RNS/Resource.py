@@ -393,7 +393,7 @@ class Resource:
         the resource advertisement it will begin transferring.
         """
         thread = threading.Thread(target=self.__advertise_job)
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()
 
     def __advertise_job(self):
@@ -421,7 +421,7 @@ class Resource:
 
     def watchdog_job(self):
         thread = threading.Thread(target=self.__watchdog_job)
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()
 
     def __watchdog_job(self):

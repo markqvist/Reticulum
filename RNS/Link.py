@@ -283,7 +283,7 @@ class Link:
                     self.activated_at = time.time()
                     if self.callbacks.link_established != None:
                         thread = threading.Thread(target=self.callbacks.link_established, args=(self,))
-                        thread.setDaemon(True)
+                        thread.daemon = True
                         thread.start()
                 else:
                     RNS.log("Invalid link proof signature received by "+str(self)+". Ignoring.", RNS.LOG_DEBUG)
@@ -471,7 +471,7 @@ class Link:
 
     def start_watchdog(self):
         thread = threading.Thread(target=self.__watchdog_job)
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()
 
     def __watchdog_job(self):
@@ -641,7 +641,7 @@ class Link:
                         plaintext = self.decrypt(packet.data)
                         if self.callbacks.packet != None:
                             thread = threading.Thread(target=self.callbacks.packet, args=(plaintext, packet))
-                            thread.setDaemon(True)
+                            thread.daemon = True
                             thread.start()
                         
                         if self.destination.proof_strategy == RNS.Destination.PROVE_ALL:
@@ -982,7 +982,7 @@ class RequestReceipt():
             self.status = RequestReceipt.DELIVERED
             self.__resource_response_timeout = time.time()+self.timeout
             response_timeout_thread = threading.Thread(target=self.__response_timeout_job)
-            response_timeout_thread.setDaemon(True)
+            response_timeout_thread.daemon = True
             response_timeout_thread.start()
         else:
             RNS.log("Sending request "+RNS.prettyhexrep(self.request_id)+" as resource failed with status: "+RNS.hexrep([resource.status]), RNS.LOG_DEBUG)

@@ -208,7 +208,7 @@ class RNodeInterface(Interface):
             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
             RNS.log("Reticulum will attempt to bring up this interface periodically", RNS.LOG_ERROR)
             thread = threading.Thread(target=self.reconnect_port)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
 
 
@@ -232,7 +232,7 @@ class RNodeInterface(Interface):
     def configure_device(self):
         sleep(2.0)
         thread = threading.Thread(target=self.readLoop)
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()
 
         self.detect()

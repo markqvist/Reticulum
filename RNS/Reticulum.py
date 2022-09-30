@@ -259,7 +259,7 @@ class Reticulum:
         if self.is_shared_instance:
             self.rpc_listener = multiprocessing.connection.Listener(self.rpc_addr, authkey=self.rpc_key)
             thread = threading.Thread(target=self.rpc_loop)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
 
         atexit.register(Reticulum.exit_handler)
@@ -269,7 +269,7 @@ class Reticulum:
     def __start_jobs(self):
         if self.jobs_thread == None:
             self.jobs_thread = threading.Thread(target=self.__jobs)
-            self.jobs_thread.setDaemon(True)
+            self.jobs_thread.daemon = True
             self.jobs_thread.start()
 
     def __jobs(self):

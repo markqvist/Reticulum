@@ -457,7 +457,7 @@ class I2PInterfacePeer(Interface):
                     time.sleep(15)
 
             thread = threading.Thread(target=tunnel_job)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
 
             def wait_job():
@@ -469,15 +469,15 @@ class I2PInterfacePeer(Interface):
 
                 if not self.connect(initial=True):
                     thread = threading.Thread(target=self.reconnect)
-                    thread.setDaemon(True)
+                    thread.daemon = True
                     thread.start()
                 else:
                     thread = threading.Thread(target=self.read_loop)
-                    thread.setDaemon(True)
+                    thread.daemon = True
                     thread.start()
 
             thread = threading.Thread(target=wait_job)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
 
 
@@ -600,7 +600,7 @@ class I2PInterfacePeer(Interface):
 
                 self.reconnecting = False
                 thread = threading.Thread(target=self.read_loop)
-                thread.setDaemon(True)
+                thread.daemon = True
                 thread.start()
                 if not self.kiss_framing:
                     RNS.Transport.synthesize_tunnel(self)
@@ -784,7 +784,7 @@ class I2PInterface(Interface):
         self.online = False
 
         i2p_thread = threading.Thread(target=self.i2p.start)
-        i2p_thread.setDaemon(True)
+        i2p_thread.daemon = True
         i2p_thread.start()
 
         i2p_notready_warning = False
@@ -809,7 +809,7 @@ class I2PInterface(Interface):
         self.server = ThreadingI2PServer(self.address, handlerFactory(self.incoming_connection))
 
         thread = threading.Thread(target=self.server.serve_forever)
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()
 
         if self.connectable:
@@ -828,7 +828,7 @@ class I2PInterface(Interface):
 
 
             thread = threading.Thread(target=tunnel_job)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
 
         if peers != None:

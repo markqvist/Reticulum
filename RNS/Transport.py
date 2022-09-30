@@ -165,7 +165,7 @@ class Transport:
 
         Transport.jobs_running = False
         thread = threading.Thread(target=Transport.jobloop)
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()
 
         if RNS.Reticulum.transport_enabled():

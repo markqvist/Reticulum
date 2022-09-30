@@ -185,7 +185,7 @@ class AutoInterface(Interface):
                                 self.discovery_handler(discovery_socket, ifname)
 
                             thread = threading.Thread(target=discovery_loop)
-                            thread.setDaemon(True)
+                            thread.daemon = True
                             thread.start()
 
                             suitable_interfaces += 1
@@ -214,11 +214,11 @@ class AutoInterface(Interface):
                 self.server = socketserver.UDPServer(address, handlerFactory(self.processIncoming))
                 
                 thread = threading.Thread(target=self.server.serve_forever)
-                thread.setDaemon(True)
+                thread.daemon = True
                 thread.start()
 
             job_thread = threading.Thread(target=self.peer_jobs)
-            job_thread.setDaemon(True)
+            job_thread.daemon = True
             job_thread.start()
 
             time.sleep(peering_wait)
@@ -236,7 +236,7 @@ class AutoInterface(Interface):
             self.announce_handler(ifname)
             
         thread = threading.Thread(target=announce_loop)
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()
         
         while True:

@@ -96,7 +96,7 @@ class PipeInterface(Interface):
     def configure_pipe(self):
         sleep(0.01)
         thread = threading.Thread(target=self.readLoop)
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()
         self.online = True
         RNS.log("Subprocess pipe for "+str(self)+" is now connected", RNS.LOG_VERBOSE)

@@ -18,7 +18,3 @@ dt.sig {
 	margin-bottom: 0.75rem;
 	margin-top: 1.75rem;
 }
-
-div.bottom-of-page div.left-details:not(:first-child) {
-	display: none !important;
-}

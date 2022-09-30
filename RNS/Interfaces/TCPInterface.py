@@ -132,17 +132,17 @@ class TCPClientInterface(Interface):
                 self.initial_connect()
             else:
                 thread = threading.Thread(target=self.initial_connect)
-                thread.setDaemon(True)
+                thread.daemon = True
                 thread.start()
             
     def initial_connect(self):
         if not self.connect(initial=True):
             thread = threading.Thread(target=self.reconnect)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
         else:
             thread = threading.Thread(target=self.read_loop)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
             if not self.kiss_framing:
                 self.wants_tunnel = True
@@ -254,7 +254,7 @@ class TCPClientInterface(Interface):
 
                 self.reconnecting = False
                 thread = threading.Thread(target=self.read_loop)
-                thread.setDaemon(True)
+                thread.daemon = True
                 thread.start()
                 if not self.kiss_framing:
                     RNS.Transport.synthesize_tunnel(self)
@@ -467,7 +467,7 @@ class TCPServerInterface(Interface):
             self.bitrate = TCPServerInterface.BITRATE_GUESS
 
             thread = threading.Thread(target=self.server.serve_forever)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
 
             self.online = True

@@ -494,7 +494,7 @@ class PacketReceipt:
 
             if self.callbacks.timeout:
                 thread = threading.Thread(target=self.callbacks.timeout, args=(self,))
-                thread.setDaemon(True)
+                thread.daemon = True
                 thread.start()
 
 
