@@ -203,6 +203,7 @@ considered relatively stable at the moment, but could change if warranted.
     - CAN-bus
     - ZeroMQ
     - MQTT
+    - XBee
     - SPI
     - i²c
     - Tor
