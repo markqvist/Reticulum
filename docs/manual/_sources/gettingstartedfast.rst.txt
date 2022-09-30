@@ -86,7 +86,7 @@ Creating a Network With Reticulum
 =============================================
 To create a network, you will need to specify one or more *interfaces* for
 Reticulum to use. This is done in the Reticulum configuration file, which by
-default is located at ``~/.config/reticulum/config``. You can edit this file by hand,
+default is located at ``~/.reticulum/config``. You can edit this file by hand,
 or use the interactive ``rnsconfig`` utility. 
 
 When Reticulum is started for the first time, it will create a default
@@ -261,7 +261,7 @@ don't use pip, but try this recipe:
 
     # Unless you've manually created a config file, Reticulum will do so now,
     # and immediately exit. Make any necessary changes to the file:
-    nano ~/.config/reticulum/config
+    nano ~/.reticulum/config
 
     # ... and launch the example again.
     python3 Examples/Echo.py -s

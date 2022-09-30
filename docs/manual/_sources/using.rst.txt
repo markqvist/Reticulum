@@ -7,9 +7,11 @@ Using Reticulum on Your System
 Reticulum is not installed as a driver or kernel module, as one might expect
 of a networking stack. Instead, Reticulum is distributed as a Python module.
 This means that no special privileges are required to install or use it. It
-is also very light-weight, and easy to transfer to and install on new systems.
-Any program or application that uses Reticulum will automatically load and
-initialise Reticulum when it starts.
+is also very light-weight, and easy to transfer to, and install on new systems.
+
+When you have Reticulum installed, any program or application that uses Reticulum
+will automatically load and initialise Reticulum when it starts, if it is not
+already running.
 
 In many cases, this approach is sufficient. When any program needs to use
 Reticulum, it is loaded, initialised, interfaces are brought up, and the
@@ -22,11 +24,22 @@ are other options.
 Configuration & Data
 --------------------
 
-A Reticulum stores all information that it needs to function in a single file-
-system directory. By default, this directory is ``~/.config/reticulum``, but you can
-use any directory you wish. You can also run multiple separate Reticulum
-instances on the same physical system, in complete isolation from each other,
-or connected together.
+Reticulum stores all information that it needs to function in a single file-system
+directory. When Reticulum is started, it will look for a valid configuration
+directory in the following places:
+
+- ``/etc/reticulum``
+- ``~/.config/reticulum``
+- ``~/.reticulum``
+
+If no existing configuration directory is found, the directory ``~/.reticulum``
+is created, and the default configuration will be automatically created here.
+You can move it to one of the other locations if you wish.
+
+It is also possible to use completely arbitrary configuration directories by
+specifying the relevant command-line parameters when running Reticulum-based
+programs. You can also run multiple separate Reticulum instances on the same
+physical system, either in isolation from each other, or connected together.
 
 In most cases, a single physical system will only need to run one Reticulum
 instance. This can either be launched at boot, as a system service, or simply
@@ -34,8 +47,8 @@ be brought up when a program needs it. In either case, any number of programs
 running on the same system will automatically share the same Reticulum instance,
 if the configuration allows for it, which it does by default.
 
-The entire configuration of Reticulum is found in the ``~/.config/reticulum/config``
-file. When Reticulum is first started on a new system, a basic, functional
+The entire configuration of Reticulum is found in the ``~/.reticulum/config``
+file. When Reticulum is first started on a new system, a basic, but fully functional
 configuration file is created. The default configuration looks like this:
 
 .. code::
@@ -371,7 +384,7 @@ output.
   rnx 7a55144adf826958a9529a3bcf08b149 -x
 
   # The default identity file is stored in
-  # ~/.config/reticulum/identities/rnx, but you can use
+  # ~/.reticulum/identities/rnx, but you can use
   # another one, which will be created if it does
   # not already exist
   rnx 7a55144adf826958a9529a3bcf08b149 -i /path/to/identity -x
