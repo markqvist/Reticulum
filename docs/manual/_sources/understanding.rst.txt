@@ -543,7 +543,7 @@ an arbitrary number of hops, where information will be exchanged between two nod
 
 * | A *link proof* packet is now constructed and transmitted over the network. This packet is
     addressed to the *link id* of the *link*. It contains the following data: The newly generated X25519
-    public key *LKr* and an Ed25519 signature of the *link id* and *LKr* made by the signing key of
+    public key *LKr* and an Ed25519 signature of the *link id* and *LKr* made by the *original signing key* of
     the addressed destination.
    
 * | By verifying this *link proof* packet, all nodes that originally transported the *link request*
@@ -551,6 +551,8 @@ an arbitrary number of hops, where information will be exchanged between two nod
     the request and accepted it, and that the path they chose for forwarding the request was valid.
     In successfully carrying out this verification, the transporting nodes marks the link as active.
     An abstract bi-directional communication channel has now been established along a path in the network.
+    Packets can now be exchanged bi-directionally from either end of the link simply by adressing the
+    packets to the *link id* of the link.
 
 * | When the source receives the *proof* , it will know unequivocally that a verified path has been
     established to the destination. It can now also use the X25519 public key contained in the

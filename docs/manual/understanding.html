@@ -605,7 +605,7 @@ channel, once it has been established.</div>
 <li><div class="line-block">
 <div class="line">A <em>link proof</em> packet is now constructed and transmitted over the network. This packet is
 addressed to the <em>link id</em> of the <em>link</em>. It contains the following data: The newly generated X25519
-public key <em>LKr</em> and an Ed25519 signature of the <em>link id</em> and <em>LKr</em> made by the signing key of
+public key <em>LKr</em> and an Ed25519 signature of the <em>link id</em> and <em>LKr</em> made by the <em>original signing key</em> of
 the addressed destination.</div>
 </div>
 </li>
@@ -614,7 +614,9 @@ the addressed destination.</div>
 packet to the destination from the originator can now verify that the intended destination received
 the request and accepted it, and that the path they chose for forwarding the request was valid.
 In successfully carrying out this verification, the transporting nodes marks the link as active.
-An abstract bi-directional communication channel has now been established along a path in the network.</div>
+An abstract bi-directional communication channel has now been established along a path in the network.
+Packets can now be exchanged bi-directionally from either end of the link simply by adressing the
+packets to the <em>link id</em> of the link.</div>
 </div>
 </li>
 <li><div class="line-block">
