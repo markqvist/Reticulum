@@ -15,8 +15,8 @@ to participate in the development of Reticulum itself.
    hardware
    interfaces
    networks
-   reference
    examples
+   reference
    support
 
 

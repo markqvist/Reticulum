@@ -21,6 +21,7 @@ clean:
 	@-rm -rf ./tests/__pycache__
 	@-rm -rf ./tests/rnsconfig/storage
 	@-rm -rf ./*.egg-info
+	@make -C docs clean
 	@echo Done
 
 remove_symlinks:

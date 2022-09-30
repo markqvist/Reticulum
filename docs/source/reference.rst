@@ -1,18 +1,26 @@
+:tocdepth: 4
+
 .. _api-main:
 
 *************
 API Reference
 *************
-This reference guide lists and explains all classes exposed by the RNS API.
+This chapter lists and explains all classes exposed by the Reticulum Network Stack API, along with their methods and usage. It can be used as a reference while writing applications that utilise Reticulum, or read in entirity to gain an understanding of the complete functionality of RNS from a developers perspective.
 
 Classes
 =========================
-Communication over a Reticulum network is achieved using a set of classes exposed by RNS.
+Communication over a Reticulum network is achieved using a set of classes exposed by the RNS API.
 
 .. _api-reticulum:
 
-Reticulum
----------
+.. only:: html
+
+   |start-h3| Reticulum |end-h3|
+
+.. only:: latex
+
+   Reticulum
+   ---------
 
 .. autoclass:: RNS.Reticulum
    :members:
@@ -20,64 +28,120 @@ Reticulum
 
 .. _api-identity:
 
-Identity
---------
+.. only:: html
+
+   |start-h3| Identity |end-h3|
+
+.. only:: latex
+
+   Identity
+   --------
 
 .. autoclass:: RNS.Identity
    :members:
 
 .. _api-destination:
 
-Destination
------------
+.. only:: html
+
+   |start-h3| Destination |end-h3|
+
+.. only:: latex
+
+   Destination
+   -----------
 
 .. autoclass:: RNS.Destination
    :members:
 
 .. _api-packet:
 
-Packet
-------
+.. only:: html
+
+   |start-h3| Packet |end-h3|
+
+.. only:: latex
+
+   Packet
+   ------
 
 .. autoclass:: RNS.Packet(destination, data, create_receipt = True)
    :members:
 
 .. _api-packetreceipt:
 
-Packet Receipt
---------------
+.. only:: html
+
+   |start-h3| Packet Receipt |end-h3|
+
+.. only:: latex
+
+   Packet Receipt
+   --------------
 
 .. autoclass:: RNS.PacketReceipt()
    :members:
 
 .. _api-link:
 
-Link
-----
+.. only:: html
+
+   |start-h3| Link |end-h3|
+
+.. only:: latex
+
+   Link
+   ----
 
 .. autoclass:: RNS.Link(destination, established_callback=None, closed_callback = None)
    :members:
 
 .. _api-requestreceipt:
 
-Request Receipt
----------------
+.. only:: html
+
+   |start-h3| Request Receipt |end-h3|
+
+.. only:: latex
+
+   Request Receipt
+   ---------------
 
 .. autoclass:: RNS.RequestReceipt()
    :members:
 
 .. _api-resource:
 
-Resource
---------
+.. only:: html
+
+   |start-h3| Resource |end-h3|
+
+.. only:: latex
+
+   Resource
+   --------
 
 .. autoclass:: RNS.Resource(data, link, advertise=True, auto_compress=True, callback=None, progress_callback=None, timeout=None)
    :members:
 
 .. _api-transport:
 
-Transport
----------
+.. only:: html
+
+   |start-h3| Transport |end-h3|
+
+.. only:: latex
+
+   Transport
+   ---------
 
 .. autoclass:: RNS.Transport
    :members:
+
+.. |start-h3| raw:: html
+
+     <h3>
+
+.. |end-h3| raw:: html
+
+     </h3>

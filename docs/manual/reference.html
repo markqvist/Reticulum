@@ -19,8 +19,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Code Examples" href="examples.html" />
-    <link rel="prev" title="Building Networks" href="networks.html" /> 
+    <link rel="next" title="Support Reticulum" href="support.html" />
+    <link rel="prev" title="Code Examples" href="examples.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,10 +29,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="examples.html" title="Code Examples"
+          <a href="support.html" title="Support Reticulum"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="networks.html" title="Building Networks"
+          <a href="examples.html" title="Code Examples"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.12 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">API Reference</a></li> 
@@ -46,12 +46,11 @@
             
   <section id="api-reference">
 <span id="api-main"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this heading">¶</a></h1>
-<p>This reference guide lists and explains all classes exposed by the RNS API.</p>
+<p>This chapter lists and explains all classes exposed by the Reticulum Network Stack API, along with their methods and usage. It can be used as a reference while writing applications that utilise Reticulum, or read in entirity to gain an understanding of the complete functionality of RNS from a developers perspective.</p>
 <section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">¶</a></h2>
-<p>Communication over a Reticulum network is achieved using a set of classes exposed by RNS.</p>
-<section id="reticulum">
-<span id="api-reticulum"></span><h3>Reticulum<a class="headerlink" href="#reticulum" title="Permalink to this heading">¶</a></h3>
+<p>Communication over a Reticulum network is achieved using a set of classes exposed by the RNS API.</p>
+<p id="api-reticulum"><h3> Reticulum </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Reticulum">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Reticulum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loglevel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logdest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum" title="Permalink to this definition">¶</a></dt>
@@ -132,9 +131,7 @@ and pass announces over the network.</p>
 
 </dd></dl>
 
-</section>
-<section id="api-identity">
-<span id="identity"></span><h3>Identity<a class="headerlink" href="#api-identity" title="Permalink to this heading">¶</a></h3>
+<p id="api-identity"><h3> Identity </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Identity">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Identity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">create_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity" title="Permalink to this definition">¶</a></dt>
@@ -402,9 +399,7 @@ communication for the identity. Be very careful with this method.</p>
 
 </dd></dl>
 
-</section>
-<section id="destination">
-<span id="api-destination"></span><h3>Destination<a class="headerlink" href="#destination" title="Permalink to this heading">¶</a></h3>
+<p id="api-destination"><h3> Destination </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Destination">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Destination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">aspects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination" title="Permalink to this definition">¶</a></dt>
@@ -544,7 +539,7 @@ proofs should be returned for received packets.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Destination.register_request_handler">
-<span class="sig-name descname"><span class="pre">register_request_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowed_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.register_request_handler" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">register_request_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ALLOW_NONE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowed_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.register_request_handler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a request handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -674,9 +669,7 @@ unless other app_data is specified in the <em>announce</em> method.</p>
 
 </dd></dl>
 
-</section>
-<section id="packet">
-<span id="api-packet"></span><h3>Packet<a class="headerlink" href="#packet" title="Permalink to this heading">¶</a></h3>
+<p id="api-packet"><h3> Packet </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Packet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_receipt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Packet" title="Permalink to this definition">¶</a></dt>
@@ -736,9 +729,7 @@ ephemeral keys, and offers <strong>Forward Secrecy</strong>.</p>
 
 </dd></dl>
 
-</section>
-<section id="packet-receipt">
-<span id="api-packetreceipt"></span><h3>Packet Receipt<a class="headerlink" href="#packet-receipt" title="Permalink to this heading">¶</a></h3>
+<p id="api-packetreceipt"><h3> Packet Receipt </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.PacketReceipt">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">PacketReceipt</span></span><a class="headerlink" href="#RNS.PacketReceipt" title="Permalink to this definition">¶</a></dt>
@@ -801,9 +792,7 @@ the <em>send()</em> method of a <a class="reference internal" href="#api-packet"
 
 </dd></dl>
 
-</section>
-<section id="link">
-<span id="api-link"></span><h3>Link<a class="headerlink" href="#link" title="Permalink to this heading">¶</a></h3>
+<p id="api-link"><h3> Link </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Link">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">established_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link" title="Permalink to this definition">¶</a></dt>
@@ -1030,9 +1019,7 @@ identified over this link.</p>
 
 </dd></dl>
 
-</section>
-<section id="request-receipt">
-<span id="api-requestreceipt"></span><h3>Request Receipt<a class="headerlink" href="#request-receipt" title="Permalink to this heading">¶</a></h3>
+<p id="api-requestreceipt"><h3> Request Receipt </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.RequestReceipt">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">RequestReceipt</span></span><a class="headerlink" href="#RNS.RequestReceipt" title="Permalink to this definition">¶</a></dt>
@@ -1091,9 +1078,7 @@ check status, response time and response data when the request concludes.</p>
 
 </dd></dl>
 
-</section>
-<section id="resource">
-<span id="api-resource"></span><h3>Resource<a class="headerlink" href="#resource" title="Permalink to this heading">¶</a></h3>
+<p id="api-resource"><h3> Resource </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Resource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advertise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Resource" title="Permalink to this definition">¶</a></dt>
@@ -1197,9 +1182,7 @@ the resource advertisement it will begin transferring.</p>
 
 </dd></dl>
 
-</section>
-<section id="transport">
-<span id="api-transport"></span><h3>Transport<a class="headerlink" href="#transport" title="Permalink to this heading">¶</a></h3>
+<p id="api-transport"><h3> Transport </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Transport">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Transport</span></span><a class="headerlink" href="#RNS.Transport" title="Permalink to this definition">¶</a></dt>
@@ -1305,7 +1288,6 @@ will announce it.</p>
 
 </section>
 </section>
-</section>
 
 
             <div class="clearer"></div>
@@ -1319,152 +1301,125 @@ will announce it.</p>
     <ul>
 <li><a class="reference internal" href="#">API Reference</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a><ul>
-<li><a class="reference internal" href="#reticulum">Reticulum</a><ul>
 <li><a class="reference internal" href="#RNS.Reticulum"><code class="docutils literal notranslate"><span class="pre">Reticulum</span></code></a><ul>
-<li><a class="reference internal" href="#RNS.Reticulum.MTU"><code class="docutils literal notranslate"><span class="pre">Reticulum.MTU</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Reticulum.ANNOUNCE_CAP"><code class="docutils literal notranslate"><span class="pre">Reticulum.ANNOUNCE_CAP</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Reticulum.should_use_implicit_proof"><code class="docutils literal notranslate"><span class="pre">Reticulum.should_use_implicit_proof()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Reticulum.transport_enabled"><code class="docutils literal notranslate"><span class="pre">Reticulum.transport_enabled()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Reticulum.MTU"><code class="docutils literal notranslate"><span class="pre">MTU</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Reticulum.ANNOUNCE_CAP"><code class="docutils literal notranslate"><span class="pre">ANNOUNCE_CAP</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Reticulum.should_use_implicit_proof"><code class="docutils literal notranslate"><span class="pre">should_use_implicit_proof()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Reticulum.transport_enabled"><code class="docutils literal notranslate"><span class="pre">transport_enabled()</span></code></a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a class="reference internal" href="#api-identity">Identity</a><ul>
 <li><a class="reference internal" href="#RNS.Identity"><code class="docutils literal notranslate"><span class="pre">Identity</span></code></a><ul>
-<li><a class="reference internal" href="#RNS.Identity.CURVE"><code class="docutils literal notranslate"><span class="pre">Identity.CURVE</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.KEYSIZE"><code class="docutils literal notranslate"><span class="pre">Identity.KEYSIZE</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.TRUNCATED_HASHLENGTH"><code class="docutils literal notranslate"><span class="pre">Identity.TRUNCATED_HASHLENGTH</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.recall"><code class="docutils literal notranslate"><span class="pre">Identity.recall()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.recall_app_data"><code class="docutils literal notranslate"><span class="pre">Identity.recall_app_data()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.full_hash"><code class="docutils literal notranslate"><span class="pre">Identity.full_hash()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.truncated_hash"><code class="docutils literal notranslate"><span class="pre">Identity.truncated_hash()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.get_random_hash"><code class="docutils literal notranslate"><span class="pre">Identity.get_random_hash()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.from_bytes"><code class="docutils literal notranslate"><span class="pre">Identity.from_bytes()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.from_file"><code class="docutils literal notranslate"><span class="pre">Identity.from_file()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.to_file"><code class="docutils literal notranslate"><span class="pre">Identity.to_file()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.get_private_key"><code class="docutils literal notranslate"><span class="pre">Identity.get_private_key()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.get_public_key"><code class="docutils literal notranslate"><span class="pre">Identity.get_public_key()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.load_private_key"><code class="docutils literal notranslate"><span class="pre">Identity.load_private_key()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.load_public_key"><code class="docutils literal notranslate"><span class="pre">Identity.load_public_key()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.encrypt"><code class="docutils literal notranslate"><span class="pre">Identity.encrypt()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.decrypt"><code class="docutils literal notranslate"><span class="pre">Identity.decrypt()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.sign"><code class="docutils literal notranslate"><span class="pre">Identity.sign()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Identity.validate"><code class="docutils literal notranslate"><span class="pre">Identity.validate()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.CURVE"><code class="docutils literal notranslate"><span class="pre">CURVE</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.KEYSIZE"><code class="docutils literal notranslate"><span class="pre">KEYSIZE</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.TRUNCATED_HASHLENGTH"><code class="docutils literal notranslate"><span class="pre">TRUNCATED_HASHLENGTH</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.recall"><code class="docutils literal notranslate"><span class="pre">recall()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.recall_app_data"><code class="docutils literal notranslate"><span class="pre">recall_app_data()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.full_hash"><code class="docutils literal notranslate"><span class="pre">full_hash()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.truncated_hash"><code class="docutils literal notranslate"><span class="pre">truncated_hash()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.get_random_hash"><code class="docutils literal notranslate"><span class="pre">get_random_hash()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.from_bytes"><code class="docutils literal notranslate"><span class="pre">from_bytes()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.from_file"><code class="docutils literal notranslate"><span class="pre">from_file()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.to_file"><code class="docutils literal notranslate"><span class="pre">to_file()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.get_private_key"><code class="docutils literal notranslate"><span class="pre">get_private_key()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.get_public_key"><code class="docutils literal notranslate"><span class="pre">get_public_key()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.load_private_key"><code class="docutils literal notranslate"><span class="pre">load_private_key()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.load_public_key"><code class="docutils literal notranslate"><span class="pre">load_public_key()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.encrypt"><code class="docutils literal notranslate"><span class="pre">encrypt()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.decrypt"><code class="docutils literal notranslate"><span class="pre">decrypt()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.sign"><code class="docutils literal notranslate"><span class="pre">sign()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.validate"><code class="docutils literal notranslate"><span class="pre">validate()</span></code></a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a class="reference internal" href="#destination">Destination</a><ul>
 <li><a class="reference internal" href="#RNS.Destination"><code class="docutils literal notranslate"><span class="pre">Destination</span></code></a><ul>
-<li><a class="reference internal" href="#RNS.Destination.full_name"><code class="docutils literal notranslate"><span class="pre">Destination.full_name()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.app_and_aspects_from_name"><code class="docutils literal notranslate"><span class="pre">Destination.app_and_aspects_from_name()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.hash_from_name_and_identity"><code class="docutils literal notranslate"><span class="pre">Destination.hash_from_name_and_identity()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.hash"><code class="docutils literal notranslate"><span class="pre">Destination.hash()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.announce"><code class="docutils literal notranslate"><span class="pre">Destination.announce()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.accepts_links"><code class="docutils literal notranslate"><span class="pre">Destination.accepts_links()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.set_link_established_callback"><code class="docutils literal notranslate"><span class="pre">Destination.set_link_established_callback()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.set_packet_callback"><code class="docutils literal notranslate"><span class="pre">Destination.set_packet_callback()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.set_proof_requested_callback"><code class="docutils literal notranslate"><span class="pre">Destination.set_proof_requested_callback()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.set_proof_strategy"><code class="docutils literal notranslate"><span class="pre">Destination.set_proof_strategy()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.register_request_handler"><code class="docutils literal notranslate"><span class="pre">Destination.register_request_handler()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.deregister_request_handler"><code class="docutils literal notranslate"><span class="pre">Destination.deregister_request_handler()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.create_keys"><code class="docutils literal notranslate"><span class="pre">Destination.create_keys()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.get_private_key"><code class="docutils literal notranslate"><span class="pre">Destination.get_private_key()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.load_private_key"><code class="docutils literal notranslate"><span class="pre">Destination.load_private_key()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.encrypt"><code class="docutils literal notranslate"><span class="pre">Destination.encrypt()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.decrypt"><code class="docutils literal notranslate"><span class="pre">Destination.decrypt()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.sign"><code class="docutils literal notranslate"><span class="pre">Destination.sign()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.set_default_app_data"><code class="docutils literal notranslate"><span class="pre">Destination.set_default_app_data()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.clear_default_app_data"><code class="docutils literal notranslate"><span class="pre">Destination.clear_default_app_data()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.full_name"><code class="docutils literal notranslate"><span class="pre">full_name()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.app_and_aspects_from_name"><code class="docutils literal notranslate"><span class="pre">app_and_aspects_from_name()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.hash_from_name_and_identity"><code class="docutils literal notranslate"><span class="pre">hash_from_name_and_identity()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.hash"><code class="docutils literal notranslate"><span class="pre">hash()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.announce"><code class="docutils literal notranslate"><span class="pre">announce()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.accepts_links"><code class="docutils literal notranslate"><span class="pre">accepts_links()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.set_link_established_callback"><code class="docutils literal notranslate"><span class="pre">set_link_established_callback()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.set_packet_callback"><code class="docutils literal notranslate"><span class="pre">set_packet_callback()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.set_proof_requested_callback"><code class="docutils literal notranslate"><span class="pre">set_proof_requested_callback()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.set_proof_strategy"><code class="docutils literal notranslate"><span class="pre">set_proof_strategy()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.register_request_handler"><code class="docutils literal notranslate"><span class="pre">register_request_handler()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.deregister_request_handler"><code class="docutils literal notranslate"><span class="pre">deregister_request_handler()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.create_keys"><code class="docutils literal notranslate"><span class="pre">create_keys()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.get_private_key"><code class="docutils literal notranslate"><span class="pre">get_private_key()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.load_private_key"><code class="docutils literal notranslate"><span class="pre">load_private_key()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.encrypt"><code class="docutils literal notranslate"><span class="pre">encrypt()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.decrypt"><code class="docutils literal notranslate"><span class="pre">decrypt()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.sign"><code class="docutils literal notranslate"><span class="pre">sign()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.set_default_app_data"><code class="docutils literal notranslate"><span class="pre">set_default_app_data()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.clear_default_app_data"><code class="docutils literal notranslate"><span class="pre">clear_default_app_data()</span></code></a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a class="reference internal" href="#packet">Packet</a><ul>
 <li><a class="reference internal" href="#RNS.Packet"><code class="docutils literal notranslate"><span class="pre">Packet</span></code></a><ul>
-<li><a class="reference internal" href="#RNS.Packet.ENCRYPTED_MDU"><code class="docutils literal notranslate"><span class="pre">Packet.ENCRYPTED_MDU</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Packet.PLAIN_MDU"><code class="docutils literal notranslate"><span class="pre">Packet.PLAIN_MDU</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Packet.send"><code class="docutils literal notranslate"><span class="pre">Packet.send()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Packet.resend"><code class="docutils literal notranslate"><span class="pre">Packet.resend()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Packet.ENCRYPTED_MDU"><code class="docutils literal notranslate"><span class="pre">ENCRYPTED_MDU</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Packet.PLAIN_MDU"><code class="docutils literal notranslate"><span class="pre">PLAIN_MDU</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Packet.send"><code class="docutils literal notranslate"><span class="pre">send()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Packet.resend"><code class="docutils literal notranslate"><span class="pre">resend()</span></code></a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a class="reference internal" href="#packet-receipt">Packet Receipt</a><ul>
 <li><a class="reference internal" href="#RNS.PacketReceipt"><code class="docutils literal notranslate"><span class="pre">PacketReceipt</span></code></a><ul>
-<li><a class="reference internal" href="#RNS.PacketReceipt.get_status"><code class="docutils literal notranslate"><span class="pre">PacketReceipt.get_status()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.PacketReceipt.get_rtt"><code class="docutils literal notranslate"><span class="pre">PacketReceipt.get_rtt()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.PacketReceipt.set_timeout"><code class="docutils literal notranslate"><span class="pre">PacketReceipt.set_timeout()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.PacketReceipt.set_delivery_callback"><code class="docutils literal notranslate"><span class="pre">PacketReceipt.set_delivery_callback()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.PacketReceipt.set_timeout_callback"><code class="docutils literal notranslate"><span class="pre">PacketReceipt.set_timeout_callback()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.PacketReceipt.get_status"><code class="docutils literal notranslate"><span class="pre">get_status()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.PacketReceipt.get_rtt"><code class="docutils literal notranslate"><span class="pre">get_rtt()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.PacketReceipt.set_timeout"><code class="docutils literal notranslate"><span class="pre">set_timeout()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.PacketReceipt.set_delivery_callback"><code class="docutils literal notranslate"><span class="pre">set_delivery_callback()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.PacketReceipt.set_timeout_callback"><code class="docutils literal notranslate"><span class="pre">set_timeout_callback()</span></code></a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a class="reference internal" href="#link">Link</a><ul>
 <li><a class="reference internal" href="#RNS.Link"><code class="docutils literal notranslate"><span class="pre">Link</span></code></a><ul>
-<li><a class="reference internal" href="#RNS.Link.CURVE"><code class="docutils literal notranslate"><span class="pre">Link.CURVE</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP"><code class="docutils literal notranslate"><span class="pre">Link.ESTABLISHMENT_TIMEOUT_PER_HOP</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.KEEPALIVE_TIMEOUT_FACTOR"><code class="docutils literal notranslate"><span class="pre">Link.KEEPALIVE_TIMEOUT_FACTOR</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.STALE_GRACE"><code class="docutils literal notranslate"><span class="pre">Link.STALE_GRACE</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.KEEPALIVE"><code class="docutils literal notranslate"><span class="pre">Link.KEEPALIVE</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.STALE_TIME"><code class="docutils literal notranslate"><span class="pre">Link.STALE_TIME</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.identify"><code class="docutils literal notranslate"><span class="pre">Link.identify()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.request"><code class="docutils literal notranslate"><span class="pre">Link.request()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.no_inbound_for"><code class="docutils literal notranslate"><span class="pre">Link.no_inbound_for()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.no_outbound_for"><code class="docutils literal notranslate"><span class="pre">Link.no_outbound_for()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.inactive_for"><code class="docutils literal notranslate"><span class="pre">Link.inactive_for()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.get_remote_identity"><code class="docutils literal notranslate"><span class="pre">Link.get_remote_identity()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.teardown"><code class="docutils literal notranslate"><span class="pre">Link.teardown()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.set_link_closed_callback"><code class="docutils literal notranslate"><span class="pre">Link.set_link_closed_callback()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.set_packet_callback"><code class="docutils literal notranslate"><span class="pre">Link.set_packet_callback()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.set_resource_callback"><code class="docutils literal notranslate"><span class="pre">Link.set_resource_callback()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.set_resource_started_callback"><code class="docutils literal notranslate"><span class="pre">Link.set_resource_started_callback()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.set_resource_concluded_callback"><code class="docutils literal notranslate"><span class="pre">Link.set_resource_concluded_callback()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.set_remote_identified_callback"><code class="docutils literal notranslate"><span class="pre">Link.set_remote_identified_callback()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Link.set_resource_strategy"><code class="docutils literal notranslate"><span class="pre">Link.set_resource_strategy()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.CURVE"><code class="docutils literal notranslate"><span class="pre">CURVE</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP"><code class="docutils literal notranslate"><span class="pre">ESTABLISHMENT_TIMEOUT_PER_HOP</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.KEEPALIVE_TIMEOUT_FACTOR"><code class="docutils literal notranslate"><span class="pre">KEEPALIVE_TIMEOUT_FACTOR</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.STALE_GRACE"><code class="docutils literal notranslate"><span class="pre">STALE_GRACE</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.KEEPALIVE"><code class="docutils literal notranslate"><span class="pre">KEEPALIVE</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.STALE_TIME"><code class="docutils literal notranslate"><span class="pre">STALE_TIME</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.identify"><code class="docutils literal notranslate"><span class="pre">identify()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.request"><code class="docutils literal notranslate"><span class="pre">request()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.no_inbound_for"><code class="docutils literal notranslate"><span class="pre">no_inbound_for()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.no_outbound_for"><code class="docutils literal notranslate"><span class="pre">no_outbound_for()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.inactive_for"><code class="docutils literal notranslate"><span class="pre">inactive_for()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.get_remote_identity"><code class="docutils literal notranslate"><span class="pre">get_remote_identity()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.teardown"><code class="docutils literal notranslate"><span class="pre">teardown()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.set_link_closed_callback"><code class="docutils literal notranslate"><span class="pre">set_link_closed_callback()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.set_packet_callback"><code class="docutils literal notranslate"><span class="pre">set_packet_callback()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.set_resource_callback"><code class="docutils literal notranslate"><span class="pre">set_resource_callback()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.set_resource_started_callback"><code class="docutils literal notranslate"><span class="pre">set_resource_started_callback()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.set_resource_concluded_callback"><code class="docutils literal notranslate"><span class="pre">set_resource_concluded_callback()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.set_remote_identified_callback"><code class="docutils literal notranslate"><span class="pre">set_remote_identified_callback()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.set_resource_strategy"><code class="docutils literal notranslate"><span class="pre">set_resource_strategy()</span></code></a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a class="reference internal" href="#request-receipt">Request Receipt</a><ul>
 <li><a class="reference internal" href="#RNS.RequestReceipt"><code class="docutils literal notranslate"><span class="pre">RequestReceipt</span></code></a><ul>
-<li><a class="reference internal" href="#RNS.RequestReceipt.get_request_id"><code class="docutils literal notranslate"><span class="pre">RequestReceipt.get_request_id()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.RequestReceipt.get_status"><code class="docutils literal notranslate"><span class="pre">RequestReceipt.get_status()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.RequestReceipt.get_progress"><code class="docutils literal notranslate"><span class="pre">RequestReceipt.get_progress()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.RequestReceipt.get_response"><code class="docutils literal notranslate"><span class="pre">RequestReceipt.get_response()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.RequestReceipt.get_response_time"><code class="docutils literal notranslate"><span class="pre">RequestReceipt.get_response_time()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.RequestReceipt.get_request_id"><code class="docutils literal notranslate"><span class="pre">get_request_id()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.RequestReceipt.get_status"><code class="docutils literal notranslate"><span class="pre">get_status()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.RequestReceipt.get_progress"><code class="docutils literal notranslate"><span class="pre">get_progress()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.RequestReceipt.get_response"><code class="docutils literal notranslate"><span class="pre">get_response()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.RequestReceipt.get_response_time"><code class="docutils literal notranslate"><span class="pre">get_response_time()</span></code></a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a class="reference internal" href="#resource">Resource</a><ul>
 <li><a class="reference internal" href="#RNS.Resource"><code class="docutils literal notranslate"><span class="pre">Resource</span></code></a><ul>
-<li><a class="reference internal" href="#RNS.Resource.advertise"><code class="docutils literal notranslate"><span class="pre">Resource.advertise()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Resource.cancel"><code class="docutils literal notranslate"><span class="pre">Resource.cancel()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Resource.get_progress"><code class="docutils literal notranslate"><span class="pre">Resource.get_progress()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Resource.get_transfer_size"><code class="docutils literal notranslate"><span class="pre">Resource.get_transfer_size()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Resource.get_data_size"><code class="docutils literal notranslate"><span class="pre">Resource.get_data_size()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Resource.get_parts"><code class="docutils literal notranslate"><span class="pre">Resource.get_parts()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Resource.get_segments"><code class="docutils literal notranslate"><span class="pre">Resource.get_segments()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Resource.get_hash"><code class="docutils literal notranslate"><span class="pre">Resource.get_hash()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Resource.is_compressed"><code class="docutils literal notranslate"><span class="pre">Resource.is_compressed()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Resource.advertise"><code class="docutils literal notranslate"><span class="pre">advertise()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Resource.cancel"><code class="docutils literal notranslate"><span class="pre">cancel()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Resource.get_progress"><code class="docutils literal notranslate"><span class="pre">get_progress()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Resource.get_transfer_size"><code class="docutils literal notranslate"><span class="pre">get_transfer_size()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Resource.get_data_size"><code class="docutils literal notranslate"><span class="pre">get_data_size()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Resource.get_parts"><code class="docutils literal notranslate"><span class="pre">get_parts()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Resource.get_segments"><code class="docutils literal notranslate"><span class="pre">get_segments()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Resource.get_hash"><code class="docutils literal notranslate"><span class="pre">get_hash()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Resource.is_compressed"><code class="docutils literal notranslate"><span class="pre">is_compressed()</span></code></a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a class="reference internal" href="#transport">Transport</a><ul>
 <li><a class="reference internal" href="#RNS.Transport"><code class="docutils literal notranslate"><span class="pre">Transport</span></code></a><ul>
-<li><a class="reference internal" href="#RNS.Transport.PATHFINDER_M"><code class="docutils literal notranslate"><span class="pre">Transport.PATHFINDER_M</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Transport.register_announce_handler"><code class="docutils literal notranslate"><span class="pre">Transport.register_announce_handler()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Transport.deregister_announce_handler"><code class="docutils literal notranslate"><span class="pre">Transport.deregister_announce_handler()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Transport.has_path"><code class="docutils literal notranslate"><span class="pre">Transport.has_path()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Transport.hops_to"><code class="docutils literal notranslate"><span class="pre">Transport.hops_to()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Transport.next_hop"><code class="docutils literal notranslate"><span class="pre">Transport.next_hop()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Transport.next_hop_interface"><code class="docutils literal notranslate"><span class="pre">Transport.next_hop_interface()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Transport.request_path"><code class="docutils literal notranslate"><span class="pre">Transport.request_path()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#RNS.Transport.PATHFINDER_M"><code class="docutils literal notranslate"><span class="pre">PATHFINDER_M</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Transport.register_announce_handler"><code class="docutils literal notranslate"><span class="pre">register_announce_handler()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Transport.deregister_announce_handler"><code class="docutils literal notranslate"><span class="pre">deregister_announce_handler()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Transport.has_path"><code class="docutils literal notranslate"><span class="pre">has_path()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Transport.hops_to"><code class="docutils literal notranslate"><span class="pre">hops_to()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Transport.next_hop"><code class="docutils literal notranslate"><span class="pre">next_hop()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Transport.next_hop_interface"><code class="docutils literal notranslate"><span class="pre">next_hop_interface()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Transport.request_path"><code class="docutils literal notranslate"><span class="pre">request_path()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1476,13 +1431,13 @@ will announce it.</p>
   </div>
   <div>
     <h4>Previous topic</h4>
-    <p class="topless"><a href="networks.html"
-                          title="previous chapter">Building Networks</a></p>
+    <p class="topless"><a href="examples.html"
+                          title="previous chapter">Code Examples</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="examples.html"
-                          title="next chapter">Code Examples</a></p>
+    <p class="topless"><a href="support.html"
+                          title="next chapter">Support Reticulum</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -1512,10 +1467,10 @@ will announce it.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="examples.html" title="Code Examples"
+          <a href="support.html" title="Support Reticulum"
              >next</a> |</li>
         <li class="right" >
-          <a href="networks.html" title="Building Networks"
+          <a href="examples.html" title="Code Examples"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.12 beta documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">API Reference</a></li> 
