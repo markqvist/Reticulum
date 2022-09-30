@@ -178,10 +178,12 @@ class Reticulum:
         if configdir != None:
             Reticulum.configdir = configdir
         else:
-            if os.path.isdir(Reticulum.userdir+"/.reticulum") and os.path.isfile(Reticulum.userdir+"/.reticulum/config"):
-                Reticulum.configdir = Reticulum.userdir+"/.reticulum"
-            else:
+            if os.path.isdir(Reticulum.userdir+"/etc/reticulum") and os.path.isfile(Reticulum.userdir+"/etc/reticulum/config"):
+                Reticulum.configdir = Reticulum.userdir+"/etc/reticulum"
+            elif os.path.isdir(Reticulum.userdir+"/.config/reticulum") and os.path.isfile(Reticulum.userdir+"/.config/reticulum/config"):
                 Reticulum.configdir = Reticulum.userdir+"/.config/reticulum"
+            else:
+                Reticulum.configdir = Reticulum.userdir+"/.reticulum"
 
         if logdest == RNS.LOG_FILE:
             RNS.logdest = RNS.LOG_FILE
