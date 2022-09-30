@@ -685,9 +685,12 @@ over a Reticulum network. Packets to will automatically be encrypted if
 they are adressed to a <code class="docutils literal notranslate"><span class="pre">RNS.Destination.SINGLE</span></code> destination,
 <code class="docutils literal notranslate"><span class="pre">RNS.Destination.GROUP</span></code> destination or a <a class="reference internal" href="#api-link"><span class="std std-ref">RNS.Link</span></a>.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">RNS.Destination.GROUP</span></code> destinations, Reticulum will use the
-pre-shared key configured for the destination.</p>
-<p>For <code class="docutils literal notranslate"><span class="pre">RNS.Destination.SINGLE</span></code> destinations and <a class="reference internal" href="#api-link"><span class="std std-ref">RNS.Link</span></a>
-destinations, reticulum will use ephemeral keys, and offers <strong>Forward Secrecy</strong>.</p>
+pre-shared key configured for the destination. All packets to group
+destinations are encrypted with the same AES-128 key.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">RNS.Destination.SINGLE</span></code> destinations, Reticulum will use a newly
+derived ephemeral AES-128 key for every packet.</p>
+<p>For <a class="reference internal" href="#api-link"><span class="std std-ref">RNS.Link</span></a> destinations, Reticulum will use per-link
+ephemeral keys, and offers <strong>Forward Secrecy</strong>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

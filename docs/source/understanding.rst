@@ -131,12 +131,13 @@ bits, ensuring the Reticulum address space could potentially support galactic-sc
 This is obviously complete and ridiculous over-allocation, and as such, the current 128 bits should
 be sufficient, even far into the future.
 
-By default Reticulum encrypts all data using elliptic curve cryptography. Any packet sent to a
-destination is encrypted with a derived ephemeral key. Reticulum can also set up an encrypted
+By default Reticulum encrypts all data using elliptic curve cryptography and AES. Any packet sent to a
+destination is encrypted with a per-packet derived key. Reticulum can also set up an encrypted
 channel to a destination, called a *Link*. Both data sent over Links and single packets offer
-*Forward Secrecy* and *Initiator Anonymity*, by using an Elliptic Curve Diffie Hellman key exchange
-on Curve25519 to derive ephemeral keys. The multi-hop transport, coordination, verification
-and reliability layers are fully autonomous and also based on elliptic curve cryptography.
+*Initiator Anonymity*, and links additionally offer *Forward Secrecy* by using an Elliptic Curve
+Diffie Hellman key exchange on Curve25519 to derive per-link ephemeral keys. The multi-hop transport,
+coordination, verification and reliability layers are fully autonomous and also based on elliptic
+curve cryptography.
 
 Reticulum also offers symmetric key encryption for group-oriented communications, as well as
 unencrypted packets for local broadcast purposes.
@@ -442,8 +443,7 @@ For exchanges of small amounts of information, Reticulum offers the *Packet* API
 * | When the destination receives the packet, it can itself perform an ECDH key exchange and decrypt the
     packet.
 
-* | A new ephemeral key is used for every packet sent in this way, and forward secrecy is guaranteed on a
-    per packet level.
+* | A new ephemeral key is used for every packet sent in this way.
 
 * | Once the packet has been received and decrypted by the addressed destination, that destination can opt
     to *prove* its receipt of the packet. It does this by calculating the SHA-256 hash of the received packet,
@@ -453,7 +453,7 @@ For exchanges of small amounts of information, Reticulum offers the *Packet* API
 
 * | In case the packet is addressed to a *group* destination type, the packet will be encrypted with the
     pre-shared AES-128 key associated with the destination. In case the packet is addressed to a *plain*
-    destination type, the payload data will not be encrypted. Neither of these two destination types offer
+    destination type, the payload data will not be encrypted. Neither of these two destination types can offer
     forward secrecy. In general, it is recommended to always use the *single* destination type, unless it is
     strictly necessary to use one of the others.
 

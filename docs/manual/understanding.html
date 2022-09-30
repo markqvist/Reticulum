@@ -180,12 +180,13 @@ congestion, a one-line code change can upgrade the Reticulum address space all t
 bits, ensuring the Reticulum address space could potentially support galactic-scale networks.
 This is obviously complete and ridiculous over-allocation, and as such, the current 128 bits should
 be sufficient, even far into the future.</p>
-<p>By default Reticulum encrypts all data using elliptic curve cryptography. Any packet sent to a
-destination is encrypted with a derived ephemeral key. Reticulum can also set up an encrypted
+<p>By default Reticulum encrypts all data using elliptic curve cryptography and AES. Any packet sent to a
+destination is encrypted with a per-packet derived key. Reticulum can also set up an encrypted
 channel to a destination, called a <em>Link</em>. Both data sent over Links and single packets offer
-<em>Forward Secrecy</em> and <em>Initiator Anonymity</em>, by using an Elliptic Curve Diffie Hellman key exchange
-on Curve25519 to derive ephemeral keys. The multi-hop transport, coordination, verification
-and reliability layers are fully autonomous and also based on elliptic curve cryptography.</p>
+<em>Initiator Anonymity</em>, and links additionally offer <em>Forward Secrecy</em> by using an Elliptic Curve
+Diffie Hellman key exchange on Curve25519 to derive per-link ephemeral keys. The multi-hop transport,
+coordination, verification and reliability layers are fully autonomous and also based on elliptic
+curve cryptography.</p>
 <p>Reticulum also offers symmetric key encryption for group-oriented communications, as well as
 unencrypted packets for local broadcast purposes.</p>
 <p>Reticulum can connect to a variety of interfaces such as radio modems, data radios and serial ports,
@@ -481,8 +482,7 @@ packet.</div>
 </div>
 </li>
 <li><div class="line-block">
-<div class="line">A new ephemeral key is used for every packet sent in this way, and forward secrecy is guaranteed on a
-per packet level.</div>
+<div class="line">A new ephemeral key is used for every packet sent in this way.</div>
 </div>
 </li>
 <li><div class="line-block">
@@ -496,7 +496,7 @@ public signing key.</div>
 <li><div class="line-block">
 <div class="line">In case the packet is addressed to a <em>group</em> destination type, the packet will be encrypted with the
 pre-shared AES-128 key associated with the destination. In case the packet is addressed to a <em>plain</em>
-destination type, the payload data will not be encrypted. Neither of these two destination types offer
+destination type, the payload data will not be encrypted. Neither of these two destination types can offer
 forward secrecy. In general, it is recommended to always use the <em>single</em> destination type, unless it is
 strictly necessary to use one of the others.</div>
 </div>

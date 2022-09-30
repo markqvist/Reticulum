@@ -34,10 +34,14 @@ class Packet:
     ``RNS.Destination.GROUP`` destination or a :ref:`RNS.Link<api-link>`.
 
     For ``RNS.Destination.GROUP`` destinations, Reticulum will use the
-    pre-shared key configured for the destination.
+    pre-shared key configured for the destination. All packets to group
+    destinations are encrypted with the same AES-128 key.
 
-    For ``RNS.Destination.SINGLE`` destinations and :ref:`RNS.Link<api-link>`
-    destinations, reticulum will use ephemeral keys, and offers **Forward Secrecy**.
+    For ``RNS.Destination.SINGLE`` destinations, Reticulum will use a newly
+    derived ephemeral AES-128 key for every packet.
+
+    For :ref:`RNS.Link<api-link>` destinations, Reticulum will use per-link
+    ephemeral keys, and offers **Forward Secrecy**.
 
     :param destination: A :ref:`RNS.Destination<api-destination>` instance to which the packet will be sent.
     :param data: The data payload to be included in the packet as *bytes*.
