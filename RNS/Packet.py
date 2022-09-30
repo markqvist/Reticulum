@@ -29,7 +29,7 @@ import RNS
 class Packet:
     """
     The Packet class is used to create packet instances that can be sent
-    over a Reticulum network. Packets to will automatically be encrypted if
+    over a Reticulum network. Packets will automatically be encrypted if
     they are adressed to a ``RNS.Destination.SINGLE`` destination,
     ``RNS.Destination.GROUP`` destination or a :ref:`RNS.Link<api-link>`.
 

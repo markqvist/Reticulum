@@ -45,7 +45,7 @@ class Link:
     """
     This class is used to establish and manage links to other peers. When a
     link instance is created, Reticulum will attempt to establish verified
-    connectivity with the specified destination.
+    and encrypted connectivity with the specified destination.
 
     :param destination: A :ref:`RNS.Destination<api-destination>` instance which to establish a link to.
     :param established_callback: An optional function or method with the signature *callback(link)* to be called when the link has been established.
@@ -409,7 +409,7 @@ class Link:
 
     def get_remote_identity(self):
         """
-        :returns: The identity of the remote peer, if it is known
+        :returns: The identity of the remote peer, if it is known. Calling this method will not query the remote initiator to reveal its identity. Returns ``None`` if the link initiator has not already independently called the ``identify(identity)`` method.
         """
         return self.__remote_identity
 
