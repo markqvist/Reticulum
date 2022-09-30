@@ -5,6 +5,11 @@ This manual aims to provide you with all the information you need to
 understand Reticulum, build networks or develop programs using it, or
 to participate in the development of Reticulum itself.
 
+.. only:: html
+
+   Table Of Contents
+   =================
+
 .. toctree::
    :maxdepth: 3
 
@@ -16,8 +21,12 @@ to participate in the development of Reticulum itself.
    interfaces
    networks
    examples
-   reference
    support
+
+.. toctree::
+   :maxdepth: 2
+
+   reference
 
 
 .. only:: html

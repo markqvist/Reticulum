@@ -5,11 +5,8 @@
 *************
 API Reference
 *************
-This chapter lists and explains all classes exposed by the Reticulum Network Stack API, along with their methods and usage. It can be used as a reference while writing applications that utilise Reticulum, or read in entirity to gain an understanding of the complete functionality of RNS from a developers perspective.
-
-Classes
-=========================
-Communication over a Reticulum network is achieved using a set of classes exposed by the RNS API.
+Communication over Reticulum networks is achieved by using a simple set of classes exposed by the RNS API.
+This chapter lists and explains all classes exposed by the Reticulum Network Stack API, along with their method signatures and usage. It can be used as a reference while writing applications that utilise Reticulum, or it can be read in entirity to gain an understanding of the complete functionality of RNS from a developers perspective.
 
 .. _api-reticulum:
 

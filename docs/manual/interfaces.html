@@ -1,51 +1,228 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Building Networks" href="networks.html" /><link rel="prev" title="Communications Hardware" href="hardware.html" />
 
-<!DOCTYPE html>
-
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-
-    <title>Supported Interfaces &#8212; Reticulum Network Stack 0.3.12 beta documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <meta name="generator" content="sphinx-5.2.2, furo 2022.09.29"/>
+        <title>Supported Interfaces - Reticulum Network Stack 0.3.12 beta documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
     
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Building Networks" href="networks.html" />
-    <link rel="prev" title="Communications Hardware" href="hardware.html" /> 
-  </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="networks.html" title="Building Networks"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="hardware.html" title="Communications Hardware"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.12 beta documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Supported Interfaces</a></li> 
-      </ul>
-    </div>  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
-  <section id="supported-interfaces">
-<span id="interfaces-main"></span><h1>Supported Interfaces<a class="headerlink" href="#supported-interfaces" title="Permalink to this heading">¶</a></h1>
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.3.12 beta documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.3.12 beta documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="whatis.html">What is Reticulum?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstartedfast.html">Getting Started Fast</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using.html">Using Reticulum on Your System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Supported Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="supported-interfaces">
+<span id="interfaces-main"></span><h1>Supported Interfaces<a class="headerlink" href="#supported-interfaces" title="Permalink to this heading">#</a></h1>
 <p>Reticulum supports using many kinds of devices as networking interfaces, and
 allows you to mix and match them in any way you choose. The number of distinct
 network topologies you can create with Reticulum is more or less endless, but
@@ -57,7 +234,7 @@ and gives example configurations for the respective interface types.</p>
 types, have a look at the <a class="reference internal" href="networks.html#networks-main"><span class="std std-ref">Building Networks</span></a> chapter of this
 manual.</p>
 <section id="auto-interface">
-<span id="interfaces-auto"></span><h2>Auto Interface<a class="headerlink" href="#auto-interface" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-auto"></span><h2>Auto Interface<a class="headerlink" href="#auto-interface" title="Permalink to this heading">#</a></h2>
 <p>The Auto Interface enables communication with other discoverable Reticulum
 nodes over autoconfigured IPv6 and UDP. It does not need any functional IP
 infrastructure like routers or DHCP servers, but will require at least some
@@ -111,7 +288,7 @@ the discovery scope by setting it to one of <code class="docutils literal notran
 </div>
 </section>
 <section id="i2p-interface">
-<span id="interfaces-i2p"></span><h2>I2P Interface<a class="headerlink" href="#i2p-interface" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-i2p"></span><h2>I2P Interface<a class="headerlink" href="#i2p-interface" title="Permalink to this heading">#</a></h2>
 <p>The I2P interface lets you connect Reticulum instances over the
 <a class="reference external" href="https://i2pd.website">Invisible Internet Protocol</a>. This can be
 especially useful in cases where you want to host a globally reachable
@@ -164,7 +341,7 @@ of flexibility in network setup, while retaining ease of use in simpler
 use-cases.</p>
 </section>
 <section id="tcp-server-interface">
-<span id="interfaces-tcps"></span><h2>TCP Server Interface<a class="headerlink" href="#tcp-server-interface" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-tcps"></span><h2>TCP Server Interface<a class="headerlink" href="#tcp-server-interface" title="Permalink to this heading">#</a></h2>
 <p>The TCP Server interface is suitable for allowing other peers to connect over
 the Internet or private IP networks. When a TCP server interface has been
 configured, other Reticulum peers can connect to it with a TCP Client interface.</p>
@@ -207,7 +384,7 @@ you must use the i2p_tunneled option:</p>
 control, and using I2P routers running on external systems, this option also exists.</p>
 </section>
 <section id="tcp-client-interface">
-<span id="interfaces-tcpc"></span><h2>TCP Client Interface<a class="headerlink" href="#tcp-client-interface" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-tcpc"></span><h2>TCP Client Interface<a class="headerlink" href="#tcp-client-interface" title="Permalink to this heading">#</a></h2>
 <p>To connect to a TCP server interface, you would naturally use the TCP client
 interface. Many TCP Client interfaces from different peers can connect to the
 same TCP Server interface at the same time.</p>
@@ -256,7 +433,7 @@ you must use the i2p_tunneled option:</p>
 </div>
 </section>
 <section id="udp-interface">
-<span id="interfaces-udp"></span><h2>UDP Interface<a class="headerlink" href="#udp-interface" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-udp"></span><h2>UDP Interface<a class="headerlink" href="#udp-interface" title="Permalink to this heading">#</a></h2>
 <p>A UDP interface can be useful for communicating over IP networks, both
 private and the internet. It can also allow broadcast communication
 over IP networks, so it can provide an easy way to enable connectivity
@@ -311,7 +488,7 @@ easier to use.</p>
 </div>
 </section>
 <section id="rnode-lora-interface">
-<span id="interfaces-rnode"></span><h2>RNode LoRa Interface<a class="headerlink" href="#rnode-lora-interface" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-rnode"></span><h2>RNode LoRa Interface<a class="headerlink" href="#rnode-lora-interface" title="Permalink to this heading">#</a></h2>
 <p>To use Reticulum over LoRa, the <a class="reference external" href="https://unsigned.io/rnode/">RNode</a> interface
 can be used, and offers full control over LoRa parameters.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of how to add a LoRa interface</span>
@@ -362,7 +539,7 @@ can be used, and offers full control over LoRa parameters.</p>
 </div>
 </section>
 <section id="serial-interface">
-<span id="interfaces-serial"></span><h2>Serial Interface<a class="headerlink" href="#serial-interface" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-serial"></span><h2>Serial Interface<a class="headerlink" href="#serial-interface" title="Permalink to this heading">#</a></h2>
 <p>Reticulum can be used over serial ports directly, or over any device with a
 serial port, that will transparently pass data. Useful for communicating
 directly over a wire-pair, or for using devices such as data radios and lasers.</p>
@@ -383,7 +560,7 @@ directly over a wire-pair, or for using devices such as data radios and lasers.<
 </div>
 </section>
 <section id="pipe-interface">
-<span id="interfaces-pipe"></span><h2>Pipe Interface<a class="headerlink" href="#pipe-interface" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-pipe"></span><h2>Pipe Interface<a class="headerlink" href="#pipe-interface" title="Permalink to this heading">#</a></h2>
 <p>Using this interface, Reticulum can use any program as an interface via <cite>stdin</cite> and
 <cite>stdout</cite>. This can be used to easily create virtual interfaces, or to interface with
 custom hardware or other systems.</p>
@@ -403,7 +580,7 @@ continuously read and scan its <cite>stdout</cite> for Reticulum packets. If <co
 Reticulum will try to respawn the program after waiting for <code class="docutils literal notranslate"><span class="pre">respawn_interval</span></code> seconds.</p>
 </section>
 <section id="kiss-interface">
-<span id="interfaces-kiss"></span><h2>KISS Interface<a class="headerlink" href="#kiss-interface" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-kiss"></span><h2>KISS Interface<a class="headerlink" href="#kiss-interface" title="Permalink to this heading">#</a></h2>
 <p>With the KISS interface, you can use Reticulum over a variety of packet
 radio modems and TNCs, including <a class="reference external" href="https://unsigned.io/openmodem/">OpenModem</a>.
 KISS interfaces can also be configured to periodically send out beacons
@@ -455,7 +632,7 @@ for station identification purposes.</p>
 </div>
 </section>
 <section id="ax-25-kiss-interface">
-<span id="interfaces-ax25"></span><h2>AX.25 KISS Interface<a class="headerlink" href="#ax-25-kiss-interface" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-ax25"></span><h2>AX.25 KISS Interface<a class="headerlink" href="#ax-25-kiss-interface" title="Permalink to this heading">#</a></h2>
 <p>If you’re using Reticulum on amateur radio spectrum, you might want to
 use the AX.25 KISS interface. This way, Reticulum will automatically
 encapsulate it’s traffic in AX.25 and also identify your stations
@@ -511,7 +688,7 @@ beaconing functionality described above.</p>
 </div>
 </section>
 <section id="common-interface-options">
-<span id="interfaces-options"></span><h2>Common Interface Options<a class="headerlink" href="#common-interface-options" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-options"></span><h2>Common Interface Options<a class="headerlink" href="#common-interface-options" title="Permalink to this heading">#</a></h2>
 <p>A number of general configuration options are available on most interfaces.
 These can be used to control various aspects of interface behaviour.</p>
 <blockquote>
@@ -607,7 +784,7 @@ option, to set the interface speed in <em>bits per second</em>.</div>
 </div></blockquote>
 </section>
 <section id="interface-modes">
-<span id="interfaces-modes"></span><h2>Interface Modes<a class="headerlink" href="#interface-modes" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-modes"></span><h2>Interface Modes<a class="headerlink" href="#interface-modes" title="Permalink to this heading">#</a></h2>
 <p>The optional <code class="docutils literal notranslate"><span class="pre">mode</span></code> setting is available on all interfaces, and allows
 selecting the high-level behaviour of the interface from a number of modes.
 These modes affect how Reticulum selects paths in the network, how announces
@@ -699,7 +876,7 @@ connecting over the Internet should be set to <code class="docutils literal notr
 please see the <a class="reference internal" href="understanding.html#understanding-announcepropagation"><span class="std std-ref">Announce Propagation Rules</span></a> section.</p>
 </section>
 <section id="announce-rate-control">
-<span id="interfaces-announcerates"></span><h2>Announce Rate Control<a class="headerlink" href="#announce-rate-control" title="Permalink to this heading">¶</a></h2>
+<span id="interfaces-announcerates"></span><h2>Announce Rate Control<a class="headerlink" href="#announce-rate-control" title="Permalink to this heading">#</a></h2>
 <p>The built-in announce control mechanisms and the default <code class="docutils literal notranslate"><span class="pre">announce_cap</span></code>
 option described above are sufficient most of the time, but in some cases, especially on fast
 interfaces, it may be useful to control the target announce rate. Using the
@@ -748,16 +925,62 @@ that a large span of network types can seamlessly <em>co-exist</em> and intercon
 </section>
 </section>
 
-
-            <div class="clearer"></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="networks.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Building Networks</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="hardware.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Communications Hardware</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Mark Qvist
+            </div>
+            Generated with <a href="https://www.sphinx-doc.org/">Sphinx</a> and 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
           </div>
         </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <div>
-    <h3><a href="index.html">Table of Contents</a></h3>
-    <ul>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
 <li><a class="reference internal" href="#">Supported Interfaces</a><ul>
 <li><a class="reference internal" href="#auto-interface">Auto Interface</a></li>
 <li><a class="reference internal" href="#i2p-interface">I2P Interface</a></li>
@@ -776,57 +999,21 @@ that a large span of network types can seamlessly <em>co-exist</em> and intercon
 </li>
 </ul>
 
-  </div>
-  <div>
-    <h4>Previous topic</h4>
-    <p class="topless"><a href="hardware.html"
-                          title="previous chapter">Communications Hardware</a></p>
-  </div>
-  <div>
-    <h4>Next topic</h4>
-    <p class="topless"><a href="networks.html"
-                          title="next chapter">Building Networks</a></p>
-  </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/interfaces.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
+          </div>
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="networks.html" title="Building Networks"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="hardware.html" title="Communications Hardware"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.12 beta documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Supported Interfaces</a></li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2022, Mark Qvist.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.2.
-    </div>
-  </body>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    </body>
 </html>

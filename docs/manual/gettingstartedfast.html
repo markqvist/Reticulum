@@ -1,56 +1,233 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Using Reticulum on Your System" href="using.html" /><link rel="prev" title="What is Reticulum?" href="whatis.html" />
 
-<!DOCTYPE html>
-
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-
-    <title>Getting Started Fast &#8212; Reticulum Network Stack 0.3.12 beta documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <meta name="generator" content="sphinx-5.2.2, furo 2022.09.29"/>
+        <title>Getting Started Fast - Reticulum Network Stack 0.3.12 beta documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
     
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Using Reticulum on Your System" href="using.html" />
-    <link rel="prev" title="What is Reticulum?" href="whatis.html" /> 
-  </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="using.html" title="Using Reticulum on Your System"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="whatis.html" title="What is Reticulum?"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.12 beta documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Getting Started Fast</a></li> 
-      </ul>
-    </div>  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
-  <section id="getting-started-fast">
-<h1>Getting Started Fast<a class="headerlink" href="#getting-started-fast" title="Permalink to this heading">¶</a></h1>
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.3.12 beta documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.3.12 beta documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="whatis.html">What is Reticulum?</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Getting Started Fast</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using.html">Using Reticulum on Your System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interfaces.html">Supported Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="getting-started-fast">
+<h1>Getting Started Fast<a class="headerlink" href="#getting-started-fast" title="Permalink to this heading">#</a></h1>
 <p>The best way to get started with the Reticulum Network Stack depends on what
 you want to do. This guide will outline sensible starting paths for different
 scenarios.</p>
 <section id="try-using-a-reticulum-based-program">
-<h2>Try Using a Reticulum-based Program<a class="headerlink" href="#try-using-a-reticulum-based-program" title="Permalink to this heading">¶</a></h2>
+<h2>Try Using a Reticulum-based Program<a class="headerlink" href="#try-using-a-reticulum-based-program" title="Permalink to this heading">#</a></h2>
 <p>If you simply want to try using a program built with Reticulum, a few different
 programs exist that allow basic communication and a range of other useful functions
 over even extremely low-bandwidth Reticulum networks.</p>
@@ -62,7 +239,7 @@ transceivers or infrastructure just to try it out. Launching the programs on sep
 devices connected to the same WiFi network is enough to get started, and physical
 radio interfaces can then be added later.</p>
 <section id="nomad-network">
-<h3>Nomad Network<a class="headerlink" href="#nomad-network" title="Permalink to this heading">¶</a></h3>
+<h3>Nomad Network<a class="headerlink" href="#nomad-network" title="Permalink to this heading">#</a></h3>
 <p>The terminal-based program <a class="reference external" href="https://github.com/markqvist/nomadnet">Nomad Network</a>
 provides a complete encrypted communications suite built with Reticulum. It features
 encrypted messaging (both direct and delayed-delivery for offline users), file sharing,
@@ -86,7 +263,7 @@ available. If you get a “command not found” error or similar when running th
 program, reboot your system and try again.</p>
 </section>
 <section id="sideband">
-<h3>Sideband<a class="headerlink" href="#sideband" title="Permalink to this heading">¶</a></h3>
+<h3>Sideband<a class="headerlink" href="#sideband" title="Permalink to this heading">#</a></h3>
 <p>If you would rather use a program with a graphical user interface, you can take
 a look at <a class="reference external" href="https://unsigned.io/sideband">Sideband</a>, which is available for Android,
 Linux and macOS.</p>
@@ -96,7 +273,7 @@ communication features, and interoperates with Nomad Network, or any other LXMF 
 </section>
 </section>
 <section id="using-the-included-utilities">
-<h2>Using the Included Utilities<a class="headerlink" href="#using-the-included-utilities" title="Permalink to this heading">¶</a></h2>
+<h2>Using the Included Utilities<a class="headerlink" href="#using-the-included-utilities" title="Permalink to this heading">#</a></h2>
 <p>Reticulum comes with a range of included utilities that make it easier to
 manage your network, check connectivity and make Reticulum available to other
 programs on your system.</p>
@@ -107,7 +284,7 @@ network status and connectivity.</p>
 <a class="reference internal" href="using.html#using-main"><span class="std std-ref">Using Reticulum on Your System</span></a> chapter of this manual.</p>
 </section>
 <section id="creating-a-network-with-reticulum">
-<h2>Creating a Network With Reticulum<a class="headerlink" href="#creating-a-network-with-reticulum" title="Permalink to this heading">¶</a></h2>
+<h2>Creating a Network With Reticulum<a class="headerlink" href="#creating-a-network-with-reticulum" title="Permalink to this heading">#</a></h2>
 <p>To create a network, you will need to specify one or more <em>interfaces</em> for
 Reticulum to use. This is done in the Reticulum configuration file, which by
 default is located at <code class="docutils literal notranslate"><span class="pre">~/.config/reticulum/config</span></code>. You can edit this file by hand,
@@ -136,7 +313,7 @@ you want more information, you can read the <a class="reference internal" href="
 and <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> chapters of this manual.</p>
 </section>
 <section id="connecting-reticulum-instances-over-the-internet">
-<h2>Connecting Reticulum Instances Over the Internet<a class="headerlink" href="#connecting-reticulum-instances-over-the-internet" title="Permalink to this heading">¶</a></h2>
+<h2>Connecting Reticulum Instances Over the Internet<a class="headerlink" href="#connecting-reticulum-instances-over-the-internet" title="Permalink to this heading">#</a></h2>
 <p>Reticulum currently offers two interfaces suitable for connecting instances over the Internet: <a class="reference internal" href="interfaces.html#interfaces-tcps"><span class="std std-ref">TCP</span></a>
 and <a class="reference internal" href="interfaces.html#interfaces-i2p"><span class="std std-ref">I2P</span></a>. Each interface offers a different set of features, and Reticulum
 users should carefully choose the interface which best suites their needs.</p>
@@ -164,7 +341,7 @@ instance, while preserving anonymity. If you care more about performance, and a 
 easier setup, use TCP.</p>
 </section>
 <section id="connect-to-the-public-testnet">
-<h2>Connect to the Public Testnet<a class="headerlink" href="#connect-to-the-public-testnet" title="Permalink to this heading">¶</a></h2>
+<h2>Connect to the Public Testnet<a class="headerlink" href="#connect-to-the-public-testnet" title="Permalink to this heading">#</a></h2>
 <p>An experimental public testnet has been made accessible over both I2P and TCP. You can join it
 by adding one of the following interfaces to your <code class="docutils literal notranslate"><span class="pre">.reticulum/config</span></code> file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># TCP/IP interface to the Dublin hub</span>
@@ -194,7 +371,7 @@ topography, usage or what types of instances connect. It will also occasionally 
 to test various failure scenarios, and there are no availability or service guarantees.</p>
 </section>
 <section id="adding-radio-interfaces">
-<h2>Adding Radio Interfaces<a class="headerlink" href="#adding-radio-interfaces" title="Permalink to this heading">¶</a></h2>
+<h2>Adding Radio Interfaces<a class="headerlink" href="#adding-radio-interfaces" title="Permalink to this heading">#</a></h2>
 <p>Once you have Reticulum installed and working, you can add radio interfaces with
 any compatible hardware you have available. Reticulum supports a wide range of radio
 hardware, and if you already have any available, it is very likely that it will
@@ -220,7 +397,7 @@ you are welcome to head over to the <a class="reference external" href="https://
 and propose adding an interface for the hardware.</p>
 </section>
 <section id="develop-a-program-with-reticulum">
-<h2>Develop a Program with Reticulum<a class="headerlink" href="#develop-a-program-with-reticulum" title="Permalink to this heading">¶</a></h2>
+<h2>Develop a Program with Reticulum<a class="headerlink" href="#develop-a-program-with-reticulum" title="Permalink to this heading">#</a></h2>
 <p>If you want to develop programs that use Reticulum, the easiest way to get
 started is to install the latest release of Reticulum via pip:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">rns</span>
@@ -236,7 +413,7 @@ likely be to look at some <a class="reference internal" href="examples.html#exam
 <p>Further information can be found in the <a class="reference internal" href="reference.html#api-main"><span class="std std-ref">API Reference</span></a>.</p>
 </section>
 <section id="participate-in-reticulum-development">
-<h2>Participate in Reticulum Development<a class="headerlink" href="#participate-in-reticulum-development" title="Permalink to this heading">¶</a></h2>
+<h2>Participate in Reticulum Development<a class="headerlink" href="#participate-in-reticulum-development" title="Permalink to this heading">#</a></h2>
 <p>If you want to participate in the development of Reticulum and associated
 utilities, you’ll want to get the latest source from GitHub. In that case,
 don’t use pip, but try this recipe:</p>
@@ -276,7 +453,7 @@ don’t use pip, but try this recipe:</p>
 <a class="reference internal" href="understanding.html#understanding-main"><span class="std std-ref">Understanding Reticulum</span></a> chapter.</p>
 </section>
 <section id="reticulum-on-arm64">
-<h2>Reticulum on ARM64<a class="headerlink" href="#reticulum-on-arm64" title="Permalink to this heading">¶</a></h2>
+<h2>Reticulum on ARM64<a class="headerlink" href="#reticulum-on-arm64" title="Permalink to this heading">#</a></h2>
 <p>On some architectures, including ARM64, not all dependencies have precompiled
 binaries. On such systems, you will need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> before
 installing Reticulum or programs that depend on Reticulum.</p>
@@ -290,7 +467,7 @@ installing Reticulum or programs that depend on Reticulum.</p>
 </div>
 </section>
 <section id="reticulum-on-android">
-<h2>Reticulum on Android<a class="headerlink" href="#reticulum-on-android" title="Permalink to this heading">¶</a></h2>
+<h2>Reticulum on Android<a class="headerlink" href="#reticulum-on-android" title="Permalink to this heading">#</a></h2>
 <p>Reticulum can be used on Android in different ways. The easiest way to get
 started is using an app like <a class="reference external" href="https://unsigned.io/sideband">Sideband</a>.</p>
 <p>For more control and features, you can use Reticulum and related programs via
@@ -332,7 +509,7 @@ Android APKs. A detailed tutorial and example source code will be included
 here at a later point.</p>
 </section>
 <section id="pure-python-reticulum">
-<h2>Pure-Python Reticulum<a class="headerlink" href="#pure-python-reticulum" title="Permalink to this heading">¶</a></h2>
+<h2>Pure-Python Reticulum<a class="headerlink" href="#pure-python-reticulum" title="Permalink to this heading">#</a></h2>
 <p>In some rare cases, and on more obscure system types, it is not possible to
 install one or more dependencies</p>
 <p>On more unusual systems, and in some rare cases, it might not be possible to
@@ -354,16 +531,62 @@ section of this manual.</p>
 </section>
 </section>
 
-
-            <div class="clearer"></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="using.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Using Reticulum on Your System</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="whatis.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">What is Reticulum?</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Mark Qvist
+            </div>
+            Generated with <a href="https://www.sphinx-doc.org/">Sphinx</a> and 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
           </div>
         </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <div>
-    <h3><a href="index.html">Table of Contents</a></h3>
-    <ul>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
 <li><a class="reference internal" href="#">Getting Started Fast</a><ul>
 <li><a class="reference internal" href="#try-using-a-reticulum-based-program">Try Using a Reticulum-based Program</a><ul>
 <li><a class="reference internal" href="#nomad-network">Nomad Network</a></li>
@@ -384,57 +607,21 @@ section of this manual.</p>
 </li>
 </ul>
 
-  </div>
-  <div>
-    <h4>Previous topic</h4>
-    <p class="topless"><a href="whatis.html"
-                          title="previous chapter">What is Reticulum?</a></p>
-  </div>
-  <div>
-    <h4>Next topic</h4>
-    <p class="topless"><a href="using.html"
-                          title="next chapter">Using Reticulum on Your System</a></p>
-  </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/gettingstartedfast.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
+          </div>
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="using.html" title="Using Reticulum on Your System"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="whatis.html" title="What is Reticulum?"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Reticulum Network Stack 0.3.12 beta documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Getting Started Fast</a></li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2022, Mark Qvist.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.2.
-    </div>
-  </body>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    </body>
 </html>
