@@ -1,7 +1,7 @@
 Reticulum Network Stack β
 ==========
 
-<p align="center"><img width="200" src="https://unsigned.io/wp-content/uploads/2022/03/reticulum_logo_512.png"></p>
+<p align="center"><img width="200" src="https://raw.githubusercontent.com/markqvist/Reticulum/master/docs/source/graphics/rns_logo_512.png"></p>
 
 Reticulum is the cryptography-based networking stack for wide-area networks
 built on readily available hardware. It can operate even with very high latency
