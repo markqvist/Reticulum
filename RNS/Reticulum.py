@@ -178,8 +178,8 @@ class Reticulum:
         if configdir != None:
             Reticulum.configdir = configdir
         else:
-            if os.path.isdir(Reticulum.userdir+"/etc/reticulum") and os.path.isfile(Reticulum.userdir+"/etc/reticulum/config"):
-                Reticulum.configdir = Reticulum.userdir+"/etc/reticulum"
+            if os.path.isdir("/etc/reticulum") and os.path.isfile("/etc/reticulum/config"):
+                Reticulum.configdir = "/etc/reticulum"
             elif os.path.isdir(Reticulum.userdir+"/.config/reticulum") and os.path.isfile(Reticulum.userdir+"/.config/reticulum/config"):
                 Reticulum.configdir = Reticulum.userdir+"/.config/reticulum"
             else:
