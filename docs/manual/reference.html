@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Support Reticulum" href="support.html" />
 
     <meta name="generator" content="sphinx-5.2.2, furo 2022.09.29"/>
-        <title>API Reference - Reticulum Network Stack 0.3.12 beta documentation</title>
+        <title>API Reference - Reticulum Network Stack 0.3.13 beta documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 0.3.12 beta documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.3.13 beta documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -167,7 +167,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 0.3.12 beta documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.3.13 beta documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -596,8 +596,8 @@ encrypted communication with it.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="RNS.Destination.full_name">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">full_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">aspects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.full_name" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="RNS.Destination.expand_name">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">expand_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">aspects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.expand_name" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A string containing the full human-readable name of the destination, for an app_name and a number of aspects.</p>
@@ -626,18 +626,8 @@ encrypted communication with it.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="RNS.Destination.hash">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">aspects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.hash" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A destination name in adressable hash form, for an app_name and a number of aspects.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Destination.announce">
-<span class="sig-name descname"><span class="pre">announce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.announce" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">announce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.announce" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates an announce packet for this destination and broadcasts it on all
 relevant interfaces. Application specific data can be added to the announce.</p>
 <dl class="field-list simple">
@@ -1542,10 +1532,9 @@ will announce it.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#RNS.Destination"><code class="docutils literal notranslate"><span class="pre">Destination</span></code></a><ul>
-<li><a class="reference internal" href="#RNS.Destination.full_name"><code class="docutils literal notranslate"><span class="pre">full_name()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.expand_name"><code class="docutils literal notranslate"><span class="pre">expand_name()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.app_and_aspects_from_name"><code class="docutils literal notranslate"><span class="pre">app_and_aspects_from_name()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.hash_from_name_and_identity"><code class="docutils literal notranslate"><span class="pre">hash_from_name_and_identity()</span></code></a></li>
-<li><a class="reference internal" href="#RNS.Destination.hash"><code class="docutils literal notranslate"><span class="pre">hash()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.announce"><code class="docutils literal notranslate"><span class="pre">announce()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.accepts_links"><code class="docutils literal notranslate"><span class="pre">accepts_links()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.set_link_established_callback"><code class="docutils literal notranslate"><span class="pre">set_link_established_callback()</span></code></a></li>
