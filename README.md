@@ -42,7 +42,7 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
 ## Notable Features
 - Coordination-less globally unique addressing and identification
 - Fully self-configuring multi-hop routing
-- Complete initiator anonymity, communicate without revealing your identity
+- Initiator anonymity, communicate without revealing your identity
 - Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
 - Forward Secrecy with ephemeral Elliptic Curve Diffie-Hellman keys on Curve25519
 - Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for on-the-wire / over-the-air encryption
