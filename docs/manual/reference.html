@@ -626,6 +626,16 @@ encrypted communication with it.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.hash">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">aspects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.hash" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A destination name in adressable hash form, for an app_name and a number of aspects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Destination.announce">
 <span class="sig-name descname"><span class="pre">announce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.announce" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates an announce packet for this destination and broadcasts it on all
@@ -1535,6 +1545,7 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Destination.expand_name"><code class="docutils literal notranslate"><span class="pre">expand_name()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.app_and_aspects_from_name"><code class="docutils literal notranslate"><span class="pre">app_and_aspects_from_name()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.hash_from_name_and_identity"><code class="docutils literal notranslate"><span class="pre">hash_from_name_and_identity()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.hash"><code class="docutils literal notranslate"><span class="pre">hash()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.announce"><code class="docutils literal notranslate"><span class="pre">announce()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.accepts_links"><code class="docutils literal notranslate"><span class="pre">accepts_links()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.set_link_established_callback"><code class="docutils literal notranslate"><span class="pre">set_link_established_callback()</span></code></a></li>
