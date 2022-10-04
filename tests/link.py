@@ -55,7 +55,32 @@ class TestLink(unittest.TestCase):
     def tearDownClass(cls):
         close_rns()
 
-    def test_0_establish(self):
+    def test_0_valid_announce(self):
+        init_rns(self)
+        print("")
+
+        fid = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[3][0]))
+        dst = RNS.Destination(fid, RNS.Destination.IN, RNS.Destination.SINGLE, "test", "announce")
+        ap  = dst.announce(send=False)
+        ap.pack()
+        self.assertEqual(RNS.Identity.validate_announce(ap), True)
+
+    def test_1_invalid_announce(self):
+        init_rns(self)
+        print("")
+
+        fid = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[4][0]))
+        dst = RNS.Destination(fid, RNS.Destination.IN, RNS.Destination.SINGLE, "test", "announce")
+        ap  = dst.announce(send=False)
+        fake_dst = bytes.fromhex("1333b911fa8ebb16726996adbe3c6262")
+        pre_len = len(ap.data)
+        ap.data = fake_dst+ap.data[16:]
+        self.assertEqual(pre_len, len(ap.data))
+        ap.pack()
+        ap.send()
+        self.assertEqual(RNS.Identity.validate_announce(ap), False)
+
+    def test_2_establish(self):
         init_rns(self)
         print("")
 
@@ -64,7 +89,7 @@ class TestLink(unittest.TestCase):
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
-        self.assertEqual(dest.hash, bytes.fromhex("6bbe8b43a9842b77867ad99fd090fff3"))
+        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
@@ -74,7 +99,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    def test_1_packets(self):
+    def test_3_packets(self):
         init_rns(self)
         print("")
 
@@ -84,7 +109,7 @@ class TestLink(unittest.TestCase):
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
-        self.assertEqual(dest.hash, bytes.fromhex("6bbe8b43a9842b77867ad99fd090fff3"))
+        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
@@ -140,7 +165,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    def test_2_micro_resource(self):
+    def test_4_micro_resource(self):
         init_rns(self)
         print("")
         print("Micro resource test")
@@ -151,7 +176,7 @@ class TestLink(unittest.TestCase):
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
-        self.assertEqual(dest.hash, bytes.fromhex("6bbe8b43a9842b77867ad99fd090fff3"))
+        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
@@ -175,7 +200,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    def test_3_mini_resource(self):
+    def test_5_mini_resource(self):
         init_rns(self)
         print("")
         print("Mini resource test")
@@ -186,7 +211,7 @@ class TestLink(unittest.TestCase):
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
-        self.assertEqual(dest.hash, bytes.fromhex("6bbe8b43a9842b77867ad99fd090fff3"))
+        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
@@ -210,7 +235,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    def test_4_small_resource(self):
+    def test_6_small_resource(self):
         init_rns(self)
         print("")
         print("Small resource test")
@@ -220,7 +245,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
-        self.assertEqual(dest.hash, bytes.fromhex("6bbe8b43a9842b77867ad99fd090fff3"))
+        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
@@ -245,7 +270,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
 
-    def test_5_medium_resource(self):
+    def test_7_medium_resource(self):
         if RNS.Cryptography.backend() == "internal":
             print("Skipping medium resource test...")
             return
@@ -259,7 +284,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
-        self.assertEqual(dest.hash, bytes.fromhex("6bbe8b43a9842b77867ad99fd090fff3"))
+        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
@@ -283,7 +308,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    def test_6_large_resource(self):
+    def test_9_large_resource(self):
         if RNS.Cryptography.backend() == "internal":
             print("Skipping large resource test...")
             return
@@ -297,7 +322,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
-        self.assertEqual(dest.hash, bytes.fromhex("6bbe8b43a9842b77867ad99fd090fff3"))
+        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
