@@ -89,19 +89,17 @@ class Destination:
         return name
 
 
-    # @staticmethod
-    # def hash(identity, app_name, *aspects):
-    #     """
-    #     :returns: A destination name in adressable hash form, for an app_name and a number of aspects.
-    #     """
-    #     base_name     = Destination.expand_name(None, app_name, *aspects)
-    #     hash_material = RNS.Identity.full_hash(base_name.encode("utf-8"))
+    @staticmethod
+    def hash(identity, app_name, *aspects):
+        """
+        :returns: A destination name in adressable hash form, for an app_name and a number of aspects.
+        """
+        name_hash = RNS.Identity.full_hash(Destination.expand_name(None, app_name, *aspects).encode("utf-8"))
+        addr_hash_material = name_hash
+        if identity != None:
+            addr_hash_material += identity.hash
 
-    #     if identity != None:
-    #         hash_material += identity.hash
-
-    #     # Create a digest for the destination
-    #     return RNS.Identity.full_hash(hash_material)[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
+        return RNS.Identity.full_hash(addr_hash_material)[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
 
     @staticmethod
     def app_and_aspects_from_name(full_name):
@@ -117,8 +115,8 @@ class Destination:
         :returns: A destination name in adressable hash form, for a full name string and Identity instance.
         """
         app_name, aspects = Destination.app_and_aspects_from_name(full_name)
-        aspects.append(identity.hexhash)
-        return Destination.hash(app_name, *aspects)
+
+        return Destination.hash(identity, app_name, *aspects)
 
     def __init__(self, identity, direction, type, app_name, *aspects):
         # Check input values and build name string
@@ -144,15 +142,11 @@ class Destination:
             raise TypeError("Selected destination type PLAIN cannot hold an identity")
 
         self.identity = identity
-        self.full_name = Destination.expand_name(identity, app_name, *aspects)
-
-        self.name_hash = RNS.Identity.full_hash(self.expand_name(None, app_name, *aspects).encode("utf-8"))
-        self.addr_hash_material = self.name_hash
-        if self.identity != None:
-            self.addr_hash_material += self.identity.hash
+        self.name = Destination.expand_name(identity, app_name, *aspects)
 
         # Generate the destination address hash
-        self.hash = RNS.Identity.full_hash(self.addr_hash_material)[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
+        self.hash = Destination.hash(self.identity, app_name, *aspects)
+        self.name_hash = RNS.Identity.full_hash(self.expand_name(None, app_name, *aspects).encode("utf-8"))
         self.hexhash = self.hash.hex()
 
         self.default_app_data = None
@@ -166,7 +160,7 @@ class Destination:
         """
         :returns: A human-readable representation of the destination including addressable hash and full name.
         """
-        return "<"+self.full_name+"/"+self.hexhash+">"
+        return "<"+self.name+"/"+self.hexhash+">"
 
 
     def announce(self, app_data=None, path_response=False, send=True):

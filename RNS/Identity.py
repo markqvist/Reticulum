@@ -219,7 +219,7 @@ class Identity:
                 signature = packet.data[Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10:Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10+Identity.SIGLENGTH//8]
                 app_data = b""
                 if len(packet.data) > Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10+Identity.SIGLENGTH//8:
-                    app_data = packet.data[Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:]
+                    app_data = packet.data[Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10+Identity.SIGLENGTH//8:]
 
                 signed_data = destination_hash+public_key+name_hash+random_hash+app_data
 
@@ -245,6 +245,7 @@ class Identity:
                         return True
 
                     else:
+                        RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash)+". Destination mismatch.", RNS.LOG_DEBUG)
                         return False
 
                 else:
