@@ -130,10 +130,11 @@ class ExampleAnnounceHandler:
             RNS.prettyhexrep(destination_hash)
         )
 
-        RNS.log(
-            "The announce contained the following app data: "+
-            app_data.decode("utf-8")
-        )
+        if app_data:
+            RNS.log(
+                "The announce contained the following app data: "+
+                app_data.decode("utf-8")
+            )
 
 ##########################################################
 #### Program Startup #####################################
