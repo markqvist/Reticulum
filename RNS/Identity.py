@@ -234,6 +234,16 @@ class Identity:
                     expected_hash = RNS.Identity.full_hash(hash_material)[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
 
                     if destination_hash == expected_hash:
+                        # Check if we already have a public key for this destination
+                        # and make sure the public key is not different.
+                        if destination_hash in Identity.known_destinations:
+                            if public_key != Identity.known_destinations[destination_hash][2]:
+                                # In reality, this should never occur, but in the odd case
+                                # that someone manages a hash collision, we reject the announce.
+                                RNS.log("Received announce with valid signature and destination hash, but announced public key does not match already known public key.", RNS.LOG_CRITICAL)
+                                RNS.log("This may indicate an attempt to modify network paths, or a random hash collision. The announce was rejected.", RNS.LOG_CRITICAL)
+                                return False
+
                         RNS.Identity.remember(packet.get_hash(), destination_hash, public_key, app_data)
                         del announced_identity
 
@@ -245,11 +255,11 @@ class Identity:
                         return True
 
                     else:
-                        RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash)+". Destination mismatch.", RNS.LOG_DEBUG)
+                        RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash)+": Destination mismatch.", RNS.LOG_DEBUG)
                         return False
 
                 else:
-                    RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
+                    RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash)+": Invalid signature.", RNS.LOG_DEBUG)
                     del announced_identity
                     return False
         
