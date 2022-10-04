@@ -1242,7 +1242,6 @@ class Transport:
                                         attached_interface
                                     ]
 
-
                             # If we have any local clients connected, we re-
                             # transmit the announce to them immediately
                             if (len(Transport.local_client_interfaces)):
@@ -1318,7 +1317,6 @@ class Transport:
 
                                 new_announce.hops = packet.hops
                                 new_announce.send()
-
 
                             destination_table_entry = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet]
                             Transport.destination_table[packet.destination_hash] = destination_table_entry
