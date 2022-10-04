@@ -185,6 +185,8 @@ class Destination:
                 if isinstance(returned_app_data, bytes):
                     app_data = returned_app_data
         
+        # TODO: It is probably possible truncate the name_hash to 16 bytes to
+        # save bandwidth without any practical impact on collision resistance
         signed_data = self.hash+self.identity.get_public_key()+self.name_hash+random_hash
         if app_data != None:
             signed_data += app_data
