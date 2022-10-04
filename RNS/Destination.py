@@ -70,7 +70,7 @@ class Destination:
     directions = [IN, OUT]
 
     @staticmethod
-    def full_name(app_name, *aspects):
+    def expand_name(identity, app_name, *aspects):
         """
         :returns: A string containing the full human-readable name of the destination, for an app_name and a number of aspects.
         """
@@ -81,20 +81,27 @@ class Destination:
         name = app_name
         for aspect in aspects:
             if "." in aspect: raise ValueError("Dots can't be used in aspects")
-            name = name + "." + aspect
+            name += "." + aspect
+
+        if identity != None:
+            name += "." + identity.hexhash
 
         return name
 
 
-    @staticmethod
-    def hash(app_name, *aspects):
-        """
-        :returns: A destination name in adressable hash form, for an app_name and a number of aspects.
-        """
-        name = Destination.full_name(app_name, *aspects)
+    # @staticmethod
+    # def hash(identity, app_name, *aspects):
+    #     """
+    #     :returns: A destination name in adressable hash form, for an app_name and a number of aspects.
+    #     """
+    #     base_name     = Destination.expand_name(None, app_name, *aspects)
+    #     hash_material = RNS.Identity.full_hash(base_name.encode("utf-8"))
 
-        # Create a digest for the destination
-        return RNS.Identity.full_hash(name.encode("utf-8"))[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
+    #     if identity != None:
+    #         hash_material += identity.hash
+
+    #     # Create a digest for the destination
+    #     return RNS.Identity.full_hash(hash_material)[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
 
     @staticmethod
     def app_and_aspects_from_name(full_name):
@@ -129,9 +136,6 @@ class Destination:
 
         self.links = []
 
-        if identity != None and type == Destination.SINGLE:
-            aspects = aspects+(identity.hexhash,)
-
         if identity == None and direction == Destination.IN and self.type != Destination.PLAIN:
             identity = RNS.Identity()
             aspects = aspects+(identity.hexhash,)
@@ -140,12 +144,18 @@ class Destination:
             raise TypeError("Selected destination type PLAIN cannot hold an identity")
 
         self.identity = identity
+        self.full_name = Destination.expand_name(identity, app_name, *aspects)
 
-        self.name = Destination.full_name(app_name, *aspects)      
-        self.hash = Destination.hash(app_name, *aspects)
+        self.name_hash = RNS.Identity.full_hash(self.expand_name(None, app_name, *aspects).encode("utf-8"))
+        self.addr_hash_material = self.name_hash
+        if self.identity != None:
+            self.addr_hash_material += self.identity.hash
+
+        # Generate the destination address hash
+        self.hash = RNS.Identity.full_hash(self.addr_hash_material)[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
         self.hexhash = self.hash.hex()
-        self.default_app_data = None
 
+        self.default_app_data = None
         self.callback = None
         self.proofcallback = None
 
@@ -156,10 +166,10 @@ class Destination:
         """
         :returns: A human-readable representation of the destination including addressable hash and full name.
         """
-        return "<"+self.name+"/"+self.hexhash+">"
+        return "<"+self.full_name+"/"+self.hexhash+">"
 
 
-    def announce(self, app_data=None, path_response=False):
+    def announce(self, app_data=None, path_response=False, send=True):
         """
         Creates an announce packet for this destination and broadcasts it on all
         relevant interfaces. Application specific data can be added to the announce.
@@ -181,13 +191,13 @@ class Destination:
                 if isinstance(returned_app_data, bytes):
                     app_data = returned_app_data
         
-        signed_data = self.hash+self.identity.get_public_key()+random_hash
+        signed_data = self.hash+self.identity.get_public_key()+self.name_hash+random_hash
         if app_data != None:
             signed_data += app_data
 
         signature = self.identity.sign(signed_data)
 
-        announce_data = self.identity.get_public_key()+random_hash+signature
+        announce_data = self.identity.get_public_key()+self.name_hash+random_hash+signature
 
         if app_data != None:
             announce_data += app_data
@@ -197,7 +207,12 @@ class Destination:
         else:
             announce_context = RNS.Packet.NONE
 
-        RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE, context = announce_context).send()
+        announce_packet = RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE, context = announce_context)
+
+        if send:
+            announce_packet.send()
+        else:
+            return announce_packet
 
     def accepts_links(self, accepts = None):
         """

@@ -214,30 +214,38 @@ class Identity:
             if packet.packet_type == RNS.Packet.ANNOUNCE:
                 destination_hash = packet.destination_hash
                 public_key = packet.data[:Identity.KEYSIZE//8]
-                random_hash = packet.data[Identity.KEYSIZE//8:Identity.KEYSIZE//8+10]
-                signature = packet.data[Identity.KEYSIZE//8+10:Identity.KEYSIZE//8+10+Identity.KEYSIZE//8]
+                name_hash = packet.data[Identity.KEYSIZE//8:Identity.KEYSIZE//8+Identity.HASHLENGTH//8]
+                random_hash = packet.data[Identity.KEYSIZE//8+Identity.HASHLENGTH//8:Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10]
+                signature = packet.data[Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10:Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10+Identity.SIGLENGTH//8]
                 app_data = b""
-                if len(packet.data) > Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:
+                if len(packet.data) > Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10+Identity.SIGLENGTH//8:
                     app_data = packet.data[Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:]
 
-                signed_data = destination_hash+public_key+random_hash+app_data
+                signed_data = destination_hash+public_key+name_hash+random_hash+app_data
 
-                if not len(packet.data) > Identity.KEYSIZE//8+10+Identity.KEYSIZE//8:
+                if not len(packet.data) > Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10+Identity.SIGLENGTH//8:
                     app_data = None
 
                 announced_identity = Identity(create_keys=False)
                 announced_identity.load_public_key(public_key)
 
                 if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
-                    RNS.Identity.remember(packet.get_hash(), destination_hash, public_key, app_data)
-                    del announced_identity
+                    hash_material = name_hash+announced_identity.hash
+                    expected_hash = RNS.Identity.full_hash(hash_material)[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
 
-                    if hasattr(packet, "transport_id") and packet.transport_id != None:
-                        RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received via "+RNS.prettyhexrep(packet.transport_id)+" on "+str(packet.receiving_interface), RNS.LOG_EXTREME)
+                    if destination_hash == expected_hash:
+                        RNS.Identity.remember(packet.get_hash(), destination_hash, public_key, app_data)
+                        del announced_identity
+
+                        if hasattr(packet, "transport_id") and packet.transport_id != None:
+                            RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received via "+RNS.prettyhexrep(packet.transport_id)+" on "+str(packet.receiving_interface), RNS.LOG_EXTREME)
+                        else:
+                            RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received on "+str(packet.receiving_interface), RNS.LOG_EXTREME)
+
+                        return True
+
                     else:
-                        RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received on "+str(packet.receiving_interface), RNS.LOG_EXTREME)
-
-                    return True
+                        return False
 
                 else:
                     RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
