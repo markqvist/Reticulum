@@ -12,13 +12,13 @@ backed multi-hop transport, efficient addressing, unforgeable packet
 acknowledgements and more.
 
 From a users perspective, Reticulum allows the creation of applications that
-respect and empower the autonomy and sovereignity of communities and individuals.
+respect and empower the autonomy and sovereignty of communities and individuals.
 Reticulum enables secure digital communication that cannot be subjected to
 outside control, manipulation or censorship.
 
 Reticulum enables the construction of planetary-scale networks, without the need for
 hierarchichal or beaureucratical structures to control or manage them, while still
-allowing individuals and communities full sovereignity over their own network segments.
+allowing individuals and communities full sovereignty over their own network segments.
 
 Reticulum is a complete networking stack, and does not need IP or higher
 layers, although it is easy to utilise IP (with TCP or UDP) as the underlying
