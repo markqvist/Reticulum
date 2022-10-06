@@ -1,4 +1,4 @@
-Reticulum Network Stack β
+Reticulum Network Stack β <img align="right" src="https://static.pepy.tech/personalized-badge/rns?period=total&units=international_system&left_color=grey&right_color=blue&left_text=Installs"/>
 ==========
 
 <p align="center"><img width="200" src="https://raw.githubusercontent.com/markqvist/Reticulum/master/docs/source/graphics/rns_logo_512.png"></p>
@@ -42,7 +42,7 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
 ## Notable Features
 - Coordination-less globally unique addressing and identification
 - Fully self-configuring multi-hop routing
-- Complete initiator anonymity, communicate without revealing your identity
+- Initiator anonymity, communicate without revealing your identity
 - Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
 - Forward Secrecy with ephemeral Elliptic Curve Diffie-Hellman keys on Curve25519
 - Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for on-the-wire / over-the-air encryption
@@ -66,9 +66,9 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
 If you want to quickly get an idea of what Reticulum can do, take a look at the
 following resources.
 
-- [LXMF](https://github.com/markqvist/lxmf) is a distributed, delay and disruption tolerant message transfer protocol built on Reticulum
 - For an off-grid, encrypted and resilient mesh communications platform, see [Nomad Network](https://github.com/markqvist/NomadNet)
-- The Android, Linux and macOS app [Sideband](https://unsigned.io/sideband) has a graphical interface and focuses on ease of use.
+- The Android, Linux and macOS app [Sideband](https://github.com/markqvist/Sideband) has a graphical interface and focuses on ease of use.
+- [LXMF](https://github.com/markqvist/lxmf) is a distributed, delay and disruption tolerant message transfer protocol built on Reticulum
 
 ## Where can Reticulum be used?
 Over practically any medium that can support at least a half-duplex channel
