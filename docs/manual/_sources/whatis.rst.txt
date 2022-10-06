@@ -17,7 +17,7 @@ Reticulum enables secure digital communication that cannot be subjected to
 outside control, manipulation or censorship.
 
 Reticulum enables the construction of planetary-scale networks, without the need for
-hierarchichal or beaureucratical structures to control or manage them, while still
+hierarchichal or beaureucratic structures to control or manage them, while still
 allowing individuals and communities full sovereignty over their own network segments.
 
 Reticulum is a complete networking stack, and does not need IP or higher
