@@ -803,7 +803,7 @@ Wire Format
     but excluding any interface access codes.
 
     - Path Request    :    51  bytes
-    - Announce        :    157 bytes
+    - Announce        :    167 bytes
     - Link Request    :    83  bytes
     - Link Proof      :    115 bytes
     - Link RTT packet :    99  bytes
