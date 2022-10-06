@@ -278,7 +278,10 @@ don't use pip, but try this recipe:
     python3 Examples/Filetransfer.py -h
 
 When you have experimented with the basic examples, it's time to go read the
-:ref:`Understanding Reticulum<understanding-main>` chapter.
+:ref:`Understanding Reticulum<understanding-main>` chapter. Before submitting
+your first pull request, it is probably a good idea to introduce yourself on
+the `disucssion forum on GitHub <https://github.com/markqvist/Reticulum/discussions>`_,
+or ask one of the developers or maintainers for a good place to start.
 
 
 Reticulum on ARM64
@@ -343,7 +346,7 @@ From within Termux, execute the following:
 
 It is also possible to include Reticulum in apps compiled and distributed as
 Android APKs. A detailed tutorial and example source code will be included
-here at a later point.
+here at a later point. Until then you can use the `Sideband source code <https://github.com/markqvist/sideband>`_ as an example and startig point.
 
 Pure-Python Reticulum
 ==============================================

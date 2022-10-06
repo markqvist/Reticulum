@@ -3,8 +3,8 @@ Reticulum Network Stack β
 
 <p align="center"><img width="200" src="https://raw.githubusercontent.com/markqvist/Reticulum/master/docs/source/graphics/rns_logo_512.png"></p>
 
-Reticulum is the cryptography-based networking stack for wide-area networks
-built on readily available hardware. It can operate even with very high latency
+Reticulum is the cryptography-based networking stack for building local and wide-area
+networks with readily available hardware. It can operate even with very high latency
 and extremely low bandwidth. Reticulum allows you to build wide-area networks
 with off-the-shelf tools, and offers end-to-end encryption and connectivity,
 initiator anonymity, autoconfiguring cryptographically backed multi-hop

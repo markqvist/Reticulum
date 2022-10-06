@@ -2,14 +2,23 @@
 What is Reticulum?
 ******************
 
-Reticulum is a cryptography-based networking stack for building wide-area
-networks with readily available hardware, that can continue to operate even
-with extremely low bandwidth and very high latency.
+Reticulum is a cryptography-based networking stack for building both local and
+wide-area networks with readily available hardware, that can continue to operate
+under adverse conditions, such as extremely low bandwidth and very high latency.
 
 Reticulum allows you to build wide-area networks with off-the-shelf tools, and
-offers end-to-end encryption, autoconfiguring cryptographically backed
-multi-hop transport, efficient addressing, unforgeable packet acknowledgements
-and more.
+offers end-to-end encryption, forward secrecy, autoconfiguring cryptographically
+backed multi-hop transport, efficient addressing, unforgeable packet
+acknowledgements and more.
+
+From a users perspective, Reticulum allows the creation of applications that
+respect and empower the autonomy and sovereignity of communities and individuals.
+Reticulum enables secure digital communication that cannot be subjected to
+outside control, manipulation or censorship.
+
+Reticulum enables the construction of planetary-scale networks, without the need for
+hierarchichal or beaureucratical structures to control or manage them, while still
+allowing individuals and communities full sovereignity over their own network segments.
 
 Reticulum is a complete networking stack, and does not need IP or higher
 layers, although it is easy to utilise IP (with TCP or UDP) as the underlying
@@ -25,9 +34,9 @@ runs well even on small single-board computers like the Pi Zero.
 
 Current Status
 ==============
-Reticulum should currently be considered beta software. All core protocol
+**Please know!** Reticulum should currently be considered beta software. All core protocol
 features are implemented and functioning, but additions will probably occur as
-real-world use is explored. There will be bugs. The API and wire-format can be
+real-world use is explored. *There will be bugs*. The API and wire-format can be
 considered stable at the moment, but could change if absolutely warranted.
 
 
