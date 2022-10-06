@@ -58,6 +58,7 @@ class Identity:
     HASHLENGTH                = 256         # In bits
     SIGLENGTH                 = KEYSIZE     # In bits
 
+    NAME_HASH_LENGTH     = 80
     TRUNCATED_HASHLENGTH = RNS.Reticulum.TRUNCATED_HASHLENGTH
     """
     Constant specifying the truncated hash length (in bits) used by Reticulum
@@ -214,16 +215,16 @@ class Identity:
             if packet.packet_type == RNS.Packet.ANNOUNCE:
                 destination_hash = packet.destination_hash
                 public_key = packet.data[:Identity.KEYSIZE//8]
-                name_hash = packet.data[Identity.KEYSIZE//8:Identity.KEYSIZE//8+Identity.HASHLENGTH//8]
-                random_hash = packet.data[Identity.KEYSIZE//8+Identity.HASHLENGTH//8:Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10]
-                signature = packet.data[Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10:Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10+Identity.SIGLENGTH//8]
+                name_hash = packet.data[Identity.KEYSIZE//8:Identity.KEYSIZE//8+Identity.NAME_HASH_LENGTH//8]
+                random_hash = packet.data[Identity.KEYSIZE//8+Identity.NAME_HASH_LENGTH//8:Identity.KEYSIZE//8+Identity.NAME_HASH_LENGTH//8+10]
+                signature = packet.data[Identity.KEYSIZE//8+Identity.NAME_HASH_LENGTH//8+10:Identity.KEYSIZE//8+Identity.NAME_HASH_LENGTH//8+10+Identity.SIGLENGTH//8]
                 app_data = b""
-                if len(packet.data) > Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10+Identity.SIGLENGTH//8:
-                    app_data = packet.data[Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10+Identity.SIGLENGTH//8:]
+                if len(packet.data) > Identity.KEYSIZE//8+Identity.NAME_HASH_LENGTH//8+10+Identity.SIGLENGTH//8:
+                    app_data = packet.data[Identity.KEYSIZE//8+Identity.NAME_HASH_LENGTH//8+10+Identity.SIGLENGTH//8:]
 
                 signed_data = destination_hash+public_key+name_hash+random_hash+app_data
 
-                if not len(packet.data) > Identity.KEYSIZE//8+Identity.HASHLENGTH//8+10+Identity.SIGLENGTH//8:
+                if not len(packet.data) > Identity.KEYSIZE//8+Identity.NAME_HASH_LENGTH//8+10+Identity.SIGLENGTH//8:
                     app_data = None
 
                 announced_identity = Identity(create_keys=False)

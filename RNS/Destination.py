@@ -94,7 +94,7 @@ class Destination:
         """
         :returns: A destination name in adressable hash form, for an app_name and a number of aspects.
         """
-        name_hash = RNS.Identity.full_hash(Destination.expand_name(None, app_name, *aspects).encode("utf-8"))
+        name_hash = RNS.Identity.full_hash(Destination.expand_name(None, app_name, *aspects).encode("utf-8"))[:(RNS.Identity.NAME_HASH_LENGTH//8)]
         addr_hash_material = name_hash
         if identity != None:
             addr_hash_material += identity.hash
@@ -146,7 +146,7 @@ class Destination:
 
         # Generate the destination address hash
         self.hash = Destination.hash(self.identity, app_name, *aspects)
-        self.name_hash = RNS.Identity.full_hash(self.expand_name(None, app_name, *aspects).encode("utf-8"))
+        self.name_hash = RNS.Identity.full_hash(self.expand_name(None, app_name, *aspects).encode("utf-8"))[:(RNS.Identity.NAME_HASH_LENGTH//8)]
         self.hexhash = self.hash.hex()
 
         self.default_app_data = None
@@ -185,8 +185,6 @@ class Destination:
                 if isinstance(returned_app_data, bytes):
                     app_data = returned_app_data
         
-        # TODO: It is probably possible truncate the name_hash to 16 bytes to
-        # save bandwidth without any practical impact on collision resistance
         signed_data = self.hash+self.identity.get_public_key()+self.name_hash+random_hash
         if app_data != None:
             signed_data += app_data

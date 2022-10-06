@@ -1084,7 +1084,7 @@ class Transport:
                     if (not any(packet.destination_hash == d.hash for d in Transport.destinations) and packet.hops < Transport.PATHFINDER_M+1):
                         announce_emitted = Transport.announce_emitted(packet)
                         
-                        random_blob = packet.data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+10]
+                        random_blob = packet.data[RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8:RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8+10]
                         random_blobs = []
                         if packet.destination_hash in Transport.destination_table:
                             random_blobs = Transport.destination_table[packet.destination_hash][4]
@@ -2054,7 +2054,7 @@ class Transport:
 
     @staticmethod
     def announce_emitted(packet):
-        random_blob = packet.data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+10]
+        random_blob = packet.data[RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8:RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8+10]
         announce_emitted = int.from_bytes(random_blob[5:10], "big")
 
         return announce_emitted

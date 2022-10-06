@@ -89,7 +89,7 @@ class TestLink(unittest.TestCase):
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
-        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
+        self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
@@ -109,7 +109,7 @@ class TestLink(unittest.TestCase):
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
-        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
+        self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
@@ -176,7 +176,7 @@ class TestLink(unittest.TestCase):
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
-        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
+        self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
@@ -211,7 +211,7 @@ class TestLink(unittest.TestCase):
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
-        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
+        self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
@@ -245,7 +245,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
-        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
+        self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
@@ -284,7 +284,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
-        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
+        self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
@@ -322,7 +322,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
-        self.assertEqual(dest.hash, bytes.fromhex("46238cb662b2fc7342de77d7c84abb5c"))
+        self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
         time.sleep(0.5)
