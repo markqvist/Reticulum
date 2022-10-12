@@ -8,6 +8,12 @@ def get_platform():
         import sys
         return sys.platform
 
+def is_linux():
+    if get_platform() == "linux":
+        return True
+    else:
+        return False
+
 def is_darwin():
     if get_platform() == "darwin":
         return True
