@@ -103,6 +103,9 @@ class RNodeInterface(Interface):
     RECONNECT_WAIT = 5
 
     def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None):
+        if RNS.vendor.platformutils.is_android():
+            raise SystemError("Invlaid interface type. The Android-specific RNode interface must be used on Android")
+
         import importlib
         if importlib.util.find_spec('serial') != None:
             import serial
