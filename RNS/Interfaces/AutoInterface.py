@@ -75,6 +75,7 @@ class AutoInterface(Interface):
 
         self.outbound_udp_socket = None
 
+        self.announce_rate_target = None
         self.announce_interval = AutoInterface.PEERING_TIMEOUT/6.0
         self.peer_job_interval = AutoInterface.PEERING_TIMEOUT*1.1
         self.peering_timeout   = AutoInterface.PEERING_TIMEOUT
