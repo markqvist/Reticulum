@@ -82,14 +82,6 @@ class KISS():
 class RNodeInterface(Interface):
     MAX_CHUNK = 32768
 
-    owner    = None
-    port     = None
-    speed    = None
-    databits = None
-    parity   = None
-    stopbits = None
-    serial   = None
-
     FREQ_MIN = 137000000
     FREQ_MAX = 1020000000
 
@@ -224,7 +216,7 @@ class RNodeInterface(Interface):
             port = self.port,
             baudrate = self.speed,
             bytesize = self.databits,
-            parity = self.parity,
+            parity = self.pyserial.PARITY_NONE,
             stopbits = self.stopbits,
             xonxoff = False,
             rtscts = False,
@@ -251,15 +243,14 @@ class RNodeInterface(Interface):
                 RNS.log("Resetting ESP32-based device before configuration...", RNS.LOG_VERBOSE)
                 self.hard_reset()
 
-        # TODO: Check whether this needs to be moved
-        self.online = True
         RNS.log("Serial port "+self.port+" is now open")
         RNS.log("Configuring RNode interface...", RNS.LOG_VERBOSE)
         self.initRadio()
         if (self.validateRadioState()):
             self.interface_ready = True
             RNS.log(str(self)+" is configured and powered up")
-            sleep(1.0)
+            sleep(0.3)
+            self.online = True
         else:
             RNS.log("After configuring "+str(self)+", the reported radio parameters did not match your configuration.", RNS.LOG_ERROR)
             RNS.log("Make sure that your hardware actually supports the parameters specified in the configuration", RNS.LOG_ERROR)

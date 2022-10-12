@@ -82,14 +82,6 @@ class KISS():
 class RNodeInterface(Interface):
     MAX_CHUNK = 32768
 
-    owner    = None
-    port     = None
-    speed    = None
-    databits = None
-    parity   = None
-    stopbits = None
-    serial   = None
-
     FREQ_MIN = 137000000
     FREQ_MAX = 1020000000
 
@@ -294,17 +286,14 @@ class RNodeInterface(Interface):
                 # RNS.log("Resetting ESP32-based device before configuration...", RNS.LOG_VERBOSE)
                 # self.hard_reset()
 
-        # TODO: Check correct placement for reconnect support
-        RNS.log("SETTING ONLINE STATUS TO TRUE -------------------")
-
-        self.online = True
         RNS.log("Serial port "+self.port+" is now open")
         RNS.log("Configuring RNode interface...", RNS.LOG_VERBOSE)
         self.initRadio()
         if (self.validateRadioState()):
             self.interface_ready = True
             RNS.log(str(self)+" is configured and powered up")
-            sleep(1.0)
+            sleep(0.3)
+            self.online = True
         else:
             RNS.log("After configuring "+str(self)+", the reported radio parameters did not match your configuration.", RNS.LOG_ERROR)
             RNS.log("Make sure that your hardware actually supports the parameters specified in the configuration", RNS.LOG_ERROR)
@@ -507,7 +496,7 @@ class RNodeInterface(Interface):
             # TODO: Ensure hotplug support
             while self.serial.is_open:
                 if True or waiting_bytes > 0:
-                    # TODO: CHECK multibyte reads
+                    # TODO: Check multibyte reads
                     serial_bytes = self.serial.read()
                     got = len(serial_bytes)
 
@@ -516,12 +505,10 @@ class RNodeInterface(Interface):
 
                         if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
                             in_frame = False
-                            RNS.log("F "+str(len(data_buffer)))
                             self.processIncoming(data_buffer)
                             data_buffer = b""
                             command_buffer = b""
                         elif (byte == KISS.FEND):
-                            RNS.log("R")
                             in_frame = True
                             command = KISS.CMD_UNKNOWN
                             data_buffer = b""
@@ -529,7 +516,6 @@ class RNodeInterface(Interface):
                         elif (in_frame and len(data_buffer) < self.HW_MTU):
                             if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
                                 command = byte
-                                RNS.log("C "+RNS.hexrep(command))
                             elif (command == KISS.CMD_DATA):
                                 if (byte == KISS.FESC):
                                     escape = True
@@ -639,10 +625,8 @@ class RNodeInterface(Interface):
 
                             elif (command == KISS.CMD_STAT_RSSI):
                                 self.r_stat_rssi = byte-RNodeInterface.RSSI_OFFSET
-                                RNS.log("S1")
                             elif (command == KISS.CMD_STAT_SNR):
                                 self.r_stat_snr = int.from_bytes(bytes([byte]), byteorder="big", signed=True) * 0.25
-                                RNS.log("S2")
                             elif (command == KISS.CMD_RANDOM):
                                 self.r_random = byte
                             elif (command == KISS.CMD_PLATFORM):
@@ -673,11 +657,11 @@ class RNodeInterface(Interface):
                                 else:
                                     self.detected = False
                         
-                            else:
-                                RNS.log("NC")
+                        #     else:
+                        #         RNS.log("NC")
                         
-                        elif (not in_frame and byte != KISS.FEND):
-                            RNS.log("UF")
+                        # elif (not in_frame and byte != KISS.FEND):
+                        #     RNS.log("UF")
 
                 if got == 0:
                     time_since_last = int(time.time()*1000) - last_read_ms
