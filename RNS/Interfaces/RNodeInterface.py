@@ -100,23 +100,16 @@ class RNodeInterface(Interface):
     REQUIRED_FW_VER_MAJ = 1
     REQUIRED_FW_VER_MIN = 26
 
+    RECONNECT_WAIT = 5
+
     def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None):
         import importlib
-        if not RNS.vendor.platformutils.is_android():
-            if importlib.util.find_spec('serial') != None:
-                import serial
-                self.parity = serial.PARITY_NONE
-            else:
-                RNS.log("Using the RNode interface requires a serial communication module to be installed.", RNS.LOG_CRITICAL)
-                RNS.log("You can install one with the command: python3 -m pip install pyserial", RNS.LOG_CRITICAL)
-                RNS.panic()
+        if importlib.util.find_spec('serial') != None:
+            import serial
         else:
-            if importlib.util.find_spec('usbserial4a') != None:
-                from usbserial4a import serial4a as serial
-                self.parity = "N"
-            else:
-                RNS.log("Could not load USB serial module for Android, RNode interface cannot be created.", RNS.LOG_CRITICAL)
-                RNS.panic()
+            RNS.log("Using the RNode interface requires a serial communication module to be installed.", RNS.LOG_CRITICAL)
+            RNS.log("You can install one with the command: python3 -m pip install pyserial", RNS.LOG_CRITICAL)
+            RNS.panic()
 
         self.rxb = 0
         self.txb = 0
@@ -150,6 +143,7 @@ class RNodeInterface(Interface):
 
         self.last_id     = 0
         self.first_tx    = None
+        self.reconnect_w = RNodeInterface.RECONNECT_WAIT
 
         self.r_frequency = None
         self.r_bandwidth = None
@@ -166,6 +160,7 @@ class RNodeInterface(Interface):
         self.packet_queue    = []
         self.flow_control    = flow_control
         self.interface_ready = False
+        self.announce_rate_target = None
 
         self.validcfg  = True
         if (self.frequency < RNodeInterface.FREQ_MIN or self.frequency > RNodeInterface.FREQ_MAX):
@@ -222,34 +217,20 @@ class RNodeInterface(Interface):
 
     def open_port(self):
         RNS.log("Opening serial port "+self.port+"...")
-        if not RNS.vendor.platformutils.is_android():
-            self.serial = self.pyserial.Serial(
-                port = self.port,
-                baudrate = self.speed,
-                bytesize = self.databits,
-                parity = self.parity,
-                stopbits = self.stopbits,
-                xonxoff = False,
-                rtscts = False,
-                timeout = 0,
-                inter_byte_timeout = None,
-                write_timeout = None,
-                dsrdtr = False,
-            )
-        else:
-            self.serial = self.pyserial.get_serial_port(
-                self.port,
-                baudrate = self.speed,
-                bytesize = self.databits,
-                parity = self.parity,
-                stopbits = self.stopbits,
-                xonxoff = False,
-                rtscts = False,
-                timeout = 0,
-                inter_byte_timeout = None,
-                write_timeout = None,
-                dsrdtr = False,
-            )
+        self.serial = self.pyserial.Serial(
+            port = self.port,
+            baudrate = self.speed,
+            bytesize = self.databits,
+            parity = self.parity,
+            stopbits = self.stopbits,
+            xonxoff = False,
+            rtscts = False,
+            timeout = 0,
+            inter_byte_timeout = None,
+            write_timeout = None,
+            dsrdtr = False,
+        )
+
 
     def configure_device(self):
         sleep(2.0)
@@ -258,10 +239,7 @@ class RNodeInterface(Interface):
         thread.start()
 
         self.detect()
-        if not RNS.vendor.platformutils.is_android():
-            sleep(0.1)
-        else:
-            sleep(0.25)
+        sleep(0.2)
         
         if not self.detected:
             raise IOError("Could not detect device")
@@ -270,6 +248,7 @@ class RNodeInterface(Interface):
                 RNS.log("Resetting ESP32-based device before configuration...", RNS.LOG_VERBOSE)
                 self.hard_reset()
 
+        # TODO: Check whether this needs to be moved
         self.online = True
         RNS.log("Serial port "+self.port+" is now open")
         RNS.log("Configuring RNode interface...", RNS.LOG_VERBOSE)
@@ -375,12 +354,10 @@ class RNodeInterface(Interface):
 
     def validateRadioState(self):
         RNS.log("Wating for radio configuration validation for "+str(self)+"...", RNS.LOG_VERBOSE)
-        if not RNS.vendor.platformutils.is_android():
-            sleep(0.25);
-        else:
-            sleep(1.00);
+        sleep(0.25);
 
-        if (self.frequency != self.r_frequency):
+        self.validcfg = True
+        if (self.r_frequency != None and abs(self.frequency - int(self.r_frequency)) > 100):
             RNS.log("Frequency mismatch", RNS.LOG_ERROR)
             self.validcfg = False
         if (self.bandwidth != self.r_bandwidth):
