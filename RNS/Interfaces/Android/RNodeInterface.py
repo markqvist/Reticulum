@@ -656,12 +656,6 @@ class RNodeInterface(Interface):
                                     self.detected = True
                                 else:
                                     self.detected = False
-                        
-                        #     else:
-                        #         RNS.log("NC")
-                        
-                        # elif (not in_frame and byte != KISS.FEND):
-                        #     RNS.log("UF")
 
                 if got == 0:
                     time_since_last = int(time.time()*1000) - last_read_ms
