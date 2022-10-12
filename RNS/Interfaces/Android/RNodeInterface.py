@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .Interface import Interface
+from RNS.Interfaces.Interface import Interface
 from time import sleep
 import sys
 import threading
@@ -271,7 +271,7 @@ class RNodeInterface(Interface):
                 self.serial.USB_READ_TIMEOUT_MILLIS = 100
                 self.serial.timeout = 0.1
 
-            RNS.log(str(self)+" USB read buffer size set to "+RNS.prettysize(self.serial.USB_READ_BUFFER_SIZE), RNS.LOG_DEBUG)
+            RNS.log(str(self)+" USB read buffer size set to "+RNS.prettysize(self.serial.DEFAULT_READ_BUFFER_SIZE), RNS.LOG_DEBUG)
             RNS.log(str(self)+" USB read timeout set to "+str(self.serial.USB_READ_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
             RNS.log(str(self)+" USB write timeout set to "+str(self.serial.USB_WRITE_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
 
