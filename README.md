@@ -198,6 +198,7 @@ considered relatively stable at the moment, but could change if warranted.
   - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
   - More interface types
     - AT-compatible modems
+    - Optical mediums
     - AWDL / OWL
     - HF Modems
     - CAN-bus
