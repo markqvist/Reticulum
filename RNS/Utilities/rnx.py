@@ -538,7 +538,7 @@ def main():
         parser.add_argument("-x", '--interactive', action='store_true', default=False, help="enter interactive mode")
         parser.add_argument("-b", '--no-announce', action='store_true', default=False, help="don't announce at program start")
         parser.add_argument('-a', metavar="allowed_hash", dest="allowed", action='append', help="accept from this identity", type=str)
-        parser.add_argument('-n', '--noauth', action='store_true', default=False, help="accept files from anyone")
+        parser.add_argument('-n', '--noauth', action='store_true', default=False, help="accept commands from anyone")
         parser.add_argument('-N', '--noid', action='store_true', default=False, help="don't identify to listener")
         parser.add_argument("-d", '--detailed', action='store_true', default=False, help="show detailed result output")
         parser.add_argument("-m", action='store_true', dest="mirror", default=False, help="mirror exit code of remote command")
