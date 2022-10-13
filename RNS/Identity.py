@@ -91,6 +91,13 @@ class Identity:
             identity.app_data = identity_data[3]
             return identity
         else:
+            for registered_destination in RNS.Transport.destinations:
+                if destination_hash == registered_destination.hash:
+                    identity = Identity(create_keys=False)
+                    identity.load_public_key(registered_destination.identity.get_public_key())
+                    identity.app_data = None
+                    return identity
+
             return None
 
     @staticmethod
