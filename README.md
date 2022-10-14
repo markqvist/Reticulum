@@ -162,7 +162,7 @@ Currently, the following interfaces are supported:
 
 ## Performance
 Reticulum targets a *very* wide usable performance envelope, but prioritises
-functionality and performance over low-bandwidth mediums. The goal is to
+functionality and performance on low-bandwidth mediums. The goal is to
 provide a dynamic performance envelope from 250 bits per second, to 1 gigabit
 per second on normal hardware.
 
