@@ -105,7 +105,7 @@ section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/)
 To simply install Reticulum and related utilities on your system, the easiest way is via pip:
 
 ```bash
-pip3 install rns
+pip install rns
 ```
 
 You can then start any program that uses Reticulum, or start Reticulum as a
