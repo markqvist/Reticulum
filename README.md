@@ -116,6 +116,8 @@ providing basic connectivity to other Reticulum peers that might be locally
 reachable. The default config file contains a few examples, and references for
 creating a more complex configuration.
 
+If you have an old version of `pip` on your system, you may need to upgrade it first with `pip install pip --upgrade`. If you no not already have `pip` installed, you can install it using the package manager of your system with `sudo apt install python3-pip` or similar.
+
 For more detailed examples on how to expand communication over many mediums such 
 as packet radio or LoRa, serial ports, or over fast IP links and the Internet using 
 the UDP and TCP interfaces, take a look at the [Supported Interfaces](https://markqvist.github.io/Reticulum/manual/interfaces.html) 
