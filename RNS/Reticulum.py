@@ -925,7 +925,7 @@ class Reticulum:
                 else:
                     interface.ifac_size = 8
 
-                interface.announce_cap = announce_cap
+                interface.announce_cap = announce_cap if announce_cap != None else Reticulum.ANNOUNCE_CAP/100.0
                 interface.announce_rate_target = announce_rate_target
                 interface.announce_rate_grace = announce_rate_grace
                 interface.announce_rate_penalty = announce_rate_penalty
