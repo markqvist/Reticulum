@@ -495,167 +495,166 @@ class RNodeInterface(Interface):
 
             # TODO: Ensure hotplug support
             while self.serial.is_open:
-                if True or waiting_bytes > 0:
-                    # TODO: Check multibyte reads
-                    serial_bytes = self.serial.read()
-                    got = len(serial_bytes)
+                # TODO: Check multibyte reads
+                serial_bytes = self.serial.read()
+                got = len(serial_bytes)
 
-                    for byte in serial_bytes:
-                        last_read_ms = int(time.time()*1000)
+                for byte in serial_bytes:
+                    last_read_ms = int(time.time()*1000)
 
-                        if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
-                            in_frame = False
-                            self.processIncoming(data_buffer)
-                            data_buffer = b""
-                            command_buffer = b""
-                        elif (byte == KISS.FEND):
-                            in_frame = True
-                            command = KISS.CMD_UNKNOWN
-                            data_buffer = b""
-                            command_buffer = b""
-                        elif (in_frame and len(data_buffer) < self.HW_MTU):
-                            if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
-                                command = byte
-                            elif (command == KISS.CMD_DATA):
-                                if (byte == KISS.FESC):
-                                    escape = True
-                                else:
-                                    if (escape):
-                                        if (byte == KISS.TFEND):
-                                            byte = KISS.FEND
-                                        if (byte == KISS.TFESC):
-                                            byte = KISS.FESC
-                                        escape = False
-                                    data_buffer = data_buffer+bytes([byte])
-                            elif (command == KISS.CMD_FREQUENCY):
-                                if (byte == KISS.FESC):
-                                    escape = True
-                                else:
-                                    if (escape):
-                                        if (byte == KISS.TFEND):
-                                            byte = KISS.FEND
-                                        if (byte == KISS.TFESC):
-                                            byte = KISS.FESC
-                                        escape = False
-                                    command_buffer = command_buffer+bytes([byte])
-                                    if (len(command_buffer) == 4):
-                                        self.r_frequency = command_buffer[0] << 24 | command_buffer[1] << 16 | command_buffer[2] << 8 | command_buffer[3]
-                                        RNS.log(str(self)+" Radio reporting frequency is "+str(self.r_frequency/1000000.0)+" MHz", RNS.LOG_DEBUG)
-                                        self.updateBitrate()
+                    if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
+                        in_frame = False
+                        self.processIncoming(data_buffer)
+                        data_buffer = b""
+                        command_buffer = b""
+                    elif (byte == KISS.FEND):
+                        in_frame = True
+                        command = KISS.CMD_UNKNOWN
+                        data_buffer = b""
+                        command_buffer = b""
+                    elif (in_frame and len(data_buffer) < self.HW_MTU):
+                        if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
+                            command = byte
+                        elif (command == KISS.CMD_DATA):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                data_buffer = data_buffer+bytes([byte])
+                        elif (command == KISS.CMD_FREQUENCY):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 4):
+                                    self.r_frequency = command_buffer[0] << 24 | command_buffer[1] << 16 | command_buffer[2] << 8 | command_buffer[3]
+                                    RNS.log(str(self)+" Radio reporting frequency is "+str(self.r_frequency/1000000.0)+" MHz", RNS.LOG_DEBUG)
+                                    self.updateBitrate()
 
-                            elif (command == KISS.CMD_BANDWIDTH):
-                                if (byte == KISS.FESC):
-                                    escape = True
-                                else:
-                                    if (escape):
-                                        if (byte == KISS.TFEND):
-                                            byte = KISS.FEND
-                                        if (byte == KISS.TFESC):
-                                            byte = KISS.FESC
-                                        escape = False
-                                    command_buffer = command_buffer+bytes([byte])
-                                    if (len(command_buffer) == 4):
-                                        self.r_bandwidth = command_buffer[0] << 24 | command_buffer[1] << 16 | command_buffer[2] << 8 | command_buffer[3]
-                                        RNS.log(str(self)+" Radio reporting bandwidth is "+str(self.r_bandwidth/1000.0)+" KHz", RNS.LOG_DEBUG)
-                                        self.updateBitrate()
+                        elif (command == KISS.CMD_BANDWIDTH):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 4):
+                                    self.r_bandwidth = command_buffer[0] << 24 | command_buffer[1] << 16 | command_buffer[2] << 8 | command_buffer[3]
+                                    RNS.log(str(self)+" Radio reporting bandwidth is "+str(self.r_bandwidth/1000.0)+" KHz", RNS.LOG_DEBUG)
+                                    self.updateBitrate()
 
-                            elif (command == KISS.CMD_TXPOWER):
-                                self.r_txpower = byte
-                                RNS.log(str(self)+" Radio reporting TX power is "+str(self.r_txpower)+" dBm", RNS.LOG_DEBUG)
-                            elif (command == KISS.CMD_SF):
-                                self.r_sf = byte
-                                RNS.log(str(self)+" Radio reporting spreading factor is "+str(self.r_sf), RNS.LOG_DEBUG)
-                                self.updateBitrate()
-                            elif (command == KISS.CMD_CR):
-                                self.r_cr = byte
-                                RNS.log(str(self)+" Radio reporting coding rate is "+str(self.r_cr), RNS.LOG_DEBUG)
-                                self.updateBitrate()
-                            elif (command == KISS.CMD_RADIO_STATE):
-                                self.r_state = byte
-                                if self.r_state:
-                                    RNS.log(str(self)+" Radio reporting state is online", RNS.LOG_DEBUG)
-                                else:
-                                    RNS.log(str(self)+" Radio reporting state is offline", RNS.LOG_DEBUG)
+                        elif (command == KISS.CMD_TXPOWER):
+                            self.r_txpower = byte
+                            RNS.log(str(self)+" Radio reporting TX power is "+str(self.r_txpower)+" dBm", RNS.LOG_DEBUG)
+                        elif (command == KISS.CMD_SF):
+                            self.r_sf = byte
+                            RNS.log(str(self)+" Radio reporting spreading factor is "+str(self.r_sf), RNS.LOG_DEBUG)
+                            self.updateBitrate()
+                        elif (command == KISS.CMD_CR):
+                            self.r_cr = byte
+                            RNS.log(str(self)+" Radio reporting coding rate is "+str(self.r_cr), RNS.LOG_DEBUG)
+                            self.updateBitrate()
+                        elif (command == KISS.CMD_RADIO_STATE):
+                            self.r_state = byte
+                            if self.r_state:
+                                RNS.log(str(self)+" Radio reporting state is online", RNS.LOG_DEBUG)
+                            else:
+                                RNS.log(str(self)+" Radio reporting state is offline", RNS.LOG_DEBUG)
 
-                            elif (command == KISS.CMD_RADIO_LOCK):
-                                self.r_lock = byte
-                            elif (command == KISS.CMD_FW_VERSION):
-                                if (byte == KISS.FESC):
-                                    escape = True
-                                else:
-                                    if (escape):
-                                        if (byte == KISS.TFEND):
-                                            byte = KISS.FEND
-                                        if (byte == KISS.TFESC):
-                                            byte = KISS.FESC
-                                        escape = False
-                                    command_buffer = command_buffer+bytes([byte])
-                                    if (len(command_buffer) == 2):
-                                        self.maj_version = int(command_buffer[0])
-                                        self.min_version = int(command_buffer[1])
-                                        self.validate_firmware()
+                        elif (command == KISS.CMD_RADIO_LOCK):
+                            self.r_lock = byte
+                        elif (command == KISS.CMD_FW_VERSION):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 2):
+                                    self.maj_version = int(command_buffer[0])
+                                    self.min_version = int(command_buffer[1])
+                                    self.validate_firmware()
 
-                            elif (command == KISS.CMD_STAT_RX):
-                                if (byte == KISS.FESC):
-                                    escape = True
-                                else:
-                                    if (escape):
-                                        if (byte == KISS.TFEND):
-                                            byte = KISS.FEND
-                                        if (byte == KISS.TFESC):
-                                            byte = KISS.FESC
-                                        escape = False
-                                    command_buffer = command_buffer+bytes([byte])
-                                    if (len(command_buffer) == 4):
-                                        self.r_stat_rx = ord(command_buffer[0]) << 24 | ord(command_buffer[1]) << 16 | ord(command_buffer[2]) << 8 | ord(command_buffer[3])
+                        elif (command == KISS.CMD_STAT_RX):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 4):
+                                    self.r_stat_rx = ord(command_buffer[0]) << 24 | ord(command_buffer[1]) << 16 | ord(command_buffer[2]) << 8 | ord(command_buffer[3])
 
-                            elif (command == KISS.CMD_STAT_TX):
-                                if (byte == KISS.FESC):
-                                    escape = True
-                                else:
-                                    if (escape):
-                                        if (byte == KISS.TFEND):
-                                            byte = KISS.FEND
-                                        if (byte == KISS.TFESC):
-                                            byte = KISS.FESC
-                                        escape = False
-                                    command_buffer = command_buffer+bytes([byte])
-                                    if (len(command_buffer) == 4):
-                                        self.r_stat_tx = ord(command_buffer[0]) << 24 | ord(command_buffer[1]) << 16 | ord(command_buffer[2]) << 8 | ord(command_buffer[3])
+                        elif (command == KISS.CMD_STAT_TX):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 4):
+                                    self.r_stat_tx = ord(command_buffer[0]) << 24 | ord(command_buffer[1]) << 16 | ord(command_buffer[2]) << 8 | ord(command_buffer[3])
 
-                            elif (command == KISS.CMD_STAT_RSSI):
-                                self.r_stat_rssi = byte-RNodeInterface.RSSI_OFFSET
-                            elif (command == KISS.CMD_STAT_SNR):
-                                self.r_stat_snr = int.from_bytes(bytes([byte]), byteorder="big", signed=True) * 0.25
-                            elif (command == KISS.CMD_RANDOM):
-                                self.r_random = byte
-                            elif (command == KISS.CMD_PLATFORM):
-                                self.platform = byte
-                            elif (command == KISS.CMD_MCU):
-                                self.mcu = byte
-                            elif (command == KISS.CMD_ERROR):
-                                if (byte == KISS.ERROR_INITRADIO):
-                                    RNS.log(str(self)+" hardware initialisation error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
-                                    raise IOError("Radio initialisation failure")
-                                elif (byte == KISS.ERROR_INITRADIO):
-                                    RNS.log(str(self)+" hardware TX error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
-                                    raise IOError("Hardware transmit failure")
-                                else:
-                                    RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
-                                    raise IOError("Unknown hardware failure")
-                            elif (command == KISS.CMD_RESET):
-                                if (byte == 0xF8):
-                                    if self.platform == KISS.PLATFORM_ESP32:
-                                        if self.online:
-                                            RNS.log("Detected reset while device was online, reinitialising device...", RNS.LOG_ERROR)
-                                            raise IOError("ESP32 reset")
-                            elif (command == KISS.CMD_READY):
-                                self.process_queue()
-                            elif (command == KISS.CMD_DETECT):
-                                if byte == KISS.DETECT_RESP:
-                                    self.detected = True
-                                else:
-                                    self.detected = False
+                        elif (command == KISS.CMD_STAT_RSSI):
+                            self.r_stat_rssi = byte-RNodeInterface.RSSI_OFFSET
+                        elif (command == KISS.CMD_STAT_SNR):
+                            self.r_stat_snr = int.from_bytes(bytes([byte]), byteorder="big", signed=True) * 0.25
+                        elif (command == KISS.CMD_RANDOM):
+                            self.r_random = byte
+                        elif (command == KISS.CMD_PLATFORM):
+                            self.platform = byte
+                        elif (command == KISS.CMD_MCU):
+                            self.mcu = byte
+                        elif (command == KISS.CMD_ERROR):
+                            if (byte == KISS.ERROR_INITRADIO):
+                                RNS.log(str(self)+" hardware initialisation error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
+                                raise IOError("Radio initialisation failure")
+                            elif (byte == KISS.ERROR_INITRADIO):
+                                RNS.log(str(self)+" hardware TX error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
+                                raise IOError("Hardware transmit failure")
+                            else:
+                                RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
+                                raise IOError("Unknown hardware failure")
+                        elif (command == KISS.CMD_RESET):
+                            if (byte == 0xF8):
+                                if self.platform == KISS.PLATFORM_ESP32:
+                                    if self.online:
+                                        RNS.log("Detected reset while device was online, reinitialising device...", RNS.LOG_ERROR)
+                                        raise IOError("ESP32 reset")
+                        elif (command == KISS.CMD_READY):
+                            self.process_queue()
+                        elif (command == KISS.CMD_DETECT):
+                            if byte == KISS.DETECT_RESP:
+                                self.detected = True
+                            else:
+                                self.detected = False
 
                 if got == 0:
                     time_since_last = int(time.time()*1000) - last_read_ms
