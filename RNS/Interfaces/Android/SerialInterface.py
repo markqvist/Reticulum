@@ -166,9 +166,10 @@ class SerialInterface(Interface):
 
 
     def processIncoming(self, data):
-        self.rxb += len(data)            
-        self.owner.inbound(data, self)
-
+        self.rxb += len(data)
+        def af():
+            self.owner.inbound(data, self)
+        threading.Thread(target=af, daemon=True).start()
 
     def processOutgoing(self,data):
         if self.online:
