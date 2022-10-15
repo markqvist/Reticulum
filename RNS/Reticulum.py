@@ -914,7 +914,6 @@ class Reticulum:
                 
                 if mode == None:
                     mode = Interface.Interface.MODE_FULL
-                
                 interface.mode = mode
 
                 if configured_bitrate:
