@@ -59,7 +59,7 @@ class SerialInterface(Interface):
                 from usbserial4a import serial4a as serial
                 self.parity = "N"
             else:
-                RNS.log("Could not load USB serial module for Android, RNode interface cannot be created.", RNS.LOG_CRITICAL)
+                RNS.log("Could not load USB serial module for Android, Serial interface cannot be created.", RNS.LOG_CRITICAL)
                 RNS.panic()
         else:
             raise SystemError("Android-specific interface was used on non-Android OS")
