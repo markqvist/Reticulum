@@ -620,8 +620,11 @@ class Transport:
                             elif interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
                                 from_interface = Transport.next_hop_interface(packet.destination_hash)
                                 if from_interface == None or not hasattr(from_interface, "mode"):
-                                    RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface is non-existing or has no mode configured", RNS.LOG_EXTREME)
                                     should_transmit = False
+                                    if from_interface == None:
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface doesn't exist", RNS.LOG_EXTREME)
+                                    elif not hasattr(from_interface, "mode"):
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", RNS.LOG_EXTREME)
                                 else:
                                     if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
                                         RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", RNS.LOG_EXTREME)
@@ -633,8 +636,11 @@ class Transport:
                             elif interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
                                 from_interface = Transport.next_hop_interface(packet.destination_hash)
                                 if from_interface == None or not hasattr(from_interface, "mode"):
-                                    RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface is non-existing or has no mode configured", RNS.LOG_EXTREME)
                                     should_transmit = False
+                                    if from_interface == None:
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface doesn't exist", RNS.LOG_EXTREME)
+                                    elif not hasattr(from_interface, "mode"):
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", RNS.LOG_EXTREME)
                                 else:
                                     if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
                                         RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", RNS.LOG_EXTREME)
