@@ -618,33 +618,43 @@ class Transport:
                                 should_transmit = False
 
                             elif interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
-                                from_interface = Transport.next_hop_interface(packet.destination_hash)
-                                if from_interface == None or not hasattr(from_interface, "mode"):
-                                    should_transmit = False
-                                    if from_interface == None:
-                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface doesn't exist", RNS.LOG_EXTREME)
-                                    elif not hasattr(from_interface, "mode"):
-                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", RNS.LOG_EXTREME)
+                                local_destination = next((d for d in Transport.destinations if d.hash == packet.destination_hash), None)
+                                if local_destination != None:
+                                    # RNS.log("Allowing announce broadcast on roaming-mode interface from instance-local destination", RNS.LOG_EXTREME)
+                                    pass
                                 else:
-                                    if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
-                                        RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", RNS.LOG_EXTREME)
+                                    from_interface = Transport.next_hop_interface(packet.destination_hash)
+                                    if from_interface == None or not hasattr(from_interface, "mode"):
                                         should_transmit = False
-                                    elif from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
-                                        RNS.log("Blocking announce broadcast on "+str(interface)+" due to boundary-mode next-hop interface", RNS.LOG_EXTREME)
-                                        should_transmit = False
+                                        if from_interface == None:
+                                            RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface doesn't exist", RNS.LOG_EXTREME)
+                                        elif not hasattr(from_interface, "mode"):
+                                            RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", RNS.LOG_EXTREME)
+                                    else:
+                                        if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                                            RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", RNS.LOG_EXTREME)
+                                            should_transmit = False
+                                        elif from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
+                                            RNS.log("Blocking announce broadcast on "+str(interface)+" due to boundary-mode next-hop interface", RNS.LOG_EXTREME)
+                                            should_transmit = False
 
                             elif interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
-                                from_interface = Transport.next_hop_interface(packet.destination_hash)
-                                if from_interface == None or not hasattr(from_interface, "mode"):
-                                    should_transmit = False
-                                    if from_interface == None:
-                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface doesn't exist", RNS.LOG_EXTREME)
-                                    elif not hasattr(from_interface, "mode"):
-                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", RNS.LOG_EXTREME)
+                                local_destination = next((d for d in Transport.destinations if d.hash == packet.destination_hash), None)
+                                if local_destination != None:
+                                    # RNS.log("Allowing announce broadcast on boundary-mode interface from instance-local destination", RNS.LOG_EXTREME)
+                                    pass
                                 else:
-                                    if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
-                                        RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", RNS.LOG_EXTREME)
+                                    from_interface = Transport.next_hop_interface(packet.destination_hash)
+                                    if from_interface == None or not hasattr(from_interface, "mode"):
                                         should_transmit = False
+                                        if from_interface == None:
+                                            RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface doesn't exist", RNS.LOG_EXTREME)
+                                        elif not hasattr(from_interface, "mode"):
+                                            RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", RNS.LOG_EXTREME)
+                                    else:
+                                        if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                                            RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", RNS.LOG_EXTREME)
+                                            should_transmit = False
 
                             else:
                                 # Currently, annouces originating locally are always
