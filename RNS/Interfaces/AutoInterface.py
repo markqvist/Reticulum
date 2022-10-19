@@ -267,6 +267,22 @@ class AutoInterface(Interface):
                 RNS.log(str(self)+" removed peer "+str(peer_addr)+" on "+str(removed_peer[0]), RNS.LOG_DEBUG)
 
             for ifname in self.adopted_interfaces:
+                # Check that the link-local address has not changed
+                try:
+                    addresses = self.netifaces.ifaddresses(ifname)
+                    if self.netifaces.AF_INET6 in addresses:
+                        link_local_addr = None
+                        for address in addresses[self.netifaces.AF_INET6]:
+                            if "addr" in address:
+                                if address["addr"].startswith("fe80:"):
+                                    link_local_addr = address["addr"].split("%")[0]
+                                    if link_local_addr != self.adopted_interfaces[ifname]:
+                                        self.adopted_interfaces[ifname] = link_local_addr
+
+                except Exception as e:
+                    RNS.log("Could not get device information while updating link-local addresses for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+
+                # Check multicast echo timeouts
                 last_multicast_echo = 0
                 if ifname in self.multicast_echoes:
                     last_multicast_echo = self.multicast_echoes[ifname]
