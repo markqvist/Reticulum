@@ -183,7 +183,6 @@ considered relatively stable at the moment, but could change if warranted.
   - Performance and memory optimisations
   - Utilities for managing identities, signing and encryption
   - User friendly interface configuration tool
-  - Support for radio and modem interfaces on Android
   - More interface types for even broader compatibility
     - Plain ESP32 devices (ESP-Now, WiFi, Bluetooth, etc.)
     - More LoRa transceivers
