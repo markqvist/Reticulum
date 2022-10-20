@@ -99,10 +99,18 @@ class RNodeInterface(Interface):
         if RNS.vendor.platformutils.is_android():
             self.on_android  = True
             if importlib.util.find_spec('usbserial4a') != None:
+                if importlib.util.find_spec('jnius') == None:
+                    RNS.log("Could not load jnius API wrapper for Android, RNode interface cannot be created.", RNS.LOG_CRITICAL)
+                    RNS.log("This probably means you are trying to use an USB-based interface from within Termux or similar.", RNS.LOG_CRITICAL)
+                    RNS.log("This is currently not possible, due to this environment limiting access to the native Android APIs.", RNS.LOG_CRITICAL)
+                    RNS.panic()
+
                 from usbserial4a import serial4a as serial
                 self.parity = "N"
+            
             else:
                 RNS.log("Could not load USB serial module for Android, RNode interface cannot be created.", RNS.LOG_CRITICAL)
+                RNS.log("You can install this module by issuing: pip install usbserial4a", RNS.LOG_CRITICAL)
                 RNS.panic()
         else:
             raise SystemError("Android-specific interface was used on non-Android OS")

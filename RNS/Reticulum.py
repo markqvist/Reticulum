@@ -34,6 +34,7 @@ if get_platform() == "android":
     from .Interfaces.Android import KISSInterface
 else:
     from .Interfaces import *
+    from .Interfaces.Android import *
 
 from .vendor.configobj import ConfigObj
 import configparser
