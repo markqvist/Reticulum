@@ -44,6 +44,8 @@ class KISS():
     CMD_RADIO_STATE = 0x06
     CMD_RADIO_LOCK  = 0x07
     CMD_DETECT      = 0x08
+    CMD_IMPLICIT    = 0x09
+    CMD_LEAVE       = 0x0A
     CMD_READY       = 0x0F
     CMD_STAT_RX     = 0x21
     CMD_STAT_TX     = 0x22
@@ -71,6 +73,7 @@ class KISS():
     ERROR_INITRADIO     = 0x01
     ERROR_TXFAILED      = 0x02
     ERROR_EEPROM_LOCKED = 0x03
+    ERROR_INVALID_FIRMWARE = 0x10
 
     PLATFORM_AVR   = 0x90
     PLATFORM_ESP32 = 0x80
@@ -133,6 +136,7 @@ class RNodeInterface(Interface):
         self.stopbits    = 1
         self.timeout     = 150
         self.online      = False
+        self.hw_errors   = []
 
         self.frequency   = frequency
         self.bandwidth   = bandwidth
@@ -217,10 +221,11 @@ class RNodeInterface(Interface):
         except Exception as e:
             RNS.log("Could not open serial port for interface "+str(self), RNS.LOG_ERROR)
             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log("Reticulum will attempt to bring up this interface periodically", RNS.LOG_ERROR)
-            thread = threading.Thread(target=self.reconnect_port)
-            thread.daemon = True
-            thread.start()
+            if len(self.hw_errors) == 0:
+                RNS.log("Reticulum will attempt to bring up this interface periodically", RNS.LOG_ERROR)
+                thread = threading.Thread(target=self.reconnect_port)
+                thread.daemon = True
+                thread.start()
 
 
     def open_port(self):
@@ -296,6 +301,9 @@ class RNodeInterface(Interface):
             if self.platform == KISS.PLATFORM_ESP32:
                 self.display = True
 
+        if not self.firmware_ok:
+            raise IOError("Invalid device firmware")
+
         RNS.log("Serial port "+self.port+" is now open")
         RNS.log("Configuring RNode interface...", RNS.LOG_VERBOSE)
         self.initRadio()
@@ -337,6 +345,11 @@ class RNodeInterface(Interface):
         if written != len(kiss_command):
             raise IOError("An IO error occurred while detecting hardware for "+self(str))
 
+    def leave(self):
+        kiss_command = bytes([KISS.FEND, KISS.CMD_LEAVE, 0xFF, KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending host left command to device")
     
     def enable_external_framebuffer(self):
         if self.display != None:
@@ -446,7 +459,10 @@ class RNodeInterface(Interface):
         RNS.log("The firmware version of the connected RNode is "+str(self.maj_version)+"."+str(self.min_version), RNS.LOG_ERROR)
         RNS.log("This version of Reticulum requires at least version "+str(RNodeInterface.REQUIRED_FW_VER_MAJ)+"."+str(RNodeInterface.REQUIRED_FW_VER_MIN), RNS.LOG_ERROR)
         RNS.log("Please update your RNode firmware with rnodeconf from https://github.com/markqvist/rnodeconfigutil/")
-        RNS.panic()
+        error_description  = "The firmware version of the connected RNode is "+str(self.maj_version)+"."+str(self.min_version)+". "
+        error_description += "This version of Reticulum requires at least version "+str(RNodeInterface.REQUIRED_FW_VER_MAJ)+"."+str(RNodeInterface.REQUIRED_FW_VER_MIN)+". "
+        error_description += "Please update your RNode firmware with rnodeconf from: https://github.com/markqvist/rnodeconfigutil/"
+        self.hw_errors.append({"error": KISS.ERROR_INVALID_FIRMWARE, "description": error_description})
 
 
     def validateRadioState(self):
@@ -736,7 +752,7 @@ class RNodeInterface(Interface):
         self.reconnect_port()
 
     def reconnect_port(self):
-        while not self.online:
+        while not self.online and len(self.hw_errors) == 0:
             try:
                 time.sleep(self.reconnect_w)
                 RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
@@ -746,11 +762,13 @@ class RNodeInterface(Interface):
             except Exception as e:
                 RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
-        RNS.log("Reconnected serial port for "+str(self))
+        if self.online:
+            RNS.log("Reconnected serial port for "+str(self))
 
     def detach(self):
         self.disable_external_framebuffer()
         self.setRadioState(KISS.RADIO_STATE_OFF)
+        self.leave()
 
     def __str__(self):
         return "RNodeInterface["+str(self.name)+"]"

@@ -675,7 +675,8 @@ class RNodeInterface(Interface):
             except Exception as e:
                 RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
-        RNS.log("Reconnected serial port for "+str(self))
+        if self.online:
+            RNS.log("Reconnected serial port for "+str(self))
 
     def detach(self):
         self.disable_external_framebuffer()
