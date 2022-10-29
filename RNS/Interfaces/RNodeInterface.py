@@ -51,6 +51,9 @@ class KISS():
     CMD_STAT_SNR    = 0x24
     CMD_BLINK       = 0x30
     CMD_RANDOM      = 0x40
+    CMD_FB_EXT      = 0x41
+    CMD_FB_READ     = 0x42
+    CMD_FB_WRITE    = 0x43
     CMD_PLATFORM    = 0x48
     CMD_MCU         = 0x49
     CMD_FW_VERSION  = 0x50
@@ -90,7 +93,7 @@ class RNodeInterface(Interface):
     CALLSIGN_MAX_LEN    = 32
 
     REQUIRED_FW_VER_MAJ = 1
-    REQUIRED_FW_VER_MIN = 26
+    REQUIRED_FW_VER_MIN = 50
 
     RECONNECT_WAIT = 5
 
@@ -130,6 +133,7 @@ class RNodeInterface(Interface):
         self.state       = KISS.RADIO_STATE_OFF
         self.bitrate     = 0
         self.platform    = None
+        self.display     = None
         self.mcu         = None
         self.detected    = False
         self.firmware_ok = False
@@ -240,8 +244,7 @@ class RNodeInterface(Interface):
             raise IOError("Could not detect device")
         else:
             if self.platform == KISS.PLATFORM_ESP32:
-                RNS.log("Resetting ESP32-based device before configuration...", RNS.LOG_VERBOSE)
-                self.hard_reset()
+                self.display = True
 
         RNS.log("Serial port "+self.port+" is now open")
         RNS.log("Configuring RNode interface...", RNS.LOG_VERBOSE)
@@ -272,6 +275,44 @@ class RNodeInterface(Interface):
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while detecting hardware for "+self(str))
+    
+    def enable_external_framebuffer(self):
+        if self.display != None:
+            kiss_command = bytes([KISS.FEND, KISS.CMD_FB_EXT, 0x01, KISS.FEND])
+            written = self.serial.write(kiss_command)
+            if written != len(kiss_command):
+                raise IOError("An IO error occurred while enabling external framebuffer on device")
+
+    def disable_external_framebuffer(self):
+        if self.display != None:
+            kiss_command = bytes([KISS.FEND, KISS.CMD_FB_EXT, 0x00, KISS.FEND])
+            written = self.serial.write(kiss_command)
+            if written != len(kiss_command):
+                raise IOError("An IO error occurred while disabling external framebuffer on device")
+
+    FB_PIXEL_WIDTH     = 64
+    FB_BITS_PER_PIXEL  = 1
+    FB_PIXELS_PER_BYTE = 8//FB_BITS_PER_PIXEL
+    FB_BYTES_PER_LINE  = FB_PIXEL_WIDTH//FB_PIXELS_PER_BYTE
+    def display_image(self, imagedata):
+        if self.display != None:
+            lines = len(imagedata)//8
+            for line in range(lines):
+                line_start = line*RNodeInterface.FB_BYTES_PER_LINE
+                line_end   = line_start+RNodeInterface.FB_BYTES_PER_LINE
+                line_data = bytes(imagedata[line_start:line_end])
+                self.write_framebuffer(line, line_data)
+
+    def write_framebuffer(self, line, line_data):
+        if self.display != None:
+            line_byte = line.to_bytes(1, byteorder="big", signed=False)
+            data = line_byte+line_data
+            escaped_data = KISS.escape(data)
+            kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_FB_WRITE])+escaped_data+bytes([KISS.FEND])
+            
+            written = self.serial.write(kiss_command)
+            if written != len(kiss_command):
+                raise IOError("An IO error occurred while writing framebuffer data device")
 
     def hard_reset(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_RESET, 0xf8, KISS.FEND])
@@ -342,7 +383,7 @@ class RNodeInterface(Interface):
 
         RNS.log("The firmware version of the connected RNode is "+str(self.maj_version)+"."+str(self.min_version), RNS.LOG_ERROR)
         RNS.log("This version of Reticulum requires at least version "+str(RNodeInterface.REQUIRED_FW_VER_MAJ)+"."+str(RNodeInterface.REQUIRED_FW_VER_MIN), RNS.LOG_ERROR)
-        RNS.log("Please update your RNode firmware with rnodeconf (https://github.com/markqvist/rnodeconfigutil/)")
+        RNS.log("Please update your RNode firmware with rnodeconf from https://github.com/markqvist/rnodeconfigutil/")
         RNS.panic()
 
 
@@ -636,6 +677,9 @@ class RNodeInterface(Interface):
 
         RNS.log("Reconnected serial port for "+str(self))
 
+    def detach(self):
+        self.disable_external_framebuffer()
+        self.setRadioState(KISS.RADIO_STATE_OFF)
+
     def __str__(self):
         return "RNodeInterface["+str(self.name)+"]"
-
