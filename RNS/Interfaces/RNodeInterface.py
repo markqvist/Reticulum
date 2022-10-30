@@ -44,6 +44,7 @@ class KISS():
     CMD_RADIO_STATE = 0x06
     CMD_RADIO_LOCK  = 0x07
     CMD_DETECT      = 0x08
+    CMD_LEAVE       = 0x0A
     CMD_READY       = 0x0F
     CMD_STAT_RX     = 0x21
     CMD_STAT_TX     = 0x22
@@ -275,6 +276,12 @@ class RNodeInterface(Interface):
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while detecting hardware for "+self(str))
+    
+    def leave(self):
+        kiss_command = bytes([KISS.FEND, KISS.CMD_LEAVE, 0xFF, KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending host left command to device")
     
     def enable_external_framebuffer(self):
         if self.display != None:
@@ -681,6 +688,7 @@ class RNodeInterface(Interface):
     def detach(self):
         self.disable_external_framebuffer()
         self.setRadioState(KISS.RADIO_STATE_OFF)
+        self.leave()
 
     def __str__(self):
         return "RNodeInterface["+str(self.name)+"]"
