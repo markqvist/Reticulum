@@ -94,7 +94,7 @@ class RNodeInterface(Interface):
     CALLSIGN_MAX_LEN    = 32
 
     REQUIRED_FW_VER_MAJ = 1
-    REQUIRED_FW_VER_MIN = 50
+    REQUIRED_FW_VER_MIN = 51
 
     RECONNECT_WAIT = 5
 
