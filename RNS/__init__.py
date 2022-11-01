@@ -57,10 +57,11 @@ LOG_FILE     = 0x92
 
 LOG_MAXSIZE  = 5*1024*1024
 
-loglevel     = LOG_NOTICE
-logfile      = None
-logdest      = LOG_STDOUT
-logtimefmt   = "%Y-%m-%d %H:%M:%S"
+loglevel        = LOG_NOTICE
+logfile         = None
+logdest         = LOG_STDOUT
+logtimefmt      = "%Y-%m-%d %H:%M:%S"
+compact_log_fmt = False
 
 instance_random = random.Random()
 instance_random.seed(os.urandom(10))
@@ -101,10 +102,14 @@ def timestamp_str(time_s):
     return time.strftime(logtimefmt, timestamp)
 
 def log(msg, level=3, _override_destination = False):
-    global _always_override_destination
+    global _always_override_destination, compact_log_fmt
     
     if loglevel >= level:
-        logstring = "["+timestamp_str(time.time())+"] ["+loglevelname(level)+"] "+msg
+        if not compact_log_fmt:
+            logstring = "["+timestamp_str(time.time())+"] ["+loglevelname(level)+"] "+msg
+        else:
+            logstring = "["+timestamp_str(time.time())+"] "+msg
+
         logging_lock.acquire()
 
         if (logdest == LOG_STDOUT or _always_override_destination or _override_destination):
