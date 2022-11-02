@@ -226,6 +226,85 @@ class RNodeInterface(Interface):
     RECONNECT_WAIT = 5
     PORT_IO_TIMEOUT = 3
 
+    @classmethod
+    def bluetooth_control(device_serial = None, port = None, enable_bluetooth = False, disable_bluetooth = False, pairing_mode = False):
+        if (port != None or device_serial != None) and (enable_bluetooth or disable_bluetooth or pairing_mode):
+            serial = None
+            bluetooth_state = None
+            if pairing_mode:
+                bluetooth_state = 0x01
+            elif enable_bluetooth:
+                bluetooth_state = 0x01
+            elif disable_bluetooth:
+                bluetooth_state = 0x00
+
+            if port != None:
+                RNS.log("Opening serial port "+port+"...")
+                # Get device parameters
+                from usb4a import usb
+                device = usb.get_usb_device(port)
+                if device:
+                    vid = device.getVendorId()
+                    pid = device.getProductId()
+
+                    # Driver overrides for speficic chips
+                    from usbserial4a import serial4a as pyserial
+                    if vid == 0x1A86 and pid == 0x55D4:
+                        # Force CDC driver for Qinheng CH34x
+                        RNS.log("Using CDC driver for "+RNS.hexrep(vid)+":"+RNS.hexrep(pid), RNS.LOG_DEBUG)
+                        from usbserial4a.cdcacmserial4a import CdcAcmSerial
+                        proxy = CdcAcmSerial
+
+                    serial = pyserial.get_serial_port(
+                        port,
+                        baudrate = 115200,
+                        bytesize = 8,
+                        parity = "N",
+                        stopbits = 1,
+                        xonxoff = False,
+                        rtscts = False,
+                        timeout = None,
+                        inter_byte_timeout = None,
+                        # write_timeout = wtimeout,
+                        dsrdtr = False,
+                    )
+
+                    if vid == 0x0403:
+                        # Hardware parameters for FTDI devices @ 115200 baud
+                        serial.DEFAULT_READ_BUFFER_SIZE = 16 * 1024
+                        serial.USB_READ_TIMEOUT_MILLIS = 100
+                        serial.timeout = 0.1
+                    elif vid == 0x10C4:
+                        # Hardware parameters for SiLabs CP210x @ 115200 baud
+                        serial.DEFAULT_READ_BUFFER_SIZE = 64 
+                        serial.USB_READ_TIMEOUT_MILLIS = 12
+                        serial.timeout = 0.012
+                    elif vid == 0x1A86 and pid == 0x55D4:
+                        # Hardware parameters for Qinheng CH34x @ 115200 baud
+                        serial.DEFAULT_READ_BUFFER_SIZE = 64
+                        serial.USB_READ_TIMEOUT_MILLIS = 12
+                        serial.timeout = 0.1
+                    else:
+                        # Default values
+                        serial.DEFAULT_READ_BUFFER_SIZE = 1 * 1024
+                        serial.USB_READ_TIMEOUT_MILLIS = 100
+                        serial.timeout = 0.1
+
+            elif device_serial != None:
+                serial = device_serial
+
+            if serial != None:
+                if serial.is_open:
+                    kiss_command = bytes([KISS.FEND, KISS.CMD_BT_CTRL, bluetooth_state, KISS.FEND])
+                    serial.write(kiss_command)
+                    if pairing_mode:
+                        kiss_command = bytes([KISS.FEND, KISS.CMD_BT_CTRL, 0x02, KISS.FEND])
+                        serial.write(kiss_command)
+
+            if port != None:
+                serial.close()
+
+
     def __init__(
         self, owner, name, port, frequency = None, bandwidth = None, txpower = None,
         sf = None, cr = None, flow_control = False, id_interval = None,
@@ -537,6 +616,24 @@ class RNodeInterface(Interface):
         if written != len(kiss_command):
             raise IOError("An IO error occurred while sending host left command to device")
     
+    def enable_bluetooth(self):
+        kiss_command = bytes([KISS.FEND, KISS.CMD_BT_CTRL, 0x01, KISS.FEND])
+        written = self.write_mux(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending bluetooth enable command to device")
+
+    def disable_bluetooth(self):
+        kiss_command = bytes([KISS.FEND, KISS.CMD_BT_CTRL, 0x00, KISS.FEND])
+        written = self.write_mux(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending bluetooth disable command to device")
+
+    def bluetooth_pair(self):
+        kiss_command = bytes([KISS.FEND, KISS.CMD_BT_CTRL, 0x02, KISS.FEND])
+        written = self.write_mux(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending bluetooth pair command to device")
+
     def enable_external_framebuffer(self):
         if self.display != None:
             kiss_command = bytes([KISS.FEND, KISS.CMD_FB_EXT, 0x01, KISS.FEND])
