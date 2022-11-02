@@ -94,7 +94,7 @@ class RNodeInterface(Interface):
     CALLSIGN_MAX_LEN    = 32
 
     REQUIRED_FW_VER_MAJ = 1
-    REQUIRED_FW_VER_MIN = 51
+    REQUIRED_FW_VER_MIN = 52
 
     RECONNECT_WAIT = 5
 
@@ -275,7 +275,7 @@ class RNodeInterface(Interface):
         kiss_command = bytes([KISS.FEND, KISS.CMD_DETECT, KISS.DETECT_REQ, KISS.FEND, KISS.CMD_FW_VERSION, 0x00, KISS.FEND, KISS.CMD_PLATFORM, 0x00, KISS.FEND, KISS.CMD_MCU, 0x00, KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while detecting hardware for "+self(str))
+            raise IOError("An IO error occurred while detecting hardware for "+str(self))
     
     def leave(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_LEAVE, 0xFF, KISS.FEND])
@@ -338,7 +338,7 @@ class RNodeInterface(Interface):
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_FREQUENCY])+data+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring frequency for "+self(str))
+            raise IOError("An IO error occurred while configuring frequency for "+str(self))
 
     def setBandwidth(self):
         c1 = self.bandwidth >> 24
@@ -350,35 +350,35 @@ class RNodeInterface(Interface):
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_BANDWIDTH])+data+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring bandwidth for "+self(str))
+            raise IOError("An IO error occurred while configuring bandwidth for "+str(self))
 
     def setTXPower(self):
         txp = bytes([self.txpower])
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_TXPOWER])+txp+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring TX power for "+self(str))
+            raise IOError("An IO error occurred while configuring TX power for "+str(self))
 
     def setSpreadingFactor(self):
         sf = bytes([self.sf])
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_SF])+sf+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring spreading factor for "+self(str))
+            raise IOError("An IO error occurred while configuring spreading factor for "+str(self))
 
     def setCodingRate(self):
         cr = bytes([self.cr])
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_CR])+cr+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring coding rate for "+self(str))
+            raise IOError("An IO error occurred while configuring coding rate for "+str(self))
 
     def setRadioState(self, state):
         self.state = state
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_RADIO_STATE])+bytes([state])+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring radio state for "+self(str))
+            raise IOError("An IO error occurred while configuring radio state for "+str(self))
 
     def validate_firmware(self):
         if (self.maj_version >= RNodeInterface.REQUIRED_FW_VER_MAJ):
