@@ -2178,7 +2178,6 @@ def main():
 
 
                             RNS.log("Bootstrapping device EEPROM...")
-                            rnode.hard_reset()
 
                             rnode.write_eeprom(ROM.ADDR_PRODUCT, mapped_product)
                             time.sleep(0.006)
@@ -2216,16 +2215,15 @@ def main():
                             RNS.log("EEPROM written! Validating...")
 
                             if wants_fw_provision:
-                                RNS.log("Getting partition data...")
                                 partition_filename = fw_filename.replace(".zip", ".bin")
                                 partition_hash = get_partition_hash(UPD_DIR+"/"+selected_version+"/"+partition_filename)
                                 if partition_hash != None:
-                                    RNS.log("Setting firmware partition hash target")
                                     rnode.set_firmware_hash(partition_hash)
 
+                            rnode.hard_reset()
                             if rnode.platform == ROM.PLATFORM_ESP32:
                                 RNS.log("Waiting for ESP32 reset...")
-                                time.sleep(5)
+                                time.sleep(6.5)
 
                             rnode.download_eeprom()
                             if rnode.provisioned:
