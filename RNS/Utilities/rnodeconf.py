@@ -91,6 +91,7 @@ class KISS():
     CMD_DEV_HASH    = 0x56
     CMD_DEV_SIG     = 0x57
     CMD_FW_HASH     = 0x58
+    CMD_FW_UPD      = 0x61
 
     DETECT_REQ      = 0x73
     DETECT_RESP     = 0x46
@@ -550,6 +551,13 @@ class RNode():
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while sending firmware hash to device")
+
+    def indicate_firmware_update(self):
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_FW_UPD])+bytes([0x01])+bytes([KISS.FEND])
+
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending firmware update command to device")
 
     def initRadio(self):
         self.setFrequency()
@@ -1917,6 +1925,8 @@ def main():
                         partition_hash = get_partition_hash(UPD_DIR+"/"+selected_version+"/"+partition_filename)
                         if partition_hash != None:
                             rnode.set_firmware_hash(partition_hash)
+                            rnode.indicate_firmware_update()
+                            sleep(1)
 
                         rnode.disconnect()
                         flash_status = call(get_flasher_call(rnode.platform, fw_filename))
