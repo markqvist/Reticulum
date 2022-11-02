@@ -1994,14 +1994,17 @@ def main():
             if args.bluetooth_on:
                 RNS.log("Enabling Bluetooth...")
                 rnode.enable_bluetooth()
+                rnode.leave()
 
             if args.bluetooth_off:
                 RNS.log("Disabling Bluetooth...")
                 rnode.disable_bluetooth()
+                rnode.leave()
 
             if args.bluetooth_pair:
                 RNS.log("Putting device into Bluetooth pairing mode...")
                 rnode.bluetooth_pair()
+                rnode.leave()
 
             if args.info:
                 if rnode.provisioned:
