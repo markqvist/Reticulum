@@ -85,7 +85,130 @@ class KISS():
         data = data.replace(bytes([0xdb]), bytes([0xdb, 0xdd]))
         data = data.replace(bytes([0xc0]), bytes([0xdb, 0xdc]))
         return data
-    
+
+class AndroidBluetoothManager():
+    def __init__(self, owner, target_device_name = None, target_device_address = None):
+        from jnius import autoclass
+        self.owner = owner
+        self.connected = False
+        self.target_device_name = target_device_name
+        self.target_device_address = target_device_address
+        self.potential_remote_devices = []
+        self.rfcomm_socket = None
+        self.connected_device = None
+        self.connection_failed = False
+        self.bt_adapter = autoclass('android.bluetooth.BluetoothAdapter')
+        self.bt_device  = autoclass('android.bluetooth.BluetoothDevice')
+        self.bt_socket  = autoclass('android.bluetooth.BluetoothSocket')
+        self.bt_rfcomm_service_record = autoclass('java.util.UUID').fromString("00001101-0000-1000-8000-00805F9B34FB")
+        self.buffered_input_stream    = autoclass('java.io.BufferedInputStream')
+
+    def connect(self, device_address=None):
+        self.rfcomm_socket = self.remote_device.createRfcommSocketToServiceRecord(self.bt_rfcomm_service_record)
+
+    def bt_enabled(self):
+        return self.bt_adapter.getDefaultAdapter().isEnabled()
+
+    def get_paired_devices(self):
+        if self.bt_enabled():
+            return self.bt_adapter.getDefaultAdapter().getBondedDevices()
+        else:
+            RNS.log("Could not query paired devices, Bluetooth is disabled", RNS.LOG_DEBUG)
+            return []
+
+    def get_potential_devices(self):
+        potential_devices = []
+        for device in self.get_paired_devices():
+            if self.target_device_address != None:
+                if str(device.getAddress()).replace(":", "").lower() == str(self.target_device_address).replace(":", "").lower():
+                    if self.target_device_name == None:
+                        potential_devices.append(device)
+                    else:
+                        if device.getName().lower() == self.target_device_name.lower():
+                            potential_devices.append(device)
+
+            elif self.target_device_name != None:
+                if device.getName().lower() == self.target_device_name.lower():
+                    potential_devices.append(device)
+
+            else:
+                if device.getName().lower().startswith("rnode "):
+                    potential_devices.append(device)
+
+        return potential_devices
+
+    def connect_any_device(self):
+        if (self.rfcomm_socket != None and not self.rfcomm_socket.isConnected()) or self.rfcomm_socket == None:
+            self.connection_failed = False
+            if len(self.potential_remote_devices) == 0:
+                self.potential_remote_devices = self.get_potential_devices()
+                if len(self.potential_remote_devices) == 0:
+                    RNS.log("No suitable bluetooth devices available, can't connect", RNS.LOG_DEBUG)
+                    return
+
+            while not self.connected and len(self.potential_remote_devices) > 0:
+                device = self.potential_remote_devices.pop()
+                try:
+                    self.rfcomm_socket = device.createRfcommSocketToServiceRecord(self.bt_rfcomm_service_record)
+                    if self.rfcomm_socket == None:
+                        raise IOError("Bluetooth stack returned no socket object")
+                    else:
+                        if not self.rfcomm_socket.isConnected():
+                            try:
+                                self.rfcomm_socket.connect()
+                                self.rfcomm_reader = self.buffered_input_stream(self.rfcomm_socket.getInputStream(), 1024)
+                                self.rfcomm_writer = self.rfcomm_socket.getOutputStream()
+                                self.connected = True
+                                self.connected_device = device
+                                RNS.log("Bluetooth device "+str(self.connected_device.getName())+" "+str(self.connected_device.getAddress())+" connected.")
+                            except Exception as e:
+                                raise IOError("The Bluetooth RFcomm socket could not be connected: "+str(e))
+
+                except Exception as e:
+                    RNS.log("Could not create and connect Bluetooth RFcomm socket for "+str(device.getName())+" "+str(device.getAddress()), RNS.LOG_ERROR)
+                    RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+
+    def close(self):
+        if self.connected:
+            if self.rfcomm_reader != None:
+                self.rfcomm_reader.close()
+                self.rfcomm_reader = None
+            
+            if self.rfcomm_writer != None:
+                self.rfcomm_writer.close()
+                self.rfcomm_writer = None
+
+            if self.rfcomm_socket != None:
+                self.rfcomm_socket.close()
+
+            self.connected = False
+            self.connected_device = None
+            self.potential_remote_devices = []
+
+
+    def read(self, len = None):
+        if self.connection_failed:
+            raise IOError("Bluetooth connection failed")
+        else:
+            if self.connected and self.rfcomm_reader != None:
+                available = self.rfcomm_reader.available()
+                if available > 0:
+                    return self.rfcomm_reader.readNBytes(available)
+                else:
+                    return bytes([])
+            else:
+                raise IOError("No RFcomm socket available")
+
+    def write(self, data):
+        try:
+            self.rfcomm_writer.write(data)
+            self.rfcomm_writer.flush()
+            return len(data)
+        except Exception as e:
+            RNS.log("Bluetooth connection failed for "+str(self), RNS.LOG_ERROR)
+            self.connection_failed = True
+            return 0
+
 
 class RNodeInterface(Interface):
     MAX_CHUNK = 32768
@@ -98,11 +221,16 @@ class RNodeInterface(Interface):
     CALLSIGN_MAX_LEN    = 32
 
     REQUIRED_FW_VER_MAJ = 1
-    REQUIRED_FW_VER_MIN = 51
+    REQUIRED_FW_VER_MIN = 52
 
     RECONNECT_WAIT = 5
+    PORT_IO_TIMEOUT = 3
 
-    def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None):
+    def __init__(
+        self, owner, name, port, frequency = None, bandwidth = None, txpower = None,
+        sf = None, cr = None, flow_control = False, id_interval = None,
+        allow_bluetooth = False, target_device_name = None,
+        target_device_address = None, id_callsign = None):
         import importlib
         if RNS.vendor.platformutils.is_android():
             self.on_android  = True
@@ -115,6 +243,16 @@ class RNodeInterface(Interface):
 
                 from usbserial4a import serial4a as serial
                 self.parity = "N"
+
+                if allow_bluetooth:
+                    self.bt_manager = AndroidBluetoothManager(
+                        owner = self,
+                        target_device_name = target_device_name,
+                        target_device_address = target_device_address
+                    )
+
+                else:
+                    self.bt_manager = None
             
             else:
                 RNS.log("Could not load USB serial module for Android, RNode interface cannot be created.", RNS.LOG_CRITICAL)
@@ -139,6 +277,7 @@ class RNodeInterface(Interface):
         self.timeout     = 150
         self.online      = False
         self.hw_errors   = []
+        self.allow_bluetooth = allow_bluetooth
 
         self.frequency   = frequency
         self.bandwidth   = bandwidth
@@ -175,6 +314,9 @@ class RNodeInterface(Interface):
         self.flow_control    = flow_control
         self.interface_ready = False
         self.announce_rate_target = None
+        self.last_port_io = 0
+        self.port_io_timeout = RNodeInterface.PORT_IO_TIMEOUT
+        self.last_imagedata = None
 
         self.validcfg  = True
         if (self.frequency < RNodeInterface.FREQ_MIN or self.frequency > RNodeInterface.FREQ_MAX):
@@ -215,10 +357,18 @@ class RNodeInterface(Interface):
         try:
             self.open_port()
 
-            if self.serial.is_open:
-                self.configure_device()
+            if self.serial != None:
+                if self.serial.is_open:
+                    self.configure_device()
+                else:
+                    raise IOError("Could not open serial port")
+            elif self.bt_manager != None:
+                if self.bt_manager.connected:
+                    self.configure_device()
+                else:
+                    raise IOError("Could not connect to any Bluetooth devices")
             else:
-                raise IOError("Could not open serial port")
+                raise IOError("Neither serial port nor Bluetooth devices available")
 
         except Exception as e:
             RNS.log("Could not open serial port for interface "+str(self), RNS.LOG_ERROR)
@@ -230,61 +380,87 @@ class RNodeInterface(Interface):
                 thread.start()
 
 
+    def read_mux(self, len=None):
+        if self.serial != None:
+            return self.serial.read()
+        elif self.bt_manager != None:
+            return self.bt_manager.read()
+        else:
+            raise IOError("No ports available for reading")
+
+    def write_mux(self, data):
+        if self.serial != None:
+            written = self.serial.write(data)
+            self.last_port_io = time.time()
+            return written
+        elif self.bt_manager != None:
+            written = self.bt_manager.write(data)
+            if (written == len(data)):
+                self.last_port_io = time.time()
+            return written
+        else:
+            raise IOError("No ports available for writing")
+
     def open_port(self):
-        RNS.log("Opening serial port "+self.port+"...")
-        # Get device parameters
-        from usb4a import usb
-        device = usb.get_usb_device(self.port)
-        if device:
-            vid = device.getVendorId()
-            pid = device.getProductId()
+        if self.port != None:
+            RNS.log("Opening serial port "+self.port+"...")
+            # Get device parameters
+            from usb4a import usb
+            device = usb.get_usb_device(self.port)
+            if device:
+                vid = device.getVendorId()
+                pid = device.getProductId()
 
-            # Driver overrides for speficic chips
-            proxy = self.pyserial.get_serial_port
-            if vid == 0x1A86 and pid == 0x55D4:
-                # Force CDC driver for Qinheng CH34x
-                RNS.log(str(self)+" using CDC driver for "+RNS.hexrep(vid)+":"+RNS.hexrep(pid), RNS.LOG_DEBUG)
-                from usbserial4a.cdcacmserial4a import CdcAcmSerial
-                proxy = CdcAcmSerial
+                # Driver overrides for speficic chips
+                proxy = self.pyserial.get_serial_port
+                if vid == 0x1A86 and pid == 0x55D4:
+                    # Force CDC driver for Qinheng CH34x
+                    RNS.log(str(self)+" using CDC driver for "+RNS.hexrep(vid)+":"+RNS.hexrep(pid), RNS.LOG_DEBUG)
+                    from usbserial4a.cdcacmserial4a import CdcAcmSerial
+                    proxy = CdcAcmSerial
 
-            self.serial = proxy(
-                self.port,
-                baudrate = self.speed,
-                bytesize = self.databits,
-                parity = self.parity,
-                stopbits = self.stopbits,
-                xonxoff = False,
-                rtscts = False,
-                timeout = None,
-                inter_byte_timeout = None,
-                # write_timeout = wtimeout,
-                dsrdtr = False,
-            )
+                self.serial = proxy(
+                    self.port,
+                    baudrate = self.speed,
+                    bytesize = self.databits,
+                    parity = self.parity,
+                    stopbits = self.stopbits,
+                    xonxoff = False,
+                    rtscts = False,
+                    timeout = None,
+                    inter_byte_timeout = None,
+                    # write_timeout = wtimeout,
+                    dsrdtr = False,
+                )
 
-            if vid == 0x0403:
-                # Hardware parameters for FTDI devices @ 115200 baud
-                self.serial.DEFAULT_READ_BUFFER_SIZE = 16 * 1024
-                self.serial.USB_READ_TIMEOUT_MILLIS = 100
-                self.serial.timeout = 0.1
-            elif vid == 0x10C4:
-                # Hardware parameters for SiLabs CP210x @ 115200 baud
-                self.serial.DEFAULT_READ_BUFFER_SIZE = 64 
-                self.serial.USB_READ_TIMEOUT_MILLIS = 12
-                self.serial.timeout = 0.012
-            elif vid == 0x1A86 and pid == 0x55D4:
-                # Hardware parameters for Qinheng CH34x @ 115200 baud
-                self.serial.DEFAULT_READ_BUFFER_SIZE = 64
-                self.serial.USB_READ_TIMEOUT_MILLIS = 12
-                self.serial.timeout = 0.1
-            else:
-                # Default values
-                self.serial.DEFAULT_READ_BUFFER_SIZE = 1 * 1024
-                self.serial.USB_READ_TIMEOUT_MILLIS = 100
-                self.serial.timeout = 0.1
+                if vid == 0x0403:
+                    # Hardware parameters for FTDI devices @ 115200 baud
+                    self.serial.DEFAULT_READ_BUFFER_SIZE = 16 * 1024
+                    self.serial.USB_READ_TIMEOUT_MILLIS = 100
+                    self.serial.timeout = 0.1
+                elif vid == 0x10C4:
+                    # Hardware parameters for SiLabs CP210x @ 115200 baud
+                    self.serial.DEFAULT_READ_BUFFER_SIZE = 64 
+                    self.serial.USB_READ_TIMEOUT_MILLIS = 12
+                    self.serial.timeout = 0.012
+                elif vid == 0x1A86 and pid == 0x55D4:
+                    # Hardware parameters for Qinheng CH34x @ 115200 baud
+                    self.serial.DEFAULT_READ_BUFFER_SIZE = 64
+                    self.serial.USB_READ_TIMEOUT_MILLIS = 12
+                    self.serial.timeout = 0.1
+                else:
+                    # Default values
+                    self.serial.DEFAULT_READ_BUFFER_SIZE = 1 * 1024
+                    self.serial.USB_READ_TIMEOUT_MILLIS = 100
+                    self.serial.timeout = 0.1
 
-            RNS.log(str(self)+" USB read buffer size set to "+RNS.prettysize(self.serial.DEFAULT_READ_BUFFER_SIZE), RNS.LOG_DEBUG)
-            RNS.log(str(self)+" USB read timeout set to "+str(self.serial.USB_READ_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
-            RNS.log(str(self)+" USB write timeout set to "+str(self.serial.USB_WRITE_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
+                RNS.log(str(self)+" USB read buffer size set to "+RNS.prettysize(self.serial.DEFAULT_READ_BUFFER_SIZE), RNS.LOG_DEBUG)
+                RNS.log(str(self)+" USB read timeout set to "+str(self.serial.USB_READ_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
+                RNS.log(str(self)+" USB write timeout set to "+str(self.serial.USB_WRITE_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
+
+        elif self.allow_bluetooth:
+            if self.bt_manager != None:
+                self.bt_manager.connect_any_device()
 
 
     def configure_device(self):
@@ -295,8 +471,7 @@ class RNodeInterface(Interface):
 
         self.detect()
         sleep(0.4)
-            
-        
+
         if not self.detected:
             raise IOError("Could not detect device")
         else:
@@ -306,7 +481,11 @@ class RNodeInterface(Interface):
         if not self.firmware_ok:
             raise IOError("Invalid device firmware")
 
-        RNS.log("Serial port "+self.port+" is now open")
+        if self.serial != None and self.port != None:
+            RNS.log("Serial port "+self.port+" is now open")
+        if self.bt_manager != None and self.bt_manager.connected:
+            RNS.log("Bluetooth connection to RNode now open")
+
         RNS.log("Configuring RNode interface...", RNS.LOG_VERBOSE)
         self.initRadio()
         if (self.validateRadioState()):
@@ -318,7 +497,12 @@ class RNodeInterface(Interface):
             RNS.log("After configuring "+str(self)+", the reported radio parameters did not match your configuration.", RNS.LOG_ERROR)
             RNS.log("Make sure that your hardware actually supports the parameters specified in the configuration", RNS.LOG_ERROR)
             RNS.log("Aborting RNode startup", RNS.LOG_ERROR)
-            self.serial.close()
+            
+            if self.serial != None:
+                self.serial.close()
+            if self.bt_manager != None:
+                self.bt_manager.close()
+
             raise IOError("RNode interface did not pass configuration validation")
             
 
@@ -343,27 +527,27 @@ class RNodeInterface(Interface):
 
     def detect(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_DETECT, KISS.DETECT_REQ, KISS.FEND, KISS.CMD_FW_VERSION, 0x00, KISS.FEND, KISS.CMD_PLATFORM, 0x00, KISS.FEND, KISS.CMD_MCU, 0x00, KISS.FEND])
-        written = self.serial.write(kiss_command)
+        written = self.write_mux(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while detecting hardware for "+self(str))
+            raise IOError("An IO error occurred while detecting hardware for "+str(self))
 
     def leave(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_LEAVE, 0xFF, KISS.FEND])
-        written = self.serial.write(kiss_command)
+        written = self.write_mux(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while sending host left command to device")
     
     def enable_external_framebuffer(self):
         if self.display != None:
             kiss_command = bytes([KISS.FEND, KISS.CMD_FB_EXT, 0x01, KISS.FEND])
-            written = self.serial.write(kiss_command)
+            written = self.write_mux(kiss_command)
             if written != len(kiss_command):
                 raise IOError("An IO error occurred while enabling external framebuffer on device")
 
     def disable_external_framebuffer(self):
         if self.display != None:
             kiss_command = bytes([KISS.FEND, KISS.CMD_FB_EXT, 0x00, KISS.FEND])
-            written = self.serial.write(kiss_command)
+            written = self.write_mux(kiss_command)
             if written != len(kiss_command):
                 raise IOError("An IO error occurred while disabling external framebuffer on device")
 
@@ -372,6 +556,7 @@ class RNodeInterface(Interface):
     FB_PIXELS_PER_BYTE = 8//FB_BITS_PER_PIXEL
     FB_BYTES_PER_LINE  = FB_PIXEL_WIDTH//FB_PIXELS_PER_BYTE
     def display_image(self, imagedata):
+        self.last_imagedata = imagedata
         if self.display != None:
             lines = len(imagedata)//8
             for line in range(lines):
@@ -387,13 +572,13 @@ class RNodeInterface(Interface):
             escaped_data = KISS.escape(data)
             kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_FB_WRITE])+escaped_data+bytes([KISS.FEND])
             
-            written = self.serial.write(kiss_command)
+            written = self.write_mux(kiss_command)
             if written != len(kiss_command):
                 raise IOError("An IO error occurred while writing framebuffer data device")
 
     def hard_reset(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_RESET, 0xf8, KISS.FEND])
-        written = self.serial.write(kiss_command)
+        written = self.write_mux(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while restarting device")
         sleep(4.0);
@@ -406,9 +591,9 @@ class RNodeInterface(Interface):
         data = KISS.escape(bytes([c1])+bytes([c2])+bytes([c3])+bytes([c4]))
 
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_FREQUENCY])+data+bytes([KISS.FEND])
-        written = self.serial.write(kiss_command)
+        written = self.write_mux(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring frequency for "+self(str))
+            raise IOError("An IO error occurred while configuring frequency for "+str(self))
 
     def setBandwidth(self):
         c1 = self.bandwidth >> 24
@@ -418,37 +603,37 @@ class RNodeInterface(Interface):
         data = KISS.escape(bytes([c1])+bytes([c2])+bytes([c3])+bytes([c4]))
 
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_BANDWIDTH])+data+bytes([KISS.FEND])
-        written = self.serial.write(kiss_command)
+        written = self.write_mux(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring bandwidth for "+self(str))
+            raise IOError("An IO error occurred while configuring bandwidth for "+str(self))
 
     def setTXPower(self):
         txp = bytes([self.txpower])
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_TXPOWER])+txp+bytes([KISS.FEND])
-        written = self.serial.write(kiss_command)
+        written = self.write_mux(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring TX power for "+self(str))
+            raise IOError("An IO error occurred while configuring TX power for "+str(self))
 
     def setSpreadingFactor(self):
         sf = bytes([self.sf])
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_SF])+sf+bytes([KISS.FEND])
-        written = self.serial.write(kiss_command)
+        written = self.write_mux(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring spreading factor for "+self(str))
+            raise IOError("An IO error occurred while configuring spreading factor for "+str(self))
 
     def setCodingRate(self):
         cr = bytes([self.cr])
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_CR])+cr+bytes([KISS.FEND])
-        written = self.serial.write(kiss_command)
+        written = self.write_mux(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring coding rate for "+self(str))
+            raise IOError("An IO error occurred while configuring coding rate for "+str(self))
 
     def setRadioState(self, state):
         self.state = state
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_RADIO_STATE])+bytes([state])+bytes([KISS.FEND])
-        written = self.serial.write(kiss_command)
+        written = self.write_mux(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring radio state for "+self(str))
+            raise IOError("An IO error occurred while configuring radio state for "+str(self))
 
     def validate_firmware(self):
         if (self.maj_version >= RNodeInterface.REQUIRED_FW_VER_MAJ):
@@ -532,7 +717,7 @@ class RNodeInterface(Interface):
                 data    = KISS.escape(data)
                 frame   = bytes([0xc0])+bytes([0x00])+data+bytes([0xc0])
 
-                written = self.serial.write(frame)
+                written = self.write_mux(frame)
                 self.txb += datalen
 
                 if written != len(frame):
@@ -560,11 +745,14 @@ class RNodeInterface(Interface):
             command_buffer = b""
             last_read_ms = int(time.time()*1000)
 
-            # TODO: Ensure hotplug support
-            while self.serial.is_open:
-                # TODO: Check multibyte reads
-                serial_bytes = self.serial.read()
+            # TODO: Ensure hotplug support for serial drivers
+            # This should work now with the new time-based
+            # detect polling.
+            while (self.serial != None and self.serial.is_open) or (self.bt_manager != None and self.bt_manager.connected):
+                serial_bytes = self.read_mux()
                 got = len(serial_bytes)
+                if got > 0:
+                    self.last_port_io = time.time()
 
                 for byte in serial_bytes:
                     last_read_ms = int(time.time()*1000)
@@ -737,11 +925,19 @@ class RNodeInterface(Interface):
                             if time.time() > self.first_tx + self.id_interval:
                                 RNS.log("Interface "+str(self)+" is transmitting beacon data: "+str(self.id_callsign.decode("utf-8")), RNS.LOG_DEBUG)
                                 self.processOutgoing(self.id_callsign)
-                    # sleep(0.08)
+                    
+                    if (time.time() - self.last_port_io > self.port_io_timeout):
+                        self.detect()
+                    
+                    if (time.time() - self.last_port_io > self.port_io_timeout*3):
+                        raise IOError("Connected port for "+str(self)+" became unresponsive")
+
+                    if self.bt_manager != None:
+                        sleep(0.08)
 
         except Exception as e:
             self.online = False
-            RNS.log("A serial port error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log("A serial port occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
             RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
 
             if RNS.Reticulum.panic_on_interface_error:
@@ -750,19 +946,43 @@ class RNodeInterface(Interface):
             RNS.log("Reticulum will attempt to reconnect the interface periodically.", RNS.LOG_ERROR)
 
         self.online = False
-        self.serial.close()
+
+        if self.serial != None:
+            self.serial.close()
+
+        if self.bt_manager != None:
+            self.bt_manager.close()
+
         self.reconnect_port()
 
     def reconnect_port(self):
         while not self.online and len(self.hw_errors) == 0:
             try:
                 time.sleep(self.reconnect_w)
-                RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
+                if self.serial != None and self.port != None:
+                    RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
+
+                if self.bt_manager != None:
+                    RNS.log("Attempting to reconnect Bluetooth device for "+str(self)+"...", RNS.LOG_VERBOSE)
+
                 self.open_port()
+
                 if hasattr(self, "serial") and self.serial != None and self.serial.is_open:
                     self.configure_device()
+                    if self.online:
+                        if self.last_imagedata != None:
+                            self.display_image(self.last_imagedata)
+                            self.enable_external_framebuffer()
+                
+                elif hasattr(self, "bt_manager") and self.bt_manager != None and self.bt_manager.connected:
+                    self.configure_device()
+                    if self.online:
+                        if self.last_imagedata != None:
+                            self.display_image(self.last_imagedata)
+                            self.enable_external_framebuffer()
+
             except Exception as e:
-                RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log("Error while reconnecting RNode, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
         if self.online:
             RNS.log("Reconnected serial port for "+str(self))
