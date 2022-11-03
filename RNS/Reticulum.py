@@ -631,12 +631,18 @@ class Reticulum:
                                     i2p_peers = c.as_list("peers") if "peers" in c else None
                                     connectable = c.as_bool("connectable") if "connectable" in c else False
 
+                                    if ifac_size == None:
+                                        ifac_size = 16
+
                                     interface = I2PInterface.I2PInterface(
                                         RNS.Transport,
                                         name,
                                         Reticulum.storagepath,
                                         i2p_peers,
                                         connectable = connectable,
+                                        ifac_size = ifac_size,
+                                        ifac_netname = ifac_netname,
+                                        ifac_netkey = ifac_netkey,
                                     )
 
                                     if "outgoing" in c and c.as_bool("outgoing") == False:
@@ -653,10 +659,6 @@ class Reticulum:
                                     interface.announce_cap = announce_cap
                                     if configured_bitrate:
                                         interface.bitrate = configured_bitrate
-                                    if ifac_size != None:
-                                        interface.ifac_size = ifac_size
-                                    else:
-                                        interface.ifac_size = 16
 
                                 if c["type"] == "SerialInterface":
                                     port = c["port"] if "port" in c else None
