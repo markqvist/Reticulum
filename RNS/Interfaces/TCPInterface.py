@@ -483,9 +483,27 @@ class TCPServerInterface(Interface):
         spawned_interface.target_port = str(handler.client_address[1])
         spawned_interface.parent_interface = self
         spawned_interface.bitrate = self.bitrate
+        
         spawned_interface.ifac_size = self.ifac_size
         spawned_interface.ifac_netname = self.ifac_netname
         spawned_interface.ifac_netkey = self.ifac_netkey
+        if spawned_interface.ifac_netname != None or spawned_interface.ifac_netkey != None:
+            ifac_origin = b""
+            if spawned_interface.ifac_netname != None:
+                ifac_origin += RNS.Identity.full_hash(spawned_interface.ifac_netname.encode("utf-8"))
+            if spawned_interface.ifac_netkey != None:
+                ifac_origin += RNS.Identity.full_hash(spawned_interface.ifac_netkey.encode("utf-8"))
+
+            ifac_origin_hash = RNS.Identity.full_hash(ifac_origin)
+            spawned_interface.ifac_key = RNS.Cryptography.hkdf(
+                length=64,
+                derive_from=ifac_origin_hash,
+                salt=RNS.Reticulum.IFAC_SALT,
+                context=None
+            )
+            spawned_interface.ifac_identity = RNS.Identity.from_bytes(spawned_interface.ifac_key)
+            spawned_interface.ifac_signature = spawned_interface.ifac_identity.sign(RNS.Identity.full_hash(spawned_interface.ifac_key))
+
         spawned_interface.announce_rate_target = self.announce_rate_target
         spawned_interface.announce_rate_grace = self.announce_rate_grace
         spawned_interface.announce_rate_penalty = self.announce_rate_penalty
