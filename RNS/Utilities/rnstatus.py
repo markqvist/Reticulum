@@ -135,6 +135,9 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None):
                         if "peers" in ifstat and ifstat["peers"] != None:
                             print("    Peers   : {np} reachable".format(np=ifstat["peers"]))
 
+                        if "tunnelstate" in ifstat and ifstat["tunnelstate"] != None:
+                            print("    I2P     : {ts}".format(ts=ifstat["tunnelstate"]))
+
                         if "ifac_signature" in ifstat and ifstat["ifac_signature"] != None:
                             sigstr = "<…"+RNS.hexrep(ifstat["ifac_signature"][-5:], delimit=False)+">"
                             print("    Access  : {nb}-bit IFAC by {sig}".format(nb=ifstat["ifac_size"]*8, sig=sigstr))

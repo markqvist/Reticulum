@@ -833,7 +833,7 @@ class Transport:
     def inbound(raw, interface=None):
         # If interface access codes are enabled,
         # we must authenticate each packet.
-        if len(raw) > 1:
+        if len(raw) > 2:
             if interface != None and hasattr(interface, "ifac_identity") and interface.ifac_identity != None:
                 # Check that IFAC flag is set
                 if raw[0] & 0x80 == 0x80:
@@ -870,6 +870,9 @@ class Transport:
                 if raw[0] & 0x80 == 0x80:
                     # If the flag is set, drop the packet
                     return
+
+        else:
+            return
 
         while (Transport.jobs_running):
             sleep(0.0005)

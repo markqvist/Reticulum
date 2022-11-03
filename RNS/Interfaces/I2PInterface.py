@@ -161,8 +161,6 @@ class I2PController:
                                 raise tn.status["exception"]
 
                             else:
-                                self.client_tunnels[i2p_destination] = True
-                                owner.awaiting_i2p_tunnel = False
                                 if owner.socket != None:
                                     if hasattr(owner.socket, "close"):
                                         if callable(owner.socket.close):
@@ -175,6 +173,8 @@ class I2PController:
                                                 owner.socket.close()
                                             except Exception as e:
                                                 RNS.log("Error while closing socket for "+str(owner)+": "+str(e))
+                                self.client_tunnels[i2p_destination] = True
+                                owner.awaiting_i2p_tunnel = False
 
                                 RNS.log(str(owner)+" tunnel setup complete", RNS.LOG_VERBOSE)
 
@@ -385,6 +385,10 @@ class I2PInterfacePeer(Interface):
     I2P_PROBES = 5
     I2P_READ_TIMEOUT = (I2P_PROBE_INTERVAL * I2P_PROBES + I2P_PROBE_AFTER)*2
 
+    TUNNEL_STATE_INIT    = 0x00
+    TUNNEL_STATE_ACTIVE  = 0x01
+    TUNNEL_STATE_STALE   = 0x02
+
     def __init__(self, parent_interface, owner, name, target_i2p_dest=None, connected_socket=None, max_reconnect_tries=None):
         self.rxb = 0
         self.txb = 0
@@ -413,6 +417,7 @@ class I2PInterfacePeer(Interface):
         self.last_read        = 0
         self.last_write       = 0
         self.wd_reset         = False
+        self.i2p_tunnel_state = I2PInterfacePeer.TUNNEL_STATE_INIT
 
         self.ifac_size = self.parent_interface.ifac_size
         self.ifac_netname = self.parent_interface.ifac_netname
@@ -478,7 +483,7 @@ class I2PInterfacePeer(Interface):
                         RNS.log("Error while while configuring "+str(self)+": "+str(e), RNS.LOG_ERROR)
                         RNS.log("Check that I2P is installed and running, and that SAM is enabled. Retrying tunnel setup later.", RNS.LOG_ERROR)
 
-                    time.sleep(15)
+                    time.sleep(8)
 
             thread = threading.Thread(target=tunnel_job)
             thread.daemon = True
@@ -487,6 +492,7 @@ class I2PInterfacePeer(Interface):
             def wait_job():
                 while self.awaiting_i2p_tunnel:
                     time.sleep(0.25)
+                time.sleep(2)
                 
                 if not self.kiss_framing:
                     self.wants_tunnel = True
@@ -664,23 +670,32 @@ class I2PInterfacePeer(Interface):
             while should_run and not self.wd_reset:
                 time.sleep(1)
 
-                if (time.time()-self.last_write > I2PInterfacePeer.I2P_PROBE_AFTER*0.66):
-                    self.processOutgoing(bytes([0x00]))
+                if (time.time()-self.last_read > I2PInterfacePeer.I2P_PROBE_AFTER*2):
+                    self.i2p_tunnel_state = I2PInterfacePeer.TUNNEL_STATE_STALE
+                else:
+                    self.i2p_tunnel_state = I2PInterfacePeer.TUNNEL_STATE_ACTIVE
+
+                if (time.time()-self.last_write > I2PInterfacePeer.I2P_PROBE_AFTER*1):
+                    try:
+                        self.socket.sendall(bytes([HDLC.FLAG, HDLC.FLAG]))
+                    except Exception as e:
+                        RNS.log("An error ocurred while sending I2P keepalive. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                        self.shutdown_socket(self.socket)
                 
-                if (time.time()-self.last_read > I2PInterfacePeer.I2P_READ_TIMEOUT):
-                    RNS.log("I2P socket seems dead, restarting...", RNS.LOG_DEBUG)
-                    if self.socket != None:
-                        try:
-                            self.socket.shutdown(socket.SHUT_RDWR)
-                        except Exception as e:
-                            RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
+                # if (time.time()-self.last_read > I2PInterfacePeer.I2P_READ_TIMEOUT):
+                #     RNS.log("I2P socket seems dead, restarting...", RNS.LOG_WARNING)
+                #     if self.socket != None:
+                #         try:
+                #             self.socket.shutdown(socket.SHUT_RDWR)
+                #         except Exception as e:
+                #             RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
 
-                        try:
-                            self.socket.close()
-                        except Exception as e:
-                            RNS.log("Error while closing socket for "+str(self)+": "+str(e))
+                #         try:
+                #             self.socket.close()
+                #         except Exception as e:
+                #             RNS.log("Error while closing socket for "+str(self)+": "+str(e))
 
-                    should_run = False
+                #     should_run = False
 
         finally:
             self.wd_reset = False
@@ -701,7 +716,7 @@ class I2PInterfacePeer(Interface):
                 data_in = self.socket.recv(4096)
                 if len(data_in) > 0:
                     pointer = 0
-                    last_read = time.time()
+                    self.last_read = time.time()
                     while pointer < len(data_in):
                         byte = data_in[pointer]
                         pointer += 1
@@ -710,8 +725,7 @@ class I2PInterfacePeer(Interface):
                             # Read loop for KISS framing
                             if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
                                 in_frame = False
-                                if len(data_buffer) > RNS.Reticulum.HEADER_MINSIZE+1:
-                                    self.processIncoming(data_buffer)
+                                self.processIncoming(data_buffer)
                             elif (byte == KISS.FEND):
                                 in_frame = True
                                 command = KISS.CMD_UNKNOWN
@@ -738,8 +752,7 @@ class I2PInterfacePeer(Interface):
                             # Read loop for HDLC framing
                             if (in_frame and byte == HDLC.FLAG):
                                 in_frame = False
-                                if len(data_buffer) > RNS.Reticulum.HEADER_MINSIZE+1:
-                                    self.processIncoming(data_buffer)
+                                self.processIncoming(data_buffer)
                             elif (byte == HDLC.FLAG):
                                 in_frame = True
                                 data_buffer = b""

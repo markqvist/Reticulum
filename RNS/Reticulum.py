@@ -1073,6 +1073,19 @@ class Reticulum:
                     else:
                         ifstats["i2p_b32"] = None
 
+                if hasattr(interface, "i2p_tunnel_state"):
+                    if interface.i2p_tunnel_state != None:
+                        state_description = "Unknown State"
+                        if interface.i2p_tunnel_state == I2PInterface.I2PInterfacePeer.TUNNEL_STATE_ACTIVE:
+                            state_description = "Tunnel Active"
+                        elif interface.i2p_tunnel_state == I2PInterface.I2PInterfacePeer.TUNNEL_STATE_INIT:
+                            state_description = "Creating Tunnel"
+                        elif interface.i2p_tunnel_state == I2PInterface.I2PInterfacePeer.TUNNEL_STATE_STALE:
+                            state_description = "Tunnel Unresponsive"
+                        ifstats["tunnelstate"] = state_description
+                    else:
+                        ifstats["tunnelstate"] = None
+
                 if hasattr(interface, "bitrate"):
                     if interface.bitrate != None:
                         ifstats["bitrate"] = interface.bitrate
