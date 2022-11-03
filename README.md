@@ -271,7 +271,7 @@ file:
   [[RNS Testnet I2P Hub A]]
     type = I2PInterface
     enabled = yes
-    peers = mrwqlsioq4hoo2lmeeud7dkfscnm7yxak7dmiyvsrnpfag3z5tsq.b32.i2p
+    peers = pmlm3l5rpympihoy2o5ago43kluei2jjjzsalcuiuylbve3mwi2a.b32.i2p
 
 # Interface to I2P Hub B
   [[RNS Testnet I2P Hub B]]
