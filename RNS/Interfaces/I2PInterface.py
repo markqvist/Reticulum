@@ -672,6 +672,9 @@ class I2PInterfacePeer(Interface):
                 time.sleep(1)
 
                 if (time.time()-self.last_read > I2PInterfacePeer.I2P_PROBE_AFTER*2):
+                    if self.i2p_tunnel_state != I2PInterfacePeer.TUNNEL_STATE_STALE:
+                        RNS.log("I2P tunnel became unresponsive", RNS.LOG_DEBUG)
+
                     self.i2p_tunnel_state = I2PInterfacePeer.TUNNEL_STATE_STALE
                 else:
                     self.i2p_tunnel_state = I2PInterfacePeer.TUNNEL_STATE_ACTIVE
@@ -683,21 +686,24 @@ class I2PInterfacePeer(Interface):
                     except Exception as e:
                         RNS.log("An error ocurred while sending I2P keepalive. The contained exception was: "+str(e), RNS.LOG_ERROR)
                         self.shutdown_socket(self.socket)
+                        should_run = False
                 
-                # if (time.time()-self.last_read > I2PInterfacePeer.I2P_READ_TIMEOUT):
-                #     RNS.log("I2P socket seems dead, restarting...", RNS.LOG_WARNING)
-                #     if self.socket != None:
-                #         try:
-                #             self.socket.shutdown(socket.SHUT_RDWR)
-                #         except Exception as e:
-                #             RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
+                if (time.time()-self.last_read > I2PInterfacePeer.I2P_READ_TIMEOUT):
+                    RNS.log("I2P socket is unresponsive, restarting...", RNS.LOG_WARNING)
+                    if self.socket != None:
+                        try:
+                            self.socket.shutdown(socket.SHUT_RDWR)
+                        except Exception as e:
+                            RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
 
-                #         try:
-                #             self.socket.close()
-                #         except Exception as e:
-                #             RNS.log("Error while closing socket for "+str(self)+": "+str(e))
+                        try:
+                            self.socket.close()
+                        except Exception as e:
+                            RNS.log("Error while closing socket for "+str(self)+": "+str(e))
 
-                #     should_run = False
+                    should_run = False
+
+                self.wd_reset = False
 
         finally:
             self.wd_reset = False
@@ -770,8 +776,12 @@ class I2PInterfacePeer(Interface):
                                         escape = False
                                     data_buffer = data_buffer+bytes([byte])
                 else:
-                    self.wd_reset = True
                     self.online = False
+
+                    self.wd_reset = True
+                    time.sleep(2)
+                    self.wd_reset = False
+
                     if self.initiator and not self.detached:
                         RNS.log("Socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
                         self.reconnect()
