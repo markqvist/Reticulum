@@ -531,12 +531,14 @@ class I2PInterfacePeer(Interface):
         if callable(socket.close):
             
             try:
-                socket.shutdown(socket.SHUT_RDWR)
+                if self.socket != None:
+                    socket.shutdown(socket.SHUT_RDWR)
             except Exception as e:
                 RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
 
             try:
-                socket.close()
+                if self.socket != None:
+                    socket.close()
             except Exception as e:
                 RNS.log("Error while closing socket for "+str(self)+": "+str(e))    
     
@@ -677,7 +679,8 @@ class I2PInterfacePeer(Interface):
 
                 if (time.time()-self.last_write > I2PInterfacePeer.I2P_PROBE_AFTER*1):
                     try:
-                        self.socket.sendall(bytes([HDLC.FLAG, HDLC.FLAG]))
+                        if self.socket != None:
+                            self.socket.sendall(bytes([HDLC.FLAG, HDLC.FLAG]))
                     except Exception as e:
                         RNS.log("An error ocurred while sending I2P keepalive. The contained exception was: "+str(e), RNS.LOG_ERROR)
                         self.shutdown_socket(self.socket)
