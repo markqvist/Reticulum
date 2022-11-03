@@ -527,18 +527,17 @@ class I2PInterfacePeer(Interface):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         self.socket.setsockopt(socket.IPPROTO_TCP, TCP_KEEPIDLE, int(I2PInterfacePeer.I2P_PROBE_AFTER))
     
-    def shutdown_socket(self, socket):
-        if callable(socket.close):
-            
+    def shutdown_socket(self, target_socket):
+        if callable(target_socket.close):
             try:
-                if self.socket != None:
-                    socket.shutdown(socket.SHUT_RDWR)
+                if socket != None:
+                    target_socket.shutdown(socket.SHUT_RDWR)
             except Exception as e:
                 RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
 
             try:
-                if self.socket != None:
-                    socket.close()
+                if socket != None:
+                    target_socket.close()
             except Exception as e:
                 RNS.log("Error while closing socket for "+str(self)+": "+str(e))    
     
