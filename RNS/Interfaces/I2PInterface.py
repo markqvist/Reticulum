@@ -383,7 +383,7 @@ class I2PInterfacePeer(Interface):
     I2P_PROBE_AFTER = 10
     I2P_PROBE_INTERVAL = 9
     I2P_PROBES = 5
-    I2P_READ_TIMEOUT = I2P_PROBE_INTERVAL * I2P_PROBES + I2P_PROBE_AFTER
+    I2P_READ_TIMEOUT = (I2P_PROBE_INTERVAL * I2P_PROBES + I2P_PROBE_AFTER)*2
 
     def __init__(self, parent_interface, owner, name, target_i2p_dest=None, connected_socket=None, max_reconnect_tries=None):
         self.rxb = 0
@@ -662,6 +662,8 @@ class I2PInterfacePeer(Interface):
         should_run = True
         try:
             while should_run and not self.wd_reset:
+                time.sleep(1)
+
                 if (time.time()-self.last_write > I2PInterfacePeer.I2P_PROBE_AFTER*0.66):
                     self.processOutgoing(bytes([0x00]))
                 
@@ -680,7 +682,6 @@ class I2PInterfacePeer(Interface):
 
                     should_run = False
 
-                time.sleep(1)
         finally:
             self.wd_reset = False
 
@@ -709,7 +710,7 @@ class I2PInterfacePeer(Interface):
                             # Read loop for KISS framing
                             if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
                                 in_frame = False
-                                if len(data_buffer > RNS.Reticulum.HEADER_MINSIZE+1):
+                                if len(data_buffer) > RNS.Reticulum.HEADER_MINSIZE+1:
                                     self.processIncoming(data_buffer)
                             elif (byte == KISS.FEND):
                                 in_frame = True
@@ -737,7 +738,7 @@ class I2PInterfacePeer(Interface):
                             # Read loop for HDLC framing
                             if (in_frame and byte == HDLC.FLAG):
                                 in_frame = False
-                                if len(data_buffer > RNS.Reticulum.HEADER_MINSIZE+1):
+                                if len(data_buffer) > RNS.Reticulum.HEADER_MINSIZE+1:
                                     self.processIncoming(data_buffer)
                             elif (byte == HDLC.FLAG):
                                 in_frame = True
