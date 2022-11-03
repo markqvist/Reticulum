@@ -218,7 +218,7 @@ UPD_DIR = None
 FWD_DIR = None
 
 try:
-    CNF_DIR = os.path.expanduser("~/.local/rnodeconf")
+    CNF_DIR = os.path.expanduser("~/.config/rnodeconf")
     UPD_DIR = CNF_DIR+"/update"
     FWD_DIR = CNF_DIR+"/firmware"
 
@@ -906,7 +906,7 @@ def ensure_firmware_file(fw_filename):
                     pass
                 else:
                     RNS.log("")
-                    RNS.log("Firmware corrupt.")
+                    RNS.log("Firmware corrupt. Try clearing the local firmware cache with: rnodeconf --clear-cache")
                     exit(96)
 
             except Exception as e:
