@@ -771,7 +771,7 @@ Wire Format
     |               | |               | |               | |    |
     00000000 00000111 [HASH1, 16 bytes] [CONTEXT, 1 byte] [DATA]
     || | | |    |
-    || | | |    +-- Hops             = 0
+    || | | |    +-- Hops             = 7
     || | | +------- Packet Type      = DATA
     || | +--------- Destination Type = SINGLE
     || +----------- Propagation Type = BROADCAST
@@ -786,7 +786,7 @@ Wire Format
     |               | |             | |               | |               | |    |
     10000000 00000111 [IFAC, N bytes] [HASH1, 16 bytes] [CONTEXT, 1 byte] [DATA]
     || | | |    |
-    || | | |    +-- Hops             = 0
+    || | | |    +-- Hops             = 7
     || | | +------- Packet Type      = DATA
     || | +--------- Destination Type = SINGLE
     || +----------- Propagation Type = BROADCAST
