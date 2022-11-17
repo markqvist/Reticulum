@@ -182,37 +182,6 @@ features are implemented and functioning, but additions will probably occur as
 real-world use is explored. There will be bugs. The API and wire-format can be
 considered relatively stable at the moment, but could change if warranted.
 
-## Development Roadmap
-- Improving [the manual](https://markqvist.github.io/Reticulum/manual/) with sections specifically for beginners
-- Performance and memory optimisations
-- Utilities for managing identities, signing and encryption
-- User friendly interface configuration tool
-- More interface types for even broader compatibility
-  - Plain ESP32 devices (ESP-Now, WiFi, Bluetooth, etc.)
-  - More LoRa transceivers
-  - IR Transceivers
-- OpenWRT support
-- Metric-based path selection
-- Distributed Destination Naming System
-- Network-wide path balancing
-- Globally routable multicast
-- Bindings for other programming languages
-- Multiple paths in path table for quick recovery on link failures
-- A portable Reticulum implementation in C, see [#21](https://github.com/markqvist/Reticulum/discussions/21)
-- Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
-- More interface types
-  - AT-compatible modems
-  - Optical mediums
-  - AWDL / OWL
-  - HF Modems
-  - CAN-bus
-  - ZeroMQ
-  - MQTT
-  - XBee
-  - SPI
-  - i²c
-  - Tor
-
 ## Dependencies
 The installation of the default `rns` package requires the dependencies listed
 below. Almost all systems and distributions have readily available packages for
