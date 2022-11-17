@@ -62,6 +62,9 @@ For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects
   - Total bandwidth cost of setting up an encrypted link is 3 packets totaling 297 bytes
   - Low cost of keeping links open at only 0.44 bits per second
 
+## Development Roadmap
+While Reticulum is already a fully featured and functional networking stack, many improvements and additions are planned for the future. To learn more about the direction and future of Reticulum, please see the [Reticulum Development Roadmap](./Roadmap.md).
+
 ## Examples of Reticulum Applications
 If you want to quickly get an idea of what Reticulum can do, take a look at the
 following resources.
