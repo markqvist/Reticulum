@@ -86,12 +86,12 @@ These efforts aim to expand the types of physical and virtual interfaces that Re
 ## Active Work Areas
 For each release cycle of Reticulum, improvements and additions from the five areas are selected as active work areas, and can be expected to be included in the next release. While not entirely set in stone for each release cycle, they serve as a pointer of what to expect in the next release.
 
-- Version `0.4.2` targets
-    - [ ] Updating the documentation to reflect recent changes and improvements
-    - [ ] Add bluetooth pairing code output to rnodeconf
-    - [ ] Improve storage persist call on every local client connect/disconnect
-    - [ ] JSON output mode for rnstatus
-    - [ ] rnid utility
-    - [ ] rnsign utility
-    - [ ] rncrypt utility
-    - [ ] Create a standalone RNS Daemon app for Android
+- Version `0.4.2` targets:
+  - [ ] Updating the documentation to reflect recent changes and improvements
+  - [ ] Add bluetooth pairing code output to rnodeconf
+  - [ ] Improve storage persist call on every local client connect/disconnect
+  - [ ] JSON output mode for rnstatus
+  - [ ] rnid utility
+  - [ ] rnsign utility
+  - [ ] rncrypt utility
+  - [ ] Create a standalone RNS Daemon app for Android
