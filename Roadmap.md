@@ -95,3 +95,7 @@ For each release cycle of Reticulum, improvements and additions from the five ar
   - [ ] rnsign utility
   - [ ] rncrypt utility
   - [ ] Create a standalone RNS Daemon app for Android
+- Targets for related applications
+  - [x] Add paper offline & paper message transport to LXMF
+  - [x] Implement paper messaging in Nomad Network
+  - [x] Implement paper messaging in Sideband
