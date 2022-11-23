@@ -217,7 +217,10 @@ def prettytime(time, verbose=False):
 
         tstr += c
 
-    return tstr
+    if tstr == "":
+        return "0s"
+    else:
+        return tstr
 
 def phyparams():
     print("Required Physical Layer MTU : "+str(Reticulum.MTU)+" bytes")
