@@ -193,7 +193,12 @@ class AndroidBluetoothManager():
             if self.connected and self.rfcomm_reader != None:
                 available = self.rfcomm_reader.available()
                 if available > 0:
-                    return self.rfcomm_reader.readNBytes(available)
+                    if hasattr(self.rfcomm_reader, "readNBytes"):
+                        return self.rfcomm_reader.readNBytes(available)
+                    else:
+                        # Compatibility mode for older android versions lacking readNBytes
+                        rb = self.rfcomm_reader.read().to_bytes(1, "big")
+                        return rb
                 else:
                     return bytes([])
             else:
