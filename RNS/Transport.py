@@ -144,13 +144,14 @@ class Transport:
                 RNS.log("Loaded Transport Identity from storage", RNS.LOG_VERBOSE)
 
         packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
-        if os.path.isfile(packet_hashlist_path):
-            try:
-                file = open(packet_hashlist_path, "rb")
-                Transport.packet_hashlist = umsgpack.unpackb(file.read())
-                file.close()
-            except Exception as e:
-                RNS.log("Could not load packet hashlist from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+        if not Transport.owner.is_connected_to_shared_instance:
+            if os.path.isfile(packet_hashlist_path):
+                try:
+                    file = open(packet_hashlist_path, "rb")
+                    Transport.packet_hashlist = umsgpack.unpackb(file.read())
+                    file.close()
+                except Exception as e:
+                    RNS.log("Could not load packet hashlist from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
         # Create transport-specific destinations
         Transport.path_request_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
@@ -2081,41 +2082,42 @@ class Transport:
 
     @staticmethod
     def save_packet_hashlist():
-        if hasattr(Transport, "saving_packet_hashlist"):
-            wait_interval = 0.2
-            wait_timeout = 5
-            wait_start = time.time()
-            while Transport.saving_packet_hashlist:
-                time.sleep(wait_interval)
-                if time.time() > wait_start+wait_timeout:
-                    RNS.log("Could not save packet hashlist to storage, waiting for previous save operation timed out.", RNS.LOG_ERROR)
-                    return False
+        if not Transport.owner.is_connected_to_shared_instance:
+            if hasattr(Transport, "saving_packet_hashlist"):
+                wait_interval = 0.2
+                wait_timeout = 5
+                wait_start = time.time()
+                while Transport.saving_packet_hashlist:
+                    time.sleep(wait_interval)
+                    if time.time() > wait_start+wait_timeout:
+                        RNS.log("Could not save packet hashlist to storage, waiting for previous save operation timed out.", RNS.LOG_ERROR)
+                        return False
 
-        try:
-            Transport.saving_packet_hashlist = True
-            save_start = time.time()
+            try:
+                Transport.saving_packet_hashlist = True
+                save_start = time.time()
 
-            if not RNS.Reticulum.transport_enabled():
-                Transport.packet_hashlist = []
-            else:
-                RNS.log("Saving packet hashlist to storage...", RNS.LOG_DEBUG)
+                if not RNS.Reticulum.transport_enabled():
+                    Transport.packet_hashlist = []
+                else:
+                    RNS.log("Saving packet hashlist to storage...", RNS.LOG_DEBUG)
 
-            packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
-            file = open(packet_hashlist_path, "wb")
-            file.write(umsgpack.packb(Transport.packet_hashlist))
-            file.close()
+                packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
+                file = open(packet_hashlist_path, "wb")
+                file.write(umsgpack.packb(Transport.packet_hashlist))
+                file.close()
 
-            save_time = time.time() - save_start
-            if save_time < 1:
-                time_str = str(round(save_time*1000,2))+"ms"
-            else:
-                time_str = str(round(save_time,2))+"s"
-            RNS.log("Saved packet hashlist in "+time_str, RNS.LOG_DEBUG)
+                save_time = time.time() - save_start
+                if save_time < 1:
+                    time_str = str(round(save_time*1000,2))+"ms"
+                else:
+                    time_str = str(round(save_time,2))+"s"
+                RNS.log("Saved packet hashlist in "+time_str, RNS.LOG_DEBUG)
 
-        except Exception as e:
-            RNS.log("Could not save packet hashlist to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+            except Exception as e:
+                RNS.log("Could not save packet hashlist to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
-        Transport.saving_packet_hashlist = False
+            Transport.saving_packet_hashlist = False
 
 
     @staticmethod
