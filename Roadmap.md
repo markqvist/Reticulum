@@ -31,6 +31,7 @@ These efforts are aimed at improving the ease of which Reticulum is understood, 
 ## Universality
 These efforts seek to broaden the universality of the Reticulum software and hardware ecosystem by continously diversifying platform support, and by improving the overall availability and ease of deployment of the Reticulum stack.
 
+- Improved roaming support on Android
 - OpenWRT support
 - Create a standalone RNS Daemon app for Android
 - A lightweight and portable C implementation for microcontrollers, µRNS
@@ -84,12 +85,15 @@ These efforts aim to expand the types of physical and virtual interfaces that Re
 - Tor
 
 ## Active Work Areas
-For each release cycle of Reticulum, improvements and additions from the five areas are selected as active work areas, and can be expected to be included in the next release. While not entirely set in stone for each release cycle, they serve as a pointer of what to expect in the next release.
+For each release cycle of Reticulum, improvements and additions from the five areas are selected as active work areas, and can be expected to be included in the upcoming releases within that cycle. While not entirely set in stone for each release cycle, they serve as a pointer of what to expect in the near future.
 
-- Version `0.4.3` targets:
+- The current `0.4.x` release cycle aims at completing:
+  - [x] Improve storage persist call on local client connect/disconnect
+  - [x] Improved roaming support on Android
   - [ ] Updating the documentation to reflect recent changes and improvements
   - [ ] Add bluetooth pairing code output to rnodeconf
   - [ ] Improve storage persist call on every local client connect/disconnect
+  - [ ] Transit traffic display in rnstatus
   - [ ] JSON output mode for rnstatus
   - [ ] rnid utility
   - [ ] rnsign utility
@@ -99,3 +103,4 @@ For each release cycle of Reticulum, improvements and additions from the five ar
   - [x] Add paper offline & paper message transport to LXMF
   - [x] Implement paper messaging in Nomad Network
   - [x] Implement paper messaging in Sideband
+  - [x] Expand device support in Sideband to support older Android devices
