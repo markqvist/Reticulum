@@ -95,9 +95,9 @@ For each release cycle of Reticulum, improvements and additions from the five ar
   - [ ] Improve storage persist call on every local client connect/disconnect
   - [ ] Transit traffic display in rnstatus
   - [ ] JSON output mode for rnstatus
-  - [ ] rnid utility
-  - [ ] rnsign utility
-  - [ ] rncrypt utility
+  - [ ] Add `rnid` utility
+  - [ ] Add `rnsign` utility
+  - [ ] Add `rncrypt` utility
   - [ ] Create a standalone RNS Daemon app for Android
 - Targets for related applications
   - [x] Add paper offline & paper message transport to LXMF
