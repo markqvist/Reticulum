@@ -48,6 +48,11 @@ class AutoInterface(Interface):
 
     BITRATE_GUESS      = 10*1000*1000
 
+    def handler_factory(self, callback):
+        def create_handler(*args, **keys):
+            return AutoInterfaceHandler(callback, *args, **keys)
+        return create_handler
+
     def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None, configured_bitrate=None):
         import importlib
         if importlib.util.find_spec('netifaces') != None:
@@ -70,6 +75,7 @@ class AutoInterface(Interface):
         self.peers = {}
         self.link_local_addresses = []
         self.adopted_interfaces = {}
+        self.interface_servers = {}
         self.multicast_echoes = {}
         self.timed_out_interfaces = {}
 
@@ -199,11 +205,6 @@ class AutoInterface(Interface):
             peering_wait = self.announce_interval*1.2
             RNS.log(str(self)+" discovering peers for "+str(round(peering_wait, 2))+" seconds...", RNS.LOG_VERBOSE)
 
-            def handlerFactory(callback):
-                def createHandler(*args, **keys):
-                    return AutoInterfaceHandler(callback, *args, **keys)
-                return createHandler
-
             self.owner = owner
             socketserver.UDPServer.address_family = socket.AF_INET6
 
@@ -212,9 +213,10 @@ class AutoInterface(Interface):
                 addr_info = socket.getaddrinfo(local_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
                 address = addr_info[0][4]
 
-                self.server = socketserver.UDPServer(address, handlerFactory(self.processIncoming))
+                udp_server = socketserver.UDPServer(address, self.handler_factory(self.processIncoming))
+                self.interface_servers[ifname] = udp_server
                 
-                thread = threading.Thread(target=self.server.serve_forever)
+                thread = threading.Thread(target=udp_server.serve_forever)
                 thread.daemon = True
                 thread.start()
 
@@ -277,7 +279,31 @@ class AutoInterface(Interface):
                                 if address["addr"].startswith("fe80:"):
                                     link_local_addr = address["addr"].split("%")[0]
                                     if link_local_addr != self.adopted_interfaces[ifname]:
+                                        # TODO: Remove
+                                        # RNS.log("Replacing link-local address for "+str(ifname), RNS.LOG_DEBUG)
                                         self.adopted_interfaces[ifname] = link_local_addr
+
+                                        local_addr = link_local_addr+"%"+ifname
+                                        addr_info = socket.getaddrinfo(local_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                                        listen_address = addr_info[0][4]
+
+                                        if ifname in self.interface_servers:
+                                            # TODO: Remove
+                                            # RNS.log("Shutting down previous UDP socket server for "+str(ifname), RNS.LOG_DEBUG)
+                                            previous_server = self.interface_servers[ifname]
+                                            def shutdown_server():
+                                                previous_server.shutdown()
+                                            threading.Thread(target=shutdown_server, daemon=True).start()
+
+                                        # TODO: Remove
+                                        # RNS.log("Starting new UDP socket server for "+str(ifname), RNS.LOG_DEBUG)
+
+                                        udp_server = socketserver.UDPServer(listen_address, self.handler_factory(self.processIncoming))
+                                        self.interface_servers[ifname] = udp_server
+
+                                        thread = threading.Thread(target=udp_server.serve_forever)
+                                        thread.daemon = True
+                                        thread.start()
 
                 except Exception as e:
                     RNS.log("Could not get device information while updating link-local addresses for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
