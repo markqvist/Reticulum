@@ -37,7 +37,7 @@ The full documentation for Reticulum is available at [markqvist.github.io/Reticu
 
 You can also [download the Reticulum manual as a PDF](https://github.com/markqvist/Reticulum/raw/master/docs/Reticulum%20Manual.pdf)
 
-For more info, see [unsigned.io/projects/reticulum](https://unsigned.io/projects/reticulum/)
+For more info, see [reticulum.network](https://reticulum.network/)
 
 ## Notable Features
 - Coordination-less globally unique addressing and identification
