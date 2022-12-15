@@ -254,13 +254,14 @@ class RNodeInterface(Interface):
 
                     # Driver overrides for speficic chips
                     from usbserial4a import serial4a as pyserial
+                    proxy = pyserial.get_serial_port
                     if vid == 0x1A86 and pid == 0x55D4:
                         # Force CDC driver for Qinheng CH34x
                         RNS.log("Using CDC driver for "+RNS.hexrep(vid)+":"+RNS.hexrep(pid), RNS.LOG_DEBUG)
                         from usbserial4a.cdcacmserial4a import CdcAcmSerial
                         proxy = CdcAcmSerial
 
-                    serial = pyserial.get_serial_port(
+                    serial = proxy(
                         port,
                         baudrate = 115200,
                         bytesize = 8,
@@ -554,7 +555,7 @@ class RNodeInterface(Interface):
         thread.start()
 
         self.detect()
-        sleep(0.4)
+        sleep(0.5)
 
         if not self.detected:
             raise IOError("Could not detect device")
@@ -592,22 +593,22 @@ class RNodeInterface(Interface):
 
     def initRadio(self):
         self.setFrequency()
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         self.setBandwidth()
-        time.sleep(0.1)
+        time.sleep(0.15)
         
         self.setTXPower()
-        time.sleep(0.1)
+        time.sleep(0.15)
         
         self.setSpreadingFactor()
-        time.sleep(0.1)
+        time.sleep(0.15)
         
         self.setCodingRate()
-        time.sleep(0.1)
+        time.sleep(0.15)
         
         self.setRadioState(KISS.RADIO_STATE_ON)
-        time.sleep(0.1)
+        time.sleep(0.15)
 
     def detect(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_DETECT, KISS.DETECT_REQ, KISS.FEND, KISS.CMD_FW_VERSION, 0x00, KISS.FEND, KISS.CMD_PLATFORM, 0x00, KISS.FEND, KISS.CMD_MCU, 0x00, KISS.FEND])
