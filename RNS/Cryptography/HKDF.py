@@ -33,7 +33,7 @@ def hkdf(length=None, derive_from=None, salt=None, context=None):
     if length == None or length < 1:
         raise ValueError("Invalid output key length")
 
-    if derive_from == "None" or derive_from == "":
+    if derive_from == None or derive_from == "":
         raise ValueError("Cannot derive key from empty input material")
 
     if salt == None or len(salt) == 0:
