@@ -282,7 +282,7 @@ class RNodeInterface(Interface):
                         serial.timeout = 0.1
                     elif vid == 0x10C4:
                         # Hardware parameters for SiLabs CP210x @ 115200 baud
-                        serial.DEFAULT_READ_BUFFER_SIZE = 64 
+                        serial.DEFAULT_READ_BUFFER_SIZE = 64
                         serial.USB_READ_TIMEOUT_MILLIS = 12
                         serial.timeout = 0.012
                     elif vid == 0x1A86 and pid == 0x55D4:

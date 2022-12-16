@@ -1073,7 +1073,7 @@ def main():
                     print("  ["+str(pi)+"] "+str(port.device)+" ("+str(port.product)+", "+str(port.serial_number)+")")
                     pi += 1
 
-                print("\nWhat serial port is your device connected to? ", end="")
+                print("\nEnter the number of the serial port your device is connected to: ", end="")
                 try:
                     c_port = int(input())
                     if c_port < 1 or c_port > len(ports):
