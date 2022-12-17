@@ -4,6 +4,9 @@ test:
 	@echo Running tests...
 	python -m tests.all
 
+lint:
+	@pylint RNS
+
 clean:
 	@echo Cleaning...
 	@-rm -rf ./build

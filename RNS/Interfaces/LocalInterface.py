@@ -52,11 +52,11 @@ class LocalClientInterface(Interface):
 
         # TODO: Remove at some point
         # self.rxptime = 0
-        
+
         self.HW_MTU = 1064
 
         self.online  = False
-        
+
         self.IN               = True
         self.OUT              = False
         self.socket           = None
@@ -130,7 +130,7 @@ class LocalClientInterface(Interface):
                 thread.daemon = True
                 thread.start()
                 RNS.Transport.shared_connection_reappeared()
-        
+
         else:
             RNS.log("Attempt to reconnect on a non-initiator shared local interface. This should not happen.", RNS.LOG_ERROR)
             raise IOError("Attempt to reconnect on a non-initiator local interface")
@@ -140,10 +140,10 @@ class LocalClientInterface(Interface):
         self.rxb += len(data)
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.rxb += len(data)
-        
+
         # TODO: Remove at some point
         # processing_start = time.time()
-        
+
         self.owner.inbound(data, self)
 
         # TODO: Remove at some point
@@ -208,7 +208,7 @@ class LocalClientInterface(Interface):
 
                     break
 
-                
+
         except Exception as e:
             self.online = False
             RNS.log("An interface error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -221,7 +221,7 @@ class LocalClientInterface(Interface):
                 if callable(self.socket.close):
                     RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
                     self.detached = True
-                    
+
                     try:
                         self.socket.shutdown(socket.SHUT_RDWR)
                     except Exception as e:
@@ -256,8 +256,8 @@ class LocalClientInterface(Interface):
         if self.is_connected_to_shared_instance:
             if nowarning == False:
                 RNS.log("Permanently lost connection to local shared RNS instance. Exiting now.", RNS.LOG_CRITICAL)
-    
-            RNS.exit()
+
+            RNS.exit_now()
 
 
     def __str__(self):
@@ -271,7 +271,7 @@ class LocalServerInterface(Interface):
         self.txb = 0
         self.online = False
         self.clients = 0
-        
+
         self.IN  = True
         self.OUT = False
         self.name = "Reticulum"

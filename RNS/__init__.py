@@ -19,6 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""The main Reticilum Network Stack class."""
 
 import os
 import sys
@@ -71,39 +72,44 @@ _always_override_destination = False
 logging_lock = threading.Lock()
 
 def loglevelname(level):
-    if (level == LOG_CRITICAL):
+    """Return a string representing the logging level."""
+    if level == LOG_CRITICAL:
         return "Critical"
-    if (level == LOG_ERROR):
+    if level == LOG_ERROR:
         return "Error"
-    if (level == LOG_WARNING):
+    if level == LOG_WARNING:
         return "Warning"
-    if (level == LOG_NOTICE):
+    if level == LOG_NOTICE:
         return "Notice"
-    if (level == LOG_INFO):
+    if level == LOG_INFO:
         return "Info"
-    if (level == LOG_VERBOSE):
+    if level == LOG_VERBOSE:
         return "Verbose"
-    if (level == LOG_DEBUG):
+    if level == LOG_DEBUG:
         return "Debug"
-    if (level == LOG_EXTREME):
+    if level == LOG_EXTREME:
         return "Extra"
-    
+
     return "Unknown"
 
 def version():
+    """Return the version."""
     return __version__
 
 def host_os():
+    """Return the host operating system information."""
     from .vendor.platformutils import get_platform
     return get_platform()
 
 def timestamp_str(time_s):
+    """Return a string from a timestamp object."""
     timestamp = time.localtime(time_s)
     return time.strftime(logtimefmt, timestamp)
 
 def log(msg, level=3, _override_destination = False):
-    global _always_override_destination, compact_log_fmt
-    
+    """Send a message to the log."""
+    global _always_override_destination
+
     if loglevel >= level:
         if not compact_log_fmt:
             logstring = "["+timestamp_str(time.time())+"] ["+loglevelname(level)+"] "+msg
@@ -116,12 +122,12 @@ def log(msg, level=3, _override_destination = False):
             print(logstring)
             logging_lock.release()
 
-        elif (logdest == LOG_FILE and logfile != None):
+        elif (logdest == LOG_FILE and logfile is not None):
             try:
-                file = open(logfile, "a")
+                file = open(logfile, "a", encoding="utf-8")
                 file.write(logstring+"\n")
                 file.close()
-                
+
                 if os.path.getsize(logfile) > LOG_MAXSIZE:
                     prevfile = logfile+".1"
                     if os.path.isfile(prevfile):
@@ -129,36 +135,40 @@ def log(msg, level=3, _override_destination = False):
                     os.rename(logfile, prevfile)
 
                 logging_lock.release()
-            except Exception as e:
+            except Exception as e: # pylint: disable=broad-except
                 logging_lock.release()
                 _always_override_destination = True
                 log("Exception occurred while writing log message to log file: "+str(e), LOG_CRITICAL)
                 log("Dumping future log events to console!", LOG_CRITICAL)
                 log(msg, level)
-                
+
 
 def rand():
+    """Return a random value using the random() method."""
     result = instance_random.random()
     return result
 
 def hexrep(data, delimit=True):
+    """Return a hexidecimal string from data."""
     try:
         iter(data)
     except TypeError:
         data = [data]
-        
+
     delimiter = ":"
     if not delimit:
         delimiter = ""
-    hexrep = delimiter.join("{:02x}".format(c) for c in data)
-    return hexrep
+    tmp_hexrep = delimiter.join("{:02x}".format(c) for c in data)
+    return tmp_hexrep
 
 def prettyhexrep(data):
+    """Print the hexidecimal string in an easier to read format."""
     delimiter = ""
-    hexrep = "<"+delimiter.join("{:02x}".format(c) for c in data)+">"
-    return hexrep
+    tmp_hexrep = "<"+delimiter.join("{:02x}".format(c) for c in data)+">"
+    return tmp_hexrep
 
 def prettysize(num, suffix='B'):
+    """Print the size of a number in easier to read units."""
     units = ['','K','M','G','T','P','E','Z']
     last_unit = 'Y'
 
@@ -171,21 +181,21 @@ def prettysize(num, suffix='B'):
         if abs(num) < 1000.0:
             if unit == "":
                 return "%.0f %s%s" % (num, unit, suffix)
-            else:
-                return "%.2f %s%s" % (num, unit, suffix)
+            return "%.2f %s%s" % (num, unit, suffix)
         num /= 1000.0
 
     return "%.2f%s%s" % (num, last_unit, suffix)
 
-def prettytime(time, verbose=False):
+def prettytime(timestamp, verbose=False):
+    """Return a string representing a time object in an easier to read format."""
     days = int(time // (24 * 3600))
-    time = time % (24 * 3600)
+    timestamp = time % (24 * 3600)
     hours = int(time // 3600)
-    time %= 3600
+    timestamp %= 3600
     minutes = int(time // 60)
-    time %= 60
-    seconds = round(time, 2)
-    
+    timestamp %= 60
+    seconds = round(timestamp, 2)
+
     ss = "" if seconds == 1 else "s"
     sm = "" if minutes == 1 else "s"
     sh = "" if hours == 1 else "s"
@@ -219,10 +229,10 @@ def prettytime(time, verbose=False):
 
     if tstr == "":
         return "0s"
-    else:
-        return tstr
+    return tstr
 
 def phyparams():
+    """Print the physical parameters used."""
     print("Required Physical Layer MTU : "+str(Reticulum.MTU)+" bytes")
     print("Plaintext Packet MDU        : "+str(Packet.PLAIN_MDU)+" bytes")
     print("Encrypted Packet MDU        : "+str(Packet.ENCRYPTED_MDU)+" bytes")
@@ -232,8 +242,10 @@ def phyparams():
     print("Link Private Key Size       : "+str(Link.KEYSIZE*8)+" bits")
 
 def panic():
-    os._exit(255)
+    """Exit the process with a status of 255 without calling cleanup handlers nor flusing stdio buffers."""
+    os._exit(255) # pylint: disable=protected-access
 
-def exit():
+def exit_now():
+    """Exit."""
     print("")
     sys.exit(0)

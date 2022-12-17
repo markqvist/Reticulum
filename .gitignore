@@ -12,3 +12,5 @@ profile.data
 tests/rnsconfig/storage
 *.data
 *.result
+venv/
+.*.swp
