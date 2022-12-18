@@ -380,8 +380,13 @@ class Transport:
                     stale_links = []
                     for link_id in Transport.link_table:
                         link_entry = Transport.link_table[link_id]
-                        if time.time() > link_entry[0] + Transport.LINK_TIMEOUT:
-                            stale_links.append(link_id)
+                        if link_entry[7] == True:
+                            if time.time() > link_entry[0] + Transport.LINK_TIMEOUT:
+                                stale_links.append(link_id)
+                        else:
+                            # TODO: Decrease timeout for invalidation and path re-request
+                            if time.time() > link_entry[0] + Transport.LINK_TIMEOUT:
+                                stale_links.append(link_id)
 
                     # Cull the path table
                     stale_paths = []
@@ -1418,14 +1423,29 @@ class Transport:
                     if (RNS.Reticulum.transport_enabled() or for_local_client_link or from_local_client) and packet.destination_hash in Transport.link_table:
                         link_entry = Transport.link_table[packet.destination_hash]
                         if packet.receiving_interface == link_entry[2]:
-                            # TODO: Should we validate the LR proof at each transport
-                            # step before transporting it?
-                            # RNS.log("Link request proof received on correct interface, transporting it via "+str(link_entry[4]), RNS.LOG_EXTREME)
-                            new_raw = packet.raw[0:1]
-                            new_raw += struct.pack("!B", packet.hops)
-                            new_raw += packet.raw[2:]
-                            Transport.link_table[packet.destination_hash][7] = True
-                            Transport.transmit(link_entry[4], new_raw)
+                            try:
+                                if len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2:
+                                    peer_pub_bytes = packet.data[RNS.Identity.SIGLENGTH//8:RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2]
+                                    peer_identity = RNS.Identity.recall(link_entry[6])
+                                    peer_sig_pub_bytes = peer_identity.get_public_key()[RNS.Link.ECPUBSIZE//2:RNS.Link.ECPUBSIZE]
+
+                                    signed_data = packet.destination_hash+peer_pub_bytes+peer_sig_pub_bytes
+                                    signature = packet.data[:RNS.Identity.SIGLENGTH//8]
+
+                                    if peer_identity.validate(signature, signed_data):
+                                        RNS.log("Link request proof validated for transport via "+str(link_entry[4]), RNS.LOG_EXTREME)
+                                        new_raw = packet.raw[0:1]
+                                        new_raw += struct.pack("!B", packet.hops)
+                                        new_raw += packet.raw[2:]
+                                        Transport.link_table[packet.destination_hash][7] = True
+                                        Transport.transmit(link_entry[4], new_raw)
+
+                                    else:
+                                        RNS.log("Invalid link request proof in transport for link "+RNS.prettyhexrep(packet.destination_hash)+", dropping proof.", RNS.LOG_DEBUG)
+
+                            except Exception as e:
+                                RNS.log("Error while transporting link request proof. The contained exception was: "+str(e), RNS.LOG_ERROR)
+
                         else:
                             RNS.log("Link request proof received on wrong interface, not transporting it.", RNS.LOG_DEBUG)
                     else:
