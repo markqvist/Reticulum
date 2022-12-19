@@ -66,6 +66,7 @@ class Transport:
     PATH_REQUEST_TIMEOUT = 15           # Default timuout for client path requests in seconds
     PATH_REQUEST_GRACE   = 0.35         # Grace time before a path announcement is made, allows directly reachable peers to respond first
     PATH_REQUEST_RW      = 2            # Path request random window
+    PATH_REQUEST_MI      = 5            # Minimum interval in seconds for automated path requests
 
     LINK_TIMEOUT         = RNS.Link.STALE_TIME * 1.25
     REVERSE_TIMEOUT      = 30*60        # Reverse table entries are removed after 30 minutes
@@ -92,6 +93,7 @@ class Transport:
     announce_handlers    = []           # A table storing externally registered announce handlers
     tunnels              = {}           # A table storing tunnels to other transport instances
     announce_rate_table  = {}           # A table for keeping track of announce rates
+    path_requests        = {}           # A table for storing path request timestamps
     
     discovery_path_requests  = {}       # A table for keeping track of path requests on behalf of other nodes
     discovery_pr_tags        = []       # A table for keeping track of tagged path requests
@@ -285,6 +287,7 @@ class Transport:
     @staticmethod
     def jobs():
         outgoing = []
+        path_requests = []
         Transport.jobs_running = True
 
         try:
@@ -384,9 +387,17 @@ class Transport:
                             if time.time() > link_entry[0] + Transport.LINK_TIMEOUT:
                                 stale_links.append(link_id)
                         else:
-                            # TODO: Decrease timeout for invalidation and path re-request
-                            if time.time() > link_entry[0] + Transport.LINK_TIMEOUT:
+                            if time.time() > link_entry[8]:
                                 stale_links.append(link_id)
+
+                                last_path_request = 0
+                                if link_entry[6] in Transport.path_requests:
+                                    last_path_request = Transport.path_requests[link_entry[6]]
+
+                                # TODO: Check that we are local client shared instance
+                                if time.time() - last_path_request > Transport.PATH_REQUEST_MI:
+                                    RNS.log("Retrying path resolution for "+RNS.prettyhexrep(link_entry[6])+" since an attempted link was never established", RNS.LOG_DEBUG)
+                                    path_requests.append(link_entry[6])
 
                     # Cull the path table
                     stale_paths = []
@@ -517,6 +528,9 @@ class Transport:
 
         for packet in outgoing:
             packet.send()
+
+        for destination_hash in path_requests:
+            Transport.request_path(destination_hash)
 
     @staticmethod
     def transmit(interface, raw):
@@ -1003,15 +1017,19 @@ class Transport:
                             outbound_interface = Transport.destination_table[packet.destination_hash][5]
 
                             if packet.packet_type == RNS.Packet.LINKREQUEST:
+                                now = time.time()
+                                proof_timeout = now + RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, remaining_hops)
+
                                 # Entry format is
-                                link_entry = [  time.time(),                    # 0: Timestamp,
+                                link_entry = [  now,                            # 0: Timestamp,
                                                 next_hop,                       # 1: Next-hop transport ID
                                                 outbound_interface,             # 2: Next-hop interface
                                                 remaining_hops,                 # 3: Remaining hops
                                                 packet.receiving_interface,     # 4: Received on interface
                                                 packet.hops,                    # 5: Taken hops
                                                 packet.destination_hash,        # 6: Original destination hash
-                                                False]                          # 7: Validated
+                                                False,                          # 7: Validated
+                                                proof_timeout]                  # 8: Proof timeout timestamp
 
                                 Transport.link_table[packet.getTruncatedHash()] = link_entry
 
@@ -1211,9 +1229,9 @@ class Transport:
                             
                             retransmit_timeout = now + (RNS.rand() * Transport.PATHFINDER_RW)
 
-                            if packet.receiving_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
+                            if hasattr(packet.receiving_interface, "mode") and packet.receiving_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
                                 expires            = now + Transport.AP_PATH_TIME
-                            elif packet.receiving_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                            elif hasattr(packet.receiving_interface, "mode") and packet.receiving_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
                                 expires            = now + Transport.ROAMING_PATH_TIME
                             else:
                                 expires            = now + Transport.PATHFINDER_E
@@ -1386,10 +1404,11 @@ class Transport:
 
             # Handling for linkrequests to local destinations
             elif packet.packet_type == RNS.Packet.LINKREQUEST:
-                for destination in Transport.destinations:
-                    if destination.hash == packet.destination_hash and destination.type == packet.destination_type:
-                        packet.destination = destination
-                        destination.receive(packet)
+                if packet.transport_id == None or packet.transport_id == Transport.identity.hash:
+                    for destination in Transport.destinations:
+                        if destination.hash == packet.destination_hash and destination.type == packet.destination_type:
+                            packet.destination = destination
+                            destination.receive(packet)
             
             # Handling for local data packets
             elif packet.packet_type == RNS.Packet.DATA:
@@ -1849,6 +1868,7 @@ class Transport:
                     on_interface.announce_allowed_at = now + wait_time
 
         packet.send()
+        Transport.path_requests[destination_hash] = time.time()
 
     @staticmethod
     def path_request_handler(data, packet):
