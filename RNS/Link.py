@@ -900,6 +900,13 @@ class Link:
     def register_incoming_resource(self, resource):
         self.incoming_resources.append(resource)
 
+    def has_incoming_resource(self, resource):
+        for incoming_resource in self.incoming_resources:
+            if incoming_resource.hash == resource.hash:
+                return True
+
+        return False
+
     def cancel_outgoing_resource(self, resource):
         if resource in self.outgoing_resources:
             self.outgoing_resources.remove(resource)
