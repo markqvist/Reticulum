@@ -394,9 +394,12 @@ class Transport:
                                 if link_entry[6] in Transport.path_requests:
                                     last_path_request = Transport.path_requests[link_entry[6]]
 
-                                # TODO: Check that we are local client shared instance
-                                if time.time() - last_path_request > Transport.PATH_REQUEST_MI:
-                                    RNS.log("Retrying path resolution for "+RNS.prettyhexrep(link_entry[6])+" since an attempted link was never established", RNS.LOG_DEBUG)
+                                # If this link request was originated from this instance
+                                # or a local client, attempt to rediscover a path to the
+                                # destination, if it has not already happened recently.
+                                lr_taken_hops = link_entry[5]
+                                if lr_taken_hops == 0 and time.time() - last_path_request > Transport.PATH_REQUEST_MI:
+                                    RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[6])+" since an attempted link was never established", RNS.LOG_DEBUG)
                                     path_requests.append(link_entry[6])
 
                     # Cull the path table
