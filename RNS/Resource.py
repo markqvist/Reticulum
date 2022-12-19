@@ -172,20 +172,26 @@ class Resource:
 
             resource.consecutive_completed_height = 0
             
-            resource.link.register_incoming_resource(resource)
+            if not resource.link.has_incoming_resource(resource):
+                resource.link.register_incoming_resource(resource)
 
-            RNS.log("Accepting resource advertisement for "+RNS.prettyhexrep(resource.hash), RNS.LOG_DEBUG)
-            if resource.link.callbacks.resource_started != None:
-                try:
-                    resource.link.callbacks.resource_started(resource)
-                except Exception as e:
-                    RNS.log("Error while executing resource started callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log("Accepting resource advertisement for "+RNS.prettyhexrep(resource.hash), RNS.LOG_DEBUG)
+                if resource.link.callbacks.resource_started != None:
+                    try:
+                        resource.link.callbacks.resource_started(resource)
+                    except Exception as e:
+                        RNS.log("Error while executing resource started callback from "+str(resource)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
-            resource.hashmap_update(0, resource.hashmap_raw)
+                resource.hashmap_update(0, resource.hashmap_raw)
 
-            resource.watchdog_job()
+                resource.watchdog_job()
 
-            return resource
+                return resource
+
+            else:
+                RNS.log("Ignoring resource advertisement for "+RNS.prettyhexrep(resource.hash)+", resource already transferring", RNS.LOG_DEBUG)
+                return None
+
         except Exception as e:
             RNS.log("Could not decode resource advertisement, dropping resource", RNS.LOG_DEBUG)
             return None
@@ -397,8 +403,7 @@ class Resource:
         thread.start()
 
     def __advertise_job(self):
-        data = ResourceAdvertisement(self).pack()
-        self.advertisement_packet = RNS.Packet(self.link, data, context=RNS.Packet.RESOURCE_ADV)
+        self.advertisement_packet = RNS.Packet(self.link, ResourceAdvertisement(self).pack(), context=RNS.Packet.RESOURCE_ADV)
         while not self.link.ready_for_new_resource():
             self.status = Resource.QUEUED
             sleep(0.25)
@@ -445,7 +450,8 @@ class Resource:
                         try:
                             RNS.log("No part requests received, retrying resource advertisement...", RNS.LOG_DEBUG)
                             self.retries_left -= 1
-                            self.advertisement_packet.resend()
+                            self.advertisement_packet = RNS.Packet(self.link, ResourceAdvertisement(self).pack(), context=RNS.Packet.RESOURCE_ADV)
+                            self.advertisement_packet.send()
                             self.last_activity = time.time()
                             self.adv_sent = self.last_activity
                             sleep_time = 0.001
