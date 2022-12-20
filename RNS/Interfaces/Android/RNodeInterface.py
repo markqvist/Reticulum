@@ -329,11 +329,13 @@ class RNodeInterface(Interface):
                 from usbserial4a import serial4a as serial
                 self.parity = "N"
 
+                self.bt_target_device_name = target_device_name
+                self.bt_target_device_address = target_device_address
                 if allow_bluetooth:
                     self.bt_manager = AndroidBluetoothManager(
                         owner = self,
-                        target_device_name = target_device_name,
-                        target_device_address = target_device_address
+                        target_device_name = self.bt_target_device_name,
+                        target_device_address = self.bt_target_device_address
                     )
 
                 else:
@@ -544,6 +546,13 @@ class RNodeInterface(Interface):
                 RNS.log(str(self)+" USB write timeout set to "+str(self.serial.USB_WRITE_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
 
         elif self.allow_bluetooth:
+            if self.bt_manager == None:
+                self.bt_manager = AndroidBluetoothManager(
+                    owner = self,
+                    target_device_name = self.bt_target_device_name,
+                    target_device_address = self.bt_target_device_address
+                )
+
             if self.bt_manager != None:
                 self.bt_manager.connect_any_device()
 
