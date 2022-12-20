@@ -63,7 +63,7 @@ For more info, see [reticulum.network](https://reticulum.network/)
   - Low cost of keeping links open at only 0.44 bits per second
 
 ## Development Roadmap
-While Reticulum is already a fully featured and functional networking stack, many improvements and additions are planned for the future.
+While Reticulum is already a fully featured and functional networking stack, many improvements and additions are actively being worked on, and planned for the future.
 
 To learn more about the direction and future of Reticulum, please see the [Development Roadmap](./Roadmap.md).
 
