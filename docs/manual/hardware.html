@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Supported Interfaces" href="interfaces.html" /><link rel="prev" title="Understanding Reticulum" href="understanding.html" />
 
     <meta name="generator" content="sphinx-5.2.2, furo 2022.09.29"/>
-        <title>Communications Hardware - Reticulum Network Stack 0.4.2 beta documentation</title>
+        <title>Communications Hardware - Reticulum Network Stack 0.4.3 beta documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 0.4.2 beta documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.4.3 beta documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -167,7 +167,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 0.4.2 beta documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.4.3 beta documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -349,9 +349,10 @@ boards. The following boards are supported by the auto-installer.</p>
 <span id="rnode-installation"></span><h3>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h3>
 <p>Once you have obtained compatible boards, you can install the <a class="reference external" href="https://github.com/markqvist/RNode_Firmware">RNode Firmware</a>
 using the <a class="reference external" href="https://github.com/markqvist/rnodeconfigutil">RNode Configuration Utility</a>.
-Make sure that <code class="docutils literal notranslate"><span class="pre">Python3</span></code> and <code class="docutils literal notranslate"><span class="pre">pip</span></code> is installed on your system, and then install
-the config utility with <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">rnodeconf</span>
+If you have installed Reticulum on your system, the <code class="docutils literal notranslate"><span class="pre">rnodeconf</span></code> program will already be
+available. If not, make sure that <code class="docutils literal notranslate"><span class="pre">Python3</span></code> and <code class="docutils literal notranslate"><span class="pre">pip</span></code> is installed on your system, and
+then install Reticulum with with <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">rns</span>
 </pre></div>
 </div>
 <p>Once installation has completed, it is time to start installing the firmware on your
@@ -361,11 +362,7 @@ devices. Run <code class="docutils literal notranslate"><span class="pre">rnodec
 </div>
 <p>The utility will guide you through the installation process by asking a series of
 questions about your hardware. Simply follow the guide, and the utility will
-auto-install and configure your devices</p>
-<p><strong>Important Note!</strong> It is currently recommended to use the v1.x line of the RNode firmware,
-even though the v2.x line is available for early testing. The v2.x line should still be
-considered an experimental pre-release. Only use the v2.x firmware line if you want to test
-out the absolutely newest version, and don’t care about stability.</p>
+auto-install and configure your devices.</p>
 </section>
 <section id="usage-with-reticulum">
 <span id="rnode-usage"></span><h3>Usage with Reticulum<a class="headerlink" href="#usage-with-reticulum" title="Permalink to this heading">#</a></h3>

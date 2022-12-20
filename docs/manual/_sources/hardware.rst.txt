@@ -160,12 +160,13 @@ Installation
 
 Once you have obtained compatible boards, you can install the `RNode Firmware <https://github.com/markqvist/RNode_Firmware>`_
 using the `RNode Configuration Utility <https://github.com/markqvist/rnodeconfigutil>`_.
-Make sure that ``Python3`` and ``pip`` is installed on your system, and then install
-the config utility with ``pip``:
+If you have installed Reticulum on your system, the ``rnodeconf`` program will already be
+available. If not, make sure that ``Python3`` and ``pip`` is installed on your system, and
+then install Reticulum with with ``pip``:
 
 .. code::
 
-   pip3 install rnodeconf
+   pip3 install rns
 
 Once installation has completed, it is time to start installing the firmware on your
 devices. Run ``rnodeconf`` in auto-install mode like so:
@@ -176,12 +177,7 @@ devices. Run ``rnodeconf`` in auto-install mode like so:
 
 The utility will guide you through the installation process by asking a series of
 questions about your hardware. Simply follow the guide, and the utility will
-auto-install and configure your devices
-
-**Important Note!** It is currently recommended to use the v1.x line of the RNode firmware,
-even though the v2.x line is available for early testing. The v2.x line should still be
-considered an experimental pre-release. Only use the v2.x firmware line if you want to test
-out the absolutely newest version, and don't care about stability.
+auto-install and configure your devices.
 
 .. _rnode-usage:
 
