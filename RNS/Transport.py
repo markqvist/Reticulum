@@ -401,6 +401,11 @@ class Transport:
                                 if lr_taken_hops == 0 and time.time() - last_path_request > Transport.PATH_REQUEST_MI:
                                     RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[6])+" since an attempted link was never established", RNS.LOG_DEBUG)
                                     path_requests.append(link_entry[6])
+                                    if not RNS.Reticulum.transport_enabled():
+                                        # Drop current path if we are not a transport instance, to
+                                        # allow using higher-hop count paths or reused announces
+                                        # from newly adjacent transport instances.
+                                        Transport.expire_path(link_entry[6])
 
                     # Cull the path table
                     stale_paths = []
@@ -561,9 +566,6 @@ class Transport:
             sleep(0.0005)
 
         Transport.jobs_locked = True
-
-        # TODO: This updateHash call might be redundant
-        # packet.update_hash()
 
         sent = False
         outbound_time = time.time()
