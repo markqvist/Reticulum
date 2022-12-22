@@ -1072,10 +1072,10 @@ class RNodeInterface(Interface):
             try:
                 time.sleep(self.reconnect_w)
                 if self.serial != None and self.port != None:
-                    RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
+                    RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_EXTREME)
 
                 if self.bt_manager != None:
-                    RNS.log("Attempting to reconnect Bluetooth device for "+str(self)+"...", RNS.LOG_VERBOSE)
+                    RNS.log("Attempting to reconnect Bluetooth device for "+str(self)+"...", RNS.LOG_EXTREME)
 
                 self.open_port()
 
