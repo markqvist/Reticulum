@@ -279,24 +279,26 @@ class AutoInterface(Interface):
                                 if address["addr"].startswith("fe80:"):
                                     link_local_addr = address["addr"].split("%")[0]
                                     if link_local_addr != self.adopted_interfaces[ifname]:
-                                        # TODO: Remove
-                                        # RNS.log("Replacing link-local address for "+str(ifname), RNS.LOG_DEBUG)
+                                        old_link_local_address = self.adopted_interfaces[ifname]
+                                        RNS.log("Replacing link-local address "+str(old_link_local_address)+" for "+str(ifname)+" with "+str(link_local_addr), RNS.LOG_DEBUG)
                                         self.adopted_interfaces[ifname] = link_local_addr
+                                        self.link_local_addresses.append(link_local_addr)
+
+                                        if old_link_local_address in self.link_local_addresses:
+                                            self.link_local_addresses.remove(old_link_local_address)
 
                                         local_addr = link_local_addr+"%"+ifname
                                         addr_info = socket.getaddrinfo(local_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
                                         listen_address = addr_info[0][4]
 
                                         if ifname in self.interface_servers:
-                                            # TODO: Remove
-                                            # RNS.log("Shutting down previous UDP socket server for "+str(ifname), RNS.LOG_DEBUG)
+                                            RNS.log("Shutting down previous UDP listener for "+str(self)+" "+str(ifname), RNS.LOG_DEBUG)
                                             previous_server = self.interface_servers[ifname]
                                             def shutdown_server():
                                                 previous_server.shutdown()
                                             threading.Thread(target=shutdown_server, daemon=True).start()
 
-                                        # TODO: Remove
-                                        # RNS.log("Starting new UDP socket server for "+str(ifname), RNS.LOG_DEBUG)
+                                        RNS.log("Starting new UDP listener for "+str(self)+" "+str(ifname), RNS.LOG_DEBUG)
 
                                         udp_server = socketserver.UDPServer(listen_address, self.handler_factory(self.processIncoming))
                                         self.interface_servers[ifname] = udp_server
