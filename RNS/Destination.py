@@ -69,6 +69,8 @@ class Destination:
     OUT        = 0x12;
     directions = [IN, OUT]
 
+    PR_TAG_WINDOW = 30
+
     @staticmethod
     def expand_name(identity, app_name, *aspects):
         """
@@ -132,6 +134,7 @@ class Destination:
         self.proof_strategy = Destination.PROVE_NONE
         self.mtu = 0
 
+        self.path_responses = {}
         self.links = []
 
         if identity == None and direction == Destination.IN and self.type != Destination.PLAIN:
@@ -163,7 +166,7 @@ class Destination:
         return "<"+self.name+"/"+self.hexhash+">"
 
 
-    def announce(self, app_data=None, path_response=False, send=True):
+    def announce(self, app_data=None, path_response=False, attached_interface=None, tag=None, send=True):
         """
         Creates an announce packet for this destination and broadcasts it on all
         relevant interfaces. Application specific data can be added to the announce.
@@ -173,35 +176,60 @@ class Destination:
         """
         if self.type != Destination.SINGLE:
             raise TypeError("Only SINGLE destination types can be announced")
-            
-        destination_hash = self.hash
-        random_hash = RNS.Identity.get_random_hash()[0:5]+int(time.time()).to_bytes(5, "big")
-
-        if app_data == None and self.default_app_data != None:
-            if isinstance(self.default_app_data, bytes):
-                app_data = self.default_app_data
-            elif callable(self.default_app_data):
-                returned_app_data = self.default_app_data()
-                if isinstance(returned_app_data, bytes):
-                    app_data = returned_app_data
         
-        signed_data = self.hash+self.identity.get_public_key()+self.name_hash+random_hash
-        if app_data != None:
-            signed_data += app_data
+        now = time.time()
+        stale_responses = []
+        for entry_tag in self.path_responses:
+            entry = self.path_responses[entry_tag]
+            if now > entry[0]+Destination.PR_TAG_WINDOW:
+                stale_responses.append(entry_tag)
 
-        signature = self.identity.sign(signed_data)
+        for entry_tag in stale_responses:
+            self.path_responses.pop(entry_tag)
 
-        announce_data = self.identity.get_public_key()+self.name_hash+random_hash+signature
+        if (path_response == True and tag != None) and tag in self.path_responses:
+            # This code is currently not used, since Transport will block duplicate
+            # path requests based on tags. When multi-path support is implemented in
+            # Transport, this will allow Transport to detect redundant paths to the
+            # same destination, and select the best one based on chosen criteria,
+            # since it will be able to detect that a single emitted announce was
+            # received via multiple paths. The difference in reception time will
+            # potentially also be useful in determining characteristics of the
+            # multiple available paths, and to choose the best one.
+            RNS.log("Using cached announce data for answering path request with tag "+RNS.prettyhexrep(tag), RNS.LOG_EXTREME)
+            announce_data = self.path_responses[tag][1]
+        
+        else:
+            destination_hash = self.hash
+            random_hash = RNS.Identity.get_random_hash()[0:5]+int(time.time()).to_bytes(5, "big")
 
-        if app_data != None:
-            announce_data += app_data
+            if app_data == None and self.default_app_data != None:
+                if isinstance(self.default_app_data, bytes):
+                    app_data = self.default_app_data
+                elif callable(self.default_app_data):
+                    returned_app_data = self.default_app_data()
+                    if isinstance(returned_app_data, bytes):
+                        app_data = returned_app_data
+            
+            signed_data = self.hash+self.identity.get_public_key()+self.name_hash+random_hash
+            if app_data != None:
+                signed_data += app_data
+
+            signature = self.identity.sign(signed_data)
+
+            announce_data = self.identity.get_public_key()+self.name_hash+random_hash+signature
+
+            if app_data != None:
+                announce_data += app_data
+
+            self.path_responses[tag] = [time.time(), announce_data]
 
         if path_response:
             announce_context = RNS.Packet.PATH_RESPONSE
         else:
             announce_context = RNS.Packet.NONE
 
-        announce_packet = RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE, context = announce_context)
+        announce_packet = RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE, context = announce_context, attached_interface = attached_interface)
 
         if send:
             announce_packet.send()

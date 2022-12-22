@@ -1948,9 +1948,8 @@ class Transport:
         
         local_destination = next((d for d in Transport.destinations if d.hash == destination_hash), None)
         if local_destination != None:
-            local_destination.announce(path_response=True)
+            local_destination.announce(path_response=True, tag=tag, attached_interface=attached_interface)
             RNS.log("Answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", destination is local to this system", RNS.LOG_DEBUG)
-
 
         elif (RNS.Reticulum.transport_enabled() or is_from_local_client) and (destination_hash in Transport.destination_table):
             packet = Transport.destination_table[destination_hash][6]
@@ -1996,9 +1995,10 @@ class Transport:
             # Forward path request on all interfaces
             # except the local client
             RNS.log("Forwarding path request from local client for "+RNS.prettyhexrep(destination_hash)+interface_str+" to all other interfaces", RNS.LOG_DEBUG)
+            request_tag = RNS.Identity.get_random_hash()
             for interface in Transport.interfaces:
                 if not interface == attached_interface:
-                    Transport.request_path(destination_hash, interface)
+                    Transport.request_path(destination_hash, interface, tag = request_tag)
 
         elif should_search_for_unknown:
             if destination_hash in Transport.discovery_path_requests:
