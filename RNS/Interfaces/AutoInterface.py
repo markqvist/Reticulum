@@ -78,6 +78,7 @@ class AutoInterface(Interface):
         self.interface_servers = {}
         self.multicast_echoes = {}
         self.timed_out_interfaces = {}
+        self.carrier_changed = False
 
         self.outbound_udp_socket = None
 
@@ -317,10 +318,12 @@ class AutoInterface(Interface):
 
                 if now - last_multicast_echo > self.multicast_echo_timeout:
                     if ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == False:
+                        self.carrier_changed = True
                         RNS.log("Multicast echo timeout for "+str(ifname)+". Carrier lost.", RNS.LOG_WARNING)
                     self.timed_out_interfaces[ifname] = True
                 else:
                     if ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == True:
+                        self.carrier_changed = True
                         RNS.log(str(self)+" Carrier recovered on "+str(ifname), RNS.LOG_WARNING)
                     self.timed_out_interfaces[ifname] = False
                 
