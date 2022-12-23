@@ -272,6 +272,8 @@ class Link:
                     self.rtt = time.time() - self.request_time
                     self.attached_interface = packet.receiving_interface
                     self.__remote_identity = self.destination.identity
+                    self.status = Link.ACTIVE
+                    self.activated_at = time.time()
                     RNS.Transport.activate_link(self)
                     RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(round(self.rtt, 3))+"s", RNS.LOG_VERBOSE)
                     rtt_data = umsgpack.packb(self.rtt)
@@ -279,8 +281,6 @@ class Link:
                     rtt_packet.send()
                     self.had_outbound()
 
-                    self.status = Link.ACTIVE
-                    self.activated_at = time.time()
                     if self.callbacks.link_established != None:
                         thread = threading.Thread(target=self.callbacks.link_established, args=(self,))
                         thread.daemon = True
