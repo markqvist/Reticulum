@@ -118,6 +118,8 @@ class Transport:
     jobs_locked = False
     jobs_running = False
     job_interval = 0.250
+    links_last_checked       = 0.0
+    links_check_interval     = 1.0
     receipts_last_checked    = 0.0
     receipts_check_interval  = 1.0
     announces_last_checked   = 0.0
@@ -167,8 +169,7 @@ class Transport:
         Transport.control_hashes.append(Transport.tunnel_synthesize_destination.hash)
 
         Transport.jobs_running = False
-        thread = threading.Thread(target=Transport.jobloop)
-        thread.daemon = True
+        thread = threading.Thread(target=Transport.jobloop, daemon=True)
         thread.start()
 
         if RNS.Reticulum.transport_enabled():
@@ -268,8 +269,6 @@ class Transport:
                 except Exception as e:
                     RNS.log("Could not load tunnel table from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
-
-
             RNS.log("Transport instance "+str(Transport.identity)+" started", RNS.LOG_VERBOSE)
 
         # Synthesize tunnels for any interfaces wanting it
@@ -292,6 +291,39 @@ class Transport:
 
         try:
             if not Transport.jobs_locked:
+
+                # Process active and pending link lists
+                if time.time() > Transport.links_last_checked+Transport.links_check_interval:
+
+                    for link in Transport.pending_links:
+                        if link.status == RNS.Link.CLOSED:
+                            # If we are not a Transport Instance, finding a pending link
+                            # that was never activated will trigger an expiry of the path
+                            # to the destination, and an attempt to rediscover the path.
+                            if not RNS.Reticulum.transport_enabled():
+                                Transport.expire_path(link.destination.hash)
+
+                                # If we are connected to a shared instance, it will take
+                                # care of sending out a new path request. If not, we will
+                                # send one directly.
+                                if not Transport.owner.is_connected_to_shared_instance:
+                                    last_path_request = 0
+                                    if link.destination.hash in Transport.path_requests:
+                                        last_path_request = Transport.path_requests[link.destination.hash]
+
+                                    if time.time() - last_path_request > Transport.PATH_REQUEST_MI:
+                                        RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link.destination.hash)+" since an attempted link was never established", RNS.LOG_DEBUG)
+                                        if not link.destination.hash in path_requests:
+                                            path_requests.append(link.destination.hash)
+
+                            Transport.pending_links.remove(link)
+
+                    for link in Transport.active_links:
+                        if link.status == RNS.Link.CLOSED:
+                            Transport.active_links.remove(link)
+
+                    Transport.links_last_checked = time.time()
+
                 # Process receipts list for timed-out packets
                 if time.time() > Transport.receipts_last_checked+Transport.receipts_check_interval:
                     while len(Transport.receipts) > Transport.MAX_RECEIPTS:
@@ -383,6 +415,7 @@ class Transport:
                     stale_links = []
                     for link_id in Transport.link_table:
                         link_entry = Transport.link_table[link_id]
+
                         if link_entry[7] == True:
                             if time.time() > link_entry[0] + Transport.LINK_TIMEOUT:
                                 stale_links.append(link_id)
@@ -394,13 +427,15 @@ class Transport:
                                 if link_entry[6] in Transport.path_requests:
                                     last_path_request = Transport.path_requests[link_entry[6]]
 
-                                # If this link request was originated from this instance
-                                # or a local client, attempt to rediscover a path to the
-                                # destination, if it has not already happened recently.
+                                # If this link request was originated from a local client
+                                # attempt to rediscover a path to the destination, if this
+                                # has not already happened recently.
                                 lr_taken_hops = link_entry[5]
                                 if lr_taken_hops == 0 and time.time() - last_path_request > Transport.PATH_REQUEST_MI:
-                                    RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[6])+" since an attempted link was never established", RNS.LOG_DEBUG)
-                                    path_requests.append(link_entry[6])
+                                    RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[6])+" since an attempted local client link was never established", RNS.LOG_DEBUG)
+                                    if not link_entry[6] in path_requests:
+                                        path_requests.append(link_entry[6])
+
                                     if not RNS.Reticulum.transport_enabled():
                                         # Drop current path if we are not a transport instance, to
                                         # allow using higher-hop count paths or reused announces
@@ -527,6 +562,10 @@ class Transport:
                             RNS.log("Removed "+str(i)+" tunnels", RNS.LOG_EXTREME)
 
                     Transport.tables_last_culled = time.time()
+
+            else:
+                # Transport jobs were locked, do nothing
+                pass
 
         except Exception as e:
             RNS.log("An exception occurred while running Transport jobs.", RNS.LOG_ERROR)
@@ -1644,7 +1683,7 @@ class Transport:
 
     @staticmethod
     def register_link(link):
-        RNS.log("Registering link "+str(link), RNS.LOG_DEBUG)
+        RNS.log("Registering link "+str(link), RNS.LOG_EXTREME)
         if link.initiator:
             Transport.pending_links.append(link)
         else:
@@ -1652,7 +1691,7 @@ class Transport:
 
     @staticmethod
     def activate_link(link):
-        RNS.log("Activating link "+str(link), RNS.LOG_DEBUG)
+        RNS.log("Activating link "+str(link), RNS.LOG_EXTREME)
         if link in Transport.pending_links:
             Transport.pending_links.remove(link)
             Transport.active_links.append(link)
