@@ -121,7 +121,7 @@ These efforts aim to expand the types of physical and virtual interfaces that Re
 
 This section contains the complete release log for Reticulum.
 
-### RNS β 0.4.6 - 2022-12-23
+### 2022-12-23: RNS β 0.4.6
 
 This maintenance release brings two bugfixes.
 
@@ -135,7 +135,7 @@ This maintenance release brings two bugfixes.
 775c1b9b5bdf202524e50e58dc7c7bad9262ca3c16471cbfc6fb3a528e732460 rnspure-0.4.6-py3-none-any.whl
 ```
 
-### RNS β 0.4.5 - 2022-12-22
+### 2022-12-22: RNS β 0.4.5
 
 This maintenance release significantly improves path rediscovery on roaming devices with multiple interfaces, and adds a few tweaks to interface handling, that are especially relevant on Android.
 
