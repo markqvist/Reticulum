@@ -15,7 +15,6 @@ For each release cycle of Reticulum, improvements and additions from the five [P
 
 - The current `0.4.x` release cycle aims at completing:
   - [x] Improve storage persist call on local client connect/disconnect
-  - [x] Faster path invalidation on physical topography changes
   - [x] Better path invalidation on roaming interfaces
   - [x] Improved roaming support on Android
   - [ ] Updating the documentation to reflect recent changes and improvements
