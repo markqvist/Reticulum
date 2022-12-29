@@ -15,6 +15,8 @@ For each release cycle of Reticulum, improvements and additions from the five [P
 
 - The current `0.4.x` release cycle aims at completing:
   - [x] Improve storage persist call on local client connect/disconnect
+  - [x] Faster path invalidation on physical topography changes
+  - [x] Better path invalidation on roaming interfaces
   - [x] Improved roaming support on Android
   - [ ] Updating the documentation to reflect recent changes and improvements
   - [ ] Add bluetooth pairing code output to rnodeconf
@@ -79,6 +81,7 @@ These efforts aim to expand and improve the core functionality and reliability o
 - Improve storage persist call on local client connect/disconnect
 - Faster path invalidation on physical topography changes
 - Better path invalidation on roaming interfaces
+- Add a `Buffer` class to the API, for handling stream-like buffers over Reticulum
 - Network-wide path balancing
 - Distributed Destination Naming System
 - Globally routable multicast
