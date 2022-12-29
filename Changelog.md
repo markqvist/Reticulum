@@ -642,4 +642,8 @@ This was a pre-release alpha version. No changelog available.
 
 ### 2020-04-28: RNS α 0.0.8
 
-This was a pre-release alpha version. No changelog available.
+This was the first publicly available pre-release alpha of Reticulum.
+
+### 2016-05-29: Inintial Repository Commit
+
+The first commit to the Reticulum reference implementation was 9a9630cfd29e11ace3f12716ddb4dff0e5419b4b, which occurred on Sunday, the 22nd of May 2016.
