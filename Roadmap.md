@@ -6,7 +6,7 @@ This document outlines the currently established development roadmap for Reticul
     - [Comprehensibility](#comprehensibility)
     - [Universality](#universality)
     - [Functionality](#functionality)
-    - [Usability & Utility](#usability-utility)
+    - [Usability & Utility](#usability--utility)
     - [Interfaceability](#interfaceability)
 3. [Release History](#release-history)
 
