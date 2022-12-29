@@ -116,3 +116,39 @@ These efforts aim to expand the types of physical and virtual interfaces that Re
 - MQTT
 - XBee
 - Tor
+
+## Release History
+
+This section contains the complete release log for Reticulum.
+
+### RNS β 0.4.6
+*2022-12-23*
+
+This maintenance release brings two bugfixes.
+
+**Changes**
+- Fixed missing path invalidation on failed link establishments made from a shared instance client
+- Fixed a memory leak in link handling
+
+**Release Hashes**
+```
+7f1b0b254dce5bb1bacc336b026dab2dda5859b43cb0f4ceed3f70ba825f8873 rns-0.4.6-py3-none-any.whl
+775c1b9b5bdf202524e50e58dc7c7bad9262ca3c16471cbfc6fb3a528e732460 rnspure-0.4.6-py3-none-any.whl
+```
+
+### RNS β 0.4.5
+*2022-12-22*
+
+This maintenance release significantly improves path rediscovery on roaming devices with multiple interfaces, and adds a few tweaks to interface handling, that are especially relevant on Android.
+
+**Changes**
+- Faster roaming path recovery for multiple interface non-transport instances
+- Fixed AutoInterface multicast echoes failing on interfaces with rolling MAC addresses on every re-connect
+- Added carrier change detection flag to AutoInterface
+- Adjusted loglevels for some items
+
+**Release Hashes**
+```
+6757d5d815d4d96c45c181daf321447914c0e90892d43e142f2bd3fffacda9d9 rns-0.4.5-py3-none-any.whl
+11669065091d67e3abaddb0096e5c92fc48080692b5644559226b2e2e6721060 rnspure-0.4.5-py3-none-any.whl
+```
