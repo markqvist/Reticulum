@@ -5,6 +5,10 @@ This document outlines the currently established development roadmap for Reticul
 2. [Primary Efforts](#primary-efforts)
     - [Comprehensibility](#comprehensibility)
     - [Universality](#universality)
+    - [Functionality](#functionality)
+    - [Usability & Utility](#usability-utility)
+    - [Interfaceability](#interfaceability)
+3. [Release History](#release-history)
 
 ## Currently Active Work Areas
 For each release cycle of Reticulum, improvements and additions from the five [Primary Efforts](#primary-efforts) are selected as active work areas, and can be expected to be included in the upcoming releases within that cycle. While not entirely set in stone for each release cycle, they serve as a pointer of what to expect in the near future.
