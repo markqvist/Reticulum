@@ -29,6 +29,7 @@ For each release cycle of Reticulum, improvements and additions from the five [P
   - [x] Add paper offline & paper message transport to LXMF
   - [x] Implement paper messaging in Nomad Network
   - [x] Implement paper messaging in Sideband
+  - [x] Add spatial and multi-interface roaming support in Sideband
   - [x] Expand device support in Sideband to support older Android devices
 
 ## Primary Efforts
