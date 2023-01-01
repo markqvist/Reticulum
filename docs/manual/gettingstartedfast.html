@@ -226,14 +226,29 @@
 <p>The best way to get started with the Reticulum Network Stack depends on what
 you want to do. This guide will outline sensible starting paths for different
 scenarios.</p>
+<section id="standalone-reticulum-installation">
+<h2>Standalone Reticulum Installation<a class="headerlink" href="#standalone-reticulum-installation" title="Permalink to this heading">#</a></h2>
+<p>If you simply want to install Reticulum and related utilities on a system,
+the easiest way is via <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+</pre></div>
+</div>
+<p>If you no not already have pip installed, you can install it using the package manager
+of your system with a command like <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">python3-pip</span></code>,
+<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">pamac</span> <span class="pre">install</span> <span class="pre">python-pip</span></code> or similar. You can also dowload the Reticulum release
+wheels from GitHub, or other release channels, and install them offline using <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">./</span><span class="n">rns</span><span class="o">-</span><span class="mf">0.4.6</span><span class="o">-</span><span class="n">py3</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="nb">any</span><span class="o">.</span><span class="n">whl</span>
+</pre></div>
+</div>
+</section>
 <section id="try-using-a-reticulum-based-program">
 <h2>Try Using a Reticulum-based Program<a class="headerlink" href="#try-using-a-reticulum-based-program" title="Permalink to this heading">#</a></h2>
 <p>If you simply want to try using a program built with Reticulum, a few different
-programs exist that allow basic communication and a range of other useful functions
-over even extremely low-bandwidth Reticulum networks.</p>
+programs exist that allow basic communication and a range of other useful functions,
+even over extremely low-bandwidth Reticulum networks.</p>
 <p>These programs will let you get a feel for how Reticulum works. They have been designed
-to run well over networks based on LoRa or packet radio, but can also be used completely
-over local WiFi, wired Ethernet, the Internet, or any combination.</p>
+to run well over networks based on LoRa or packet radio, but can also be used over fast
+links, such as local WiFi, wired Ethernet, the Internet, or any combination.</p>
 <p>As such, it is easy to get started experimenting, without having to set up any radio
 transceivers or infrastructure just to try it out. Launching the programs on separate
 devices connected to the same WiFi network is enough to get started, and physical
@@ -251,7 +266,7 @@ for the messaging and information-sharing protocol
 <a class="reference external" href="https://github.com/markqvist/lxmf">LXMF</a>, another project built with Reticulum.</p>
 <p>You can install Nomad Network via pip:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install ...</span>
-<span class="n">pip3</span> <span class="n">install</span> <span class="n">nomadnet</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">nomadnet</span>
 
 <span class="c1"># ... and run</span>
 <span class="n">nomadnet</span>
@@ -267,9 +282,11 @@ program, reboot your system and try again.</p>
 <p>If you would rather use a program with a graphical user interface, you can take
 a look at <a class="reference external" href="https://unsigned.io/sideband">Sideband</a>, which is available for Android,
 Linux and macOS.</p>
-<a class="reference external image-reference" href="_images/sideband_1.png"><img alt="_images/sideband_1.png" class="align-center" src="_images/sideband_1.png" /></a>
-<p>Sideband is currently in the early stages of development, but already provides basic
-communication features, and interoperates with Nomad Network, or any other LXMF client.</p>
+<a class="reference external image-reference" href="_images/sideband_devices.webp"><img alt="_images/sideband_devices.webp" class="align-center" src="_images/sideband_devices.webp" /></a>
+<p>Sideband allows you to communicate with other people or LXMF-compatible
+systems over Reticulum networks using LoRa, Packet Radio, WiFi, I2P, Encrypted QR
+Paper Messages, or anything else Reticulum supports. It also interoperates with
+the Nomad Network program.</p>
 </section>
 </section>
 <section id="using-the-included-utilities">
@@ -443,7 +460,7 @@ don’t use pip, but try this recipe:</p>
 
 <span class="c1"># Run the example in client mode to &quot;ping&quot; the server.</span>
 <span class="c1"># Replace the hash below with the actual destination hash of your server.</span>
-<span class="n">python3</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="mf">3e12</span><span class="n">fc71692f8ec47bc5</span>
+<span class="n">python3</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="mi">174</span><span class="n">a64852a75682259ad8b921b8bf416</span>
 
 <span class="c1"># Have a look at another example</span>
 <span class="n">python3</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Filetransfer</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">h</span>
@@ -458,7 +475,7 @@ or ask one of the developers or maintainers for a good place to start.</p>
 <section id="reticulum-on-arm64">
 <h2>Reticulum on ARM64<a class="headerlink" href="#reticulum-on-arm64" title="Permalink to this heading">#</a></h2>
 <p>On some architectures, including ARM64, not all dependencies have precompiled
-binaries. On such systems, you will need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> before
+binaries. On such systems, you may need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> before
 installing Reticulum or programs that depend on Reticulum.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Python and development packages</span>
 <span class="n">sudo</span> <span class="n">apt</span> <span class="n">update</span>
@@ -468,6 +485,12 @@ installing Reticulum or programs that depend on Reticulum.</p>
 <span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
 </pre></div>
 </div>
+</section>
+<section id="reticulum-on-raspberry-pi">
+<h2>Reticulum on Raspberry Pi<a class="headerlink" href="#reticulum-on-raspberry-pi" title="Permalink to this heading">#</a></h2>
+<p>It is currently recommended to use a 64-bit version of the Raspberry Pi OS
+if you want to run Reticulum on Raspberry Pi computers, since 32-bit versions
+don’t always have packages available for some dependencies.</p>
 </section>
 <section id="reticulum-on-android">
 <h2>Reticulum on Android<a class="headerlink" href="#reticulum-on-android" title="Permalink to this heading">#</a></h2>
@@ -479,10 +502,27 @@ the <a class="reference external" href="https://termux.com/">Termux app</a>, at 
 <p>Termux is a terminal emulator and Linux environment for Android based devices,
 which includes the ability to use many different programs and libraries,
 including Reticulum.</p>
-<p>Since the Python cryptography.io module does not offer pre-built wheels for
-Android, the standard one-line install of Reticulum does not work on Android,
-and a few extra commands are required.</p>
+<p>To use Reticulum within the Termux environment, you will need to install
+<code class="docutils literal notranslate"><span class="pre">python</span></code> and the <code class="docutils literal notranslate"><span class="pre">python-cryptography</span></code> library using <code class="docutils literal notranslate"><span class="pre">pkg</span></code>, the package-manager
+build into Termux. After that, you can use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install Reticulum.</p>
 <p>From within Termux, execute the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># First, make sure indexes and packages are up to date.</span>
+<span class="n">pkg</span> <span class="n">update</span>
+<span class="n">pkg</span> <span class="n">upgrade</span>
+
+<span class="c1"># Then install python and the cryptography library.</span>
+<span class="n">pkg</span> <span class="n">install</span> <span class="n">python</span> <span class="n">python</span><span class="o">-</span><span class="n">cryptography</span>
+
+<span class="c1"># Make sure pip is up to date, and install the wheel module.</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">wheel</span> <span class="n">pip</span> <span class="o">--</span><span class="n">upgrade</span>
+
+<span class="c1"># Install Reticulum</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+</pre></div>
+</div>
+<p>If for some reason the <code class="docutils literal notranslate"><span class="pre">python-cryptography</span></code> package is not available for
+your platform via the Termux package manager, you can attempt to build it
+locally on your device using the following command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># First, make sure indexes and packages are up to date.</span>
 <span class="n">pkg</span> <span class="n">update</span>
 <span class="n">pkg</span> <span class="n">upgrade</span>
@@ -491,7 +531,7 @@ and a few extra commands are required.</p>
 <span class="n">pkg</span> <span class="n">install</span> <span class="n">python</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">openssl</span> <span class="n">libffi</span> <span class="n">rust</span>
 
 <span class="c1"># Make sure pip is up to date, and install the wheel module.</span>
-<span class="n">pip3</span> <span class="n">install</span> <span class="n">wheel</span> <span class="n">pip</span> <span class="o">--</span><span class="n">upgrade</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">wheel</span> <span class="n">pip</span> <span class="o">--</span><span class="n">upgrade</span>
 
 <span class="c1"># To allow the installer to build the cryptography module,</span>
 <span class="c1"># we need to let it know what platform we are compiling for:</span>
@@ -500,11 +540,11 @@ and a few extra commands are required.</p>
 <span class="c1"># Start the install process for the cryptography module.</span>
 <span class="c1"># Depending on your device, this can take several minutes,</span>
 <span class="c1"># since the module must be compiled locally on your device.</span>
-<span class="n">pip3</span> <span class="n">install</span> <span class="n">cryptography</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">cryptography</span>
 
 <span class="c1"># If the above installation succeeds, you can now install</span>
 <span class="c1"># Reticulum and any related software</span>
-<span class="n">pip3</span> <span class="n">install</span> <span class="n">rns</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
 </pre></div>
 </div>
 <p>It is also possible to include Reticulum in apps compiled and distributed as
@@ -591,6 +631,7 @@ section of this manual.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Getting Started Fast</a><ul>
+<li><a class="reference internal" href="#standalone-reticulum-installation">Standalone Reticulum Installation</a></li>
 <li><a class="reference internal" href="#try-using-a-reticulum-based-program">Try Using a Reticulum-based Program</a><ul>
 <li><a class="reference internal" href="#nomad-network">Nomad Network</a></li>
 <li><a class="reference internal" href="#sideband">Sideband</a></li>
@@ -604,6 +645,7 @@ section of this manual.</p>
 <li><a class="reference internal" href="#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
 <li><a class="reference internal" href="#participate-in-reticulum-development">Participate in Reticulum Development</a></li>
 <li><a class="reference internal" href="#reticulum-on-arm64">Reticulum on ARM64</a></li>
+<li><a class="reference internal" href="#reticulum-on-raspberry-pi">Reticulum on Raspberry Pi</a></li>
 <li><a class="reference internal" href="#reticulum-on-android">Reticulum on Android</a></li>
 <li><a class="reference internal" href="#pure-python-reticulum">Pure-Python Reticulum</a></li>
 </ul>

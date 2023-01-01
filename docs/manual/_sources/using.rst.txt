@@ -5,7 +5,9 @@ Using Reticulum on Your System
 ******************************
 
 Reticulum is not installed as a driver or kernel module, as one might expect
-of a networking stack. Instead, Reticulum is distributed as a Python module.
+of a networking stack. Instead, Reticulum is distributed as a Python module, 
+containing the networking core, and a set of utility and daemon programs.
+
 This means that no special privileges are required to install or use it. It
 is also very light-weight, and easy to transfer to, and install on new systems.
 
@@ -16,8 +18,8 @@ already running.
 In many cases, this approach is sufficient. When any program needs to use
 Reticulum, it is loaded, initialised, interfaces are brought up, and the
 program can now communicate over any Reticulum networks available. If another
-program starts up and also wants access to the same Reticulum network, the
-instance is simply shared. This works for any number of programs running
+program starts up and also wants access to the same Reticulum network, the already
+running instance is simply shared. This works for any number of programs running
 concurrently, and is very easy to use, but depending on your use case, there
 are other options.
 
@@ -424,6 +426,48 @@ You can specify as many allowed senders as needed, or completely disable authent
     --stderr STDERR       max size in bytes of returned stderr
     --version             show program's version number and exit
 
+
+The rnodeconf Utility
+=====================
+
+The ``rnodeconf`` utility allows you to inspect and configure existing :ref:`RNodes<rnode-main>`, and
+to create and provision new :ref:`RNodes<rnode-main>` from any supported hardware devices.
+
+.. code:: text
+
+  usage: rnodeconf [-h] [-i] [-a] [-u] [-U] [--fw-version version] [--nocheck] [-C] [-N] [-T] [-b] [-B] [-p] [--freq Hz] [--bw Hz] [--txp dBm] [--sf factor] [--cr rate] [--eeprom-backup] [--eeprom-dump] [--eeprom-wipe] [--version] [port]
+
+  RNode Configuration and firmware utility. This program allows you to change various settings and startup modes of RNode. It can also install, flash and update the firmware on supported devices.
+
+  positional arguments:
+    port                  serial port where RNode is attached
+
+  options:
+    -h, --help            show this help message and exit
+    -i, --info            Show device info
+    -a, --autoinstall     Automatic installation on various supported devices
+    -u, --update          Update firmware to the latest version
+    -U, --force-update    Update to specified firmware even if version matches or is older than installed version
+    --fw-version version  Use a specific firmware version for update or autoinstall
+    --nocheck             Don't check for firmware updates online
+    -C, --clear-cache     Clear locally cached firmware files
+    -N, --normal          Switch device to normal mode
+    -T, --tnc             Switch device to TNC mode
+    -b, --bluetooth-on    Turn device bluetooth on
+    -B, --bluetooth-off   Turn device bluetooth off
+    -p, --bluetooth-pair  Put device into bluetooth pairing mode
+    --freq Hz             Frequency in Hz for TNC mode
+    --bw Hz               Bandwidth in Hz for TNC mode
+    --txp dBm             TX power in dBm for TNC mode
+    --sf factor           Spreading factor for TNC mode (7 - 12)
+    --cr rate             Coding rate for TNC mode (5 - 8)
+    --eeprom-backup       Backup EEPROM to file
+    --eeprom-dump         Dump EEPROM to console
+    --eeprom-wipe         Unlock and wipe EEPROM
+    --version             Print program version and exit
+
+For more information on how to create your own RNodes, please read the :ref:`Creating RNodes<rnode-creating>`
+section of this manual.
 
 Improving System Configuration
 ------------------------------

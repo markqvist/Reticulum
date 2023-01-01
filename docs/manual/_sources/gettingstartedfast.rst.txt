@@ -7,16 +7,35 @@ you want to do. This guide will outline sensible starting paths for different
 scenarios.
 
 
+Standalone Reticulum Installation
+=============================================
+If you simply want to install Reticulum and related utilities on a system,
+the easiest way is via ``pip``:
+
+.. code::
+
+   pip install rns
+
+If you no not already have pip installed, you can install it using the package manager
+of your system with a command like ``sudo apt install python3-pip``,
+``sudo pamac install python-pip`` or similar. You can also dowload the Reticulum release
+wheels from GitHub, or other release channels, and install them offline using ``pip``:
+
+.. code::
+
+   pip install ./rns-0.4.6-py3-none-any.whl
+
+
 Try Using a Reticulum-based Program
 =============================================
 
 If you simply want to try using a program built with Reticulum, a few different
-programs exist that allow basic communication and a range of other useful functions
-over even extremely low-bandwidth Reticulum networks.
+programs exist that allow basic communication and a range of other useful functions,
+even over extremely low-bandwidth Reticulum networks.
 
 These programs will let you get a feel for how Reticulum works. They have been designed
-to run well over networks based on LoRa or packet radio, but can also be used completely
-over local WiFi, wired Ethernet, the Internet, or any combination.
+to run well over networks based on LoRa or packet radio, but can also be used over fast
+links, such as local WiFi, wired Ethernet, the Internet, or any combination.
 
 As such, it is easy to get started experimenting, without having to set up any radio
 transceivers or infrastructure just to try it out. Launching the programs on separate
@@ -44,7 +63,7 @@ You can install Nomad Network via pip:
 .. code::
 
    # Install ...
-   pip3 install nomadnet
+   pip install nomadnet
 
    # ... and run
    nomadnet
@@ -61,12 +80,14 @@ If you would rather use a program with a graphical user interface, you can take
 a look at `Sideband <https://unsigned.io/sideband>`_, which is available for Android,
 Linux and macOS.
 
-.. image:: screenshots/sideband_1.png
+.. image:: screenshots/sideband_devices.webp
     :align: center
-    :target: _images/sideband_1.png
+    :target: _images/sideband_devices.webp
 
-Sideband is currently in the early stages of development, but already provides basic
-communication features, and interoperates with Nomad Network, or any other LXMF client.
+Sideband allows you to communicate with other people or LXMF-compatible
+systems over Reticulum networks using LoRa, Packet Radio, WiFi, I2P, Encrypted QR
+Paper Messages, or anything else Reticulum supports. It also interoperates with
+the Nomad Network program.
 
 Using the Included Utilities
 =============================================
@@ -272,7 +293,7 @@ don't use pip, but try this recipe:
 
     # Run the example in client mode to "ping" the server.
     # Replace the hash below with the actual destination hash of your server.
-    python3 Examples/Echo.py 3e12fc71692f8ec47bc5
+    python3 Examples/Echo.py 174a64852a75682259ad8b921b8bf416
 
     # Have a look at another example
     python3 Examples/Filetransfer.py -h
@@ -287,7 +308,7 @@ or ask one of the developers or maintainers for a good place to start.
 Reticulum on ARM64
 ==============================================
 On some architectures, including ARM64, not all dependencies have precompiled
-binaries. On such systems, you will need to install ``python3-dev`` before
+binaries. On such systems, you may need to install ``python3-dev`` before
 installing Reticulum or programs that depend on Reticulum.
 
 .. code::
@@ -299,6 +320,12 @@ installing Reticulum or programs that depend on Reticulum.
    # Install Reticulum
    python3 -m pip install rns
 
+
+Reticulum on Raspberry Pi
+==============================================
+It is currently recommended to use a 64-bit version of the Raspberry Pi OS
+if you want to run Reticulum on Raspberry Pi computers, since 32-bit versions
+don't always have packages available for some dependencies.
 
 Reticulum on Android
 ==============================================
@@ -313,11 +340,30 @@ Termux is a terminal emulator and Linux environment for Android based devices,
 which includes the ability to use many different programs and libraries,
 including Reticulum.
 
-Since the Python cryptography.io module does not offer pre-built wheels for
-Android, the standard one-line install of Reticulum does not work on Android,
-and a few extra commands are required.
+To use Reticulum within the Termux environment, you will need to install
+``python`` and the ``python-cryptography`` library using ``pkg``, the package-manager
+build into Termux. After that, you can use ``pip`` to install Reticulum.
 
 From within Termux, execute the following:
+
+.. code::
+
+    # First, make sure indexes and packages are up to date.
+    pkg update
+    pkg upgrade
+
+    # Then install python and the cryptography library.
+    pkg install python python-cryptography
+
+    # Make sure pip is up to date, and install the wheel module.
+    pip install wheel pip --upgrade
+
+    # Install Reticulum
+    pip install rns
+
+If for some reason the ``python-cryptography`` package is not available for
+your platform via the Termux package manager, you can attempt to build it
+locally on your device using the following command:
 
 .. code::
 
@@ -329,7 +375,7 @@ From within Termux, execute the following:
     pkg install python build-essential openssl libffi rust
 
     # Make sure pip is up to date, and install the wheel module.
-    pip3 install wheel pip --upgrade
+    pip install wheel pip --upgrade
 
     # To allow the installer to build the cryptography module,
     # we need to let it know what platform we are compiling for:
@@ -338,11 +384,11 @@ From within Termux, execute the following:
     # Start the install process for the cryptography module.
     # Depending on your device, this can take several minutes,
     # since the module must be compiled locally on your device.
-    pip3 install cryptography
+    pip install cryptography
 
     # If the above installation succeeds, you can now install
     # Reticulum and any related software
-    pip3 install rns
+    pip install rns
 
 It is also possible to include Reticulum in apps compiled and distributed as
 Android APKs. A detailed tutorial and example source code will be included

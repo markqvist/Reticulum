@@ -224,8 +224,9 @@
           <section id="using-reticulum-on-your-system">
 <span id="using-main"></span><h1>Using Reticulum on Your System<a class="headerlink" href="#using-reticulum-on-your-system" title="Permalink to this heading">#</a></h1>
 <p>Reticulum is not installed as a driver or kernel module, as one might expect
-of a networking stack. Instead, Reticulum is distributed as a Python module.
-This means that no special privileges are required to install or use it. It
+of a networking stack. Instead, Reticulum is distributed as a Python module,
+containing the networking core, and a set of utility and daemon programs.</p>
+<p>This means that no special privileges are required to install or use it. It
 is also very light-weight, and easy to transfer to, and install on new systems.</p>
 <p>When you have Reticulum installed, any program or application that uses Reticulum
 will automatically load and initialise Reticulum when it starts, if it is not
@@ -233,8 +234,8 @@ already running.</p>
 <p>In many cases, this approach is sufficient. When any program needs to use
 Reticulum, it is loaded, initialised, interfaces are brought up, and the
 program can now communicate over any Reticulum networks available. If another
-program starts up and also wants access to the same Reticulum network, the
-instance is simply shared. This works for any number of programs running
+program starts up and also wants access to the same Reticulum network, the already
+running instance is simply shared. This works for any number of programs running
 concurrently, and is very easy to use, but depending on your use case, there
 are other options.</p>
 <section id="configuration-data">
@@ -605,6 +606,45 @@ optional arguments:
 </pre></div>
 </div>
 </section>
+<section id="the-rnodeconf-utility">
+<h3>The rnodeconf Utility<a class="headerlink" href="#the-rnodeconf-utility" title="Permalink to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">rnodeconf</span></code> utility allows you to inspect and configure existing <a class="reference internal" href="hardware.html#rnode-main"><span class="std std-ref">RNodes</span></a>, and
+to create and provision new <a class="reference internal" href="hardware.html#rnode-main"><span class="std std-ref">RNodes</span></a> from any supported hardware devices.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnodeconf [-h] [-i] [-a] [-u] [-U] [--fw-version version] [--nocheck] [-C] [-N] [-T] [-b] [-B] [-p] [--freq Hz] [--bw Hz] [--txp dBm] [--sf factor] [--cr rate] [--eeprom-backup] [--eeprom-dump] [--eeprom-wipe] [--version] [port]
+
+RNode Configuration and firmware utility. This program allows you to change various settings and startup modes of RNode. It can also install, flash and update the firmware on supported devices.
+
+positional arguments:
+  port                  serial port where RNode is attached
+
+options:
+  -h, --help            show this help message and exit
+  -i, --info            Show device info
+  -a, --autoinstall     Automatic installation on various supported devices
+  -u, --update          Update firmware to the latest version
+  -U, --force-update    Update to specified firmware even if version matches or is older than installed version
+  --fw-version version  Use a specific firmware version for update or autoinstall
+  --nocheck             Don&#39;t check for firmware updates online
+  -C, --clear-cache     Clear locally cached firmware files
+  -N, --normal          Switch device to normal mode
+  -T, --tnc             Switch device to TNC mode
+  -b, --bluetooth-on    Turn device bluetooth on
+  -B, --bluetooth-off   Turn device bluetooth off
+  -p, --bluetooth-pair  Put device into bluetooth pairing mode
+  --freq Hz             Frequency in Hz for TNC mode
+  --bw Hz               Bandwidth in Hz for TNC mode
+  --txp dBm             TX power in dBm for TNC mode
+  --sf factor           Spreading factor for TNC mode (7 - 12)
+  --cr rate             Coding rate for TNC mode (5 - 8)
+  --eeprom-backup       Backup EEPROM to file
+  --eeprom-dump         Dump EEPROM to console
+  --eeprom-wipe         Unlock and wipe EEPROM
+  --version             Print program version and exit
+</pre></div>
+</div>
+<p>For more information on how to create your own RNodes, please read the <a class="reference internal" href="hardware.html#rnode-creating"><span class="std std-ref">Creating RNodes</span></a>
+section of this manual.</p>
+</section>
 </section>
 <section id="improving-system-configuration">
 <h2>Improving System Configuration<a class="headerlink" href="#improving-system-configuration" title="Permalink to this heading">#</a></h2>
@@ -751,6 +791,7 @@ WantedBy=multi-user.target
 <li><a class="reference internal" href="#the-rnprobe-utility">The rnprobe Utility</a></li>
 <li><a class="reference internal" href="#the-rncp-utility">The rncp Utility</a></li>
 <li><a class="reference internal" href="#the-rnx-utility">The rnx Utility</a></li>
+<li><a class="reference internal" href="#the-rnodeconf-utility">The rnodeconf Utility</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#improving-system-configuration">Improving System Configuration</a><ul>

@@ -166,7 +166,7 @@ then install Reticulum with with ``pip``:
 
 .. code::
 
-   pip3 install rns
+   pip install rns
 
 Once installation has completed, it is time to start installing the firmware on your
 devices. Run ``rnodeconf`` in auto-install mode like so:
