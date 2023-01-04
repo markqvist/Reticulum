@@ -83,7 +83,7 @@ These efforts aim to expand and improve the core functionality and reliability o
 - Network-wide path balancing
 - Distributed Destination Naming System
 - Globally routable multicast
-- Destination proxying: Create a new random destination, and sign it with the original destination to create verifiable ephemeral destinations. This could actually be a very powerful feature for aggregating routes in the network, and it retains destination owners control over how they are routed
+- Destination proxying
 - [Metric-based path selection and multiple paths](https://github.com/markqvist/Reticulum/discussions/86)
 
 ### Usability & Utility
