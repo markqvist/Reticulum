@@ -80,9 +80,17 @@ If you would rather use a program with a graphical user interface, you can take
 a look at `Sideband <https://unsigned.io/sideband>`_, which is available for Android,
 Linux and macOS.
 
-.. image:: screenshots/sideband_devices.webp
-    :align: center
-    :target: _images/sideband_devices.webp
+.. only:: html
+
+  .. image:: screenshots/sideband_devices.webp
+      :align: center
+      :target: _images/sideband_devices.webp
+
+.. only:: latexpdf
+
+  .. image:: screenshots/sideband_devices.png
+      :align: center
+      :target: _images/sideband_devices.png
 
 Sideband allows you to communicate with other people or LXMF-compatible
 systems over Reticulum networks using LoRa, Packet Radio, WiFi, I2P, Encrypted QR
