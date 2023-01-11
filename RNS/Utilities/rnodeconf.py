@@ -1053,9 +1053,12 @@ def main():
             from cryptography.hazmat.primitives.asymmetric import padding
 
         if args.autoinstall:
-            print("\nHello!\n\nThis guide will help you install the RNode firmware on supported")
-            print("and homebrew devices. Please connect the device you wish to set\nup now. Hit enter when it is connected.")
-            input()
+            clear = lambda: os.system('clear')
+            clear()
+            if not args.port:
+                print("\nHello!\n\nThis guide will help you install the RNode firmware on supported")
+                print("and homebrew devices. Please connect the device you wish to set\nup now. Hit enter when it is connected.")
+                input()
 
             global squashvw
             squashvw = True
@@ -1073,7 +1076,7 @@ def main():
                     print("  ["+str(pi)+"] "+str(port.device)+" ("+str(port.product)+", "+str(port.serial_number)+")")
                     pi += 1
 
-                print("\nEnter the number of the serial port your device is connected to: ", end="")
+                print("\nEnter the number of the serial port your device is connected to:\n? ", end="")
                 try:
                     c_port = int(input())
                     if c_port < 1 or c_port > len(ports):
@@ -1092,6 +1095,7 @@ def main():
                 port_product = selected_port.product
                 port_serialno = selected_port.serial_number
 
+                clear()
                 print("\nOk, using device on "+str(port_path)+" ("+str(port_product)+", "+str(port_serialno)+")")
 
             else:
@@ -1137,6 +1141,8 @@ def main():
                 print("wipe the current EEPROM. See the help for more info.\n\nExiting now.")
                 exit()
 
+            print("\n---------------------------------------------------------------------------")
+            print("                               Device Selection")
             if rnode.detected:
                 print("\nThe device seems to have an RNode firmware installed, but it was not")
                 print("provisioned correctly, or it is corrupt. We are going to reinstall the")
@@ -1144,14 +1150,28 @@ def main():
             else:
                 print("\nIt looks like this is a fresh device with no RNode firmware.")
                 
+            print("")
             print("What kind of device is this?\n")
-            print("[1] RNode from Unsigned.io")
+            print("[1] A specific kind of RNode")
+            print("       .")
+            print("      / \\   Select this option if you have an RNode of a specific")
+            print("       |    type, built from a recipe or bought from a vendor.")
+            print("")
             print("[2] Homebrew RNode")
-            print("[3] LilyGO T-Beam")
-            print("[4] LilyGO LoRa32 v2.0")
-            print("[5] LilyGO LoRa32 v2.1")
+            print("       .")
+            print("      / \\   Select this option if you have put toghether an RNode")
+            print("       |    of your own design, or if you are prototyping one.")
+            print("")
+            print("[3] LilyGO LoRa32 v2.1 (aka T3 v1.6.1)")
+            print("[4] LilyGO LoRa32 v2.0 (aka T3 v1.6)")
+            print("[5] LilyGO T-Beam")
             print("[6] Heltec LoRa32 v2")
-            print("\n? ", end="")
+            print("       .")
+            print("      / \\   Select one of these options if you want to easily turn")
+            print("       |    a supported development board into an RNode.")
+            print("")
+            print("---------------------------------------------------------------------------")
+            print("\nEnter the number that matches your device type:\n? ", end="")
 
             selected_product = None
             try:
@@ -1162,18 +1182,32 @@ def main():
                     selected_product = ROM.PRODUCT_RNODE
                 elif c_dev == 2:
                     selected_product = ROM.PRODUCT_HMBRW
+                    clear()
                     print("")
                     print("---------------------------------------------------------------------------")
+                    print("                        Homebrew RNode Installer")
+                    print("")
+                    print("This option allows you to install and provision the RNode firmware on a")
+                    print("custom board design, or a custom device created by coupling a generic")
+                    print("development board with a supported transceiver module.")
+                    print("")
                     print("Important! Using RNode firmware on homebrew devices should currently be")
                     print("considered experimental. It is not intended for production or critical use.")
                     print("The currently supplied firmware is provided AS-IS as a courtesey to those")
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 3:
+                elif c_dev == 5:
                     selected_product = ROM.PRODUCT_TBEAM
+                    clear()
                     print("")
                     print("---------------------------------------------------------------------------")
+                    print("                          T-Beam RNode Installer")
+                    print("")
+                    print("The RNode firmware can currently be installed on T-Beam devices using the")
+                    print("SX1276 and SX1278 transceiver chips. Support for devices with the newer")
+                    print("SX1262 and SX1268 chips is in development.")
+                    print("")
                     print("Important! Using RNode firmware on T-Beam devices should currently be")
                     print("considered experimental. It is not intended for production or critical use.")
                     print("The currently supplied firmware is provided AS-IS as a courtesey to those")
@@ -1182,18 +1216,24 @@ def main():
                     input()
                 elif c_dev == 4:
                     selected_product = ROM.PRODUCT_T32_20
+                    clear()
                     print("")
                     print("---------------------------------------------------------------------------")
+                    print("                     LilyGO LoRa32 v2.0 RNode Installer")
+                    print("")
                     print("Important! Using RNode firmware on LoRa32 devices should currently be")
                     print("considered experimental. It is not intended for production or critical use.")
                     print("The currently supplied firmware is provided AS-IS as a courtesey to those")
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 5:
+                elif c_dev == 3:
                     selected_product = ROM.PRODUCT_T32_21
+                    clear()
                     print("")
                     print("---------------------------------------------------------------------------")
+                    print("                     LilyGO LoRa32 v2.1 RNode Installer")
+                    print("")
                     print("Important! Using RNode firmware on LoRa32 devices should currently be")
                     print("considered experimental. It is not intended for production or critical use.")
                     print("The currently supplied firmware is provided AS-IS as a courtesey to those")
@@ -1202,8 +1242,11 @@ def main():
                     input()
                 elif c_dev == 6:
                     selected_product = ROM.PRODUCT_H32_V2
+                    clear()
                     print("")
                     print("---------------------------------------------------------------------------")
+                    print("                     Heltec LoRa32 v2.0 RNode Installer")
+                    print("")
                     print("Important! Using RNode firmware on Heltec devices should currently be")
                     print("considered experimental. It is not intended for production or critical use.")
                     print("")
@@ -1269,39 +1312,39 @@ def main():
             elif selected_product == ROM.PRODUCT_RNODE:
                 selected_mcu = ROM.MCU_1284P
                 print("\nWhat model is this RNode?\n")
-                print("[1] Original v1.x RNode, 410 - 525 MHz")
-                print("[2] Original v1.x RNode, 820 - 1020 MHz")
-                print("[3] Prototype v2 RNode, 410 - 525 MHz")
-                print("[4] Prototype v2 RNode, 820 - 1020 MHz")
-                print("[5] RNode v2.x, 410 - 525 MHz")
-                print("[6] RNode v2.x, 820 - 1020 MHz")
+                print("[1] Handheld v2.x RNode, 410 - 525 MHz")
+                print("[2] Handheld v2.x RNode, 820 - 1020 MHz")
+                print("[3] Original v1.x RNode, 410 - 525 MHz")
+                print("[4] Original v1.x RNode, 820 - 1020 MHz")
+                # print("[5] Prototype v2 RNode, 410 - 525 MHz")
+                # print("[6] Prototype v2 RNode, 820 - 1020 MHz")
                 print("\n? ", end="")
                 try:
                     c_model = int(input())
                     if c_model < 1 or c_model > 6:
                         raise ValueError()
-                    elif c_model == 1:
+                    elif c_model == 3:
                         selected_model = ROM.MODEL_A4
                         selected_platform = ROM.PLATFORM_AVR
-                    elif c_model == 2:
+                    elif c_model == 4:
                         selected_model = ROM.MODEL_A9
                         selected_platform = ROM.PLATFORM_AVR
-                    elif c_model == 3:
-                        selected_model = ROM.MODEL_A3
-                        selected_mcu = ROM.MCU_ESP32
-                        selected_platform = ROM.PLATFORM_ESP32
-                    elif c_model == 4:
-                        selected_model = ROM.MODEL_A8
-                        selected_mcu = ROM.MCU_ESP32
-                        selected_platform = ROM.PLATFORM_ESP32
-                    elif c_model == 5:
+                    elif c_model == 1:
                         selected_model = ROM.MODEL_A2
                         selected_mcu = ROM.MCU_ESP32
                         selected_platform = ROM.PLATFORM_ESP32
-                    elif c_model == 6:
+                    elif c_model == 2:
                         selected_model = ROM.MODEL_A7
                         selected_mcu = ROM.MCU_ESP32
                         selected_platform = ROM.PLATFORM_ESP32
+                    # elif c_model == 5:
+                    #     selected_model = ROM.MODEL_A3
+                    #     selected_mcu = ROM.MCU_ESP32
+                    #     selected_platform = ROM.PLATFORM_ESP32
+                    # elif c_model == 6:
+                    #     selected_model = ROM.MODEL_A8
+                    #     selected_mcu = ROM.MCU_ESP32
+                    #     selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
                     print("That model does not exist, exiting now.")
                     exit()
@@ -1432,15 +1475,23 @@ def main():
                 print("")
                 exit()
 
-            print("\nOk, that should be all the information we need. Please confirm the following")
+            clear()
+            print("")
+            print("------------------------------------------------------------------------------")
+            print("                               Installer Ready")
+            print("")
+            print("Ok, that should be all the information we need. Please confirm the following")
             print("summary before proceeding. In the next step, the device will be flashed and")
-            print("provisioned, so make that you are satisfied with your choices.\n")
+            print("provisioned, so make sure that you are satisfied with your choices.\n")
 
             print("Serial port     : "+str(selected_port.device))
             print("Device type     : "+str(products[selected_product])+" "+str(models[selected_model][3]))
             print("Platform        : "+str(platforms[selected_platform]))
             print("Device MCU      : "+str(mcus[selected_mcu]))
             print("Firmware file   : "+str(fw_filename))
+
+            print("")
+            print("------------------------------------------------------------------------------")
 
             print("\nIs the above correct? [y/N] ", end="")
             try:
