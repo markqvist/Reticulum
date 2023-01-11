@@ -898,7 +898,7 @@ def ensure_firmware_file(fw_filename):
                         RNS.log("No release hash found for "+fw_filename+". The firmware integrity could not be verified.")
                         exit(97)
 
-                RNS.log("Veryfying firmware integrity...")
+                RNS.log("Verifying firmware integrity...")
                 fw_file = open(UPD_DIR+"/"+selected_version+"/"+fw_filename, "rb")
                 expected_hash = bytes.fromhex(selected_hash)
                 file_hash = hashlib.sha256(fw_file.read()).hexdigest()
@@ -1670,144 +1670,297 @@ def main():
                     RNS.log("Please install \""+flasher+"\" and try again.")
                     exit()
             elif platform == ROM.PLATFORM_ESP32:
+                numeric_version = float(selected_version)
                 flasher = UPD_DIR+"/"+selected_version+"/esptool.py"
                 if which(flasher) is not None:
                     if fw_filename == "rnode_firmware_tbeam.zip":
-                        return [
-                            flasher,
-                            "--chip", "esp32",
-                            "--port", args.port,
-                            "--baud", "921600",
-                            "--before", "default_reset",
-                            "--after", "hard_reset",
-                            "write_flash", "-z",
-                            "--flash_mode", "dio",
-                            "--flash_freq", "80m",
-                            "--flash_size", "4MB",
-                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.boot_app0",
-                            "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bootloader",
-                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bin",
-                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.partitions",
-                        ]
+                        if numeric_version >= 1.55:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.partitions",
+                            ]
+                        else:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.partitions",
+                            ]
                     elif fw_filename == "rnode_firmware_lora32v20.zip":
-                        return [
-                            flasher,
-                            "--chip", "esp32",
-                            "--port", args.port,
-                            "--baud", "921600",
-                            "--before", "default_reset",
-                            "--after", "hard_reset",
-                            "write_flash", "-z",
-                            "--flash_mode", "dio",
-                            "--flash_freq", "80m",
-                            "--flash_size", "4MB",
-                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.boot_app0",
-                            "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.bootloader",
-                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.bin",
-                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.partitions",
-                        ]
+                        if numeric_version >= 1.55:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.partitions",
+                            ]
+                        else:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.partitions",
+                            ]
                     elif fw_filename == "rnode_firmware_lora32v21.zip":
-                        return [
-                            flasher,
-                            "--chip", "esp32",
-                            "--port", args.port,
-                            "--baud", "921600",
-                            "--before", "default_reset",
-                            "--after", "hard_reset",
-                            "write_flash", "-z",
-                            "--flash_mode", "dio",
-                            "--flash_freq", "80m",
-                            "--flash_size", "4MB",
-                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.boot_app0",
-                            "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.bootloader",
-                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.bin",
-                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.partitions",
-                        ]
+                        if numeric_version >= 1.55:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.partitions",
+                            ]
+                        else:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.partitions",
+                            ]
                     elif fw_filename == "rnode_firmware_heltec32v2.zip":
-                        return [
-                            flasher,
-                            "--chip", "esp32",
-                            "--port", args.port,
-                            "--baud", "921600",
-                            "--before", "default_reset",
-                            "--after", "hard_reset",
-                            "write_flash", "-z",
-                            "--flash_mode", "dio",
-                            "--flash_freq", "80m",
-                            "--flash_size", "8MB",
-                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.boot_app0",
-                            "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.bootloader",
-                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.bin",
-                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.partitions",
-                        ]
+                        if numeric_version >= 1.55:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "8MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.partitions",
+                            ]
+                        else:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "8MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.partitions",
+                            ]
                     elif fw_filename == "rnode_firmware_featheresp32.zip":
-                        return [
-                            flasher,
-                            "--chip", "esp32",
-                            "--port", args.port,
-                            "--baud", "921600",
-                            "--before", "default_reset",
-                            "--after", "hard_reset",
-                            "write_flash", "-z",
-                            "--flash_mode", "dio",
-                            "--flash_freq", "80m",
-                            "--flash_size", "4MB",
-                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.boot_app0",
-                            "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.bootloader",
-                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.bin",
-                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.partitions",
-                        ]
+                        if numeric_version >= 1.55:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.partitions",
+                            ]
+                        else:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.partitions",
+                            ]
                     elif fw_filename == "rnode_firmware_esp32_generic.zip":
-                        return [
-                            flasher,
-                            "--chip", "esp32",
-                            "--port", args.port,
-                            "--baud", "921600",
-                            "--before", "default_reset",
-                            "--after", "hard_reset",
-                            "write_flash", "-z",
-                            "--flash_mode", "dio",
-                            "--flash_freq", "80m",
-                            "--flash_size", "4MB",
-                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.boot_app0",
-                            "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.bootloader",
-                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.bin",
-                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.partitions",
-                        ]
+                        if numeric_version >= 1.55:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.partitions",
+                            ]
+                        else:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.partitions",
+                            ]
                     elif fw_filename == "rnode_firmware_ng20.zip":
-                        return [
-                            flasher,
-                            "--chip", "esp32",
-                            "--port", args.port,
-                            "--baud", "921600",
-                            "--before", "default_reset",
-                            "--after", "hard_reset",
-                            "write_flash", "-z",
-                            "--flash_mode", "dio",
-                            "--flash_freq", "80m",
-                            "--flash_size", "4MB",
-                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.boot_app0",
-                            "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.bootloader",
-                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.bin",
-                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.partitions",
-                        ]
+                        if numeric_version >= 1.55:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.partitions",
+                            ]
+                        else:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.partitions",
+                            ]
                     elif fw_filename == "rnode_firmware_ng21.zip":
-                        return [
-                            flasher,
-                            "--chip", "esp32",
-                            "--port", args.port,
-                            "--baud", "921600",
-                            "--before", "default_reset",
-                            "--after", "hard_reset",
-                            "write_flash", "-z",
-                            "--flash_mode", "dio",
-                            "--flash_freq", "80m",
-                            "--flash_size", "4MB",
-                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.boot_app0",
-                            "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.bootloader",
-                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.bin",
-                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.partitions",
-                        ]
+                        if numeric_version >= 1.55:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.partitions",
+                            ]
+                        else:
+                            return [
+                                flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.partitions",
+                            ]
                     else:
                         RNS.log("No flasher available for this board, cannot install firmware.")
                 else:
@@ -1932,8 +2085,10 @@ def main():
 
                 try:
                     RNS.log("Checking firmware file availability...")
+                    fw_file_ensured = False
                     if selected_version == None:
                         ensure_firmware_file(fw_filename)
+                        fw_file_ensured = True
 
                     if not force_update:
                         if rnode.version == selected_version:
@@ -1956,7 +2111,7 @@ def main():
                                 RNS.log("Override with -U option to install anyway")
                                 exit(0)
 
-                    if selected_version != None:
+                    if not fw_file_ensured and selected_version != None:
                         ensure_firmware_file(fw_filename)
 
                     if fw_filename.endswith(".zip"):
