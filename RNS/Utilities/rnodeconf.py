@@ -1689,7 +1689,7 @@ def main():
                                 "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.boot_app0",
                                 "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bootloader",
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bin",
-                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.partitions",
                             ]
                         else:
@@ -1725,7 +1725,7 @@ def main():
                                 "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.boot_app0",
                                 "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.bootloader",
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.bin",
-                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.partitions",
                             ]
                         else:
@@ -1761,7 +1761,7 @@ def main():
                                 "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.boot_app0",
                                 "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.bootloader",
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.bin",
-                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.partitions",
                             ]
                         else:
@@ -1797,7 +1797,7 @@ def main():
                                 "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.boot_app0",
                                 "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.bootloader",
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.bin",
-                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.partitions",
                             ]
                         else:
@@ -1833,7 +1833,7 @@ def main():
                                 "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.boot_app0",
                                 "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.bootloader",
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.bin",
-                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_featheresp32.partitions",
                             ]
                         else:
@@ -1869,7 +1869,7 @@ def main():
                                 "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.boot_app0",
                                 "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.bootloader",
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.bin",
-                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_esp32_generic.partitions",
                             ]
                         else:
@@ -1905,7 +1905,7 @@ def main():
                                 "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.boot_app0",
                                 "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.bootloader",
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.bin",
-                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng20.partitions",
                             ]
                         else:
@@ -1941,7 +1941,7 @@ def main():
                                 "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.boot_app0",
                                 "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.bootloader",
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.bin",
-                                "0x210000",UPD_DIR+"/"+selected_version+"/spiffs.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.partitions",
                             ]
                         else:
