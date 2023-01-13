@@ -39,7 +39,7 @@ import RNS
 RNS.logtimefmt      = "%H:%M:%S"
 RNS.compact_log_fmt = True
 
-program_version = "2.0.0"
+program_version = "2.1.0"
 eth_addr = "0x81F7B979fEa6134bA9FD5c701b3501A2e61E897a"
 btc_addr = "3CPmacGm34qYvR6XWLVEJmi2aNe3PZqUuq"
 xmr_addr = "87HcDx6jRSkMQ9nPRd5K9hGGpZLn2s7vWETjMaVM5KfV4TD36NcYa8J8WSxhTSvBzzFpqDwp2fg5GX2moZ7VAP9QMZCZGET"
@@ -842,7 +842,7 @@ class RNode():
 
 selected_version = None
 selected_hash = None
-firmware_version_url = "https://unsigned.io/firmware/latest/?variant="
+firmware_version_url = "https://unsigned.io/firmware/latest/?v="+program_version+"&variant="
 def ensure_firmware_file(fw_filename):
     global selected_version, selected_hash, upd_nocheck
     try:
