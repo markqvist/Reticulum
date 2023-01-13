@@ -409,7 +409,8 @@ install one or more dependencies
 
 On more unusual systems, and in some rare cases, it might not be possible to
 install or even compile one or more of the above modules. In such situations,
-you can use the ``rnspure`` package instead of the ``rns`` package. The ``rnspure``
+you can use the ``rnspure`` package instead of the ``rns`` package, or use ``pip``
+with the ``--no-dependencies`` command-line option. The ``rnspure``
 package requires no external dependencies for installation. Please note that the
 actual contents of the ``rns`` and ``rnspure`` packages are *completely identical*.
 The only difference is that the ``rnspure`` package lists no dependencies required
