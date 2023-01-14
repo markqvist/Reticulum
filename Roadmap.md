@@ -8,7 +8,8 @@ This document outlines the currently established development roadmap for Reticul
     - [Functionality](#functionality)
     - [Usability & Utility](#usability--utility)
     - [Interfaceability](#interfaceability)
-3. [Release History](#release-history)
+3. [Auxillary Efforts](#auxillary-efforts)
+4. [Release History](#release-history)
 
 ## Currently Active Work Areas
 For each release cycle of Reticulum, improvements and additions from the five [Primary Efforts](#primary-efforts) are selected as active work areas, and can be expected to be included in the upcoming releases within that cycle. While not entirely set in stone for each release cycle, they serve as a pointer of what to expect in the near future.
@@ -118,6 +119,15 @@ These efforts aim to expand the types of physical and virtual interfaces that Re
 - MQTT
 - XBee
 - Tor
+
+## Auxillary Efforts
+The Reticulum ecosystem is enriched by several other software and hardware projects, and the support and improvement of these, in symbiosis with the core Reticulum project helps expand the reach and utility of Reticulum itself.
+
+This section lists, in no particular order, various important efforts that would be beneficial to the goals of Reticulum.
+
+- The [RNode](https://unsigned.io/rnode/) project
+    - [ ] Evolve RNode into a self-replicating system, so that anyone can use an existing RNode to create more RNodes, and bootstrap functional networks based on Reticulum, even in absence of the Internet.
+    - [ ] Create a WebUSB-based bootstrapping utility, and integrate this directly into the [RNode Bootstrap Console](#), both on-device, and on an Internet-reachable copy. This will make it much easier to create new RNodes for average users.
 
 ## Release History
 
