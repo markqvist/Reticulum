@@ -1,3 +1,19 @@
+### 2023-01-14: RNS β 0.4.7
+
+This maintenance release adds support for using the `rnodeconf` utility to replicate RNode devices, and bootstrap device creation using only tools and software packages obtained from an RNode Bootstrap Console.
+
+**Changes**
+- Added the ability to use rnodeconf to bootstrap RNode creation without needing a connection to the Internet
+- Added ability for rnodeconf to extract firmwares from existing RNodes
+- Added ability for rnodeconf to use extracted firmwares for autoinstaller and updates
+- Updated documentation and manual
+
+**Release Hashes**
+```
+7ea22be8f4cc9504d8a612c5589132351cc0c6b474899204afd71367ab3fb226 rns-0.4.7-py3-none-any.whl
+3dc337b80df37c247abc9cee06c3ecba0f908449005d0eb365c2a9577d689e57 rnspure-0.4.7-py3-none-any.whl
+```
+
 ### 2022-12-23: RNS β 0.4.6
 
 This maintenance release brings two bugfixes.
