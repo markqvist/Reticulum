@@ -867,86 +867,118 @@ selected_hash = None
 firmware_version_url = "https://unsigned.io/firmware/latest/?v="+program_version+"&variant="
 def ensure_firmware_file(fw_filename):
     global selected_version, selected_hash, upd_nocheck
-    try:
-        if selected_version == None:
-            if not upd_nocheck:
-                try:
-                    urlretrieve(firmware_version_url+fw_filename, UPD_DIR+"/"+fw_filename+".version.latest")
-                except Exception as e:
-                    RNS.log("Failed to retrive latest version information for your board.")
-                    RNS.log("Check your internet connection and try again.")
-                    RNS.log("If you don't have Internet access currently, use the --fw-version option to manually specify a version.")
-                    exit()
+    if fw_filename == "extracted_rnode_firmware.zip":
+        vfpath = EXT_DIR+"/extracted_rnode_firmware.version"
+        if os.path.isfile(vfpath):
+            required_files = [
+                "extracted_console_image.bin",
+                "extracted_rnode_firmware.bin",
+                "extracted_rnode_firmware.boot_app0",
+                "extracted_rnode_firmware.bootloader",
+                "extracted_rnode_firmware.partitions",
+            ]
+            parts_missing = False
+            for rf in required_files:
+                if not os.path.isfile(EXT_DIR+"/"+rf):
+                    parts_missing = True
 
-                import shutil
-                file = open(UPD_DIR+"/"+fw_filename+".version.latest", "rb")
-                release_info = file.read().decode("utf-8").strip()
-                selected_version = release_info.split()[0]
-                selected_hash = release_info.split()[1]
-                if not os.path.isdir(UPD_DIR+"/"+selected_version):
-                    os.makedirs(UPD_DIR+"/"+selected_version)
-                shutil.copy(UPD_DIR+"/"+fw_filename+".version.latest", UPD_DIR+"/"+selected_version+"/"+fw_filename+".version")
-                RNS.log("The latest firmware for this board is version "+selected_version)
+            if parts_missing:
+                RNS.log("One or more required firmware files are missing from the extracted RNode")
+                RNS.log("Firmware archive. Installation cannot continue. Please try extracting the")
+                RNS.log("firmware again with the --extract-firmware option.")
+                exit(184)
 
-            else:
-                RNS.log("Online firmware version check was disabled, but no firmware version specified for install.")
-                RNS.log("use the --fw-version option to manually specify a version.")
-                exit(98)
+            vf = open(vfpath, "rb")
+            release_info = vf.read().decode("utf-8").strip()
+            selected_version = release_info.split()[0]
+            selected_hash = release_info.split()[1]
+            RNS.log("Using existing firmware file: "+fw_filename+" for version "+selected_version)
+        else:
+            RNS.log("No extracted firmware is available, cannot continue.")
+            RNS.log("Extract a firmware from an existing RNode first, using the --extract-firmware option.")
+            exit(183)
 
-        update_target_url = firmware_update_url+selected_version+"/"+fw_filename
-
+    else:
         try:
-            if not os.path.isdir(UPD_DIR+"/"+selected_version):
-                os.makedirs(UPD_DIR+"/"+selected_version)
+            if selected_version == None:
+                if not upd_nocheck:
+                    try:
+                        urlretrieve(firmware_version_url+fw_filename, UPD_DIR+"/"+fw_filename+".version.latest")
+                    except Exception as e:
+                        RNS.log("Failed to retrive latest version information for your board.")
+                        RNS.log("Check your internet connection and try again.")
+                        RNS.log("If you don't have Internet access currently, use the --fw-version option to manually specify a version.")
+                        exit()
 
-            if not os.path.isfile(UPD_DIR+"/"+selected_version+"/"+fw_filename):
-                RNS.log("Downloading missing firmware file: "+fw_filename+" for version "+selected_version)
-                urlretrieve(update_target_url, UPD_DIR+"/"+selected_version+"/"+fw_filename)
-                RNS.log("Firmware file downloaded")
-            else:
-                RNS.log("Using existing firmware file: "+fw_filename+" for version "+selected_version)
+                    import shutil
+                    file = open(UPD_DIR+"/"+fw_filename+".version.latest", "rb")
+                    release_info = file.read().decode("utf-8").strip()
+                    selected_version = release_info.split()[0]
+                    selected_hash = release_info.split()[1]
+                    if not os.path.isdir(UPD_DIR+"/"+selected_version):
+                        os.makedirs(UPD_DIR+"/"+selected_version)
+                    shutil.copy(UPD_DIR+"/"+fw_filename+".version.latest", UPD_DIR+"/"+selected_version+"/"+fw_filename+".version")
+                    RNS.log("The latest firmware for this board is version "+selected_version)
+
+                else:
+                    RNS.log("Online firmware version check was disabled, but no firmware version specified for install.")
+                    RNS.log("use the --fw-version option to manually specify a version.")
+                    exit(98)
+
+            update_target_url = firmware_update_url+selected_version+"/"+fw_filename
 
             try:
-                if selected_hash == None:
-                    try:
-                        file = open(UPD_DIR+"/"+selected_version+"/"+fw_filename+".version", "rb")
-                        release_info = file.read().decode("utf-8").strip()
-                        selected_hash = release_info.split()[1]
-                    except Exception as e:
-                        RNS.log("Could not read locally cached release information.")
-                        RNS.log("You can clear the cache with the --clear-cache option and try again.")
+                if not os.path.isdir(UPD_DIR+"/"+selected_version):
+                    os.makedirs(UPD_DIR+"/"+selected_version)
 
-                    if selected_hash == None:
-                        RNS.log("No release hash found for "+fw_filename+". The firmware integrity could not be verified.")
-                        exit(97)
-
-                RNS.log("Verifying firmware integrity...")
-                fw_file = open(UPD_DIR+"/"+selected_version+"/"+fw_filename, "rb")
-                expected_hash = bytes.fromhex(selected_hash)
-                file_hash = hashlib.sha256(fw_file.read()).hexdigest()
-                if file_hash == selected_hash:
-                    pass
+                if not os.path.isfile(UPD_DIR+"/"+selected_version+"/"+fw_filename):
+                    RNS.log("Downloading missing firmware file: "+fw_filename+" for version "+selected_version)
+                    urlretrieve(update_target_url, UPD_DIR+"/"+selected_version+"/"+fw_filename)
+                    RNS.log("Firmware file downloaded")
                 else:
-                    RNS.log("")
-                    RNS.log("Firmware corrupt. Try clearing the local firmware cache with: rnodeconf --clear-cache")
-                    exit(96)
+                    RNS.log("Using existing firmware file: "+fw_filename+" for version "+selected_version)
+
+                try:
+                    if selected_hash == None:
+                        try:
+                            file = open(UPD_DIR+"/"+selected_version+"/"+fw_filename+".version", "rb")
+                            release_info = file.read().decode("utf-8").strip()
+                            selected_hash = release_info.split()[1]
+                        except Exception as e:
+                            RNS.log("Could not read locally cached release information.")
+                            RNS.log("You can clear the cache with the --clear-cache option and try again.")
+
+                        if selected_hash == None:
+                            RNS.log("No release hash found for "+fw_filename+". The firmware integrity could not be verified.")
+                            exit(97)
+
+                    RNS.log("Verifying firmware integrity...")
+                    fw_file = open(UPD_DIR+"/"+selected_version+"/"+fw_filename, "rb")
+                    expected_hash = bytes.fromhex(selected_hash)
+                    file_hash = hashlib.sha256(fw_file.read()).hexdigest()
+                    if file_hash == selected_hash:
+                        pass
+                    else:
+                        RNS.log("")
+                        RNS.log("Firmware corrupt. Try clearing the local firmware cache with: rnodeconf --clear-cache")
+                        exit(96)
+
+                except Exception as e:
+                    RNS.log("An error occurred while checking firmware file integrity. The contained exception was:")
+                    RNS.log(str(e))
+                    exit(95)
 
             except Exception as e:
-                RNS.log("An error occurred while checking firmware file integrity. The contained exception was:")
+                RNS.log("Could not download required firmware file: ")
+                RNS.log(str(update_target_url))
+                RNS.log("The contained exception was:")
                 RNS.log(str(e))
-                exit(95)
+                exit()
 
         except Exception as e:
-            RNS.log("Could not download required firmware file: ")
-            RNS.log(str(update_target_url))
-            RNS.log("The contained exception was:")
+            RNS.log("An error occurred while reading version information for "+str(fw_filename)+". The contained exception was:")
             RNS.log(str(e))
             exit()
-
-    except Exception as e:
-        RNS.log("An error occurred while reading version information for "+str(fw_filename)+". The contained exception was:")
-        RNS.log(str(e))
-        exit()
 
 def rnode_open_serial(port):
     import serial
@@ -1114,7 +1146,6 @@ def main():
                 port_product = selected_port.product
                 port_serialno = selected_port.serial_number
 
-                clear()
                 print("\nOk, using device on "+str(port_path)+" ("+str(port_product)+", "+str(port_serialno)+")")
 
             else:
@@ -1457,6 +1488,7 @@ def main():
                 print("\nWhat model is this RNode?\n")
                 print("[1] Handheld v2.x RNode, 410 - 525 MHz")
                 print("[2] Handheld v2.x RNode, 820 - 1020 MHz")
+                print("")
                 print("[3] Original v1.x RNode, 410 - 525 MHz")
                 print("[4] Original v1.x RNode, 820 - 1020 MHz")
                 # print("[5] Prototype v2 RNode, 410 - 525 MHz")
@@ -1617,6 +1649,9 @@ def main():
                 print_donation_block()
                 print("")
                 exit()
+
+            if args.use_extracted:
+                fw_filename = "extracted_rnode_firmware.zip"
 
             clear()
             print("")
@@ -2104,6 +2139,24 @@ def main():
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.partitions",
                             ]
+                    elif fw_filename == "extracted_rnode_firmware.zip":
+                        return [
+                            flasher,
+                            "--chip", "esp32",
+                            "--port", args.port,
+                            "--baud", "921600",
+                            "--before", "default_reset",
+                            "--after", "hard_reset",
+                            "write_flash", "-z",
+                            "--flash_mode", "dio",
+                            "--flash_freq", "80m",
+                            "--flash_size", "4MB",
+                            "0x1000",  EXT_DIR+"/extracted_rnode_firmware.bootloader",
+                            "0xe000",  EXT_DIR+"/extracted_rnode_firmware.boot_app0",
+                            "0x8000",  EXT_DIR+"/extracted_rnode_firmware.partitions",
+                            "0x10000", EXT_DIR+"/extracted_rnode_firmware.bin",
+                            "0x210000",EXT_DIR+"/extracted_console_image.bin",
+                        ]
                     else:
                         RNS.log("No flasher available for this board, cannot install firmware.")
                 else:
@@ -2132,18 +2185,8 @@ def main():
                     RNS.log("Missing parameters, cannot continue")
                     exit(68)
 
-                fw_src = UPD_DIR+"/"+selected_version+"/"
-                if os.path.isfile(fw_src+fw_filename):
+                if fw_filename == "extracted_rnode_firmware.zip":
                     try:
-                        if fw_filename.endswith(".zip"):
-                            RNS.log("Extracting firmware...")
-                            unzip_status = call(get_flasher_call("unzip", fw_filename))
-                            if unzip_status == 0:
-                                RNS.log("Firmware extracted")
-                            else:
-                                RNS.log("Could not extract firmware from downloaded zip file")
-                                exit()
-
                         RNS.log("Flashing RNode firmware to device on "+args.port)
                         from subprocess import call
                         rc = get_flasher_call(args.platform, fw_filename)
@@ -2162,9 +2205,41 @@ def main():
                         RNS.log("Error while flashing")
                         RNS.log(str(e))
                         exit(1)
+                
                 else:
-                    RNS.log("Firmware file not found")
-                    exit()
+                    fw_src = UPD_DIR+"/"+selected_version+"/"
+                    if os.path.isfile(fw_src+fw_filename):
+                        try:
+                            if fw_filename.endswith(".zip"):
+                                RNS.log("Extracting firmware...")
+                                unzip_status = call(get_flasher_call("unzip", fw_filename))
+                                if unzip_status == 0:
+                                    RNS.log("Firmware extracted")
+                                else:
+                                    RNS.log("Could not extract firmware from downloaded zip file")
+                                    exit()
+
+                            RNS.log("Flashing RNode firmware to device on "+args.port)
+                            from subprocess import call
+                            rc = get_flasher_call(args.platform, fw_filename)
+                            flash_status = call(rc)
+                            if flash_status == 0:
+                                RNS.log("Done flashing")
+                                args.rom = True
+                                if args.platform == ROM.PLATFORM_ESP32:
+                                    wants_fw_provision = True
+                                    RNS.log("Waiting for ESP32 reset...")
+                                    time.sleep(7)
+                            else:
+                                exit()
+
+                        except Exception as e:
+                            RNS.log("Error while flashing")
+                            RNS.log(str(e))
+                            exit(1)
+                    else:
+                        RNS.log("Firmware file not found")
+                        exit()
 
             RNS.log("Opening serial port "+args.port+"...")
             try:
@@ -2203,26 +2278,32 @@ def main():
                 if rnode.model != ROM.MODEL_FF:
                     fw_filename = models[rnode.model][4]
                 else:
-                    if rnode.platform == ROM.PLATFORM_AVR:
-                        if rnode.mcu == ROM.MCU_1284P:
-                            fw_filename = "rnode_firmware.hex"
-                        elif rnode.mcu == ROM.MCU_2560:
-                            fw_filename = "rnode_firmware_m2560.hex"
-                    elif rnode.platform == ROM.PLATFORM_ESP32:
-                        if rnode.board == ROM.BOARD_HUZZAH32:
-                            fw_filename = "rnode_firmware_featheresp32.zip"
-                        elif rnode.board == ROM.BOARD_GENERIC_ESP32:
-                            fw_filename = "rnode_firmware_esp32_generic.zip"
-                        else:
-                            fw_filename = None
-                            if args.update:
-                                RNS.log("ERROR: No firmware found for this board. Cannot update.")
-                                exit()
+                    if args.use_extracted:
+                        fw_filename = "extracted_rnode_firmware.zip"
+                    else:
+                        if rnode.platform == ROM.PLATFORM_AVR:
+                            if rnode.mcu == ROM.MCU_1284P:
+                                fw_filename = "rnode_firmware.hex"
+                            elif rnode.mcu == ROM.MCU_2560:
+                                fw_filename = "rnode_firmware_m2560.hex"
+                        elif rnode.platform == ROM.PLATFORM_ESP32:
+                            if rnode.board == ROM.BOARD_HUZZAH32:
+                                fw_filename = "rnode_firmware_featheresp32.zip"
+                            elif rnode.board == ROM.BOARD_GENERIC_ESP32:
+                                fw_filename = "rnode_firmware_esp32_generic.zip"
+                            else:
+                                fw_filename = None
+                                if args.update:
+                                    RNS.log("ERROR: No firmware found for this board. Cannot update.")
+                                    exit()
 
             if args.update:
                 if not rnode.provisioned:
                     RNS.log("Device not provisioned. Cannot update device firmware.")
                     exit(1)
+
+                if args.use_extracted:
+                    fw_filename = "extracted_rnode_firmware.zip"
 
                 from subprocess import call
 
@@ -2257,7 +2338,7 @@ def main():
                     if not fw_file_ensured and selected_version != None:
                         ensure_firmware_file(fw_filename)
 
-                    if fw_filename.endswith(".zip"):
+                    if fw_filename.endswith(".zip") and not fw_filename == "extracted_rnode_firmware.zip":
                         RNS.log("Extracting firmware...")
                         unzip_status = call(get_flasher_call("unzip", fw_filename))
                         if unzip_status == 0:
@@ -2271,12 +2352,22 @@ def main():
                     RNS.log("The contained exception was: "+str(e))
                     exit()
 
-                if os.path.isfile(UPD_DIR+"/"+selected_version+"/"+fw_filename):
+                if fw_filename == "extracted_rnode_firmware.zip":
+                    update_full_path = EXT_DIR+"/extracted_rnode_firmware.version"
+                else:
+                    update_full_path = UPD_DIR+"/"+selected_version+"/"+fw_filename
+                if os.path.isfile(update_full_path): 
                     try:
                         args.info = False
                         RNS.log("Updating RNode firmware for device on "+args.port)
-                        partition_filename = fw_filename.replace(".zip", ".bin")
-                        partition_hash = get_partition_hash(UPD_DIR+"/"+selected_version+"/"+partition_filename)
+                        if fw_filename == "extracted_rnode_firmware.zip":
+                            vf = open(update_full_path, "rb")
+                            release_info = vf.read().decode("utf-8").strip()
+                            partition_hash = bytes.fromhex(release_info.split()[1])
+                            vf.close()
+                        else:
+                            partition_filename = fw_filename.replace(".zip", ".bin")
+                            partition_hash = get_partition_hash(UPD_DIR+"/"+selected_version+"/"+partition_filename)
                         if partition_hash != None:
                             rnode.set_firmware_hash(partition_hash)
                             rnode.indicate_firmware_update()
@@ -2582,8 +2673,18 @@ def main():
                             RNS.log("EEPROM written! Validating...")
 
                             if wants_fw_provision:
-                                partition_filename = fw_filename.replace(".zip", ".bin")
-                                partition_hash = get_partition_hash(UPD_DIR+"/"+selected_version+"/"+partition_filename)
+                                partition_hash = None
+
+                                if fw_filename == "extracted_rnode_firmware.zip":
+                                    update_full_path = EXT_DIR+"/extracted_rnode_firmware.version"
+                                    vf = open(update_full_path, "rb")
+                                    release_info = vf.read().decode("utf-8").strip()
+                                    partition_hash = bytes.fromhex(release_info.split()[1])
+                                    vf.close()
+                                else:
+                                    partition_filename = fw_filename.replace(".zip", ".bin")
+                                    partition_hash = get_partition_hash(UPD_DIR+"/"+selected_version+"/"+partition_filename)
+
                                 if partition_hash != None:
                                     rnode.set_firmware_hash(partition_hash)
 
