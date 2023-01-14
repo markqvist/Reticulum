@@ -450,6 +450,8 @@ to create and provision new :ref:`RNodes<rnode-main>` from any supported hardwar
     -U, --force-update    Update to specified firmware even if version matches or is older than installed version
     --fw-version version  Use a specific firmware version for update or autoinstall
     --nocheck             Don't check for firmware updates online
+    -e, --extract         Extract firmware from connected RNode for later use
+    -E, --use-extracted   Use the extracted firmware for autoinstallation or update
     -C, --clear-cache     Clear locally cached firmware files
     -N, --normal          Switch device to normal mode
     -T, --tnc             Switch device to TNC mode
