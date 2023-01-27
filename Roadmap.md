@@ -32,6 +32,7 @@ For each release cycle of Reticulum, improvements and additions from the five [P
   - [x] Implement paper messaging in Sideband
   - [x] Add spatial and multi-interface roaming support in Sideband
   - [x] Expand device support in Sideband to support older Android devices
+  - [ ] Add bandwidth-based weighting to LXMF propagation node sync peer prioritisation
 
 ## Primary Efforts
 The development path for Reticulum is currently laid out in five distinct areas: *Comprehensibility*, *Universality*, *Functionality*, *Usability & Utility* and *Interfaceability*. Conceptualising the development of Reticulum into these areas serves to advance the implementation and work towards the Foundational Goals & Values of Reticulum.
