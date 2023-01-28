@@ -377,7 +377,7 @@ output.
 
   # Run rnx on the listening system, specifying which identities
   # are allowed to execute commands
-  rncp --listen -a 941bed5e228775e5a8079fc38b1ccf3f -a 1b03013c25f1c2ca068a4f080b844a10
+  rnx --listen -a 941bed5e228775e5a8079fc38b1ccf3f -a 1b03013c25f1c2ca068a4f080b844a10
 
   # From another system, run a command 
   rnx 7a55144adf826958a9529a3bcf08b149 "cat /proc/cpuinfo"
