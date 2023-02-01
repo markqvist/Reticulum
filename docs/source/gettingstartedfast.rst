@@ -197,7 +197,7 @@ by adding one of the following interfaces to your ``.reticulum/config`` file:
     target_port = 4965
 
   # TCP/IP interface to the Frankfurt hub
-  [[RNS Testnet Dublin]]
+  [[RNS Testnet Frankfurt]]
     type = TCPClientInterface
     enabled = yes
     target_host = frankfurt.connect.reticulum.network
