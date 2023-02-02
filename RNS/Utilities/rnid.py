@@ -63,7 +63,8 @@ def main():
         # parser.add_argument("file", nargs="?", default=None, help="input file path", type=str)
 
         parser.add_argument("--config", metavar="path", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
-        parser.add_argument("-i", metavar="identity", action="store", default=None, help="hexadecimal Reticulum Destination hash or path to Identity file", type=str)
+        parser.add_argument("-i", "--identity", metavar="identity", action="store", default=None, help="hexadecimal Reticulum Destination hash or path to Identity file", type=str)
+        parser.add_argument("-g", "--generate", metavar="path", action="store", default=None, help="generate a new Identity")
         parser.add_argument("-v", "--verbose", action="count", default=0, help="increase verbosity")
         parser.add_argument("-q", "--quiet", action="count", default=0, help="decrease verbosity")
 
@@ -106,12 +107,12 @@ def main():
             if args.sign:
                 args.read = args.sign
 
-        identity_str = args.i
-        if not identity_str:
+        identity_str = args.identity
+        if not args.generate and not identity_str:
             print("\nNo identity provided, cannot continue\n")
             parser.print_help()
             print("")
-            sys.exit(1)
+            exit(2)
 
         else:
             targetloglevel = 4
@@ -126,6 +127,21 @@ def main():
             if args.stdout:
                 RNS.loglevel = -1
 
+            if args.generate:
+                identity = RNS.Identity()
+                if not args.force and os.path.isfile(args.generate):
+                    RNS.log("Identity file "+str(args.generate)+" already exists. Not overwriting.", RNS.LOG_ERROR)
+                    exit(3)
+                else:
+                    try:
+                        identity.to_file(args.generate)
+                        RNS.log("New identity written to "+str(args.generate))
+                        exit(0)
+                    except Exception as e:
+                        RNS.log("An error ocurred while saving the generated Identity.", RNS.LOG_ERROR)
+                        RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                        exit(4)
+
             identity = None
             if len(identity_str) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8*2 and not os.path.isfile(identity_str):
                 # Try recalling Identity from hex-encoded hash
@@ -137,7 +153,7 @@ def main():
                         if not args.request:
                             RNS.log("Could not recall Identity for "+RNS.prettyhexrep(destination_hash)+".", RNS.LOG_ERROR)
                             RNS.log("You can query the network for unknown Identities with the -R option.", RNS.LOG_ERROR)
-                            exit(2)
+                            exit(5)
                         else:
                             RNS.Transport.request_path(destination_hash)
                             def spincheck():
@@ -146,7 +162,7 @@ def main():
 
                             if not spincheck():
                                 RNS.log("Identity request timed out", RNS.LOG_ERROR)
-                                exit(3)
+                                exit(6)
                             else:
                                 RNS.log("Received Identity "+str(identity)+" for destination "+RNS.prettyhexrep(destination_hash)+" from the network")
                                 identity = RNS.Identity.recall(destination_hash)
@@ -157,14 +173,14 @@ def main():
 
                 except Exception as e:
                     RNS.log("Invalid hexadecimal hash provided", RNS.LOG_ERROR)
-                    exit(4)
+                    exit(7)
 
                 
             else:
                 # Try loading Identity from file
                 if not os.path.isfile(identity_str):
                     RNS.log("Specified Identity file not found")
-                    exit(5)
+                    exit(8)
                 else:
                     try:
                         identity = RNS.Identity.from_file(identity_str)
@@ -172,7 +188,7 @@ def main():
 
                     except Exception as e:
                         RNS.log("Could not decode Identity from specified file")
-                        exit(6)
+                        exit(9)
 
             if identity != None:
                 if args.print_identity:
@@ -190,24 +206,24 @@ def main():
 
                     if not os.path.isfile(args.validate):
                         RNS.log("Signature file "+str(args.read)+" not found", RNS.LOG_ERROR)
-                        exit(7)
+                        exit(10)
 
                     if not os.path.isfile(args.read):
                         RNS.log("Input file "+str(args.read)+" not found", RNS.LOG_ERROR)
-                        exit(7)
+                        exit(11)
 
                 data_input = None
                 if args.read:
                     if not os.path.isfile(args.read):
                         RNS.log("Input file "+str(args.read)+" not found", RNS.LOG_ERROR)
-                        exit(7)
+                        exit(12)
                     else:
                         try:
                             data_input = open(args.read, "rb")
                         except Exception as e:
                             RNS.log("Could not open input file for reading", RNS.LOG_ERROR)
                             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
-                            exit(8)
+                            exit(13)
 
                 # TODO: Actually expand this to a good solution
                 # probably need to create a wrapper that takes
@@ -224,7 +240,7 @@ def main():
 
                 if args.sign and identity.prv == None:
                     RNS.log("Specified Identity does not hold a private key. Cannot sign.", RNS.LOG_ERROR)
-                    exit(13)
+                    exit(14)
 
                 if args.sign and not args.write and not args.stdout and args.read:
                     args.write = str(args.read)+"."+SIG_EXT
@@ -232,14 +248,14 @@ def main():
                 if args.write:
                     if not args.force and os.path.isfile(args.write):
                         RNS.log("Output file "+str(args.write)+" already exists. Not overwriting.", RNS.LOG_ERROR)
-                        exit(9)
+                        exit(15)
                     else:
                         try:
                             data_output = open(args.write, "wb")
                         except Exception as e:
                             RNS.log("Could not open output file for writing", RNS.LOG_ERROR)
                             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
-                            exit(9)
+                            exit(15)
                 
                 # TODO: Actually expand this to a good solution
                 # probably need to create a wrapper that takes
@@ -250,17 +266,17 @@ def main():
                 if args.sign:
                     if identity.prv == None:
                         RNS.log("Specified Identity does not hold a private key. Cannot sign.", RNS.LOG_ERROR)
-                        exit(13)
+                        exit(16)
 
                     if not data_input:
                         if not args.stdout:
                             RNS.log("Signing requested, but no input data specified", RNS.LOG_ERROR)
-                        exit(10)
+                        exit(17)
                     else:
                         if not data_output:
                             if not args.stdout:
                                 RNS.log("Signing requested, but no output specified", RNS.LOG_ERROR)
-                            exit(11)
+                            exit(18)
 
                         if not args.stdout:
                             RNS.log("Signing "+str(args.read))
@@ -287,13 +303,13 @@ def main():
                                 data_input.close()
                             except:
                                 pass
-                            exit(12)
+                            exit(19)
 
                 if args.validate:
                     if not data_input:
                         if not args.stdout:
                             RNS.log("Signature verification requested, but no input data specified", RNS.LOG_ERROR)
-                        exit(10)
+                        exit(20)
                     else:
                         # if not args.stdout:
                         #     RNS.log("Verifying "+str(args.validate)+" for "+str(args.read))
@@ -304,7 +320,7 @@ def main():
                             except Exception as e:
                                 RNS.log("An error ocurred while opening "+str(args.validate)+".", RNS.LOG_ERROR)
                                 RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
-                                exit(15)
+                                exit(21)
 
 
                             validated = identity.validate(sig_input.read(), data_input.read())
@@ -314,7 +330,7 @@ def main():
                             if not validated:
                                 if not args.stdout:
                                     RNS.log("Signature "+str(args.validate)+" for file "+str(args.read)+" is invalid", RNS.LOG_ERROR)
-                                exit(16)
+                                exit(22)
                             else:
                                 if not args.stdout:
                                     RNS.log("Signature "+str(args.validate)+" for file "+str(args.read)+" made by Identity "+str(identity)+" is valid")
@@ -332,18 +348,18 @@ def main():
                                 data_input.close()
                             except:
                                 pass
-                            exit(12)
+                            exit(23)
 
                 if args.encrypt:
                     if not data_input:
                         if not args.stdout:
                             RNS.log("Encryption requested, but no input data specified", RNS.LOG_ERROR)
-                        exit(10)
+                        exit(24)
                     else:
                         if not data_output:
                             if not args.stdout:
                                 RNS.log("Encryption requested, but no output specified", RNS.LOG_ERROR)
-                            exit(11)
+                            exit(25)
 
                         if not args.stdout:
                             RNS.log("Encrypting "+str(args.read))
@@ -375,22 +391,22 @@ def main():
                                 data_input.close()
                             except:
                                 pass
-                            exit(12)
+                            exit(26)
 
                 if args.decrypt:
                     if identity.prv == None:
                         RNS.log("Specified Identity does not hold a private key. Cannot decrypt.", RNS.LOG_ERROR)
-                        exit(13)
+                        exit(27)
 
                     if not data_input:
                         if not args.stdout:
                             RNS.log("Decryption requested, but no input data specified", RNS.LOG_ERROR)
-                        exit(10)
+                        exit(28)
                     else:
                         if not data_output:
                             if not args.stdout:
                                 RNS.log("Decryption requested, but no output specified", RNS.LOG_ERROR)
-                            exit(11)
+                            exit(29)
 
                         if not args.stdout:
                             RNS.log("Decrypting "+str(args.read)+"...")
@@ -404,7 +420,7 @@ def main():
                                     if plaintext == None:
                                         if not args.stdout:
                                             RNS.log("Data could not be decrypted with the specified Identity")
-                                        exit(14)
+                                        exit(30)
                                     else:
                                         data_output.write(plaintext)
                                 else:
@@ -428,7 +444,7 @@ def main():
                                 data_input.close()
                             except:
                                 pass
-                            exit(12)
+                            exit(31)
 
             if True:
                 pass
@@ -443,7 +459,7 @@ def main():
 
     except KeyboardInterrupt:
         print("")
-        exit()
+        exit(255)
 
 if __name__ == "__main__":
     main()

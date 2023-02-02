@@ -22,9 +22,9 @@ For each release cycle of Reticulum, improvements and additions from the five [P
   - [ ] Add bluetooth pairing code output to rnodeconf
   - [ ] Transit traffic display in rnstatus
   - [ ] JSON output mode for rnstatus
-  - [ ] Add `rnid` utility
-  - [ ] Add `rnsign` utility
-  - [ ] Add `rncrypt` utility
+  - [x] Add `rnid` utility
+  - [x] Add `rnsign` utility
+  - [x] Add `rncrypt` utility
   - [ ] Create a standalone RNS Daemon app for Android
 - Targets for related applications
   - [x] Add offline & paper message transport to LXMF
