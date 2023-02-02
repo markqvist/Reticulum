@@ -603,9 +603,15 @@ class Transport:
                 # Mask payload
                 i = 0; masked_raw = b""
                 for byte in new_raw:
-                    if i == 1 or i > interface.ifac_size+1:
+                    if i == 0:
+                        # Mask first header byte, but make sure the
+                        # IFAC flag is still set
+                        masked_raw += bytes([byte ^ mask[i] | 0x80])
+                    elif i == 1 or i > interface.ifac_size+1:
+                        # Mask second header byte and payload
                         masked_raw += bytes([byte ^ mask[i]])
                     else:
+                        # Don't mask the IFAC itself
                         masked_raw += bytes([byte])
                     i += 1
 
@@ -940,9 +946,11 @@ class Transport:
                         # Unmask payload
                         i = 0; unmasked_raw = b""
                         for byte in raw:
-                            if i == 1 or i > interface.ifac_size+1:
+                            if i <= 1 or i > interface.ifac_size+1:
+                                # Unmask header bytes and payload
                                 unmasked_raw += bytes([byte ^ mask[i]])
                             else:
+                                # Don't unmask IFAC itself
                                 unmasked_raw += bytes([byte])
                             i += 1
                         raw = unmasked_raw
