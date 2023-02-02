@@ -586,12 +586,36 @@ class Transport:
                 # Calculate packet access code
                 ifac       = interface.ifac_identity.sign(raw)[-interface.ifac_size:]
 
+                # Generate mask
+                mask = RNS.Cryptography.hkdf(
+                    length=len(raw)+interface.ifac_size,
+                    derive_from=interface.ifac_signature+ifac,
+                    salt=RNS.Reticulum.IFAC_SALT,
+                    context=None,
+                )
+
                 # Set IFAC flag
                 new_header = bytes([raw[0] | 0x80, raw[1]])
 
-                # Assemble new payload with IFAC and send it
+                # Assemble new payload with IFAC
                 new_raw    = new_header+ifac+raw[2:]
-                interface.processOutgoing(new_raw)
+                
+                # Mask payload
+                i = 0; masked_raw = b""
+                for byte in new_raw:
+                    if i == 1 or i > interface.ifac_size+1:
+                        masked_raw += bytes([byte ^ mask[i]])
+                    else:
+                        masked_raw += bytes([byte])
+                    i += 1
+
+                # Send it
+                interface.processOutgoing(masked_raw)
+
+                # TODO: Remove
+                # RNS.log("Mask material  : "+RNS.hexrep(mask_material), RNS.LOG_DEBUG)
+                # RNS.log("Before masking : "+RNS.hexrep(new_raw), RNS.LOG_DEBUG)
+                # RNS.log("After masking  : "+RNS.hexrep(masked_raw), RNS.LOG_DEBUG)
 
             else:
                 interface.processOutgoing(raw)
@@ -904,6 +928,24 @@ class Transport:
                     if len(raw) > 2+interface.ifac_size:
                         # Extract IFAC
                         ifac = raw[2:2+interface.ifac_size]
+
+                        # Generate mask
+                        mask = RNS.Cryptography.hkdf(
+                            length=len(raw),
+                            derive_from=interface.ifac_signature+ifac,
+                            salt=RNS.Reticulum.IFAC_SALT,
+                            context=None,
+                        )
+
+                        # Unmask payload
+                        i = 0; unmasked_raw = b""
+                        for byte in raw:
+                            if i == 1 or i > interface.ifac_size+1:
+                                unmasked_raw += bytes([byte ^ mask[i]])
+                            else:
+                                unmasked_raw += bytes([byte])
+                            i += 1
+                        raw = unmasked_raw
 
                         # Unset IFAC flag
                         new_header = bytes([raw[0] & 0x7f, raw[1]])
