@@ -27,6 +27,7 @@ import argparse
 import time
 import sys
 import os
+import base64
 
 from RNS._version import __version__
 
@@ -66,10 +67,10 @@ def main():
         parser.add_argument("-v", "--verbose", action="count", default=0, help="increase verbosity")
         parser.add_argument("-q", "--quiet", action="count", default=0, help="decrease verbosity")
 
-        parser.add_argument("-e", "--encrypt", action="store_true", default=False, help="encrypt data")
-        parser.add_argument("-d", "--decrypt", action="store_true", default=None, help="decrypt data")
-        parser.add_argument("-s", "--sign", action="store_true", default=None, help="sign data")
-        parser.add_argument("-V", "--verify", action="store_true", default=None, help="verify signature")
+        parser.add_argument("-e", "--encrypt", metavar="path", action="store", default=None, help="encrypt file")
+        parser.add_argument("-d", "--decrypt", metavar="path", action="store", default=None, help="decrypt file")
+        parser.add_argument("-s", "--sign", metavar="path", action="store", default=None, help="sign file")
+        parser.add_argument("-V", "--validate", metavar="path", action="store", default=None, help="validate signature")
 
         parser.add_argument("-r", "--read", metavar="path", action="store", default=None, help="input file path", type=str)
         parser.add_argument("-w", "--write", metavar="path", action="store", default=None, help="output file path", type=str)
@@ -82,20 +83,28 @@ def main():
         parser.add_argument("-p", "--print-identity", action="store_true", default=False, help="print identity info and exit")
         parser.add_argument("-P", "--print-private", action="store_true", default=False, help="allow displaying private keys")
 
-        parser.add_argument("-b", "--base64", action="store_true", default=False, help="Use base64-encoded input and output")
+        parser.add_argument("-b", "--base64", action="store_true", default=False, help=argparse.SUPPRESS) # help="Use base64-encoded input and output")
 
         parser.add_argument("--version", action="version", version="rncp {version}".format(version=__version__))
         
         args = parser.parse_args()
 
         ops = 0;
-        for t in [args.encrypt, args.decrypt, args.verify, args.sign]:
+        for t in [args.encrypt, args.decrypt, args.validate, args.sign]:
             if t:
                 ops += 1
         
         if ops > 1:
             RNS.log("This utility currently only supports one of the encrypt, decrypt, sign or verify operations per invocation", RNS.LOG_ERROR)
             exit(1)
+
+        if not args.read:
+            if args.encrypt:
+                args.read = args.encrypt
+            if args.decrypt:
+                args.read = args.decrypt
+            if args.sign:
+                args.read = args.sign
 
         identity_str = args.i
         if not identity_str:
@@ -175,6 +184,18 @@ def main():
                             RNS.log("Private Key : Hidden")
                     exit(0)
 
+                if args.validate:
+                    if not args.read and args.validate.lower().endswith("."+SIG_EXT):
+                        args.read = str(args.validate).replace("."+SIG_EXT, "")
+
+                    if not os.path.isfile(args.validate):
+                        RNS.log("Signature file "+str(args.read)+" not found", RNS.LOG_ERROR)
+                        exit(7)
+
+                    if not os.path.isfile(args.read):
+                        RNS.log("Input file "+str(args.read)+" not found", RNS.LOG_ERROR)
+                        exit(7)
+
                 data_input = None
                 if args.read:
                     if not os.path.isfile(args.read):
@@ -201,6 +222,13 @@ def main():
                 if args.decrypt and not args.write and not args.stdout and args.read and args.read.lower().endswith("."+ENCRYPT_EXT):
                     args.write = str(args.read).replace("."+ENCRYPT_EXT, "")
 
+                if args.sign and identity.prv == None:
+                    RNS.log("Specified Identity does not hold a private key. Cannot sign.", RNS.LOG_ERROR)
+                    exit(13)
+
+                if args.sign and not args.write and not args.stdout and args.read:
+                    args.write = str(args.read)+"."+SIG_EXT
+
                 if args.write:
                     if not args.force and os.path.isfile(args.write):
                         RNS.log("Output file "+str(args.write)+" already exists. Not overwriting.", RNS.LOG_ERROR)
@@ -218,6 +246,93 @@ def main():
                 # into account not closing stdout when done
                 # elif args.stdout:
                 #     data_output = sys.stdout
+
+                if args.sign:
+                    if identity.prv == None:
+                        RNS.log("Specified Identity does not hold a private key. Cannot sign.", RNS.LOG_ERROR)
+                        exit(13)
+
+                    if not data_input:
+                        if not args.stdout:
+                            RNS.log("Signing requested, but no input data specified", RNS.LOG_ERROR)
+                        exit(10)
+                    else:
+                        if not data_output:
+                            if not args.stdout:
+                                RNS.log("Signing requested, but no output specified", RNS.LOG_ERROR)
+                            exit(11)
+
+                        if not args.stdout:
+                            RNS.log("Signing "+str(args.read))
+                        
+                        try:
+                            data_output.write(identity.sign(data_input.read()))
+                            data_output.close()
+                            data_input.close()
+                            
+                            if not args.stdout:
+                                if args.read:
+                                    RNS.log("File "+str(args.read)+" signed with "+str(identity)+" to "+str(args.write))
+                                    exit(0)
+
+                        except Exception as e:
+                            if not args.stdout:
+                                RNS.log("An error ocurred while encrypting data.", RNS.LOG_ERROR)
+                                RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                            try:
+                                data_output.close()
+                            except:
+                                pass
+                            try:
+                                data_input.close()
+                            except:
+                                pass
+                            exit(12)
+
+                if args.validate:
+                    if not data_input:
+                        if not args.stdout:
+                            RNS.log("Signature verification requested, but no input data specified", RNS.LOG_ERROR)
+                        exit(10)
+                    else:
+                        # if not args.stdout:
+                        #     RNS.log("Verifying "+str(args.validate)+" for "+str(args.read))
+                        
+                        try:
+                            try:
+                                sig_input = open(args.validate, "rb")
+                            except Exception as e:
+                                RNS.log("An error ocurred while opening "+str(args.validate)+".", RNS.LOG_ERROR)
+                                RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                                exit(15)
+
+
+                            validated = identity.validate(sig_input.read(), data_input.read())
+                            sig_input.close()
+                            data_input.close()
+
+                            if not validated:
+                                if not args.stdout:
+                                    RNS.log("Signature "+str(args.validate)+" for file "+str(args.read)+" is invalid", RNS.LOG_ERROR)
+                                exit(16)
+                            else:
+                                if not args.stdout:
+                                    RNS.log("Signature "+str(args.validate)+" for file "+str(args.read)+" made by Identity "+str(identity)+" is valid")
+                                exit(0)
+
+                        except Exception as e:
+                            if not args.stdout:
+                                RNS.log("An error ocurred while validating signature.", RNS.LOG_ERROR)
+                                RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                            try:
+                                data_output.close()
+                            except:
+                                pass
+                            try:
+                                data_input.close()
+                            except:
+                                pass
+                            exit(12)
 
                 if args.encrypt:
                     if not data_input:
