@@ -1427,12 +1427,12 @@ class Transport:
                                         # Check that the announced destination matches
                                         # the handlers aspect filter
                                         execute_callback = False
+                                        announce_identity = RNS.Identity.recall(packet.destination_hash)
                                         if handler.aspect_filter == None:
                                             # If the handlers aspect filter is set to
                                             # None, we execute the callback in all cases
                                             execute_callback = True
                                         else:
-                                            announce_identity = RNS.Identity.recall(packet.destination_hash)
                                             handler_expected_hash = RNS.Destination.hash_from_name_and_identity(handler.aspect_filter, announce_identity)
                                             if packet.destination_hash == handler_expected_hash:
                                                 execute_callback = True

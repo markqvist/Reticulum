@@ -58,9 +58,7 @@ class Packet:
     # Header types
     HEADER_1     = 0x00     # Normal header format
     HEADER_2     = 0x01     # Header format used for packets in transport
-    HEADER_3     = 0x02     # Reserved
-    HEADER_4     = 0x03     # Reserved
-    header_types = [HEADER_1, HEADER_2, HEADER_3, HEADER_4]
+    header_types = [HEADER_1, HEADER_2]
 
     # Packet context types
     NONE           = 0x00   # Generic data packet
@@ -215,7 +213,7 @@ class Packet:
             self.flags = self.raw[0]
             self.hops  = self.raw[1]
 
-            self.header_type      = (self.flags & 0b11000000) >> 6
+            self.header_type      = (self.flags & 0b01000000) >> 6
             self.transport_type   = (self.flags & 0b00110000) >> 4
             self.destination_type = (self.flags & 0b00001100) >> 2
             self.packet_type      = (self.flags & 0b00000011)
