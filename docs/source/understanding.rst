@@ -107,13 +107,13 @@ guide the design of Reticulum:
 Introduction & Basic Functionality
 ==================================
 
-Reticulum is a networking stack suited for high-latency, low-bandwidth links. Reticulum is at it’s
+Reticulum is a networking stack suited for high-latency, low-bandwidth links. Reticulum is at its
 core a *message oriented* system. It is suited for both local point-to-point or point-to-multipoint
 scenarios where all nodes are within range of each other, as well as scenarios where packets need
 to be transported over multiple hops in a complex network to reach the recipient.
 
 Reticulum does away with the idea of addresses and ports known from IP, TCP and UDP. Instead
-Reticulum uses the singular concept of *destinations*. Any application using Reticulum as it’s
+Reticulum uses the singular concept of *destinations*. Any application using Reticulum as its
 networking stack will need to create one or more destinations to receive data, and know the
 destinations it needs to send data to.
 
@@ -220,7 +220,7 @@ packet.
 
 In actual use of *single* destination naming, it is advisable not to use any uniquely identifying
 features in aspect naming. Aspect names should be general terms describing what kind of destination
-is represented. The uniquely identifying aspect is always achieved by the appending the public key,
+is represented. The uniquely identifying aspect is always achieved by appending the public key,
 which expands the destination into a uniquely identifiable one. Reticulum does this automatically.
 
 Any destination on a Reticulum network can be addressed and reached simply by knowing its
@@ -239,7 +239,7 @@ To recap, the different destination types should be used in the following situat
 * **Plain**
     When plain-text communication is desirable, for example when broadcasting information, or for local discovery purposes.
 
-To communicate with a *single* destination, you need to know it’s public key. Any method for
+To communicate with a *single* destination, you need to know its public key. Any method for
 obtaining the public key is valid, but Reticulum includes a simple mechanism for making other
 nodes aware of your destinations public key, called the *announce*. It is also possible to request
 an unknown public key from the network, as all transport instances serve as a distributed ledger
@@ -287,7 +287,7 @@ In Reticulum, destinations are allowed to move around the network at will. This 
 protocols such as IP, where an address is always expected to stay within the network segment it was assigned in.
 This limitation does not exist in Reticulum, and any destination is *completely portable* over the entire topography
 of the network, and *can even be moved to other Reticulum networks* than the one it was created in, and
-still become reachable. To update it's reachability, a destination simply needs to send an announce on any
+still become reachable. To update its reachability, a destination simply needs to send an announce on any
 networks it is part of. After a short while, it will be globally reachable in the network.
 
 Seeing how *single* destinations are always tied to a private/public key pair leads us to the next topic.
@@ -368,7 +368,7 @@ If it is a *Transport Node*, it should be given the configuration directive ``en
 The Announce Mechanism in Detail
 --------------------------------
 
-When an *announce* for a destination is transmitted by from a Reticulum instance, it will be forwarded by
+When an *announce* for a destination is transmitted by a Reticulum instance, it will be forwarded by
 any transport node receiving it, but according to some specific rules:
 
 
@@ -385,7 +385,7 @@ any transport node receiving it, but according to some specific rules:
     announces is set at 2%, but can be configured on a per-interface basis.
 
 * | If any given interface does not have enough bandwidth available for retransmitting the announce,
-    the announce will be assigned a priority inversely proportional to it's hop count, and be inserted
+    the announce will be assigned a priority inversely proportional to its hop count, and be inserted
     into a queue managed by the interface.
 
 * | When the interface has bandwidth available for processing an announce, it will prioritise announces
@@ -431,7 +431,7 @@ For exchanges of small amounts of information, Reticulum offers the *Packet* API
 
 * | A packet is always created with an associated destination and some payload data. When the packet is sent
     to a *single* destination type, Reticulum will automatically create an ephemeral encryption key, perform
-    an ECDH key exchange with the destinations public key, and encrypt the information.
+    an ECDH key exchange with the destination's public key, and encrypt the information.
 
 * | It is important to note that this key exchange does not require any network traffic. The sender already
     knows the public key of the destination from an earlier received *announce*, and can thus perform the ECDH
@@ -447,8 +447,8 @@ For exchanges of small amounts of information, Reticulum offers the *Packet* API
 
 * | Once the packet has been received and decrypted by the addressed destination, that destination can opt
     to *prove* its receipt of the packet. It does this by calculating the SHA-256 hash of the received packet,
-    and signing this hash with it's Ed25519 signing key. Transport nodes in the network can then direct this
-    *proof* back to the packets origin, where the signature can be verified against the destinations known
+    and signing this hash with its Ed25519 signing key. Transport nodes in the network can then direct this
+    *proof* back to the packets origin, where the signature can be verified against the destination's known
     public signing key.
 
 * | In case the packet is addressed to a *group* destination type, the packet will be encrypted with the
@@ -465,7 +465,7 @@ For exchanges of larger amounts of data, or when longer sessions of bidirectiona
     forward the packet will take note of this *link request*.
 
 * | Second, if the destination accepts the *link request* , it will send back a packet that proves the
-    authenticity of it’s identity (and the receipt of the link request) to the initiating node. All
+    authenticity of its identity (and the receipt of the link request) to the initiating node. All
     nodes that initially forwarded the packet will also be able to verify this proof, and thus
     accept the validity of the *link* throughout the network.
 

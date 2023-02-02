@@ -115,8 +115,8 @@ Creating a Network With Reticulum
 =============================================
 To create a network, you will need to specify one or more *interfaces* for
 Reticulum to use. This is done in the Reticulum configuration file, which by
-default is located at ``~/.reticulum/config``. You can edit this file by hand,
-or use the interactive ``rnsconfig`` utility. 
+default is located at ``~/.reticulum/config``. You can get an example
+configuration file with all options via ``rnsd --exampleconfig``.
 
 When Reticulum is started for the first time, it will create a default
 configuration file, with one active interface. This default interface uses
