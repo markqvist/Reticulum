@@ -337,12 +337,12 @@ needs to be purchased.</p>
 </section>
 <section id="introduction-basic-functionality">
 <span id="understanding-basicfunctionality"></span><h2>Introduction &amp; Basic Functionality<a class="headerlink" href="#introduction-basic-functionality" title="Permalink to this heading">#</a></h2>
-<p>Reticulum is a networking stack suited for high-latency, low-bandwidth links. Reticulum is at it’s
+<p>Reticulum is a networking stack suited for high-latency, low-bandwidth links. Reticulum is at its
 core a <em>message oriented</em> system. It is suited for both local point-to-point or point-to-multipoint
 scenarios where all nodes are within range of each other, as well as scenarios where packets need
 to be transported over multiple hops in a complex network to reach the recipient.</p>
 <p>Reticulum does away with the idea of addresses and ports known from IP, TCP and UDP. Instead
-Reticulum uses the singular concept of <em>destinations</em>. Any application using Reticulum as it’s
+Reticulum uses the singular concept of <em>destinations</em>. Any application using Reticulum as its
 networking stack will need to create one or more destinations to receive data, and know the
 destinations it needs to send data to.</p>
 <p>All destinations in Reticulum are _represented_ as a 16 byte hash. This hash is derived from truncating a full
@@ -442,7 +442,7 @@ addressable, because their public keys will differ.</p></li>
 </ul>
 <p>In actual use of <em>single</em> destination naming, it is advisable not to use any uniquely identifying
 features in aspect naming. Aspect names should be general terms describing what kind of destination
-is represented. The uniquely identifying aspect is always achieved by the appending the public key,
+is represented. The uniquely identifying aspect is always achieved by appending the public key,
 which expands the destination into a uniquely identifiable one. Reticulum does this automatically.</p>
 <p>Any destination on a Reticulum network can be addressed and reached simply by knowing its
 destination hash (and public key, but if the public key is not known, it can be requested from the
@@ -468,7 +468,7 @@ indirectly, but must first be established through a <em>single</em> destination.
 </dl>
 </li>
 </ul>
-<p>To communicate with a <em>single</em> destination, you need to know it’s public key. Any method for
+<p>To communicate with a <em>single</em> destination, you need to know its public key. Any method for
 obtaining the public key is valid, but Reticulum includes a simple mechanism for making other
 nodes aware of your destinations public key, called the <em>announce</em>. It is also possible to request
 an unknown public key from the network, as all transport instances serve as a distributed ledger
@@ -509,7 +509,7 @@ certain pattern. This will be detailed in the section
 protocols such as IP, where an address is always expected to stay within the network segment it was assigned in.
 This limitation does not exist in Reticulum, and any destination is <em>completely portable</em> over the entire topography
 of the network, and <em>can even be moved to other Reticulum networks</em> than the one it was created in, and
-still become reachable. To update it’s reachability, a destination simply needs to send an announce on any
+still become reachable. To update its reachability, a destination simply needs to send an announce on any
 networks it is part of. After a short while, it will be globally reachable in the network.</p>
 <p>Seeing how <em>single</em> destinations are always tied to a private/public key pair leads us to the next topic.</p>
 </section>
@@ -565,7 +565,7 @@ is the default setting.</p>
 </section>
 <section id="the-announce-mechanism-in-detail">
 <span id="understanding-announce"></span><h3>The Announce Mechanism in Detail<a class="headerlink" href="#the-announce-mechanism-in-detail" title="Permalink to this heading">#</a></h3>
-<p>When an <em>announce</em> for a destination is transmitted by from a Reticulum instance, it will be forwarded by
+<p>When an <em>announce</em> for a destination is transmitted by a Reticulum instance, it will be forwarded by
 any transport node receiving it, but according to some specific rules:</p>
 <ul>
 <li><div class="line-block">
@@ -590,7 +590,7 @@ announces is set at 2%, but can be configured on a per-interface basis.</div>
 </li>
 <li><div class="line-block">
 <div class="line">If any given interface does not have enough bandwidth available for retransmitting the announce,
-the announce will be assigned a priority inversely proportional to it’s hop count, and be inserted
+the announce will be assigned a priority inversely proportional to its hop count, and be inserted
 into a queue managed by the interface.</div>
 </div>
 </li>
@@ -639,7 +639,7 @@ expect. Reticulum offers two ways to do this.</p>
 <li><div class="line-block">
 <div class="line">A packet is always created with an associated destination and some payload data. When the packet is sent
 to a <em>single</em> destination type, Reticulum will automatically create an ephemeral encryption key, perform
-an ECDH key exchange with the destinations public key, and encrypt the information.</div>
+an ECDH key exchange with the destination’s public key, and encrypt the information.</div>
 </div>
 </li>
 <li><div class="line-block">
@@ -665,8 +665,8 @@ packet.</div>
 <li><div class="line-block">
 <div class="line">Once the packet has been received and decrypted by the addressed destination, that destination can opt
 to <em>prove</em> its receipt of the packet. It does this by calculating the SHA-256 hash of the received packet,
-and signing this hash with it’s Ed25519 signing key. Transport nodes in the network can then direct this
-<em>proof</em> back to the packets origin, where the signature can be verified against the destinations known
+and signing this hash with its Ed25519 signing key. Transport nodes in the network can then direct this
+<em>proof</em> back to the packets origin, where the signature can be verified against the destination’s known
 public signing key.</div>
 </div>
 </li>
@@ -689,7 +689,7 @@ forward the packet will take note of this <em>link request</em>.</div>
 </li>
 <li><div class="line-block">
 <div class="line">Second, if the destination accepts the <em>link request</em> , it will send back a packet that proves the
-authenticity of it’s identity (and the receipt of the link request) to the initiating node. All
+authenticity of its identity (and the receipt of the link request) to the initiating node. All
 nodes that initially forwarded the packet will also be able to verify this proof, and thus
 accept the validity of the <em>link</em> throughout the network.</div>
 </div>
