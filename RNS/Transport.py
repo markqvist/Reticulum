@@ -589,8 +589,8 @@ class Transport:
                 # Generate mask
                 mask = RNS.Cryptography.hkdf(
                     length=len(raw)+interface.ifac_size,
-                    derive_from=interface.ifac_signature+ifac,
-                    salt=RNS.Reticulum.IFAC_SALT,
+                    derive_from=ifac,
+                    salt=interface.ifac_key,
                     context=None,
                 )
 
@@ -932,8 +932,8 @@ class Transport:
                         # Generate mask
                         mask = RNS.Cryptography.hkdf(
                             length=len(raw),
-                            derive_from=interface.ifac_signature+ifac,
-                            salt=RNS.Reticulum.IFAC_SALT,
+                            derive_from=ifac,
+                            salt=interface.ifac_key,
                             context=None,
                         )
 
