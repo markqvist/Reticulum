@@ -68,6 +68,8 @@ def main():
         parser.add_argument("-v", "--verbose", action="count", default=0, help="increase verbosity")
         parser.add_argument("-q", "--quiet", action="count", default=0, help="decrease verbosity")
 
+        parser.add_argument("-a", "--announce", metavar="aspects", action="store", default=None, help="announce a destination based on this Identity")
+        parser.add_argument("-H", "--hash", metavar="aspects", action="store", default=None, help="show destination hash5s for other aspects for this Identity")
         parser.add_argument("-e", "--encrypt", metavar="path", action="store", default=None, help="encrypt file")
         parser.add_argument("-d", "--decrypt", metavar="path", action="store", default=None, help="decrypt file")
         parser.add_argument("-s", "--sign", metavar="path", action="store", default=None, help="sign file")
@@ -191,6 +193,58 @@ def main():
                         exit(9)
 
             if identity != None:
+                if args.hash:
+                    try:
+                        aspects = args.hash.split(".")
+                        if not len(aspects) > 1:
+                            RNS.log("Invalid destination aspects specified", RNS.LOG_ERROR)
+                            exit(32)
+                        else:
+                            app_name = aspects[0]
+                            aspects = aspects[1:]
+                            if identity.pub != None:
+                                destination = RNS.Destination(identity, RNS.Destination.OUT, RNS.Destination.SINGLE, app_name, *aspects)
+                                RNS.log("The "+str(args.hash)+" destination for this Identity is "+RNS.prettyhexrep(destination.hash))
+                                RNS.log("The full destination specifier is "+str(destination))
+                                time.sleep(0.25)
+                                exit(0)
+                            else:
+                                raise KeyError("No public key known")
+                    except Exception as e:
+                        RNS.log("An error ocurred while attempting to send the announce.", RNS.LOG_ERROR)
+                        RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+
+                    exit(0)
+
+                if args.announce:
+                    try:
+                        aspects = args.announce.split(".")
+                        if not len(aspects) > 1:
+                            RNS.log("Invalid destination aspects specified", RNS.LOG_ERROR)
+                            exit(32)
+                        else:
+                            app_name = aspects[0]
+                            aspects = aspects[1:]
+                            if identity.prv != None:
+                                destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, app_name, *aspects)
+                                RNS.log("Created destination "+str(destination))
+                                RNS.log("Announcing destination "+RNS.prettyhexrep(destination.hash))
+                                destination.announce()
+                                time.sleep(0.25)
+                                exit(0)
+                            else:
+                                destination = RNS.Destination(identity, RNS.Destination.OUT, RNS.Destination.SINGLE, app_name, *aspects)
+                                RNS.log("The "+str(args.announce)+" destination for this Identity is "+RNS.prettyhexrep(destination.hash))
+                                RNS.log("The full destination specifier is "+str(destination))
+                                RNS.log("Cannot announce this destination, since the private key is not held")
+                                time.sleep(0.25)
+                                exit(33)
+                    except Exception as e:
+                        RNS.log("An error ocurred while attempting to send the announce.", RNS.LOG_ERROR)
+                        RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+
+                    exit(0)
+
                 if args.print_identity:
                     RNS.log("Public Key  : "+RNS.hexrep(identity.pub_bytes, delimit=False))
                     if identity.prv:
