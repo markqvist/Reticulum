@@ -584,7 +584,7 @@ class Transport:
         try:
             if hasattr(interface, "ifac_identity") and interface.ifac_identity != None:
                 # Calculate packet access code
-                ifac       = interface.ifac_identity.sign(raw)[-interface.ifac_size:]
+                ifac = interface.ifac_identity.sign(raw)[-interface.ifac_size:]
 
                 # Generate mask
                 mask = RNS.Cryptography.hkdf(
