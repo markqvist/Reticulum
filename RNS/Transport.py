@@ -618,11 +618,6 @@ class Transport:
                 # Send it
                 interface.processOutgoing(masked_raw)
 
-                # TODO: Remove
-                # RNS.log("Mask material  : "+RNS.hexrep(mask_material), RNS.LOG_DEBUG)
-                # RNS.log("Before masking : "+RNS.hexrep(new_raw), RNS.LOG_DEBUG)
-                # RNS.log("After masking  : "+RNS.hexrep(masked_raw), RNS.LOG_DEBUG)
-
             else:
                 interface.processOutgoing(raw)
 
