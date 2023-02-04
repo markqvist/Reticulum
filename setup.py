@@ -43,6 +43,7 @@ setuptools.setup(
             'rnstatus=RNS.Utilities.rnstatus:main',
             'rnprobe=RNS.Utilities.rnprobe:main',
             'rnpath=RNS.Utilities.rnpath:main',
+            'rnid=RNS.Utilities.rnid:main',
             'rncp=RNS.Utilities.rncp:main',
             'rnx=RNS.Utilities.rnx:main',
             'rnodeconf=RNS.Utilities.rnodeconf:main',
