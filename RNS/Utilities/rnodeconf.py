@@ -78,6 +78,7 @@ class KISS():
     CMD_BLINK       = 0x30
     CMD_RANDOM      = 0x40
     CMD_BT_CTRL     = 0x46
+    CMD_BT_PIN      = 0x62
     CMD_BOARD       = 0x47
     CMD_PLATFORM    = 0x48
     CMD_MCU         = 0x49
@@ -385,6 +386,21 @@ class RNode():
                                     self.r_bandwidth = command_buffer[0] << 24 | command_buffer[1] << 16 | command_buffer[2] << 8 | command_buffer[3]
                                     RNS.log("Radio reporting bandwidth is "+str(self.r_bandwidth/1000.0)+" KHz")
                                     self.updateBitrate()
+
+                        elif (command == KISS.CMD_BT_PIN):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 4):
+                                    self.r_bt_pin = command_buffer[0] << 24 | command_buffer[1] << 16 | command_buffer[2] << 8 | command_buffer[3]
+                                    RNS.log("Bluetooth pairing PIN is: {:06d}".format(self.r_bt_pin))
 
                         elif (command == KISS.CMD_DEV_HASH):
                             if (byte == KISS.FESC):
@@ -2481,8 +2497,9 @@ def main():
                 rnode.leave()
 
             if args.bluetooth_pair:
-                RNS.log("Putting device into Bluetooth pairing mode...")
+                RNS.log("Putting device into Bluetooth pairing mode. Press enter to exit when done.")
                 rnode.bluetooth_pair()
+                input()
                 rnode.leave()
 
             if args.info:
