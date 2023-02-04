@@ -881,6 +881,7 @@ class RNode():
 selected_version = None
 selected_hash = None
 firmware_version_url = "https://unsigned.io/firmware/latest/?v="+program_version+"&variant="
+fallback_firmware_version_url = "https://github.com/markqvist/rnode_firmware/releases/latest/download/release.json"
 def ensure_firmware_file(fw_filename):
     global selected_version, selected_hash, upd_nocheck
     if fw_filename == "extracted_rnode_firmware.zip":
@@ -919,7 +920,30 @@ def ensure_firmware_file(fw_filename):
             if selected_version == None:
                 if not upd_nocheck:
                     try:
-                        urlretrieve(firmware_version_url+fw_filename, UPD_DIR+"/"+fw_filename+".version.latest")
+                        try:
+                            urlretrieve(firmware_version_url+fw_filename, UPD_DIR+"/"+fw_filename+".version.latest")
+                        except Exception as e:
+                            RNS.log("")
+                            RNS.log("WARNING!")
+                            RNS.log("Failed to retrieve latest version information for your board from the default server")
+                            RNS.log("Will retry using the following fallback URL: "+fallback_firmware_version_url)
+                            RNS.log("")
+                            RNS.log("Hit enter if you want to proceed")
+                            input()
+                            try:
+                                urlretrieve(fallback_firmware_version_url, UPD_DIR+"/fallback_release_info.json")
+                                import json
+                                with open(UPD_DIR+"/fallback_release_info.json", "rb") as rif:
+                                    rdat = json.loads(rif.read())
+                                    variant = rdat[fw_filename]
+                                    with open(UPD_DIR+"/"+fw_filename+".version.latest", "wb") as verf:
+                                        inf_str = str(variant["version"])+" "+str(variant["hash"])
+                                        verf.write(inf_str.encode("utf-8"))
+
+                            except Exception as e:
+                                RNS.log("Error while trying fallback URL: "+str(e))
+                                raise e
+
                     except Exception as e:
                         RNS.log("Failed to retrive latest version information for your board.")
                         RNS.log("Check your internet connection and try again.")
