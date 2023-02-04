@@ -127,7 +127,7 @@ The Reticulum ecosystem is enriched by several other software and hardware proje
 This section lists, in no particular order, various important efforts that would be beneficial to the goals of Reticulum.
 
 - The [RNode](https://unsigned.io/rnode/) project
-    - [ ] Evolve RNode into a self-replicating system, so that anyone can use an existing RNode to create more RNodes, and bootstrap functional networks based on Reticulum, even in absence of the Internet.
+    - [x] Evolve RNode into a self-replicating system, so that anyone can use an existing RNode to create more RNodes, and bootstrap functional networks based on Reticulum, even in absence of the Internet.
     - [ ] Create a WebUSB-based bootstrapping utility, and integrate this directly into the [RNode Bootstrap Console](#), both on-device, and on an Internet-reachable copy. This will make it much easier to create new RNodes for average users.
 
 ## Release History
