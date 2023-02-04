@@ -18,13 +18,11 @@ For each release cycle of Reticulum, improvements and additions from the five [P
   - [x] Improve storage persist call on local client connect/disconnect
   - [x] Better path invalidation on roaming interfaces
   - [x] Improved roaming support on Android
+  - [x] Add bluetooth pairing code output to rnodeconf
+  - [x] Add `rnid` utility with encryption, signing and Identity funcionality
   - [ ] Updating the documentation to reflect recent changes and improvements
-  - [ ] Add bluetooth pairing code output to rnodeconf
   - [ ] Transit traffic display in rnstatus
   - [ ] JSON output mode for rnstatus
-  - [x] Add `rnid` utility
-  - [x] Add `rnsign` utility
-  - [x] Add `rncrypt` utility
   - [ ] Create a standalone RNS Daemon app for Android
 - Targets for related applications
   - [x] Add offline & paper message transport to LXMF
