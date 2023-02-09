@@ -234,7 +234,7 @@ chapter for a guide. If you prefer purchasing a ready-made unit, you can refer t
 refer to these additional external resources:
 
 * `How To Make Your Own RNodes <https://unsigned.io/how-to-make-your-own-rnodes/>`_
-* `Installing RNode Firmware on Compatible LoRa Devices <https://unsigned.io/installing-rnode-firmware-on-t-beam-and-lora32-devices/>`_
+* `Installing RNode Firmware on Compatible LoRa Devices <https://unsigned.io/installing-rnode-firmware-on-supported-devices/>`_
 * `Private, Secure and Uncensorable Messaging Over a LoRa Mesh <https://unsigned.io/private-messaging-over-lora/>`_
 * `RNode Firmware <https://github.com/markqvist/RNode_Firmware/>`_
 

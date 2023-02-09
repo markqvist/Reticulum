@@ -296,7 +296,7 @@ class Destination:
         Registers a request handler.
 
         :param path: The path for the request handler to be registered.
-        :param response_generator: A function or method with the signature *response_generator(path, data, request_id, remote_identity, requested_at)* to be called. Whatever this funcion returns will be sent as a response to the requester. If the function returns ``None``, no response will be sent.
+        :param response_generator: A function or method with the signature *response_generator(path, data, request_id, link_id, remote_identity, requested_at)* to be called. Whatever this funcion returns will be sent as a response to the requester. If the function returns ``None``, no response will be sent.
         :param allow: One of ``RNS.Destination.ALLOW_NONE``, ``RNS.Destination.ALLOW_ALL`` or ``RNS.Destination.ALLOW_LIST``. If ``RNS.Destination.ALLOW_LIST`` is set, the request handler will only respond to requests for identified peers in the supplied list.
         :param allowed_list: A list of *bytes-like* :ref:`RNS.Identity<api-identity>` hashes.
         :raises: ``ValueError`` if any of the supplied arguments are invalid.

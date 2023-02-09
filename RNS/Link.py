@@ -26,6 +26,7 @@ from RNS.Cryptography import Fernet
 from time import sleep
 from .vendor import umsgpack as umsgpack
 import threading
+import inspect
 import math
 import time
 import RNS
@@ -568,7 +569,13 @@ class Link:
 
                 if allowed:
                     RNS.log("Handling request "+RNS.prettyhexrep(request_id)+" for: "+str(path), RNS.LOG_DEBUG)
-                    response = response_generator(path, request_data, request_id, self.__remote_identity, requested_at)
+                    if len(inspect.signature(response_generator).parameters) == 5:
+                        response = response_generator(path, request_data, request_id, self.__remote_identity, requested_at)
+                    elif len(inspect.signature(response_generator).parameters) == 6:
+                        response = response_generator(path, request_data, request_id, self.link_id, self.__remote_identity, requested_at)
+                    else:
+                        raise TypeError("Invalid signature for response generator callback")
+
                     if response != None:
                         packed_response = umsgpack.packb([request_id, response])
 

@@ -20,6 +20,7 @@ For each release cycle of Reticulum, improvements and additions from the five [P
   - [x] Improved roaming support on Android
   - [x] Add bluetooth pairing code output to rnodeconf
   - [x] Add `rnid` utility with encryption, signing and Identity funcionality
+  - [ ] Add automatic retries to all use cases of the `Request` API
   - [ ] Updating the documentation to reflect recent changes and improvements
   - [ ] Transit traffic display in rnstatus
   - [ ] JSON output mode for rnstatus
@@ -77,6 +78,7 @@ These efforts seek to broaden the universality of the Reticulum software and har
 These efforts aim to expand and improve the core functionality and reliability of Reticulum.
 
 - Improve storage persist call on local client connect/disconnect
+- Add automatic retries to all use cases of the `Request` API
 - Faster path invalidation on physical topography changes
 - Better path invalidation on roaming interfaces
 - Add a `Buffer` class to the API, for handling stream-like buffers over Reticulum
