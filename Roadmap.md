@@ -20,17 +20,17 @@ For each release cycle of Reticulum, improvements and additions from the five [P
   - [x] Improved roaming support on Android
   - [x] Add bluetooth pairing code output to rnodeconf
   - [x] Add `rnid` utility with encryption, signing and Identity funcionality
-  - [ ] Add automatic retries to all use cases of the `Request` API
-  - [ ] Updating the documentation to reflect recent changes and improvements
   - [ ] Transit traffic display in rnstatus
   - [ ] JSON output mode for rnstatus
-  - [ ] Create a standalone RNS Daemon app for Android
+  - [ ] Add automatic retries to all use cases of the `Request` API
+  - [ ] Updating the documentation to reflect recent changes and improvements
 - Targets for related applications
   - [x] Add offline & paper message transport to LXMF
   - [x] Implement paper messaging in Nomad Network
   - [x] Implement paper messaging in Sideband
   - [x] Add spatial and multi-interface roaming support in Sideband
   - [x] Expand device support in Sideband to support older Android devices
+  - [x] And input fields, data submission and dynamic request links to Nomad Network
   - [ ] Add bandwidth-based weighting to LXMF propagation node sync peer prioritisation
 
 ## Primary Efforts
