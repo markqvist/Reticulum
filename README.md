@@ -156,7 +156,7 @@ useful.
 Currently, the following interfaces are supported:
 
 - Any Ethernet device
-- LoRa using [RNode](https://unsigned.io/projects/rnode/)
+- LoRa using [RNode](https://unsigned.io/rnode/)
 - Packet Radio TNCs (with or without AX.25)
 - KISS-compatible hardware and software modems
 - Any device with a serial port
