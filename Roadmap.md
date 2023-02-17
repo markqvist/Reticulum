@@ -20,7 +20,7 @@ For each release cycle of Reticulum, improvements and additions from the five [P
   - [x] Improved roaming support on Android
   - [x] Add bluetooth pairing code output to rnodeconf
   - [x] Add `rnid` utility with encryption, signing and Identity funcionality
-  - [ ] JSON output mode for rnstatus
+  - [x] JSON output mode for rnstatus
   - [ ] Add automatic retries to all use cases of the `Request` API
   - [ ] Updating the documentation to reflect recent changes and improvements
 - Targets for related applications
