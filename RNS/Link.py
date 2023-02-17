@@ -277,6 +277,10 @@ class Link:
                     self.activated_at = time.time()
                     RNS.Transport.activate_link(self)
                     RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(round(self.rtt, 3))+"s", RNS.LOG_VERBOSE)
+                    
+                    if self.rtt != None and self.establishment_cost != None and self.rtt > 0 and self.establishment_cost > 0:
+                        self.establishment_rate = self.establishment_cost/self.rtt
+
                     rtt_data = umsgpack.packb(self.rtt)
                     rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
                     rtt_packet.send()
@@ -363,11 +367,6 @@ class Link:
 
     def rtt_packet(self, packet):
         try:
-            # TODO: This is crude, we should use the delta
-            # to model a more representative per-bit round
-            # trip time, and use that to set a sensible RTT
-            # expectancy for the link. This will have to do
-            # for now though.
             measured_rtt = time.time() - self.request_time
             plaintext = self.decrypt(packet.data)
             rtt = umsgpack.unpackb(plaintext)
@@ -375,12 +374,24 @@ class Link:
             self.status = Link.ACTIVE
             self.activated_at = time.time()
 
-            
+            if self.rtt != None and self.establishment_cost != None and self.rtt > 0 and self.establishment_cost > 0:
+                self.establishment_rate = self.establishment_cost/self.rtt
+
             if self.owner.callbacks.link_established != None:
                     self.owner.callbacks.link_established(self)
+
         except Exception as e:
             RNS.log("Error occurred while processing RTT packet, tearing down link. The contained exception was: "+str(e), RNS.LOG_ERROR)
             self.teardown()
+
+    def get_establishment_rate(self):
+        """
+        :returns: The data transfer rate at which the link establishment procedure ocurred, in bits per second.
+        """
+        if self.establishment_rate != None:
+            return self.establishment_rate*8
+        else:
+            return None
 
     def get_salt(self):
         return self.link_id
