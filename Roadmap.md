@@ -20,7 +20,6 @@ For each release cycle of Reticulum, improvements and additions from the five [P
   - [x] Improved roaming support on Android
   - [x] Add bluetooth pairing code output to rnodeconf
   - [x] Add `rnid` utility with encryption, signing and Identity funcionality
-  - [ ] Transit traffic display in rnstatus
   - [ ] JSON output mode for rnstatus
   - [ ] Add automatic retries to all use cases of the `Request` API
   - [ ] Updating the documentation to reflect recent changes and improvements
@@ -31,7 +30,7 @@ For each release cycle of Reticulum, improvements and additions from the five [P
   - [x] Add spatial and multi-interface roaming support in Sideband
   - [x] Expand device support in Sideband to support older Android devices
   - [x] And input fields, data submission and dynamic request links to Nomad Network
-  - [ ] Add bandwidth-based weighting to LXMF propagation node sync peer prioritisation
+  - [x] Add bandwidth-based weighting to LXMF propagation node sync peer prioritisation
 
 ## Primary Efforts
 The development path for Reticulum is currently laid out in five distinct areas: *Comprehensibility*, *Universality*, *Functionality*, *Usability & Utility* and *Interfaceability*. Conceptualising the development of Reticulum into these areas serves to advance the implementation and work towards the Foundational Goals & Values of Reticulum.
