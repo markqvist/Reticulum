@@ -1065,10 +1065,6 @@ destination, and passing traffic back and forth over the link.</p>
     <span class="k">global</span> <span class="n">latest_client_link</span>
 
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client connected&quot;</span><span class="p">)</span>
-    <span class="c1"># TODO: Remove</span>
-    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Establishment rate: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">link</span><span class="o">.</span><span class="n">get_establishment_rate</span><span class="p">()))</span>
-    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Establishment rate: &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettysize</span><span class="p">(</span><span class="n">link</span><span class="o">.</span><span class="n">get_establishment_rate</span><span class="p">(),</span> <span class="s2">&quot;b&quot;</span><span class="p">))</span>
-    
     <span class="n">link</span><span class="o">.</span><span class="n">set_link_closed_callback</span><span class="p">(</span><span class="n">client_disconnected</span><span class="p">)</span>
     <span class="n">link</span><span class="o">.</span><span class="n">set_packet_callback</span><span class="p">(</span><span class="n">server_packet_received</span><span class="p">)</span>
     <span class="n">latest_client_link</span> <span class="o">=</span> <span class="n">link</span>
@@ -1200,10 +1196,6 @@ destination, and passing traffic back and forth over the link.</p>
     <span class="c1"># instance for later use</span>
     <span class="k">global</span> <span class="n">server_link</span>
     <span class="n">server_link</span> <span class="o">=</span> <span class="n">link</span>
-
-    <span class="c1"># TODO: Remove</span>
-    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Establishment rate: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">link</span><span class="o">.</span><span class="n">get_establishment_rate</span><span class="p">()))</span>
-    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Establishment rate: &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettysize</span><span class="p">(</span><span class="n">link</span><span class="o">.</span><span class="n">get_establishment_rate</span><span class="p">(),</span> <span class="s2">&quot;B&quot;</span><span class="p">))</span>
 
     <span class="c1"># Inform the user that the server is</span>
     <span class="c1"># connected</span>
