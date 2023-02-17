@@ -46,7 +46,7 @@ def size_str(num, suffix='B'):
 
     return "%.2f%s%s" % (num, last_unit, suffix)
 
-def program_setup(configdir, dispall=False, verbosity=0, name_filter=None):
+def program_setup(configdir, dispall=False, verbosity=0, name_filter=None,json=False):
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
 
     stats = None
@@ -56,6 +56,11 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None):
         pass
 
     if stats != None:
+        if json:
+            import json
+            print(json.dumps(stats))
+            exit()
+            
         for ifstat in stats["interfaces"]:
             name = ifstat["name"]
 
@@ -175,6 +180,14 @@ def main():
             help="show all interfaces",
             default=False
         )
+        
+        parser.add_argument(
+            "-j",
+            "--json",
+            action="store_true",
+            help="output in JSON format",
+            default=False
+        )
 
         parser.add_argument('-v', '--verbose', action='count', default=0)
 
@@ -187,7 +200,7 @@ def main():
         else:
             configarg = None
 
-        program_setup(configdir = configarg, dispall = args.all, verbosity=args.verbose, name_filter=args.filter)
+        program_setup(configdir = configarg, dispall = args.all, verbosity=args.verbose, name_filter=args.filter, json=args.json)
 
     except KeyboardInterrupt:
         print("")
