@@ -1,3 +1,39 @@
+### 2023-02-17: RNS β 0.4.9
+
+This maintenance release contains a number of bugfixes and minor improvements, along with a few additions to the API.
+
+**Changes**
+- Added JSON output mode to rnstatus
+- Added Link ID to response_generator callback
+- Added Link establishment rate calculation
+- Added get_establishment_rate call to Link API
+- Fixed a number of typos in programs and documentation
+- Fixed some broken links in documentation
+
+**Release Hashes**
+```
+b44eaed796dcd194bec7a541aaeeb1685b07b2ffce068ca268841e6a8661717f rns-0.4.9-py3-none-any.whl
+a15f965a27d208493485724486eb6bc6268d699f2a22ae4fb816bb9b979330fc rnspure-0.4.9-py3-none-any.whl
+```
+
+### 2023-02-04: RNS β 0.4.8
+
+This release introduces the useful `rnid` utility, which makes it possible to use Reticulum Identities for offline file encryption, decryption, signing and validation. The IFAC system has also been significantly improved, and several outdated parts of the documentation was updated and fixed. Thanks to @Erethon and @jooray who contributed to this release!
+
+**Changes**
+- Added header and payload masking to the IFAC system
+- Added `rnid` utility for encrypting, decrypting, signing and validating with Reticulum Identities
+- Added Bluetooth pairing PIN output to `rnodeconf` utility
+- Fixed a bug in announce callback handling
+- Fixed a inconsistency in header flag handling since IFACs were introduced
+- Updated documentation and manual
+
+**Release Hashes**
+```
+fbbd55ee43a68c18491f5deabed51085c46fadca7e1bda823ad455c2f7c95a51 rns-0.4.8-py3-none-any.whl
+335b0d5dd1d2aacd0d8810191aa09567ecf5d3aa990c446f3e3b1bbf7fce1387 rnspure-0.4.8-py3-none-any.whl
+```
+
 ### 2023-01-14: RNS β 0.4.7
 
 This maintenance release adds support for using the `rnodeconf` utility to replicate RNode devices, and bootstrap device creation using only tools and software packages obtained from an RNode Bootstrap Console.
