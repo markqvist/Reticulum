@@ -125,6 +125,8 @@ class RNodeInterface(Interface):
         self.stopbits    = 1
         self.timeout     = 100
         self.online      = False
+        self.detached    = False
+        self.reconnecting= False
 
         self.frequency   = frequency
         self.bandwidth   = bandwidth
@@ -210,9 +212,10 @@ class RNodeInterface(Interface):
             RNS.log("Could not open serial port for interface "+str(self), RNS.LOG_ERROR)
             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
             RNS.log("Reticulum will attempt to bring up this interface periodically", RNS.LOG_ERROR)
-            thread = threading.Thread(target=self.reconnect_port)
-            thread.daemon = True
-            thread.start()
+            if not self.detached and not self.reconnecting:
+                thread = threading.Thread(target=self.reconnect_port)
+                thread.daemon = True
+                thread.start()
 
 
     def open_port(self):
@@ -233,7 +236,15 @@ class RNodeInterface(Interface):
 
 
     def configure_device(self):
+        self.r_frequency = None
+        self.r_bandwidth = None
+        self.r_txpower   = None
+        self.r_sf        = None
+        self.r_cr        = None
+        self.r_state     = None
+        self.r_lock      = None
         sleep(2.0)
+
         thread = threading.Thread(target=self.readLoop)
         thread.daemon = True
         thread.start()
@@ -242,7 +253,8 @@ class RNodeInterface(Interface):
         sleep(0.2)
         
         if not self.detected:
-            raise IOError("Could not detect device")
+            RNS.log("Could not detect device for "+str(self), RNS.LOG_ERROR)
+            self.serial.close()
         else:
             if self.platform == KISS.PLATFORM_ESP32:
                 self.display = True
@@ -260,7 +272,6 @@ class RNodeInterface(Interface):
             RNS.log("Make sure that your hardware actually supports the parameters specified in the configuration", RNS.LOG_ERROR)
             RNS.log("Aborting RNode startup", RNS.LOG_ERROR)
             self.serial.close()
-            raise IOError("RNode interface did not pass configuration validation")
             
 
     def initRadio(self):
@@ -395,7 +406,7 @@ class RNodeInterface(Interface):
 
 
     def validateRadioState(self):
-        RNS.log("Wating for radio configuration validation for "+str(self)+"...", RNS.LOG_VERBOSE)
+        RNS.log("Waiting for radio configuration validation for "+str(self)+"...", RNS.LOG_VERBOSE)
         sleep(0.25);
 
         self.validcfg = True
@@ -668,11 +679,17 @@ class RNodeInterface(Interface):
             RNS.log("Reticulum will attempt to reconnect the interface periodically.", RNS.LOG_ERROR)
 
         self.online = False
-        self.serial.close()
-        self.reconnect_port()
+        try:
+            self.serial.close()
+        except Exception as e:
+            pass
+
+        if not self.detached and not self.reconnecting:
+            self.reconnect_port()
 
     def reconnect_port(self):
-        while not self.online:
+        self.reconnecting = True
+        while not self.online and not self.detached:
             try:
                 time.sleep(5)
                 RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
@@ -682,10 +699,12 @@ class RNodeInterface(Interface):
             except Exception as e:
                 RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
+        self.reconnecting = False
         if self.online:
             RNS.log("Reconnected serial port for "+str(self))
 
     def detach(self):
+        self.detached = True
         self.disable_external_framebuffer()
         self.setRadioState(KISS.RADIO_STATE_OFF)
         self.leave()
