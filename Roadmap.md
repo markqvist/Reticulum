@@ -21,6 +21,7 @@ For each release cycle of Reticulum, improvements and additions from the five [P
   - [x] Add bluetooth pairing code output to rnodeconf
   - [x] Add `rnid` utility with encryption, signing and Identity funcionality
   - [x] JSON output mode for rnstatus
+  - [ ] Add `Buffer` class to the API
   - [ ] Add automatic retries to all use cases of the `Request` API
   - [ ] Updating the documentation to reflect recent changes and improvements
 - Targets for related applications
