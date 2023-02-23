@@ -47,7 +47,7 @@ documentation:
 	make -C docs html
 
 manual:
-	make -C docs latexpdf
+	make -C docs latexpdf epub
 
 release: test remove_symlinks build_wheel build_pure_wheel documentation manual create_symlinks
 

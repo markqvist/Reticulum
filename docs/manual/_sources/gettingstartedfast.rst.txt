@@ -42,6 +42,13 @@ transceivers or infrastructure just to try it out. Launching the programs on sep
 devices connected to the same WiFi network is enough to get started, and physical
 radio interfaces can then be added later.
 
+Remote Shell
+^^^^^^^^^^^^
+
+The `rnsh <https://github.com/acehoss/rnsh>`_ program lets you establish fully interactive
+remote shell sessions over Reticulum. It also allows you to pipe any program to or from a
+remote system, and is similar to how ``ssh`` works.
+
 Nomad Network
 ^^^^^^^^^^^^^
 

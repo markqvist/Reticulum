@@ -7,6 +7,10 @@ to participate in the development of Reticulum itself.
 
 .. only:: html
 
+This manual is also available in `PDF <https://github.com/markqvist/Reticulum/releases/latest/download/Reticulum.Manual.pdf>`_ and `EPUB <https://github.com/markqvist/Reticulum/releases/latest/download/Reticulum.Manual.epub>`_ formats.
+
+.. only:: html
+
    Table Of Contents
    =================
 

@@ -30,3 +30,8 @@ help:
 		cp -r build/latex/reticulumnetworkstack.pdf ./Reticulum\ Manual.pdf; \
 		echo "PDF Manual Generated"; \
 	fi
+
+	@if [ $@ = "epub" ]; then \
+		cp -r build/epub/ReticulumNetworkStack.epub ./Reticulum\ Manual.epub; \
+		echo "EPUB Manual Generated"; \
+	fi
