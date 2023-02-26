@@ -164,6 +164,7 @@ class ProtocolHarness(contextlib.AbstractContextManager):
 
 class TestChannel(unittest.TestCase):
     def setUp(self) -> None:
+        print("")
         self.rtt = 0.001
         self.retry_interval = self.rtt * 150
         Packet.timeout = self.retry_interval
@@ -173,6 +174,7 @@ class TestChannel(unittest.TestCase):
         self.h.cleanup()
 
     def test_send_one_retry(self):
+        print("Channel test one retry")
         message = MessageTest()
 
         self.assertEqual(0, len(self.h.outlet.packets))
@@ -224,6 +226,7 @@ class TestChannel(unittest.TestCase):
         self.assertFalse(envelope.tracked)
 
     def test_send_timeout(self):
+        print("Channel test retry count exceeded")
         message = MessageTest()
 
         self.assertEqual(0, len(self.h.outlet.packets))
@@ -256,6 +259,8 @@ class TestChannel(unittest.TestCase):
         self.assertFalse(envelope.tracked)
 
     def test_multiple_handler(self):
+        print("Channel test multiple handler short circuit")
+
         handler1_called = 0
         handler1_return = True
         handler2_called = 0
@@ -291,6 +296,7 @@ class TestChannel(unittest.TestCase):
         self.assertEqual(1, handler2_called)
 
     def test_system_message_check(self):
+        print("Channel test register system message")
         with self.assertRaises(RNS.Channel.ChannelException):
             self.h.channel.register_message_type(SystemMessage)
         self.h.channel.register_message_type(SystemMessage, is_system_type=True)
@@ -353,6 +359,7 @@ class TestChannel(unittest.TestCase):
         checker(rx_message)
 
     def test_send_receive_message_test(self):
+        print("Channel test send and receive message")
         message = MessageTest()
 
         def check(rx_message: MessageBase):
