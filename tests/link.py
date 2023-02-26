@@ -6,6 +6,9 @@ import threading
 import time
 import RNS
 import os
+from tests.channel import MessageTest
+from RNS.Channel import MessageBase
+
 
 APP_NAME = "rns_unit_tests"
 
@@ -46,6 +49,11 @@ def close_rns():
     global c_rns
     if c_rns != None:
         c_rns.m_proc.kill()
+        # stdout, stderr = c_rns.m_proc.communicate()
+        # if stdout:
+        #     print(stdout.decode("utf-8"))
+        # if stderr:
+        #     print(stderr.decode("utf-8"))
 
 class TestLink(unittest.TestCase):
     def setUp(self):
@@ -346,6 +354,52 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
+    def test_10_channel_round_trip(self):
+        global c_rns
+        init_rns(self)
+        print("")
+        print("Channel round trip test")
+
+        # TODO: Load this from public bytes only
+        id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
+        self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
+
+        dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
+
+        self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+
+        l1 = RNS.Link(dest)
+        time.sleep(1)
+        self.assertEqual(l1.status, RNS.Link.ACTIVE)
+
+        received = []
+
+        def handle_message(message: MessageBase):
+            received.append(message)
+
+        test_message = MessageTest()
+        test_message.data = "Hello"
+
+        l1.set_message_callback(handle_message)
+        l1.send_message(test_message)
+
+        time.sleep(0.5)
+
+        self.assertEqual(1, len(received))
+
+        rx_message = received[0]
+
+        self.assertIsInstance(rx_message, MessageTest)
+        self.assertEqual("Hello back", rx_message.data)
+        self.assertEqual(test_message.id, rx_message.id)
+        self.assertNotEqual(test_message.not_serialized, rx_message.not_serialized)
+        self.assertEqual(1, len(l1._channel._rx_ring))
+
+        l1.teardown()
+        time.sleep(0.5)
+        self.assertEqual(l1.status, RNS.Link.CLOSED)
+        self.assertEqual(0, len(l1._channel._rx_ring))
+
 
     def size_str(self, num, suffix='B'):
         units = ['','K','M','G','T','P','E','Z']
@@ -404,6 +458,11 @@ def targets(yp=False):
         link.set_resource_strategy(RNS.Link.ACCEPT_ALL)
         link.set_resource_started_callback(resource_started)
         link.set_resource_concluded_callback(resource_concluded)
+
+        def handle_message(message):
+            message.data = message.data + " back"
+            link.send_message(message)
+        link.set_message_callback(handle_message, [MessageTest])
 
     m_rns = RNS.Reticulum("./tests/rnsconfig")
     id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
