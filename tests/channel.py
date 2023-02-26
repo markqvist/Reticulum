@@ -245,13 +245,49 @@ class TestChannel(unittest.TestCase):
         self.assertEqual(MessageState.MSGSTATE_FAILED, packet.state)
         self.assertFalse(envelope.tracked)
 
+    def test_multiple_handler(self):
+        handler1_called = 0
+        handler1_return = True
+        handler2_called = 0
+
+        def handler1(msg: MessageBase):
+            nonlocal handler1_called, handler1_return
+            self.assertIsInstance(msg, MessageTest)
+            handler1_called += 1
+            return handler1_return
+
+        def handler2(msg: MessageBase):
+            nonlocal handler2_called
+            self.assertIsInstance(msg, MessageTest)
+            handler2_called += 1
+
+        message = MessageTest()
+        self.h.channel.register_message_type(MessageTest)
+        self.h.channel.add_message_handler(handler1)
+        self.h.channel.add_message_handler(handler2)
+        envelope = RNS.Channel.Envelope(self.h.outlet, message, sequence=0)
+        raw = envelope.pack()
+        self.h.channel.receive(raw)
+
+        self.assertEqual(1, handler1_called)
+        self.assertEqual(0, handler2_called)
+
+        handler1_return = False
+        envelope = RNS.Channel.Envelope(self.h.outlet, message, sequence=1)
+        raw = envelope.pack()
+        self.h.channel.receive(raw)
+
+        self.assertEqual(2, handler1_called)
+        self.assertEqual(1, handler2_called)
+
+
     def eat_own_dog_food(self, message: MessageBase, checker: typing.Callable[[MessageBase], None]):
         decoded: [MessageBase] = []
 
         def handle_message(message: MessageBase):
             decoded.append(message)
 
-        self.h.channel.add_message_callback(handle_message)
+        self.h.channel.add_message_handler(handle_message)
         self.assertEqual(len(self.h.outlet.packets), 0)
 
         envelope = self.h.channel.send(message)

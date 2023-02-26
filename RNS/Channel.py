@@ -150,28 +150,34 @@ class Channel(contextlib.AbstractContextManager):
         return False
 
     def register_message_type(self, message_class: Type[MessageBase]):
-        if not issubclass(message_class, MessageBase):
-            raise ChannelException(CEType.ME_INVALID_MSG_TYPE, f"{message_class} is not a subclass of {MessageBase}.")
-        if message_class.MSGTYPE is None:
-            raise ChannelException(CEType.ME_INVALID_MSG_TYPE, f"{message_class} has invalid MSGTYPE class attribute.")
-        try:
-            message_class()
-        except Exception as ex:
-            raise ChannelException(CEType.ME_INVALID_MSG_TYPE,
-                                     f"{message_class} raised an exception when constructed with no arguments: {ex}")
+        with self._lock:
+            if not issubclass(message_class, MessageBase):
+                raise ChannelException(CEType.ME_INVALID_MSG_TYPE,
+                                       f"{message_class} is not a subclass of {MessageBase}.")
+            if message_class.MSGTYPE is None:
+                raise ChannelException(CEType.ME_INVALID_MSG_TYPE,
+                                       f"{message_class} has invalid MSGTYPE class attribute.")
+            try:
+                message_class()
+            except Exception as ex:
+                raise ChannelException(CEType.ME_INVALID_MSG_TYPE,
+                                       f"{message_class} raised an exception when constructed with no arguments: {ex}")
 
-        self._message_factories[message_class.MSGTYPE] = message_class
+            self._message_factories[message_class.MSGTYPE] = message_class
 
-    def add_message_callback(self, callback: MessageCallbackType):
-        if callback not in self._message_callbacks:
-            self._message_callbacks.append(callback)
+    def add_message_handler(self, callback: MessageCallbackType):
+        with self._lock:
+            if callback not in self._message_callbacks:
+                self._message_callbacks.append(callback)
 
-    def remove_message_callback(self, callback: MessageCallbackType):
-        self._message_callbacks.remove(callback)
+    def remove_message_handler(self, callback: MessageCallbackType):
+        with self._lock:
+            self._message_callbacks.remove(callback)
 
     def shutdown(self):
-        self._message_callbacks.clear()
-        self.clear_rings()
+        with self._lock:
+            self._message_callbacks.clear()
+            self.clear_rings()
 
     def clear_rings(self):
         with self._lock:
@@ -205,19 +211,29 @@ class Channel(contextlib.AbstractContextManager):
                 env.tracked = False
                 self._rx_ring.remove(env)
 
+    def _run_callbacks(self, message: MessageBase):
+        with self._lock:
+            cbs = self._message_callbacks.copy()
+
+        for cb in cbs:
+            try:
+                if cb(message):
+                    return
+            except Exception as ex:
+                RNS.log(f"Channel: Error running message callback: {ex}", RNS.LOG_ERROR)
+
     def receive(self, raw: bytes):
         try:
             envelope = Envelope(outlet=self._outlet, raw=raw)
-            message = envelope.unpack(self._message_factories)
             with self._lock:
+                message = envelope.unpack(self._message_factories)
                 is_new = self.emplace_envelope(envelope, self._rx_ring)
                 self.prune_rx_ring()
             if not is_new:
                 RNS.log("Channel: Duplicate message received", RNS.LOG_DEBUG)
                 return
             RNS.log(f"Message received: {message}", RNS.LOG_DEBUG)
-            for cb in self._message_callbacks:
-                threading.Thread(target=cb, name="Message Callback", args=[message], daemon=True).start()
+            threading.Thread(target=self._run_callbacks, name="Message Callback", args=[message], daemon=True).start()
         except Exception as ex:
             RNS.log(f"Channel: Error receiving data: {ex}")
 

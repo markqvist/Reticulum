@@ -152,7 +152,7 @@ def client_connected(link):
     # Register message types and add callback to channel
     channel = link.get_channel()
     channel.register_message_type(StringMessage)
-    channel.add_message_callback(server_message_received)
+    channel.add_message_handler(server_message_received)
 
 def client_disconnected(link):
     RNS.log("Client disconnected")
@@ -290,7 +290,7 @@ def link_established(link):
     # Register messages and add handler to channel
     channel = link.get_channel()
     channel.register_message_type(StringMessage)
-    channel.add_message_callback(client_message_received)
+    channel.add_message_handler(client_message_received)
 
     # Inform the user that the server is
     # connected

@@ -382,7 +382,7 @@ class TestLink(unittest.TestCase):
 
         channel = l1.get_channel()
         channel.register_message_type(MessageTest)
-        channel.add_message_callback(handle_message)
+        channel.add_message_handler(handle_message)
         channel.send(test_message)
 
         time.sleep(0.5)
@@ -466,7 +466,7 @@ def targets(yp=False):
             message.data = message.data + " back"
             channel.send(message)
         channel.register_message_type(MessageTest)
-        channel.add_message_callback(handle_message)
+        channel.add_message_handler(handle_message)
 
     m_rns = RNS.Reticulum("./tests/rnsconfig")
     id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
