@@ -4,22 +4,22 @@ import enum
 import threading
 import time
 from types import TracebackType
-from typing import Type, Callable, TypeVar
+from typing import Type, Callable, TypeVar, Generic, NewType
 import abc
 import contextlib
 import struct
 import RNS
 from abc import ABC, abstractmethod
-_TPacket = TypeVar("_TPacket")
+TPacket = TypeVar("TPacket")
 
 
-class ChannelOutletBase(ABC):
+class ChannelOutletBase(ABC, Generic[TPacket]):
     @abstractmethod
-    def send(self, raw: bytes) -> _TPacket:
+    def send(self, raw: bytes) -> TPacket:
         raise NotImplemented()
 
     @abstractmethod
-    def resend(self, packet: _TPacket) -> _TPacket:
+    def resend(self, packet: TPacket) -> TPacket:
         raise NotImplemented()
 
     @property
@@ -38,7 +38,7 @@ class ChannelOutletBase(ABC):
         raise NotImplemented()
 
     @abstractmethod
-    def get_packet_state(self, packet: _TPacket) -> MessageState:
+    def get_packet_state(self, packet: TPacket) -> MessageState:
         raise NotImplemented()
 
     @abstractmethod
@@ -50,16 +50,16 @@ class ChannelOutletBase(ABC):
         raise NotImplemented()
 
     @abstractmethod
-    def set_packet_timeout_callback(self, packet: _TPacket, callback: Callable[[_TPacket], None] | None,
+    def set_packet_timeout_callback(self, packet: TPacket, callback: Callable[[TPacket], None] | None,
                                     timeout: float | None = None):
         raise NotImplemented()
 
     @abstractmethod
-    def set_packet_delivered_callback(self, packet: _TPacket, callback: Callable[[_TPacket], None] | None):
+    def set_packet_delivered_callback(self, packet: TPacket, callback: Callable[[TPacket], None] | None):
         raise NotImplemented()
 
     @abstractmethod
-    def get_packet_id(self, packet: _TPacket) -> any:
+    def get_packet_id(self, packet: TPacket) -> any:
         raise NotImplemented()
 
 
@@ -97,6 +97,9 @@ class MessageBase(abc.ABC):
         raise NotImplemented()
 
 
+MessageCallbackType = NewType("MessageCallbackType", Callable[[MessageBase], bool])
+
+
 class Envelope:
     def unpack(self, message_factories: dict[int, Type]) -> MessageBase:
         msgtype, self.sequence, length = struct.unpack(">HHH", self.raw[:6])
@@ -120,7 +123,7 @@ class Envelope:
         self.id = id(self)
         self.message = message
         self.raw = raw
-        self.packet: _TPacket = None
+        self.packet: TPacket = None
         self.sequence = sequence
         self.outlet = outlet
         self.tries = 0
@@ -133,9 +136,9 @@ class Channel(contextlib.AbstractContextManager):
         self._lock = threading.RLock()
         self._tx_ring: collections.deque[Envelope] = collections.deque()
         self._rx_ring: collections.deque[Envelope] = collections.deque()
-        self._message_callback: Callable[[MessageBase], None] | None = None
+        self._message_callbacks: [MessageCallbackType] = []
         self._next_sequence = 0
-        self._message_factories: dict[int, Type[MessageBase]] = self._get_msg_constructors()
+        self._message_factories: dict[int, Type[MessageBase]] = {}
         self._max_tries = 5
 
     def __enter__(self) -> Channel:
@@ -145,16 +148,6 @@ class Channel(contextlib.AbstractContextManager):
                  __traceback: TracebackType | None) -> bool | None:
         self.shutdown()
         return False
-
-    @staticmethod
-    def _get_msg_constructors() -> (int, Type[MessageBase]):
-        subclass_tuples = []
-        for subclass in MessageBase.__subclasses__():
-            with contextlib.suppress(Exception):
-                subclass()  # verify constructor works with no arguments, needed for unpacking
-                subclass_tuples.append((subclass.MSGTYPE, subclass))
-        message_factories = dict(subclass_tuples)
-        return message_factories
 
     def register_message_type(self, message_class: Type[MessageBase]):
         if not issubclass(message_class, MessageBase):
@@ -169,10 +162,15 @@ class Channel(contextlib.AbstractContextManager):
 
         self._message_factories[message_class.MSGTYPE] = message_class
 
-    def set_message_callback(self, callback: Callable[[MessageBase], None]):
-        self._message_callback = callback
+    def add_message_callback(self, callback: MessageCallbackType):
+        if callback not in self._message_callbacks:
+            self._message_callbacks.append(callback)
+
+    def remove_message_callback(self, callback: MessageCallbackType):
+        self._message_callbacks.remove(callback)
 
     def shutdown(self):
+        self._message_callbacks.clear()
         self.clear_rings()
 
     def clear_rings(self):
@@ -218,9 +216,8 @@ class Channel(contextlib.AbstractContextManager):
                 RNS.log("Channel: Duplicate message received", RNS.LOG_DEBUG)
                 return
             RNS.log(f"Message received: {message}", RNS.LOG_DEBUG)
-            if self._message_callback:
-                threading.Thread(target=self._message_callback, name="Message Callback", args=[message], daemon=True)\
-                    .start()
+            for cb in self._message_callbacks:
+                threading.Thread(target=cb, name="Message Callback", args=[message], daemon=True).start()
         except Exception as ex:
             RNS.log(f"Channel: Error receiving data: {ex}")
 
@@ -237,7 +234,7 @@ class Channel(contextlib.AbstractContextManager):
                     return False
         return True
 
-    def _packet_tx_op(self, packet: _TPacket, op: Callable[[_TPacket], bool]):
+    def _packet_tx_op(self, packet: TPacket, op: Callable[[TPacket], bool]):
         with self._lock:
             envelope = next(filter(lambda e: self._outlet.get_packet_id(e.packet) == self._outlet.get_packet_id(packet),
                                    self._tx_ring), None)
@@ -250,10 +247,10 @@ class Channel(contextlib.AbstractContextManager):
         if not envelope:
             RNS.log("Channel: Spurious message received.", RNS.LOG_EXTREME)
 
-    def _packet_delivered(self, packet: _TPacket):
+    def _packet_delivered(self, packet: TPacket):
         self._packet_tx_op(packet, lambda env: True)
 
-    def _packet_timeout(self, packet: _TPacket):
+    def _packet_timeout(self, packet: TPacket):
         def retry_envelope(envelope: Envelope) -> bool:
             if envelope.tries >= self._max_tries:
                 RNS.log("Channel: Retry count exceeded, tearing down Link.", RNS.LOG_ERROR)
@@ -286,6 +283,10 @@ class Channel(contextlib.AbstractContextManager):
         self._outlet.set_packet_timeout_callback(envelope.packet, self._packet_timeout)
         return envelope
 
+    @property
+    def MDU(self):
+        return self._outlet.mdu - 6  # sizeof(msgtype) + sizeof(length) + sizeof(sequence)
+
 
 class LinkChannelOutlet(ChannelOutletBase):
     def __init__(self, link: RNS.Link):
@@ -313,7 +314,7 @@ class LinkChannelOutlet(ChannelOutletBase):
     def is_usable(self):
         return True  # had issues looking at Link.status
 
-    def get_packet_state(self, packet: _TPacket) -> MessageState:
+    def get_packet_state(self, packet: TPacket) -> MessageState:
         status = packet.receipt.get_status()
         if status == RNS.PacketReceipt.SENT:
             return MessageState.MSGSTATE_SENT

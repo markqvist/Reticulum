@@ -380,8 +380,10 @@ class TestLink(unittest.TestCase):
         test_message = MessageTest()
         test_message.data = "Hello"
 
-        l1.set_message_callback(handle_message)
-        l1.send_message(test_message)
+        channel = l1.get_channel()
+        channel.register_message_type(MessageTest)
+        channel.add_message_callback(handle_message)
+        channel.send(test_message)
 
         time.sleep(0.5)
 
@@ -458,11 +460,13 @@ def targets(yp=False):
         link.set_resource_strategy(RNS.Link.ACCEPT_ALL)
         link.set_resource_started_callback(resource_started)
         link.set_resource_concluded_callback(resource_concluded)
+        channel = link.get_channel()
 
         def handle_message(message):
             message.data = message.data + " back"
-            link.send_message(message)
-        link.set_message_callback(handle_message, [MessageTest])
+            channel.send(message)
+        channel.register_message_type(MessageTest)
+        channel.add_message_callback(handle_message)
 
     m_rns = RNS.Reticulum("./tests/rnsconfig")
     id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))

@@ -251,7 +251,7 @@ class TestChannel(unittest.TestCase):
         def handle_message(message: MessageBase):
             decoded.append(message)
 
-        self.h.channel.set_message_callback(handle_message)
+        self.h.channel.add_message_callback(handle_message)
         self.assertEqual(len(self.h.outlet.packets), 0)
 
         envelope = self.h.channel.send(message)

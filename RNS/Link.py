@@ -645,26 +645,10 @@ class Link:
                 if pending_request.request_id == resource.request_id:
                     pending_request.request_timed_out(None)
 
-    def _ensure_channel(self):
+    def get_channel(self):
         if self._channel is None:
             self._channel = Channel(LinkChannelOutlet(self))
         return self._channel
-
-    def set_message_callback(self, callback, message_types=None):
-        if not callback:
-            if self._channel:
-                self._channel.set_message_callback(None)
-                return
-
-        self._ensure_channel()
-
-        if message_types:
-            for msg_type in message_types:
-                self._channel.register_message_type(msg_type)
-        self._channel.set_message_callback(callback)
-
-    def send_message(self, message: RNS.Channel.MessageBase):
-        self._ensure_channel().send(message)
 
     def receive(self, packet):
         self.watchdog_lock = True
