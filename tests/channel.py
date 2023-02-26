@@ -137,6 +137,16 @@ class MessageTest(MessageBase):
         self.id, self.data = umsgpack.unpackb(raw)
 
 
+class SystemMessage(MessageBase):
+    MSGTYPE = 0xffff
+
+    def pack(self) -> bytes:
+        return bytes()
+
+    def unpack(self, raw):
+        pass
+
+
 class ProtocolHarness(contextlib.AbstractContextManager):
     def __init__(self, rtt: float):
         self.outlet = ChannelOutletTest(mdu=500, rtt=rtt)
@@ -280,6 +290,11 @@ class TestChannel(unittest.TestCase):
         self.assertEqual(2, handler1_called)
         self.assertEqual(1, handler2_called)
 
+    def test_system_message_check(self):
+        with self.assertRaises(RNS.Channel.ChannelException):
+            self.h.channel.register_message_type(SystemMessage)
+        self.h.channel.register_message_type(SystemMessage, is_system_type=True)
+
 
     def eat_own_dog_food(self, message: MessageBase, checker: typing.Callable[[MessageBase], None]):
         decoded: [MessageBase] = []
@@ -287,6 +302,7 @@ class TestChannel(unittest.TestCase):
         def handle_message(message: MessageBase):
             decoded.append(message)
 
+        self.h.channel.register_message_type(message.__class__)
         self.h.channel.add_message_handler(handle_message)
         self.assertEqual(len(self.h.outlet.packets), 0)
 

@@ -149,7 +149,7 @@ class Channel(contextlib.AbstractContextManager):
         self.shutdown()
         return False
 
-    def register_message_type(self, message_class: Type[MessageBase]):
+    def register_message_type(self, message_class: Type[MessageBase], *, is_system_type: bool = False):
         with self._lock:
             if not issubclass(message_class, MessageBase):
                 raise ChannelException(CEType.ME_INVALID_MSG_TYPE,
@@ -157,6 +157,9 @@ class Channel(contextlib.AbstractContextManager):
             if message_class.MSGTYPE is None:
                 raise ChannelException(CEType.ME_INVALID_MSG_TYPE,
                                        f"{message_class} has invalid MSGTYPE class attribute.")
+            if message_class.MSGTYPE >= 0xff00 and not is_system_type:
+                raise ChannelException(CEType.ME_INVALID_MSG_TYPE,
+                                       f"{message_class} has system-reserved message type.")
             try:
                 message_class()
             except Exception as ex:

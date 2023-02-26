@@ -46,7 +46,8 @@ class StringMessage(RNS.MessageBase):
     # message arrives over the channel.
     #
     # MSGTYPE must be unique across all message types we
-    # register with the channel
+    # register with the channel. MSGTYPEs >= 0xff00 are
+    # reserved for the system.
     MSGTYPE = 0x0101
 
     # The constructor of our object must be callable with
