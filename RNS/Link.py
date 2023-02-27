@@ -464,7 +464,7 @@ class Link:
         for resource in self.outgoing_resources:
             resource.cancel()
         if self._channel:
-            self._channel.shutdown()
+            self._channel._shutdown()
             
         self.prv = None
         self.pub = None
@@ -801,7 +801,7 @@ class Link:
                             RNS.log(f"Channel data received without open channel", RNS.LOG_DEBUG)
                         else:
                             plaintext = self.decrypt(packet.data)
-                            self._channel.receive(plaintext)
+                            self._channel._receive(plaintext)
                             packet.prove()
 
                 elif packet.packet_type == RNS.Packet.PROOF:

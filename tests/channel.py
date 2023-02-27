@@ -153,7 +153,7 @@ class ProtocolHarness(contextlib.AbstractContextManager):
         self.channel = Channel(self.outlet)
 
     def cleanup(self):
-        self.channel.shutdown()
+        self.channel._shutdown()
 
     def __exit__(self, __exc_type: typing.Type[BaseException], __exc_value: BaseException,
                  __traceback: types.TracebackType) -> bool:
@@ -282,7 +282,7 @@ class TestChannel(unittest.TestCase):
         self.h.channel.add_message_handler(handler2)
         envelope = RNS.Channel.Envelope(self.h.outlet, message, sequence=0)
         raw = envelope.pack()
-        self.h.channel.receive(raw)
+        self.h.channel._receive(raw)
 
         self.assertEqual(1, handler1_called)
         self.assertEqual(0, handler2_called)
@@ -290,7 +290,7 @@ class TestChannel(unittest.TestCase):
         handler1_return = False
         envelope = RNS.Channel.Envelope(self.h.outlet, message, sequence=1)
         raw = envelope.pack()
-        self.h.channel.receive(raw)
+        self.h.channel._receive(raw)
 
         self.assertEqual(2, handler1_called)
         self.assertEqual(1, handler2_called)
@@ -348,7 +348,7 @@ class TestChannel(unittest.TestCase):
         self.assertFalse(envelope.tracked)
         self.assertEqual(0, len(decoded))
 
-        self.h.channel.receive(packet.raw)
+        self.h.channel._receive(packet.raw)
 
         self.assertEqual(1, len(decoded))
 

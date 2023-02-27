@@ -1,6 +1,6 @@
 ##########################################################
 # This RNS example demonstrates how to set up a link to  #
-# a destination, and pass structuredmessages over it     #
+# a destination, and pass structured messages over it    #
 # using a channel.                                       #
 ##########################################################
 
@@ -46,7 +46,7 @@ class StringMessage(RNS.MessageBase):
     # message arrives over the channel.
     #
     # MSGTYPE must be unique across all message types we
-    # register with the channel. MSGTYPEs >= 0xff00 are
+    # register with the channel. MSGTYPEs >= 0xf000 are
     # reserved for the system.
     MSGTYPE = 0x0101
 
@@ -159,16 +159,35 @@ def client_disconnected(link):
     RNS.log("Client disconnected")
 
 def server_message_received(message):
+    """
+    A message handler
+    @param message: An instance of a subclass of MessageBase
+    @return: True if message was handled
+    """
     global latest_client_link
-
     # When a message is received over any active link,
     # the replies will all be directed to the last client
     # that connected.
+
+    # In a message handler, any deserializable message
+    # that arrives over the link's channel will be passed
+    # to all message handlers, unless a preceding handler indicates it
+    # has handled the message.
+    #
+    #
     if isinstance(message, StringMessage):
         RNS.log("Received data on the link: " + message.data + " (message created at " + str(message.timestamp) + ")")
 
         reply_message = StringMessage("I received \""+message.data+"\" over the link")
         latest_client_link.get_channel().send(reply_message)
+
+        # Incoming messages are sent to each message
+        # handler added to the channel, in the order they
+        # were added.
+        # If any message handler returns True, the message
+        # is considered handled and any subsequent
+        # handlers are skipped.
+        return True
 
 
 ##########################################################
