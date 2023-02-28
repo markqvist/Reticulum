@@ -49,11 +49,6 @@ def close_rns():
     global c_rns
     if c_rns != None:
         c_rns.m_proc.kill()
-        # stdout, stderr = c_rns.m_proc.communicate()
-        # if stdout:
-        #     print(stdout.decode("utf-8"))
-        # if stderr:
-        #     print(stderr.decode("utf-8"))
 
 class TestLink(unittest.TestCase):
     def setUp(self):
