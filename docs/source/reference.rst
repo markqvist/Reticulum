@@ -132,7 +132,7 @@ This chapter lists and explains all classes exposed by the Reticulum Network Sta
    Channel
    ------
 
-.. autoclass:: RNS.Channel.Channel(outlet)
+.. autoclass:: RNS.Channel.Channel()
    :members:
 
 .. _api-messsagebase:

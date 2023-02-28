@@ -134,8 +134,9 @@ class MessageBase(abc.ABC):
     MSGTYPE = None
     """
     Defines a unique identifier for a message class.
-    ``MSGTYPE`` must be unique within all classes sent over a channel. 
-    ``MSGTYPE`` must be < ``0xf000``. Values >= ``0xf000`` are reserved.
+    
+    * Must be unique within all classes registered with a ``Channel``
+    * Must be less than ``0xf000``. Values greater than or equal to ``0xf000`` are reserved.
     """
 
     @abstractmethod
@@ -148,7 +149,7 @@ class MessageBase(abc.ABC):
         raise NotImplemented()
 
     @abstractmethod
-    def unpack(self, raw):
+    def unpack(self, raw: bytes):
         """
         Populate message from binary representation
 
@@ -196,14 +197,29 @@ class Envelope:
 
 class Channel(contextlib.AbstractContextManager):
     """
-    Channel provides reliable delivery of messages over
+    Provides reliable delivery of messages over
     a link.
 
-    Channel is not meant to be instantiated
-    directly, but rather obtained from a Link using the
-    get_channel() function.
+    ``Channel`` differs from ``Request`` and
+    ``Resource`` in some important ways:
 
-    :param outlet: Outlet object to use for transport
+     **Continuous**
+        Messages can be sent or received as long as
+        the ``Link`` is open.
+     **Bi-directional**
+        Messages can be sent in either direction on
+        the ``Link``; neither end is the client or
+        server.
+     **Size-constrained**
+        Messages must be encoded into a single packet.
+
+    ``Channel`` is similar to ``Packet``, except that it
+    provides reliable delivery (automatic retries) as well
+    as a structure for exchanging several types of
+    messages over the ``Link``.
+
+    ``Channel`` is not instantiated directly, but rather
+    obtained from a ``Link`` with ``get_channel()``.
     """
     def __init__(self, outlet: ChannelOutletBase):
         """
@@ -227,12 +243,17 @@ class Channel(contextlib.AbstractContextManager):
         self._shutdown()
         return False
 
-    def register_message_type(self, message_class: Type[MessageBase], *, is_system_type: bool = False):
+    def register_message_type(self, message_class: Type[MessageBase]):
         """
-        Register a message class for reception over a channel.
+        Register a message class for reception over a ``Channel``.
 
-        :param message_class: Class to register. Must extend MessageBase.
+        Message classes must extend ``MessageBase``.
+
+        :param message_class: Class to register
         """
+        self._register_message_type(message_class, is_system_type=False)
+
+    def _register_message_type(self, message_class: Type[MessageBase], *, is_system_type: bool = False):
         with self._lock:
             if not issubclass(message_class, MessageBase):
                 raise ChannelException(CEType.ME_INVALID_MSG_TYPE,
@@ -254,7 +275,10 @@ class Channel(contextlib.AbstractContextManager):
     def add_message_handler(self, callback: MessageCallbackType):
         """
         Add a handler for incoming messages. A handler
-        has the signature ``(message: MessageBase) -> bool``.
+        has the following signature:
+
+        ``(message: MessageBase) -> bool``
+
         Handlers are processed in the order they are
         added. If any handler returns True, processing
         of the message stops; handlers after the
@@ -268,7 +292,7 @@ class Channel(contextlib.AbstractContextManager):
 
     def remove_message_handler(self, callback: MessageCallbackType):
         """
-        Remove a handler
+        Remove a handler added with ``add_message_handler``.
 
         :param callback: handler to remove
         """
@@ -341,7 +365,7 @@ class Channel(contextlib.AbstractContextManager):
 
     def is_ready_to_send(self) -> bool:
         """
-        Check if Channel is ready to send.
+        Check if ``Channel`` is ready to send.
 
         :return: True if ready
         """
@@ -389,9 +413,9 @@ class Channel(contextlib.AbstractContextManager):
     def send(self, message: MessageBase) -> Envelope:
         """
         Send a message. If a message send is attempted and
-        Channel is not ready, an exception is thrown.
+        ``Channel`` is not ready, an exception is thrown.
 
-        :param message: an instance of a MessageBase subclass to send on the Channel
+        :param message: an instance of a ``MessageBase`` subclass
         """
         envelope: Envelope | None = None
         with self._lock:
@@ -416,7 +440,9 @@ class Channel(contextlib.AbstractContextManager):
     def MDU(self):
         """
         Maximum Data Unit: the number of bytes available
-        for a message to consume in a single send.
+        for a message to consume in a single send. This
+        value is adjusted from the ``Link`` MDU to accommodate
+        message header information.
 
         :return: number of bytes available
         """
