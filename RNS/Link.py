@@ -22,6 +22,7 @@
 
 from RNS.Cryptography import X25519PrivateKey, X25519PublicKey, Ed25519PrivateKey, Ed25519PublicKey
 from RNS.Cryptography import Fernet
+
 from RNS.Channel import Channel, LinkChannelOutlet
 from time import sleep
 from .vendor import umsgpack as umsgpack
