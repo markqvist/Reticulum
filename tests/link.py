@@ -9,7 +9,6 @@ import os
 from tests.channel import MessageTest
 from RNS.Channel import MessageBase
 
-
 APP_NAME = "rns_unit_tests"
 
 fixed_keys = [
