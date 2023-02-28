@@ -808,7 +808,8 @@ class Link:
                         else:
                             plaintext = self.decrypt(packet.data)
                             self._channel._receive(plaintext)
-                            packet.prove()
+                            if self.status == Link.ACTIVE:
+                                packet.prove()
 
                 elif packet.packet_type == RNS.Packet.PROOF:
                     if packet.context == RNS.Packet.RESOURCE_PRF:
