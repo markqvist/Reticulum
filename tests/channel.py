@@ -138,7 +138,7 @@ class MessageTest(MessageBase):
 
 
 class SystemMessage(MessageBase):
-    MSGTYPE = 0xffff
+    MSGTYPE = 0xf000
 
     def pack(self) -> bytes:
         return bytes()
@@ -299,7 +299,7 @@ class TestChannel(unittest.TestCase):
         print("Channel test register system message")
         with self.assertRaises(RNS.Channel.ChannelException):
             self.h.channel.register_message_type(SystemMessage)
-        self.h.channel.register_message_type(SystemMessage, is_system_type=True)
+        self.h.channel._register_message_type(SystemMessage, is_system_type=True)
 
 
     def eat_own_dog_food(self, message: MessageBase, checker: typing.Callable[[MessageBase], None]):
