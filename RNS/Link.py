@@ -646,6 +646,11 @@ class Link:
                     pending_request.request_timed_out(None)
 
     def get_channel(self):
+        """
+        Get the ``Channel`` for this link.
+
+        :return: ``Channel`` object
+        """
         if self._channel is None:
             self._channel = Channel(LinkChannelOutlet(self))
         return self._channel

@@ -121,6 +121,34 @@ This chapter lists and explains all classes exposed by the Reticulum Network Sta
 .. autoclass:: RNS.Resource(data, link, advertise=True, auto_compress=True, callback=None, progress_callback=None, timeout=None)
    :members:
 
+.. _api-channel:
+
+.. only:: html
+
+   |start-h3| Channel |end-h3|
+
+.. only:: latex
+
+   Channel
+   ------
+
+.. autoclass:: RNS.Channel.Channel(outlet)
+   :members:
+
+.. _api-messsagebase:
+
+.. only:: html
+
+   |start-h3| MessageBase |end-h3|
+
+.. only:: latex
+
+   MessageBase
+   ------
+
+.. autoclass:: RNS.MessageBase()
+   :members:
+
 .. _api-transport:
 
 .. only:: html

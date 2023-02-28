@@ -1,3 +1,25 @@
+# MIT License
+#
+# Copyright (c) 2016-2023 Mark Qvist / unsigned.io and contributors.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from __future__ import annotations
 import collections
 import enum
@@ -105,17 +127,23 @@ class MessageBase(abc.ABC):
     """
     Base type for any messages sent or received on a Channel.
     Subclasses must define the two abstract methods as well as
-    the MSGTYPE class variable.
+    the ``MSGTYPE`` class variable.
     """
     # MSGTYPE must be unique within all classes sent over a
     # channel. Additionally, MSGTYPE > 0xf000 are reserved.
     MSGTYPE = None
+    """
+    Defines a unique identifier for a message class.
+    ``MSGTYPE`` must be unique within all classes sent over a channel. 
+    ``MSGTYPE`` must be < ``0xf000``. Values >= ``0xf000`` are reserved.
+    """
 
     @abstractmethod
     def pack(self) -> bytes:
         """
         Create and return the binary representation of the message
-        @return: binary representation of message
+
+        :return: binary representation of message
         """
         raise NotImplemented()
 
@@ -123,7 +151,8 @@ class MessageBase(abc.ABC):
     def unpack(self, raw):
         """
         Populate message from binary representation
-        @param raw: binary representation
+
+        :param raw: binary representation
         """
         raise NotImplemented()
 
@@ -168,11 +197,19 @@ class Envelope:
 class Channel(contextlib.AbstractContextManager):
     """
     Channel provides reliable delivery of messages over
-    a link. Channel is not meant to be instantiated
+    a link.
+
+    Channel is not meant to be instantiated
     directly, but rather obtained from a Link using the
     get_channel() function.
+
+    :param outlet: Outlet object to use for transport
     """
     def __init__(self, outlet: ChannelOutletBase):
+        """
+
+        @param outlet:
+        """
         self._outlet = outlet
         self._lock = threading.RLock()
         self._tx_ring: collections.deque[Envelope] = collections.deque()
@@ -193,7 +230,8 @@ class Channel(contextlib.AbstractContextManager):
     def register_message_type(self, message_class: Type[MessageBase], *, is_system_type: bool = False):
         """
         Register a message class for reception over a channel.
-        @param message_class: Class to register. Must extend MessageBase.
+
+        :param message_class: Class to register. Must extend MessageBase.
         """
         with self._lock:
             if not issubclass(message_class, MessageBase):
@@ -216,13 +254,13 @@ class Channel(contextlib.AbstractContextManager):
     def add_message_handler(self, callback: MessageCallbackType):
         """
         Add a handler for incoming messages. A handler
-        has the signature (message: MessageBase) -> bool.
+        has the signature ``(message: MessageBase) -> bool``.
         Handlers are processed in the order they are
         added. If any handler returns True, processing
         of the message stops; handlers after the
         returning handler will not be called.
-        @param callback: Function to call
-        @return:
+
+        :param callback: Function to call
         """
         with self._lock:
             if callback not in self._message_callbacks:
@@ -231,7 +269,8 @@ class Channel(contextlib.AbstractContextManager):
     def remove_message_handler(self, callback: MessageCallbackType):
         """
         Remove a handler
-        @param callback: handler to remove
+
+        :param callback: handler to remove
         """
         with self._lock:
             self._message_callbacks.remove(callback)
@@ -303,7 +342,8 @@ class Channel(contextlib.AbstractContextManager):
     def is_ready_to_send(self) -> bool:
         """
         Check if Channel is ready to send.
-        @return: True if ready
+
+        :return: True if ready
         """
         if not self._outlet.is_usable:
             RNS.log("Channel: Link is not usable.", RNS.LOG_EXTREME)
@@ -350,7 +390,8 @@ class Channel(contextlib.AbstractContextManager):
         """
         Send a message. If a message send is attempted and
         Channel is not ready, an exception is thrown.
-        @param message: an instance of a MessageBase subclass to send on the Channel
+
+        :param message: an instance of a MessageBase subclass to send on the Channel
         """
         envelope: Envelope | None = None
         with self._lock:
@@ -376,7 +417,8 @@ class Channel(contextlib.AbstractContextManager):
         """
         Maximum Data Unit: the number of bytes available
         for a message to consume in a single send.
-        @return: number of bytes available
+
+        :return: number of bytes available
         """
         return self._outlet.mdu - 6  # sizeof(msgtype) + sizeof(length) + sizeof(sequence)
 
@@ -386,6 +428,8 @@ class LinkChannelOutlet(ChannelOutletBase):
     An implementation of ChannelOutletBase for RNS.Link.
     Allows Channel to send packets over an RNS Link with
     Packets.
+
+    :param link: RNS Link to wrap
     """
     def __init__(self, link: RNS.Link):
         self.link = link
