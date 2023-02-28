@@ -507,13 +507,15 @@ class LinkChannelOutlet(ChannelOutletBase):
         def inner(receipt: RNS.PacketReceipt):
             callback(packet)
 
-        packet.receipt.set_timeout_callback(inner if callback else None)
+        if packet and packet.receipt:
+            packet.receipt.set_timeout_callback(inner if callback else None)
 
     def set_packet_delivered_callback(self, packet: RNS.Packet, callback: Callable[[RNS.Packet], None] | None):
         def inner(receipt: RNS.PacketReceipt):
             callback(packet)
 
-        packet.receipt.set_delivery_callback(inner if callback else None)
+        if packet and packet.receipt:
+            packet.receipt.set_delivery_callback(inner if callback else None)
 
     def get_packet_id(self, packet: RNS.Packet) -> any:
         return packet.get_hash()
