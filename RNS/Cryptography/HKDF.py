@@ -39,9 +39,6 @@ def hkdf(length=None, derive_from=None, salt=None, context=None):
     if salt == None or len(salt) == 0:
         salt = bytes([0] * hash_len)
 
-    if salt == None:
-        salt = b""
-
     if context == None:
         context = b""
 
