@@ -92,6 +92,18 @@ The *Request* example explores sendig requests and receiving responses.
 
 This example can also be found at `<https://github.com/markqvist/Reticulum/blob/master/Examples/Request.py>`_.
 
+.. _example-channel:
+
+Channel
+=======
+
+The *Channel* example explores using a ``Channel`` to send structured
+data between peers of a ``Link``.
+
+.. literalinclude:: ../../Examples/Channel.py
+
+This example can also be found at `<https://github.com/markqvist/Reticulum/blob/master/Examples/Channel.py>`_.
+
 .. _example-filetransfer:
 
 Filetransfer

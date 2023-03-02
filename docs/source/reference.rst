@@ -130,7 +130,7 @@ This chapter lists and explains all classes exposed by the Reticulum Network Sta
 .. only:: latex
 
    Channel
-   ------
+   -------
 
 .. autoclass:: RNS.Channel.Channel()
    :members:
@@ -144,7 +144,7 @@ This chapter lists and explains all classes exposed by the Reticulum Network Sta
 .. only:: latex
 
    MessageBase
-   ------
+   -----------
 
 .. autoclass:: RNS.MessageBase()
    :members:

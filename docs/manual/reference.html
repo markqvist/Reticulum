@@ -1115,6 +1115,17 @@ be used if a new link to the same destination is established.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.get_channel">
+<span class="sig-name descname"><span class="pre">get_channel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.get_channel" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the <code class="docutils literal notranslate"><span class="pre">Channel</span></code> for this link.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">Channel</span></code> object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Link.set_link_closed_callback">
 <span class="sig-name descname"><span class="pre">set_link_closed_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.set_link_closed_callback" title="Permalink to this definition">#</a></dt>
 <dd><p>Registers a function to be called when a link has been
@@ -1367,6 +1378,153 @@ the resource advertisement it will begin transferring.</p>
 
 </dd></dl>
 
+<p id="api-channel"><h3> Channel </h3></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.Channel.Channel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.Channel.</span></span><span class="sig-name descname"><span class="pre">Channel</span></span><a class="headerlink" href="#RNS.Channel.Channel" title="Permalink to this definition">#</a></dt>
+<dd><p>Provides reliable delivery of messages over
+a link.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Channel</span></code> differs from <code class="docutils literal notranslate"><span class="pre">Request</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Resource</span></code> in some important ways:</p>
+<blockquote>
+<div><dl class="simple">
+<dt><strong>Continuous</strong></dt><dd><p>Messages can be sent or received as long as
+the <code class="docutils literal notranslate"><span class="pre">Link</span></code> is open.</p>
+</dd>
+<dt><strong>Bi-directional</strong></dt><dd><p>Messages can be sent in either direction on
+the <code class="docutils literal notranslate"><span class="pre">Link</span></code>; neither end is the client or
+server.</p>
+</dd>
+<dt><strong>Size-constrained</strong></dt><dd><p>Messages must be encoded into a single packet.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">Channel</span></code> is similar to <code class="docutils literal notranslate"><span class="pre">Packet</span></code>, except that it
+provides reliable delivery (automatic retries) as well
+as a structure for exchanging several types of
+messages over the <code class="docutils literal notranslate"><span class="pre">Link</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Channel</span></code> is not instantiated directly, but rather
+obtained from a <code class="docutils literal notranslate"><span class="pre">Link</span></code> with <code class="docutils literal notranslate"><span class="pre">get_channel()</span></code>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Channel.Channel.register_message_type">
+<span class="sig-name descname"><span class="pre">register_message_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#RNS.MessageBase" title="RNS.Channel.MessageBase"><span class="pre">MessageBase</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Channel.Channel.register_message_type" title="Permalink to this definition">#</a></dt>
+<dd><p>Register a message class for reception over a <code class="docutils literal notranslate"><span class="pre">Channel</span></code>.</p>
+<p>Message classes must extend <code class="docutils literal notranslate"><span class="pre">MessageBase</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message_class</strong> – Class to register</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Channel.Channel.add_message_handler">
+<span class="sig-name descname"><span class="pre">add_message_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MessageCallbackType</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Channel.Channel.add_message_handler" title="Permalink to this definition">#</a></dt>
+<dd><p>Add a handler for incoming messages. A handler
+has the following signature:</p>
+<p><code class="docutils literal notranslate"><span class="pre">(message:</span> <span class="pre">MessageBase)</span> <span class="pre">-&gt;</span> <span class="pre">bool</span></code></p>
+<p>Handlers are processed in the order they are
+added. If any handler returns True, processing
+of the message stops; handlers after the
+returning handler will not be called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>callback</strong> – Function to call</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Channel.Channel.remove_message_handler">
+<span class="sig-name descname"><span class="pre">remove_message_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MessageCallbackType</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Channel.Channel.remove_message_handler" title="Permalink to this definition">#</a></dt>
+<dd><p>Remove a handler added with <code class="docutils literal notranslate"><span class="pre">add_message_handler</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>callback</strong> – handler to remove</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Channel.Channel.is_ready_to_send">
+<span class="sig-name descname"><span class="pre">is_ready_to_send</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#RNS.Channel.Channel.is_ready_to_send" title="Permalink to this definition">#</a></dt>
+<dd><p>Check if <code class="docutils literal notranslate"><span class="pre">Channel</span></code> is ready to send.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if ready</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Channel.Channel.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#RNS.MessageBase" title="RNS.Channel.MessageBase"><span class="pre">MessageBase</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Envelope</span></span></span><a class="headerlink" href="#RNS.Channel.Channel.send" title="Permalink to this definition">#</a></dt>
+<dd><p>Send a message. If a message send is attempted and
+<code class="docutils literal notranslate"><span class="pre">Channel</span></code> is not ready, an exception is thrown.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> – an instance of a <code class="docutils literal notranslate"><span class="pre">MessageBase</span></code> subclass</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="RNS.Channel.Channel.MDU">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MDU</span></span><a class="headerlink" href="#RNS.Channel.Channel.MDU" title="Permalink to this definition">#</a></dt>
+<dd><p>Maximum Data Unit: the number of bytes available
+for a message to consume in a single send. This
+value is adjusted from the <code class="docutils literal notranslate"><span class="pre">Link</span></code> MDU to accommodate
+message header information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>number of bytes available</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p id="api-messsagebase"><h3> MessageBase </h3></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.MessageBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">MessageBase</span></span><a class="headerlink" href="#RNS.MessageBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Base type for any messages sent or received on a Channel.
+Subclasses must define the two abstract methods as well as
+the <code class="docutils literal notranslate"><span class="pre">MSGTYPE</span></code> class variable.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.MessageBase.MSGTYPE">
+<span class="sig-name descname"><span class="pre">MSGTYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#RNS.MessageBase.MSGTYPE" title="Permalink to this definition">#</a></dt>
+<dd><p>Defines a unique identifier for a message class.</p>
+<ul class="simple">
+<li><p>Must be unique within all classes registered with a <code class="docutils literal notranslate"><span class="pre">Channel</span></code></p></li>
+<li><p>Must be less than <code class="docutils literal notranslate"><span class="pre">0xf000</span></code>. Values greater than or equal to <code class="docutils literal notranslate"><span class="pre">0xf000</span></code> are reserved.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.MessageBase.pack">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="headerlink" href="#RNS.MessageBase.pack" title="Permalink to this definition">#</a></dt>
+<dd><p>Create and return the binary representation of the message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>binary representation of message</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.MessageBase.unpack">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.MessageBase.unpack" title="Permalink to this definition">#</a></dt>
+<dd><p>Populate message from binary representation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raw</strong> – binary representation</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <p id="api-transport"><h3> Transport </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Transport">
@@ -1604,6 +1762,7 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Link.inactive_for"><code class="docutils literal notranslate"><span class="pre">inactive_for()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Link.get_remote_identity"><code class="docutils literal notranslate"><span class="pre">get_remote_identity()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Link.teardown"><code class="docutils literal notranslate"><span class="pre">teardown()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.get_channel"><code class="docutils literal notranslate"><span class="pre">get_channel()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Link.set_link_closed_callback"><code class="docutils literal notranslate"><span class="pre">set_link_closed_callback()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Link.set_packet_callback"><code class="docutils literal notranslate"><span class="pre">set_packet_callback()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Link.set_resource_callback"><code class="docutils literal notranslate"><span class="pre">set_resource_callback()</span></code></a></li>
@@ -1631,6 +1790,21 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Resource.get_segments"><code class="docutils literal notranslate"><span class="pre">get_segments()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Resource.get_hash"><code class="docutils literal notranslate"><span class="pre">get_hash()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Resource.is_compressed"><code class="docutils literal notranslate"><span class="pre">is_compressed()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#RNS.Channel.Channel"><code class="docutils literal notranslate"><span class="pre">Channel</span></code></a><ul>
+<li><a class="reference internal" href="#RNS.Channel.Channel.register_message_type"><code class="docutils literal notranslate"><span class="pre">register_message_type()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Channel.Channel.add_message_handler"><code class="docutils literal notranslate"><span class="pre">add_message_handler()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Channel.Channel.remove_message_handler"><code class="docutils literal notranslate"><span class="pre">remove_message_handler()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Channel.Channel.is_ready_to_send"><code class="docutils literal notranslate"><span class="pre">is_ready_to_send()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Channel.Channel.send"><code class="docutils literal notranslate"><span class="pre">send()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Channel.Channel.MDU"><code class="docutils literal notranslate"><span class="pre">MDU</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#RNS.MessageBase"><code class="docutils literal notranslate"><span class="pre">MessageBase</span></code></a><ul>
+<li><a class="reference internal" href="#RNS.MessageBase.MSGTYPE"><code class="docutils literal notranslate"><span class="pre">MSGTYPE</span></code></a></li>
+<li><a class="reference internal" href="#RNS.MessageBase.pack"><code class="docutils literal notranslate"><span class="pre">pack()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.MessageBase.unpack"><code class="docutils literal notranslate"><span class="pre">unpack()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#RNS.Transport"><code class="docutils literal notranslate"><span class="pre">Transport</span></code></a><ul>

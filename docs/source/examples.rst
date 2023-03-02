@@ -95,7 +95,7 @@ This example can also be found at `<https://github.com/markqvist/Reticulum/blob/
 .. _example-channel:
 
 Channel
-====
+=======
 
 The *Channel* example explores using a ``Channel`` to send structured
 data between peers of a ``Link``.

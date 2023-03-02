@@ -861,6 +861,7 @@ the Packet interface.</p>
             <span class="c1"># If we do not know this destination, tell the</span>
             <span class="c1"># user to wait for an announce to arrive.</span>
             <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Destination is not yet known. Requesting path...&quot;</span><span class="p">)</span>
+            <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Hit enter to manually retry once an announce is received.&quot;</span><span class="p">)</span>
             <span class="n">RNS</span><span class="o">.</span><span class="n">Transport</span><span class="o">.</span><span class="n">request_path</span><span class="p">(</span><span class="n">destination_hash</span><span class="p">)</span>
 
 <span class="c1"># This function is called when our reply destination</span>
@@ -1898,6 +1899,409 @@ the link has been established.</p>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Request.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Request.py</a>.</p>
 </section>
+<section id="channel">
+<span id="example-channel"></span><h2>Channel<a class="headerlink" href="#channel" title="Permalink to this heading">#</a></h2>
+<p>The <em>Channel</em> example explores using a <code class="docutils literal notranslate"><span class="pre">Channel</span></code> to send structured
+data between peers of a <code class="docutils literal notranslate"><span class="pre">Link</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##########################################################</span>
+<span class="c1"># This RNS example demonstrates how to set up a link to  #</span>
+<span class="c1"># a destination, and pass structured messages over it    #</span>
+<span class="c1"># using a channel.                                       #</span>
+<span class="c1">##########################################################</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span> <span class="nn">RNS</span>
+<span class="kn">from</span> <span class="nn">RNS.vendor</span> <span class="kn">import</span> <span class="n">umsgpack</span>
+
+<span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
+<span class="c1"># destinations we create. Since this echo example</span>
+<span class="c1"># is part of a range of example utilities, we&#39;ll put</span>
+<span class="c1"># them all within the app namespace &quot;example_utilities&quot;</span>
+<span class="n">APP_NAME</span> <span class="o">=</span> <span class="s2">&quot;example_utilities&quot;</span>
+
+<span class="c1">##########################################################</span>
+<span class="c1">#### Shared Objects ######################################</span>
+<span class="c1">##########################################################</span>
+
+<span class="c1"># Channel data must be structured in a subclass of</span>
+<span class="c1"># MessageBase. This ensures that the channel will be able</span>
+<span class="c1"># to serialize and deserialize the object and multiplex it</span>
+<span class="c1"># with other objects. Both ends of a link will need the</span>
+<span class="c1"># same object definitions to be able to communicate over</span>
+<span class="c1"># a channel.</span>
+<span class="c1">#</span>
+<span class="c1"># Note: The objects we wish to use over the channel must</span>
+<span class="c1"># be registered with the channel, and each link has a</span>
+<span class="c1"># different channel instance. See the client_connected</span>
+<span class="c1"># and link_established functions in this example to see</span>
+<span class="c1"># how message types are registered.</span>
+
+<span class="c1"># Let&#39;s make a simple message class called StringMessage</span>
+<span class="c1"># that will convey a string with a timestamp.</span>
+
+<span class="k">class</span> <span class="nc">StringMessage</span><span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">MessageBase</span><span class="p">):</span>
+    <span class="c1"># The MSGTYPE class variable needs to be assigned a</span>
+    <span class="c1"># 2 byte integer value. This identifier allows the</span>
+    <span class="c1"># channel to look up your message&#39;s constructor when a</span>
+    <span class="c1"># message arrives over the channel.</span>
+    <span class="c1">#</span>
+    <span class="c1"># MSGTYPE must be unique across all message types we</span>
+    <span class="c1"># register with the channel. MSGTYPEs &gt;= 0xf000 are</span>
+    <span class="c1"># reserved for the system.</span>
+    <span class="n">MSGTYPE</span> <span class="o">=</span> <span class="mh">0x0101</span>
+
+    <span class="c1"># The constructor of our object must be callable with</span>
+    <span class="c1"># no arguments. We can have parameters, but they must</span>
+    <span class="c1"># have a default assignment.</span>
+    <span class="c1">#</span>
+    <span class="c1"># This is needed so the channel can create an empty</span>
+    <span class="c1"># version of our message into which the incoming</span>
+    <span class="c1"># message can be unpacked.</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+    <span class="c1"># Finally, our message needs to implement functions</span>
+    <span class="c1"># the channel can call to pack and unpack our message</span>
+    <span class="c1"># to/from the raw packet payload. We&#39;ll use the</span>
+    <span class="c1"># umsgpack package bundled with RNS. We could also use</span>
+    <span class="c1"># the struct package bundled with Python if we wanted</span>
+    <span class="c1"># more control over the structure of the packed bytes.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Also note that packed message objects must fit</span>
+    <span class="c1"># entirely in one packet. The number of bytes</span>
+    <span class="c1"># available for message payloads can be queried from</span>
+    <span class="c1"># the channel using the Channel.MDU property. The</span>
+    <span class="c1"># channel MDU is slightly less than the link MDU due</span>
+    <span class="c1"># to encoding the message header.</span>
+
+    <span class="c1"># The pack function encodes the message contents into</span>
+    <span class="c1"># a byte stream.</span>
+    <span class="k">def</span> <span class="nf">pack</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">umsgpack</span><span class="o">.</span><span class="n">packb</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="p">))</span>
+
+    <span class="c1"># And the unpack function decodes a byte stream into</span>
+    <span class="c1"># the message contents.</span>
+    <span class="k">def</span> <span class="nf">unpack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">umsgpack</span><span class="o">.</span><span class="n">unpackb</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+
+
+<span class="c1">##########################################################</span>
+<span class="c1">#### Server Part #########################################</span>
+<span class="c1">##########################################################</span>
+
+<span class="c1"># A reference to the latest client link that connected</span>
+<span class="n">latest_client_link</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># This initialisation is executed when the users chooses</span>
+<span class="c1"># to run as a server</span>
+<span class="k">def</span> <span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
+    <span class="c1"># We must first initialise Reticulum</span>
+    <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
+    
+    <span class="c1"># Randomly create a new identity for our link example</span>
+    <span class="n">server_identity</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+
+    <span class="c1"># We create a destination that clients can connect to. We</span>
+    <span class="c1"># want clients to create links to this destination, so we</span>
+    <span class="c1"># need to create a &quot;single&quot; destination type.</span>
+    <span class="n">server_destination</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Destination</span><span class="p">(</span>
+        <span class="n">server_identity</span><span class="p">,</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">Destination</span><span class="o">.</span><span class="n">IN</span><span class="p">,</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">Destination</span><span class="o">.</span><span class="n">SINGLE</span><span class="p">,</span>
+        <span class="n">APP_NAME</span><span class="p">,</span>
+        <span class="s2">&quot;channelexample&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># We configure a function that will get called every time</span>
+    <span class="c1"># a new client creates a link to this destination.</span>
+    <span class="n">server_destination</span><span class="o">.</span><span class="n">set_link_established_callback</span><span class="p">(</span><span class="n">client_connected</span><span class="p">)</span>
+
+    <span class="c1"># Everything&#39;s ready!</span>
+    <span class="c1"># Let&#39;s Wait for client requests or user input</span>
+    <span class="n">server_loop</span><span class="p">(</span><span class="n">server_destination</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">server_loop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+    <span class="c1"># Let the user know that everything is ready</span>
+    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+        <span class="s2">&quot;Link example &quot;</span><span class="o">+</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">destination</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span><span class="o">+</span>
+        <span class="s2">&quot; running, waiting for a connection.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Hit enter to manually send an announce (Ctrl-C to quit)&quot;</span><span class="p">)</span>
+
+    <span class="c1"># We enter a loop that runs until the users exits.</span>
+    <span class="c1"># If the user hits enter, we will announce our server</span>
+    <span class="c1"># destination on the network, which will let clients</span>
+    <span class="c1"># know how to create messages directed towards it.</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">entered</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+        <span class="n">destination</span><span class="o">.</span><span class="n">announce</span><span class="p">()</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Sent announce from &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">destination</span><span class="o">.</span><span class="n">hash</span><span class="p">))</span>
+
+<span class="c1"># When a client establishes a link to our server</span>
+<span class="c1"># destination, this function will be called with</span>
+<span class="c1"># a reference to the link.</span>
+<span class="k">def</span> <span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">latest_client_link</span>
+    <span class="n">latest_client_link</span> <span class="o">=</span> <span class="n">link</span>
+
+    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client connected&quot;</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_link_closed_callback</span><span class="p">(</span><span class="n">client_disconnected</span><span class="p">)</span>
+
+    <span class="c1"># Register message types and add callback to channel</span>
+    <span class="n">channel</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">get_channel</span><span class="p">()</span>
+    <span class="n">channel</span><span class="o">.</span><span class="n">register_message_type</span><span class="p">(</span><span class="n">StringMessage</span><span class="p">)</span>
+    <span class="n">channel</span><span class="o">.</span><span class="n">add_message_handler</span><span class="p">(</span><span class="n">server_message_received</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client disconnected&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">server_message_received</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A message handler</span>
+<span class="sd">    @param message: An instance of a subclass of MessageBase</span>
+<span class="sd">    @return: True if message was handled</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">latest_client_link</span>
+    <span class="c1"># When a message is received over any active link,</span>
+    <span class="c1"># the replies will all be directed to the last client</span>
+    <span class="c1"># that connected.</span>
+
+    <span class="c1"># In a message handler, any deserializable message</span>
+    <span class="c1"># that arrives over the link&#39;s channel will be passed</span>
+    <span class="c1"># to all message handlers, unless a preceding handler indicates it</span>
+    <span class="c1"># has handled the message.</span>
+    <span class="c1">#</span>
+    <span class="c1">#</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">StringMessage</span><span class="p">):</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Received data on the link: &quot;</span> <span class="o">+</span> <span class="n">message</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="s2">&quot; (message created at &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
+
+        <span class="n">reply_message</span> <span class="o">=</span> <span class="n">StringMessage</span><span class="p">(</span><span class="s2">&quot;I received </span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">message</span><span class="o">.</span><span class="n">data</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2"> over the link&quot;</span><span class="p">)</span>
+        <span class="n">latest_client_link</span><span class="o">.</span><span class="n">get_channel</span><span class="p">()</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">reply_message</span><span class="p">)</span>
+
+        <span class="c1"># Incoming messages are sent to each message</span>
+        <span class="c1"># handler added to the channel, in the order they</span>
+        <span class="c1"># were added.</span>
+        <span class="c1"># If any message handler returns True, the message</span>
+        <span class="c1"># is considered handled and any subsequent</span>
+        <span class="c1"># handlers are skipped.</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="c1">##########################################################</span>
+<span class="c1">#### Client Part #########################################</span>
+<span class="c1">##########################################################</span>
+
+<span class="c1"># A reference to the server link</span>
+<span class="n">server_link</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># This initialisation is executed when the users chooses</span>
+<span class="c1"># to run as a client</span>
+<span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
+    <span class="c1"># We need a binary representation of the destination</span>
+    <span class="c1"># hash that was entered on the command line</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">dest_len</span> <span class="o">=</span> <span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">TRUNCATED_HASHLENGTH</span><span class="o">//</span><span class="mi">8</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dest_len</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Destination length is invalid, must be </span><span class="si">{hex}</span><span class="s2"> hexadecimal characters (</span><span class="si">{byte}</span><span class="s2"> bytes).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">hex</span><span class="o">=</span><span class="n">dest_len</span><span class="p">,</span> <span class="n">byte</span><span class="o">=</span><span class="n">dest_len</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+            <span class="p">)</span>
+            
+        <span class="n">destination_hash</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">exit</span><span class="p">()</span>
+
+    <span class="c1"># We must first initialise Reticulum</span>
+    <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
+
+    <span class="c1"># Check if we know a path to the destination</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Transport</span><span class="o">.</span><span class="n">has_path</span><span class="p">(</span><span class="n">destination_hash</span><span class="p">):</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Destination is not yet known. Requesting path and waiting for announce to arrive...&quot;</span><span class="p">)</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">Transport</span><span class="o">.</span><span class="n">request_path</span><span class="p">(</span><span class="n">destination_hash</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Transport</span><span class="o">.</span><span class="n">has_path</span><span class="p">(</span><span class="n">destination_hash</span><span class="p">):</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+    <span class="c1"># Recall the server identity</span>
+    <span class="n">server_identity</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Identity</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="n">destination_hash</span><span class="p">)</span>
+
+    <span class="c1"># Inform the user that we&#39;ll begin connecting</span>
+    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Establishing link with server...&quot;</span><span class="p">)</span>
+
+    <span class="c1"># When the server identity is known, we set</span>
+    <span class="c1"># up a destination</span>
+    <span class="n">server_destination</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Destination</span><span class="p">(</span>
+        <span class="n">server_identity</span><span class="p">,</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">Destination</span><span class="o">.</span><span class="n">OUT</span><span class="p">,</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">Destination</span><span class="o">.</span><span class="n">SINGLE</span><span class="p">,</span>
+        <span class="n">APP_NAME</span><span class="p">,</span>
+        <span class="s2">&quot;channelexample&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># And create a link</span>
+    <span class="n">link</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="p">(</span><span class="n">server_destination</span><span class="p">)</span>
+
+    <span class="c1"># We set a callback that will get executed</span>
+    <span class="c1"># every time a packet is received over the</span>
+    <span class="c1"># link</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_packet_callback</span><span class="p">(</span><span class="n">client_message_received</span><span class="p">)</span>
+
+    <span class="c1"># We&#39;ll also set up functions to inform the</span>
+    <span class="c1"># user when the link is established or closed</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_link_established_callback</span><span class="p">(</span><span class="n">link_established</span><span class="p">)</span>
+    <span class="n">link</span><span class="o">.</span><span class="n">set_link_closed_callback</span><span class="p">(</span><span class="n">link_closed</span><span class="p">)</span>
+
+    <span class="c1"># Everything is set up, so let&#39;s enter a loop</span>
+    <span class="c1"># for the user to interact with the example</span>
+    <span class="n">client_loop</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">client_loop</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">server_link</span>
+
+    <span class="c1"># Wait for the link to become active</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">server_link</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+    <span class="n">should_quit</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">should_quit</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+
+            <span class="c1"># Check if we should quit the example</span>
+            <span class="k">if</span> <span class="n">text</span> <span class="o">==</span> <span class="s2">&quot;quit&quot;</span> <span class="ow">or</span> <span class="n">text</span> <span class="o">==</span> <span class="s2">&quot;q&quot;</span> <span class="ow">or</span> <span class="n">text</span> <span class="o">==</span> <span class="s2">&quot;exit&quot;</span><span class="p">:</span>
+                <span class="n">should_quit</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">server_link</span><span class="o">.</span><span class="n">teardown</span><span class="p">()</span>
+
+            <span class="c1"># If not, send the entered text over the link</span>
+            <span class="k">if</span> <span class="n">text</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="n">StringMessage</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+                <span class="n">packed_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">pack</span><span class="p">())</span>
+                <span class="n">channel</span> <span class="o">=</span> <span class="n">server_link</span><span class="o">.</span><span class="n">get_channel</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">channel</span><span class="o">.</span><span class="n">is_ready_to_send</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">packed_size</span> <span class="o">&lt;=</span> <span class="n">channel</span><span class="o">.</span><span class="n">MDU</span><span class="p">:</span>
+                        <span class="n">channel</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                            <span class="s2">&quot;Cannot send this packet, the data size of &quot;</span><span class="o">+</span>
+                            <span class="nb">str</span><span class="p">(</span><span class="n">packed_size</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; bytes exceeds the link packet MDU of &quot;</span><span class="o">+</span>
+                            <span class="nb">str</span><span class="p">(</span><span class="n">channel</span><span class="o">.</span><span class="n">MDU</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; bytes&quot;</span><span class="p">,</span>
+                            <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Channel is not ready to send, please wait for &quot;</span> <span class="o">+</span>
+                            <span class="s2">&quot;pending messages to complete.&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Error while sending data over the link: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="n">should_quit</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">server_link</span><span class="o">.</span><span class="n">teardown</span><span class="p">()</span>
+
+<span class="c1"># This function is called when a link</span>
+<span class="c1"># has been established with the server</span>
+<span class="k">def</span> <span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+    <span class="c1"># We store a reference to the link</span>
+    <span class="c1"># instance for later use</span>
+    <span class="k">global</span> <span class="n">server_link</span>
+    <span class="n">server_link</span> <span class="o">=</span> <span class="n">link</span>
+
+    <span class="c1"># Register messages and add handler to channel</span>
+    <span class="n">channel</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">get_channel</span><span class="p">()</span>
+    <span class="n">channel</span><span class="o">.</span><span class="n">register_message_type</span><span class="p">(</span><span class="n">StringMessage</span><span class="p">)</span>
+    <span class="n">channel</span><span class="o">.</span><span class="n">add_message_handler</span><span class="p">(</span><span class="n">client_message_received</span><span class="p">)</span>
+
+    <span class="c1"># Inform the user that the server is</span>
+    <span class="c1"># connected</span>
+    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Link established with server, enter some text to send, or </span><span class="se">\&quot;</span><span class="s2">quit</span><span class="se">\&quot;</span><span class="s2"> to quit&quot;</span><span class="p">)</span>
+
+<span class="c1"># When a link is closed, we&#39;ll inform the</span>
+<span class="c1"># user, and exit the program</span>
+<span class="k">def</span> <span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">:</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;The link timed out, exiting now&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">DESTINATION_CLOSED</span><span class="p">:</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;The link was closed by the server, exiting now&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Link closed, exiting now&quot;</span><span class="p">)</span>
+    
+    <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">exit_handler</span><span class="p">()</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># When a packet is received over the link, we</span>
+<span class="c1"># simply print out the data.</span>
+<span class="k">def</span> <span class="nf">client_message_received</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">StringMessage</span><span class="p">):</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Received data on the link: &quot;</span> <span class="o">+</span> <span class="n">message</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="s2">&quot; (message created at &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+
+<span class="c1">##########################################################</span>
+<span class="c1">#### Program Startup #####################################</span>
+<span class="c1">##########################################################</span>
+
+<span class="c1"># This part of the program runs at startup,</span>
+<span class="c1"># and parses input of from the user, and then</span>
+<span class="c1"># starts up the desired program mode.</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Simple link example&quot;</span><span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--server&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;wait for incoming link requests from clients&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--config&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to alternative Reticulum config directory&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span>
+        <span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;destination&quot;</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;hexadecimal hash of the server destination&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span>
+        <span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+            <span class="n">configarg</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">configarg</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">server</span><span class="p">:</span>
+            <span class="n">server</span><span class="p">(</span><span class="n">configarg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">destination</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">client</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">configarg</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">exit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Channel.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Channel.py</a>.</p>
+</section>
 <section id="filetransfer">
 <span id="example-filetransfer"></span><h2>Filetransfer<a class="headerlink" href="#filetransfer" title="Permalink to this heading">#</a></h2>
 <p>The <em>Filetransfer</em> example implements a basic file-server program that
@@ -2578,6 +2982,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 <li><a class="reference internal" href="#link">Link</a></li>
 <li><a class="reference internal" href="#example-identify">Identification</a></li>
 <li><a class="reference internal" href="#requests-responses">Requests &amp; Responses</a></li>
+<li><a class="reference internal" href="#channel">Channel</a></li>
 <li><a class="reference internal" href="#filetransfer">Filetransfer</a></li>
 </ul>
 </li>

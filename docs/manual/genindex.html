@@ -222,13 +222,15 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#V"><strong>V</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a></div>
 </section>
 <section id="A" class="genindex-section">
   <h2>A</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="reference.html#RNS.Destination.accepts_links">accepts_links() (RNS.Destination method)</a>
+</li>
+        <li><a href="reference.html#RNS.Channel.Channel.add_message_handler">add_message_handler() (RNS.Channel.Channel method)</a>
 </li>
         <li><a href="reference.html#RNS.Resource.advertise">advertise() (RNS.Resource method)</a>
 </li>
@@ -249,6 +251,8 @@
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="reference.html#RNS.Resource.cancel">cancel() (RNS.Resource method)</a>
+</li>
+        <li><a href="reference.html#RNS.Channel.Channel">Channel (class in RNS.Channel)</a>
 </li>
         <li><a href="reference.html#RNS.Destination.clear_default_app_data">clear_default_app_data() (RNS.Destination method)</a>
 </li>
@@ -330,6 +334,8 @@
   <h2>G</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference.html#RNS.Link.get_channel">get_channel() (RNS.Link method)</a>
+</li>
         <li><a href="reference.html#RNS.Resource.get_data_size">get_data_size() (RNS.Resource method)</a>
 </li>
         <li><a href="reference.html#RNS.Link.get_establishment_rate">get_establishment_rate() (RNS.Link method)</a>
@@ -412,6 +418,8 @@
 </li>
         <li><a href="reference.html#RNS.Resource.is_compressed">is_compressed() (RNS.Resource method)</a>
 </li>
+        <li><a href="reference.html#RNS.Channel.Channel.is_ready_to_send">is_ready_to_send() (RNS.Channel.Channel method)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -456,6 +464,14 @@
   <h2>M</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference.html#RNS.Channel.Channel.MDU">MDU (RNS.Channel.Channel property)</a>
+</li>
+        <li><a href="reference.html#RNS.MessageBase">MessageBase (class in RNS)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference.html#RNS.MessageBase.MSGTYPE">MSGTYPE (RNS.MessageBase attribute)</a>
+</li>
         <li><a href="reference.html#RNS.Reticulum.MTU">MTU (RNS.Reticulum attribute)</a>
 </li>
     </ul></td>
@@ -484,12 +500,14 @@
   <h2>P</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="reference.html#RNS.Packet">Packet (class in RNS)</a>
+        <li><a href="reference.html#RNS.MessageBase.pack">pack() (RNS.MessageBase method)</a>
 </li>
-        <li><a href="reference.html#RNS.PacketReceipt">PacketReceipt (class in RNS)</a>
+        <li><a href="reference.html#RNS.Packet">Packet (class in RNS)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference.html#RNS.PacketReceipt">PacketReceipt (class in RNS)</a>
+</li>
         <li><a href="reference.html#RNS.Transport.PATHFINDER_M">PATHFINDER_M (RNS.Transport attribute)</a>
 </li>
         <li><a href="reference.html#RNS.Packet.PLAIN_MDU">PLAIN_MDU (RNS.Packet attribute)</a>
@@ -508,12 +526,16 @@
 </li>
         <li><a href="reference.html#RNS.Transport.register_announce_handler">register_announce_handler() (RNS.Transport static method)</a>
 </li>
+        <li><a href="reference.html#RNS.Channel.Channel.register_message_type">register_message_type() (RNS.Channel.Channel method)</a>
+</li>
         <li><a href="reference.html#RNS.Destination.register_request_handler">register_request_handler() (RNS.Destination method)</a>
 </li>
-        <li><a href="reference.html#RNS.Link.request">request() (RNS.Link method)</a>
+        <li><a href="reference.html#RNS.Channel.Channel.remove_message_handler">remove_message_handler() (RNS.Channel.Channel method)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference.html#RNS.Link.request">request() (RNS.Link method)</a>
+</li>
         <li><a href="reference.html#RNS.Transport.request_path">request_path() (RNS.Transport static method)</a>
 </li>
         <li><a href="reference.html#RNS.RequestReceipt">RequestReceipt (class in RNS)</a>
@@ -532,8 +554,12 @@
   <h2>S</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="reference.html#RNS.Packet.send">send() (RNS.Packet method)</a>
+        <li><a href="reference.html#RNS.Channel.Channel.send">send() (RNS.Channel.Channel method)</a>
+
+        <ul>
+          <li><a href="reference.html#RNS.Packet.send">(RNS.Packet method)</a>
 </li>
+        </ul></li>
         <li><a href="reference.html#RNS.Destination.set_default_app_data">set_default_app_data() (RNS.Destination method)</a>
 </li>
         <li><a href="reference.html#RNS.PacketReceipt.set_delivery_callback">set_delivery_callback() (RNS.PacketReceipt method)</a>
@@ -601,6 +627,16 @@
         <li><a href="reference.html#RNS.Identity.truncated_hash">truncated_hash() (RNS.Identity static method)</a>
 </li>
         <li><a href="reference.html#RNS.Identity.TRUNCATED_HASHLENGTH">TRUNCATED_HASHLENGTH (RNS.Identity attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="U" class="genindex-section">
+  <h2>U</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference.html#RNS.MessageBase.unpack">unpack() (RNS.MessageBase method)</a>
 </li>
     </ul></td>
   </tr></table>
