@@ -1,9 +1,9 @@
 ##########################################################
 # This RNS example demonstrates how to set up a link to  #
-# a destination, and pass structured messages over it    #
-# using a channel.                                       #
+# a destination, and pass binary data over it using a    #
+# using a channel buffer.                                #
 ##########################################################
-
+from __future__ import annotations
 import os
 import sys
 import time
@@ -19,72 +19,6 @@ from RNS.vendor import umsgpack
 # them all within the app namespace "example_utilities"
 APP_NAME = "example_utilities"
 
-##########################################################
-#### Shared Objects ######################################
-##########################################################
-
-# Channel data must be structured in a subclass of
-# MessageBase. This ensures that the channel will be able
-# to serialize and deserialize the object and multiplex it
-# with other objects. Both ends of a link will need the
-# same object definitions to be able to communicate over
-# a channel.
-#
-# Note: The objects we wish to use over the channel must
-# be registered with the channel, and each link has a
-# different channel instance. See the client_connected
-# and link_established functions in this example to see
-# how message types are registered.
-
-# Let's make a simple message class called StringMessage
-# that will convey a string with a timestamp.
-
-class StringMessage(RNS.MessageBase):
-    # The MSGTYPE class variable needs to be assigned a
-    # 2 byte integer value. This identifier allows the
-    # channel to look up your message's constructor when a
-    # message arrives over the channel.
-    #
-    # MSGTYPE must be unique across all message types we
-    # register with the channel. MSGTYPEs >= 0xf000 are
-    # reserved for the system.
-    MSGTYPE = 0x0101
-
-    # The constructor of our object must be callable with
-    # no arguments. We can have parameters, but they must
-    # have a default assignment.
-    #
-    # This is needed so the channel can create an empty
-    # version of our message into which the incoming
-    # message can be unpacked.
-    def __init__(self, data=None):
-        self.data = data
-        self.timestamp = datetime.now()
-
-    # Finally, our message needs to implement functions
-    # the channel can call to pack and unpack our message
-    # to/from the raw packet payload. We'll use the
-    # umsgpack package bundled with RNS. We could also use
-    # the struct package bundled with Python if we wanted
-    # more control over the structure of the packed bytes.
-    #
-    # Also note that packed message objects must fit
-    # entirely in one packet. The number of bytes
-    # available for message payloads can be queried from
-    # the channel using the Channel.MDU property. The
-    # channel MDU is slightly less than the link MDU due
-    # to encoding the message header.
-
-    # The pack function encodes the message contents into
-    # a byte stream.
-    def pack(self) -> bytes:
-        return umsgpack.packb((self.data, self.timestamp))
-
-    # And the unpack function decodes a byte stream into
-    # the message contents.
-    def unpack(self, raw):
-        self.data, self.timestamp = umsgpack.unpackb(raw)
-
 
 ##########################################################
 #### Server Part #########################################
@@ -92,6 +26,9 @@ class StringMessage(RNS.MessageBase):
 
 # A reference to the latest client link that connected
 latest_client_link = None
+
+# A reference to the latest buffer object
+latest_buffer = None
 
 # This initialisation is executed when the users chooses
 # to run as a server
@@ -110,7 +47,7 @@ def server(configpath):
         RNS.Destination.IN,
         RNS.Destination.SINGLE,
         APP_NAME,
-        "channelexample"
+        "bufferexample"
     )
 
     # We configure a function that will get called every time
@@ -144,50 +81,53 @@ def server_loop(destination):
 # destination, this function will be called with
 # a reference to the link.
 def client_connected(link):
-    global latest_client_link
+    global latest_client_link, latest_buffer
     latest_client_link = link
 
     RNS.log("Client connected")
     link.set_link_closed_callback(client_disconnected)
 
-    # Register message types and add callback to channel
+    # If a new connection is received, the old reader
+    # needs to be disconnected.
+    if latest_buffer:
+        latest_buffer.close()
+
+
+    # Create buffer objects.
+    #   The stream_id parameter to these functions is
+    #   a bit like a file descriptor, except that it
+    #   is unique to the *receiver*.
+    #
+    #   In this example, both the reader and the writer
+    #   use stream_id = 0, but there are actually two
+    #   separate unidirectional streams flowing in
+    #   opposite directions.
+    #
     channel = link.get_channel()
-    channel.register_message_type(StringMessage)
-    channel.add_message_handler(server_message_received)
+    latest_buffer = RNS.Buffer.create_bidirectional_buffer(0, 0, channel, server_buffer_ready)
 
 def client_disconnected(link):
     RNS.log("Client disconnected")
 
-def server_message_received(message):
+def server_buffer_ready(ready_bytes: int):
     """
-    A message handler
-    @param message: An instance of a subclass of MessageBase
-    @return: True if message was handled
+    Callback from buffer when buffer has data available
+
+    :param ready_bytes: The number of bytes ready to read
     """
-    global latest_client_link
-    # When a message is received over any active link,
-    # the replies will all be directed to the last client
-    # that connected.
+    global latest_buffer
 
-    # In a message handler, any deserializable message
-    # that arrives over the link's channel will be passed
-    # to all message handlers, unless a preceding handler indicates it
-    # has handled the message.
-    #
-    #
-    if isinstance(message, StringMessage):
-        RNS.log("Received data on the link: " + message.data + " (message created at " + str(message.timestamp) + ")")
+    data = latest_buffer.read(ready_bytes)
+    data = data.decode("utf-8")
 
-        reply_message = StringMessage("I received \""+message.data+"\" over the link")
-        latest_client_link.get_channel().send(reply_message)
+    RNS.log("Received data on the link: " + data)
 
-        # Incoming messages are sent to each message
-        # handler added to the channel, in the order they
-        # were added.
-        # If any message handler returns True, the message
-        # is considered handled and any subsequent
-        # handlers are skipped.
-        return True
+    reply_message = "I received \""+data+"\" over the buffer"
+    reply_message = reply_message.encode("utf-8")
+    latest_buffer.write(reply_message)
+    latest_buffer.flush()
+
+
 
 
 ##########################################################
@@ -196,6 +136,11 @@ def server_message_received(message):
 
 # A reference to the server link
 server_link = None
+
+# A reference to the buffer object, needed to share the
+# object from the link connected callback to the client
+# loop.
+buffer = None
 
 # This initialisation is executed when the users chooses
 # to run as a client
@@ -237,7 +182,7 @@ def client(destination_hexhash, configpath):
         RNS.Destination.OUT,
         RNS.Destination.SINGLE,
         APP_NAME,
-        "channelexample"
+        "bufferexample"
     )
 
     # And create a link
@@ -269,25 +214,13 @@ def client_loop():
             if text == "quit" or text == "q" or text == "exit":
                 should_quit = True
                 server_link.teardown()
+            else:
+                # Otherwise, encode the text and write it to the buffer.
+                text = text.encode("utf-8")
+                buffer.write(text)
+                # Flush the buffer to force the data to be sent.
+                buffer.flush()
 
-            # If not, send the entered text over the link
-            if text != "":
-                message = StringMessage(text)
-                packed_size = len(message.pack())
-                channel = server_link.get_channel()
-                if channel.is_ready_to_send():
-                    if packed_size <= channel.MDU:
-                        channel.send(message)
-                    else:
-                        RNS.log(
-                            "Cannot send this packet, the data size of "+
-                            str(packed_size)+" bytes exceeds the link packet MDU of "+
-                            str(channel.MDU)+" bytes",
-                            RNS.LOG_ERROR
-                        )
-                else:
-                    RNS.log("Channel is not ready to send, please wait for " +
-                            "pending messages to complete.", RNS.LOG_ERROR)
 
         except Exception as e:
             RNS.log("Error while sending data over the link: "+str(e))
@@ -299,13 +232,13 @@ def client_loop():
 def link_established(link):
     # We store a reference to the link
     # instance for later use
-    global server_link
+    global server_link, buffer
     server_link = link
 
-    # Register messages and add handler to channel
+    # Create buffer, see server_client_connected() for
+    # more detail about setting up the buffer.
     channel = link.get_channel()
-    channel.register_message_type(StringMessage)
-    channel.add_message_handler(client_message_received)
+    buffer = RNS.Buffer.create_bidirectional_buffer(0, 0, channel, client_buffer_ready)
 
     # Inform the user that the server is
     # connected
@@ -325,13 +258,13 @@ def link_closed(link):
     time.sleep(1.5)
     os._exit(0)
 
-# When a packet is received over the channel, we
-# simply print out the data.
-def client_message_received(message):
-    if isinstance(message, StringMessage):
-        RNS.log("Received data on the link: " + message.data + " (message created at " + str(message.timestamp) + ")")
-        print("> ", end=" ")
-        sys.stdout.flush()
+# When the buffer has new data, read it and write it to the terminal.
+def client_buffer_ready(ready_bytes: int):
+    global buffer
+    data = buffer.read(ready_bytes)
+    RNS.log("Received data on the link: " + data.decode("utf-8"))
+    print("> ", end=" ")
+    sys.stdout.flush()
 
 
 ##########################################################
@@ -343,7 +276,7 @@ def client_message_received(message):
 # starts up the desired program mode.
 if __name__ == "__main__":
     try:
-        parser = argparse.ArgumentParser(description="Simple channel example")
+        parser = argparse.ArgumentParser(description="Simple buffer example")
 
         parser.add_argument(
             "-s",

@@ -130,7 +130,7 @@ This chapter lists and explains all classes exposed by the Reticulum Network Sta
 .. only:: latex
 
    Channel
-   ------
+   -------
 
 .. autoclass:: RNS.Channel.Channel()
    :members:
@@ -144,10 +144,52 @@ This chapter lists and explains all classes exposed by the Reticulum Network Sta
 .. only:: latex
 
    MessageBase
-   ------
+   -----------
 
 .. autoclass:: RNS.MessageBase()
    :members:
+
+.. _api-buffer:
+
+.. only:: html
+
+   |start-h3| Buffer |end-h3|
+
+.. only:: latex
+
+   Buffer
+   ------
+
+.. autoclass:: RNS.Buffer
+   :members:
+
+.. _api-rawchannelreader:
+
+.. only:: html
+
+   |start-h3| RawChannelReader |end-h3|
+
+.. only:: latex
+
+   RawChannelReader
+   ----------------
+
+.. autoclass:: RNS.RawChannelReader
+   :members: __init__, add_ready_callback, remove_ready_callback
+
+.. _api-rawchannelwriter:
+
+.. only:: html
+
+   |start-h3| RawChannelWriter |end-h3|
+
+.. only:: latex
+
+   RawChannelWriter
+   ----------------
+
+.. autoclass:: RNS.RawChannelWriter
+   :members: __init__
 
 .. _api-transport:
 

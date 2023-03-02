@@ -33,6 +33,7 @@ from .Reticulum import Reticulum
 from .Identity import Identity
 from .Link import Link, RequestReceipt
 from .Channel import MessageBase
+from .Buffer import Buffer, RawChannelReader, RawChannelWriter
 from .Transport import Transport
 from .Destination import Destination
 from .Packet import Packet
