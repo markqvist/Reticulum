@@ -104,6 +104,16 @@ data between peers of a ``Link``.
 
 This example can also be found at `<https://github.com/markqvist/Reticulum/blob/master/Examples/Channel.py>`_.
 
+Buffer
+======
+
+The *Buffer* example explores using buffered readers and writers to send
+binary data between peers of a ``Link``.
+
+.. literalinclude:: ../../Examples/Buffer.py
+
+This example can also be found at `<https://github.com/markqvist/Reticulum/blob/master/Examples/Buffer.py>`_.
+
 .. _example-filetransfer:
 
 Filetransfer
