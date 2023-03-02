@@ -75,6 +75,7 @@ class Packet:
     PATH_RESPONSE  = 0x0B   # Packet is a response to a path request
     COMMAND        = 0x0C   # Packet is a command
     COMMAND_STATUS = 0x0D   # Packet is a status of an executed command
+    CHANNEL        = 0x0E   # Packet contains link channel data
     KEEPALIVE      = 0xFA   # Packet is a keepalive packet
     LINKIDENTIFY   = 0xFB   # Packet is a link peer identification proof
     LINKCLOSE      = 0xFC   # Packet is a link close message

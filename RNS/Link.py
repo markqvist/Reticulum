@@ -22,6 +22,7 @@
 
 from RNS.Cryptography import X25519PrivateKey, X25519PublicKey, Ed25519PrivateKey, Ed25519PublicKey
 from RNS.Cryptography import Fernet
+from RNS.Channel import Channel, LinkChannelOutlet
 
 from time import sleep
 from .vendor import umsgpack as umsgpack
@@ -163,6 +164,7 @@ class Link:
         self.destination = destination
         self.attached_interface = None
         self.__remote_identity = None
+        self._channel = None
         if self.destination == None:
             self.initiator = False
             self.prv     = X25519PrivateKey.generate()
@@ -462,6 +464,8 @@ class Link:
             resource.cancel()
         for resource in self.outgoing_resources:
             resource.cancel()
+        if self._channel:
+            self._channel._shutdown()
             
         self.prv = None
         self.pub = None
@@ -642,6 +646,16 @@ class Link:
                 if pending_request.request_id == resource.request_id:
                     pending_request.request_timed_out(None)
 
+    def get_channel(self):
+        """
+        Get the ``Channel`` for this link.
+
+        :return: ``Channel`` object
+        """
+        if self._channel is None:
+            self._channel = Channel(LinkChannelOutlet(self))
+        return self._channel
+
     def receive(self, packet):
         self.watchdog_lock = True
         if not self.status == Link.CLOSED and not (self.initiator and packet.context == RNS.Packet.KEEPALIVE and packet.data == bytes([0xFF])):
@@ -787,6 +801,14 @@ class Link:
                     elif packet.context == RNS.Packet.RESOURCE:
                         for resource in self.incoming_resources:
                             resource.receive_part(packet)
+
+                    elif packet.context == RNS.Packet.CHANNEL:
+                        if not self._channel:
+                            RNS.log(f"Channel data received without open channel", RNS.LOG_DEBUG)
+                        else:
+                            plaintext = self.decrypt(packet.data)
+                            self._channel._receive(plaintext)
+                            packet.prove()
 
                 elif packet.packet_type == RNS.Packet.PROOF:
                     if packet.context == RNS.Packet.RESOURCE_PRF:
