@@ -396,6 +396,48 @@ class TestLink(unittest.TestCase):
         self.assertEqual(l1.status, RNS.Link.CLOSED)
         self.assertEqual(0, len(l1._channel._rx_ring))
 
+    def test_11_buffer_round_trip(self):
+        global c_rns
+        init_rns(self)
+        print("")
+        print("Buffer round trip test")
+
+        # TODO: Load this from public bytes only
+        id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
+        self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
+
+        dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
+
+        self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+
+        l1 = RNS.Link(dest)
+        time.sleep(1)
+        self.assertEqual(l1.status, RNS.Link.ACTIVE)
+        buffer = None
+
+        received = []
+        def handle_data(ready_bytes: int):
+            data = buffer.read(ready_bytes)
+            received.append(data)
+
+        channel = l1.get_channel()
+        buffer = RNS.Buffer.create_bidirectional_buffer(0, 0, channel, handle_data)
+
+        buffer.write("Hi there".encode("utf-8"))
+        buffer.flush()
+
+        time.sleep(0.5)
+
+        self.assertEqual(1 , len(received))
+
+        rx_message = received[0].decode("utf-8")
+
+        self.assertEqual("Hi there back at you", rx_message)
+
+        l1.teardown()
+        time.sleep(0.5)
+        self.assertEqual(l1.status, RNS.Link.CLOSED)
+
 
     def size_str(self, num, suffix='B'):
         units = ['','K','M','G','T','P','E','Z']
@@ -461,6 +503,15 @@ def targets(yp=False):
             channel.send(message)
         channel.register_message_type(MessageTest)
         channel.add_message_handler(handle_message)
+
+        buffer = None
+
+        def handle_buffer(ready_bytes: int):
+            data = buffer.read(ready_bytes)
+            buffer.write((data.decode("utf-8") + " back at you").encode("utf-8"))
+            buffer.flush()
+
+        buffer = RNS.Buffer.create_bidirectional_buffer(0, 0, channel, handle_buffer)
 
     m_rns = RNS.Reticulum("./tests/rnsconfig")
     id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))

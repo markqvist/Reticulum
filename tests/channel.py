@@ -2,6 +2,7 @@ from __future__ import annotations
 import threading
 import RNS
 from RNS.Channel import MessageState, ChannelOutletBase, Channel, MessageBase
+import RNS.Buffer
 from RNS.vendor import umsgpack
 from typing import Callable
 import contextlib
@@ -91,17 +92,20 @@ class ChannelOutletTest(ChannelOutletBase):
         self._rtt = rtt
         self._usable = True
         self.packets = []
+        self.lock = threading.RLock()
         self.packet_callback: Callable[[ChannelOutletBase, bytes], None] | None = None
 
     def send(self, raw: bytes) -> Packet:
-        packet = Packet(raw)
-        packet.send()
-        self.packets.append(packet)
-        return packet
+        with self.lock:
+            packet = Packet(raw)
+            packet.send()
+            self.packets.append(packet)
+            return packet
 
     def resend(self, packet: Packet) -> Packet:
-        packet.send()
-        return packet
+        with self.lock:
+            packet.send()
+            return packet
 
     @property
     def mdu(self):
@@ -369,6 +373,105 @@ class TestChannel(unittest.TestCase):
             self.assertNotEqual(message.not_serialized, rx_message.not_serialized)
 
         self.eat_own_dog_food(message, check)
+
+    def test_buffer_small_bidirectional(self):
+        data = "Hello\n"
+        with RNS.Buffer.create_bidirectional_buffer(0, 0, self.h.channel) as buffer:
+            count = buffer.write(data.encode("utf-8"))
+            buffer.flush()
+
+            self.assertEqual(len(data), count)
+            self.assertEqual(1, len(self.h.outlet.packets))
+
+            packet = self.h.outlet.packets[0]
+            self.h.channel._receive(packet.raw)
+            result = buffer.readline()
+
+            self.assertIsNotNone(result)
+            self.assertEqual(len(result), len(data))
+
+            decoded = result.decode("utf-8")
+
+            self.assertEqual(data, decoded)
+
+    def test_buffer_big(self):
+        writer = RNS.Buffer.create_writer(15, self.h.channel)
+        reader = RNS.Buffer.create_reader(15, self.h.channel)
+        data = "01234556789"*1024  # 10 KB
+        count = 0
+        write_finished = False
+
+        def write_thread():
+            nonlocal count, write_finished
+            count = writer.write(data.encode("utf-8"))
+            writer.flush()
+            writer.close()
+            write_finished = True
+        threading.Thread(target=write_thread, name="Write Thread", daemon=True).start()
+
+        while not write_finished or next(filter(lambda x: x.state != MessageState.MSGSTATE_DELIVERED,
+                                                self.h.outlet.packets), None) is not None:
+            with self.h.outlet.lock:
+                for packet in self.h.outlet.packets:
+                    if packet.state != MessageState.MSGSTATE_DELIVERED:
+                        self.h.channel._receive(packet.raw)
+                        packet.delivered()
+            time.sleep(0.0001)
+
+        self.assertEqual(len(data), count)
+
+        read_finished = False
+        result = bytes()
+
+        def read_thread():
+            nonlocal read_finished, result
+            result = reader.read()
+            read_finished = True
+        threading.Thread(target=read_thread, name="Read Thread", daemon=True).start()
+
+        timeout_at = time.time() + 7
+        while not read_finished and time.time() < timeout_at:
+            time.sleep(0.001)
+
+        self.assertTrue(read_finished)
+        self.assertEqual(len(data), len(result))
+
+        decoded = result.decode("utf-8")
+
+        self.assertSequenceEqual(data, decoded)
+
+    def test_buffer_small_with_callback(self):
+        callbacks = 0
+        last_cb_value = None
+
+        def callback(ready: int):
+            nonlocal callbacks, last_cb_value
+            callbacks += 1
+            last_cb_value = ready
+
+        data = "Hello\n"
+        with RNS.RawChannelWriter(0, self.h.channel) as writer, RNS.RawChannelReader(0, self.h.channel) as reader:
+            reader.add_ready_callback(callback)
+            count = writer.write(data.encode("utf-8"))
+            writer.flush()
+
+            self.assertEqual(len(data), count)
+            self.assertEqual(1, len(self.h.outlet.packets))
+
+            packet = self.h.outlet.packets[0]
+            self.h.channel._receive(packet.raw)
+
+            self.assertEqual(1, callbacks)
+            self.assertEqual(len(data), last_cb_value)
+
+            result = reader.readline()
+
+            self.assertIsNotNone(result)
+            self.assertEqual(len(result), len(data))
+
+            decoded = result.decode("utf-8")
+
+            self.assertEqual(data, decoded)
 
 
 if __name__ == '__main__':

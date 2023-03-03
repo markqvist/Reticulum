@@ -34,6 +34,8 @@ import RNS
 from abc import ABC, abstractmethod
 TPacket = TypeVar("TPacket")
 
+class SystemMessageTypes(enum.IntEnum):
+    SMT_STREAM_DATA = 0xff00
 
 class ChannelOutletBase(ABC, Generic[TPacket]):
     """
