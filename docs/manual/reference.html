@@ -1525,6 +1525,174 @@ the <code class="docutils literal notranslate"><span class="pre">MSGTYPE</span><
 
 </dd></dl>
 
+<p id="api-buffer"><h3> Buffer </h3></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.Buffer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Buffer</span></span><a class="headerlink" href="#RNS.Buffer" title="Permalink to this definition">#</a></dt>
+<dd><p>Static functions for creating buffered streams that send
+and receive over a <code class="docutils literal notranslate"><span class="pre">Channel</span></code>.</p>
+<p>These functions use <code class="docutils literal notranslate"><span class="pre">BufferedReader</span></code>, <code class="docutils literal notranslate"><span class="pre">BufferedWriter</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">BufferedRWPair</span></code> to add buffering to
+<code class="docutils literal notranslate"><span class="pre">RawChannelReader</span></code> and <code class="docutils literal notranslate"><span class="pre">RawChannelWriter</span></code>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Buffer.create_reader">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_reader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#RNS.Channel.Channel" title="RNS.Channel.Channel"><span class="pre">Channel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ready_callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BufferedReader</span></span></span><a class="headerlink" href="#RNS.Buffer.create_reader" title="Permalink to this definition">#</a></dt>
+<dd><p>Create a buffered reader that reads binary data sent
+over a <code class="docutils literal notranslate"><span class="pre">Channel</span></code>, with an optional callback when
+new data is available.</p>
+<p>Callback signature: <code class="docutils literal notranslate"><span class="pre">(ready_bytes:</span> <span class="pre">int)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<p>For more information on the reader-specific functions
+of this object, see the Python documentation for
+<code class="docutils literal notranslate"><span class="pre">BufferedReader</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream_id</strong> – the local stream id to receive from</p></li>
+<li><p><strong>channel</strong> – the channel to receive on</p></li>
+<li><p><strong>ready_callback</strong> – function to call when new data is available</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a BufferedReader object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Buffer.create_writer">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#RNS.Channel.Channel" title="RNS.Channel.Channel"><span class="pre">Channel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BufferedWriter</span></span></span><a class="headerlink" href="#RNS.Buffer.create_writer" title="Permalink to this definition">#</a></dt>
+<dd><p>Create a buffered writer that writes binary data over
+a <code class="docutils literal notranslate"><span class="pre">Channel</span></code>.</p>
+<p>For more information on the writer-specific functions
+of this object, see the Python documentation for
+<code class="docutils literal notranslate"><span class="pre">BufferedWriter</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream_id</strong> – the remote stream id to send to</p></li>
+<li><p><strong>channel</strong> – the channel to send on</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a BufferedWriter object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Buffer.create_bidirectional_buffer">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_bidirectional_buffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">receive_stream_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_stream_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#RNS.Channel.Channel" title="RNS.Channel.Channel"><span class="pre">Channel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ready_callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BufferedRWPair</span></span></span><a class="headerlink" href="#RNS.Buffer.create_bidirectional_buffer" title="Permalink to this definition">#</a></dt>
+<dd><p>Create a buffered reader/writer pair that reads and
+writes binary data over a <code class="docutils literal notranslate"><span class="pre">Channel</span></code>, with an
+optional callback when new data is available.</p>
+<p>Callback signature: <code class="docutils literal notranslate"><span class="pre">(ready_bytes:</span> <span class="pre">int)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<p>For more information on the reader-specific functions
+of this object, see the Python documentation for
+<code class="docutils literal notranslate"><span class="pre">BufferedRWPair</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>receive_stream_id</strong> – the local stream id to receive at</p></li>
+<li><p><strong>send_stream_id</strong> – the remote stream id to send to</p></li>
+<li><p><strong>channel</strong> – the channel to send and receive on</p></li>
+<li><p><strong>ready_callback</strong> – function to call when new data is available</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a BufferedRWPair object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p id="api-rawchannelreader"><h3> RawChannelReader </h3></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.RawChannelReader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">RawChannelReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#RNS.Channel.Channel" title="RNS.Channel.Channel"><span class="pre">Channel</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.RawChannelReader" title="Permalink to this definition">#</a></dt>
+<dd><p>An implementation of RawIOBase that receives
+binary stream data sent over a <code class="docutils literal notranslate"><span class="pre">Channel</span></code>.</p>
+<blockquote>
+<div><p>This class generally need not be instantiated directly.
+Use <a class="reference internal" href="#RNS.Buffer.create_reader" title="RNS.Buffer.create_reader"><code class="xref py py-func docutils literal notranslate"><span class="pre">RNS.Buffer.create_reader()</span></code></a>,
+<a class="reference internal" href="#RNS.Buffer.create_writer" title="RNS.Buffer.create_writer"><code class="xref py py-func docutils literal notranslate"><span class="pre">RNS.Buffer.create_writer()</span></code></a>, and
+<a class="reference internal" href="#RNS.Buffer.create_bidirectional_buffer" title="RNS.Buffer.create_bidirectional_buffer"><code class="xref py py-func docutils literal notranslate"><span class="pre">RNS.Buffer.create_bidirectional_buffer()</span></code></a> functions
+to create buffered streams with optional callbacks.</p>
+<p>For additional information on the API of this
+object, see the Python documentation for
+<code class="docutils literal notranslate"><span class="pre">RawIOBase</span></code>.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.RawChannelReader.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#RNS.Channel.Channel" title="RNS.Channel.Channel"><span class="pre">Channel</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.RawChannelReader.__init__" title="Permalink to this definition">#</a></dt>
+<dd><p>Create a raw channel reader.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream_id</strong> – local stream id to receive at</p></li>
+<li><p><strong>channel</strong> – <code class="docutils literal notranslate"><span class="pre">Channel</span></code> object to receive from</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.RawChannelReader.add_ready_callback">
+<span class="sig-name descname"><span class="pre">add_ready_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.RawChannelReader.add_ready_callback" title="Permalink to this definition">#</a></dt>
+<dd><p>Add a function to be called when new data is available.
+The function should have the signature <code class="docutils literal notranslate"><span class="pre">(ready_bytes:</span> <span class="pre">int)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cb</strong> – function to call</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.RawChannelReader.remove_ready_callback">
+<span class="sig-name descname"><span class="pre">remove_ready_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.RawChannelReader.remove_ready_callback" title="Permalink to this definition">#</a></dt>
+<dd><p>Remove a function added with <a class="reference internal" href="#RNS.RawChannelReader.add_ready_callback" title="RNS.RawChannelReader.add_ready_callback"><code class="xref py py-func docutils literal notranslate"><span class="pre">RNS.RawChannelReader.add_ready_callback()</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cb</strong> – function to remove</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p id="api-rawchannelwriter"><h3> RawChannelWriter </h3></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="RNS.RawChannelWriter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">RawChannelWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#RNS.Channel.Channel" title="RNS.Channel.Channel"><span class="pre">Channel</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.RawChannelWriter" title="Permalink to this definition">#</a></dt>
+<dd><p>An implementation of RawIOBase that receives
+binary stream data sent over a channel.</p>
+<blockquote>
+<div><p>This class generally need not be instantiated directly.
+Use <a class="reference internal" href="#RNS.Buffer.create_reader" title="RNS.Buffer.create_reader"><code class="xref py py-func docutils literal notranslate"><span class="pre">RNS.Buffer.create_reader()</span></code></a>,
+<a class="reference internal" href="#RNS.Buffer.create_writer" title="RNS.Buffer.create_writer"><code class="xref py py-func docutils literal notranslate"><span class="pre">RNS.Buffer.create_writer()</span></code></a>, and
+<a class="reference internal" href="#RNS.Buffer.create_bidirectional_buffer" title="RNS.Buffer.create_bidirectional_buffer"><code class="xref py py-func docutils literal notranslate"><span class="pre">RNS.Buffer.create_bidirectional_buffer()</span></code></a> functions
+to create buffered streams with optional callbacks.</p>
+<p>For additional information on the API of this
+object, see the Python documentation for
+<code class="docutils literal notranslate"><span class="pre">RawIOBase</span></code>.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.RawChannelWriter.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#RNS.Channel.Channel" title="RNS.Channel.Channel"><span class="pre">Channel</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.RawChannelWriter.__init__" title="Permalink to this definition">#</a></dt>
+<dd><p>Create a raw channel writer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream_id</strong> – remote stream id to sent do</p></li>
+<li><p><strong>channel</strong> – <code class="docutils literal notranslate"><span class="pre">Channel</span></code> object to send on</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <p id="api-transport"><h3> Transport </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Transport">
@@ -1805,6 +1973,22 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.MessageBase.MSGTYPE"><code class="docutils literal notranslate"><span class="pre">MSGTYPE</span></code></a></li>
 <li><a class="reference internal" href="#RNS.MessageBase.pack"><code class="docutils literal notranslate"><span class="pre">pack()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.MessageBase.unpack"><code class="docutils literal notranslate"><span class="pre">unpack()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#RNS.Buffer"><code class="docutils literal notranslate"><span class="pre">Buffer</span></code></a><ul>
+<li><a class="reference internal" href="#RNS.Buffer.create_reader"><code class="docutils literal notranslate"><span class="pre">create_reader()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Buffer.create_writer"><code class="docutils literal notranslate"><span class="pre">create_writer()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Buffer.create_bidirectional_buffer"><code class="docutils literal notranslate"><span class="pre">create_bidirectional_buffer()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#RNS.RawChannelReader"><code class="docutils literal notranslate"><span class="pre">RawChannelReader</span></code></a><ul>
+<li><a class="reference internal" href="#RNS.RawChannelReader.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.RawChannelReader.add_ready_callback"><code class="docutils literal notranslate"><span class="pre">add_ready_callback()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.RawChannelReader.remove_ready_callback"><code class="docutils literal notranslate"><span class="pre">remove_ready_callback()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#RNS.RawChannelWriter"><code class="docutils literal notranslate"><span class="pre">RawChannelWriter</span></code></a><ul>
+<li><a class="reference internal" href="#RNS.RawChannelWriter.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#RNS.Transport"><code class="docutils literal notranslate"><span class="pre">Transport</span></code></a><ul>
