@@ -379,8 +379,11 @@ class Link:
             if self.rtt != None and self.establishment_cost != None and self.rtt > 0 and self.establishment_cost > 0:
                 self.establishment_rate = self.establishment_cost/self.rtt
 
-            if self.owner.callbacks.link_established != None:
-                    self.owner.callbacks.link_established(self)
+            try:
+                if self.owner.callbacks.link_established != None:
+                        self.owner.callbacks.link_established(self)
+            except Exception as e:
+                RNS.log("Error occurred in external link establishment callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
         except Exception as e:
             RNS.log("Error occurred while processing RTT packet, tearing down link. The contained exception was: "+str(e), RNS.LOG_ERROR)
