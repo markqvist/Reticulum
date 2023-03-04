@@ -380,7 +380,10 @@ class Channel(contextlib.AbstractContextManager):
             for envelope in self._tx_ring:
                 if envelope.outlet == self._outlet and (not envelope.packet
                                                         or self._outlet.get_packet_state(envelope.packet) == MessageState.MSGSTATE_SENT):
-                    RNS.log("Channel: Link has a pending message.", RNS.LOG_EXTREME)
+                    # TODO: Check if this should be enabled with some kind of
+                    # rate limiting, since it currently floods log output when
+                    # messages are waiting.
+                    # RNS.log("Channel: Link has a pending message.", RNS.LOG_EXTREME)
                     return False
         return True
 
