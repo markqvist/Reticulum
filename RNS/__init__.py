@@ -229,7 +229,7 @@ def phyparams():
     print("Plaintext Packet MDU        : "+str(Packet.PLAIN_MDU)+" bytes")
     print("Encrypted Packet MDU        : "+str(Packet.ENCRYPTED_MDU)+" bytes")
     print("Link Curve                  : "+str(Link.CURVE))
-    print("Link Packet MDU             : "+str(Packet.ENCRYPTED_MDU)+" bytes")
+    print("Link Packet MDU             : "+str(Link.MDU)+" bytes")
     print("Link Public Key Size        : "+str(Link.ECPUBSIZE*8)+" bits")
     print("Link Private Key Size       : "+str(Link.KEYSIZE*8)+" bits")
 
