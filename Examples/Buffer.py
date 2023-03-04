@@ -1,7 +1,7 @@
 ##########################################################
 # This RNS example demonstrates how to set up a link to  #
 # a destination, and pass binary data over it using a    #
-# using a channel buffer.                                #
+# channel buffer.                                        #
 ##########################################################
 from __future__ import annotations
 import os
@@ -36,7 +36,7 @@ def server(configpath):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
     
-    # Randomly create a new identity for our link example
+    # Randomly create a new identity for our example
     server_identity = RNS.Identity()
 
     # We create a destination that clients can connect to. We
@@ -61,7 +61,7 @@ def server(configpath):
 def server_loop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Link example "+
+        "Link buffer example "+
         RNS.prettyhexrep(destination.hash)+
         " running, waiting for a connection."
     )
@@ -120,7 +120,7 @@ def server_buffer_ready(ready_bytes: int):
     data = latest_buffer.read(ready_bytes)
     data = data.decode("utf-8")
 
-    RNS.log("Received data on the link: " + data)
+    RNS.log("Received data over the buffer: " + data)
 
     reply_message = "I received \""+data+"\" over the buffer"
     reply_message = reply_message.encode("utf-8")
@@ -223,7 +223,7 @@ def client_loop():
 
 
         except Exception as e:
-            RNS.log("Error while sending data over the link: "+str(e))
+            RNS.log("Error while sending data over the link buffer: "+str(e))
             should_quit = True
             server_link.teardown()
 
@@ -262,7 +262,7 @@ def link_closed(link):
 def client_buffer_ready(ready_bytes: int):
     global buffer
     data = buffer.read(ready_bytes)
-    RNS.log("Received data on the link: " + data.decode("utf-8"))
+    RNS.log("Received data over the link buffer: " + data.decode("utf-8"))
     print("> ", end=" ")
     sys.stdout.flush()
 
