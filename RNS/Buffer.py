@@ -65,7 +65,7 @@ class StreamDataMessage(MessageBase):
 _link_sized_bytes = ("\0"*RNS.Link.MDU).encode("utf-8")
 StreamDataMessage.OVERHEAD = len(StreamDataMessage(stream_id=StreamDataMessage.STREAM_ID_MAX,
                                                    data=_link_sized_bytes,
-                                                   eof=True).pack()) - len(_link_sized_bytes) - 6  # 6 is envelope overhead
+                                                   eof=True).pack()) - len(_link_sized_bytes) + 4  # TODO: Calculation was off by 10 bytes, why?
 StreamDataMessage.MAX_DATA_LEN = RNS.Link.MDU - StreamDataMessage.OVERHEAD
 _link_sized_bytes = None
 
