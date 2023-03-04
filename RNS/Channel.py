@@ -299,7 +299,8 @@ class Channel(contextlib.AbstractContextManager):
         :param callback: handler to remove
         """
         with self._lock:
-            self._message_callbacks.remove(callback)
+            if callback in self._message_callbacks:
+                self._message_callbacks.remove(callback)
 
     def _shutdown(self):
         with self._lock:
@@ -464,7 +465,8 @@ class LinkChannelOutlet(ChannelOutletBase):
 
     def send(self, raw: bytes) -> RNS.Packet:
         packet = RNS.Packet(self.link, raw, context=RNS.Packet.CHANNEL)
-        packet.send()
+        if self.link.status == RNS.Link.ACTIVE:
+            packet.send()
         return packet
 
     def resend(self, packet: RNS.Packet) -> RNS.Packet:
@@ -485,6 +487,9 @@ class LinkChannelOutlet(ChannelOutletBase):
         return True  # had issues looking at Link.status
 
     def get_packet_state(self, packet: TPacket) -> MessageState:
+        if packet.receipt == None:
+            return MessageState.MSGSTATE_FAILED
+
         status = packet.receipt.get_status()
         if status == RNS.PacketReceipt.SENT:
             return MessageState.MSGSTATE_SENT
