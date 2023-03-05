@@ -155,6 +155,7 @@ class ProtocolHarness(contextlib.AbstractContextManager):
     def __init__(self, rtt: float):
         self.outlet = ChannelOutletTest(mdu=500, rtt=rtt)
         self.channel = Channel(self.outlet)
+        Packet.timeout = self.channel._get_packet_timeout_time(1)
 
     def cleanup(self):
         self.channel._shutdown()
@@ -169,9 +170,7 @@ class ProtocolHarness(contextlib.AbstractContextManager):
 class TestChannel(unittest.TestCase):
     def setUp(self) -> None:
         print("")
-        self.rtt = 0.001
-        self.retry_interval = self.rtt * 150
-        Packet.timeout = self.retry_interval
+        self.rtt = 0.01
         self.h = ProtocolHarness(self.rtt)
 
     def tearDown(self) -> None:
@@ -201,14 +200,14 @@ class TestChannel(unittest.TestCase):
         self.assertEqual(MessageState.MSGSTATE_SENT, packet.state)
         self.assertEqual(envelope.raw, packet.raw)
 
-        time.sleep(self.retry_interval * 1.5)
+        time.sleep(self.h.channel._get_packet_timeout_time(1) * 1.1)
 
         self.assertEqual(1, len(self.h.outlet.packets))
         self.assertEqual(2, envelope.tries)
         self.assertEqual(2, packet.tries)
         self.assertEqual(1, packet.instances)
 
-        time.sleep(self.retry_interval)
+        time.sleep(self.h.channel._get_packet_timeout_time(2) * 1.1)
 
         self.assertEqual(1, len(self.h.outlet.packets))
         self.assertEqual(self.h.outlet.packets[0], packet)
@@ -221,7 +220,7 @@ class TestChannel(unittest.TestCase):
 
         self.assertEqual(MessageState.MSGSTATE_DELIVERED, packet.state)
 
-        time.sleep(self.retry_interval)
+        time.sleep(self.h.channel._get_packet_timeout_time(3) * 1.1)
 
         self.assertEqual(1, len(self.h.outlet.packets))
         self.assertEqual(3, envelope.tries)
@@ -253,7 +252,11 @@ class TestChannel(unittest.TestCase):
         self.assertEqual(MessageState.MSGSTATE_SENT, packet.state)
         self.assertEqual(envelope.raw, packet.raw)
 
-        time.sleep(self.retry_interval * 7.5)
+        time.sleep(self.h.channel._get_packet_timeout_time(1))
+        time.sleep(self.h.channel._get_packet_timeout_time(2))
+        time.sleep(self.h.channel._get_packet_timeout_time(3))
+        time.sleep(self.h.channel._get_packet_timeout_time(4))
+        time.sleep(self.h.channel._get_packet_timeout_time(5) * 1.1)
 
         self.assertEqual(1, len(self.h.outlet.packets))
         self.assertEqual(5, envelope.tries)
@@ -317,7 +320,7 @@ class TestChannel(unittest.TestCase):
         self.assertEqual(len(self.h.outlet.packets), 0)
 
         envelope = self.h.channel.send(message)
-        time.sleep(self.retry_interval * 0.5)
+        time.sleep(self.h.channel._get_packet_timeout_time(1) * 0.5)
 
         self.assertIsNotNone(envelope)
         self.assertIsNotNone(envelope.raw)
@@ -339,7 +342,7 @@ class TestChannel(unittest.TestCase):
 
         self.assertEqual(MessageState.MSGSTATE_DELIVERED, packet.state)
 
-        time.sleep(self.retry_interval * 2)
+        time.sleep(self.h.channel._get_packet_timeout_time(1))
 
         self.assertEqual(1, len(self.h.outlet.packets))
         self.assertEqual(1, envelope.tries)
@@ -460,6 +463,7 @@ class TestChannel(unittest.TestCase):
 
             packet = self.h.outlet.packets[0]
             self.h.channel._receive(packet.raw)
+            packet.delivered()
 
             self.assertEqual(1, callbacks)
             self.assertEqual(len(data), last_cb_value)
@@ -472,6 +476,27 @@ class TestChannel(unittest.TestCase):
             decoded = result.decode("utf-8")
 
             self.assertEqual(data, decoded)
+            self.assertEqual(1, len(self.h.outlet.packets))
+
+            result = reader.read(1)
+
+            self.assertIsNone(result)
+            self.assertTrue(self.h.channel.is_ready_to_send())
+
+            writer.close()
+
+            self.assertEqual(2, len(self.h.outlet.packets))
+
+            packet = self.h.outlet.packets[1]
+            self.h.channel._receive(packet.raw)
+            packet.delivered()
+
+            result = reader.read(1)
+
+            self.assertIsNotNone(result)
+            self.assertTrue(len(result) == 0)
+
+
 
 
 if __name__ == '__main__':

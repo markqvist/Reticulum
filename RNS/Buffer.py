@@ -1,7 +1,8 @@
 from __future__ import annotations
 import sys
+import threading
 from threading import RLock
-from RNS.vendor import umsgpack
+import struct
 from RNS.Channel import Channel, MessageBase, SystemMessageTypes
 import RNS
 from io import RawIOBase, BufferedRWPair, BufferedReader, BufferedWriter
@@ -16,22 +17,12 @@ class StreamDataMessage(MessageBase):
     uses a system-reserved message type.
     """
 
-    STREAM_ID_MAX = 65535
+    STREAM_ID_MAX = 0x7fff  # 32767
     """
-    While not essential for the current message packing
-    method (umsgpack), the stream id is clamped to the
-    size of a UInt16 for future struct packing.
+    The stream id is limited to 2 bytes - 1 bit
     """
 
-    OVERHEAD = 0
-    """
-    The number of bytes used by this messa
-    
-    When the Buffer package is imported, this value is
-    calculated based on the value of RNS.Link.MDU.
-    """
-
-    MAX_DATA_LEN = 0
+    MAX_DATA_LEN = RNS.Link.MDU - 2 - 6  # 2 for stream data message header, 6 for channel envelope
     """
     When the Buffer package is imported, this value is
     calculcated based on the value of OVERHEAD
@@ -48,7 +39,7 @@ class StreamDataMessage(MessageBase):
         """
         super().__init__()
         if stream_id is not None and stream_id > self.STREAM_ID_MAX:
-            raise ValueError("stream_id must be 0-65535")
+            raise ValueError("stream_id must be 0-32767")
         self.stream_id = stream_id
         self.data = data or bytes()
         self.eof = eof
@@ -56,18 +47,14 @@ class StreamDataMessage(MessageBase):
     def pack(self) -> bytes:
         if self.stream_id is None:
             raise ValueError("stream_id")
-        return umsgpack.packb((self.stream_id, self.eof, bytes(self.data)))
+        header_val = (0x7fff & self.stream_id) | (0x8000 if self.eof else 0x0000)
+        return bytes(struct.pack(">H", header_val) + (self.data if self.data else bytes()))
 
     def unpack(self, raw):
-        self.stream_id, self.eof, self.data = umsgpack.unpackb(raw)
-
-
-_link_sized_bytes = ("\0"*RNS.Link.MDU).encode("utf-8")
-StreamDataMessage.OVERHEAD = len(StreamDataMessage(stream_id=StreamDataMessage.STREAM_ID_MAX,
-                                                   data=_link_sized_bytes,
-                                                   eof=True).pack()) - len(_link_sized_bytes) + 4  # TODO: Calculation was off by 10 bytes, why?
-StreamDataMessage.MAX_DATA_LEN = RNS.Link.MDU - StreamDataMessage.OVERHEAD
-_link_sized_bytes = None
+        self.stream_id = struct.unpack(">H", raw[:2])[0]
+        self.eof = (0x8000 & self.stream_id) > 0
+        self.stream_id = self.stream_id & 0x7fff
+        self.data = raw[2:]
 
 
 class RawChannelReader(RawIOBase, AbstractContextManager):
@@ -144,9 +131,9 @@ class RawChannelReader(RawIOBase, AbstractContextManager):
 
     def readinto(self, __buffer: bytearray) -> int | None:
         ready = self._read(len(__buffer))
-        if ready:
+        if ready is not None:
             __buffer[:len(ready)] = ready
-        return len(ready) if ready else None
+        return len(ready) if ready is not None else None
 
     def writable(self) -> bool:
         return False
@@ -198,11 +185,10 @@ class RawChannelWriter(RawIOBase, AbstractContextManager):
 
     def write(self, __b: bytes) -> int | None:
         try:
-            if self._channel.is_ready_to_send():
-                chunk = __b[:StreamDataMessage.MAX_DATA_LEN]
-                message = StreamDataMessage(self._stream_id, chunk, self._eof)
-                self._channel.send(message)
-                return len(chunk)
+            chunk = bytes(__b[:StreamDataMessage.MAX_DATA_LEN])
+            message = StreamDataMessage(self._stream_id, chunk, self._eof)
+            self._channel.send(message)
+            return len(chunk)
         except RNS.Channel.ChannelException as cex:
             if cex.type != RNS.Channel.CEType.ME_LINK_NOT_READY:
                 raise

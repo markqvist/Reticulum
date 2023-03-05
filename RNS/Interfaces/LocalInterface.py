@@ -86,6 +86,8 @@ class LocalClientInterface(Interface):
         self.online  = True
         self.writing = False
 
+        self._force_bitrate = False
+
         self.announce_rate_target  = None
         self.announce_rate_grace   = None
         self.announce_rate_penalty = None
@@ -137,6 +139,9 @@ class LocalClientInterface(Interface):
 
 
     def processIncoming(self, data):
+        if self._force_bitrate:
+            time.sleep(len(data) / self.bitrate * 8)
+
         self.rxb += len(data)
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.rxb += len(data)
@@ -154,6 +159,8 @@ class LocalClientInterface(Interface):
         if self.online:
             try:
                 self.writing = True
+                if self._force_bitrate:
+                    time.sleep(len(data) / self.bitrate * 8)
                 data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
                 self.socket.sendall(data)
                 self.writing = False

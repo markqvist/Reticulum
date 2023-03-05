@@ -809,9 +809,9 @@ class Link:
                         if not self._channel:
                             RNS.log(f"Channel data received without open channel", RNS.LOG_DEBUG)
                         else:
+                            packet.prove()
                             plaintext = self.decrypt(packet.data)
                             self._channel._receive(plaintext)
-                            packet.prove()
 
                 elif packet.packet_type == RNS.Packet.PROOF:
                     if packet.context == RNS.Packet.RESOURCE_PRF:
