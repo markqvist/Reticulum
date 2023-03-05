@@ -356,6 +356,10 @@ class Channel(contextlib.AbstractContextManager):
             envelope = Envelope(outlet=self._outlet, raw=raw)
             with self._lock:
                 message = envelope.unpack(self._message_factories)
+                prev_env = self._rx_ring[0] if len(self._rx_ring) > 0 else None
+                if prev_env and envelope.sequence != prev_env.sequence + 1:
+                    RNS.log("Channel: Out of order packet received", RNS.LOG_DEBUG)
+                    return
                 is_new = self._emplace_envelope(envelope, self._rx_ring)
                 self._prune_rx_ring()
             if not is_new:
@@ -403,6 +407,9 @@ class Channel(contextlib.AbstractContextManager):
     def _packet_delivered(self, packet: TPacket):
         self._packet_tx_op(packet, lambda env: True)
 
+    def _get_packet_timeout_time(self, tries: int) -> float:
+        return pow(2, tries - 1) * max(self._outlet.rtt, 0.01) * 5
+
     def _packet_timeout(self, packet: TPacket):
         def retry_envelope(envelope: Envelope) -> bool:
             if envelope.tries >= self._max_tries:
@@ -412,9 +419,11 @@ class Channel(contextlib.AbstractContextManager):
                 return True
             envelope.tries += 1
             self._outlet.resend(envelope.packet)
+            self._outlet.set_packet_timeout_callback(envelope.packet, self._packet_timeout, self._get_packet_timeout_time(envelope.tries))
             return False
 
-        self._packet_tx_op(packet, retry_envelope)
+        if self._outlet.get_packet_state(packet) != MessageState.MSGSTATE_DELIVERED:
+            self._packet_tx_op(packet, retry_envelope)
 
     def send(self, message: MessageBase) -> Envelope:
         """
@@ -439,7 +448,7 @@ class Channel(contextlib.AbstractContextManager):
         envelope.packet = self._outlet.send(envelope.raw)
         envelope.tries += 1
         self._outlet.set_packet_delivered_callback(envelope.packet, self._packet_delivered)
-        self._outlet.set_packet_timeout_callback(envelope.packet, self._packet_timeout)
+        self._outlet.set_packet_timeout_callback(envelope.packet, self._packet_timeout, self._get_packet_timeout_time(envelope.tries))
         return envelope
 
     @property
@@ -473,6 +482,7 @@ class LinkChannelOutlet(ChannelOutletBase):
         return packet
 
     def resend(self, packet: RNS.Packet) -> RNS.Packet:
+        RNS.log("Resending packet " + RNS.prettyhexrep(packet.packet_hash), RNS.LOG_DEBUG)
         if not packet.resend():
             RNS.log("Failed to resend packet", RNS.LOG_ERROR)
         return packet
@@ -511,7 +521,7 @@ class LinkChannelOutlet(ChannelOutletBase):
 
     def set_packet_timeout_callback(self, packet: RNS.Packet, callback: Callable[[RNS.Packet], None] | None,
                                     timeout: float | None = None):
-        if timeout:
+        if timeout and packet.receipt:
             packet.receipt.set_timeout(timeout)
 
         def inner(receipt: RNS.PacketReceipt):

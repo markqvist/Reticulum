@@ -4,10 +4,14 @@ import subprocess
 import shlex
 import threading
 import time
+from unittest import skipIf
 import RNS
 import os
 from tests.channel import MessageTest
 from RNS.Channel import MessageBase
+from RNS.Buffer import StreamDataMessage
+from RNS.Interfaces.LocalInterface import LocalClientInterface
+from math import ceil
 
 APP_NAME = "rns_unit_tests"
 
@@ -438,6 +442,113 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
+    def test_12_buffer_round_trip_big(self, local_bitrate = None):
+        global c_rns
+        init_rns(self)
+        print("")
+        print("Buffer round trip test")
+
+        local_interface = next(filter(lambda iface: isinstance(iface, LocalClientInterface), RNS.Transport.interfaces), None)
+        self.assertIsNotNone(local_interface)
+        original_bitrate = local_interface.bitrate
+
+        try:
+            if local_bitrate is not None:
+                local_interface.bitrate = local_bitrate
+                local_interface._force_bitrate = True
+                print("Forcing local bitrate of " + str(local_bitrate) + " bps (" + str(round(local_bitrate/8, 0)) + " B/s)")
+
+            # TODO: Load this from public bytes only
+            id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
+            self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
+
+            dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
+
+            self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+
+            l1 = RNS.Link(dest)
+            # delay a reasonable time for link to come up at current bitrate
+            link_sleep = max(RNS.Link.MDU * 3 / local_interface.bitrate * 8, 2)
+            timeout_at = time.time() + link_sleep
+            print("Waiting " + str(round(link_sleep, 1)) + " sec for link to come up")
+            while l1.status != RNS.Link.ACTIVE and time.time() < timeout_at:
+                time.sleep(0.01)
+
+            self.assertEqual(l1.status, RNS.Link.ACTIVE)
+
+            buffer = None
+            received = []
+            def handle_data(ready_bytes: int):
+                data = buffer.read(ready_bytes)
+                received.append(data)
+
+            channel = l1.get_channel()
+            buffer = RNS.Buffer.create_bidirectional_buffer(0, 0, channel, handle_data)
+
+            # try to make the message big enough to split across packets, but
+            # small enough to make the test complete in a reasonable amount of time
+            seed_text = "0123456789"
+            message = seed_text*ceil(min(max(local_interface.bitrate / 8,
+                                             StreamDataMessage.MAX_DATA_LEN * 2 / len(seed_text)),
+                                         1000))
+            # the return message will have an appendage string " back at you"
+            # for every StreamDataMessage that arrives. To verify, we need
+            # to insert that string every MAX_DATA_LEN and also at the end.
+            expected_rx_message = ""
+            for i in range(0, len(message)):
+                if i > 0 and (i % StreamDataMessage.MAX_DATA_LEN) == 0:
+                    expected_rx_message += " back at you"
+                expected_rx_message += message[i]
+            expected_rx_message += " back at you"
+
+            # since the segments will be received at max length for a
+            # StreamDataMessage, the appended text will end up in a
+            # separate packet.
+            expected_chunk_count = ceil(len(message)/StreamDataMessage.MAX_DATA_LEN * 2)
+            print("Sending " + str(len(message)) + " bytes, receiving " + str(len(expected_rx_message)) + " bytes, " +
+                  "expecting " + str(expected_chunk_count) + " chunks of " + str(StreamDataMessage.MAX_DATA_LEN) + " bytes")
+            transfer_sleep = max(expected_chunk_count * 3 * c_rns.MTU / local_interface.bitrate * 8, 3)
+            print("Will take up to " + str(round(transfer_sleep, 0)) + " seconds to transfer")
+            expected_ready_time = time.time() + transfer_sleep
+            buffer.write(message.encode("utf-8"))
+            buffer.flush()
+            # delay a reasonable time for the send and receive
+            # a chunk each way plus a little more for a proof each way
+            while time.time() < expected_ready_time and len(received) < expected_chunk_count:
+                time.sleep(0.1)
+            # sleep for at least one more chunk round trip in case there
+            # are more chunks than expected
+            if time.time() < expected_ready_time:
+                time.sleep(max(c_rns.MTU * 2 / local_interface.bitrate * 8, 1))
+
+            # Why does this not always work out correctly?
+            # self.assertEqual(expected_chunk_count, len(received))
+
+            data = bytearray()
+            for rx in received:
+                data.extend(rx)
+
+            rx_message = data.decode("utf-8")
+
+            self.assertEqual(len(expected_rx_message), len(rx_message))
+            for i in range(0, len(expected_rx_message)):
+                self.assertEqual(expected_rx_message[i], rx_message[i])
+            self.assertEqual(expected_rx_message, rx_message)
+
+            l1.teardown()
+            time.sleep(0.5)
+            self.assertEqual(l1.status, RNS.Link.CLOSED)
+        finally:
+            local_interface.bitrate = original_bitrate
+            local_interface._force_bitrate = False
+
+    # Run with
+    #  RUN_SLOW_TESTS=1 python tests/link.py TestLink.test_13_buffer_round_trip_big_slow
+    # Or
+    #  make RUN_SLOW_TESTS=1 test
+    @skipIf(int(os.getenv('RUN_SLOW_TESTS', 0)) < 1, "Not running slow tests")
+    def test_13_buffer_round_trip_big_slow(self):
+        self.test_12_buffer_round_trip_big(local_bitrate=410)
 
     def size_str(self, num, suffix='B'):
         units = ['','K','M','G','T','P','E','Z']

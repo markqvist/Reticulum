@@ -882,6 +882,8 @@ class Transport:
             return True
         if packet.context == RNS.Packet.CACHE_REQUEST:
             return True
+        if packet.context == RNS.Packet.CHANNEL:
+            return True
 
         if packet.destination_type == RNS.Destination.PLAIN:
             if packet.packet_type != RNS.Packet.ANNOUNCE:
