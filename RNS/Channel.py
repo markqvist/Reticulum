@@ -357,7 +357,7 @@ class Channel(contextlib.AbstractContextManager):
             with self._lock:
                 message = envelope.unpack(self._message_factories)
                 prev_env = self._rx_ring[0] if len(self._rx_ring) > 0 else None
-                if prev_env and envelope.sequence != prev_env.sequence + 1:
+                if prev_env and envelope.sequence != (prev_env.sequence + 1) % 0x10000:
                     RNS.log("Channel: Out of order packet received", RNS.LOG_DEBUG)
                     return
                 is_new = self._emplace_envelope(envelope, self._rx_ring)
