@@ -44,6 +44,7 @@ class AutoInterface(Interface):
 
     PEERING_TIMEOUT    = 7.5
 
+    ALL_IGNORE_IFS     = ["lo0"]
     DARWIN_IGNORE_IFS  = ["awdl0", "llw0", "lo0", "en5"]
     ANDROID_IGNORE_IFS = ["dummy0", "lo", "tun0"]
 
@@ -156,6 +157,8 @@ class AutoInterface(Interface):
                 RNS.log(str(self)+" skipping Android system interface "+str(ifname), RNS.LOG_EXTREME)
             elif ifname in self.ignored_interfaces:
                 RNS.log(str(self)+" ignoring disallowed interface "+str(ifname), RNS.LOG_EXTREME)
+            elif ifname in AutoInterface.ALL_IGNORE_IFS:
+                RNS.log(str(self)+" skipping interface "+str(ifname), RNS.LOG_EXTREME)
             else:
                 if len(self.allowed_interfaces) > 0 and not ifname in self.allowed_interfaces:
                     RNS.log(str(self)+" ignoring interface "+str(ifname)+" since it was not allowed", RNS.LOG_EXTREME)
