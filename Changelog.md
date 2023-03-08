@@ -1,3 +1,19 @@
+### 2023-03-08: RNS β 0.5.0
+
+This release brings two major new additions to the Reticulum API: The Channel and Buffer classes, that provides reliable delivery, and streams over Reticulum. Thanks to @acehoss, @erethon, @gdt and @faragher, who contributed to this release!
+
+**Changes**
+- Added the Buffer class to the API
+- Added the Channel class to the API
+- Improved error messages for offline RNode flashing
+- Improved RNode reconnection when serial device disappears
+- Fixed embedded scope identifier handling for AutoInterface on BSD
+- Fixed AutoInterface not ignoring lo0 on BSD
+- Fixed a bug causing JSON output from rnstatus to fail
+- Fixed invalid installation of test suite into root module path
+- Added EPUB version of the documentation
+- Updated documentation
+
 ### 2023-02-17: RNS β 0.4.9
 
 This maintenance release contains a number of bugfixes and minor improvements, along with a few additions to the API.
