@@ -14,6 +14,12 @@ This release brings two major new additions to the Reticulum API: The Channel an
 - Added EPUB version of the documentation
 - Updated documentation
 
+**Release Hashes**
+```
+0aaf8c0b0b58f07071de5ecd432f4d9cc176b9614419c828b81ad71aa7151624 rns-0.5.0-py3-none-any.whl
+f310a5192c2df7665339c5998ae13815a647283af75b95ad7acbee8c20989954 rnspure-0.5.0-py3-none-any.whl
+```
+
 ### 2023-02-17: RNS β 0.4.9
 
 This maintenance release contains a number of bugfixes and minor improvements, along with a few additions to the API.
