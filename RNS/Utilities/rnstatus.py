@@ -58,6 +58,16 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None,json=F
     if stats != None:
         if json:
             import json
+            for s in stats:
+                if isinstance(stats[s], bytes):
+                    stats[s] = RNS.hexrep(stats[s], delimit=False)
+
+                for i in stats[s]:
+                    if isinstance(i, dict):
+                        for k in i:
+                            if isinstance(i[k], bytes):
+                                i[k] = RNS.hexrep(i[k], delimit=False)
+
             print(json.dumps(stats))
             exit()
             
