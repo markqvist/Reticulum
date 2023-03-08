@@ -14,27 +14,12 @@ This document outlines the currently established development roadmap for Reticul
 ## Currently Active Work Areas
 For each release cycle of Reticulum, improvements and additions from the five [Primary Efforts](#primary-efforts) are selected as active work areas, and can be expected to be included in the upcoming releases within that cycle. While not entirely set in stone for each release cycle, they serve as a pointer of what to expect in the near future.
 
-- The current `0.4.x` release cycle aims at completing:
-  - [x] Improve storage persist call on local client connect/disconnect
-  - [x] Better path invalidation on roaming interfaces
-  - [x] Improved roaming support on Android
-  - [x] Add bluetooth pairing code output to rnodeconf
-  - [x] Add `rnid` utility with encryption, signing and Identity funcionality
-  - [x] JSON output mode for rnstatus
-  - [x] Add `Buffer` class to the API
-- Targets for related applications
-  - [x] Add offline & paper message transport to LXMF
-  - [x] Implement paper messaging in Nomad Network
-  - [x] Implement paper messaging in Sideband
-  - [x] Add spatial and multi-interface roaming support in Sideband
-  - [x] Expand device support in Sideband to support older Android devices
-  - [x] And input fields, data submission and dynamic request links to Nomad Network
-  - [x] Add bandwidth-based weighting to LXMF propagation node sync peer prioritisation
-- The upcoming `0.5.x` release cyclo aims at completing
-  - [ ] Updating the documentation to reflect recent changes and improvements
+- The current `0.5.x` release cyclo aims at completing
+  - [ ] Overhauling and updating the documentation
+  - [ ] Performance and memory optimisations of the Python reference implementation
+  - [ ] Fixing potential bugs
   - [ ] Add automatic retries to all use cases of the `Request` API
   - [ ] Improve performance and efficiency of the `Buffer` and `Channel` API
-  - [ ] Performance and memory optimisations of the Python reference implementation
 
 ## Primary Efforts
 The development path for Reticulum is currently laid out in five distinct areas: *Comprehensibility*, *Universality*, *Functionality*, *Usability & Utility* and *Interfaceability*. Conceptualising the development of Reticulum into these areas serves to advance the implementation and work towards the Foundational Goals & Values of Reticulum.
@@ -120,7 +105,6 @@ The Reticulum ecosystem is enriched by several other software and hardware proje
 This section lists, in no particular order, various important efforts that would be beneficial to the goals of Reticulum.
 
 - The [RNode](https://unsigned.io/rnode/) project
-    - [x] Evolve RNode into a self-replicating system, so that anyone can use an existing RNode to create more RNodes, and bootstrap functional networks based on Reticulum, even in absence of the Internet.
     - [ ] Create a WebUSB-based bootstrapping utility, and integrate this directly into the [RNode Bootstrap Console](#), both on-device, and on an Internet-reachable copy. This will make it much easier to create new RNodes for average users.
 
 ## Release History
