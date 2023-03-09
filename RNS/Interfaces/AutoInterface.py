@@ -214,6 +214,11 @@ class AutoInterface(Interface):
         else:
             self.receives = True
 
+            if configured_bitrate != None:
+                self.bitrate = configured_bitrate
+            else:
+                self.bitrate = AutoInterface.BITRATE_GUESS
+
             peering_wait = self.announce_interval*1.2
             RNS.log(str(self)+" discovering peers for "+str(round(peering_wait, 2))+" seconds...", RNS.LOG_VERBOSE)
 
@@ -237,11 +242,6 @@ class AutoInterface(Interface):
             job_thread.start()
 
             time.sleep(peering_wait)
-
-            if configured_bitrate != None:
-                self.bitrate = configured_bitrate
-            else:
-                self.bitrate = AutoInterface.BITRATE_GUESS
 
             self.online = True
 
