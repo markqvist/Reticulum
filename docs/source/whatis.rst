@@ -90,14 +90,14 @@ Where can Reticulum be Used?
 ============================
 Reticulum can be used over nearly any medium that supports at least a 
 half-duplex channel with 500 bits per second throughput, and an MTU of 500 
-bytes. Reticulum uses everything: data radios, modems, LoRa radios, serial lines,
-AX.25 TNCs, amateur radio digital modes, ad-hoc WiFi, free-space optical links 
-and more.
+bytes. Reticulum runs on a variety of hardware: data radios, modems, LoRa 
+radios, serial lines, AX.25 TNCs, amateur radio digital modes, ad-hoc WiFi, 
+free-space optical links and more.
 
 An open-source LoRa-based interface called `RNode <https://unsigned.io/rnode>`_
-has been designed as an example transceiver that is very suitable for
-Reticulum. RNodes can be built with custom parts, from a common LoRa
-development board, or purchased as a complete transceiver.
+was designed as an example transceiver that is very suitable for Reticulum. 
+RNodes can be built with custom parts, from a common LoRa development board,
+or purchased as a complete transceiver.
 
 Reticulum can also be encapsulated over existing IP networks, so there's
 nothing stopping you from using it over wired Ethernet or your local WiFi
