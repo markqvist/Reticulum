@@ -3,23 +3,22 @@ What is Reticulum?
 ******************
 
 Reticulum is a cryptography-based networking stack for building both local and
-wide-area networks with readily available hardware, that can continue to operate
-under adverse conditions, such as extremely low bandwidth and very high latency.
+wide-area networks with readily available hardware. It can continue to operate
+under adverse conditions such as extremely limited bandwith and very high latency.
 
-Reticulum allows you to build wide-area networks with off-the-shelf tools, and
-offers end-to-end encryption, forward secrecy, autoconfiguring cryptographically
-backed multi-hop transport, efficient addressing, unforgeable packet
-acknowledgements and more.
+Reticulum allows you to build wide-area networks with off-the-shelf tools. It
+offers end-to-end encryption, forward secrecy, autoconfiguring multi-hop 
+transport, efficient addressing, unforgeable packet acknowledgements and more.
 
-From a users perspective, Reticulum allows the creation of applications that
+From a user's perspective, Reticulum allows the creation of applications that
 respect and empower the autonomy and sovereignty of communities and individuals.
 Reticulum enables secure digital communication that cannot be subjected to
 outside control, manipulation or censorship.
 
 Reticulum enables the construction of both small and potentially planetary-scale
 networks, without any need for hierarchical or beaureucratic structures to control
-or manage them, while ensuring individuals and communities full sovereignty
-over their own network segments.
+or manage them. It ensures individual and community sovereignty over their
+network segments.
 
 Reticulum is a complete networking stack, and does not need IP or higher
 layers, although it is easy to utilise IP (with TCP or UDP) as the underlying
@@ -35,25 +34,25 @@ runs well even on small single-board computers like the Pi Zero.
 
 Current Status
 ==============
-**Please know!** Reticulum should currently be considered beta software. All core protocol
+**Please know!** Reticulum is currently considered beta software. All core protocol
 features are implemented and functioning, but additions will probably occur as
 real-world use is explored. *There will be bugs*. The API and wire-format can be
-considered stable at the moment, but could change if absolutely warranted.
+considered stable at the moment, but could change if warranted.
 
 
 What does Reticulum Offer?
 ==========================
-* Coordination-less globally unique addressing and identification
+* Zero-coordination globally unique addressing and identification
 
 * Fully self-configuring multi-hop routing
 
 * Complete initiator anonymity, communicate without revealing your identity
 
-* Asymmetric encryption based on X25519, and Ed25519 signatures as a basis for all communication
+* Asymmetric encryption for all communication, based on X25519 and Ed25519 signatures.
 
-* Forward Secrecy by using ephemeral Elliptic Curve Diffie-Hellman keys on Curve25519
+* Forward Secrecy using ephemeral Elliptic Curve Diffie-Hellman keys on Curve25519
 
-* Reticulum uses the `Fernet <https://github.com/fernet/spec/blob/master/Spec.md>`_ specification for on-the-wire / over-the-air encryption
+* On-the-wire / over-the-air encryption based on the `Fernet <https://github.com/fernet/spec/blob/master/Spec.md>`_ specification
 
   * All keys are ephemeral and derived from an ECDH key exchange on Curve25519
 
@@ -65,9 +64,9 @@ What does Reticulum Offer?
 
 * Unforgeable packet delivery confirmations
 
-* A variety of supported interface types
+* Multiple supported interfaces
 
-* An intuitive and developer-friendly API
+* Intuitive, developer-friendly API
 
 * Efficient link establishment
 
@@ -75,39 +74,38 @@ What does Reticulum Offer?
 
   * Low cost of keeping links open at only 0.44 bits per second
 
-* Reliable and efficient transfer of arbitrary amounts of data
-
-  * Reticulum can handle a few bytes of data or files of many gigabytes
+* Reliable and efficient transfer of arbitrary amounts of data--from a few bytes to a few gigabytes.
 
   * Sequencing, transfer coordination and checksumming is automatic
 
-  * The API is very easy to use, and provides transfer progress
+  * Transfer progress visibility
+
 
 * Authentication and virtual network segmentation on all supported interface types
 
-* Flexible scalability allowing extremely low-bandwidth networks to co-exist and interoperate with large, high-bandwidth networks
+* Extreme flexibility and scalability. Small, low-bandwidth networks can interoperate with massive, high-bandwidth networks.
 
 
 Where can Reticulum be Used?
 ============================
-Over practically any medium that can support at least a half-duplex channel
-with 500 bits per second throughput, and an MTU of 500 bytes. Data radios,
-modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes,
-ad-hoc WiFi, free-space optical links and similar systems are all examples
-of the types of interfaces Reticulum was designed for.
+Reticulum can be used over nearly any medium that supports at least a 
+half-duplex channel with 500 bits per second throughput, and an MTU of 500 
+bytes. Reticulum uses everything: data radios, modems, LoRa radios, serial lines,
+AX.25 TNCs, amateur radio digital modes, ad-hoc WiFi, free-space optical links 
+and more.
 
 An open-source LoRa-based interface called `RNode <https://unsigned.io/rnode>`_
 has been designed as an example transceiver that is very suitable for
-Reticulum. It is possible to build it yourself, to transform a common LoRa
-development board into one, or it can be purchased as a complete transceiver.
+Reticulum. RNodes can be built with custom parts, from a common LoRa
+development board, or purchased as a complete transceiver.
 
 Reticulum can also be encapsulated over existing IP networks, so there's
 nothing stopping you from using it over wired Ethernet or your local WiFi
-network, where it'll work just as well. In fact, one of the strengths of
-Reticulum is how easily it allows you to connect different mediums into a
-self-configuring, resilient and encrypted mesh.
+network. In fact, one of the strengths of Reticulum is how easily it allows 
+you to connect different mediums into a self-configuring, resilient and 
+encrypted mesh.
 
-As an example, it's possible to set up a Raspberry Pi connected to both a
+For example, it's possible to set up a Raspberry Pi connected to both a
 LoRa radio, a packet radio TNC and a WiFi network. Once the interfaces are
 added, Reticulum will take care of the rest, and any device on the WiFi
 network can communicate with nodes on the LoRa and packet radio sides of the
@@ -161,8 +159,8 @@ For a full list and more details, see the :ref:`Supported Interfaces<interfaces-
 Caveat Emptor
 ==============
 Reticulum is an experimental networking stack, and should be considered as
-such. While it has been built with cryptography best-practices very foremost in
-mind, it has not yet been externally security audited, and there could very well be
+such. While it has been built with cryptography best-practices ever in mind, 
+it has not yet been externally security audited, and there could very well be
 privacy-breaking bugs. To be considered secure, Reticulum needs a thorough
 security review by independent cryptographers and security researchers. If you
-want to help out with this, or can help sponsor an audit, please do get in touch.
+want to help out with this, or can help sponsor an audit, please get in touch.
