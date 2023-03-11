@@ -95,9 +95,9 @@ radios, serial lines, AX.25 TNCs, amateur radio digital modes, ad-hoc WiFi,
 free-space optical links and more.
 
 An open-source LoRa-based interface called `RNode <https://unsigned.io/rnode>`_
-was designed as an example transceiver that is very suitable for Reticulum. 
-RNodes can be built with custom parts, from a common LoRa development board,
-or purchased as a complete transceiver.
+is available as an example transceiver that is very suitable for Reticulum. 
+Users can creat RNodes from custom parts or a common LoRa development board,
+or purchase a complete transceiver.
 
 Reticulum can also be encapsulated over existing IP networks, so there's
 nothing stopping you from using it over wired Ethernet or your local WiFi
@@ -107,7 +107,7 @@ encrypted mesh.
 
 For example, it's possible to set up a Raspberry Pi connected to both a
 LoRa radio, a packet radio TNC and a WiFi network. Once the interfaces are
-added, Reticulum will take care of the rest, and any device on the WiFi
+added, Reticulum will take care of the rest. Any device on the WiFi
 network can communicate with nodes on the LoRa and packet radio sides of the
 network, and vice versa.
 
