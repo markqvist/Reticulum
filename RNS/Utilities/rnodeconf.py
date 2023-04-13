@@ -32,6 +32,7 @@ import datetime
 import time
 import math
 import hashlib
+import zipfile
 from urllib.request import urlretrieve
 from importlib import util
 import RNS
@@ -2287,12 +2288,9 @@ def main():
                         try:
                             if fw_filename.endswith(".zip"):
                                 RNS.log("Decompressing firmware...")
-                                unzip_status = call(get_flasher_call("unzip", fw_filename))
-                                if unzip_status == 0:
-                                    RNS.log("Firmware decompressed")
-                                else:
-                                    RNS.log("Could not extract firmware from downloaded zip file")
-                                    exit()
+                                with zipfile.ZipFile(fw_src+fw_filename) as zip:
+                                    zip.extractall(fw_src)
+                                RNS.log("Firmware decompressed")
 
                             RNS.log("Flashing RNode firmware to device on "+args.port)
                             from subprocess import call
