@@ -196,7 +196,11 @@ class AutoInterface(Interface):
                             discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mcast_group)
 
                             # Bind socket
-                            addr_info = socket.getaddrinfo(mcast_addr+"%"+ifname, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                            if self.discovery_scope == AutoInterface.SCOPE_LINK:
+                                addr_info = socket.getaddrinfo(mcast_addr+"%"+ifname, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                            else:
+                                addr_info = socket.getaddrinfo(mcast_addr, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+
                             discovery_socket.bind(addr_info[0][4])
 
                             # Set up thread for discovery packets
