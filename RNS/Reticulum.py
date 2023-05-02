@@ -167,7 +167,7 @@ class Reticulum:
         RNS.exit()
 
 
-    def __init__(self,configdir=None, loglevel=None, logdest=None):
+    def __init__(self,configdir=None, loglevel=None, logdest=None, verbosity=None):
         """
         Initialises and starts a Reticulum instance. This must be
         done before any other operations, and Reticulum will not
@@ -211,6 +211,7 @@ class Reticulum:
         self.ifac_salt = Reticulum.IFAC_SALT
 
         self.requested_loglevel = loglevel
+        self.requested_verbosity = verbosity
         if self.requested_loglevel != None:
             if self.requested_loglevel > RNS.LOG_EXTREME:
                 self.requested_loglevel = RNS.LOG_EXTREME
@@ -337,6 +338,8 @@ class Reticulum:
                 value = self.config["logging"][option]
                 if option == "loglevel" and self.requested_loglevel == None:
                     RNS.loglevel = int(value)
+                    if self.requested_verbosity != None:
+                        RNS.loglevel += self.requested_verbosity
                     if RNS.loglevel < 0:
                         RNS.loglevel = 0
                     if RNS.loglevel > 7:

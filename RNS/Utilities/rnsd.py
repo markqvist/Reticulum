@@ -30,15 +30,15 @@ from RNS._version import __version__
 
 
 def program_setup(configdir, verbosity = 0, quietness = 0, service = False):
-    targetloglevel = 3+verbosity-quietness
+    targetverbosity = verbosity-quietness
 
     if service:
         targetlogdest  = RNS.LOG_FILE
-        targetloglevel = None
+        targetverbosity = None
     else:
         targetlogdest  = RNS.LOG_STDOUT
 
-    reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel, logdest=targetlogdest)
+    reticulum = RNS.Reticulum(configdir=configdir, verbosity=targetverbosity, logdest=targetlogdest)
     if reticulum.is_connected_to_shared_instance:
         RNS.log("Started rnsd version {version} connected to another shared local instance, this is probably NOT what you want!".format(version=__version__), RNS.LOG_WARNING)
     else:
