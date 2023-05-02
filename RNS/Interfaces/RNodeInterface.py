@@ -631,7 +631,7 @@ class RNodeInterface(Interface):
                             if (byte == KISS.ERROR_INITRADIO):
                                 RNS.log(str(self)+" hardware initialisation error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
                                 raise IOError("Radio initialisation failure")
-                            elif (byte == KISS.ERROR_INITRADIO):
+                            elif (byte == KISS.ERROR_TXFAILED):
                                 RNS.log(str(self)+" hardware TX error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
                                 raise IOError("Hardware transmit failure")
                             else:
