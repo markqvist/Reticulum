@@ -1249,7 +1249,16 @@ def main():
             else:
                 RNS.log("Could not detect a connected RNode")
 
-            if rnode.provisioned and rnode.signature_valid:
+            if rnode.provisioned:
+                if not rnode.signature_valid:
+                    print("\nThe device signature in this RNode is unknown and cannot be verified. It is still")
+                    print("possible to extract the firmware from it, but you should make absolutely sure that")
+                    print("it comes from a trusted source. It is possible that someone could have modified the")
+                    print("firmware. If that is the case, these modifications will propagate to any new RNodes")
+                    print("descendent from this one!")
+                    print("\nHit enter if you are sure you want to continue.")
+                    input()
+
                 if rnode.firmware_hash != None:
                     extracted_hash = rnode.firmware_hash
                     extracted_version = rnode.version
@@ -1267,11 +1276,11 @@ def main():
                     hash_f.close()
 
                     extraction_parts = [
-                        ("bootloader", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port /dev/ttyACM1 --baud 921600 --before default_reset --after hard_reset read_flash 0x1000 0x4650 \""+EXT_DIR+"/extracted_rnode_firmware.bootloader\""),
-                        ("partition table", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port /dev/ttyACM1 --baud 921600 --before default_reset --after hard_reset read_flash 0x8000 0xC00 \""+EXT_DIR+"/extracted_rnode_firmware.partitions\""),
-                        ("app boot", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port /dev/ttyACM1 --baud 921600 --before default_reset --after hard_reset read_flash 0xe000 0x2000 \""+EXT_DIR+"/extracted_rnode_firmware.boot_app0\""),
-                        ("application image", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port /dev/ttyACM1 --baud 921600 --before default_reset --after hard_reset read_flash 0x10000 0x200000 \""+EXT_DIR+"/extracted_rnode_firmware.bin\""),
-                        ("console image", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port /dev/ttyACM1 --baud 921600 --before default_reset --after hard_reset read_flash 0x210000 0x1F0000 \""+EXT_DIR+"/extracted_console_image.bin\""),
+                        ("bootloader", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud 921600 --before default_reset --after hard_reset read_flash 0x1000 0x4650 \""+EXT_DIR+"/extracted_rnode_firmware.bootloader\""),
+                        ("partition table", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud 921600 --before default_reset --after hard_reset read_flash 0x8000 0xC00 \""+EXT_DIR+"/extracted_rnode_firmware.partitions\""),
+                        ("app boot", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud 921600 --before default_reset --after hard_reset read_flash 0xe000 0x2000 \""+EXT_DIR+"/extracted_rnode_firmware.boot_app0\""),
+                        ("application image", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud 921600 --before default_reset --after hard_reset read_flash 0x10000 0x200000 \""+EXT_DIR+"/extracted_rnode_firmware.bin\""),
+                        ("console image", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud 921600 --before default_reset --after hard_reset read_flash 0x210000 0x1F0000 \""+EXT_DIR+"/extracted_console_image.bin\""),
                     ]
                     import subprocess, shlex
                     for part, command in extraction_parts:
