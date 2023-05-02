@@ -141,7 +141,7 @@ class Packet:
 
     def get_packed_flags(self):
         if self.context == Packet.LRPROOF:
-            packed_flags = (self.header_type << 6) | (self.transport_type << 4) | RNS.Destination.LINK | self.packet_type
+            packed_flags = (self.header_type << 6) | (self.transport_type << 4) | (RNS.Destination.LINK << 2) | self.packet_type
         else:
             packed_flags = (self.header_type << 6) | (self.transport_type << 4) | (self.destination.type << 2) | self.packet_type
         return packed_flags
