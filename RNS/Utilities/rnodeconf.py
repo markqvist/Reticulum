@@ -41,7 +41,7 @@ import RNS
 RNS.logtimefmt      = "%H:%M:%S"
 RNS.compact_log_fmt = True
 
-program_version = "2.1.1"
+program_version = "2.1.2"
 eth_addr = "0x81F7B979fEa6134bA9FD5c701b3501A2e61E897a"
 btc_addr = "3CPmacGm34qYvR6XWLVEJmi2aNe3PZqUuq"
 xmr_addr = "87HcDx6jRSkMQ9nPRd5K9hGGpZLn2s7vWETjMaVM5KfV4TD36NcYa8J8WSxhTSvBzzFpqDwp2fg5GX2moZ7VAP9QMZCZGET"
@@ -2298,8 +2298,12 @@ def main():
                         try:
                             if fw_filename.endswith(".zip"):
                                 RNS.log("Decompressing firmware...")
-                                with zipfile.ZipFile(fw_src+fw_filename) as zip:
-                                    zip.extractall(fw_src)
+                                try:
+                                    with zipfile.ZipFile(fw_src+fw_filename) as zip:
+                                        zip.extractall(fw_src)
+                                except Exception as e:
+                                    RNS.log("Could not decompress firmware from downloaded zip file")
+                                    exit()
                                 RNS.log("Firmware decompressed")
 
                             RNS.log("Flashing RNode firmware to device on "+args.port)
@@ -2422,13 +2426,15 @@ def main():
                         ensure_firmware_file(fw_filename)
 
                     if fw_filename.endswith(".zip") and not fw_filename == "extracted_rnode_firmware.zip":
-                        RNS.log("Extracting firmware...")
-                        unzip_status = call(get_flasher_call("unzip", fw_filename))
-                        if unzip_status == 0:
-                            RNS.log("Firmware extracted")
-                        else:
-                            RNS.log("Could not extract firmware from downloaded zip file")
+                        RNS.log("Decompressing firmware...")
+                        fw_src = UPD_DIR+"/"+selected_version+"/"
+                        try:
+                            with zipfile.ZipFile(fw_src+fw_filename) as zip:
+                                zip.extractall(fw_src)
+                        except Exception as e:
+                            RNS.log("Could not decompress firmware from downloaded zip file")
                             exit()
+                        RNS.log("Firmware decompressed")
 
                 except Exception as e:
                     RNS.log("Could not obtain firmware package for your board")
