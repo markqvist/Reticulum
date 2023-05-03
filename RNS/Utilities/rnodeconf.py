@@ -79,6 +79,7 @@ class KISS():
     CMD_STAT_SNR    = 0x24
     CMD_BLINK       = 0x30
     CMD_RANDOM      = 0x40
+    CMD_DISP_INT    = 0x45
     CMD_BT_CTRL     = 0x46
     CMD_BT_PIN      = 0x62
     CMD_BOARD       = 0x47
@@ -557,6 +558,13 @@ class RNode():
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while sending host left command to device")
+
+    def set_display_intensity(self, intensity):
+        data = bytes([intensity & 0xFF])
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_DISP_INT])+data+bytes([KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending bluetooth enable command to device")
 
     def enable_bluetooth(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_BT_CTRL, 0x01, KISS.FEND])
@@ -1091,6 +1099,8 @@ def main():
         parser.add_argument("-b", "--bluetooth-on", action="store_true", help="Turn device bluetooth on")
         parser.add_argument("-B", "--bluetooth-off", action="store_true", help="Turn device bluetooth off")
         parser.add_argument("-p", "--bluetooth-pair", action="store_true", help="Put device into bluetooth pairing mode")
+
+        parser.add_argument("-D", "--display", action="store", metavar="i", type=int, default=None, help="Set display intensity (0-255)")
 
         parser.add_argument("--freq", action="store", metavar="Hz", type=int, default=None, help="Frequency in Hz for TNC mode")
         parser.add_argument("--bw", action="store", metavar="Hz", type=int, default=None, help="Bandwidth in Hz for TNC mode")
@@ -2534,6 +2544,15 @@ def main():
                     RNS.log("EEPROM was successfully downloaded from device,")
                     RNS.log("but file could not be written to disk.")
                 exit()
+
+            if isinstance(args.display, int):
+                di = args.display
+                if di < 0:
+                    di = 0
+                if di > 255:
+                    di = 255
+                RNS.log("Setting display intensity to "+str(di))
+                rnode.set_display_intensity(di)
 
             if args.bluetooth_on:
                 RNS.log("Enabling Bluetooth...")
