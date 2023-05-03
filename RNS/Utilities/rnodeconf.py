@@ -25,6 +25,7 @@
 from time import sleep
 import argparse
 import threading
+import sys
 import os
 import os.path
 import struct
@@ -32,6 +33,7 @@ import datetime
 import time
 import math
 import hashlib
+import zipfile
 from urllib.request import urlretrieve
 from importlib import util
 import RNS
@@ -1938,7 +1940,7 @@ def main():
                     if fw_filename == "rnode_firmware_tbeam.zip":
                         if numeric_version >= 1.55:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -1956,7 +1958,7 @@ def main():
                             ]
                         else:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -1974,7 +1976,7 @@ def main():
                     elif fw_filename == "rnode_firmware_lora32v20.zip":
                         if numeric_version >= 1.55:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -1992,7 +1994,7 @@ def main():
                             ]
                         else:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2010,7 +2012,7 @@ def main():
                     elif fw_filename == "rnode_firmware_lora32v21.zip":
                         if numeric_version >= 1.55:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2028,7 +2030,7 @@ def main():
                             ]
                         else:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2046,7 +2048,7 @@ def main():
                     elif fw_filename == "rnode_firmware_heltec32v2.zip":
                         if numeric_version >= 1.55:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2064,7 +2066,7 @@ def main():
                             ]
                         else:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2082,7 +2084,7 @@ def main():
                     elif fw_filename == "rnode_firmware_featheresp32.zip":
                         if numeric_version >= 1.55:
                             return [
-                                flasher,
+                               sys.executable,  flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2100,7 +2102,7 @@ def main():
                             ]
                         else:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2118,7 +2120,7 @@ def main():
                     elif fw_filename == "rnode_firmware_esp32_generic.zip":
                         if numeric_version >= 1.55:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2136,7 +2138,7 @@ def main():
                             ]
                         else:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2154,7 +2156,7 @@ def main():
                     elif fw_filename == "rnode_firmware_ng20.zip":
                         if numeric_version >= 1.55:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2172,7 +2174,7 @@ def main():
                             ]
                         else:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2190,7 +2192,7 @@ def main():
                     elif fw_filename == "rnode_firmware_ng21.zip":
                         if numeric_version >= 1.55:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2208,7 +2210,7 @@ def main():
                             ]
                         else:
                             return [
-                                flasher,
+                                sys.executable, flasher,
                                 "--chip", "esp32",
                                 "--port", args.port,
                                 "--baud", "921600",
@@ -2225,7 +2227,7 @@ def main():
                             ]
                     elif fw_filename == "extracted_rnode_firmware.zip":
                         return [
-                            flasher,
+                            sys.executable, flasher,
                             "--chip", "esp32",
                             "--port", args.port,
                             "--baud", "921600",
@@ -2296,12 +2298,9 @@ def main():
                         try:
                             if fw_filename.endswith(".zip"):
                                 RNS.log("Decompressing firmware...")
-                                unzip_status = call(get_flasher_call("unzip", fw_filename))
-                                if unzip_status == 0:
-                                    RNS.log("Firmware decompressed")
-                                else:
-                                    RNS.log("Could not extract firmware from downloaded zip file")
-                                    exit()
+                                with zipfile.ZipFile(fw_src+fw_filename) as zip:
+                                    zip.extractall(fw_src)
+                                RNS.log("Firmware decompressed")
 
                             RNS.log("Flashing RNode firmware to device on "+args.port)
                             from subprocess import call
