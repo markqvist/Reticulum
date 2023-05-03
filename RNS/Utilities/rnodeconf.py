@@ -132,6 +132,10 @@ class ROM():
     MODEL_A2       = 0xA2
     MODEL_A7       = 0xA7
 
+    PRODUCT_T32_10 = 0xB2
+    MODEL_BA       = 0xBA
+    MODEL_BB       = 0xBB
+
     PRODUCT_T32_20 = 0xB0
     MODEL_B3       = 0xB3
     MODEL_B8       = 0xB8
@@ -183,6 +187,7 @@ products = {
     ROM.PRODUCT_RNODE:  "RNode",
     ROM.PRODUCT_HMBRW:  "Hombrew RNode",
     ROM.PRODUCT_TBEAM:  "LilyGO T-Beam",
+    ROM.PRODUCT_T32_10: "LilyGO LoRa32 v1.0",
     ROM.PRODUCT_T32_20: "LilyGO LoRa32 v2.0",
     ROM.PRODUCT_T32_21: "LilyGO LoRa32 v2.1",
     ROM.PRODUCT_H32_V2: "Heltec LoRa32 v2",
@@ -210,6 +215,8 @@ models = {
     0xB8: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v20.zip"],
     0xB4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_lora32v21.zip"],
     0xB9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v21.zip"],
+    0xBA: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_lora32v10.zip"],
+    0xBB: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v10.zip"],
     0xC4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_heltec32v2.zip"],
     0xC9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_heltec32v2.zip"],
     0xE4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_tbeam.zip"],
@@ -1421,8 +1428,9 @@ def main():
             print("")
             print("[3] LilyGO LoRa32 v2.1 (aka T3 v1.6 / T3 v1.6.1)")
             print("[4] LilyGO LoRa32 v2.0")
-            print("[5] LilyGO T-Beam")
-            print("[6] Heltec LoRa32 v2")
+            print("[5] LilyGO LoRa32 v1.0")
+            print("[6] LilyGO T-Beam")
+            print("[7] Heltec LoRa32 v2")
             print("       .")
             print("      / \\   Select one of these options if you want to easily turn")
             print("       |    a supported development board into an RNode.")
@@ -1454,7 +1462,7 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 5:
+                elif c_dev == 6:
                     selected_product = ROM.PRODUCT_TBEAM
                     clear()
                     print("")
@@ -1484,6 +1492,25 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
+                elif c_dev == 5:
+                    selected_product = ROM.PRODUCT_T32_10
+                    clear()
+                    print("")
+                    print("---------------------------------------------------------------------------")
+                    print("                     LilyGO LoRa32 v1.0 RNode Installer")
+                    print("")
+                    print("Important! Using RNode firmware on LoRa32 devices should currently be")
+                    print("considered experimental. It is not intended for production or critical use.")
+                    print("The currently supplied firmware is provided AS-IS as a courtesey to those")
+                    print("who would like to experiment with it.")
+                    print("")
+                    print("Please Note! This device is known to have a faulty battery charging circuit,")
+                    print("which can result in overcharging and damaging batteries. If at all possible,")
+                    print("it is recommended to avoid this device.")
+                    print("")
+                    print("Hit enter if you're sure you wish to continue.")
+                    print("---------------------------------------------------------------------------")
+                    input()
                 elif c_dev == 3:
                     selected_product = ROM.PRODUCT_T32_21
                     clear()
@@ -1497,7 +1524,7 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 6:
+                elif c_dev == 7:
                     selected_product = ROM.PRODUCT_H32_V2
                     clear()
                     print("")
@@ -1624,6 +1651,28 @@ def main():
                         selected_platform = ROM.PLATFORM_ESP32
                     elif c_model > 1:
                         selected_model = ROM.MODEL_E9
+                        selected_platform = ROM.PLATFORM_ESP32
+                except Exception as e:
+                    print("That band does not exist, exiting now.")
+                    exit()
+
+            elif selected_product == ROM.PRODUCT_T32_10:
+                selected_mcu = ROM.MCU_ESP32
+                print("\nWhat band is this LoRa32 for?\n")
+                print("[1] 433 MHz")
+                print("[2] 868 MHz")
+                print("[3] 915 MHz")
+                print("[4] 923 MHz")
+                print("\n? ", end="")
+                try:
+                    c_model = int(input())
+                    if c_model < 1 or c_model > 4:
+                        raise ValueError()
+                    elif c_model == 1:
+                        selected_model = ROM.MODEL_BA
+                        selected_platform = ROM.PLATFORM_ESP32
+                    elif c_model > 1:
+                        selected_model = ROM.MODEL_BB
                         selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
                     print("That band does not exist, exiting now.")
@@ -1982,6 +2031,42 @@ def main():
                                 "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bootloader",
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.partitions",
+                            ]
+                    elif fw_filename == "rnode_firmware_lora32v10.zip":
+                        if numeric_version >= 1.59:
+                            return [
+                                sys.executable, flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v10.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v10.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v10.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v10.partitions",
+                            ]
+                        else:
+                            return [
+                                sys.executable, flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", "921600",
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v20.partitions",
                             ]
                     elif fw_filename == "rnode_firmware_lora32v20.zip":
                         if numeric_version >= 1.55:
