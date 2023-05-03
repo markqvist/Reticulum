@@ -42,7 +42,7 @@ class HDLC():
 
 class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     def server_bind(self):
-        if sys.platform == 'win32':
+        if RNS.vendor.platformutils.is_windows():
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
         else:
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
