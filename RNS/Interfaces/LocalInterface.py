@@ -41,7 +41,13 @@ class HDLC():
         return data
 
 class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    pass
+    def server_bind(self):
+        if sys.platform == 'win32':
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        else:
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket.bind(self.server_address)
+        self.server_address = self.socket.getsockname()
 
 class LocalClientInterface(Interface):
     RECONNECT_WAIT = 3
@@ -299,7 +305,6 @@ class LocalServerInterface(Interface):
 
             address = (self.bind_ip, self.bind_port)
 
-            ThreadingTCPServer.allow_reuse_address = True
             self.server = ThreadingTCPServer(address, handlerFactory(self.incoming_connection))
 
             thread = threading.Thread(target=self.server.serve_forever)
