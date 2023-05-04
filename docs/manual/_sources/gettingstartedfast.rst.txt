@@ -25,30 +25,13 @@ and install them offline using ``pip``:
 
 .. code::
 
-   pip install ./rns-0.4.6-py3-none-any.whl
+   pip install ./rns-0.5.1-py3-none-any.whl
 
 
 Resolving Dependency & Installation Issues
 =============================================
 On some platforms, there may not be binary packages available for all dependencies, and
-``pip`` installation may fail with an error message. Most often, this is simply due to
-the ``netifaces`` package not having a pre-compiled package available via ``pip``.
-
-Usually, this can be resolved by simply installing ``netifaces`` via the system package
-manager:
-
-.. code::
-
-    # Debian / Ubuntu / Derivatives
-    sudo apt install python3-netifaces
-
-    # Arch / Manjaro / Derivatives
-    sudo pamac install python3-netifaces
-
-    # Fedora
-    sudo dnf install python3-netifaces
-
-More rarely, other dependencies cannot be resolved. In these cases, the issue can usually
+``pip`` installation may fail with an error message. In these cases, the issue can usually
 be resolved by installing the development essentials packages for your platform:
 
 .. code::
@@ -308,7 +291,7 @@ For extended functionality, you can install optional dependencies:
 
 .. code::
 
-   pip3 install pyserial netifaces
+   pip3 install pyserial
 
 
 Further information can be found in the :ref:`API Reference<api-main>`.
@@ -323,7 +306,7 @@ don't use pip, but try this recipe:
 .. code::
 
     # Install dependencies
-    pip3 install cryptography pyserial netifaces
+    pip3 install cryptography pyserial
 
     # Clone repository
     git clone https://github.com/markqvist/Reticulum.git
@@ -459,24 +442,6 @@ don't always have packages available for some dependencies.
 While it is possible to install and run Reticulum on 32-bit Rasperry Pi OSes,
 it will require manually configuring and installing some packages, and is not
 detailed in this manual.
-
-
-Fedora
-^^^^^^^^^^^^^^^^^^^^^^^^
-On Fedora, ``pip`` installation may fail with an error message, since the ``netifaces``
-package cannot be installed natively via ``pip``. This can be resolved by installing
-the ``python3-netifaces`` package via ``dnf`` first:
-
-.. code::
-
-    sudo dnf install python3-netifaces
-
-Alternatively, you can install basic development packages, which will allow
-``pip`` to install any required packages from source:
-
-.. code::
-
-    sudo dnf groupinstall "Development Tools" "Development Libraries"
 
 
 Debian Bookworm
