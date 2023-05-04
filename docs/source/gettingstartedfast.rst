@@ -10,21 +10,61 @@ scenarios.
 Standalone Reticulum Installation
 =============================================
 If you simply want to install Reticulum and related utilities on a system,
-the easiest way is via ``pip``:
+the easiest way is via the ``pip`` package manager:
 
 .. code::
 
    pip install rns
 
-If you no not already have pip installed, you can install it using the package manager
+If you do not already have pip installed, you can install it using the package manager
 of your system with a command like ``sudo apt install python3-pip``,
-``sudo pamac install python-pip`` or similar. You can also dowload the Reticulum release
-wheels from GitHub, or other release channels, and install them offline using ``pip``:
+``sudo pamac install python-pip`` or similar.
+
+You can also dowload the Reticulum release wheels from GitHub, or other release channels,
+and install them offline using ``pip``:
 
 .. code::
 
    pip install ./rns-0.4.6-py3-none-any.whl
 
+
+Resolving Dependency & Installation Issues
+=============================================
+On some platforms, there may not be binary packages available for all dependencies, and
+``pip`` installation may fail with an error message. Most often, this is simply due to
+the ``netifaces`` package not having a pre-compiled package available via ``pip``.
+
+Usually, this can be resolved by simply installing ``netifaces`` via the system package
+manager:
+
+.. code::
+
+    # Debian / Ubuntu / Derivatives
+    sudo apt install python3-netifaces
+
+    # Arch / Manjaro / Derivatives
+    sudo pamac install python3-netifaces
+
+    # Fedora
+    sudo dnf install python3-netifaces
+
+More rarely, other dependencies cannot be resolved. In these cases, the issue can usually
+be resolved by installing the development essentials packages for your platform:
+
+.. code::
+
+    # Debian / Ubuntu / Derivatives
+    sudo apt install build-essential
+
+    # Arch / Manjaro / Derivatives
+    sudo pamac install base-devel
+
+    # Fedora
+    sudo dnf groupinstall "Development Tools" "Development Libraries"
+
+With the base development packages installed, ``pip`` should be able to compile any missing
+dependencies from source, and complete installation even on platforms that don't have pre-
+compiled packages available.
 
 Try Using a Reticulum-based Program
 =============================================
@@ -320,8 +360,14 @@ the `disucssion forum on GitHub <https://github.com/markqvist/Reticulum/discussi
 or ask one of the developers or maintainers for a good place to start.
 
 
-Reticulum on ARM64
+Platform-Specific Install Notes
 ==============================================
+
+Some platforms require a slightly different installation procedure, or have
+various quirks that are worth being aware of. These are listed here.
+
+Reticulum on ARM64
+^^^^^^^^^^^^^^^^^^^^^^^^
 On some architectures, including ARM64, not all dependencies have precompiled
 binaries. On such systems, you may need to install ``python3-dev`` before
 installing Reticulum or programs that depend on Reticulum.
@@ -337,13 +383,36 @@ installing Reticulum or programs that depend on Reticulum.
 
 
 Reticulum on Raspberry Pi
-==============================================
+^^^^^^^^^^^^^^^^^^^^^^^^^
 It is currently recommended to use a 64-bit version of the Raspberry Pi OS
 if you want to run Reticulum on Raspberry Pi computers, since 32-bit versions
 don't always have packages available for some dependencies.
 
+While it is possible to install and run Reticulum on 32-bit Rasperry Pi OSes,
+it will require manually configuring and installing some packages, and is not
+detailed in this manual.
+
+
+Reticulum on Fedora
+^^^^^^^^^^^^^^^^^^^^^^^^
+On Fedora, ``pip`` installation may fail with an error message, since the ``netifaces``
+package cannot be installed natively via ``pip``. This can be resolved by installing
+the ``python3-netifaces`` package via ``dnf`` first:
+
+.. code::
+
+    sudo dnf install python3-netifaces
+
+Alternatively, you can install basic development packages, which will allow
+``pip`` to install any required packages from source:
+
+.. code::
+
+    sudo dnf groupinstall "Development Tools" "Development Libraries"
+
+
 Reticulum on Android
-==============================================
+^^^^^^^^^^^^^^^^^^^^^^^^
 Reticulum can be used on Android in different ways. The easiest way to get
 started is using an app like `Sideband <https://unsigned.io/sideband>`_.
 

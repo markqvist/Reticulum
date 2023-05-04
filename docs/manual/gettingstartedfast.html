@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Using Reticulum on Your System" href="using.html" /><link rel="prev" title="What is Reticulum?" href="whatis.html" />
 
     <meta name="generator" content="sphinx-5.2.2, furo 2022.09.29"/>
-        <title>Getting Started Fast - Reticulum Network Stack 0.5.0 beta documentation</title>
+        <title>Getting Started Fast - Reticulum Network Stack 0.5.1 beta documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 0.5.0 beta documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.5.1 beta documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -167,7 +167,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 0.5.0 beta documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.5.1 beta documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -229,17 +229,51 @@ scenarios.</p>
 <section id="standalone-reticulum-installation">
 <h2>Standalone Reticulum Installation<a class="headerlink" href="#standalone-reticulum-installation" title="Permalink to this heading">#</a></h2>
 <p>If you simply want to install Reticulum and related utilities on a system,
-the easiest way is via <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+the easiest way is via the <code class="docutils literal notranslate"><span class="pre">pip</span></code> package manager:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
 </pre></div>
 </div>
-<p>If you no not already have pip installed, you can install it using the package manager
+<p>If you do not already have pip installed, you can install it using the package manager
 of your system with a command like <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">python3-pip</span></code>,
-<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">pamac</span> <span class="pre">install</span> <span class="pre">python-pip</span></code> or similar. You can also dowload the Reticulum release
-wheels from GitHub, or other release channels, and install them offline using <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">pamac</span> <span class="pre">install</span> <span class="pre">python-pip</span></code> or similar.</p>
+<p>You can also dowload the Reticulum release wheels from GitHub, or other release channels,
+and install them offline using <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">./</span><span class="n">rns</span><span class="o">-</span><span class="mf">0.4.6</span><span class="o">-</span><span class="n">py3</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="nb">any</span><span class="o">.</span><span class="n">whl</span>
 </pre></div>
 </div>
+</section>
+<section id="resolving-dependency-installation-issues">
+<h2>Resolving Dependency &amp; Installation Issues<a class="headerlink" href="#resolving-dependency-installation-issues" title="Permalink to this heading">#</a></h2>
+<p>On some platforms, there may not be binary packages available for all dependencies, and
+<code class="docutils literal notranslate"><span class="pre">pip</span></code> installation may fail with an error message. Most often, this is simply due to
+the <code class="docutils literal notranslate"><span class="pre">netifaces</span></code> package not having a pre-compiled package available via <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p>
+<p>Usually, this can be resolved by simply installing <code class="docutils literal notranslate"><span class="pre">netifaces</span></code> via the system package
+manager:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Debian / Ubuntu / Derivatives</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">netifaces</span>
+
+<span class="c1"># Arch / Manjaro / Derivatives</span>
+<span class="n">sudo</span> <span class="n">pamac</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">netifaces</span>
+
+<span class="c1"># Fedora</span>
+<span class="n">sudo</span> <span class="n">dnf</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">netifaces</span>
+</pre></div>
+</div>
+<p>More rarely, other dependencies cannot be resolved. In these cases, the issue can usually
+be resolved by installing the development essentials packages for your platform:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Debian / Ubuntu / Derivatives</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span>
+
+<span class="c1"># Arch / Manjaro / Derivatives</span>
+<span class="n">sudo</span> <span class="n">pamac</span> <span class="n">install</span> <span class="n">base</span><span class="o">-</span><span class="n">devel</span>
+
+<span class="c1"># Fedora</span>
+<span class="n">sudo</span> <span class="n">dnf</span> <span class="n">groupinstall</span> <span class="s2">&quot;Development Tools&quot;</span> <span class="s2">&quot;Development Libraries&quot;</span>
+</pre></div>
+</div>
+<p>With the base development packages installed, <code class="docutils literal notranslate"><span class="pre">pip</span></code> should be able to compile any missing
+dependencies from source, and complete installation even on platforms that don’t have pre-
+compiled packages available.</p>
 </section>
 <section id="try-using-a-reticulum-based-program">
 <h2>Try Using a Reticulum-based Program<a class="headerlink" href="#try-using-a-reticulum-based-program" title="Permalink to this heading">#</a></h2>
@@ -478,8 +512,12 @@ your first pull request, it is probably a good idea to introduce yourself on
 the <a class="reference external" href="https://github.com/markqvist/Reticulum/discussions">disucssion forum on GitHub</a>,
 or ask one of the developers or maintainers for a good place to start.</p>
 </section>
+<section id="platform-specific-install-notes">
+<h2>Platform-Specific Install Notes<a class="headerlink" href="#platform-specific-install-notes" title="Permalink to this heading">#</a></h2>
+<p>Some platforms require a slightly different installation procedure, or have
+various quirks that are worth being aware of. These are listed here.</p>
 <section id="reticulum-on-arm64">
-<h2>Reticulum on ARM64<a class="headerlink" href="#reticulum-on-arm64" title="Permalink to this heading">#</a></h2>
+<h3>Reticulum on ARM64<a class="headerlink" href="#reticulum-on-arm64" title="Permalink to this heading">#</a></h3>
 <p>On some architectures, including ARM64, not all dependencies have precompiled
 binaries. On such systems, you may need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> before
 installing Reticulum or programs that depend on Reticulum.</p>
@@ -493,13 +531,30 @@ installing Reticulum or programs that depend on Reticulum.</p>
 </div>
 </section>
 <section id="reticulum-on-raspberry-pi">
-<h2>Reticulum on Raspberry Pi<a class="headerlink" href="#reticulum-on-raspberry-pi" title="Permalink to this heading">#</a></h2>
+<h3>Reticulum on Raspberry Pi<a class="headerlink" href="#reticulum-on-raspberry-pi" title="Permalink to this heading">#</a></h3>
 <p>It is currently recommended to use a 64-bit version of the Raspberry Pi OS
 if you want to run Reticulum on Raspberry Pi computers, since 32-bit versions
 don’t always have packages available for some dependencies.</p>
+<p>While it is possible to install and run Reticulum on 32-bit Rasperry Pi OSes,
+it will require manually configuring and installing some packages, and is not
+detailed in this manual.</p>
+</section>
+<section id="reticulum-on-fedora">
+<h3>Reticulum on Fedora<a class="headerlink" href="#reticulum-on-fedora" title="Permalink to this heading">#</a></h3>
+<p>On Fedora, <code class="docutils literal notranslate"><span class="pre">pip</span></code> installation may fail with an error message, since the <code class="docutils literal notranslate"><span class="pre">netifaces</span></code>
+package cannot be installed natively via <code class="docutils literal notranslate"><span class="pre">pip</span></code>. This can be resolved by installing
+the <code class="docutils literal notranslate"><span class="pre">python3-netifaces</span></code> package via <code class="docutils literal notranslate"><span class="pre">dnf</span></code> first:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">dnf</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">netifaces</span>
+</pre></div>
+</div>
+<p>Alternatively, you can install basic development packages, which will allow
+<code class="docutils literal notranslate"><span class="pre">pip</span></code> to install any required packages from source:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">dnf</span> <span class="n">groupinstall</span> <span class="s2">&quot;Development Tools&quot;</span> <span class="s2">&quot;Development Libraries&quot;</span>
+</pre></div>
+</div>
 </section>
 <section id="reticulum-on-android">
-<h2>Reticulum on Android<a class="headerlink" href="#reticulum-on-android" title="Permalink to this heading">#</a></h2>
+<h3>Reticulum on Android<a class="headerlink" href="#reticulum-on-android" title="Permalink to this heading">#</a></h3>
 <p>Reticulum can be used on Android in different ways. The easiest way to get
 started is using an app like <a class="reference external" href="https://unsigned.io/sideband">Sideband</a>.</p>
 <p>For more control and features, you can use Reticulum and related programs via
@@ -556,6 +611,7 @@ locally on your device using the following command:</p>
 <p>It is also possible to include Reticulum in apps compiled and distributed as
 Android APKs. A detailed tutorial and example source code will be included
 here at a later point. Until then you can use the <a class="reference external" href="https://github.com/markqvist/sideband">Sideband source code</a> as an example and startig point.</p>
+</section>
 </section>
 <section id="pure-python-reticulum">
 <h2>Pure-Python Reticulum<a class="headerlink" href="#pure-python-reticulum" title="Permalink to this heading">#</a></h2>
@@ -639,6 +695,7 @@ section of this manual.</p>
             <ul>
 <li><a class="reference internal" href="#">Getting Started Fast</a><ul>
 <li><a class="reference internal" href="#standalone-reticulum-installation">Standalone Reticulum Installation</a></li>
+<li><a class="reference internal" href="#resolving-dependency-installation-issues">Resolving Dependency &amp; Installation Issues</a></li>
 <li><a class="reference internal" href="#try-using-a-reticulum-based-program">Try Using a Reticulum-based Program</a><ul>
 <li><a class="reference internal" href="#remote-shell">Remote Shell</a></li>
 <li><a class="reference internal" href="#nomad-network">Nomad Network</a></li>
@@ -652,9 +709,13 @@ section of this manual.</p>
 <li><a class="reference internal" href="#adding-radio-interfaces">Adding Radio Interfaces</a></li>
 <li><a class="reference internal" href="#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
 <li><a class="reference internal" href="#participate-in-reticulum-development">Participate in Reticulum Development</a></li>
+<li><a class="reference internal" href="#platform-specific-install-notes">Platform-Specific Install Notes</a><ul>
 <li><a class="reference internal" href="#reticulum-on-arm64">Reticulum on ARM64</a></li>
 <li><a class="reference internal" href="#reticulum-on-raspberry-pi">Reticulum on Raspberry Pi</a></li>
+<li><a class="reference internal" href="#reticulum-on-fedora">Reticulum on Fedora</a></li>
 <li><a class="reference internal" href="#reticulum-on-android">Reticulum on Android</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#pure-python-reticulum">Pure-Python Reticulum</a></li>
 </ul>
 </li>
