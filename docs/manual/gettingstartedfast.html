@@ -516,45 +516,8 @@ or ask one of the developers or maintainers for a good place to start.</p>
 <h2>Platform-Specific Install Notes<a class="headerlink" href="#platform-specific-install-notes" title="Permalink to this heading">#</a></h2>
 <p>Some platforms require a slightly different installation procedure, or have
 various quirks that are worth being aware of. These are listed here.</p>
-<section id="reticulum-on-arm64">
-<h3>Reticulum on ARM64<a class="headerlink" href="#reticulum-on-arm64" title="Permalink to this heading">#</a></h3>
-<p>On some architectures, including ARM64, not all dependencies have precompiled
-binaries. On such systems, you may need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> before
-installing Reticulum or programs that depend on Reticulum.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Python and development packages</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">update</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">dev</span>
-
-<span class="c1"># Install Reticulum</span>
-<span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
-</pre></div>
-</div>
-</section>
-<section id="reticulum-on-raspberry-pi">
-<h3>Reticulum on Raspberry Pi<a class="headerlink" href="#reticulum-on-raspberry-pi" title="Permalink to this heading">#</a></h3>
-<p>It is currently recommended to use a 64-bit version of the Raspberry Pi OS
-if you want to run Reticulum on Raspberry Pi computers, since 32-bit versions
-don’t always have packages available for some dependencies.</p>
-<p>While it is possible to install and run Reticulum on 32-bit Rasperry Pi OSes,
-it will require manually configuring and installing some packages, and is not
-detailed in this manual.</p>
-</section>
-<section id="reticulum-on-fedora">
-<h3>Reticulum on Fedora<a class="headerlink" href="#reticulum-on-fedora" title="Permalink to this heading">#</a></h3>
-<p>On Fedora, <code class="docutils literal notranslate"><span class="pre">pip</span></code> installation may fail with an error message, since the <code class="docutils literal notranslate"><span class="pre">netifaces</span></code>
-package cannot be installed natively via <code class="docutils literal notranslate"><span class="pre">pip</span></code>. This can be resolved by installing
-the <code class="docutils literal notranslate"><span class="pre">python3-netifaces</span></code> package via <code class="docutils literal notranslate"><span class="pre">dnf</span></code> first:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">dnf</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">netifaces</span>
-</pre></div>
-</div>
-<p>Alternatively, you can install basic development packages, which will allow
-<code class="docutils literal notranslate"><span class="pre">pip</span></code> to install any required packages from source:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">dnf</span> <span class="n">groupinstall</span> <span class="s2">&quot;Development Tools&quot;</span> <span class="s2">&quot;Development Libraries&quot;</span>
-</pre></div>
-</div>
-</section>
-<section id="reticulum-on-android">
-<h3>Reticulum on Android<a class="headerlink" href="#reticulum-on-android" title="Permalink to this heading">#</a></h3>
+<section id="android">
+<h3>Android<a class="headerlink" href="#android" title="Permalink to this heading">#</a></h3>
 <p>Reticulum can be used on Android in different ways. The easiest way to get
 started is using an app like <a class="reference external" href="https://unsigned.io/sideband">Sideband</a>.</p>
 <p>For more control and features, you can use Reticulum and related programs via
@@ -611,6 +574,79 @@ locally on your device using the following command:</p>
 <p>It is also possible to include Reticulum in apps compiled and distributed as
 Android APKs. A detailed tutorial and example source code will be included
 here at a later point. Until then you can use the <a class="reference external" href="https://github.com/markqvist/sideband">Sideband source code</a> as an example and startig point.</p>
+</section>
+<section id="arm64">
+<h3>ARM64<a class="headerlink" href="#arm64" title="Permalink to this heading">#</a></h3>
+<p>On some architectures, including ARM64, not all dependencies have precompiled
+binaries. On such systems, you may need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> before
+installing Reticulum or programs that depend on Reticulum.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Python and development packages</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">dev</span>
+
+<span class="c1"># Install Reticulum</span>
+<span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+</pre></div>
+</div>
+</section>
+<section id="raspberry-pi">
+<h3>Raspberry Pi<a class="headerlink" href="#raspberry-pi" title="Permalink to this heading">#</a></h3>
+<p>It is currently recommended to use a 64-bit version of the Raspberry Pi OS
+if you want to run Reticulum on Raspberry Pi computers, since 32-bit versions
+don’t always have packages available for some dependencies.</p>
+<p>While it is possible to install and run Reticulum on 32-bit Rasperry Pi OSes,
+it will require manually configuring and installing some packages, and is not
+detailed in this manual.</p>
+</section>
+<section id="fedora">
+<h3>Fedora<a class="headerlink" href="#fedora" title="Permalink to this heading">#</a></h3>
+<p>On Fedora, <code class="docutils literal notranslate"><span class="pre">pip</span></code> installation may fail with an error message, since the <code class="docutils literal notranslate"><span class="pre">netifaces</span></code>
+package cannot be installed natively via <code class="docutils literal notranslate"><span class="pre">pip</span></code>. This can be resolved by installing
+the <code class="docutils literal notranslate"><span class="pre">python3-netifaces</span></code> package via <code class="docutils literal notranslate"><span class="pre">dnf</span></code> first:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">dnf</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">netifaces</span>
+</pre></div>
+</div>
+<p>Alternatively, you can install basic development packages, which will allow
+<code class="docutils literal notranslate"><span class="pre">pip</span></code> to install any required packages from source:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">dnf</span> <span class="n">groupinstall</span> <span class="s2">&quot;Development Tools&quot;</span> <span class="s2">&quot;Development Libraries&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="debian-bookworm">
+<h3>Debian Bookworm<a class="headerlink" href="#debian-bookworm" title="Permalink to this heading">#</a></h3>
+<p>On versions of Debian released after April 2023, it is no longer possible
+to use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install packages onto your system. Unfortunately, you will need to
+use the replacement <code class="docutils literal notranslate"><span class="pre">pipx</span></code> command instead, which places installed packages in an
+isolated environment. This should not negatively affect Reticulum, but installation
+via this method is not fully tested yet.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pipx</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">pipx</span>
+
+<span class="c1"># Make installed programs available on the command line</span>
+<span class="n">pipx</span> <span class="n">ensurepath</span>
+
+<span class="c1"># Install Reticulum</span>
+<span class="n">pipx</span> <span class="n">install</span> <span class="n">rns</span>
+</pre></div>
+</div>
+</section>
+<section id="ubuntu-lunar">
+<h3>Ubuntu Lunar<a class="headerlink" href="#ubuntu-lunar" title="Permalink to this heading">#</a></h3>
+<p>On versions of Ubuntu released after April 2023, it is no longer possible
+to use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install packages onto your system. Unfortunately, you will need to
+use the replacement <code class="docutils literal notranslate"><span class="pre">pipx</span></code> command instead, which places installed packages in an
+isolated environment. This should not negatively affect Reticulum, but installation
+via this method is not fully tested yet.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pipx</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">pipx</span>
+
+<span class="c1"># Make installed programs available on the command line</span>
+<span class="n">pipx</span> <span class="n">ensurepath</span>
+
+<span class="c1"># Install Reticulum</span>
+<span class="n">pipx</span> <span class="n">install</span> <span class="n">rns</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="pure-python-reticulum">
@@ -710,10 +746,12 @@ section of this manual.</p>
 <li><a class="reference internal" href="#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
 <li><a class="reference internal" href="#participate-in-reticulum-development">Participate in Reticulum Development</a></li>
 <li><a class="reference internal" href="#platform-specific-install-notes">Platform-Specific Install Notes</a><ul>
-<li><a class="reference internal" href="#reticulum-on-arm64">Reticulum on ARM64</a></li>
-<li><a class="reference internal" href="#reticulum-on-raspberry-pi">Reticulum on Raspberry Pi</a></li>
-<li><a class="reference internal" href="#reticulum-on-fedora">Reticulum on Fedora</a></li>
-<li><a class="reference internal" href="#reticulum-on-android">Reticulum on Android</a></li>
+<li><a class="reference internal" href="#android">Android</a></li>
+<li><a class="reference internal" href="#arm64">ARM64</a></li>
+<li><a class="reference internal" href="#raspberry-pi">Raspberry Pi</a></li>
+<li><a class="reference internal" href="#fedora">Fedora</a></li>
+<li><a class="reference internal" href="#debian-bookworm">Debian Bookworm</a></li>
+<li><a class="reference internal" href="#ubuntu-lunar">Ubuntu Lunar</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#pure-python-reticulum">Pure-Python Reticulum</a></li>
