@@ -1,5 +1,4 @@
-# netifaces compatibility layer
-
+import ipaddress
 import ifaddr
 import socket
 
@@ -22,7 +21,10 @@ def ifaddresses(ifname) -> dict:
             for ip in a.ips:
                 t = {}
                 if ip.is_IPv4:
+                    net = ipaddress.ip_network(str(ip.ip)+"/"+str(ip.network_prefix), strict=False)
                     t["addr"] = ip.ip
+                    t["prefix"] = ip.network_prefix
+                    t["broadcast"] = str(net.broadcast_address)
                     ipv4s.append(t)
                 if ip.is_IPv6:
                     t["addr"] = ip.ip[0]

@@ -190,7 +190,6 @@ these dependencies, and when the `rns` package is installed with `pip`, they
 will be downloaded and installed as well.
 
 - [PyCA/cryptography](https://github.com/pyca/cryptography)
-- [netifaces](https://github.com/al45tair/netifaces)
 - [pyserial](https://github.com/pyserial/pyserial)
 
 On more unusual systems, and in some rare cases, it might not be possible to

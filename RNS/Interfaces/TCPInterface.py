@@ -408,25 +408,15 @@ class TCPServerInterface(Interface):
 
     @staticmethod
     def get_address_for_if(name):
-        import importlib
-        if importlib.util.find_spec('netifaces') != None:
-            import netifaces
-            return netifaces.ifaddresses(name)[netifaces.AF_INET][0]['addr']
-        else:
-            RNS.log("Getting interface addresses from device names requires the netifaces module.", RNS.LOG_CRITICAL)
-            RNS.log("You can install it with the command: python3 -m pip install netifaces", RNS.LOG_CRITICAL)
-            RNS.panic()
+        import RNS.vendor.ifaddr.niwrapper as netinfo
+        ifaddr = netinfo.ifaddresses(name)
+        return ifaddr[netinfo.AF_INET][0]["addr"]
 
     @staticmethod
     def get_broadcast_for_if(name):
-        import importlib
-        if importlib.util.find_spec('netifaces') != None:
-            import netifaces
-            return netifaces.ifaddresses(name)[netifaces.AF_INET][0]['broadcast']
-        else:
-            RNS.log("Getting interface addresses from device names requires the netifaces module.", RNS.LOG_CRITICAL)
-            RNS.log("You can install it with the command: python3 -m pip install netifaces", RNS.LOG_CRITICAL)
-            RNS.panic()
+        import RNS.vendor.ifaddr.niwrapper as netinfo
+        ifaddr = netinfo.ifaddresses(name)
+        return ifaddr[netinfo.AF_INET][0]["broadcast"]
 
     def __init__(self, owner, name, device=None, bindip=None, bindport=None, i2p_tunneled=False):
         self.rxb = 0

@@ -38,7 +38,7 @@ These efforts are aimed at improving the ease of which Reticulum is understood, 
         - Update NomadNet screenshots
         - Update Sideband screenshots
     - Installation
-        - Install docs for fedora, needs `python3-netifaces`
+        - Remove references to netifaces
         - Add a *Reticulum On Raspberry Pi* section
         - Update *Reticulum On Android* section if necessary
         - Update Android install documentation.

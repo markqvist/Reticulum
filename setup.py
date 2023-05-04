@@ -20,7 +20,7 @@ if pure_python:
     long_description = long_description.replace("</p>", "</p>"+pure_notice)
 else:
     pkg_name = "rns"
-    requirements = ['cryptography>=3.4.7', 'pyserial>=3.5', 'netifaces']
+    requirements = ['cryptography>=3.4.7', 'pyserial>=3.5']
 
 excluded_modules = exclude=["tests.*", "tests"]
 packages = setuptools.find_packages(exclude=excluded_modules)
