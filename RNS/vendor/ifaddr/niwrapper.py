@@ -8,11 +8,11 @@ AF_INET6 = socket.AF_INET6.value
 AF_INET = socket.AF_INET.value
 
 def interfaces() -> List[str]:
-    adapters = ifaddr.get_adapters(include_unconfigured=True)
+    adapters = RNS.vendor.ifaddr.get_adapters(include_unconfigured=True)
     return [a.name for a in adapters]
 
 def ifaddresses(ifname) -> dict:
-    adapters = ifaddr.get_adapters(include_unconfigured=True)
+    adapters = RNS.vendor.ifaddr.get_adapters(include_unconfigured=True)
     ifa = {}
     for a in adapters:
         if a.name == ifname:
