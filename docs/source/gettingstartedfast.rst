@@ -226,12 +226,12 @@ by adding one of the following interfaces to your ``.reticulum/config`` file:
     target_host = dublin.connect.reticulum.network
     target_port = 4965
 
-  # TCP/IP interface to the Frankfurt hub
-  [[RNS Testnet Frankfurt]]
+  # TCP/IP interface to the BetweenTheBorders Hub (community-provided)
+  [[RNS Testnet BetweenTheBorders]]
     type = TCPClientInterface
     enabled = yes
-    target_host = frankfurt.connect.reticulum.network
-    target_port = 5377
+    target_host = betweentheborders.com
+    target_port = 4242
 
   # Interface to I2P hub A
   [[RNS Testnet I2P Hub A]]
