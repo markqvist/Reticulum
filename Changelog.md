@@ -1,3 +1,26 @@
+### 2023-03-08: RNS β 0.5.1
+
+This maintenance release brings a number of bugfixes and improvements. Thanks to @VioletEternity, who contributed to this release!
+
+**Changes**
+- Removed dependency on netifaces module
+- Added ability to configure RNode display intensity to rnodeconf
+- Added preliminary rnodeconf flasher/autoinstaller support for T3 v1.0 boards
+- Fixed a bug that caused AutoInterface discovery scopes to fail
+- Fixed rnodeconf firmware extraction for unverifiable devices
+- Improved setting rnsd verbosity from command line
+- Improved support for shared instances on Windows
+- Improved rnodeconf support on Windows
+- Improved rnodeconf zip-file handling
+- Fixed a potentail race condition in announce queue handling for AutoInterface
+- Various minor bugfixes
+
+**Release Hashes**
+```
+01d76e03f93e427d9c0b95ab5d07e84ed39047e912b8afa6d619a65ac6b5e05b rns-0.5.1-py3-none-any.whl
+2cfe431bec1160410b80bbcbf87eb2ab0d5abe5c6546f41eaf3f0f5faf9b2140 rnspure-0.5.1-py3-none-any.whl
+```
+
 ### 2023-03-08: RNS β 0.5.0
 
 This release brings two major new additions to the Reticulum API: The Channel and Buffer classes, that provides reliable delivery, and streams over Reticulum. Thanks to @acehoss, @erethon, @gdt and @faragher, who contributed to this release!
