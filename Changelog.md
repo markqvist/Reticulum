@@ -1,4 +1,4 @@
-### 2023-03-08: RNS β 0.5.1
+### 2023-05-05: RNS β 0.5.1
 
 This maintenance release brings a number of bugfixes and improvements. Thanks to @VioletEternity, who contributed to this release!
 
