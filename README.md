@@ -234,8 +234,8 @@ file:
     target_host = dublin.connect.reticulum.network
     target_port = 4965
 
-# TCP/IP interface to betweentheborders.com hub (community provided)
-  [[RNS Testnet betweentheborders.com]]
+# TCP/IP interface to the BetweenTheBorders Hub (community-provided)
+  [[RNS Testnet BetweenTheBorders]]
     type = TCPClientInterface
     enabled = yes
     target_host = betweentheborders.com
