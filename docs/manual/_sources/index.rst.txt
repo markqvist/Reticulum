@@ -1,15 +1,16 @@
 ******************************
 Reticulum Network Stack Manual
 ******************************
+
 This manual aims to provide you with all the information you need to
 understand Reticulum, build networks or develop programs using it, or
 to participate in the development of Reticulum itself.
 
-.. only:: html
+.. only:: builder_html
 
-This manual is also available in `PDF <https://github.com/markqvist/Reticulum/releases/latest/download/Reticulum.Manual.pdf>`_ and `EPUB <https://github.com/markqvist/Reticulum/releases/latest/download/Reticulum.Manual.epub>`_ formats.
+   This manual is also available in `PDF <https://github.com/markqvist/Reticulum/releases/latest/download/Reticulum.Manual.pdf>`_ and `EPUB <https://github.com/markqvist/Reticulum/releases/latest/download/Reticulum.Manual.epub>`_ formats.
 
-.. only:: html
+.. only:: builder_html
 
    Table Of Contents
    =================

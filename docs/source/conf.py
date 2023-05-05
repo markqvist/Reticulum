@@ -13,6 +13,9 @@ project = 'Reticulum Network Stack'
 copyright = '2023, Mark Qvist'
 author = 'Mark Qvist'
 
+exec(open("../../RNS/_version.py", "r").read())
+version = __version__
+
 # The full version, including alpha/beta/rc tags
 import RNS
 release = RNS._version.__version__+" beta"
