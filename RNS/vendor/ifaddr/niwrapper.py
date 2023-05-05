@@ -1,5 +1,5 @@
 import ipaddress
-import ifaddr
+import RNS.vendor.ifaddr
 import socket
 
 from typing import List

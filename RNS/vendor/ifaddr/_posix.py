@@ -27,10 +27,7 @@ import socket
 
 from typing import Iterable, Optional
 
-import ifaddr._shared as shared
-
-# from ifaddr._shared import sockaddr, Interface, sockaddr_to_ip, ipv6_prefixlength
-
+import RNS.vendor.ifaddr._shared as shared
 
 class ifaddrs(ctypes.Structure):
     pass

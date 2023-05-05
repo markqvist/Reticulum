@@ -26,7 +26,6 @@ import platform
 
 from typing import List, Optional, Tuple, Union
 
-
 class Adapter(object):
     """
     Represents a network interface device controller (NIC), such as a

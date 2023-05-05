@@ -23,7 +23,7 @@ import ctypes
 from ctypes import wintypes
 from typing import Iterable, List
 
-import ifaddr._shared as shared
+import RNS.vendor.ifaddr._shared as shared
 
 NO_ERROR = 0
 ERROR_BUFFER_OVERFLOW = 111

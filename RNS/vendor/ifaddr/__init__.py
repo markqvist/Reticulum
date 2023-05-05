@@ -21,12 +21,12 @@
 
 import os
 
-from ifaddr._shared import Adapter, IP
+from RNS.vendor.ifaddr._shared import Adapter, IP
 
 if os.name == "nt":
-    from ifaddr._win32 import get_adapters
+    from RNS.vendor.ifaddr._win32 import get_adapters
 elif os.name == "posix":
-    from ifaddr._posix import get_adapters
+    from RNS.vendor.ifaddr._posix import get_adapters
 else:
     raise RuntimeError("Unsupported Operating System: %s" % os.name)
 
