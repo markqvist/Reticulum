@@ -266,7 +266,7 @@ destinations on the Reticulum network.
   rnpath c89b4da064bf66d280f0e4d8abfd9806
 
   # Example output
-  Path found, destination <c89b4da064bf66d280f0e4d8abfd9806> is 4 hops away via <f53a1c4278e0726bb73fcc623d6ce763> on TCPInterface[Testnet/frankfurt.connect.reticulu.network:4965]
+  Path found, destination <c89b4da064bf66d280f0e4d8abfd9806> is 4 hops away via <f53a1c4278e0726bb73fcc623d6ce763> on TCPInterface[Testnet/dublin.connect.reticulum.network:4965]
 
 .. code:: text
 
