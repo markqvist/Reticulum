@@ -172,8 +172,8 @@ class Packet:
                     # Packet proofs over links are not encrypted
                     self.ciphertext = self.data
                 elif self.context == Packet.RESOURCE:
-                    # A resource takes care of symmetric
-                    # encryption by itself
+                    # A resource takes care of encryption
+                    # by itself
                     self.ciphertext = self.data
                 elif self.context == Packet.KEEPALIVE:
                     # Keepalive packets contain no actual
@@ -276,6 +276,10 @@ class Packet:
         :returns: A :ref:`RNS.PacketReceipt<api-packetreceipt>` instance if *create_receipt* was set to *True* when the packet was instantiated, if not returns *None*. If the packet could not be sent *False* is returned.
         """
         if self.sent:
+            # Re-pack the packet to obtain new ciphertext for
+            # encrypted destinations
+            self.pack()
+            
             if RNS.Transport.outbound(self):
                 return self.receipt
             else:
