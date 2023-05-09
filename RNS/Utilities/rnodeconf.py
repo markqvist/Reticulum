@@ -236,6 +236,7 @@ try:
     FWD_DIR = CNF_DIR+"/firmware"
     EXT_DIR = CNF_DIR+"/extracted"
     RT_PATH = CNF_DIR+"/recovery_esptool.py"
+    TK_DIR  = CNF_DIR+"/trusted_keys"
 
     if not os.path.isdir(CNF_DIR):
         os.makedirs(CNF_DIR)
@@ -245,6 +246,8 @@ try:
         os.makedirs(FWD_DIR)
     if not os.path.isdir(EXT_DIR):
         os.makedirs(EXT_DIR)
+    if not os.path.isdir(TK_DIR):
+        os.makedirs(TK_DIR)
 
 except Exception as e:
     print("No access to directory "+str(CNF_DIR)+". This utility needs file system access to store firmware and data files. Cannot continue.")
@@ -817,6 +820,35 @@ class RNode():
                             RNS.log("Could not deserialize local signing key")
                             RNS.log(str(e))
 
+                    # Try loading trusted signing key for 
+                    # validation of devices
+                    if os.path.isdir(TK_DIR):
+                        for f in os.listdir(TK_DIR):
+                            if os.path.isfile(TK_DIR+"/"+f) and f.endswith(".pubkey"):
+                                try:
+                                    file = open(TK_DIR+"/"+f, "rb")
+                                    public_bytes = file.read()
+                                    file.close()
+
+                                    try:
+                                        public_bytes_hex = RNS.hexrep(public_bytes, delimit=False)
+
+                                        vendor_keys = []
+                                        for known in known_keys:
+                                            vendor_keys.append(known[1])
+
+                                        if not public_bytes_hex in vendor_keys:
+                                            local_key_entry = ["LOCAL", public_bytes_hex]
+                                            known_keys.append(local_key_entry)
+
+                                    except Exception as e:
+                                        RNS.log("Could not deserialize trusted signing key "+str(f))
+                                        RNS.log(str(e))
+
+                                except Exception as e:
+                                    RNS.log("Could not load trusted signing key"+str(f))
+
+
                     for known in known_keys:
                         vendor = known[0]
                         public_hexrep = known[1]
@@ -1119,12 +1151,14 @@ def main():
         parser.add_argument("--eeprom-dump", action="store_true", help="Dump EEPROM to console")
         parser.add_argument("--eeprom-wipe", action="store_true", help="Unlock and wipe EEPROM")
 
+        parser.add_argument("-P", "--public", action="store_true", help="Display public part of signing key")
+        parser.add_argument("--trust-key", action="store", metavar="hexbytes", type=str, default=None, help="Public key to trust for device verification")
+
         parser.add_argument("--version", action="store_true", help="Print program version and exit")
 
         parser.add_argument("-f", "--flash", action="store_true", help=argparse.SUPPRESS) # Flash firmware and bootstrap EEPROM
         parser.add_argument("-r", "--rom", action="store_true", help=argparse.SUPPRESS) # Bootstrap EEPROM without flashing firmware
         parser.add_argument("-k", "--key", action="store_true", help=argparse.SUPPRESS) # Generate a new signing key and exit
-        parser.add_argument("-P", "--public", action="store_true", help=argparse.SUPPRESS) # Display public part of signing key
         parser.add_argument("-S", "--sign", action="store_true", help=argparse.SUPPRESS) # Display public part of signing key
         parser.add_argument("-H", "--firmware-hash", action="store", help=argparse.SUPPRESS) # Display public part of signing key
         parser.add_argument("--platform", action="store", metavar="platform", type=str, default=None, help=argparse.SUPPRESS) # Platform specification for device bootstrap
@@ -1169,7 +1203,7 @@ def main():
         if args.nocheck:
             upd_nocheck = True
             
-        if args.public or args.key or args.flash or args.rom or args.autoinstall:
+        if args.public or args.key or args.flash or args.rom or args.autoinstall or args.trust_key:
             from cryptography.hazmat.primitives import hashes
             from cryptography.hazmat.backends import default_backend
             from cryptography.hazmat.primitives import serialization
@@ -1179,6 +1213,25 @@ def main():
             from cryptography.hazmat.primitives.asymmetric import padding
 
         clear = lambda: os.system('clear')
+
+        if args.trust_key:
+            try:
+                public_bytes = bytes.fromhex(args.trust_key)
+                try:
+                    public_key = load_der_public_key(public_bytes, backend=default_backend())
+                    key_hash = hashlib.sha256(public_bytes).hexdigest()
+                    RNS.log("Trusting key: "+str(key_hash))
+                    f = open(TK_DIR+"/"+str(key_hash)+".pubkey", "wb")
+                    f.write(public_bytes)
+                    f.close()
+
+                except Exception as e:
+                    RNS.log("Could not create public key from supplied data. Check that the key format is valid.")
+                    RNS.log(str(e))
+
+            except Exception as e:
+                RNS.log("Invalid key data supplied")
+            exit(0)
 
         if args.use_extracted and ((args.update and args.port != None) or args.autoinstall):
             print("")
