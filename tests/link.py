@@ -521,6 +521,8 @@ class TestLink(unittest.TestCase):
             if time.time() < expected_ready_time:
                 time.sleep(max(c_rns.MTU * 2 / local_interface.bitrate * 8, 1))
 
+            time.sleep(0.25)
+            
             # Why does this not always work out correctly?
             # self.assertEqual(expected_chunk_count, len(received))
 

@@ -358,12 +358,12 @@ class Channel(contextlib.AbstractContextManager):
                 message = envelope.unpack(self._message_factories)
                 prev_env = self._rx_ring[0] if len(self._rx_ring) > 0 else None
                 if prev_env and envelope.sequence != (prev_env.sequence + 1) % 0x10000:
-                    RNS.log("Channel: Out of order packet received", RNS.LOG_DEBUG)
-                    return
+                    RNS.log("Channel: Out of order packet received", RNS.LOG_EXTREME)
+
                 is_new = self._emplace_envelope(envelope, self._rx_ring)
                 self._prune_rx_ring()
             if not is_new:
-                RNS.log("Channel: Duplicate message received", RNS.LOG_DEBUG)
+                RNS.log("Channel: Duplicate message received", RNS.LOG_EXTREME)
                 return
             RNS.log(f"Message received: {message}", RNS.LOG_DEBUG)
             threading.Thread(target=self._run_callbacks, name="Message Callback", args=[message], daemon=True).start()

@@ -1,4 +1,5 @@
 from __future__ import annotations
+import bz2
 import sys
 import threading
 from threading import RLock
@@ -9,7 +10,6 @@ from io import RawIOBase, BufferedRWPair, BufferedReader, BufferedWriter
 from typing import Callable
 from contextlib import AbstractContextManager
 
-
 class StreamDataMessage(MessageBase):
     MSGTYPE = SystemMessageTypes.SMT_STREAM_DATA
     """
@@ -17,9 +17,9 @@ class StreamDataMessage(MessageBase):
     uses a system-reserved message type.
     """
 
-    STREAM_ID_MAX = 0x7fff  # 32767
+    STREAM_ID_MAX = 0x3fff  # 16383
     """
-    The stream id is limited to 2 bytes - 1 bit
+    The stream id is limited to 2 bytes - 2 bit
     """
 
     MAX_DATA_LEN = RNS.Link.MDU - 2 - 6  # 2 for stream data message header, 6 for channel envelope
@@ -39,22 +39,34 @@ class StreamDataMessage(MessageBase):
         """
         super().__init__()
         if stream_id is not None and stream_id > self.STREAM_ID_MAX:
-            raise ValueError("stream_id must be 0-32767")
+            raise ValueError("stream_id must be 0-16383")
         self.stream_id = stream_id
+        self.compressed = False
         self.data = data or bytes()
         self.eof = eof
 
     def pack(self) -> bytes:
         if self.stream_id is None:
             raise ValueError("stream_id")
-        header_val = (0x7fff & self.stream_id) | (0x8000 if self.eof else 0x0000)
+
+        compressed_data   = bz2.compress(self.data)
+        saved = len(self.data)-len(compressed_data)
+
+        if saved > 0:
+            self.data = compressed_data
+            self.compressed = True
+
+        header_val = (0x3fff & self.stream_id) | (0x8000 if self.eof else 0x0000) | (0x4000 if self.compressed > 0 else 0x0000)
         return bytes(struct.pack(">H", header_val) + (self.data if self.data else bytes()))
 
     def unpack(self, raw):
         self.stream_id = struct.unpack(">H", raw[:2])[0]
         self.eof = (0x8000 & self.stream_id) > 0
-        self.stream_id = self.stream_id & 0x7fff
+        self.compressed = (0x4000 & self.stream_id) > 0
+        self.stream_id = self.stream_id & 0x3fff
         self.data = raw[2:]
+        if self.compressed:
+            self.data = bz2.decompress(self.data)
 
 
 class RawChannelReader(RawIOBase, AbstractContextManager):
