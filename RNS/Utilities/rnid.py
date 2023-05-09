@@ -88,7 +88,7 @@ def main():
 
         parser.add_argument("-b", "--base64", action="store_true", default=False, help=argparse.SUPPRESS) # help="Use base64-encoded input and output")
 
-        parser.add_argument("--version", action="version", version="rncp {version}".format(version=__version__))
+        parser.add_argument("--version", action="version", version="rnid {version}".format(version=__version__))
         
         args = parser.parse_args()
 
