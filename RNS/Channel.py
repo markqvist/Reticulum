@@ -502,7 +502,7 @@ class Channel(contextlib.AbstractContextManager):
                         self.window_max -= 1
 
                 # TODO: Remove
-                RNS.log("Decreased channel window to "+str(self.window))
+                RNS.log("Decreased channel window to "+str(self.window), RNS.LOG_DEBUG)
 
             return False
 
