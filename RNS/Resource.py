@@ -149,7 +149,7 @@ class Resource:
             resource.total_parts         = int(math.ceil(resource.size/float(Resource.SDU)))
             resource.received_count      = 0
             resource.outstanding_parts   = 0
-            resource.parts                 = [None] * resource.total_parts
+            resource.parts               = [None] * resource.total_parts
             resource.window              = Resource.WINDOW
             resource.window_max          = Resource.WINDOW_MAX_SLOW
             resource.window_min          = Resource.WINDOW_MIN
