@@ -253,6 +253,8 @@ class Channel(contextlib.AbstractContextManager):
     # will never be smaller than this value.
     WINDOW_FLEXIBILITY   = 4
 
+    SEQ_MODULUS = 0x10000
+
     def __init__(self, outlet: ChannelOutletBase):
         """
 
@@ -387,7 +389,7 @@ class Channel(contextlib.AbstractContextManager):
 
                 # TODO: Test sequence overflow
                 if envelope.sequence < self._next_rx_sequence:
-                    window_overflow = (self._next_rx_sequence+Channel.WINDOW_MAX) % 0x10000
+                    window_overflow = (self._next_rx_sequence+Channel.WINDOW_MAX) % Channel.SEQ_MODULUS
                     if window_overflow < self._next_rx_sequence:
                         if envelope.sequence > window_overflow:
                             RNS.log("Invalid packet sequence ("+str(envelope.sequence)+") received on channel "+str(self), RNS.LOG_DEBUG)
@@ -408,7 +410,10 @@ class Channel(contextlib.AbstractContextManager):
                     for e in self._rx_ring:
                         if e.sequence == self._next_rx_sequence:
                             contigous.append(e)
-                            self._next_rx_sequence = (self._next_rx_sequence + 1) % 0x10000
+                            self._next_rx_sequence = (self._next_rx_sequence + 1) % Channel.SEQ_MODULUS
+                            # TODO: Remove
+                            if self._next_rx_sequence == 0:
+                                RNS.log("SEQ OVERFLOW")
 
                     for e in contigous:
                         m = e.unpack(self._message_factories)
@@ -521,7 +526,7 @@ class Channel(contextlib.AbstractContextManager):
             if not self.is_ready_to_send():
                 raise ChannelException(CEType.ME_LINK_NOT_READY, f"Link is not ready")
             envelope = Envelope(self._outlet, message=message, sequence=self._next_sequence)
-            self._next_sequence = (self._next_sequence + 1) % 0x10000
+            self._next_sequence = (self._next_sequence + 1) % Channel.SEQ_MODULUS
             self._emplace_envelope(envelope, self._tx_ring)
         if envelope is None:
             raise BlockingIOError()
