@@ -61,6 +61,7 @@ class TestLink(unittest.TestCase):
     def tearDownClass(cls):
         close_rns()
 
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_0_valid_announce(self):
         init_rns(self)
         print("")
@@ -71,6 +72,7 @@ class TestLink(unittest.TestCase):
         ap.pack()
         self.assertEqual(RNS.Identity.validate_announce(ap), True)
 
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_1_invalid_announce(self):
         init_rns(self)
         print("")
@@ -86,6 +88,7 @@ class TestLink(unittest.TestCase):
         ap.send()
         self.assertEqual(RNS.Identity.validate_announce(ap), False)
 
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_2_establish(self):
         init_rns(self)
         print("")
@@ -105,6 +108,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_3_packets(self):
         init_rns(self)
         print("")
@@ -171,6 +175,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_4_micro_resource(self):
         init_rns(self)
         print("")
@@ -206,6 +211,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_5_mini_resource(self):
         init_rns(self)
         print("")
@@ -241,6 +247,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_6_small_resource(self):
         init_rns(self)
         print("")
@@ -276,6 +283,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
 
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_7_medium_resource(self):
         if RNS.Cryptography.backend() == "internal":
             print("Skipping medium resource test...")
@@ -314,6 +322,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_9_large_resource(self):
         if RNS.Cryptography.backend() == "internal":
             print("Skipping large resource test...")
@@ -352,6 +361,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
+    #@skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_10_channel_round_trip(self):
         global c_rns
         init_rns(self)
@@ -393,13 +403,14 @@ class TestLink(unittest.TestCase):
         self.assertEqual("Hello back", rx_message.data)
         self.assertEqual(test_message.id, rx_message.id)
         self.assertNotEqual(test_message.not_serialized, rx_message.not_serialized)
-        self.assertEqual(1, len(l1._channel._rx_ring))
+        self.assertEqual(0, len(l1._channel._rx_ring))
 
         l1.teardown()
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
         self.assertEqual(0, len(l1._channel._rx_ring))
 
+    # @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_11_buffer_round_trip(self):
         global c_rns
         init_rns(self)
@@ -442,6 +453,7 @@ class TestLink(unittest.TestCase):
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
+    # @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None and os.getenv('RUN_SLOW_TESTS') == None, "Skipping")
     def test_12_buffer_round_trip_big(self, local_bitrate = None):
         global c_rns
         init_rns(self)
@@ -479,6 +491,8 @@ class TestLink(unittest.TestCase):
             buffer = None
             received = []
             def handle_data(ready_bytes: int):
+                # TODO: Remove
+                RNS.log("Handling data")
                 data = buffer.read(ready_bytes)
                 received.append(data)
 
@@ -487,50 +501,60 @@ class TestLink(unittest.TestCase):
 
             # try to make the message big enough to split across packets, but
             # small enough to make the test complete in a reasonable amount of time
-            seed_text = "0123456789"
-            message = seed_text*ceil(min(max(local_interface.bitrate / 8,
-                                             StreamDataMessage.MAX_DATA_LEN * 2 / len(seed_text)),
-                                         1000))
+            # seed_text = "0123456789"
+            # message = seed_text*ceil(min(max(local_interface.bitrate / 8,
+            #                                  StreamDataMessage.MAX_DATA_LEN * 2 / len(seed_text)),
+            #                              1000))
+
+            if local_interface.bitrate < 1000:
+                target_bytes = 3000
+            else:
+                target_bytes = 16000
+            
+
+            message = os.urandom(target_bytes)
+            
             # the return message will have an appendage string " back at you"
             # for every StreamDataMessage that arrives. To verify, we need
             # to insert that string every MAX_DATA_LEN and also at the end.
-            expected_rx_message = ""
+            expected_rx_message = b""
             for i in range(0, len(message)):
                 if i > 0 and (i % StreamDataMessage.MAX_DATA_LEN) == 0:
-                    expected_rx_message += " back at you"
-                expected_rx_message += message[i]
-            expected_rx_message += " back at you"
+                    expected_rx_message += " back at you".encode("utf-8")
+                expected_rx_message += bytes([message[i]])
+            expected_rx_message += " back at you".encode("utf-8")
 
             # since the segments will be received at max length for a
             # StreamDataMessage, the appended text will end up in a
             # separate packet.
-            expected_chunk_count = ceil(len(message)/StreamDataMessage.MAX_DATA_LEN * 2)
+            expected_chunk_count = ceil(len(message)/StreamDataMessage.MAX_DATA_LEN * 2)-1
             print("Sending " + str(len(message)) + " bytes, receiving " + str(len(expected_rx_message)) + " bytes, " +
                   "expecting " + str(expected_chunk_count) + " chunks of " + str(StreamDataMessage.MAX_DATA_LEN) + " bytes")
-            transfer_sleep = max(expected_chunk_count * 3 * c_rns.MTU / local_interface.bitrate * 8, 3)
-            print("Will take up to " + str(round(transfer_sleep, 0)) + " seconds to transfer")
-            expected_ready_time = time.time() + transfer_sleep
-            buffer.write(message.encode("utf-8"))
+            
+            buffer.write(message)
             buffer.flush()
+
             # delay a reasonable time for the send and receive
             # a chunk each way plus a little more for a proof each way
-            while time.time() < expected_ready_time and len(received) < expected_chunk_count:
-                time.sleep(0.1)
-            # sleep for at least one more chunk round trip in case there
-            # are more chunks than expected
-            if time.time() < expected_ready_time:
-                time.sleep(max(c_rns.MTU * 2 / local_interface.bitrate * 8, 1))
+            # while time.time() < expected_ready_time and len(received) < expected_chunk_count:
+            #     time.sleep(0.1)
+            # # sleep for at least one more chunk round trip in case there
+            # # are more chunks than expected
+            # if time.time() < expected_ready_time:
+            #     time.sleep(max(c_rns.MTU * 2 / local_interface.bitrate * 8, 1))
 
-            time.sleep(0.25)
-            
-            # Why does this not always work out correctly?
-            # self.assertEqual(expected_chunk_count, len(received))
+            timeout = time.time() + 10
+            while len(received) < expected_chunk_count and not time.time() > timeout:
+                time.sleep(2)
+                print(f"Received {len(received)} out of {expected_chunk_count} chunks so far")
+            time.sleep(2)
+            print(f"Received {len(received)} out of {expected_chunk_count} chunks")
 
             data = bytearray()
             for rx in received:
                 data.extend(rx)
 
-            rx_message = data.decode("utf-8")
+            rx_message = data
 
             self.assertEqual(len(expected_rx_message), len(rx_message))
             for i in range(0, len(expected_rx_message)):
@@ -548,7 +572,7 @@ class TestLink(unittest.TestCase):
     #  RUN_SLOW_TESTS=1 python tests/link.py TestLink.test_13_buffer_round_trip_big_slow
     # Or
     #  make RUN_SLOW_TESTS=1 test
-    @skipIf(int(os.getenv('RUN_SLOW_TESTS', 0)) < 1, "Not running slow tests")
+    @skipIf(os.getenv('RUN_SLOW_TESTS') == None, "Not running slow tests")
     def test_13_buffer_round_trip_big_slow(self):
         self.test_12_buffer_round_trip_big(local_bitrate=410)
 
@@ -612,8 +636,10 @@ def targets(yp=False):
         channel = link.get_channel()
 
         def handle_message(message):
-            message.data = message.data + " back"
-            channel.send(message)
+            if isinstance(message, MessageTest):
+                message.data = message.data + " back"
+                channel.send(message)
+
         channel.register_message_type(MessageTest)
         channel.add_message_handler(handle_message)
 
@@ -621,12 +647,12 @@ def targets(yp=False):
 
         def handle_buffer(ready_bytes: int):
             data = buffer.read(ready_bytes)
-            buffer.write((data.decode("utf-8") + " back at you").encode("utf-8"))
+            buffer.write(data + " back at you".encode("utf-8"))
             buffer.flush()
 
         buffer = RNS.Buffer.create_bidirectional_buffer(0, 0, channel, handle_buffer)
 
-    m_rns = RNS.Reticulum("./tests/rnsconfig")
+    m_rns = RNS.Reticulum("./tests/rnsconfig", logdest=RNS.LOG_FILE, loglevel=RNS.LOG_EXTREME)
     id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
     d1 = RNS.Destination(id1, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
     d1.set_proof_strategy(RNS.Destination.PROVE_ALL)

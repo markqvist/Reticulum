@@ -809,6 +809,19 @@ class Link:
                         if not self._channel:
                             RNS.log(f"Channel data received without open channel", RNS.LOG_DEBUG)
                         else:
+                            # TODO: Remove packet loss simulator ######
+                            # if not hasattr(self, "drop_counter"):
+                            #     self.drop_counter = 0
+                            # self.drop_counter += 1
+
+                            # if self.drop_counter%6 == 0:
+                            #     RNS.log("Dropping channel packet for testing", RNS.LOG_DEBUG)
+                            # else:
+                            #     packet.prove()
+                            #     plaintext = self.decrypt(packet.data)
+                            #     self._channel._receive(plaintext)
+                            ############################################
+
                             packet.prove()
                             plaintext = self.decrypt(packet.data)
                             self._channel._receive(plaintext)
