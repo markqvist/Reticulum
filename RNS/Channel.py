@@ -400,16 +400,7 @@ class Channel(contextlib.AbstractContextManager):
             if not is_new:
                 RNS.log("Duplicate message received on channel "+str(self), RNS.LOG_EXTREME)
                 return
-            else:
-
-                # TODO: Remove
-                # rmsg = "RX Ring State:\n "
-                # for e in self._rx_ring:
-                #     rmsg += "["+str(e.sequence)+"]"
-                # rmsg += "\n"
-                # RNS.log(rmsg)
-                # print(rmsg)
-            
+            else:            
                 with self._lock:
                     contigous = []
                     for e in self._rx_ring:
@@ -421,14 +412,6 @@ class Channel(contextlib.AbstractContextManager):
                         m = e.unpack(self._message_factories)
                         self._rx_ring.remove(e)
                         threading.Thread(target=self._run_callbacks, name="Message Callback", args=[m], daemon=True).start()
-
-                    # TODO: Remove
-                    # rmsg = "RX Ring State:\n "
-                    # for e in self._rx_ring:
-                    #     rmsg += "["+str(e.sequence)+"]"
-                    # rmsg += "\n"
-                    # RNS.log(rmsg)
-                    # print(rmsg)
 
         except Exception as ex:
             RNS.log(f"Channel: Error receiving data: {ex}")
@@ -514,24 +497,6 @@ class Channel(contextlib.AbstractContextManager):
         envelope.tries += 1
         self._outlet.set_packet_delivered_callback(envelope.packet, self._packet_delivered)
         self._outlet.set_packet_timeout_callback(envelope.packet, self._packet_timeout, self._get_packet_timeout_time(envelope.tries))
-
-        # TODO: Remove
-        # try:
-        #     tmsg = "TX Ring State:\n "
-        #     for e in self._tx_ring:
-        #         estat="u"
-        #         status = e.packet.receipt.get_status()
-        #         if status == RNS.PacketReceipt.SENT:
-        #             estat="s"
-        #         if status == RNS.PacketReceipt.DELIVERED:
-        #             estat="d"
-        #         if status == RNS.PacketReceipt.FAILED:
-        #             estat="f"
-        #         tmsg += "["+str(e.sequence)+estat+"]"
-        #     print(tmsg)
-        #     RNS.log(tmsg)
-        # except:
-        #     pass
 
         return envelope
 
