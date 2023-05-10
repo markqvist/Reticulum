@@ -402,7 +402,12 @@ class PacketReceipt:
                     self.proof_packet = proof_packet
 
                     if self.callbacks.delivery != None:
-                        self.callbacks.delivery(self)
+                        try:
+                            self.callbacks.delivery(self)
+                        except Exception as e:
+                            RNS.log("An error occurred while evaluating external delivery callback for "+str(link), RNS.LOG_ERROR)
+                            RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                            
                     return True
                 else:
                     return False
