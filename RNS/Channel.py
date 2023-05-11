@@ -251,6 +251,7 @@ class Channel(contextlib.AbstractContextManager):
     # the max window size for fast links will be used.
     RTT_FAST            = 0.25
     RTT_MEDIUM          = 0.75
+    RTT_SLOW            = 1.45
 
     # The minimum allowed flexibility of the window size.
     # The difference between window_max and window_min
@@ -274,12 +275,19 @@ class Channel(contextlib.AbstractContextManager):
         self._next_rx_sequence = 0
         self._message_factories: dict[int, Type[MessageBase]] = {}
         self._max_tries = 5
-        self.window              = Channel.WINDOW
-        self.window_max          = Channel.WINDOW_MAX_SLOW
-        self.window_min          = Channel.WINDOW_MIN
-        self.window_flexibility  = Channel.WINDOW_FLEXIBILITY
         self.fast_rate_rounds    = 0
         self.medium_rate_rounds  = 0
+
+        if self._outlet.rtt > Channel.RTT_SLOW:
+            self.window              = 1
+            self.window_max          = 1
+            self.window_min          = 1
+            self.window_flexibility  = 1
+        else:
+            self.window              = Channel.WINDOW
+            self.window_max          = Channel.WINDOW_MAX_SLOW
+            self.window_min          = Channel.WINDOW_MIN
+            self.window_flexibility  = Channel.WINDOW_FLEXIBILITY
 
     def __enter__(self) -> Channel:
         return self
