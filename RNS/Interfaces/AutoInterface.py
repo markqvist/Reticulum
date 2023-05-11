@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 from .Interface import Interface
+from collections import deque
 import socketserver
 import threading
 import re
@@ -49,6 +50,8 @@ class AutoInterface(Interface):
     ANDROID_IGNORE_IFS = ["dummy0", "lo", "tun0"]
 
     BITRATE_GUESS      = 10*1000*1000
+
+    MULTI_IF_DEQUE_LEN = 64
 
     def handler_factory(self, callback):
         def create_handler(*args, **keys):
@@ -89,6 +92,7 @@ class AutoInterface(Interface):
         self.interface_servers = {}
         self.multicast_echoes = {}
         self.timed_out_interfaces = {}
+        self.mif_deque = deque(maxlen=AutoInterface.MULTI_IF_DEQUE_LEN)
         self.carrier_changed = False
 
         self.outbound_udp_socket = None
@@ -391,8 +395,11 @@ class AutoInterface(Interface):
         self.peers[addr][1] = time.time()
 
     def processIncoming(self, data):
-        self.rxb += len(data)
-        self.owner.inbound(data, self)
+        data_hash = RNS.Identity.full_hash(data)
+        if not data_hash in self.mif_deque:
+            self.mif_deque.append(data_hash)
+            self.rxb += len(data)
+            self.owner.inbound(data, self)
 
     def processOutgoing(self,data):
             for peer in self.peers:
