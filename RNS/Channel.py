@@ -233,6 +233,9 @@ class Channel(contextlib.AbstractContextManager):
     # The maximum window size for transfers on slow links
     WINDOW_MAX_SLOW      = 5
 
+    # The maximum window size for transfers on mid-speed links
+    WINDOW_MAX_MEDIUM    = 16
+
     # The maximum window size for transfers on fast links
     WINDOW_MAX_FAST      = 48
     
@@ -246,7 +249,8 @@ class Channel(contextlib.AbstractContextManager):
 
     # If the RTT rate is higher than this value,
     # the max window size for fast links will be used.
-    RTT_FAST            = 0.2
+    RTT_FAST            = 0.25
+    RTT_MEDIUM          = 0.75
 
     # The minimum allowed flexibility of the window size.
     # The difference between window_max and window_min
@@ -275,6 +279,7 @@ class Channel(contextlib.AbstractContextManager):
         self.window_min          = Channel.WINDOW_MIN
         self.window_flexibility  = Channel.WINDOW_FLEXIBILITY
         self.fast_rate_rounds    = 0
+        self.medium_rate_rounds  = 0
 
     def __enter__(self) -> Channel:
         return self
@@ -461,15 +466,25 @@ class Channel(contextlib.AbstractContextManager):
                     if self._outlet.rtt != 0:
                         if self._outlet.rtt > Channel.RTT_FAST:
                             self.fast_rate_rounds = 0
-                        
+
+                            if self._outlet.rtt > Channel.RTT_MEDIUM:
+                                self.medium_rate_rounds = 0
+
+                            else:
+                                self.medium_rate_rounds += 1
+                                if self.window_max < Channel.WINDOW_MAX_MEDIUM and self.medium_rate_rounds == Channel.FAST_RATE_THRESHOLD:
+                                    self.window_max = Channel.WINDOW_MAX_MEDIUM
+                                    # TODO: Remove at some point
+                                    RNS.log("Increased "+str(self)+" max window to "+str(self.window_max), RNS.LOG_EXTREME)
+                            
                         else:
                             self.fast_rate_rounds += 1
-
                             if self.window_max < Channel.WINDOW_MAX_FAST and self.fast_rate_rounds == Channel.FAST_RATE_THRESHOLD:
-                                self.window_max = Channel.WINDOW_MAX_FAST
-                                
+                                self.window_max = Channel.WINDOW_MAX_FAST                                
                                 # TODO: Remove at some point
                                 RNS.log("Increased "+str(self)+" max window to "+str(self.window_max), RNS.LOG_EXTREME)
+
+
 
                 else:
                     RNS.log("Envelope not found in TX ring for "+str(self), RNS.LOG_DEBUG)
