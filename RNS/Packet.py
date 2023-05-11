@@ -400,6 +400,7 @@ class PacketReceipt:
                     self.proved = True
                     self.concluded_at = time.time()
                     self.proof_packet = proof_packet
+                    link.last_proof = self.concluded_at
 
                     if self.callbacks.delivery != None:
                         try:

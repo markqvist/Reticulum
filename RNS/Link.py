@@ -148,6 +148,7 @@ class Link:
         self.pending_requests   = []
         self.last_inbound = 0
         self.last_outbound = 0
+        self.last_proof = 0
         self.tx = 0
         self.rx = 0
         self.txbytes = 0
@@ -277,6 +278,7 @@ class Link:
                     self.__remote_identity = self.destination.identity
                     self.status = Link.ACTIVE
                     self.activated_at = time.time()
+                    self.last_proof = self.activated_at
                     RNS.Transport.activate_link(self)
                     RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(round(self.rtt, 3))+"s", RNS.LOG_VERBOSE)
                     
@@ -527,7 +529,7 @@ class Link:
 
                 elif self.status == Link.ACTIVE:
                     activated_at = self.activated_at if self.activated_at != None else 0
-                    last_inbound = max(self.last_inbound, activated_at)
+                    last_inbound = max(max(self.last_inbound, self.last_proof), activated_at)
 
                     if time.time() >= last_inbound + self.keepalive:
                         if self.initiator:
