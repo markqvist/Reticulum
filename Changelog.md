@@ -1,3 +1,24 @@
+### 2023-05-12: RNS β 0.5.2
+
+This maintenance release brings a number of bugfixes and improvements.
+
+**Important!** This release breaks backwards compatibility with `Channel` and `Buffer` for all previous releases, due to the addition of compression and windowing.
+
+**Changes**
+- Added ability to trust external signing keys to `rnodeconf`
+- Added basic windowing to `Channel` and `Buffer`, improving performance over faster links
+- Added per-packet compression to `Channel`
+- Added automatic multi-interface duplicate deque to AutoInterface
+- Fixed received link packet proofs not resetting link watchdog stale timer
+- Fixed a missing exception isolation of packet delivery callbacks
+- Fixed resent packets not getting repacked
+
+**Release Hashes**
+```
+f3b1e9cf39420ad74c2b5c81ad339fd2a548320c9f6925bad9b614feb4c9b9d7 rns-0.5.2-py3-none-any.whl
+8463f7365f179d02e7e4d4fe4afc69da4218ce40107305dfd06b9e6b29513e0f rnspure-0.5.2-py3-none-any.whl
+```
+
 ### 2023-05-05: RNS β 0.5.1
 
 This maintenance release brings a number of bugfixes and improvements. Thanks to @VioletEternity, who contributed to this release!
