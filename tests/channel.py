@@ -404,104 +404,104 @@ class TestChannel(unittest.TestCase):
 
             self.assertEqual(data, decoded)
 
-    # def test_buffer_big(self):
-    #     writer = RNS.Buffer.create_writer(15, self.h.channel)
-    #     reader = RNS.Buffer.create_reader(15, self.h.channel)
-    #     data = "01234556789"*1024  # 10 KB
-    #     count = 0
-    #     write_finished = False
+    def test_buffer_big(self):
+        writer = RNS.Buffer.create_writer(15, self.h.channel)
+        reader = RNS.Buffer.create_reader(15, self.h.channel)
+        data = "01234556789"*1024  # 10 KB
+        count = 0
+        write_finished = False
 
-    #     def write_thread():
-    #         nonlocal count, write_finished
-    #         count = writer.write(data.encode("utf-8"))
-    #         writer.flush()
-    #         writer.close()
-    #         write_finished = True
-    #     threading.Thread(target=write_thread, name="Write Thread", daemon=True).start()
+        def write_thread():
+            nonlocal count, write_finished
+            count = writer.write(data.encode("utf-8"))
+            writer.flush()
+            writer.close()
+            write_finished = True
+        threading.Thread(target=write_thread, name="Write Thread", daemon=True).start()
 
-    #     while not write_finished or next(filter(lambda x: x.state != MessageState.MSGSTATE_DELIVERED,
-    #                                             self.h.outlet.packets), None) is not None:
-    #         with self.h.outlet.lock:
-    #             for packet in self.h.outlet.packets:
-    #                 if packet.state != MessageState.MSGSTATE_DELIVERED:
-    #                     self.h.channel._receive(packet.raw)
-    #                     packet.delivered()
-    #         time.sleep(0.0001)
+        while not write_finished or next(filter(lambda x: x.state != MessageState.MSGSTATE_DELIVERED,
+                                                self.h.outlet.packets), None) is not None:
+            with self.h.outlet.lock:
+                for packet in self.h.outlet.packets:
+                    if packet.state != MessageState.MSGSTATE_DELIVERED:
+                        self.h.channel._receive(packet.raw)
+                        packet.delivered()
+            time.sleep(0.0001)
 
-    #     self.assertEqual(len(data), count)
+        self.assertEqual(len(data), count)
 
-    #     read_finished = False
-    #     result = bytes()
+        read_finished = False
+        result = bytes()
 
-    #     def read_thread():
-    #         nonlocal read_finished, result
-    #         result = reader.read()
-    #         read_finished = True
-    #     threading.Thread(target=read_thread, name="Read Thread", daemon=True).start()
+        def read_thread():
+            nonlocal read_finished, result
+            result = reader.read()
+            read_finished = True
+        threading.Thread(target=read_thread, name="Read Thread", daemon=True).start()
 
-    #     timeout_at = time.time() + 7
-    #     while not read_finished and time.time() < timeout_at:
-    #         time.sleep(0.001)
+        timeout_at = time.time() + 7
+        while not read_finished and time.time() < timeout_at:
+            time.sleep(0.001)
 
-    #     self.assertTrue(read_finished)
-    #     self.assertEqual(len(data), len(result))
+        self.assertTrue(read_finished)
+        self.assertEqual(len(data), len(result))
 
-    #     decoded = result.decode("utf-8")
+        decoded = result.decode("utf-8")
 
-    #     self.assertSequenceEqual(data, decoded)
+        self.assertSequenceEqual(data, decoded)
 
-    # def test_buffer_small_with_callback(self):
-    #     callbacks = 0
-    #     last_cb_value = None
+    def test_buffer_small_with_callback(self):
+        callbacks = 0
+        last_cb_value = None
 
-    #     def callback(ready: int):
-    #         nonlocal callbacks, last_cb_value
-    #         callbacks += 1
-    #         last_cb_value = ready
+        def callback(ready: int):
+            nonlocal callbacks, last_cb_value
+            callbacks += 1
+            last_cb_value = ready
 
-    #     data = "Hello\n"
-    #     with RNS.RawChannelWriter(0, self.h.channel) as writer, RNS.RawChannelReader(0, self.h.channel) as reader:
-    #         reader.add_ready_callback(callback)
-    #         count = writer.write(data.encode("utf-8"))
-    #         writer.flush()
+        data = "Hello\n"
+        with RNS.RawChannelWriter(0, self.h.channel) as writer, RNS.RawChannelReader(0, self.h.channel) as reader:
+            reader.add_ready_callback(callback)
+            count = writer.write(data.encode("utf-8"))
+            writer.flush()
 
-    #         self.assertEqual(len(data), count)
-    #         self.assertEqual(1, len(self.h.outlet.packets))
+            self.assertEqual(len(data), count)
+            self.assertEqual(1, len(self.h.outlet.packets))
 
-    #         packet = self.h.outlet.packets[0]
-    #         self.h.channel._receive(packet.raw)
-    #         packet.delivered()
+            packet = self.h.outlet.packets[0]
+            self.h.channel._receive(packet.raw)
+            packet.delivered()
 
-    #         self.assertEqual(1, callbacks)
-    #         self.assertEqual(len(data), last_cb_value)
+            self.assertEqual(1, callbacks)
+            self.assertEqual(len(data), last_cb_value)
 
-    #         result = reader.readline()
+            result = reader.readline()
 
-    #         self.assertIsNotNone(result)
-    #         self.assertEqual(len(result), len(data))
+            self.assertIsNotNone(result)
+            self.assertEqual(len(result), len(data))
 
-    #         decoded = result.decode("utf-8")
+            decoded = result.decode("utf-8")
 
-    #         self.assertEqual(data, decoded)
-    #         self.assertEqual(1, len(self.h.outlet.packets))
+            self.assertEqual(data, decoded)
+            self.assertEqual(1, len(self.h.outlet.packets))
 
-    #         result = reader.read(1)
+            result = reader.read(1)
 
-    #         self.assertIsNone(result)
-    #         self.assertTrue(self.h.channel.is_ready_to_send())
+            self.assertIsNone(result)
+            self.assertTrue(self.h.channel.is_ready_to_send())
 
-    #         writer.close()
+            writer.close()
 
-    #         self.assertEqual(2, len(self.h.outlet.packets))
+            self.assertEqual(2, len(self.h.outlet.packets))
 
-    #         packet = self.h.outlet.packets[1]
-    #         self.h.channel._receive(packet.raw)
-    #         packet.delivered()
+            packet = self.h.outlet.packets[1]
+            self.h.channel._receive(packet.raw)
+            packet.delivered()
 
-    #         result = reader.read(1)
+            result = reader.read(1)
 
-    #         self.assertIsNotNone(result)
-    #         self.assertTrue(len(result) == 0)
+            self.assertIsNotNone(result)
+            self.assertTrue(len(result) == 0)
 
 
 if __name__ == '__main__':
