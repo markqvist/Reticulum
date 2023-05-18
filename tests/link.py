@@ -4,6 +4,7 @@ import subprocess
 import shlex
 import threading
 import time
+import random
 from unittest import skipIf
 import RNS
 import os
@@ -22,6 +23,8 @@ fixed_keys = [
     ("b82c7a4f047561d974de7e38538281d7f005d3663615f30d9663bad35a716063c931672cd452175d55bcdd70bb7aa35a9706872a97963dc52029938ea7341b39", "1333b911fa8ebb16726996adbe3c6262"),
     ("08bb35f92b06a0832991165a0d9b4fd91af7b7765ce4572aa6222070b11b767092b61b0fd18b3a59cae6deb9db6d4bfb1c7fcfe076cfd66eea7ddd5f877543b9", "d13712efc45ef87674fb5ac26c37c912"),
 ]
+
+BUFFER_TEST_TARGET = 32000
 
 def targets_job(caller):
     cmd = "python -c \"from tests.link import targets; targets()\""
@@ -455,7 +458,7 @@ class TestLink(unittest.TestCase):
 
     # @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None and os.getenv('RUN_SLOW_TESTS') == None, "Skipping")
     def test_12_buffer_round_trip_big(self, local_bitrate = None):
-        global c_rns
+        global c_rns, buffer_read_target
         init_rns(self)
         print("")
         print("Buffer round trip test")
@@ -490,9 +493,9 @@ class TestLink(unittest.TestCase):
 
             buffer = None
             received = []
+
             def handle_data(ready_bytes: int):
-                # TODO: Remove
-                RNS.log("Handling data")
+                global received_bytes
                 data = buffer.read(ready_bytes)
                 received.append(data)
 
@@ -509,10 +512,11 @@ class TestLink(unittest.TestCase):
             if local_interface.bitrate < 1000:
                 target_bytes = 3000
             else:
-                target_bytes = 16000
+                target_bytes = BUFFER_TEST_TARGET
             
-
-            message = os.urandom(target_bytes)
+            random.seed(154889)
+            message = random.randbytes(target_bytes)
+            buffer_read_target = len(message)
             
             # the return message will have an appendage string " back at you"
             # for every StreamDataMessage that arrives. To verify, we need
@@ -527,34 +531,23 @@ class TestLink(unittest.TestCase):
             # since the segments will be received at max length for a
             # StreamDataMessage, the appended text will end up in a
             # separate packet.
-            expected_chunk_count = ceil(len(message)/StreamDataMessage.MAX_DATA_LEN * 2)-1
-            print("Sending " + str(len(message)) + " bytes, receiving " + str(len(expected_rx_message)) + " bytes, " +
-                  "expecting " + str(expected_chunk_count) + " chunks of " + str(StreamDataMessage.MAX_DATA_LEN) + " bytes")
+            print("Sending " + str(len(message)) + " bytes, receiving " + str(len(expected_rx_message)) + " bytes, ")
             
             buffer.write(message)
             buffer.flush()
 
-            # delay a reasonable time for the send and receive
-            # a chunk each way plus a little more for a proof each way
-            # while time.time() < expected_ready_time and len(received) < expected_chunk_count:
-            #     time.sleep(0.1)
-            # # sleep for at least one more chunk round trip in case there
-            # # are more chunks than expected
-            # if time.time() < expected_ready_time:
-            #     time.sleep(max(c_rns.MTU * 2 / local_interface.bitrate * 8, 1))
-
-            timeout = time.time() + 10
-            while len(received) < expected_chunk_count and not time.time() > timeout:
-                time.sleep(2)
-                print(f"Received {len(received)} out of {expected_chunk_count} chunks so far")
-            time.sleep(2)
-            print(f"Received {len(received)} out of {expected_chunk_count} chunks")
+            timeout = time.time() + 4
+            while not time.time() > timeout:
+                time.sleep(1)
+                print(f"Received {len(received)} chunks so far")
+            time.sleep(1)
 
             data = bytearray()
             for rx in received:
                 data.extend(rx)
-
             rx_message = data
+
+            print(f"Received {len(received)} chunks, totalling {len(rx_message)} bytes")
 
             self.assertEqual(len(expected_rx_message), len(rx_message))
             for i in range(0, len(expected_rx_message)):
@@ -598,7 +591,7 @@ class TestLink(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main(verbosity=1)
 
-
+buffer_read_len = 0
 def targets(yp=False):
     if yp:
         import yappi
@@ -645,10 +638,26 @@ def targets(yp=False):
 
         buffer = None
 
+        response_data = []
         def handle_buffer(ready_bytes: int):
+            global buffer_read_len, BUFFER_TEST_TARGET
             data = buffer.read(ready_bytes)
-            buffer.write(data + " back at you".encode("utf-8"))
-            buffer.flush()
+            buffer_read_len += len(data)
+            response_data.append(data)
+
+            if data == "Hi there".encode("utf-8"):
+                RNS.log("Sending response")
+                for data in response_data:
+                    buffer.write(data + " back at you".encode("utf-8"))
+                    buffer.flush()
+                    buffer_read_len = 0
+
+            if buffer_read_len == BUFFER_TEST_TARGET:
+                RNS.log("Sending response")
+                for data in response_data:
+                    buffer.write(data + " back at you".encode("utf-8"))
+                    buffer.flush()
+                    buffer_read_len = 0
 
         buffer = RNS.Buffer.create_bidirectional_buffer(0, 0, channel, handle_buffer)
 
