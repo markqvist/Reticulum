@@ -10,6 +10,6 @@ docs/build
 rns*.egg-info
 profile.data
 tests/rnsconfig/storage
-tests/rnsconfig/logfile
+tests/rnsconfig/logfile*
 *.data
 *.result
