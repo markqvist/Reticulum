@@ -1,6 +1,7 @@
 from __future__ import annotations
 import bz2
 import sys
+import time
 import threading
 from threading import RLock
 import struct
@@ -65,6 +66,7 @@ class StreamDataMessage(MessageBase):
         self.compressed = (0x4000 & self.stream_id) > 0
         self.stream_id = self.stream_id & 0x3fff
         self.data = raw[2:]
+
         if self.compressed:
             self.data = bz2.decompress(self.data)
 
@@ -207,6 +209,15 @@ class RawChannelWriter(RawIOBase, AbstractContextManager):
         return 0
 
     def close(self):
+        try:
+            link_rtt = self._channel._outlet.link.rtt
+            timeout = time.time() + (link_rtt * len(self._channel._tx_ring) * 1)
+        except Exception as e:
+            timeout = time.time() + 15
+
+        while time.time() < timeout and not self._channel.is_ready_to_send():
+            time.sleep(0.05)
+
         self._eof = True
         self.write(bytes())
 
