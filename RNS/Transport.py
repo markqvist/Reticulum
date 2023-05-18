@@ -334,7 +334,8 @@ class Transport:
                     for receipt in Transport.receipts:
                         receipt.check_timeout()
                         if receipt.status != RNS.PacketReceipt.SENT:
-                            Transport.receipts.remove(receipt)
+                            if receipt in Transport.receipts:
+                                Transport.receipts.remove(receipt)
 
                     Transport.receipts_last_checked = time.time()
 
