@@ -129,7 +129,7 @@ class RawChannelReader(RawIOBase, AbstractContextManager):
                         self._eof = True
                     for listener in self._listeners:
                         try:
-                            listener(len(self._buffer))
+                            threading.Thread(target=listener, name="Message Callback", args=[len(self._buffer)], daemon=True).start()
                         except Exception as ex:
                             RNS.log("Error calling RawChannelReader(" + str(self._stream_id) + ") callback: " + str(ex))
                     return True
