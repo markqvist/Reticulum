@@ -1,3 +1,15 @@
+### 2023-05-19: RNS β 0.5.3
+
+This maintenance release brings a single, but important bugfix.
+
+**Changes**
+- Fixed a bug that could cause data corruption to occur over when using `Buffer` instances.
+
+**Release Hashes**
+```
+
+```
+
 ### 2023-05-12: RNS β 0.5.2
 
 This maintenance release brings a number of bugfixes and improvements.

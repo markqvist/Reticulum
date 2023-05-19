@@ -15,11 +15,12 @@ This document outlines the currently established development roadmap for Reticul
 For each release cycle of Reticulum, improvements and additions from the five [Primary Efforts](#primary-efforts) are selected as active work areas, and can be expected to be included in the upcoming releases within that cycle. While not entirely set in stone for each release cycle, they serve as a pointer of what to expect in the near future.
 
 - The current `0.5.x` release cycle aims at completing
+  - [x] Reach feature-completion of the Reticulum API
+  - [x] Improve performance and efficiency of the `Buffer` and `Channel` API
   - [ ] Overhauling and updating the documentation
   - [ ] Performance and memory optimisations of the Python reference implementation
   - [ ] Fixing potential bugs
   - [ ] Add automatic retries to all use cases of the `Request` API
-  - [ ] Improve performance and efficiency of the `Buffer` and `Channel` API
 
 ## Primary Efforts
 The development path for Reticulum is currently laid out in five distinct areas: *Comprehensibility*, *Universality*, *Functionality*, *Usability & Utility* and *Interfaceability*. Conceptualising the development of Reticulum into these areas serves to advance the implementation and work towards the Foundational Goals & Values of Reticulum.
