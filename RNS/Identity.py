@@ -452,7 +452,7 @@ class Identity:
             return False
         except Exception as e:
             RNS.log("Error while loading identity from "+str(path), RNS.LOG_ERROR)
-            RNS.log("The contained exception was: "+str(e))
+            RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     def get_salt(self):
         return self.hash
