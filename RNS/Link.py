@@ -225,15 +225,18 @@ class Link:
         self.hash = self.link_id
 
     def handshake(self):
-        self.status = Link.HANDSHAKE
-        self.shared_key = self.prv.exchange(self.peer_pub)
+        if self.status == Link.PENDING and self.prv != None:
+            self.status = Link.HANDSHAKE
+            self.shared_key = self.prv.exchange(self.peer_pub)
 
-        self.derived_key = RNS.Cryptography.hkdf(
-            length=32,
-            derive_from=self.shared_key,
-            salt=self.get_salt(),
-            context=self.get_context(),
-        )
+            self.derived_key = RNS.Cryptography.hkdf(
+                length=32,
+                derive_from=self.shared_key,
+                salt=self.get_salt(),
+                context=self.get_context(),
+            )
+        else:
+            RNS.log("Handshake attempt on "+str(self)+" with invalid state "+str(self.status), RNS.LOG_ERROR)
 
 
     def prove(self):
