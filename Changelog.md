@@ -7,8 +7,8 @@ This maintenance release brings a single bugfix
 
 **Release Hashes**
 ```
-f23c8d655c9e80a12a6728495aec56f19f27184d3d8e6b6ed6184b0e89d4be35 rns-0.5.3-py3-none-any.whl
-2c692a2153bb766a9dc2391340a06f429c13a75b86b746b69c6fcd5a4fe5ee33 rnspure-0.5.3-py3-none-any.whl
+71b42fe737da97a4b63bb227c29bb67854a7f003c9585f085b0ff68c8f460815 rns-0.5.4-py3-none-any.whl
+af6949d581445444f57cfca75756200e7c509a6fc66483d859716ce6a06064db rnspure-0.5.4-py3-none-any.whl
 ```
 
 ### 2023-05-19: RNS β 0.5.3
