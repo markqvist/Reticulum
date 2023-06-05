@@ -105,7 +105,7 @@ def timestamp_str(time_s):
 
 def log(msg, level=3, _override_destination = False):
     global _always_override_destination, compact_log_fmt
-    
+    msg = str(msg)
     if loglevel >= level:
         if not compact_log_fmt:
             logstring = "["+timestamp_str(time.time())+"] ["+loglevelname(level)+"] "+msg
