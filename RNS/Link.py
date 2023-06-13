@@ -264,41 +264,50 @@ class Link:
         self.had_outbound()
 
     def validate_proof(self, packet):
-        if self.status == Link.PENDING:
-            if self.initiator and len(packet.data) == RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:
-                peer_pub_bytes = packet.data[RNS.Identity.SIGLENGTH//8:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2]
-                peer_sig_pub_bytes = self.destination.identity.get_public_key()[Link.ECPUBSIZE//2:Link.ECPUBSIZE]
-                self.load_peer(peer_pub_bytes, peer_sig_pub_bytes)
-                self.handshake()
+        try:
+            if self.status == Link.PENDING:
+                if self.initiator and len(packet.data) == RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:
+                    peer_pub_bytes = packet.data[RNS.Identity.SIGLENGTH//8:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2]
+                    peer_sig_pub_bytes = self.destination.identity.get_public_key()[Link.ECPUBSIZE//2:Link.ECPUBSIZE]
+                    self.load_peer(peer_pub_bytes, peer_sig_pub_bytes)
+                    self.handshake()
 
-                self.establishment_cost += len(packet.raw)
-                signed_data = self.link_id+self.peer_pub_bytes+self.peer_sig_pub_bytes
-                signature = packet.data[:RNS.Identity.SIGLENGTH//8]
-                
-                if self.destination.identity.validate(signature, signed_data):
-                    self.rtt = time.time() - self.request_time
-                    self.attached_interface = packet.receiving_interface
-                    self.__remote_identity = self.destination.identity
-                    self.status = Link.ACTIVE
-                    self.activated_at = time.time()
-                    self.last_proof = self.activated_at
-                    RNS.Transport.activate_link(self)
-                    RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(round(self.rtt, 3))+"s", RNS.LOG_VERBOSE)
+                    self.establishment_cost += len(packet.raw)
+                    signed_data = self.link_id+self.peer_pub_bytes+self.peer_sig_pub_bytes
+                    signature = packet.data[:RNS.Identity.SIGLENGTH//8]
                     
-                    if self.rtt != None and self.establishment_cost != None and self.rtt > 0 and self.establishment_cost > 0:
-                        self.establishment_rate = self.establishment_cost/self.rtt
+                    if self.destination.identity.validate(signature, signed_data):
+                        if self.status != Link.PENDING:
+                            raise IOError("Invalid link state for proof validation")
 
-                    rtt_data = umsgpack.packb(self.rtt)
-                    rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
-                    rtt_packet.send()
-                    self.had_outbound()
+                        self.rtt = time.time() - self.request_time
+                        self.attached_interface = packet.receiving_interface
+                        self.__remote_identity = self.destination.identity
+                        self.status = Link.ACTIVE
+                        self.activated_at = time.time()
+                        self.last_proof = self.activated_at
+                        RNS.Transport.activate_link(self)
+                        RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(round(self.rtt, 3))+"s", RNS.LOG_VERBOSE)
+                        
+                        if self.rtt != None and self.establishment_cost != None and self.rtt > 0 and self.establishment_cost > 0:
+                            self.establishment_rate = self.establishment_cost/self.rtt
 
-                    if self.callbacks.link_established != None:
-                        thread = threading.Thread(target=self.callbacks.link_established, args=(self,))
-                        thread.daemon = True
-                        thread.start()
-                else:
-                    RNS.log("Invalid link proof signature received by "+str(self)+". Ignoring.", RNS.LOG_DEBUG)
+                        rtt_data = umsgpack.packb(self.rtt)
+                        rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
+                        rtt_packet.send()
+                        self.had_outbound()
+
+                        if self.callbacks.link_established != None:
+                            thread = threading.Thread(target=self.callbacks.link_established, args=(self,))
+                            thread.daemon = True
+                            thread.start()
+                    else:
+                        RNS.log("Invalid link proof signature received by "+str(self)+". Ignoring.", RNS.LOG_DEBUG)
+        
+        except Exception as e:
+            self.status = Link.CLOSED
+            RNS.log("An error ocurred while validating link request proof on "+str(self)+".", RNS.LOG_ERROR)
+            RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
 
 
     def identify(self, identity):
@@ -520,15 +529,15 @@ class Link:
                     next_check = self.request_time + self.establishment_timeout
                     sleep_time = next_check - time.time()
                     if time.time() >= self.request_time + self.establishment_timeout:
-                        if self.initiator:
-                            RNS.log("Timeout waiting for link request proof", RNS.LOG_DEBUG)
-                        else:
-                            RNS.log("Timeout waiting for RTT packet from link initiator", RNS.LOG_DEBUG)
-
                         self.status = Link.CLOSED
                         self.teardown_reason = Link.TIMEOUT
                         self.link_closed()
                         sleep_time = 0.001
+
+                        if self.initiator:
+                            RNS.log("Timeout waiting for link request proof", RNS.LOG_DEBUG)
+                        else:
+                            RNS.log("Timeout waiting for RTT packet from link initiator", RNS.LOG_DEBUG)
 
                 elif self.status == Link.ACTIVE:
                     activated_at = self.activated_at if self.activated_at != None else 0
@@ -847,7 +856,7 @@ class Link:
                 try:
                     self.fernet = Fernet(self.derived_key)
                 except Exception as e:
-                    RNS.log("Could not "+str(self)+" instantiate Fernet while performin encryption on link. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                    RNS.log("Could not instantiate Fernet while performin encryption on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
                     raise e
 
             return self.fernet.encrypt(plaintext)

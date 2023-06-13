@@ -1741,6 +1741,8 @@ class Transport:
     def activate_link(link):
         RNS.log("Activating link "+str(link), RNS.LOG_EXTREME)
         if link in Transport.pending_links:
+            if link.status != Link.PENDING:
+                raise IOError("Invalid link state for link activation")
             Transport.pending_links.remove(link)
             Transport.active_links.append(link)
             link.status = RNS.Link.ACTIVE
