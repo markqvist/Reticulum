@@ -277,8 +277,8 @@ class Link:
                     signature = packet.data[:RNS.Identity.SIGLENGTH//8]
                     
                     if self.destination.identity.validate(signature, signed_data):
-                        if self.status != Link.PENDING:
-                            raise IOError("Invalid link state for proof validation")
+                        if self.status != Link.HANDSHAKE:
+                            raise IOError("Invalid link state for proof validation: "+str(self.status))
 
                         self.rtt = time.time() - self.request_time
                         self.attached_interface = packet.receiving_interface
