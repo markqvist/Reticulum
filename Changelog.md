@@ -1,6 +1,19 @@
+### 2023-06-13: RNS β 0.5.5
+
+This maintenance release brings a single bugfix.
+
+**Changes**
+- Fixed a race condition for link initiators on timed out link establishments.
+
+**Release Hashes**
+```
+4ae61d28bf981a7cb853c179e9de3b56b350d2dc984fb671a21d38c4ce5b449e rns-0.5.5-py3-none-any.whl
+ed417cbd3c90e9f1b68565a3411ca5c9bc936b495300fd1ace3c4a6414aabd5a rnspure-0.5.5-py3-none-any.whl
+```
+
 ### 2023-05-19: RNS β 0.5.4
 
-This maintenance release brings a single bugfix
+This maintenance release brings a single bugfix.
 
 **Changes**
 - Fixed a potential race condition when timed-out link receives a late establishment proof a few milliseconds after it has timed out.
