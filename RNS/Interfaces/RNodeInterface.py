@@ -157,6 +157,7 @@ class RNodeInterface(Interface):
         self.r_stat_rx   = None
         self.r_stat_tx   = None
         self.r_stat_rssi = None
+        self.r_stat_snr  = None
         self.r_random    = None
 
         self.packet_queue    = []
