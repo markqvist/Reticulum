@@ -1494,7 +1494,7 @@ def main():
             selected_product = None
             try:
                 c_dev = int(input())
-                if c_dev < 1 or c_dev > 6:
+                if c_dev < 1 or c_dev > 7:
                     raise ValueError()
                 elif c_dev == 1:
                     selected_product = ROM.PRODUCT_RNODE
