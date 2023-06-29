@@ -858,7 +858,7 @@ both on general-purpose CPUs and on microcontrollers. The necessary primitives a
 
 * Ed25519 for signatures
 
-* X22519 for ECDH key exchanges
+* X25519 for ECDH key exchanges
 
 * HKDF for key derivation
 
