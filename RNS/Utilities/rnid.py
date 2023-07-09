@@ -69,7 +69,7 @@ def main():
         parser.add_argument("-q", "--quiet", action="count", default=0, help="decrease verbosity")
 
         parser.add_argument("-a", "--announce", metavar="aspects", action="store", default=None, help="announce a destination based on this Identity")
-        parser.add_argument("-H", "--hash", metavar="aspects", action="store", default=None, help="show destination hash5s for other aspects for this Identity")
+        parser.add_argument("-H", "--hash", metavar="aspects", action="store", default=None, help="show destination hashes for other aspects for this Identity")
         parser.add_argument("-e", "--encrypt", metavar="path", action="store", default=None, help="encrypt file")
         parser.add_argument("-d", "--decrypt", metavar="path", action="store", default=None, help="decrypt file")
         parser.add_argument("-s", "--sign", metavar="path", action="store", default=None, help="sign file")
