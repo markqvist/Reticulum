@@ -1,3 +1,17 @@
+### 2023-07-09: RNS β 0.5.6
+
+This maintenance release contains a few bugfixes.
+
+**Changes**
+- Fixed an issue in `rnodeconf` that prevented Heltec LoRa32 v2 boards from being flashed.
+- Fixed a typo in the `rnid` utility.
+
+**Release Hashes**
+```
+255a5b4bac28326c6b2cc85f43b26dcb0606404a4abd2dfa8244937155838973 rns-0.5.6-py3-none-any.whl
+1510b6da4641ceaa4c599a142e498c7e2c1ae12035868f9db1c111e5600161e9 rnspure-0.5.6-py3-none-any.whl
+```
+
 ### 2023-06-13: RNS β 0.5.5
 
 This maintenance release brings a single bugfix.
