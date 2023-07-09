@@ -99,7 +99,12 @@ class Destination:
         name_hash = RNS.Identity.full_hash(Destination.expand_name(None, app_name, *aspects).encode("utf-8"))[:(RNS.Identity.NAME_HASH_LENGTH//8)]
         addr_hash_material = name_hash
         if identity != None:
-            addr_hash_material += identity.hash
+            if isinstance(identity, RNS.Identity):
+                addr_hash_material += identity.hash
+            elif isinstance(identity, bytes) and len(identity) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8:
+                addr_hash_material += identity
+            else:
+                raise TypeError("Invalid material supplied for destination hash calculation")
 
         return RNS.Identity.full_hash(addr_hash_material)[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
 
