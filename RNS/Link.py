@@ -510,7 +510,11 @@ class Link:
     def __watchdog_job(self):
         while not self.status == Link.CLOSED:
             while (self.watchdog_lock):
-                sleep(max(self.rtt, 0.025))
+                rtt_wait = 0.025
+                if hasattr(self, "rtt") and self.rtt:
+                    rtt_wait = self.rtt
+
+                sleep(max(rtt_wait, 0.025))
 
             if not self.status == Link.CLOSED:
                 # Link was initiated, but no response
