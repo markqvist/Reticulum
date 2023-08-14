@@ -2467,6 +2467,9 @@ def main():
                                     RNS.log("Waiting for ESP32 reset...")
                                     time.sleep(7)
                             else:
+                                RNS.log("Non-zero return code ("+str(flash_status)+") while flashing")
+                                RNS.log("Try again with slower speeds for example like this:")
+                                RNS.log("rnodeconf --autoinstall --baud-flash 115200")
                                 exit()
 
                         except Exception as e:
