@@ -1,3 +1,20 @@
+### 2023-08-14: RNS β 0.5.7
+
+This maintenance release contains a number of bugfixes and quality improvements to Reticulum and related tools.
+
+**Changes**
+- Added bytes input to destination hash convenience functions
+- Fixed possible invalid comparison in link watchdog job
+- Add option to `rnodeconf` to set baud rate when flashing
+- Added better explanation in `rnodeconf` when flashing fails
+- Fixed EEPROM dump directory in `rnodeconf`
+
+**Release Hashes**
+```
+867fbb5c73c2a49a75e1f8f3e9f376b507b683328e26c64d4387acd0cc1dbbc7 rns-0.5.7-py3-none-any.whl
+7bab2865264b32208e023b5c4bbe88c37f51e3176ca4a8cf332d95f59a6d7f2c rnspure-0.5.7-py3-none-any.whl
+```
+
 ### 2023-07-09: RNS β 0.5.6
 
 This maintenance release contains a few bugfixes.
