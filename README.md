@@ -108,14 +108,28 @@ you want to do. For full details and examples, have a look at the
 [Getting Started Fast](https://markqvist.github.io/Reticulum/manual/gettingstartedfast.html) 
 section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
 
-To simply install Reticulum and related utilities on your system, the easiest way is via pip:
+To simply install Reticulum and related utilities on your system, the easiest way is via `pip`.
+You can then start any program that uses Reticulum, or start Reticulum as a system service with
+[the rnsd utility](https://markqvist.github.io/Reticulum/manual/using.html#the-rnsd-utility).
 
 ```bash
 pip install rns
 ```
 
-You can then start any program that uses Reticulum, or start Reticulum as a
-system service with [the rnsd utility](https://markqvist.github.io/Reticulum/manual/using.html#the-rnsd-utility).
+If you are using an operating system that blocks normal user package installation via `pip`,
+you can return `pip` to normal behaviour by adding editing the `~/.config/pip/pip.conf` file,
+and adding the following directive in the `[global]` section:
+
+```text
+[global]
+break-system-packages = true
+```
+
+Alternatively, you can use the `pipx` tool to install Reticulum in an isolated environment:
+
+```bash
+pipx install rns
+```
 
 When first started, Reticulum will create a default configuration file,
 providing basic connectivity to other Reticulum peers that might be locally
