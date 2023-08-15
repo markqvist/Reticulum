@@ -117,7 +117,7 @@ pip install rns
 ```
 
 If you are using an operating system that blocks normal user package installation via `pip`,
-you can return `pip` to normal behaviour by adding editing the `~/.config/pip/pip.conf` file,
+you can return `pip` to normal behaviour by editing the `~/.config/pip/pip.conf` file,
 and adding the following directive in the `[global]` section:
 
 ```text
