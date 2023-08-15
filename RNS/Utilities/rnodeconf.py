@@ -237,6 +237,7 @@ try:
     EXT_DIR = CNF_DIR+"/extracted"
     RT_PATH = CNF_DIR+"/recovery_esptool.py"
     TK_DIR  = CNF_DIR+"/trusted_keys"
+    ROM_DIR = CNF_DIR+"/eeprom"
 
     if not os.path.isdir(CNF_DIR):
         os.makedirs(CNF_DIR)
@@ -248,6 +249,8 @@ try:
         os.makedirs(EXT_DIR)
     if not os.path.isdir(TK_DIR):
         os.makedirs(TK_DIR)
+    if not os.path.isdir(ROM_DIR):
+        os.makedirs(ROM_DIR)
 
 except Exception as e:
     print("No access to directory "+str(CNF_DIR)+". This utility needs file system access to store firmware and data files. Cannot continue.")
@@ -2467,6 +2470,9 @@ def main():
                                     RNS.log("Waiting for ESP32 reset...")
                                     time.sleep(7)
                             else:
+                                RNS.log("Non-zero return code ("+str(flash_status)+") while flashing")
+                                RNS.log("Try again with slower speeds for example like this:")
+                                RNS.log("rnodeconf --autoinstall --baud-flash 115200")
                                 exit()
 
                         except Exception as e:
@@ -2674,7 +2680,7 @@ def main():
                 try:
                     timestamp = time.time()
                     filename = str(time.strftime("%Y-%m-%d_%H-%M-%S"))
-                    path = "./eeprom/"+filename+".eeprom"
+                    path = ROM_DIR + filename + ".eeprom"
                     file = open(path, "wb")
                     file.write(rnode.eeprom)
                     file.close()
