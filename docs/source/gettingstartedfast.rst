@@ -219,11 +219,11 @@ by adding one of the following interfaces to your ``.reticulum/config`` file:
 
 .. code::
 
-  # TCP/IP interface to the Dublin hub
-  [[RNS Testnet Dublin]]
+  # TCP/IP interface to the RNS Amsterdam Hub
+  [[RNS Testnet Amsterdam]]
     type = TCPClientInterface
     enabled = yes
-    target_host = dublin.connect.reticulum.network
+    target_host = amsterdam.connect.reticulum.network
     target_port = 4965
 
   # TCP/IP interface to the BetweenTheBorders Hub (community-provided)
