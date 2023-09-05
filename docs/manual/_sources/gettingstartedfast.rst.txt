@@ -219,11 +219,11 @@ by adding one of the following interfaces to your ``.reticulum/config`` file:
 
 .. code::
 
-  # TCP/IP interface to the Dublin hub
-  [[RNS Testnet Dublin]]
+  # TCP/IP interface to the RNS Amsterdam Hub
+  [[RNS Testnet Amsterdam]]
     type = TCPClientInterface
     enabled = yes
-    target_host = dublin.connect.reticulum.network
+    target_host = amsterdam.connect.reticulum.network
     target_port = 4965
 
   # TCP/IP interface to the BetweenTheBorders Hub (community-provided)
@@ -233,11 +233,11 @@ by adding one of the following interfaces to your ``.reticulum/config`` file:
     target_host = betweentheborders.com
     target_port = 4242
 
-  # Interface to I2P hub A
-  [[RNS Testnet I2P Hub A]]
+  # Interface to Testnet I2P Hub
+  [[RNS Testnet I2P Hub]]
     type = I2PInterface
     enabled = yes
-    peers = uxg5kubabakh3jtnvsipingbr5574dle7bubvip7llfvwx2tgrua.b32.i2p
+    peers = g3br23bvx3lq5uddcsjii74xgmn6y5q325ovrkq2zw2wbzbqgbuq.b32.i2p
 
 Many other Reticulum instances are connecting to this testnet, and you can also join it
 via other entry points if you know them. There is absolutely no control over the network
