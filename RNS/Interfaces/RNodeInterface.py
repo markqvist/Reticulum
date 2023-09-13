@@ -43,6 +43,8 @@ class KISS():
     CMD_CR          = 0x05
     CMD_RADIO_STATE = 0x06
     CMD_RADIO_LOCK  = 0x07
+    CMD_ST_ALOCK    = 0x0B
+    CMD_LT_ALOCK    = 0x0C
     CMD_DETECT      = 0x08
     CMD_LEAVE       = 0x0A
     CMD_READY       = 0x0F
@@ -50,6 +52,7 @@ class KISS():
     CMD_STAT_TX     = 0x22
     CMD_STAT_RSSI   = 0x23
     CMD_STAT_SNR    = 0x24
+    CMD_STAT_CHTM   = 0x25
     CMD_BLINK       = 0x30
     CMD_RANDOM      = 0x40
     CMD_FB_EXT      = 0x41
@@ -98,7 +101,7 @@ class RNodeInterface(Interface):
 
     RECONNECT_WAIT = 5
 
-    def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None):
+    def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None, st_alock = None, lt_alock = None):
         if RNS.vendor.platformutils.is_android():
             raise SystemError("Invlaid interface type. The Android-specific RNode interface must be used on Android")
 
@@ -135,6 +138,8 @@ class RNodeInterface(Interface):
         self.cr          = cr
         self.state       = KISS.RADIO_STATE_OFF
         self.bitrate     = 0
+        self.st_alock    = st_alock
+        self.lt_alock    = lt_alock
         self.platform    = None
         self.display     = None
         self.mcu         = None
@@ -158,7 +163,13 @@ class RNodeInterface(Interface):
         self.r_stat_tx   = None
         self.r_stat_rssi = None
         self.r_stat_snr  = None
+        self.r_st_alock  = None
+        self.r_lt_alock  = None
         self.r_random    = None
+        self.r_airtime_short      = 0.0
+        self.r_airtime_long       = 0.0
+        self.r_channel_load_short = 0.0
+        self.r_channel_load_long  = 0.0
 
         self.packet_queue    = []
         self.flow_control    = flow_control
@@ -184,6 +195,14 @@ class RNodeInterface(Interface):
 
         if (self.cr < 5 or self.cr > 8):
             RNS.log("Invalid coding rate configured for "+str(self), RNS.LOG_ERROR)
+            self.validcfg = False
+
+        if (self.st_alock and (self.st_alock < 0.0 or self.st_alock > 100.0)):
+            RNS.log("Invalid short-term airtime limit configured for "+str(self), RNS.LOG_ERROR)
+            self.validcfg = False
+
+        if (self.lt_alock and (self.lt_alock < 0.0 or self.lt_alock > 100.0)):
+            RNS.log("Invalid long-term airtime limit configured for "+str(self), RNS.LOG_ERROR)
             self.validcfg = False
 
         if id_interval != None and id_callsign != None:
@@ -281,6 +300,8 @@ class RNodeInterface(Interface):
         self.setTXPower()
         self.setSpreadingFactor()
         self.setCodingRate()
+        self.setSTALock()
+        self.setLTALock()
         self.setRadioState(KISS.RADIO_STATE_ON)
 
     def detect(self):
@@ -384,6 +405,30 @@ class RNodeInterface(Interface):
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while configuring coding rate for "+str(self))
+
+    def setSTALock(self):
+        if self.st_alock != None:
+            at = int(self.st_alock*100)
+            c1 = at >> 8 & 0xFF
+            c2 = at & 0xFF
+            data = KISS.escape(bytes([c1])+bytes([c2]))
+
+            kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_ST_ALOCK])+data+bytes([KISS.FEND])
+            written = self.serial.write(kiss_command)
+            if written != len(kiss_command):
+                raise IOError("An IO error occurred while configuring short-term airtime limit for "+str(self))
+
+    def setLTALock(self):
+        if self.lt_alock != None:
+            at = int(self.lt_alock*100)
+            c1 = at >> 8 & 0xFF
+            c2 = at & 0xFF
+            data = KISS.escape(bytes([c1])+bytes([c2]))
+
+            kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_LT_ALOCK])+data+bytes([KISS.FEND])
+            written = self.serial.write(kiss_command)
+            if written != len(kiss_command):
+                raise IOError("An IO error occurred while configuring long-term airtime limit for "+str(self))
 
     def setRadioState(self, state):
         self.state = state
@@ -622,6 +667,57 @@ class RNodeInterface(Interface):
                             self.r_stat_rssi = byte-RNodeInterface.RSSI_OFFSET
                         elif (command == KISS.CMD_STAT_SNR):
                             self.r_stat_snr = int.from_bytes(bytes([byte]), byteorder="big", signed=True) * 0.25
+                        elif (command == KISS.CMD_ST_ALOCK):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 2):
+                                    at = command_buffer[0] << 8 | command_buffer[1]
+                                    self.r_st_alock = at/100.0
+                                    RNS.log(str(self)+" Radio reporting short-term airtime limit is "+str(self.r_st_alock)+"%", RNS.LOG_DEBUG)
+                        elif (command == KISS.CMD_LT_ALOCK):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 2):
+                                    at = command_buffer[0] << 8 | command_buffer[1]
+                                    self.r_lt_alock = at/100.0
+                                    RNS.log(str(self)+" Radio reporting long-term airtime limit is "+str(self.r_lt_alock)+"%", RNS.LOG_DEBUG)
+                        elif (command == KISS.CMD_STAT_CHTM):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 8):
+                                    ats = command_buffer[0] << 8 | command_buffer[1]
+                                    atl = command_buffer[2] << 8 | command_buffer[3]
+                                    cus = command_buffer[4] << 8 | command_buffer[5]
+                                    cul = command_buffer[6] << 8 | command_buffer[7]
+                                    
+                                    self.r_airtime_short      = ats/100.0
+                                    self.r_airtime_long       = atl/100.0
+                                    self.r_channel_load_short = cus/100.0
+                                    self.r_channel_load_long  = cul/100.0
                         elif (command == KISS.CMD_RANDOM):
                             self.r_random = byte
                         elif (command == KISS.CMD_PLATFORM):
