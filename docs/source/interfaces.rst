@@ -365,6 +365,7 @@ can be used, and offers full control over LoRa parameters.
     # out identification on the channel with
     # a set interval by configuring the
     # following two parameters.
+    
     # id_callsign = MYCALL-0
     # id_interval = 600
 
@@ -372,7 +373,21 @@ can be used, and offers full control over LoRa parameters.
     # with low amounts of RAM, using packet
     # flow control can be useful. By default
     # it is disabled.
-    flow_control = False
+    
+    # flow_control = False
+
+    # It is possible to limit the airtime
+    # utilisation of an RNode by using the
+    # following two configuration options.
+    # The short-term limit is applied in a
+    # window of approximately 15 seconds,
+    # and the long-term limit is enforced
+    # over a rolling 60 minute window. Both
+    # options are specified in percent.
+    
+    # airtime_limit_long = 1.5
+    # airtime_limit_short = 33
+
 
 .. _interfaces-serial:
 
