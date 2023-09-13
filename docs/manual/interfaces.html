@@ -527,6 +527,7 @@ can be used, and offers full control over LoRa parameters.</p>
   <span class="c1"># out identification on the channel with</span>
   <span class="c1"># a set interval by configuring the</span>
   <span class="c1"># following two parameters.</span>
+
   <span class="c1"># id_callsign = MYCALL-0</span>
   <span class="c1"># id_interval = 600</span>
 
@@ -534,7 +535,20 @@ can be used, and offers full control over LoRa parameters.</p>
   <span class="c1"># with low amounts of RAM, using packet</span>
   <span class="c1"># flow control can be useful. By default</span>
   <span class="c1"># it is disabled.</span>
-  <span class="n">flow_control</span> <span class="o">=</span> <span class="kc">False</span>
+
+  <span class="c1"># flow_control = False</span>
+
+  <span class="c1"># It is possible to limit the airtime</span>
+  <span class="c1"># utilisation of an RNode by using the</span>
+  <span class="c1"># following two configuration options.</span>
+  <span class="c1"># The short-term limit is applied in a</span>
+  <span class="c1"># window of approximately 15 seconds,</span>
+  <span class="c1"># and the long-term limit is enforced</span>
+  <span class="c1"># over a rolling 60 minute window. Both</span>
+  <span class="c1"># options are specified in percent.</span>
+
+  <span class="c1"># airtime_limit_long = 1.5</span>
+  <span class="c1"># airtime_limit_short = 33</span>
 </pre></div>
 </div>
 </section>
