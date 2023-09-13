@@ -1,4 +1,4 @@
-### 2023-09-12: RNS β 0.5.8
+### 2023-09-14: RNS β 0.5.8
 
 This maintenance release contains a number of usability improvements to Reticulum and related tools.
 
