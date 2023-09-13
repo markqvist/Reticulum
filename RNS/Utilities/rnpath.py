@@ -187,15 +187,20 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
 
         if RNS.Transport.has_path(destination_hash):
             hops = RNS.Transport.hops_to(destination_hash)
-            next_hop = RNS.prettyhexrep(reticulum.get_next_hop(destination_hash))
-            next_hop_interface = reticulum.get_next_hop_if_name(destination_hash)
-
-            if hops != 1:
-                ms = "s"
+            next_hop_bytes = reticulum.get_next_hop(destination_hash)
+            if next_hop_bytes == None:
+                print("\r                                                       \rError: Invalid path data returned")
+                sys.exit(1)
             else:
-                ms = ""
+                next_hop = RNS.prettyhexrep(next_hop_bytes)
+                next_hop_interface = reticulum.get_next_hop_if_name(destination_hash)
 
-            print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+str(hops)+" hop"+ms+" away via "+next_hop+" on "+next_hop_interface)
+                if hops != 1:
+                    ms = "s"
+                else:
+                    ms = ""
+
+                print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+str(hops)+" hop"+ms+" away via "+next_hop+" on "+next_hop_interface)
         else:
             print("\r                                                       \rPath not found")
             sys.exit(1)
