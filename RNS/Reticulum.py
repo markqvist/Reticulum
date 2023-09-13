@@ -133,6 +133,7 @@ class Reticulum:
     JOB_INTERVAL     = 5*60
     CLEAN_INTERVAL   = 15*60
     PERSIST_INTERVAL = 60*60*12
+    GRACIOUS_PERSIST_INTERVAL = 60*5
 
     router           = None
     config           = None
@@ -288,7 +289,6 @@ class Reticulum:
 
             if now > self.last_data_persist+Reticulum.PERSIST_INTERVAL:
                 self.__persist_data()
-                self.last_data_persist = time.time()
             
             time.sleep(Reticulum.JOB_INTERVAL)
 
@@ -835,6 +835,8 @@ class Reticulum:
                                     flow_control = c.as_bool("flow_control") if "flow_control" in c else False
                                     id_interval = int(c["id_interval"]) if "id_interval" in c else None
                                     id_callsign = c["id_callsign"] if "id_callsign" in c else None
+                                    st_alock = float(c["airtime_limit_short"]) if "airtime_limit_short" in c else None
+                                    lt_alock = float(c["airtime_limit_long"]) if "airtime_limit_long" in c else None
 
                                     port = c["port"] if "port" in c else None
                                     
@@ -852,7 +854,9 @@ class Reticulum:
                                         cr = codingrate,
                                         flow_control = flow_control,
                                         id_interval = id_interval,
-                                        id_callsign = id_callsign
+                                        id_callsign = id_callsign,
+                                        st_alock = st_alock,
+                                        lt_alock = lt_alock
                                     )
 
                                     if "outgoing" in c and c.as_bool("outgoing") == False:
@@ -960,11 +964,13 @@ class Reticulum:
                 RNS.Transport.interfaces.append(interface)
 
     def _should_persist_data(self):
-        self.__persist_data()
+        if time.time() > self.last_data_persist+Reticulum.GRACIOUS_PERSIST_INTERVAL:
+            self.__persist_data()
 
     def __persist_data(self):
         RNS.Transport.persist_data()
         RNS.Identity.persist_data()
+        self.last_data_persist = time.time()
 
     def __clean_caches(self):
         RNS.log("Cleaning resource and packet caches...", RNS.LOG_EXTREME)
@@ -1088,6 +1094,18 @@ class Reticulum:
                         ifstats["tunnelstate"] = state_description
                     else:
                         ifstats["tunnelstate"] = None
+
+                if hasattr(interface, "r_airtime_short"):
+                    ifstats["airtime_short"] = interface.r_airtime_short
+
+                if hasattr(interface, "r_airtime_long"):
+                    ifstats["airtime_long"] = interface.r_airtime_long
+
+                if hasattr(interface, "r_channel_load_short"):
+                    ifstats["channel_load_short"] = interface.r_channel_load_short
+
+                if hasattr(interface, "r_channel_load_long"):
+                    ifstats["channel_load_long"] = interface.r_channel_load_long
 
                 if hasattr(interface, "bitrate"):
                     if interface.bitrate != None:
