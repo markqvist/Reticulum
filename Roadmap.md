@@ -17,6 +17,7 @@ For each release cycle of Reticulum, improvements and additions from the five [P
 - The current `0.5.x` release cycle aims at completing
   - [x] Reach feature-completion of the Reticulum API
   - [x] Improve performance and efficiency of the `Buffer` and `Channel` API
+  - [x] Add bluetooth pairing code output to rnodeconf
   - [ ] Overhauling and updating the documentation
   - [ ] Performance and memory optimisations of the Python reference implementation
   - [ ] Fixing potential bugs
@@ -74,7 +75,6 @@ These efforts aim to expand and improve the core functionality and reliability o
 ### Usability & Utility
 These effors seek to make Reticulum easier to use and operate, and to expand the utility of the stack on deployed systems.
 
-- Add bluetooth pairing code output to rnodeconf
 - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
 - Transit traffic display in rnstatus
 - rnsconfig utility
