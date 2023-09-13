@@ -146,6 +146,12 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None,json=F
 
                         if "bitrate" in ifstat and ifstat["bitrate"] != None:
                             print("    Rate    : {ss}".format(ss=speed_str(ifstat["bitrate"])))
+
+                        if "airtime_short" in ifstat and "airtime_long" in ifstat:
+                            print("    Airtime : {atl}% (1h), {ats}% (15s)".format(ats=str(ifstat["airtime_short"]),atl=str(ifstat["airtime_long"])))
+                        
+                        if "channel_load_short" in ifstat and "channel_load_long" in ifstat:
+                            print("    Ch.Load : {atl}% (1h), {ats}% (15s)".format(ats=str(ifstat["channel_load_short"]),atl=str(ifstat["channel_load_long"])))
                         
                         if "peers" in ifstat and ifstat["peers"] != None:
                             print("    Peers   : {np} reachable".format(np=ifstat["peers"]))
