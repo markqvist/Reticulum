@@ -2046,41 +2046,45 @@ class Transport:
             packet = Transport.destination_table[destination_hash][6]
             next_hop = Transport.destination_table[destination_hash][1]
             received_from = Transport.destination_table[destination_hash][5]
-    
-            if requestor_transport_id != None and next_hop == requestor_transport_id:
-                # TODO: Find a bandwidth efficient way to invalidate our
-                # known path on this signal. The obvious way of signing
-                # path requests with transport instance keys is quite
-                # inefficient. There is probably a better way. Doing
-                # path invalidation here would decrease the network
-                # convergence time. Maybe just drop it?
-                RNS.log("Not answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", since next hop is the requestor", RNS.LOG_DEBUG)
+
+            if attached_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING and attached_interface == received_from:
+                RNS.log("Not answering path request on roaming-mode interface, since next hop is on same roaming-mode interface", RNS.LOG_DEBUG)
+            
             else:
-                RNS.log("Answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", path is known", RNS.LOG_DEBUG)
-
-                now = time.time()
-                retries = Transport.PATHFINDER_R
-                local_rebroadcasts = 0
-                block_rebroadcasts = True
-                announce_hops      = packet.hops
-
-                if is_from_local_client:
-                    retransmit_timeout = now
+                if requestor_transport_id != None and next_hop == requestor_transport_id:
+                    # TODO: Find a bandwidth efficient way to invalidate our
+                    # known path on this signal. The obvious way of signing
+                    # path requests with transport instance keys is quite
+                    # inefficient. There is probably a better way. Doing
+                    # path invalidation here would decrease the network
+                    # convergence time. Maybe just drop it?
+                    RNS.log("Not answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", since next hop is the requestor", RNS.LOG_DEBUG)
                 else:
-                    # TODO: Look at this timing
-                    retransmit_timeout = now + Transport.PATH_REQUEST_GRACE # + (RNS.rand() * Transport.PATHFINDER_RW)
+                    RNS.log("Answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", path is known", RNS.LOG_DEBUG)
 
-                # This handles an edge case where a peer sends a past
-                # request for a destination just after an announce for
-                # said destination has arrived, but before it has been
-                # rebroadcast locally. In such a case the actual announce
-                # is temporarily held, and then reinserted when the path
-                # request has been served to the peer.
-                if packet.destination_hash in Transport.announce_table:
-                    held_entry = Transport.announce_table[packet.destination_hash]
-                    Transport.held_announces[packet.destination_hash] = held_entry
-                
-                Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, announce_hops, packet, local_rebroadcasts, block_rebroadcasts, attached_interface]
+                    now = time.time()
+                    retries = Transport.PATHFINDER_R
+                    local_rebroadcasts = 0
+                    block_rebroadcasts = True
+                    announce_hops      = packet.hops
+
+                    if is_from_local_client:
+                        retransmit_timeout = now
+                    else:
+                        # TODO: Look at this timing
+                        retransmit_timeout = now + Transport.PATH_REQUEST_GRACE # + (RNS.rand() * Transport.PATHFINDER_RW)
+
+                    # This handles an edge case where a peer sends a past
+                    # request for a destination just after an announce for
+                    # said destination has arrived, but before it has been
+                    # rebroadcast locally. In such a case the actual announce
+                    # is temporarily held, and then reinserted when the path
+                    # request has been served to the peer.
+                    if packet.destination_hash in Transport.announce_table:
+                        held_entry = Transport.announce_table[packet.destination_hash]
+                        Transport.held_announces[packet.destination_hash] = held_entry
+                    
+                    Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, announce_hops, packet, local_rebroadcasts, block_rebroadcasts, attached_interface]
 
         elif is_from_local_client:
             # Forward path request on all interfaces
