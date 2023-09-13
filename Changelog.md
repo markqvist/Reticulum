@@ -1,3 +1,18 @@
+### 2023-09-12: RNS β 0.5.8
+
+This maintenance release contains a number of usability improvements to Reticulum and related tools.
+
+**Changes**
+- Various documentation updates
+- Improved path-resolution in mixed networks with roaming-mode nodes
+- Added channel load and airtime stats to `rnstatus` output
+
+**Release Hashes**
+```
+27ba5cdc4724fc8c7211c3b504f097f6adf47f7b80775e6297e4c4e621ef6348 rns-0.5.8-py3-none-any.whl
+1ea1c949763c9478ec48f064f7f7864d9f859101ab91b44400879371f490800f rnspure-0.5.8-py3-none-any.whl
+```
+
 ### 2023-08-14: RNS β 0.5.7
 
 This maintenance release contains a number of bugfixes and quality improvements to Reticulum and related tools.
