@@ -51,7 +51,8 @@ class AutoInterface(Interface):
 
     BITRATE_GUESS      = 10*1000*1000
 
-    MULTI_IF_DEQUE_LEN = 64
+    MULTI_IF_DEQUE_LEN = 48
+    MULTI_IF_DEQUE_TTL = 0.75
 
     def handler_factory(self, callback):
         def create_handler(*args, **keys):
@@ -93,6 +94,7 @@ class AutoInterface(Interface):
         self.multicast_echoes = {}
         self.timed_out_interfaces = {}
         self.mif_deque = deque(maxlen=AutoInterface.MULTI_IF_DEQUE_LEN)
+        self.mif_deque_times = deque(maxlen=AutoInterface.MULTI_IF_DEQUE_LEN)
         self.carrier_changed = False
 
         self.outbound_udp_socket = None
@@ -396,8 +398,16 @@ class AutoInterface(Interface):
 
     def processIncoming(self, data):
         data_hash = RNS.Identity.full_hash(data)
-        if not data_hash in self.mif_deque:
+        deque_hit = False
+        if data_hash in self.mif_deque:
+            for te in self.mif_deque_times:
+                if te[0] == data_hash and time.time() < te[1]+AutoInterface.MULTI_IF_DEQUE_TTL:
+                    deque_hit = True
+                    break
+
+        if not deque_hit:
             self.mif_deque.append(data_hash)
+            self.mif_deque_times.append([data_hash, time.time()])
             self.rxb += len(data)
             self.owner.inbound(data, self)
 

@@ -662,6 +662,7 @@ class Resource:
             for map_hash in self.hashmap[self.consecutive_completed_height:self.consecutive_completed_height+self.window]:
                 if map_hash == part_hash:
                     if self.parts[i] == None:
+
                         # Insert data into parts list
                         self.parts[i] = part_data
                         self.rtt_rxd_bytes += len(part_data)
@@ -761,6 +762,7 @@ class Resource:
                     self.req_sent = self.last_activity
                     self.req_sent_bytes = len(request_packet.raw)
                     self.req_resp = None
+
                 except Exception as e:
                     RNS.log("Could not send resource request packet, cancelling resource", RNS.LOG_DEBUG)
                     RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)

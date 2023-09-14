@@ -1168,7 +1168,7 @@ class Transport:
                                 # Also check that expected hop count matches
                                 if packet.hops == link_entry[5]:
                                     outbound_interface = link_entry[2]
-                            
+
                         if outbound_interface != None:
                             new_raw = packet.raw[0:1]
                             new_raw += struct.pack("!B", packet.hops)
@@ -1494,7 +1494,7 @@ class Transport:
                                         RNS.log("Error while processing external announce callback.", RNS.LOG_ERROR)
                                         RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
 
-            # Handling for linkrequests to local destinations
+            # Handling for link requests to local destinations
             elif packet.packet_type == RNS.Packet.LINKREQUEST:
                 if packet.transport_id == None or packet.transport_id == Transport.identity.hash:
                     for destination in Transport.destinations:
