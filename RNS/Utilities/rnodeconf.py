@@ -2612,7 +2612,11 @@ def main():
                             vf.close()
                         else:
                             partition_filename = fw_filename.replace(".zip", ".bin")
-                            partition_hash = get_partition_hash(UPD_DIR+"/"+selected_version+"/"+partition_filename)
+                            if fw_filename == "extracted_rnode_firmware.zip":
+                                partition_full_path = EXT_DIR+"/extracted_rnode_firmware.bin"
+                            else:
+                                partition_full_path = UPD_DIR+"/"+selected_version+"/"+partition_filename
+                            partition_hash = get_partition_hash(partition_full_path)
                         if partition_hash != None:
                             rnode.set_firmware_hash(partition_hash)
                             rnode.indicate_firmware_update()
