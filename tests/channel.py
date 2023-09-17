@@ -407,7 +407,7 @@ class TestChannel(unittest.TestCase):
     def test_buffer_big(self):
         writer = RNS.Buffer.create_writer(15, self.h.channel)
         reader = RNS.Buffer.create_reader(15, self.h.channel)
-        data = "01234556789"*1024  # 10 KB
+        data = "01234556789"*1024*5  # 50 KB
         count = 0
         write_finished = False
 
