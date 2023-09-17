@@ -53,6 +53,7 @@ class KISS():
     CMD_STAT_RSSI   = 0x23
     CMD_STAT_SNR    = 0x24
     CMD_STAT_CHTM   = 0x25
+    CMD_STAT_PHYPRM = 0x26
     CMD_BLINK       = 0x30
     CMD_RANDOM      = 0x40
     CMD_FB_EXT      = 0x41
@@ -405,6 +406,10 @@ class RNodeInterface(Interface):
         self.r_airtime_long       = 0.0
         self.r_channel_load_short = 0.0
         self.r_channel_load_long  = 0.0
+        self.r_symbol_time_ms = None
+        self.r_symbol_rate = None
+        self.r_preamble_symbols = None
+        self.r_premable_time_ms = None
 
         self.packet_queue    = []
         self.flow_control    = flow_control
@@ -1091,6 +1096,33 @@ class RNodeInterface(Interface):
                                     self.r_airtime_long       = atl/100.0
                                     self.r_channel_load_short = cus/100.0
                                     self.r_channel_load_long  = cul/100.0
+                        elif (command == KISS.CMD_STAT_PHYPRM):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 10):
+                                    lst = (command_buffer[0] << 8 | command_buffer[1])/1000.0
+                                    lsr = command_buffer[2] << 8 | command_buffer[3]
+                                    prs = command_buffer[4] << 8 | command_buffer[5]
+                                    prt = command_buffer[6] << 8 | command_buffer[7]
+                                    cst = command_buffer[8] << 8 | command_buffer[9]
+
+                                    if lst != self.r_symbol_time_ms or lsr != self.r_symbol_rate or prs != self.r_preamble_symbols or prt != self.r_premable_time_ms or cst != self.r_csma_slot_time_ms:
+                                        self.r_symbol_time_ms    = lst
+                                        self.r_symbol_rate       = lsr
+                                        self.r_preamble_symbols  = prs
+                                        self.r_premable_time_ms  = prt
+                                        self.r_csma_slot_time_ms = cst
+                                        RNS.log(str(self)+" Radio reporting symbol time is "+str(round(self.r_symbol_time_ms,2))+"ms (at "+str(self.r_symbol_rate)+" baud)", RNS.LOG_DEBUG)
+                                        RNS.log(str(self)+" Radio reporting preamble is "+str(self.r_preamble_symbols)+" symbols ("+str(self.r_premable_time_ms)+"ms)", RNS.LOG_DEBUG)
+                                        RNS.log(str(self)+" Radio reporting CSMA slot time is "+str(self.r_csma_slot_time_ms)+"ms", RNS.LOG_DEBUG)
                         elif (command == KISS.CMD_RANDOM):
                             self.r_random = byte
                         elif (command == KISS.CMD_PLATFORM):
