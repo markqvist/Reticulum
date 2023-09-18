@@ -115,9 +115,10 @@ class Transport:
 
     pending_local_path_requests = {}
 
-    jobs_locked = False
-    jobs_running = False
-    job_interval = 0.250
+    start_time               = None
+    jobs_locked              = False
+    jobs_running             = False
+    job_interval             = 0.250
     links_last_checked       = 0.0
     links_check_interval     = 1.0
     receipts_last_checked    = 0.0
@@ -270,6 +271,7 @@ class Transport:
                     RNS.log("Could not load tunnel table from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
             RNS.log("Transport instance "+str(Transport.identity)+" started", RNS.LOG_VERBOSE)
+            Transport.start_time = time.time()
 
         # Synthesize tunnels for any interfaces wanting it
         for interface in Transport.interfaces:

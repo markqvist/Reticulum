@@ -1146,6 +1146,7 @@ class Reticulum:
             stats["interfaces"] = interfaces
             if Reticulum.transport_enabled():
                 stats["transport_id"] = RNS.Transport.identity.hash
+                stats["transport_uptime"] = time.time()-RNS.Transport.start_time
 
             return stats
 

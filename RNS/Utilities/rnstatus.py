@@ -176,7 +176,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None,json=F
                         print("    Traffic : {txb}↑\n              {rxb}↓".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
 
         if "transport_id" in stats and stats["transport_id"] != None:
-            print("\n Reticulum Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" is running")
+            print("\n Reticulum Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" running, uptime is "+RNS.prettytime(stats["transport_uptime"]))
 
         print("")
                 
