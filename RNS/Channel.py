@@ -381,7 +381,6 @@ class Channel(contextlib.AbstractContextManager):
         with self._lock:
             i = 0
             
-            window_overflow = (self._next_rx_sequence+Channel.WINDOW_MAX) % Channel.SEQ_MODULUS
             for existing in ring:
 
                 if envelope.sequence == existing.sequence:
