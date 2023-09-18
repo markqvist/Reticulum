@@ -59,8 +59,9 @@ For more info, see [reticulum.network](https://reticulum.network/)
   - The API is very easy to use, and provides transfer progress
 - Lightweight, flexible and expandable Request/Response mechanism
 - Efficient link establishment
-  - Total bandwidth cost of setting up an encrypted link is 3 packets totaling 297 bytes
+  - Total cost of setting up an encrypted and verified link is only 3 packets, totalling 297 bytes
   - Low cost of keeping links open at only 0.44 bits per second
+- Reliable sequential delivery with Channel and Buffer mechanisms
 
 ## Roadmap
 While Reticulum is already a fully featured and functional networking stack,
@@ -154,12 +155,15 @@ section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/)
 - An interface status utility called `rnstatus`, that displays information about interfaces
 - The path lookup and management tool `rnpath` letting you view and modify path tables
 - A diagnostics tool called `rnprobe` for checking connectivity to destinations
-- A simple file transfer program called `rncp` making it easy to copy files to remote systems
+- A simple file transfer program called `rncp` making it easy to transfer files between systems
+- The identity management and encryption utility `rnid` let's you manage Identities and encrypt/decrypt files
 - The remote command execution program `rnx` let's you run commands and
   programs and retrieve output from remote systems
 
 All tools, including `rnx` and `rncp`, work reliably and well even over very
-low-bandwidth links like LoRa or Packet Radio.
+low-bandwidth links like LoRa or Packet Radio. For full-featured remote shells
+over Reticulum, also have a look at the [rnsh](https://github.com/acehoss/rnsh)
+program.
 
 ## Supported interface types and devices
 
