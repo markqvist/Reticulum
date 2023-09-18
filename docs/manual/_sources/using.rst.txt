@@ -179,28 +179,34 @@ When ``rnsd`` is running, it will keep all configured interfaces open, handle tr
 it is enabled, and allow any other programs to immediately utilise the
 Reticulum network it is configured for.
 
-You can even run multiple instances of rnsd with different configurations on
+You can even run multiple instances of ``rnsd`` with different configurations on
 the same system.
 
-.. code:: text
+**Usage Examples**
 
-  # Install Reticulum
-  pip3 install rns
-
-  # Run rnsd
-  rnsd
+Run ``rnsd``:
 
 .. code:: text
 
-  usage: rnsd [-h] [--config CONFIG] [-v] [-q] [--version]
+  $ rnsd
+
+  [2023-08-18 17:59:56] [Notice] Started rnsd version 0.5.8
+
+**All Command-Line Options**
+
+.. code:: text
+
+  usage: rnsd.py [-h] [--config CONFIG] [-v] [-q] [-s] [--exampleconfig] [--version]
 
   Reticulum Network Stack Daemon
 
-  optional arguments:
+  options:
     -h, --help       show this help message and exit
     --config CONFIG  path to alternative Reticulum config directory
     -v, --verbose
     -q, --quiet
+    -s, --service    rnsd is running as a service and should log to file
+    --exampleconfig  print verbose configuration example to stdout and exit
     --version        show program's version number and exit
 
 You can easily add ``rnsd`` as an always-on service by :ref:`configuring a service<using-systemd>`.
@@ -211,12 +217,14 @@ The rnstatus Utility
 Using the ``rnstatus`` utility, you can view the status of configured Reticulum
 interfaces, similar to the ``ifconfig`` program.
 
+**Usage Examples**
+
+Run ``rnstatus``:
+
 .. code:: text
 
-  # Run rnstatus
-  rnstatus
+  $ rnstatus
 
-  # Example output
   Shared Instance[37428]
      Status  : Up
      Serving : 1 program
@@ -249,17 +257,39 @@ interfaces, similar to the ``ifconfig`` program.
 
   Reticulum Transport Instance <5245a8efe1788c6a1cd36144a270e13b> running
 
+Filter output to only show some interfaces:
+
 .. code:: text
 
-  usage: rnstatus [-h] [--config CONFIG] [--version] [-a] [-v]
+  $ rnstatus rnode
+
+  RNodeInterface[RNode UHF]
+     Status  : Up
+     Mode    : Access Point
+     Rate    : 1.30 kbps
+     Access  : 64-bit IFAC by <…e702c42ba8>
+     Traffic : 8.49 KB↑
+               9.23 KB↓
+
+  Reticulum Transport Instance <5245a8efe1788c6a1cd36144a270e13b> running
+
+**All Command-Line Options**
+
+.. code:: text
+
+  usage: rnstatus.py [-h] [--config CONFIG] [--version] [-a] [-j] [-v] [filter]
 
   Reticulum Network Stack Status
 
-  optional arguments:
+  positional arguments:
+    filter           only display interfaces with names including filter
+
+  options:
     -h, --help       show this help message and exit
     --config CONFIG  path to alternative Reticulum config directory
     --version        show program's version number and exit
     -a, --all        show all interfaces
+    -j, --json       output in JSON format
     -v, --verbose
 
 
@@ -268,42 +298,67 @@ The rnid Utility
 
 With the ``rnid`` utility, you can generate, manage and view Reticulum Identities.
 The program can also calculate Destination hashes, and perform encryption and
-decryption of files. Using ``rnid``, it is possible to asymmetrically encrypt
-files and information for any destination hash, and also to create and verify
-cryptographic signatures.
+decryption of files.
+
+Using ``rnid``, it is possible to asymmetrically encrypt files and information for
+any Reticulum destination hash, and also to create and verify cryptographic signatures.
+
+**Usage Examples**
+
+Generate a new Identity:
 
 .. code:: text
 
-  # Generate a new Identity
-  rnid -g ./new_identity
+  $ rnid -g ./new_identity
 
-  # Display Identity key information
-  rnid -i ./new_identity -p
+Display Identity key information:
+
+.. code:: text
+
+  $ rnid -i ./new_identity -p
 
   Loaded Identity <984b74a3f768bef236af4371e6f248cd> from new_id
   Public Key  : 0f4259fef4521ab75a3409e353fe9073eb10783b4912a6a9937c57bf44a62c1e
   Private Key : Hidden
 
-  # Encrypt a file for an LXMF user
-  rnid -i 8dd57a738226809646089335a6b03695 -e my_file.txt
+Encrypt a file for an LXMF user:
+
+.. code:: text
+
+  $ rnid -i 8dd57a738226809646089335a6b03695 -e my_file.txt
 
   Recalled Identity <bc7291552be7a58f361522990465165c> for destination <8dd57a738226809646089335a6b03695>
   Encrypting my_file.txt
   File my_file.txt encrypted for <bc7291552be7a58f361522990465165c> to my_file.txt.rfe
 
-  # If the Identity for the destination is not already known,
-  # you can fetch it from the network by using the -R option
-  rnid -R -i 30602def3b3506a28ed33db6f60cc6c9 -e my_file.txt
+If the Identity for the destination is not already known, you can fetch it from the network by using the ``-R`` command-line option:
+
+.. code:: text
+
+  $ rnid -R -i 30602def3b3506a28ed33db6f60cc6c9 -e my_file.txt
 
   Requesting unknown Identity for <30602def3b3506a28ed33db6f60cc6c9>...
   Received Identity <2b489d06eaf7c543808c76a5332a447d> for destination <30602def3b3506a28ed33db6f60cc6c9> from the network
   Encrypting my_file.txt
   File my_file.txt encrypted for <2b489d06eaf7c543808c76a5332a447d> to my_file.txt.rfe
 
+Decrypt a file using the Reticulum Identity it was encrypted for:
+
 .. code:: text
 
-  usage: rnid [-h] [--config path] [-i identity] [-g path] [-v] [-q] [-a aspects] [-H aspects] [-e path] [-d path] [-s path] [-V path] [-r path] [-w path] [-f] [-R] [-t seconds] [-p] [-P]
-              [--version]
+  $ rnid -i ./my_identity -d my_file.txt.rfe
+
+  Loaded Identity <2225fdeecaf6e2db4556c3c2d7637294> from ./my_identity
+  Decrypting ./my_file.txt.rfe...
+  File ./my_file.txt.rfe decrypted with <2225fdeecaf6e2db4556c3c2d7637294> to ./my_file.txt
+
+**All Command-Line Options**
+
+.. code:: text
+
+  usage: rnid.py [-h] [--config path] [-i identity] [-g path] [-v] [-q] [-a aspects]
+                 [-H aspects] [-e path] [-d path] [-s path] [-V path] [-r path] [-w path]
+                 [-f] [-R] [-t seconds] [-p] [-P] [--version]
 
   Reticulum Identity & Encryption Utility
 
@@ -344,24 +399,29 @@ The rnpath Utility
 With the ``rnpath`` utility, you can look up and view paths for
 destinations on the Reticulum network.
 
+**Usage Examples**
+
+Resolve path to a destination:
+
 .. code:: text
 
-  # Run rnpath
-  rnpath c89b4da064bf66d280f0e4d8abfd9806
+  $ rnpath c89b4da064bf66d280f0e4d8abfd9806
 
-  # Example output
   Path found, destination <c89b4da064bf66d280f0e4d8abfd9806> is 4 hops away via <f53a1c4278e0726bb73fcc623d6ce763> on TCPInterface[Testnet/dublin.connect.reticulum.network:4965]
 
+**All Command-Line Options**
+
 .. code:: text
 
-  usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-r] [-d] [-D] [-w seconds] [-v] [destination]
-  
+  usage: rnpath.py [-h] [--config CONFIG] [--version] [-t] [-r] [-d] [-D]
+                   [-w seconds] [-v] [destination]
+
   Reticulum Path Discovery Utility
-  
+
   positional arguments:
     destination           hexadecimal hash of the destination
-  
-  optional arguments:
+
+  options:
     -h, --help            show this help message and exit
     --config CONFIG       path to alternative Reticulum config directory
     --version             show program's version number and exit
@@ -381,15 +441,19 @@ to the ``ping`` program. Please note that probes will only be answered if the
 specified destination is configured to send proofs for received packets. Many
 destinations will not have this option enabled, and will not be probable.
 
+**Usage Examples**
+
+Probe a destination:
+
 .. code:: text
 
-  # Run rnprobe
-  rnprobe example_utilities.echo.request 2d03725b327348980d570f739a3a5708
+  $ rnprobe example_utilities.echo.request 2d03725b327348980d570f739a3a5708
 
-  # Example output
   Sent 16 byte probe to <2d03725b327348980d570f739a3a5708>
   Valid reply received from <2d03725b327348980d570f739a3a5708>
   Round-trip time is 38.469 milliseconds over 2 hops
+
+**All Command-Line Options**
 
 .. code:: text
 
@@ -414,20 +478,39 @@ The rncp Utility
 The ``rncp`` utility is a simple file transfer tool. Using it, you can transfer
 files through Reticulum.
 
+**Usage Examples**
+
+Run rncp on the receiving system, specifying which identities are allowed to send files:
+  
 .. code:: text
 
-  # Run rncp on the receiving system, specifying which identities
-  # are allowed to send files
-  rncp --receive -a 1726dbad538775b5bf9b0ea25a4079c8 -a c50cc4e4f7838b6c31f60ab9032cbc62
+  $ rncp --listen -a 1726dbad538775b5bf9b0ea25a4079c8 -a c50cc4e4f7838b6c31f60ab9032cbc62
 
-  # From another system, copy a file to the receiving system
-  rncp ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
-
-You can specify as many allowed senders as needed, or complete disable authentication.
+You can also specify allowed identity hashes (one per line) in the file ~/.rncp/allowed_identities
+and simply running the program in listener mode:
 
 .. code:: text
 
-  usage: rncp [-h] [--config path] [-v] [-q] [-p] [-r] [-b] [-a allowed_hash] [-n] [-w seconds] [--version] [file] [destination]
+  $ rncp --listen
+
+From another system, copy a file to the receiving system:
+
+.. code:: text
+
+  $ rncp ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
+
+Or fetch a file from the remote system:
+
+.. code:: text
+
+  $ rncp --fetch ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
+
+**All Command-Line Options**
+
+.. code:: text
+
+  usage: rncp.py [-h] [--config path] [-v] [-q] [-S] [-l] [-f] [-b seconds]
+                 [-a allowed_hash] [-n] [-p] [-w seconds] [--version] [file] [destination]
 
   Reticulum File Transfer Utility
 
@@ -435,19 +518,20 @@ You can specify as many allowed senders as needed, or complete disable authentic
     file                  file to be transferred
     destination           hexadecimal hash of the receiver
 
-  optional arguments:
+  options:
     -h, --help            show this help message and exit
     --config path         path to alternative Reticulum config directory
     -v, --verbose         increase verbosity
     -q, --quiet           decrease verbosity
-    -p, --print-identity  print identity and destination info and exit
-    -r, --receive         wait for incoming files
-    -b, --no-announce     don't announce at program start
+    -S, --silent          disable transfer progress output
+    -l, --listen          listen for incoming transfer requests
+    -f, --fetch           fetch file from remote listener instead of sending
+    -b seconds            announce interval, 0 to only announce at startup
     -a allowed_hash       accept from this identity
-    -n, --no-auth         accept files from anyone
+    -n, --no-auth         accept files and fetches from anyone
+    -p, --print-identity  print identity and destination info and exit
     -w seconds            sender timeout before giving up
     --version             show program's version number and exit
-    -v, --verbose
 
 
 The rnx Utility
@@ -455,32 +539,43 @@ The rnx Utility
 
 The ``rnx`` utility is a basic remote command execution program. It allows you to
 execute commands on remote systems over Reticulum, and to view returned command
-output.
+output. For a fully interactive remote shell solution, be sure to also take a look
+at the `rnsh <https://github.com/acehoss/rnsh>`_ program.
+
+**Usage Examples**
+
+Run rnx on the listening system, specifying which identities are allowed to execute commands:
 
 .. code:: text
 
-  # Run rnx on the listening system, specifying which identities
-  # are allowed to execute commands
-  rnx --listen -a 941bed5e228775e5a8079fc38b1ccf3f -a 1b03013c25f1c2ca068a4f080b844a10
+  $ rnx --listen -a 941bed5e228775e5a8079fc38b1ccf3f -a 1b03013c25f1c2ca068a4f080b844a10
 
-  # From another system, run a command 
-  rnx 7a55144adf826958a9529a3bcf08b149 "cat /proc/cpuinfo"
-
-  # Or enter the interactive mode pseudo-shell
-  rnx 7a55144adf826958a9529a3bcf08b149 -x
-
-  # The default identity file is stored in
-  # ~/.reticulum/identities/rnx, but you can use
-  # another one, which will be created if it does
-  # not already exist
-  rnx 7a55144adf826958a9529a3bcf08b149 -i /path/to/identity -x
-
-You can specify as many allowed senders as needed, or completely disable authentication.
+From another system, run a command on the remote:
 
 .. code:: text
 
-  usage: rnx [-h] [--config path] [-v] [-q] [-p] [-l] [-i identity] [-x] [-b] [-a allowed_hash] [-n] [-N] [-d] [-m] [-w seconds] [-W seconds] [--stdin STDIN] [--stdout STDOUT] [--stderr STDERR] [--version]
-             [destination] [command]
+  $ rnx 7a55144adf826958a9529a3bcf08b149 "cat /proc/cpuinfo"
+
+Or enter the interactive mode pseudo-shell:
+
+.. code:: text
+
+  $ rnx 7a55144adf826958a9529a3bcf08b149 -x
+
+The default identity file is stored in ``~/.reticulum/identities/rnx``, but you can use
+another one, which will be created if it does not already exist 
+
+.. code:: text
+
+  $ rnx 7a55144adf826958a9529a3bcf08b149 -i /path/to/identity -x
+
+**All Command-Line Options**
+
+.. code:: text
+
+  usage: rnx [-h] [--config path] [-v] [-q] [-p] [-l] [-i identity] [-x] [-b] [-n] [-N]
+             [-d] [-m] [-a allowed_hash] [-w seconds] [-W seconds] [--stdin STDIN]
+             [--stdout STDOUT] [--stderr STDERR] [--version] [destination] [command]
 
   Reticulum Remote Execution Utility
 
@@ -517,11 +612,19 @@ The rnodeconf Utility
 The ``rnodeconf`` utility allows you to inspect and configure existing :ref:`RNodes<rnode-main>`, and
 to create and provision new :ref:`RNodes<rnode-main>` from any supported hardware devices.
 
+**All Command-Line Options**
+
 .. code:: text
 
-  usage: rnodeconf [-h] [-i] [-a] [-u] [-U] [--fw-version version] [--nocheck] [-C] [-N] [-T] [-b] [-B] [-p] [--freq Hz] [--bw Hz] [--txp dBm] [--sf factor] [--cr rate] [--eeprom-backup] [--eeprom-dump] [--eeprom-wipe] [--version] [port]
+  usage: rnodeconf.py [-h] [-i] [-a] [-u] [-U] [--fw-version version] [--nocheck] [-e]
+                      [-E] [-C] [--baud-flash baud_flash] [-N] [-T] [-b] [-B] [-p] [-D i]
+                      [--freq Hz] [--bw Hz] [--txp dBm] [--sf factor] [--cr rate]
+                      [--eeprom-backup] [--eeprom-dump] [--eeprom-wipe] [-P]
+                      [--trust-key hexbytes] [--version] [port]
 
-  RNode Configuration and firmware utility. This program allows you to change various settings and startup modes of RNode. It can also install, flash and update the firmware on supported devices.
+  RNode Configuration and firmware utility. This program allows you to change various
+  settings and startup modes of RNode. It can also install, flash and update the firmware
+  on supported devices.
 
   positional arguments:
     port                  serial port where RNode is attached
@@ -537,11 +640,14 @@ to create and provision new :ref:`RNodes<rnode-main>` from any supported hardwar
     -e, --extract         Extract firmware from connected RNode for later use
     -E, --use-extracted   Use the extracted firmware for autoinstallation or update
     -C, --clear-cache     Clear locally cached firmware files
+    --baud-flash baud_flash
+                          Set specific baud rate when flashing device. Default is 921600
     -N, --normal          Switch device to normal mode
     -T, --tnc             Switch device to TNC mode
     -b, --bluetooth-on    Turn device bluetooth on
     -B, --bluetooth-off   Turn device bluetooth off
     -p, --bluetooth-pair  Put device into bluetooth pairing mode
+    -D i, --display i     Set display intensity (0-255)
     --freq Hz             Frequency in Hz for TNC mode
     --bw Hz               Bandwidth in Hz for TNC mode
     --txp dBm             TX power in dBm for TNC mode
@@ -550,6 +656,8 @@ to create and provision new :ref:`RNodes<rnode-main>` from any supported hardwar
     --eeprom-backup       Backup EEPROM to file
     --eeprom-dump         Dump EEPROM to console
     --eeprom-wipe         Unlock and wipe EEPROM
+    -P, --public          Display public part of signing key
+    --trust-key hexbytes  Public key to trust for device verification
     --version             Print program version and exit
 
 For more information on how to create your own RNodes, please read the :ref:`Creating RNodes<rnode-creating>`

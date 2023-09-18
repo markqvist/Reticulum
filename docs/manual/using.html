@@ -379,24 +379,27 @@ other programs, applications and services can utilise.</p>
 When <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> is running, it will keep all configured interfaces open, handle transport if
 it is enabled, and allow any other programs to immediately utilise the
 Reticulum network it is configured for.</p>
-<p>You can even run multiple instances of rnsd with different configurations on
+<p>You can even run multiple instances of <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> with different configurations on
 the same system.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Install Reticulum
-pip3 install rns
+<p><strong>Usage Examples</strong></p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">rnsd</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnsd
 
-# Run rnsd
-rnsd
+[2023-08-18 17:59:56] [Notice] Started rnsd version 0.5.8
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnsd [-h] [--config CONFIG] [-v] [-q] [--version]
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnsd.py [-h] [--config CONFIG] [-v] [-q] [-s] [--exampleconfig] [--version]
 
 Reticulum Network Stack Daemon
 
-optional arguments:
+options:
   -h, --help       show this help message and exit
   --config CONFIG  path to alternative Reticulum config directory
   -v, --verbose
   -q, --quiet
+  -s, --service    rnsd is running as a service and should log to file
+  --exampleconfig  print verbose configuration example to stdout and exit
   --version        show program&#39;s version number and exit
 </pre></div>
 </div>
@@ -406,10 +409,10 @@ optional arguments:
 <h3>The rnstatus Utility<a class="headerlink" href="#the-rnstatus-utility" title="Permalink to this heading">#</a></h3>
 <p>Using the <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> utility, you can view the status of configured Reticulum
 interfaces, similar to the <code class="docutils literal notranslate"><span class="pre">ifconfig</span></code> program.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rnstatus
-rnstatus
+<p><strong>Usage Examples</strong></p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnstatus
 
-# Example output
 Shared Instance[37428]
    Status  : Up
    Serving : 1 program
@@ -443,15 +446,34 @@ RNodeInterface[RNode UHF]
 Reticulum Transport Instance &lt;5245a8efe1788c6a1cd36144a270e13b&gt; running
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnstatus [-h] [--config CONFIG] [--version] [-a] [-v]
+<p>Filter output to only show some interfaces:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnstatus rnode
+
+RNodeInterface[RNode UHF]
+   Status  : Up
+   Mode    : Access Point
+   Rate    : 1.30 kbps
+   Access  : 64-bit IFAC by &lt;…e702c42ba8&gt;
+   Traffic : 8.49 KB↑
+             9.23 KB↓
+
+Reticulum Transport Instance &lt;5245a8efe1788c6a1cd36144a270e13b&gt; running
+</pre></div>
+</div>
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnstatus.py [-h] [--config CONFIG] [--version] [-a] [-j] [-v] [filter]
 
 Reticulum Network Stack Status
 
-optional arguments:
+positional arguments:
+  filter           only display interfaces with names including filter
+
+options:
   -h, --help       show this help message and exit
   --config CONFIG  path to alternative Reticulum config directory
   --version        show program&#39;s version number and exit
   -a, --all        show all interfaces
+  -j, --json       output in JSON format
   -v, --verbose
 </pre></div>
 </div>
@@ -460,29 +482,32 @@ optional arguments:
 <h3>The rnid Utility<a class="headerlink" href="#the-rnid-utility" title="Permalink to this heading">#</a></h3>
 <p>With the <code class="docutils literal notranslate"><span class="pre">rnid</span></code> utility, you can generate, manage and view Reticulum Identities.
 The program can also calculate Destination hashes, and perform encryption and
-decryption of files. Using <code class="docutils literal notranslate"><span class="pre">rnid</span></code>, it is possible to asymmetrically encrypt
-files and information for any destination hash, and also to create and verify
-cryptographic signatures.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Generate a new Identity
-rnid -g ./new_identity
-
-# Display Identity key information
-rnid -i ./new_identity -p
+decryption of files.</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">rnid</span></code>, it is possible to asymmetrically encrypt files and information for
+any Reticulum destination hash, and also to create and verify cryptographic signatures.</p>
+<p><strong>Usage Examples</strong></p>
+<p>Generate a new Identity:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnid -g ./new_identity
+</pre></div>
+</div>
+<p>Display Identity key information:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnid -i ./new_identity -p
 
 Loaded Identity &lt;984b74a3f768bef236af4371e6f248cd&gt; from new_id
 Public Key  : 0f4259fef4521ab75a3409e353fe9073eb10783b4912a6a9937c57bf44a62c1e
 Private Key : Hidden
-
-# Encrypt a file for an LXMF user
-rnid -i 8dd57a738226809646089335a6b03695 -e my_file.txt
+</pre></div>
+</div>
+<p>Encrypt a file for an LXMF user:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnid -i 8dd57a738226809646089335a6b03695 -e my_file.txt
 
 Recalled Identity &lt;bc7291552be7a58f361522990465165c&gt; for destination &lt;8dd57a738226809646089335a6b03695&gt;
 Encrypting my_file.txt
 File my_file.txt encrypted for &lt;bc7291552be7a58f361522990465165c&gt; to my_file.txt.rfe
-
-# If the Identity for the destination is not already known,
-# you can fetch it from the network by using the -R option
-rnid -R -i 30602def3b3506a28ed33db6f60cc6c9 -e my_file.txt
+</pre></div>
+</div>
+<p>If the Identity for the destination is not already known, you can fetch it from the network by using the <code class="docutils literal notranslate"><span class="pre">-R</span></code> command-line option:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnid -R -i 30602def3b3506a28ed33db6f60cc6c9 -e my_file.txt
 
 Requesting unknown Identity for &lt;30602def3b3506a28ed33db6f60cc6c9&gt;...
 Received Identity &lt;2b489d06eaf7c543808c76a5332a447d&gt; for destination &lt;30602def3b3506a28ed33db6f60cc6c9&gt; from the network
@@ -490,8 +515,18 @@ Encrypting my_file.txt
 File my_file.txt encrypted for &lt;2b489d06eaf7c543808c76a5332a447d&gt; to my_file.txt.rfe
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnid [-h] [--config path] [-i identity] [-g path] [-v] [-q] [-a aspects] [-H aspects] [-e path] [-d path] [-s path] [-V path] [-r path] [-w path] [-f] [-R] [-t seconds] [-p] [-P]
-            [--version]
+<p>Decrypt a file using the Reticulum Identity it was encrypted for:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnid -i ./my_identity -d my_file.txt.rfe
+
+Loaded Identity &lt;2225fdeecaf6e2db4556c3c2d7637294&gt; from ./my_identity
+Decrypting ./my_file.txt.rfe...
+File ./my_file.txt.rfe decrypted with &lt;2225fdeecaf6e2db4556c3c2d7637294&gt; to ./my_file.txt
+</pre></div>
+</div>
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnid.py [-h] [--config path] [-i identity] [-g path] [-v] [-q] [-a aspects]
+               [-H aspects] [-e path] [-d path] [-s path] [-V path] [-r path] [-w path]
+               [-f] [-R] [-t seconds] [-p] [-P] [--version]
 
 Reticulum Identity &amp; Encryption Utility
 
@@ -531,21 +566,23 @@ options:
 <h3>The rnpath Utility<a class="headerlink" href="#the-rnpath-utility" title="Permalink to this heading">#</a></h3>
 <p>With the <code class="docutils literal notranslate"><span class="pre">rnpath</span></code> utility, you can look up and view paths for
 destinations on the Reticulum network.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rnpath
-rnpath c89b4da064bf66d280f0e4d8abfd9806
+<p><strong>Usage Examples</strong></p>
+<p>Resolve path to a destination:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnpath c89b4da064bf66d280f0e4d8abfd9806
 
-# Example output
 Path found, destination &lt;c89b4da064bf66d280f0e4d8abfd9806&gt; is 4 hops away via &lt;f53a1c4278e0726bb73fcc623d6ce763&gt; on TCPInterface[Testnet/dublin.connect.reticulum.network:4965]
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-r] [-d] [-D] [-w seconds] [-v] [destination]
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnpath.py [-h] [--config CONFIG] [--version] [-t] [-r] [-d] [-D]
+                 [-w seconds] [-v] [destination]
 
 Reticulum Path Discovery Utility
 
 positional arguments:
   destination           hexadecimal hash of the destination
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --config CONFIG       path to alternative Reticulum config directory
   --version             show program&#39;s version number and exit
@@ -564,15 +601,16 @@ optional arguments:
 to the <code class="docutils literal notranslate"><span class="pre">ping</span></code> program. Please note that probes will only be answered if the
 specified destination is configured to send proofs for received packets. Many
 destinations will not have this option enabled, and will not be probable.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rnprobe
-rnprobe example_utilities.echo.request 2d03725b327348980d570f739a3a5708
+<p><strong>Usage Examples</strong></p>
+<p>Probe a destination:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnprobe example_utilities.echo.request 2d03725b327348980d570f739a3a5708
 
-# Example output
 Sent 16 byte probe to &lt;2d03725b327348980d570f739a3a5708&gt;
 Valid reply received from &lt;2d03725b327348980d570f739a3a5708&gt;
 Round-trip time is 38.469 milliseconds over 2 hops
 </pre></div>
 </div>
+<p><strong>All Command-Line Options</strong></p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnprobe [-h] [--config CONFIG] [--version] [-v] [full_name] [destination_hash]
 
 Reticulum Probe Utility
@@ -593,16 +631,27 @@ optional arguments:
 <h3>The rncp Utility<a class="headerlink" href="#the-rncp-utility" title="Permalink to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">rncp</span></code> utility is a simple file transfer tool. Using it, you can transfer
 files through Reticulum.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rncp on the receiving system, specifying which identities
-# are allowed to send files
-rncp --receive -a 1726dbad538775b5bf9b0ea25a4079c8 -a c50cc4e4f7838b6c31f60ab9032cbc62
-
-# From another system, copy a file to the receiving system
-rncp ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
+<p><strong>Usage Examples</strong></p>
+<p>Run rncp on the receiving system, specifying which identities are allowed to send files:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rncp --listen -a 1726dbad538775b5bf9b0ea25a4079c8 -a c50cc4e4f7838b6c31f60ab9032cbc62
 </pre></div>
 </div>
-<p>You can specify as many allowed senders as needed, or complete disable authentication.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rncp [-h] [--config path] [-v] [-q] [-p] [-r] [-b] [-a allowed_hash] [-n] [-w seconds] [--version] [file] [destination]
+<p>You can also specify allowed identity hashes (one per line) in the file ~/.rncp/allowed_identities
+and simply running the program in listener mode:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rncp --listen
+</pre></div>
+</div>
+<p>From another system, copy a file to the receiving system:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rncp ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
+</pre></div>
+</div>
+<p>Or fetch a file from the remote system:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rncp --fetch ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
+</pre></div>
+</div>
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rncp.py [-h] [--config path] [-v] [-q] [-S] [-l] [-f] [-b seconds]
+               [-a allowed_hash] [-n] [-p] [-w seconds] [--version] [file] [destination]
 
 Reticulum File Transfer Utility
 
@@ -610,19 +659,20 @@ positional arguments:
   file                  file to be transferred
   destination           hexadecimal hash of the receiver
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --config path         path to alternative Reticulum config directory
   -v, --verbose         increase verbosity
   -q, --quiet           decrease verbosity
-  -p, --print-identity  print identity and destination info and exit
-  -r, --receive         wait for incoming files
-  -b, --no-announce     don&#39;t announce at program start
+  -S, --silent          disable transfer progress output
+  -l, --listen          listen for incoming transfer requests
+  -f, --fetch           fetch file from remote listener instead of sending
+  -b seconds            announce interval, 0 to only announce at startup
   -a allowed_hash       accept from this identity
-  -n, --no-auth         accept files from anyone
+  -n, --no-auth         accept files and fetches from anyone
+  -p, --print-identity  print identity and destination info and exit
   -w seconds            sender timeout before giving up
   --version             show program&#39;s version number and exit
-  -v, --verbose
 </pre></div>
 </div>
 </section>
@@ -630,27 +680,30 @@ optional arguments:
 <h3>The rnx Utility<a class="headerlink" href="#the-rnx-utility" title="Permalink to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">rnx</span></code> utility is a basic remote command execution program. It allows you to
 execute commands on remote systems over Reticulum, and to view returned command
-output.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Run rnx on the listening system, specifying which identities
-# are allowed to execute commands
-rnx --listen -a 941bed5e228775e5a8079fc38b1ccf3f -a 1b03013c25f1c2ca068a4f080b844a10
-
-# From another system, run a command
-rnx 7a55144adf826958a9529a3bcf08b149 &quot;cat /proc/cpuinfo&quot;
-
-# Or enter the interactive mode pseudo-shell
-rnx 7a55144adf826958a9529a3bcf08b149 -x
-
-# The default identity file is stored in
-# ~/.reticulum/identities/rnx, but you can use
-# another one, which will be created if it does
-# not already exist
-rnx 7a55144adf826958a9529a3bcf08b149 -i /path/to/identity -x
+output. For a fully interactive remote shell solution, be sure to also take a look
+at the <a class="reference external" href="https://github.com/acehoss/rnsh">rnsh</a> program.</p>
+<p><strong>Usage Examples</strong></p>
+<p>Run rnx on the listening system, specifying which identities are allowed to execute commands:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnx --listen -a 941bed5e228775e5a8079fc38b1ccf3f -a 1b03013c25f1c2ca068a4f080b844a10
 </pre></div>
 </div>
-<p>You can specify as many allowed senders as needed, or completely disable authentication.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnx [-h] [--config path] [-v] [-q] [-p] [-l] [-i identity] [-x] [-b] [-a allowed_hash] [-n] [-N] [-d] [-m] [-w seconds] [-W seconds] [--stdin STDIN] [--stdout STDOUT] [--stderr STDERR] [--version]
-           [destination] [command]
+<p>From another system, run a command on the remote:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnx 7a55144adf826958a9529a3bcf08b149 &quot;cat /proc/cpuinfo&quot;
+</pre></div>
+</div>
+<p>Or enter the interactive mode pseudo-shell:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnx 7a55144adf826958a9529a3bcf08b149 -x
+</pre></div>
+</div>
+<p>The default identity file is stored in <code class="docutils literal notranslate"><span class="pre">~/.reticulum/identities/rnx</span></code>, but you can use
+another one, which will be created if it does not already exist</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnx 7a55144adf826958a9529a3bcf08b149 -i /path/to/identity -x
+</pre></div>
+</div>
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnx [-h] [--config path] [-v] [-q] [-p] [-l] [-i identity] [-x] [-b] [-n] [-N]
+           [-d] [-m] [-a allowed_hash] [-w seconds] [-W seconds] [--stdin STDIN]
+           [--stdout STDOUT] [--stderr STDERR] [--version] [destination] [command]
 
 Reticulum Remote Execution Utility
 
@@ -686,9 +739,16 @@ optional arguments:
 <h3>The rnodeconf Utility<a class="headerlink" href="#the-rnodeconf-utility" title="Permalink to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">rnodeconf</span></code> utility allows you to inspect and configure existing <a class="reference internal" href="hardware.html#rnode-main"><span class="std std-ref">RNodes</span></a>, and
 to create and provision new <a class="reference internal" href="hardware.html#rnode-main"><span class="std std-ref">RNodes</span></a> from any supported hardware devices.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnodeconf [-h] [-i] [-a] [-u] [-U] [--fw-version version] [--nocheck] [-C] [-N] [-T] [-b] [-B] [-p] [--freq Hz] [--bw Hz] [--txp dBm] [--sf factor] [--cr rate] [--eeprom-backup] [--eeprom-dump] [--eeprom-wipe] [--version] [port]
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnodeconf.py [-h] [-i] [-a] [-u] [-U] [--fw-version version] [--nocheck] [-e]
+                    [-E] [-C] [--baud-flash baud_flash] [-N] [-T] [-b] [-B] [-p] [-D i]
+                    [--freq Hz] [--bw Hz] [--txp dBm] [--sf factor] [--cr rate]
+                    [--eeprom-backup] [--eeprom-dump] [--eeprom-wipe] [-P]
+                    [--trust-key hexbytes] [--version] [port]
 
-RNode Configuration and firmware utility. This program allows you to change various settings and startup modes of RNode. It can also install, flash and update the firmware on supported devices.
+RNode Configuration and firmware utility. This program allows you to change various
+settings and startup modes of RNode. It can also install, flash and update the firmware
+on supported devices.
 
 positional arguments:
   port                  serial port where RNode is attached
@@ -704,11 +764,14 @@ options:
   -e, --extract         Extract firmware from connected RNode for later use
   -E, --use-extracted   Use the extracted firmware for autoinstallation or update
   -C, --clear-cache     Clear locally cached firmware files
+  --baud-flash baud_flash
+                        Set specific baud rate when flashing device. Default is 921600
   -N, --normal          Switch device to normal mode
   -T, --tnc             Switch device to TNC mode
   -b, --bluetooth-on    Turn device bluetooth on
   -B, --bluetooth-off   Turn device bluetooth off
   -p, --bluetooth-pair  Put device into bluetooth pairing mode
+  -D i, --display i     Set display intensity (0-255)
   --freq Hz             Frequency in Hz for TNC mode
   --bw Hz               Bandwidth in Hz for TNC mode
   --txp dBm             TX power in dBm for TNC mode
@@ -717,6 +780,8 @@ options:
   --eeprom-backup       Backup EEPROM to file
   --eeprom-dump         Dump EEPROM to console
   --eeprom-wipe         Unlock and wipe EEPROM
+  -P, --public          Display public part of signing key
+  --trust-key hexbytes  Public key to trust for device verification
   --version             Print program version and exit
 </pre></div>
 </div>
