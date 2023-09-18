@@ -60,10 +60,42 @@ def receive(configdir, verbosity = 0, quietness = 0, allowed = [], display_ident
     if disable_auth:
         allow_all = True
     else:
+        dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
+        try:
+            allowed_file_name = "allowed_identities"
+            allowed_file = None
+            if os.path.isfile(os.path.expanduser("/etc/rncp/"+allowed_file_name)):
+                allowed_file = os.path.expanduser("/etc/rncp/"+allowed_file_name)
+            elif os.path.isfile(os.path.expanduser("~/.config/rncp/"+allowed_file_name)):
+                allowed_file = os.path.expanduser("~/.config/rncp/"+allowed_file_name)
+            elif os.path.isfile(os.path.expanduser("~/.rncp/"+allowed_file_name)):
+                allowed_file = os.path.expanduser("~/.rncp/"+allowed_file_name)
+            if allowed_file != None:
+                af = open(allowed_file, "r")
+                al = af.read().replace("\r", "").split("\n")
+                ali = []
+                for a in al:
+                    if len(a) == dest_len:
+                        ali.append(a)
+
+                if len(ali) > 0:
+                    if not allowed:
+                        allowed = ali
+                    else:
+                        allowed.extend(ali)
+                if al == 1:
+                    ms = "y"
+                else:
+                    ms = "ies"
+                
+                RNS.log("Loaded "+str(len(ali))+" allowed identit"+ms+" from "+str(allowed_file), RNS.LOG_VERBOSE)
+
+        except Exception as e:
+            RNS.log("Error while parsing allowed_identities file. The contained exception was: "+str(e), RNS.LOG_ERROR)
+
         if allowed != None:
             for a in allowed:
                 try:
-                    dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
                     if len(a) != dest_len:
                         raise ValueError("Allowed destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
                     try:
