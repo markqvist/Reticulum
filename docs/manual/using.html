@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Understanding Reticulum" href="understanding.html" /><link rel="prev" title="Getting Started Fast" href="gettingstartedfast.html" />
 
     <meta name="generator" content="sphinx-7.1.2, furo 2022.09.29.dev1"/>
-        <title>Using Reticulum on Your System - Reticulum Network Stack 0.5.8 beta documentation</title>
+        <title>Using Reticulum on Your System - Reticulum Network Stack 0.5.9 beta documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 0.5.8 beta documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.5.9 beta documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -167,7 +167,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 0.5.8 beta documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.5.9 beta documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -354,10 +354,15 @@ configuration file is created. The default configuration looks like this:</p>
 <p>If Reticulum infrastructure already exists locally, you probably don’t need to
 change anything, and you may already be connected to a wider network. If not,
 you will probably need to add relevant <em>interfaces</em> to the configuration, in
-order to communicate with other systems. It is a good idea to read the comments
-and explanations in the above default config. It will teach you the basic
-concepts you need to understand to configure your network. Once you have done that,
-take a look at the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> chapter of this manual.</p>
+order to communicate with other systems.</p>
+<p>You can generate a much more verbose configuration example by running the command:</p>
+<p><code class="docutils literal notranslate"><span class="pre">rnsd</span> <span class="pre">--exampleconfig</span></code></p>
+<p>The output includes examples for most interface types supported
+by Reticulum, along with additional options and configuration parameters.</p>
+<p>It is a good idea to read the comments and explanations in the above default config.
+It will teach you the basic concepts you need to understand to configure your network.
+Once you have done that, take a look at the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> chapter
+of this manual.</p>
 </section>
 <section id="included-utility-programs">
 <h2>Included Utility Programs<a class="headerlink" href="#included-utility-programs" title="Permalink to this heading">#</a></h2>
@@ -448,6 +453,77 @@ optional arguments:
   --version        show program&#39;s version number and exit
   -a, --all        show all interfaces
   -v, --verbose
+</pre></div>
+</div>
+</section>
+<section id="the-rnid-utility">
+<h3>The rnid Utility<a class="headerlink" href="#the-rnid-utility" title="Permalink to this heading">#</a></h3>
+<p>With the <code class="docutils literal notranslate"><span class="pre">rnid</span></code> utility, you can generate, manage and view Reticulum Identities.
+The program can also calculate Destination hashes, and perform encryption and
+decryption of files. Using <code class="docutils literal notranslate"><span class="pre">rnid</span></code>, it is possible to asymmetrically encrypt
+files and information for any destination hash, and also to create and verify
+cryptographic signatures.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Generate a new Identity
+rnid -g ./new_identity
+
+# Display Identity key information
+rnid -i ./new_identity -p
+
+Loaded Identity &lt;984b74a3f768bef236af4371e6f248cd&gt; from new_id
+Public Key  : 0f4259fef4521ab75a3409e353fe9073eb10783b4912a6a9937c57bf44a62c1e
+Private Key : Hidden
+
+# Encrypt a file for an LXMF user
+rnid -i 8dd57a738226809646089335a6b03695 -e my_file.txt
+
+Recalled Identity &lt;bc7291552be7a58f361522990465165c&gt; for destination &lt;8dd57a738226809646089335a6b03695&gt;
+Encrypting my_file.txt
+File my_file.txt encrypted for &lt;bc7291552be7a58f361522990465165c&gt; to my_file.txt.rfe
+
+# If the Identity for the destination is not already known,
+# you can fetch it from the network by using the -R option
+rnid -R -i 30602def3b3506a28ed33db6f60cc6c9 -e my_file.txt
+
+Requesting unknown Identity for &lt;30602def3b3506a28ed33db6f60cc6c9&gt;...
+Received Identity &lt;2b489d06eaf7c543808c76a5332a447d&gt; for destination &lt;30602def3b3506a28ed33db6f60cc6c9&gt; from the network
+Encrypting my_file.txt
+File my_file.txt encrypted for &lt;2b489d06eaf7c543808c76a5332a447d&gt; to my_file.txt.rfe
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnid [-h] [--config path] [-i identity] [-g path] [-v] [-q] [-a aspects] [-H aspects] [-e path] [-d path] [-s path] [-V path] [-r path] [-w path] [-f] [-R] [-t seconds] [-p] [-P]
+            [--version]
+
+Reticulum Identity &amp; Encryption Utility
+
+options:
+  -h, --help            show this help message and exit
+  --config path         path to alternative Reticulum config directory
+  -i identity, --identity identity
+                        hexadecimal Reticulum Destination hash or path to Identity file
+  -g path, --generate path
+                        generate a new Identity
+  -v, --verbose         increase verbosity
+  -q, --quiet           decrease verbosity
+  -a aspects, --announce aspects
+                        announce a destination based on this Identity
+  -H aspects, --hash aspects
+                        show destination hashes for other aspects for this Identity
+  -e path, --encrypt path
+                        encrypt file
+  -d path, --decrypt path
+                        decrypt file
+  -s path, --sign path  sign file
+  -V path, --validate path
+                        validate signature
+  -r path, --read path  input file path
+  -w path, --write path
+                        output file path
+  -f, --force           write output even if it overwrites existing files
+  -R, --request         request unknown Identities from the network
+  -t seconds            identity request timeout before giving up
+  -p, --print-identity  print identity info and exit
+  -P, --print-private   allow displaying private keys
+  --version             show program&#39;s version number and exit
 </pre></div>
 </div>
 </section>
@@ -789,6 +865,7 @@ WantedBy=multi-user.target
 <li><a class="reference internal" href="#included-utility-programs">Included Utility Programs</a><ul>
 <li><a class="reference internal" href="#the-rnsd-utility">The rnsd Utility</a></li>
 <li><a class="reference internal" href="#the-rnstatus-utility">The rnstatus Utility</a></li>
+<li><a class="reference internal" href="#the-rnid-utility">The rnid Utility</a></li>
 <li><a class="reference internal" href="#the-rnpath-utility">The rnpath Utility</a></li>
 <li><a class="reference internal" href="#the-rnprobe-utility">The rnprobe Utility</a></li>
 <li><a class="reference internal" href="#the-rncp-utility">The rncp Utility</a></li>
@@ -812,7 +889,7 @@ WantedBy=multi-user.target
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=6d0dd1f9"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=f24f4563"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/scripts/furo.js?v=2c7c1115"></script>

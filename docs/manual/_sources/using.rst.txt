@@ -145,10 +145,19 @@ configuration file is created. The default configuration looks like this:
 If Reticulum infrastructure already exists locally, you probably don't need to
 change anything, and you may already be connected to a wider network. If not,
 you will probably need to add relevant *interfaces* to the configuration, in
-order to communicate with other systems. It is a good idea to read the comments
-and explanations in the above default config. It will teach you the basic
-concepts you need to understand to configure your network. Once you have done that,
-take a look at the :ref:`Interfaces<interfaces-main>` chapter of this manual.
+order to communicate with other systems.
+
+You can generate a much more verbose configuration example by running the command:
+
+``rnsd --exampleconfig``
+
+The output includes examples for most interface types supported
+by Reticulum, along with additional options and configuration parameters.
+
+It is a good idea to read the comments and explanations in the above default config.
+It will teach you the basic concepts you need to understand to configure your network.
+Once you have done that, take a look at the :ref:`Interfaces<interfaces-main>` chapter
+of this manual.
 
 Included Utility Programs
 -------------------------
@@ -252,6 +261,81 @@ interfaces, similar to the ``ifconfig`` program.
     --version        show program's version number and exit
     -a, --all        show all interfaces
     -v, --verbose
+
+
+The rnid Utility
+====================
+
+With the ``rnid`` utility, you can generate, manage and view Reticulum Identities.
+The program can also calculate Destination hashes, and perform encryption and
+decryption of files. Using ``rnid``, it is possible to asymmetrically encrypt
+files and information for any destination hash, and also to create and verify
+cryptographic signatures.
+
+.. code:: text
+
+  # Generate a new Identity
+  rnid -g ./new_identity
+
+  # Display Identity key information
+  rnid -i ./new_identity -p
+
+  Loaded Identity <984b74a3f768bef236af4371e6f248cd> from new_id
+  Public Key  : 0f4259fef4521ab75a3409e353fe9073eb10783b4912a6a9937c57bf44a62c1e
+  Private Key : Hidden
+
+  # Encrypt a file for an LXMF user
+  rnid -i 8dd57a738226809646089335a6b03695 -e my_file.txt
+
+  Recalled Identity <bc7291552be7a58f361522990465165c> for destination <8dd57a738226809646089335a6b03695>
+  Encrypting my_file.txt
+  File my_file.txt encrypted for <bc7291552be7a58f361522990465165c> to my_file.txt.rfe
+
+  # If the Identity for the destination is not already known,
+  # you can fetch it from the network by using the -R option
+  rnid -R -i 30602def3b3506a28ed33db6f60cc6c9 -e my_file.txt
+
+  Requesting unknown Identity for <30602def3b3506a28ed33db6f60cc6c9>...
+  Received Identity <2b489d06eaf7c543808c76a5332a447d> for destination <30602def3b3506a28ed33db6f60cc6c9> from the network
+  Encrypting my_file.txt
+  File my_file.txt encrypted for <2b489d06eaf7c543808c76a5332a447d> to my_file.txt.rfe
+
+.. code:: text
+
+  usage: rnid [-h] [--config path] [-i identity] [-g path] [-v] [-q] [-a aspects] [-H aspects] [-e path] [-d path] [-s path] [-V path] [-r path] [-w path] [-f] [-R] [-t seconds] [-p] [-P]
+              [--version]
+
+  Reticulum Identity & Encryption Utility
+
+  options:
+    -h, --help            show this help message and exit
+    --config path         path to alternative Reticulum config directory
+    -i identity, --identity identity
+                          hexadecimal Reticulum Destination hash or path to Identity file
+    -g path, --generate path
+                          generate a new Identity
+    -v, --verbose         increase verbosity
+    -q, --quiet           decrease verbosity
+    -a aspects, --announce aspects
+                          announce a destination based on this Identity
+    -H aspects, --hash aspects
+                          show destination hashes for other aspects for this Identity
+    -e path, --encrypt path
+                          encrypt file
+    -d path, --decrypt path
+                          decrypt file
+    -s path, --sign path  sign file
+    -V path, --validate path
+                          validate signature
+    -r path, --read path  input file path
+    -w path, --write path
+                          output file path
+    -f, --force           write output even if it overwrites existing files
+    -R, --request         request unknown Identities from the network
+    -t seconds            identity request timeout before giving up
+    -p, --print-identity  print identity info and exit
+    -P, --print-private   allow displaying private keys
+    --version             show program's version number and exit
 
 
 The rnpath Utility

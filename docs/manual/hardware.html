@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Supported Interfaces" href="interfaces.html" /><link rel="prev" title="Understanding Reticulum" href="understanding.html" />
 
     <meta name="generator" content="sphinx-7.1.2, furo 2022.09.29.dev1"/>
-        <title>Communications Hardware - Reticulum Network Stack 0.5.8 beta documentation</title>
+        <title>Communications Hardware - Reticulum Network Stack 0.5.9 beta documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 0.5.8 beta documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.5.9 beta documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -167,7 +167,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 0.5.8 beta documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.5.9 beta documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -240,10 +240,17 @@ starting from scratch.</p>
 <p>This chapter will outline a few different sensible starting paths to get
 real-world functional wireless communications up and running with minimal cost
 and effort. Two fundamental devices categories will be covered, <em>RNodes</em> and
-<em>WiFi-based radios</em>.</p>
-<p>While there are many other device categories that are useful in building Reticulum
-networks, knowing how to employ just these two will make it possible to build
-a wide range of useful networks with little effort.</p>
+<em>WiFi-based radios</em>. Additionally, other common options will be briefly described.</p>
+<p>Knowing how to employ just a few different types of hardware will make it possible
+to build a wide range of useful networks with little effort.</p>
+<section id="combining-hardware-types">
+<h2>Combining Hardware Types<a class="headerlink" href="#combining-hardware-types" title="Permalink to this heading">#</a></h2>
+<p>It is useful to combine different link and hardware types when designing and
+building a network. One useful design pattern is to employ high-capacity point-to-point
+links based on WiFi or millimeter-wave radios (with high-gain directional antennas)
+for the network backbone, and using LoRa-based RNodes for covering large areas with
+connectivity for client devices.</p>
+</section>
 <section id="rnode">
 <span id="rnode-main"></span><h2>RNode<a class="headerlink" href="#rnode" title="Permalink to this heading">#</a></h2>
 <p>Reliable and general-purpose long-range digital radio transceiver systems are
@@ -373,11 +380,6 @@ such as serial port and on-air parameters. For v2.x firmwares, you just need to 
 the Connection ID of the RNode, and Reticulum will automatically locate and connect to the
 RNode, using the parameters stored in the RNode itself.</p>
 </section>
-<section id="suppliers">
-<span id="rnode-suppliers"></span><h3>Suppliers<a class="headerlink" href="#suppliers" title="Permalink to this heading">#</a></h3>
-<p>Get in touch if you want to have your RNode supplier listed here, or if you want help to
-get started with producing RNodes.</p>
-</section>
 </section>
 <section id="wifi-based-hardware">
 <h2>WiFi-based Hardware<a class="headerlink" href="#wifi-based-hardware" title="Permalink to this heading">#</a></h2>
@@ -403,13 +405,29 @@ that is relatively cheap while providing long range and high capacity for Reticu
 networks. As in all other cases, it is also possible for Reticulum to co-exist with IP
 networks running concurrently on such devices.</p>
 </section>
-<section id="combining-hardware-types">
-<h2>Combining Hardware Types<a class="headerlink" href="#combining-hardware-types" title="Permalink to this heading">#</a></h2>
-<p>It is useful to combine different link and hardware types when designing and
-building a network. One useful design pattern is to employ high-capacity point-to-point
-links based on WiFi or millimeter-wave radios (with high-gain directional antennas)
-for the network backbone, and using LoRa-based RNodes for covering large areas with
-connectivity for client devices.</p>
+<section id="ethernet-based-hardware">
+<h2>Ethernet-based Hardware<a class="headerlink" href="#ethernet-based-hardware" title="Permalink to this heading">#</a></h2>
+<p>Reticulum can run over any kind of hardware that can provide a switched Ethernet-based
+medium. This means that anything from a plain Ethernet switch, to fiber-optic systems,
+to data radios with Ethernet interfaces can be used by Reticulum.</p>
+<p>The Ethernet medium does not need to have any IP infrastructure such as DHCP servers
+or routing set up, but in case such infrastructure does exist, Reticulum will simply
+co-exist with.</p>
+<p>To use Reticulum over Ethernet-based mediums, it is generally enough to use the included
+<a class="reference internal" href="interfaces.html#interfaces-auto"><span class="std std-ref">AutoInterface</span></a>. This interface also works over any kind of
+virtual networking adapter, such as <code class="docutils literal notranslate"><span class="pre">tun</span></code> and <code class="docutils literal notranslate"><span class="pre">tap</span></code> devices in Linux.</p>
+</section>
+<section id="serial-lines-devices">
+<h2>Serial Lines &amp; Devices<a class="headerlink" href="#serial-lines-devices" title="Permalink to this heading">#</a></h2>
+<p>Using Reticulum over any kind of raw serial line is also possible with the
+<a class="reference internal" href="interfaces.html#interfaces-serial"><span class="std std-ref">SerialInterface</span></a>. This interface type is also useful for
+using Reticulum over communications hardware that provides a serial port interface.</p>
+</section>
+<section id="packet-radio-modems">
+<h2>Packet Radio Modems<a class="headerlink" href="#packet-radio-modems" title="Permalink to this heading">#</a></h2>
+<p>Any packet radio modem that provides a standard KISS interface over USB, serial or TCP
+can be used with Reticulum. This includes virtual software modems such as
+<a class="reference external" href="https://github.com/xssfox/freedv-tnc">FreeDV TNC</a> and <a class="reference external" href="https://github.com/wb2osz/direwolf">Dire Wolf</a>.</p>
 </section>
 </section>
 
@@ -470,6 +488,7 @@ connectivity for client devices.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Communications Hardware</a><ul>
+<li><a class="reference internal" href="#combining-hardware-types">Combining Hardware Types</a></li>
 <li><a class="reference internal" href="#rnode">RNode</a><ul>
 <li><a class="reference internal" href="#creating-rnodes">Creating RNodes</a></li>
 <li><a class="reference internal" href="#supported-boards">Supported Boards</a><ul>
@@ -483,11 +502,12 @@ connectivity for client devices.</p>
 </li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#usage-with-reticulum">Usage with Reticulum</a></li>
-<li><a class="reference internal" href="#suppliers">Suppliers</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#wifi-based-hardware">WiFi-based Hardware</a></li>
-<li><a class="reference internal" href="#combining-hardware-types">Combining Hardware Types</a></li>
+<li><a class="reference internal" href="#ethernet-based-hardware">Ethernet-based Hardware</a></li>
+<li><a class="reference internal" href="#serial-lines-devices">Serial Lines &amp; Devices</a></li>
+<li><a class="reference internal" href="#packet-radio-modems">Packet Radio Modems</a></li>
 </ul>
 </li>
 </ul>
@@ -499,7 +519,7 @@ connectivity for client devices.</p>
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=6d0dd1f9"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=f24f4563"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/scripts/furo.js?v=2c7c1115"></script>
