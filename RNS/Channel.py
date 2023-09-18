@@ -530,8 +530,9 @@ class Channel(contextlib.AbstractContextManager):
     def _update_packet_timeouts(self):
         for envelope in self._tx_ring:
             updated_timeout = self._get_packet_timeout_time(envelope.tries)
-            if updated_timeout > envelope.packet.receipt.timeout:
-                envelope.packet.receipt.set_timeout(updated_timeout)
+            if envelope.packet and envelope.packet.receipt and envelope.packet.receipt.timeout:
+                if updated_timeout > envelope.packet.receipt.timeout:
+                    envelope.packet.receipt.set_timeout(updated_timeout)
 
     def _get_packet_timeout_time(self, tries: int) -> float:
         to = pow(1.5, tries - 1) * max(self._outlet.rtt*2.5, 0.025) * (len(self._tx_ring)+1.5)
