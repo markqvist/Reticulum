@@ -24,11 +24,20 @@ starting from scratch.
 This chapter will outline a few different sensible starting paths to get
 real-world functional wireless communications up and running with minimal cost
 and effort. Two fundamental devices categories will be covered, *RNodes* and
-*WiFi-based radios*.
+*WiFi-based radios*. Additionally, other common options will be briefly described.
 
-While there are many other device categories that are useful in building Reticulum
-networks, knowing how to employ just these two will make it possible to build
-a wide range of useful networks with little effort.
+Knowing how to employ just a few different types of hardware will make it possible
+to build a wide range of useful networks with little effort.
+
+Combining Hardware Types
+========================
+
+It is useful to combine different link and hardware types when designing and
+building a network. One useful design pattern is to employ high-capacity point-to-point
+links based on WiFi or millimeter-wave radios (with high-gain directional antennas)
+for the network backbone, and using LoRa-based RNodes for covering large areas with
+connectivity for client devices.
+
 
 .. _rnode-main:
 
@@ -190,13 +199,6 @@ such as serial port and on-air parameters. For v2.x firmwares, you just need to 
 the Connection ID of the RNode, and Reticulum will automatically locate and connect to the
 RNode, using the parameters stored in the RNode itself.
 
-.. _rnode-suppliers:
-
-Suppliers
-^^^^^^^^^
-Get in touch if you want to have your RNode supplier listed here, or if you want help to
-get started with producing RNodes.
-
 
 WiFi-based Hardware
 ===================
@@ -231,11 +233,31 @@ that is relatively cheap while providing long range and high capacity for Reticu
 networks. As in all other cases, it is also possible for Reticulum to co-exist with IP
 networks running concurrently on such devices.
 
-Combining Hardware Types
-========================
+Ethernet-based Hardware
+=======================
 
-It is useful to combine different link and hardware types when designing and
-building a network. One useful design pattern is to employ high-capacity point-to-point
-links based on WiFi or millimeter-wave radios (with high-gain directional antennas)
-for the network backbone, and using LoRa-based RNodes for covering large areas with
-connectivity for client devices.
+Reticulum can run over any kind of hardware that can provide a switched Ethernet-based
+medium. This means that anything from a plain Ethernet switch, to fiber-optic systems,
+to data radios with Ethernet interfaces can be used by Reticulum.
+
+The Ethernet medium does not need to have any IP infrastructure such as DHCP servers
+or routing set up, but in case such infrastructure does exist, Reticulum will simply
+co-exist with.
+
+To use Reticulum over Ethernet-based mediums, it is generally enough to use the included
+:ref:`AutoInterface<interfaces-auto>`. This interface also works over any kind of
+virtual networking adapter, such as ``tun`` and ``tap`` devices in Linux.
+
+Serial Lines & Devices
+======================
+
+Using Reticulum over any kind of raw serial line is also possible with the
+:ref:`SerialInterface<interfaces-serial>`. This interface type is also useful for
+using Reticulum over communications hardware that provides a serial port interface.
+
+Packet Radio Modems
+===================
+
+Any packet radio modem that provides a standard KISS interface over USB, serial or TCP
+can be used with Reticulum. This includes virtual software modems such as
+`FreeDV TNC <https://github.com/xssfox/freedv-tnc>`_ and `Dire Wolf <https://github.com/wb2osz/direwolf>`_.
