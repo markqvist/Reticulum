@@ -436,7 +436,7 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
         exit(0)
     elif request_status == "unknown":
         if not silent: print("\r                                                            \r", end="")
-        print("Fetch request failed due to an unknown error")
+        print("Fetch request failed due to an unknown error (probably not authorised)")
         link.teardown()
         time.sleep(1)
         exit(0)
@@ -652,7 +652,7 @@ def main():
         parser.add_argument('-q', '--quiet', action='count', default=0, help="decrease verbosity")
         parser.add_argument("-S", '--silent', action='store_true', default=False, help="disable transfer progress output")
         parser.add_argument("-l", '--listen', action='store_true', default=False, help="listen for incoming transfer requests")
-        parser.add_argument("-f", '--fetch', action='store_true', default=False, help="fetch file from remote listener")
+        parser.add_argument("-f", '--fetch', action='store_true', default=False, help="fetch file from remote listener instead of sending")
         parser.add_argument("-b", action='store', metavar="seconds", default=-1, help="announce interval, 0 to only announce at startup", type=int)
         parser.add_argument('-a', metavar="allowed_hash", dest="allowed", action='append', help="accept from this identity", type=str)
         parser.add_argument('-n', '--no-auth', action='store_true', default=False, help="accept files from anyone")

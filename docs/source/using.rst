@@ -418,16 +418,24 @@ files through Reticulum.
 
   # Run rncp on the receiving system, specifying which identities
   # are allowed to send files
-  rncp --receive -a 1726dbad538775b5bf9b0ea25a4079c8 -a c50cc4e4f7838b6c31f60ab9032cbc62
+  rncp --listen -a 1726dbad538775b5bf9b0ea25a4079c8 -a c50cc4e4f7838b6c31f60ab9032cbc62
+
+  # You can also specify allowed identity hashes (one per line)
+  # in the file ~/.rncp/allowed_identities and simply running
+  # the program in listener mode
+  rncp --listen
 
   # From another system, copy a file to the receiving system
   rncp ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
 
-You can specify as many allowed senders as needed, or complete disable authentication.
+  # Or fetch a file from the remote system
+  rncp --fetch ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
+
+You can specify as many allowed senders as needed, or completely disable authentication.
 
 .. code:: text
 
-  usage: rncp [-h] [--config path] [-v] [-q] [-p] [-r] [-b] [-a allowed_hash] [-n] [-w seconds] [--version] [file] [destination]
+  usage: rncp.py [-h] [--config path] [-v] [-q] [-S] [-l] [-f] [-b seconds] [-a allowed_hash] [-n] [-p] [-w seconds] [--version] [file] [destination]
 
   Reticulum File Transfer Utility
 
@@ -435,19 +443,20 @@ You can specify as many allowed senders as needed, or complete disable authentic
     file                  file to be transferred
     destination           hexadecimal hash of the receiver
 
-  optional arguments:
+  options:
     -h, --help            show this help message and exit
     --config path         path to alternative Reticulum config directory
     -v, --verbose         increase verbosity
     -q, --quiet           decrease verbosity
-    -p, --print-identity  print identity and destination info and exit
-    -r, --receive         wait for incoming files
-    -b, --no-announce     don't announce at program start
+    -S, --silent          disable transfer progress output
+    -l, --listen          listen for incoming transfer requests
+    -f, --fetch           fetch file from remote listener instead of sending
+    -b seconds            announce interval, 0 to only announce at startup
     -a allowed_hash       accept from this identity
-    -n, --no-auth         accept files from anyone
+    -n, --no-auth         accept files and fetches from anyone
+    -p, --print-identity  print identity and destination info and exit
     -w seconds            sender timeout before giving up
     --version             show program's version number and exit
-    -v, --verbose
 
 
 The rnx Utility
