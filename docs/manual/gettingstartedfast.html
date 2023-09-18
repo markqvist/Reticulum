@@ -277,7 +277,8 @@ radio interfaces can then be added later.</p>
 <h3>Remote Shell<a class="headerlink" href="#remote-shell" title="Permalink to this heading">#</a></h3>
 <p>The <a class="reference external" href="https://github.com/acehoss/rnsh">rnsh</a> program lets you establish fully interactive
 remote shell sessions over Reticulum. It also allows you to pipe any program to or from a
-remote system, and is similar to how <code class="docutils literal notranslate"><span class="pre">ssh</span></code> works.</p>
+remote system, and is similar to how <code class="docutils literal notranslate"><span class="pre">ssh</span></code> works. The <code class="docutils literal notranslate"><span class="pre">rnsh</span></code> is very efficient, and
+can facilitate fully interactive shell sessions, even over extremely low-bandwidth links.</p>
 </section>
 <section id="nomad-network">
 <h3>Nomad Network<a class="headerlink" href="#nomad-network" title="Permalink to this heading">#</a></h3>
@@ -426,7 +427,7 @@ digital radio transceiver, that integrates easily with Reticulum.</p>
 <p>To build one yourself requires installing a custom firmware on a supported LoRa
 development board with an auto-install script. Please see the <a class="reference internal" href="hardware.html#hardware-main"><span class="std std-ref">Communications Hardware</span></a>
 chapter for a guide. If you prefer purchasing a ready-made unit, you can refer to the
-<a class="reference internal" href="hardware.html#rnode-suppliers"><span class="std std-ref">list of suppliers</span></a>. For more information on RNode, you can also
+<span class="xref std std-ref">list of suppliers</span>. For more information on RNode, you can also
 refer to these additional external resources:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://unsigned.io/how-to-make-your-own-rnodes/">How To Make Your Own RNodes</a></p></li>
@@ -443,14 +444,14 @@ and propose adding an interface for the hardware.</p>
 <h2>Develop a Program with Reticulum<a class="headerlink" href="#develop-a-program-with-reticulum" title="Permalink to this heading">#</a></h2>
 <p>If you want to develop programs that use Reticulum, the easiest way to get
 started is to install the latest release of Reticulum via pip:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">rns</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
 </pre></div>
 </div>
 <p>The above command will install Reticulum and dependencies, and you will be
 ready to import and use RNS in your own programs. The next step will most
 likely be to look at some <a class="reference internal" href="examples.html#examples-main"><span class="std std-ref">Example Programs</span></a>.</p>
 <p>For extended functionality, you can install optional dependencies:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">pyserial</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pyserial</span>
 </pre></div>
 </div>
 <p>Further information can be found in the <a class="reference internal" href="reference.html#api-main"><span class="std std-ref">API Reference</span></a>.</p>
@@ -461,7 +462,7 @@ likely be to look at some <a class="reference internal" href="examples.html#exam
 utilities, you’ll want to get the latest source from GitHub. In that case,
 don’t use pip, but try this recipe:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
-<span class="n">pip3</span> <span class="n">install</span> <span class="n">cryptography</span> <span class="n">pyserial</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">cryptography</span> <span class="n">pyserial</span>
 
 <span class="c1"># Clone repository</span>
 <span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">markqvist</span><span class="o">/</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">git</span>
@@ -471,25 +472,25 @@ don’t use pip, but try this recipe:</p>
 <span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="o">../</span><span class="n">RNS</span> <span class="o">./</span><span class="n">Examples</span><span class="o">/</span>
 
 <span class="c1"># Run an example</span>
-<span class="n">python3</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">s</span>
+<span class="n">python</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">s</span>
 
 <span class="c1"># Unless you&#39;ve manually created a config file, Reticulum will do so now,</span>
 <span class="c1"># and immediately exit. Make any necessary changes to the file:</span>
 <span class="n">nano</span> <span class="o">~/.</span><span class="n">reticulum</span><span class="o">/</span><span class="n">config</span>
 
 <span class="c1"># ... and launch the example again.</span>
-<span class="n">python3</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">s</span>
+<span class="n">python</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">s</span>
 
 <span class="c1"># You can now repeat the process on another computer,</span>
 <span class="c1"># and run the same example with -h to get command line options.</span>
-<span class="n">python3</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">h</span>
+<span class="n">python</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">h</span>
 
 <span class="c1"># Run the example in client mode to &quot;ping&quot; the server.</span>
 <span class="c1"># Replace the hash below with the actual destination hash of your server.</span>
-<span class="n">python3</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="mi">174</span><span class="n">a64852a75682259ad8b921b8bf416</span>
+<span class="n">python</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="mi">174</span><span class="n">a64852a75682259ad8b921b8bf416</span>
 
 <span class="c1"># Have a look at another example</span>
-<span class="n">python3</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Filetransfer</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">h</span>
+<span class="n">python</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Filetransfer</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">h</span>
 </pre></div>
 </div>
 <p>When you have experimented with the basic examples, it’s time to go read the
@@ -586,11 +587,11 @@ detailed in this manual.</p>
 </section>
 <section id="debian-bookworm">
 <h3>Debian Bookworm<a class="headerlink" href="#debian-bookworm" title="Permalink to this heading">#</a></h3>
-<p>On versions of Debian released after April 2023, it is no longer possible
+<p>On versions of Debian released after April 2023, it is no longer possible by default
 to use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install packages onto your system. Unfortunately, you will need to
 use the replacement <code class="docutils literal notranslate"><span class="pre">pipx</span></code> command instead, which places installed packages in an
-isolated environment. This should not negatively affect Reticulum, but installation
-via this method is not fully tested yet.</p>
+isolated environment. This should not negatively affect Reticulum, but will not work
+for including and using Reticulum in your own scripts and programs.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pipx</span>
 <span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">pipx</span>
 
@@ -601,14 +602,25 @@ via this method is not fully tested yet.</p>
 <span class="n">pipx</span> <span class="n">install</span> <span class="n">rns</span>
 </pre></div>
 </div>
+<p>Alternatively, you can restore normal behaviour to <code class="docutils literal notranslate"><span class="pre">pip</span></code> by creating or editing
+the configuration file located at <code class="docutils literal notranslate"><span class="pre">~/.config/pip/pip.conf</span></code>, and adding the
+following section:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[global]
+break-system-packages = true
+</pre></div>
+</div>
+<p>Please note that the “break-system-packages” directive is a somewhat misleading choice
+of words. Setting it will of course not break any system packages, but will simply
+allow installing <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages user- and system-wide. While this <em>could</em> in rare
+cases lead to version conflicts, it does not generally pose any problems.</p>
 </section>
 <section id="ubuntu-lunar">
 <h3>Ubuntu Lunar<a class="headerlink" href="#ubuntu-lunar" title="Permalink to this heading">#</a></h3>
-<p>On versions of Ubuntu released after April 2023, it is no longer possible
+<p>On versions of Ubuntu released after April 2023, it is no longer possible by default
 to use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install packages onto your system. Unfortunately, you will need to
 use the replacement <code class="docutils literal notranslate"><span class="pre">pipx</span></code> command instead, which places installed packages in an
-isolated environment. This should not negatively affect Reticulum, but installation
-via this method is not fully tested yet.</p>
+isolated environment. This should not negatively affect Reticulum, but will not work
+for including and using Reticulum in your own scripts and programs.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pipx</span>
 <span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">pipx</span>
 
@@ -619,14 +631,23 @@ via this method is not fully tested yet.</p>
 <span class="n">pipx</span> <span class="n">install</span> <span class="n">rns</span>
 </pre></div>
 </div>
+<p>Alternatively, you can restore normal behaviour to <code class="docutils literal notranslate"><span class="pre">pip</span></code> by creating or editing
+the configuration file located at <code class="docutils literal notranslate"><span class="pre">~/.config/pip/pip.conf</span></code>, and adding the
+following section:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[global]
+break-system-packages = true
+</pre></div>
+</div>
+<p>Please note that the “break-system-packages” directive is a somewhat misleading choice
+of words. Setting it will of course not break any system packages, but will simply
+allow installing <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages user- and system-wide. While this _could_ in rare
+cases lead to version conflicts, it does not generally pose any problems.</p>
 </section>
 </section>
 <section id="pure-python-reticulum">
 <h2>Pure-Python Reticulum<a class="headerlink" href="#pure-python-reticulum" title="Permalink to this heading">#</a></h2>
 <p>In some rare cases, and on more obscure system types, it is not possible to
-install one or more dependencies</p>
-<p>On more unusual systems, and in some rare cases, it might not be possible to
-install or even compile one or more of the above modules. In such situations,
+install one or more dependencies. In such situations,
 you can use the <code class="docutils literal notranslate"><span class="pre">rnspure</span></code> package instead of the <code class="docutils literal notranslate"><span class="pre">rns</span></code> package, or use <code class="docutils literal notranslate"><span class="pre">pip</span></code>
 with the <code class="docutils literal notranslate"><span class="pre">--no-dependencies</span></code> command-line option. The <code class="docutils literal notranslate"><span class="pre">rnspure</span></code>
 package requires no external dependencies for installation. Please note that the

@@ -70,7 +70,8 @@ Remote Shell
 
 The `rnsh <https://github.com/acehoss/rnsh>`_ program lets you establish fully interactive
 remote shell sessions over Reticulum. It also allows you to pipe any program to or from a
-remote system, and is similar to how ``ssh`` works.
+remote system, and is similar to how ``ssh`` works. The ``rnsh`` is very efficient, and
+can facilitate fully interactive shell sessions, even over extremely low-bandwidth links.
 
 Nomad Network
 ^^^^^^^^^^^^^
@@ -281,7 +282,7 @@ started is to install the latest release of Reticulum via pip:
 
 .. code::
 
-   pip3 install rns
+   pip install rns
 
 The above command will install Reticulum and dependencies, and you will be
 ready to import and use RNS in your own programs. The next step will most
@@ -291,7 +292,7 @@ For extended functionality, you can install optional dependencies:
 
 .. code::
 
-   pip3 install pyserial
+   pip install pyserial
 
 
 Further information can be found in the :ref:`API Reference<api-main>`.
@@ -306,7 +307,7 @@ don't use pip, but try this recipe:
 .. code::
 
     # Install dependencies
-    pip3 install cryptography pyserial
+    pip install cryptography pyserial
 
     # Clone repository
     git clone https://github.com/markqvist/Reticulum.git
@@ -316,25 +317,25 @@ don't use pip, but try this recipe:
     ln -s ../RNS ./Examples/
 
     # Run an example
-    python3 Examples/Echo.py -s
+    python Examples/Echo.py -s
 
     # Unless you've manually created a config file, Reticulum will do so now,
     # and immediately exit. Make any necessary changes to the file:
     nano ~/.reticulum/config
 
     # ... and launch the example again.
-    python3 Examples/Echo.py -s
+    python Examples/Echo.py -s
 
     # You can now repeat the process on another computer,
     # and run the same example with -h to get command line options.
-    python3 Examples/Echo.py -h
+    python Examples/Echo.py -h
 
     # Run the example in client mode to "ping" the server.
     # Replace the hash below with the actual destination hash of your server.
-    python3 Examples/Echo.py 174a64852a75682259ad8b921b8bf416
+    python Examples/Echo.py 174a64852a75682259ad8b921b8bf416
 
     # Have a look at another example
-    python3 Examples/Filetransfer.py -h
+    python Examples/Filetransfer.py -h
 
 When you have experimented with the basic examples, it's time to go read the
 :ref:`Understanding Reticulum<understanding-main>` chapter. Before submitting
@@ -446,11 +447,11 @@ detailed in this manual.
 
 Debian Bookworm
 ^^^^^^^^^^^^^^^^^^^^^^^^
-On versions of Debian released after April 2023, it is no longer possible
+On versions of Debian released after April 2023, it is no longer possible by default
 to use ``pip`` to install packages onto your system. Unfortunately, you will need to
 use the replacement ``pipx`` command instead, which places installed packages in an
-isolated environment. This should not negatively affect Reticulum, but installation
-via this method is not fully tested yet.
+isolated environment. This should not negatively affect Reticulum, but will not work
+for including and using Reticulum in your own scripts and programs.
 
 .. code::
 
@@ -462,15 +463,29 @@ via this method is not fully tested yet.
 
     # Install Reticulum
     pipx install rns
+
+Alternatively, you can restore normal behaviour to ``pip`` by creating or editing
+the configuration file located at ``~/.config/pip/pip.conf``, and adding the
+following section:
+
+.. code:: text
+
+    [global]
+    break-system-packages = true
+
+Please note that the "break-system-packages" directive is a somewhat misleading choice
+of words. Setting it will of course not break any system packages, but will simply
+allow installing ``pip`` packages user- and system-wide. While this *could* in rare
+cases lead to version conflicts, it does not generally pose any problems.
 
 
 Ubuntu Lunar
 ^^^^^^^^^^^^^^^^^^^^^^^^
-On versions of Ubuntu released after April 2023, it is no longer possible
+On versions of Ubuntu released after April 2023, it is no longer possible by default
 to use ``pip`` to install packages onto your system. Unfortunately, you will need to
 use the replacement ``pipx`` command instead, which places installed packages in an
-isolated environment. This should not negatively affect Reticulum, but installation
-via this method is not fully tested yet.
+isolated environment. This should not negatively affect Reticulum, but will not work
+for including and using Reticulum in your own scripts and programs.
 
 .. code::
 
@@ -483,14 +498,24 @@ via this method is not fully tested yet.
     # Install Reticulum
     pipx install rns
 
+Alternatively, you can restore normal behaviour to ``pip`` by creating or editing
+the configuration file located at ``~/.config/pip/pip.conf``, and adding the
+following section:
+
+.. code:: text
+
+    [global]
+    break-system-packages = true
+
+Please note that the "break-system-packages" directive is a somewhat misleading choice
+of words. Setting it will of course not break any system packages, but will simply
+allow installing ``pip`` packages user- and system-wide. While this _could_ in rare
+cases lead to version conflicts, it does not generally pose any problems.
 
 Pure-Python Reticulum
 ==============================================
 In some rare cases, and on more obscure system types, it is not possible to
-install one or more dependencies
-
-On more unusual systems, and in some rare cases, it might not be possible to
-install or even compile one or more of the above modules. In such situations,
+install one or more dependencies. In such situations,
 you can use the ``rnspure`` package instead of the ``rns`` package, or use ``pip``
 with the ``--no-dependencies`` command-line option. The ``rnspure``
 package requires no external dependencies for installation. Please note that the

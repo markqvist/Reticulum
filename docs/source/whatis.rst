@@ -21,15 +21,15 @@ networks, without any need for hierarchical or beaureucratic structures to contr
 or manage them, while ensuring individuals and communities full sovereignty
 over their own network segments.
 
-Reticulum is a complete networking stack, and does not need IP or higher
+Reticulum is a **complete networking stack**, and does not need IP or higher
 layers, although it is easy to utilise IP (with TCP or UDP) as the underlying
 carrier for Reticulum. It is therefore trivial to tunnel Reticulum over the
 Internet or private IP networks. Reticulum is built directly on cryptographic
 principles, allowing resilience and stable functionality in open and trustless
 networks.
 
-No kernel modules or drivers are required. Reticulum runs completely in
-userland, and can run on practically any system that runs Python 3. Reticulum
+No kernel modules or drivers are required. Reticulum can run completely in
+userland, and will run on practically any system that runs Python 3. Reticulum
 runs well even on small single-board computers like the Pi Zero.
 
 
@@ -38,7 +38,7 @@ Current Status
 **Please know!** Reticulum should currently be considered beta software. All core protocol
 features are implemented and functioning, but additions will probably occur as
 real-world use is explored. *There will be bugs*. The API and wire-format can be
-considered stable at the moment, but could change if absolutely warranted.
+considered complete and stable at the moment, but could change if absolutely warranted.
 
 
 What does Reticulum Offer?
@@ -71,7 +71,7 @@ What does Reticulum Offer?
 
 * Efficient link establishment
 
-  * Total bandwidth cost of setting up a link is only 3 packets, totalling 297 bytes
+  * Total cost of setting up an encrypted and verified link is only 3 packets, totalling 297 bytes
 
   * Low cost of keeping links open at only 0.44 bits per second
 
