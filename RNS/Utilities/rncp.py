@@ -24,6 +24,7 @@
 
 import RNS
 import argparse
+import threading
 import time
 import sys
 import os
@@ -34,9 +35,11 @@ APP_NAME = "rncp"
 allow_all = False
 allowed_identity_hashes = []
 
-def receive(configdir, verbosity = 0, quietness = 0, allowed = [], display_identity = False, limit = None, disable_auth = None, disable_announce = False):
+def receive(configdir, verbosity = 0, quietness = 0, allowed = [], display_identity = False, limit = None, disable_auth = None, announce = False):
     global allow_all, allowed_identity_hashes
     identity = None
+    if announce < 0:
+        announce = False
 
     targetloglevel = 3+verbosity-quietness
     reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
@@ -111,10 +114,17 @@ def receive(configdir, verbosity = 0, quietness = 0, allowed = [], display_ident
         print("Warning: No allowed identities configured, rncp will not accept any files!")
 
     destination.set_link_established_callback(receive_link_established)
-    print("rncp ready to receive on "+RNS.prettyhexrep(destination.hash))
+    print("rncp listening on "+RNS.prettyhexrep(destination.hash))
 
-    if not disable_announce:
-        destination.announce()
+    if announce >= 0:
+        def job():
+            destination.announce()
+            if announce > 0:
+                while True:
+                    time.sleep(announce)
+                    destination.announce()
+
+        threading.Thread(target=job, daemon=True).start()
     
     while True:
         time.sleep(1)
@@ -213,7 +223,7 @@ def sender_progress(resource):
         resource_done = True
 
 link = None
-def send(configdir, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT):
+def send(configdir, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, silent=False):
     global current_resource, resource_done, link, speed
     from tempfile import TemporaryFile
     targetloglevel = 3+verbosity-quietness
@@ -272,23 +282,33 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
 
     if not RNS.Transport.has_path(destination_hash):
         RNS.Transport.request_path(destination_hash)
-        print("Path to "+RNS.prettyhexrep(destination_hash)+" requested  ", end=" ")
+        if silent:
+            print("Path to "+RNS.prettyhexrep(destination_hash)+" requested")
+        else:
+            print("Path to "+RNS.prettyhexrep(destination_hash)+" requested  ", end=" ")
         sys.stdout.flush()
 
     i = 0
     syms = "⢄⢂⢁⡁⡈⡐⡠"
     estab_timeout = time.time()+timeout
     while not RNS.Transport.has_path(destination_hash) and time.time() < estab_timeout:
-        time.sleep(0.1)
-        print(("\b\b"+syms[i]+" "), end="")
-        sys.stdout.flush()
-        i = (i+1)%len(syms)
+        if not silent:
+            time.sleep(0.1)
+            print(("\b\b"+syms[i]+" "), end="")
+            sys.stdout.flush()
+            i = (i+1)%len(syms)
 
     if not RNS.Transport.has_path(destination_hash):
-        print("\r                                                            \rPath not found")
+        if silent:
+            print("Path not found")
+        else:
+            print("\r                                                            \rPath not found")
         exit(1)
     else:
-        print("\r                                                            \rEstablishing link with "+RNS.prettyhexrep(destination_hash)+" ", end=" ")
+        if silent:
+            print("Establishing link with "+RNS.prettyhexrep(destination_hash))
+        else:
+            print("\r                                                            \rEstablishing link with "+RNS.prettyhexrep(destination_hash)+" ", end=" ")
 
     receiver_identity = RNS.Identity.recall(destination_hash)
     receiver_destination = RNS.Destination(
@@ -301,48 +321,69 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
 
     link = RNS.Link(receiver_destination)
     while link.status != RNS.Link.ACTIVE and time.time() < estab_timeout:
-        time.sleep(0.1)
-        print(("\b\b"+syms[i]+" "), end="")
-        sys.stdout.flush()
-        i = (i+1)%len(syms)
+        if not silent:
+            time.sleep(0.1)
+            print(("\b\b"+syms[i]+" "), end="")
+            sys.stdout.flush()
+            i = (i+1)%len(syms)
 
     if not RNS.Transport.has_path(destination_hash):
-        print("\r                                                            \rCould not establish link with "+RNS.prettyhexrep(destination_hash))
+        if silent:
+            print("Could not establish link with "+RNS.prettyhexrep(destination_hash))
+        else:
+            print("\r                                                            \rCould not establish link with "+RNS.prettyhexrep(destination_hash))
         exit(1)
     else:
-        print("\r                                                            \rAdvertising file resource  ", end=" ")
+        if silent:
+            print("Advertising file resource...")
+        else:
+            print("\r                                                            \rAdvertising file resource  ", end=" ")
 
     link.identify(identity)
     resource = RNS.Resource(temp_file, link, callback = sender_progress, progress_callback = sender_progress)
     current_resource = resource
 
     while resource.status < RNS.Resource.TRANSFERRING:
-        time.sleep(0.1)
-        print(("\b\b"+syms[i]+" "), end="")
-        sys.stdout.flush()
-        i = (i+1)%len(syms)
+        if not silent:
+            time.sleep(0.1)
+            print(("\b\b"+syms[i]+" "), end="")
+            sys.stdout.flush()
+            i = (i+1)%len(syms)
 
     
     if resource.status > RNS.Resource.COMPLETE:
-        print("\r                                                            \rFile was not accepted by "+RNS.prettyhexrep(destination_hash))
+        if silent:
+            print("File was not accepted by "+RNS.prettyhexrep(destination_hash))
+        else:
+            print("\r                                                            \rFile was not accepted by "+RNS.prettyhexrep(destination_hash))
         exit(1)
     else:
-        print("\r                                                            \rTransferring file  ", end=" ")
+        if silent:
+            print("Transferring file...")
+        else:
+            print("\r                                                            \rTransferring file  ", end=" ")
 
     while not resource_done:
-        time.sleep(0.1)
-        prg = current_resource.get_progress()
-        percent = round(prg * 100.0, 1)
-        stat_str = str(percent)+"% - " + size_str(int(prg*current_resource.total_size)) + " of " + size_str(current_resource.total_size) + " - " +size_str(speed, "b")+"ps"
-        print("\r                                                                                  \rTransferring file "+syms[i]+" "+stat_str, end=" ")
-        sys.stdout.flush()
-        i = (i+1)%len(syms)
+        if not silent:
+            time.sleep(0.1)
+            prg = current_resource.get_progress()
+            percent = round(prg * 100.0, 1)
+            stat_str = str(percent)+"% - " + size_str(int(prg*current_resource.total_size)) + " of " + size_str(current_resource.total_size) + " - " +size_str(speed, "b")+"ps"
+            print("\r                                                                                  \rTransferring file "+syms[i]+" "+stat_str, end=" ")
+            sys.stdout.flush()
+            i = (i+1)%len(syms)
 
     if current_resource.status != RNS.Resource.COMPLETE:
-        print("\r                                                            \rThe transfer failed")
+        if silent:
+            print("The transfer failed")
+        else:
+            print("\r                                                            \rThe transfer failed")
         exit(1)
     else:
-        print("\r                                                                                  \r"+str(file_path)+" copied to "+RNS.prettyhexrep(destination_hash))
+        if silent:
+            print(str(file_path)+" copied to "+RNS.prettyhexrep(destination_hash))
+        else:
+            print("\r                                                                                  \r"+str(file_path)+" copied to "+RNS.prettyhexrep(destination_hash))
         link.teardown()
         time.sleep(0.25)
         real_file.close()
@@ -357,18 +398,21 @@ def main():
         parser.add_argument("--config", metavar="path", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
         parser.add_argument('-v', '--verbose', action='count', default=0, help="increase verbosity")
         parser.add_argument('-q', '--quiet', action='count', default=0, help="decrease verbosity")
+        parser.add_argument("-S", '--silent', action='store_true', default=False, help="disable transfer progress output")
         parser.add_argument('-p', '--print-identity', action='store_true', default=False, help="print identity and destination info and exit")
-        parser.add_argument("-r", '--receive', action='store_true', default=False, help="wait for incoming files")
-        parser.add_argument("-b", '--no-announce', action='store_true', default=False, help="don't announce at program start")
+        parser.add_argument("-l", '--listen', action='store_true', default=False, help="listen for incoming transfer requests")
+        #parser.add_argument("-f", '--fetch', action='store_true', default=False, help="fetch file from remote listener")
+        parser.add_argument("-b", action='store', metavar="seconds", default=-1, help="announce interval, 0 to only announce at startup", type=int)
         parser.add_argument('-a', metavar="allowed_hash", dest="allowed", action='append', help="accept from this identity", type=str)
         parser.add_argument('-n', '--no-auth', action='store_true', default=False, help="accept files from anyone")
+        parser.add_argument('-p', '--print-identity', action='store_true', default=False, help="print identity and destination info and exit")
         parser.add_argument("-w", action="store", metavar="seconds", type=float, help="sender timeout before giving up", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
         # parser.add_argument("--limit", action="store", metavar="files", type=float, help="maximum number of files to accept", default=None)
         parser.add_argument("--version", action="version", version="rncp {version}".format(version=__version__))
         
         args = parser.parse_args()
 
-        if args.receive or args.print_identity:
+        if args.listen or args.print_identity:
             receive(
                 configdir = args.config,
                 verbosity=args.verbose,
@@ -377,7 +421,7 @@ def main():
                 display_identity=args.print_identity,
                 # limit=args.limit,
                 disable_auth=args.no_auth,
-                disable_announce=args.no_announce,
+                announce=args.b,
             )
 
         elif args.destination != None and args.file != None:
@@ -388,6 +432,7 @@ def main():
                 destination = args.destination,
                 file = args.file,
                 timeout = args.w,
+                silent = args.silent,
             )
 
         else:
