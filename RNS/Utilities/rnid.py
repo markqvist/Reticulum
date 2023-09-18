@@ -166,8 +166,8 @@ def main():
                                 RNS.log("Identity request timed out", RNS.LOG_ERROR)
                                 exit(6)
                             else:
-                                RNS.log("Received Identity "+str(identity)+" for destination "+RNS.prettyhexrep(destination_hash)+" from the network")
                                 identity = RNS.Identity.recall(destination_hash)
+                                RNS.log("Received Identity "+str(identity)+" for destination "+RNS.prettyhexrep(destination_hash)+" from the network")
 
                     else:
                         RNS.log("Recalled Identity "+str(identity)+" for destination "+RNS.prettyhexrep(destination_hash))
