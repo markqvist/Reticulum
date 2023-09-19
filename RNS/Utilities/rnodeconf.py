@@ -41,7 +41,7 @@ import RNS
 RNS.logtimefmt      = "%H:%M:%S"
 RNS.compact_log_fmt = True
 
-program_version = "2.1.2"
+program_version = "2.1.3"
 eth_addr = "0x81F7B979fEa6134bA9FD5c701b3501A2e61E897a"
 btc_addr = "3CPmacGm34qYvR6XWLVEJmi2aNe3PZqUuq"
 xmr_addr = "87HcDx6jRSkMQ9nPRd5K9hGGpZLn2s7vWETjMaVM5KfV4TD36NcYa8J8WSxhTSvBzzFpqDwp2fg5GX2moZ7VAP9QMZCZGET"
@@ -80,6 +80,7 @@ class KISS():
     CMD_BLINK       = 0x30
     CMD_RANDOM      = 0x40
     CMD_DISP_INT    = 0x45
+    CMD_DISP_ADR    = 0x63
     CMD_BT_CTRL     = 0x46
     CMD_BT_PIN      = 0x62
     CMD_BOARD       = 0x47
@@ -577,7 +578,14 @@ class RNode():
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_DISP_INT])+data+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while sending bluetooth enable command to device")
+            raise IOError("An IO error occurred while sending display intensity command to device")
+
+    def set_display_address(self, address):
+        data = bytes([address & 0xFF])
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_DISP_ADR])+data+bytes([KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending display address command to device")
 
     def enable_bluetooth(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_BT_CTRL, 0x01, KISS.FEND])
@@ -1144,6 +1152,7 @@ def main():
         parser.add_argument("-p", "--bluetooth-pair", action="store_true", help="Put device into bluetooth pairing mode")
 
         parser.add_argument("-D", "--display", action="store", metavar="i", type=int, default=None, help="Set display intensity (0-255)")
+        parser.add_argument("--display-addr", action="store", metavar="byte", type=str, default=None, help="Set display address as hex byte (00 - FF)")
 
         parser.add_argument("--freq", action="store", metavar="Hz", type=int, default=None, help="Frequency in Hz for TNC mode")
         parser.add_argument("--bw", action="store", metavar="Hz", type=int, default=None, help="Bandwidth in Hz for TNC mode")
@@ -2703,6 +2712,24 @@ def main():
                     di = 255
                 RNS.log("Setting display intensity to "+str(di))
                 rnode.set_display_intensity(di)
+
+            if isinstance(args.display_addr, str):
+                set_addr = False
+                try:
+                    if args.display_addr.startswith("0x"):
+                        args.display_addr = args.display_addr[2:]
+                    da = bytes.fromhex(args.display_addr)
+                    set_addr = True
+                except Exception as e:
+                    pass
+
+                if set_addr and len(da) == 1:
+                    RNS.log("Setting display address to "+RNS.hexrep(da, delimit=False))
+                    rnode.set_display_address(ord(da))
+                    rnode.hard_reset()
+                    exit()
+                else:
+                    RNS.log("Invalid display address specified")
 
             if args.bluetooth_on:
                 RNS.log("Enabling Bluetooth...")
