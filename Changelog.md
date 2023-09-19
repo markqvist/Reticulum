@@ -1,3 +1,27 @@
+### 2023-09-19: RNS β 0.5.9
+
+This release brings major efficiency improvements to `Channel` and `Buffer` classes, adds a range of usability improvements to the included utilities and fixes a number of bugs.
+
+**Changes**
+- Improved Channel sequencing, retries and transfer efficiency
+- Added adaptive compression to `Buffer` class
+- Added `rnid` examples and documentation to manual
+- Added silent mode to `rncp`
+- Added remote fetch mode to `rncp`
+- Added allowed_identities file support to `rncp`
+- Added Transport Instance uptime to `rnstatus` output
+- Added channel CSMA parameter stats to RNode Interface `rnstatus` output
+- Fixed inadverdent AutoInterface multi-IF deque hit for resource transfer retries
+- Fixed invalid path for firmware hash generation while using extracted firmware to autoinstall in `rnodeconf`
+- Fixed various minor missing error checks
+- Fixed `rnid` status output bug
+
+**Release Hashes**
+```
+670bf8aec55a424001aa9ffc97648edf3db80c85b545aa372ab221fc3db26f1f rns-0.5.9-py3-none-any.whl
+7a9ef70b3843dff886bd8d8dcbc7ba4a34f4278d789ceef0b704397d6b6af1f6 rnspure-0.5.9-py3-none-any.whl
+```
+
 ### 2023-09-14: RNS β 0.5.8
 
 This maintenance release contains a number of usability improvements to Reticulum and related tools.
