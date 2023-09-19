@@ -105,6 +105,11 @@ class AutoInterface(Interface):
         self.peering_timeout   = AutoInterface.PEERING_TIMEOUT
         self.multicast_echo_timeout = AutoInterface.PEERING_TIMEOUT/2
 
+        # Increase peering timeout on Android, due to potential
+        # low-power modes implemented on many chipsets.
+        if RNS.vendor.platformutils.is_android():
+            self.peering_timeout *= 3
+
         if allowed_interfaces == None:
             self.allowed_interfaces = []
         else:
