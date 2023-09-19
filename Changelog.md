@@ -3,7 +3,7 @@
 This release brings major efficiency improvements to `Channel` and `Buffer` classes, adds a range of usability improvements to the included utilities and fixes a number of bugs.
 
 **Changes**
-- Improved Channel sequencing, retries and transfer efficiency
+- Improved `Channel` sequencing, retries and transfer efficiency
 - Added adaptive compression to `Buffer` class
 - Added `rnid` examples and documentation to manual
 - Added silent mode to `rncp`
@@ -11,6 +11,8 @@ This release brings major efficiency improvements to `Channel` and `Buffer` clas
 - Added allowed_identities file support to `rncp`
 - Added Transport Instance uptime to `rnstatus` output
 - Added channel CSMA parameter stats to RNode Interface `rnstatus` output
+
+**Bugfixes**
 - Fixed inadverdent AutoInterface multi-IF deque hit for resource transfer retries
 - Fixed invalid path for firmware hash generation while using extracted firmware to autoinstall in `rnodeconf`
 - Fixed various minor missing error checks
