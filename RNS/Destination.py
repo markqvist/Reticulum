@@ -181,6 +181,9 @@ class Destination:
         """
         if self.type != Destination.SINGLE:
             raise TypeError("Only SINGLE destination types can be announced")
+
+        if self.direction != Destination.IN:
+            raise TypeError("Only IN destination types can be announced")
         
         now = time.time()
         stale_responses = []
