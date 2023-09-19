@@ -1806,8 +1806,7 @@ class Transport:
                 file.close()
 
             except Exception as e:
-                RNS.log("Error writing packet to cache", RNS.LOG_ERROR)
-                RNS.log("The contained exception was: "+str(e))
+                RNS.log("Error writing packet to cache. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     @staticmethod
     def get_cached_packet(packet_hash):
