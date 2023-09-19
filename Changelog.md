@@ -11,6 +11,7 @@ This release brings major efficiency improvements to `Channel` and `Buffer` clas
 - Added allowed_identities file support to `rncp`
 - Added Transport Instance uptime to `rnstatus` output
 - Added channel CSMA parameter stats to RNode Interface `rnstatus` output
+- Added ability to set custom RNode OLED display address with rnodeconf
 
 **Bugfixes**
 - Fixed inadverdent AutoInterface multi-IF deque hit for resource transfer retries
@@ -20,8 +21,8 @@ This release brings major efficiency improvements to `Channel` and `Buffer` clas
 
 **Release Hashes**
 ```
-670bf8aec55a424001aa9ffc97648edf3db80c85b545aa372ab221fc3db26f1f rns-0.5.9-py3-none-any.whl
-7a9ef70b3843dff886bd8d8dcbc7ba4a34f4278d789ceef0b704397d6b6af1f6 rnspure-0.5.9-py3-none-any.whl
+207ab20bd68bab16b417fbd41a4ecdbcf1e2f6fa553d48df6c8fc181b6e84dac rns-0.5.9-py3-none-any.whl
+93f0965567dfc2c43f3d703481fe1a7d7b1b8d0b3837ad41c37f28a8af5c1acc rnspure-0.5.9-py3-none-any.whl
 ```
 
 ### 2023-09-14: RNS β 0.5.8
