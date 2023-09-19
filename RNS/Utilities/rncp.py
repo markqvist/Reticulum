@@ -58,7 +58,7 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
 
     if display_identity:
         print("Identity     : "+str(identity))
-        print("Receiving on : "+RNS.prettyhexrep(destination.hash))
+        print("Listening on : "+RNS.prettyhexrep(destination.hash))
         exit(0)
 
     if disable_auth:
