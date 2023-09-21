@@ -430,12 +430,41 @@ class Transport:
                                 if link_entry[6] in Transport.path_requests:
                                     last_path_request = Transport.path_requests[link_entry[6]]
 
+                                lr_taken_hops = link_entry[5]
+
+                                path_request_throttle = time.time() - last_path_request < Transport.PATH_REQUEST_MI
+                                path_request_conditions = False
+                                
+                                # If the path has been invalidated between the time of
+                                # making the link request and now, try to rediscover it
+                                if not Transport.has_path(link_entry[6]):
+                                    RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[6])+" since an attempted link was never established, and path is now missing", RNS.LOG_DEBUG)
+                                    path_request_conditions =True
+
                                 # If this link request was originated from a local client
                                 # attempt to rediscover a path to the destination, if this
                                 # has not already happened recently.
-                                lr_taken_hops = link_entry[5]
-                                if lr_taken_hops == 0 and time.time() - last_path_request > Transport.PATH_REQUEST_MI:
+                                elif not path_request_throttle and lr_taken_hops == 0:
                                     RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[6])+" since an attempted local client link was never established", RNS.LOG_DEBUG)
+                                    path_request_conditions = True
+
+                                # If the link destination was previously only 1 hop
+                                # away, this likely means that it was local to one
+                                # of our interfaces, and that it roamed somewhere else.
+                                # In that case, try to discover a new path.
+                                elif not path_request_throttle and Transport.hops_to(link_entry[6]) == 1:
+                                    RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[6])+" since an attempted link was never established, and destination was previously local to an interface on this instance", RNS.LOG_DEBUG)
+                                    path_request_conditions = True
+
+                                # If the link destination was previously only 1 hop
+                                # away, this likely means that it was local to one
+                                # of our interfaces, and that it roamed somewhere else.
+                                # In that case, try to discover a new path.
+                                elif not path_request_throttle and lr_taken_hops == 1:
+                                    RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[6])+" since an attempted link was never established, and link initiator is local to an interface on this instance", RNS.LOG_DEBUG)
+                                    path_request_conditions = True
+
+                                if path_request_conditions:
                                     if not link_entry[6] in path_requests:
                                         path_requests.append(link_entry[6])
 
