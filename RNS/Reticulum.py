@@ -201,6 +201,7 @@ class Reticulum:
 
         Reticulum.__transport_enabled = False
         Reticulum.__use_implicit_proof = True
+        Reticulum.__allow_probes = False
 
         Reticulum.panic_on_interface_error = False
 
@@ -319,6 +320,7 @@ class Reticulum:
                     self.is_standalone_instance = False
                     self.is_connected_to_shared_instance = True
                     Reticulum.__transport_enabled = False
+                    Reticulum.__allow_probes = False
                     RNS.log("Connected to locally available Reticulum instance via: "+str(interface), RNS.LOG_DEBUG)
                 except Exception as e:
                     RNS.log("Local shared instance appears to be running, but it could not be connected", RNS.LOG_ERROR)
@@ -361,6 +363,10 @@ class Reticulum:
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:
                         Reticulum.__transport_enabled = True
+                if option == "respond_to_probes":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v == True:
+                        Reticulum.__allow_probes = True
                 if option == "panic_on_interface_error":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:
@@ -1147,6 +1153,10 @@ class Reticulum:
             if Reticulum.transport_enabled():
                 stats["transport_id"] = RNS.Transport.identity.hash
                 stats["transport_uptime"] = time.time()-RNS.Transport.start_time
+                if Reticulum.probe_destination_enabled():
+                    stats["probe_responder"] = RNS.Transport.probe_destination.hash
+                else:
+                    stats["probe_responder"] = None
 
             return stats
 
@@ -1284,6 +1294,10 @@ class Reticulum:
         :returns: True if Transport is enabled, False if not.
         """
         return Reticulum.__transport_enabled
+
+    @staticmethod
+    def probe_destination_enabled():
+        return Reticulum.__allow_probes
 
 # Default configuration file:
 __default_rns_config__ = '''# This is the default Reticulum config file.

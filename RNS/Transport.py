@@ -270,6 +270,15 @@ class Transport:
                 except Exception as e:
                     RNS.log("Could not load tunnel table from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
+            if RNS.Reticulum.probe_destination_enabled():
+                Transport.probe_destination = RNS.Destination(Transport.identity, RNS.Destination.IN, RNS.Destination.SINGLE, Transport.APP_NAME, "probe")
+                Transport.probe_destination.accepts_links(False)
+                Transport.probe_destination.set_proof_strategy(RNS.Destination.PROVE_ALL)
+                Transport.probe_destination.announce()
+                RNS.log("Transport Instance will respond to probe requests on "+str(Transport.probe_destination), RNS.LOG_NOTICE)
+            else:
+                Transport.probe_destination = None
+
             RNS.log("Transport instance "+str(Transport.identity)+" started", RNS.LOG_VERBOSE)
             Transport.start_time = time.time()
 
