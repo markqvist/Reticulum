@@ -32,7 +32,8 @@ from RNS._version import __version__
 
 DEFAULT_PROBE_SIZE = 16
 
-def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_name = None, verbosity = 0):
+def program_setup(configdir, destination_hexhash, size=None, full_name = None, verbosity = 0):
+    if size == None: size = DEFAULT_PROBE_SIZE
     if full_name == None:
         print("The full destination name including application name aspects must be specified for the destination")
         exit()
@@ -89,7 +90,13 @@ def program_setup(configdir, destination_hexhash, size=DEFAULT_PROBE_SIZE, full_
         *aspects
     )
 
-    probe = RNS.Packet(request_destination, os.urandom(size))
+    try:
+        probe = RNS.Packet(request_destination, os.urandom(size))
+        probe.pack()
+    except OSError:
+        print("Error: Probe packet size of "+str(len(probe.raw))+" bytes exceed MTU of "+str(RNS.Reticulum.MTU)+" bytes")
+        exit(1)
+
     receipt = probe.send()
 
     if more_output:
@@ -156,34 +163,11 @@ def main():
     try:
         parser = argparse.ArgumentParser(description="Reticulum Probe Utility")
 
-        parser.add_argument("--config",
-            action="store",
-            default=None,
-            help="path to alternative Reticulum config directory",
-            type=str
-        )
-
-        parser.add_argument(
-            "--version",
-            action="version",
-            version="rnprobe {version}".format(version=__version__)
-        )
-
-        parser.add_argument(
-            "full_name",
-            nargs="?",
-            default=None,
-            help="full destination name in dotted notation",
-            type=str
-        )
-
-        parser.add_argument(
-            "destination_hash",
-            nargs="?",
-            default=None,
-            help="hexadecimal hash of the destination",
-            type=str
-        )
+        parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
+        parser.add_argument("-s", "--size", action="store", default=None, help="size of probe packet payload in bytes", type=int)
+        parser.add_argument("--version", action="version", version="rnprobe {version}".format(version=__version__))
+        parser.add_argument("full_name", nargs="?", default=None, help="full destination name in dotted notation", type=str)
+        parser.add_argument("destination_hash", nargs="?", default=None, help="hexadecimal hash of the destination", type=str)
 
         parser.add_argument('-v', '--verbose', action='count', default=0)
 
@@ -202,6 +186,7 @@ def main():
             program_setup(
                 configdir = configarg,
                 destination_hexhash = args.destination_hash,
+                size = args.size,
                 full_name = args.full_name,
                 verbosity = args.verbose
             )
