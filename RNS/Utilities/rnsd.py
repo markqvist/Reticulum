@@ -87,7 +87,7 @@ __example_rns_config__ = '''# This is an example Reticulum config file.
 # always-on. This directive is optional and can be removed
 # for brevity.
 
-enable_transport = False
+enable_transport = No
 
 
 # By default, the first program to launch the Reticulum
@@ -111,6 +111,7 @@ share_instance = Yes
 shared_instance_port = 37428
 instance_control_port = 37429
 
+
 # You can configure Reticulum to panic and forcibly close
 # if an unrecoverable interface error occurs, such as the
 # hardware device for an interface disappearing. This is
@@ -118,6 +119,17 @@ instance_control_port = 37429
 # This behaviour is disabled by default.
 
 panic_on_interface_error = No
+
+
+# When Transport is enabled, it is possible to allow the
+# Transport Instance to respond to probe requests from
+# the rnprobe utility. This can be a useful tool to test
+# connectivity. When this option is enabled, the probe
+# destination will be generated from the Identity of the
+# Transport Instance, and printed to the log at startup.
+# Optional, and disabled by default.
+
+respond_to_probes = No
 
 
 [logging]
