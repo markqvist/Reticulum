@@ -100,7 +100,10 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
     receipt = probe.send()
 
     if more_output:
-        more = " via "+RNS.prettyhexrep(reticulum.get_next_hop(destination_hash))+" on "+str(reticulum.get_next_hop_if_name(destination_hash))
+        nhd = reticulum.get_next_hop(destination_hash)
+        via_str = " via "+RNS.prettyhexrep(nhd) if nhd != None else ""
+        if_str  = " on "+str(reticulum.get_next_hop_if_name(destination_hash)) if reticulum.get_next_hop_if_name(destination_hash) != "None" else ""
+        more = via_str+if_str
     else:
         more = ""
 
