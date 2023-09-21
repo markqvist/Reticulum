@@ -319,7 +319,7 @@ class Link:
 
         :param identity: An RNS.Identity instance to identify as.
         """
-        if self.initiator:
+        if self.initiator and self.status == Link.ACTIVE:
             signed_data = self.link_id + identity.get_public_key()
             signature = identity.sign(signed_data)
             proof_data = identity.get_public_key() + signature
