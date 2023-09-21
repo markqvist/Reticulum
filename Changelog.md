@@ -1,3 +1,25 @@
+### 2023-09-21: RNS β 0.6.0
+
+This release brings a few performance improvements, additions to the included utilities, and fixes a number of bugs.
+
+**Changes**
+- Added ability to run automatic probe responder on Transport Instances
+- Improved `rnprobe` utility
+- Improved AutoInterface peering on Android devices
+- Improved Transport performance
+- Improved path re-discovery when local nodes roam to other network segments
+- Updated various parts of the documentation
+
+**Bugfixes**
+- Fixed missing timeout check in `rncp`
+- Fixed missing link status check on 'Identify()' call, which could lead to an unnecessary exception
+
+**Release Hashes**
+```
+88a26b1593e82a628dab96dbe8820548aea0159235f730fa992bf1833db59246 rns-0.6.0-py3-none-any.whl
+bcee416e4fb52346d01f6e0c46b1cebf84b127cc516603367fc2ae00a4149fa2 rnspure-0.6.0-py3-none-any.whl
+```
+
 ### 2023-09-19: RNS β 0.5.9
 
 This release brings major efficiency improvements to `Channel` and `Buffer` classes, adds a range of usability improvements to the included utilities and fixes a number of bugs.
