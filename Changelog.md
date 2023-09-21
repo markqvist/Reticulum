@@ -12,7 +12,7 @@ This release brings a few performance improvements, additions to the included ut
 
 **Bugfixes**
 - Fixed missing timeout check in `rncp`
-- Fixed missing link status check on 'Identify()' call, which could lead to an unnecessary exception
+- Fixed missing link status check on `Identify()` call, which could lead to an unnecessary exception
 
 **Release Hashes**
 ```
