@@ -579,11 +579,17 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
             sys.stdout.flush()
             i = (i+1)%len(syms)
 
-    if not RNS.Transport.has_path(destination_hash):
+    if time.time() > estab_timeout:
         if silent:
-            print("Could not establish link with "+RNS.prettyhexrep(destination_hash))
+            print("Link establishment with "+RNS.prettyhexrep(destination_hash)+" timed out")
         else:
-            print("\r                                                            \rCould not establish link with "+RNS.prettyhexrep(destination_hash))
+            print("\r                                                            \rLink establishment with "+RNS.prettyhexrep(destination_hash)+" timed out")
+        exit(1)
+    elif not RNS.Transport.has_path(destination_hash):
+        if silent:
+            print("No path found to "+RNS.prettyhexrep(destination_hash))
+        else:
+            print("\r                                                            \rNo path found to "+RNS.prettyhexrep(destination_hash))
         exit(1)
     else:
         if silent:
