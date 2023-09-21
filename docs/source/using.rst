@@ -108,6 +108,17 @@ configuration file is created. The default configuration looks like this:
   panic_on_interface_error = No
 
 
+  # When Transport is enabled, it is possible to allow the
+  # Transport Instance to respond to probe requests from
+  # the rnprobe utility. This can be a useful tool to test
+  # connectivity. When this option is enabled, the probe
+  # destination will be generated from the Identity of the
+  # Transport Instance, and printed to the log at startup.
+  # Optional, and disabled by default.
+
+  respond_to_probes = No
+
+
   [logging]
   # Valid log levels are 0 through 7:
   #   0: Log only critical information
@@ -191,6 +202,19 @@ Run ``rnsd``:
   $ rnsd
 
   [2023-08-18 17:59:56] [Notice] Started rnsd version 0.5.8
+
+Run ``rnsd`` in service mode, ensuring all logging output is sent directly to file:
+
+.. code:: text
+
+  $ rnsd -s
+
+Generate a verbose and detailed configuration example, with explanations of all the
+various configuration options, and interface configuration examples:
+
+.. code:: text
+
+  $ rnsd --exampleconfig
 
 **All Command-Line Options**
 
@@ -439,7 +463,12 @@ The rnprobe Utility
 The ``rnprobe`` utility lets you probe a destination for connectivity, similar
 to the ``ping`` program. Please note that probes will only be answered if the
 specified destination is configured to send proofs for received packets. Many
-destinations will not have this option enabled, and will not be probable.
+destinations will not have this option enabled, so most destinations will not
+be probable.
+
+You can enable a probe-reply destination on Reticulum Transport Instances by
+setting the ``respond_to_probes`` configuration directive. Reticulum will then
+print the probe destination to the log on Transport Instance startup.
 
 **Usage Examples**
 
@@ -447,17 +476,40 @@ Probe a destination:
 
 .. code:: text
 
-  $ rnprobe example_utilities.echo.request 2d03725b327348980d570f739a3a5708
+  $ rnprobe rnstransport.probe 2d03725b327348980d570f739a3a5708
 
   Sent 16 byte probe to <2d03725b327348980d570f739a3a5708>
   Valid reply received from <2d03725b327348980d570f739a3a5708>
   Round-trip time is 38.469 milliseconds over 2 hops
 
+Send a larger probe:
+
+.. code:: text
+
+  $ rnprobe rnstransport.probe 2d03725b327348980d570f739a3a5708 -s 256
+
+  Sent 16 byte probe to <2d03725b327348980d570f739a3a5708>
+  Valid reply received from <2d03725b327348980d570f739a3a5708>
+  Round-trip time is 38.781 milliseconds over 2 hops
+
+If the interface that receives the probe replies supports reporting radio
+parameters such as **RSSI** and **SNR**, the ``rnprobe`` utility will print
+these as part of the result as well.
+
+.. code:: text
+
+  $ rnprobe rnstransport.probe e7536ee90bd4a440e130490b87a25124
+  
+  Sent 16 byte probe to <e7536ee90bd4a440e130490b87a25124>
+  Valid reply received from <e7536ee90bd4a440e130490b87a25124>
+  Round-trip time is 1.809 seconds over 1 hop [RSSI -73 dBm] [SNR 12.0 dB]
+
 **All Command-Line Options**
 
 .. code:: text
 
-  usage: rnprobe [-h] [--config CONFIG] [--version] [-v] [full_name] [destination_hash]
+  usage: rnprobe [-h] [--config CONFIG] [--version] [-v] [-s SIZE]
+                 [full_name] [destination_hash]
 
   Reticulum Probe Utility
 
@@ -468,6 +520,7 @@ Probe a destination:
   optional arguments:
     -h, --help        show this help message and exit
     --config CONFIG   path to alternative Reticulum config directory
+    -s SIZE, --size SIZE  size of probe packet payload in bytes
     --version         show program's version number and exit
     -v, --verbose
 

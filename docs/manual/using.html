@@ -316,6 +316,17 @@ configuration file is created. The default configuration looks like this:</p>
 <span class="n">panic_on_interface_error</span> <span class="o">=</span> <span class="n">No</span>
 
 
+<span class="c1"># When Transport is enabled, it is possible to allow the</span>
+<span class="c1"># Transport Instance to respond to probe requests from</span>
+<span class="c1"># the rnprobe utility. This can be a useful tool to test</span>
+<span class="c1"># connectivity. When this option is enabled, the probe</span>
+<span class="c1"># destination will be generated from the Identity of the</span>
+<span class="c1"># Transport Instance, and printed to the log at startup.</span>
+<span class="c1"># Optional, and disabled by default.</span>
+
+<span class="n">respond_to_probes</span> <span class="o">=</span> <span class="n">No</span>
+
+
 <span class="p">[</span><span class="n">logging</span><span class="p">]</span>
 <span class="c1"># Valid log levels are 0 through 7:</span>
 <span class="c1">#   0: Log only critical information</span>
@@ -386,6 +397,15 @@ the same system.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnsd
 
 [2023-08-18 17:59:56] [Notice] Started rnsd version 0.5.8
+</pre></div>
+</div>
+<p>Run <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> in service mode, ensuring all logging output is sent directly to file:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnsd -s
+</pre></div>
+</div>
+<p>Generate a verbose and detailed configuration example, with explanations of all the
+various configuration options, and interface configuration examples:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnsd --exampleconfig
 </pre></div>
 </div>
 <p><strong>All Command-Line Options</strong></p>
@@ -600,18 +620,41 @@ options:
 <p>The <code class="docutils literal notranslate"><span class="pre">rnprobe</span></code> utility lets you probe a destination for connectivity, similar
 to the <code class="docutils literal notranslate"><span class="pre">ping</span></code> program. Please note that probes will only be answered if the
 specified destination is configured to send proofs for received packets. Many
-destinations will not have this option enabled, and will not be probable.</p>
+destinations will not have this option enabled, so most destinations will not
+be probable.</p>
+<p>You can enable a probe-reply destination on Reticulum Transport Instances by
+setting the <code class="docutils literal notranslate"><span class="pre">respond_to_probes</span></code> configuration directive. Reticulum will then
+print the probe destination to the log on Transport Instance startup.</p>
 <p><strong>Usage Examples</strong></p>
 <p>Probe a destination:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnprobe example_utilities.echo.request 2d03725b327348980d570f739a3a5708
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnprobe rnstransport.probe 2d03725b327348980d570f739a3a5708
 
 Sent 16 byte probe to &lt;2d03725b327348980d570f739a3a5708&gt;
 Valid reply received from &lt;2d03725b327348980d570f739a3a5708&gt;
 Round-trip time is 38.469 milliseconds over 2 hops
 </pre></div>
 </div>
+<p>Send a larger probe:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnprobe rnstransport.probe 2d03725b327348980d570f739a3a5708 -s 256
+
+Sent 16 byte probe to &lt;2d03725b327348980d570f739a3a5708&gt;
+Valid reply received from &lt;2d03725b327348980d570f739a3a5708&gt;
+Round-trip time is 38.781 milliseconds over 2 hops
+</pre></div>
+</div>
+<p>If the interface that receives the probe replies supports reporting radio
+parameters such as <strong>RSSI</strong> and <strong>SNR</strong>, the <code class="docutils literal notranslate"><span class="pre">rnprobe</span></code> utility will print
+these as part of the result as well.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnprobe rnstransport.probe e7536ee90bd4a440e130490b87a25124
+
+Sent 16 byte probe to &lt;e7536ee90bd4a440e130490b87a25124&gt;
+Valid reply received from &lt;e7536ee90bd4a440e130490b87a25124&gt;
+Round-trip time is 1.809 seconds over 1 hop [RSSI -73 dBm] [SNR 12.0 dB]
+</pre></div>
+</div>
 <p><strong>All Command-Line Options</strong></p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnprobe [-h] [--config CONFIG] [--version] [-v] [full_name] [destination_hash]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnprobe [-h] [--config CONFIG] [--version] [-v] [-s SIZE]
+               [full_name] [destination_hash]
 
 Reticulum Probe Utility
 
@@ -622,6 +665,7 @@ positional arguments:
 optional arguments:
   -h, --help        show this help message and exit
   --config CONFIG   path to alternative Reticulum config directory
+  -s SIZE, --size SIZE  size of probe packet payload in bytes
   --version         show program&#39;s version number and exit
   -v, --verbose
 </pre></div>
