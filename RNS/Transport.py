@@ -1782,8 +1782,11 @@ class Transport:
 
     @staticmethod
     def should_cache(packet):
-        if packet.context == RNS.Packet.RESOURCE_PRF:
-            return True
+        # TODO: Rework the caching system. It's currently
+        # not very useful to even cache Resource proofs,
+        # disabling it for now, until redesigned.
+        # if packet.context == RNS.Packet.RESOURCE_PRF:
+        #     return True
 
         return False
 
