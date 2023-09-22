@@ -110,7 +110,7 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
     print("\rSent "+str(size)+" byte probe to "+RNS.prettyhexrep(destination_hash)+more+"  ", end=" ")
 
     i = 0
-    while not receipt.status == RNS.PacketReceipt.DELIVERED:
+    while receipt.status == RNS.PacketReceipt.SENT:
         time.sleep(0.1)
         print(("\b\b"+syms[i]+" "), end="")
         sys.stdout.flush()
@@ -119,46 +119,50 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
     print("\b\b ")
     sys.stdout.flush()
 
-    hops = RNS.Transport.hops_to(destination_hash)
-    if hops != 1:
-        ms = "s"
-    else:
-        ms = ""
+    if receipt.status == RNS.PacketReceipt.DELIVERED:
+        hops = RNS.Transport.hops_to(destination_hash)
+        if hops != 1:
+            ms = "s"
+        else:
+            ms = ""
 
-    rtt = receipt.get_rtt()
-    if (rtt >= 1):
-        rtt = round(rtt, 3)
-        rttstring = str(rtt)+" seconds"
-    else:
-        rtt = round(rtt*1000, 3)
-        rttstring = str(rtt)+" milliseconds"
+        rtt = receipt.get_rtt()
+        if (rtt >= 1):
+            rtt = round(rtt, 3)
+            rttstring = str(rtt)+" seconds"
+        else:
+            rtt = round(rtt*1000, 3)
+            rttstring = str(rtt)+" milliseconds"
 
-    reception_stats = ""
-    if reticulum.is_connected_to_shared_instance:
-        reception_rssi = reticulum.get_packet_rssi(receipt.proof_packet.packet_hash)
-        reception_snr  = reticulum.get_packet_snr(receipt.proof_packet.packet_hash)
+        reception_stats = ""
+        if reticulum.is_connected_to_shared_instance:
+            reception_rssi = reticulum.get_packet_rssi(receipt.proof_packet.packet_hash)
+            reception_snr  = reticulum.get_packet_snr(receipt.proof_packet.packet_hash)
 
-        if reception_rssi != None:
-            reception_stats += " [RSSI "+str(reception_rssi)+" dBm]"
-        
-        if reception_snr != None:
-            reception_stats += " [SNR "+str(reception_snr)+" dB]"
-
-    else:
-        if receipt.proof_packet != None:
-            if receipt.proof_packet.rssi != None:
-                reception_stats += " [RSSI "+str(receipt.proof_packet.rssi)+" dBm]"
+            if reception_rssi != None:
+                reception_stats += " [RSSI "+str(reception_rssi)+" dBm]"
             
-            if receipt.proof_packet.snr != None:
-                reception_stats += " [SNR "+str(receipt.proof_packet.snr)+" dB]"
+            if reception_snr != None:
+                reception_stats += " [SNR "+str(reception_snr)+" dB]"
 
-    print(
-        "Valid reply received from "+
-        RNS.prettyhexrep(receipt.destination.hash)+
-        "\nRound-trip time is "+rttstring+
-        " over "+str(hops)+" hop"+ms+
-        reception_stats
-    )
+        else:
+            if receipt.proof_packet != None:
+                if receipt.proof_packet.rssi != None:
+                    reception_stats += " [RSSI "+str(receipt.proof_packet.rssi)+" dBm]"
+                
+                if receipt.proof_packet.snr != None:
+                    reception_stats += " [SNR "+str(receipt.proof_packet.snr)+" dB]"
+
+        print(
+            "Valid reply received from "+
+            RNS.prettyhexrep(receipt.destination.hash)+
+            "\nRound-trip time is "+rttstring+
+            " over "+str(hops)+" hop"+ms+
+            reception_stats
+        )
+
+    else:
+        print("Probe timed out")
 
     
 
