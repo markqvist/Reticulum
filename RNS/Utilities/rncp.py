@@ -321,7 +321,7 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
         if silent:
             print("Establishing link with "+RNS.prettyhexrep(destination_hash))
         else:
-            print("\r                                                            \rEstablishing link with "+RNS.prettyhexrep(destination_hash)+" ", end=" ")
+            print("\r                                                            \rEstablishing link with "+RNS.prettyhexrep(destination_hash)+"  ", end=" ")
 
     listener_identity = RNS.Identity.recall(destination_hash)
     listener_destination = RNS.Destination(
