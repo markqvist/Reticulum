@@ -1049,7 +1049,7 @@ class Transport:
                         Transport.local_client_rssi_cache.append([packet.packet_hash, packet.rssi])
 
                         while len(Transport.local_client_rssi_cache) > Transport.LOCAL_CLIENT_CACHE_MAXSIZE:
-                            Transport.local_client_rssi_cache.pop()
+                            Transport.local_client_rssi_cache.pop(0)
 
             if hasattr(interface, "r_stat_snr"):
                 if interface.r_stat_rssi != None:
@@ -1058,7 +1058,7 @@ class Transport:
                         Transport.local_client_snr_cache.append([packet.packet_hash, packet.snr])
 
                         while len(Transport.local_client_snr_cache) > Transport.LOCAL_CLIENT_CACHE_MAXSIZE:
-                            Transport.local_client_snr_cache.pop()
+                            Transport.local_client_snr_cache.pop(0)
 
         if len(Transport.local_client_interfaces) > 0:
             if Transport.is_local_client_interface(interface):
