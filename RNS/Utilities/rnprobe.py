@@ -31,8 +31,9 @@ import argparse
 from RNS._version import __version__
 
 DEFAULT_PROBE_SIZE = 16
+DEFAULT_TIMEOUT = 15
 
-def program_setup(configdir, destination_hexhash, size=None, full_name = None, verbosity = 0):
+def program_setup(configdir, destination_hexhash, size=None, full_name = None, verbosity = 0, timeout=None):
     if size == None: size = DEFAULT_PROBE_SIZE
     if full_name == None:
         print("The full destination name including application name aspects must be specified for the destination")
@@ -72,13 +73,18 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
         print("Path to "+RNS.prettyhexrep(destination_hash)+" requested  ", end=" ")
         sys.stdout.flush()
 
+    _timeout = time.time() + (timeout or DEFAULT_TIMEOUT)
     i = 0
     syms = "⢄⢂⢁⡁⡈⡐⡠"
-    while not RNS.Transport.has_path(destination_hash):
+    while not RNS.Transport.has_path(destination_hash) and not time.time() > _timeout:
         time.sleep(0.1)
         print(("\b\b"+syms[i]+" "), end="")
         sys.stdout.flush()
         i = (i+1)%len(syms)
+
+    if time.time() > _timeout:
+        print("\r                                                          \rPath request timed out")
+        exit(2)
 
     server_identity = RNS.Identity.recall(destination_hash)
 
@@ -109,12 +115,17 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
 
     print("\rSent "+str(size)+" byte probe to "+RNS.prettyhexrep(destination_hash)+more+"  ", end=" ")
 
+    _timeout = time.time() + (timeout or DEFAULT_TIMEOUT)
     i = 0
-    while receipt.status == RNS.PacketReceipt.SENT:
+    while receipt.status == RNS.PacketReceipt.SENT and not time.time() > _timeout:
         time.sleep(0.1)
         print(("\b\b"+syms[i]+" "), end="")
         sys.stdout.flush()
         i = (i+1)%len(syms)
+
+    if time.time() > _timeout:
+        print("\r                                                          \rProbe timed out")
+        exit(2)
 
     print("\b\b ")
     sys.stdout.flush()
@@ -162,7 +173,7 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
         )
 
     else:
-        print("Probe timed out")
+        print("\r                                                          \rProbe timed out")
 
     
 
@@ -172,6 +183,7 @@ def main():
 
         parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
         parser.add_argument("-s", "--size", action="store", default=None, help="size of probe packet payload in bytes", type=int)
+        parser.add_argument("-t", "--timeout", metavar="seconds", action="store", default=None, help="timeout before giving up", type=float)
         parser.add_argument("--version", action="version", version="rnprobe {version}".format(version=__version__))
         parser.add_argument("full_name", nargs="?", default=None, help="full destination name in dotted notation", type=str)
         parser.add_argument("destination_hash", nargs="?", default=None, help="hexadecimal hash of the destination", type=str)
