@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2016-2022 Mark Qvist / unsigned.io
+# Copyright (c) 2016-2023 Mark Qvist / unsigned.io and contributors
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,7 @@ from .Transport import Transport
 from .Destination import Destination
 from .Packet import Packet
 from .Packet import PacketReceipt
+from .Resolver import Resolver
 from .Resource import Resource, ResourceAdvertisement
 from .Cryptography import HKDF
 from .Cryptography import Hashes
