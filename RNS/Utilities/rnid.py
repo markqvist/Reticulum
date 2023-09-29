@@ -196,7 +196,7 @@ def main():
                 if args.hash:
                     try:
                         aspects = args.hash.split(".")
-                        if not len(aspects) > 1:
+                        if not len(aspects) > 0:
                             RNS.log("Invalid destination aspects specified", RNS.LOG_ERROR)
                             exit(32)
                         else:
