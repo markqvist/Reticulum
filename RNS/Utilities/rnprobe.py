@@ -84,7 +84,7 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
 
     if time.time() > _timeout:
         print("\r                                                          \rPath request timed out")
-        exit(2)
+        exit(1)
 
     server_identity = RNS.Identity.recall(destination_hash)
 
@@ -101,7 +101,7 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
         probe.pack()
     except OSError:
         print("Error: Probe packet size of "+str(len(probe.raw))+" bytes exceed MTU of "+str(RNS.Reticulum.MTU)+" bytes")
-        exit(1)
+        exit(3)
 
     receipt = probe.send()
 
@@ -174,6 +174,7 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
 
     else:
         print("\r                                                          \rProbe timed out")
+        exit(2)
 
     
 
