@@ -352,12 +352,12 @@ class Transport:
 
                 # Process announces needing retransmission
                 if time.time() > Transport.announces_last_checked+Transport.announces_check_interval:
+                    completed_announces = []
                     for destination_hash in Transport.announce_table:
                         announce_entry = Transport.announce_table[destination_hash]
                         if announce_entry[2] > Transport.PATHFINDER_R:
                             RNS.log("Completed announce processing for "+RNS.prettyhexrep(destination_hash)+", retry limit reached", RNS.LOG_EXTREME)
-                            Transport.announce_table.pop(destination_hash)
-                            break
+                            completed_announces.append(destination_hash)
                         else:
                             if time.time() > announce_entry[1]:
                                 announce_entry[1] = time.time() + Transport.PATHFINDER_G + Transport.PATHFINDER_RW
@@ -403,6 +403,10 @@ class Transport:
                                     held_entry = Transport.held_announces.pop(destination_hash)
                                     Transport.announce_table[destination_hash] = held_entry
                                     RNS.log("Reinserting held announce into table", RNS.LOG_DEBUG)
+
+                    for destination_hash in completed_announces:
+                        if destination_hash in Transport.announce_table:
+                            Transport.announce_table.pop(destination_hash)
 
                     Transport.announces_last_checked = time.time()
 
