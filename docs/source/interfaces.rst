@@ -1,9 +1,9 @@
 
 .. _interfaces-main:
 
-********************
-Supported Interfaces
-********************
+**********************
+Configuring Interfaces
+**********************
 
 Reticulum supports using many kinds of devices as networking interfaces, and
 allows you to mix and match them in any way you choose. The number of distinct
@@ -760,4 +760,61 @@ rates. Slower networks will naturally tend towards using less frequent announces
 conserve bandwidth, while very fast networks can support applications that
 need very frequent announces. Reticulum implements these mechanisms to ensure
 that a large span of network types can seamlessly *co-exist* and interconnect.
+
+.. _interfaces-ingress-control:
+
+Ingress Announce Control
+========================
+
+On public interfaces, where anyone may connect and announce new destinations,
+it can be useful to control the rate at which new announces ingress.
+
+If a large influx of annonuces for newly created or previously unknown destinations
+occur, Reticulum will place these announces on hold, so that announce traffic
+for known and previously established destinations can continue to be processed
+without interruptions.
+
+By default, Reticulum will handle this automatically, and ingress annonuce
+control will be enabled on interface where it is sensible to do so. It should
+generally not be neccessary to modify the ingress control configuration,
+but all the parameters are exposed for configuration if needed.
+
+ * | The ``ingress_control`` option tells Reticulum whether or not
+     to enable announce ingress control on the interface. Defaults to
+     ``True``.
+
+ * | The ``ic_new_time`` option configures how long (in seconds) an
+     interface is considered newly spawned. Defaults to ``2*60*60`` seconds. This
+     option is useful on publicly accessible interfaces that spawn new
+     sub-interfaces when a new client connects. 
+
+ * | The ``ic_burst_freq_new`` option sets the maximum annonuce ingress
+     frequency for newly spawned interfaces. Defaults to ``3.5``
+     announces per second.
+
+ * | The ``ic_burst_freq`` option sets the maximum annonuce ingress
+     frequency for other interfaces. Defaults to ``12`` announces
+     per second.
+
+     *If an interface exceeds its burst frequency, incoming announces
+     for unknown destinations will be temporarily held in a queue, and
+     not processed until later.*
+
+ * | The ``ic_max_held_announces`` option sets the maximum amount of
+     unique announces that will be held in the queue. Any additional
+     unique announces will be dropped. Defaults to ``256`` announces.
+
+ * | The ``ic_burst_hold`` option sets how much time (in seconds) must
+     pass after the burst frequency drops below its threshold, for the
+     announce burst to be considered cleared. Defaults to ``60``
+     seconds.
+
+ * | The ``ic_burst_penalty`` option sets how much time (in seconds) must
+     pass after the burst is considered cleared, before held announces can
+     start being released from the queue. Defaults to ``5*60``
+     seconds.
+
+ * | The ``ic_held_release_interval`` option sets how much time (in seconds)
+     must pass between releasing each held announce from the queue. Defaults
+     to ``30`` seconds.
 

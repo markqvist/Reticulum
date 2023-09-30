@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Building Networks" href="networks.html" /><link rel="prev" title="Communications Hardware" href="hardware.html" />
 
     <meta name="generator" content="sphinx-7.1.2, furo 2022.09.29.dev1"/>
-        <title>Supported Interfaces - Reticulum Network Stack 0.6.1 beta documentation</title>
+        <title>Configuring Interfaces - Reticulum Network Stack 0.6.1 beta documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -181,7 +181,7 @@
 <li class="toctree-l1"><a class="reference internal" href="using.html">Using Reticulum on Your System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Supported Interfaces</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Configuring Interfaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a></li>
@@ -221,8 +221,8 @@
           </label>
         </div>
         <article role="main">
-          <section id="supported-interfaces">
-<span id="interfaces-main"></span><h1>Supported Interfaces<a class="headerlink" href="#supported-interfaces" title="Permalink to this heading">#</a></h1>
+          <section id="configuring-interfaces">
+<span id="interfaces-main"></span><h1>Configuring Interfaces<a class="headerlink" href="#configuring-interfaces" title="Permalink to this heading">#</a></h1>
 <p>Reticulum supports using many kinds of devices as networking interfaces, and
 allows you to mix and match them in any way you choose. The number of distinct
 network topologies you can create with Reticulum is more or less endless, but
@@ -937,6 +937,79 @@ conserve bandwidth, while very fast networks can support applications that
 need very frequent announces. Reticulum implements these mechanisms to ensure
 that a large span of network types can seamlessly <em>co-exist</em> and interconnect.</p>
 </section>
+<section id="ingress-announce-control">
+<span id="interfaces-ingress-control"></span><h2>Ingress Announce Control<a class="headerlink" href="#ingress-announce-control" title="Permalink to this heading">#</a></h2>
+<p>On public interfaces, where anyone may connect and announce new destinations,
+it can be useful to control the rate at which new announces ingress.</p>
+<p>If a large influx of annonuces for newly created or previously unknown destinations
+occur, Reticulum will place these announces on hold, so that announce traffic
+for known and previously established destinations can continue to be processed
+without interruptions.</p>
+<p>By default, Reticulum will handle this automatically, and ingress annonuce
+control will be enabled on interface where it is sensible to do so. It should
+generally not be neccessary to modify the ingress control configuration,
+but all the parameters are exposed for configuration if needed.</p>
+<blockquote>
+<div><ul>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ingress_control</span></code> option tells Reticulum whether or not
+to enable announce ingress control on the interface. Defaults to
+<code class="docutils literal notranslate"><span class="pre">True</span></code>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_new_time</span></code> option configures how long (in seconds) an
+interface is considered newly spawned. Defaults to <code class="docutils literal notranslate"><span class="pre">2*60*60</span></code> seconds. This
+option is useful on publicly accessible interfaces that spawn new
+sub-interfaces when a new client connects.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_freq_new</span></code> option sets the maximum annonuce ingress
+frequency for newly spawned interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">3.5</span></code>
+announces per second.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_freq</span></code> option sets the maximum annonuce ingress
+frequency for other interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">12</span></code> announces
+per second.</div>
+</div>
+<blockquote>
+<div><p><em>If an interface exceeds its burst frequency, incoming announces
+for unknown destinations will be temporarily held in a queue, and
+not processed until later.</em></p>
+</div></blockquote>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_max_held_announces</span></code> option sets the maximum amount of
+unique announces that will be held in the queue. Any additional
+unique announces will be dropped. Defaults to <code class="docutils literal notranslate"><span class="pre">256</span></code> announces.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_hold</span></code> option sets how much time (in seconds) must
+pass after the burst frequency drops below its threshold, for the
+announce burst to be considered cleared. Defaults to <code class="docutils literal notranslate"><span class="pre">60</span></code>
+seconds.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_penalty</span></code> option sets how much time (in seconds) must
+pass after the burst is considered cleared, before held announces can
+start being released from the queue. Defaults to <code class="docutils literal notranslate"><span class="pre">5*60</span></code>
+seconds.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_held_release_interval</span></code> option sets how much time (in seconds)
+must pass between releasing each held announce from the queue. Defaults
+to <code class="docutils literal notranslate"><span class="pre">30</span></code> seconds.</div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</section>
 </section>
 
         </article>
@@ -995,7 +1068,7 @@ that a large span of network types can seamlessly <em>co-exist</em> and intercon
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Supported Interfaces</a><ul>
+<li><a class="reference internal" href="#">Configuring Interfaces</a><ul>
 <li><a class="reference internal" href="#auto-interface">Auto Interface</a></li>
 <li><a class="reference internal" href="#i2p-interface">I2P Interface</a></li>
 <li><a class="reference internal" href="#tcp-server-interface">TCP Server Interface</a></li>
@@ -1009,6 +1082,7 @@ that a large span of network types can seamlessly <em>co-exist</em> and intercon
 <li><a class="reference internal" href="#common-interface-options">Common Interface Options</a></li>
 <li><a class="reference internal" href="#interface-modes">Interface Modes</a></li>
 <li><a class="reference internal" href="#announce-rate-control">Announce Rate Control</a></li>
+<li><a class="reference internal" href="#ingress-announce-control">Ingress Announce Control</a></li>
 </ul>
 </li>
 </ul>
