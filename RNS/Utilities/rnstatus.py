@@ -89,6 +89,8 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 interfaces.sort(key=lambda i: i["incoming_announce_frequency"], reverse=not sort_reverse)
             if sorting == "atx":
                 interfaces.sort(key=lambda i: i["outgoing_announce_frequency"], reverse=not sort_reverse)
+            if sorting == "held":
+                interfaces.sort(key=lambda i: i["held_announces"], reverse=not sort_reverse)
 
             
         for ifstat in interfaces:
@@ -243,7 +245,7 @@ def main():
             "-s",
             "--sort",
             action="store",
-            help="sort interfaces by [traffic, rx, tx, announces, arx, atx, rate]",
+            help="sort interfaces by [rate, traffic, rx, tx, announces, arx, atx, held]",
             default=None,
             type=str
         )
