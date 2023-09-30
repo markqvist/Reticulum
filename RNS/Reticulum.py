@@ -448,8 +448,21 @@ class Reticulum:
                                 ifac_netkey = c["pass_phrase"]
                                 
                         ingress_control = True
-                        if "ingress_control" in c:
-                            ingress_control = c.as_bool("ingress_control")
+                        if "ingress_control" in c: ingress_control = c.as_bool("ingress_control")
+                        ic_max_held_announces = None
+                        if "ic_max_held_announces" in c: ic_max_held_announces = c.as_int("ic_max_held_announces")
+                        ic_burst_hold = None
+                        if "ic_burst_hold" in c: ic_burst_hold = c.as_float("ic_burst_hold")
+                        ic_burst_freq_new = None
+                        if "ic_burst_freq_new" in c: ic_burst_freq_new = c.as_float("ic_burst_freq_new")
+                        ic_burst_freq = None
+                        if "ic_burst_freq" in c: ic_burst_freq = c.as_float("ic_burst_freq")
+                        ic_new_time = None
+                        if "ic_new_time" in c: ic_new_time = c.as_float("ic_new_time")
+                        ic_burst_penalty = None
+                        if "ic_burst_penalty" in c: ic_burst_penalty = c.as_float("ic_burst_penalty")
+                        ic_held_release_interval = None
+                        if "ic_held_release_interval" in c: ic_held_release_interval = c.as_float("ic_held_release_interval")
 
                         configured_bitrate = None
                         if "bitrate" in c:
@@ -889,6 +902,13 @@ class Reticulum:
                                     interface.announce_rate_grace = announce_rate_grace
                                     interface.announce_rate_penalty = announce_rate_penalty
                                     interface.ingress_control = ingress_control
+                                    if ic_max_held_announces != None: interface.ic_max_held_announces = ic_max_held_announces
+                                    if ic_burst_hold != None: interface.ic_burst_hold = ic_burst_hold
+                                    if ic_burst_freq_new != None: interface.ic_burst_freq_new = ic_burst_freq_new
+                                    if ic_burst_freq != None: interface.ic_burst_freq = ic_burst_freq
+                                    if ic_new_time != None: interface.ic_new_time = ic_new_time
+                                    if ic_burst_penalty != None: interface.ic_burst_penalty = ic_burst_penalty
+                                    if ic_held_release_interval != None: interface.ic_held_release_interval = ic_held_release_interval
 
                                     interface.ifac_netname = ifac_netname
                                     interface.ifac_netkey = ifac_netkey
