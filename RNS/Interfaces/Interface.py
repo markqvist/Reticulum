@@ -53,6 +53,7 @@ class Interface:
         self.rxb = 0
         self.txb = 0
         self.online = False
+        self.ingress_control = True
         self.ia_freq_deque = deque(maxlen=Interface.IA_FREQ_SAMPLES)
         self.oa_freq_deque = deque(maxlen=Interface.OA_FREQ_SAMPLES)
 

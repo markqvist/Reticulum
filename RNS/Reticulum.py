@@ -447,6 +447,10 @@ class Reticulum:
                             if c["pass_phrase"] != "":
                                 ifac_netkey = c["pass_phrase"]
                                 
+                        ingress_control = True
+                        if "ingress_control" in c:
+                            ingress_control = c.as_bool("ingress_control")
+
                         configured_bitrate = None
                         if "bitrate" in c:
                             if c.as_int("bitrate") >= Reticulum.MINIMUM_BITRATE:
@@ -884,6 +888,7 @@ class Reticulum:
                                     interface.announce_rate_target = announce_rate_target
                                     interface.announce_rate_grace = announce_rate_grace
                                     interface.announce_rate_penalty = announce_rate_penalty
+                                    interface.ingress_control = ingress_control
 
                                     interface.ifac_netname = ifac_netname
                                     interface.ifac_netkey = ifac_netkey
