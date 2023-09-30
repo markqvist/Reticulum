@@ -188,7 +188,7 @@ def prettyfrequency(hz, suffix="Hz"):
     for unit in units:
         if abs(num) < 1000.0:
             if unit == "":
-                return "%.0f %s%s" % (num, unit, suffix)
+                return "%.2f %s%s" % (num, unit, suffix)
             else:
                 return "%.2f %s%s" % (num, unit, suffix)
         num /= 1000.0
