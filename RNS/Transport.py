@@ -1344,7 +1344,7 @@ class Transport:
                             should_add = True
 
                         if should_add:
-                            now                = time.time()
+                            now = time.time()
 
                             rate_blocked = False
                             if packet.context != RNS.Packet.PATH_RESPONSE and packet.receiving_interface.announce_rate_target != None:
