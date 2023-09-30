@@ -46,7 +46,7 @@ def size_str(num, suffix='B'):
 
     return "%.2f%s%s" % (num, last_unit, suffix)
 
-def program_setup(configdir, dispall=False, verbosity=0, name_filter=None,json=False):
+def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False, sorting=None, sort_reverse=False):
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
 
     stats = None
@@ -62,16 +62,36 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None,json=F
                 if isinstance(stats[s], bytes):
                     stats[s] = RNS.hexrep(stats[s], delimit=False)
 
-                for i in stats[s]:
-                    if isinstance(i, dict):
-                        for k in i:
-                            if isinstance(i[k], bytes):
-                                i[k] = RNS.hexrep(i[k], delimit=False)
+                if isinstance(stats[s], dict):
+                    for i in stats[s]:
+                        if isinstance(i, dict):
+                            for k in i:
+                                if isinstance(i[k], bytes):
+                                    i[k] = RNS.hexrep(i[k], delimit=False)
 
             print(json.dumps(stats))
             exit()
+
+        interfaces = stats["interfaces"]
+        if sorting != None and isinstance(sorting, str):
+            sorting = sorting.lower()
+            if sorting == "rate" or sorting == "bitrate":
+                interfaces.sort(key=lambda i: i["bitrate"], reverse=not sort_reverse)
+            if sorting == "rx":
+                interfaces.sort(key=lambda i: i["rxb"], reverse=not sort_reverse)
+            if sorting == "tx":
+                interfaces.sort(key=lambda i: i["txb"], reverse=not sort_reverse)
+            if sorting == "traffic":
+                interfaces.sort(key=lambda i: i["rxb"]+i["txb"], reverse=not sort_reverse)
+            if sorting == "announces" or sorting == "announce":
+                interfaces.sort(key=lambda i: i["incoming_announce_frequency"]+i["outgoing_announce_frequency"], reverse=not sort_reverse)
+            if sorting == "arx":
+                interfaces.sort(key=lambda i: i["incoming_announce_frequency"], reverse=not sort_reverse)
+            if sorting == "atx":
+                interfaces.sort(key=lambda i: i["outgoing_announce_frequency"], reverse=not sort_reverse)
+
             
-        for ifstat in stats["interfaces"]:
+        for ifstat in interfaces:
             name = ifstat["name"]
 
             if dispall or not (
@@ -113,7 +133,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None,json=F
                                 else:
                                     spec_str = " programs"
 
-                                clients_string = "Serving : "+str(cnum)+spec_str
+                                clients_string = "Serving   : "+str(cnum)+spec_str
                             elif name.startswith("I2PInterface["):
                                 if "i2p_connectable" in ifstat and ifstat["i2p_connectable"] == True:
                                     cnum = clients
@@ -122,11 +142,11 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None,json=F
                                     else:
                                         spec_str = " connected I2P endpoints"
 
-                                    clients_string = "Peers   : "+str(cnum)+spec_str
+                                    clients_string = "Peers     : "+str(cnum)+spec_str
                                 else:
                                     clients_string = ""
                             else:
-                                clients_string = "Clients : "+str(clients)
+                                clients_string = "Clients   : "+str(clients)
 
                         else:
                             clients = None
@@ -134,46 +154,50 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None,json=F
                         print(" {n}".format(n=ifstat["name"]))
 
                         if "ifac_netname" in ifstat and ifstat["ifac_netname"] != None:
-                            print("    Network : {nn}".format(nn=ifstat["ifac_netname"]))
+                            print("    Network   : {nn}".format(nn=ifstat["ifac_netname"]))
 
-                        print("    Status  : {ss}".format(ss=ss))
+                        print("    Status    : {ss}".format(ss=ss))
 
                         if clients != None and clients_string != "":
                             print("    "+clients_string)
 
                         if not (name.startswith("Shared Instance[") or name.startswith("TCPInterface[Client") or name.startswith("LocalInterface[")):
-                            print("    Mode    : {mode}".format(mode=modestr))
+                            print("    Mode      : {mode}".format(mode=modestr))
 
                         if "bitrate" in ifstat and ifstat["bitrate"] != None:
-                            print("    Rate    : {ss}".format(ss=speed_str(ifstat["bitrate"])))
+                            print("    Rate      : {ss}".format(ss=speed_str(ifstat["bitrate"])))
 
                         if "airtime_short" in ifstat and "airtime_long" in ifstat:
-                            print("    Airtime : {atl}% (1h), {ats}% (15s)".format(ats=str(ifstat["airtime_short"]),atl=str(ifstat["airtime_long"])))
+                            print("    Airtime   : {atl}% (1h), {ats}% (15s)".format(ats=str(ifstat["airtime_short"]),atl=str(ifstat["airtime_long"])))
                         
                         if "channel_load_short" in ifstat and "channel_load_long" in ifstat:
-                            print("    Ch.Load : {atl}% (1h), {ats}% (15s)".format(ats=str(ifstat["channel_load_short"]),atl=str(ifstat["channel_load_long"])))
+                            print("    Ch.Load   : {atl}% (1h), {ats}% (15s)".format(ats=str(ifstat["channel_load_short"]),atl=str(ifstat["channel_load_long"])))
                         
                         if "peers" in ifstat and ifstat["peers"] != None:
-                            print("    Peers   : {np} reachable".format(np=ifstat["peers"]))
+                            print("    Peers     : {np} reachable".format(np=ifstat["peers"]))
 
                         if "tunnelstate" in ifstat and ifstat["tunnelstate"] != None:
-                            print("    I2P     : {ts}".format(ts=ifstat["tunnelstate"]))
+                            print("    I2P       : {ts}".format(ts=ifstat["tunnelstate"]))
 
                         if "ifac_signature" in ifstat and ifstat["ifac_signature"] != None:
                             sigstr = "<…"+RNS.hexrep(ifstat["ifac_signature"][-5:], delimit=False)+">"
-                            print("    Access  : {nb}-bit IFAC by {sig}".format(nb=ifstat["ifac_size"]*8, sig=sigstr))
+                            print("    Access    : {nb}-bit IFAC by {sig}".format(nb=ifstat["ifac_size"]*8, sig=sigstr))
                         
                         if "i2p_b32" in ifstat and ifstat["i2p_b32"] != None:
-                            print("    I2P B32 : {ep}".format(ep=str(ifstat["i2p_b32"])))
+                            print("    I2P B32   : {ep}".format(ep=str(ifstat["i2p_b32"])))
 
-                        if "announce_queue" in ifstat and ifstat["announce_queue"] != None and ifstat["announce_queue"] > 0:
+                        if astats and "announce_queue" in ifstat and ifstat["announce_queue"] != None and ifstat["announce_queue"] > 0:
                             aqn = ifstat["announce_queue"]
                             if aqn == 1:
-                                print("    Queued  : {np} announce".format(np=aqn))
+                                print("    Queued    : {np} announce".format(np=aqn))
                             else:
-                                print("    Queued  : {np} announces".format(np=aqn))
+                                print("    Queued    : {np} announces".format(np=aqn))
                         
-                        print("    Traffic : {txb}↑\n              {rxb}↓".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
+                        if astats and "incoming_announce_frequency" in ifstat and ifstat["incoming_announce_frequency"] != None:
+                            print("    Announces : {iaf}↑".format(iaf=RNS.prettyfrequency(ifstat["outgoing_announce_frequency"])))
+                            print("                {iaf}↓".format(iaf=RNS.prettyfrequency(ifstat["incoming_announce_frequency"])))
+
+                        print("    Traffic   : {txb}↑\n                {rxb}↓".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
 
         if "transport_id" in stats and stats["transport_id"] != None:
             print("\n Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" running")
@@ -201,6 +225,31 @@ def main():
         )
         
         parser.add_argument(
+            "-A",
+            "--announce-stats",
+            action="store_true",
+            help="show announce stats",
+            default=False
+        )
+        
+        parser.add_argument(
+            "-s",
+            "--sort",
+            action="store",
+            help="sort interfaces by [traffic, rx, tx, announces, arx, atx, rate]",
+            default=None,
+            type=str
+        )
+        
+        parser.add_argument(
+            "-r",
+            "--reverse",
+            action="store_true",
+            help="reverse sorting",
+            default=False,
+        )
+        
+        parser.add_argument(
             "-j",
             "--json",
             action="store_true",
@@ -219,7 +268,16 @@ def main():
         else:
             configarg = None
 
-        program_setup(configdir = configarg, dispall = args.all, verbosity=args.verbose, name_filter=args.filter, json=args.json)
+        program_setup(
+            configdir = configarg,
+            dispall = args.all,
+            verbosity=args.verbose,
+            name_filter=args.filter,
+            json=args.json,
+            astats=args.announce_stats,
+            sorting=args.sort,
+            sort_reverse=args.reverse,
+        )
 
     except KeyboardInterrupt:
         print("")
