@@ -180,6 +180,21 @@ def prettysize(num, suffix='B'):
 
     return "%.2f%s%s" % (num, last_unit, suffix)
 
+def prettyfrequency(hz, suffix="Hz"):
+    num = hz*1e6
+    units = ["µ", "m", "", "K","M","G","T","P","E","Z"]
+    last_unit = "Y"
+
+    for unit in units:
+        if abs(num) < 1000.0:
+            if unit == "":
+                return "%.0f %s%s" % (num, unit, suffix)
+            else:
+                return "%.2f %s%s" % (num, unit, suffix)
+        num /= 1000.0
+
+    return "%.2f%s%s" % (num, last_unit, suffix)
+
 def prettytime(time, verbose=False):
     days = int(time // (24 * 3600))
     time = time % (24 * 3600)
