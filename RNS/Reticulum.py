@@ -1143,6 +1143,8 @@ class Reticulum:
                 ifstats["name"] = str(interface)
                 ifstats["rxb"] = interface.rxb
                 ifstats["txb"] = interface.txb
+                ifstats["incoming_announce_frequency"] = interface.incoming_announce_frequency()
+                ifstats["outgoing_announce_frequency"] = interface.outgoing_announce_frequency()
                 ifstats["status"] = interface.online
                 ifstats["mode"] = interface.mode
 

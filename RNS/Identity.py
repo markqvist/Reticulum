@@ -217,7 +217,7 @@ class Identity:
         return Identity.truncated_hash(os.urandom(Identity.TRUNCATED_HASHLENGTH//8))
 
     @staticmethod
-    def validate_announce(packet):
+    def validate_announce(packet, only_validate_signature=False):
         try:
             if packet.packet_type == RNS.Packet.ANNOUNCE:
                 destination_hash = packet.destination_hash
@@ -238,6 +238,10 @@ class Identity:
                 announced_identity.load_public_key(public_key)
 
                 if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
+                    if only_validate_signature:
+                        del announced_identity
+                        return True
+
                     hash_material = name_hash+announced_identity.hash
                     expected_hash = RNS.Identity.full_hash(hash_material)[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
 

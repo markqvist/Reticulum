@@ -887,6 +887,8 @@ class Transport:
                         # thread.start()
 
                         Transport.transmit(interface, packet.raw)
+                        if packet.packet_type == RNS.Packet.ANNOUNCE:
+                            interface.sent_announce()
                         sent = True
 
         if sent:
@@ -1227,8 +1229,11 @@ class Transport:
             # announces, queueing rebroadcasts of these, and removal
             # of queued announce rebroadcasts once handed to the next node.
             if packet.packet_type == RNS.Packet.ANNOUNCE:
+                if interface != None and RNS.Identity.validate_announce(packet, only_validate_signature=True):
+                    interface.received_announce()
+
                 local_destination = next((d for d in Transport.destinations if d.hash == packet.destination_hash), None)
-                if local_destination == None and RNS.Identity.validate_announce(packet): 
+                if local_destination == None and RNS.Identity.validate_announce(packet):
                     if packet.transport_id != None:
                         received_from = packet.transport_id
                         
