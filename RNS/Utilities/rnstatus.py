@@ -193,6 +193,13 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             else:
                                 print("    Queued    : {np} announces".format(np=aqn))
                         
+                        if astats and "held_announces" in ifstat and ifstat["held_announces"] != None and ifstat["held_announces"] > 0:
+                            aqn = ifstat["held_announces"]
+                            if aqn == 1:
+                                print("    Held      : {np} announce".format(np=aqn))
+                            else:
+                                print("    Held      : {np} announces".format(np=aqn))
+                        
                         if astats and "incoming_announce_frequency" in ifstat and ifstat["incoming_announce_frequency"] != None:
                             print("    Announces : {iaf}↑".format(iaf=RNS.prettyfrequency(ifstat["outgoing_announce_frequency"])))
                             print("                {iaf}↓".format(iaf=RNS.prettyfrequency(ifstat["incoming_announce_frequency"])))
@@ -202,7 +209,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
         if "transport_id" in stats and stats["transport_id"] != None:
             print("\n Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" running")
             if "probe_responder" in stats and stats["probe_responder"] != None:
-                print(" Probe responder at "+RNS.prettyhexrep(stats["probe_responder"]))
+                print(" Probe responder at "+RNS.prettyhexrep(stats["probe_responder"])+ " active")
             print(" Uptime is "+RNS.prettytime(stats["transport_uptime"]))
 
         print("")
