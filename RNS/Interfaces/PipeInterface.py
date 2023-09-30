@@ -54,8 +54,7 @@ class PipeInterface(Interface):
         if respawn_delay == None:
             respawn_delay = 5
 
-        self.rxb = 0
-        self.txb = 0
+        super().__init__()
 
         self.HW_MTU = 1064
         

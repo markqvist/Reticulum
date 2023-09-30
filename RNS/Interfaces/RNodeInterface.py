@@ -114,8 +114,7 @@ class RNodeInterface(Interface):
             RNS.log("You can install one with the command: python3 -m pip install pyserial", RNS.LOG_CRITICAL)
             RNS.panic()
 
-        self.rxb = 0
-        self.txb = 0
+        super().__init__()
 
         self.HW_MTU = 508
         

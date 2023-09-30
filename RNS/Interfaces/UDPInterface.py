@@ -45,8 +45,7 @@ class UDPInterface(Interface):
         return ifaddr[netinfo.AF_INET][0]["broadcast"]
 
     def __init__(self, owner, name, device=None, bindip=None, bindport=None, forwardip=None, forwardport=None):
-        self.rxb = 0
-        self.txb = 0
+        super().__init__()
 
         self.HW_MTU = 1064
 

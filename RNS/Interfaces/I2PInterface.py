@@ -390,8 +390,7 @@ class I2PInterfacePeer(Interface):
     TUNNEL_STATE_STALE   = 0x02
 
     def __init__(self, parent_interface, owner, name, target_i2p_dest=None, connected_socket=None, max_reconnect_tries=None):
-        self.rxb = 0
-        self.txb = 0
+        super().__init__()
 
         self.HW_MTU = 1064
         
@@ -832,8 +831,7 @@ class I2PInterface(Interface):
     BITRATE_GUESS      = 256*1000
 
     def __init__(self, owner, name, rns_storagepath, peers, connectable = False, ifac_size = 16, ifac_netname = None, ifac_netkey = None):
-        self.rxb = 0
-        self.txb = 0
+        super().__init__()
         
         self.HW_MTU = 1064
 
@@ -963,6 +961,12 @@ class I2PInterface(Interface):
 
     def processOutgoing(self, data):
         pass
+
+    def received_announce(self, from_spawned=False):
+        if from_spawned: self.ia_freq_deque.append(time.time())
+
+    def sent_announce(self, from_spawned=False):
+        if from_spawned: self.oa_freq_deque.append(time.time())
 
     def detach(self):
         RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)

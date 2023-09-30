@@ -53,8 +53,7 @@ class LocalClientInterface(Interface):
     RECONNECT_WAIT = 3
 
     def __init__(self, owner, name, target_port = None, connected_socket=None):
-        self.rxb = 0
-        self.txb = 0
+        super().__init__()
 
         # TODO: Remove at some point
         # self.rxptime = 0
@@ -280,8 +279,7 @@ class LocalClientInterface(Interface):
 class LocalServerInterface(Interface):
 
     def __init__(self, owner, bindport=None):
-        self.rxb = 0
-        self.txb = 0
+        super().__init__()
         self.online = False
         self.clients = 0
         
@@ -337,6 +335,12 @@ class LocalServerInterface(Interface):
 
     def processOutgoing(self, data):
         pass
+
+    def received_announce(self, from_spawned=False):
+        if from_spawned: self.ia_freq_deque.append(time.time())
+
+    def sent_announce(self, from_spawned=False):
+        if from_spawned: self.oa_freq_deque.append(time.time())
 
     def __str__(self):
         return "Shared Instance["+str(self.bind_port)+"]"

@@ -79,8 +79,7 @@ class TCPClientInterface(Interface):
     I2P_PROBES = 5
 
     def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None, max_reconnect_tries=None, kiss_framing=False, i2p_tunneled = False, connect_timeout = None):
-        self.rxb = 0
-        self.txb = 0
+        super().__init__()
         
         self.HW_MTU = 1064
         
@@ -419,8 +418,7 @@ class TCPServerInterface(Interface):
         return ifaddr[netinfo.AF_INET][0]["broadcast"]
 
     def __init__(self, owner, name, device=None, bindip=None, bindport=None, i2p_tunneled=False):
-        self.rxb = 0
-        self.txb = 0
+        super().__init__()
 
         self.HW_MTU = 1064
 
@@ -504,6 +502,12 @@ class TCPServerInterface(Interface):
         RNS.Transport.interfaces.append(spawned_interface)
         self.clients += 1
         spawned_interface.read_loop()
+
+    def received_announce(self, from_spawned=False):
+        if from_spawned: self.ia_freq_deque.append(time.time())
+
+    def sent_announce(self, from_spawned=False):
+        if from_spawned: self.oa_freq_deque.append(time.time())
 
     def processOutgoing(self, data):
         pass

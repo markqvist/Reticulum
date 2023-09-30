@@ -76,10 +76,8 @@ class AutoInterface(Interface):
 
     def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None, configured_bitrate=None):
         from RNS.vendor.ifaddr import niwrapper
+        super().__init__()
         self.netinfo = niwrapper
-
-        self.rxb = 0
-        self.txb = 0
 
         self.HW_MTU = 1064
 

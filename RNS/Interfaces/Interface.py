@@ -23,6 +23,7 @@
 import RNS
 import time
 import threading
+from collections import deque
 
 class Interface:
     IN  = False
@@ -43,13 +44,64 @@ class Interface:
     # should actively discover paths for.
     DISCOVER_PATHS_FOR  = [MODE_ACCESS_POINT, MODE_GATEWAY]
 
+    # How many samples to use for incoming
+    # announce frequency calculation
+    IA_FREQ_SAMPLES     = 6
+    OA_FREQ_SAMPLES     = 6
+
     def __init__(self):
         self.rxb = 0
         self.txb = 0
         self.online = False
+        self.ia_freq_deque = deque(maxlen=Interface.IA_FREQ_SAMPLES)
+        self.oa_freq_deque = deque(maxlen=Interface.OA_FREQ_SAMPLES)
 
     def get_hash(self):
         return RNS.Identity.full_hash(str(self).encode("utf-8"))
+
+    def received_announce(self):
+        self.ia_freq_deque.append(time.time())
+        if hasattr(self, "parent_interface") and self.parent_interface != None:
+            self.parent_interface.received_announce(from_spawned=True)
+
+    def sent_announce(self):
+        self.oa_freq_deque.append(time.time())
+        if hasattr(self, "parent_interface") and self.parent_interface != None:
+            self.parent_interface.sent_announce(from_spawned=True)
+
+    def incoming_announce_frequency(self):
+        if not len(self.ia_freq_deque) > 1:
+            return 0
+        else:
+            dq_len = len(self.ia_freq_deque)
+            delta_sum = 0
+            for i in range(1,dq_len):
+                delta_sum += self.ia_freq_deque[i]-self.ia_freq_deque[i-1]
+            delta_sum += time.time() - self.ia_freq_deque[dq_len-1]
+            
+            if delta_sum == 0:
+                avg = 0
+            else:
+                avg = 1/(delta_sum/(dq_len))
+
+            return avg
+
+    def outgoing_announce_frequency(self):
+        if not len(self.oa_freq_deque) > 1:
+            return 0
+        else:
+            dq_len = len(self.oa_freq_deque)
+            delta_sum = 0
+            for i in range(1,dq_len):
+                delta_sum += self.oa_freq_deque[i]-self.oa_freq_deque[i-1]
+            delta_sum += time.time() - self.oa_freq_deque[dq_len-1]
+            
+            if delta_sum == 0:
+                avg = 0
+            else:
+                avg = 1/(delta_sum/(dq_len))
+
+            return avg
 
     def process_announce_queue(self):
         if not hasattr(self, "announce_cap"):
@@ -79,6 +131,7 @@ class Interface:
                     self.announce_allowed_at = now + wait_time
 
                     self.processOutgoing(selected["raw"])
+                    self.sent_announce()
 
                     if selected in self.announce_queue:
                         self.announce_queue.remove(selected)
