@@ -128,6 +128,8 @@ class Transport:
     hashlist_maxsize         = 1000000
     tables_last_culled       = 0.0
     tables_cull_interval     = 5.0
+    interface_last_jobs      = 0.0
+    interface_jobs_interval  = 5.0
 
     identity = None
 
@@ -608,6 +610,11 @@ class Transport:
 
                     Transport.tables_last_culled = time.time()
 
+                if time.time() > Transport.interface_last_jobs + Transport.interface_jobs_interval:
+                    for interface in Transport.interfaces:
+                        interface.process_held_announces()
+                    Transport.interface_last_jobs = time.time()
+
             else:
                 # Transport jobs were locked, do nothing
                 pass
@@ -1042,6 +1049,7 @@ class Transport:
         
         packet = RNS.Packet(None, raw)
         if not packet.unpack():
+            Transport.jobs_locked = False
             return
             
         packet.receiving_interface = interface
@@ -1123,6 +1131,7 @@ class Transport:
                 # normal processing.
                 if packet.context == RNS.Packet.CACHE_REQUEST:
                     if Transport.cache_request_packet(packet):
+                        Transport.jobs_locked = False
                         return
 
                 # If the packet is in transport, check whether we
@@ -1231,6 +1240,16 @@ class Transport:
             if packet.packet_type == RNS.Packet.ANNOUNCE:
                 if interface != None and RNS.Identity.validate_announce(packet, only_validate_signature=True):
                     interface.received_announce()
+
+                if not packet.destination_hash in Transport.destination_table:
+                    # This is an unknown destination, and we'll apply
+                    # potential ingress limiting. Already known
+                    # destinations will have re-announces controlled
+                    # by normal announce rate limiting.
+                    if interface.should_ingress_limit():
+                        interface.hold_announce(packet)
+                        Transport.jobs_locked = False
+                        return
 
                 local_destination = next((d for d in Transport.destinations if d.hash == packet.destination_hash), None)
                 if local_destination == None and RNS.Identity.validate_announce(packet):

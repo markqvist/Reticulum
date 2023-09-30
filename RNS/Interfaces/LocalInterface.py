@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2016-2022 Mark Qvist / unsigned.io
+# Copyright (c) 2016-2023 Mark Qvist / unsigned.io
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -101,6 +101,9 @@ class LocalClientInterface(Interface):
             thread = threading.Thread(target=self.read_loop)
             thread.daemon = True
             thread.start()
+
+    def should_ingress_limit(self):
+        return False
 
     def connect(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -327,7 +330,7 @@ class LocalServerInterface(Interface):
         spawned_interface.target_port = str(handler.client_address[1])
         spawned_interface.parent_interface = self
         spawned_interface.bitrate = self.bitrate
-        RNS.log("Accepting new connection to shared instance: "+str(spawned_interface), RNS.LOG_EXTREME)
+        # RNS.log("Accepting new connection to shared instance: "+str(spawned_interface), RNS.LOG_EXTREME)
         RNS.Transport.interfaces.append(spawned_interface)
         RNS.Transport.local_client_interfaces.append(spawned_interface)
         self.clients += 1

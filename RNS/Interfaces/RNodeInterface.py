@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2016-2022 Mark Qvist / unsigned.io
+# Copyright (c) 2016-2023 Mark Qvist / unsigned.io
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -836,6 +836,9 @@ class RNodeInterface(Interface):
         self.disable_external_framebuffer()
         self.setRadioState(KISS.RADIO_STATE_OFF)
         self.leave()
+
+    def should_ingress_limit(self):
+        return False
 
     def __str__(self):
         return "RNodeInterface["+str(self.name)+"]"
