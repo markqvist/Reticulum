@@ -1077,6 +1077,9 @@ class Reticulum:
                     if path == "path":
                         rpc_connection.send(self.drop_path(call["destination_hash"]))
 
+                    if path == "all_via":
+                        rpc_connection.send(self.drop_all_via(call["destination_hash"]))
+
                     if path == "announce_queues":
                         rpc_connection.send(self.drop_announce_queues())
 
@@ -1240,6 +1243,22 @@ class Reticulum:
 
         else:
             return RNS.Transport.expire_path(destination)
+
+    def drop_all_via(self, transport_hash):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection.send({"drop": "all_via", "destination_hash": transport_hash})
+            response = rpc_connection.recv()
+            return response
+
+        else:
+            dropped_count = 0
+            for destination_hash in RNS.Transport.destination_table:
+                if RNS.Transport.destination_table[destination_hash][1] == transport_hash:
+                    RNS.Transport.expire_path(destination_hash)
+                    dropped_count += 1
+
+            return dropped_count
 
     def drop_announce_queues(self):
         if self.is_connected_to_shared_instance:

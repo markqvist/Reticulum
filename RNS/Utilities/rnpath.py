@@ -30,7 +30,7 @@ import argparse
 from RNS._version import __version__
 
 
-def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues):
+def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues, drop_via):
     if table:
         destination_hash = None
         if destination_hexhash != None:
@@ -155,6 +155,29 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             sys.exit(1)
 
 
+    elif drop_via:
+        try:
+            dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
+            if len(destination_hexhash) != dest_len:
+                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            try:
+                destination_hash = bytes.fromhex(destination_hexhash)
+            except Exception as e:
+                raise ValueError("Invalid destination entered. Check your input.")
+        except Exception as e:
+            print(str(e))
+            sys.exit(1)
+
+
+        reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
+
+        if reticulum.drop_all_via(destination_hash):
+            print("Dropped all paths via "+RNS.prettyhexrep(destination_hash))
+        else:
+            print("Unable to drop paths via "+RNS.prettyhexrep(destination_hash)+". Does the transport instance exist?")
+            sys.exit(1)
+
+
     else:
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
@@ -257,6 +280,13 @@ def main():
         )
 
         parser.add_argument(
+            "-x", "--drop-via",
+            action="store_true",
+            help="drop all paths via specified transport instance",
+            default=False
+        )
+
+        parser.add_argument(
             "-w",
             action="store",
             metavar="seconds",
@@ -282,7 +312,7 @@ def main():
         else:
             configarg = None
 
-        if not args.drop_announces and not args.table and not args.rates and not args.destination:
+        if not args.drop_announces and not args.table and not args.rates and not args.destination and not args.drop_via:
             print("")
             parser.print_help()
             print("")
@@ -296,6 +326,7 @@ def main():
                 verbosity = args.verbose,
                 timeout = args.w,
                 drop_queues = args.drop_announces,
+                drop_via = args.drop_via,
             )
             sys.exit(0)
 
