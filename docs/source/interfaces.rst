@@ -763,16 +763,30 @@ that a large span of network types can seamlessly *co-exist* and interconnect.
 
 .. _interfaces-ingress-control:
 
-Ingress Announce Control
-========================
+New Destination Rate Limiting
+=============================
 
 On public interfaces, where anyone may connect and announce new destinations,
-it can be useful to control the rate at which new announces ingress.
+it can be useful to control the rate at which announces for *new*  destinations are
+processed.
 
 If a large influx of announces for newly created or previously unknown destinations
-occur, Reticulum will place these announces on hold, so that announce traffic
-for known and previously established destinations can continue to be processed
-without interruptions.
+occur within a short amount of time, Reticulum will place these announces on hold,
+so that announce traffic for known and previously established destinations can
+continue to be processed without interruptions.
+
+After the burst subsides, and an additional waiting period has passed, the held
+announces will be released at a slow rate, until the hold queue is cleared. This
+also means, that should a node decide to connect to a public interface, announce
+a large amount of bogus destinations, and then disconnect, these destination will
+never make it into path tables and waste network bandwidth on retransmitted
+announces.
+
+**It's important to note** that the ingress control works at the level of *individual
+sub-interfaces*. As an example, this means that one client on a :ref:`TCP Server Interface<interfaces-tcps>`
+cannot disrupt processing of incoming announces for other connected clients on the same
+:ref:`TCP Server Interface<interfaces-tcps>`. All other clients on the same interface will still have new announces
+processed without interruption.
 
 By default, Reticulum will handle this automatically, and ingress announce
 control will be enabled on interface where it is sensible to do so. It should

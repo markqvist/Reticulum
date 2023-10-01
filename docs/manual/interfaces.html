@@ -937,14 +937,26 @@ conserve bandwidth, while very fast networks can support applications that
 need very frequent announces. Reticulum implements these mechanisms to ensure
 that a large span of network types can seamlessly <em>co-exist</em> and interconnect.</p>
 </section>
-<section id="ingress-announce-control">
-<span id="interfaces-ingress-control"></span><h2>Ingress Announce Control<a class="headerlink" href="#ingress-announce-control" title="Permalink to this heading">#</a></h2>
+<section id="new-destination-rate-limiting">
+<span id="interfaces-ingress-control"></span><h2>New Destination Rate Limiting<a class="headerlink" href="#new-destination-rate-limiting" title="Permalink to this heading">#</a></h2>
 <p>On public interfaces, where anyone may connect and announce new destinations,
-it can be useful to control the rate at which new announces ingress.</p>
+it can be useful to control the rate at which announces for <em>new</em>  destinations are
+processed.</p>
 <p>If a large influx of announces for newly created or previously unknown destinations
-occur, Reticulum will place these announces on hold, so that announce traffic
-for known and previously established destinations can continue to be processed
-without interruptions.</p>
+occur within a short amount of time, Reticulum will place these announces on hold,
+so that announce traffic for known and previously established destinations can
+continue to be processed without interruptions.</p>
+<p>After the burst subsides, and an additional waiting period has passed, the held
+announces will be released at a slow rate, until the hold queue is cleared. This
+also means, that should a node decide to connect to a public interface, announce
+a large amount of bogus destinations, and then disconnect, these destination will
+never make it into path tables and waste network bandwidth on retransmitted
+announces.</p>
+<p><strong>It’s important to note</strong> that the ingress control works at the level of <em>individual
+sub-interfaces</em>. As an example, this means that one client on a <a class="reference internal" href="#interfaces-tcps"><span class="std std-ref">TCP Server Interface</span></a>
+cannot disrupt processing of incoming announces for other connected clients on the same
+<a class="reference internal" href="#interfaces-tcps"><span class="std std-ref">TCP Server Interface</span></a>. All other clients on the same interface will still have new announces
+processed without interruption.</p>
 <p>By default, Reticulum will handle this automatically, and ingress announce
 control will be enabled on interface where it is sensible to do so. It should
 generally not be neccessary to modify the ingress control configuration,
@@ -1082,7 +1094,7 @@ to <code class="docutils literal notranslate"><span class="pre">30</span></code>
 <li><a class="reference internal" href="#common-interface-options">Common Interface Options</a></li>
 <li><a class="reference internal" href="#interface-modes">Interface Modes</a></li>
 <li><a class="reference internal" href="#announce-rate-control">Announce Rate Control</a></li>
-<li><a class="reference internal" href="#ingress-announce-control">Ingress Announce Control</a></li>
+<li><a class="reference internal" href="#new-destination-rate-limiting">New Destination Rate Limiting</a></li>
 </ul>
 </li>
 </ul>
