@@ -481,19 +481,23 @@ Reticulum Transport Instance &lt;5245a8efe1788c6a1cd36144a270e13b&gt; running
 </pre></div>
 </div>
 <p><strong>All Command-Line Options</strong></p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnstatus.py [-h] [--config CONFIG] [--version] [-a] [-j] [-v] [filter]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnstatus.py [-h] [--config CONFIG] [--version] [-a] [-A] [-s SORT]
+                   [-r] [-j] [-v] [filter]
 
 Reticulum Network Stack Status
 
 positional arguments:
-  filter           only display interfaces with names including filter
+  filter                only display interfaces with names including filter
 
 options:
-  -h, --help       show this help message and exit
-  --config CONFIG  path to alternative Reticulum config directory
-  --version        show program&#39;s version number and exit
-  -a, --all        show all interfaces
-  -j, --json       output in JSON format
+  -h, --help            show this help message and exit
+  --config CONFIG       path to alternative Reticulum config directory
+  --version             show program&#39;s version number and exit
+  -a, --all             show all interfaces
+  -A, --announce-stats  show announce stats
+  -s SORT, --sort SORT  sort interfaces by [rate, traffic, rx, tx, announces, arx, atx, held]
+  -r, --reverse         reverse sorting
+  -j, --json            output in JSON format
   -v, --verbose
 </pre></div>
 </div>
@@ -595,7 +599,7 @@ Path found, destination &lt;c89b4da064bf66d280f0e4d8abfd9806&gt; is 4 hops away 
 </div>
 <p><strong>All Command-Line Options</strong></p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnpath.py [-h] [--config CONFIG] [--version] [-t] [-r] [-d] [-D]
-                 [-w seconds] [-v] [destination]
+                 [-x] [-w seconds] [-v] [destination]
 
 Reticulum Path Discovery Utility
 
@@ -610,6 +614,7 @@ options:
   -r, --rates           show announce rate info
   -d, --drop            remove the path to a destination
   -D, --drop-announces  drop all queued announces
+  -x, --drop-via        drop all paths via specified transport instance
   -w seconds            timeout before giving up
   -v, --verbose
 </pre></div>

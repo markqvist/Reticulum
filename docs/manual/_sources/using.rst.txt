@@ -301,19 +301,23 @@ Filter output to only show some interfaces:
 
 .. code:: text
 
-  usage: rnstatus.py [-h] [--config CONFIG] [--version] [-a] [-j] [-v] [filter]
+  usage: rnstatus.py [-h] [--config CONFIG] [--version] [-a] [-A] [-s SORT]
+                     [-r] [-j] [-v] [filter]
 
   Reticulum Network Stack Status
 
   positional arguments:
-    filter           only display interfaces with names including filter
+    filter                only display interfaces with names including filter
 
   options:
-    -h, --help       show this help message and exit
-    --config CONFIG  path to alternative Reticulum config directory
-    --version        show program's version number and exit
-    -a, --all        show all interfaces
-    -j, --json       output in JSON format
+    -h, --help            show this help message and exit
+    --config CONFIG       path to alternative Reticulum config directory
+    --version             show program's version number and exit
+    -a, --all             show all interfaces
+    -A, --announce-stats  show announce stats
+    -s SORT, --sort SORT  sort interfaces by [rate, traffic, rx, tx, announces, arx, atx, held]
+    -r, --reverse         reverse sorting
+    -j, --json            output in JSON format
     -v, --verbose
 
 
@@ -438,7 +442,7 @@ Resolve path to a destination:
 .. code:: text
 
   usage: rnpath.py [-h] [--config CONFIG] [--version] [-t] [-r] [-d] [-D]
-                   [-w seconds] [-v] [destination]
+                   [-x] [-w seconds] [-v] [destination]
 
   Reticulum Path Discovery Utility
 
@@ -453,6 +457,7 @@ Resolve path to a destination:
     -r, --rates           show announce rate info
     -d, --drop            remove the path to a destination
     -D, --drop-announces  drop all queued announces
+    -x, --drop-via        drop all paths via specified transport instance
     -w seconds            timeout before giving up
     -v, --verbose
 
