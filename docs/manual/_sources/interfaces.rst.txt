@@ -769,12 +769,12 @@ Ingress Announce Control
 On public interfaces, where anyone may connect and announce new destinations,
 it can be useful to control the rate at which new announces ingress.
 
-If a large influx of annonuces for newly created or previously unknown destinations
+If a large influx of announces for newly created or previously unknown destinations
 occur, Reticulum will place these announces on hold, so that announce traffic
 for known and previously established destinations can continue to be processed
 without interruptions.
 
-By default, Reticulum will handle this automatically, and ingress annonuce
+By default, Reticulum will handle this automatically, and ingress announce
 control will be enabled on interface where it is sensible to do so. It should
 generally not be neccessary to modify the ingress control configuration,
 but all the parameters are exposed for configuration if needed.
@@ -788,11 +788,11 @@ but all the parameters are exposed for configuration if needed.
      option is useful on publicly accessible interfaces that spawn new
      sub-interfaces when a new client connects. 
 
- * | The ``ic_burst_freq_new`` option sets the maximum annonuce ingress
+ * | The ``ic_burst_freq_new`` option sets the maximum announce ingress
      frequency for newly spawned interfaces. Defaults to ``3.5``
      announces per second.
 
- * | The ``ic_burst_freq`` option sets the maximum annonuce ingress
+ * | The ``ic_burst_freq`` option sets the maximum announce ingress
      frequency for other interfaces. Defaults to ``12`` announces
      per second.
 

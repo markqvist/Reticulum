@@ -941,11 +941,11 @@ that a large span of network types can seamlessly <em>co-exist</em> and intercon
 <span id="interfaces-ingress-control"></span><h2>Ingress Announce Control<a class="headerlink" href="#ingress-announce-control" title="Permalink to this heading">#</a></h2>
 <p>On public interfaces, where anyone may connect and announce new destinations,
 it can be useful to control the rate at which new announces ingress.</p>
-<p>If a large influx of annonuces for newly created or previously unknown destinations
+<p>If a large influx of announces for newly created or previously unknown destinations
 occur, Reticulum will place these announces on hold, so that announce traffic
 for known and previously established destinations can continue to be processed
 without interruptions.</p>
-<p>By default, Reticulum will handle this automatically, and ingress annonuce
+<p>By default, Reticulum will handle this automatically, and ingress announce
 control will be enabled on interface where it is sensible to do so. It should
 generally not be neccessary to modify the ingress control configuration,
 but all the parameters are exposed for configuration if needed.</p>
@@ -965,13 +965,13 @@ sub-interfaces when a new client connects.</div>
 </div>
 </li>
 <li><div class="line-block">
-<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_freq_new</span></code> option sets the maximum annonuce ingress
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_freq_new</span></code> option sets the maximum announce ingress
 frequency for newly spawned interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">3.5</span></code>
 announces per second.</div>
 </div>
 </li>
 <li><div class="line-block">
-<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_freq</span></code> option sets the maximum annonuce ingress
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_freq</span></code> option sets the maximum announce ingress
 frequency for other interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">12</span></code> announces
 per second.</div>
 </div>
