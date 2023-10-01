@@ -32,7 +32,7 @@ def program_setup(configpath):
     # Destinations are endpoints in Reticulum, that can be addressed
     # and communicated with. Destinations can also announce their
     # existence, which will let the network know they are reachable
-    # and autoomatically create paths to them, from anywhere else
+    # and automatically create paths to them, from anywhere else
     # in the network.
     destination_1 = RNS.Destination(
         identity,
@@ -53,7 +53,7 @@ def program_setup(configpath):
     )
 
     # We configure the destinations to automatically prove all
-    # packets adressed to it. By doing this, RNS will automatically
+    # packets addressed to it. By doing this, RNS will automatically
     # generate a proof for each incoming packet and transmit it
     # back to the sender of that packet. This will let anyone that
     # tries to communicate with the destination know whether their

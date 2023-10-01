@@ -30,7 +30,7 @@ class Packet:
     """
     The Packet class is used to create packet instances that can be sent
     over a Reticulum network. Packets will automatically be encrypted if
-    they are adressed to a ``RNS.Destination.SINGLE`` destination,
+    they are addressed to a ``RNS.Destination.SINGLE`` destination,
     ``RNS.Destination.GROUP`` destination or a :ref:`RNS.Link<api-link>`.
 
     For ``RNS.Destination.GROUP`` destinations, Reticulum will use the

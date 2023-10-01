@@ -46,7 +46,7 @@ def server(configpath):
     )
 
     # We configure the destination to automatically prove all
-    # packets adressed to it. By doing this, RNS will automatically
+    # packets addressed to it. By doing this, RNS will automatically
     # generate a proof for each incoming packet and transmit it
     # back to the sender of that packet.
     echo_destination.set_proof_strategy(RNS.Destination.PROVE_ALL)
