@@ -1,3 +1,30 @@
+### 2023-09-21: RNS β 0.6.1
+
+This release brings a number of bugfixes, along with useful new mechanisms for ensuring network stability under high, non-constructive and unusual announce load situation.
+
+**Changes**
+- Added announce ingress rate control for new and unknown destinations
+- Added per-interface announce frequency monitoring to the transport engine
+- Added per-interface announce burst hold queues
+- Added announce frequency statistics to `rnstatus`
+- Added option to sort `rnstatus` output according to various metrics
+- Added timeout options to `rnprobe`
+- Added ability to drop all paths via a specific transport instance to `rnpath`
+- Added new options and features to documentation and manual
+
+**Bugfixes**
+- Fixed announce queue not clearing all announces with exceeded retry limit at the same time
+- Fixed a bug that caused local packet RSSI and SNR cache to get stuck
+- Fixed output formatting in `rncp`
+- Fixed `rnid` not allowing single-aspect destination names
+- Fixed a number of typos in the documentation
+
+**Release Hashes**
+```
+461e5cafa7560dcd3ec047141d10f0f48f151c36e1af1d65ec6c65f732cea46a rns-0.6.1-py3-none-any.whl
+be6a4a6069f2d050e21582f2cf9d3bb59ed4040a0f07761a540bd752d90ea591 rnspure-0.6.1-py3-none-any.whl
+```
+
 ### 2023-09-21: RNS β 0.6.0
 
 This release brings a few performance improvements, additions to the included utilities, and fixes a number of bugs.
