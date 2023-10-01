@@ -1,4 +1,4 @@
-### 2023-09-21: RNS β 0.6.1
+### 2023-10-01: RNS β 0.6.1
 
 This release brings a number of bugfixes, along with useful new mechanisms for ensuring network stability under high, non-constructive and unusual announce load situation.
 
