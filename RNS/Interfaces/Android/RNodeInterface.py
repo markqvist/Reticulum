@@ -1234,6 +1234,9 @@ class RNodeInterface(Interface):
         self.setRadioState(KISS.RADIO_STATE_OFF)
         self.leave()
 
+    def should_ingress_limit(self):
+        return False
+
     def __str__(self):
         return "RNodeInterface["+str(self.name)+"]"
 

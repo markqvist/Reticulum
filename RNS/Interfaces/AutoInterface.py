@@ -431,6 +431,11 @@ class AutoInterface(Interface):
             self.txb += len(data)
             
 
+    # Until per-device sub-interfacing is implemented,
+    # ingress limiting should be disabled on AutoInterface
+    def should_ingress_limit(self):
+        return False
+
     def __str__(self):
         return "AutoInterface["+self.name+"]"
 

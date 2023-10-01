@@ -254,5 +254,8 @@ class SerialInterface(Interface):
 
         RNS.log("Reconnected serial port for "+str(self))
 
+    def should_ingress_limit(self):
+        return False
+
     def __str__(self):
         return "SerialInterface["+self.name+"]"
