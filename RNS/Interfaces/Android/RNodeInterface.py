@@ -166,8 +166,8 @@ class AndroidBluetoothManager():
                                 raise IOError("The Bluetooth RFcomm socket could not be connected: "+str(e))
 
                 except Exception as e:
-                    RNS.log("Could not create and connect Bluetooth RFcomm socket for "+str(device.getName())+" "+str(device.getAddress()), RNS.LOG_ERROR)
-                    RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                    RNS.log("Could not create and connect Bluetooth RFcomm socket for "+str(device.getName())+" "+str(device.getAddress()), RNS.LOG_DEBUG)
+                    RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
 
     def close(self):
         if self.connected:
