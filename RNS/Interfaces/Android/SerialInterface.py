@@ -72,8 +72,7 @@ class SerialInterface(Interface):
         else:
             raise SystemError("Android-specific interface was used on non-Android OS")
 
-        self.rxb = 0
-        self.txb = 0
+        super().__init__()
 
         self.HW_MTU = 564
         
