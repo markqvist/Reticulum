@@ -1,6 +1,6 @@
 ### 2023-10-07: RNS β 0.6.2
 
-This maintenance release adds the ability to specify the shared instance RPC key in the Reticulum file, making it possible to use all Reticulum functionality in the terminal on Android.
+This maintenance release adds the ability to specify the shared instance RPC key in the Reticulum config file, making it possible to use all Reticulum functionality in the terminal on Android.
 
 **Changes**
 - Added configuration option to specify shared instance RPC key
