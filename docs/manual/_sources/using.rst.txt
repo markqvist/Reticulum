@@ -99,6 +99,17 @@ configuration file is created. The default configuration looks like this:
   instance_control_port = 37429
 
 
+  # On systems where running instances may not have access
+  # to the same shared Reticulum configuration directory,
+  # it is still possible to allow full interactivity for
+  # running instances, by manually specifying a shared RPC
+  # key. In almost all cases, this option is not needed, but
+  # it can be useful on operating systems such as Android.
+  # The key must be specified as bytes in hexadecimal.
+
+  # rpc_key = e5c032d3ec4e64a6aca9927ba8ab73336780f6d71790
+
+
   # You can configure Reticulum to panic and forcibly close
   # if an unrecoverable interface error occurs, such as the
   # hardware device for an interface disappearing. This is
