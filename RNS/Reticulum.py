@@ -209,6 +209,7 @@ class Reticulum:
         self.local_control_port   = 37429
         self.share_instance       = True
         self.rpc_listener         = None
+        self.rpc_key              = None
 
         self.ifac_salt = Reticulum.IFAC_SALT
 
@@ -262,7 +263,8 @@ class Reticulum:
         RNS.Transport.start(self)
 
         self.rpc_addr = ("127.0.0.1", self.local_control_port)
-        self.rpc_key  = RNS.Identity.full_hash(RNS.Transport.identity.get_private_key())
+        if self.rpc_key == None:
+            self.rpc_key  = RNS.Identity.full_hash(RNS.Transport.identity.get_private_key())
         
         if self.is_shared_instance:
             self.rpc_listener = multiprocessing.connection.Listener(self.rpc_addr, authkey=self.rpc_key)
@@ -359,6 +361,13 @@ class Reticulum:
                 if option == "instance_control_port":
                     value = int(self.config["reticulum"][option])
                     self.local_control_port = value
+                if option == "rpc_key":
+                    try:
+                        value = bytes.fromhex(self.config["reticulum"][option])
+                        self.rpc_key = value
+                    except Exception as e:
+                        RNS.log("Invalid shared instance RPC key specified, falling back to default key", RNS.LOG_ERROR)
+                        self.rpc_key = None
                 if option == "enable_transport":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:
