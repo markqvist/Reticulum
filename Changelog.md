@@ -1,3 +1,21 @@
+### 2023-10-07: RNS β 0.6.2
+
+This maintenance release adds the ability to specify the shared instance RPC key in the Reticulum file, making it possible to use all Reticulum functionality in the terminal on Android.
+
+**Changes**
+- Added configuration option to specify shared instance RPC key
+- Reordered airtime stats in `rnstatus`
+- Updated log levels on Android
+
+**Bugfixes**
+- Adding missing superclass init on Android interfaces
+
+**Release Hashes**
+```
+a9958ad90f34f344003e18077f7abd3fa85666a39dc0cae8580071820dee13f9 rns-0.6.2-py3-none-any.whl
+e68e8837d35d1a07a82c4b0e9db50ceace737a650e6e7e9ce2d9a013fd28f529 rnspure-0.6.2-py3-none-any.whl
+```
+
 ### 2023-10-01: RNS β 0.6.1
 
 This release brings a number of bugfixes, along with useful new mechanisms for ensuring network stability under high, non-constructive and unusual announce load situation.
@@ -25,7 +43,7 @@ This release brings a number of bugfixes, along with useful new mechanisms for e
 be6a4a6069f2d050e21582f2cf9d3bb59ed4040a0f07761a540bd752d90ea591 rnspure-0.6.1-py3-none-any.whl
 ```
 
-### 2023-09-21: RNS β 0.6.0
+#### 2023-09-21: RNS β 0.6.0
 
 This release brings a few performance improvements, additions to the included utilities, and fixes a number of bugs.
 
