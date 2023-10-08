@@ -59,6 +59,7 @@ class KISS():
     CMD_FB_EXT      = 0x41
     CMD_FB_READ     = 0x42
     CMD_FB_WRITE    = 0x43
+    CMD_BT_CTRL     = 0x46
     CMD_PLATFORM    = 0x48
     CMD_MCU         = 0x49
     CMD_FW_VERSION  = 0x50
