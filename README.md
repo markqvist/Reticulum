@@ -45,7 +45,7 @@ For more info, see [reticulum.network](https://reticulum.network/)
 - Initiator anonymity, communicate without revealing your identity
 - Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
 - Forward Secrecy with ephemeral Elliptic Curve Diffie-Hellman keys on Curve25519
-- Reticulum uses the [Fernet](https://github.com/fernet/spec/blob/master/Spec.md) specification for on-the-wire / over-the-air encryption
+- Reticulum uses the following token format for on-the-wire / over-the-air encryption:
   - Keys are ephemeral and derived from an ECDH key exchange on Curve25519
   - AES-128 in CBC mode with PKCS7 padding
   - HMAC using SHA256 for authentication
