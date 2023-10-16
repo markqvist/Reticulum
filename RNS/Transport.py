@@ -2238,7 +2238,10 @@ class Transport:
                 pass
 
         for interface in detachable_interfaces:
-            interface.detach()
+            try:
+                interface.detach()
+            except Exception as e:
+                RNS.log("An error occurred while detaching "+str(interface)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     @staticmethod
     def shared_connection_disappeared():
