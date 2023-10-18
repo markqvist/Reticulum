@@ -50,7 +50,7 @@ class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         self.server_address = self.socket.getsockname()
 
 class LocalClientInterface(Interface):
-    RECONNECT_WAIT = 3
+    RECONNECT_WAIT = 8
 
     def __init__(self, owner, name, target_port = None, connected_socket=None):
         super().__init__()
@@ -139,7 +139,10 @@ class LocalClientInterface(Interface):
                 thread = threading.Thread(target=self.read_loop)
                 thread.daemon = True
                 thread.start()
-                RNS.Transport.shared_connection_reappeared()
+                def job():
+                    time.sleep(LocalClientInterface.RECONNECT_WAIT+2)
+                    RNS.Transport.shared_connection_reappeared()
+                threading.Thread(target=job, daemon=True).start()
         
         else:
             RNS.log("Attempt to reconnect on a non-initiator shared local interface. This should not happen.", RNS.LOG_ERROR)
