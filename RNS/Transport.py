@@ -116,6 +116,7 @@ class Transport:
 
     local_client_rssi_cache    = []
     local_client_snr_cache     = []
+    local_client_q_cache     = []
     LOCAL_CLIENT_CACHE_MAXSIZE = 512
 
     pending_local_path_requests = {}
@@ -1095,6 +1096,15 @@ class Transport:
 
                         while len(Transport.local_client_snr_cache) > Transport.LOCAL_CLIENT_CACHE_MAXSIZE:
                             Transport.local_client_snr_cache.pop(0)
+
+            if hasattr(interface, "r_stat_q"):
+                if interface.r_stat_q != None:
+                    packet.q = interface.r_stat_q
+                    if len(Transport.local_client_interfaces) > 0:
+                        Transport.local_client_q_cache.append([packet.packet_hash, packet.q])
+
+                        while len(Transport.local_client_q_cache) > Transport.LOCAL_CLIENT_CACHE_MAXSIZE:
+                            Transport.local_client_q_cache.pop(0)
 
         if len(Transport.local_client_interfaces) > 0:
             if Transport.is_local_client_interface(interface):

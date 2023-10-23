@@ -153,6 +153,9 @@ class Link:
         self.rx = 0
         self.txbytes = 0
         self.rxbytes = 0
+        self.rssi = None
+        self.snr = None
+        self.q = None
         self.traffic_timeout_factor = Link.TRAFFIC_TIMEOUT_FACTOR
         self.keepalive_timeout_factor = Link.KEEPALIVE_TIMEOUT_FACTOR
         self.keepalive = Link.KEEPALIVE
@@ -472,6 +475,7 @@ class Link:
                     self.teardown_reason = Link.DESTINATION_CLOSED
                 else:
                     self.teardown_reason = Link.INITIATOR_CLOSED
+                self.__update_phy_stats(packet)
                 self.link_closed()
         except Exception as e:
             pass
@@ -577,6 +581,14 @@ class Link:
                 sleep(sleep_time)
 
 
+    def __update_phy_stats(self, packet):
+        if packet.rssi != None:
+            self.rssi = packet.rssi
+        if packet.snr != None:
+            self.snr = packet.snr
+        if packet.q != None:
+            self.q = packet.q
+    
     def send_keepalive(self):
         keepalive_packet = RNS.Packet(self, bytes([0xFF]), context=RNS.Packet.KEEPALIVE)
         keepalive_packet.send()
@@ -707,6 +719,8 @@ class Link:
                                 except Exception as e:
                                     RNS.log("Error while executing proof request callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
+                        self.__update_phy_stats(packet)
+
                     elif packet.context == RNS.Packet.LINKIDENTIFY:
                         plaintext = self.decrypt(packet.data)
 
@@ -724,6 +738,8 @@ class Link:
                                         self.callbacks.remote_identified(self, self.__remote_identity)
                                     except Exception as e:
                                         RNS.log("Error while executing remote identified callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                            
+                                self.__update_phy_stats(packet)
 
                     elif packet.context == RNS.Packet.REQUEST:
                         try:
@@ -731,6 +747,7 @@ class Link:
                             packed_request = self.decrypt(packet.data)
                             unpacked_request = umsgpack.unpackb(packed_request)
                             self.handle_request(request_id, unpacked_request)
+                            self.__update_phy_stats(packet)
                         except Exception as e:
                             RNS.log("Error occurred while handling request. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
@@ -742,18 +759,21 @@ class Link:
                             response_data = unpacked_response[1]
                             transfer_size = len(umsgpack.packb(response_data))-2
                             self.handle_response(request_id, response_data, transfer_size, transfer_size)
+                            self.__update_phy_stats(packet)
                         except Exception as e:
                             RNS.log("Error occurred while handling response. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
                     elif packet.context == RNS.Packet.LRRTT:
                         if not self.initiator:
                             self.rtt_packet(packet)
+                            self.__update_phy_stats(packet)
 
                     elif packet.context == RNS.Packet.LINKCLOSE:
                         self.teardown_packet(packet)
 
                     elif packet.context == RNS.Packet.RESOURCE_ADV:
                         packet.plaintext = self.decrypt(packet.data)
+                        self.__update_phy_stats(packet)
 
                         if RNS.ResourceAdvertisement.is_request(packet):
                             RNS.Resource.accept(packet, callback=self.request_resource_concluded)
@@ -781,6 +801,7 @@ class Link:
 
                     elif packet.context == RNS.Packet.RESOURCE_REQ:
                         plaintext = self.decrypt(packet.data)
+                        self.__update_phy_stats(packet)
                         if ord(plaintext[:1]) == RNS.Resource.HASHMAP_IS_EXHAUSTED:
                             resource_hash = plaintext[1+RNS.Resource.MAPHASH_LEN:RNS.Identity.HASHLENGTH//8+1+RNS.Resource.MAPHASH_LEN]
                         else:
@@ -796,6 +817,7 @@ class Link:
 
                     elif packet.context == RNS.Packet.RESOURCE_HMU:
                         plaintext = self.decrypt(packet.data)
+                        self.__update_phy_stats(packet)
                         resource_hash = plaintext[:RNS.Identity.HASHLENGTH//8]
                         for resource in self.incoming_resources:
                             if resource_hash == resource.hash:
@@ -803,6 +825,7 @@ class Link:
 
                     elif packet.context == RNS.Packet.RESOURCE_ICL:
                         plaintext = self.decrypt(packet.data)
+                        self.__update_phy_stats(packet)
                         resource_hash = plaintext[:RNS.Identity.HASHLENGTH//8]
                         for resource in self.incoming_resources:
                             if resource_hash == resource.hash:
@@ -822,6 +845,7 @@ class Link:
                     elif packet.context == RNS.Packet.RESOURCE:
                         for resource in self.incoming_resources:
                             resource.receive_part(packet)
+                            self.__update_phy_stats(packet)
 
                     elif packet.context == RNS.Packet.CHANNEL:
                         if not self._channel:
@@ -842,6 +866,7 @@ class Link:
 
                             packet.prove()
                             plaintext = self.decrypt(packet.data)
+                            self.__update_phy_stats(packet)
                             self._channel._receive(plaintext)
 
                 elif packet.packet_type == RNS.Packet.PROOF:
@@ -850,6 +875,7 @@ class Link:
                         for resource in self.outgoing_resources:
                             if resource_hash == resource.hash:
                                 resource.validate_proof(packet.data)
+                                self.__update_phy_stats(packet)
 
         self.watchdog_lock = False
 

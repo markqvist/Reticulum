@@ -138,6 +138,7 @@ class Packet:
         self.receiving_interface = None
         self.rssi = None
         self.snr = None
+        self.q = None
 
     def get_packed_flags(self):
         if self.context == Packet.LRPROOF:
