@@ -103,6 +103,10 @@ class RNodeInterface(Interface):
 
     RECONNECT_WAIT = 5
 
+    Q_SNR_MIN_BASE = -9
+    Q_SNR_MAX      = 6
+    Q_SNR_STEP     = 2
+
     def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None, st_alock = None, lt_alock = None):
         if RNS.vendor.platformutils.is_android():
             raise SystemError("Invlaid interface type. The Android-specific RNode interface must be used on Android")
@@ -672,6 +676,18 @@ class RNodeInterface(Interface):
                             self.r_stat_rssi = byte-RNodeInterface.RSSI_OFFSET
                         elif (command == KISS.CMD_STAT_SNR):
                             self.r_stat_snr = int.from_bytes(bytes([byte]), byteorder="big", signed=True) * 0.25
+                            try:
+                                sfs = self.r_sf-7
+                                snr = self.r_stat_snr
+                                q_snr_min = RNodeInterface.Q_SNR_MIN_BASE-sfs*RNodeInterface.Q_SNR_STEP
+                                q_snr_max = RNodeInterface.Q_SNR_MAX
+                                q_snr_span = q_snr_max-q_snr_min
+                                quality = round(((snr-q_snr_min)/(q_snr_span))*100,1)
+                                if quality > 100.0: quality = 100.0
+                                if quality < 0.0: quality = 0.0
+                                self.r_stat_q = quality
+                            except:
+                                pass
                         elif (command == KISS.CMD_ST_ALOCK):
                             if (byte == KISS.FESC):
                                 escape = True
