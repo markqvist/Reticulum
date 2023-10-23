@@ -45,10 +45,10 @@ class Fernet():
 
     def __init__(self, key = None):
         if key == None:
-            raise ValueError("Fernet key cannot be None")
+            raise ValueError("Token key cannot be None")
 
         if len(key) != 32:
-            raise ValueError("Fernet key must be 32 bytes, not "+str(len(key)))
+            raise ValueError("Token key must be 32 bytes, not "+str(len(key)))
             
         self._signing_key = key[:16]
         self._encryption_key = key[16:]
@@ -72,7 +72,7 @@ class Fernet():
         current_time = int(time.time())
 
         if not isinstance(data, bytes):
-            raise TypeError("Fernet token plaintext input must be bytes")
+            raise TypeError("Token plaintext input must be bytes")
 
         ciphertext = AES_128_CBC.encrypt(
             plaintext = PKCS7.pad(data),
@@ -87,10 +87,10 @@ class Fernet():
 
     def decrypt(self, token = None):
         if not isinstance(token, bytes):
-            raise TypeError("Fernet token must be bytes")
+            raise TypeError("Token must be bytes")
 
         if not self.verify_hmac(token):
-            raise ValueError("Fernet token HMAC was invalid")
+            raise ValueError("Token HMAC was invalid")
 
         iv = token[:16]
         ciphertext = token[16:-32]
@@ -107,4 +107,4 @@ class Fernet():
             return plaintext
 
         except Exception as e:
-            raise ValueError("Could not decrypt Fernet token")
+            raise ValueError("Could not decrypt token")
