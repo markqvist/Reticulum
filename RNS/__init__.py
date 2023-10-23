@@ -192,32 +192,52 @@ def prettyfrequency(hz, suffix="Hz"):
 
     return "%.2f%s%s" % (num, last_unit, suffix)
 
-def prettytime(time, verbose=False):
+def prettydistance(hz, suffix="m"):
+    num = hz*1e6
+    units = ["µ", "m", "", "K","M","G","T","P","E","Z"]
+    last_unit = "Y"
+
+    for unit in units:
+        if abs(num) < 1000.0:
+            return "%.2f %s%s" % (num, unit, suffix)
+        num /= 1000.0
+
+    return "%.2f%s%s" % (num, last_unit, suffix)
+
+def prettytime(time, verbose=False, compact=False):
     days = int(time // (24 * 3600))
     time = time % (24 * 3600)
     hours = int(time // 3600)
     time %= 3600
     minutes = int(time // 60)
     time %= 60
-    seconds = round(time, 2)
+    if compact:
+        seconds = int(time)
+    else:
+        seconds = round(time, 2)
     
     ss = "" if seconds == 1 else "s"
     sm = "" if minutes == 1 else "s"
     sh = "" if hours == 1 else "s"
     sd = "" if days == 1 else "s"
 
+    displayed = 0
     components = []
-    if days > 0:
+    if days > 0 and ((not compact) or displayed < 2):
         components.append(str(days)+" day"+sd if verbose else str(days)+"d")
+        displayed += 1
 
-    if hours > 0:
+    if hours > 0 and ((not compact) or displayed < 2):
         components.append(str(hours)+" hour"+sh if verbose else str(hours)+"h")
+        displayed += 1
 
-    if minutes > 0:
+    if minutes > 0 and ((not compact) or displayed < 2):
         components.append(str(minutes)+" minute"+sm if verbose else str(minutes)+"m")
+        displayed += 1
 
-    if seconds > 0:
+    if seconds > 0 and ((not compact) or displayed < 2):
         components.append(str(seconds)+" second"+ss if verbose else str(seconds)+"s")
+        displayed += 1
 
     i = 0
     tstr = ""
