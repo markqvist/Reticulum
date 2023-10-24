@@ -192,17 +192,21 @@ def prettyfrequency(hz, suffix="Hz"):
 
     return "%.2f%s%s" % (num, last_unit, suffix)
 
-def prettydistance(hz, suffix="m"):
-    num = hz*1e6
-    units = ["µ", "m", "", "K","M","G","T","P","E","Z"]
-    last_unit = "Y"
+def prettydistance(m, suffix="m"):
+    num = m*1e6
+    units = ["µ", "m", "c", ""]
+    last_unit = "K"
 
     for unit in units:
-        if abs(num) < 1000.0:
-            return "%.2f %s%s" % (num, unit, suffix)
-        num /= 1000.0
+        divisor = 1000.0
+        if unit == "m": divisor = 10
+        if unit == "c": divisor = 100
 
-    return "%.2f%s%s" % (num, last_unit, suffix)
+        if abs(num) < divisor:
+            return "%.2f %s%s" % (num, unit, suffix)
+        num /= divisor
+
+    return "%.2f %s%s" % (num, last_unit, suffix)
 
 def prettytime(time, verbose=False, compact=False):
     days = int(time // (24 * 3600))
