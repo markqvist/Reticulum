@@ -852,18 +852,18 @@ Create a user systemd service files ``~/.config/systemd/user/rnsd.service`` with
   [Install]
   WantedBy=default.target
 
-  Replace ``RNS_BIN_DIR`` with the path to your Reticulum binary directory (eg. /home/USERNAMEHERE/rns/bin).
+Replace ``RNS_BIN_DIR`` with the path to your Reticulum binary directory (eg. /home/USERNAMEHERE/rns/bin).
 
-  Start user service:
+Start user service:
 
-  .. code:: text
-    systemctl --user daemon-reload
-    systemctl --user start rnsd.service
+.. code:: text
+  systemctl --user daemon-reload
+  systemctl --user start rnsd.service
 
-  If you want to automatically start ``rnsd`` without having to log in as the USERNAMEHERE, do:
+If you want to automatically start ``rnsd`` without having to log in as the USERNAMEHERE, do:
 
-  .. code:: text
-    sudo loginctl enable-linger USERNAMEHERE
-    systemctl --user enable rnsd.service
+.. code:: text
+  sudo loginctl enable-linger USERNAMEHERE
+  systemctl --user enable rnsd.service
   
 
