@@ -827,3 +827,43 @@ If you want to automatically start ``rnsd`` at boot, run:
 .. code:: text
 
   sudo systemctl enable rnsd
+
+Alternatively you can use a user systemd service instead of a system wide one. This way the whole setup can be done as a regular user.
+Create a user systemd service files ``~/.config/systemd/user/rnsd.service`` with the following content:
+
+.. code:: text
+
+  [Unit]
+  Description=Reticulum Network Stack Daemon
+  After=default.target
+
+  [Service]
+  # If you run Reticulum on WiFi devices,
+  # or other devices that need some extra
+  # time to initialise, you might want to
+  # add a short delay before Reticulum is
+  # started by systemd:
+  # ExecStartPre=/bin/sleep 10
+  Type=simple
+  Restart=always
+  RestartSec=3
+  ExecStart=RNS_BIN_DIR/rnsd --service
+
+  [Install]
+  WantedBy=default.target
+
+  Replace ``RNS_BIN_DIR`` with the path to your Reticulum binary directory (eg. /home/USERNAMEHERE/rns/bin).
+
+  Start user service:
+
+  .. code:: text
+    systemctl --user daemon-reload
+    systemctl --user start rnsd.service
+
+  If you want to automatically start ``rnsd`` without having to log in as the USERNAMEHERE, do:
+
+  .. code:: text
+    sudo loginctl enable-linger USERNAMEHERE
+    systemctl --user enable rnsd.service
+  
+
