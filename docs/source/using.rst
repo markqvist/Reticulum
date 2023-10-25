@@ -857,12 +857,14 @@ Replace ``RNS_BIN_DIR`` with the path to your Reticulum binary directory (eg. /h
 Start user service:
 
 .. code:: text
+
   systemctl --user daemon-reload
   systemctl --user start rnsd.service
 
 If you want to automatically start ``rnsd`` without having to log in as the USERNAMEHERE, do:
 
 .. code:: text
+  
   sudo loginctl enable-linger USERNAMEHERE
   systemctl --user enable rnsd.service
   
