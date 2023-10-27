@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Support Reticulum" href="support.html" />
 
     <meta name="generator" content="sphinx-7.1.2, furo 2022.09.29.dev1"/>
-        <title>API Reference - Reticulum Network Stack 0.6.2 beta documentation</title>
+        <title>API Reference - Reticulum Network Stack 0.6.3 beta documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 0.6.2 beta documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.6.3 beta documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -167,7 +167,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 0.6.2 beta documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.6.3 beta documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -276,6 +276,12 @@ mediums. If an announce remains queued for an extended amount of time,
 it will eventually be dropped.</p>
 <p>This value will be applied by default to all created interfaces,
 but it can be configured individually on a per-interface basis.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Reticulum.get_instance">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_instance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.get_instance" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the currently running Reticulum instance</p>
 </dd></dl>
 
 <dl class="py method">
@@ -991,7 +997,7 @@ and encrypted connectivity with the specified destination.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP">
-<span class="sig-name descname"><span class="pre">ESTABLISHMENT_TIMEOUT_PER_HOP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ESTABLISHMENT_TIMEOUT_PER_HOP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP" title="Permalink to this definition">#</a></dt>
 <dd><p>Timeout for link establishment in seconds per hop to destination.</p>
 </dd></dl>
 
@@ -1053,6 +1059,50 @@ thus preserved. This method can be used for authentication.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A <a class="reference internal" href="#api-requestreceipt"><span class="std std-ref">RNS.RequestReceipt</span></a> instance if the request was sent, or <em>False</em> if it was not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.track_phy_stats">
+<span class="sig-name descname"><span class="pre">track_phy_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.track_phy_stats" title="Permalink to this definition">#</a></dt>
+<dd><p>You can enable physical layer statistics on a per-link basis. If this is enabled,
+and the link is running over an interface that supports reporting physical layer
+statistics, you will be able to retrieve stats such as <em>RSSI</em>, <em>SNR</em> and physical
+<em>Link Quality</em> for the link.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>track</strong> – Whether or not to keep track of physical layer statistics. Value must be <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.get_rssi">
+<span class="sig-name descname"><span class="pre">get_rssi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.get_rssi" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The physical layer <em>Received Signal Strength Indication</em> if available, otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code>. Physical layer statistics must be enabled on the link for this method to return a value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.get_snr">
+<span class="sig-name descname"><span class="pre">get_snr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.get_snr" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The physical layer <em>Signal-to-Noise Ratio</em> if available, otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code>. Physical layer statistics must be enabled on the link for this method to return a value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Link.get_q">
+<span class="sig-name descname"><span class="pre">get_q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.get_q" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The physical layer <em>Link Quality</em> if available, otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code>. Physical layer statistics must be enabled on the link for this method to return a value.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1851,6 +1901,7 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Reticulum"><code class="docutils literal notranslate"><span class="pre">Reticulum</span></code></a><ul>
 <li><a class="reference internal" href="#RNS.Reticulum.MTU"><code class="docutils literal notranslate"><span class="pre">MTU</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Reticulum.ANNOUNCE_CAP"><code class="docutils literal notranslate"><span class="pre">ANNOUNCE_CAP</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Reticulum.get_instance"><code class="docutils literal notranslate"><span class="pre">get_instance()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Reticulum.should_use_implicit_proof"><code class="docutils literal notranslate"><span class="pre">should_use_implicit_proof()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Reticulum.transport_enabled"><code class="docutils literal notranslate"><span class="pre">transport_enabled()</span></code></a></li>
 </ul>
@@ -1924,6 +1975,10 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Link.STALE_TIME"><code class="docutils literal notranslate"><span class="pre">STALE_TIME</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Link.identify"><code class="docutils literal notranslate"><span class="pre">identify()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Link.request"><code class="docutils literal notranslate"><span class="pre">request()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.track_phy_stats"><code class="docutils literal notranslate"><span class="pre">track_phy_stats()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.get_rssi"><code class="docutils literal notranslate"><span class="pre">get_rssi()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.get_snr"><code class="docutils literal notranslate"><span class="pre">get_snr()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Link.get_q"><code class="docutils literal notranslate"><span class="pre">get_q()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Link.get_establishment_rate"><code class="docutils literal notranslate"><span class="pre">get_establishment_rate()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Link.no_inbound_for"><code class="docutils literal notranslate"><span class="pre">no_inbound_for()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Link.no_outbound_for"><code class="docutils literal notranslate"><span class="pre">no_outbound_for()</span></code></a></li>
@@ -2013,7 +2068,7 @@ will announce it.</p>
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=2c9eb04b"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3dc24d1"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/scripts/furo.js?v=2c7c1115"></script>
