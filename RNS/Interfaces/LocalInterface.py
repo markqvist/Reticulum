@@ -28,6 +28,7 @@ import time
 import sys
 import os
 import RNS
+from threading import Lock
 
 class HDLC():
     FLAG              = 0x7E
@@ -150,9 +151,6 @@ class LocalClientInterface(Interface):
 
 
     def processIncoming(self, data):
-        if self._force_bitrate:
-            time.sleep(len(data) / self.bitrate * 8)
-
         self.rxb += len(data)
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.rxb += len(data)
@@ -170,8 +168,16 @@ class LocalClientInterface(Interface):
         if self.online:
             try:
                 self.writing = True
+
                 if self._force_bitrate:
-                    time.sleep(len(data) / self.bitrate * 8)
+                    if not hasattr(self, "send_lock"):
+                        self.send_lock = Lock()
+
+                    with self.send_lock:
+                        s = len(data) / self.bitrate * 8
+                        RNS.log(f"Simulating latency of {RNS.prettytime(s)} for {len(data)} bytes")
+                        time.sleep(s)
+
                 data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
                 self.socket.sendall(data)
                 self.writing = False
