@@ -116,7 +116,7 @@ class Transport:
 
     local_client_rssi_cache    = []
     local_client_snr_cache     = []
-    local_client_q_cache     = []
+    local_client_q_cache       = []
     LOCAL_CLIENT_CACHE_MAXSIZE = 512
 
     pending_local_path_requests = {}

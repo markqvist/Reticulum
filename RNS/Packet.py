@@ -371,7 +371,7 @@ class PacketReceipt:
         if packet.destination.type == RNS.Destination.LINK:
             self.timeout    = packet.destination.rtt * packet.destination.traffic_timeout_factor
         else:
-            self.timeout    = RNS.Reticulum.get_instance().get_first_hop_timeout(destination.hash)
+            self.timeout    = RNS.Reticulum.get_instance().get_first_hop_timeout(self.destination.hash)
             self.timeout   += Packet.TIMEOUT_PER_HOP * RNS.Transport.hops_to(self.destination.hash)
 
     def get_status(self):

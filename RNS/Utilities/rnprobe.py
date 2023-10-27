@@ -31,7 +31,7 @@ import argparse
 from RNS._version import __version__
 
 DEFAULT_PROBE_SIZE = 16
-DEFAULT_TIMEOUT = 15
+DEFAULT_TIMEOUT = 12
 
 def program_setup(configdir, destination_hexhash, size=None, full_name = None, verbosity = 0, timeout=None):
     if size == None: size = DEFAULT_PROBE_SIZE
@@ -73,7 +73,7 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
         print("Path to "+RNS.prettyhexrep(destination_hash)+" requested  ", end=" ")
         sys.stdout.flush()
 
-    _timeout = time.time() + (timeout or DEFAULT_TIMEOUT)
+    _timeout = time.time() + (timeout or DEFAULT_TIMEOUT+reticulum.get_first_hop_timeout(destination_hash))
     i = 0
     syms = "⢄⢂⢁⡁⡈⡐⡠"
     while not RNS.Transport.has_path(destination_hash) and not time.time() > _timeout:
@@ -149,12 +149,16 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
         if reticulum.is_connected_to_shared_instance:
             reception_rssi = reticulum.get_packet_rssi(receipt.proof_packet.packet_hash)
             reception_snr  = reticulum.get_packet_snr(receipt.proof_packet.packet_hash)
+            reception_q    = reticulum.get_packet_q(receipt.proof_packet.packet_hash)
 
             if reception_rssi != None:
                 reception_stats += " [RSSI "+str(reception_rssi)+" dBm]"
             
             if reception_snr != None:
                 reception_stats += " [SNR "+str(reception_snr)+" dB]"
+            
+            if reception_q != None:
+                reception_stats += " [Link Quality "+str(reception_q)+"%]"
 
         else:
             if receipt.proof_packet != None:

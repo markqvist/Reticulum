@@ -175,7 +175,7 @@ class Resource:
             if not resource.link.has_incoming_resource(resource):
                 resource.link.register_incoming_resource(resource)
 
-                RNS.log("Accepting resource advertisement for "+RNS.prettyhexrep(resource.hash), RNS.LOG_DEBUG)
+                RNS.log(f"Accepting resource advertisement for {RNS.prettyhexrep(resource.hash)}. Transfer size is {RNS.prettysize(resource.size)} in {resource.total_parts} parts.", RNS.LOG_DEBUG)
                 if resource.link.callbacks.resource_started != None:
                     try:
                         resource.link.callbacks.resource_started(resource)

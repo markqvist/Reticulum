@@ -1109,6 +1109,9 @@ class Reticulum:
                     if path == "packet_snr":
                         rpc_connection.send(self.get_packet_snr(call["packet_hash"]))
 
+                    if path == "packet_q":
+                        rpc_connection.send(self.get_packet_q(call["packet_hash"]))
+
                 if "drop" in call:
                     path = call["drop"]
 
@@ -1365,6 +1368,21 @@ class Reticulum:
 
         else:
             for entry in RNS.Transport.local_client_snr_cache:
+                if entry[0] == packet_hash:
+                    return entry[1]
+
+            return None
+
+
+    def get_packet_q(self, packet_hash):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection.send({"get": "packet_q", "packet_hash": packet_hash})
+            response = rpc_connection.recv()
+            return response
+
+        else:
+            for entry in RNS.Transport.local_client_q_cache:
                 if entry[0] == packet_hash:
                     return entry[1]
 
