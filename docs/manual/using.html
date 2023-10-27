@@ -925,6 +925,39 @@ WantedBy=multi-user.target
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo systemctl enable rnsd
 </pre></div>
 </div>
+<p>Alternatively you can use a user systemd service instead of a system wide one. This way the whole setup can be done as a regular user.
+Create a user systemd service files <code class="docutils literal notranslate"><span class="pre">~/.config/systemd/user/rnsd.service</span></code> with the following content:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[Unit]
+Description=Reticulum Network Stack Daemon
+After=default.target
+
+[Service]
+# If you run Reticulum on WiFi devices,
+# or other devices that need some extra
+# time to initialise, you might want to
+# add a short delay before Reticulum is
+# started by systemd:
+# ExecStartPre=/bin/sleep 10
+Type=simple
+Restart=always
+RestartSec=3
+ExecStart=RNS_BIN_DIR/rnsd --service
+
+[Install]
+WantedBy=default.target
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">RNS_BIN_DIR</span></code> with the path to your Reticulum binary directory (eg. /home/USERNAMEHERE/rns/bin).</p>
+<p>Start user service:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>systemctl --user daemon-reload
+systemctl --user start rnsd.service
+</pre></div>
+</div>
+<p>If you want to automatically start <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> without having to log in as the USERNAMEHERE, do:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo loginctl enable-linger USERNAMEHERE
+systemctl --user enable rnsd.service
+</pre></div>
+</div>
 </section>
 </section>
 </section>
