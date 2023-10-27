@@ -112,9 +112,10 @@ class Link:
                 link = Link(owner = owner, peer_pub_bytes=data[:Link.ECPUBSIZE//2], peer_sig_pub_bytes=data[Link.ECPUBSIZE//2:Link.ECPUBSIZE])
                 link.set_link_id(packet)
                 link.destination = packet.destination
-                link.establishment_timeout = Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, packet.hops)
+                link.establishment_timeout = Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, packet.hops) + Link.KEEPALIVE
                 link.establishment_cost += len(packet.raw)
                 RNS.log("Validating link request "+RNS.prettyhexrep(link.link_id), RNS.LOG_VERBOSE)
+                RNS.log(f"Establishment timeout is {RNS.prettytime(link.establishment_timeout)} for incoming link request "+RNS.prettyhexrep(link.link_id), RNS.LOG_EXTREME)
                 link.handshake()
                 link.attached_interface = packet.receiving_interface
                 link.prove()
@@ -175,7 +176,8 @@ class Link:
             self.sig_prv = self.owner.identity.sig_prv
         else:
             self.initiator = True
-            self.establishment_timeout = Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, RNS.Transport.hops_to(destination.hash))
+            self.establishment_timeout  = RNS.Reticulum.get_instance().get_first_hop_timeout(destination.hash)
+            self.establishment_timeout += Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, RNS.Transport.hops_to(destination.hash))
             self.prv     = X25519PrivateKey.generate()
             self.sig_prv = Ed25519PrivateKey.generate()
 
@@ -211,6 +213,7 @@ class Link:
             self.packet.send()
             self.had_outbound()
             RNS.log("Link request "+RNS.prettyhexrep(self.link_id)+" sent to "+str(self.destination), RNS.LOG_DEBUG)
+            RNS.log(f"Establishment timeout is {RNS.prettytime(self.establishment_timeout)} for link request "+RNS.prettyhexrep(self.link_id), RNS.LOG_EXTREME)
 
 
     def load_peer(self, peer_pub_bytes, peer_sig_pub_bytes):

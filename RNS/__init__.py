@@ -161,6 +161,9 @@ def prettyhexrep(data):
     hexrep = "<"+delimiter.join("{:02x}".format(c) for c in data)+">"
     return hexrep
 
+def prettyspeed(num, suffix="b"):
+    return prettysize(num/8, suffix=suffix)+"ps"
+
 def prettysize(num, suffix='B'):
     units = ['','K','M','G','T','P','E','Z']
     last_unit = 'Y'

@@ -117,7 +117,7 @@ class Reticulum:
     # from interface speed, but a better general approach would most
     # probably be to let Reticulum somehow continously build a map of
     # per-hop latencies and use this map for the timeout calculation. 
-    DEFAULT_PER_HOP_TIMEOUT = 6
+    DEFAULT_PER_HOP_TIMEOUT = 4
 
     # Length of truncated hashes in bits.
     TRUNCATED_HASHLENGTH = 128
@@ -145,6 +145,8 @@ class Reticulum:
     configpath       = ""
     storagepath      = ""
     cachepath        = ""
+
+    __instance       = None
     
     @staticmethod
     def exit_handler():
@@ -168,6 +170,13 @@ class Reticulum:
         RNS.exit()
 
 
+    @staticmethod
+    def get_instance():
+        """
+        Return the currently running Reticulum instance
+        """
+        return Reticulum.__instance
+
     def __init__(self,configdir=None, loglevel=None, logdest=None, verbosity=None):
         """
         Initialises and starts a Reticulum instance. This must be
@@ -176,6 +185,11 @@ class Reticulum:
 
         :param configdir: Full path to a Reticulum configuration directory.
         """
+
+        if Reticulum.__instance != None:
+            raise OSError("Attempt to reinitialise Reticulum, when it was already running")
+        else:
+            Reticulum.__instance = self
 
         RNS.vendor.platformutils.platform_checks()
 
@@ -303,6 +317,11 @@ class Reticulum:
                     self.local_interface_port
                 )
                 interface.OUT = True
+                if hasattr(Reticulum, "_force_shared_instance_bitrate"):
+                    interface.bitrate = Reticulum._force_shared_instance_bitrate
+                    interface._force_bitrate = True
+                    RNS.log(f"Forcing shared instance bitrate of {RNS.prettyspeed(interface.bitrate)}ps", RNS.LOG_WARNING)
+                    interface._force_bitrate = Reticulum._force_shared_instance_bitrate
                 RNS.Transport.interfaces.append(interface)
                 
                 self.is_shared_instance = True
@@ -317,6 +336,10 @@ class Reticulum:
                         self.local_interface_port)
                     interface.target_port = self.local_interface_port
                     interface.OUT = True
+                    if hasattr(Reticulum, "_force_shared_instance_bitrate"):
+                        interface.bitrate = Reticulum._force_shared_instance_bitrate
+                        interface._force_bitrate = True
+                        RNS.log(f"Forcing shared instance bitrate of {RNS.prettyspeed(interface.bitrate)}ps", RNS.LOG_WARNING)
                     RNS.Transport.interfaces.append(interface)
                     self.is_shared_instance = False
                     self.is_standalone_instance = False
@@ -376,6 +399,9 @@ class Reticulum:
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:
                         Reticulum.__allow_probes = True
+                if option == "force_shared_instance_bitrate":
+                    v = self.config["reticulum"].as_int(option)
+                    Reticulum._force_shared_instance_bitrate = v
                 if option == "panic_on_interface_error":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:
@@ -1074,6 +1100,9 @@ class Reticulum:
                     if path == "next_hop":
                         rpc_connection.send(self.get_next_hop(call["destination_hash"]))
 
+                    if path == "first_hop_timeout":
+                        rpc_connection.send(self.get_first_hop_timeout(call["destination_hash"]))
+
                     if path == "packet_rssi":
                         rpc_connection.send(self.get_packet_rssi(call["packet_hash"]))
 
@@ -1288,6 +1317,20 @@ class Reticulum:
 
         else:
             return str(RNS.Transport.next_hop_interface(destination))
+
+    def get_first_hop_timeout(self, destination):
+        if self.is_connected_to_shared_instance:
+            try:
+                rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+                rpc_connection.send({"get": "first_hop_timeout", "destination_hash": destination})
+                response = rpc_connection.recv()
+                return response
+            except Exception as e:
+                RNS.log("An error occurred while getting first hop timeout from shared instance: "+str(e), RNS.LOG_ERROR)
+                return RNS.Reticulum.DEFAULT_PER_HOP_TIMEOUT
+
+        else:
+            return RNS.Transport.first_hop_timeout(destination)
 
     def get_next_hop(self, destination):
         if self.is_connected_to_shared_instance:

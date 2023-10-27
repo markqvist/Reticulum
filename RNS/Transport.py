@@ -1197,7 +1197,8 @@ class Transport:
 
                             if packet.packet_type == RNS.Packet.LINKREQUEST:
                                 now = time.time()
-                                proof_timeout = now + RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, remaining_hops)
+                                proof_timeout  = Transport.extra_link_proof_timeout(packet.receiving_interface)
+                                proof_timeout += now + RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, remaining_hops)
 
                                 # Entry format is
                                 link_entry = [  now,                            # 0: Timestamp,
@@ -2025,6 +2026,45 @@ class Transport:
             return Transport.destination_table[destination_hash][5]
         else:
             return None
+
+    @staticmethod
+    def next_hop_interface_bitrate(destination_hash):
+        next_hop_interface = Transport.next_hop_interface(destination_hash)
+        if next_hop_interface != None:
+            return next_hop_interface.bitrate
+        else:
+            return None
+
+    @staticmethod
+    def next_hop_per_bit_latency(destination_hash):
+        next_hop_interface_bitrate = Transport.next_hop_interface_bitrate(destination_hash)
+        if next_hop_interface_bitrate != None:
+            return (1/next_hop_interface_bitrate)
+        else:
+            return None
+
+    @staticmethod
+    def next_hop_per_byte_latency(destination_hash):
+        per_byte_latency = Transport.next_hop_per_bit_latency(destination_hash)
+        if per_byte_latency != None:
+            return per_byte_latency*8
+        else:
+            return None
+
+    @staticmethod
+    def first_hop_timeout(destination_hash):
+        latency = Transport.next_hop_per_byte_latency(destination_hash)
+        if latency != None:
+            return RNS.Reticulum.MTU * latency
+        else:
+            return RNS.Reticulum.DEFAULT_PER_HOP_TIMEOUT
+
+    @staticmethod
+    def extra_link_proof_timeout(interface):
+        if interface != None:
+            return ((1/interface.bitrate)*8)*RNS.Reticulum.MTU
+        else:
+            return 0
 
     @staticmethod
     def expire_path(destination_hash):
