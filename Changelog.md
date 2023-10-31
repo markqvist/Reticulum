@@ -20,7 +20,8 @@ Thanks to @jschulthess, who contributed to this release!
 
 **Release Hashes**
 ```
-
+1f54d4c6ff7ab7721089cbee6630783765f65efd51312879c0d3e5bee3ceab2f rns-0.6.3-py3-none-any.whl
+5a90840f0fc9f1a62a3c37b514fb6222fd701a30024275dae8bcc27e29d40f25 rnspure-0.6.3-py3-none-any.whl
 ```
 
 ### 2023-10-07: RNS β 0.6.2
