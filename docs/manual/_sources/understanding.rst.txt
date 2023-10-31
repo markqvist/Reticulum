@@ -75,7 +75,7 @@ guide the design of Reticulum:
     it can be easily modified and replicated by anyone interested in doing so.
 * **Very low bandwidth requirements**
     Reticulum should be able to function reliably over links with a transmission capacity as low
-    as *500 bits per second*.
+    as *5 bits per second*.
 * **Encryption by default**
     Reticulum must use strong encryption by default for all communication.
 * **Initiator Anonymity**
@@ -595,7 +595,7 @@ or less any medium that allows you to send and receive data, which satisfies som
 minimum requirements.
 
 The communication channel must support at least half-duplex operation, and provide an average
-throughput of around 500 bits per second, and supports a physical layer MTU of 500 bytes. The
+throughput of 5 bits per second or greater, and supports a physical layer MTU of 500 bytes. The
 Reticulum stack should be able to run on more or less any hardware that can provide a Python 3.x 
 runtime environment.
 

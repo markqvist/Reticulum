@@ -79,7 +79,7 @@ class Reticulum:
     MTU            = 500
     """
     The MTU that Reticulum adheres to, and will expect other peers to
-    adhere to. By default, the MTU is 507 bytes. In custom RNS network
+    adhere to. By default, the MTU is 500 bytes. In custom RNS network
     implementations, it is possible to change this value, but doing so will
     completely break compatibility with all other RNS networks. An identical
     MTU is a prerequisite for peers to communicate in the same network.
@@ -106,17 +106,19 @@ class Reticulum:
     it will eventually be dropped.
 
     This value will be applied by default to all created interfaces,
-    but it can be configured individually on a per-interface basis.
+    but it can be configured individually on a per-interface basis. In
+    general, the global default setting should not be changed, and any
+    alterations should be made on a per-interface basis instead.
     """
 
-    MINIMUM_BITRATE = 500
+    MINIMUM_BITRATE = 5
+    """
+    Minimum bitrate required across a medium for Reticulum to be able
+    to successfully establish links. Currently 5 bits per second.
+    """
 
-    # TODO: To reach the 300bps level without unreasonably impacting
-    # performance on faster links, we need a mechanism for setting
-    # this value more intelligently. One option could be inferring it
-    # from interface speed, but a better general approach would most
-    # probably be to let Reticulum somehow continously build a map of
-    # per-hop latencies and use this map for the timeout calculation. 
+    # TODO: Let Reticulum somehow continously build a map of per-hop
+    # latencies and use this map for global timeout calculation.
     DEFAULT_PER_HOP_TIMEOUT = 4
 
     # Length of truncated hashes in bits.

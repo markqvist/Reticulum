@@ -91,7 +91,7 @@ What does Reticulum Offer?
 Where can Reticulum be Used?
 ============================
 Over practically any medium that can support at least a half-duplex channel
-with 500 bits per second throughput, and an MTU of 500 bytes. Data radios,
+with greater throughput than 5 bits per second, and an MTU of 500 bytes. Data radios,
 modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes,
 ad-hoc WiFi, free-space optical links and similar systems are all examples
 of the types of interfaces Reticulum was designed for.

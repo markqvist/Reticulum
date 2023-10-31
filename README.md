@@ -80,7 +80,7 @@ following resources.
 
 ## Where can Reticulum be used?
 Over practically any medium that can support at least a half-duplex channel
-with 500 bits per second throughput, and an MTU of 500 bytes. Data radios,
+with greater throughput than 5 bits per second, and an MTU of 500 bytes. Data radios,
 modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes,
 WiFi and Ethernet devices, free-space optical links, and similar systems are
 all examples of the types of physical devices Reticulum can use.
@@ -191,7 +191,7 @@ functionality and performance on low-bandwidth mediums. The goal is to
 provide a dynamic performance envelope from 250 bits per second, to 1 gigabit
 per second on normal hardware.
 
-Currently, the usable performance envelope is approximately 500 bits per second
+Currently, the usable performance envelope is approximately 150 bits per second
 to 20 megabits per second, with physical mediums faster than that not being
 saturated. Performance beyond the current level is intended for future
 upgrades, but not highly prioritised at this point in time.
