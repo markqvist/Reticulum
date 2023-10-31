@@ -886,6 +886,8 @@ assignment varies from one boot to another.</p>
 <span id="using-systemd"></span><h3>Reticulum as a System Service<a class="headerlink" href="#reticulum-as-a-system-service" title="Permalink to this heading">#</a></h3>
 <p>Instead of starting Reticulum manually, you can install <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> as a system
 service and have it start automatically at boot.</p>
+<section id="systemwide-service">
+<h4>Systemwide Service<a class="headerlink" href="#systemwide-service" title="Permalink to this heading">#</a></h4>
 <p>If you installed Reticulum with <code class="docutils literal notranslate"><span class="pre">pip</span></code>, the <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> program will most likely
 be located in a user-local installation path only, which means <code class="docutils literal notranslate"><span class="pre">systemd</span></code> will not
 be able to execute it. In this case, you can simply symlink the <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> program
@@ -925,6 +927,9 @@ WantedBy=multi-user.target
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo systemctl enable rnsd
 </pre></div>
 </div>
+</section>
+<section id="userspace-service">
+<h4>Userspace Service<a class="headerlink" href="#userspace-service" title="Permalink to this heading">#</a></h4>
 <p>Alternatively you can use a user systemd service instead of a system wide one. This way the whole setup can be done as a regular user.
 Create a user systemd service files <code class="docutils literal notranslate"><span class="pre">~/.config/systemd/user/rnsd.service</span></code> with the following content:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[Unit]
@@ -958,6 +963,7 @@ systemctl --user start rnsd.service
 systemctl --user enable rnsd.service
 </pre></div>
 </div>
+</section>
 </section>
 </section>
 </section>
@@ -1033,7 +1039,11 @@ systemctl --user enable rnsd.service
 </li>
 <li><a class="reference internal" href="#improving-system-configuration">Improving System Configuration</a><ul>
 <li><a class="reference internal" href="#fixed-serial-port-names">Fixed Serial Port Names</a></li>
-<li><a class="reference internal" href="#reticulum-as-a-system-service">Reticulum as a System Service</a></li>
+<li><a class="reference internal" href="#reticulum-as-a-system-service">Reticulum as a System Service</a><ul>
+<li><a class="reference internal" href="#systemwide-service">Systemwide Service</a></li>
+<li><a class="reference internal" href="#userspace-service">Userspace Service</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

@@ -780,6 +780,9 @@ Reticulum as a System Service
 Instead of starting Reticulum manually, you can install ``rnsd`` as a system
 service and have it start automatically at boot.
 
+Systemwide Service
+^^^^^^^^^^^^^^^^^^
+
 If you installed Reticulum with ``pip``, the ``rnsd`` program will most likely
 be located in a user-local installation path only, which means ``systemd`` will not
 be able to execute it. In this case, you can simply symlink the ``rnsd`` program
@@ -827,6 +830,9 @@ If you want to automatically start ``rnsd`` at boot, run:
 .. code:: text
 
   sudo systemctl enable rnsd
+
+Userspace Service
+^^^^^^^^^^^^^^^^^
 
 Alternatively you can use a user systemd service instead of a system wide one. This way the whole setup can be done as a regular user.
 Create a user systemd service files ``~/.config/systemd/user/rnsd.service`` with the following content:
