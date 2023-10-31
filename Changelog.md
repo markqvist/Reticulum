@@ -1,3 +1,28 @@
+### 2023-10-31: RNS β 0.6.3
+
+This release brings a series of under-the-hood reliability improvements and bugfixes. But most notably, Reticulum can now establish links over even ultra low bandwidth mediums, all the way down to 5 bits per second.
+
+Thanks to @jschulthess, who contributed to this release!
+
+**Changes**
+- Implemented link establishment on ultra low bandwidth links
+- Added link quality calculations to RNode interfaces
+- Added physical layer link stats to Link and Packet classes
+- Added userspace service documentation to the manual
+- Improved path rediscovery in quickly changing topographies
+- Improved shared interface reconnection on service restart
+- Improved exception handling on interface detachment
+- Updated formatted print functions
+
+**Bugfixes**
+- Fixed a missing USB command definition in the RNode interface driver
+- Fixed a bug in link error handling that could cause an interface to detach
+
+**Release Hashes**
+```
+
+```
+
 ### 2023-10-07: RNS β 0.6.2
 
 This maintenance release adds the ability to specify the shared instance RPC key in the Reticulum config file, making it possible to use all Reticulum functionality in the terminal on Android.
