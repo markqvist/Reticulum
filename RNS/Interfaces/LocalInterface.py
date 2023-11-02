@@ -339,7 +339,8 @@ class LocalServerInterface(Interface):
         spawned_interface.target_port = str(handler.client_address[1])
         spawned_interface.parent_interface = self
         spawned_interface.bitrate = self.bitrate
-        spawned_interface._force_bitrate = self._force_bitrate
+        if hasattr(self, "_force_bitrate"):
+            spawned_interface._force_bitrate = self._force_bitrate
         # RNS.log("Accepting new connection to shared instance: "+str(spawned_interface), RNS.LOG_EXTREME)
         RNS.Transport.interfaces.append(spawned_interface)
         RNS.Transport.local_client_interfaces.append(spawned_interface)
