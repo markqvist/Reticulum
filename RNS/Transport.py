@@ -334,7 +334,8 @@ class Transport:
                                     if time.time() - last_path_request > Transport.PATH_REQUEST_MI:
                                         RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link.destination.hash)+" since an attempted link was never established", RNS.LOG_DEBUG)
                                         if not link.destination.hash in path_requests:
-                                            path_requests[link.destination.hash] = None
+                                            blocked_if = link_entry[4]
+                                            path_requests[link.destination.hash] = blocked_if
 
                             Transport.pending_links.remove(link)
 
