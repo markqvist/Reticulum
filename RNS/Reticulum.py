@@ -1329,7 +1329,7 @@ class Reticulum:
                 rpc_connection.send({"get": "first_hop_timeout", "destination_hash": destination})
                 response = rpc_connection.recv()
 
-                if self.is_connected_to_shared_instance and self._force_shared_instance_bitrate:
+                if self.is_connected_to_shared_instance and hasattr(self, "_force_shared_instance_bitrate") and self._force_shared_instance_bitrate:
                     simulated_latency = ((1/self._force_shared_instance_bitrate)*8)*RNS.Reticulum.MTU
                     RNS.log("Adding simulated latency of "+RNS.prettytime(simulated_latency)+" to first hop timeout", RNS.LOG_DEBUG)
                     response += simulated_latency

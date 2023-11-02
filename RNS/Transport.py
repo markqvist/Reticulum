@@ -2068,7 +2068,7 @@ class Transport:
     def first_hop_timeout(destination_hash):
         latency = Transport.next_hop_per_byte_latency(destination_hash)
         if latency != None:
-            return RNS.Reticulum.MTU * latency
+            return RNS.Reticulum.MTU * latency + RNS.Reticulum.DEFAULT_PER_HOP_TIMEOUT
         else:
             return RNS.Reticulum.DEFAULT_PER_HOP_TIMEOUT
 
