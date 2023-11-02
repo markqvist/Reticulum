@@ -119,7 +119,7 @@ class Reticulum:
 
     # TODO: Let Reticulum somehow continously build a map of per-hop
     # latencies and use this map for global timeout calculation.
-    DEFAULT_PER_HOP_TIMEOUT = 4
+    DEFAULT_PER_HOP_TIMEOUT = 6
 
     # Length of truncated hashes in bits.
     TRUNCATED_HASHLENGTH = 128

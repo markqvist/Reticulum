@@ -305,7 +305,8 @@ class Transport:
     @staticmethod
     def jobs():
         outgoing = []
-        path_requests = []
+        path_requests = {}
+        blocked_if = None
         Transport.jobs_running = True
 
         try:
@@ -333,7 +334,7 @@ class Transport:
                                     if time.time() - last_path_request > Transport.PATH_REQUEST_MI:
                                         RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link.destination.hash)+" since an attempted link was never established", RNS.LOG_DEBUG)
                                         if not link.destination.hash in path_requests:
-                                            path_requests.append(link.destination.hash)
+                                            path_requests[link.destination.hash] = None
 
                             Transport.pending_links.remove(link)
 
@@ -482,14 +483,16 @@ class Transport:
                                 elif not path_request_throttle and Transport.hops_to(link_entry[6]) == 1:
                                     RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[6])+" since an attempted link was never established, and destination was previously local to an interface on this instance", RNS.LOG_DEBUG)
                                     path_request_conditions = True
+                                    blocked_if = link_entry[4]
 
-                                # If the link initiator was previously only 1 hop
-                                # away, this likely means that network topology has
+                                # If the link initiator is only 1 hop away,
+                                # this likely means that network topology has
                                 # changed. In that case, we try to discover a new path,
                                 # and mark the old one as potentially unresponsive.
                                 elif not path_request_throttle and lr_taken_hops == 1:
                                     RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[6])+" since an attempted link was never established, and link initiator is local to an interface on this instance", RNS.LOG_DEBUG)
                                     path_request_conditions = True
+                                    blocked_if = link_entry[4]
 
                                     if RNS.Reticulum.transport_enabled():
                                         if hasattr(link_entry[4], "mode") and link_entry[4].mode != RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
@@ -497,7 +500,7 @@ class Transport:
 
                                 if path_request_conditions:
                                     if not link_entry[6] in path_requests:
-                                        path_requests.append(link_entry[6])
+                                        path_requests[link_entry[6]] = blocked_if
 
                                     if not RNS.Reticulum.transport_enabled():
                                         # Drop current path if we are not a transport instance, to
@@ -652,7 +655,17 @@ class Transport:
             packet.send()
 
         for destination_hash in path_requests:
-            Transport.request_path(destination_hash)
+            blocked_if = path_requests[destination_hash]
+            if blocked_if == None:
+                Transport.request_path(destination_hash)
+            else:
+                for interface in Transport.interfaces:
+                    if interface != blocked_if:
+                        # RNS.log("Transmitting path request on "+str(interface), RNS.LOG_DEBUG)
+                        Transport.request_path(destination_hash, on_interface=interface)
+                    else:
+                        pass
+                        # RNS.log("Blocking path request on "+str(interface), RNS.LOG_DEBUG)
 
     @staticmethod
     def transmit(interface, raw):
