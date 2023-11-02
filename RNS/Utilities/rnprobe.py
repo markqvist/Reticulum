@@ -33,7 +33,7 @@ from RNS._version import __version__
 DEFAULT_PROBE_SIZE = 16
 DEFAULT_TIMEOUT = 12
 
-def program_setup(configdir, destination_hexhash, size=None, full_name = None, verbosity = 0, timeout=None):
+def program_setup(configdir, destination_hexhash, size=None, full_name = None, verbosity = 0, timeout=None, probes=1):
     if size == None: size = DEFAULT_PROBE_SIZE
     if full_name == None:
         print("The full destination name including application name aspects must be specified for the destination")
@@ -96,90 +96,103 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
         *aspects
     )
 
-    try:
-        probe = RNS.Packet(request_destination, os.urandom(size))
-        probe.pack()
-    except OSError:
-        print("Error: Probe packet size of "+str(len(probe.raw))+" bytes exceed MTU of "+str(RNS.Reticulum.MTU)+" bytes")
-        exit(3)
+    sent = 0
+    replies = 0
+    while probes:
 
-    receipt = probe.send()
+        try:
+            probe = RNS.Packet(request_destination, os.urandom(size))
+            probe.pack()
+        except OSError:
+            print("Error: Probe packet size of "+str(len(probe.raw))+" bytes exceed MTU of "+str(RNS.Reticulum.MTU)+" bytes")
+            exit(3)
 
-    if more_output:
-        nhd = reticulum.get_next_hop(destination_hash)
-        via_str = " via "+RNS.prettyhexrep(nhd) if nhd != None else ""
-        if_str  = " on "+str(reticulum.get_next_hop_if_name(destination_hash)) if reticulum.get_next_hop_if_name(destination_hash) != "None" else ""
-        more = via_str+if_str
-    else:
-        more = ""
+        receipt = probe.send()
+        sent += 1
 
-    print("\rSent "+str(size)+" byte probe to "+RNS.prettyhexrep(destination_hash)+more+"  ", end=" ")
+        if more_output:
+            nhd = reticulum.get_next_hop(destination_hash)
+            via_str = " via "+RNS.prettyhexrep(nhd) if nhd != None else ""
+            if_str  = " on "+str(reticulum.get_next_hop_if_name(destination_hash)) if reticulum.get_next_hop_if_name(destination_hash) != "None" else ""
+            more = via_str+if_str
+        else:
+            more = ""
 
-    _timeout = time.time() + (timeout or DEFAULT_TIMEOUT+reticulum.get_first_hop_timeout(destination_hash))
-    i = 0
-    while receipt.status == RNS.PacketReceipt.SENT and not time.time() > _timeout:
-        time.sleep(0.1)
-        print(("\b\b"+syms[i]+" "), end="")
-        sys.stdout.flush()
-        i = (i+1)%len(syms)
+        print("\rSent probe "+str(sent)+" ("+str(size)+" bytes) to "+RNS.prettyhexrep(destination_hash)+more+"  ", end=" ")
 
-    if time.time() > _timeout:
-        print("\r                                                          \rProbe timed out")
+        _timeout = time.time() + (timeout or DEFAULT_TIMEOUT+reticulum.get_first_hop_timeout(destination_hash))
+        i = 0
+        while receipt.status == RNS.PacketReceipt.SENT and not time.time() > _timeout:
+            time.sleep(0.1)
+            print(("\b\b"+syms[i]+" "), end="")
+            sys.stdout.flush()
+            i = (i+1)%len(syms)
+
+        if time.time() > _timeout:
+            print("\r                                                          \rProbe timed out")
+        
+        else:
+            print("\b\b ")
+            sys.stdout.flush()
+
+            if receipt.status == RNS.PacketReceipt.DELIVERED:
+                replies += 1
+                hops = RNS.Transport.hops_to(destination_hash)
+                if hops != 1:
+                    ms = "s"
+                else:
+                    ms = ""
+
+                rtt = receipt.get_rtt()
+                if (rtt >= 1):
+                    rtt = round(rtt, 3)
+                    rttstring = str(rtt)+" seconds"
+                else:
+                    rtt = round(rtt*1000, 3)
+                    rttstring = str(rtt)+" milliseconds"
+
+                reception_stats = ""
+                if reticulum.is_connected_to_shared_instance:
+                    reception_rssi = reticulum.get_packet_rssi(receipt.proof_packet.packet_hash)
+                    reception_snr  = reticulum.get_packet_snr(receipt.proof_packet.packet_hash)
+                    reception_q    = reticulum.get_packet_q(receipt.proof_packet.packet_hash)
+
+                    if reception_rssi != None:
+                        reception_stats += " [RSSI "+str(reception_rssi)+" dBm]"
+                    
+                    if reception_snr != None:
+                        reception_stats += " [SNR "+str(reception_snr)+" dB]"
+                    
+                    if reception_q != None:
+                        reception_stats += " [Link Quality "+str(reception_q)+"%]"
+
+                else:
+                    if receipt.proof_packet != None:
+                        if receipt.proof_packet.rssi != None:
+                            reception_stats += " [RSSI "+str(receipt.proof_packet.rssi)+" dBm]"
+                        
+                        if receipt.proof_packet.snr != None:
+                            reception_stats += " [SNR "+str(receipt.proof_packet.snr)+" dB]"
+
+                print(
+                    "Valid reply received from "+
+                    RNS.prettyhexrep(receipt.destination.hash)+
+                    "\nRound-trip time is "+rttstring+
+                    " over "+str(hops)+" hop"+ms+
+                    reception_stats
+                )
+
+            else:
+                print("\r                                                          \rProbe timed out")
+
+        probes -= 1
+
+    loss = round((1-(replies/sent))*100, 2)
+    print(f"Sent {sent}, received {replies}, packet loss {loss}%")
+    if loss > 0:
         exit(2)
-
-    print("\b\b ")
-    sys.stdout.flush()
-
-    if receipt.status == RNS.PacketReceipt.DELIVERED:
-        hops = RNS.Transport.hops_to(destination_hash)
-        if hops != 1:
-            ms = "s"
-        else:
-            ms = ""
-
-        rtt = receipt.get_rtt()
-        if (rtt >= 1):
-            rtt = round(rtt, 3)
-            rttstring = str(rtt)+" seconds"
-        else:
-            rtt = round(rtt*1000, 3)
-            rttstring = str(rtt)+" milliseconds"
-
-        reception_stats = ""
-        if reticulum.is_connected_to_shared_instance:
-            reception_rssi = reticulum.get_packet_rssi(receipt.proof_packet.packet_hash)
-            reception_snr  = reticulum.get_packet_snr(receipt.proof_packet.packet_hash)
-            reception_q    = reticulum.get_packet_q(receipt.proof_packet.packet_hash)
-
-            if reception_rssi != None:
-                reception_stats += " [RSSI "+str(reception_rssi)+" dBm]"
-            
-            if reception_snr != None:
-                reception_stats += " [SNR "+str(reception_snr)+" dB]"
-            
-            if reception_q != None:
-                reception_stats += " [Link Quality "+str(reception_q)+"%]"
-
-        else:
-            if receipt.proof_packet != None:
-                if receipt.proof_packet.rssi != None:
-                    reception_stats += " [RSSI "+str(receipt.proof_packet.rssi)+" dBm]"
-                
-                if receipt.proof_packet.snr != None:
-                    reception_stats += " [SNR "+str(receipt.proof_packet.snr)+" dB]"
-
-        print(
-            "Valid reply received from "+
-            RNS.prettyhexrep(receipt.destination.hash)+
-            "\nRound-trip time is "+rttstring+
-            " over "+str(hops)+" hop"+ms+
-            reception_stats
-        )
-
     else:
-        print("\r                                                          \rProbe timed out")
-        exit(2)
-
+        exit(0)
     
 
 def main():
@@ -188,6 +201,7 @@ def main():
 
         parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
         parser.add_argument("-s", "--size", action="store", default=None, help="size of probe packet payload in bytes", type=int)
+        parser.add_argument("-n", "--probes", action="store", default=1, help="number of probes to send", type=int)
         parser.add_argument("-t", "--timeout", metavar="seconds", action="store", default=None, help="timeout before giving up", type=float)
         parser.add_argument("--version", action="version", version="rnprobe {version}".format(version=__version__))
         parser.add_argument("full_name", nargs="?", default=None, help="full destination name in dotted notation", type=str)
@@ -212,7 +226,8 @@ def main():
                 destination_hexhash = args.destination_hash,
                 size = args.size,
                 full_name = args.full_name,
-                verbosity = args.verbose
+                verbosity = args.verbose,
+                probes = args.probes,
             )
 
     except KeyboardInterrupt:
