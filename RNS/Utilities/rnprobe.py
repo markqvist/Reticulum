@@ -115,7 +115,7 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
 
     print("\rSent "+str(size)+" byte probe to "+RNS.prettyhexrep(destination_hash)+more+"  ", end=" ")
 
-    _timeout = time.time() + (timeout or DEFAULT_TIMEOUT)
+    _timeout = time.time() + (timeout or DEFAULT_TIMEOUT+reticulum.get_first_hop_timeout(destination_hash))
     i = 0
     while receipt.status == RNS.PacketReceipt.SENT and not time.time() > _timeout:
         time.sleep(0.1)
