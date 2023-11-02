@@ -1349,6 +1349,7 @@ class Transport:
                                 # TODO: Check whether this approach works
                                 # under all circumstances
                                 if not random_blob in random_blobs:
+                                    Transport.mark_path_unknown_state(packet.destination_hash)
                                     should_add = True
                                 else:
                                     should_add = False
@@ -1376,6 +1377,7 @@ class Transport:
                                         # TODO: Check that this ^ approach actually
                                         # works under all circumstances
                                         RNS.log("Replacing destination table entry for "+str(RNS.prettyhexrep(packet.destination_hash))+" with new announce due to expired path", RNS.LOG_DEBUG)
+                                        Transport.mark_path_unknown_state(packet.destination_hash)
                                         should_add = True
                                     else:
                                         should_add = False
@@ -1386,6 +1388,7 @@ class Transport:
                                     if (announce_emitted > path_announce_emitted):
                                         if not random_blob in random_blobs:
                                             RNS.log("Replacing destination table entry for "+str(RNS.prettyhexrep(packet.destination_hash))+" with new announce, since it was more recently emitted", RNS.LOG_DEBUG)
+                                            Transport.mark_path_unknown_state(packet.destination_hash)
                                             should_add = True
                                         else:
                                             should_add = False
@@ -2093,6 +2096,22 @@ class Transport:
     def mark_path_unresponsive(destination_hash):
         if destination_hash in Transport.destination_table:
             Transport.path_states[destination_hash] = Transport.STATE_UNRESPONSIVE
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def mark_path_responsive(destination_hash):
+        if destination_hash in Transport.destination_table:
+            Transport.path_states[destination_hash] = Transport.STATE_RESPONSIVE
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def mark_path_unknown_state(destination_hash):
+        if destination_hash in Transport.destination_table:
+            Transport.path_states[destination_hash] = Transport.STATE_UNKNOWN
             return True
         else:
             return False
