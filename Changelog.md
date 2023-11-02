@@ -1,3 +1,24 @@
+### 2023-11-02: RNS β 0.6.4
+
+This release fixes a number of bugs that had crept in while adding the new ultra low bandwidth link timing and faster path rediscovery mechanisms.
+
+**Changes**
+- Adjusted link timings for better support of very slow mediums
+- Adjusted bluetooth read timeouts to account for occasional high latency in congested 2.4GHz environments
+- Added a probe count option to the `rnprobe` utility.
+
+**Bugfixes**
+- Fixed a missing timeout calculation
+- Fixed a redundant path request on path rediscovery
+- Fixed missing path state resetting on stale path rediscovery
+- Fixed a bug that could cause an attribute to be uninitialised
+
+**Release Hashes**
+```
+566c725f68aa154eaca0880c894a39503027bf91714f17691e51d047800444c0 rns-0.6.4-py3-none-any.whl
+a3a447fd40bf02fdb982523de0e4e9933e8e4cd4d4bd478254ea7dcac29e3fc1 rnspure-0.6.4-py3-none-any.whl
+```
+
 ### 2023-10-31: RNS β 0.6.3
 
 This release brings a series of under-the-hood reliability improvements and bugfixes. But most notably, Reticulum can now establish links over even ultra low bandwidth mediums, all the way down to 5 bits per second.
