@@ -1,3 +1,16 @@
+### 2023-11-02: RNS β 0.6.5
+
+This release fixes a bug in path rediscovery for shared instance clients.
+
+**Bugfixes**
+- Fixed a bug in path rediscovery for shared instance clients
+
+**Release Hashes**
+```
+5d54a5cfebe907c759351357a8f7d771670c895ff57f1325bf7fec42bcb46ba3 rns-0.6.5-py3-none-any.whl
+accd2855e18ff06455b9454957388089e293073ec7093c64dee0dc7aa46ecb46 rnspure-0.6.5-py3-none-any.whl
+```
+
 ### 2023-11-02: RNS β 0.6.4
 
 This release fixes a number of bugs that had crept in while adding the new ultra low bandwidth link timing and faster path rediscovery mechanisms.
