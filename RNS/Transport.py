@@ -66,7 +66,7 @@ class Transport:
     PATH_REQUEST_TIMEOUT = 15           # Default timuout for client path requests in seconds
     PATH_REQUEST_GRACE   = 0.35         # Grace time before a path announcement is made, allows directly reachable peers to respond first
     PATH_REQUEST_RW      = 2            # Path request random window
-    PATH_REQUEST_MI      = 5            # Minimum interval in seconds for automated path requests
+    PATH_REQUEST_MI      = 20           # Minimum interval in seconds for automated path requests
 
     STATE_UNKNOWN        = 0x00
     STATE_UNRESPONSIVE   = 0x01
@@ -2058,9 +2058,9 @@ class Transport:
 
     @staticmethod
     def next_hop_per_byte_latency(destination_hash):
-        per_byte_latency = Transport.next_hop_per_bit_latency(destination_hash)
-        if per_byte_latency != None:
-            return per_byte_latency*8
+        per_bit_latency = Transport.next_hop_per_bit_latency(destination_hash)
+        if per_bit_latency != None:
+            return per_bit_latency*8
         else:
             return None
 

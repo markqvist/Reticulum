@@ -321,9 +321,8 @@ class Reticulum:
                 interface.OUT = True
                 if hasattr(Reticulum, "_force_shared_instance_bitrate"):
                     interface.bitrate = Reticulum._force_shared_instance_bitrate
-                    interface._force_bitrate = True
-                    RNS.log(f"Forcing shared instance bitrate of {RNS.prettyspeed(interface.bitrate)}ps", RNS.LOG_WARNING)
                     interface._force_bitrate = Reticulum._force_shared_instance_bitrate
+                    RNS.log(f"Forcing shared instance bitrate of {RNS.prettyspeed(interface.bitrate)}", RNS.LOG_WARNING)
                 RNS.Transport.interfaces.append(interface)
                 
                 self.is_shared_instance = True
@@ -341,7 +340,7 @@ class Reticulum:
                     if hasattr(Reticulum, "_force_shared_instance_bitrate"):
                         interface.bitrate = Reticulum._force_shared_instance_bitrate
                         interface._force_bitrate = True
-                        RNS.log(f"Forcing shared instance bitrate of {RNS.prettyspeed(interface.bitrate)}ps", RNS.LOG_WARNING)
+                        RNS.log(f"Forcing shared instance bitrate of {RNS.prettyspeed(interface.bitrate)}", RNS.LOG_WARNING)
                     RNS.Transport.interfaces.append(interface)
                     self.is_shared_instance = False
                     self.is_standalone_instance = False
@@ -1329,6 +1328,12 @@ class Reticulum:
                 rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
                 rpc_connection.send({"get": "first_hop_timeout", "destination_hash": destination})
                 response = rpc_connection.recv()
+
+                if self.is_connected_to_shared_instance and self._force_shared_instance_bitrate:
+                    simulated_latency = ((1/self._force_shared_instance_bitrate)*8)*RNS.Reticulum.MTU
+                    RNS.log("Adding simulated latency of "+RNS.prettytime(simulated_latency)+" to first hop timeout", RNS.LOG_DEBUG)
+                    response += simulated_latency
+
                 return response
             except Exception as e:
                 RNS.log("An error occurred while getting first hop timeout from shared instance: "+str(e), RNS.LOG_ERROR)
