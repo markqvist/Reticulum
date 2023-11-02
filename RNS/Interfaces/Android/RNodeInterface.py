@@ -602,8 +602,11 @@ class RNodeInterface(Interface):
             raise IOError("Invalid device firmware")
 
         if self.serial != None and self.port != None:
+            self.timeout = 200
             RNS.log("Serial port "+self.port+" is now open")
+
         if self.bt_manager != None and self.bt_manager.connected:
+            self.timeout = 1500
             RNS.log("Bluetooth connection to RNode now open")
 
         RNS.log("Configuring RNode interface...", RNS.LOG_VERBOSE)
@@ -1170,7 +1173,7 @@ class RNodeInterface(Interface):
                 if got == 0:
                     time_since_last = int(time.time()*1000) - last_read_ms
                     if len(data_buffer) > 0 and time_since_last > self.timeout:
-                        RNS.log(str(self)+" serial read timeout", RNS.LOG_WARNING)
+                        RNS.log(str(self)+" serial read timeout in command "+str(command), RNS.LOG_WARNING)
                         data_buffer = b""
                         in_frame = False
                         command = KISS.CMD_UNKNOWN

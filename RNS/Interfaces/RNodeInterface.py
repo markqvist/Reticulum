@@ -799,7 +799,7 @@ class RNodeInterface(Interface):
                 else:
                     time_since_last = int(time.time()*1000) - last_read_ms
                     if len(data_buffer) > 0 and time_since_last > self.timeout:
-                        RNS.log(str(self)+" serial read timeout", RNS.LOG_WARNING)
+                        RNS.log(str(self)+" serial read timeout in command "+str(command), RNS.LOG_WARNING)
                         data_buffer = b""
                         in_frame = False
                         command = KISS.CMD_UNKNOWN
