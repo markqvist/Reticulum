@@ -449,8 +449,7 @@ def link_established(link):
     # And set up a small job to check for
     # a potential timeout in receiving the
     # file list
-    thread = threading.Thread(target=filelist_timeout_job)
-    thread.setDaemon(True)
+    thread = threading.Thread(target=filelist_timeout_job, daemon=True)
     thread.start()
 
 # This job just sleeps for the specified
