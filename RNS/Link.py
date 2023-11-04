@@ -834,10 +834,12 @@ class Link:
                                 request_id = RNS.ResourceAdvertisement.read_request_id(packet)
                                 for pending_request in self.pending_requests:
                                     if pending_request.request_id == request_id:
-                                        RNS.Resource.accept(packet, callback=self.response_resource_concluded, progress_callback=pending_request.response_resource_progress, request_id = request_id)
+                                        response_resource = RNS.Resource.accept(packet, callback=self.response_resource_concluded, progress_callback=pending_request.response_resource_progress, request_id = request_id)
                                         pending_request.response_size = RNS.ResourceAdvertisement.read_size(packet)
                                         pending_request.response_transfer_size = RNS.ResourceAdvertisement.read_transfer_size(packet)
                                         pending_request.started_at = time.time()
+                                        pending_request.response_resource_progress(response_resource)
+
                             elif self.resource_strategy == Link.ACCEPT_NONE:
                                 pass
                             elif self.resource_strategy == Link.ACCEPT_APP:
@@ -907,20 +909,6 @@ class Link:
                         if not self._channel:
                             RNS.log(f"Channel data received without open channel", RNS.LOG_DEBUG)
                         else:
-                            # TODO: Remove packet loss simulator ######
-                            # if not hasattr(self, "drop_counter"):
-                            #     self.drop_counter = 0
-                            # self.drop_counter += 1
-
-                            # if self.drop_counter%6 == 0:
-                            #     RNS.log("Dropping channel packet for testing", RNS.LOG_DEBUG)
-                            # else:
-                            #     packet.prove()
-                            #     plaintext = self.decrypt(packet.data)
-                            #     if plaintext != None:
-                            #         self._channel._receive(plaintext)
-                            ############################################
-
                             packet.prove()
                             plaintext = self.decrypt(packet.data)
                             if plaintext != None:
@@ -1188,11 +1176,12 @@ class RequestReceipt():
         if not self.status == RequestReceipt.FAILED:
             self.status = RequestReceipt.RECEIVING
             if self.packet_receipt != None:
-                self.packet_receipt.status = RNS.PacketReceipt.DELIVERED
-                self.packet_receipt.proved = True
-                self.packet_receipt.concluded_at = time.time()
-                if self.packet_receipt.callbacks.delivery != None:
-                    self.packet_receipt.callbacks.delivery(self.packet_receipt)
+                if self.packet_receipt.status != RNS.PacketReceipt.DELIVERED:
+                    self.packet_receipt.status = RNS.PacketReceipt.DELIVERED
+                    self.packet_receipt.proved = True
+                    self.packet_receipt.concluded_at = time.time()
+                    if self.packet_receipt.callbacks.delivery != None:
+                        self.packet_receipt.callbacks.delivery(self.packet_receipt)
 
             self.progress = resource.get_progress()
             
