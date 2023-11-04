@@ -1,3 +1,19 @@
+### 2023-11-04: RNS β 0.6.6
+
+This maintenance release improves transfers over unreliable links and fixes a bug in requests.
+
+**Changes**
+- Improved reliability of resource transfers over very slow and unreliable links
+
+**Bugfixes**
+- Fixed a bug that could cause requests to timeout prematurely
+
+**Release Hashes**
+```
+b1127745750a43cd7389212d31aa09ccc735ab2d69e3b80bd28874f10082c322 rns-0.6.6-py3-none-any.whl
+bf5ba5da4f37b93c14817367952cda63787ec88bbe601e41c13fcbb3fc22b6b6 rnspure-0.6.6-py3-none-any.whl
+```
+
 ### 2023-11-02: RNS β 0.6.5
 
 This release fixes a bug in path rediscovery for shared instance clients.
