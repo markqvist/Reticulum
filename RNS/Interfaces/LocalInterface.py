@@ -78,6 +78,7 @@ class LocalClientInterface(Interface):
             self.target_ip   = None
             self.target_port = None
             self.socket      = connected_socket
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
             self.is_connected_to_shared_instance = False
 
@@ -108,6 +109,7 @@ class LocalClientInterface(Interface):
 
     def connect(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.socket.connect((self.target_ip, self.target_port))
 
         self.online = True

@@ -116,6 +116,8 @@ class TCPClientInterface(Interface):
             elif platform.system() == "Darwin":
                 self.set_timeouts_osx()
 
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+
         elif target_ip != None and target_port != None:
             self.receives    = True
             self.target_ip   = target_ip
@@ -200,6 +202,7 @@ class TCPClientInterface(Interface):
 
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.settimeout(TCPClientInterface.INITIAL_CONNECT_TIMEOUT)
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             self.socket.connect((self.target_ip, self.target_port))
             self.socket.settimeout(None)
             self.online  = True
