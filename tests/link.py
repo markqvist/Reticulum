@@ -140,6 +140,7 @@ class TestLink(unittest.TestCase):
         pstart = time.time()
         print("Sending "+str(num_packets)+" link packets of "+str(packet_size)+" bytes...")
         for i in range(0, num_packets):
+            time.sleep(0.001)
             b += packet_size
             data = os.urandom(packet_size)
             start = time.time()
