@@ -168,10 +168,7 @@ class Resource:
             resource.hashmap = [None] * resource.total_parts
             resource.hashmap_height = 0
             resource.waiting_for_hmu = False
-
             resource.receiving_part = False
-
-            # TODO: Recheck
             resource.consecutive_completed_height = -1
             
             if not resource.link.has_incoming_resource(resource):
