@@ -1,3 +1,19 @@
+### 2023-11-06: RNS β 0.6.7
+
+This maintenance release improves tranport performance and fixes a logging bug.
+
+**Changes**
+- Improved local and remote transport performance by approximately 6x on faster links
+
+**Bugfixes**
+- Fixed logging an error message when local clients connect while shared instance is still starting up
+
+**Release Hashes**
+```
+c37dd1f59e037841f69ec518deecdae6719f978947de2473f04e7d95247805ac rns-0.6.7-py3-none-any.whl
+1e2dcb44ec7271a4d26180db138fc54dce6d0d3cf3f816432d4d6a4b1cf83868 rnspure-0.6.7-py3-none-any.whl
+```
+
 ### 2023-11-04: RNS β 0.6.6
 
 This maintenance release improves transfers over unreliable links and fixes a bug in requests.
