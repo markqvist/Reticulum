@@ -4,6 +4,7 @@ This maintenance release improves tranport performance and fixes a logging bug.
 
 **Changes**
 - Improved local and remote transport performance by approximately 6x on faster links
+- Significantly decreased latency over faster links
 
 **Bugfixes**
 - Fixed logging an error message when local clients connect while shared instance is still starting up
