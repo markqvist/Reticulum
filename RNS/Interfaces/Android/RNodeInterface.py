@@ -115,7 +115,7 @@ class AndroidBluetoothManager():
         if self.bt_enabled():
             return self.bt_adapter.getDefaultAdapter().getBondedDevices()
         else:
-            RNS.log("Could not query paired devices, Bluetooth is disabled", RNS.LOG_DEBUG)
+            RNS.log("Could not query paired devices, Bluetooth is disabled", RNS.LOG_EXTREME)
             return []
 
     def get_potential_devices(self):
@@ -167,8 +167,8 @@ class AndroidBluetoothManager():
                                 raise IOError("The Bluetooth RFcomm socket could not be connected: "+str(e))
 
                 except Exception as e:
-                    RNS.log("Could not create and connect Bluetooth RFcomm socket for "+str(device.getName())+" "+str(device.getAddress()), RNS.LOG_DEBUG)
-                    RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
+                    RNS.log("Could not create and connect Bluetooth RFcomm socket for "+str(device.getName())+" "+str(device.getAddress()), RNS.LOG_EXTREME)
+                    RNS.log("The contained exception was: "+str(e), RNS.LOG_EXTREME)
 
     def close(self):
         if self.connected:
