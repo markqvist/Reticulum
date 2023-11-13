@@ -33,7 +33,7 @@ from RNS._version import __version__
 DEFAULT_PROBE_SIZE = 16
 DEFAULT_TIMEOUT = 12
 
-def program_setup(configdir, destination_hexhash, size=None, full_name = None, verbosity = 0, timeout=None, probes=1):
+def program_setup(configdir, destination_hexhash, size=None, full_name = None, verbosity = 0, timeout=None, wait=0, probes=1):
     if size == None: size = DEFAULT_PROBE_SIZE
     if full_name == None:
         print("The full destination name including application name aspects must be specified for the destination")
@@ -99,6 +99,9 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
     sent = 0
     replies = 0
     while probes:
+
+        if sent > 0:
+            time.sleep(wait)
 
         try:
             probe = RNS.Packet(request_destination, os.urandom(size))
@@ -175,11 +178,11 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
                             reception_stats += " [SNR "+str(receipt.proof_packet.snr)+" dB]"
 
                 print(
-                    "Valid reply received from "+
+                    "Valid reply from "+
                     RNS.prettyhexrep(receipt.destination.hash)+
                     "\nRound-trip time is "+rttstring+
                     " over "+str(hops)+" hop"+ms+
-                    reception_stats
+                    reception_stats+"\n"
                 )
 
             else:
@@ -203,6 +206,7 @@ def main():
         parser.add_argument("-s", "--size", action="store", default=None, help="size of probe packet payload in bytes", type=int)
         parser.add_argument("-n", "--probes", action="store", default=1, help="number of probes to send", type=int)
         parser.add_argument("-t", "--timeout", metavar="seconds", action="store", default=None, help="timeout before giving up", type=float)
+        parser.add_argument("-w", "--wait", metavar="seconds", action="store", default=0, help="time between each probe", type=float)
         parser.add_argument("--version", action="version", version="rnprobe {version}".format(version=__version__))
         parser.add_argument("full_name", nargs="?", default=None, help="full destination name in dotted notation", type=str)
         parser.add_argument("destination_hash", nargs="?", default=None, help="hexadecimal hash of the destination", type=str)
@@ -228,6 +232,8 @@ def main():
                 full_name = args.full_name,
                 verbosity = args.verbose,
                 probes = args.probes,
+                wait = args.wait,
+                timeout = args.timeout,
             )
 
     except KeyboardInterrupt:
