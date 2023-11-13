@@ -723,6 +723,29 @@ class Transport:
         sent = False
         outbound_time = time.time()
 
+        generate_receipt = False
+        if (packet.create_receipt == True and
+            # Only generate receipts for DATA packets
+            packet.packet_type == RNS.Packet.DATA and
+            # Don't generate receipts for PLAIN destinations
+            packet.destination.type != RNS.Destination.PLAIN and
+            # Don't generate receipts for link-related packets
+            not (packet.context >= RNS.Packet.KEEPALIVE and packet.context <= RNS.Packet.LRPROOF) and
+            # Don't generate receipts for resource packets
+            not (packet.context >= RNS.Packet.RESOURCE and packet.context <= RNS.Packet.RESOURCE_RCL)):
+
+            generate_receipt = True
+
+        def packet_sent(packet):
+            packet.sent = True
+            packet.sent_at = time.time()
+
+            if generate_receipt:
+                packet.receipt = RNS.PacketReceipt(packet)
+                Transport.receipts.append(packet.receipt)
+            
+            Transport.cache(packet)
+
         # Check if we have a known path for the destination in the path table
         if packet.packet_type != RNS.Packet.ANNOUNCE and packet.destination.type != RNS.Destination.PLAIN and packet.destination.type != RNS.Destination.GROUP and packet.destination_hash in Transport.destination_table:
             outbound_interface = Transport.destination_table[packet.destination_hash][5]
@@ -740,6 +763,7 @@ class Transport:
                     new_raw += packet.raw[1:2]
                     new_raw += Transport.destination_table[packet.destination_hash][1]
                     new_raw += packet.raw[2:]
+                    packet_sent(packet)
                     Transport.transmit(outbound_interface, new_raw)
                     Transport.destination_table[packet.destination_hash][0] = time.time()
                     sent = True
@@ -759,6 +783,7 @@ class Transport:
                     new_raw += packet.raw[1:2]
                     new_raw += Transport.destination_table[packet.destination_hash][1]
                     new_raw += packet.raw[2:]
+                    packet_sent(packet)
                     Transport.transmit(outbound_interface, new_raw)
                     Transport.destination_table[packet.destination_hash][0] = time.time()
                     sent = True
@@ -767,6 +792,7 @@ class Transport:
             # directly reachable, and also on which interface, so we
             # simply transmit the packet directly on that one.
             else:
+                packet_sent(packet)
                 Transport.transmit(outbound_interface, packet.raw)
                 sent = True
 
@@ -933,27 +959,8 @@ class Transport:
                         Transport.transmit(interface, packet.raw)
                         if packet.packet_type == RNS.Packet.ANNOUNCE:
                             interface.sent_announce()
+                        packet_sent(packet)
                         sent = True
-
-        if sent:
-            packet.sent = True
-            packet.sent_at = time.time()
-
-            # Don't generate receipt if it has been explicitly disabled
-            if (packet.create_receipt == True and
-                # Only generate receipts for DATA packets
-                packet.packet_type == RNS.Packet.DATA and
-                # Don't generate receipts for PLAIN destinations
-                packet.destination.type != RNS.Destination.PLAIN and
-                # Don't generate receipts for link-related packets
-                not (packet.context >= RNS.Packet.KEEPALIVE and packet.context <= RNS.Packet.LRPROOF) and
-                # Don't generate receipts for resource packets
-                not (packet.context >= RNS.Packet.RESOURCE and packet.context <= RNS.Packet.RESOURCE_RCL)):
-
-                packet.receipt = RNS.PacketReceipt(packet)
-                Transport.receipts.append(packet.receipt)
-            
-            Transport.cache(packet)
 
         Transport.jobs_locked = False
         return sent
@@ -1737,9 +1744,6 @@ class Transport:
                             if receipt.hash == proof_hash:
                                 receipt_validated = receipt.validate_proof_packet(packet)
                         else:
-                            # TODO: This looks like it should actually
-                            # be rewritten when implicit proofs are added.
-
                             # In case of an implicit proof, we have
                             # to check every single outstanding receipt
                             receipt_validated = receipt.validate_proof_packet(packet)
