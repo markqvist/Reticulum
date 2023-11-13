@@ -1036,4 +1036,4 @@ This was the first publicly available pre-release alpha of Reticulum.
 
 ### 2016-05-29: Inintial Repository Commit
 
-The first commit to the Reticulum reference implementation was 9a9630cfd29e11ace3f12716ddb4dff0e5419b4b, which occurred on Sunday, the 22nd of May 2016.
+The first commit to the Reticulum reference implementation was 9a9630cfd29e11ace3f12716ddb4dff0e5419b4b, which occurred on Sunday, the 29th of May 2016.
