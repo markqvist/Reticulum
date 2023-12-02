@@ -64,19 +64,22 @@ def main():
 
         parser.add_argument("--config", metavar="path", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
         parser.add_argument("-i", "--identity", metavar="identity", action="store", default=None, help="hexadecimal Reticulum Destination hash or path to Identity file", type=str)
-        parser.add_argument("-g", "--generate", metavar="path", action="store", default=None, help="generate a new Identity")
+        parser.add_argument("-g", "--generate", metavar="file", action="store", default=None, help="generate a new Identity")
+        parser.add_argument("-m", "--import", dest="import_str", metavar="identity_data", action="store", default=None, help="import Reticulum identity in hex, base32 or base64 format", type=str)
+        parser.add_argument("-x", "--export", action="store_true", default=None, help="export identity to hex, base32 or base64 format")
+
         parser.add_argument("-v", "--verbose", action="count", default=0, help="increase verbosity")
         parser.add_argument("-q", "--quiet", action="count", default=0, help="decrease verbosity")
 
         parser.add_argument("-a", "--announce", metavar="aspects", action="store", default=None, help="announce a destination based on this Identity")
         parser.add_argument("-H", "--hash", metavar="aspects", action="store", default=None, help="show destination hashes for other aspects for this Identity")
-        parser.add_argument("-e", "--encrypt", metavar="path", action="store", default=None, help="encrypt file")
-        parser.add_argument("-d", "--decrypt", metavar="path", action="store", default=None, help="decrypt file")
+        parser.add_argument("-e", "--encrypt", metavar="file", action="store", default=None, help="encrypt file")
+        parser.add_argument("-d", "--decrypt", metavar="file", action="store", default=None, help="decrypt file")
         parser.add_argument("-s", "--sign", metavar="path", action="store", default=None, help="sign file")
         parser.add_argument("-V", "--validate", metavar="path", action="store", default=None, help="validate signature")
 
-        parser.add_argument("-r", "--read", metavar="path", action="store", default=None, help="input file path", type=str)
-        parser.add_argument("-w", "--write", metavar="path", action="store", default=None, help="output file path", type=str)
+        parser.add_argument("-r", "--read", metavar="file", action="store", default=None, help="input file path", type=str)
+        parser.add_argument("-w", "--write", metavar="file", action="store", default=None, help="output file path", type=str)
         parser.add_argument("-f", "--force", action="store_true", default=None, help="write output even if it overwrites existing files")
         parser.add_argument("-I", "--stdin", action="store_true", default=False, help=argparse.SUPPRESS) # "read input from STDIN instead of file"
         parser.add_argument("-O", "--stdout", action="store_true", default=False, help=argparse.SUPPRESS) # help="write output to STDOUT instead of file", 
@@ -86,7 +89,8 @@ def main():
         parser.add_argument("-p", "--print-identity", action="store_true", default=False, help="print identity info and exit")
         parser.add_argument("-P", "--print-private", action="store_true", default=False, help="allow displaying private keys")
 
-        parser.add_argument("-b", "--base64", action="store_true", default=False, help=argparse.SUPPRESS) # help="Use base64-encoded input and output")
+        parser.add_argument("-b", "--base64", action="store_true", default=False, help="Use base64-encoded input and output")
+        parser.add_argument("-B", "--base32", action="store_true", default=False, help="Use base32-encoded input and output")
 
         parser.add_argument("--version", action="version", version="rnid {version}".format(version=__version__))
         
@@ -110,6 +114,59 @@ def main():
                 args.read = args.sign
 
         identity_str = args.identity
+        if args.import_str:
+            identity_bytes = None
+            try:
+                if args.base64:
+                    identity_bytes = base64.urlsafe_b64decode(args.import_str)
+                elif args.base32:
+                    identity_bytes = base64.b32decode(args.import_str)
+                else:
+                    identity_bytes = bytes.fromhex(args.import_str)
+            except Exception as e:
+                print("Invalid identity data specified for import: "+str(e))
+                exit(41)
+
+            try:
+                identity = RNS.Identity.from_bytes(identity_bytes)
+            except Exception as e:
+                print("Could not create Reticulum identity from specified data: "+str(e))
+                exit(42)
+
+            RNS.log("Identity imported")
+            if args.base64:
+                RNS.log("Public Key  : "+base64.urlsafe_b64encode(identity.get_public_key()).decode("utf-8"))
+            elif args.base32:
+                RNS.log("Public Key  : "+base64.b32encode(identity.get_public_key()).decode("utf-8"))
+            else:
+                RNS.log("Public Key  : "+RNS.hexrep(identity.get_public_key(), delimit=False))
+            if identity.prv:
+                if args.print_private:
+                    if args.base64:
+                        RNS.log("Private Key : "+base64.urlsafe_b64encode(identity.get_private_key()).decode("utf-8"))
+                    elif args.base32:
+                        RNS.log("Private Key : "+base64.b32encode(identity.get_private_key()).decode("utf-8"))
+                    else:
+                        RNS.log("Private Key : "+RNS.hexrep(identity.get_private_key(), delimit=False))
+                else:
+                    RNS.log("Private Key : Hidden")
+
+            if args.write:
+                try:
+                    wp = os.path.expanduser(args.write)
+                    if not os.path.isfile(wp) or args.force:
+                        identity.to_file(wp)
+                        RNS.log("Wrote imported identity to "+str(args.write))
+                    else:
+                        print("File "+str(wp)+" already exists, not overwriting")
+                        exit(43)
+
+                except Exception as e:
+                    print("Error while writing imported identity to file: "+str(e))
+                    exit(44)
+
+            exit(0)
+
         if not args.generate and not identity_str:
             print("\nNo identity provided, cannot continue\n")
             parser.print_help()
@@ -246,12 +303,36 @@ def main():
                     exit(0)
 
                 if args.print_identity:
-                    RNS.log("Public Key  : "+RNS.hexrep(identity.pub_bytes, delimit=False))
+                    if args.base64:
+                        RNS.log("Public Key  : "+base64.urlsafe_b64encode(identity.get_public_key()).decode("utf-8"))
+                    elif args.base32:
+                        RNS.log("Public Key  : "+base64.b32encode(identity.get_public_key()).decode("utf-8"))
+                    else:
+                        RNS.log("Public Key  : "+RNS.hexrep(identity.get_public_key(), delimit=False))
                     if identity.prv:
                         if args.print_private:
-                            RNS.log("Private Key : "+RNS.hexrep(identity.prv_bytes, delimit=False))
+                            if args.base64:
+                                RNS.log("Private Key : "+base64.urlsafe_b64encode(identity.get_private_key()).decode("utf-8"))
+                            elif args.base32:
+                                RNS.log("Private Key : "+base64.b32encode(identity.get_private_key()).decode("utf-8"))
+                            else:
+                                RNS.log("Private Key : "+RNS.hexrep(identity.get_private_key(), delimit=False))
                         else:
                             RNS.log("Private Key : Hidden")
+                    exit(0)
+
+                if args.export:
+                    if identity.prv:
+                            if args.base64:
+                                RNS.log("Exported Identity : "+base64.urlsafe_b64encode(identity.get_private_key()).decode("utf-8"))
+                            elif args.base32:
+                                RNS.log("Exported Identity : "+base64.b32encode(identity.get_private_key()).decode("utf-8"))
+                            else:
+                                RNS.log("Exported Identity : "+RNS.hexrep(identity.get_private_key(), delimit=False))
+                    else:
+                        RNS.log("Identity doesn't hold a private key, cannot export")
+                        exit(50)
+
                     exit(0)
 
                 if args.validate:
