@@ -1045,6 +1045,35 @@ def ensure_firmware_file(fw_filename):
 
                 try:
                     if selected_hash == None:
+                        if not os.path.isfile(UPD_DIR+"/"+selected_version+"/"+fw_filename+".version"):
+                            RNS.log("No hash file found for "+fw_filename+" version "+selected_version)
+                            if not upd_nocheck:
+                                try:
+                                    RNS.log("Retrieving hash...")
+                                    selected_firmware_version_url = "broken" #"https://unsigned.io/firmware/latest/?v="+selected_version+"&variant="+fw_filename
+                                    fallback_selected_version_url = "https://github.com/markqvist/rnode_firmware/releases/download/"+selected_version+"/release.json"
+                                    urlretrieve(selected_firmware_version_url, UPD_DIR+"/"+selected_version+"/"+fw_filename+".version")
+                                except Exception as e:
+                                    RNS.log("")
+                                    RNS.log("WARNING!")
+                                    RNS.log("Failed to retrieve latest version hash for your board from the default server")
+                                    RNS.log("Will retry using the following fallback URL: "+fallback_selected_version_url)
+                                    RNS.log("This is currently expected.")
+                                    RNS.log("")
+                                    RNS.log("Hit enter if you want to proceed")
+                                    input()
+                                    try:
+                                        urlretrieve(fallback_selected_version_url, UPD_DIR+"/fallback_release_info.json")
+                                        import json
+                                        with open(UPD_DIR+"/fallback_release_info.json", "rb") as rif:
+                                            rdat = json.loads(rif.read())
+                                            variant = rdat[fw_filename]
+                                            with open(UPD_DIR+"/"+selected_version+"/"+fw_filename+".version", "wb") as verf:
+                                                inf_str = str(variant["version"])+" "+str(variant["hash"])
+                                                verf.write(inf_str.encode("utf-8"))
+                                    except Exception as e:
+                                        RNS.log("Error while trying fallback URL: "+str(e))
+                                        raise e
                         try:
                             file = open(UPD_DIR+"/"+selected_version+"/"+fw_filename+".version", "rb")
                             release_info = file.read().decode("utf-8").strip()
