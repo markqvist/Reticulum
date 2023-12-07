@@ -1,3 +1,17 @@
+### 2023-12-07: RNS β 0.6.9
+
+This release adds a few convenience functions to the `rnid` utility, and improves roaming support on Android.
+
+**Changes**
+- Added identity import and export in hex, base32 and base64 formats to the `rnid` utility.
+- Added better carrier change detection for AutoInterface on Android.
+
+**Release Hashes**
+```
+3ffb01f3f45e35105ea30e60e5e493ba50528df38b4ea62672c9e1c093073b1c rns-0.6.8-py3-none-any.whl
+de372814082ef7db59f4b2745b1f22b2ef9d97815190ec16c0596ba20406e0fb rnspure-0.6.8-py3-none-any.whl
+```
+
 ### 2023-11-14: RNS β 0.6.8
 
 This maintenance release fixes a single bug.
