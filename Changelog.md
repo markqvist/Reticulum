@@ -8,8 +8,8 @@ This release adds a few convenience functions to the `rnid` utility, and improve
 
 **Release Hashes**
 ```
-3ffb01f3f45e35105ea30e60e5e493ba50528df38b4ea62672c9e1c093073b1c rns-0.6.8-py3-none-any.whl
-de372814082ef7db59f4b2745b1f22b2ef9d97815190ec16c0596ba20406e0fb rnspure-0.6.8-py3-none-any.whl
+258daf22cb6e72c6cd04fe94447daedf51dfd968eb2f3370eab9c71ad0898dd0 rns-0.6.9-py3-none-any.whl
+3644b64af5b4efd3969172bf0cf95ae1afba6c8ea99ce47d8e49e31a832bbaf8 rnspure-0.6.9-py3-none-any.whl
 ```
 
 ### 2023-11-14: RNS β 0.6.8
