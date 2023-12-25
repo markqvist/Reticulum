@@ -68,6 +68,7 @@ class Interface:
         self.txb = 0
         self.created = time.time()
         self.online = False
+        self.bitrate = 1e6
 
         self.ingress_control = True
         self.ic_max_held_announces = Interface.MAX_HELD_ANNOUNCES

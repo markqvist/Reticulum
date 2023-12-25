@@ -876,7 +876,7 @@ class Transport:
                                             interface.announce_queue = []
 
                                     queued_announces = True if len(interface.announce_queue) > 0 else False
-                                    if not queued_announces and outbound_time > interface.announce_allowed_at:
+                                    if not queued_announces and outbound_time > interface.announce_allowed_at and interface.bitrate != None and interface.bitrate != 0:
                                         tx_time   = (len(packet.raw)*8) / interface.bitrate
                                         wait_time = (tx_time / interface.announce_cap)
                                         interface.announce_allowed_at = outbound_time + wait_time
