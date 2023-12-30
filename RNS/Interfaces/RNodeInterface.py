@@ -109,7 +109,7 @@ class RNodeInterface(Interface):
 
     def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None, st_alock = None, lt_alock = None):
         if RNS.vendor.platformutils.is_android():
-            raise SystemError("Invlaid interface type. The Android-specific RNode interface must be used on Android")
+            raise SystemError("Invalid interface type. The Android-specific RNode interface must be used on Android")
 
         import importlib
         if importlib.util.find_spec('serial') != None:
