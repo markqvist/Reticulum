@@ -22,7 +22,9 @@ Please do not post feature requests or general ideas on the issue tracker, or in
 
 ## Reporting Issues
 
-If you have found a bug or issue in Reticulum, please report it on the [issue tracker](https://github.com/markqvist/Reticulum/issues).
+If you have found a bug or issue in this project, please report it using the [issue tracker](https://github.com/markqvist/Reticulum/issues). If at all possible, be sure to include details on how to reproduce the bug.
+
+Anything submitted to the issue tracker that does not follow these guidelines will be closed and removed without comments or explanation.
 
 ## Writing Code
 
