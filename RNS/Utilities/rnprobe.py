@@ -132,7 +132,7 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
             i = (i+1)%len(syms)
 
         if time.time() > _timeout:
-            print("\r                                                          \rProbe timed out")
+            print("\r                                                                \rProbe timed out")
         
         else:
             print("\b\b ")
