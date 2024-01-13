@@ -189,6 +189,9 @@ class TestLink(unittest.TestCase):
         id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
+        RNS.Transport.request_path(bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+        time.sleep(0.2)
+
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
@@ -204,6 +207,7 @@ class TestLink(unittest.TestCase):
         resource = RNS.Resource(data, l1, timeout=resource_timeout)
         start = time.time()
 
+        # This is a hack, don't do it. Use the callbacks instead.
         while resource.status < RNS.Resource.COMPLETE:
             time.sleep(0.01)
 
@@ -225,6 +229,9 @@ class TestLink(unittest.TestCase):
         id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
+        RNS.Transport.request_path(bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+        time.sleep(0.2)
+
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
@@ -240,6 +247,7 @@ class TestLink(unittest.TestCase):
         resource = RNS.Resource(data, l1, timeout=resource_timeout)
         start = time.time()
 
+        # This is a hack, don't do it. Use the callbacks instead.
         while resource.status < RNS.Resource.COMPLETE:
             time.sleep(0.01)
 
@@ -261,6 +269,9 @@ class TestLink(unittest.TestCase):
         id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
+        RNS.Transport.request_path(bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+        time.sleep(0.2)
+
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
@@ -275,6 +286,7 @@ class TestLink(unittest.TestCase):
         resource = RNS.Resource(data, l1, timeout=resource_timeout)
         start = time.time()
 
+        # This is a hack, don't do it. Use the callbacks instead.
         while resource.status < RNS.Resource.COMPLETE:
             time.sleep(0.01)
 
@@ -301,6 +313,9 @@ class TestLink(unittest.TestCase):
         id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
+        RNS.Transport.request_path(bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+        time.sleep(0.2)
+
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
@@ -315,6 +330,7 @@ class TestLink(unittest.TestCase):
         resource = RNS.Resource(data, l1, timeout=resource_timeout)
         start = time.time()
 
+        # This is a hack, don't do it. Use the callbacks instead.
         while resource.status < RNS.Resource.COMPLETE:
             time.sleep(0.01)
 
@@ -325,6 +341,10 @@ class TestLink(unittest.TestCase):
         l1.teardown()
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
+
+    large_resource_status = None
+    def lr_callback(self, resource):
+        TestLink.large_resource_status = resource.status
 
     @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_9_large_resource(self):
@@ -340,6 +360,9 @@ class TestLink(unittest.TestCase):
         id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
+        RNS.Transport.request_path(bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+        time.sleep(0.2)
+
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
@@ -348,17 +371,18 @@ class TestLink(unittest.TestCase):
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         resource_timeout = 120
-        resource_size = 35*1000*1000
+        resource_size = 50*1000*1000
         data = os.urandom(resource_size)
         print("Sending "+self.size_str(resource_size)+" resource...")
-        resource = RNS.Resource(data, l1, timeout=resource_timeout)
+        resource = RNS.Resource(data, l1, timeout=resource_timeout, callback=self.lr_callback)
         start = time.time()
 
-        while resource.status < RNS.Resource.COMPLETE:
+        TestLink.large_resource_status = resource.status
+        while TestLink.large_resource_status < RNS.Resource.COMPLETE:
             time.sleep(0.01)
 
         t = time.time() - start
-        self.assertEqual(resource.status, RNS.Resource.COMPLETE)
+        self.assertEqual(TestLink.large_resource_status, RNS.Resource.COMPLETE)
         print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
 
         l1.teardown()
