@@ -835,10 +835,11 @@ class Link:
                                 for pending_request in self.pending_requests:
                                     if pending_request.request_id == request_id:
                                         response_resource = RNS.Resource.accept(packet, callback=self.response_resource_concluded, progress_callback=pending_request.response_resource_progress, request_id = request_id)
-                                        pending_request.response_size = RNS.ResourceAdvertisement.read_size(packet)
-                                        pending_request.response_transfer_size = RNS.ResourceAdvertisement.read_transfer_size(packet)
-                                        pending_request.started_at = time.time()
-                                        pending_request.response_resource_progress(response_resource)
+                                        if response_resource != None:
+                                            pending_request.response_size = RNS.ResourceAdvertisement.read_size(packet)
+                                            pending_request.response_transfer_size = RNS.ResourceAdvertisement.read_transfer_size(packet)
+                                            pending_request.started_at = time.time()
+                                            pending_request.response_resource_progress(response_resource)
 
                             elif self.resource_strategy == Link.ACCEPT_NONE:
                                 pass
@@ -1173,25 +1174,26 @@ class RequestReceipt():
 
 
     def response_resource_progress(self, resource):
-        if not self.status == RequestReceipt.FAILED:
-            self.status = RequestReceipt.RECEIVING
-            if self.packet_receipt != None:
-                if self.packet_receipt.status != RNS.PacketReceipt.DELIVERED:
-                    self.packet_receipt.status = RNS.PacketReceipt.DELIVERED
-                    self.packet_receipt.proved = True
-                    self.packet_receipt.concluded_at = time.time()
-                    if self.packet_receipt.callbacks.delivery != None:
-                        self.packet_receipt.callbacks.delivery(self.packet_receipt)
+        if resource != None:
+            if not self.status == RequestReceipt.FAILED:
+                self.status = RequestReceipt.RECEIVING
+                if self.packet_receipt != None:
+                    if self.packet_receipt.status != RNS.PacketReceipt.DELIVERED:
+                        self.packet_receipt.status = RNS.PacketReceipt.DELIVERED
+                        self.packet_receipt.proved = True
+                        self.packet_receipt.concluded_at = time.time()
+                        if self.packet_receipt.callbacks.delivery != None:
+                            self.packet_receipt.callbacks.delivery(self.packet_receipt)
 
-            self.progress = resource.get_progress()
-            
-            if self.callbacks.progress != None:
-                try:
-                    self.callbacks.progress(self)
-                except Exception as e:
-                    RNS.log("Error while executing response progress callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
-        else:
-            resource.cancel()
+                self.progress = resource.get_progress()
+                
+                if self.callbacks.progress != None:
+                    try:
+                        self.callbacks.progress(self)
+                    except Exception as e:
+                        RNS.log("Error while executing response progress callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+            else:
+                resource.cancel()
 
     
     def response_received(self, response):
