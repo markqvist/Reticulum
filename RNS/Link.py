@@ -687,7 +687,9 @@ class Link:
                     remove = pending_request
                     try:
                         pending_request.response_size = response_size
-                        pending_request.response_transfer_size = response_transfer_size
+                        if pending_request.response_transfer_size == None:
+                            pending_request.response_transfer_size = 0
+                        pending_request.response_transfer_size += response_transfer_size
                         pending_request.response_received(response_data)
                     except Exception as e:
                         RNS.log("Error occurred while handling response. The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -836,9 +838,13 @@ class Link:
                                     if pending_request.request_id == request_id:
                                         response_resource = RNS.Resource.accept(packet, callback=self.response_resource_concluded, progress_callback=pending_request.response_resource_progress, request_id = request_id)
                                         if response_resource != None:
-                                            pending_request.response_size = RNS.ResourceAdvertisement.read_size(packet)
-                                            pending_request.response_transfer_size = RNS.ResourceAdvertisement.read_transfer_size(packet)
-                                            pending_request.started_at = time.time()
+                                            if pending_request.response_size == None:
+                                                pending_request.response_size = RNS.ResourceAdvertisement.read_size(packet)
+                                            if pending_request.response_transfer_size == None:
+                                                pending_request.response_transfer_size = 0
+                                            pending_request.response_transfer_size += RNS.ResourceAdvertisement.read_transfer_size(packet)
+                                            if pending_request.started_at == None:
+                                                pending_request.started_at = time.time()
                                             pending_request.response_resource_progress(response_resource)
 
                             elif self.resource_strategy == Link.ACCEPT_NONE:
@@ -1133,7 +1139,8 @@ class RequestReceipt():
     def request_resource_concluded(self, resource):
         if resource.status == RNS.Resource.COMPLETE:
             RNS.log("Request "+RNS.prettyhexrep(self.request_id)+" successfully sent as resource.", RNS.LOG_DEBUG)
-            self.started_at = time.time()
+            if self.started_at == None:
+                self.started_at = time.time()
             self.status = RequestReceipt.DELIVERED
             self.__resource_response_timeout = time.time()+self.timeout
             response_timeout_thread = threading.Thread(target=self.__response_timeout_job)
