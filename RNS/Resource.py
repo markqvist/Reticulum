@@ -625,11 +625,13 @@ class Resource:
                             except Exception as e:
                                 RNS.log("Error while executing resource concluded callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
                             finally:
-                                if hasattr(self.input_file, "close") and callable(self.input_file.close):
-                                    try:
-                                        self.input_file.close()
-                                    except Exception as e:
-                                        RNS.log("Error while closing resource input file: "+str(e), RNS.LOG_ERROR)
+                                try:
+                                    if hasattr(self, "input_file"):
+                                        if hasattr(self.input_file, "close") and callable(self.input_file.close):
+                                            self.input_file.close()
+
+                                except Exception as e:
+                                    RNS.log("Error while closing resource input file: "+str(e), RNS.LOG_ERROR)
                     else:
                         # Otherwise we'll recursively create the
                         # next segment of the resource
