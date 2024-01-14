@@ -204,6 +204,7 @@ class Resource:
         data_size = None
         resource_data = None
         self.assembly_lock = False
+        self.input_file = None
 
         if data != None:
             if not hasattr(data, "read") and len(data) > Resource.MAX_EFFICIENT_SIZE:
