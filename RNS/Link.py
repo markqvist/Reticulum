@@ -352,7 +352,7 @@ class Link:
         packed_request    = umsgpack.packb(unpacked_request)
 
         if timeout == None:
-            timeout = self.rtt * self.traffic_timeout_factor + RNS.Resource.RESPONSE_MAX_GRACE_TIME/4.0
+            timeout = self.rtt * self.traffic_timeout_factor + RNS.Resource.RESPONSE_MAX_GRACE_TIME*1.125
 
         if len(packed_request) <= Link.MDU:
             request_packet   = RNS.Packet(self, packed_request, RNS.Packet.DATA, context = RNS.Packet.REQUEST)

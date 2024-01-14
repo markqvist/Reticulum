@@ -468,7 +468,7 @@ class Resource:
                             self.adv_sent = self.last_activity
                             sleep_time = 0.001
                         except Exception as e:
-                            RNS.log("Could not resend advertisement packet, cancelling resource", RNS.LOG_VERBOSE)
+                            RNS.log("Could not resend advertisement packet, cancelling resource. The contained exception was: "+str(e), RNS.LOG_VERBOSE)
                             self.cancel()
                     
 
