@@ -1,6 +1,6 @@
 ### 2024-01-17: RNS β 0.7.0
 
-This maintenance release fixes a number of bugs. Thanks to @jooray, who contributed to this release!
+This maintenance release fixes a number of bugs. Thanks to @jooray and @jacobeva, who contributed to this release!
 
 **Changes**
 - Fixed large resource transfers failing under some conditions
@@ -11,8 +11,8 @@ This maintenance release fixes a number of bugs. Thanks to @jooray, who contribu
 
 **Release Hashes**
 ```
-f8981db9645cf5207fdfa53b2bf1735e99cc3d6547748bac81d77a00601f8e6c rns-0.7.0-py3-none-any.whl
-2ba8fc281fba4dd1c502f01d630ee6c554fe5d48080614f3aa61b4811e522463 rnspure-0.7.0-py3-none-any.whl
+0dc2abe5373b9afadfba7ec05bf7ddeff659c004aa339a94001ebed5b46f5b47 rns-0.7.0-py3-none-any.whl
+97f6e65a20b53bbdccd54b4d2bdaa36dc1712e144a55f40800c63fe7113819a5 rnspure-0.7.0-py3-none-any.whl
 ```
 
 ### 2023-12-07: RNS β 0.6.9
