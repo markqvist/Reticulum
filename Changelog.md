@@ -1,3 +1,20 @@
+### 2024-01-17: RNS β 0.7.0
+
+This maintenance release fixes a number of bugs. Thanks to @jooray, who contributed to this release!
+
+**Changes**
+- Fixed large resource transfers failing under some conditions
+- Fixed a potential division by zero
+- Fixed a missing check on malformed advertisement packets
+- Fixed a formatting issue in `rnprobe`
+- Improved resource timeout calculations
+
+**Release Hashes**
+```
+f8981db9645cf5207fdfa53b2bf1735e99cc3d6547748bac81d77a00601f8e6c rns-0.7.0-py3-none-any.whl
+2ba8fc281fba4dd1c502f01d630ee6c554fe5d48080614f3aa61b4811e522463 rnspure-0.7.0-py3-none-any.whl
+```
+
 ### 2023-12-07: RNS β 0.6.9
 
 This release adds a few convenience functions to the `rnid` utility, and improves roaming support on Android.
