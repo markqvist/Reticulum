@@ -120,10 +120,12 @@ class KISS():
 class ROM():
     PLATFORM_AVR   = 0x90
     PLATFORM_ESP32 = 0x80
+    PLATFORM_NRF52 = 0x70
 
     MCU_1284P      = 0x91
     MCU_2560       = 0x92
     MCU_ESP32      = 0x81
+    MCU_NRF52      = 0x71
 
     PRODUCT_RNODE  = 0x03
     MODEL_A4       = 0xA4
@@ -182,6 +184,7 @@ class ROM():
     BOARD_GENERIC_ESP32 = 0x35
     BOARD_LORA32_V2_0   = 0x36
     BOARD_LORA32_V2_1   = 0x37
+    BOARD_RAK4630       = 0x51
 
 mapped_product = ROM.PRODUCT_RNODE
 products = {
@@ -197,12 +200,14 @@ products = {
 platforms = {
     ROM.PLATFORM_AVR: "AVR",
     ROM.PLATFORM_ESP32:"ESP32",
+    ROM.PLATFORM_NRF52:"NRF52",
 }
 
 mcus = {
     ROM.MCU_1284P: "ATmega1284P",
     ROM.MCU_2560:"ATmega2560",
     ROM.MCU_ESP32:"Espressif Systems ESP32",
+    ROM.MCU_NRF52:"Nordic nRF52840",
 }
 
 models = {
