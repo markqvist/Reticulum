@@ -128,6 +128,8 @@ class ROM():
     MCU_NRF52      = 0x71
 
     PRODUCT_RNODE  = 0x03
+    MODEL_A1       = 0xA1
+    MODEL_A6       = 0xA6
     MODEL_A4       = 0xA4
     MODEL_A9       = 0xA9
     MODEL_A3       = 0xA3
@@ -154,6 +156,8 @@ class ROM():
     PRODUCT_TBEAM  = 0xE0
     MODEL_E4       = 0xE4
     MODEL_E9       = 0xE9
+    MODEL_E3       = 0xE3
+    MODEL_E8       = 0xE8
     
     PRODUCT_HMBRW  = 0xF0
     MODEL_FF       = 0xFF
@@ -211,24 +215,28 @@ mcus = {
 }
 
 models = {
-    0xA4: [410000000, 525000000, 14, "410 - 525 MHz", "rnode_firmware.hex"],
-    0xA9: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware.hex"],
-    0xA2: [410000000, 525000000, 17, "410 - 525 MHz", "rnode_firmware_ng21.zip"],
-    0xA7: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware_ng21.zip"],
-    0xA3: [410000000, 525000000, 17, "410 - 525 MHz", "rnode_firmware_ng20.zip"],
-    0xA8: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware_ng20.zip"],
-    0xB3: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_lora32v20.zip"],
-    0xB8: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v20.zip"],
-    0xB4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_lora32v21.zip"],
-    0xB9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v21.zip"],
-    0xBA: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_lora32v10.zip"],
-    0xBB: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v10.zip"],
-    0xC4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_heltec32v2.zip"],
-    0xC9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_heltec32v2.zip"],
-    0xE4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_tbeam.zip"],
-    0xE9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_tbeam.zip"],
-    0xFE: [100000000, 1100000000, 17, "(Band capabilities unknown)", None],
-    0xFF: [100000000, 1100000000, 14, "(Band capabilities unknown)", None],
+    0xA4: [410000000, 525000000, 14, "410 - 525 MHz", "rnode_firmware.hex", "SX1278"],
+    0xA9: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware.hex", "SX1276"],
+    0xA1: [410000000, 525000000, 22, "410 - 525 MHz", "rnode_firmware_t3s3.zip", "SX1268"],
+    0xA6: [820000000, 1020000000, 22, "820 - 960 MHz", "rnode_firmware_t3s3.zip", "SX1262"],
+    0xA2: [410000000, 525000000, 17, "410 - 525 MHz", "rnode_firmware_ng21.zip", "SX1278"],
+    0xA7: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware_ng21.zip", "SX1276"],
+    0xA3: [410000000, 525000000, 17, "410 - 525 MHz", "rnode_firmware_ng20.zip", "SX1278"],
+    0xA8: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware_ng20.zip", "SX1276"],
+    0xB3: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_lora32v20.zip", "SX1278"],
+    0xB8: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v20.zip", "SX1276"],
+    0xB4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_lora32v21.zip", "SX1278"],
+    0xB9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v21.zip", "SX1276"],
+    0xBA: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_lora32v10.zip", "SX1278"],
+    0xBB: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v10.zip", "SX1276"],
+    0xC4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_heltec32v2.zip", "SX1278"],
+    0xC9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_heltec32v2.zip", "SX1276"],
+    0xE4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_tbeam.zip", "SX1278"],
+    0xE9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_tbeam.zip", "SX1276"],
+    0xE3: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1268"],
+    0xE8: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1262"],
+    0xFE: [100000000, 1100000000, 17, "(Band capabilities unknown)", None, "Unknown"],
+    0xFF: [100000000, 1100000000, 14, "(Band capabilities unknown)", None, "Unknown"],
 }
 
 CNF_DIR = None
@@ -933,6 +941,7 @@ class RNode():
         except Exception as e:
             self.provisioned = False
             RNS.log("Invalid EEPROM data, could not parse device EEPROM.")
+            RNS.log("The contained exception was: "+str(e))
 
 
     def device_probe(self):
@@ -1023,6 +1032,10 @@ def ensure_firmware_file(fw_filename):
                     file = open(UPD_DIR+"/"+fw_filename+".version.latest", "rb")
                     release_info = file.read().decode("utf-8").strip()
                     selected_version = release_info.split()[0]
+                    if selected_version == "not":
+                        RNS.log("No valid version found for this board, exiting.")
+                        exit(199)
+
                     selected_hash = release_info.split()[1]
                     if not os.path.isdir(UPD_DIR+"/"+selected_version):
                         os.makedirs(UPD_DIR+"/"+selected_version)
@@ -1502,6 +1515,7 @@ def main():
             print("[5] LilyGO LoRa32 v1.0")
             print("[6] LilyGO T-Beam")
             print("[7] Heltec LoRa32 v2")
+            print("[8] LilyGO LoRa T3S3")
             print("       .")
             print("      / \\   Select one of these options if you want to easily turn")
             print("       |    a supported development board into an RNode.")
@@ -1512,7 +1526,8 @@ def main():
             selected_product = None
             try:
                 c_dev = int(input())
-                if c_dev < 1 or c_dev > 7:
+                c_mod = False
+                if c_dev < 1 or c_dev > 8:
                     raise ValueError()
                 elif c_dev == 1:
                     selected_product = ROM.PRODUCT_RNODE
@@ -1541,8 +1556,7 @@ def main():
                     print("                          T-Beam RNode Installer")
                     print("")
                     print("The RNode firmware can currently be installed on T-Beam devices using the")
-                    print("SX1276 and SX1278 transceiver chips. Support for devices with the newer")
-                    print("SX1262 and SX1268 chips is in development.")
+                    print("SX1276, SX1278, SX1262 and SX1268 transceiver chips.")
                     print("")
                     print("Important! Using RNode firmware on T-Beam devices should currently be")
                     print("considered experimental. It is not intended for production or critical use.")
@@ -1613,6 +1627,23 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
+                elif c_dev == 8:
+                    selected_product = ROM.PRODUCT_RNODE
+                    c_mod = True
+                    clear()
+                    print("")
+                    print("---------------------------------------------------------------------------")
+                    print("                     LilyGO LoRa32 T3S3 RNode Installer")
+                    print("")
+                    print("Important! Using RNode firmware on T3S3 devices should currently be")
+                    print("considered experimental. It is not intended for production or critical use.")
+                    print("")
+                    print("Please note that Bluetooth is currently not implemented on this board.")
+                    print("")
+                    print("The currently supplied firmware is provided AS-IS as a courtesey to those")
+                    print("who would like to experiment with it. Hit enter to continue.")
+                    print("---------------------------------------------------------------------------")
+                    input()
             except Exception as e:
                 print("That device type does not exist, exiting now.")
                 exit()
@@ -1665,53 +1696,86 @@ def main():
 
 
             elif selected_product == ROM.PRODUCT_RNODE:
-                selected_mcu = ROM.MCU_1284P
-                print("\nWhat model is this RNode?\n")
-                print("[1] Handheld v2.x RNode, 410 - 525 MHz")
-                print("[2] Handheld v2.x RNode, 820 - 1020 MHz")
-                print("")
-                print("[3] Original v1.x RNode, 410 - 525 MHz")
-                print("[4] Original v1.x RNode, 820 - 1020 MHz")
-                # print("[5] Prototype v2 RNode, 410 - 525 MHz")
-                # print("[6] Prototype v2 RNode, 820 - 1020 MHz")
-                print("\n? ", end="")
-                try:
-                    c_model = int(input())
-                    if c_model < 1 or c_model > 6:
-                        raise ValueError()
-                    elif c_model == 3:
-                        selected_model = ROM.MODEL_A4
-                        selected_platform = ROM.PLATFORM_AVR
-                    elif c_model == 4:
-                        selected_model = ROM.MODEL_A9
-                        selected_platform = ROM.PLATFORM_AVR
-                    elif c_model == 1:
-                        selected_model = ROM.MODEL_A2
-                        selected_mcu = ROM.MCU_ESP32
-                        selected_platform = ROM.PLATFORM_ESP32
-                    elif c_model == 2:
-                        selected_model = ROM.MODEL_A7
-                        selected_mcu = ROM.MCU_ESP32
-                        selected_platform = ROM.PLATFORM_ESP32
-                    # elif c_model == 5:
-                    #     selected_model = ROM.MODEL_A3
-                    #     selected_mcu = ROM.MCU_ESP32
-                    #     selected_platform = ROM.PLATFORM_ESP32
-                    # elif c_model == 6:
-                    #     selected_model = ROM.MODEL_A8
-                    #     selected_mcu = ROM.MCU_ESP32
-                    #     selected_platform = ROM.PLATFORM_ESP32
-                except Exception as e:
-                    print("That model does not exist, exiting now.")
-                    exit()
+                if not c_mod:
+                    selected_mcu = ROM.MCU_1284P
+                    print("\nWhat model is this RNode?\n")
+                    print("[1] Handheld v2.1 RNode, 410 - 525 MHz")
+                    print("[2] Handheld v2.1 RNode, 820 - 1020 MHz")
+                    print("")
+                    print("[3] Original v1.x RNode, 410 - 525 MHz")
+                    print("[4] Original v1.x RNode, 820 - 1020 MHz")
+                    print("")
+                    print("[5] Prototype v2.2 RNode, 410 - 525 MHz")
+                    print("[6] Prototype v2.2 RNode, 820 - 1020 MHz")
+                    # print("[5] Prototype v2 RNode, 410 - 525 MHz")
+                    # print("[6] Prototype v2 RNode, 820 - 1020 MHz")
+                    print("\n? ", end="")
+                    try:
+                        c_model = int(input())
+                        if c_model < 1 or c_model > 6:
+                            raise ValueError()
+                        elif c_model == 1:
+                            selected_model = ROM.MODEL_A2
+                            selected_mcu = ROM.MCU_ESP32
+                            selected_platform = ROM.PLATFORM_ESP32
+                        elif c_model == 2:
+                            selected_model = ROM.MODEL_A7
+                            selected_mcu = ROM.MCU_ESP32
+                            selected_platform = ROM.PLATFORM_ESP32
+                        elif c_model == 3:
+                            selected_model = ROM.MODEL_A4
+                            selected_platform = ROM.PLATFORM_AVR
+                        elif c_model == 4:
+                            selected_model = ROM.MODEL_A9
+                            selected_platform = ROM.PLATFORM_AVR
+                        elif c_model == 5:
+                            selected_model = ROM.MODEL_A1
+                            selected_mcu = ROM.MCU_ESP32
+                            selected_platform = ROM.PLATFORM_ESP32
+                        elif c_model == 6:
+                            selected_model = ROM.MODEL_A6
+                            selected_mcu = ROM.MCU_ESP32
+                            selected_platform = ROM.PLATFORM_ESP32
+                        # elif c_model == 5:
+                        #     selected_model = ROM.MODEL_A3
+                        #     selected_mcu = ROM.MCU_ESP32
+                        #     selected_platform = ROM.PLATFORM_ESP32
+                        # elif c_model == 6:
+                        #     selected_model = ROM.MODEL_A8
+                        #     selected_mcu = ROM.MCU_ESP32
+                        #     selected_platform = ROM.PLATFORM_ESP32
+                    except Exception as e:
+                        print("That model does not exist, exiting now.")
+                        exit()
+                else:
+                    print("\nWhat model is this T3S3?\n")
+                    print("[1] 410 - 525 MHz (with SX1268 chip)")
+                    print("[2] 820 - 1020 MHz (with SX1268 chip)")
+                    print("\n? ", end="")
+                    try:
+                        c_model = int(input())
+                        if c_model < 1 or c_model > 2:
+                            raise ValueError()
+                        elif c_model == 1:
+                            selected_model = ROM.MODEL_A1
+                            selected_mcu = ROM.MCU_ESP32
+                            selected_platform = ROM.PLATFORM_ESP32
+                        elif c_model == 2:
+                            selected_model = ROM.MODEL_A6
+                            selected_mcu = ROM.MCU_ESP32
+                            selected_platform = ROM.PLATFORM_ESP32
+                    except Exception as e:
+                        print("That model does not exist, exiting now.")
+                        exit()
 
             elif selected_product == ROM.PRODUCT_TBEAM:
                 selected_mcu = ROM.MCU_ESP32
                 print("\nWhat band is this T-Beam for?\n")
-                print("[1] 433 MHz")
-                print("[2] 868 MHz")
-                print("[3] 915 MHz")
-                print("[4] 923 MHz")
+                print("[1] 433 MHz         (with SX1278 chip)")
+                print("[2] 868/915/923 MHz (with SX1276 chip)")
+                print("");
+                print("[3] 433 MHz         (with SX1268 chip)")
+                print("[4] 868/915/923 MHz (with SX1262 chip)")
                 print("\n? ", end="")
                 try:
                     c_model = int(input())
@@ -1720,8 +1784,14 @@ def main():
                     elif c_model == 1:
                         selected_model = ROM.MODEL_E4
                         selected_platform = ROM.PLATFORM_ESP32
-                    elif c_model > 1:
+                    elif c_model == 2:
                         selected_model = ROM.MODEL_E9
+                        selected_platform = ROM.PLATFORM_ESP32
+                    elif c_model == 3:
+                        selected_model = ROM.MODEL_E3
+                        selected_platform = ROM.PLATFORM_ESP32
+                    elif c_model == 4:
+                        selected_model = ROM.MODEL_E8
                         selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
                     print("That band does not exist, exiting now.")
@@ -2103,6 +2173,42 @@ def main():
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.partitions",
                             ]
+                    elif fw_filename == "rnode_firmware_tbeam_sx1262.zip":
+                        if numeric_version >= 1.55:
+                            return [
+                                sys.executable, flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", args.baud_flash,
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam_sx1262.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam_sx1262.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam_sx1262.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam_sx1262.partitions",
+                            ]
+                        else:
+                            return [
+                                sys.executable, flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", args.baud_flash,
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.partitions",
+                            ]
                     elif fw_filename == "rnode_firmware_lora32v10.zip":
                         if numeric_version >= 1.59:
                             return [
@@ -2391,6 +2497,24 @@ def main():
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_ng21.partitions",
                             ]
+                    elif fw_filename == "rnode_firmware_t3s3.zip":
+                        return [
+                            sys.executable, flasher,
+                            "--chip", "esp32s3",
+                            "--port", args.port,
+                            "--baud", args.baud_flash,
+                            "--before", "default_reset",
+                            "--after", "hard_reset",
+                            "write_flash", "-z",
+                            "--flash_mode", "dio",
+                            "--flash_freq", "80m",
+                            "--flash_size", "4MB",
+                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.boot_app0",
+                            "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.bootloader",
+                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.bin",
+                            "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
+                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.partitions",
+                        ]
                     elif fw_filename == "extracted_rnode_firmware.zip":
                         return [
                             sys.executable, flasher,
@@ -2775,6 +2899,7 @@ def main():
                     RNS.log("\tFirmware version   : "+rnode.version)
                     RNS.log("\tHardware revision  : "+str(int(rnode.hw_rev)))
                     RNS.log("\tSerial number      : "+RNS.hexrep(rnode.serialno))
+                    RNS.log("\tModem chip         : "+str(models[rnode.model][5]))
                     RNS.log("\tFrequency range    : "+str(rnode.min_freq/1e6)+" MHz - "+str(rnode.max_freq/1e6)+" MHz")
                     RNS.log("\tMax TX power       : "+str(rnode.max_output)+" dBm")
                     RNS.log("\tManufactured       : "+timestring)
@@ -2862,6 +2987,10 @@ def main():
                             model = ROM.MODEL_A4
                         elif args.model == "a9":
                             model = ROM.MODEL_A9
+                        elif args.model == "a1":
+                            model = ROM.MODEL_A1
+                        elif args.model == "a6":
+                            model = ROM.MODEL_A6
                         elif args.model == "e4":
                             model = ROM.MODEL_E4
                         elif args.model == "e9":
