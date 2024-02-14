@@ -1,3 +1,18 @@
+### 2024-02-14: RNS β 0.7.1
+
+This release adds support for RNodes based on SX1262, SX1268 and SX1280 modems, and fixes a number of bugs. Thanks to @jacobeva, who contributed to this release!
+
+**Changes**
+- Added support for SX1262, SX1268 and SX1280 based RNodes
+- Updated `rnodeconf` to allow flashing T-Beam devices with SX126x chips
+- Fixed an invalid RSSI offset reference
+
+**Release Hashes**
+```
+8ecfbb42b6a699fd4ac5374ab5640e4bb164e80bb9ab4401ea82da132e497877 rns-0.7.1-py3-none-any.whl
+e0ab487305ba1aee2d16044640e7eb72d332bbf51aeb0b8bf984d037a64cb493 rnspure-0.7.1-py3-none-any.whl
+```
+
 ### 2024-01-17: RNS β 0.7.0
 
 This maintenance release fixes a number of bugs. Thanks to @jooray and @jacobeva, who contributed to this release!
