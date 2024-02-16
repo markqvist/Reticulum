@@ -42,8 +42,8 @@ RNS.logtimefmt      = "%H:%M:%S"
 RNS.compact_log_fmt = True
 
 program_version = "2.1.3"
-eth_addr = "0x81F7B979fEa6134bA9FD5c701b3501A2e61E897a"
-btc_addr = "3CPmacGm34qYvR6XWLVEJmi2aNe3PZqUuq"
+eth_addr = "0xFDabC71AC4c0C78C95aDDDe3B4FA19d6273c5E73"
+btc_addr = "35G9uWVzrpJJibzUwpNUQGQNFzLirhrYAH"
 xmr_addr = "87HcDx6jRSkMQ9nPRd5K9hGGpZLn2s7vWETjMaVM5KfV4TD36NcYa8J8WSxhTSvBzzFpqDwp2fg5GX2moZ7VAP9QMZCZGET"
 
 rnode = None
@@ -148,6 +148,8 @@ class ROM():
     PRODUCT_T32_21 = 0xB1
     MODEL_B4       = 0xB4
     MODEL_B9       = 0xB9
+    MODEL_B4_TCXO  = 0x04
+    MODEL_B9_TCXO  = 0x09
 
     PRODUCT_H32_V2 = 0xC0
     MODEL_C4       = 0xC4
@@ -227,6 +229,8 @@ models = {
     0xB8: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v20.zip", "SX1276"],
     0xB4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_lora32v21.zip", "SX1278"],
     0xB9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v21.zip", "SX1276"],
+    0x04: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_lora32v21_tcxo.zip", "SX1278"],
+    0x09: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v21_tcxo.zip", "SX1276"],
     0xBA: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_lora32v10.zip", "SX1278"],
     0xBB: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v10.zip", "SX1276"],
     0xC4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_heltec32v2.zip", "SX1278"],
@@ -1187,15 +1191,15 @@ def main():
 
         parser.add_argument("--version", action="store_true", help="Print program version and exit")
 
-        parser.add_argument("-f", "--flash", action="store_true", help=argparse.SUPPRESS) # Flash firmware and bootstrap EEPROM
-        parser.add_argument("-r", "--rom", action="store_true", help=argparse.SUPPRESS) # Bootstrap EEPROM without flashing firmware
-        parser.add_argument("-k", "--key", action="store_true", help=argparse.SUPPRESS) # Generate a new signing key and exit
-        parser.add_argument("-S", "--sign", action="store_true", help=argparse.SUPPRESS) # Display public part of signing key
-        parser.add_argument("-H", "--firmware-hash", action="store", help=argparse.SUPPRESS) # Display public part of signing key
-        parser.add_argument("--platform", action="store", metavar="platform", type=str, default=None, help=argparse.SUPPRESS) # Platform specification for device bootstrap
-        parser.add_argument("--product", action="store", metavar="product", type=str, default=None, help=argparse.SUPPRESS) # Product specification for device bootstrap
-        parser.add_argument("--model", action="store", metavar="model", type=str, default=None, help=argparse.SUPPRESS) # Model code for device bootstrap
-        parser.add_argument("--hwrev", action="store", metavar="revision", type=int, default=None, help=argparse.SUPPRESS) # Hardware revision for device bootstrap
+        parser.add_argument("-f", "--flash", action="store_true", help="Flash firmware and bootstrap EEPROM")
+        parser.add_argument("-r", "--rom", action="store_true", help="Bootstrap EEPROM without flashing firmware")
+        parser.add_argument("-k", "--key", action="store_true", help="Generate a new signing key and exit") # 
+        parser.add_argument("-S", "--sign", action="store_true", help="Display public part of signing key")
+        parser.add_argument("-H", "--firmware-hash", action="store", help="Display installed firmware hash")
+        parser.add_argument("--platform", action="store", metavar="platform", type=str, default=None, help="Platform specification for device bootstrap")
+        parser.add_argument("--product", action="store", metavar="product", type=str, default=None, help="Product specification for device bootstrap") # 
+        parser.add_argument("--model", action="store", metavar="model", type=str, default=None, help="Model code for device bootstrap")
+        parser.add_argument("--hwrev", action="store", metavar="revision", type=int, default=None, help="Hardware revision for device bootstrap")
 
         parser.add_argument("port", nargs="?", default=None, help="serial port where RNode is attached", type=str)
         args = parser.parse_args()
@@ -1845,9 +1849,9 @@ def main():
                 selected_mcu = ROM.MCU_ESP32
                 print("\nWhat band is this LoRa32 for?\n")
                 print("[1] 433 MHz")
-                print("[2] 868 MHz")
-                print("[3] 915 MHz")
-                print("[4] 923 MHz")
+                print("[2] 868/915/923 MHz")
+                print("[3] 433 MHz, with TCXO")
+                print("[4] 868/915/923 MHz, with TCXO")
                 print("\n? ", end="")
                 try:
                     c_model = int(input())
@@ -1856,8 +1860,14 @@ def main():
                     elif c_model == 1:
                         selected_model = ROM.MODEL_B4
                         selected_platform = ROM.PLATFORM_ESP32
-                    elif c_model > 1:
+                    elif c_model == 2:
                         selected_model = ROM.MODEL_B9
+                        selected_platform = ROM.PLATFORM_ESP32
+                    elif c_model == 3:
+                        selected_model = ROM.MODEL_B4_TCXO
+                        selected_platform = ROM.PLATFORM_ESP32
+                    elif c_model == 4:
+                        selected_model = ROM.MODEL_B9_TCXO
                         selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
                     print("That band does not exist, exiting now.")
@@ -2317,6 +2327,24 @@ def main():
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21.partitions",
                             ]
+                    elif fw_filename == "rnode_firmware_lora32v21_tcxo.zip":
+                        return [
+                            sys.executable, flasher,
+                            "--chip", "esp32",
+                            "--port", args.port,
+                            "--baud", args.baud_flash,
+                            "--before", "default_reset",
+                            "--after", "hard_reset",
+                            "write_flash", "-z",
+                            "--flash_mode", "dio",
+                            "--flash_freq", "80m",
+                            "--flash_size", "4MB",
+                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21_tcxo.boot_app0",
+                            "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21_tcxo.bootloader",
+                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21_tcxo.bin",
+                            "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
+                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_lora32v21_tcxo.partitions",
+                        ]
                     elif fw_filename == "rnode_firmware_heltec32v2.zip":
                         if numeric_version >= 1.55:
                             return [
@@ -2981,7 +3009,12 @@ def main():
                             mapped_product = ROM.PRODUCT_TBEAM
 
                     if mapped_model != None:
-                        model = mapped_model
+                        if mapped_model == ROM.MODEL_B4_TCXO:
+                            model = ROM.MODEL_B4
+                        elif mapped_model == ROM.MODEL_B9_TCXO:
+                            model = ROM.MODEL_B9
+                        else:
+                            model = mapped_model
                     else:
                         if args.model == "a4":
                             model = ROM.MODEL_A4
