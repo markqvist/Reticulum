@@ -92,7 +92,7 @@ class RNodeInterface(Interface):
     MAX_CHUNK = 32768
 
     FREQ_MIN = 137000000
-    FREQ_MAX = 1020000000
+    FREQ_MAX = 3000000000
 
     RSSI_OFFSET = 157
 
@@ -109,7 +109,7 @@ class RNodeInterface(Interface):
 
     def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None, st_alock = None, lt_alock = None):
         if RNS.vendor.platformutils.is_android():
-            raise SystemError("Invlaid interface type. The Android-specific RNode interface must be used on Android")
+            raise SystemError("Invalid interface type. The Android-specific RNode interface must be used on Android")
 
         import importlib
         if importlib.util.find_spec('serial') != None:
@@ -190,15 +190,15 @@ class RNodeInterface(Interface):
             RNS.log("Invalid frequency configured for "+str(self), RNS.LOG_ERROR)
             self.validcfg = False
 
-        if (self.txpower < 0 or self.txpower > 17):
+        if (self.txpower < 0 or self.txpower > 22):
             RNS.log("Invalid TX power configured for "+str(self), RNS.LOG_ERROR)
             self.validcfg = False
 
-        if (self.bandwidth < 7800 or self.bandwidth > 500000):
+        if (self.bandwidth < 7800 or self.bandwidth > 1625000):
             RNS.log("Invalid bandwidth configured for "+str(self), RNS.LOG_ERROR)
             self.validcfg = False
 
-        if (self.sf < 7 or self.sf > 12):
+        if (self.sf < 5 or self.sf > 12):
             RNS.log("Invalid spreading factor configured for "+str(self), RNS.LOG_ERROR)
             self.validcfg = False
 

@@ -334,6 +334,8 @@ class AutoInterface(Interface):
                                         thread.daemon = True
                                         thread.start()
 
+                                        self.carrier_changed = True
+
                 except Exception as e:
                     RNS.log("Could not get device information while updating link-local addresses for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 

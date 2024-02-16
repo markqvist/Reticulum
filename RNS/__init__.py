@@ -144,6 +144,12 @@ def rand():
     result = instance_random.random()
     return result
 
+def trace_exception(e):
+    import traceback
+    exception_info = "".join(traceback.TracebackException.from_exception(e).format())
+    log(f"An unhandled {str(type(e))} exception occurred: {str(e)}", LOG_ERROR)
+    log(exception_info, LOG_ERROR)
+
 def hexrep(data, delimit=True):
     try:
         iter(data)

@@ -1,3 +1,49 @@
+### 2024-02-14: RNS β 0.7.1
+
+This release adds support for RNodes based on SX1262, SX1268 and SX1280 modems, and fixes a number of bugs. Thanks to @jacobeva, who contributed to this release!
+
+**Changes**
+- Added support for SX1262, SX1268 and SX1280 based RNodes
+- Updated `rnodeconf` to allow flashing T-Beam devices with SX126x chips
+- Fixed an invalid RSSI offset reference
+
+**Release Hashes**
+```
+8ecfbb42b6a699fd4ac5374ab5640e4bb164e80bb9ab4401ea82da132e497877 rns-0.7.1-py3-none-any.whl
+e0ab487305ba1aee2d16044640e7eb72d332bbf51aeb0b8bf984d037a64cb493 rnspure-0.7.1-py3-none-any.whl
+```
+
+### 2024-01-17: RNS β 0.7.0
+
+This maintenance release fixes a number of bugs. Thanks to @jooray and @jacobeva, who contributed to this release!
+
+**Changes**
+- Fixed large resource transfers failing under some conditions
+- Fixed a potential division by zero
+- Fixed a missing check on malformed advertisement packets
+- Fixed a formatting issue in `rnprobe`
+- Improved resource timeout calculations
+
+**Release Hashes**
+```
+0dc2abe5373b9afadfba7ec05bf7ddeff659c004aa339a94001ebed5b46f5b47 rns-0.7.0-py3-none-any.whl
+97f6e65a20b53bbdccd54b4d2bdaa36dc1712e144a55f40800c63fe7113819a5 rnspure-0.7.0-py3-none-any.whl
+```
+
+### 2023-12-07: RNS β 0.6.9
+
+This release adds a few convenience functions to the `rnid` utility, and improves roaming support on Android.
+
+**Changes**
+- Added identity import and export in hex, base32 and base64 formats to the `rnid` utility.
+- Added better carrier change detection for AutoInterface on Android.
+
+**Release Hashes**
+```
+258daf22cb6e72c6cd04fe94447daedf51dfd968eb2f3370eab9c71ad0898dd0 rns-0.6.9-py3-none-any.whl
+3644b64af5b4efd3969172bf0cf95ae1afba6c8ea99ce47d8e49e31a832bbaf8 rnspure-0.6.9-py3-none-any.whl
+```
+
 ### 2023-11-14: RNS β 0.6.8
 
 This maintenance release fixes a single bug.

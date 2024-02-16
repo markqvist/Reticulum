@@ -192,7 +192,7 @@ provide a dynamic performance envelope from 250 bits per second, to 1 gigabit
 per second on normal hardware.
 
 Currently, the usable performance envelope is approximately 150 bits per second
-to 20 megabits per second, with physical mediums faster than that not being
+to 40 megabits per second, with physical mediums faster than that not being
 saturated. Performance beyond the current level is intended for future
 upgrades, but not highly prioritised at this point in time.
 
@@ -273,16 +273,16 @@ The testnet also contains a number of [Nomad Network](https://github.com/markqvi
 You can help support the continued development of open, free and private communications systems by donating via one of the following channels:
 
 - Monero:
- ```
+  ```
   84FpY1QbxHcgdseePYNmhTHcrgMX4nFfBYtz2GKYToqHVVhJp8Eaw1Z1EedRnKD19b3B8NiLCGVxzKV17UMmmeEsCrPyA5w
   ```
 - Ethereum
   ```
-  0x81F7B979fEa6134bA9FD5c701b3501A2e61E897a
+  0xFDabC71AC4c0C78C95aDDDe3B4FA19d6273c5E73
   ```
 - Bitcoin
   ```
-  3CPmacGm34qYvR6XWLVEJmi2aNe3PZqUuq
+  35G9uWVzrpJJibzUwpNUQGQNFzLirhrYAH
   ```
 - Ko-Fi: https://ko-fi.com/markqvist
 
