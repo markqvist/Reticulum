@@ -12,6 +12,7 @@ Before creating a bug report on this issue tracker, you **must** read the [Contr
 
 - The issue tracker is used by developers of this project. **Do not use it to ask general questions, or for support requests**.
 - Ideas and feature requests can be made on the [Discussions](https://github.com/markqvist/Reticulum/discussions). **Only** feature requests accepted by maintainers and developers are tracked and included on the issue tracker. **Do not post feature requests here**.
+- After reading the [Contribution Guidelines](https://github.com/markqvist/Reticulum/blob/master/Contributing.md), delete this section from your bug report.
 
 **Describe the Bug**
 A clear and concise description of what the bug is.
