@@ -124,7 +124,7 @@ class Link:
                 link.last_inbound = time.time()
                 link.start_watchdog()
                 
-                RNS.log("Incoming link request "+str(link)+" accepted", RNS.LOG_VERBOSE)
+                RNS.log("Incoming link request "+str(link)+" accepted", RNS.LOG_DEBUG)
                 return link
 
             except Exception as e:
@@ -133,7 +133,7 @@ class Link:
                 return None
 
         else:
-            RNS.log("Invalid link request payload size, dropping request", RNS.LOG_VERBOSE)
+            RNS.log("Invalid link request payload size, dropping request", RNS.LOG_DEBUG)
             return None
 
 
@@ -150,6 +150,7 @@ class Link:
         self.last_inbound = 0
         self.last_outbound = 0
         self.last_proof = 0
+        self.last_data = 0
         self.tx = 0
         self.rx = 0
         self.txbytes = 0
@@ -460,7 +461,7 @@ class Link:
 
     def no_inbound_for(self):
         """
-        :returns: The time in seconds since last inbound packet on the link.
+        :returns: The time in seconds since last inbound packet on the link. This includes keepalive packets.
         """
         activated_at = self.activated_at if self.activated_at != None else 0
         last_inbound = max(self.last_inbound, activated_at)
@@ -468,13 +469,19 @@ class Link:
 
     def no_outbound_for(self):
         """
-        :returns: The time in seconds since last outbound packet on the link.
+        :returns: The time in seconds since last outbound packet on the link. This includes keepalive packets.
         """
         return time.time() - self.last_outbound
 
+    def no_data_for(self):
+        """
+        :returns: The time in seconds since payload data traversed the link. This excludes keepalive packets.
+        """
+        return time.time() - self.last_data
+
     def inactive_for(self):
         """
-        :returns: The time in seconds since activity on the link.
+        :returns: The time in seconds since activity on the link. This includes keepalive packets.
         """
         return min(self.no_inbound_for(), self.no_outbound_for())
 
@@ -484,8 +491,10 @@ class Link:
         """
         return self.__remote_identity
 
-    def had_outbound(self):
+    def had_outbound(self, is_keepalive=False):
         self.last_outbound = time.time()
+        if not is_keepalive:
+            self.last_data = self.last_outbound
 
     def teardown(self):
         """
@@ -636,7 +645,7 @@ class Link:
     def send_keepalive(self):
         keepalive_packet = RNS.Packet(self, bytes([0xFF]), context=RNS.Packet.KEEPALIVE)
         keepalive_packet.send()
-        self.had_outbound()
+        self.had_outbound(is_keepalive = True)
 
     def handle_request(self, request_id, unpacked_request):
         if self.status == Link.ACTIVE:
@@ -742,6 +751,8 @@ class Link:
                 RNS.log("Link-associated packet received on unexpected interface! Someone might be trying to manipulate your communication!", RNS.LOG_ERROR)
             else:
                 self.last_inbound = time.time()
+                if packet.context != RNS.Packet.KEEPALIVE:
+                    self.last_data = self.last_inbound
                 self.rx += 1
                 self.rxbytes += len(packet.data)
                 if self.status == Link.STALE:
@@ -900,7 +911,7 @@ class Link:
                         if not self.initiator and packet.data == bytes([0xFF]):
                             keepalive_packet = RNS.Packet(self, bytes([0xFE]), context=RNS.Packet.KEEPALIVE)
                             keepalive_packet.send()
-                            self.had_outbound()
+                            self.had_outbound(is_keepalive = True)
 
 
                     # TODO: find the most efficient way to allow multiple
