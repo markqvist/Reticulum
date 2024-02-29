@@ -803,7 +803,8 @@ class RNode():
                 if self.checksum != checksum:
                     self.provisioned = False
                     RNS.log("EEPROM checksum mismatch")
-                    exit()
+                    if not args.autoinstall:
+                        exit()
                 else:
                     RNS.log("EEPROM checksum correct")
 
