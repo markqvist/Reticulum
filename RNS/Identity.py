@@ -145,9 +145,12 @@ class Identity:
                 except:
                     pass
 
-            for destination_hash in storage_known_destinations:
-                if not destination_hash in Identity.known_destinations:
-                    Identity.known_destinations[destination_hash] = storage_known_destinations[destination_hash]
+            try:
+                for destination_hash in storage_known_destinations:
+                    if not destination_hash in Identity.known_destinations:
+                        Identity.known_destinations[destination_hash] = storage_known_destinations[destination_hash]
+            except Exception as e:
+                RNS.log("Skipped recombining known destinations from disk, since an error occurred: "+str(e), RNS.LOG_WARNING)
 
             RNS.log("Saving "+str(len(Identity.known_destinations))+" known destinations to storage...", RNS.LOG_DEBUG)
             file = open(RNS.Reticulum.storagepath+"/known_destinations","wb")
@@ -164,6 +167,7 @@ class Identity:
 
         except Exception as e:
             RNS.log("Error while saving known destinations to disk, the contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.trace_exception(e)
 
         Identity.saving_known_destinations = False
 
@@ -181,7 +185,8 @@ class Identity:
                         Identity.known_destinations[known_destination] = loaded_known_destinations[known_destination]
 
                 RNS.log("Loaded "+str(len(Identity.known_destinations))+" known destination from storage", RNS.LOG_VERBOSE)
-            except:
+
+            except Exception as e:
                 RNS.log("Error loading known destinations from disk, file will be recreated on exit", RNS.LOG_ERROR)
         else:
             RNS.log("Destinations file does not exist, no known destinations loaded", RNS.LOG_VERBOSE)
