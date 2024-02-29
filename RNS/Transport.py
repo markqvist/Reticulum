@@ -77,6 +77,8 @@ class Transport:
     DESTINATION_TIMEOUT  = 60*60*24*7   # Destination table entries are removed if unused for one week
     MAX_RECEIPTS         = 1024         # Maximum number of receipts to keep track of
     MAX_RATE_TIMESTAMPS  = 16           # Maximum number of announce timestamps to keep per destination
+    PERSIST_RANDOM_BLOBS = 32           # Maximum number of random blobs per destination to persist to disk
+    MAX_RANDOM_BLOBS     = 64           # Maximum number of random blobs per destination to keep in memory
 
     interfaces           = []           # All active interfaces
     destinations         = []           # All active destinations
@@ -1321,7 +1323,8 @@ class Transport:
                                 announce_entry[6] += 1
                                 if announce_entry[6] >= Transport.LOCAL_REBROADCASTS_MAX:
                                     RNS.log("Max local rebroadcasts of announce for "+RNS.prettyhexrep(packet.destination_hash)+" reached, dropping announce from our table", RNS.LOG_DEBUG)
-                                    Transport.announce_table.pop(packet.destination_hash)
+                                    if packet.destination_hash in Transport.announce_table:
+                                        Transport.announce_table.pop(packet.destination_hash)
 
                             if packet.hops-1 == announce_entry[4]+1 and announce_entry[2] > 0:
                                 now = time.time()
@@ -1470,6 +1473,7 @@ class Transport:
                                 expires            = now + Transport.PATHFINDER_E
                             
                             random_blobs.append(random_blob)
+                            random_blobs = random_blobs[-Transport.MAX_RANDOM_BLOBS:]
 
                             if (RNS.Reticulum.transport_enabled() or Transport.from_local_client(packet)) and packet.context != RNS.Packet.PATH_RESPONSE:
                                 # Insert announce into announce table for retransmission
@@ -2582,7 +2586,7 @@ class Transport:
                         received_from = de[1]
                         hops = de[2]
                         expires = de[3]
-                        random_blobs = de[4]
+                        random_blobs = de[4][-Transport.PERSIST_RANDOM_BLOBS:]
                         packet_hash = de[6].get_hash()
 
                         serialised_entry = [
