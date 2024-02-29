@@ -1,5 +1,5 @@
 ---
-name: Bug report
+name: "\U0001F41B Bug Report"
 about: Report a reproducible bug
 title: ''
 labels: ''
