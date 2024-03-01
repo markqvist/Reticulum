@@ -1,3 +1,18 @@
+### 2024-03-02: RNS β 0.7.2
+
+This maintenance release improves memory consumption, fixes a few bugs, and adds ability to flash new boards with `rnodeconf`.
+
+**Changes**
+- Added ability to flash new boards with `rnodeconf`, including T3 boards with TCXOs
+- Improved memory consumption on Transport Instances with many interfaces
+- Fixed a bug that could cause the on-disk known destinations store to become corrupted
+
+**Release Hashes**
+```
+3ce3ba80d5ae8d19c6b55bd51f44bd4beccbcea31554cb1f0d65428e4587b3d6 rns-0.7.2-py3-none-any.whl
+83f914aaba2a8929a8cee95830a847e190197232a0cca4e7b906b15c6bbf8296 rnspure-0.7.2-py3-none-any.whl
+```
+
 ### 2024-02-14: RNS β 0.7.1
 
 This release adds support for RNodes based on SX1262, SX1268 and SX1280 modems, and fixes a number of bugs. Thanks to @jacobeva, who contributed to this release!
