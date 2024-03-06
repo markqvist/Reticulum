@@ -935,14 +935,10 @@ class Reticulum:
 
                                 if c["type"] == "MeshtasticInterface":
 
-                                    port = c["port"] if "port" in c else None
-                                    channel = int(c["channel"]) if "channel" in c else 0
-
                                     interface = MeshtasticInterface.MeshtasticInterface(
                                         RNS.Transport,
                                         name,
-                                        port,
-                                        channel
+                                        c
                                     )
 
                                     if "outgoing" in c and c.as_bool("outgoing") == False:
