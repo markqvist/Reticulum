@@ -53,6 +53,7 @@ rnode_baudrate = 115200
 known_keys = [["unsigned.io", "30819f300d06092a864886f70d010101050003818d0030818902818100bf831ebd99f43b477caf1a094bec829389da40653e8f1f83fc14bf1b98a3e1cc70e759c213a43f71e5a47eb56a9ca487f241335b3e6ff7cdde0ee0a1c75c698574aeba0485726b6a9dfc046b4188e3520271ee8555a8f405cf21f81f2575771d0b0887adea5dd53c1f594f72c66b5f14904ffc2e72206a6698a490d51ba1105b0203010001"], ["unsigned.io", "30819f300d06092a864886f70d010101050003818d0030818902818100e5d46084e445595376bf7efd9c6ccf19d39abbc59afdb763207e4ff68b8d00ebffb63847aa2fe6dd10783d3ea63b55ac66f71ad885c20e223709f0d51ed5c6c0d0b093be9e1d165bb8a483a548b67a3f7a1e4580f50e75b306593fa6067ae259d3e297717bd7ff8c8f5b07f2bed89929a9a0321026cf3699524db98e2d18fb2d020300ff39"]]
 firmware_update_url = "https://github.com/markqvist/RNode_Firmware/releases/download/"
 fw_filename = None
+fw_url = None
 mapped_model = None
 
 class KISS():
@@ -1002,8 +1003,33 @@ def ensure_firmware_file(fw_filename):
                 if not upd_nocheck:
                     try:
                         try:
-                            urlretrieve(firmware_version_url+fw_filename, UPD_DIR+"/"+fw_filename+".version.latest")
+                            # if custom firmware url, download latest release
+                            if fw_url != None:
+                                try:
+                                    RNS.log("Retrieving latest version from custom url "+fw_url+"latest/download/release.json")
+                                    urlretrieve(fw_url+"latest/download/release.json", UPD_DIR+"/fallback_release_info.json")
+                                    import json
+                                    with open(UPD_DIR+"/fallback_release_info.json", "rb") as rif:
+                                        rdat = json.loads(rif.read())
+                                        variant = rdat[fw_filename]
+                                        with open(UPD_DIR+"/"+fw_filename+".version.latest", "wb") as verf:
+                                            inf_str = str(variant["version"])+" "+str(variant["hash"])
+                                            verf.write(inf_str.encode("utf-8"))
+
+                                except Exception as e:
+                                    RNS.log("Error while trying custom URL: "+str(e))
+                                    raise e
+                            else:
+                                urlretrieve(firmware_version_url+fw_filename, UPD_DIR+"/"+fw_filename+".version.latest")
                         except Exception as e:
+                            # if custom firmware url, don't fallback
+                            if fw_url != None:
+                                RNS.log("Failed to retrive latest version information for your board from the specified url.")
+                                RNS.log("Check your internet connection and try again.")
+                                RNS.log("If you don't have Internet access currently, use the --fw-version option to manually specify a version.")
+                                RNS.log("You can also use --extract to copy the firmware from a known-good RNode of the same model.")
+                                exit()
+
                             RNS.log("")
                             RNS.log("WARNING!")
                             RNS.log("Failed to retrieve latest version information for your board from the default server")
@@ -1051,7 +1077,12 @@ def ensure_firmware_file(fw_filename):
                     RNS.log("use the --fw-version option to manually specify a version.")
                     exit(98)
 
-            update_target_url = firmware_update_url+selected_version+"/"+fw_filename
+            # if custom firmware url, use it
+            if fw_url != None:
+                update_target_url = fw_url+"download/"+selected_version+"/"+fw_filename
+                RNS.log("Retrieving firmware from custom url "+update_target_url)
+            else:
+                update_target_url = firmware_update_url+selected_version+"/"+fw_filename
 
             try:
                 if not os.path.isdir(UPD_DIR+"/"+selected_version):
@@ -1128,7 +1159,7 @@ device_signer = None
 force_update = False
 upd_nocheck = False
 def main():
-    global mapped_product, mapped_model, fw_filename, selected_version, force_update, upd_nocheck, device_signer
+    global mapped_product, mapped_model, fw_filename, fw_url, selected_version, force_update, upd_nocheck, device_signer
 
     try:
         if not util.find_spec("serial"):
@@ -1160,6 +1191,7 @@ def main():
         parser.add_argument("-u", "--update", action="store_true", help="Update firmware to the latest version")
         parser.add_argument("-U", "--force-update", action="store_true", help="Update to specified firmware even if version matches or is older than installed version")
         parser.add_argument("--fw-version", action="store", metavar="version", default=None, help="Use a specific firmware version for update or autoinstall")
+        parser.add_argument("--fw-url", action="store", metavar="url", default=None, help="Use an alternate firmware download URL")
         parser.add_argument("--nocheck", action="store_true", help="Don't check for firmware updates online")
         parser.add_argument("-e", "--extract", action="store_true", help="Extract firmware from connected RNode for later use")
         parser.add_argument("-E", "--use-extracted", action="store_true", help="Use the extracted firmware for autoinstallation or update")
@@ -1231,6 +1263,9 @@ def main():
             except ValueError:
                 RNS.log("Selected version \""+selected_version+"\" does not appear to be a number.")
                 exit()
+
+        if args.fw_url != None:
+            fw_url = args.fw_url
 
         if args.force_update:
             force_update = True
@@ -1922,7 +1957,7 @@ def main():
                     except Exception as e:
                         print("That ESP32 board does not exist, exiting now.")
                         exit()
-            
+
             if fw_filename == None:
                 print("")
                 print("Sorry, no firmware for your board currently exists.")
