@@ -27,7 +27,7 @@ try:
             self.rxb = 0
             self.txb = 0
 
-            self.HW_MTU = 256
+            self.HW_MTU = 233
 
             self.IN  = True
             self.OUT = False
