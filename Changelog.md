@@ -4,8 +4,6 @@ This release adds the ability to specify custom firmware URLs for flashing board
 
 **Changes**
 - Added ability to specify custom firmware URLs for flashing boards with `rnodeconf`
-- Improved memory consumption on Transport Instances with many interfaces
-- Fixed a bug that could cause the on-disk known destinations store to become corrupted
 
 **Release Hashes**
 ```
