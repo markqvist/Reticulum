@@ -1,3 +1,18 @@
+### 2024-03-09: RNS β 0.7.3
+
+This release adds the ability to specify custom firmware URLs for flashing boards with `rnodeconf`. Thanks to @attermann who contributed to this release!
+
+**Changes**
+- Added ability to specify custom firmware URLs for flashing boards with `rnodeconf`
+- Improved memory consumption on Transport Instances with many interfaces
+- Fixed a bug that could cause the on-disk known destinations store to become corrupted
+
+**Release Hashes**
+```
+bb24445ae9a3a63d348e4d7fe80b750608f257851b97b38fadab929b7a774bc9 rns-0.7.3-py3-none-any.whl
+1b148d013103c35ba9a8e105082ef50686c130676d0a560ed709cb546129287e rnspure-0.7.3-py3-none-any.whl
+```
+
 ### 2024-03-02: RNS β 0.7.2
 
 This maintenance release improves memory consumption, fixes a few bugs, and adds ability to flash new boards with `rnodeconf`.
