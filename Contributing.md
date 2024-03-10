@@ -28,4 +28,4 @@ Anything submitted to the issue tracker that does not follow these guidelines wi
 
 ## Writing Code
 
-If you are interested in contributing code, fixing open issues or adding features, please coordinate the effort with the maintainer or one of the main developers first, to ensure your efforts are in alignment with the [Roadmap](./Roadmap.md) and current development focus.
+If you are interested in contributing code, fixing open issues or adding features, please coordinate the effort with the maintainer or one of the main developers **before** submitting a pull request. Before deciding to contribute, it is also a good idea to ensure your efforts are in alignment with the [Roadmap](./Roadmap.md) and current development focus.
