@@ -39,4 +39,4 @@ Pull requests have a high chance of being accepted if they are:
 
 Even new ideas and proposals that have not been approved by a maintainer, or fall outside the established roadmap, are *occasionally* accepted - if they possess the remaining of the above qualities. If not, they will be closed and removed without comments or explanation.
 
-By contributing code to this project, you agree that copyright for the code is transferred to the Reticulum maintainers and that the code is irrevocably placed under the [MIT license](./LICENSE.txt).
+By contributing code to this project, you agree that copyright for the code is transferred to the Reticulum maintainers and that the code is irrevocably placed under the [MIT license](./LICENSE).
