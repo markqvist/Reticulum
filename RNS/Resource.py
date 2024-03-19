@@ -1023,6 +1023,7 @@ class ResourceAdvertisement:
 
 
     def __init__(self, resource=None, request_id=None, is_response=False):
+        self.link = None
         if resource != None:
             self.t = resource.size              # Transfer size
             self.d = resource.total_size        # Total uncompressed data size
@@ -1068,6 +1069,9 @@ class ResourceAdvertisement:
 
     def is_compressed(self):
         return self.c
+
+    def get_link(self):
+        return self.link
 
     def pack(self, segment=0):
         hashmap_start = segment*ResourceAdvertisement.HASHMAP_MAX_LEN
