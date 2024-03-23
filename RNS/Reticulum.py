@@ -540,6 +540,7 @@ class Reticulum:
                                         group_id        = c["group_id"] if "group_id" in c else None
                                         discovery_scope = c["discovery_scope"] if "discovery_scope" in c else None
                                         discovery_port  = int(c["discovery_port"]) if "discovery_port" in c else None
+                                        multicast_address_type = c["multicast_address_type"] if "multicast_address_type" in c else None
                                         data_port  = int(c["data_port"]) if "data_port" in c else None
                                         allowed_interfaces = c.as_list("devices") if "devices" in c else None
                                         ignored_interfaces = c.as_list("ignored_devices") if "ignored_devices" in c else None
@@ -550,6 +551,7 @@ class Reticulum:
                                             group_id,
                                             discovery_scope,
                                             discovery_port,
+                                            multicast_address_type,
                                             data_port,
                                             allowed_interfaces,
                                             ignored_interfaces

@@ -47,6 +47,12 @@ system, which should be enabled by default in almost all OSes.
 
     group_id = reticulum
 
+    # You can also choose the multicast address type:
+    # temporary (default, Temporary Multicast Address)
+    # or permanent (Permanent Multicast Address)
+
+    multicast_address_type = permanent
+
     # You can also select specifically which
     # kernel networking devices to use.
 
