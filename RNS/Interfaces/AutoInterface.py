@@ -43,6 +43,9 @@ class AutoInterface(Interface):
     SCOPE_ORGANISATION = "8"
     SCOPE_GLOBAL       = "e"
 
+    MULTICAST_PERMANENT_ADDRESS_TYPE = "0"
+    MULTICAST_TEMPORARY_ADDRESS_TYPE = "1"
+
     PEERING_TIMEOUT    = 7.5
 
     ALL_IGNORE_IFS     = ["lo0"]
@@ -74,7 +77,7 @@ class AutoInterface(Interface):
         ifas = self.netinfo.ifaddresses(ifname)
         return ifas
 
-    def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None, configured_bitrate=None):
+    def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, multicast_address_type=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None, configured_bitrate=None):
         from RNS.vendor.ifaddr import niwrapper
         super().__init__()
         self.netinfo = niwrapper
@@ -128,6 +131,13 @@ class AutoInterface(Interface):
         else:
             self.discovery_port = discovery_port
 
+        if multicast_address_type == None:
+            self.multicast_address_type = AutoInterface.MULTICAST_TEMPORARY_ADDRESS_TYPE
+        elif str(multicast_address_type).lower() == "temporary":
+            self.multicast_address_type = AutoInterface.MULTICAST_TEMPORARY_ADDRESS_TYPE
+        elif str(multicast_address_type).lower() == "permanent":
+            self.multicast_address_type = AutoInterface.MULTICAST_PERMANENT_ADDRESS_TYPE
+
         if data_port == None:
             self.data_port = AutoInterface.DEFAULT_DATA_PORT
         else:
@@ -156,7 +166,7 @@ class AutoInterface(Interface):
         gt += ":"+"{:02x}".format(g[9]+(g[8]<<8))
         gt += ":"+"{:02x}".format(g[11]+(g[10]<<8))
         gt += ":"+"{:02x}".format(g[13]+(g[12]<<8))
-        self.mcast_discovery_address = "ff1"+self.discovery_scope+":"+gt
+        self.mcast_discovery_address = "ff"+self.multicast_address_type+self.discovery_scope+":"+gt
 
         suitable_interfaces = 0
         for ifname in self.list_interfaces():
