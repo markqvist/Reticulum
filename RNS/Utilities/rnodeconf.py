@@ -149,8 +149,9 @@ class ROM():
     PRODUCT_T32_21 = 0xB1
     MODEL_B4       = 0xB4
     MODEL_B9       = 0xB9
-    MODEL_B4_TCXO  = 0x04
-    MODEL_B9_TCXO  = 0x09
+    MODEL_B4_TCXO  = 0x04 # The TCXO model codes are only used here to select the
+    MODEL_B9_TCXO  = 0x09 # correct firmware, actual model codes in firmware is
+                          # still 0xB4 and 0xB9.
 
     PRODUCT_H32_V2 = 0xC0
     MODEL_C4       = 0xC4
