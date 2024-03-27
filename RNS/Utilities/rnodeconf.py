@@ -3041,10 +3041,13 @@ def main():
                     if args.product != None:
                         if args.product == "03":
                             mapped_product = ROM.PRODUCT_RNODE
-                        if args.product == "f0":
+                        elif args.product == "f0":
                             mapped_product = ROM.PRODUCT_HMBRW
-                        if args.product == "e0":
+                        elif args.product == "e0":
                             mapped_product = ROM.PRODUCT_TBEAM
+                        else:
+                            if len(args.product) == 2:
+                                mapped_product = bytes.fromhex(args.product)
 
                     if mapped_model != None:
                         if mapped_model == ROM.MODEL_B4_TCXO:
@@ -3068,6 +3071,9 @@ def main():
                             model = ROM.MODEL_E9
                         elif args.model == "ff":
                             model = ROM.MODEL_FF
+                        else:
+                            if len(args.model) == 2:
+                                model = bytes.fromhex(args.model)
 
 
                     if args.hwrev != None and (args.hwrev > 0 and args.hwrev < 256):
