@@ -3047,7 +3047,7 @@ def main():
                             mapped_product = ROM.PRODUCT_TBEAM
                         else:
                             if len(args.product) == 2:
-                                mapped_product = bytes.fromhex(args.product)
+                                mapped_product = ord(bytes.fromhex(args.product))
 
                     if mapped_model != None:
                         if mapped_model == ROM.MODEL_B4_TCXO:
@@ -3073,7 +3073,7 @@ def main():
                             model = ROM.MODEL_FF
                         else:
                             if len(args.model) == 2:
-                                model = bytes.fromhex(args.model)
+                                model = ord(bytes.fromhex(args.model))
 
 
                     if args.hwrev != None and (args.hwrev > 0 and args.hwrev < 256):
