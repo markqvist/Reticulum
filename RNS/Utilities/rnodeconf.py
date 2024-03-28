@@ -774,18 +774,13 @@ class RNode():
                 self.made = bytes([self.eeprom[ROM.ADDR_MADE], self.eeprom[ROM.ADDR_MADE+1], self.eeprom[ROM.ADDR_MADE+2], self.eeprom[ROM.ADDR_MADE+3]])
                 self.checksum = b""
 
-
-                self.min_freq = models[self.model][0]
-                self.max_freq = models[self.model][1]
-                self.max_output = models[self.model][2]
-
                 try:
                     self.min_freq = models[self.model][0]
                     self.max_freq = models[self.model][1]
                     self.max_output = models[self.model][2]
                 except Exception as e:
-                    RNS.log("Exception")
-                    RNS.log(str(e))
+                    RNS.log("Error: Model band and output power capabilities are unknown!")
+                    RNS.log("The contained exception was: "+str(e))
                     self.min_freq = 0
                     self.max_freq = 0
                     self.max_output = 0
