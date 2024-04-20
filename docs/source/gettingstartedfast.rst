@@ -180,29 +180,29 @@ and :ref:`Interfaces<interfaces-main>` chapters of this manual.
 Connecting Reticulum Instances Over the Internet
 ================================================
 Reticulum currently offers two interfaces suitable for connecting instances over the Internet: :ref:`TCP<interfaces-tcps>`
-and :ref:`I2P<interfaces-i2p>`. Each interface offers a different set of features, and Reticulum 
-users should carefully choose the interface which best suites their needs. 
+and :ref:`I2P<interfaces-i2p>`. Each interface offers a different set of features, and Reticulum
+users should carefully choose the interface which best suites their needs.
 
 The ``TCPServerInterface`` allows users to host an instance accessible over TCP/IP. This
 method is generally faster, lower latency, and more energy efficient than using ``I2PInterface``,
 however it also leaks more data about the server host.
 
 TCP connections reveal the IP address of both your instance and the server to anyone who can
-inspect the connection. Someone could use this information to determine your location or identity. Adversaries 
+inspect the connection. Someone could use this information to determine your location or identity. Adversaries
 inspecting your packets may be able to record packet metadata like time of transmission and packet size.
 Even though Reticulum encrypts traffic, TCP does not, so an adversary may be able to use
 packet inspection to learn that a system is running Reticulum, and what other IP addresses connect to it.
 Hosting a publicly reachable instance over TCP also requires a publicly reachable IP address,
 which most Internet connections don't offer anymore.
 
-The ``I2PInterface`` routes messages through the `Invisible Internet Protocol 
+The ``I2PInterface`` routes messages through the `Invisible Internet Protocol
 (I2P) <https://geti2p.net/en/>`_. To use this interface, users must also run an I2P daemon in
-parallel to ``rnsd``. For always-on I2P nodes it is recommended to use `i2pd <https://i2pd.website/>`_. 
+parallel to ``rnsd``. For always-on I2P nodes it is recommended to use `i2pd <https://i2pd.website/>`_.
 
-By default, I2P will encrypt and mix all traffic sent over the Internet, and 
-hide both the sender and receiver Reticulum instance IP addresses. Running an I2P node 
+By default, I2P will encrypt and mix all traffic sent over the Internet, and
+hide both the sender and receiver Reticulum instance IP addresses. Running an I2P node
 will also relay other I2P user's encrypted packets, which will use extra
-bandwidth and compute power, but also makes timing attacks and other forms of 
+bandwidth and compute power, but also makes timing attacks and other forms of
 deep-packet-inspection much more difficult.
 
 I2P also allows users to host globally available Reticulum instances from non-public IP's and behind firewalls and NAT.
@@ -415,7 +415,7 @@ locally on your device using the following command:
 
 It is also possible to include Reticulum in apps compiled and distributed as
 Android APKs. A detailed tutorial and example source code will be included
-here at a later point. Until then you can use the `Sideband source code <https://github.com/markqvist/sideband>`_ as an example and startig point.
+here at a later point. Until then you can use the `Sideband source code <https://github.com/markqvist/sideband>`_ as an example and starting point.
 
 
 ARM64
@@ -455,7 +455,7 @@ for including and using Reticulum in your own scripts and programs.
 
 .. code::
 
-    # Install pipx 
+    # Install pipx
     sudo apt install pipx
 
     # Make installed programs available on the command line
@@ -489,7 +489,7 @@ for including and using Reticulum in your own scripts and programs.
 
 .. code::
 
-    # Install pipx 
+    # Install pipx
     sudo apt install pipx
 
     # Make installed programs available on the command line
