@@ -1559,8 +1559,8 @@ def main():
             print("[5] LilyGO LoRa32 v1.0")
             print("[6] LilyGO T-Beam")
             print("[7] Heltec LoRa32 v2")
-            print("[8] LilyGO LoRa T3S3")
-            print("[9] Heltec LoRa32 v3")
+            print("[8] Heltec LoRa32 v3")
+            print("[9] LilyGO LoRa T3S3")
             print("       .")
             print("      / \\   Select one of these options if you want to easily turn")
             print("       |    a supported development board into an RNode.")
@@ -1672,7 +1672,7 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 8:
+                elif c_dev == 9:
                     selected_product = ROM.PRODUCT_RNODE
                     c_mod = True
                     clear()
@@ -1689,7 +1689,7 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 9:
+                elif c_dev == 8:
                     selected_product = ROM.PRODUCT_H32_V3
                     clear()
                     print("")
