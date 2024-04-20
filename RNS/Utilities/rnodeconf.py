@@ -2460,6 +2460,23 @@ def main():
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.partitions",
                             ]
+                    elif fw_filename == "rnode_firmware_heltec32v3.zip":
+                        return [
+                            sys.executable, flasher,
+                            "--chip", "esp32-s3",
+                            "--port", args.port,
+                            "--baud", args.baud_flash,
+                            "--before", "default_reset",
+                            "--after", "hard_reset",
+                            "write_flash", "-z",
+                            "--flash_mode", "dio",
+                            "--flash_freq", "80m",
+                            "--flash_size", "8MB",
+                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.boot_app0",
+                            "0x0",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.bootloader",
+                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.bin",
+                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.partitions",
+                        ]
                     elif fw_filename == "rnode_firmware_featheresp32.zip":
                         if numeric_version >= 1.55:
                             return [
