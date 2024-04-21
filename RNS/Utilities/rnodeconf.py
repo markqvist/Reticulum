@@ -1768,8 +1768,6 @@ def main():
                     print("")
                     print("[5] Prototype v2.2 RNode, 410 - 525 MHz")
                     print("[6] Prototype v2.2 RNode, 820 - 1020 MHz")
-                    # print("[5] Prototype v2 RNode, 410 - 525 MHz")
-                    # print("[6] Prototype v2 RNode, 820 - 1020 MHz")
                     print("\n? ", end="")
                     try:
                         c_model = int(input())
@@ -1811,7 +1809,7 @@ def main():
                 else:
                     print("\nWhat model is this T3S3?\n")
                     print("[1] 410 - 525 MHz (with SX1268 chip)")
-                    print("[2] 820 - 1020 MHz (with SX1268 chip)")
+                    print("[2] 820 - 1020 MHz (with SX1262 chip)")
                     print("\n? ", end="")
                     try:
                         c_model = int(input())
@@ -2634,7 +2632,7 @@ def main():
                             "--flash_freq", "80m",
                             "--flash_size", "4MB",
                             "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.boot_app0",
-                            "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.bootloader",
+                            "0x0",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.bootloader",
                             "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.bin",
                             "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                             "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.partitions",
@@ -2774,6 +2772,7 @@ def main():
             if args.eeprom_wipe:
                 RNS.log("WARNING: EEPROM is being wiped! Power down device NOW if you do not want this!")
                 rnode.wipe_eeprom()
+                rnode.hard_reset()
                 exit()
 
             RNS.log("Reading EEPROM...")
@@ -3189,6 +3188,10 @@ def main():
                                 RNS.log("No signing key found")
                                 exit()
 
+                            if model == ROM.MODEL_A1 or model == ROM.MODEL_A6:
+                                rnode.hard_reset()
+                                RNS.log("Waiting for ESP32 reset...")
+                                time.sleep(6.5)
 
                             RNS.log("Bootstrapping device EEPROM...")
 
@@ -3241,6 +3244,8 @@ def main():
                                     partition_hash = get_partition_hash(UPD_DIR+"/"+selected_version+"/"+partition_filename)
 
                                 if partition_hash != None:
+                                    time.sleep(0.75)
+                                    RNS.log("Setting firmware checksum...")
                                     rnode.set_firmware_hash(partition_hash)
 
                             rnode.hard_reset()
