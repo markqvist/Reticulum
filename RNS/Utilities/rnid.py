@@ -577,17 +577,6 @@ def main():
                                 pass
                             exit(31)
 
-            if True:
-                pass
-
-            elif False:
-                pass
-
-            else:
-                print("")
-                parser.print_help()
-                print("")
-
     except KeyboardInterrupt:
         print("")
         exit(255)
