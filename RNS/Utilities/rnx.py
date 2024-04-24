@@ -28,7 +28,7 @@ import argparse
 import shlex
 import time
 import sys
-import tty
+# import tty # Commented this because commented lines below use it
 import os
 
 from RNS._version import __version__
@@ -39,25 +39,27 @@ reticulum = None
 allow_all = False
 allowed_identity_hashes = []
 
+
 def prepare_identity(identity_path):
     global identity
-    if identity_path == None:
+    if identity_path is None:
         identity_path = RNS.Reticulum.identitypath+"/"+APP_NAME
 
     if os.path.isfile(identity_path):
-        identity = RNS.Identity.from_file(identity_path)                
+        identity = RNS.Identity.from_file(identity_path)
 
     if identity == None:
         RNS.log("No valid saved identity found, creating new...", RNS.LOG_INFO)
         identity = RNS.Identity()
         identity.to_file(identity_path)
 
+
 def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed = [], print_identity = False, disable_auth = None, disable_announce=False):
     global identity, allow_all, allowed_identity_hashes, reticulum
 
     targetloglevel = 3+verbosity-quietness
     reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
-    
+
     prepare_identity(identitypath)
     destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "execute")
 
@@ -69,7 +71,7 @@ def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed
     if disable_auth:
         allow_all = True
     else:
-        if allowed != None:
+        if allowed is not None:
             for a in allowed:
                 try:
                     dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
@@ -107,7 +109,7 @@ def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed
 
     if not disable_announce:
         destination.announce()
-    
+
     while True:
         time.sleep(1)
 
@@ -297,6 +299,7 @@ def remote_execution_progress(request_receipt):
 link = None
 listener_destination = None
 remote_exec_grace = 2.0
+
 def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detailed = False, mirror = False, noid = False, destination = None, command = None, stdin = None, stdoutl = None, stderrl = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, result_timeout = None, interactive = False):
     global identity, reticulum, link, listener_destination, remote_exec_grace
 
@@ -338,7 +341,7 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
     if link == None or link.status == RNS.Link.CLOSED or link.status == RNS.Link.PENDING:
         link = RNS.Link(listener_destination)
         link.did_identify = False
-    
+
     if not spin(until=lambda: link.status == RNS.Link.ACTIVE, msg="Establishing link with "+RNS.prettyhexrep(destination_hash), timeout=timeout):
         print("Could not establish link with "+RNS.prettyhexrep(destination_hash))
         exit(243)
@@ -467,7 +470,7 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
                     else:
                         tstr = ""
                     print("Remote wrote "+str(outlen)+" bytes to stdout"+tstr)
-                
+
                 if errlen != None and stderr != None:
                     if len(stderr) < errlen:
                         tstr = ", "+str(len(stderr))+" bytes displayed"
@@ -548,7 +551,6 @@ def main():
         parser.add_argument("--stdout", action='store', default=None, help="max size in bytes of returned stdout", type=int)
         parser.add_argument("--stderr", action='store', default=None, help="max size in bytes of returned stderr", type=int)
         parser.add_argument("--version", action="version", version="rnx {version}".format(version=__version__))
-        
         args = parser.parse_args()
 
         if args.listen or args.print_identity:
@@ -600,8 +602,8 @@ def main():
                     # while True:
                     #     ch = sys.stdin.read(1)
                     #     cmdbuf += ch.encode("utf-8")
-                    #     print("\r"+prompt+cmdbuf.decode("utf-8"), end="")    
-                    
+                    #     print("\r"+prompt+cmdbuf.decode("utf-8"), end="")
+
                     command = input()
                     if command.lower() == "exit" or command.lower() == "quit":
                         exit(0)
@@ -668,6 +670,7 @@ def size_str(num, suffix='B'):
 
     return "%.2f%s%s" % (num, last_unit, suffix)
 
+
 def pretty_time(time, verbose=False):
     days = int(time // (24 * 3600))
     time = time % (24 * 3600)
@@ -676,7 +679,7 @@ def pretty_time(time, verbose=False):
     minutes = int(time // 60)
     time %= 60
     seconds = round(time, 2)
-    
+
     ss = "" if seconds == 1 else "s"
     sm = "" if minutes == 1 else "s"
     sh = "" if hours == 1 else "s"
@@ -684,31 +687,24 @@ def pretty_time(time, verbose=False):
 
     components = []
     if days > 0:
-        components.append(str(days)+" day"+sd if verbose else str(days)+"d")
+        components.append("".join([str(days), " day", sd if verbose else str(days), "d"]))
 
     if hours > 0:
-        components.append(str(hours)+" hour"+sh if verbose else str(hours)+"h")
+        components.append("".join([str(hours), " hour", sh if verbose else str(hours), "h"]))
 
     if minutes > 0:
-        components.append(str(minutes)+" minute"+sm if verbose else str(minutes)+"m")
+        components.append("".join([str(minutes), " minute", sm if verbose else str(minutes), "m"]))
 
     if seconds > 0:
-        components.append(str(seconds)+" second"+ss if verbose else str(seconds)+"s")
+        components.append("".join([str(seconds), " second", ss if verbose else str(seconds), "s"]))
 
-    i = 0
-    tstr = ""
-    for c in components:
-        i += 1
-        if i == 1:
-            pass
-        elif i < len(components):
-            tstr += ", "
-        elif i == len(components):
-            tstr += " and "
+    if len(components) > 1:
+        time_string = "".join([", ".join(components[:-1]), " and ", components[-1]])
+    else:
+        time_string = components[0] if components else ""
 
-        tstr += c
+    return time_string
 
-    return tstr
 
 if __name__ == "__main__":
     main()
