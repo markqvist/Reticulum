@@ -58,6 +58,27 @@ def spin(until=None, msg="", timeout=None):
     else:
         return True
 
+
+def get_keys(args: argparse.Namespace, identity) -> None:
+    """Get public or/and private keys"""
+
+    if args.base64:
+        RNS.log("Public Key  : " + base64.urlsafe_b64encode(identity.get_public_key()).decode("utf-8"))
+    elif args.base32:
+        RNS.log("Public Key  : " + base64.b32encode(identity.get_public_key()).decode("utf-8"))
+    else:
+        RNS.log("Public Key  : " + RNS.hexrep(identity.get_public_key(), delimit=False))
+    if identity.prv:
+        if args.print_private:
+            if args.base64:
+                RNS.log("Private Key : " + base64.urlsafe_b64encode(identity.get_private_key()).decode("utf-8"))
+            elif args.base32:
+                RNS.log("Private Key : " + base64.b32encode(identity.get_private_key()).decode("utf-8"))
+            else:
+                RNS.log("Private Key : " + RNS.hexrep(identity.get_private_key(), delimit=False))
+        else:
+            RNS.log("Private Key : Hidden")
+
 def main():
     try:
         parser = argparse.ArgumentParser(description="Reticulum Identity & Encryption Utility")
@@ -131,22 +152,8 @@ def main():
                 exit(42)
 
             RNS.log("Identity imported")
-            if args.base64:
-                RNS.log("Public Key  : "+base64.urlsafe_b64encode(identity.get_public_key()).decode("utf-8"))
-            elif args.base32:
-                RNS.log("Public Key  : "+base64.b32encode(identity.get_public_key()).decode("utf-8"))
-            else:
-                RNS.log("Public Key  : "+RNS.hexrep(identity.get_public_key(), delimit=False))
-            if identity.prv:
-                if args.print_private:
-                    if args.base64:
-                        RNS.log("Private Key : "+base64.urlsafe_b64encode(identity.get_private_key()).decode("utf-8"))
-                    elif args.base32:
-                        RNS.log("Private Key : "+base64.b32encode(identity.get_private_key()).decode("utf-8"))
-                    else:
-                        RNS.log("Private Key : "+RNS.hexrep(identity.get_private_key(), delimit=False))
-                else:
-                    RNS.log("Private Key : Hidden")
+
+            get_keys(args, identity)
 
             if args.write:
                 try:
@@ -298,22 +305,7 @@ def main():
                     exit(0)
 
                 if args.print_identity:
-                    if args.base64:
-                        RNS.log("Public Key  : "+base64.urlsafe_b64encode(identity.get_public_key()).decode("utf-8"))
-                    elif args.base32:
-                        RNS.log("Public Key  : "+base64.b32encode(identity.get_public_key()).decode("utf-8"))
-                    else:
-                        RNS.log("Public Key  : "+RNS.hexrep(identity.get_public_key(), delimit=False))
-                    if identity.prv:
-                        if args.print_private:
-                            if args.base64:
-                                RNS.log("Private Key : "+base64.urlsafe_b64encode(identity.get_private_key()).decode("utf-8"))
-                            elif args.base32:
-                                RNS.log("Private Key : "+base64.b32encode(identity.get_private_key()).decode("utf-8"))
-                            else:
-                                RNS.log("Private Key : "+RNS.hexrep(identity.get_private_key(), delimit=False))
-                        else:
-                            RNS.log("Private Key : Hidden")
+                    get_keys(args, identity)
                     exit(0)
 
                 if args.export:
