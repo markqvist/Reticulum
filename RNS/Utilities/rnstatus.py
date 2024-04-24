@@ -80,19 +80,19 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
         sorting = sorting.lower()
         if sorting == "rate" or sorting == "bitrate":
             interfaces.sort(key=lambda i: i["bitrate"], reverse=not sort_reverse)
-        if sorting == "rx":
+        elif sorting == "rx":
             interfaces.sort(key=lambda i: i["rxb"], reverse=not sort_reverse)
-        if sorting == "tx":
+        elif sorting == "tx":
             interfaces.sort(key=lambda i: i["txb"], reverse=not sort_reverse)
-        if sorting == "traffic":
+        elif sorting == "traffic":
             interfaces.sort(key=lambda i: i["rxb"]+i["txb"], reverse=not sort_reverse)
-        if sorting == "announces" or sorting == "announce":
+        elif sorting == "announces" or sorting == "announce":
             interfaces.sort(key=lambda i: i["incoming_announce_frequency"]+i["outgoing_announce_frequency"], reverse=not sort_reverse)
-        if sorting == "arx":
+        elif sorting == "arx":
             interfaces.sort(key=lambda i: i["incoming_announce_frequency"], reverse=not sort_reverse)
-        if sorting == "atx":
+        elif sorting == "atx":
             interfaces.sort(key=lambda i: i["outgoing_announce_frequency"], reverse=not sort_reverse)
-        if sorting == "held":
+        elif sorting == "held":
             interfaces.sort(key=lambda i: i["held_announces"], reverse=not sort_reverse)
 
     for ifstat in interfaces:
