@@ -40,11 +40,11 @@ CHUNK_SIZE = 16*1024*1024
 def spin(until=None, msg=None, timeout=None):
     i = 0
     syms = "⢄⢂⢁⡁⡈⡐⡠"
-    if timeout != None:
+    if timeout is not None:
         timeout = time.time()+timeout
 
     print(msg+"  ", end=" ")
-    while (timeout == None or time.time()<timeout) and not until():
+    while (timeout is None or time.time()<timeout) and not until():
         time.sleep(0.1)
         print(("\b\b"+syms[i]+" "), end="")
         sys.stdout.flush()
@@ -52,7 +52,7 @@ def spin(until=None, msg=None, timeout=None):
 
     print("\r"+" "*len(msg)+"  \r", end="")
 
-    if timeout != None and time.time() > timeout:
+    if timeout is not None and time.time() > timeout:
         return False
     else:
         return True
@@ -204,7 +204,7 @@ def main():
                     destination_hash = bytes.fromhex(identity_str)
                     identity = RNS.Identity.recall(destination_hash)
 
-                    if identity == None:
+                    if identity is None:
                         if not args.request:
                             RNS.log("Could not recall Identity for "+RNS.prettyhexrep(destination_hash)+".", RNS.LOG_ERROR)
                             RNS.log("You can query the network for unknown Identities with the -R option.", RNS.LOG_ERROR)
@@ -212,7 +212,7 @@ def main():
                         else:
                             RNS.Transport.request_path(destination_hash)
                             def spincheck():
-                                return RNS.Identity.recall(destination_hash) != None
+                                return RNS.Identity.recall(destination_hash) is not None
                             spin(spincheck, "Requesting unknown Identity for "+RNS.prettyhexrep(destination_hash), args.t)
 
                             if not spincheck():
@@ -245,7 +245,7 @@ def main():
                         RNS.log("Could not decode Identity from specified file")
                         exit(9)
 
-            if identity != None:
+            if identity is not None:
                 if args.hash:
                     try:
                         aspects = args.hash.split(".")
@@ -255,7 +255,7 @@ def main():
                         else:
                             app_name = aspects[0]
                             aspects = aspects[1:]
-                            if identity.pub != None:
+                            if identity.pub is not None:
                                 destination = RNS.Destination(identity, RNS.Destination.OUT, RNS.Destination.SINGLE, app_name, *aspects)
                                 RNS.log("The "+str(args.hash)+" destination for this Identity is "+RNS.prettyhexrep(destination.hash))
                                 RNS.log("The full destination specifier is "+str(destination))
@@ -278,7 +278,7 @@ def main():
                         else:
                             app_name = aspects[0]
                             aspects = aspects[1:]
-                            if identity.prv != None:
+                            if identity.prv is not None:
                                 destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, app_name, *aspects)
                                 RNS.log("Created destination "+str(destination))
                                 RNS.log("Announcing destination "+RNS.prettyhexrep(destination.hash))
@@ -369,7 +369,7 @@ def main():
                 if args.decrypt and not args.write and not args.stdout and args.read and args.read.lower().endswith("."+ENCRYPT_EXT):
                     args.write = str(args.read).replace("."+ENCRYPT_EXT, "")
 
-                if args.sign and identity.prv == None:
+                if args.sign and identity.prv is None:
                     RNS.log("Specified Identity does not hold a private key. Cannot sign.", RNS.LOG_ERROR)
                     exit(14)
 
@@ -395,7 +395,7 @@ def main():
                 #     data_output = sys.stdout
 
                 if args.sign:
-                    if identity.prv == None:
+                    if identity.prv is None:
                         RNS.log("Specified Identity does not hold a private key. Cannot sign.", RNS.LOG_ERROR)
                         exit(16)
 
@@ -525,7 +525,7 @@ def main():
                             exit(26)
 
                 if args.decrypt:
-                    if identity.prv == None:
+                    if identity.prv is None:
                         RNS.log("Specified Identity does not hold a private key. Cannot decrypt.", RNS.LOG_ERROR)
                         exit(27)
 
@@ -548,7 +548,7 @@ def main():
                                 chunk = data_input.read(CHUNK_SIZE)
                                 if chunk:
                                     plaintext = identity.decrypt(chunk)
-                                    if plaintext == None:
+                                    if plaintext is None:
                                         if not args.stdout:
                                             RNS.log("Data could not be decrypted with the specified Identity")
                                         exit(30)
