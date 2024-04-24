@@ -48,6 +48,13 @@ def size_str(num, suffix='B'):
     return "%.2f%s%s" % (num, last_unit, suffix)
 
 
+def convert_bytes_to_hex(value_obj):
+    if isinstance(value_obj, bytes):
+        return RNS.hexrep(value_obj, delimit=False)
+    elif isinstance(value_obj, dict):
+        return {key: convert_bytes_to_hex(value) for key, value in value_obj.items()}
+    return value_obj
+
 def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False, sorting=None, sort_reverse=False):
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
 
@@ -63,22 +70,13 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
 
     if json:
         import json
-        for s in stats:
-            if isinstance(stats[s], bytes):
-                stats[s] = RNS.hexrep(stats[s], delimit=False)
-
-            if isinstance(stats[s], dict):
-                for i in stats[s]:
-                    if isinstance(i, dict):
-                        for k in i:
-                            if isinstance(i[k], bytes):
-                                i[k] = RNS.hexrep(i[k], delimit=False)
-
+        for s, value in stats.items():
+            stats[s] = convert_bytes_to_hex(value)
         print(json.dumps(stats))
         exit()
 
     interfaces = stats["interfaces"]
-    if sorting != None and isinstance(sorting, str):
+    if sorting is not None and isinstance(sorting, str):
         sorting = sorting.lower()
         if sorting == "rate" or sorting == "bitrate":
             interfaces.sort(key=lambda i: i["bitrate"], reverse=not sort_reverse)
@@ -96,7 +94,6 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
             interfaces.sort(key=lambda i: i["outgoing_announce_frequency"], reverse=not sort_reverse)
         if sorting == "held":
             interfaces.sort(key=lambda i: i["held_announces"], reverse=not sort_reverse)
-
 
     for ifstat in interfaces:
         name = ifstat["name"]
@@ -130,8 +127,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                     else:
                         modestr = "Full"
 
-
-                    if ifstat["clients"] != None:
+                    if ifstat["clients"] is not None:
                         clients = ifstat["clients"]
                         if name.startswith("Shared Instance["):
                             cnum = max(clients-1,0)
@@ -221,6 +217,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
 
     print("")
 
+
 def main():
     try:
         parser = argparse.ArgumentParser(description="Reticulum Network Stack Status")
@@ -294,6 +291,7 @@ def main():
         print("")
         exit()
 
+
 def speed_str(num, suffix='bps'):
     units = ['','k','M','G','T','P','E','Z']
     last_unit = 'Y'
@@ -309,6 +307,7 @@ def speed_str(num, suffix='bps'):
         num /= 1000.0
 
     return "%.2f %s%s" % (num, last_unit, suffix)
+
 
 if __name__ == "__main__":
     main()
