@@ -340,3 +340,5 @@ if __name__ == "__main__":
                 client(args.destination, configarg, timeout=timeoutarg)
     except KeyboardInterrupt:
         print("")
+        exit()
+
