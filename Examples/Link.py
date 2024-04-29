@@ -39,7 +39,7 @@ def server(configpath):
         server_identity = RNS.Identity.from_file(ifilepath)
         RNS.log("loaded identity from file: "+ifilepath, RNS.LOG_VERBOSE)
     else:
-        # Randomly create a new identity for our link examples
+        # Randomly create a new identity for our link example
         server_identity = RNS.Identity()
         RNS.log("created new identity", RNS.LOG_VERBOSE)
 
