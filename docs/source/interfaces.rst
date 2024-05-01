@@ -33,9 +33,20 @@ system, which should be enabled by default in almost all OSes.
 
 .. code::
 
-  # This example demonstrates a TCP server interface.
-  # It will listen for incoming connections on the
-  # specified IP address and port number.
+  # This example demonstrates a bare-minimum setup
+  # of an Auto Interface. It will allow communica-
+  # tion with all other reachable devices on all
+  # usable physical ethernet-based devices that
+  # are available on the system.
+
+  [[Default Interface]]
+    type = AutoInterface
+    interface_enabled = True
+
+  # This example demonstrates an more specifically
+  # configured Auto Interface, that only uses spe-
+  # cific physical interfaces, and has a number of
+  # other configuration options set.
   
   [[Default Interface]]
     type = AutoInterface

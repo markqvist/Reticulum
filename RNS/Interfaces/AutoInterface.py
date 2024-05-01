@@ -137,6 +137,8 @@ class AutoInterface(Interface):
             self.multicast_address_type = AutoInterface.MULTICAST_TEMPORARY_ADDRESS_TYPE
         elif str(multicast_address_type).lower() == "permanent":
             self.multicast_address_type = AutoInterface.MULTICAST_PERMANENT_ADDRESS_TYPE
+        else:
+            self.multicast_address_type = AutoInterface.MULTICAST_TEMPORARY_ADDRESS_TYPE
 
         if data_port == None:
             self.data_port = AutoInterface.DEFAULT_DATA_PORT
