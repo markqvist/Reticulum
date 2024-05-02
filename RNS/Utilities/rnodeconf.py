@@ -149,12 +149,17 @@ class ROM():
     PRODUCT_T32_21 = 0xB1
     MODEL_B4       = 0xB4
     MODEL_B9       = 0xB9
-    MODEL_B4_TCXO  = 0x04
-    MODEL_B9_TCXO  = 0x09
+    MODEL_B4_TCXO  = 0x04 # The TCXO model codes are only used here to select the
+    MODEL_B9_TCXO  = 0x09 # correct firmware, actual model codes in firmware is
+                          # still 0xB4 and 0xB9.
 
     PRODUCT_H32_V2 = 0xC0
     MODEL_C4       = 0xC4
     MODEL_C9       = 0xC9
+
+    PRODUCT_H32_V3 = 0xC1
+    MODEL_C5       = 0xC5
+    MODEL_CA       = 0xCA
 
     PRODUCT_TBEAM  = 0xE0
     MODEL_E4       = 0xE4
@@ -165,10 +170,6 @@ class ROM():
     PRODUCT_HMBRW  = 0xF0
     MODEL_FF       = 0xFF
     MODEL_FE       = 0xFE
-
-    PRODUCT_C24_V1 = 0xD0
-    MODEL_D1       = 0xD1
-    MODEL_D2       = 0xD2
 
     ADDR_PRODUCT   = 0x00
     ADDR_MODEL     = 0x01
@@ -188,7 +189,6 @@ class ROM():
     INFO_LOCK_BYTE = 0x73
     CONF_OK_BYTE   = 0x73
 
-    BOARD_COMMANDO_24V1 = 0x52
     BOARD_RNODE         = 0x31
     BOARD_HMBRW         = 0x32
     BOARD_TBEAM         = 0x33
@@ -207,7 +207,7 @@ products = {
     ROM.PRODUCT_T32_20: "LilyGO LoRa32 v2.0",
     ROM.PRODUCT_T32_21: "LilyGO LoRa32 v2.1",
     ROM.PRODUCT_H32_V2: "Heltec LoRa32 v2",
-    ROM.PRODUCT_C24_V1: "Commando RNode 2.4Ghz V1"
+    ROM.PRODUCT_H32_V3: "Heltec LoRa32 v3",
 }
 
 platforms = {
@@ -242,15 +242,14 @@ models = {
     0xBB: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v10.zip", "SX1276"],
     0xC4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_heltec32v2.zip", "SX1278"],
     0xC9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_heltec32v2.zip", "SX1276"],
+    0xC5: [470000000, 510000000, 21, "470 - 510 MHz", "rnode_firmware_heltec32v3.zip", "SX1262"],
+    0xCA: [863000000, 928000000, 21, "863 - 928 MHz", "rnode_firmware_heltec32v3.zip", "SX1262"],
     0xE4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_tbeam.zip", "SX1278"],
     0xE9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_tbeam.zip", "SX1276"],
     0xE3: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1268"],
     0xE8: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1262"],
-    0xD1: [240000000, 2500000000, 12.5, "2400 - 2500 MHz", "rnode_firmware_commando24v1.zip", "SX1280"],
-    0xD2: [2400000000, 2500000000, 27, "2400 - 2500 Mhz", "rnode_firmware_commando24v1.zip", "SX1280"],
     0xFE: [100000000, 1100000000, 17, "(Band capabilities unknown)", None, "Unknown"],
     0xFF: [100000000, 1100000000, 14, "(Band capabilities unknown)", None, "Unknown"],
-
 }
 
 CNF_DIR = None
@@ -782,18 +781,13 @@ class RNode():
                 self.made = bytes([self.eeprom[ROM.ADDR_MADE], self.eeprom[ROM.ADDR_MADE+1], self.eeprom[ROM.ADDR_MADE+2], self.eeprom[ROM.ADDR_MADE+3]])
                 self.checksum = b""
 
-
-                self.min_freq = models[self.model][0]
-                self.max_freq = models[self.model][1]
-                self.max_output = models[self.model][2]
-
                 try:
                     self.min_freq = models[self.model][0]
                     self.max_freq = models[self.model][1]
                     self.max_output = models[self.model][2]
                 except Exception as e:
-                    RNS.log("Exception")
-                    RNS.log(str(e))
+                    RNS.log("Error: Model band and output power capabilities are unknown!")
+                    RNS.log("The contained exception was: "+str(e))
                     self.min_freq = 0
                     self.max_freq = 0
                     self.max_output = 0
@@ -1565,7 +1559,8 @@ def main():
             print("[5] LilyGO LoRa32 v1.0")
             print("[6] LilyGO T-Beam")
             print("[7] Heltec LoRa32 v2")
-            print("[8] LilyGO LoRa T3S3")
+            print("[8] Heltec LoRa32 v3")
+            print("[9] LilyGO LoRa T3S3")
             print("       .")
             print("      / \\   Select one of these options if you want to easily turn")
             print("       |    a supported development board into an RNode.")
@@ -1577,7 +1572,7 @@ def main():
             try:
                 c_dev = int(input())
                 c_mod = False
-                if c_dev < 1 or c_dev > 8:
+                if c_dev < 1 or c_dev > 9:
                     raise ValueError()
                 elif c_dev == 1:
                     selected_product = ROM.PRODUCT_RNODE
@@ -1677,7 +1672,7 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 8:
+                elif c_dev == 9:
                     selected_product = ROM.PRODUCT_RNODE
                     c_mod = True
                     clear()
@@ -1686,6 +1681,22 @@ def main():
                     print("                     LilyGO LoRa32 T3S3 RNode Installer")
                     print("")
                     print("Important! Using RNode firmware on T3S3 devices should currently be")
+                    print("considered experimental. It is not intended for production or critical use.")
+                    print("")
+                    print("Please note that Bluetooth is currently not implemented on this board.")
+                    print("")
+                    print("The currently supplied firmware is provided AS-IS as a courtesey to those")
+                    print("who would like to experiment with it. Hit enter to continue.")
+                    print("---------------------------------------------------------------------------")
+                    input()
+                elif c_dev == 8:
+                    selected_product = ROM.PRODUCT_H32_V3
+                    clear()
+                    print("")
+                    print("---------------------------------------------------------------------------")
+                    print("                     Heltec LoRa32 v3.0 RNode Installer")
+                    print("")
+                    print("Important! Using RNode firmware on Heltec devices should currently be")
                     print("considered experimental. It is not intended for production or critical use.")
                     print("")
                     print("Please note that Bluetooth is currently not implemented on this board.")
@@ -1757,8 +1768,6 @@ def main():
                     print("")
                     print("[5] Prototype v2.2 RNode, 410 - 525 MHz")
                     print("[6] Prototype v2.2 RNode, 820 - 1020 MHz")
-                    # print("[5] Prototype v2 RNode, 410 - 525 MHz")
-                    # print("[6] Prototype v2 RNode, 820 - 1020 MHz")
                     print("\n? ", end="")
                     try:
                         c_model = int(input())
@@ -1800,7 +1809,7 @@ def main():
                 else:
                     print("\nWhat model is this T3S3?\n")
                     print("[1] 410 - 525 MHz (with SX1268 chip)")
-                    print("[2] 820 - 1020 MHz (with SX1268 chip)")
+                    print("[2] 820 - 1020 MHz (with SX1262 chip)")
                     print("\n? ", end="")
                     try:
                         c_model = int(input())
@@ -1936,6 +1945,28 @@ def main():
                         selected_platform = ROM.PLATFORM_ESP32
                     elif c_model > 1:
                         selected_model = ROM.MODEL_C9
+                        selected_platform = ROM.PLATFORM_ESP32
+                except Exception as e:
+                    print("That band does not exist, exiting now.")
+                    exit()
+
+            elif selected_product == ROM.PRODUCT_H32_V3:
+                selected_mcu = ROM.MCU_ESP32
+                print("\nWhat band is this Heltec LoRa32 V3 for?\n")
+                print("[1] 433 MHz")
+                print("[2] 868 MHz")
+                print("[3] 915 MHz")
+                print("[4] 923 MHz")
+                print("\n? ", end="")
+                try:
+                    c_model = int(input())
+                    if c_model < 1 or c_model > 4:
+                        raise ValueError()
+                    elif c_model == 1:
+                        selected_model = ROM.MODEL_C5
+                        selected_platform = ROM.PLATFORM_ESP32
+                    elif c_model > 1:
+                        selected_model = ROM.MODEL_CA
                         selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
                     print("That band does not exist, exiting now.")
@@ -2427,6 +2458,23 @@ def main():
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v2.partitions",
                             ]
+                    elif fw_filename == "rnode_firmware_heltec32v3.zip":
+                        return [
+                            sys.executable, flasher,
+                            "--chip", "esp32-s3",
+                            "--port", args.port,
+                            "--baud", args.baud_flash,
+                            "--before", "default_reset",
+                            "--after", "hard_reset",
+                            "write_flash", "-z",
+                            "--flash_mode", "dio",
+                            "--flash_freq", "80m",
+                            "--flash_size", "8MB",
+                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.boot_app0",
+                            "0x0",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.bootloader",
+                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.bin",
+                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.partitions",
+                        ]
                     elif fw_filename == "rnode_firmware_featheresp32.zip":
                         if numeric_version >= 1.55:
                             return [
@@ -2584,7 +2632,7 @@ def main():
                             "--flash_freq", "80m",
                             "--flash_size", "4MB",
                             "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.boot_app0",
-                            "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.bootloader",
+                            "0x0",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.bootloader",
                             "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.bin",
                             "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                             "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3.partitions",
@@ -2724,6 +2772,7 @@ def main():
             if args.eeprom_wipe:
                 RNS.log("WARNING: EEPROM is being wiped! Power down device NOW if you do not want this!")
                 rnode.wipe_eeprom()
+                rnode.hard_reset()
                 exit()
 
             RNS.log("Reading EEPROM...")
@@ -3049,13 +3098,13 @@ def main():
                     if args.product != None:
                         if args.product == "03":
                             mapped_product = ROM.PRODUCT_RNODE
-                        if args.product == "f0":
+                        elif args.product == "f0":
                             mapped_product = ROM.PRODUCT_HMBRW
-                        if args.product == "e0":
+                        elif args.product == "e0":
                             mapped_product = ROM.PRODUCT_TBEAM
-                        if args.product == "d0":
-                            mapped_product = ROM.PRODUCT_C24_V1
-
+                        else:
+                            if len(args.product) == 2:
+                                mapped_product = ord(bytes.fromhex(args.product))
 
                     if mapped_model != None:
                         if mapped_model == ROM.MODEL_B4_TCXO:
@@ -3079,10 +3128,9 @@ def main():
                             model = ROM.MODEL_E9
                         elif args.model == "ff":
                             model = ROM.MODEL_FF
-                        elif args.model == "d1":
-                            model = ROM.MODEL_D1
-                        elif args.model == "d2":
-                            model = ROM.MODEL_D2
+                        else:
+                            if len(args.model) == 2:
+                                model = ord(bytes.fromhex(args.model))
 
 
                     if args.hwrev != None and (args.hwrev > 0 and args.hwrev < 256):
@@ -3140,6 +3188,10 @@ def main():
                                 RNS.log("No signing key found")
                                 exit()
 
+                            if model == ROM.MODEL_A1 or model == ROM.MODEL_A6:
+                                rnode.hard_reset()
+                                RNS.log("Waiting for ESP32 reset...")
+                                time.sleep(6.5)
 
                             RNS.log("Bootstrapping device EEPROM...")
 
@@ -3192,6 +3244,8 @@ def main():
                                     partition_hash = get_partition_hash(UPD_DIR+"/"+selected_version+"/"+partition_filename)
 
                                 if partition_hash != None:
+                                    time.sleep(0.75)
+                                    RNS.log("Setting firmware checksum...")
                                     rnode.set_firmware_hash(partition_hash)
 
                             rnode.hard_reset()
