@@ -1560,7 +1560,7 @@ def main():
             print("[6] LilyGO T-Beam")
             print("[7] Heltec LoRa32 v2")
             print("[8] Heltec LoRa32 v3")
-            print("[9] LilyGO LoRa T3S3")
+            #print("[9] LilyGO LoRa T3S3")
             print("       .")
             print("      / \\   Select one of these options if you want to easily turn")
             print("       |    a supported development board into an RNode.")
