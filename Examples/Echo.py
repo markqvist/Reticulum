@@ -5,6 +5,7 @@
 # of the packet.                                         #
 ##########################################################
 
+import os
 import argparse
 import RNS
 
@@ -27,8 +28,19 @@ def server(configpath):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
     
-    # Randomly create a new identity for our echo server
-    server_identity = RNS.Identity()
+    # Load identity from file if it exist or randomley create
+    if configpath:
+        ifilepath = "%s/storage/identitiesy/%s" % (configpath,APP_NAME)
+    else:
+        ifilepath = "%s/storage/identities/%s" % (RNS.Reticulum.configdir,APP_NAME)
+    if os.path.exists(ifilepath):
+        # Load identity from file
+        server_identity = RNS.Identity.from_file(ifilepath)
+        RNS.log("loaded identity from file: "+ifilepath, RNS.LOG_VERBOSE)
+    else:
+        # Randomly create a new identity for our echo example
+        server_identity = RNS.Identity()
+        RNS.log("created new identity", RNS.LOG_VERBOSE)
 
     # We create a destination that clients can query. We want
     # to be able to verify echo replies to our clients, so we

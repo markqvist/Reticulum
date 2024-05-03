@@ -35,6 +35,7 @@ Pull requests have a high chance of being accepted if they are:
 - In alignment with the [Roadmap](./Roadmap.md) or solve an open issue or feature request
 - Sufficiently tested to work with all API functions, and pass the standard test suite
 - Functionally and conceptually complete and well-designed
+- Not simply formatting or code style changes
 - Well-documented
 
 Even new ideas and proposals that have not been approved by a maintainer, or fall outside the established roadmap, are *occasionally* accepted - if they possess the remaining of the above qualities. If not, they will be closed and removed without comments or explanation.
