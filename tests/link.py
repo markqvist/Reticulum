@@ -99,6 +99,9 @@ class TestLink(unittest.TestCase):
         id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
+        RNS.Transport.request_path(bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+        time.sleep(0.2)
+
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
@@ -119,6 +122,9 @@ class TestLink(unittest.TestCase):
         # TODO: Load this from public bytes only
         id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
+
+        RNS.Transport.request_path(bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+        time.sleep(0.2)
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
@@ -400,6 +406,9 @@ class TestLink(unittest.TestCase):
         id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
 
+        RNS.Transport.request_path(bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+        time.sleep(0.2)
+
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
@@ -448,6 +457,9 @@ class TestLink(unittest.TestCase):
         # TODO: Load this from public bytes only
         id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
         self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
+
+        RNS.Transport.request_path(bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+        time.sleep(0.2)
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
@@ -501,6 +513,9 @@ class TestLink(unittest.TestCase):
             # TODO: Load this from public bytes only
             id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
             self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
+
+            RNS.Transport.request_path(bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+            time.sleep(0.2)
 
             dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
