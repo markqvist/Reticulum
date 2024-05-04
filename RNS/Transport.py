@@ -64,8 +64,8 @@ class Transport:
     LOCAL_REBROADCASTS_MAX = 2          # How many local rebroadcasts of an announce is allowed
 
     PATH_REQUEST_TIMEOUT = 15           # Default timuout for client path requests in seconds
-    PATH_REQUEST_GRACE   = 0.35         # Grace time before a path announcement is made, allows directly reachable peers to respond first
-    PATH_REQUEST_RW      = 2            # Path request random window
+    PATH_REQUEST_GRACE   = 0.4          # Grace time before a path announcement is made, allows directly reachable peers to respond first
+    PATH_REQUEST_RG      = 1.0          # Extra grace time for roaming-mode interfaces to allow more suitable peers to respond first
     PATH_REQUEST_MI      = 20           # Minimum interval in seconds for automated path requests
 
     STATE_UNKNOWN        = 0x00
@@ -746,7 +746,8 @@ class Transport:
                 packet.receipt = RNS.PacketReceipt(packet)
                 Transport.receipts.append(packet.receipt)
             
-            Transport.cache(packet)
+            # TODO: Enable when caching has been redesigned
+            # Transport.cache(packet)
 
         # Check if we have a known path for the destination in the path table
         if packet.packet_type != RNS.Packet.ANNOUNCE and packet.destination.type != RNS.Destination.PLAIN and packet.destination.type != RNS.Destination.GROUP and packet.destination_hash in Transport.destination_table:
@@ -1729,7 +1730,7 @@ class Transport:
                     else:
                         proof_hash = None
 
-                    # Check if this proof neds to be transported
+                    # Check if this proof needs to be transported
                     if (RNS.Reticulum.transport_enabled() or from_local_client or proof_for_local_client) and packet.destination_hash in Transport.reverse_table:
                         reverse_entry = Transport.reverse_table.pop(packet.destination_hash)
                         if packet.receiving_interface == reverse_entry[1]:
@@ -2288,8 +2289,14 @@ class Transport:
                     if is_from_local_client:
                         retransmit_timeout = now
                     else:
-                        # TODO: Look at this timing
+                        # TODO: Consider this timing
                         retransmit_timeout = now + Transport.PATH_REQUEST_GRACE # + (RNS.rand() * Transport.PATHFINDER_RW)
+
+                        # If we are answering on a roaming-mode interface, wait a
+                        # little longer, to allow potential more well-connected
+                        # peers to answer first.
+                        if attached_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                            retransmit_timeout += Transport.PATH_REQUEST_RG
 
                     # This handles an edge case where a peer sends a past
                     # request for a destination just after an announce for
