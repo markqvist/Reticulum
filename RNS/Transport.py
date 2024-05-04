@@ -1746,7 +1746,19 @@ class Transport:
                         # pending link
                         for link in Transport.pending_links:
                             if link.link_id == packet.destination_hash:
-                                if packet.hops == link.expected_hops:
+                                # We need to also allow an expected hops value of
+                                # PATHFINDER_M, since in some cases, the number of hops
+                                # to the destination will be unknown at link creation
+                                # time. The real chance of this occuring is likely to be
+                                # extremely small, and this allowance could probably
+                                # be discarded without major issues, but it is kept
+                                # for now to ensure backwards compatibility.
+
+                                # TODO: Probably reset check back to
+                                # if packet.hops == link.expected_hops:
+                                # within one of the next releases
+
+                                if packet.hops == link.expected_hops or link.expected_hops == RNS.Transport.PATHFINDER_M:
                                     # Add this packet to the filter hashlist if we
                                     # have determined that it's actually destined
                                     # for this system, and then validate the proof
