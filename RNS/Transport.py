@@ -973,6 +973,13 @@ class Transport:
         # TODO: Think long and hard about this.
         # Is it even strictly necessary with the current
         # transport rules?
+
+        # Filter packets intended for other transport instances
+        if packet.transport_id != None and packet.packet_type != RNS.Packet.ANNOUNCE:
+            if packet.transport_id != Transport.identity.hash:
+                RNS.log("Ignored packet "+RNS.prettyhexrep(packet.packet_hash)+" in transport for other transport instance", RNS.LOG_EXTREME)
+                return False
+
         if packet.context == RNS.Packet.KEEPALIVE:
             return True
         if packet.context == RNS.Packet.RESOURCE_REQ:
@@ -1137,10 +1144,31 @@ class Transport:
         elif Transport.interface_to_shared_instance(interface):
             packet.hops -= 1
 
-
         if Transport.packet_filter(packet):
-            Transport.packet_hashlist.append(packet.packet_hash)
-            Transport.cache(packet)
+            # By default, remember packet hashes to avoid routing
+            # loops in the network, using the packet filter.
+            remember_packet_hash = True
+
+            # If this packet belongs to a link in our link table,
+            # we'll have to defer adding it to the filter list.
+            # In some cases, we might see a packet over a shared-
+            # medium interface, belonging to a link that transports
+            # or terminates with this instance, but before it would
+            # normally reach us. If the packet is appended to the
+            # filter list at this point, link transport will break.
+            if packet.destination_hash in Transport.link_table:
+                remember_packet_hash = False
+
+            # If this is a link request proof, don't add it until
+            # we are sure it's not actually somewhere else in the
+            # routing chain.
+            if packet.packet_type == RNS.Packet.PROOF and packet.context == RNS.Packet.LRPROOF:
+                remember_packet_hash = False
+
+            if remember_packet_hash:
+                Transport.packet_hashlist.append(packet.packet_hash)
+                # TODO: Enable when caching has been redesigned
+                # Transport.cache(packet)
             
             # Check special conditions for local clients connected
             # through a shared Reticulum instance
@@ -1261,7 +1289,7 @@ class Transport:
                         link_entry = Transport.link_table[packet.destination_hash]
                         # If receiving and outbound interface is
                         # the same for this link, direction doesn't
-                        # matter, and we simply send the packet on.
+                        # matter, and we simply repeat the packet.
                         outbound_interface = None
                         if link_entry[2] == link_entry[4]:
                             # But check that taken hops matches one
@@ -1282,6 +1310,11 @@ class Transport:
                                     outbound_interface = link_entry[2]
 
                         if outbound_interface != None:
+                            # Add this packet to the filter hashlist if we
+                            # have determined that it's actually our turn
+                            # to process it.
+                            Transport.packet_hashlist.append(packet.packet_hash)
+
                             new_raw = packet.raw[0:1]
                             new_raw += struct.pack("!B", packet.hops)
                             new_raw += packet.raw[2:]
@@ -1713,7 +1746,12 @@ class Transport:
                         # pending link
                         for link in Transport.pending_links:
                             if link.link_id == packet.destination_hash:
-                                link.validate_proof(packet)
+                                if packet.hops == link.expected_hops:
+                                    # Add this packet to the filter hashlist if we
+                                    # have determined that it's actually destined
+                                    # for this system, and then validate the proof
+                                    Transport.packet_hashlist.append(packet.packet_hash)
+                                    link.validate_proof(packet)
 
                 elif packet.context == RNS.Packet.RESOURCE_PRF:
                     for link in Transport.active_links:
