@@ -168,16 +168,19 @@ class Link:
         self.type = RNS.Destination.LINK
         self.owner = owner
         self.destination = destination
+        self.expected_hops = None
         self.attached_interface = None
         self.__remote_identity = None
         self.__track_phy_stats = False
         self._channel = None
+
         if self.destination == None:
             self.initiator = False
             self.prv     = X25519PrivateKey.generate()
             self.sig_prv = self.owner.identity.sig_prv
         else:
             self.initiator = True
+            self.expected_hops = RNS.Transport.hops_to(self.destination.hash)
             self.establishment_timeout  = RNS.Reticulum.get_instance().get_first_hop_timeout(destination.hash)
             self.establishment_timeout += Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, RNS.Transport.hops_to(destination.hash))
             self.prv     = X25519PrivateKey.generate()
