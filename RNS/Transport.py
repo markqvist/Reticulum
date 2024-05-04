@@ -65,7 +65,7 @@ class Transport:
 
     PATH_REQUEST_TIMEOUT = 15           # Default timuout for client path requests in seconds
     PATH_REQUEST_GRACE   = 0.4          # Grace time before a path announcement is made, allows directly reachable peers to respond first
-    PATH_REQUEST_RG      = 1.0          # Extra grace time for roaming-mode interfaces to allow more suitable peers to respond first
+    PATH_REQUEST_RG      = 0.6          # Extra grace time for roaming-mode interfaces to allow more suitable peers to respond first
     PATH_REQUEST_MI      = 20           # Minimum interval in seconds for automated path requests
 
     STATE_UNKNOWN        = 0x00
@@ -2175,6 +2175,7 @@ class Transport:
         else:
             return False
 
+    @staticmethod
     def path_is_unresponsive(destination_hash):
         if destination_hash in Transport.path_states:
             if Transport.path_states[destination_hash] == Transport.STATE_UNRESPONSIVE:
@@ -2339,14 +2340,18 @@ class Transport:
                     if is_from_local_client:
                         retransmit_timeout = now
                     else:
-                        # TODO: Consider this timing
-                        retransmit_timeout = now + Transport.PATH_REQUEST_GRACE # + (RNS.rand() * Transport.PATHFINDER_RW)
+                        if Transport.is_local_client_interface(Transport.next_hop_interface(destination_hash)):
+                            RNS.log("Path request destination "+RNS.prettyhexrep(destination_hash)+" is on a local client interface, rebroadcasting immediately", RNS.LOG_EXTREME)
+                            retransmit_timeout = now
 
-                        # If we are answering on a roaming-mode interface, wait a
-                        # little longer, to allow potential more well-connected
-                        # peers to answer first.
-                        if attached_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
-                            retransmit_timeout += Transport.PATH_REQUEST_RG
+                        else:
+                            retransmit_timeout = now + Transport.PATH_REQUEST_GRACE
+
+                            # If we are answering on a roaming-mode interface, wait a
+                            # little longer, to allow potential more well-connected
+                            # peers to answer first.
+                            if attached_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                                retransmit_timeout += Transport.PATH_REQUEST_RG
 
                     # This handles an edge case where a peer sends a past
                     # request for a destination just after an announce for
