@@ -56,14 +56,12 @@ fw_filename = None
 fw_url = None
 mapped_model = None
 
-# TODO: Create and use constants for megas, kilos, etc (Avoid using magic numbers)
-
 class KISS():
     FEND            = 0xC0
     FESC            = 0xDB
     TFEND           = 0xDC
     TFESC           = 0xDD
-
+    
     CMD_UNKNOWN     = 0xFE
     CMD_DATA        = 0x00
     CMD_FREQUENCY   = 0x01
@@ -104,11 +102,11 @@ class KISS():
 
     DETECT_REQ      = 0x73
     DETECT_RESP     = 0x46
-
+    
     RADIO_STATE_OFF = 0x00
     RADIO_STATE_ON  = 0x01
     RADIO_STATE_ASK = 0xFF
-
+    
     CMD_ERROR           = 0x90
     ERROR_INITRADIO     = 0x01
     ERROR_TXFAILED      = 0x02
@@ -168,7 +166,7 @@ class ROM():
     MODEL_E9       = 0xE9
     MODEL_E3       = 0xE3
     MODEL_E8       = 0xE8
-
+    
     PRODUCT_HMBRW  = 0xF0
     MODEL_FF       = 0xFF
     MODEL_FE       = 0xFE
@@ -282,7 +280,7 @@ try:
         os.makedirs(ROM_DIR)
 
 except Exception as e:
-    print("".join(["No access to directory ", str(CNF_DIR), ". This utility needs file system access to store firmware and data files. Cannot continue."]))
+    print("No access to directory "+str(CNF_DIR)+". This utility needs file system access to store firmware and data files. Cannot continue.")
     print("The contained exception was:")
     print(str(e))
     exit(99)
@@ -413,7 +411,7 @@ class RNode():
                                 command_buffer = command_buffer+bytes([byte])
                                 if (len(command_buffer) == 4):
                                     self.r_frequency = command_buffer[0] << 24 | command_buffer[1] << 16 | command_buffer[2] << 8 | command_buffer[3]
-                                    RNS.log("".join(["Radio reporting frequency is ", str(self.r_frequency/1000000.0), " MHz"]))
+                                    RNS.log("Radio reporting frequency is "+str(self.r_frequency/1000000.0)+" MHz")
                                     self.updateBitrate()
 
                         elif (command == KISS.CMD_BANDWIDTH):
@@ -429,7 +427,7 @@ class RNode():
                                 command_buffer = command_buffer+bytes([byte])
                                 if (len(command_buffer) == 4):
                                     self.r_bandwidth = command_buffer[0] << 24 | command_buffer[1] << 16 | command_buffer[2] << 8 | command_buffer[3]
-                                    RNS.log("".join(["Radio reporting bandwidth is ", str(self.r_bandwidth/1000.0), " KHz"]))
+                                    RNS.log("Radio reporting bandwidth is "+str(self.r_bandwidth/1000.0)+" KHz")
                                     self.updateBitrate()
 
                         elif (command == KISS.CMD_BT_PIN):
@@ -503,7 +501,7 @@ class RNode():
 
                         elif (command == KISS.CMD_TXPOWER):
                             self.r_txpower = byte
-                            RNS.log("".join(["Radio reporting TX power is ", str(self.r_txpower), " dBm"]))
+                            RNS.log("Radio reporting TX power is "+str(self.r_txpower)+" dBm")
                         elif (command == KISS.CMD_SF):
                             self.r_sf = byte
                             RNS.log("Radio reporting spreading factor is "+str(self.r_sf))
@@ -551,17 +549,17 @@ class RNode():
                             self.r_random = byte
                         elif (command == KISS.CMD_ERROR):
                             if (byte == KISS.ERROR_INITRADIO):
-                                RNS.log("".join([str(self), " hardware initialisation error (code ", RNS.hexrep(byte), ")"]))
+                                RNS.log(str(self)+" hardware initialisation error (code "+RNS.hexrep(byte)+")")
                             elif (byte == KISS.ERROR_TXFAILED):
-                                RNS.log("".join([str(self), " hardware TX error (code ", RNS.hexrep(byte), ")"]))
+                                RNS.log(str(self)+" hardware TX error (code "+RNS.hexrep(byte)+")")
                             else:
-                                RNS.log("".join([str(self), " hardware error (code ", RNS.hexrep(byte), ")"]))
+                                RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+")")
                         elif (command == KISS.CMD_DETECT):
                             if byte == KISS.DETECT_RESP:
                                 self.detected = True
                             else:
                                 self.detected = False
-
+                        
                 else:
                     time_since_last = int(time.time()*1000) - last_read_ms
                     if len(data_buffer) > 0 and time_since_last > self.timeout:
@@ -818,7 +816,7 @@ class RNode():
                     from cryptography.hazmat.primitives.serialization import load_der_private_key
                     from cryptography.hazmat.primitives.asymmetric import padding
 
-                    # Try loading local signing key for
+                    # Try loading local signing key for 
                     # validation of self-signed devices
                     if os.path.isdir(FWD_DIR) and os.path.isfile(FWD_DIR+"/signing.key"):
                         private_bytes = None
@@ -854,7 +852,7 @@ class RNode():
                             RNS.log("Could not deserialize local signing key")
                             RNS.log(str(e))
 
-                    # Try loading trusted signing key for
+                    # Try loading trusted signing key for 
                     # validation of devices
                     if os.path.isdir(TK_DIR):
                         for f in os.listdir(TK_DIR):
@@ -932,7 +930,7 @@ class RNode():
                             print("     ")
                             print("     To initialise this device to a verifiable state, please run:")
                             print("     ")
-                            print("".join(["              rnodeconf ", str(self.serial.name), " --autoinstall"]))
+                            print("              rnodeconf "+str(self.serial.name)+" --autoinstall")
                             print("")
 
 
@@ -967,7 +965,7 @@ class RNode():
 
 selected_version = None
 selected_hash = None
-firmware_version_url = "".join(["https://unsigned.io/firmware/latest/?v=", program_version, "&variant="])
+firmware_version_url = "https://unsigned.io/firmware/latest/?v="+program_version+"&variant="
 fallback_firmware_version_url = "https://github.com/markqvist/rnode_firmware/releases/latest/download/release.json"
 def ensure_firmware_file(fw_filename):
     global selected_version, selected_hash, upd_nocheck
@@ -983,7 +981,7 @@ def ensure_firmware_file(fw_filename):
             ]
             parts_missing = False
             for rf in required_files:
-                if not os.path.isfile("".join([EXT_DIR, "/", rf])):
+                if not os.path.isfile(EXT_DIR+"/"+rf):
                     parts_missing = True
 
             if parts_missing:
@@ -996,7 +994,7 @@ def ensure_firmware_file(fw_filename):
             release_info = vf.read().decode("utf-8").strip()
             selected_version = release_info.split()[0]
             selected_hash = release_info.split()[1]
-            RNS.log("".join(["Using existing firmware file: ", fw_filename, " for version ", selected_version]))
+            RNS.log("Using existing firmware file: "+fw_filename+" for version "+selected_version)
         else:
             RNS.log("No extracted firmware is available, cannot continue.")
             RNS.log("Extract a firmware from an existing RNode first, using the --extract-firmware option.")
@@ -1008,19 +1006,17 @@ def ensure_firmware_file(fw_filename):
                 try:
                     # if custom firmware url, download latest release
                     if selected_version == None and fw_url == None:
-                        version_url = firmware_version_url + fw_filename
+                        version_url = firmware_version_url+fw_filename
                         RNS.log("Retrieving latest version info from "+version_url)
-                        urlretrieve(version_url, "".join([UPD_DIR, "/", fw_filename, ".version.latest"]))
+                        urlretrieve(firmware_version_url+fw_filename, UPD_DIR+"/"+fw_filename+".version.latest")
                     else:
                         if fw_url != None:
                             if selected_version == None:
                                 version_url = fw_url+"latest/download/release.json"
                             else:
-                                version_url = "".join([fw_url, "download/", selected_version, "/release.json"])
+                                version_url = fw_url+"download/"+selected_version+"/release.json"
                         else:
-                            if selected_version is None:
-                                selected_version = ""
-                            version_url = "".join([firmware_update_url, selected_version, "/release.json"])
+                                version_url = firmware_update_url+selected_version+"/release.json"
                         try:
                             RNS.log("Retrieving specified version info from "+version_url)
                             urlretrieve(version_url, UPD_DIR+"/version_release_info.json")
@@ -1028,9 +1024,8 @@ def ensure_firmware_file(fw_filename):
                             with open(UPD_DIR+"/version_release_info.json", "rb") as rif:
                                 rdat = json.loads(rif.read())
                                 variant = rdat[fw_filename]
-                                with open("".join([UPD_DIR, "/", fw_filename, ".version.latest"]), "wb") as verf:
+                                with open(UPD_DIR+"/"+fw_filename+".version.latest", "wb") as verf:
                                     inf_str = str(variant["version"])+" "+str(variant["hash"])
-                                    inf_str = "".join([str(variant["version"]), " ", str(variant["hash"])])
                                     verf.write(inf_str.encode("utf-8"))
                         except Exception as e:
                             RNS.log("Failed to retrive version information for your board.")
@@ -1060,7 +1055,7 @@ def ensure_firmware_file(fw_filename):
                         with open(UPD_DIR+"/fallback_release_info.json", "rb") as rif:
                             rdat = json.loads(rif.read())
                             variant = rdat[fw_filename]
-                            with open("".join([UPD_DIR, "/", fw_filename, ".version.latest"]), "wb") as verf:
+                            with open(UPD_DIR+"/"+fw_filename+".version.latest", "wb") as verf:
                                 inf_str = str(variant["version"])+" "+str(variant["hash"])
                                 verf.write(inf_str.encode("utf-8"))
 
@@ -1069,7 +1064,7 @@ def ensure_firmware_file(fw_filename):
                         raise e
 
                 import shutil
-                file = open("".join([UPD_DIR, "/", fw_filename, ".version.latest"]), "rb")
+                file = open(UPD_DIR+"/"+fw_filename+".version.latest", "rb")
                 release_info = file.read().decode("utf-8").strip()
                 selected_version = release_info.split()[0]
                 if selected_version == "not":
@@ -1079,7 +1074,7 @@ def ensure_firmware_file(fw_filename):
                 selected_hash = release_info.split()[1]
                 if not os.path.isdir(UPD_DIR+"/"+selected_version):
                     os.makedirs(UPD_DIR+"/"+selected_version)
-                shutil.copy("".join([UPD_DIR, "/", fw_filename, ".version.latest"]), "".join([UPD_DIR, "/", selected_version, "/", fw_filename, ".version"]))
+                shutil.copy(UPD_DIR+"/"+fw_filename+".version.latest", UPD_DIR+"/"+selected_version+"/"+fw_filename+".version")
                 RNS.log("The selected firmware for this board is version "+selected_version)
 
             else:
@@ -1089,32 +1084,32 @@ def ensure_firmware_file(fw_filename):
 
             # if custom firmware url, use it
             if fw_url != None:
-                update_target_url = "".join([fw_url, "download/", selected_version, "/", fw_filename])
+                update_target_url = fw_url+"download/"+selected_version+"/"+fw_filename
                 RNS.log("Retrieving firmware from custom url "+update_target_url)
             else:
-                update_target_url = "".join([firmware_update_url, selected_version, "/", fw_filename])
+                update_target_url = firmware_update_url+selected_version+"/"+fw_filename
 
             try:
                 if not os.path.isdir(UPD_DIR+"/"+selected_version):
                     os.makedirs(UPD_DIR+"/"+selected_version)
 
-                if not os.path.isfile("".join([UPD_DIR, "/", selected_version, "/", fw_filename])):
-                    RNS.log("".join(["Firmware ", UPD_DIR, "/", selected_version, "/", fw_filename, " not found."]))
-                    RNS.log("".join(["Downloading missing firmware file: ", fw_filename, " for version ", selected_version]))
-                    urlretrieve(update_target_url, "".join([UPD_DIR, "/", selected_version, "/", fw_filename]))
+                if not os.path.isfile(UPD_DIR+"/"+selected_version+"/"+fw_filename):
+                    RNS.log("Firmware "+UPD_DIR+"/"+selected_version+"/"+fw_filename+" not found.")
+                    RNS.log("Downloading missing firmware file: "+fw_filename+" for version "+selected_version)
+                    urlretrieve(update_target_url, UPD_DIR+"/"+selected_version+"/"+fw_filename)
                     RNS.log("Firmware file downloaded")
                 else:
-                    RNS.log("".join(["Using existing firmware file: ", fw_filename, " for version ", selected_version]))
+                    RNS.log("Using existing firmware file: "+fw_filename+" for version "+selected_version)
 
                 try:
                     if selected_hash == None:
                         try:
-                            file = open("".join([UPD_DIR, "/", selected_version, "/", fw_filename, ".version"]), "rb")
+                            file = open(UPD_DIR+"/"+selected_version+"/"+fw_filename+".version", "rb")
                             release_info = file.read().decode("utf-8").strip()
                             selected_hash = release_info.split()[1]
                         except Exception as e:
                             RNS.log("Could not read locally cached release information.")
-                            RNS.log("".join(["Ensure ", UPD_DIR, "/", selected_version, "/", fw_filename, ".version exists and has the correct format and hash."]))
+                            RNS.log("Ensure "+UPD_DIR+"/"+selected_version+"/"+fw_filename+".version exists and has the correct format and hash.")
                             RNS.log("You can clear the cache with the --clear-cache option and try again.")
 
                         if selected_hash == None:
@@ -1122,8 +1117,7 @@ def ensure_firmware_file(fw_filename):
                             exit(97)
 
                     RNS.log("Verifying firmware integrity...")
-                    fw_file = open("".join([UPD_DIR, "/", selected_version, "/", fw_filename]), "rb")
-                    # TODO: Remove unused variable
+                    fw_file = open(UPD_DIR+"/"+selected_version+"/"+fw_filename, "rb")
                     expected_hash = bytes.fromhex(selected_hash)
                     file_hash = hashlib.sha256(fw_file.read()).hexdigest()
                     if file_hash == selected_hash:
@@ -1236,11 +1230,11 @@ def main():
 
         parser.add_argument("-f", "--flash", action="store_true", help="Flash firmware and bootstrap EEPROM")
         parser.add_argument("-r", "--rom", action="store_true", help="Bootstrap EEPROM without flashing firmware")
-        parser.add_argument("-k", "--key", action="store_true", help="Generate a new signing key and exit") #
+        parser.add_argument("-k", "--key", action="store_true", help="Generate a new signing key and exit") # 
         parser.add_argument("-S", "--sign", action="store_true", help="Display public part of signing key")
         parser.add_argument("-H", "--firmware-hash", action="store", help="Display installed firmware hash")
         parser.add_argument("--platform", action="store", metavar="platform", type=str, default=None, help="Platform specification for device bootstrap")
-        parser.add_argument("--product", action="store", metavar="product", type=str, default=None, help="Product specification for device bootstrap") #
+        parser.add_argument("--product", action="store", metavar="product", type=str, default=None, help="Product specification for device bootstrap") # 
         parser.add_argument("--model", action="store", metavar="model", type=str, default=None, help="Model code for device bootstrap")
         parser.add_argument("--hwrev", action="store", metavar="revision", type=int, default=None, help="Hardware revision for device bootstrap")
 
@@ -1269,7 +1263,7 @@ def main():
 
         if args.fw_version != None:
             selected_version = args.fw_version
-            try:
+            try: 
                 check_float = float(selected_version)
             except ValueError:
                 RNS.log("Selected version \""+selected_version+"\" does not appear to be a number.")
@@ -1283,7 +1277,7 @@ def main():
 
         if args.nocheck:
             upd_nocheck = True
-
+            
         if args.public or args.key or args.flash or args.rom or args.autoinstall or args.trust_key:
             from cryptography.hazmat.primitives import hashes
             from cryptography.hazmat.backends import default_backend
@@ -1302,7 +1296,7 @@ def main():
                     public_key = load_der_public_key(public_bytes, backend=default_backend())
                     key_hash = hashlib.sha256(public_bytes).hexdigest()
                     RNS.log("Trusting key: "+str(key_hash))
-                    f = open("".join([TK_DIR, "/", str(key_hash), ".pubkey"]), "wb")
+                    f = open(TK_DIR+"/"+str(key_hash)+".pubkey", "wb")
                     f.write(public_bytes)
                     f.close()
 
@@ -1334,12 +1328,12 @@ def main():
                 ports = list_ports.comports()
                 portlist = []
                 for port in ports:
-                    portlist.insert(0, port)
-
+                    portlist.insert(0, port) 
+                
                 pi = 1
                 print("Detected serial ports:")
                 for port in portlist:
-                    print("".join(["  [", str(pi), "] ", str(port.device), " (", str(port.product), ", ", str(port.serial_number), ")"]))
+                    print("  ["+str(pi)+"] "+str(port.device)+" ("+str(port.product)+", "+str(port.serial_number)+")")
                     pi += 1
 
                 print("\nEnter the number of the serial port your device is connected to:\n? ", end="")
@@ -1361,7 +1355,7 @@ def main():
                 port_product = selected_port.product
                 port_serialno = selected_port.serial_number
 
-                print("".join(["\nOk, using device on ", str(port_path), " (", str(port_product), ", ", str(port_serialno), ")"]))
+                print("\nOk, using device on "+str(port_path)+" ("+str(port_product)+", "+str(port_serialno)+")")
 
             else:
                 ports = list_ports.comports()
@@ -1429,11 +1423,11 @@ def main():
                     hash_f.close()
 
                     extraction_parts = [
-                        ("bootloader",        "".join(["python \"", CNF_DIR, "/recovery_esptool.py\" --chip esp32 --port ", port_path, " --baud ", args.baud_flash, " --before default_reset --after hard_reset read_flash 0x1000 0x4650 \"", EXT_DIR, "/extracted_rnode_firmware.bootloader\""])),
-                        ("partition table",   "".join(["python \"", CNF_DIR, "/recovery_esptool.py\" --chip esp32 --port ", port_path, " --baud ", args.baud_flash, " --before default_reset --after hard_reset read_flash 0x8000 0xC00 \"", EXT_DIR, "/extracted_rnode_firmware.partitions\""])),
-                        ("app boot",          "".join(["python \"", CNF_DIR, "/recovery_esptool.py\" --chip esp32 --port ", port_path, " --baud ", args.baud_flash, " --before default_reset --after hard_reset read_flash 0xe000 0x2000 \"", EXT_DIR, "/extracted_rnode_firmware.boot_app0\""])),
-                        ("application image", "".join(["python \"", CNF_DIR, "/recovery_esptool.py\" --chip esp32 --port ", port_path, " --baud ", args.baud_flash, " --before default_reset --after hard_reset read_flash 0x10000 0x200000 \"", EXT_DIR, "/extracted_rnode_firmware.bin\""])),
-                        ("console image",     "".join(["python \"", CNF_DIR, "/recovery_esptool.py\" --chip esp32 --port ", port_path, " --baud ", args.baud_flash, " --before default_reset --after hard_reset read_flash 0x210000 0x1F0000 \"", EXT_DIR, "/extracted_console_image.bin\""])),
+                        ("bootloader", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0x1000 0x4650 \""+EXT_DIR+"/extracted_rnode_firmware.bootloader\""),
+                        ("partition table", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0x8000 0xC00 \""+EXT_DIR+"/extracted_rnode_firmware.partitions\""),
+                        ("app boot", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0xe000 0x2000 \""+EXT_DIR+"/extracted_rnode_firmware.boot_app0\""),
+                        ("application image", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0x10000 0x200000 \""+EXT_DIR+"/extracted_rnode_firmware.bin\""),
+                        ("console image", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0x210000 0x1F0000 \""+EXT_DIR+"/extracted_console_image.bin\""),
                     ]
                     import subprocess, shlex
                     for part, command in extraction_parts:
@@ -1466,12 +1460,12 @@ def main():
                 ports = list_ports.comports()
                 portlist = []
                 for port in ports:
-                    portlist.insert(0, port)
-
+                    portlist.insert(0, port) 
+                
                 pi = 1
                 print("Detected serial ports:")
                 for port in portlist:
-                    print("".join(["  [", str(pi), "] ", str(port.device), " (", str(port.product), ", ", str(port.serial_number), ")"]))
+                    print("  ["+str(pi)+"] "+str(port.device)+" ("+str(port.product)+", "+str(port.serial_number)+")")
                     pi += 1
 
                 print("\nEnter the number of the serial port your device is connected to:\n? ", end="")
@@ -1494,7 +1488,7 @@ def main():
                 port_serialno = selected_port.serial_number
 
                 clear()
-                print("".join(["\nOk, using device on ", str(port_path), " (", str(port_product), ", ", str(port_serialno), ")"]))
+                print("\nOk, using device on "+str(port_path)+" ("+str(port_product)+", "+str(port_serialno)+")")
 
             else:
                 ports = list_ports.comports()
@@ -1547,7 +1541,7 @@ def main():
                 print("correct firmware and provision it.")
             else:
                 print("\nIt looks like this is a fresh device with no RNode firmware.")
-
+                
             print("")
             print("What kind of device is this?\n")
             print("[1] A specific kind of RNode")
@@ -1987,7 +1981,7 @@ def main():
                         fw_filename = "rnode_firmware.hex"
                     elif selected_mcu == ROM.MCU_2560:
                         fw_filename = "rnode_firmware_m2560.hex"
-
+                
                 elif selected_platform == ROM.PLATFORM_ESP32:
                     fw_filename = None
                     print("\nWhat kind of ESP32 board is this?\n")
@@ -2100,7 +2094,7 @@ def main():
 
             except Exception as e:
                 RNS.log("Could not load device signing key")
-
+                
 
             exit()
 
@@ -2183,7 +2177,7 @@ def main():
             if platform == "unzip":
                 flasher = "unzip"
                 if which(flasher) is not None:
-                    return [flasher, "-o", "".join([UPD_DIR, "/", selected_version, "/", fw_filename]), "-d", UPD_DIR+"/"+selected_version]
+                    return [flasher, "-o", UPD_DIR+"/"+selected_version+"/"+fw_filename, "-d", UPD_DIR+"/"+selected_version]
                 else:
                     RNS.log("")
                     RNS.log("You do not currently have the \""+flasher+"\" program installed on your system.")
@@ -2200,9 +2194,9 @@ def main():
                     # avrdude -C/home/markqvist/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17/etc/avrdude.conf -q -q -V -patmega2560 -cwiring -P/dev/ttyACM0 -b115200 -D -Uflash:w:/tmp/arduino-sketch-0E260F46C421A84A7CBAD48E859C8E64/RNode_Firmware.ino.hex:i
                     # avrdude -q -q -V -patmega2560 -cwiring -P/dev/ttyACM0 -b115200 -D -Uflash:w:/tmp/arduino-sketch-0E260F46C421A84A7CBAD48E859C8E64/RNode_Firmware.ino.hex:i
                     if fw_filename == "rnode_firmware.hex":
-                        return [flasher, "-P", args.port, "-p", "m1284p", "-c", "arduino", "-b", "115200", "-U", "".join(["flash:w:", UPD_DIR, "/", selected_version, "/", fw_filename, ":i"])]
+                        return [flasher, "-P", args.port, "-p", "m1284p", "-c", "arduino", "-b", "115200", "-U", "flash:w:"+UPD_DIR+"/"+selected_version+"/"+fw_filename+":i"]
                     elif fw_filename == "rnode_firmware_m2560.hex":
-                        return [flasher, "-P", args.port, "-p", "atmega2560", "-c", "wiring", "-D", "-b", "115200", "-U", "".join(["flash:w:", UPD_DIR, "/", selected_version, "/", fw_filename])]
+                        return [flasher, "-P", args.port, "-p", "atmega2560", "-c", "wiring", "-D", "-b", "115200", "-U", "flash:w:"+UPD_DIR+"/"+selected_version+"/"+fw_filename]
                 else:
                     RNS.log("")
                     RNS.log("You do not currently have the \""+flasher+"\" program installed on your system.")
@@ -2230,7 +2224,6 @@ def main():
                     os.chmod(flasher, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP)
 
                 if which(flasher) is not None:
-                    # TODO: Simplify this returns with a list and add or remove arguments
                     if fw_filename == "rnode_firmware_tbeam.zip":
                         if numeric_version >= 1.55:
                             return [
@@ -2244,11 +2237,11 @@ def main():
                                 "--flash_mode", "dio",
                                 "--flash_freq", "80m",
                                 "--flash_size", "4MB",
-                                "0xe000",  "".join([UPD_DIR, "/", selected_version, "/rnode_firmware_tbeam.boot_app0"]),
-                                "0x1000",  "".join([UPD_DIR, "/", selected_version, "/rnode_firmware_tbeam.bootloader"]),
-                                "0x10000", "".join([UPD_DIR, "/", selected_version, "/rnode_firmware_tbeam.bin"]),
-                                "0x210000","".join([UPD_DIR, "/", selected_version, "/console_image.bin"]),
-                                "0x8000",  "".join([UPD_DIR, "/", selected_version, "/rnode_firmware_tbeam.partitions"]),
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.partitions",
                             ]
                         else:
                             return [
@@ -2679,7 +2672,7 @@ def main():
             wants_fw_provision = False
             if args.flash:
                 from subprocess import call
-
+                
                 if fw_filename == None:
                     fw_filename = "rnode_firmware.hex"
 
@@ -2710,9 +2703,9 @@ def main():
                         RNS.log("Error while flashing")
                         RNS.log(str(e))
                         exit(1)
-
+                
                 else:
-                    fw_src = "".join([UPD_DIR, "/", selected_version, "/"])
+                    fw_src = UPD_DIR+"/"+selected_version+"/"
                     if os.path.isfile(fw_src+fw_filename):
                         try:
                             if fw_filename.endswith(".zip"):
@@ -2869,7 +2862,7 @@ def main():
                     update_full_path = EXT_DIR+"/extracted_rnode_firmware.version"
                 else:
                     update_full_path = UPD_DIR+"/"+selected_version+"/"+fw_filename
-                if os.path.isfile(update_full_path):
+                if os.path.isfile(update_full_path): 
                     try:
                         args.info = False
                         RNS.log("Updating RNode firmware for device on "+args.port)
@@ -3024,13 +3017,13 @@ def main():
 
                     RNS.log("")
                     RNS.log("Device info:")
-                    RNS.log("".join(["\tProduct            : ", products[rnode.product], " ", models[rnode.model][3], " (", bytes([rnode.product]).hex(), ":", bytes([rnode.model]).hex(), board_string, ")"]))
+                    RNS.log("\tProduct            : "+products[rnode.product]+" "+models[rnode.model][3]+" ("+bytes([rnode.product]).hex()+":"+bytes([rnode.model]).hex()+board_string+")")
                     RNS.log("\tDevice signature   : "+sigstring)
                     RNS.log("\tFirmware version   : "+rnode.version)
                     RNS.log("\tHardware revision  : "+str(int(rnode.hw_rev)))
                     RNS.log("\tSerial number      : "+RNS.hexrep(rnode.serialno))
                     RNS.log("\tModem chip         : "+str(models[rnode.model][5]))
-                    RNS.log("".join(["\tFrequency range    : ", str(rnode.min_freq/1e6), " MHz - ", str(rnode.max_freq/1e6), " MHz"]))
+                    RNS.log("\tFrequency range    : "+str(rnode.min_freq/1e6)+" MHz - "+str(rnode.max_freq/1e6)+" MHz")
                     RNS.log("\tMax TX power       : "+str(rnode.max_output)+" dBm")
                     RNS.log("\tManufactured       : "+timestring)
 
@@ -3047,7 +3040,7 @@ def main():
                         RNS.log("\tDevice mode        : TNC")
                         RNS.log("\t  Frequency        : "+str((rnode.conf_frequency/1000000.0))+" MHz")
                         RNS.log("\t  Bandwidth        : "+str(rnode.conf_bandwidth/1000.0)+" KHz")
-                        RNS.log("".join(["\t  TX power         : ", str(rnode.conf_txpower), " dBm (", str(txp_mw), " mW)"]))
+                        RNS.log("\t  TX power         : "+str(rnode.conf_txpower)+" dBm ("+str(txp_mw)+" mW)")
                         RNS.log("\t  Spreading factor : "+str(rnode.conf_sf))
                         RNS.log("\t  Coding rate      : "+str(rnode.conf_cr))
                         RNS.log("\t  On-air bitrate   : "+str(rnode.bitrate_kbps)+" kbps")
@@ -3077,7 +3070,7 @@ def main():
                         if args.autoinstall:
                             RNS.log("Clearing old EEPROM, this will take about 15 seconds...")
                             rnode.wipe_eeprom()
-
+                            
                         if rnode.platform == ROM.PLATFORM_ESP32:
                             RNS.log("Waiting for ESP32 reset...")
                             time.sleep(6)
@@ -3248,7 +3241,7 @@ def main():
                                     vf.close()
                                 else:
                                     partition_filename = fw_filename.replace(".zip", ".bin")
-                                    partition_hash = get_partition_hash("".join([UPD_DIR, "/", selected_version, "/", partition_filename]))
+                                    partition_hash = get_partition_hash(UPD_DIR+"/"+selected_version+"/"+partition_filename)
 
                                 if partition_hash != None:
                                     time.sleep(0.75)
