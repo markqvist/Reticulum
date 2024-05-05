@@ -16,8 +16,8 @@ This maintenance release fixes a number of bugs, improves path requests and resp
 
 **Release Hashes**
 ```
-
-
+f5c35f1b8720778eb508b687d66334d01b4ab266b2d8c2bc186702220dcaae29  rns-0.7.4-py3-none-any.whl
+9eaa7170f97dad49551136965d3fcc971b56b1c2eda48c24b9ffd58d71daa016  rnspure-0.7.4-py3-none-any.whl
 ```
 
 ### 2024-03-09: RNS β 0.7.3
