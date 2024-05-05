@@ -1,6 +1,6 @@
 ### 2024-05-05: RNS β 0.7.4
 
-This maintenance release fixes a number of bugs, improves path requests and responses, and adds several useful features and capabilities. Thanks to @cobraPA, @jsculthess, @thiaguetz and @nothingbutlucas who contributed to this release!
+This maintenance release fixes a number of bugs, improves path requests and responses, and adds several useful features and capabilities. Thanks to @cobraPA, @jschulthess, @thiaguetz and @nothingbutlucas who contributed to this release!
 
 **Changes**
 - Added support for flashing and autoinstalling Heltec V3 boards to `rnodeconf`
