@@ -5,13 +5,13 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Support Reticulum" href="support.html" /><link rel="prev" title="Building Networks" href="networks.html" />
 
-    <meta name="generator" content="sphinx-7.1.2, furo 2022.09.29.dev1"/>
-        <title>Code Examples - Reticulum Network Stack 0.7.3 beta documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
+        <title>Code Examples - Reticulum Network Stack 0.7.4 beta documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
-    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=bb3cebc5" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     
     
 
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 0.7.3 beta documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.7.4 beta documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -161,13 +161,13 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="index.html">
   
   <div class="sidebar-logo-container">
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 0.7.3 beta documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.7.4 beta documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -656,6 +656,7 @@ the Packet interface.</p>
 <span class="c1"># of the packet.                                         #</span>
 <span class="c1">##########################################################</span>
 
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">RNS</span>
 
@@ -678,8 +679,19 @@ the Packet interface.</p>
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
-    <span class="c1"># Randomly create a new identity for our echo server</span>
-    <span class="n">server_identity</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="c1"># Load identity from file if it exist or randomley create</span>
+    <span class="k">if</span> <span class="n">configpath</span><span class="p">:</span>
+        <span class="n">ifilepath</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/storage/identitiesy/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">configpath</span><span class="p">,</span><span class="n">APP_NAME</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ifilepath</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/storage/identities/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">configdir</span><span class="p">,</span><span class="n">APP_NAME</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ifilepath</span><span class="p">):</span>
+        <span class="c1"># Load identity from file</span>
+        <span class="n">server_identity</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Identity</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">ifilepath</span><span class="p">)</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;loaded identity from file: &quot;</span><span class="o">+</span><span class="n">ifilepath</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_VERBOSE</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Randomly create a new identity for our echo example</span>
+        <span class="n">server_identity</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;created new identity&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_VERBOSE</span><span class="p">)</span>
 
     <span class="c1"># We create a destination that clients can query. We want</span>
     <span class="c1"># to be able to verify echo replies to our clients, so we</span>
@@ -1018,8 +1030,20 @@ destination, and passing traffic back and forth over the link.</p>
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
-    <span class="c1"># Randomly create a new identity for our link example</span>
-    <span class="n">server_identity</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="c1"># Load identity from file if it exist or randomley create</span>
+    <span class="k">if</span> <span class="n">configpath</span><span class="p">:</span>
+        <span class="n">ifilepath</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/storage/identitiesy/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">configpath</span><span class="p">,</span><span class="n">APP_NAME</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ifilepath</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/storage/identities/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">configdir</span><span class="p">,</span><span class="n">APP_NAME</span><span class="p">)</span>
+    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;ifilepath: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ifilepath</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ifilepath</span><span class="p">):</span>
+        <span class="c1"># Load identity from file</span>
+        <span class="n">server_identity</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Identity</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">ifilepath</span><span class="p">)</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;loaded identity from file: &quot;</span><span class="o">+</span><span class="n">ifilepath</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_VERBOSE</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Randomly create a new identity for our link example</span>
+        <span class="n">server_identity</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;created new identity&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_VERBOSE</span><span class="p">)</span>
 
     <span class="c1"># We create a destination that clients can connect to. We</span>
     <span class="c1"># want clients to create links to this destination, so we</span>
@@ -3321,11 +3345,14 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=cf108e5e"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="_static/scripts/furo.js?v=2c7c1115"></script>
-    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="_static/copybutton.js?v=f281be69"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     </body>
 </html>

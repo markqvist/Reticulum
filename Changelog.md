@@ -1,3 +1,25 @@
+### 2024-05-05: RNS β 0.7.4
+
+This maintenance release fixes a number of bugs, improves path requests and responses, and adds several useful features and capabilities. Thanks to @cobraPA, @jsculthess, @thiaguetz and @nothingbutlucas who contributed to this release!
+
+**Changes**
+- Added support for flashing and autoinstalling Heltec V3 boards to `rnodeconf`
+- Added custom EEPROM bootstrapping capabilities to `rnodeconf`
+- Added ability to load identities from file to Echo and Link examples
+- Added ability to specify multicast address type in AutoInterface configuration
+- Added link getter to resource advertisement class
+- Improved path response logic and timing
+- Improved path request timing
+- Fixed a bug in Link Request proof delivery on unknown hop count paths
+- Fixed broken link packet routing in topologies where transport packets leak to non-intended instances in the link chain
+- Fixed typos in documentation
+
+**Release Hashes**
+```
+
+
+```
+
 ### 2024-03-09: RNS β 0.7.3
 
 This release adds the ability to specify custom firmware URLs for flashing boards with `rnodeconf`. Thanks to @attermann who contributed to this release!
