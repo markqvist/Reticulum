@@ -1164,15 +1164,15 @@ def rnode_open_serial(port):
     
 def graceful_exit(C=0):
     if RNS.vendor.platformutils.is_windows():
-        RNS.log("Windows detected; delaying DTR")# ,RNS.LOG_VERBOSE
+        RNS.log("Windows detected; delaying DTR",RNS.LOG_VERBOSE) 
         if rnode:
-            RNS.log("Sending \"Leave\" to Rnode")
+            RNS.log("Sending \"Leave\" to Rnode",RNS.LOG_VERBOSE)
             rnode.leave() # Leave has wait built in
         elif rnode_serial:
-            RNS.log("Closing raw serial")
+            RNS.log("Closing raw serial",RNS.LOG_VERBOSE)
             sleep(1) # Wait for MCU to complete operation before DTR goes false
             rnode_serial.close()
-    RNS.log("Exiting: Code "+str(C))
+    RNS.log("Exiting: Code "+str(C),RNS.LOG_INFO)
     exit(C)
 
 
