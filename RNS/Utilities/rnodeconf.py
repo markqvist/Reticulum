@@ -283,7 +283,7 @@ except Exception as e:
     print("No access to directory "+str(CNF_DIR)+". This utility needs file system access to store firmware and data files. Cannot continue.")
     print("The contained exception was:")
     print(str(e))
-    exit(99)
+    graceful_exit(99)
 
 squashvw = False
 
@@ -572,7 +572,7 @@ class RNode():
 
         except Exception as e:
             raise e
-            exit()
+            graceful_exit()
 
     def updateBitrate(self):
         try:
@@ -598,6 +598,7 @@ class RNode():
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while sending host left command to device")
+        sleep(1)
 
     def set_display_intensity(self, intensity):
         data = bytes([intensity & 0xFF])
@@ -761,7 +762,7 @@ class RNode():
         sleep(0.6)
         if self.eeprom == None:
             RNS.log("Could not download EEPROM from device. Is a valid firmware installed?")
-            exit()
+            graceful_exit()
         else:
             self.parse_eeprom()
 
@@ -807,7 +808,7 @@ class RNode():
                 if self.checksum != checksum:
                     self.provisioned = False
                     RNS.log("EEPROM checksum mismatch")
-                    exit()
+                    graceful_exit()
                 else:
                     RNS.log("EEPROM checksum correct")
 
@@ -988,7 +989,7 @@ def ensure_firmware_file(fw_filename):
                 RNS.log("One or more required firmware files are missing from the extracted RNode")
                 RNS.log("Firmware archive. Installation cannot continue. Please try extracting the")
                 RNS.log("firmware again with the --extract-firmware option.")
-                exit(184)
+                graceful_exit(184)
 
             vf = open(vfpath, "rb")
             release_info = vf.read().decode("utf-8").strip()
@@ -998,7 +999,7 @@ def ensure_firmware_file(fw_filename):
         else:
             RNS.log("No extracted firmware is available, cannot continue.")
             RNS.log("Extract a firmware from an existing RNode first, using the --extract-firmware option.")
-            exit(183)
+            graceful_exit(183)
 
     else:
         try:
@@ -1032,7 +1033,7 @@ def ensure_firmware_file(fw_filename):
                             RNS.log("Check your internet connection and try again.")
                             RNS.log("If you don't have Internet access currently, use the --fw-version option to manually specify a version.")
                             RNS.log("You can also use --extract to copy the firmware from a known-good RNode of the same model.")
-                            exit()
+                            graceful_exit()
                 except Exception as e:
                     # if custom firmware url, don't fallback
                     if fw_url != None:
@@ -1040,7 +1041,7 @@ def ensure_firmware_file(fw_filename):
                         RNS.log("Check your internet connection and try again.")
                         RNS.log("If you don't have Internet access currently, use the --fw-version option to manually specify a version.")
                         RNS.log("You can also use --extract to copy the firmware from a known-good RNode of the same model.")
-                        exit()
+                        graceful_exit()
 
                     RNS.log("")
                     RNS.log("WARNING!")
@@ -1069,7 +1070,7 @@ def ensure_firmware_file(fw_filename):
                 selected_version = release_info.split()[0]
                 if selected_version == "not":
                     RNS.log("No valid version found for this board, exiting.")
-                    exit(199)
+                    graceful_exit(199)
 
                 selected_hash = release_info.split()[1]
                 if not os.path.isdir(UPD_DIR+"/"+selected_version):
@@ -1080,7 +1081,7 @@ def ensure_firmware_file(fw_filename):
             else:
                 RNS.log("Online firmware version check was disabled, but no firmware version specified for install.")
                 RNS.log("use the --fw-version option to manually specify a version.")
-                exit(98)
+                graceful_exit(98)
 
             # if custom firmware url, use it
             if fw_url != None:
@@ -1114,7 +1115,7 @@ def ensure_firmware_file(fw_filename):
 
                         if selected_hash == None:
                             RNS.log("No release hash found for "+fw_filename+". The firmware integrity could not be verified.")
-                            exit(97)
+                            graceful_exit(97)
 
                     RNS.log("Verifying firmware integrity...")
                     fw_file = open(UPD_DIR+"/"+selected_version+"/"+fw_filename, "rb")
@@ -1125,24 +1126,24 @@ def ensure_firmware_file(fw_filename):
                     else:
                         RNS.log("")
                         RNS.log("Firmware corrupt. Try clearing the local firmware cache with: rnodeconf --clear-cache")
-                        exit(96)
+                        graceful_exit(96)
 
                 except Exception as e:
                     RNS.log("An error occurred while checking firmware file integrity. The contained exception was:")
                     RNS.log(str(e))
-                    exit(95)
+                    graceful_exit(95)
 
             except Exception as e:
                 RNS.log("Could not download required firmware file: ")
                 RNS.log(str(update_target_url))
                 RNS.log("The contained exception was:")
                 RNS.log(str(e))
-                exit()
+                graceful_exit()
 
         except Exception as e:
             RNS.log("An error occurred while reading version information for "+str(fw_filename)+". The contained exception was:")
             RNS.log(str(e))
-            exit()
+            graceful_exit()
 
 def rnode_open_serial(port):
     import serial
@@ -1159,6 +1160,21 @@ def rnode_open_serial(port):
         write_timeout = None,
         dsrdtr = False
     )
+    
+    
+def graceful_exit(C=0):
+    if RNS.vendor.platformutils.is_windows():
+        RNS.log("Windows detected; delaying DTR")# ,RNS.LOG_VERBOSE
+        if rnode:
+            RNS.log("Sending \"Leave\" to Rnode")
+            rnode.leave() # Leave has wait built in
+        elif rnode_serial:
+            RNS.log("Closing raw serial")
+            sleep(1) # Wait for MCU to complete operation before DTR goes false
+            rnode_serial.close()
+    RNS.log("Exiting: Code "+str(C))
+    exit(C)
+
 
 device_signer = None
 force_update = False
@@ -1174,7 +1190,7 @@ def main():
         print("RNode Config Utility needs pyserial to work.")
         print("You can install it with: pip3 install pyserial")
         print("")
-        exit()
+        graceful_exit()
 
     try:
         if not util.find_spec("cryptography"):
@@ -1184,7 +1200,7 @@ def main():
         print("RNode Config Utility needs the cryptography module to work.")
         print("You can install it with: pip3 install cryptography")
         print("")
-        exit()
+        graceful_exit()
 
     import serial
     from serial.tools import list_ports
@@ -1252,14 +1268,14 @@ def main():
 
         if args.version:
             print("rnodeconf "+program_version)
-            exit(0)
+            graceful_exit(0)
 
         if args.clear_cache:
             RNS.log("Clearing local firmware cache...")
             import shutil
             shutil.rmtree(UPD_DIR)
             RNS.log("Done")
-            exit(0)
+            graceful_exit(0)
 
         if args.fw_version != None:
             selected_version = args.fw_version
@@ -1267,7 +1283,7 @@ def main():
                 check_float = float(selected_version)
             except ValueError:
                 RNS.log("Selected version \""+selected_version+"\" does not appear to be a number.")
-                exit()
+                graceful_exit()
 
         if args.fw_url != None:
             fw_url = args.fw_url
@@ -1306,7 +1322,7 @@ def main():
 
             except Exception as e:
                 RNS.log("Invalid key data supplied")
-            exit(0)
+            graceful_exit(0)
 
         if args.use_extracted and ((args.update and args.port != None) or args.autoinstall):
             print("")
@@ -1345,11 +1361,11 @@ def main():
                     selected_port = portlist[c_port-1]
                 except Exception as e:
                     print("That port does not exist, exiting now.")
-                    exit()
+                    graceful_exit()
 
                 if selected_port == None:
                     print("Could not select port, exiting now.")
-                    exit()
+                    graceful_exit()
 
                 port_path = selected_port.device
                 port_product = selected_port.product
@@ -1366,7 +1382,7 @@ def main():
 
                 if selected_port == None:
                     print("Could not find specified port "+str(args.port)+", exiting now")
-                    exit()
+                    graceful_exit()
 
                 port_path = selected_port.device
                 port_product = selected_port.product
@@ -1381,7 +1397,7 @@ def main():
             except Exception as e:
                 RNS.log("Could not open the specified serial port. The contained exception was:")
                 RNS.log(str(e))
-                exit()
+                graceful_exit()
 
             rnode = RNode(rnode_serial)
             thread = threading.Thread(target=rnode.readLoop, daemon=True).start()
@@ -1434,16 +1450,16 @@ def main():
                         print("Extracting "+part+"...")
                         if subprocess.call(shlex.split(command), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) != 0:
                             print("The extraction failed, the following command did not complete successfully:\n"+command)
-                            exit(182)
+                            graceful_exit(182)
 
                     print("\nFirmware successfully extracted!")
                     print("\nYou can now use this firmware to update or autoinstall other RNodes")
-                    exit()
+                    graceful_exit()
                 else:
                     print("Could not read firmware information from device")
 
             print("\nRNode firmware extraction failed")
-            exit(180)
+            graceful_exit(180)
 
         if args.autoinstall:
             clear()
@@ -1477,11 +1493,11 @@ def main():
                     selected_port = portlist[c_port-1]
                 except Exception as e:
                     print("That port does not exist, exiting now.")
-                    exit()
+                    graceful_exit()
 
                 if selected_port == None:
                     print("Could not select port, exiting now.")
-                    exit()
+                    graceful_exit()
 
                 port_path = selected_port.device
                 port_product = selected_port.product
@@ -1499,7 +1515,7 @@ def main():
 
                 if selected_port == None:
                     print("Could not find specified port "+str(args.port)+", exiting now")
-                    exit()
+                    graceful_exit()
 
                 port_path = selected_port.device
                 port_product = selected_port.product
@@ -1514,7 +1530,7 @@ def main():
             except Exception as e:
                 RNS.log("Could not open the specified serial port. The contained exception was:")
                 RNS.log(str(e))
-                exit()
+                graceful_exit()
 
             rnode = RNode(rnode_serial)
             thread = threading.Thread(target=rnode.readLoop, daemon=True).start()
@@ -1531,7 +1547,7 @@ def main():
                 print("\nThis device is already installed and provisioned. No further action will")
                 print("be taken. If you wish to completely reinstall this device, you must first")
                 print("wipe the current EEPROM. See the help for more info.\n\nExiting now.")
-                exit()
+                graceful_exit()
 
             print("\n---------------------------------------------------------------------------")
             print("                               Device Selection")
@@ -1707,7 +1723,7 @@ def main():
                     input()
             except Exception as e:
                 print("That device type does not exist, exiting now.")
-                exit()
+                graceful_exit()
 
             selected_platform = None
             selected_model = None
@@ -1736,7 +1752,7 @@ def main():
 
                 except Exception as e:
                     print("That MCU type does not exist, exiting now.")
-                    exit()
+                    graceful_exit()
 
                 print("\nWhat transceiver module does your board use?\n")
                 print("[1] SX1276/SX1278 with antenna port on PA_BOOST pin")
@@ -1753,7 +1769,7 @@ def main():
 
                 except Exception as e:
                     print("That transceiver type does not exist, exiting now.")
-                    exit()
+                    graceful_exit()
 
 
             elif selected_product == ROM.PRODUCT_RNODE:
@@ -1805,7 +1821,7 @@ def main():
                         #     selected_platform = ROM.PLATFORM_ESP32
                     except Exception as e:
                         print("That model does not exist, exiting now.")
-                        exit()
+                        graceful_exit()
                 else:
                     print("\nWhat model is this T3S3?\n")
                     print("[1] 410 - 525 MHz (with SX1268 chip)")
@@ -1825,7 +1841,7 @@ def main():
                             selected_platform = ROM.PLATFORM_ESP32
                     except Exception as e:
                         print("That model does not exist, exiting now.")
-                        exit()
+                        graceful_exit()
 
             elif selected_product == ROM.PRODUCT_TBEAM:
                 selected_mcu = ROM.MCU_ESP32
@@ -1854,7 +1870,7 @@ def main():
                         selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
                     print("That band does not exist, exiting now.")
-                    exit()
+                    graceful_exit()
 
             elif selected_product == ROM.PRODUCT_T32_10:
                 selected_mcu = ROM.MCU_ESP32
@@ -1876,7 +1892,7 @@ def main():
                         selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
                     print("That band does not exist, exiting now.")
-                    exit()
+                    graceful_exit()
 
             elif selected_product == ROM.PRODUCT_T32_20:
                 selected_mcu = ROM.MCU_ESP32
@@ -1898,7 +1914,7 @@ def main():
                         selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
                     print("That band does not exist, exiting now.")
-                    exit()
+                    graceful_exit()
 
             elif selected_product == ROM.PRODUCT_T32_21:
                 selected_mcu = ROM.MCU_ESP32
@@ -1926,7 +1942,7 @@ def main():
                         selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
                     print("That band does not exist, exiting now.")
-                    exit()
+                    graceful_exit()
 
             elif selected_product == ROM.PRODUCT_H32_V2:
                 selected_mcu = ROM.MCU_ESP32
@@ -1948,7 +1964,7 @@ def main():
                         selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
                     print("That band does not exist, exiting now.")
-                    exit()
+                    graceful_exit()
 
             elif selected_product == ROM.PRODUCT_H32_V3:
                 selected_mcu = ROM.MCU_ESP32
@@ -1970,7 +1986,7 @@ def main():
                         selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
                     print("That band does not exist, exiting now.")
-                    exit()
+                    graceful_exit()
 
             if selected_model != ROM.MODEL_FF and selected_model != ROM.MODEL_FE:
                 fw_filename = models[selected_model][4]
@@ -1998,7 +2014,7 @@ def main():
                             fw_filename = "rnode_firmware_esp32_generic.zip"
                     except Exception as e:
                         print("That ESP32 board does not exist, exiting now.")
-                        exit()
+                        graceful_exit()
 
             if fw_filename == None:
                 print("")
@@ -2008,7 +2024,7 @@ def main():
                 print("")
                 print_donation_block()
                 print("")
-                exit()
+                graceful_exit()
 
             if args.use_extracted:
                 fw_filename = "extracted_rnode_firmware.zip"
@@ -2038,7 +2054,7 @@ def main():
                     raise ValueError()
             except Exception as e:
                 print("OK, aborting now.")
-                exit()
+                graceful_exit()
 
             args.key = True
             args.port = selected_port.device
@@ -2055,7 +2071,7 @@ def main():
             except Exception as e:
                 RNS.log("Could not obain firmware package for your board")
                 RNS.log("The contained exception was: "+str(e))
-                exit()
+                graceful_exit()
 
             rnode.disconnect()
 
@@ -2096,7 +2112,7 @@ def main():
                 RNS.log("Could not load device signing key")
                 
 
-            exit()
+            graceful_exit()
 
         if args.key:
             if not os.path.isfile(FWD_DIR+"/device.key"):
@@ -2109,7 +2125,7 @@ def main():
                     RNS.log("Could not create new device signing key at "+str(FWD_DIR+"/device.key")+". The contained exception was:")
                     RNS.log(str(e))
                     RNS.log("Please ensure filesystem access and try again.")
-                    exit(81)
+                    graceful_exit(81)
             else:
                 try:
                     device_signer = RNS.Identity.from_file(FWD_DIR+"/device.key")
@@ -2117,7 +2133,7 @@ def main():
                     RNS.log("Could not load device signing key from "+str(FWD_DIR+"/device.key")+". The contained exception was:")
                     RNS.log(str(e))
                     RNS.log("Please restore or clear the key and try again.")
-                    exit(82)
+                    graceful_exit(82)
 
             if not os.path.isfile(FWD_DIR+"/signing.key"):
                 RNS.log("Generating a new EEPROM signing key...")
@@ -2155,7 +2171,7 @@ def main():
                 RNS.log("The firmware directory does not exist, can't write key!")
 
             if not args.autoinstall:
-                exit()
+                graceful_exit()
 
         def get_partition_hash(partition_file):
             try:
@@ -2187,7 +2203,7 @@ def main():
                     RNS.log("  sudo apt install "+flasher)
                     RNS.log("")
                     RNS.log("Please install \""+flasher+"\" and try again.")
-                    exit()
+                    graceful_exit()
             elif platform == ROM.PLATFORM_AVR:
                 flasher = "avrdude"
                 if which(flasher) is not None:
@@ -2206,7 +2222,7 @@ def main():
                     RNS.log("  sudo apt install avrdude")
                     RNS.log("")
                     RNS.log("Please install \""+flasher+"\" and try again.")
-                    exit()
+                    graceful_exit()
             elif platform == ROM.PLATFORM_ESP32:
                 numeric_version = float(selected_version)
                 flasher_dir = UPD_DIR+"/"+selected_version
@@ -2666,7 +2682,7 @@ def main():
                     RNS.log("  sudo apt install esptool")
                     RNS.log("")
                     RNS.log("Please install \""+flasher+"\" and try again.")
-                    exit()
+                    graceful_exit()
 
         if args.port:
             wants_fw_provision = False
@@ -2681,7 +2697,7 @@ def main():
 
                 if selected_version == None:
                     RNS.log("Missing parameters, cannot continue")
-                    exit(68)
+                    graceful_exit(68)
 
                 if fw_filename == "extracted_rnode_firmware.zip":
                     try:
@@ -2697,12 +2713,12 @@ def main():
                                 RNS.log("Waiting for ESP32 reset...")
                                 time.sleep(7)
                         else:
-                            exit()
+                            graceful_exit()
 
                     except Exception as e:
                         RNS.log("Error while flashing")
                         RNS.log(str(e))
-                        exit(1)
+                        graceful_exit(1)
                 
                 else:
                     fw_src = UPD_DIR+"/"+selected_version+"/"
@@ -2715,7 +2731,7 @@ def main():
                                         zip.extractall(fw_src)
                                 except Exception as e:
                                     RNS.log("Could not decompress firmware from downloaded zip file")
-                                    exit()
+                                    graceful_exit()
                                 RNS.log("Firmware decompressed")
 
                             RNS.log("Flashing RNode firmware to device on "+args.port)
@@ -2734,15 +2750,15 @@ def main():
                                 RNS.log("Some boards have trouble flashing at high speeds, and you can")
                                 RNS.log("try flashing with a lower baud rate, as in this example:")
                                 RNS.log("rnodeconf --autoinstall --baud-flash 115200")
-                                exit()
+                                graceful_exit()
 
                         except Exception as e:
                             RNS.log("Error while flashing")
                             RNS.log(str(e))
-                            exit(1)
+                            graceful_exit(1)
                     else:
                         RNS.log("Firmware file not found")
-                        exit()
+                        graceful_exit()
 
             RNS.log("Opening serial port "+args.port+"...")
             try:
@@ -2751,7 +2767,7 @@ def main():
             except Exception as e:
                 RNS.log("Could not open the specified serial port. The contained exception was:")
                 RNS.log(str(e))
-                exit()
+                graceful_exit()
 
             rnode = RNode(rnode_serial)
             thread = threading.Thread(target=rnode.readLoop, daemon=True).start()
@@ -2761,7 +2777,7 @@ def main():
             except Exception as e:
                 RNS.log("Serial port opened, but RNode did not respond. Is a valid firmware installed?")
                 print(e)
-                exit()
+                graceful_exit()
 
             if rnode.detected:
                 if rnode.platform == None or rnode.mcu == None:
@@ -2773,7 +2789,7 @@ def main():
                 RNS.log("WARNING: EEPROM is being wiped! Power down device NOW if you do not want this!")
                 rnode.wipe_eeprom()
                 rnode.hard_reset()
-                exit()
+                graceful_exit()
 
             RNS.log("Reading EEPROM...")
             rnode.download_eeprom()
@@ -2799,12 +2815,12 @@ def main():
                                 fw_filename = None
                                 if args.update:
                                     RNS.log("ERROR: No firmware found for this board. Cannot update.")
-                                    exit()
+                                    graceful_exit()
 
             if args.update:
                 if not rnode.provisioned:
                     RNS.log("Device not provisioned. Cannot update device firmware.")
-                    exit(1)
+                    graceful_exit(1)
 
                 if args.use_extracted:
                     fw_filename = "extracted_rnode_firmware.zip"
@@ -2823,21 +2839,21 @@ def main():
                             if args.fw_version != None:
                                 RNS.log("Specified firmware version ("+selected_version+") is already installed on this device")
                                 RNS.log("Override with -U option to install anyway")
-                                exit(0)
+                                graceful_exit(0)
                             else:
                                 RNS.log("Latest firmware version ("+selected_version+") is already installed on this device")
                                 RNS.log("Override with -U option to install anyway")
-                                exit(0)
+                                graceful_exit(0)
 
                         if rnode.version > selected_version:
                             if args.fw_version != None:
                                 RNS.log("Specified firmware version ("+selected_version+") is older than firmware already installed on this device")
                                 RNS.log("Override with -U option to install anyway")
-                                exit(0)
+                                graceful_exit(0)
                             else:
                                 RNS.log("Latest firmware version ("+selected_version+") is older than firmware already installed on this device")
                                 RNS.log("Override with -U option to install anyway")
-                                exit(0)
+                                graceful_exit(0)
 
                     if not fw_file_ensured and selected_version != None:
                         ensure_firmware_file(fw_filename)
@@ -2850,13 +2866,13 @@ def main():
                                 zip.extractall(fw_src)
                         except Exception as e:
                             RNS.log("Could not decompress firmware from downloaded zip file")
-                            exit()
+                            graceful_exit()
                         RNS.log("Firmware decompressed")
 
                 except Exception as e:
                     RNS.log("Could not obtain firmware package for your board")
                     RNS.log("The contained exception was: "+str(e))
-                    exit()
+                    graceful_exit()
 
                 if fw_filename == "extracted_rnode_firmware.zip":
                     update_full_path = EXT_DIR+"/extracted_rnode_firmware.version"
@@ -2894,7 +2910,7 @@ def main():
                             except Exception as e:
                                 RNS.log("Could not open the specified serial port. The contained exception was:")
                                 RNS.log(str(e))
-                                exit()
+                                graceful_exit()
 
                             rnode = RNode(rnode_serial)
                             thread = threading.Thread(target=rnode.readLoop, daemon=True).start()
@@ -2904,7 +2920,7 @@ def main():
                             except Exception as e:
                                 RNS.log("Serial port opened, but RNode did not respond. Is a valid firmware installed?")
                                 print(e)
-                                exit()
+                                graceful_exit()
 
                             if rnode.detected:
                                 if rnode.platform == None or rnode.mcu == None:
@@ -2928,19 +2944,19 @@ def main():
                                 RNS.log("Firmware update completed successfully")
                         else:
                             RNS.log("An error occurred while flashing the new firmware, exiting now.")
-                            exit()
+                            graceful_exit()
 
                     except Exception as e:
                         RNS.log("Error while updating firmware")
                         RNS.log(str(e))
                 else:
                     RNS.log("Firmware update file not found")
-                    exit()
+                    graceful_exit()
 
             if args.eeprom_dump:
                 RNS.log("EEPROM contents:")
                 RNS.log(RNS.hexrep(rnode.eeprom))
-                exit()
+                graceful_exit()
 
             if args.eeprom_backup:
                 try:
@@ -2954,7 +2970,7 @@ def main():
                 except Exception as e:
                     RNS.log("EEPROM was successfully downloaded from device,")
                     RNS.log("but file could not be written to disk.")
-                exit()
+                graceful_exit()
 
             if isinstance(args.display, int):
                 di = args.display
@@ -2979,7 +2995,7 @@ def main():
                     RNS.log("Setting display address to "+RNS.hexrep(da, delimit=False))
                     rnode.set_display_address(ord(da))
                     rnode.hard_reset()
-                    exit()
+                    graceful_exit()
                 else:
                     RNS.log("Invalid display address specified")
 
@@ -3049,23 +3065,23 @@ def main():
 
                     print("")
                     rnode.disconnect()
-                    exit()
+                    graceful_exit()
 
                 else:
                     RNS.log("EEPROM is invalid, no further information available")
-                    exit()
+                    egraceful_xit()
 
             if args.rom:
                 if rnode.provisioned and not args.autoinstall:
                     RNS.log("EEPROM bootstrap was requested, but a valid EEPROM was already present.")
                     RNS.log("No changes are being made.")
-                    exit()
+                    graceful_exit()
 
                 else:
                     if rnode.signature_valid:
                         RNS.log("EEPROM bootstrap was requested, but a valid EEPROM was already present.")
                         RNS.log("No changes are being made.")
-                        exit()
+                        graceful_exit()
                     else:
                         if args.autoinstall:
                             RNS.log("Clearing old EEPROM, this will take about 15 seconds...")
@@ -3090,7 +3106,7 @@ def main():
                     except Exception as e:
                         RNS.log("Could not create device serial number, exiting")
                         RNS.log(str(e))
-                        exit()
+                        graceful_exit()
 
                     serialno = counter+1
                     model = None
@@ -3186,7 +3202,7 @@ def main():
                                     RNS.log(str(e))
                             else:
                                 RNS.log("No signing key found")
-                                exit()
+                                graceful_exit()
 
                             if model == ROM.MODEL_A1 or model == ROM.MODEL_A6:
                                 rnode.hard_reset()
@@ -3300,10 +3316,10 @@ def main():
                                     file.close()
                                 except Exception as e:
                                     RNS.log("WARNING: Could not backup device EEPROM to disk")
-                                exit()
+                                graceful_exit()
                             else:
                                 RNS.log("EEPROM was written, but validation failed. Check your settings.")
-                                exit()
+                                graceful_exit()
                         except Exception as e:
                             RNS.log("An error occurred while writing EEPROM. The contained exception was:")
                             RNS.log(str(e))
@@ -3311,7 +3327,7 @@ def main():
 
                     else:
                         RNS.log("Invalid data specified, cancelling EEPROM write")
-                        exit()
+                        graceful_exit()
 
             if args.sign:
                 if rnode.provisioned:
@@ -3325,14 +3341,14 @@ def main():
                     else:
                         if device_signer == None:
                             RNS.log("No device signer loaded, cannot sign device")
-                            exit(78)
+                            graceful_exit(78)
                         else:
                             new_device_signature = device_signer.sign(rnode.device_hash)
                             rnode.store_signature(new_device_signature)
                             RNS.log("Device signed")
                 else:
                     RNS.log("This device has not been provisioned yet, cannot create device signature")
-                    exit(79)
+                    graceful_exit(79)
 
             if args.firmware_hash != None:
                 if rnode.provisioned:
@@ -3345,17 +3361,17 @@ def main():
                         RNS.log("Firmware hash set")
                     except Exception as e:
                         RNS.log("The provided value was not a valid SHA256 hash")
-                        exit(78)
+                        graceful_exit(78)
 
                 else:
                     RNS.log("This device has not been provisioned yet, cannot set firmware hash")
-                    exit(77)
+                    graceful_exit(77)
 
             if rnode.provisioned:
                 if args.normal:
                     rnode.setNormalMode()
                     RNS.log("Device set to normal (host-controlled) operating mode")
-                    exit()
+                    graceful_exit()
                 if args.tnc:
                     if not (args.freq and args.bw and args.txp and args.sf and args.cr):
                         RNS.log("Please input startup configuration:")
@@ -3400,7 +3416,7 @@ def main():
                     RNS.log("Device set to TNC operating mode")
                     sleep(1.0)
 
-                    exit()
+                    graceful_exit()
             else:
                 RNS.log("This device contains a valid firmware, but EEPROM is invalid.")
                 RNS.log("Probably the device has not been initialised, or the EEPROM has been erased.")
@@ -3410,12 +3426,14 @@ def main():
             print("")
             parser.print_help()
             print("")
-            exit()
+            graceful_exit()
 
 
     except KeyboardInterrupt:
         print("")
-        exit()
+        graceful_exit()
+        
+    graceful_exit()
 
 def extract_recovery_esptool():
     if not os.path.isfile(RT_PATH):
@@ -3429,7 +3447,7 @@ def extract_recovery_esptool():
         except Exception as e:
             RNS.log("Error: Could not extract recovery ESP-Tool. The contained exception was:")
             RNS.log(str(e))
-            exit(181)
+            graceful_exit(181)
 
 if __name__ == "__main__":
     main()
