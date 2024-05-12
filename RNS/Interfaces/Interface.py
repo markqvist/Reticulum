@@ -42,7 +42,7 @@ class Interface:
 
     # Which interface modes a Transport Node should
     # actively discover paths for.
-    DISCOVER_PATHS_FOR  = [MODE_ACCESS_POINT, MODE_GATEWAY]
+    DISCOVER_PATHS_FOR  = [MODE_ACCESS_POINT, MODE_GATEWAY, MODE_ROAMING]
 
     # How many samples to use for announce
     # frequency calculations
