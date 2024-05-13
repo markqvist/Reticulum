@@ -1002,80 +1002,81 @@ def ensure_firmware_file(fw_filename):
 
     else:
         try:
-            if not upd_nocheck:
-                try:
-                    # if custom firmware url, download latest release
-                    if selected_version == None and fw_url == None:
-                        version_url = firmware_version_url+fw_filename
-                        RNS.log("Retrieving latest version info from "+version_url)
-                        urlretrieve(firmware_version_url+fw_filename, UPD_DIR+"/"+fw_filename+".version.latest")
-                    else:
-                        if fw_url != None:
-                            if selected_version == None:
-                                version_url = fw_url+"latest/download/release.json"
-                            else:
-                                version_url = fw_url+"download/"+selected_version+"/release.json"
+            if selected_version != None:
+                if not upd_nocheck:
+                    try:
+                        # if custom firmware url, download latest release
+                        if selected_version == None and fw_url == None:
+                            version_url = firmware_version_url+fw_filename
+                            RNS.log("Retrieving latest version info from "+version_url)
+                            urlretrieve(firmware_version_url+fw_filename, UPD_DIR+"/"+fw_filename+".version.latest")
                         else:
-                                version_url = firmware_update_url+selected_version+"/release.json"
+                            if fw_url != None:
+                                if selected_version == None:
+                                    version_url = fw_url+"latest/download/release.json"
+                                else:
+                                    version_url = fw_url+"download/"+selected_version+"/release.json"
+                            else:
+                                    version_url = firmware_update_url+selected_version+"/release.json"
+                            try:
+                                RNS.log("Retrieving specified version info from "+version_url)
+                                urlretrieve(version_url, UPD_DIR+"/version_release_info.json")
+                                import json
+                                with open(UPD_DIR+"/version_release_info.json", "rb") as rif:
+                                    rdat = json.loads(rif.read())
+                                    variant = rdat[fw_filename]
+                                    with open(UPD_DIR+"/"+fw_filename+".version.latest", "wb") as verf:
+                                        inf_str = str(variant["version"])+" "+str(variant["hash"])
+                                        verf.write(inf_str.encode("utf-8"))
+                            except Exception as e:
+                                RNS.log("Failed to retrive version information for your board.")
+                                RNS.log("Check your internet connection and try again.")
+                                RNS.log("If you don't have Internet access currently, use the --fw-version option to manually specify a version.")
+                                RNS.log("You can also use --extract to copy the firmware from a known-good RNode of the same model.")
+                                exit()
+                    except Exception as e:
+                        # if custom firmware url, don't fallback
+                        if fw_url != None:
+                            RNS.log("Failed to retrive version information for your board from the specified url.")
+                            RNS.log("Check your internet connection and try again.")
+                            RNS.log("If you don't have Internet access currently, use the --fw-version option to manually specify a version.")
+                            RNS.log("You can also use --extract to copy the firmware from a known-good RNode of the same model.")
+                            exit()
+
+                        RNS.log("")
+                        RNS.log("WARNING!")
+                        RNS.log("Failed to retrieve latest version information for your board from the default server.")
+                        RNS.log("Will retry using the following fallback URL: "+fallback_firmware_version_url)
+                        RNS.log("")
+                        RNS.log("Hit enter if you want to proceed")
+                        input()
                         try:
-                            RNS.log("Retrieving specified version info from "+version_url)
-                            urlretrieve(version_url, UPD_DIR+"/version_release_info.json")
+                            urlretrieve(fallback_firmware_version_url, UPD_DIR+"/fallback_release_info.json")
                             import json
-                            with open(UPD_DIR+"/version_release_info.json", "rb") as rif:
+                            with open(UPD_DIR+"/fallback_release_info.json", "rb") as rif:
                                 rdat = json.loads(rif.read())
                                 variant = rdat[fw_filename]
                                 with open(UPD_DIR+"/"+fw_filename+".version.latest", "wb") as verf:
                                     inf_str = str(variant["version"])+" "+str(variant["hash"])
                                     verf.write(inf_str.encode("utf-8"))
+
                         except Exception as e:
-                            RNS.log("Failed to retrive version information for your board.")
-                            RNS.log("Check your internet connection and try again.")
-                            RNS.log("If you don't have Internet access currently, use the --fw-version option to manually specify a version.")
-                            RNS.log("You can also use --extract to copy the firmware from a known-good RNode of the same model.")
-                            exit()
-                except Exception as e:
-                    # if custom firmware url, don't fallback
-                    if fw_url != None:
-                        RNS.log("Failed to retrive version information for your board from the specified url.")
-                        RNS.log("Check your internet connection and try again.")
-                        RNS.log("If you don't have Internet access currently, use the --fw-version option to manually specify a version.")
-                        RNS.log("You can also use --extract to copy the firmware from a known-good RNode of the same model.")
-                        exit()
+                            RNS.log("Error while trying fallback URL: "+str(e))
+                            raise e
 
-                    RNS.log("")
-                    RNS.log("WARNING!")
-                    RNS.log("Failed to retrieve latest version information for your board from the default server.")
-                    RNS.log("Will retry using the following fallback URL: "+fallback_firmware_version_url)
-                    RNS.log("")
-                    RNS.log("Hit enter if you want to proceed")
-                    input()
-                    try:
-                        urlretrieve(fallback_firmware_version_url, UPD_DIR+"/fallback_release_info.json")
-                        import json
-                        with open(UPD_DIR+"/fallback_release_info.json", "rb") as rif:
-                            rdat = json.loads(rif.read())
-                            variant = rdat[fw_filename]
-                            with open(UPD_DIR+"/"+fw_filename+".version.latest", "wb") as verf:
-                                inf_str = str(variant["version"])+" "+str(variant["hash"])
-                                verf.write(inf_str.encode("utf-8"))
+                    import shutil
+                    file = open(UPD_DIR+"/"+fw_filename+".version.latest", "rb")
+                    release_info = file.read().decode("utf-8").strip()
+                    selected_version = release_info.split()[0]
+                    if selected_version == "not":
+                        RNS.log("No valid version found for this board, exiting.")
+                        exit(199)
 
-                    except Exception as e:
-                        RNS.log("Error while trying fallback URL: "+str(e))
-                        raise e
-
-                import shutil
-                file = open(UPD_DIR+"/"+fw_filename+".version.latest", "rb")
-                release_info = file.read().decode("utf-8").strip()
-                selected_version = release_info.split()[0]
-                if selected_version == "not":
-                    RNS.log("No valid version found for this board, exiting.")
-                    exit(199)
-
-                selected_hash = release_info.split()[1]
-                if not os.path.isdir(UPD_DIR+"/"+selected_version):
-                    os.makedirs(UPD_DIR+"/"+selected_version)
-                shutil.copy(UPD_DIR+"/"+fw_filename+".version.latest", UPD_DIR+"/"+selected_version+"/"+fw_filename+".version")
-                RNS.log("The selected firmware for this board is version "+selected_version)
+                    selected_hash = release_info.split()[1]
+                    if not os.path.isdir(UPD_DIR+"/"+selected_version):
+                        os.makedirs(UPD_DIR+"/"+selected_version)
+                    shutil.copy(UPD_DIR+"/"+fw_filename+".version.latest", UPD_DIR+"/"+selected_version+"/"+fw_filename+".version")
+                    RNS.log("The selected firmware for this board is version "+selected_version)
 
             else:
                 RNS.log("Online firmware version check was disabled, but no firmware version specified for install.")
