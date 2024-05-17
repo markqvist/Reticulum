@@ -181,78 +181,90 @@ class AutoInterface(Interface):
 
         suitable_interfaces = 0
         for ifname in self.list_interfaces():
-            if RNS.vendor.platformutils.is_darwin() and ifname in AutoInterface.DARWIN_IGNORE_IFS and not ifname in self.allowed_interfaces:
-                RNS.log(str(self)+" skipping Darwin AWDL or tethering interface "+str(ifname), RNS.LOG_EXTREME)
-            elif RNS.vendor.platformutils.is_darwin() and ifname == "lo0":
-                RNS.log(str(self)+" skipping Darwin loopback interface "+str(ifname), RNS.LOG_EXTREME)
-            elif RNS.vendor.platformutils.is_android() and ifname in AutoInterface.ANDROID_IGNORE_IFS and not ifname in self.allowed_interfaces:
-                RNS.log(str(self)+" skipping Android system interface "+str(ifname), RNS.LOG_EXTREME)
-            elif ifname in self.ignored_interfaces:
-                RNS.log(str(self)+" ignoring disallowed interface "+str(ifname), RNS.LOG_EXTREME)
-            elif ifname in AutoInterface.ALL_IGNORE_IFS:
-                RNS.log(str(self)+" skipping interface "+str(ifname), RNS.LOG_EXTREME)
-            else:
-                if len(self.allowed_interfaces) > 0 and not ifname in self.allowed_interfaces:
-                    RNS.log(str(self)+" ignoring interface "+str(ifname)+" since it was not allowed", RNS.LOG_EXTREME)
+            try:
+                if RNS.vendor.platformutils.is_darwin() and ifname in AutoInterface.DARWIN_IGNORE_IFS and not ifname in self.allowed_interfaces:
+                    RNS.log(str(self)+" skipping Darwin AWDL or tethering interface "+str(ifname), RNS.LOG_EXTREME)
+                elif RNS.vendor.platformutils.is_darwin() and ifname == "lo0":
+                    RNS.log(str(self)+" skipping Darwin loopback interface "+str(ifname), RNS.LOG_EXTREME)
+                elif RNS.vendor.platformutils.is_android() and ifname in AutoInterface.ANDROID_IGNORE_IFS and not ifname in self.allowed_interfaces:
+                    RNS.log(str(self)+" skipping Android system interface "+str(ifname), RNS.LOG_EXTREME)
+                elif ifname in self.ignored_interfaces:
+                    RNS.log(str(self)+" ignoring disallowed interface "+str(ifname), RNS.LOG_EXTREME)
+                elif ifname in AutoInterface.ALL_IGNORE_IFS:
+                    RNS.log(str(self)+" skipping interface "+str(ifname), RNS.LOG_EXTREME)
                 else:
-                    addresses = self.list_addresses(ifname)
-                    if self.netinfo.AF_INET6 in addresses:
-                        link_local_addr = None
-                        for address in addresses[self.netinfo.AF_INET6]:
-                            if "addr" in address:
-                                if address["addr"].startswith("fe80:"):
-                                    link_local_addr = self.descope_linklocal(address["addr"])
-                                    self.link_local_addresses.append(link_local_addr)
-                                    self.adopted_interfaces[ifname] = link_local_addr
-                                    self.multicast_echoes[ifname] = time.time()
-                                    RNS.log(str(self)+" Selecting link-local address "+str(link_local_addr)+" for interface "+str(ifname), RNS.LOG_EXTREME)
+                    if len(self.allowed_interfaces) > 0 and not ifname in self.allowed_interfaces:
+                        RNS.log(str(self)+" ignoring interface "+str(ifname)+" since it was not allowed", RNS.LOG_EXTREME)
+                    else:
+                        addresses = self.list_addresses(ifname)
+                        if self.netinfo.AF_INET6 in addresses:
+                            link_local_addr = None
+                            for address in addresses[self.netinfo.AF_INET6]:
+                                if "addr" in address:
+                                    if address["addr"].startswith("fe80:"):
+                                        link_local_addr = self.descope_linklocal(address["addr"])
+                                        self.link_local_addresses.append(link_local_addr)
+                                        self.adopted_interfaces[ifname] = link_local_addr
+                                        self.multicast_echoes[ifname] = time.time()
+                                        nice_name = self.netinfo.interface_name_to_nice_name(ifname)
+                                        if nice_name != None and nice_name != ifname:
+                                            RNS.log(f"{self} Selecting link-local address {link_local_addr} for interface {nice_name} / {ifname}", RNS.LOG_EXTREME)
+                                        else:
+                                            RNS.log(f"{self} Selecting link-local address {link_local_addr} for interface {ifname}", RNS.LOG_EXTREME)
 
-                        if link_local_addr == None:
-                            RNS.log(str(self)+" No link-local IPv6 address configured for "+str(ifname)+", skipping interface", RNS.LOG_EXTREME)
-                        else:
-                            mcast_addr = self.mcast_discovery_address
-                            RNS.log(str(self)+" Creating multicast discovery listener on "+str(ifname)+" with address "+str(mcast_addr), RNS.LOG_EXTREME)
-
-                            # Struct with interface index
-                            if_struct = struct.pack("I", self.interface_name_to_index(ifname))
-
-                            # Set up multicast socket
-                            discovery_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
-                            discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                            if hasattr(socket, "SO_REUSEPORT"):
-                                discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-                            discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, if_struct)
-
-                            # Join multicast group
-                            mcast_group = socket.inet_pton(socket.AF_INET6, mcast_addr) + if_struct
-                            discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mcast_group)
-
-                            # Bind socket
-                            if RNS.vendor.platformutils.is_windows():
-
-                                # window throws "[WinError 10049] The requested address is not valid in its context"
-                                # when trying to use the multicast address as host, or when providing interface index
-                                # passing an empty host appears to work, but probably not exactly how we want it to...
-                                discovery_socket.bind(('', self.discovery_port))
-
+                            if link_local_addr == None:
+                                RNS.log(str(self)+" No link-local IPv6 address configured for "+str(ifname)+", skipping interface", RNS.LOG_EXTREME)
                             else:
+                                mcast_addr = self.mcast_discovery_address
+                                RNS.log(str(self)+" Creating multicast discovery listener on "+str(ifname)+" with address "+str(mcast_addr), RNS.LOG_EXTREME)
 
-                                if self.discovery_scope == AutoInterface.SCOPE_LINK:
-                                    addr_info = socket.getaddrinfo(mcast_addr+"%"+ifname, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                                # Struct with interface index
+                                if_struct = struct.pack("I", self.interface_name_to_index(ifname))
+
+                                # Set up multicast socket
+                                discovery_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+                                discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                                if hasattr(socket, "SO_REUSEPORT"):
+                                    discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                                discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, if_struct)
+
+                                # Join multicast group
+                                mcast_group = socket.inet_pton(socket.AF_INET6, mcast_addr) + if_struct
+                                discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mcast_group)
+
+                                # Bind socket
+                                if RNS.vendor.platformutils.is_windows():
+
+                                    # window throws "[WinError 10049] The requested address is not valid in its context"
+                                    # when trying to use the multicast address as host, or when providing interface index
+                                    # passing an empty host appears to work, but probably not exactly how we want it to...
+                                    discovery_socket.bind(('', self.discovery_port))
+
                                 else:
-                                    addr_info = socket.getaddrinfo(mcast_addr, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
 
-                                discovery_socket.bind(addr_info[0][4])
+                                    if self.discovery_scope == AutoInterface.SCOPE_LINK:
+                                        addr_info = socket.getaddrinfo(mcast_addr+"%"+ifname, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                                    else:
+                                        addr_info = socket.getaddrinfo(mcast_addr, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
 
-                            # Set up thread for discovery packets
-                            def discovery_loop():
-                                self.discovery_handler(discovery_socket, ifname)
+                                    discovery_socket.bind(addr_info[0][4])
 
-                            thread = threading.Thread(target=discovery_loop)
-                            thread.daemon = True
-                            thread.start()
+                                # Set up thread for discovery packets
+                                def discovery_loop():
+                                    self.discovery_handler(discovery_socket, ifname)
 
-                            suitable_interfaces += 1
+                                thread = threading.Thread(target=discovery_loop)
+                                thread.daemon = True
+                                thread.start()
+
+                                suitable_interfaces += 1
+
+            except Exception as e:
+                nice_name = self.netinfo.interface_name_to_nice_name(ifname)
+                if nice_name != None and nice_name != ifname:
+                    RNS.log(f"Could not configure the system interface {nice_name} / {ifname} for use with {self}, skipping it. The contained exception was: {e}", RNS.LOG_ERROR)
+                else:
+                    RNS.log(f"Could not configure the system interface {ifname} for use with {self}, skipping it. The contained exception was: {e}", RNS.LOG_ERROR)
 
         if suitable_interfaces == 0:
             RNS.log(str(self)+" could not autoconfigure. This interface currently provides no connectivity.", RNS.LOG_WARNING)

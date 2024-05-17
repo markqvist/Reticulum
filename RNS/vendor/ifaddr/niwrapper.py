@@ -18,6 +18,18 @@ def interface_names_to_indexes() -> dict:
         results[adapter.name] = adapter.index
     return results
 
+def interface_name_to_nice_name(ifname) -> str:
+    try:
+        adapters = RNS.vendor.ifaddr.get_adapters(include_unconfigured=True)
+        for adapter in adapters:
+            if adapter.name == ifname:
+                if hasattr(adapter, "nice_name"):
+                    return adapter.nice_name
+    except:
+        return None
+
+    return None
+
 def ifaddresses(ifname) -> dict:
     adapters = RNS.vendor.ifaddr.get_adapters(include_unconfigured=True)
     ifa = {}
