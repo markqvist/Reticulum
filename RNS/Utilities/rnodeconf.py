@@ -128,6 +128,10 @@ class ROM():
     MCU_ESP32      = 0x81
     MCU_NRF52      = 0x71
 
+    PRODUCT_RAK4631 = 0x10
+    MODEL_11       = 0x11
+    MODEL_12       = 0x12
+
     PRODUCT_RNODE  = 0x03
     MODEL_A1       = 0xA1
     MODEL_A6       = 0xA6
@@ -196,7 +200,7 @@ class ROM():
     BOARD_GENERIC_ESP32 = 0x35
     BOARD_LORA32_V2_0   = 0x36
     BOARD_LORA32_V2_1   = 0x37
-    BOARD_RAK4630       = 0x51
+    BOARD_RAK4631       = 0x51
 
 mapped_product = ROM.PRODUCT_RNODE
 products = {
@@ -208,22 +212,25 @@ products = {
     ROM.PRODUCT_T32_21: "LilyGO LoRa32 v2.1",
     ROM.PRODUCT_H32_V2: "Heltec LoRa32 v2",
     ROM.PRODUCT_H32_V3: "Heltec LoRa32 v3",
+    ROM.PRODUCT_RAK4631: "RAK4631",
 }
 
 platforms = {
     ROM.PLATFORM_AVR: "AVR",
     ROM.PLATFORM_ESP32:"ESP32",
-    ROM.PLATFORM_NRF52:"NRF52",
+    ROM.PLATFORM_NRF52: "NRF52",
 }
 
 mcus = {
     ROM.MCU_1284P: "ATmega1284P",
     ROM.MCU_2560:"ATmega2560",
     ROM.MCU_ESP32:"Espressif Systems ESP32",
-    ROM.MCU_NRF52:"Nordic nRF52840",
+    ROM.MCU_NRF52: "Nordic Semiconductor nRF52840",
 }
 
 models = {
+    0x11: [430000000, 510000000, 22, "430 - 510 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
+    0x12: [779000000, 928000000, 22, "779 - 928 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
     0xA4: [410000000, 525000000, 14, "410 - 525 MHz", "rnode_firmware.hex", "SX1278"],
     0xA9: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware.hex", "SX1276"],
     0xA1: [410000000, 525000000, 22, "410 - 525 MHz", "rnode_firmware_t3s3.zip", "SX1268"],
@@ -306,6 +313,7 @@ class RNode():
         self.bandwidth = None
 
         self.detected = None
+        self.usb_serial_id = None
 
         self.platform = None
         self.mcu = None
@@ -738,6 +746,10 @@ class RNode():
         if written != len(kiss_command):
             raise IOError("An IO error occurred while wiping EEPROM")
         sleep(13);
+        # Due to the current janky emulated EEPROM implementation for the
+        # RAK4631, extra time must be given to allow for writing.
+        if self.board == ROM.BOARD_RAK4631:
+            sleep(10)
 
     def hard_reset(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_RESET, 0xf8, KISS.FEND])
@@ -1405,6 +1417,7 @@ def main():
                 graceful_exit()
 
             rnode = RNode(rnode_serial)
+            rnode.usb_serial_id = port_serialno
             thread = threading.Thread(target=rnode.readLoop, daemon=True).start()
             try:
                 rnode.device_probe()
@@ -1417,54 +1430,58 @@ def main():
             else:
                 RNS.log("Could not detect a connected RNode")
 
-            if rnode.provisioned:
-                if not rnode.signature_valid:
-                    print("\nThe device signature in this RNode is unknown and cannot be verified. It is still")
-                    print("possible to extract the firmware from it, but you should make absolutely sure that")
-                    print("it comes from a trusted source. It is possible that someone could have modified the")
-                    print("firmware. If that is the case, these modifications will propagate to any new RNodes")
-                    print("descendent from this one!")
-                    print("\nHit enter if you are sure you want to continue.")
-                    input()
+            if rnode.platform == ROM.PLATFORM_ESP32:
+                if rnode.provisioned:
+                    if not rnode.signature_valid:
+                        print("\nThe device signature in this RNode is unknown and cannot be verified. It is still")
+                        print("possible to extract the firmware from it, but you should make absolutely sure that")
+                        print("it comes from a trusted source. It is possible that someone could have modified the")
+                        print("firmware. If that is the case, these modifications will propagate to any new RNodes")
+                        print("descendent from this one!")
+                        print("\nHit enter if you are sure you want to continue.")
+                        input()
 
-                if rnode.firmware_hash != None:
-                    extracted_hash = rnode.firmware_hash
-                    extracted_version = rnode.version
-                    rnode.disconnect()
-                    v_str = str(extracted_version)+" "+RNS.hexrep(extracted_hash, delimit=False)
-                    print("\nFound RNode Firmvare v"+v_str)
+                    if rnode.firmware_hash != None:
+                        extracted_hash = rnode.firmware_hash
+                        extracted_version = rnode.version
+                        rnode.disconnect()
+                        v_str = str(extracted_version)+" "+RNS.hexrep(extracted_hash, delimit=False)
+                        print("\nFound RNode Firmvare v"+v_str)
 
-                    print("\nReady to extract firmware images from the RNode")
-                    print("Press enter to start the extraction process")
-                    input()
-                    extract_recovery_esptool()
+                        print("\nReady to extract firmware images from the RNode")
+                        print("Press enter to start the extraction process")
+                        input()
+                        extract_recovery_esptool()
 
-                    hash_f = open(EXT_DIR+"/extracted_rnode_firmware.version", "wb")
-                    hash_f.write(v_str.encode("utf-8"))
-                    hash_f.close()
+                        hash_f = open(EXT_DIR+"/extracted_rnode_firmware.version", "wb")
+                        hash_f.write(v_str.encode("utf-8"))
+                        hash_f.close()
 
-                    extraction_parts = [
-                        ("bootloader", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0x1000 0x4650 \""+EXT_DIR+"/extracted_rnode_firmware.bootloader\""),
-                        ("partition table", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0x8000 0xC00 \""+EXT_DIR+"/extracted_rnode_firmware.partitions\""),
-                        ("app boot", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0xe000 0x2000 \""+EXT_DIR+"/extracted_rnode_firmware.boot_app0\""),
-                        ("application image", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0x10000 0x200000 \""+EXT_DIR+"/extracted_rnode_firmware.bin\""),
-                        ("console image", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0x210000 0x1F0000 \""+EXT_DIR+"/extracted_console_image.bin\""),
-                    ]
-                    import subprocess, shlex
-                    for part, command in extraction_parts:
-                        print("Extracting "+part+"...")
-                        if subprocess.call(shlex.split(command), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) != 0:
-                            print("The extraction failed, the following command did not complete successfully:\n"+command)
-                            graceful_exit(182)
+                        extraction_parts = [
+                            ("bootloader", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0x1000 0x4650 \""+EXT_DIR+"/extracted_rnode_firmware.bootloader\""),
+                            ("partition table", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0x8000 0xC00 \""+EXT_DIR+"/extracted_rnode_firmware.partitions\""),
+                            ("app boot", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0xe000 0x2000 \""+EXT_DIR+"/extracted_rnode_firmware.boot_app0\""),
+                            ("application image", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0x10000 0x200000 \""+EXT_DIR+"/extracted_rnode_firmware.bin\""),
+                            ("console image", "python \""+CNF_DIR+"/recovery_esptool.py\" --chip esp32 --port "+port_path+" --baud "+args.baud_flash+" --before default_reset --after hard_reset read_flash 0x210000 0x1F0000 \""+EXT_DIR+"/extracted_console_image.bin\""),
+                        ]
+                        import subprocess, shlex
+                        for part, command in extraction_parts:
+                            print("Extracting "+part+"...")
+                            if subprocess.call(shlex.split(command), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) != 0:
+                                print("The extraction failed, the following command did not complete successfully:\n"+command)
+                                exit(182)
 
-                    print("\nFirmware successfully extracted!")
-                    print("\nYou can now use this firmware to update or autoinstall other RNodes")
-                    graceful_exit()
-                else:
-                    print("Could not read firmware information from device")
+                        print("\nFirmware successfully extracted!")
+                        print("\nYou can now use this firmware to update or autoinstall other RNodes")
+                        exit()
+                    else:
+                        print("Could not read firmware information from device")
 
-            print("\nRNode firmware extraction failed")
-            graceful_exit(180)
+                print("\nRNode firmware extraction failed")
+                graceful_exit(180)
+            else:
+                print("\nFirmware extraction is currently only supported on ESP32-based RNodes.")
+                graceful_exit(170)
 
         if args.autoinstall:
             clear()
@@ -1538,6 +1555,7 @@ def main():
                 graceful_exit()
 
             rnode = RNode(rnode_serial)
+            rnode.usb_serial_id = port_serialno
             thread = threading.Thread(target=rnode.readLoop, daemon=True).start()
             try:
                 rnode.device_probe()
@@ -1582,6 +1600,7 @@ def main():
             print("[7] Heltec LoRa32 v2")
             print("[8] Heltec LoRa32 v3")
             #print("[9] LilyGO LoRa T3S3")
+            print("[10] RAK4631")
             print("       .")
             print("      / \\   Select one of these options if you want to easily turn")
             print("       |    a supported development board into an RNode.")
@@ -1593,7 +1612,7 @@ def main():
             try:
                 c_dev = int(input())
                 c_mod = False
-                if c_dev < 1 or c_dev > 9:
+                if c_dev < 1 or c_dev > 10:
                     raise ValueError()
                 elif c_dev == 1:
                     selected_product = ROM.PRODUCT_RNODE
@@ -1722,6 +1741,15 @@ def main():
                     print("")
                     print("Please note that Bluetooth is currently not implemented on this board.")
                     print("")
+                elif c_dev == 10:
+                    selected_product = ROM.PRODUCT_RAK4631
+                    clear()
+                    print("")
+                    print("---------------------------------------------------------------------------")
+                    print("                     RAK4631 RNode Installer")
+                    print("")
+                    print("Important! Using RNode firmware on RAKwireless devices should currently be")
+                    print("considered experimental. It is not intended for production or critical use.")
                     print("The currently supplied firmware is provided AS-IS as a courtesey to those")
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
@@ -1974,11 +2002,6 @@ def main():
             elif selected_product == ROM.PRODUCT_H32_V3:
                 selected_mcu = ROM.MCU_ESP32
                 print("\nWhat band is this Heltec LoRa32 V3 for?\n")
-                print("[1] 433 MHz")
-                print("[2] 868 MHz")
-                print("[3] 915 MHz")
-                print("[4] 923 MHz")
-                print("\n? ", end="")
                 try:
                     c_model = int(input())
                     if c_model < 1 or c_model > 4:
@@ -1989,6 +2012,27 @@ def main():
                     elif c_model > 1:
                         selected_model = ROM.MODEL_CA
                         selected_platform = ROM.PLATFORM_ESP32
+                except Exception as e:
+                    print("That band does not exist, exiting now.")
+                    exit()
+            elif selected_product == ROM.PRODUCT_RAK4631:
+                selected_mcu = ROM.MCU_NRF52
+                print("\nWhat band is this RAK4631 for?\n")
+                print("[1] 433 MHz")
+                print("[2] 868 MHz")
+                print("[3] 915 MHz")
+                print("[4] 923 MHz")
+                print("\n? ", end="")
+                try:
+                    c_model = int(input())
+                    if c_model < 1 or c_model > 4:
+                        raise ValueError()
+                    elif c_model == 1:
+                        selected_model = ROM.MODEL_11
+                        selected_platform = ROM.PLATFORM_NRF52
+                    elif c_model > 1:
+                        selected_model = ROM.MODEL_12
+                        selected_platform = ROM.PLATFORM_NRF52
                 except Exception as e:
                     print("That band does not exist, exiting now.")
                     graceful_exit()
@@ -2178,16 +2222,26 @@ def main():
             if not args.autoinstall:
                 graceful_exit()
 
-        def get_partition_hash(partition_file):
+        def get_partition_hash(platform, partition_file):
             try:
-                firmware_data = open(partition_file, "rb").read()
-                calc_hash = hashlib.sha256(firmware_data[0:-32]).digest()
-                part_hash = firmware_data[-32:]
+                if platform == ROM.PLATFORM_ESP32 or platform == ROM.PLATFORM_AVR:
+                    firmware_data = open(partition_file, "rb").read()
+                    # Calculate the digest manually and see if it matches the
+                    # SHA256 digest included in the ESP32 image.
+                    calc_hash = hashlib.sha256(firmware_data[0:-32]).digest()
+                    part_hash = firmware_data[-32:]
 
-                if calc_hash == part_hash:
-                    return part_hash
-                else:
-                    return None
+                    if calc_hash == part_hash:
+                        return part_hash
+                    else:
+                        return None
+                
+                elif platform == ROM.PLATFORM_NRF52:
+                    # Calculate digest manually, as it is not included in the image.
+                    firmware_data = open(partition_file, "rb")
+                    hash = hashlib.file_digest(firmware_data, 'sha256').digest()
+                    firmware_data.close()
+                    return hash
             except Exception as e:
                 RNS.log("Could not calculate firmware partition hash. The contained exception was:")
                 RNS.log(str(e))
@@ -2689,6 +2743,21 @@ def main():
                     RNS.log("Please install \""+flasher+"\" and try again.")
                     graceful_exit()
 
+            elif platform == ROM.PLATFORM_NRF52:
+                flasher = "adafruit-nrfutil"
+                if which(flasher) is not None:
+                    return [flasher, "dfu", "serial", "--package", UPD_DIR+"/"+selected_version+"/"+fw_filename, "-p", args.port, "-b", "115200", "-t", "1200"]
+                else:
+                    RNS.log("")
+                    RNS.log("You do not currently have the \""+flasher+"\" program installed on your system.")
+                    RNS.log("Unfortunately, that means we can't proceed, since it is needed to flash your")
+                    RNS.log("board. You can install it via your package manager, for example:")
+                    RNS.log("")
+                    RNS.log("  pip3 install --user adafruit-nrfutil")
+                    RNS.log("")
+                    RNS.log("Please install \""+flasher+"\" and try again.")
+                    graceful_exit()
+
         if args.port:
             wants_fw_provision = False
             if args.flash:
@@ -2750,6 +2819,11 @@ def main():
                                     wants_fw_provision = True
                                     RNS.log("Waiting for ESP32 reset...")
                                     time.sleep(7)
+                                if args.platform == ROM.PLATFORM_NRF52:
+                                    wants_fw_provision = True
+                                    RNS.log("Waiting for NRF52 reset...")
+                                    # Don't need to wait as long this time.
+                                    time.sleep(5)
                             else:
                                 RNS.log("Error from flasher ("+str(flash_status)+") while writing.")
                                 RNS.log("Some boards have trouble flashing at high speeds, and you can")
@@ -2775,6 +2849,11 @@ def main():
                 graceful_exit()
 
             rnode = RNode(rnode_serial)
+            ports = list_ports.comports()
+            for port in ports:
+                if port.device == args.port:
+                    rnode.usb_serial_id = port.serial_number
+                    break
             thread = threading.Thread(target=rnode.readLoop, daemon=True).start()
 
             try:
@@ -2793,6 +2872,8 @@ def main():
             if args.eeprom_wipe:
                 RNS.log("WARNING: EEPROM is being wiped! Power down device NOW if you do not want this!")
                 rnode.wipe_eeprom()
+
+                # TODO: Add conditional for avoiding this reset on nRF
                 rnode.hard_reset()
                 graceful_exit()
 
@@ -2816,8 +2897,12 @@ def main():
                                 fw_filename = "rnode_firmware_featheresp32.zip"
                             elif rnode.board == ROM.BOARD_GENERIC_ESP32:
                                 fw_filename = "rnode_firmware_esp32_generic.zip"
+                        elif rnode.platform == ROM.PLATFORM_NRF52:
+                            if rnode.board == ROM.BOARD_RAK4631:
+                                fw_filename = "rnode_firmware_rak4631.zip"
                             else:
                                 fw_filename = None
+
                                 if args.update:
                                     RNS.log("ERROR: No firmware found for this board. Cannot update.")
                                     graceful_exit()
@@ -2898,11 +2983,15 @@ def main():
                                 partition_full_path = EXT_DIR+"/extracted_rnode_firmware.bin"
                             else:
                                 partition_full_path = UPD_DIR+"/"+selected_version+"/"+partition_filename
-                            partition_hash = get_partition_hash(partition_full_path)
+                            partition_hash = get_partition_hash(rnode.platform, partition_full_path)
                         if partition_hash != None:
                             rnode.set_firmware_hash(partition_hash)
                             rnode.indicate_firmware_update()
                             sleep(1)
+
+                            if rnode.platform == ROM.PLATFORM_NRF52:
+                                # Allow extra time for writing to EEPROM on NRF52. Current implementation is slow.
+                                sleep(14)
 
                         rnode.disconnect()
                         flash_status = call(get_flasher_call(rnode.platform, fw_filename))
@@ -3095,6 +3184,27 @@ def main():
                         if rnode.platform == ROM.PLATFORM_ESP32:
                             RNS.log("Waiting for ESP32 reset...")
                             time.sleep(6)
+                        elif rnode.platform == ROM.PLATFORM_NRF52:
+                            rnode_serial.close()
+                            RNS.log("Waiting for NRF52 reset...")
+                            time.sleep(14)
+                            selected_port = None
+                            ports = list_ports.comports()
+                            for port in ports:
+                                if port.serial_number == rnode.usb_serial_id:
+                                    selected_port = port
+                                    break
+                            if selected_port is None:
+                                RNS.log("Could not detect new port for NRF52...")
+                            else:
+                                try:
+                                    rnode_serial = rnode_open_serial(selected_port.device)
+                                    rnode.serial = rnode_serial
+                                    thread = threading.Thread(target=rnode.readLoop, daemon=True).start()
+                                except Exception as e:
+                                    RNS.log("Could not open the specified serial port. The contained exception was:")
+                                    RNS.log(str(e))
+                                    exit()
                         else:
                             time.sleep(3)
 
@@ -3119,6 +3229,8 @@ def main():
                     if args.product != None:
                         if args.product == "03":
                             mapped_product = ROM.PRODUCT_RNODE
+                        elif args.product == "10":
+                            mapped_product = ROM.PRODUCT_RAK4631
                         elif args.product == "f0":
                             mapped_product = ROM.PRODUCT_HMBRW
                         elif args.product == "e0":
@@ -3135,7 +3247,11 @@ def main():
                         else:
                             model = mapped_model
                     else:
-                        if args.model == "a4":
+                        if args.model == "11":
+                            model = ROM.MODEL_11
+                        elif args.model == "12":
+                            model = ROM.MODEL_12
+                        elif args.model == "a4":
                             model = ROM.MODEL_A4
                         elif args.model == "a9":
                             model = ROM.MODEL_A9
@@ -3248,7 +3364,9 @@ def main():
                                 time.sleep(0.006)
 
                             rnode.write_eeprom(ROM.ADDR_INFO_LOCK, ROM.INFO_LOCK_BYTE)
-
+                            if rnode.platform == ROM.PLATFORM_NRF52:
+                                # Allow extra time for writing to EEPROM on NRF52. Current implementation is slow.
+                                sleep(3)
                             RNS.log("EEPROM written! Validating...")
 
                             if wants_fw_provision:
@@ -3262,17 +3380,57 @@ def main():
                                     vf.close()
                                 else:
                                     partition_filename = fw_filename.replace(".zip", ".bin")
-                                    partition_hash = get_partition_hash(UPD_DIR+"/"+selected_version+"/"+partition_filename)
+                                    partition_hash = get_partition_hash(rnode.platform, UPD_DIR+"/"+selected_version+"/"+partition_filename)
 
                                 if partition_hash != None:
                                     time.sleep(0.75)
                                     RNS.log("Setting firmware checksum...")
                                     rnode.set_firmware_hash(partition_hash)
 
-                            rnode.hard_reset()
                             if rnode.platform == ROM.PLATFORM_ESP32:
+                                rnode.hard_reset()
                                 RNS.log("Waiting for ESP32 reset...")
                                 time.sleep(6.5)
+
+                            elif rnode.platform == ROM.PLATFORM_NRF52:
+                                rnode.hard_reset()
+                                # The hard reset on this platform is different
+                                # to that of the ESP32 platform, it causes
+                                # disruption to the serial connection.
+                                # Therefore, we have to reestablish the serial
+                                # connection after the reset.
+                                rnode_serial.close()
+                                RNS.log("Waiting for NRF52 reset...")
+
+                                # Give plenty of time for to allow for
+                                # potential e-ink display refresh too.
+                                time.sleep(14)
+
+                                # After the hard reset, the port number will
+                                # change. We need to find the new port number,
+                                # which can be done non-interactively by
+                                # comparing the USB serial numbers of the
+                                # original port and the one we are currently
+                                # iterating.
+                                selected_port = None
+                                ports = list_ports.comports()
+                                for port in ports:
+                                    if port.serial_number == rnode.usb_serial_id:
+                                        selected_port = port
+                                        break
+                                if selected_port is None:
+                                    RNS.log("Could not detect new port for NRF52...")
+                                else:
+                                    try:
+                                        rnode_serial = rnode_open_serial(selected_port.device)
+                                        rnode.serial = rnode_serial
+                                        thread = threading.Thread(target=rnode.readLoop, daemon=True).start()
+                                    except Exception as e:
+                                        RNS.log("Could not open the specified serial port. The contained exception was:")
+                                        RNS.log(str(e))
+                                        exit()
+                            else:
+                                rnode.hard_reset()
 
                             rnode.download_eeprom()
                             if rnode.provisioned:
