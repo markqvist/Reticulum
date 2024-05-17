@@ -77,6 +77,15 @@ class AutoInterface(Interface):
         ifas = self.netinfo.ifaddresses(ifname)
         return ifas
 
+    def interface_name_to_index(self, ifname):
+
+        # socket.if_nametoindex doesn't work with uuid interface names on windows, it wants the ethernet_0 style
+        # we will just get the index from netinfo instead as it seems to work
+        if RNS.vendor.platformutils.is_windows():
+            return self.netinfo.interface_names_to_indexes()[ifname]
+
+        return socket.if_nametoindex(ifname)
+
     def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, multicast_address_type=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None, configured_bitrate=None):
         from RNS.vendor.ifaddr import niwrapper
         super().__init__()
@@ -205,7 +214,7 @@ class AutoInterface(Interface):
                             RNS.log(str(self)+" Creating multicast discovery listener on "+str(ifname)+" with address "+str(mcast_addr), RNS.LOG_EXTREME)
 
                             # Struct with interface index
-                            if_struct = struct.pack("I", socket.if_nametoindex(ifname))
+                            if_struct = struct.pack("I", self.interface_name_to_index(ifname))
 
                             # Set up multicast socket
                             discovery_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
@@ -219,12 +228,21 @@ class AutoInterface(Interface):
                             discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mcast_group)
 
                             # Bind socket
-                            if self.discovery_scope == AutoInterface.SCOPE_LINK:
-                                addr_info = socket.getaddrinfo(mcast_addr+"%"+ifname, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
-                            else:
-                                addr_info = socket.getaddrinfo(mcast_addr, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                            if RNS.vendor.platformutils.is_windows():
 
-                            discovery_socket.bind(addr_info[0][4])
+                                # window throws "[WinError 10049] The requested address is not valid in its context"
+                                # when trying to use the multicast address as host, or when providing interface index
+                                # passing an empty host appears to work, but probably not exactly how we want it to...
+                                discovery_socket.bind(('', self.discovery_port))
+
+                            else:
+
+                                if self.discovery_scope == AutoInterface.SCOPE_LINK:
+                                    addr_info = socket.getaddrinfo(mcast_addr+"%"+ifname, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                                else:
+                                    addr_info = socket.getaddrinfo(mcast_addr, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+
+                                discovery_socket.bind(addr_info[0][4])
 
                             # Set up thread for discovery packets
                             def discovery_loop():
@@ -253,7 +271,7 @@ class AutoInterface(Interface):
             socketserver.UDPServer.address_family = socket.AF_INET6
 
             for ifname in self.adopted_interfaces:
-                local_addr = self.adopted_interfaces[ifname]+"%"+ifname
+                local_addr = self.adopted_interfaces[ifname]+"%"+str(self.interface_name_to_index(ifname))
                 addr_info = socket.getaddrinfo(local_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
                 address = addr_info[0][4]
 
@@ -380,7 +398,7 @@ class AutoInterface(Interface):
             announce_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
             addr_info = socket.getaddrinfo(self.mcast_discovery_address, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
 
-            ifis = struct.pack("I", socket.if_nametoindex(ifname))
+            ifis = struct.pack("I", self.interface_name_to_index(ifname))
             announce_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, ifis)
             announce_socket.sendto(discovery_token, addr_info[0][4])
             announce_socket.close()
@@ -433,8 +451,8 @@ class AutoInterface(Interface):
                 try:
                     if self.outbound_udp_socket == None:
                         self.outbound_udp_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
-                    
-                    peer_addr = str(peer)+"%"+str(self.peers[peer][0])
+
+                    peer_addr = str(peer)+"%"+str(self.interface_name_to_index(self.peers[peer][0]))
                     addr_info = socket.getaddrinfo(peer_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
                     self.outbound_udp_socket.sendto(data, addr_info[0][4])
 

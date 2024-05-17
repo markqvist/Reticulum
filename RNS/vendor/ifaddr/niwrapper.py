@@ -11,6 +11,13 @@ def interfaces() -> List[str]:
     adapters = RNS.vendor.ifaddr.get_adapters(include_unconfigured=True)
     return [a.name for a in adapters]
 
+def interface_names_to_indexes() -> dict:
+    adapters = RNS.vendor.ifaddr.get_adapters(include_unconfigured=True)
+    results = {}
+    for adapter in adapters:
+        results[adapter.name] = adapter.index
+    return results
+
 def ifaddresses(ifname) -> dict:
     adapters = RNS.vendor.ifaddr.get_adapters(include_unconfigured=True)
     ifa = {}
