@@ -324,6 +324,7 @@ class RNode():
         self.checksum = None
         self.device_hash = None
         self.firmware_hash = None
+        self.firmware_hash_target = None
         self.signature = None
         self.signature_valid = False
         self.locally_signed = False
@@ -471,6 +472,8 @@ class RNode():
                                     escape = False
                                 command_buffer = command_buffer+bytes([byte])
                                 if (len(command_buffer) == 33):
+                                    if command_buffer[0] == 0x01:
+                                        self.firmware_hash_target = command_buffer[1:]
                                     if command_buffer[0] == 0x02:
                                         self.firmware_hash = command_buffer[1:]
 
@@ -588,7 +591,7 @@ class RNode():
         self.version = str(self.major_version)+"."+minstr
 
     def detect(self):
-        kiss_command = bytes([KISS.FEND, KISS.CMD_DETECT, KISS.DETECT_REQ, KISS.FEND, KISS.CMD_FW_VERSION, 0x00, KISS.FEND, KISS.CMD_PLATFORM, 0x00, KISS.FEND, KISS.CMD_MCU, 0x00, KISS.FEND, KISS.CMD_BOARD, 0x00, KISS.FEND, KISS.CMD_DEV_HASH, 0x01, KISS.FEND, KISS.CMD_HASHES, 0x02, KISS.FEND])
+        kiss_command = bytes([KISS.FEND, KISS.CMD_DETECT, KISS.DETECT_REQ, KISS.FEND, KISS.CMD_FW_VERSION, 0x00, KISS.FEND, KISS.CMD_PLATFORM, 0x00, KISS.FEND, KISS.CMD_MCU, 0x00, KISS.FEND, KISS.CMD_BOARD, 0x00, KISS.FEND, KISS.CMD_DEV_HASH, 0x01, KISS.FEND, KISS.CMD_HASHES, 0x01, KISS.FEND, KISS.CMD_HASHES, 0x02, KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while detecting hardware for "+self(str))
@@ -1249,6 +1252,8 @@ def main():
         parser.add_argument("-k", "--key", action="store_true", help="Generate a new signing key and exit") # 
         parser.add_argument("-S", "--sign", action="store_true", help="Display public part of signing key")
         parser.add_argument("-H", "--firmware-hash", action="store", help="Display installed firmware hash")
+        parser.add_argument("-K", "--get-target-firmware-hash", action="store_true", help=argparse.SUPPRESS) # Get target firmware hash from device
+        parser.add_argument("-L", "--get-firmware-hash", action="store_true", help=argparse.SUPPRESS) # Get calculated firmware hash from device
         parser.add_argument("--platform", action="store", metavar="platform", type=str, default=None, help="Platform specification for device bootstrap")
         parser.add_argument("--product", action="store", metavar="product", type=str, default=None, help="Product specification for device bootstrap") # 
         parser.add_argument("--model", action="store", metavar="model", type=str, default=None, help="Model code for device bootstrap")
@@ -3366,6 +3371,22 @@ def main():
                 else:
                     RNS.log("This device has not been provisioned yet, cannot set firmware hash")
                     graceful_exit(77)
+
+            if args.get_target_firmware_hash:
+                if rnode.provisioned:
+                    RNS.log(f"The target firmware hash is: {rnode.firmware_hash_target.hex()}")
+
+                else:
+                    RNS.log("This device has not been provisioned yet, cannot get firmware hash")
+                    exit(77)
+                
+            if args.get_firmware_hash:
+                if rnode.provisioned:
+                    RNS.log(f"The actual firmware hash is: {rnode.firmware_hash.hex()}")
+
+                else:
+                    RNS.log("This device has not been provisioned yet, cannot get firmware hash")
+                    exit(77)
 
             if rnode.provisioned:
                 if args.normal:
