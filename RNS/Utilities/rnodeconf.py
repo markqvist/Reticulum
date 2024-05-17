@@ -2873,8 +2873,9 @@ def main():
                 RNS.log("WARNING: EEPROM is being wiped! Power down device NOW if you do not want this!")
                 rnode.wipe_eeprom()
 
-                # TODO: Add conditional for avoiding this reset on nRF
-                rnode.hard_reset()
+                if rnode.platform != ROM.PLATFORM_NRF52:
+                    rnode.hard_reset()
+
                 graceful_exit()
 
             RNS.log("Reading EEPROM...")
