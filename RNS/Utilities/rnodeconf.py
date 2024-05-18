@@ -202,6 +202,8 @@ class ROM():
     BOARD_LORA32_V2_1   = 0x37
     BOARD_RAK4631       = 0x51
 
+    MANUAL_FLASH_MODELS = [MODEL_A1, MODEL_A6]
+
 mapped_product = ROM.PRODUCT_RNODE
 products = {
     ROM.PRODUCT_RNODE:  "RNode",
@@ -1599,7 +1601,7 @@ def main():
             print("[6] LilyGO T-Beam")
             print("[7] Heltec LoRa32 v2")
             print("[8] Heltec LoRa32 v3")
-            #print("[9] LilyGO LoRa T3S3")
+            print("[9] LilyGO LoRa T3S3")
             print("[10] RAK4631")
             print("       .")
             print("      / \\   Select one of these options if you want to easily turn")
@@ -1704,10 +1706,6 @@ def main():
                     print("Important! Using RNode firmware on Heltec devices should currently be")
                     print("considered experimental. It is not intended for production or critical use.")
                     print("")
-                    print("Please also note that a number of users have reported issues with the serial")
-                    print("to USB chips on Heltec LoRa V2 boards, resulting in intermittent USB comms")
-                    print("and problems flashing and updating devices.")
-                    print("")
                     print("The currently supplied firmware is provided AS-IS as a courtesey to those")
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
@@ -1741,6 +1739,10 @@ def main():
                     print("")
                     print("Please note that Bluetooth is currently not implemented on this board.")
                     print("")
+                    print("The currently supplied firmware is provided AS-IS as a courtesey to those")
+                    print("who would like to experiment with it. Hit enter to continue.")
+                    print("---------------------------------------------------------------------------")
+                    input()
                 elif c_dev == 10:
                     selected_product = ROM.PRODUCT_RAK4631
                     clear()
@@ -1979,7 +1981,7 @@ def main():
 
             elif selected_product == ROM.PRODUCT_H32_V2:
                 selected_mcu = ROM.MCU_ESP32
-                print("\nWhat band is this Heltec LoRa32 for?\n")
+                print("\nWhat band is this Heltec LoRa32 V2 for?\n")
                 print("[1] 433 MHz")
                 print("[2] 868 MHz")
                 print("[3] 915 MHz")
@@ -2002,6 +2004,10 @@ def main():
             elif selected_product == ROM.PRODUCT_H32_V3:
                 selected_mcu = ROM.MCU_ESP32
                 print("\nWhat band is this Heltec LoRa32 V3 for?\n")
+                print("[1] 433 MHz")
+                print("[2] 868 MHz")
+                print("[3] 915 MHz")
+                print("[4] 923 MHz")
                 try:
                     c_model = int(input())
                     if c_model < 1 or c_model > 4:
@@ -2773,6 +2779,13 @@ def main():
                     RNS.log("Missing parameters, cannot continue")
                     graceful_exit(68)
 
+                if selected_model in ROM.MANUAL_FLASH_MODELS:
+                    RNS.log("")
+                    RNS.log("Please put the board into flashing mode now, by holding the BOOT or PRG button,")
+                    RNS.log("while momentarily pressing the RESET button. Then release the BOOT or PRG button.")
+                    RNS.log("Hit enter when this is done.")
+                    input()
+
                 if fw_filename == "extracted_rnode_firmware.zip":
                     try:
                         RNS.log("Flashing RNode firmware to device on "+args.port)
@@ -2838,6 +2851,13 @@ def main():
                     else:
                         RNS.log("Firmware file not found")
                         graceful_exit()
+
+                if selected_model in ROM.MANUAL_FLASH_MODELS:
+                    RNS.log("")
+                    RNS.log("Please take the board out of flashing mode by momentarily pressing the RESET button.")
+                    RNS.log("Hit enter when this is done.")
+                    input()
+                    sleep(2.5)
 
             RNS.log("Opening serial port "+args.port+"...")
             try:
@@ -2986,18 +3006,38 @@ def main():
                                 partition_full_path = UPD_DIR+"/"+selected_version+"/"+partition_filename
                             partition_hash = get_partition_hash(rnode.platform, partition_full_path)
                         if partition_hash != None:
+                            try:
+                                rnode.indicate_firmware_update()
+                            except Exception as e:
+                                RNS.log("Error while indicating firmware update start to board, attempting update anyway...")
                             rnode.set_firmware_hash(partition_hash)
-                            rnode.indicate_firmware_update()
                             sleep(1)
 
                             if rnode.platform == ROM.PLATFORM_NRF52:
                                 # Allow extra time for writing to EEPROM on NRF52. Current implementation is slow.
                                 sleep(14)
 
-                        rnode.disconnect()
+                        try:
+                            rnode.disconnect()
+                        except Exception as e:
+                            RNS.log("Error while gracefully disconnecting device before firmware update, attempting update anyway...")
+
+                        if rnode.model in ROM.MANUAL_FLASH_MODELS:
+                            RNS.log("")
+                            RNS.log("Please put the board into flashing mode now, by holding the BOOT or PRG button,")
+                            RNS.log("while momentarily pressing the RESET button. Then release the BOOT or PRG button.")
+                            RNS.log("Hit enter when this is done.")
+                            input()
+
                         flash_status = call(get_flasher_call(rnode.platform, fw_filename))
                         if flash_status == 0:
                             RNS.log("Flashing new firmware completed")
+                            if rnode.model in ROM.MANUAL_FLASH_MODELS:
+                                RNS.log("")
+                                RNS.log("Please take the board out of flashing mode by momentarily pressing the RESET button.")
+                                RNS.log("Hit enter when this is done.")
+                                input()
+
                             RNS.log("Opening serial port "+args.port+"...")
                             try:
                                 rnode_port = args.port
@@ -3326,10 +3366,15 @@ def main():
                                 RNS.log("No signing key found")
                                 graceful_exit()
 
-                            if model == ROM.MODEL_A1 or model == ROM.MODEL_A6:
-                                rnode.hard_reset()
-                                RNS.log("Waiting for ESP32 reset...")
-                                time.sleep(6.5)
+                            if selected_model in ROM.MANUAL_FLASH_MODELS:
+                                rnode.serial.close()
+                                RNS.log("")
+                                RNS.log("Please reset the board by momentarily pressing the RESET button.")
+                                RNS.log("Hit enter when this is done.")
+                                input()
+                                sleep(2.5)
+                                rnode_serial = rnode_open_serial(rnode_port)
+                                rnode = RNode(rnode_serial)
 
                             RNS.log("Bootstrapping device EEPROM...")
 
@@ -3368,6 +3413,7 @@ def main():
                             if rnode.platform == ROM.PLATFORM_NRF52:
                                 # Allow extra time for writing to EEPROM on NRF52. Current implementation is slow.
                                 sleep(3)
+
                             RNS.log("EEPROM written! Validating...")
 
                             if wants_fw_provision:
@@ -3433,10 +3479,21 @@ def main():
                             else:
                                 rnode.hard_reset()
 
-                            rnode.download_eeprom()
+                            if selected_model in ROM.MANUAL_FLASH_MODELS:
+                                rnode.serial.close()
+                                RNS.log("")
+                                RNS.log("Please reset the board by momentarily pressing the RESET button.")
+                                RNS.log("Hit enter when this is done.")
+                                input()
+                                rnode.provisioned = True
+                            else:
+                                rnode.download_eeprom()
+
                             if rnode.provisioned:
                                 RNS.log("EEPROM Bootstrapping successful!")
-                                rnode.hard_reset()
+                                if not selected_model in ROM.MANUAL_FLASH_MODELS:
+                                    rnode.hard_reset()
+
                                 if args.autoinstall:
                                     print("")
                                     print("RNode Firmware autoinstallation complete!")
