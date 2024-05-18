@@ -1,3 +1,21 @@
+### 2024-05-18: RNS β 0.7.5
+
+This release adds support for AutoInterface on Windows platforms, fixes a number of bugs and adds several new supported boards to `rnodeconf`. Thanks to @faragher, @jacobeva and @liamcottle who contributed to this release!
+
+**Changes**
+- Added support for AutoInterface on Windows
+- Added support for recursive path resolution for clients on roaming-mode interfaces
+- Added RAK4631 support to `rnodeconf`
+- Added LilyGO T3S3 support to `rnodeconf`
+- Added ability to get target and calculated hashes via `rnodeconf`
+- Fixed DTR timing making flashing fail on Windows in `rnodeconf`
+- Fixed various output and menu bugs in `rnodeconf`
+
+**Release Hashes**
+```
+
+```
+
 ### 2024-05-05: RNS β 0.7.4
 
 This maintenance release fixes a number of bugs, improves path requests and responses, and adds several useful features and capabilities. Thanks to @cobraPA, @jschulthess, @thiaguetz and @nothingbutlucas who contributed to this release!
