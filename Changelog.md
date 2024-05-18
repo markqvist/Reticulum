@@ -13,7 +13,8 @@ This release adds support for AutoInterface on Windows platforms, fixes a number
 
 **Release Hashes**
 ```
-
+99ec876966afdea45fcf164242c8e76c284f9e3edf09fb907638fba76e1324b1 rns-0.7.5-py3-none-any.whl
+11156f6301707e4d17ff2ca6d58059bc8ba6fe1bbc4dc3de165dd96dc41ee75f rnspure-0.7.5-py3-none-any.whl
 ```
 
 ### 2024-05-05: RNS β 0.7.4
