@@ -482,11 +482,16 @@ class Transport:
                                 # If the link destination was previously only 1 hop
                                 # away, this likely means that it was local to one
                                 # of our interfaces, and that it roamed somewhere else.
-                                # In that case, try to discover a new path.
+                                # In that case, try to discover a new path, and mark
+                                # the old one as unresponsive.
                                 elif not path_request_throttle and Transport.hops_to(link_entry[6]) == 1:
                                     RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[6])+" since an attempted link was never established, and destination was previously local to an interface on this instance", RNS.LOG_DEBUG)
                                     path_request_conditions = True
                                     blocked_if = link_entry[4]
+
+                                    if RNS.Reticulum.transport_enabled():
+                                        if hasattr(link_entry[4], "mode") and link_entry[4].mode != RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
+                                            Transport.mark_path_unresponsive(link_entry[6])
 
                                 # If the link initiator is only 1 hop away,
                                 # this likely means that network topology has
