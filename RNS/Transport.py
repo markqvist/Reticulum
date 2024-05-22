@@ -489,6 +489,15 @@ class Transport:
                                     path_request_conditions = True
                                     blocked_if = link_entry[4]
 
+                                    # TODO: This might result in the path re-resolution
+                                    # only being able to happen once, since new path found
+                                    # after allowing update from higher hop-count path, after
+                                    # marking old path unresponsive, might be more than 1 hop away,
+                                    # thus dealocking us into waiting for a new announce all-together.
+                                    # Is this problematic, or does it actually not matter?
+                                    # Best would be to have full support for alternative paths,
+                                    # and score them according to number of unsuccessful tries or
+                                    # similar.
                                     if RNS.Reticulum.transport_enabled():
                                         if hasattr(link_entry[4], "mode") and link_entry[4].mode != RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
                                             Transport.mark_path_unresponsive(link_entry[6])
