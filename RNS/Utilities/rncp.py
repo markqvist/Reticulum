@@ -33,11 +33,17 @@ from RNS._version import __version__
 
 APP_NAME = "rncp"
 allow_all = False
+allow_fetch = False
 allowed_identity_hashes = []
 
-def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identity = False, limit = None, disable_auth = None, announce = False):
-    global allow_all, allowed_identity_hashes
+REQ_FETCH_NOT_ALLOWED = 0xF0
+
+def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identity = False,
+           limit = None, disable_auth = None, fetch_allowed = False, announce = False):
+    global allow_all, allow_fetch, allowed_identity_hashes
     from tempfile import TemporaryFile
+
+    allow_fetch = fetch_allowed
     identity = None
     if announce < 0:
         announce = False
@@ -115,6 +121,10 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
         print("Warning: No allowed identities configured, rncp will not accept any files!")
 
     def fetch_request(path, data, request_id, link_id, remote_identity, requested_at):
+        global allow_fetch
+        if not allow_fetch:
+            return REQ_FETCH_NOT_ALLOWED
+
         target_link = None
         for link in RNS.Transport.active_links:
             if link.link_id == link_id:
@@ -365,6 +375,8 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
             request_status = "not_found"
         elif request_receipt.response == None:
             request_status = "remote_error"
+        elif request_receipt.response == REQ_FETCH_NOT_ALLOWED:
+            request_status = "fetch_not_allowed"
         else:
             request_status = "found"
 
@@ -422,7 +434,13 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
             sys.stdout.flush()
             i = (i+1)%len(syms)
 
-    if request_status == "not_found":
+    if request_status == "fetch_not_allowed":
+        if not silent: print("\r                                                            \r", end="")
+        print("Fetch request failed, fetching the file "+str(file)+" was not allowed by the remote")
+        link.teardown()
+        time.sleep(1)
+        exit(0)
+    elif request_status == "not_found":
         if not silent: print("\r                                                            \r", end="")
         print("Fetch request failed, the file "+str(file)+" was not found on the remote")
         link.teardown()
@@ -658,9 +676,10 @@ def main():
         parser.add_argument('-q', '--quiet', action='count', default=0, help="decrease verbosity")
         parser.add_argument("-S", '--silent', action='store_true', default=False, help="disable transfer progress output")
         parser.add_argument("-l", '--listen', action='store_true', default=False, help="listen for incoming transfer requests")
+        parser.add_argument("-F", '--allow-fetch', action='store_true', default=False, help="allow authenticated clients to fetch files")
         parser.add_argument("-f", '--fetch', action='store_true', default=False, help="fetch file from remote listener instead of sending")
         parser.add_argument("-b", action='store', metavar="seconds", default=-1, help="announce interval, 0 to only announce at startup", type=int)
-        parser.add_argument('-a', metavar="allowed_hash", dest="allowed", action='append', help="accept from this identity", type=str)
+        parser.add_argument('-a', metavar="allowed_hash", dest="allowed", action='append', help="allow this identity", type=str)
         parser.add_argument('-n', '--no-auth', action='store_true', default=False, help="accept files from anyone")
         parser.add_argument('-p', '--print-identity', action='store_true', default=False, help="print identity and destination info and exit")
         parser.add_argument("-w", action="store", metavar="seconds", type=float, help="sender timeout before giving up", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
@@ -675,6 +694,7 @@ def main():
                 verbosity=args.verbose,
                 quietness=args.quiet,
                 allowed = args.allowed,
+                fetch_allowed = args.allow_fetch,
                 display_identity=args.print_identity,
                 # limit=args.limit,
                 disable_auth=args.no_auth,
