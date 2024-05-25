@@ -1100,6 +1100,9 @@ class Reticulum:
                     if path == "first_hop_timeout":
                         rpc_connection.send(self.get_first_hop_timeout(call["destination_hash"]))
 
+                    if path == "link_count":
+                        rpc_connection.send(self.get_link_count())
+
                     if path == "packet_rssi":
                         rpc_connection.send(self.get_packet_rssi(call["packet_hash"]))
 
@@ -1348,6 +1351,16 @@ class Reticulum:
         else:
             return RNS.Transport.next_hop(destination)
 
+    def get_link_count(self):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection.send({"get": "link_count"})
+            response = rpc_connection.recv()
+            return response
+
+        else:
+            return len(RNS.Transport.link_table)
+
     def get_packet_rssi(self, packet_hash):
         if self.is_connected_to_shared_instance:
             rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
@@ -1375,7 +1388,6 @@ class Reticulum:
                     return entry[1]
 
             return None
-
 
     def get_packet_q(self, packet_hash):
         if self.is_connected_to_shared_instance:

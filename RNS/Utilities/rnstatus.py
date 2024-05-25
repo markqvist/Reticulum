@@ -46,8 +46,15 @@ def size_str(num, suffix='B'):
 
     return "%.2f%s%s" % (num, last_unit, suffix)
 
-def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False, sorting=None, sort_reverse=False):
+def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False, lstats=False, sorting=None, sort_reverse=False):
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
+
+    link_count = None
+    if lstats:
+        try:
+            link_count = reticulum.get_link_count()
+        except Exception as e:
+            pass
 
     stats = None
     try:
@@ -208,11 +215,22 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
 
                         print("    Traffic   : {txb}↑\n                {rxb}↓".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
 
+        lstr = ""
+        if link_count != None and lstats:
+            ms = "y" if link_count == 1 else "ies"
+            if "transport_id" in stats and stats["transport_id"] != None:
+                lstr = f", {link_count} entr{ms} in link table"
+            else:
+                lstr = f" {link_count} entr{ms} in link table"
+
         if "transport_id" in stats and stats["transport_id"] != None:
             print("\n Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" running")
             if "probe_responder" in stats and stats["probe_responder"] != None:
                 print(" Probe responder at "+RNS.prettyhexrep(stats["probe_responder"])+ " active")
-            print(" Uptime is "+RNS.prettytime(stats["transport_uptime"]))
+            print(" Uptime is "+RNS.prettytime(stats["transport_uptime"])+lstr)
+        else:
+            if lstr != "":
+                print(f"\n{lstr}")
 
         print("")
                 
@@ -239,6 +257,14 @@ def main():
             action="store_true",
             help="show announce stats",
             default=False
+        )
+        
+        parser.add_argument(
+            "-l",
+            "--link-stats",
+            action="store_true",
+            help="show link stats",
+            default=False,
         )
         
         parser.add_argument(
@@ -284,6 +310,7 @@ def main():
             name_filter=args.filter,
             json=args.json,
             astats=args.announce_stats,
+            lstats=args.link_stats,
             sorting=args.sort,
             sort_reverse=args.reverse,
         )
