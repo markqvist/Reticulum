@@ -24,22 +24,22 @@
 
 import RNS
 import argparse
-import time
 
 from RNS._version import __version__
 
 
-def program_setup(configdir, verbosity = 0, quietness = 0, service = False):
-    targetverbosity = verbosity-quietness
+def program_setup(configdir, verbosity=0, quietness=0, service=False):
+    targetverbosity = verbosity - quietness
 
     if service:
-        targetlogdest  = RNS.LOG_FILE
+        targetlogdest = RNS.LOG_FILE
         targetverbosity = None
     else:
-        targetlogdest  = RNS.LOG_STDOUT
+        targetlogdest = RNS.LOG_STDOUT
 
-    reticulum = RNS.Reticulum(configdir=configdir, verbosity=targetverbosity, logdest=targetlogdest)
+    RNS.Reticulum(configdir=configdir, verbosity=targetverbosity, logdest=targetlogdest)
     exit(0)
+
 
 def main():
     try:
@@ -49,23 +49,22 @@ def main():
         parser.add_argument('-q', '--quiet', action='count', default=0)
         parser.add_argument("--exampleconfig", action='store_true', default=False, help="print verbose configuration example to stdout and exit")
         parser.add_argument("--version", action="version", version="ir {version}".format(version=__version__))
-        
         args = parser.parse_args()
 
         if args.exampleconfig:
             print(__example_rns_config__)
             exit()
 
+        configarg = None
         if args.config:
             configarg = args.config
-        else:
-            configarg = None
 
-        program_setup(configdir = configarg, verbosity=args.verbose, quietness=args.quiet)
+        program_setup(configdir=configarg, verbosity=args.verbose, quietness=args.quiet)
 
     except KeyboardInterrupt:
         print("")
         exit()
+
 
 __example_rns_config__ = '''# This is an example Identity Resolver file.
 '''

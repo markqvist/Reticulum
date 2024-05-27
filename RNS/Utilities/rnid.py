@@ -37,25 +37,47 @@ SIG_EXT = "rsg"
 ENCRYPT_EXT = "rfe"
 CHUNK_SIZE = 16*1024*1024
 
-def spin(until=None, msg=None, timeout=None):
+
+def spin(until=None, msg="", timeout=None):
     i = 0
     syms = "⢄⢂⢁⡁⡈⡐⡠"
-    if timeout != None:
+    if timeout is not None:
         timeout = time.time()+timeout
 
-    print(msg+"  ", end=" ")
-    while (timeout == None or time.time()<timeout) and not until():
+    print(msg, end="   ")
+    while (timeout is None or time.time()<timeout) and not until():
         time.sleep(0.1)
-        print(("\b\b"+syms[i]+" "), end="")
+        print(("\b\b", syms[i]), end=" ", sep="")
         sys.stdout.flush()
         i = (i+1)%len(syms)
 
-    print("\r"+" "*len(msg)+"  \r", end="")
+    print("\r", *len(msg), "\r", end="", sep="")
 
-    if timeout != None and time.time() > timeout:
+    if timeout is not None and time.time() > timeout:
         return False
     else:
         return True
+
+
+def get_keys(args: argparse.Namespace, identity) -> None:
+    """Get public or/and private keys"""
+
+    if args.base64:
+        RNS.log("Public Key  : " + base64.urlsafe_b64encode(identity.get_public_key()).decode("utf-8"))
+    elif args.base32:
+        RNS.log("Public Key  : " + base64.b32encode(identity.get_public_key()).decode("utf-8"))
+    else:
+        RNS.log("Public Key  : " + RNS.hexrep(identity.get_public_key(), delimit=False))
+    if identity.prv:
+        if args.print_private:
+            if args.base64:
+                RNS.log("Private Key : " + base64.urlsafe_b64encode(identity.get_private_key()).decode("utf-8"))
+            elif args.base32:
+                RNS.log("Private Key : " + base64.b32encode(identity.get_private_key()).decode("utf-8"))
+            else:
+                RNS.log("Private Key : " + RNS.hexrep(identity.get_private_key(), delimit=False))
+        else:
+            RNS.log("Private Key : Hidden")
 
 def main():
     try:
@@ -82,7 +104,7 @@ def main():
         parser.add_argument("-w", "--write", metavar="file", action="store", default=None, help="output file path", type=str)
         parser.add_argument("-f", "--force", action="store_true", default=None, help="write output even if it overwrites existing files")
         parser.add_argument("-I", "--stdin", action="store_true", default=False, help=argparse.SUPPRESS) # "read input from STDIN instead of file"
-        parser.add_argument("-O", "--stdout", action="store_true", default=False, help=argparse.SUPPRESS) # help="write output to STDOUT instead of file", 
+        parser.add_argument("-O", "--stdout", action="store_true", default=False, help=argparse.SUPPRESS) # help="write output to STDOUT instead of file",
 
         parser.add_argument("-R", "--request", action="store_true", default=False, help="request unknown Identities from the network")
         parser.add_argument("-t", action="store", metavar="seconds", type=float, help="identity request timeout before giving up", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
@@ -93,14 +115,10 @@ def main():
         parser.add_argument("-B", "--base32", action="store_true", default=False, help="Use base32-encoded input and output")
 
         parser.add_argument("--version", action="version", version="rnid {version}".format(version=__version__))
-        
+
         args = parser.parse_args()
 
-        ops = 0;
-        for t in [args.encrypt, args.decrypt, args.validate, args.sign]:
-            if t:
-                ops += 1
-        
+        ops = sum(1 for t in [args.encrypt, args.decrypt, args.validate, args.sign] if t)
         if ops > 1:
             RNS.log("This utility currently only supports one of the encrypt, decrypt, sign or verify operations per invocation", RNS.LOG_ERROR)
             exit(1)
@@ -134,22 +152,8 @@ def main():
                 exit(42)
 
             RNS.log("Identity imported")
-            if args.base64:
-                RNS.log("Public Key  : "+base64.urlsafe_b64encode(identity.get_public_key()).decode("utf-8"))
-            elif args.base32:
-                RNS.log("Public Key  : "+base64.b32encode(identity.get_public_key()).decode("utf-8"))
-            else:
-                RNS.log("Public Key  : "+RNS.hexrep(identity.get_public_key(), delimit=False))
-            if identity.prv:
-                if args.print_private:
-                    if args.base64:
-                        RNS.log("Private Key : "+base64.urlsafe_b64encode(identity.get_private_key()).decode("utf-8"))
-                    elif args.base32:
-                        RNS.log("Private Key : "+base64.b32encode(identity.get_private_key()).decode("utf-8"))
-                    else:
-                        RNS.log("Private Key : "+RNS.hexrep(identity.get_private_key(), delimit=False))
-                else:
-                    RNS.log("Private Key : Hidden")
+
+            get_keys(args, identity)
 
             if args.write:
                 try:
@@ -179,7 +183,7 @@ def main():
             quietness = args.quiet
             if verbosity != 0 or quietness != 0:
                 targetloglevel = targetloglevel+verbosity-quietness
-            
+
             # Start Reticulum
             reticulum = RNS.Reticulum(configdir=args.config, loglevel=targetloglevel)
             RNS.compact_log_fmt = True
@@ -208,7 +212,7 @@ def main():
                     destination_hash = bytes.fromhex(identity_str)
                     identity = RNS.Identity.recall(destination_hash)
 
-                    if identity == None:
+                    if identity is None:
                         if not args.request:
                             RNS.log("Could not recall Identity for "+RNS.prettyhexrep(destination_hash)+".", RNS.LOG_ERROR)
                             RNS.log("You can query the network for unknown Identities with the -R option.", RNS.LOG_ERROR)
@@ -216,7 +220,7 @@ def main():
                         else:
                             RNS.Transport.request_path(destination_hash)
                             def spincheck():
-                                return RNS.Identity.recall(destination_hash) != None
+                                return RNS.Identity.recall(destination_hash) is not None
                             spin(spincheck, "Requesting unknown Identity for "+RNS.prettyhexrep(destination_hash), args.t)
 
                             if not spincheck():
@@ -224,17 +228,15 @@ def main():
                                 exit(6)
                             else:
                                 identity = RNS.Identity.recall(destination_hash)
-                                RNS.log("Received Identity "+str(identity)+" for destination "+RNS.prettyhexrep(destination_hash)+" from the network")
+                                RNS.log(" ".join(["Received Identity", str(identity), "for destination", RNS.prettyhexrep(destination_hash), "from the network"]))
 
                     else:
-                        RNS.log("Recalled Identity "+str(identity)+" for destination "+RNS.prettyhexrep(destination_hash))
-
+                        RNS.log(" ".join(["Recalled Identity", str(identity), "for destination", RNS.prettyhexrep(destination_hash)]))
 
                 except Exception as e:
                     RNS.log("Invalid hexadecimal hash provided", RNS.LOG_ERROR)
                     exit(7)
 
-                
             else:
                 # Try loading Identity from file
                 if not os.path.isfile(identity_str):
@@ -243,13 +245,13 @@ def main():
                 else:
                     try:
                         identity = RNS.Identity.from_file(identity_str)
-                        RNS.log("Loaded Identity "+str(identity)+" from "+str(identity_str))
+                        RNS.log(" ".join(["Loaded Identity", str(identity), "from", str(identity_str)]))
 
                     except Exception as e:
                         RNS.log("Could not decode Identity from specified file")
                         exit(9)
 
-            if identity != None:
+            if identity is not None:
                 if args.hash:
                     try:
                         aspects = args.hash.split(".")
@@ -259,9 +261,9 @@ def main():
                         else:
                             app_name = aspects[0]
                             aspects = aspects[1:]
-                            if identity.pub != None:
+                            if identity.pub is not None:
                                 destination = RNS.Destination(identity, RNS.Destination.OUT, RNS.Destination.SINGLE, app_name, *aspects)
-                                RNS.log("The "+str(args.hash)+" destination for this Identity is "+RNS.prettyhexrep(destination.hash))
+                                RNS.log(" ".join(["The", str(args.hash), "destination for this Identity is", RNS.prettyhexrep(destination.hash)]))
                                 RNS.log("The full destination specifier is "+str(destination))
                                 time.sleep(0.25)
                                 exit(0)
@@ -282,7 +284,7 @@ def main():
                         else:
                             app_name = aspects[0]
                             aspects = aspects[1:]
-                            if identity.prv != None:
+                            if identity.prv is not None:
                                 destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, app_name, *aspects)
                                 RNS.log("Created destination "+str(destination))
                                 RNS.log("Announcing destination "+RNS.prettyhexrep(destination.hash))
@@ -291,7 +293,7 @@ def main():
                                 exit(0)
                             else:
                                 destination = RNS.Destination(identity, RNS.Destination.OUT, RNS.Destination.SINGLE, app_name, *aspects)
-                                RNS.log("The "+str(args.announce)+" destination for this Identity is "+RNS.prettyhexrep(destination.hash))
+                                RNS.log(" ".join(["The", str(args.announce), "destination for this Identity is", RNS.prettyhexrep(destination.hash)]))
                                 RNS.log("The full destination specifier is "+str(destination))
                                 RNS.log("Cannot announce this destination, since the private key is not held")
                                 time.sleep(0.25)
@@ -303,22 +305,7 @@ def main():
                     exit(0)
 
                 if args.print_identity:
-                    if args.base64:
-                        RNS.log("Public Key  : "+base64.urlsafe_b64encode(identity.get_public_key()).decode("utf-8"))
-                    elif args.base32:
-                        RNS.log("Public Key  : "+base64.b32encode(identity.get_public_key()).decode("utf-8"))
-                    else:
-                        RNS.log("Public Key  : "+RNS.hexrep(identity.get_public_key(), delimit=False))
-                    if identity.prv:
-                        if args.print_private:
-                            if args.base64:
-                                RNS.log("Private Key : "+base64.urlsafe_b64encode(identity.get_private_key()).decode("utf-8"))
-                            elif args.base32:
-                                RNS.log("Private Key : "+base64.b32encode(identity.get_private_key()).decode("utf-8"))
-                            else:
-                                RNS.log("Private Key : "+RNS.hexrep(identity.get_private_key(), delimit=False))
-                        else:
-                            RNS.log("Private Key : Hidden")
+                    get_keys(args, identity)
                     exit(0)
 
                 if args.export:
@@ -373,7 +360,7 @@ def main():
                 if args.decrypt and not args.write and not args.stdout and args.read and args.read.lower().endswith("."+ENCRYPT_EXT):
                     args.write = str(args.read).replace("."+ENCRYPT_EXT, "")
 
-                if args.sign and identity.prv == None:
+                if args.sign and identity.prv is None:
                     RNS.log("Specified Identity does not hold a private key. Cannot sign.", RNS.LOG_ERROR)
                     exit(14)
 
@@ -391,7 +378,7 @@ def main():
                             RNS.log("Could not open output file for writing", RNS.LOG_ERROR)
                             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
                             exit(15)
-                
+
                 # TODO: Actually expand this to a good solution
                 # probably need to create a wrapper that takes
                 # into account not closing stdout when done
@@ -399,7 +386,7 @@ def main():
                 #     data_output = sys.stdout
 
                 if args.sign:
-                    if identity.prv == None:
+                    if identity.prv is None:
                         RNS.log("Specified Identity does not hold a private key. Cannot sign.", RNS.LOG_ERROR)
                         exit(16)
 
@@ -415,15 +402,15 @@ def main():
 
                         if not args.stdout:
                             RNS.log("Signing "+str(args.read))
-                        
+
                         try:
                             data_output.write(identity.sign(data_input.read()))
                             data_output.close()
                             data_input.close()
-                            
+
                             if not args.stdout:
                                 if args.read:
-                                    RNS.log("File "+str(args.read)+" signed with "+str(identity)+" to "+str(args.write))
+                                    RNS.log(" ".join([ "File", str(args.read), "signed with", str(identity), "to", str(args.write) ]))
                                     exit(0)
 
                         except Exception as e:
@@ -448,7 +435,7 @@ def main():
                     else:
                         # if not args.stdout:
                         #     RNS.log("Verifying "+str(args.validate)+" for "+str(args.read))
-                        
+
                         try:
                             try:
                                 sig_input = open(args.validate, "rb")
@@ -457,18 +444,17 @@ def main():
                                 RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
                                 exit(21)
 
-
                             validated = identity.validate(sig_input.read(), data_input.read())
                             sig_input.close()
                             data_input.close()
 
                             if not validated:
                                 if not args.stdout:
-                                    RNS.log("Signature "+str(args.validate)+" for file "+str(args.read)+" is invalid", RNS.LOG_ERROR)
+                                    RNS.log(" ".join(["Signature", str(args.validate), "for file", str(args.read), "is invalid"]), RNS.LOG_ERROR)
                                 exit(22)
                             else:
                                 if not args.stdout:
-                                    RNS.log("Signature "+str(args.validate)+" for file "+str(args.read)+" made by Identity "+str(identity)+" is valid")
+                                    RNS.log(" ".join(["Signature", str(args.validate), "for file", str(args.read), "made by Identity", str(identity), "is valid"]))
                                 exit(0)
 
                         except Exception as e:
@@ -498,7 +484,7 @@ def main():
 
                         if not args.stdout:
                             RNS.log("Encrypting "+str(args.read))
-                        
+
                         try:
                             more_data = True
                             while more_data:
@@ -511,7 +497,7 @@ def main():
                             data_input.close()
                             if not args.stdout:
                                 if args.read:
-                                    RNS.log("File "+str(args.read)+" encrypted for "+str(identity)+" to "+str(args.write))
+                                    RNS.log(" ".join(["File", str(args.read), "encrypted for", str(identity), "to", str(args.write)]))
                                     exit(0)
 
                         except Exception as e:
@@ -529,7 +515,7 @@ def main():
                             exit(26)
 
                 if args.decrypt:
-                    if identity.prv == None:
+                    if identity.prv is None:
                         RNS.log("Specified Identity does not hold a private key. Cannot decrypt.", RNS.LOG_ERROR)
                         exit(27)
 
@@ -544,15 +530,15 @@ def main():
                             exit(29)
 
                         if not args.stdout:
-                            RNS.log("Decrypting "+str(args.read)+"...")
-                        
+                            RNS.log("".join(["Decrypting ", str(args.read), "..."]))
+
                         try:
                             more_data = True
                             while more_data:
                                 chunk = data_input.read(CHUNK_SIZE)
                                 if chunk:
                                     plaintext = identity.decrypt(chunk)
-                                    if plaintext == None:
+                                    if plaintext is None:
                                         if not args.stdout:
                                             RNS.log("Data could not be decrypted with the specified Identity")
                                         exit(30)
@@ -564,7 +550,7 @@ def main():
                             data_input.close()
                             if not args.stdout:
                                 if args.read:
-                                    RNS.log("File "+str(args.read)+" decrypted with "+str(identity)+" to "+str(args.write))
+                                    RNS.log(" ".join(["File", str(args.read), "decrypted with", str(identity), "to", str(args.write)]))
                                     exit(0)
 
                         except Exception as e:
@@ -581,20 +567,10 @@ def main():
                                 pass
                             exit(31)
 
-            if True:
-                pass
-
-            elif False:
-                pass
-
-            else:
-                print("")
-                parser.print_help()
-                print("")
-
     except KeyboardInterrupt:
         print("")
         exit(255)
+
 
 if __name__ == "__main__":
     main()
