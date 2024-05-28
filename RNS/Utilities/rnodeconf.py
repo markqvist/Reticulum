@@ -3440,6 +3440,10 @@ def main():
                                 time.sleep(6.5)
 
                             elif rnode.platform == ROM.PLATFORM_NRF52:
+                                # Wait a few seconds before hard resetting.
+                                # Otherwise, macOS fails to set firmware hash on NRF52
+                                time.sleep(5)
+
                                 rnode.hard_reset()
                                 # The hard reset on this platform is different
                                 # to that of the ESP32 platform, it causes
