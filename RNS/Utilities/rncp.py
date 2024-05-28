@@ -34,13 +34,14 @@ from RNS._version import __version__
 APP_NAME = "rncp"
 allow_all = False
 allow_fetch = False
+fetch_jail = None
 allowed_identity_hashes = []
 
 REQ_FETCH_NOT_ALLOWED = 0xF0
 
 def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identity = False,
-           limit = None, disable_auth = None, fetch_allowed = False, announce = False):
-    global allow_all, allow_fetch, allowed_identity_hashes
+           limit = None, disable_auth = None, fetch_allowed = False, jail = None, announce = False):
+    global allow_all, allow_fetch, allowed_identity_hashes, fetch_jail
     from tempfile import TemporaryFile
 
     allow_fetch = fetch_allowed
@@ -50,6 +51,10 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
 
     targetloglevel = 3+verbosity-quietness
     reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
+
+    if jail != None:
+        fetch_jail = os.path.abspath(os.path.expanduser(jail))
+        RNS.log("Restricting fetch requests to paths under \""+fetch_jail+"\"", RNS.LOG_VERBOSE)
 
     identity_path = RNS.Reticulum.identitypath+"/"+APP_NAME
     if os.path.isfile(identity_path):
@@ -121,16 +126,20 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
         print("Warning: No allowed identities configured, rncp will not accept any files!")
 
     def fetch_request(path, data, request_id, link_id, remote_identity, requested_at):
-        global allow_fetch
+        global allow_fetch, fetch_jail
         if not allow_fetch:
             return REQ_FETCH_NOT_ALLOWED
+
+        file_path = os.path.abspath(os.path.expanduser(data))
+        if fetch_jail:
+            if not file_path.startswith(jail):
+                return REQ_FETCH_NOT_ALLOWED
 
         target_link = None
         for link in RNS.Transport.active_links:
             if link.link_id == link_id:
                 target_link = link
 
-        file_path = os.path.expanduser(data)
         if not os.path.isfile(file_path):
             RNS.log("Client-requested file not found: "+str(file_path), RNS.LOG_VERBOSE)
             return False
@@ -438,25 +447,25 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
         if not silent: print("\r                                                            \r", end="")
         print("Fetch request failed, fetching the file "+str(file)+" was not allowed by the remote")
         link.teardown()
-        time.sleep(1)
+        time.sleep(0.15)
         exit(0)
     elif request_status == "not_found":
         if not silent: print("\r                                                            \r", end="")
         print("Fetch request failed, the file "+str(file)+" was not found on the remote")
         link.teardown()
-        time.sleep(1)
+        time.sleep(0.15)
         exit(0)
     elif request_status == "remote_error":
         if not silent: print("\r                                                            \r", end="")
         print("Fetch request failed due to an error on the remote system")
         link.teardown()
-        time.sleep(1)
+        time.sleep(0.15)
         exit(0)
     elif request_status == "unknown":
         if not silent: print("\r                                                            \r", end="")
         print("Fetch request failed due to an unknown error (probably not authorised)")
         link.teardown()
-        time.sleep(1)
+        time.sleep(0.15)
         exit(0)
     elif request_status == "found":
         if not silent: print("\r                                                            \r", end="")
@@ -486,7 +495,7 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
         else:
             print("\r                                                                                  \r"+str(file)+" fetched from "+RNS.prettyhexrep(destination_hash))
         link.teardown()
-        time.sleep(0.25)
+        time.sleep(0.15)
         exit(0)
 
     link.teardown()
@@ -678,6 +687,7 @@ def main():
         parser.add_argument("-l", '--listen', action='store_true', default=False, help="listen for incoming transfer requests")
         parser.add_argument("-F", '--allow-fetch', action='store_true', default=False, help="allow authenticated clients to fetch files")
         parser.add_argument("-f", '--fetch', action='store_true', default=False, help="fetch file from remote listener instead of sending")
+        parser.add_argument("-j", "--jail", metavar="path", action="store", default=None, help="restrict fetch requests to specified path", type=str)
         parser.add_argument("-b", action='store', metavar="seconds", default=-1, help="announce interval, 0 to only announce at startup", type=int)
         parser.add_argument('-a', metavar="allowed_hash", dest="allowed", action='append', help="allow this identity", type=str)
         parser.add_argument('-n', '--no-auth', action='store_true', default=False, help="accept requests from anyone")
@@ -695,6 +705,7 @@ def main():
                 quietness=args.quiet,
                 allowed = args.allowed,
                 fetch_allowed = args.allow_fetch,
+                jail = args.jail,
                 display_identity=args.print_identity,
                 # limit=args.limit,
                 disable_auth=args.no_auth,
