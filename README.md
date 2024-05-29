@@ -233,10 +233,17 @@ Primitives](#cryptographic-primitives) section of this document.
 
 ## Public Testnet
 If you just want to get started experimenting without building any physical
-networks, you are welcome to join the Unsigned.io RNS Testnet. The testnet is
-just that, an informal network for testing and experimenting. It will be up
-most of the time, and anyone can join, but it also means that there's no
-guarantees for service availability.
+networks, you are welcome to join the RNS Development Testnet.
+
+The testnet is just that, an informal network for testing and experimenting.
+It will be up most of the time, and anyone can join, but it also means that
+there's no guarantees for service availability.
+
+It probably goes without saying, but *don't use the testnet entry-points as 
+hardcoded or default interfaces in any applications you ship to users*. When
+shipping applications, the best practice is to provide your own default
+connectivity solutions, if needed and applicable, or in most cases, simply
+leave it up to the user which networks to connect to, and how.
 
 The testnet runs the very latest version of Reticulum (often even a short while
 before it is publicly released). Sometimes experimental versions of Reticulum
