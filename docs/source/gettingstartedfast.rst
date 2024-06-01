@@ -244,6 +244,13 @@ Many other Reticulum instances are connecting to this testnet, and you can also 
 via other entry points if you know them. There is absolutely no control over the network
 topography, usage or what types of instances connect. It will also occasionally be used
 to test various failure scenarios, and there are no availability or service guarantees.
+Expect weird things to happen on this network, as people experiment and try out things.
+
+It probably goes without saying, but *don't use the testnet entry-points as 
+hardcoded or default interfaces in any applications you ship to users*. When
+shipping applications, the best practice is to provide your own default
+connectivity solutions, if needed and applicable, or in most cases, simply
+leave it up to the user which networks to connect to, and how.
 
 
 Adding Radio Interfaces
