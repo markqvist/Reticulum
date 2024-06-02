@@ -110,7 +110,7 @@ Sideband
 
 If you would rather use a program with a graphical user interface, you can take
 a look at `Sideband <https://unsigned.io/sideband>`_, which is available for Android,
-Linux and macOS.
+Linux, macOS and Windows.
 
 .. only:: html
 
