@@ -128,6 +128,28 @@ systems over Reticulum networks using LoRa, Packet Radio, WiFi, I2P, Encrypted Q
 Paper Messages, or anything else Reticulum supports. It also interoperates with
 the Nomad Network program.
 
+Meshchat
+^^^^^^^^
+
+The `Reticulum Meshchat <https://github.com/liamcottle/reticulum-meshchat>`_ application
+is a user-friendly LXMF client for macOS and Windows, that also includes voice call
+functionality, and a range of other interesting functions.
+
+.. only:: html
+
+  .. image:: screenshots/meshchat_1.webp
+      :align: center
+      :target: _images/meshchat_1.webp
+
+.. only:: latexpdf
+
+  .. image:: screenshots/meshchat_1.png
+      :align: center
+      :target: _images/meshchat_1.png
+
+Reticulum Meshchat is of course also compatible with Sideband and Nomad Network, or
+any other LXMF client.
+
 Using the Included Utilities
 =============================================
 Reticulum comes with a range of included utilities that make it easier to
