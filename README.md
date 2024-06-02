@@ -77,7 +77,7 @@ following resources.
 - [LXMF](https://github.com/markqvist/lxmf) is a distributed, delay and disruption tolerant message transfer protocol built on Reticulum
 - For an off-grid, encrypted and resilient mesh communications platform, see [Nomad Network](https://github.com/markqvist/NomadNet)
 - The Android, Linux and macOS app [Sideband](https://github.com/markqvist/Sideband) has a graphical interface and focuses on ease of use.
-- The [Reticulum Meshchat](https://github.com/liamcottle/reticulum-meshchat) application is a user-friendly and familiar LXMF client, that also supports voice calls.
+- The [Reticulum Meshchat](https://github.com/liamcottle/reticulum-meshchat) application is a user-friendly LXMF client, that also supports voice calls.
 
 ## Where can Reticulum be used?
 Over practically any medium that can support at least a half-duplex channel
