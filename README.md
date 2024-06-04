@@ -76,8 +76,8 @@ following resources.
 - You can use the [rnsh](https://github.com/acehoss/rnsh) program to establish remote shell sessions over Reticulum.
 - [LXMF](https://github.com/markqvist/lxmf) is a distributed, delay and disruption tolerant message transfer protocol built on Reticulum
 - For an off-grid, encrypted and resilient mesh communications platform, see [Nomad Network](https://github.com/markqvist/NomadNet)
-- The Android, Linux and macOS app [Sideband](https://github.com/markqvist/Sideband) has a graphical interface and focuses on ease of use.
-- The [Reticulum MeshChat](https://github.com/liamcottle/reticulum-meshchat) application is a user-friendly LXMF client, that also supports voice calls.
+- The Android, Linux, macOS and Windows app [Sideband](https://github.com/markqvist/Sideband) has a graphical interface and focuses on ease of use.
+- [MeshChat](https://github.com/liamcottle/reticulum-meshchat) is a user-friendly LXMF client, that also supports voice calls.
 
 ## Where can Reticulum be used?
 Over practically any medium that can support at least a half-duplex channel
