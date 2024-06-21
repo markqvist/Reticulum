@@ -70,7 +70,7 @@ def server_loop(destination):
         " running, waiting for a connection."
     )
 
-    RNS.log("Hit enter to manually send an announce (Ctrl-C to quit)")
+    RNS.log("Hit enter to manually send an announce (Ctrl-C or 'quit' to quit)")
 
     # We enter a loop that runs until the users exits.
     # If the user hits enter, we will announce our server
@@ -80,6 +80,12 @@ def server_loop(destination):
         entered = input()
         destination.announce()
         RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
+        if entered == "quit":
+            if latest_client_link:
+                latest_client_link.teardown()
+            break
+    print("")
+    exit()
 
 # When a client establishes a link to our server
 # destination, this function will be called with
@@ -93,6 +99,11 @@ def client_connected(link):
     latest_client_link = link
 
 def client_disconnected(link):
+    #import threading
+    #def close_job():
+    #    time.sleep(3)
+    #    link.teardown()
+    #threading.Thread(target=close_job, daemon=True).start()
     RNS.log("Client disconnected")
 
 def server_packet_received(message, packet):
