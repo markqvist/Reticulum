@@ -3204,7 +3204,7 @@ def main():
 
                 else:
                     RNS.log("EEPROM is invalid, no further information available")
-                    egraceful_xit()
+                    graceful_exit()
 
             if args.rom:
                 if rnode.provisioned and not args.autoinstall:
