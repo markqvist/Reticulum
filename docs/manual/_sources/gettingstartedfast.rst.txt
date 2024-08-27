@@ -254,7 +254,7 @@ by adding one of the following interfaces to your ``.reticulum/config`` file:
   [[RNS Testnet BetweenTheBorders]]
     type = TCPClientInterface
     enabled = yes
-    target_host = betweentheborders.com
+    target_host = reticulum.betweentheborders.com
     target_port = 4242
 
   # Interface to Testnet I2P Hub
