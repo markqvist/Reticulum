@@ -569,6 +569,117 @@ can be used, and offers full control over LoRa parameters.</p>
 </pre></div>
 </div>
 </section>
+<section id="rnode-multi-interface">
+<span id="interfaces-rnode-multi"></span><h2>RNode Multi Interface<a class="headerlink" href="#rnode-multi-interface" title="Permalink to this heading">#</a></h2>
+<p>For RNodes that support multiple LoRa transceivers, the RNode
+Multi interface can be used to configure sub-interfaces individually.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of how to add an RNode Multi interface</span>
+<span class="c1"># using the RNode LoRa transceiver.</span>
+
+<span class="p">[[</span><span class="n">RNode</span> <span class="n">Multi</span> <span class="n">Interface</span><span class="p">]]</span>
+<span class="nb">type</span> <span class="o">=</span> <span class="n">RNodeMultiInterface</span>
+
+<span class="c1"># Enable interface if you want to use it!</span>
+<span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Serial port for the device</span>
+<span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyACM0</span>
+
+<span class="c1"># You can configure the RNode to send</span>
+<span class="c1"># out identification on the channel with</span>
+<span class="c1"># a set interval by configuring the</span>
+<span class="c1"># following two parameters.</span>
+
+<span class="c1"># id_callsign = MYCALL-0</span>
+<span class="c1"># id_interval = 600</span>
+
+  <span class="c1"># A subinterface</span>
+  <span class="p">[[[</span><span class="n">HIGHDATARATE</span><span class="p">]]]</span>
+  <span class="c1"># Subinterfaces can be enabled and disabled in of themselves</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># Set frequency to 2.4GHz</span>
+  <span class="n">frequency</span> <span class="o">=</span> <span class="mi">2400000000</span>
+
+  <span class="c1"># Set LoRa bandwidth to 1625 KHz</span>
+  <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">1625000</span>
+
+  <span class="c1"># Set TX power to 0 dBm (0.12 mW)</span>
+  <span class="n">txpower</span> <span class="o">=</span> <span class="mi">0</span>
+
+  <span class="c1"># The virtual port, only the manufacturer</span>
+  <span class="c1"># or the person who wrote the board config</span>
+  <span class="c1"># can tell you what it will be for which</span>
+  <span class="c1"># physical hardware interface</span>
+  <span class="n">vport</span> <span class="o">=</span> <span class="mi">1</span>
+
+  <span class="c1"># Select spreading factor 5. Valid</span>
+  <span class="c1"># range is 5 through 12, with 5</span>
+  <span class="c1"># being the fastest and 12 having</span>
+  <span class="c1"># the longest range.</span>
+  <span class="n">spreadingfactor</span> <span class="o">=</span> <span class="mi">5</span>
+
+  <span class="c1"># Select coding rate 5. Valid range</span>
+  <span class="c1"># is 5 throough 8, with 5 being the</span>
+  <span class="c1"># fastest, and 8 the longest range.</span>
+  <span class="n">codingrate</span> <span class="o">=</span> <span class="mi">5</span>
+
+  <span class="c1"># It is possible to limit the airtime</span>
+  <span class="c1"># utilisation of an RNode by using the</span>
+  <span class="c1"># following two configuration options.</span>
+  <span class="c1"># The short-term limit is applied in a</span>
+  <span class="c1"># window of approximately 15 seconds,</span>
+  <span class="c1"># and the long-term limit is enforced</span>
+  <span class="c1"># over a rolling 60 minute window. Both</span>
+  <span class="c1"># options are specified in percent.</span>
+
+  <span class="c1"># airtime_limit_long = 100</span>
+  <span class="c1"># airtime_limit_short = 100</span>
+
+  <span class="p">[[[</span><span class="n">LOWDATARATE</span><span class="p">]]]</span>
+  <span class="c1"># Subinterfaces can be enabled and disabled in of themselves</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># Set frequency to 865.6 MHz</span>
+  <span class="n">frequency</span> <span class="o">=</span> <span class="mi">865600000</span>
+
+  <span class="c1"># The virtual port, only the manufacturer</span>
+  <span class="c1"># or the person who wrote the board config</span>
+  <span class="c1"># can tell you what it will be for which</span>
+  <span class="c1"># physical hardware interface</span>
+  <span class="n">vport</span> <span class="o">=</span> <span class="mi">0</span>
+
+  <span class="c1"># Set LoRa bandwidth to 125 KHz</span>
+  <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">125000</span>
+
+  <span class="c1"># Set TX power to 0 dBm (0.12 mW)</span>
+  <span class="n">txpower</span> <span class="o">=</span> <span class="mi">0</span>
+
+  <span class="c1"># Select spreading factor 7. Valid</span>
+  <span class="c1"># range is 5 through 12, with 5</span>
+  <span class="c1"># being the fastest and 12 having</span>
+  <span class="c1"># the longest range.</span>
+  <span class="n">spreadingfactor</span> <span class="o">=</span> <span class="mi">7</span>
+
+  <span class="c1"># Select coding rate 5. Valid range</span>
+  <span class="c1"># is 5 throough 8, with 5 being the</span>
+  <span class="c1"># fastest, and 8 the longest range.</span>
+  <span class="n">codingrate</span> <span class="o">=</span> <span class="mi">5</span>
+
+  <span class="c1"># It is possible to limit the airtime</span>
+  <span class="c1"># utilisation of an RNode by using the</span>
+  <span class="c1"># following two configuration options.</span>
+  <span class="c1"># The short-term limit is applied in a</span>
+  <span class="c1"># window of approximately 15 seconds,</span>
+  <span class="c1"># and the long-term limit is enforced</span>
+  <span class="c1"># over a rolling 60 minute window. Both</span>
+  <span class="c1"># options are specified in percent.</span>
+
+  <span class="c1"># airtime_limit_long = 100</span>
+  <span class="c1"># airtime_limit_short = 100</span>
+</pre></div>
+</div>
+</section>
 <section id="serial-interface">
 <span id="interfaces-serial"></span><h2>Serial Interface<a class="headerlink" href="#serial-interface" title="Permalink to this heading">#</a></h2>
 <p>Reticulum can be used over serial ports directly, or over any device with a
@@ -1104,6 +1215,7 @@ to <code class="docutils literal notranslate"><span class="pre">30</span></code>
 <li><a class="reference internal" href="#tcp-client-interface">TCP Client Interface</a></li>
 <li><a class="reference internal" href="#udp-interface">UDP Interface</a></li>
 <li><a class="reference internal" href="#rnode-lora-interface">RNode LoRa Interface</a></li>
+<li><a class="reference internal" href="#rnode-multi-interface">RNode Multi Interface</a></li>
 <li><a class="reference internal" href="#serial-interface">Serial Interface</a></li>
 <li><a class="reference internal" href="#pipe-interface">Pipe Interface</a></li>
 <li><a class="reference internal" href="#kiss-interface">KISS Interface</a></li>

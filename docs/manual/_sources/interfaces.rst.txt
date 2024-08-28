@@ -406,6 +406,121 @@ can be used, and offers full control over LoRa parameters.
     # airtime_limit_short = 33
 
 
+.. _interfaces-rnode-multi:
+
+RNode Multi Interface
+=====================
+
+For RNodes that support multiple LoRa transceivers, the RNode
+Multi interface can be used to configure sub-interfaces individually.
+
+.. code::
+
+  # Here's an example of how to add an RNode Multi interface
+  # using the RNode LoRa transceiver.
+
+  [[RNode Multi Interface]]
+  type = RNodeMultiInterface
+
+  # Enable interface if you want to use it!
+  interface_enabled = True
+
+  # Serial port for the device
+  port = /dev/ttyACM0
+
+  # You can configure the RNode to send
+  # out identification on the channel with
+  # a set interval by configuring the
+  # following two parameters.
+
+  # id_callsign = MYCALL-0
+  # id_interval = 600
+
+    # A subinterface
+    [[[HIGHDATARATE]]]
+    # Subinterfaces can be enabled and disabled in of themselves
+    interface_enabled = True
+
+    # Set frequency to 2.4GHz
+    frequency = 2400000000
+
+    # Set LoRa bandwidth to 1625 KHz
+    bandwidth = 1625000
+
+    # Set TX power to 0 dBm (0.12 mW)
+    txpower = 0
+
+    # The virtual port, only the manufacturer
+    # or the person who wrote the board config
+    # can tell you what it will be for which
+    # physical hardware interface
+    vport = 1
+
+    # Select spreading factor 5. Valid
+    # range is 5 through 12, with 5 
+    # being the fastest and 12 having
+    # the longest range.
+    spreadingfactor = 5
+
+    # Select coding rate 5. Valid range
+    # is 5 throough 8, with 5 being the
+    # fastest, and 8 the longest range.
+    codingrate = 5
+
+    # It is possible to limit the airtime
+    # utilisation of an RNode by using the
+    # following two configuration options.
+    # The short-term limit is applied in a
+    # window of approximately 15 seconds,
+    # and the long-term limit is enforced
+    # over a rolling 60 minute window. Both
+    # options are specified in percent.
+
+    # airtime_limit_long = 100
+    # airtime_limit_short = 100
+
+    [[[LOWDATARATE]]]
+    # Subinterfaces can be enabled and disabled in of themselves
+    interface_enabled = True
+
+    # Set frequency to 865.6 MHz
+    frequency = 865600000
+
+    # The virtual port, only the manufacturer
+    # or the person who wrote the board config
+    # can tell you what it will be for which
+    # physical hardware interface
+    vport = 0
+
+    # Set LoRa bandwidth to 125 KHz
+    bandwidth = 125000
+
+    # Set TX power to 0 dBm (0.12 mW)
+    txpower = 0
+
+    # Select spreading factor 7. Valid
+    # range is 5 through 12, with 5 
+    # being the fastest and 12 having
+    # the longest range.
+    spreadingfactor = 7
+
+    # Select coding rate 5. Valid range
+    # is 5 throough 8, with 5 being the
+    # fastest, and 8 the longest range.
+    codingrate = 5
+
+    # It is possible to limit the airtime
+    # utilisation of an RNode by using the
+    # following two configuration options.
+    # The short-term limit is applied in a
+    # window of approximately 15 seconds,
+    # and the long-term limit is enforced
+    # over a rolling 60 minute window. Both
+    # options are specified in percent.
+
+    # airtime_limit_long = 100
+    # airtime_limit_short = 100
+
 .. _interfaces-serial:
 
 Serial Interface

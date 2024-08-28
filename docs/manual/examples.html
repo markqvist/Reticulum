@@ -1072,7 +1072,7 @@ destination, and passing traffic back and forth over the link.</p>
         <span class="s2">&quot; running, waiting for a connection.&quot;</span>
     <span class="p">)</span>
 
-    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Hit enter to manually send an announce (Ctrl-C to quit)&quot;</span><span class="p">)</span>
+    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Hit enter to manually send an announce (Ctrl-C or </span><span class="se">\&quot;</span><span class="s2">quit</span><span class="se">\&quot;</span><span class="s2"> to quit)&quot;</span><span class="p">)</span>
 
     <span class="c1"># We enter a loop that runs until the users exits.</span>
     <span class="c1"># If the user hits enter, we will announce our server</span>
@@ -1082,6 +1082,12 @@ destination, and passing traffic back and forth over the link.</p>
         <span class="n">entered</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
         <span class="n">destination</span><span class="o">.</span><span class="n">announce</span><span class="p">()</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Sent announce from &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">destination</span><span class="o">.</span><span class="n">hash</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">entered</span> <span class="o">==</span> <span class="s2">&quot;quit&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">latest_client_link</span><span class="p">:</span>
+                <span class="n">latest_client_link</span><span class="o">.</span><span class="n">teardown</span><span class="p">()</span>
+            <span class="k">break</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">exit</span><span class="p">()</span>
 
 <span class="c1"># When a client establishes a link to our server</span>
 <span class="c1"># destination, this function will be called with</span>
