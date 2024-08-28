@@ -69,7 +69,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 if isinstance(stats[s], bytes):
                     stats[s] = RNS.hexrep(stats[s], delimit=False)
 
-                if isinstance(stats[s], dict):
+                if isinstance(stats[s], dict) or isinstance(stats[s], list):
                     for i in stats[s]:
                         if isinstance(i, dict):
                             for k in i:
