@@ -23,6 +23,9 @@
 # SOFTWARE.
 
 import RNS
+import os
+import sys
+import time
 import argparse
 
 from RNS._version import __version__
@@ -46,21 +49,134 @@ def size_str(num, suffix='B'):
 
     return "%.2f%s%s" % (num, last_unit, suffix)
 
-def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False, lstats=False, sorting=None, sort_reverse=False):
+request_result = None
+request_concluded = False
+def get_remote_status(destination_hash, include_lstats, identity, no_output=False):
+    global request_result, request_concluded
+    link_count = None
+
+    if not RNS.Transport.has_path(destination_hash):
+        if not no_output:
+            print("Path to "+RNS.prettyhexrep(destination_hash)+" requested", end=" ")
+            sys.stdout.flush()
+        RNS.Transport.request_path(destination_hash)
+        pr_time = time.time()
+        pr_timeout = 10
+        while not RNS.Transport.has_path(destination_hash):
+            time.sleep(0.1)
+            if time.time() - pr_time > pr_timeout:
+                if not no_output:
+                    print("\r                                                          \r", end="")
+                    print("Path request timed out")
+                    exit(12)
+
+    remote_identity = RNS.Identity.recall(destination_hash)
+
+    def remote_link_closed(link):
+        if link.teardown_reason == RNS.Link.TIMEOUT:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("The link timed out, exiting now")
+        elif link.teardown_reason == RNS.Link.DESTINATION_CLOSED:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("The link was closed by the server, exiting now")
+        else:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("Link closed unexpectedly, exiting now")
+        exit(10)
+
+    def request_failed(request_receipt):
+        global request_result, request_concluded
+        if not no_output:
+            print("\r                                                          \r", end="")
+            print("The remote status request failed. Likely authentication failure.")
+        request_concluded = True
+
+    def got_response(request_receipt):
+        global request_result, request_concluded
+        response = request_receipt.response
+        if isinstance(response, list):
+            status = response[0]
+            if len(response) > 1:
+                link_count = response[1]
+            else:
+                link_count = None
+
+            request_result = (status, link_count)
+
+        request_concluded = True
+
+    def remote_link_established(link):
+        if not no_output:
+            print("\r                                                          \r", end="")
+            print("Sending request...", end=" ")
+            sys.stdout.flush()
+        link.identify(identity)
+        link.request("/status", data = [include_lstats], response_callback = got_response, failed_callback = request_failed)
+
+    if not no_output:
+        print("\r                                                          \r", end="")
+        print("Establishing link with remote transport instance...", end=" ")
+        sys.stdout.flush()
+
+    remote_destination = RNS.Destination(remote_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "rnstransport", "remote", "management")
+    link = RNS.Link(remote_destination)
+    link.set_link_established_callback(remote_link_established)
+    link.set_link_closed_callback(remote_link_closed)
+
+    while not request_concluded:
+        time.sleep(0.1)
+
+    if request_result != None:
+        print("\r                                                          \r", end="")
+
+    return request_result
+
+def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False,
+                  lstats=False, sorting=None, sort_reverse=False, remote=None, management_identity=None):
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
 
     link_count = None
-    if lstats:
+    stats = None
+    if remote:
         try:
-            link_count = reticulum.get_link_count()
+            dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
+            if len(remote) != dest_len:
+                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            try:
+                identity_hash = bytes.fromhex(remote)
+                destination_hash = RNS.Destination.hash_from_name_and_identity("rnstransport.remote.management", identity_hash)
+            except Exception as e:
+                raise ValueError("Invalid destination entered. Check your input.")
+
+            identity = RNS.Identity.from_file(os.path.expanduser(management_identity))
+            if identity == None:
+                raise ValueError("Could not load management identity from "+str(management_identity))
+
+            try:
+                remote_status = get_remote_status(destination_hash, lstats, identity, no_output=json)
+                if remote_status != None:
+                    stats, link_count = remote_status
+            except Exception as e:
+                raise e
+                    
+        except Exception as e:
+            print(str(e))
+            exit(20)
+
+    else:
+        if lstats:
+            try:
+                link_count = reticulum.get_link_count()
+            except Exception as e:
+                pass
+
+        try:
+            stats = reticulum.get_interface_stats()
         except Exception as e:
             pass
-
-    stats = None
-    try:
-        stats = reticulum.get_interface_stats()
-    except Exception as e:
-        pass
 
     if stats != None:
         if json:
@@ -227,7 +343,8 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
             print("\n Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" running")
             if "probe_responder" in stats and stats["probe_responder"] != None:
                 print(" Probe responder at "+RNS.prettyhexrep(stats["probe_responder"])+ " active")
-            print(" Uptime is "+RNS.prettytime(stats["transport_uptime"])+lstr)
+            if "transport_uptime" in stats and stats["transport_uptime"] != None:
+                print(" Uptime is "+RNS.prettytime(stats["transport_uptime"])+lstr)
         else:
             if lstr != "":
                 print(f"\n{lstr}")
@@ -235,7 +352,10 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
         print("")
                 
     else:
-        print("Could not get RNS status")
+        if not remote:
+            print("Could not get RNS status")
+        else:
+            print("Could not get RNS status from remote transport instance "+RNS.prettyhexrep(identity_hash))
 
 def main():
     try:
@@ -292,6 +412,26 @@ def main():
             default=False
         )
 
+        parser.add_argument(
+            "-R",
+            "--remote",
+            action="store",
+            metavar="hash",
+            help="transport identity hash of remote instance to get status from",
+            default=None,
+            type=str
+        )
+
+        parser.add_argument(
+            "-i",
+            "--identity",
+            action="store",
+            metavar="path",
+            help="path to identity used for remote management",
+            default=None,
+            type=str
+        )
+
         parser.add_argument('-v', '--verbose', action='count', default=0)
 
         parser.add_argument("filter", nargs="?", default=None, help="only display interfaces with names including filter", type=str)
@@ -313,6 +453,8 @@ def main():
             lstats=args.link_stats,
             sorting=args.sort,
             sort_reverse=args.reverse,
+            remote=args.remote,
+            management_identity=args.identity,
         )
 
     except KeyboardInterrupt:

@@ -216,6 +216,7 @@ class Reticulum:
         Reticulum.identitypath  = Reticulum.configdir+"/storage/identities"
 
         Reticulum.__transport_enabled = False
+        Reticulum.__remote_management_enabled = False
         Reticulum.__use_implicit_proof = True
         Reticulum.__allow_probes = False
 
@@ -346,6 +347,7 @@ class Reticulum:
                     self.is_standalone_instance = False
                     self.is_connected_to_shared_instance = True
                     Reticulum.__transport_enabled = False
+                    Reticulum.__remote_management_enabled = False
                     Reticulum.__allow_probes = False
                     RNS.log("Connected to locally available Reticulum instance via: "+str(interface), RNS.LOG_DEBUG)
                 except Exception as e:
@@ -396,6 +398,23 @@ class Reticulum:
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:
                         Reticulum.__transport_enabled = True
+                if option == "enable_remote_management":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v == True:
+                        Reticulum.__remote_management_enabled = True
+                if option == "remote_management_allowed":
+                    v = self.config["reticulum"].as_list(option)
+                    for hexhash in v:
+                        dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
+                        if len(hexhash) != dest_len:
+                            raise ValueError("Identity hash length for remote management ACL "+str(hexhash)+" is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                        try:
+                            allowed_hash = bytes.fromhex(hexhash)
+                        except Exception as e:
+                            raise ValueError("Invalid identity hash for remote management ACL: "+str(hexhash))
+
+                        if not allowed_hash in RNS.Transport.remote_management_allowed:
+                            RNS.Transport.remote_management_allowed.append(allowed_hash)
                 if option == "respond_to_probes":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:
@@ -1515,6 +1534,19 @@ class Reticulum:
         :returns: True if Transport is enabled, False if not.
         """
         return Reticulum.__transport_enabled
+
+    @staticmethod
+    def remote_management_enabled():
+        """
+        Returns whether remote management is enabled for the
+        running instance.
+
+        When remote management is enabled, authenticated peers
+        can remotely query and manage this instance.
+
+        :returns: True if remote management is enabled, False if not.
+        """
+        return Reticulum.__remote_management_enabled
 
     @staticmethod
     def probe_destination_enabled():

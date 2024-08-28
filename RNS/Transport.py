@@ -35,109 +35,110 @@ class Transport:
     Transport system of Reticulum.
     """
     # Constants
-    BROADCAST    = 0x00;
-    TRANSPORT    = 0x01;
-    RELAY        = 0x02;
-    TUNNEL       = 0x03;
-    types        = [BROADCAST, TRANSPORT, RELAY, TUNNEL]
+    BROADCAST                   = 0x00;
+    TRANSPORT                   = 0x01;
+    RELAY                       = 0x02;
+    TUNNEL                      = 0x03;
+    types                       = [BROADCAST, TRANSPORT, RELAY, TUNNEL]
 
-    REACHABILITY_UNREACHABLE = 0x00
-    REACHABILITY_DIRECT      = 0x01
-    REACHABILITY_TRANSPORT   = 0x02
+    REACHABILITY_UNREACHABLE    = 0x00
+    REACHABILITY_DIRECT         = 0x01
+    REACHABILITY_TRANSPORT      = 0x02
 
     APP_NAME = "rnstransport"
 
-    PATHFINDER_M    = 128       # Max hops
+    PATHFINDER_M                = 128       # Max hops
     """
     Maximum amount of hops that Reticulum will transport a packet.
     """
     
-    PATHFINDER_R      = 1          # Retransmit retries
-    PATHFINDER_G      = 5          # Retry grace period
-    PATHFINDER_RW     = 0.5        # Random window for announce rebroadcast
-    PATHFINDER_E      = 60*60*24*7 # Path expiration of one week
-    AP_PATH_TIME      = 60*60*24   # Path expiration of one day for Access Point paths
-    ROAMING_PATH_TIME = 60*60*6    # Path expiration of 6 hours for Roaming paths
+    PATHFINDER_R                = 1          # Retransmit retries
+    PATHFINDER_G                = 5          # Retry grace period
+    PATHFINDER_RW               = 0.5        # Random window for announce rebroadcast
+    PATHFINDER_E                = 60*60*24*7 # Path expiration of one week
+    AP_PATH_TIME                = 60*60*24   # Path expiration of one day for Access Point paths
+    ROAMING_PATH_TIME           = 60*60*6    # Path expiration of 6 hours for Roaming paths
 
     # TODO: Calculate an optimal number for this in
     # various situations
-    LOCAL_REBROADCASTS_MAX = 2          # How many local rebroadcasts of an announce is allowed
+    LOCAL_REBROADCASTS_MAX      = 2          # How many local rebroadcasts of an announce is allowed
 
-    PATH_REQUEST_TIMEOUT = 15           # Default timuout for client path requests in seconds
-    PATH_REQUEST_GRACE   = 0.4          # Grace time before a path announcement is made, allows directly reachable peers to respond first
-    PATH_REQUEST_RG      = 0.6          # Extra grace time for roaming-mode interfaces to allow more suitable peers to respond first
-    PATH_REQUEST_MI      = 20           # Minimum interval in seconds for automated path requests
+    PATH_REQUEST_TIMEOUT        = 15           # Default timuout for client path requests in seconds
+    PATH_REQUEST_GRACE          = 0.4          # Grace time before a path announcement is made, allows directly reachable peers to respond first
+    PATH_REQUEST_RG             = 0.6          # Extra grace time for roaming-mode interfaces to allow more suitable peers to respond first
+    PATH_REQUEST_MI             = 20           # Minimum interval in seconds for automated path requests
 
-    STATE_UNKNOWN        = 0x00
-    STATE_UNRESPONSIVE   = 0x01
-    STATE_RESPONSIVE     = 0x02
+    STATE_UNKNOWN               = 0x00
+    STATE_UNRESPONSIVE          = 0x01
+    STATE_RESPONSIVE            = 0x02
 
-    LINK_TIMEOUT         = RNS.Link.STALE_TIME * 1.25
-    REVERSE_TIMEOUT      = 30*60        # Reverse table entries are removed after 30 minutes
-    DESTINATION_TIMEOUT  = 60*60*24*7   # Destination table entries are removed if unused for one week
-    MAX_RECEIPTS         = 1024         # Maximum number of receipts to keep track of
-    MAX_RATE_TIMESTAMPS  = 16           # Maximum number of announce timestamps to keep per destination
-    PERSIST_RANDOM_BLOBS = 32           # Maximum number of random blobs per destination to persist to disk
-    MAX_RANDOM_BLOBS     = 64           # Maximum number of random blobs per destination to keep in memory
+    LINK_TIMEOUT                = RNS.Link.STALE_TIME * 1.25
+    REVERSE_TIMEOUT             = 30*60        # Reverse table entries are removed after 30 minutes
+    DESTINATION_TIMEOUT         = 60*60*24*7   # Destination table entries are removed if unused for one week
+    MAX_RECEIPTS                = 1024         # Maximum number of receipts to keep track of
+    MAX_RATE_TIMESTAMPS         = 16           # Maximum number of announce timestamps to keep per destination
+    PERSIST_RANDOM_BLOBS        = 32           # Maximum number of random blobs per destination to persist to disk
+    MAX_RANDOM_BLOBS            = 64           # Maximum number of random blobs per destination to keep in memory
 
-    interfaces           = []           # All active interfaces
-    destinations         = []           # All active destinations
-    pending_links        = []           # Links that are being established
-    active_links         = []           # Links that are active
-    packet_hashlist      = []           # A list of packet hashes for duplicate detection
-    receipts             = []           # Receipts of all outgoing packets for proof processing
+    interfaces                  = []           # All active interfaces
+    destinations                = []           # All active destinations
+    pending_links               = []           # Links that are being established
+    active_links                = []           # Links that are active
+    packet_hashlist             = []           # A list of packet hashes for duplicate detection
+    receipts                    = []           # Receipts of all outgoing packets for proof processing
 
     # TODO: "destination_table" should really be renamed to "path_table"
     # Notes on memory usage: 1 megabyte of memory can store approximately
     # 55.100 path table entries or approximately 22.300 link table entries.
 
-    announce_table       = {}           # A table for storing announces currently waiting to be retransmitted
-    destination_table    = {}           # A lookup table containing the next hop to a given destination
-    reverse_table        = {}           # A lookup table for storing packet hashes used to return proofs and replies
-    link_table           = {}           # A lookup table containing hops for links
-    held_announces       = {}           # A table containing temporarily held announce-table entries
-    announce_handlers    = []           # A table storing externally registered announce handlers
-    tunnels              = {}           # A table storing tunnels to other transport instances
-    announce_rate_table  = {}           # A table for keeping track of announce rates
-    path_requests        = {}           # A table for storing path request timestamps
-    path_states          = {}           # A table for keeping track of path states
+    announce_table              = {}           # A table for storing announces currently waiting to be retransmitted
+    destination_table           = {}           # A lookup table containing the next hop to a given destination
+    reverse_table               = {}           # A lookup table for storing packet hashes used to return proofs and replies
+    link_table                  = {}           # A lookup table containing hops for links
+    held_announces              = {}           # A table containing temporarily held announce-table entries
+    announce_handlers           = []           # A table storing externally registered announce handlers
+    tunnels                     = {}           # A table storing tunnels to other transport instances
+    announce_rate_table         = {}           # A table for keeping track of announce rates
+    path_requests               = {}           # A table for storing path request timestamps
+    path_states                 = {}           # A table for keeping track of path states
     
-    discovery_path_requests  = {}       # A table for keeping track of path requests on behalf of other nodes
-    discovery_pr_tags        = []       # A table for keeping track of tagged path requests
-    max_pr_tags              = 32000    # Maximum amount of unique path request tags to remember
+    discovery_path_requests     = {}       # A table for keeping track of path requests on behalf of other nodes
+    discovery_pr_tags           = []       # A table for keeping track of tagged path requests
+    max_pr_tags                 = 32000    # Maximum amount of unique path request tags to remember
 
     # Transport control destinations are used
     # for control purposes like path requests
-    control_destinations = []
-    control_hashes       = []
+    control_destinations        = []
+    control_hashes              = []
+    remote_management_allowed   = []
 
     # Interfaces for communicating with
     # local clients connected to a shared
     # Reticulum instance
-    local_client_interfaces = []
+    local_client_interfaces     = []
 
-    local_client_rssi_cache    = []
-    local_client_snr_cache     = []
-    local_client_q_cache       = []
-    LOCAL_CLIENT_CACHE_MAXSIZE = 512
+    local_client_rssi_cache     = []
+    local_client_snr_cache      = []
+    local_client_q_cache        = []
+    LOCAL_CLIENT_CACHE_MAXSIZE  = 512
 
     pending_local_path_requests = {}
 
-    start_time               = None
-    jobs_locked              = False
-    jobs_running             = False
-    job_interval             = 0.250
-    links_last_checked       = 0.0
-    links_check_interval     = 1.0
-    receipts_last_checked    = 0.0
-    receipts_check_interval  = 1.0
-    announces_last_checked   = 0.0
-    announces_check_interval = 1.0
-    hashlist_maxsize         = 1000000
-    tables_last_culled       = 0.0
-    tables_cull_interval     = 5.0
-    interface_last_jobs      = 0.0
-    interface_jobs_interval  = 5.0
+    start_time                  = None
+    jobs_locked                 = False
+    jobs_running                = False
+    job_interval                = 0.250
+    links_last_checked          = 0.0
+    links_check_interval        = 1.0
+    receipts_last_checked       = 0.0
+    receipts_check_interval     = 1.0
+    announces_last_checked      = 0.0
+    announces_check_interval    = 1.0
+    hashlist_maxsize            = 1000000
+    tables_last_culled          = 0.0
+    tables_cull_interval        = 5.0
+    interface_last_jobs         = 0.0
+    interface_jobs_interval     = 5.0
 
     identity = None
 
@@ -179,6 +180,13 @@ class Transport:
         Transport.control_destinations.append(Transport.tunnel_synthesize_handler)
         Transport.control_hashes.append(Transport.tunnel_synthesize_destination.hash)
 
+        if RNS.Reticulum.remote_management_enabled() and not Transport.owner.is_connected_to_shared_instance:
+            Transport.remote_management_destination = RNS.Destination(Transport.identity, RNS.Destination.IN, RNS.Destination.SINGLE, Transport.APP_NAME, "remote", "management")
+            Transport.remote_management_destination.register_request_handler("/status", response_generator = Transport.remote_status_handler, allow = RNS.Destination.ALLOW_LIST, allowed_list=Transport.remote_management_allowed)
+            Transport.control_destinations.append(Transport.remote_management_destination)
+            Transport.control_hashes.append(Transport.remote_management_destination.hash)
+            RNS.log("Enabled remote management on "+str(Transport.remote_management_destination), RNS.LOG_NOTICE)
+        
         Transport.jobs_running = False
         thread = threading.Thread(target=Transport.jobloop, daemon=True)
         thread.start()
@@ -2246,6 +2254,25 @@ class Transport:
 
         packet.send()
         Transport.path_requests[destination_hash] = time.time()
+
+    @staticmethod
+    def remote_status_handler(path, data, request_id, link_id, remote_identity, requested_at):
+        if remote_identity != None:
+            response = None
+            try:
+                if isinstance(data, list) and len(data) > 0:
+                    response = []
+                    response.append(Transport.owner.get_interface_stats())
+                    if data[0] == True:
+                        response.append(Transport.owner.get_link_count())
+
+                    return response
+
+            except Exception as e:
+                RNS.log("An error occurred while processing remote status request from "+RNS.prettyhexrep(remote_identity), RNS.LOG_ERROR)
+                RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+
+            return None
 
     @staticmethod
     def path_request_handler(data, packet):
