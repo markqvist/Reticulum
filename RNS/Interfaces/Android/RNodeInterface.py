@@ -436,7 +436,7 @@ class RNodeInterface(Interface):
             RNS.log("Invalid bandwidth configured for "+str(self), RNS.LOG_ERROR)
             self.validcfg = False
 
-        if (self.sf < 7 or self.sf > 12):
+        if (self.sf < 5 or self.sf > 12):
             RNS.log("Invalid spreading factor configured for "+str(self), RNS.LOG_ERROR)
             self.validcfg = False
 
