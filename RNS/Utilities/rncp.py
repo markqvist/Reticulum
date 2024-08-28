@@ -477,7 +477,10 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
                 prg = current_resource.get_progress()
                 percent = round(prg * 100.0, 1)
                 stat_str = str(percent)+"% - " + size_str(int(prg*current_resource.total_size)) + " of " + size_str(current_resource.total_size) + " - " +size_str(speed, "b")+"ps"
-                print("\r                                                                                  \rTransferring file "+syms[i]+" "+stat_str, end=" ")
+                if prg != 1.0:
+                    print("\r                                                                                  \rTransferring file "+syms[i]+" "+stat_str, end=" ")
+                else:
+                    print("\r                                                                                  \rTransfer complete  "+stat_str, end=" ")
             else:
                 print("\r                                                                                  \rWaiting for transfer to start "+syms[i]+" ", end=" ")
             sys.stdout.flush()
@@ -491,7 +494,7 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
         exit(1)
     else:
         if silent:
-            print(str(file_path)+" copied to "+RNS.prettyhexrep(destination_hash))
+            print(str(file)+" fetched from "+RNS.prettyhexrep(destination_hash))
         else:
             #print("\r                                                                                  \r"+str(file)+" fetched from "+RNS.prettyhexrep(destination_hash))
             print("\n"+str(file)+" fetched from "+RNS.prettyhexrep(destination_hash))
@@ -649,12 +652,15 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
         else:
             print("\r                                                            \rTransferring file  ", end=" ")
 
-    def progress_update(i):
+    def progress_update(i, done=False):
         time.sleep(0.1)
         prg = current_resource.get_progress()
         percent = round(prg * 100.0, 1)
         stat_str = str(percent)+"% - " + size_str(int(prg*current_resource.total_size)) + " of " + size_str(current_resource.total_size) + " - " +size_str(speed, "b")+"ps"
-        print("\r                                                                                  \rTransferring file "+syms[i]+" "+stat_str, end=" ")
+        if not done:
+            print("\r                                                                                  \rTransferring file "+syms[i]+" "+stat_str, end=" ")
+        else:
+            print("\r                                                                                  \rTransfer complete  "+stat_str, end=" ")
         sys.stdout.flush()
         i = (i+1)%len(syms)
         return i
@@ -662,6 +668,9 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
     while not resource_done:
         if not silent:
             i = progress_update(i)
+
+    if not silent:
+        i = progress_update(i, done=True)
 
     if current_resource.status != RNS.Resource.COMPLETE:
         if silent:
