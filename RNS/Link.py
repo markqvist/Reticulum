@@ -462,6 +462,15 @@ class Link:
     def get_context(self):
         return None
 
+    def get_age(self):
+        """
+        :returns: The time in seconds since this link was established.
+        """
+        if self.activated_at:
+            return time.time() - self.activated_at
+        else:
+            return None
+
     def no_inbound_for(self):
         """
         :returns: The time in seconds since last inbound packet on the link. This includes keepalive packets.
