@@ -923,7 +923,9 @@ class Resource:
         """
         :returns: The current progress of the resource transfer as a *float* between 0.0 and 1.0.
         """
-        if self.initiator:
+        if self.status == RNS.Resource.COMPLETE and self.segment_index == self.total_segments:
+            return 1.0
+        elif self.initiator:
             self.processed_parts  = (self.segment_index-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)
             self.processed_parts += self.sent_parts
             self.progress_total_parts = float(self.grand_total_parts)
