@@ -1457,6 +1457,11 @@ class Reticulum:
             rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
             rpc_connection.send({"get": "next_hop", "destination_hash": destination})
             response = rpc_connection.recv()
+
+            # TODO: Remove this debugging function
+            # if not response:
+            #     response = RNS.Transport.next_hop(destination)
+
             return response
 
         else:
