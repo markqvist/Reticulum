@@ -155,8 +155,6 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
                 if filename_len > 0xFFFF:
                     print("Filename exceeds max size, cannot send")
                     exit(1)
-                else:
-                    print("Preparing file...", end=" ")
 
                 temp_file.write(filename_len.to_bytes(2, "big"))
                 temp_file.write(filename_bytes)
