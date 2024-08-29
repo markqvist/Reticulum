@@ -204,6 +204,8 @@ class Resource:
         data_size = None
         resource_data = None
         self.assembly_lock = False
+        self.preparing_next_segment = False
+        self.next_segment = None
 
         if data != None:
             if not hasattr(data, "read") and len(data) > Resource.MAX_EFFICIENT_SIZE:
@@ -410,9 +412,12 @@ class Resource:
         Advertise the resource. If the other end of the link accepts
         the resource advertisement it will begin transferring.
         """
-        thread = threading.Thread(target=self.__advertise_job)
-        thread.daemon = True
+        thread = threading.Thread(target=self.__advertise_job, daemon=True)
         thread.start()
+
+        if self.segment_index < self.total_segments:
+            prepare_thread = threading.Thread(target=self.__prepare_next_segment, daemon=True)
+            prepare_thread.start()
 
     def __advertise_job(self):
         self.advertisement_packet = RNS.Packet(self.link, ResourceAdvertisement(self).pack(), context=RNS.Packet.RESOURCE_ADV)
@@ -610,6 +615,21 @@ class Resource:
                 RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
                 self.cancel()
 
+    def __prepare_next_segment(self):
+        # Prepare the next segment for advertisement
+        RNS.log(f"Preparing segment {self.segment_index+1} of {self.total_segments} for resource {self}", RNS.LOG_DEBUG)
+        self.preparing_next_segment = True
+        self.next_segment = Resource(
+            self.input_file, self.link,
+            callback = self.callback,
+            segment_index = self.segment_index+1,
+            original_hash=self.original_hash,
+            progress_callback = self.__progress_callback,
+            request_id = self.request_id,
+            is_response = self.is_response,
+            advertise = False,
+        )
+
     def validate_proof(self, proof_data):
         if not self.status == Resource.FAILED:
             if len(proof_data) == RNS.Identity.HASHLENGTH//8*2:
@@ -635,15 +655,13 @@ class Resource:
                     else:
                         # Otherwise we'll recursively create the
                         # next segment of the resource
-                        Resource(
-                            self.input_file, self.link,
-                            callback = self.callback,
-                            segment_index = self.segment_index+1,
-                            original_hash=self.original_hash,
-                            progress_callback = self.__progress_callback,
-                            request_id = self.request_id,
-                            is_response = self.is_response,
-                        )
+                        if not self.preparing_next_segment:
+                            RNS.log(f"Next segment preparation for resource {self} was not started yet, manually preparing now. This will cause transfer slowdown.", RNS.LOG_WARNING)
+                            self.__prepare_next_segment()
+
+                        while self.next_segment == None:
+                            time.sleep(0.05)
+                        self.next_segment.advertise()
                 else:
                     pass
             else:
