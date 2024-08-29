@@ -312,8 +312,9 @@ Filter output to only show some interfaces:
 
 .. code:: text
 
-  usage: rnstatus.py [-h] [--config CONFIG] [--version] [-a] [-A] [-s SORT]
-                     [-r] [-j] [-v] [filter]
+  usage: rnstatus [-h] [--config CONFIG] [--version] [-a] [-A]
+                  [-l] [-s SORT] [-r] [-j] [-R hash] [-i path]
+                  [-w seconds] [-v] [filter]
 
   Reticulum Network Stack Status
 
@@ -326,9 +327,13 @@ Filter output to only show some interfaces:
     --version             show program's version number and exit
     -a, --all             show all interfaces
     -A, --announce-stats  show announce stats
+    -l, --link-stats      show link stats
     -s SORT, --sort SORT  sort interfaces by [rate, traffic, rx, tx, announces, arx, atx, held]
     -r, --reverse         reverse sorting
     -j, --json            output in JSON format
+    -R hash               transport identity hash of remote instance to get status from
+    -i path               path to identity used for remote management
+    -w seconds            timeout before giving up on remote queries
     -v, --verbose
 
 
@@ -452,8 +457,9 @@ Resolve path to a destination:
 
 .. code:: text
 
-  usage: rnpath.py [-h] [--config CONFIG] [--version] [-t] [-r] [-d] [-D]
-                   [-x] [-w seconds] [-v] [destination]
+  usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-m hops]
+                [-r] [-d] [-D] [-x] [-w seconds] [-R hash] [-i path]
+                [-W seconds] [-j] [-v] [destination]
 
   Reticulum Path Discovery Utility
 
@@ -465,11 +471,16 @@ Resolve path to a destination:
     --config CONFIG       path to alternative Reticulum config directory
     --version             show program's version number and exit
     -t, --table           show all known paths
+    -m hops, --max hops   maximum hops to filter path table by
     -r, --rates           show announce rate info
     -d, --drop            remove the path to a destination
     -D, --drop-announces  drop all queued announces
     -x, --drop-via        drop all paths via specified transport instance
     -w seconds            timeout before giving up
+    -R hash               transport identity hash of remote instance to manage
+    -i path               path to identity used for remote management
+    -W seconds            timeout before giving up on remote queries
+    -j, --json            output in JSON format
     -v, --verbose
 
 
@@ -524,20 +535,27 @@ these as part of the result as well.
 
 .. code:: text
 
-  usage: rnprobe [-h] [--config CONFIG] [--version] [-v] [-s SIZE]
+  usage: rnprobe [-h] [--config CONFIG] [-s SIZE] [-n PROBES]
+                 [-t seconds] [-w seconds] [--version] [-v]
                  [full_name] [destination_hash]
 
   Reticulum Probe Utility
 
   positional arguments:
-    full_name         full destination name in dotted notation
-    destination_hash  hexadecimal hash of the destination
+    full_name             full destination name in dotted notation
+    destination_hash      hexadecimal hash of the destination
 
-  optional arguments:
-    -h, --help        show this help message and exit
-    --config CONFIG   path to alternative Reticulum config directory
+  options:
+    -h, --help            show this help message and exit
+    --config CONFIG       path to alternative Reticulum config directory
     -s SIZE, --size SIZE  size of probe packet payload in bytes
-    --version         show program's version number and exit
+    -n PROBES, --probes PROBES
+                          number of probes to send
+    -t seconds, --timeout seconds
+                          timeout before giving up
+    -w seconds, --wait seconds
+                          time between each probe
+    --version             show program's version number and exit
     -v, --verbose
 
 
@@ -578,8 +596,9 @@ Or fetch a file from the remote system:
 
 .. code:: text
 
-  usage: rncp.py [-h] [--config path] [-v] [-q] [-S] [-l] [-f] [-b seconds]
-                 [-a allowed_hash] [-n] [-p] [-w seconds] [--version] [file] [destination]
+  usage: rncp [-h] [--config path] [-v] [-q] [-S] [-l] [-F] [-f]
+              [-j path] [-b seconds] [-a allowed_hash] [-n] [-p]
+              [-w seconds] [--version] [file] [destination]
 
   Reticulum File Transfer Utility
 
@@ -594,10 +613,12 @@ Or fetch a file from the remote system:
     -q, --quiet           decrease verbosity
     -S, --silent          disable transfer progress output
     -l, --listen          listen for incoming transfer requests
+    -F, --allow-fetch     allow authenticated clients to fetch files
     -f, --fetch           fetch file from remote listener instead of sending
+    -j path, --jail path  restrict fetch requests to specified path
     -b seconds            announce interval, 0 to only announce at startup
-    -a allowed_hash       accept from this identity
-    -n, --no-auth         accept files and fetches from anyone
+    -a allowed_hash       allow this identity
+    -n, --no-auth         accept requests from anyone
     -p, --print-identity  print identity and destination info and exit
     -w seconds            sender timeout before giving up
     --version             show program's version number and exit
@@ -685,15 +706,19 @@ to create and provision new :ref:`RNodes<rnode-main>` from any supported hardwar
 
 .. code:: text
 
-  usage: rnodeconf.py [-h] [-i] [-a] [-u] [-U] [--fw-version version] [--nocheck] [-e]
-                      [-E] [-C] [--baud-flash baud_flash] [-N] [-T] [-b] [-B] [-p] [-D i]
-                      [--freq Hz] [--bw Hz] [--txp dBm] [--sf factor] [--cr rate]
-                      [--eeprom-backup] [--eeprom-dump] [--eeprom-wipe] [-P]
-                      [--trust-key hexbytes] [--version] [port]
+  usage: rnodeconf [-h] [-i] [-a] [-u] [-U] [--fw-version version]
+                   [--fw-url url] [--nocheck] [-e] [-E] [-C]
+                   [--baud-flash baud_flash] [-N] [-T] [-b] [-B] [-p] [-D i]
+                   [--display-addr byte] [--freq Hz] [--bw Hz] [--txp dBm]
+                   [--sf factor] [--cr rate] [--eeprom-backup] [--eeprom-dump]
+                   [--eeprom-wipe] [-P] [--trust-key hexbytes] [--version] [-f]
+                   [-r] [-k] [-S] [-H FIRMWARE_HASH] [--platform platform]
+                   [--product product] [--model model] [--hwrev revision]
+                   [port]
 
-  RNode Configuration and firmware utility. This program allows you to change various
-  settings and startup modes of RNode. It can also install, flash and update the firmware
-  on supported devices.
+  RNode Configuration and firmware utility. This program allows you to change
+  various settings and startup modes of RNode. It can also install, flash and
+  update the firmware on supported devices.
 
   positional arguments:
     port                  serial port where RNode is attached
@@ -703,20 +728,26 @@ to create and provision new :ref:`RNodes<rnode-main>` from any supported hardwar
     -i, --info            Show device info
     -a, --autoinstall     Automatic installation on various supported devices
     -u, --update          Update firmware to the latest version
-    -U, --force-update    Update to specified firmware even if version matches or is older than installed version
-    --fw-version version  Use a specific firmware version for update or autoinstall
+    -U, --force-update    Update to specified firmware even if version matches
+                          or is older than installed version
+    --fw-version version  Use a specific firmware version for update or
+                          autoinstall
+    --fw-url url          Use an alternate firmware download URL
     --nocheck             Don't check for firmware updates online
     -e, --extract         Extract firmware from connected RNode for later use
-    -E, --use-extracted   Use the extracted firmware for autoinstallation or update
+    -E, --use-extracted   Use the extracted firmware for autoinstallation or
+                          update
     -C, --clear-cache     Clear locally cached firmware files
     --baud-flash baud_flash
-                          Set specific baud rate when flashing device. Default is 921600
+                          Set specific baud rate when flashing device. Default
+                          is 921600
     -N, --normal          Switch device to normal mode
     -T, --tnc             Switch device to TNC mode
     -b, --bluetooth-on    Turn device bluetooth on
     -B, --bluetooth-off   Turn device bluetooth off
     -p, --bluetooth-pair  Put device into bluetooth pairing mode
     -D i, --display i     Set display intensity (0-255)
+    --display-addr byte   Set display address as hex byte (00 - FF)
     --freq Hz             Frequency in Hz for TNC mode
     --bw Hz               Bandwidth in Hz for TNC mode
     --txp dBm             TX power in dBm for TNC mode
@@ -728,9 +759,45 @@ to create and provision new :ref:`RNodes<rnode-main>` from any supported hardwar
     -P, --public          Display public part of signing key
     --trust-key hexbytes  Public key to trust for device verification
     --version             Print program version and exit
+    -f, --flash           Flash firmware and bootstrap EEPROM
+    -r, --rom             Bootstrap EEPROM without flashing firmware
+    -k, --key             Generate a new signing key and exit
+    -S, --sign            Display public part of signing key
+    -H FIRMWARE_HASH, --firmware-hash FIRMWARE_HASH
+                          Display installed firmware hash
+    --platform platform   Platform specification for device bootstrap
+    --product product     Product specification for device bootstrap
+    --model model         Model code for device bootstrap
+    --hwrev revision      Hardware revision for device bootstrap
+
 
 For more information on how to create your own RNodes, please read the :ref:`Creating RNodes<rnode-creating>`
 section of this manual.
+
+Remote Management
+-----------------
+
+It is possible to allow remote management of Reticulum
+systems using the various built-in utilities, such as
+``rnstatus`` and ``rnpath``. To do so, you will need to set
+the ``enable_remote_management`` directive in the ``[reticulum]``
+section of the configuration file. You will also need to specify
+one or more Reticulum Identity hashes for authenticating the
+queries from client programs. For this purpose, you can use
+existing identity files, or generate new ones with the rnid utility.
+
+The following is a truncated example of enabling remote management
+in the Reticulum configuration file:
+
+.. code:: text
+  
+  [reticulum]
+  ...
+  enable_remote_management = yes
+  remote_management_allowed = 9fb6d773498fb3feda407ed8ef2c3229, 2d882c5586e548d79b5af27bca1776dc
+  ...
+
+For a complete example configuration, you can run ``rnsd --exampleconfig``.
 
 Improving System Configuration
 ------------------------------
