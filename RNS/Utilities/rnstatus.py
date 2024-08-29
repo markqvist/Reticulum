@@ -356,6 +356,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
             print("Could not get RNS status")
         else:
             print("Could not get RNS status from remote transport instance "+RNS.prettyhexrep(identity_hash))
+        exit(1)
 
 def main():
     try:
