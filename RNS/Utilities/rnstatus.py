@@ -51,7 +51,7 @@ def size_str(num, suffix='B'):
 
 request_result = None
 request_concluded = False
-def get_remote_status(destination_hash, include_lstats, identity, no_output=False):
+def get_remote_status(destination_hash, include_lstats, identity, no_output=False, timeout=RNS.Transport.PATH_REQUEST_TIMEOUT):
     global request_result, request_concluded
     link_count = None
 
@@ -61,10 +61,9 @@ def get_remote_status(destination_hash, include_lstats, identity, no_output=Fals
             sys.stdout.flush()
         RNS.Transport.request_path(destination_hash)
         pr_time = time.time()
-        pr_timeout = 10
         while not RNS.Transport.has_path(destination_hash):
             time.sleep(0.1)
-            if time.time() - pr_time > pr_timeout:
+            if time.time() - pr_time > timeout:
                 if not no_output:
                     print("\r                                                          \r", end="")
                     print("Path request timed out")
@@ -135,7 +134,8 @@ def get_remote_status(destination_hash, include_lstats, identity, no_output=Fals
     return request_result
 
 def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False,
-                  lstats=False, sorting=None, sort_reverse=False, remote=None, management_identity=None):
+                  lstats=False, sorting=None, sort_reverse=False, remote=None, management_identity=None,
+                  remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT):
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
 
     link_count = None
@@ -156,7 +156,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 raise ValueError("Could not load management identity from "+str(management_identity))
 
             try:
-                remote_status = get_remote_status(destination_hash, lstats, identity, no_output=json)
+                remote_status = get_remote_status(destination_hash, lstats, identity, no_output=json, timeout=remote_timeout)
                 if remote_status != None:
                     stats, link_count = remote_status
             except Exception as e:
@@ -414,7 +414,6 @@ def main():
 
         parser.add_argument(
             "-R",
-            "--remote",
             action="store",
             metavar="hash",
             help="transport identity hash of remote instance to get status from",
@@ -424,12 +423,20 @@ def main():
 
         parser.add_argument(
             "-i",
-            "--identity",
             action="store",
             metavar="path",
             help="path to identity used for remote management",
             default=None,
             type=str
+        )
+
+        parser.add_argument(
+            "-w",
+            action="store",
+            metavar="seconds",
+            type=float,
+            help="timeout before giving up on remote queries",
+            default=RNS.Transport.PATH_REQUEST_TIMEOUT
         )
 
         parser.add_argument('-v', '--verbose', action='count', default=0)
@@ -453,8 +460,9 @@ def main():
             lstats=args.link_stats,
             sorting=args.sort,
             sort_reverse=args.reverse,
-            remote=args.remote,
-            management_identity=args.identity,
+            remote=args.R,
+            management_identity=args.i,
+            remote_timeout=args.w,
         )
 
     except KeyboardInterrupt:
