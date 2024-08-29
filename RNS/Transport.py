@@ -183,6 +183,7 @@ class Transport:
         if RNS.Reticulum.remote_management_enabled() and not Transport.owner.is_connected_to_shared_instance:
             Transport.remote_management_destination = RNS.Destination(Transport.identity, RNS.Destination.IN, RNS.Destination.SINGLE, Transport.APP_NAME, "remote", "management")
             Transport.remote_management_destination.register_request_handler("/status", response_generator = Transport.remote_status_handler, allow = RNS.Destination.ALLOW_LIST, allowed_list=Transport.remote_management_allowed)
+            Transport.remote_management_destination.register_request_handler("/path", response_generator = Transport.remote_path_handler, allow = RNS.Destination.ALLOW_LIST, allowed_list=Transport.remote_management_allowed)
             Transport.control_destinations.append(Transport.remote_management_destination)
             Transport.control_hashes.append(Transport.remote_management_destination.hash)
             RNS.log("Enabled remote management on "+str(Transport.remote_management_destination), RNS.LOG_NOTICE)
@@ -2269,7 +2270,43 @@ class Transport:
                     return response
 
             except Exception as e:
-                RNS.log("An error occurred while processing remote status request from "+RNS.prettyhexrep(remote_identity), RNS.LOG_ERROR)
+                RNS.log("An error occurred while processing remote status request from "+str(remote_identity), RNS.LOG_ERROR)
+                RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+
+            return None
+
+    @staticmethod
+    def remote_path_handler(path, data, request_id, link_id, remote_identity, requested_at):
+        if remote_identity != None:
+            response = None
+            try:
+                if isinstance(data, list) and len(data) > 0:
+                    command = data[0]
+                    destination_hash = None
+                    max_hops = None
+                    if len(data) > 1:
+                        destination_hash = data[1]
+                    if len(data) > 2:
+                        max_hops = data[2]
+
+                    if command == "table":
+                        table = Transport.owner.get_path_table(max_hops=max_hops)
+                        response = []
+                        for path in table:
+                            if destination_hash == None or destination_hash == path["hash"]:
+                                response.append(path)
+
+                    elif command == "rates":
+                        table = Transport.owner.get_rate_table()
+                        response = []
+                        for path in table:
+                            if destination_hash == None or destination_hash == path["hash"]:
+                                response.append(path)
+
+                    return response
+
+            except Exception as e:
+                RNS.log("An error occurred while processing remote status request from "+str(remote_identity), RNS.LOG_ERROR)
                 RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
 
             return None

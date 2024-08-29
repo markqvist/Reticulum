@@ -23,14 +23,95 @@
 # SOFTWARE.
 
 import RNS
+import os
 import sys
 import time
 import argparse
 
 from RNS._version import __version__
 
+remote_link = None
+def connect_remote(destination_hash, auth_identity, timeout, no_output = False):
+    global remote_link, reticulum
+    if not RNS.Transport.has_path(destination_hash):
+        if not no_output:
+            print("Path to "+RNS.prettyhexrep(destination_hash)+" requested", end=" ")
+            sys.stdout.flush()
+        RNS.Transport.request_path(destination_hash)
+        pr_time = time.time()
+        while not RNS.Transport.has_path(destination_hash):
+            time.sleep(0.1)
+            if time.time() - pr_time > timeout:
+                if not no_output:
+                    print("\r                                                          \r", end="")
+                    print("Path request timed out")
+                    exit(12)
 
-def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues, drop_via, max_hops):
+    remote_identity = RNS.Identity.recall(destination_hash)
+
+    def remote_link_closed(link):
+        if link.teardown_reason == RNS.Link.TIMEOUT:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("The link timed out, exiting now")
+        elif link.teardown_reason == RNS.Link.DESTINATION_CLOSED:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("The link was closed by the server, exiting now")
+        else:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("Link closed unexpectedly, exiting now")
+        exit(10)
+
+    def remote_link_established(link):
+        global remote_link
+        link.identify(auth_identity)
+        remote_link = link
+
+    if not no_output:
+        print("\r                                                          \r", end="")
+        print("Establishing link with remote transport instance...", end=" ")
+        sys.stdout.flush()
+
+    remote_destination = RNS.Destination(remote_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "rnstransport", "remote", "management")
+    link = RNS.Link(remote_destination)
+    link.set_link_established_callback(remote_link_established)
+    link.set_link_closed_callback(remote_link_closed)
+
+def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout,
+                  drop_queues, drop_via, max_hops, remote=None, management_identity=None,
+                  remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT, no_output=False):
+    global remote_link, reticulum
+    reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
+    if remote:
+        try:
+            dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
+            if len(remote) != dest_len:
+                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            try:
+                identity_hash = bytes.fromhex(remote)
+                remote_hash = RNS.Destination.hash_from_name_and_identity("rnstransport.remote.management", identity_hash)
+            except Exception as e:
+                raise ValueError("Invalid destination entered. Check your input.")
+
+            identity = RNS.Identity.from_file(os.path.expanduser(management_identity))
+            if identity == None:
+                raise ValueError("Could not load management identity from "+str(management_identity))
+
+            try:
+                connect_remote(remote_hash, identity, remote_timeout, no_output)
+            except Exception as e:
+                raise e
+
+        except Exception as e:
+            print(str(e))
+            exit(20)
+
+        while remote_link == None:
+            time.sleep(0.1)
+
+
     if table:
         destination_hash = None
         if destination_hexhash != None:
@@ -46,8 +127,25 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                 print(str(e))
                 sys.exit(1)
 
-        reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
-        table = sorted(reticulum.get_path_table(max_hops=max_hops), key=lambda e: (e["interface"], e["hops"]) )
+        if not remote_link:
+            table = sorted(reticulum.get_path_table(max_hops=max_hops), key=lambda e: (e["interface"], e["hops"]) )
+        else:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("Sending request...", end=" ")
+                sys.stdout.flush()
+            receipt = remote_link.request("/path", data = ["table", destination_hash, max_hops])
+            while not receipt.concluded():
+                time.sleep(0.1)
+            response = receipt.get_response()
+            if response:
+                table = response
+                print("\r                                                          \r", end="")
+            else:
+                if not no_output:
+                    print("\r                                                          \r", end="")
+                    print("The remote request failed. Likely authentication failure.")
+                exit(10)
 
         displayed = 0
         for path in table:
@@ -79,9 +177,27 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                 print(str(e))
                 sys.exit(1)
 
-        reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
-        table = sorted(reticulum.get_rate_table(), key=lambda e: e["last"] )
+        if not remote_link:
+            table = reticulum.get_rate_table()
+        else:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("Sending request...", end=" ")
+                sys.stdout.flush()
+            receipt = remote_link.request("/path", data = ["rates", destination_hash])
+            while not receipt.concluded():
+                time.sleep(0.1)
+            response = receipt.get_response()
+            if response:
+                table = response
+                print("\r                                                          \r", end="")
+            else:
+                if not no_output:
+                    print("\r                                                          \r", end="")
+                    print("The remote request failed. Likely authentication failure.")
+                exit(10)
 
+        table = sorted(table, key=lambda e: e["last"])
         if len(table) == 0:
             print("No information available")
 
@@ -128,7 +244,6 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                 sys.exit(1)
 
     elif drop_queues:
-        reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
         RNS.log("Dropping announce queues on all interfaces...")
         reticulum.drop_announce_queues()
     
@@ -144,9 +259,6 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
         except Exception as e:
             print(str(e))
             sys.exit(1)
-
-
-        reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
 
         if reticulum.drop_path(destination_hash):
             print("Dropped path to "+RNS.prettyhexrep(destination_hash))
@@ -168,9 +280,6 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             print(str(e))
             sys.exit(1)
 
-
-        reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
-
         if reticulum.drop_all_via(destination_hash):
             print("Dropped all paths via "+RNS.prettyhexrep(destination_hash))
         else:
@@ -191,9 +300,6 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             print(str(e))
             sys.exit(1)
             
-
-        reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
-
         if not RNS.Transport.has_path(destination_hash):
             RNS.Transport.request_path(destination_hash)
             print("Path to "+RNS.prettyhexrep(destination_hash)+" requested  ", end=" ")
@@ -306,6 +412,33 @@ def main():
         )
 
         parser.add_argument(
+            "-R",
+            action="store",
+            metavar="hash",
+            help="transport identity hash of remote instance to manage",
+            default=None,
+            type=str
+        )
+
+        parser.add_argument(
+            "-i",
+            action="store",
+            metavar="path",
+            help="path to identity used for remote management",
+            default=None,
+            type=str
+        )
+
+        parser.add_argument(
+            "-W",
+            action="store",
+            metavar="seconds",
+            type=float,
+            help="timeout before giving up on remote queries",
+            default=RNS.Transport.PATH_REQUEST_TIMEOUT
+        )
+
+        parser.add_argument(
             "destination",
             nargs="?",
             default=None,
@@ -338,6 +471,9 @@ def main():
                 drop_queues = args.drop_announces,
                 drop_via = args.drop_via,
                 max_hops = args.max,
+                remote=args.R,
+                management_identity=args.i,
+                remote_timeout=args.W,
             )
             sys.exit(0)
 
