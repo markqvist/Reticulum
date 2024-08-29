@@ -30,7 +30,7 @@ import argparse
 from RNS._version import __version__
 
 
-def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues, drop_via):
+def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues, drop_via, max_hops):
     if table:
         destination_hash = None
         if destination_hexhash != None:
@@ -47,7 +47,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                 sys.exit(1)
 
         reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
-        table = sorted(reticulum.get_path_table(), key=lambda e: (e["interface"], e["hops"]) )
+        table = sorted(reticulum.get_path_table(max_hops=max_hops), key=lambda e: (e["interface"], e["hops"]) )
 
         displayed = 0
         for path in table:
@@ -256,6 +256,16 @@ def main():
         )
 
         parser.add_argument(
+            "-m",
+            "--max",
+            action="store",
+            metavar="hops",
+            type=int,
+            help="maximum hops to filter path table by",
+            default=None
+        )
+
+        parser.add_argument(
             "-r",
             "--rates",
             action="store_true",
@@ -327,6 +337,7 @@ def main():
                 timeout = args.w,
                 drop_queues = args.drop_announces,
                 drop_via = args.drop_via,
+                max_hops = args.max,
             )
             sys.exit(0)
 
