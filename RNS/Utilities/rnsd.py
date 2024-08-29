@@ -123,6 +123,18 @@ instance_control_port = 37429
 # rpc_key = e5c032d3ec4e64a6aca9927ba8ab73336780f6d71790
 
 
+# It is possible to allow remote management of Reticulum
+# systems using the various built-in utilities, such as
+# rnstatus and rnpath. You will need to specify one or
+# more Reticulum Identity hashes for authenticating the
+# queries from client programs. For this purpose, you can
+# use existing identity files, or generate new ones with
+# the rnid utility.
+
+# enable_remote_management = yes
+# remote_management_allowed = 9fb6d773498fb3feda407ed8ef2c3229, 2d882c5586e548d79b5af27bca1776dc
+
+
 # You can configure Reticulum to panic and forcibly close
 # if an unrecoverable interface error occurs, such as the
 # hardware device for an interface disappearing. This is
