@@ -79,9 +79,9 @@ def connect_remote(destination_hash, auth_identity, timeout, no_output = False):
     link.set_link_established_callback(remote_link_established)
     link.set_link_closed_callback(remote_link_closed)
 
-def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout,
-                  drop_queues, drop_via, max_hops, remote=None, management_identity=None,
-                  remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT, no_output=False):
+def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues,
+                  drop_via, max_hops, remote=None, management_identity=None, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT,
+                  no_output=False, json=False):
     global remote_link, reticulum
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
     if remote:
@@ -148,19 +148,29 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                 exit(10)
 
         displayed = 0
-        for path in table:
-            if destination_hash == None or destination_hash == path["hash"]:
-                displayed += 1
-                exp_str = RNS.timestamp_str(path["expires"])
-                if path["hops"] == 1:
-                    m_str = " "
-                else:
-                    m_str = "s"
-                print(RNS.prettyhexrep(path["hash"])+" is "+str(path["hops"])+" hop"+m_str+" away via "+RNS.prettyhexrep(path["via"])+" on "+path["interface"]+" expires "+RNS.timestamp_str(path["expires"]))
+        if json:
+            import json
+            for p in table:
+                for k in p:
+                    if isinstance(p[k], bytes):
+                        p[k] = RNS.hexrep(p[k], delimit=False)
 
-        if destination_hash != None and displayed == 0:
-            print("No path known")
-            sys.exit(1)
+            print(json.dumps(table))
+            exit()
+        else:
+            for path in table:
+                if destination_hash == None or destination_hash == path["hash"]:
+                    displayed += 1
+                    exp_str = RNS.timestamp_str(path["expires"])
+                    if path["hops"] == 1:
+                        m_str = " "
+                    else:
+                        m_str = "s"
+                    print(RNS.prettyhexrep(path["hash"])+" is "+str(path["hops"])+" hop"+m_str+" away via "+RNS.prettyhexrep(path["via"])+" on "+path["interface"]+" expires "+RNS.timestamp_str(path["expires"]))
+
+            if destination_hash != None and displayed == 0:
+                print("No path known")
+                sys.exit(1)
 
     elif rates:
         destination_hash = None
@@ -198,56 +208,78 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                 exit(10)
 
         table = sorted(table, key=lambda e: e["last"])
-        if len(table) == 0:
-            print("No information available")
+        if json:
+            import json
+            for p in table:
+                for k in p:
+                    if isinstance(p[k], bytes):
+                        p[k] = RNS.hexrep(p[k], delimit=False)
 
+            print(json.dumps(table))
+            exit()
         else:
-            displayed = 0
-            for entry in table:
-                if destination_hash == None or destination_hash == entry["hash"]:
-                    displayed += 1
-                    try:
-                        last_str = pretty_date(int(entry["last"]))
-                        start_ts = entry["timestamps"][0]
-                        span = max(time.time() - start_ts, 3600.0)
-                        span_hours = span/3600.0
-                        span_str = pretty_date(int(entry["timestamps"][0]))
-                        hour_rate = round(len(entry["timestamps"])/span_hours, 3)
-                        if hour_rate-int(hour_rate) == 0:
-                            hour_rate = int(hour_rate)
-                        
-                        if entry["rate_violations"] > 0:
-                            if entry["rate_violations"] == 1:
-                                s_str = ""
-                            else:
-                                s_str = "s"
-
-                            rv_str = ", "+str(entry["rate_violations"])+" active rate violation"+s_str
-                        else:
-                            rv_str = ""
-                        
-                        if entry["blocked_until"] > time.time():
-                            bli = time.time()-(int(entry["blocked_until"])-time.time())
-                            bl_str = ", new announces allowed in "+pretty_date(int(bli))
-                        else:
-                            bl_str = ""
-
-        
-                        print(RNS.prettyhexrep(entry["hash"])+" last heard "+last_str+" ago, "+str(hour_rate)+" announces/hour in the last "+span_str+rv_str+bl_str)
-
-                    except Exception as e:
-                        print("Error while processing entry for "+RNS.prettyhexrep(entry["hash"]))
-                        print(str(e))
-
-            if destination_hash != None and displayed == 0:
+            if len(table) == 0:
                 print("No information available")
-                sys.exit(1)
+
+            else:
+                displayed = 0
+                for entry in table:
+                    if destination_hash == None or destination_hash == entry["hash"]:
+                        displayed += 1
+                        try:
+                            last_str = pretty_date(int(entry["last"]))
+                            start_ts = entry["timestamps"][0]
+                            span = max(time.time() - start_ts, 3600.0)
+                            span_hours = span/3600.0
+                            span_str = pretty_date(int(entry["timestamps"][0]))
+                            hour_rate = round(len(entry["timestamps"])/span_hours, 3)
+                            if hour_rate-int(hour_rate) == 0:
+                                hour_rate = int(hour_rate)
+                            
+                            if entry["rate_violations"] > 0:
+                                if entry["rate_violations"] == 1:
+                                    s_str = ""
+                                else:
+                                    s_str = "s"
+
+                                rv_str = ", "+str(entry["rate_violations"])+" active rate violation"+s_str
+                            else:
+                                rv_str = ""
+                            
+                            if entry["blocked_until"] > time.time():
+                                bli = time.time()-(int(entry["blocked_until"])-time.time())
+                                bl_str = ", new announces allowed in "+pretty_date(int(bli))
+                            else:
+                                bl_str = ""
+
+            
+                            print(RNS.prettyhexrep(entry["hash"])+" last heard "+last_str+" ago, "+str(hour_rate)+" announces/hour in the last "+span_str+rv_str+bl_str)
+
+                        except Exception as e:
+                            print("Error while processing entry for "+RNS.prettyhexrep(entry["hash"]))
+                            print(str(e))
+
+                if destination_hash != None and displayed == 0:
+                    print("No information available")
+                    sys.exit(1)
 
     elif drop_queues:
-        RNS.log("Dropping announce queues on all interfaces...")
+        if remote_link:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("Dropping announce queues on remote instances not yet implemented")
+            exit(255)
+
+        print("Dropping announce queues on all interfaces...")
         reticulum.drop_announce_queues()
     
     elif drop:
+        if remote_link:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("Dropping path on remote instances not yet implemented")
+            exit(255)
+
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
             if len(destination_hexhash) != dest_len:
@@ -266,8 +298,13 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             print("Unable to drop path to "+RNS.prettyhexrep(destination_hash)+". Does it exist?")
             sys.exit(1)
 
-
     elif drop_via:
+        if remote_link:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("Dropping all paths via specific transport instance on remote instances yet not implemented")
+            exit(255)
+
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
             if len(destination_hexhash) != dest_len:
@@ -286,8 +323,13 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             print("Unable to drop paths via "+RNS.prettyhexrep(destination_hash)+". Does the transport instance exist?")
             sys.exit(1)
 
-
     else:
+        if remote_link:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("Requesting paths on remote instances not implemented")
+            exit(255)
+
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
             if len(destination_hexhash) != dest_len:
@@ -437,6 +479,14 @@ def main():
             help="timeout before giving up on remote queries",
             default=RNS.Transport.PATH_REQUEST_TIMEOUT
         )
+        
+        parser.add_argument(
+            "-j",
+            "--json",
+            action="store_true",
+            help="output in JSON format",
+            default=False
+        )
 
         parser.add_argument(
             "destination",
@@ -474,6 +524,7 @@ def main():
                 remote=args.R,
                 management_identity=args.i,
                 remote_timeout=args.W,
+                json=args.json,
             )
             sys.exit(0)
 
