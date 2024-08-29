@@ -1,3 +1,38 @@
+### 2024-05-18: RNS β 0.7.6
+
+This release add support for RNodes with multiple radio transceivers, courtesy of @jacobeva. It also brings a number of functionality and performance improvements, and fixes several bugs.
+
+Thanks to @jacobeva, @faragher, @nathmo, @jschulthess and @liamcottle for contributing to this release!
+
+**Changes**
+- Added support for RNode Multi interfaces
+- Added initial support for remote management of Reticulum instances
+- Improved resource transfer performance for large resources
+- Improved path rediscovery in topologies with roaming transport nodes
+- Fixed incorrect TX power limit on Android RNode interfaces
+- Added ability to fetch remote files to `rncp`
+- Added fetch request jail option to `rncp`
+- Improved `rncp` status display output
+- Added link table statistics to `rnstatus`
+- Fixed `rnstatus` JSON output bug when IFAC was enabled on an interface
+- Added remote instance interface status to `rnstatus`
+- Added ability to query path- and rate-tables on remote instances with `rnpath`
+- Added JSON output option to `rnpath` utility
+- Added max hops filter to `rnpath` path-table out
+- Added link age getter to API
+- Added request concluded status to API
+- Fixed invalid resource progress reported in some cases
+- Fixed `rnodeconf` failure to set firmware hash for NRF52 boards on macOS
+- Fixed broken `--rom` command line option in `rnodeconf`
+- Fixed various typos in documentation
+- Updated documentation with new API functions and features
+
+**Release Hashes**
+```
+683ac87c62fe8a18d88c26bf639f4eeca550cefb11ee8e38d6e724e268cf14fc rns-0.7.6-py3-none-any.whl
+f884806624e57b799f588de9289a31d2e0460d35bc4cc5071635de5642d50ad2 rnspure-0.7.6-py3-none-any.whl
+```
+
 ### 2024-05-18: RNS β 0.7.5
 
 This release adds support for AutoInterface on Windows platforms, fixes a number of bugs and adds several new supported boards to `rnodeconf`. Thanks to @faragher, @jacobeva and @liamcottle who contributed to this release!
