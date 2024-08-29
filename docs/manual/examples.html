@@ -1030,20 +1030,8 @@ destination, and passing traffic back and forth over the link.</p>
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
-    <span class="c1"># Load identity from file if it exist or randomley create</span>
-    <span class="k">if</span> <span class="n">configpath</span><span class="p">:</span>
-        <span class="n">ifilepath</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/storage/identitiesy/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">configpath</span><span class="p">,</span><span class="n">APP_NAME</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">ifilepath</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/storage/identities/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">configdir</span><span class="p">,</span><span class="n">APP_NAME</span><span class="p">)</span>
-    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;ifilepath: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ifilepath</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ifilepath</span><span class="p">):</span>
-        <span class="c1"># Load identity from file</span>
-        <span class="n">server_identity</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Identity</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">ifilepath</span><span class="p">)</span>
-        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;loaded identity from file: &quot;</span><span class="o">+</span><span class="n">ifilepath</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_VERBOSE</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># Randomly create a new identity for our link example</span>
-        <span class="n">server_identity</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
-        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;created new identity&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_VERBOSE</span><span class="p">)</span>
+    <span class="n">server_identity</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;created new identity&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_VERBOSE</span><span class="p">)</span>
 
     <span class="c1"># We create a destination that clients can connect to. We</span>
     <span class="c1"># want clients to create links to this destination, so we</span>
