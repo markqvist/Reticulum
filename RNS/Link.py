@@ -1288,6 +1288,17 @@ class RequestReceipt():
         else:
             return None
 
+    def concluded(self):
+        """
+        :returns: True if the associated request has concluded (successfully or with a failure), otherwise False.
+        """
+        if self.status == RequestReceipt.READY:
+            return True
+        elif self.status == RequestReceipt.FAILED:
+            return True
+        else:
+            return False
+
 
 
 class RequestReceiptCallbacks:
