@@ -1343,8 +1343,10 @@ class Transport:
                             new_raw += packet.raw[2:]
                             Transport.transmit(outbound_interface, new_raw)
                             Transport.link_table[packet.destination_hash][0] = time.time()
-                        else:
-                            pass
+                        
+                        # TODO: Test and possibly enable this at some point
+                        # Transport.jobs_locked = False
+                        # return
 
 
             # Announce handling. Handles logic related to incoming

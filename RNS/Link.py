@@ -900,6 +900,11 @@ class Link:
                                     if not packet.packet_hash in resource.req_hashlist:
                                         resource.req_hashlist.append(packet.packet_hash)
                                         resource.request(plaintext)
+                                        
+                                        # TODO: Test and possibly enable this at some point
+                                        # def request_job():
+                                        #     resource.request(plaintext)
+                                        # threading.Thread(target=request_job, daemon=True).start()
 
                     elif packet.context == RNS.Packet.RESOURCE_HMU:
                         plaintext = self.decrypt(packet.data)
