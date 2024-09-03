@@ -472,13 +472,13 @@ class RNodeInterface(Interface):
             RNS.log("Bandwidth mismatch", RNS.LOG_ERROR)
             self.validcfg = False
         if (self.txpower != self.r_txpower):
-            RNS.log("TX power mismatch", RNS.LOG_ERROR)
+            RNS.log("TX power mismatch: " + str(self.txpower) + " vs " + str(self.r_txpower), RNS.LOG_ERROR)
             self.validcfg = False
         if (self.sf != self.r_sf):
             RNS.log("Spreading factor mismatch", RNS.LOG_ERROR)
             self.validcfg = False
         if (self.state != self.r_state):
-            RNS.log("Radio state mismatch", RNS.LOG_ERROR)
+            RNS.log("Radio state mismatch: " + str(self.state) + " vs " + str(self.r_state), RNS.LOG_ERROR)
             self.validcfg = False
 
         if (self.validcfg):
