@@ -1607,7 +1607,8 @@ def main():
             print("[8] Heltec LoRa32 v3")
             print("[9] LilyGO LoRa T3S3")
             print("[10] RAK4631")
-            print("[11] LilyGo T-Echo")
+            #TODO: Implement T-Echo
+            #print("[11] LilyGo T-Echo")
             print("       .")
             print("      / \\   Select one of these options if you want to easily turn")
             print("       |    a supported development board into an RNode.")
@@ -1762,6 +1763,10 @@ def main():
                     print("---------------------------------------------------------------------------")
                     input()
                 elif c_dev == 11:
+                #TODO: Implement T-Echo
+                    print("That device type does not exist, exiting now.")
+                    graceful_exit()
+                #The code below will never execute until the exit is removed from the line above when T-Echo is implemented:
                     selected_product = ROM.PRODUCT_TECHO
                     clear()
                     print("")
