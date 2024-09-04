@@ -72,7 +72,7 @@ class Destination:
     directions = [IN, OUT]
 
     PR_TAG_WINDOW = 30
-    RATCHET_COUNT = 256
+    RATCHET_COUNT = 512
 
     @staticmethod
     def expand_name(identity, app_name, *aspects):
