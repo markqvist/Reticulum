@@ -28,8 +28,8 @@ def server(configpath):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
     
+    # Randomly create a new identity for our link example
     server_identity = RNS.Identity()
-    RNS.log("created new identity", RNS.LOG_VERBOSE)
 
     # We create a destination that clients can connect to. We
     # want clients to create links to this destination, so we
@@ -58,7 +58,7 @@ def server_loop(destination):
         " running, waiting for a connection."
     )
 
-    RNS.log("Hit enter to manually send an announce (Ctrl-C or \"quit\" to quit)")
+    RNS.log("Hit enter to manually send an announce (Ctrl-C to quit)")
 
     # We enter a loop that runs until the users exits.
     # If the user hits enter, we will announce our server
@@ -68,12 +68,6 @@ def server_loop(destination):
         entered = input()
         destination.announce()
         RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
-        if entered == "quit":
-            if latest_client_link:
-                latest_client_link.teardown()
-            break
-    print("")
-    exit()
 
 # When a client establishes a link to our server
 # destination, this function will be called with
