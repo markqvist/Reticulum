@@ -693,7 +693,8 @@ Wire Format
     [HEADER 2 bytes] [ADDRESSES 16/32 bytes] [CONTEXT 1 byte] [DATA 0-465 bytes]
 
     * The HEADER field is 2 bytes long.
-      * Byte 1: [IFAC Flag], [Header Type], [Propagation Type], [Destination Type] and [Packet Type]
+      * Byte 1: [IFAC Flag], [Header Type], [Context Flag], [Propagation Type],
+                [Destination Type] and [Packet Type]
       * Byte 2: Number of hops
 
     * Interface Access Code field if the IFAC flag was set.
@@ -725,12 +726,16 @@ Wire Format
     type 2           1  Two byte header, two 16 byte address fields
 
 
+    Context Flag
+    -----------------
+    unset            0  The context flag is used for various types
+    set              1  of signalling, depending on packet context
+
+
     Propagation Types
     -----------------
-    broadcast       00
-    transport       01
-    reserved        10
-    reserved        11
+    broadcast        0
+    transport        1
 
 
     Destination Types
