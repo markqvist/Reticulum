@@ -116,40 +116,42 @@ class KISS():
     SX1280    = 0x21
 
     def int_data_cmd_to_index(int_data_cmd):
-        match int_data_cmd:
-            case KISS.CMD_INT0_DATA:
-                return 0
-            case KISS.CMD_INT1_DATA:
-                return 1
-            case KISS.CMD_INT2_DATA:
-                return 2
-            case KISS.CMD_INT3_DATA:
-                return 3
-            case KISS.CMD_INT4_DATA:
-                return 4
-            case KISS.CMD_INT5_DATA:
-                return 5
-            case KISS.CMD_INT6_DATA:
-                return 6
-            case KISS.CMD_INT7_DATA:
-                return 7
-            case KISS.CMD_INT8_DATA:
-                return 8
-            case KISS.CMD_INT9_DATA:
-                return 9
-            case KISS.CMD_INT10_DATA:
-                return 10
-            case KISS.CMD_INT11_DATA:
-                return 11
+        if int_data_cmd == KISS.CMD_INT0_DATA:
+            return 0
+        elif int_data_cmd == KISS.CMD_INT1_DATA:
+            return 1
+        elif int_data_cmd == KISS.CMD_INT2_DATA:
+            return 2
+        elif int_data_cmd == KISS.CMD_INT3_DATA:
+            return 3
+        elif int_data_cmd == KISS.CMD_INT4_DATA:
+            return 4
+        elif int_data_cmd == KISS.CMD_INT5_DATA:
+            return 5
+        elif int_data_cmd == KISS.CMD_INT6_DATA:
+            return 6
+        elif int_data_cmd == KISS.CMD_INT7_DATA:
+            return 7
+        elif int_data_cmd == KISS.CMD_INT8_DATA:
+            return 8
+        elif int_data_cmd == KISS.CMD_INT9_DATA:
+            return 9
+        elif int_data_cmd == KISS.CMD_INT10_DATA:
+            return 10
+        elif int_data_cmd == KISS.CMD_INT11_DATA:
+            return 11
+        else:
+            return 0
 
     def interface_type_to_str(interface_type):
-        match interface_type:
-            case KISS.SX126X | KISS.SX1262:
+        if interface_type == KISS.SX126X or interface_type == KISS.SX1262:
                 return "SX126X"
-            case KISS.SX127X | KISS.SX1276 | KISS.SX1278:
-                return "SX127X"
-            case KISS.SX128X | KISS.SX1280:
-                return "SX128X"
+        elif interface_type == KISS.SX127X or interface_type == KISS.SX1276 or interface_type == KISS.SX1278:
+            return "SX127X"
+        elif interface_type == KISS.SX128X or interface_type == KISS.SX1280:
+            return "SX128X"
+        else:
+            return "SX127X"
 
     @staticmethod
     def escape(data):
@@ -915,46 +917,45 @@ class RNodeSubInterface(Interface):
 
         super().__init__()
         
-        match index:
-            case 0:
-                sel_cmd = KISS.CMD_SEL_INT0
-                data_cmd= KISS.CMD_INT0_DATA
-            case 1:
-                sel_cmd = KISS.CMD_SEL_INT1
-                data_cmd= KISS.CMD_INT1_DATA
-            case 2:
-                sel_cmd = KISS.CMD_SEL_INT2
-                data_cmd= KISS.CMD_INT2_DATA
-            case 3:
-                sel_cmd = KISS.CMD_SEL_INT3
-                data_cmd= KISS.CMD_INT3_DATA
-            case 4:
-                sel_cmd = KISS.CMD_SEL_INT4
-                data_cmd= KISS.CMD_INT4_DATA
-            case 5:
-                sel_cmd = KISS.CMD_SEL_INT5
-                data_cmd= KISS.CMD_INT5_DATA
-            case 6:
-                sel_cmd = KISS.CMD_SEL_INT6
-                data_cmd= KISS.CMD_INT6_DATA
-            case 7:
-                sel_cmd = KISS.CMD_SEL_INT7
-                data_cmd= KISS.CMD_INT7_DATA
-            case 8:
-                sel_cmd = KISS.CMD_SEL_INT8
-                data_cmd= KISS.CMD_INT8_DATA
-            case 9:
-                sel_cmd = KISS.CMD_SEL_INT9
-                data_cmd= KISS.CMD_INT9_DATA
-            case 10:
-                sel_cmd = KISS.CMD_SEL_INT10
-                data_cmd= KISS.CMD_INT10_DATA
-            case 11:
-                sel_cmd = KISS.CMD_SEL_INT11
-                data_cmd= KISS.CMD_INT11_DATA
-            case _:
-                sel_cmd = KISS.CMD_SEL_INT0
-                data_cmd= KISS.CMD_INT0_DATA
+        if index == 0:
+            sel_cmd = KISS.CMD_SEL_INT0
+            data_cmd= KISS.CMD_INT0_DATA
+        elif index == 1:
+            sel_cmd = KISS.CMD_SEL_INT1
+            data_cmd= KISS.CMD_INT1_DATA
+        elif index == 2:
+            sel_cmd = KISS.CMD_SEL_INT2
+            data_cmd= KISS.CMD_INT2_DATA
+        elif index == 3:
+            sel_cmd = KISS.CMD_SEL_INT3
+            data_cmd= KISS.CMD_INT3_DATA
+        elif index == 4:
+            sel_cmd = KISS.CMD_SEL_INT4
+            data_cmd= KISS.CMD_INT4_DATA
+        elif index == 5:
+            sel_cmd = KISS.CMD_SEL_INT5
+            data_cmd= KISS.CMD_INT5_DATA
+        elif index == 6:
+            sel_cmd = KISS.CMD_SEL_INT6
+            data_cmd= KISS.CMD_INT6_DATA
+        elif index == 7:
+            sel_cmd = KISS.CMD_SEL_INT7
+            data_cmd= KISS.CMD_INT7_DATA
+        elif index == 8:
+            sel_cmd = KISS.CMD_SEL_INT8
+            data_cmd= KISS.CMD_INT8_DATA
+        elif index == 9:
+            sel_cmd = KISS.CMD_SEL_INT9
+            data_cmd= KISS.CMD_INT9_DATA
+        elif index == 10:
+            sel_cmd = KISS.CMD_SEL_INT10
+            data_cmd= KISS.CMD_INT10_DATA
+        elif index == 11:
+            sel_cmd = KISS.CMD_SEL_INT11
+            data_cmd= KISS.CMD_INT11_DATA
+        else:
+            sel_cmd = KISS.CMD_SEL_INT0
+            data_cmd= KISS.CMD_INT0_DATA
 
         self.owner       = owner
         self.name        = name
