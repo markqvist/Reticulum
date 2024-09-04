@@ -106,6 +106,7 @@ class KISS():
 
     PLATFORM_AVR   = 0x90
     PLATFORM_ESP32 = 0x80
+    PLATFORM_NRF52 = 0x70
 
     SX127X    = 0x00
     SX1276    = 0x01
@@ -295,7 +296,7 @@ class RNodeMultiInterface(Interface):
             RNS.log("Could not detect device for "+str(self), RNS.LOG_ERROR)
             self.serial.close()
         else:
-            if self.platform == KISS.PLATFORM_ESP32:
+            if self.platform == KISS.PLATFORM_ESP32 or self.platform == KISS.PLATFORM_NRF52:
                 self.display = True
 
         RNS.log("Serial port "+self.port+" is now open")
