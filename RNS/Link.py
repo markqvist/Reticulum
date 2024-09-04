@@ -142,6 +142,7 @@ class Link:
             raise TypeError("Links can only be established to the \"single\" destination type")
         self.rtt = None
         self.establishment_cost = 0
+        self.establishment_rate = None
         self.callbacks = LinkCallbacks()
         self.resource_strategy = Link.ACCEPT_NONE
         self.outgoing_resources = []
