@@ -81,6 +81,7 @@ class KISS():
 
     PLATFORM_AVR   = 0x90
     PLATFORM_ESP32 = 0x80
+    PLATFORM_NRF52 = 0x70
 
     @staticmethod
     def escape(data):
@@ -595,7 +596,7 @@ class RNodeInterface(Interface):
         if not self.detected:
             raise IOError("Could not detect device")
         else:
-            if self.platform == KISS.PLATFORM_ESP32:
+            if self.platform == KISS.PLATFORM_ESP32 or self.platform == KISS.PLATFORM_NRF52:
                 self.display = True
 
         if not self.firmware_ok:
