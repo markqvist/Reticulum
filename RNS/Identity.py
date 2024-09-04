@@ -222,6 +222,16 @@ class Identity:
         return Identity.truncated_hash(os.urandom(Identity.TRUNCATED_HASHLENGTH//8))
 
     @staticmethod
+    def generate_ratchet():
+        ratchet_prv = X25519PrivateKey.generate()
+        ratchet_pub = ratchet_prv.public_key()
+        return ratchet_prv.private_bytes()
+
+    @staticmethod
+    def ratchet_public_bytes(ratchet):
+        return X25519PrivateKey.from_private_bytes(ratchet).public_key().public_bytes()
+
+    @staticmethod
     def validate_announce(packet, only_validate_signature=False):
         try:
             if packet.packet_type == RNS.Packet.ANNOUNCE:

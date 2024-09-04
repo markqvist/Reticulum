@@ -20,11 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 import math
 import time
 import RNS
 
 from RNS.Cryptography import Fernet
+from .vendor import umsgpack as umsgpack
 
 class Callbacks:
     def __init__(self):
@@ -38,14 +40,14 @@ class Destination:
     instances are used both to create outgoing and incoming endpoints. The
     destination type will decide if encryption, and what type, is used in
     communication with the endpoint. A destination can also announce its
-    presence on the network, which will also distribute necessary keys for
+    presence on the network, which will distribute necessary keys for
     encrypted communication with it.
 
     :param identity: An instance of :ref:`RNS.Identity<api-identity>`. Can hold only public keys for an outgoing destination, or holding private keys for an ingoing.
     :param direction: ``RNS.Destination.IN`` or ``RNS.Destination.OUT``.
     :param type: ``RNS.Destination.SINGLE``, ``RNS.Destination.GROUP`` or ``RNS.Destination.PLAIN``.
     :param app_name: A string specifying the app name.
-    :param \*aspects: Any non-zero number of string arguments.
+    :param \\*aspects: Any non-zero number of string arguments.
     """
 
     # Constants
@@ -70,6 +72,7 @@ class Destination:
     directions = [IN, OUT]
 
     PR_TAG_WINDOW = 30
+    RATCHET_COUNT = 128
 
     @staticmethod
     def expand_name(identity, app_name, *aspects):
@@ -137,6 +140,8 @@ class Destination:
         self.type = type
         self.direction = direction
         self.proof_strategy = Destination.PROVE_NONE
+        self.ratchets = None
+        self.ratchets_path = None
         self.mtu = 0
 
         self.path_responses = {}
@@ -170,6 +175,57 @@ class Destination:
         """
         return "<"+self.name+"/"+self.hexhash+">"
 
+    def enable_ratchets(self, ratchets_path):
+        if ratchets_path != None:
+            if os.path.isfile(ratchets_path):
+                try:
+                    ratchets_file = open(ratchets_path, "rb")
+                    persisted_data = umsgpack.unpackb(ratchets_file.read())
+                    if "signature" in persisted_data and "ratchets" in persisted_data:
+                        if self.identity.validate(persisted_data["signature"], persisted_data["ratchets"]):
+                            self.ratchets = umsgpack.unpackb(persisted_data["ratchets"])
+                            self.ratchets_path = ratchets_path
+                        else:
+                            raise KeyError("Invalid ratchet file signature")
+
+                except Exception as e:
+                    self.ratchets = None
+                    self.ratchets_path = None
+                    raise OSError("Could not read ratchet file contents for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+            else:
+                RNS.log("No existing ratchet data found, initialising new ratchet file for "+str(self), RNS.LOG_DEBUG)
+                self.ratchets = []
+                self.ratchets_path = ratchets_path
+                self.persist_ratchets()
+
+            RNS.log("Enabled ratchets on "+str(self), RNS.LOG_DEBUG) # TODO: Remove
+            return True
+
+        else:
+            raise ValueError("No ratchet file path specified for "+str(self))
+
+    def persist_ratchets(self):
+        try:
+            packed_ratchets = umsgpack.packb(self.ratchets)
+            persisted_data = {"signature": self.sign(packed_ratchets), "ratchets": packed_ratchets}
+            ratchets_file = open(self.ratchets_path, "wb")
+            ratchets_file.write(umsgpack.packb(persisted_data))
+            ratchets_file.close()
+        except Exception as e:
+            self.ratchets = None
+            self.ratchets_path = None
+            raise OSError("Could not write ratchet file contents for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+
+    def rotate_ratchets(self):
+        if self.ratchets != None:
+            RNS.log("Rotating ratchets for "+str(self), RNS.LOG_DEBUG) # TODO: Remove
+            new_ratchet = RNS.Identity.generate_ratchet()
+            self.ratchets.insert(0, new_ratchet)
+            if len (self.ratchets) > Destination.RATCHET_COUNT:
+                self.ratchets = self.ratchets[:Destination.RATCHET_COUNT]
+            self.persist_ratchets()
+        else:
+            raise SystemError("Cannot rotate ratchet on "+str(self)+", ratchets are not enabled")
 
     def announce(self, app_data=None, path_response=False, attached_interface=None, tag=None, send=True):
         """
@@ -210,6 +266,11 @@ class Destination:
         else:
             destination_hash = self.hash
             random_hash = RNS.Identity.get_random_hash()[0:5]+int(time.time()).to_bytes(5, "big")
+
+            if self.ratchets != None:
+                self.rotate_ratchets()
+                ratchet_pub = RNS.Identity.ratchet_public_bytes(self.ratchets[0])
+                RNS.log(f"Including {len(ratchet_pub)*8}-bit ratchet {RNS.hexrep(ratchet_pub)} in announce", RNS.LOG_DEBUG) # TODO: Remove
 
             if app_data == None and self.default_app_data != None:
                 if isinstance(self.default_app_data, bytes):
