@@ -198,7 +198,7 @@ class Destination:
                 self.ratchets_path = ratchets_path
                 self.persist_ratchets()
 
-            RNS.log("Enabled ratchets on "+str(self), RNS.LOG_DEBUG) # TODO: Remove
+            RNS.log("Ratchets enabled on "+str(self), RNS.LOG_DEBUG) # TODO: Remove
             return True
 
         else:
@@ -271,7 +271,9 @@ class Destination:
             if self.ratchets != None:
                 self.rotate_ratchets()
                 ratchet = RNS.Identity._ratchet_public_bytes(self.ratchets[0])
-                RNS.log(f"Including {len(ratchet)*8}-bit ratchet {RNS.hexrep(ratchet)} in announce", RNS.LOG_DEBUG) # TODO: Remove
+
+                # TODO: Remove debug output
+                RNS.log(f"Including ratchet {RNS.prettyhexrep(RNS.Identity.truncated_hash(ratchet))} in announce", RNS.LOG_DEBUG)
 
             if app_data == None and self.default_app_data != None:
                 if isinstance(self.default_app_data, bytes):

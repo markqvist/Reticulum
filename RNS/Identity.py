@@ -237,7 +237,7 @@ class Identity:
 
     @staticmethod
     def _remember_ratchet(destination_hash, ratchet):
-        RNS.log(f"Remembering ratchet {RNS.hexrep(ratchet)} for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_DEBUG) # TODO: Remove
+        RNS.log(f"Remembering ratchet {RNS.prettyhexrep(Identity.truncated_hash(ratchet))} for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_DEBUG) # TODO: Remove
         try:
             Identity.known_ratchets[destination_hash] = ratchet
             hexhash = RNS.hexrep(destination_hash, delimit=False)
@@ -572,7 +572,7 @@ class Identity:
             ephemeral_pub_bytes = ephemeral_key.public_key().public_bytes()
 
             if ratchet != None:
-                RNS.log(f"Encrypting with ratchet {RNS.hexrep(ratchet)}", RNS.LOG_DEBUG) # TODO: Remove
+                RNS.log(f"Encrypting with ratchet {RNS.prettyhexrep(RNS.Identity.truncated_hash(ratchet))}", RNS.LOG_DEBUG) # TODO: Remove
                 target_public_key = X25519PublicKey.from_public_bytes(ratchet)
             else:
                 target_public_key = self.pub
@@ -625,7 +625,10 @@ class Identity:
 
                                 fernet = Fernet(derived_key)
                                 plaintext = fernet.decrypt(ciphertext)
-                                RNS.log(f"Decrypted with ratchet {RNS.hexrep(ratchet_prv.public_key().public_bytes())}", RNS.LOG_DEBUG) # TODO: Remove
+                                
+                                # TODO: Remove
+                                RNS.log(f"Decrypted with ratchet {RNS.prettyhexrep(RNS.Identity.truncated_hash(ratchet_prv.public_key().public_bytes()))}", RNS.LOG_DEBUG)
+                                
                                 break
                             
                             except Exception as e:
