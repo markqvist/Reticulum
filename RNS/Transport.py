@@ -1604,7 +1604,8 @@ class Transport:
                                                 header_type = RNS.Packet.HEADER_2,
                                                 transport_type = Transport.TRANSPORT,
                                                 transport_id = Transport.identity.hash,
-                                                attached_interface = local_interface
+                                                attached_interface = local_interface,
+                                                context_flag = packet.context_flag,
                                             )
                                             
                                             new_announce.hops = packet.hops
@@ -1621,7 +1622,8 @@ class Transport:
                                                 header_type = RNS.Packet.HEADER_2,
                                                 transport_type = Transport.TRANSPORT,
                                                 transport_id = Transport.identity.hash,
-                                                attached_interface = local_interface
+                                                attached_interface = local_interface,
+                                                context_flag = packet.context_flag,
                                             )
 
                                             new_announce.hops = packet.hops
@@ -1652,7 +1654,8 @@ class Transport:
                                     header_type = RNS.Packet.HEADER_2,
                                     transport_type = Transport.TRANSPORT,
                                     transport_id = Transport.identity.hash,
-                                    attached_interface = attached_interface
+                                    attached_interface = attached_interface,
+                                    context_flag = packet.context_flag,
                                 )
 
                                 new_announce.hops = packet.hops
