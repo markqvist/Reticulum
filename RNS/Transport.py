@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2016-2023 Mark Qvist / unsigned.io and contributors.
+# Copyright (c) 2016-2024 Mark Qvist / unsigned.io and contributors.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -403,7 +403,8 @@ class Transport:
                                     header_type = RNS.Packet.HEADER_2,
                                     transport_type = Transport.TRANSPORT,
                                     transport_id = Transport.identity.hash,
-                                    attached_interface = attached_interface
+                                    attached_interface = attached_interface,
+                                    context_flag = packet.context_flag,
                                 )
 
                                 new_packet.hops = announce_entry[4]

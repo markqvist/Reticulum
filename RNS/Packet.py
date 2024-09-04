@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2016-2023 Mark Qvist / unsigned.io and contributors.
+# Copyright (c) 2016-2024 Mark Qvist / unsigned.io and contributors.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -83,6 +83,10 @@ class Packet:
     LRRTT          = 0xFE   # Packet is a link request round-trip time measurement
     LRPROOF        = 0xFF   # Packet is a link request proof
 
+    # Context flag values
+    FLAG_SET       = 0x01
+    FLAG_UNSET     = 0x00
+
     # This is used to calculate allowable
     # payload sizes
     HEADER_MAXSIZE = RNS.Reticulum.HEADER_MAXSIZE
@@ -102,7 +106,9 @@ class Packet:
 
     TIMEOUT_PER_HOP = RNS.Reticulum.DEFAULT_PER_HOP_TIMEOUT
 
-    def __init__(self, destination, data, packet_type = DATA, context = NONE, transport_type = RNS.Transport.BROADCAST, header_type = HEADER_1, transport_id = None, attached_interface = None, create_receipt = True):
+    def __init__(self, destination, data, packet_type = DATA, context = NONE, transport_type = RNS.Transport.BROADCAST,
+                 header_type = HEADER_1, transport_id = None, attached_interface = None, create_receipt = True, context_flag=FLAG_UNSET):
+
         if destination != None:
             if transport_type == None:
                 transport_type = RNS.Transport.BROADCAST
@@ -111,6 +117,7 @@ class Packet:
             self.packet_type    = packet_type
             self.transport_type = transport_type
             self.context        = context
+            self.context_flag   = context_flag
 
             self.hops           = 0;
             self.destination    = destination
@@ -142,9 +149,10 @@ class Packet:
 
     def get_packed_flags(self):
         if self.context == Packet.LRPROOF:
-            packed_flags = (self.header_type << 6) | (self.transport_type << 4) | (RNS.Destination.LINK << 2) | self.packet_type
+            packed_flags = (self.header_type << 6) | (self.context_flag << 5) | (self.transport_type << 4) | (RNS.Destination.LINK << 2) | self.packet_type
         else:
-            packed_flags = (self.header_type << 6) | (self.transport_type << 4) | (self.destination.type << 2) | self.packet_type
+            packed_flags = (self.header_type << 6) | (self.context_flag << 5) | (self.transport_type << 4) | (self.destination.type << 2) | self.packet_type
+
         return packed_flags
 
     def pack(self):
@@ -216,7 +224,8 @@ class Packet:
             self.hops  = self.raw[1]
 
             self.header_type      = (self.flags & 0b01000000) >> 6
-            self.transport_type   = (self.flags & 0b00110000) >> 4
+            self.context_flag     = (self.flags & 0b00100000) >> 5
+            self.transport_type   = (self.flags & 0b00010000) >> 4
             self.destination_type = (self.flags & 0b00001100) >> 2
             self.packet_type      = (self.flags & 0b00000011)
 

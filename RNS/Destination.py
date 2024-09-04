@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2016-2023 Mark Qvist / unsigned.io and contributors
+# Copyright (c) 2016-2024 Mark Qvist / unsigned.io and contributors
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -72,7 +72,7 @@ class Destination:
     directions = [IN, OUT]
 
     PR_TAG_WINDOW = 30
-    RATCHET_COUNT = 128
+    RATCHET_COUNT = 256
 
     @staticmethod
     def expand_name(identity, app_name, *aspects):
@@ -219,7 +219,7 @@ class Destination:
     def rotate_ratchets(self):
         if self.ratchets != None:
             RNS.log("Rotating ratchets for "+str(self), RNS.LOG_DEBUG) # TODO: Remove
-            new_ratchet = RNS.Identity.generate_ratchet()
+            new_ratchet = RNS.Identity._generate_ratchet()
             self.ratchets.insert(0, new_ratchet)
             if len (self.ratchets) > Destination.RATCHET_COUNT:
                 self.ratchets = self.ratchets[:Destination.RATCHET_COUNT]
@@ -241,6 +241,7 @@ class Destination:
         if self.direction != Destination.IN:
             raise TypeError("Only IN destination types can be announced")
         
+        ratchet = b""
         now = time.time()
         stale_responses = []
         for entry_tag in self.path_responses:
@@ -269,8 +270,8 @@ class Destination:
 
             if self.ratchets != None:
                 self.rotate_ratchets()
-                ratchet_pub = RNS.Identity.ratchet_public_bytes(self.ratchets[0])
-                RNS.log(f"Including {len(ratchet_pub)*8}-bit ratchet {RNS.hexrep(ratchet_pub)} in announce", RNS.LOG_DEBUG) # TODO: Remove
+                ratchet = RNS.Identity._ratchet_public_bytes(self.ratchets[0])
+                RNS.log(f"Including {len(ratchet)*8}-bit ratchet {RNS.hexrep(ratchet)} in announce", RNS.LOG_DEBUG) # TODO: Remove
 
             if app_data == None and self.default_app_data != None:
                 if isinstance(self.default_app_data, bytes):
@@ -280,13 +281,12 @@ class Destination:
                     if isinstance(returned_app_data, bytes):
                         app_data = returned_app_data
             
-            signed_data = self.hash+self.identity.get_public_key()+self.name_hash+random_hash
+            signed_data = self.hash+self.identity.get_public_key()+self.name_hash+random_hash+ratchet
             if app_data != None:
                 signed_data += app_data
 
             signature = self.identity.sign(signed_data)
-
-            announce_data = self.identity.get_public_key()+self.name_hash+random_hash+signature
+            announce_data = self.identity.get_public_key()+self.name_hash+random_hash+ratchet+signature
 
             if app_data != None:
                 announce_data += app_data
@@ -298,8 +298,13 @@ class Destination:
         else:
             announce_context = RNS.Packet.NONE
 
-        announce_packet = RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE, context = announce_context, attached_interface = attached_interface)
+        if ratchet:
+            context_flag = RNS.Packet.FLAG_SET
+        else:
+            context_flag = RNS.Packet.FLAG_UNSET
 
+        announce_packet = RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE, context = announce_context,
+                                     attached_interface = attached_interface, context_flag=context_flag)
         if send:
             announce_packet.send()
         else:
@@ -485,7 +490,7 @@ class Destination:
             return plaintext
 
         if self.type == Destination.SINGLE and self.identity != None:
-            return self.identity.encrypt(plaintext)
+            return self.identity.encrypt(plaintext, ratchet=RNS.Identity.get_ratchet(self.hash))
 
         if self.type == Destination.GROUP:
             if hasattr(self, "prv") and self.prv != None:
@@ -510,7 +515,7 @@ class Destination:
             return ciphertext
 
         if self.type == Destination.SINGLE and self.identity != None:
-            return self.identity.decrypt(ciphertext)
+            return self.identity.decrypt(ciphertext, ratchets=self.ratchets)
 
         if self.type == Destination.GROUP:
             if hasattr(self, "prv") and self.prv != None:
