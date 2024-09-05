@@ -249,7 +249,7 @@ class Identity:
 
     @staticmethod
     def _remember_ratchet(destination_hash, ratchet):
-        # TODO: Remove at some point
+        # TODO: Remove at some point, and only log new ratchets
         RNS.log(f"Remembering ratchet {RNS.prettyhexrep(Identity.truncated_hash(ratchet))} for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_EXTREME)
         try:
             Identity.known_ratchets[destination_hash] = ratchet
@@ -286,20 +286,21 @@ class Identity:
         try:
             now = time.time()
             ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
-            for filename in os.listdir(ratchetdir):
-                try:
-                    expired = False
-                    with open(f"{ratchetdir}/{filename}", "rb") as rf:
-                        ratchet_data = umsgpack.unpackb(rf.read())
-                        if now > ratchet_data["received"]+Identity.RATCHET_EXPIRY:
-                            expired = True
+            if os.path.isdir(ratchetdir):
+                for filename in os.listdir(ratchetdir):
+                    try:
+                        expired = False
+                        with open(f"{ratchetdir}/{filename}", "rb") as rf:
+                            ratchet_data = umsgpack.unpackb(rf.read())
+                            if now > ratchet_data["received"]+Identity.RATCHET_EXPIRY:
+                                expired = True
 
-                    if expired:
-                        os.unlink(f"{ratchetdir}/{filename}")
+                        if expired:
+                            os.unlink(f"{ratchetdir}/{filename}")
 
-                except Exception as e:
-                    RNS.log(f"An error occurred while cleaning ratchets, in the processing of {ratchetdir}/{filename}.", RNS.LOG_ERROR)
-                    RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
+                    except Exception as e:
+                        RNS.log(f"An error occurred while cleaning ratchets, in the processing of {ratchetdir}/{filename}.", RNS.LOG_ERROR)
+                        RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
 
         except Exception as e:
             RNS.log(f"An error occurred while cleaning ratchets. The contained exception was: {e}", RNS.LOG_ERROR)
