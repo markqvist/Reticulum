@@ -356,13 +356,13 @@ for all encrypted communication over Reticulum networks.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="RNS.Identity.KEYSIZE">
 <span class="sig-name descname"><span class="pre">KEYSIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">512</span></em><a class="headerlink" href="#RNS.Identity.KEYSIZE" title="Permalink to this definition">#</a></dt>
-<dd><p>X25519 key size in bits. A complete key is the concatenation of a 256 bit encryption key, and a 256 bit signing key.</p>
+<dd><p>X.25519 key size in bits. A complete key is the concatenation of a 256 bit encryption key, and a 256 bit signing key.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="RNS.Identity.RATCHETSIZE">
 <span class="sig-name descname"><span class="pre">RATCHETSIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">256</span></em><a class="headerlink" href="#RNS.Identity.RATCHETSIZE" title="Permalink to this definition">#</a></dt>
-<dd><p>X25519 ratchet key size in bits.</p>
+<dd><p>X.25519 ratchet key size in bits.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -563,7 +563,7 @@ communication for the identity. Be very careful with this method.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Identity.decrypt">
-<span class="sig-name descname"><span class="pre">decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ciphertext_token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratchets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.decrypt" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ciphertext_token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratchets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enforce_ratchets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.decrypt" title="Permalink to this definition">#</a></dt>
 <dd><p>Decrypts information for the identity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -638,6 +638,18 @@ encrypted communication with it.</p>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Destination.RATCHET_COUNT">
+<span class="sig-name descname"><span class="pre">RATCHET_COUNT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">512</span></em><a class="headerlink" href="#RNS.Destination.RATCHET_COUNT" title="Permalink to this definition">#</a></dt>
+<dd><p>The default number of generated ratchet keys a destination will retain, if it has ratchets enabled.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Destination.RATCHET_INTERVAL">
+<span class="sig-name descname"><span class="pre">RATCHET_INTERVAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1800</span></em><a class="headerlink" href="#RNS.Destination.RATCHET_INTERVAL" title="Permalink to this definition">#</a></dt>
+<dd><p>The minimum interval between rotating ratchet keys, in seconds.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Destination.expand_name">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">expand_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">aspects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.expand_name" title="Permalink to this definition">#</a></dt>
@@ -784,6 +796,64 @@ proofs should be returned for received packets.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if the handler was deregistered, otherwise False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.enable_ratchets">
+<span class="sig-name descname"><span class="pre">enable_ratchets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ratchets_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.enable_ratchets" title="Permalink to this definition">#</a></dt>
+<dd><p>Enables ratchets on the destination. When ratchets are enabled, Reticulum will automatically rotate
+the keys used to encrypt packets to this destination, and include the latest ratchet key in announces.</p>
+<p>Enabling ratchets on a destination will provide forward secrecy for packets sent to that destination,
+even when sent outside a <code class="docutils literal notranslate"><span class="pre">Link</span></code>. The normal Reticulum <code class="docutils literal notranslate"><span class="pre">Link</span></code> establishment procedure already performs
+its own ephemeral key exchange for each link establishment, which means that ratchets are not necessary
+to provide forward secrecy for links.</p>
+<p>Enabling ratchets will have a small impact on announce size, adding 32 bytes to every sent announce.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ratchets_path</strong> – The path to a file to store ratchet data in.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the operation succeeded, otherwise False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.enforce_ratchets">
+<span class="sig-name descname"><span class="pre">enforce_ratchets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.enforce_ratchets" title="Permalink to this definition">#</a></dt>
+<dd><p>When ratchet enforcement is enabled, this destination will never accept packets that use its
+base Identity key for encryption, but only accept packets encrypted with one of the retained
+ratchet keys.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.set_retained_ratchets">
+<span class="sig-name descname"><span class="pre">set_retained_ratchets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">retained_ratchets</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.set_retained_ratchets" title="Permalink to this definition">#</a></dt>
+<dd><p>Sets the number of previously generated ratchet keys this destination will retain,
+and try to use when decrypting incoming packets. Defaults to <code class="docutils literal notranslate"><span class="pre">Destination.RATCHET_COUNT</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>retained_ratchets</strong> – The number of generated ratchets to retain.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the operation succeeded, False if not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.set_ratchet_interval">
+<span class="sig-name descname"><span class="pre">set_ratchet_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.set_ratchet_interval" title="Permalink to this definition">#</a></dt>
+<dd><p>Sets the minimum interval in seconds between ratchet key rotation.
+Defaults to <code class="docutils literal notranslate"><span class="pre">Destination.RATCHET_INTERVAL</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>interval</strong> – The minimum interval in seconds.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the operation succeeded, False if not.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2000,6 +2070,8 @@ will announce it.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#RNS.Destination"><code class="docutils literal notranslate"><span class="pre">Destination</span></code></a><ul>
+<li><a class="reference internal" href="#RNS.Destination.RATCHET_COUNT"><code class="docutils literal notranslate"><span class="pre">RATCHET_COUNT</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.RATCHET_INTERVAL"><code class="docutils literal notranslate"><span class="pre">RATCHET_INTERVAL</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.expand_name"><code class="docutils literal notranslate"><span class="pre">expand_name()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.app_and_aspects_from_name"><code class="docutils literal notranslate"><span class="pre">app_and_aspects_from_name()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.hash_from_name_and_identity"><code class="docutils literal notranslate"><span class="pre">hash_from_name_and_identity()</span></code></a></li>
@@ -2012,6 +2084,10 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Destination.set_proof_strategy"><code class="docutils literal notranslate"><span class="pre">set_proof_strategy()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.register_request_handler"><code class="docutils literal notranslate"><span class="pre">register_request_handler()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.deregister_request_handler"><code class="docutils literal notranslate"><span class="pre">deregister_request_handler()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.enable_ratchets"><code class="docutils literal notranslate"><span class="pre">enable_ratchets()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.enforce_ratchets"><code class="docutils literal notranslate"><span class="pre">enforce_ratchets()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.set_retained_ratchets"><code class="docutils literal notranslate"><span class="pre">set_retained_ratchets()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.set_ratchet_interval"><code class="docutils literal notranslate"><span class="pre">set_ratchet_interval()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.create_keys"><code class="docutils literal notranslate"><span class="pre">create_keys()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.get_private_key"><code class="docutils literal notranslate"><span class="pre">get_private_key()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.load_private_key"><code class="docutils literal notranslate"><span class="pre">load_private_key()</span></code></a></li>
