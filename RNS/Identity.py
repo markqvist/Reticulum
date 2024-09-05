@@ -26,6 +26,7 @@ import RNS
 import time
 import atexit
 import hashlib
+import threading
 
 from .vendor import umsgpack as umsgpack
 
@@ -49,11 +50,20 @@ class Identity:
 
     KEYSIZE     = 256*2
     """
-    X25519 key size in bits. A complete key is the concatenation of a 256 bit encryption key, and a 256 bit signing key.
+    X.25519 key size in bits. A complete key is the concatenation of a 256 bit encryption key, and a 256 bit signing key.
     """
 
     RATCHETSIZE = 256
+    """
+    X.25519 ratchet key size in bits.
+    """
+
     RATCHET_EXPIRY = 60*60*24*30
+    """
+    The expiry time for received ratchets in seconds, defaults to 30 days. Reticulum will always use the most recently
+    announced ratchet, and remember it for up to ``RATCHET_EXPIRY`` since receiving it, after which it will be discarded.
+    If a newer ratchet is announced in the meantime, it will be replace the already known ratchet.
+    """
 
     # Non-configurable constants
     FERNET_OVERHEAD           = RNS.Cryptography.Fernet.FERNET_OVERHEAD
@@ -71,6 +81,8 @@ class Identity:
     # Storage
     known_destinations = {}
     known_ratchets = {}
+
+    ratchet_persist_lock = threading.Lock()
 
     @staticmethod
     def remember(packet_hash, destination_hash, public_key, app_data = None):
@@ -237,23 +249,31 @@ class Identity:
 
     @staticmethod
     def _remember_ratchet(destination_hash, ratchet):
-        RNS.log(f"Remembering ratchet {RNS.prettyhexrep(Identity.truncated_hash(ratchet))} for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_DEBUG) # TODO: Remove
+        # TODO: Remove at some point
+        RNS.log(f"Remembering ratchet {RNS.prettyhexrep(Identity.truncated_hash(ratchet))} for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_EXTREME)
         try:
             Identity.known_ratchets[destination_hash] = ratchet
-            hexhash = RNS.hexrep(destination_hash, delimit=False)
-            ratchet_data = {"ratchet": ratchet, "received": time.time()}
 
-            ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
-            
-            if not os.path.isdir(ratchetdir):
-                os.makedirs(ratchetdir)
+            if not RNS.Transport.owner.is_connected_to_shared_instance:
+                def persist_job():
+                    with Identity.ratchet_persist_lock:
+                        hexhash = RNS.hexrep(destination_hash, delimit=False)
+                        ratchet_data = {"ratchet": ratchet, "received": time.time()}
 
-            outpath   = f"{ratchetdir}/{hexhash}.out"
-            finalpath = f"{ratchetdir}/{hexhash}"
-            ratchet_file = open(outpath, "wb")
-            ratchet_file.write(umsgpack.packb(ratchet_data))
-            ratchet_file.close()
-            os.rename(outpath, finalpath)
+                        ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
+                        
+                        if not os.path.isdir(ratchetdir):
+                            os.makedirs(ratchetdir)
+
+                        outpath   = f"{ratchetdir}/{hexhash}.out"
+                        finalpath = f"{ratchetdir}/{hexhash}"
+                        ratchet_file = open(outpath, "wb")
+                        ratchet_file.write(umsgpack.packb(ratchet_data))
+                        ratchet_file.close()
+                        os.rename(outpath, finalpath)
+
+                
+                threading.Thread(target=persist_job, daemon=True).start()
 
         except Exception as e:
             RNS.log(f"Could not persist ratchet for {RNS.prettyhexrep(destination_hash)} to storage.", RNS.LOG_ERROR)
@@ -261,9 +281,32 @@ class Identity:
             RNS.trace_exception(e)
 
     @staticmethod
+    def _clean_ratchets():
+        RNS.log("Cleaning ratchets...", RNS.LOG_DEBUG)
+        try:
+            now = time.time()
+            ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
+            for filename in os.listdir(ratchetdir):
+                try:
+                    expired = False
+                    with open(f"{ratchetdir}/{filename}", "rb") as rf:
+                        ratchet_data = umsgpack.unpackb(rf.read())
+                        if now > ratchet_data["received"]+Identity.RATCHET_EXPIRY:
+                            expired = True
+
+                    if expired:
+                        os.unlink(f"{ratchetdir}/{filename}")
+
+                except Exception as e:
+                    RNS.log(f"An error occurred while cleaning ratchets, in the processing of {ratchetdir}/{filename}.", RNS.LOG_ERROR)
+                    RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
+
+        except Exception as e:
+            RNS.log(f"An error occurred while cleaning ratchets. The contained exception was: {e}", RNS.LOG_ERROR)
+
+    @staticmethod
     def get_ratchet(destination_hash):
         if not destination_hash in Identity.known_ratchets:
-            RNS.log(f"Trying to load ratchet for {RNS.prettyhexrep(destination_hash)} from storage") # TODO: Remove
             ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
             hexhash = RNS.hexrep(destination_hash, delimit=False)
             ratchet_path = f"{ratchetdir}/hexhash"
@@ -284,6 +327,7 @@ class Identity:
         if destination_hash in Identity.known_ratchets:
             return Identity.known_ratchets[destination_hash]
         else:
+            RNS.log(f"Could not load ratchet for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_DEBUG)
             return None
 
     @staticmethod
@@ -572,7 +616,8 @@ class Identity:
             ephemeral_pub_bytes = ephemeral_key.public_key().public_bytes()
 
             if ratchet != None:
-                RNS.log(f"Encrypting with ratchet {RNS.prettyhexrep(RNS.Identity.truncated_hash(ratchet))}", RNS.LOG_DEBUG) # TODO: Remove
+                # TODO: Remove at some point
+                RNS.log(f"Encrypting with ratchet {RNS.prettyhexrep(RNS.Identity.truncated_hash(ratchet))}", RNS.LOG_EXTREME)
                 target_public_key = X25519PublicKey.from_public_bytes(ratchet)
             else:
                 target_public_key = self.pub
@@ -595,7 +640,7 @@ class Identity:
             raise KeyError("Encryption failed because identity does not hold a public key")
 
 
-    def decrypt(self, ciphertext_token, ratchets=None):
+    def decrypt(self, ciphertext_token, ratchets=None, enforce_ratchets=False):
         """
         Decrypts information for the identity.
 
@@ -626,14 +671,17 @@ class Identity:
                                 fernet = Fernet(derived_key)
                                 plaintext = fernet.decrypt(ciphertext)
                                 
-                                # TODO: Remove
-                                RNS.log(f"Decrypted with ratchet {RNS.prettyhexrep(RNS.Identity.truncated_hash(ratchet_prv.public_key().public_bytes()))}", RNS.LOG_DEBUG)
+                                # TODO: Remove at some point
+                                RNS.log(f"Decrypted with ratchet {RNS.prettyhexrep(RNS.Identity.truncated_hash(ratchet_prv.public_key().public_bytes()))}", RNS.LOG_EXTREME)
                                 
                                 break
                             
                             except Exception as e:
                                 pass
-                                # RNS.log("Decryption using this ratchet failed", RNS.LOG_DEBUG) # TODO: Remove
+
+                    if enforce_ratchets and plaintext == None:
+                        RNS.log("Decryption with ratchet enforcement by "+RNS.prettyhexrep(self.hash)+" failed. Dropping packet.", RNS.LOG_DEBUG)
+                        return None
 
                     if plaintext == None:
                         shared_key = self.prv.exchange(peer_pub)

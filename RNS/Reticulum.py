@@ -295,6 +295,7 @@ class Reticulum:
 
     def __start_jobs(self):
         if self.jobs_thread == None:
+            RNS.Identity._clean_ratchets()
             self.jobs_thread = threading.Thread(target=self.__jobs)
             self.jobs_thread.daemon = True
             self.jobs_thread.start()
