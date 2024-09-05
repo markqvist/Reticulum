@@ -306,9 +306,11 @@ general-purpose CPUs and on microcontrollers. The necessary primitives are:
 - X22519 for ECDH key exchanges
 - HKDF for key derivation
 - Modified Fernet for encrypted tokens
-  - AES-128 in CBC mode
-  - HMAC for message authentication
-  - No Fernet version and timestamp fields
+  - Ephemeral keys derived from an ECDH key exchange on Curve25519
+  - AES-128 in CBC mode with PKCS7 padding
+  - HMAC using SHA256 for message authentication
+  - IVs are generated through os.urandom()
+  - No Fernet version and timestamp metadata fields
 - SHA-256
 - SHA-512
 
