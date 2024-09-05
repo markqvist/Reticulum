@@ -262,12 +262,13 @@ considered complete and stable at the moment, but could change if absolutely war
 <li><p>Complete initiator anonymity, communicate without revealing your identity</p></li>
 <li><p>Asymmetric encryption based on X25519, and Ed25519 signatures as a basis for all communication</p></li>
 <li><p>Forward Secrecy by using ephemeral Elliptic Curve Diffie-Hellman keys on Curve25519</p></li>
-<li><p>Reticulum uses the <a class="reference external" href="https://github.com/fernet/spec/blob/master/Spec.md">Fernet</a> specification for on-the-wire / over-the-air encryption</p>
+<li><p>Reticulum uses a modified version of the <a class="reference external" href="https://github.com/fernet/spec/blob/master/Spec.md">Fernet</a> specification for on-the-wire / over-the-air encryption</p>
 <ul>
-<li><p>All keys are ephemeral and derived from an ECDH key exchange on Curve25519</p></li>
+<li><p>Keys are ephemeral and derived from an ECDH key exchange on Curve25519</p></li>
 <li><p>AES-128 in CBC mode with PKCS7 padding</p></li>
 <li><p>HMAC using SHA256 for authentication</p></li>
 <li><p>IVs are generated through os.urandom()</p></li>
+<li><p>No Version and Timestamp metadata included</p></li>
 </ul>
 </li>
 <li><p>Unforgeable packet delivery confirmations</p></li>
