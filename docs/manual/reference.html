@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Support Reticulum" href="support.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
-        <title>API Reference - Reticulum Network Stack 0.7.6 beta documentation</title>
+        <title>API Reference - Reticulum Network Stack 0.7.7 beta documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 0.7.6 beta documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.7.7 beta documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -167,7 +167,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 0.7.6 beta documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.7.7 beta documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -357,6 +357,20 @@ for all encrypted communication over Reticulum networks.</p>
 <dt class="sig sig-object py" id="RNS.Identity.KEYSIZE">
 <span class="sig-name descname"><span class="pre">KEYSIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">512</span></em><a class="headerlink" href="#RNS.Identity.KEYSIZE" title="Permalink to this definition">#</a></dt>
 <dd><p>X25519 key size in bits. A complete key is the concatenation of a 256 bit encryption key, and a 256 bit signing key.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Identity.RATCHETSIZE">
+<span class="sig-name descname"><span class="pre">RATCHETSIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">256</span></em><a class="headerlink" href="#RNS.Identity.RATCHETSIZE" title="Permalink to this definition">#</a></dt>
+<dd><p>X25519 ratchet key size in bits.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Identity.RATCHET_EXPIRY">
+<span class="sig-name descname"><span class="pre">RATCHET_EXPIRY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2592000</span></em><a class="headerlink" href="#RNS.Identity.RATCHET_EXPIRY" title="Permalink to this definition">#</a></dt>
+<dd><p>The expiry time for received ratchets in seconds, defaults to 30 days. Reticulum will always use the most recently
+announced ratchet, and remember it for up to <code class="docutils literal notranslate"><span class="pre">RATCHET_EXPIRY</span></code> since receiving it, after which it will be discarded.
+If a newer ratchet is announced in the meantime, it will be replace the already known ratchet.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1964,6 +1978,8 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Identity"><code class="docutils literal notranslate"><span class="pre">Identity</span></code></a><ul>
 <li><a class="reference internal" href="#RNS.Identity.CURVE"><code class="docutils literal notranslate"><span class="pre">CURVE</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.KEYSIZE"><code class="docutils literal notranslate"><span class="pre">KEYSIZE</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.RATCHETSIZE"><code class="docutils literal notranslate"><span class="pre">RATCHETSIZE</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.RATCHET_EXPIRY"><code class="docutils literal notranslate"><span class="pre">RATCHET_EXPIRY</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.TRUNCATED_HASHLENGTH"><code class="docutils literal notranslate"><span class="pre">TRUNCATED_HASHLENGTH</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.recall"><code class="docutils literal notranslate"><span class="pre">recall()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.recall_app_data"><code class="docutils literal notranslate"><span class="pre">recall_app_data()</span></code></a></li>
