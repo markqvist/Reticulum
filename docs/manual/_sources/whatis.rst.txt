@@ -101,7 +101,8 @@ of the types of interfaces Reticulum was designed for.
 An open-source LoRa-based interface called `RNode <https://unsigned.io/rnode>`_
 has been designed as an example transceiver that is very suitable for
 Reticulum. It is possible to build it yourself, to transform a common LoRa
-development board into one, or it can be purchased as a complete transceiver.
+development board into one, or it can be purchased as a complete transceiver
+from various vendors.
 
 Reticulum can also be encapsulated over existing IP networks, so there's
 nothing stopping you from using it over wired Ethernet or your local WiFi
