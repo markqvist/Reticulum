@@ -1677,30 +1677,38 @@ class Transport:
 
                             # Call externally registered callbacks from apps
                             # wanting to know when an announce arrives
-                            if packet.context != RNS.Packet.PATH_RESPONSE:
-                                for handler in Transport.announce_handlers:
-                                    try:
-                                        # Check that the announced destination matches
-                                        # the handlers aspect filter
-                                        execute_callback = False
-                                        announce_identity = RNS.Identity.recall(packet.destination_hash)
-                                        if handler.aspect_filter == None:
-                                            # If the handlers aspect filter is set to
-                                            # None, we execute the callback in all cases
+                            for handler in Transport.announce_handlers:
+                                try:
+                                    # Check that the announced destination matches
+                                    # the handlers aspect filter
+                                    execute_callback = False
+                                    announce_identity = RNS.Identity.recall(packet.destination_hash)
+                                    if handler.aspect_filter == None:
+                                        # If the handlers aspect filter is set to
+                                        # None, we execute the callback in all cases
+                                        execute_callback = True
+                                    else:
+                                        handler_expected_hash = RNS.Destination.hash_from_name_and_identity(handler.aspect_filter, announce_identity)
+                                        if packet.destination_hash == handler_expected_hash:
                                             execute_callback = True
+
+                                    # If this is a path response, check whether the
+                                    # handler wants to receive it.
+                                    if packet.context == RNS.Packet.PATH_RESPONSE:
+                                        if hasattr(handler, "receive_path_responses") and handler.receive_path_responses == True:
+                                            pass
                                         else:
-                                            handler_expected_hash = RNS.Destination.hash_from_name_and_identity(handler.aspect_filter, announce_identity)
-                                            if packet.destination_hash == handler_expected_hash:
-                                                execute_callback = True
-                                        if execute_callback:
-                                            handler.received_announce(
-                                                destination_hash=packet.destination_hash,
-                                                announced_identity=announce_identity,
-                                                app_data=RNS.Identity.recall_app_data(packet.destination_hash)
-                                            )
-                                    except Exception as e:
-                                        RNS.log("Error while processing external announce callback.", RNS.LOG_ERROR)
-                                        RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                                            execute_callback = False
+
+                                    if execute_callback:
+                                        handler.received_announce(
+                                            destination_hash=packet.destination_hash,
+                                            announced_identity=announce_identity,
+                                            app_data=RNS.Identity.recall_app_data(packet.destination_hash)
+                                        )
+                                except Exception as e:
+                                    RNS.log("Error while processing external announce callback.", RNS.LOG_ERROR)
+                                    RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
 
             # Handling for link requests to local destinations
             elif packet.packet_type == RNS.Packet.LINKREQUEST:
@@ -1979,7 +1987,9 @@ class Transport:
         """
         Registers an announce handler.
 
-        :param handler: Must be an object with an *aspect_filter* attribute and a *received_announce(destination_hash, announced_identity, app_data)* callable. See the :ref:`Announce Example<example-announce>` for more info.
+        :param handler: Must be an object with an *aspect_filter* attribute and a *received_announce(destination_hash, announced_identity, app_data)*
+                        callable. Can optionally have a *receive_path_responses* attribute set to ``True``, to also receive all path responses, in addition to live
+                        announces. See the :ref:`Announce Example<example-announce>` for more info.
         """
         if hasattr(handler, "received_announce") and callable(handler.received_announce):
             if hasattr(handler, "aspect_filter"):
