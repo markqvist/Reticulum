@@ -1898,7 +1898,9 @@ Transport system of Reticulum.</p>
 <dd><p>Registers an announce handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>handler</strong> – Must be an object with an <em>aspect_filter</em> attribute and a <em>received_announce(destination_hash, announced_identity, app_data)</em> callable. See the <a class="reference internal" href="examples.html#example-announce"><span class="std std-ref">Announce Example</span></a> for more info.</p>
+<dd class="field-odd"><p><strong>handler</strong> – Must be an object with an <em>aspect_filter</em> attribute and a <em>received_announce(destination_hash, announced_identity, app_data)</em>
+callable. Can optionally have a <em>receive_path_responses</em> attribute set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, to also receive all path responses, in addition to live
+announces. See the <a class="reference internal" href="examples.html#example-announce"><span class="std std-ref">Announce Example</span></a> for more info.</p>
 </dd>
 </dl>
 </dd></dl>
