@@ -1709,6 +1709,7 @@ class Transport:
                                 except Exception as e:
                                     RNS.log("Error while processing external announce callback.", RNS.LOG_ERROR)
                                     RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                                    RNS.trace_exception(e)
 
             # Handling for link requests to local destinations
             elif packet.packet_type == RNS.Packet.LINKREQUEST:

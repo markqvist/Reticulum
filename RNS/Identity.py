@@ -213,7 +213,7 @@ class Identity:
         Get a SHA-256 hash of passed data.
 
         :param data: Data to be hashed as *bytes*.
-        :returns: SHA-256 hash as *bytes*
+        :returns: SHA-256 hash as *bytes*.
         """
         return RNS.Cryptography.sha256(data)
 
@@ -223,7 +223,7 @@ class Identity:
         Get a truncated SHA-256 hash of passed data.
 
         :param data: Data to be hashed as *bytes*.
-        :returns: Truncated SHA-256 hash as *bytes*
+        :returns: Truncated SHA-256 hash as *bytes*.
         """
         return Identity.full_hash(data)[:(Identity.TRUNCATED_HASHLENGTH//8)]
 
@@ -233,9 +233,23 @@ class Identity:
         Get a random SHA-256 hash.
 
         :param data: Data to be hashed as *bytes*.
-        :returns: Truncated SHA-256 hash of random data as *bytes*
+        :returns: Truncated SHA-256 hash of random data as *bytes*.
         """
         return Identity.truncated_hash(os.urandom(Identity.TRUNCATED_HASHLENGTH//8))
+
+    @staticmethod
+    def current_ratchet_id(destination_hash):
+        """
+        Get the ID of the currently used ratchet key for a given destination hash
+
+        :param destination_hash: A destination hash as *bytes*.
+        :returns: A ratchet ID as *bytes* or *None*.
+        """
+        ratchet = Identity.get_ratchet(destination_hash)
+        if ratchet == None:
+            return None
+        else:
+            return Identity.truncated_hash(ratchet)
 
     @staticmethod
     def _ratchet_public_bytes(ratchet):
