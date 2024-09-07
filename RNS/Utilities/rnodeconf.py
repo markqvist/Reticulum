@@ -131,7 +131,7 @@ class ROM():
     PRODUCT_RAK4631 = 0x10
     MODEL_11       = 0x11
     MODEL_12       = 0x12
-    PRODUCT_TECHO  = 0x43
+    PRODUCT_TECHO  = 0x15
 
     PRODUCT_RNODE  = 0x03
     MODEL_A1       = 0xA1
@@ -236,7 +236,7 @@ mcus = {
 models = {
     0x11: [430000000, 510000000, 22, "430 - 510 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
     0x12: [779000000, 928000000, 22, "779 - 928 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
-    0x43: [779000000, 928000000, 22, "779 - 928 Mhz", "rnode_firmware_techo.zip", "SX1262"],
+    0x15: [779000000, 928000000, 22, "779 - 928 Mhz", "rnode_firmware_techo.zip", "SX1262"],
     0xA4: [410000000, 525000000, 14, "410 - 525 MHz", "rnode_firmware.hex", "SX1278"],
     0xA9: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware.hex", "SX1276"],
     0xA1: [410000000, 525000000, 22, "410 - 525 MHz", "rnode_firmware_t3s3.zip", "SX1268"],
