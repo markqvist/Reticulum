@@ -249,7 +249,11 @@ class Identity:
         if ratchet == None:
             return None
         else:
-            return Identity.truncated_hash(ratchet)
+            return Identity._get_ratchet_id(ratchet)
+
+    @staticmethod
+    def _get_ratchet_id(ratchet_pub_bytes):
+        return Identity.full_hash(ratchet_pub_bytes)[:Identity.NAME_HASH_LENGTH//8]
 
     @staticmethod
     def _ratchet_public_bytes(ratchet):
@@ -264,7 +268,7 @@ class Identity:
     @staticmethod
     def _remember_ratchet(destination_hash, ratchet):
         # TODO: Remove at some point, and only log new ratchets
-        RNS.log(f"Remembering ratchet {RNS.prettyhexrep(Identity.truncated_hash(ratchet))} for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_EXTREME)
+        RNS.log(f"Remembering ratchet {RNS.prettyhexrep(Identity._get_ratchet_id(ratchet))} for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_EXTREME)
         try:
             Identity.known_ratchets[destination_hash] = ratchet
 
@@ -673,7 +677,7 @@ class Identity:
                         for ratchet in ratchets:
                             try:
                                 ratchet_prv = X25519PrivateKey.from_private_bytes(ratchet)
-                                ratchet_id = Identity.truncated_hash(ratchet_prv.public_key().public_bytes())
+                                ratchet_id = Identity._get_ratchet_id(ratchet_prv.public_key().public_bytes())
                                 shared_key = ratchet_prv.exchange(peer_pub)
                                 derived_key = RNS.Cryptography.hkdf(
                                     length=32,
