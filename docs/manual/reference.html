@@ -417,7 +417,7 @@ for addressable hashes and other purposes. Non-configurable.</p>
 <dd class="field-odd"><p><strong>data</strong> – Data to be hashed as <em>bytes</em>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>SHA-256 hash as <em>bytes</em></p>
+<dd class="field-even"><p>SHA-256 hash as <em>bytes</em>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -431,7 +431,7 @@ for addressable hashes and other purposes. Non-configurable.</p>
 <dd class="field-odd"><p><strong>data</strong> – Data to be hashed as <em>bytes</em>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Truncated SHA-256 hash as <em>bytes</em></p>
+<dd class="field-even"><p>Truncated SHA-256 hash as <em>bytes</em>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -445,7 +445,21 @@ for addressable hashes and other purposes. Non-configurable.</p>
 <dd class="field-odd"><p><strong>data</strong> – Data to be hashed as <em>bytes</em>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Truncated SHA-256 hash of random data as <em>bytes</em></p>
+<dd class="field-even"><p>Truncated SHA-256 hash of random data as <em>bytes</em>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.current_ratchet_id">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_ratchet_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.current_ratchet_id" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the ID of the currently used ratchet key for a given destination hash</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>destination_hash</strong> – A destination hash as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A ratchet ID as <em>bytes</em> or <em>None</em>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -563,7 +577,7 @@ communication for the identity. Be very careful with this method.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Identity.decrypt">
-<span class="sig-name descname"><span class="pre">decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ciphertext_token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratchets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enforce_ratchets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.decrypt" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ciphertext_token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratchets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enforce_ratchets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratchet_id_receiver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.decrypt" title="Permalink to this definition">#</a></dt>
 <dd><p>Decrypts information for the identity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2058,6 +2072,7 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Identity.full_hash"><code class="docutils literal notranslate"><span class="pre">full_hash()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.truncated_hash"><code class="docutils literal notranslate"><span class="pre">truncated_hash()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.get_random_hash"><code class="docutils literal notranslate"><span class="pre">get_random_hash()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.current_ratchet_id"><code class="docutils literal notranslate"><span class="pre">current_ratchet_id()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.from_bytes"><code class="docutils literal notranslate"><span class="pre">from_bytes()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.from_file"><code class="docutils literal notranslate"><span class="pre">from_file()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.to_file"><code class="docutils literal notranslate"><span class="pre">to_file()</span></code></a></li>
