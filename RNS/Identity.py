@@ -324,11 +324,11 @@ class Identity:
         if not destination_hash in Identity.known_ratchets:
             ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
             hexhash = RNS.hexrep(destination_hash, delimit=False)
-            ratchet_path = f"{ratchetdir}/hexhash"
+            ratchet_path = f"{ratchetdir}/{hexhash}"
             if os.path.isfile(ratchet_path):
                 try:
                     ratchet_file = open(ratchet_path, "rb")
-                    ratchet_data = umsgpack.unpackb(ratchets_file.read())
+                    ratchet_data = umsgpack.unpackb(ratchet_file.read())
                     if time.time() < ratchet_data["received"]+Identity.RATCHET_EXPIRY and len(ratchet_data["ratchet"]) == Identity.RATCHETSIZE//8:
                         Identity.known_ratchets[destination_hash] = ratchet_data["ratchet"]
                     else:

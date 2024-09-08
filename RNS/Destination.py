@@ -23,6 +23,7 @@
 import os
 import math
 import time
+import threading
 import RNS
 
 from RNS.Cryptography import Fernet
@@ -152,6 +153,7 @@ class Destination:
         self.ratchets = None
         self.ratchets_path = None
         self.ratchet_interval = Destination.RATCHET_INTERVAL
+        self.ratchet_file_lock = threading.Lock()
         self.retained_ratchets = Destination.RATCHET_COUNT
         self.latest_ratchet_time = None
         self.latest_ratchet_id = None
@@ -196,11 +198,12 @@ class Destination:
 
     def _persist_ratchets(self):
         try:
-            packed_ratchets = umsgpack.packb(self.ratchets)
-            persisted_data = {"signature": self.sign(packed_ratchets), "ratchets": packed_ratchets}
-            ratchets_file = open(self.ratchets_path, "wb")
-            ratchets_file.write(umsgpack.packb(persisted_data))
-            ratchets_file.close()
+            with self.ratchet_file_lock:
+                packed_ratchets = umsgpack.packb(self.ratchets)
+                persisted_data = {"signature": self.sign(packed_ratchets), "ratchets": packed_ratchets}
+                ratchets_file = open(self.ratchets_path, "wb")
+                ratchets_file.write(umsgpack.packb(persisted_data))
+                ratchets_file.close()
         except Exception as e:
             self.ratchets = None
             self.ratchets_path = None
@@ -266,9 +269,6 @@ class Destination:
             if self.ratchets != None:
                 self.rotate_ratchets()
                 ratchet = RNS.Identity._ratchet_public_bytes(self.ratchets[0])
-
-                # TODO: Remove at some point
-                RNS.log(f"Including ratchet {RNS.prettyhexrep(RNS.Identity.truncated_hash(ratchet))} in announce", RNS.LOG_EXTREME)
 
             if app_data == None and self.default_app_data != None:
                 if isinstance(self.default_app_data, bytes):
@@ -417,6 +417,29 @@ class Destination:
             if link != None:
                 self.links.append(link)
 
+    def _reload_ratchets(self, ratchets_path):
+        if os.path.isfile(ratchets_path):
+            with self.ratchet_file_lock:
+                try:
+                    ratchets_file = open(ratchets_path, "rb")
+                    persisted_data = umsgpack.unpackb(ratchets_file.read())
+                    if "signature" in persisted_data and "ratchets" in persisted_data:
+                        if self.identity.validate(persisted_data["signature"], persisted_data["ratchets"]):
+                            self.ratchets = umsgpack.unpackb(persisted_data["ratchets"])
+                            self.ratchets_path = ratchets_path
+                        else:
+                            raise KeyError("Invalid ratchet file signature")
+
+                except Exception as e:
+                    self.ratchets = None
+                    self.ratchets_path = None
+                    raise OSError("Could not read ratchet file contents for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+        else:
+            RNS.log("No existing ratchet data found, initialising new ratchet file for "+str(self), RNS.LOG_DEBUG)
+            self.ratchets = []
+            self.ratchets_path = ratchets_path
+            self._persist_ratchets()
+
     def enable_ratchets(self, ratchets_path):
         """
         Enables ratchets on the destination. When ratchets are enabled, Reticulum will automatically rotate
@@ -434,26 +457,7 @@ class Destination:
         """
         if ratchets_path != None:
             self.latest_ratchet_time = 0
-            if os.path.isfile(ratchets_path):
-                try:
-                    ratchets_file = open(ratchets_path, "rb")
-                    persisted_data = umsgpack.unpackb(ratchets_file.read())
-                    if "signature" in persisted_data and "ratchets" in persisted_data:
-                        if self.identity.validate(persisted_data["signature"], persisted_data["ratchets"]):
-                            self.ratchets = umsgpack.unpackb(persisted_data["ratchets"])
-                            self.ratchets_path = ratchets_path
-                        else:
-                            raise KeyError("Invalid ratchet file signature")
-
-                except Exception as e:
-                    self.ratchets = None
-                    self.ratchets_path = None
-                    raise OSError("Could not read ratchet file contents for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
-            else:
-                RNS.log("No existing ratchet data found, initialising new ratchet file for "+str(self), RNS.LOG_DEBUG)
-                self.ratchets = []
-                self.ratchets_path = ratchets_path
-                self._persist_ratchets()
+            self._reload_ratchets(ratchets_path)
 
             # TODO: Remove at some point
             RNS.log("Ratchets enabled on "+str(self), RNS.LOG_DEBUG)
@@ -568,7 +572,8 @@ class Destination:
 
         if self.type == Destination.SINGLE and self.identity != None:
             selected_ratchet = RNS.Identity.get_ratchet(self.hash)
-            self.latest_ratchet_id = RNS.Identity.truncated_hash(selected_ratchet)
+            if selected_ratchet:
+                self.latest_ratchet_id = RNS.Identity.truncated_hash(selected_ratchet)
             return self.identity.encrypt(plaintext, ratchet=selected_ratchet)
 
         if self.type == Destination.GROUP:
@@ -592,7 +597,28 @@ class Destination:
             return ciphertext
 
         if self.type == Destination.SINGLE and self.identity != None:
-            return self.identity.decrypt(ciphertext, ratchets=self.ratchets, enforce_ratchets=self.__enforce_ratchets, ratchet_id_receiver=self)
+            if self.ratchets:
+                decrypted = None
+                try:
+                    decrypted = self.identity.decrypt(ciphertext, ratchets=self.ratchets, enforce_ratchets=self.__enforce_ratchets, ratchet_id_receiver=self)
+                except:
+                    decrypted = None
+
+                if not decrypted:
+                    try:
+                        RNS.log(f"Decryption with ratchets failed on {self}, reloading ratchets from storage and retrying", RNS.LOG_ERROR)
+                        self._reload_ratchets(self.ratchets_path)
+                        decrypted = self.identity.decrypt(ciphertext, ratchets=self.ratchets, enforce_ratchets=self.__enforce_ratchets, ratchet_id_receiver=self)
+                    except Exception as e:
+                        RNS.log(f"Decryption still failing after ratchet reload. The contained exception was: {e}", RNS.LOG_ERROR)
+                        raise e
+
+                    RNS.log("Decryption succeeded after ratchet reload", RNS.LOG_NOTICE)
+
+                return decrypted
+
+            else:
+                return self.identity.decrypt(ciphertext, ratchets=None, enforce_ratchets=self.__enforce_ratchets, ratchet_id_receiver=self)
 
         if self.type == Destination.GROUP:
             if hasattr(self, "prv") and self.prv != None:
