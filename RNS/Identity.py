@@ -631,8 +631,6 @@ class Identity:
             ephemeral_pub_bytes = ephemeral_key.public_key().public_bytes()
 
             if ratchet != None:
-                # TODO: Remove at some point
-                RNS.log(f"Encrypting with ratchet {RNS.prettyhexrep(RNS.Identity.truncated_hash(ratchet))}", RNS.LOG_EXTREME)
                 target_public_key = X25519PublicKey.from_public_bytes(ratchet)
             else:
                 target_public_key = self.pub
@@ -655,7 +653,7 @@ class Identity:
             raise KeyError("Encryption failed because identity does not hold a public key")
 
 
-    def decrypt(self, ciphertext_token, ratchets=None, enforce_ratchets=False):
+    def decrypt(self, ciphertext_token, ratchets=None, enforce_ratchets=False, ratchet_id_receiver=None):
         """
         Decrypts information for the identity.
 
@@ -675,6 +673,7 @@ class Identity:
                         for ratchet in ratchets:
                             try:
                                 ratchet_prv = X25519PrivateKey.from_private_bytes(ratchet)
+                                ratchet_id = Identity.truncated_hash(ratchet_prv.public_key().public_bytes())
                                 shared_key = ratchet_prv.exchange(peer_pub)
                                 derived_key = RNS.Cryptography.hkdf(
                                     length=32,
@@ -685,9 +684,8 @@ class Identity:
 
                                 fernet = Fernet(derived_key)
                                 plaintext = fernet.decrypt(ciphertext)
-                                
-                                # TODO: Remove at some point
-                                RNS.log(f"Decrypted with ratchet {RNS.prettyhexrep(RNS.Identity.truncated_hash(ratchet_prv.public_key().public_bytes()))}", RNS.LOG_EXTREME)
+                                if ratchet_id_receiver:
+                                    ratchet_id_receiver.latest_ratchet_id = ratchet_id
                                 
                                 break
                             
@@ -696,6 +694,8 @@ class Identity:
 
                     if enforce_ratchets and plaintext == None:
                         RNS.log("Decryption with ratchet enforcement by "+RNS.prettyhexrep(self.hash)+" failed. Dropping packet.", RNS.LOG_DEBUG)
+                        if ratchet_id_receiver:
+                            ratchet_id_receiver.latest_ratchet_id = None
                         return None
 
                     if plaintext == None:
@@ -709,9 +709,13 @@ class Identity:
 
                         fernet = Fernet(derived_key)
                         plaintext = fernet.decrypt(ciphertext)
+                        if ratchet_id_receiver:
+                            ratchet_id_receiver.latest_ratchet_id = None
 
                 except Exception as e:
                     RNS.log("Decryption by "+RNS.prettyhexrep(self.hash)+" failed: "+str(e), RNS.LOG_DEBUG)
+                    if ratchet_id_receiver:
+                        ratchet_id_receiver.latest_ratchet_id = None
                     
                 return plaintext;
             else:

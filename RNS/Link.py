@@ -775,6 +775,7 @@ class Link:
                     should_query = False
                     if packet.context == RNS.Packet.NONE:
                         plaintext = self.decrypt(packet.data)
+                        packet.ratchet_id = self.link_id
                         if plaintext != None:
                             if self.callbacks.packet != None:
                                 thread = threading.Thread(target=self.callbacks.packet, args=(plaintext, packet))

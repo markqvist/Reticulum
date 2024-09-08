@@ -154,6 +154,7 @@ class Destination:
         self.ratchet_interval = Destination.RATCHET_INTERVAL
         self.retained_ratchets = Destination.RATCHET_COUNT
         self.latest_ratchet_time = None
+        self.latest_ratchet_id = None
         self.__enforce_ratchets = False
         self.mtu = 0
 
@@ -401,6 +402,7 @@ class Destination:
             self.incoming_link_request(plaintext, packet)
         else:
             plaintext = self.decrypt(packet.data)
+            packet.ratchet_id = self.latest_ratchet_id
             if plaintext != None:
                 if packet.packet_type == RNS.Packet.DATA:
                     if self.callbacks.packet != None:
@@ -565,7 +567,9 @@ class Destination:
             return plaintext
 
         if self.type == Destination.SINGLE and self.identity != None:
-            return self.identity.encrypt(plaintext, ratchet=RNS.Identity.get_ratchet(self.hash))
+            selected_ratchet = RNS.Identity.get_ratchet(self.hash)
+            self.latest_ratchet_id = RNS.Identity.truncated_hash(selected_ratchet)
+            return self.identity.encrypt(plaintext, ratchet=selected_ratchet)
 
         if self.type == Destination.GROUP:
             if hasattr(self, "prv") and self.prv != None:
@@ -588,7 +592,7 @@ class Destination:
             return ciphertext
 
         if self.type == Destination.SINGLE and self.identity != None:
-            return self.identity.decrypt(ciphertext, ratchets=self.ratchets, enforce_ratchets=self.__enforce_ratchets)
+            return self.identity.decrypt(ciphertext, ratchets=self.ratchets, enforce_ratchets=self.__enforce_ratchets, ratchet_id_receiver=self)
 
         if self.type == Destination.GROUP:
             if hasattr(self, "prv") and self.prv != None:

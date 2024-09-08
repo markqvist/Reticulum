@@ -52,16 +52,16 @@ class Transport:
     Maximum amount of hops that Reticulum will transport a packet.
     """
     
-    PATHFINDER_R                = 1          # Retransmit retries
-    PATHFINDER_G                = 5          # Retry grace period
-    PATHFINDER_RW               = 0.5        # Random window for announce rebroadcast
-    PATHFINDER_E                = 60*60*24*7 # Path expiration of one week
-    AP_PATH_TIME                = 60*60*24   # Path expiration of one day for Access Point paths
-    ROAMING_PATH_TIME           = 60*60*6    # Path expiration of 6 hours for Roaming paths
+    PATHFINDER_R                = 1            # Retransmit retries
+    PATHFINDER_G                = 5            # Retry grace period
+    PATHFINDER_RW               = 0.5          # Random window for announce rebroadcast
+    PATHFINDER_E                = 60*60*24*7   # Path expiration of one week
+    AP_PATH_TIME                = 60*60*24     # Path expiration of one day for Access Point paths
+    ROAMING_PATH_TIME           = 60*60*6      # Path expiration of 6 hours for Roaming paths
 
     # TODO: Calculate an optimal number for this in
     # various situations
-    LOCAL_REBROADCASTS_MAX      = 2          # How many local rebroadcasts of an announce is allowed
+    LOCAL_REBROADCASTS_MAX      = 2            # How many local rebroadcasts of an announce is allowed
 
     PATH_REQUEST_TIMEOUT        = 15           # Default timuout for client path requests in seconds
     PATH_REQUEST_GRACE          = 0.4          # Grace time before a path announcement is made, allows directly reachable peers to respond first

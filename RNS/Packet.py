@@ -140,6 +140,7 @@ class Packet:
         self.MTU         = RNS.Reticulum.MTU
         self.sent_at     = None
         self.packet_hash = None
+        self.ratchet_id  = None
 
         self.attached_interface = attached_interface
         self.receiving_interface = None
@@ -195,6 +196,8 @@ class Packet:
                     # In all other cases, we encrypt the packet
                     # with the destination's encryption method
                     self.ciphertext = self.destination.encrypt(self.data)
+                    if hasattr(self.destination, "latest_ratchet_id"):
+                        self.ratchet_id = self.destination.latest_ratchet_id
 
             if self.header_type == Packet.HEADER_2:
                 if self.transport_id != None:
@@ -418,6 +421,7 @@ class PacketReceipt:
                         except Exception as e:
                             RNS.log("An error occurred while evaluating external delivery callback for "+str(link), RNS.LOG_ERROR)
                             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                            RNS.trace_exception(e)
                             
                     return True
                 else:
