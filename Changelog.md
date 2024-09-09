@@ -23,7 +23,7 @@ Thanks to @deavmi, @faragher, @jacobeva, @jeremy and @jeremybox for contributing
 89b33fe9ab923139d3f5d43726d92817642be05a8c9d328c3becfc3c409e4b4b rnspure-0.7.7-py3-none-any.whl
 ```
 
-#### 2024-05-18: RNS β 0.7.6
+### 2024-05-18: RNS β 0.7.6
 
 This release adds support for RNodes with multiple radio transceivers, courtesy of @jacobeva. It also brings a number of functionality and performance improvements, and fixes several bugs.
 
