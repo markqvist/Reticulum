@@ -288,7 +288,7 @@ class Identity:
                         ratchet_file = open(outpath, "wb")
                         ratchet_file.write(umsgpack.packb(ratchet_data))
                         ratchet_file.close()
-                        os.rename(outpath, finalpath)
+                        os.replace(outpath, finalpath)
 
                 
                 threading.Thread(target=persist_job, daemon=True).start()
