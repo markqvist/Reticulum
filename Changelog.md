@@ -1,6 +1,32 @@
-### 2024-05-18: RNS β 0.7.6
+### 2024-09-09: RNS β 0.7.7
 
-This release add support for RNodes with multiple radio transceivers, courtesy of @jacobeva. It also brings a number of functionality and performance improvements, and fixes several bugs.
+This release adds support for automatic encryption key ratcheting for all packets, not just those sent over Reticulum links. In practical terms, this adds forward secrecy to packets sent with the raw `Packet` API.
+
+In this release, the ratchets feature must be enabled on a per-destination basis by calling the `enable_ratchets` method on the relevant destination. In a future release, ratchets may become the default option, but for backwards-compatibility, it is currently optional. For more information, read the API documentation.
+
+**Please note!** Versions of RNS prior to `0.7.7` will not be able to pass announces for destinations with ratchets enabled! If you use applications that can use ratchets (for example, LXMF version `0.5.0` and up), it is important that you update all transport instances on your network to `0.7.7`.
+
+Thanks to @deavmi, @faragher, @jacobeva, @jeremy and @jeremybox for contributing to this release!
+
+**Changes**
+- Added key ratchet rotation and signalling
+- Added ratchet API to documentation
+- Added initial support for flashing T-Echo devices to `rnodeconf`
+- Added remote management config options to example config
+- Added automtic integration tests to source repository
+- Fixed a regression that caused RNS not to work on Python versions lower than 3.10
+- Fixed missing `establishment_rate` property init on Link objects
+- Updated documentation and manual
+
+**Release Hashes**
+```
+0a3ab6dc82567a19adabe737358daee3002b60beda8ac0bf228f2a0c134ff6d8 rns-0.7.7-py3-none-any.whl
+89b33fe9ab923139d3f5d43726d92817642be05a8c9d328c3becfc3c409e4b4b rnspure-0.7.7-py3-none-any.whl
+```
+
+#### 2024-05-18: RNS β 0.7.6
+
+This release adds support for RNodes with multiple radio transceivers, courtesy of @jacobeva. It also brings a number of functionality and performance improvements, and fixes several bugs.
 
 Thanks to @jacobeva, @faragher, @nathmo, @jschulthess and @liamcottle for contributing to this release!
 
