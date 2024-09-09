@@ -2,7 +2,7 @@ all: release
 
 test:
 	@echo Running tests...
-	python -m tests.all
+	python3 -m tests.all
 
 clean:
 	@echo Cleaning...

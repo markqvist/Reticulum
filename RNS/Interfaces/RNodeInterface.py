@@ -622,7 +622,7 @@ class RNodeInterface(Interface):
                             self.r_state = byte
                             if self.r_state:
                                 pass
-                                #RNS.log(str(self)+" Radio reporting state is online", RNS.LOG_DEBUG)
+                                RNS.log(str(self)+" Radio reporting state is online", RNS.LOG_DEBUG)
                             else:
                                 RNS.log(str(self)+" Radio reporting state is offline", RNS.LOG_DEBUG)
 

@@ -131,6 +131,7 @@ class ROM():
     PRODUCT_RAK4631 = 0x10
     MODEL_11       = 0x11
     MODEL_12       = 0x12
+    PRODUCT_TECHO  = 0x15
 
     PRODUCT_RNODE  = 0x03
     MODEL_A1       = 0xA1
@@ -200,6 +201,7 @@ class ROM():
     BOARD_GENERIC_ESP32 = 0x35
     BOARD_LORA32_V2_0   = 0x36
     BOARD_LORA32_V2_1   = 0x37
+    BOARD_TECHO         = 0x43
     BOARD_RAK4631       = 0x51
 
     MANUAL_FLASH_MODELS = [MODEL_A1, MODEL_A6]
@@ -214,6 +216,7 @@ products = {
     ROM.PRODUCT_T32_21: "LilyGO LoRa32 v2.1",
     ROM.PRODUCT_H32_V2: "Heltec LoRa32 v2",
     ROM.PRODUCT_H32_V3: "Heltec LoRa32 v3",
+    ROM.PRODUCT_TECHO:  "LilyGO T-Echo",
     ROM.PRODUCT_RAK4631: "RAK4631",
 }
 
@@ -233,6 +236,7 @@ mcus = {
 models = {
     0x11: [430000000, 510000000, 22, "430 - 510 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
     0x12: [779000000, 928000000, 22, "779 - 928 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
+    0x15: [779000000, 928000000, 22, "779 - 928 Mhz", "rnode_firmware_techo.zip", "SX1262"],
     0xA4: [410000000, 525000000, 14, "410 - 525 MHz", "rnode_firmware.hex", "SX1278"],
     0xA9: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware.hex", "SX1276"],
     0xA1: [410000000, 525000000, 22, "410 - 525 MHz", "rnode_firmware_t3s3.zip", "SX1268"],
@@ -1603,6 +1607,8 @@ def main():
             print("[8] Heltec LoRa32 v3")
             print("[9] LilyGO LoRa T3S3")
             print("[10] RAK4631")
+            #TODO: Implement T-Echo
+            #print("[11] LilyGo T-Echo")
             print("       .")
             print("      / \\   Select one of these options if you want to easily turn")
             print("       |    a supported development board into an RNode.")
@@ -1751,6 +1757,23 @@ def main():
                     print("                     RAK4631 RNode Installer")
                     print("")
                     print("Important! Using RNode firmware on RAKwireless devices should currently be")
+                    print("considered experimental. It is not intended for production or critical use.")
+                    print("The currently supplied firmware is provided AS-IS as a courtesey to those")
+                    print("who would like to experiment with it. Hit enter to continue.")
+                    print("---------------------------------------------------------------------------")
+                    input()
+                elif c_dev == 11:
+                #TODO: Implement T-Echo
+                    print("That device type does not exist, exiting now.")
+                    graceful_exit()
+                #The code below will never execute until the exit is removed from the line above when T-Echo is implemented:
+                    selected_product = ROM.PRODUCT_TECHO
+                    clear()
+                    print("")
+                    print("---------------------------------------------------------------------------")
+                    print("                     LilyGo T-Echo RNode Installer")
+                    print("")
+                    print("Important! Using RNode firmware on LilyGo T-Echo devices should currently be")
                     print("considered experimental. It is not intended for production or critical use.")
                     print("The currently supplied firmware is provided AS-IS as a courtesey to those")
                     print("who would like to experiment with it. Hit enter to continue.")
@@ -2038,6 +2061,21 @@ def main():
                         selected_platform = ROM.PLATFORM_NRF52
                     elif c_model > 1:
                         selected_model = ROM.MODEL_12
+                        selected_platform = ROM.PLATFORM_NRF52
+                except Exception as e:
+                    print("That band does not exist, exiting now.")
+                    graceful_exit()
+            elif selected_product == ROM.PRODUCT_TECHO:
+                selected_mcu = ROM.MCU_NRF52
+                print("\nWhat band is this T-Echo for?\n")
+                print("[1] 915 MHz")
+                print("\n? ", end="")
+                try:
+                    c_model = int(input())
+                    if c_model < 1 or c_model > 1:
+                        raise ValueError()
+                    elif c_model == 1:
+                        selected_model = ROM.PRODUCT_TECHO
                         selected_platform = ROM.PLATFORM_NRF52
                 except Exception as e:
                     print("That band does not exist, exiting now.")
