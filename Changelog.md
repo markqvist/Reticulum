@@ -16,7 +16,6 @@ Thanks to @deavmi, @faragher, @jacobeva, @jeremy and @jeremybox for contributing
 - Added automtic integration tests to source repository
 - Fixed a regression that caused RNS not to work on Python versions lower than 3.10
 - Fixed missing `establishment_rate` property init on Link objects
-- Updated documentation and manual
 
 **Release Hashes**
 ```
