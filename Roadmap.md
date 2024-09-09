@@ -15,6 +15,9 @@ This document outlines the currently established development roadmap for Reticul
 For each release cycle of Reticulum, improvements and additions from the five [Primary Efforts](#primary-efforts) are selected as active work areas, and can be expected to be included in the upcoming releases within that cycle. While not entirely set in stone for each release cycle, they serve as a pointer of what to expect in the near future.
 
 - The current `0.7.x` release cycle aims at completing
+  - [x] Automatic asynchronous key ratcheting for non-link traffic
+  - [ ] API improvements based on real-world usage and feedback
+  - [ ] Expanded hardware support
   - [ ] Overhauling and updating the documentation
   - [ ] Distributed Destination Naming System
   - [ ] Create a standalone RNS Daemon app for Android
