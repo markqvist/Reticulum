@@ -128,11 +128,6 @@ class ROM():
     MCU_ESP32      = 0x81
     MCU_NRF52      = 0x71
 
-    PRODUCT_RAK4631 = 0x10
-    MODEL_11       = 0x11
-    MODEL_12       = 0x12
-    PRODUCT_TECHO  = 0x15
-
     PRODUCT_RNODE  = 0x03
     MODEL_A1       = 0xA1
     MODEL_A6       = 0xA6
@@ -171,6 +166,14 @@ class ROM():
     MODEL_E9       = 0xE9
     MODEL_E3       = 0xE3
     MODEL_E8       = 0xE8
+
+    PRODUCT_RAK4631 = 0x10
+    MODEL_11       = 0x11
+    MODEL_12       = 0x12
+
+    PRODUCT_TECHO  = 0x15
+    MODEL_T4       = 0x16
+    MODEL_T9       = 0x17
     
     PRODUCT_HMBRW  = 0xF0
     MODEL_FF       = 0xFF
@@ -234,9 +237,6 @@ mcus = {
 }
 
 models = {
-    0x11: [430000000, 510000000, 22, "430 - 510 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
-    0x12: [779000000, 928000000, 22, "779 - 928 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
-    0x15: [779000000, 928000000, 22, "779 - 928 Mhz", "rnode_firmware_techo.zip", "SX1262"],
     0xA4: [410000000, 525000000, 14, "410 - 525 MHz", "rnode_firmware.hex", "SX1278"],
     0xA9: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware.hex", "SX1276"],
     0xA1: [410000000, 525000000, 22, "410 - 525 MHz", "rnode_firmware_t3s3.zip", "SX1268"],
@@ -261,6 +261,10 @@ models = {
     0xE9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_tbeam.zip", "SX1276"],
     0xE3: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1268"],
     0xE8: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1262"],
+    0x11: [430000000, 510000000, 22, "430 - 510 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
+    0x12: [779000000, 928000000, 22, "779 - 928 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
+    0x16: [779000000, 928000000, 22, "430 - 510 Mhz", "rnode_firmware_techo.zip", "SX1262"],
+    0x17: [779000000, 928000000, 22, "779 - 928 Mhz", "rnode_firmware_techo.zip", "SX1262"],
     0xFE: [100000000, 1100000000, 17, "(Band capabilities unknown)", None, "Unknown"],
     0xFF: [100000000, 1100000000, 14, "(Band capabilities unknown)", None, "Unknown"],
 }
@@ -1607,8 +1611,7 @@ def main():
             print("[8] Heltec LoRa32 v3")
             print("[9] LilyGO LoRa T3S3")
             print("[10] RAK4631")
-            #TODO: Implement T-Echo
-            #print("[11] LilyGo T-Echo")
+            print("[11] LilyGo T-Echo")
             print("       .")
             print("      / \\   Select one of these options if you want to easily turn")
             print("       |    a supported development board into an RNode.")
@@ -1620,7 +1623,7 @@ def main():
             try:
                 c_dev = int(input())
                 c_mod = False
-                if c_dev < 1 or c_dev > 10:
+                if c_dev < 1 or c_dev > 11:
                     raise ValueError()
                 elif c_dev == 1:
                     selected_product = ROM.PRODUCT_RNODE
@@ -1763,10 +1766,6 @@ def main():
                     print("---------------------------------------------------------------------------")
                     input()
                 elif c_dev == 11:
-                #TODO: Implement T-Echo
-                    print("That device type does not exist, exiting now.")
-                    graceful_exit()
-                #The code below will never execute until the exit is removed from the line above when T-Echo is implemented:
                     selected_product = ROM.PRODUCT_TECHO
                     clear()
                     print("")
@@ -2068,14 +2067,20 @@ def main():
             elif selected_product == ROM.PRODUCT_TECHO:
                 selected_mcu = ROM.MCU_NRF52
                 print("\nWhat band is this T-Echo for?\n")
-                print("[1] 915 MHz")
+                print("[1] 433 MHz")
+                print("[2] 868 MHz")
+                print("[3] 915 MHz")
+                print("[4] 923 MHz")
                 print("\n? ", end="")
                 try:
                     c_model = int(input())
                     if c_model < 1 or c_model > 1:
                         raise ValueError()
                     elif c_model == 1:
-                        selected_model = ROM.PRODUCT_TECHO
+                        selected_model = ROM.MODEL_T4
+                        selected_platform = ROM.PLATFORM_NRF52
+                    elif c_model > 1:
+                        selected_model = ROM.MODEL_T9
                         selected_platform = ROM.PLATFORM_NRF52
                 except Exception as e:
                     print("That band does not exist, exiting now.")
