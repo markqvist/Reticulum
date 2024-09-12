@@ -68,6 +68,7 @@ class Link:
     Timeout for link establishment in seconds per hop to destination.
     """
 
+    TRAFFIC_TIMEOUT_MIN_MS = 5
     TRAFFIC_TIMEOUT_FACTOR = 6
     KEEPALIVE_TIMEOUT_FACTOR = 4
     """
