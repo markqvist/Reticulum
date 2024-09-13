@@ -170,6 +170,11 @@ class ROM():
     PRODUCT_RAK4631 = 0x10
     MODEL_11       = 0x11
     MODEL_12       = 0x12
+    MODEL_13       = 0x13
+    MODEL_14       = 0x14
+    PRODUCT_OPENCOM_XL = 0x20
+    MODEL_21       = 0x21
+
 
     PRODUCT_TECHO  = 0x15
     MODEL_T4       = 0x16
@@ -221,6 +226,7 @@ products = {
     ROM.PRODUCT_H32_V3: "Heltec LoRa32 v3",
     ROM.PRODUCT_TECHO:  "LilyGO T-Echo",
     ROM.PRODUCT_RAK4631: "RAK4631",
+    ROM.PRODUCT_OPENCOM_XL: "openCom XL",
 }
 
 platforms = {
@@ -263,8 +269,11 @@ models = {
     0xE8: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1262"],
     0x11: [430000000, 510000000, 22, "430 - 510 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
     0x12: [779000000, 928000000, 22, "779 - 928 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
+    0x11: [430000000, 510000000, 22, "430 - 510 MHz", "rnode_firmware_rak4631_sx1280.zip", "SX1262 + SX1280"],
+    0x12: [779000000, 928000000, 22, "779 - 928 MHz", "rnode_firmware_rak4631_sx1280.zip", "SX1262 + SX1280"],
     0x16: [779000000, 928000000, 22, "430 - 510 Mhz", "rnode_firmware_techo.zip", "SX1262"],
     0x17: [779000000, 928000000, 22, "779 - 928 Mhz", "rnode_firmware_techo.zip", "SX1262"],
+    0x21: [820000000, 960000000, 22, "820 - 960 MHz", "rnode_firmware_opencom_xl.zip", "SX1262 + SX1280"],
     0xFE: [100000000, 1100000000, 17, "(Band capabilities unknown)", None, "Unknown"],
     0xFF: [100000000, 1100000000, 14, "(Band capabilities unknown)", None, "Unknown"],
 }
