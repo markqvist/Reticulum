@@ -160,6 +160,9 @@ class Reticulum:
         RNS.Transport.exit_handler()
         RNS.Identity.exit_handler()
 
+        if RNS.profiler_ran:
+            RNS.profiler_results()
+
     @staticmethod
     def sigint_handler(signal, frame):
         RNS.Transport.detach_interfaces()
