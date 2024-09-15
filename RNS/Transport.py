@@ -301,11 +301,22 @@ class Transport:
             RNS.log("Transport instance "+str(Transport.identity)+" started", RNS.LOG_VERBOSE)
             Transport.start_time = time.time()
 
+        # Sort interfaces according to bitrate
+        Transport.prioritize_interfaces()
+
         # Synthesize tunnels for any interfaces wanting it
         for interface in Transport.interfaces:
             interface.tunnel_id = None
             if hasattr(interface, "wants_tunnel") and interface.wants_tunnel:
                 Transport.synthesize_tunnel(interface)
+
+    @staticmethod
+    def prioritize_interfaces():
+        try:
+            Transport.interfaces.sort(key=lambda interface: interface.bitrate, reverse=True)
+
+        except Exception as e:
+            RNS.log(f"Could not prioritize interfaces according to bitrate. The contained exception was: {e}", RNS.LOG_ERROR)
 
     @staticmethod
     def jobloop():
@@ -664,6 +675,7 @@ class Transport:
                     Transport.tables_last_culled = time.time()
 
                 if time.time() > Transport.interface_last_jobs + Transport.interface_jobs_interval:
+                    Transport.prioritize_interfaces()
                     for interface in Transport.interfaces:
                         interface.process_held_announces()
                     Transport.interface_last_jobs = time.time()
