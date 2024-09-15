@@ -336,21 +336,24 @@ def exit():
 
 profiler_ran = False
 profiler_tags = {}
-def profiler(tag=None, capture=False):
+def profiler(tag=None, capture=False, super_tag=None):
     global profiler_ran, profiler_tags
     try:
         thread_ident = threading.get_ident()
 
         if capture:
             end = time.perf_counter()
-            begin = profiler_tags[tag]["threads"][thread_ident]["current_start"]
-            profiler_tags[tag]["threads"][thread_ident]["captures"].append(end-begin)
-            if not profiler_ran:
-                profiler_ran = True
+            if tag in profiler_tags and thread_ident in profiler_tags[tag]["threads"]:
+                if profiler_tags[tag]["threads"][thread_ident]["current_start"] != None:
+                    begin = profiler_tags[tag]["threads"][thread_ident]["current_start"]
+                    profiler_tags[tag]["threads"][thread_ident]["current_start"] = None
+                    profiler_tags[tag]["threads"][thread_ident]["captures"].append(end-begin)
+                    if not profiler_ran:
+                        profiler_ran = True
 
         else:
             if not tag in profiler_tags:
-                profiler_tags[tag] = {"threads": {}}
+                profiler_tags[tag] = {"threads": {}, "super": super_tag}
             if not thread_ident in profiler_tags[tag]["threads"]:
                 profiler_tags[tag]["threads"][thread_ident] = {"current_start": None, "captures": []}
 
@@ -386,6 +389,8 @@ def profiler_results():
         sample_count = len(tag_captures)
         if sample_count > 2:
             tag_results = {
+                "name": tag,
+                "super": tag_entry["super"],
                 "count": len(tag_captures),
                 "mean": mean(tag_captures),
                 "median": median(tag_captures),
@@ -394,12 +399,26 @@ def profiler_results():
 
             results[tag] = tag_results
 
+    def print_results_recursive(tag, results, level=0):
+        print_tag_results(tag, level+1)
+
+        for tag_name in results:
+            sub_tag = results[tag_name]
+            if sub_tag["super"] == tag["name"]:
+                print_results_recursive(sub_tag, results, level=level+1)
+
+
+    def print_tag_results(tag, level):
+        ind = "  "*level
+        print(f"{ind}{tag["name"]}")
+        print(f"{ind}  Samples : {tag["count"]}")
+        print(f"{ind}  Mean    : {prettyshorttime(tag["mean"])}")
+        print(f"{ind}  Median  : {prettyshorttime(tag["median"])}")
+        print(f"{ind}  St.dev. : {prettyshorttime(tag["stdev"])}")
+        print("")
+
     print("\nProfiler results:\n")
     for tag_name in results:
         tag = results[tag_name]
-        print(f"  {tag_name}")
-        print(f"    Samples : {tag["count"]}")
-        print(f"    Mean    : {prettyshorttime(tag["mean"])}")
-        print(f"    Median  : {prettyshorttime(tag["median"])}")
-        print(f"    St.dev. : {prettyshorttime(tag["stdev"])}")
-        print("")
+        if tag["super"] == None:
+            print_results_recursive(tag, results)
