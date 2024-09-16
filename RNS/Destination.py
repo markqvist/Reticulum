@@ -167,6 +167,9 @@ class Destination:
             identity = RNS.Identity()
             aspects = aspects+(identity.hexhash,)
 
+        if identity == None and direction == Destination.OUT and self.type != Destination.PLAIN:
+            raise ValueError("Can't create outbound SINGLE destination without an identity")
+
         if identity != None and self.type == Destination.PLAIN:
             raise TypeError("Selected destination type PLAIN cannot hold an identity")
 
