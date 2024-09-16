@@ -96,7 +96,7 @@ class AX25KISSInterface(Interface):
         self.stopbits = stopbits
         self.timeout  = 100
         self.online   = False
-        self.bitrate  = KISSInterface.BITRATE_GUESS
+        self.bitrate  = AX25KISSInterface.BITRATE_GUESS
 
         self.packet_queue    = []
         self.flow_control    = flow_control
