@@ -363,7 +363,6 @@ def profiler(tag=None, capture=False, super_tag=None):
         trace_exception(e)
 
 def profiler_results():
-    from rich.pretty import pprint
     from statistics import mean, median, stdev
     results = {}
     
@@ -410,11 +409,13 @@ def profiler_results():
 
     def print_tag_results(tag, level):
         ind = "  "*level
-        print(f"{ind}{tag["name"]}")
-        print(f"{ind}  Samples : {tag["count"]}")
-        print(f"{ind}  Mean    : {prettyshorttime(tag["mean"])}")
-        print(f"{ind}  Median  : {prettyshorttime(tag["median"])}")
-        print(f"{ind}  St.dev. : {prettyshorttime(tag["stdev"])}")
+        name = tag["name"]; count = tag["count"]
+        mean = tag["mean"]; tag["median"]; stdev = tag["stdev"]
+        print(f"{ind}{name}")
+        print(f"{ind}  Samples : {count}")
+        print(f"{ind}  Mean    : {prettyshorttime(mean)}")
+        print(f"{ind}  Median  : {prettyshorttime(median)}")
+        print(f"{ind}  St.dev. : {prettyshorttime(stdev)}")
         print("")
 
     print("\nProfiler results:\n")
