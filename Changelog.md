@@ -1,3 +1,24 @@
+### 2024-09-18: RNS β 0.7.8
+
+This maintenance release adds support for the openCom XL to `rnodeconf`, fixes a number of bugs, and also includes a few fine-tunings of timing parameters.
+
+Thanks to @liamcottle and @jacobeva for contributing to this release!
+
+**Changes**
+- 
+- Added interface prioritisation according to reported bitrate
+- Added support for openCom XL to `rnodeconf`
+- Added performance profiler to built-in debugging tools
+- Tuned link traffic timeouts
+- Fixed a module import error in AX25KissInterface
+- Fixed a missing exception on erroneous destination initialisation
+
+**Release Hashes**
+```
+33fb9443e3b327d1a9125baa52d8ec3208a089dda62f749b819e0a94c06730f9 rns-0.7.8-py3-none-any.whl
+cdced2adef4ead146239d0510fe2b9d62f69136bcd54b22d1080686fb56f9927 rnspure-0.7.8-py3-none-any.whl
+```
+
 ### 2024-09-09: RNS β 0.7.7
 
 This release adds support for automatic encryption key ratcheting for all packets, not just those sent over Reticulum links. In practical terms, this adds forward secrecy to packets sent with the raw `Packet` API.
