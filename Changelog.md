@@ -5,7 +5,6 @@ This maintenance release adds support for the openCom XL to `rnodeconf`, fixes a
 Thanks to @liamcottle and @jacobeva for contributing to this release!
 
 **Changes**
-- 
 - Added interface prioritisation according to reported bitrate
 - Added support for openCom XL to `rnodeconf`
 - Added performance profiler to built-in debugging tools
