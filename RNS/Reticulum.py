@@ -971,7 +971,7 @@ class Reticulum:
                                                 enabled_count += 1
 
                                     # Create an array with a row for each subinterface
-                                    subint_config = [[0 for x in range(10)] for y in range(enabled_count)]
+                                    subint_config = [[0 for x in range(11)] for y in range(enabled_count)]
                                     subint_index = 0
 
                                     for subinterface in c:
@@ -1000,6 +1000,11 @@ class Reticulum:
                                                 subint_config[subint_index][8] = st_alock
                                                 lt_alock = float(subinterface_config["airtime_limit_long"]) if "airtime_limit_long" in subinterface_config else None
                                                 subint_config[subint_index][9] = lt_alock
+
+                                                if "outgoing" in subinterface_config and subinterface_config.as_bool("outgoing") == False:
+                                                    subint_config[subint_index][10] = False
+                                                else:
+                                                    subint_config[subint_index][10] = True
                                                 subint_index += 1
 
                                     # if no subinterfaces are defined
@@ -1025,10 +1030,8 @@ class Reticulum:
                                         id_callsign = id_callsign
                                     )
 
-                                    if "outgoing" in c and c.as_bool("outgoing") == False:
-                                        interface.OUT = False
-                                    else:
-                                        interface.OUT = True
+                                    interface.IN = False
+                                    interface.OUT = False
 
                                     interface.mode = interface_mode
 
@@ -1078,6 +1081,9 @@ class Reticulum:
                                         interface.ifac_signature = interface.ifac_identity.sign(RNS.Identity.full_hash(interface.ifac_key))
 
                                     RNS.Transport.interfaces.append(interface)
+
+                                    if isinstance(interface, RNS.Interfaces.RNodeMultiInterface.RNodeMultiInterface):
+                                        interface.start()
 
                             else:
                                 RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_DEBUG)
