@@ -1736,8 +1736,19 @@ class Transport:
                 if packet.destination_type == RNS.Destination.LINK:
                     for link in Transport.active_links:
                         if link.link_id == packet.destination_hash:
-                            packet.link = link
-                            link.receive(packet)
+                            if link.attached_interface == packet.receiving_interface:
+                                packet.link = link
+                                link.receive(packet)
+                            else:
+                                # In the strange and rare case that an interface
+                                # is partly malfunctioning, and a link-associated
+                                # packet is being received on an interface that
+                                # has failed sending, and transport has failed over
+                                # to another path, we remove this packet hash from
+                                # the filter hashlist so the link can receive the
+                                # packet when it finally arrives over another path.
+                                while packet.packet_hash in Transport.packet_hashlist:
+                                    Transport.packet_hashlist.remove(packet.packet_hash)
                 else:
                     for destination in Transport.destinations:
                         if destination.hash == packet.destination_hash and destination.type == packet.destination_type:

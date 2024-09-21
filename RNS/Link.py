@@ -125,7 +125,7 @@ class Link:
                 link.last_inbound = time.time()
                 link.start_watchdog()
                 
-                RNS.log("Incoming link request "+str(link)+" accepted", RNS.LOG_DEBUG)
+                RNS.log("Incoming link request "+str(link)+" accepted on "+str(link.attached_interface), RNS.LOG_DEBUG)
                 return link
 
             except Exception as e:
@@ -762,7 +762,7 @@ class Link:
         self.watchdog_lock = True
         if not self.status == Link.CLOSED and not (self.initiator and packet.context == RNS.Packet.KEEPALIVE and packet.data == bytes([0xFF])):
             if packet.receiving_interface != self.attached_interface:
-                RNS.log("Link-associated packet received on unexpected interface! Someone might be trying to manipulate your communication!", RNS.LOG_ERROR)
+                RNS.log(f"Link-associated packet received on unexpected interface {packet.receiving_interface} instead of {self.attached_interface}! Someone might be trying to manipulate your communication!", RNS.LOG_ERROR)
             else:
                 self.last_inbound = time.time()
                 if packet.context != RNS.Packet.KEEPALIVE:
