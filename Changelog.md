@@ -1,3 +1,16 @@
+### 2024-09-24: RNS β 0.7.9
+
+This maintenance release improves transport reliability in certain (rare) cases.
+
+**Changes**
+- Added handling of a transport edge-case
+
+**Release Hashes**
+```
+4c20c46df021d366386d497145024396f904666b0de22a92f9e5c937886ea39d rns-0.7.9-py3-none-any.whl
+97d26282df929eca732a15523bc9d7f66387a93ffd911e8063c94c3f8f6ad73c rnspure-0.7.9-py3-none-any.whl
+```
+
 ### 2024-09-18: RNS β 0.7.8
 
 This maintenance release adds support for the openCom XL to `rnodeconf`, fixes a number of bugs, and also includes a few fine-tunings of timing parameters.
