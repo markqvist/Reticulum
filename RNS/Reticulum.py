@@ -1258,6 +1258,10 @@ class Reticulum:
                 else:
                     ifstats["clients"] = None
 
+                if hasattr(interface, "parent_interface") and interface.parent_interface != None:
+                    ifstats["parent_interface_name"] = str(interface.parent_interface)
+                    ifstats["parent_interface_hash"] = interface.parent_interface.get_hash()
+
                 if hasattr(interface, "i2p") and hasattr(interface, "connectable"):
                     if interface.connectable:
                         ifstats["i2p_connectable"] = True
@@ -1323,6 +1327,9 @@ class Reticulum:
                         ifstats["announce_queue"] = None
 
                 ifstats["name"] = str(interface)
+                ifstats["short_name"] = str(interface.name)
+                ifstats["hash"] = interface.get_hash()
+                ifstats["type"] = str(type(interface).__name__)
                 ifstats["rxb"] = interface.rxb
                 ifstats["txb"] = interface.txb
                 ifstats["incoming_announce_frequency"] = interface.incoming_announce_frequency()
