@@ -1,3 +1,16 @@
+### 2024-09-25: RNS β 0.8.0
+
+This maintenance release improves the interface statistics API, and updates documentation.
+
+**Changes**
+- Added additional information to interface statistics
+- Updated documentation
+
+**Release Hashes**
+```
+
+```
+
 ### 2024-09-24: RNS β 0.7.9
 
 This maintenance release improves transport reliability in certain (rare) cases.
