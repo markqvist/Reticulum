@@ -14,15 +14,15 @@ This document outlines the currently established development roadmap for Reticul
 ## Currently Active Work Areas
 For each release cycle of Reticulum, improvements and additions from the five [Primary Efforts](#primary-efforts) are selected as active work areas, and can be expected to be included in the upcoming releases within that cycle. While not entirely set in stone for each release cycle, they serve as a pointer of what to expect in the near future.
 
-- The current `0.7.x` release cycle aims at completing
-  - [x] Automatic asynchronous key ratcheting for non-link traffic
-  - [ ] API improvements based on real-world usage and feedback
+- The current `0.8.x` release cycle aims at completing
+  - [ ] Hot-pluggable interface system
+  - [ ] External interface plugins
+  - [ ] Network-wide path balancing and multi-pathing
   - [ ] Expanded hardware support
   - [ ] Overhauling and updating the documentation
   - [ ] Distributed Destination Naming System
-  - [ ] Create a standalone RNS Daemon app for Android
-  - [ ] Network-wide path balancing
-  - [ ] Add automatic retries to all use cases of the `Request` API
+  - [ ] A standalone RNS Daemon app for Android
+  - [ ] Addding automatic retries to all use cases of the `Request` API
   - [ ] Performance and memory optimisations of the Python reference implementation
   - [ ] Fixing bugs discovered while operating Reticulum systems and applications
 
@@ -38,17 +38,9 @@ These efforts are aimed at improving the ease of which Reticulum is understood, 
         - Update announce description
         - Add in-depth explanation of the IFAC system
     - Software
-        - Update Sideband screenshots
-        - Update Sideband description
-        - Update NomadNet screenshots
-        - Update Sideband screenshots
-    - Installation
-        - [x] Add a *Reticulum On Raspberry Pi* section
-        - [x] Update *Reticulum On Android* section if necessary
-        - [x] Update Android install documentation.
+        - Update software descriptions and screenshots
     - Communications hardware section
         - Add information about RNode external displays.
-        - [x] Packet radio modems.
         - Possibly add other relevant types here as well.
     - Setup *Best Practices For...* / *Installation Examples* section.
         - Home or office (example)
@@ -68,6 +60,8 @@ These efforts seek to broaden the universality of the Reticulum software and har
 ### Functionality
 These efforts aim to expand and improve the core functionality and reliability of Reticulum.
 
+- Add support for user-supplied external interface drivers
+- Add interface hot-plug and live up/down control to running instances
 - Add automatic retries to all use cases of the `Request` API
 - Network-wide path balancing
 - Distributed Destination Naming System
@@ -85,10 +79,10 @@ These effors seek to make Reticulum easier to use and operate, and to expand the
 ### Interfaceability
 These efforts aim to expand the types of physical and virtual interfaces that Reticulum can natively use to transport data.
 
-- Filesystem interface
 - Plain ESP32 devices (ESP-Now, WiFi, Bluetooth, etc.)
 - More LoRa transceivers
 - AT-compatible modems
+- Filesystem interface
 - Direct SDR Support
 - Optical mediums
 - IR Transceivers
@@ -108,7 +102,7 @@ The Reticulum ecosystem is enriched by several other software and hardware proje
 This section lists, in no particular order, various important efforts that would be beneficial to the goals of Reticulum.
 
 - The [RNode](https://unsigned.io/rnode/) project
-    - [ ] Create a WebUSB-based bootstrapping utility, and integrate this directly into the [RNode Bootstrap Console](#), both on-device, and on an Internet-reachable copy. This will make it much easier to create new RNodes for average users.
+    - [x] Create a WebUSB-based bootstrapping utility, and integrate this directly into the [RNode Bootstrap Console](#), both on-device, and on an Internet-reachable copy. This will make it much easier to create new RNodes for average users.
 
 ## Release History
 
