@@ -41,11 +41,11 @@ For more info, see [reticulum.network](https://reticulum.network/) and [the FAQ 
 
 ## Notable Features
 - Coordination-less globally unique addressing and identification
-- Fully self-configuring multi-hop routing over heterogeneous media type
+- Fully self-configuring multi-hop routing over heterogeneous carriers
 - Initiator anonymity, communicate without revealing your identity
-  - Reticulum does not use source addresses on any packets
+  - Reticulum does not include source addresses on any packets
 - Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
-  - 512-bit Elliptic Curve keysets are used for the foundational Reticulum Identity Keys
+  - The foundational Reticulum Identity Keys are 512-bit Elliptic Curve keysets
 - Forward Secrecy is available for all communication types, both for single packets and over links
 - Reticulum uses the following format for encrypted tokens:
   - Ephemeral per-packet and link keys and derived from an ECDH key exchange on Curve25519
