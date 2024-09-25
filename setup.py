@@ -10,7 +10,6 @@ if '--pure' in sys.argv:
     print("Building pure-python wheel")
 
 exec(open("RNS/_version.py", "r").read())
-
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
