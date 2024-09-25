@@ -41,21 +41,23 @@ For more info, see [reticulum.network](https://reticulum.network/) and [the FAQ 
 
 ## Notable Features
 - Coordination-less globally unique addressing and identification
-- Fully self-configuring multi-hop routing
+- Fully self-configuring multi-hop routing over heterogeneous media type
 - Initiator anonymity, communicate without revealing your identity
+  - Reticulum does not use source addresses on any packets
 - Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
-- Forward Secrecy with ephemeral Elliptic Curve Diffie-Hellman keys on Curve25519
+  - 512-bit Elliptic Curve keysets are used for the foundational Reticulum Identity Keys
+- Forward Secrecy is available for all communication types, both for single packets and over links
 - Reticulum uses the following format for encrypted tokens:
-  - Keys are ephemeral and derived from an ECDH key exchange on Curve25519
+  - Ephemeral per-packet and link keys and derived from an ECDH key exchange on Curve25519
   - AES-128 in CBC mode with PKCS7 padding
   - HMAC using SHA256 for authentication
   - IVs are generated through os.urandom()
 - Unforgeable packet delivery confirmations
-- A variety of supported interface types
+- A large variety of supported interface types
 - An intuitive and easy-to-use API
 - Reliable and efficient transfer of arbitrary amounts of data
   - Reticulum can handle a few bytes of data or files of many gigabytes
-  - Sequencing, transfer coordination and checksumming are automatic
+  - Sequencing, compression, transfer coordination and checksumming are automatic
   - The API is very easy to use, and provides transfer progress
 - Lightweight, flexible and expandable Request/Response mechanism
 - Efficient link establishment
@@ -298,14 +300,15 @@ Are certain features in the development roadmap are important to you or your
 organisation? Make them a reality quickly by sponsoring their implementation.
 
 ## Cryptographic Primitives
-Reticulum uses a simple suite of efficient, strong and modern cryptographic
+Reticulum uses a simple suite of efficient, strong and well-tested cryptographic
 primitives, with widely available implementations that can be used both on
-general-purpose CPUs and on microcontrollers. The necessary primitives are:
+general-purpose CPUs and on microcontrollers. The utilised primitives are:
 
-- Ed25519 for signatures
-- X22519 for ECDH key exchanges
+- Reticulum Identity Keys are 512-bit Curve25519 keysets
+  - A 256-bit Ed25519 key for signatures
+  - A 256-bit X22519 key for ECDH key exchanges
 - HKDF for key derivation
-- Modified Fernet for encrypted tokens
+- Encrypted tokens are based on the [Fernet spec](https://github.com/fernet/spec/)
   - Ephemeral keys derived from an ECDH key exchange on Curve25519
   - AES-128 in CBC mode with PKCS7 padding
   - HMAC using SHA256 for message authentication
