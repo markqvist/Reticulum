@@ -8,7 +8,8 @@ This maintenance release improves the interface statistics API, and updates docu
 
 **Release Hashes**
 ```
-
+fa5ff6d98230693be6805bb9a94585a6f54ec0af9cba15b771d4e676f140dc43 rns-0.8.0-py3-none-any.whl
+ba20f688b69ae861c8aced251e10242a358fea15da6c22df10d4fc8846c9bf48 rnspure-0.8.0-py3-none-any.whl
 ```
 
 ### 2024-09-24: RNS β 0.7.9
