@@ -81,6 +81,7 @@ class KISS():
     CMD_BLINK       = 0x30
     CMD_RANDOM      = 0x40
     CMD_DISP_INT    = 0x45
+    CMD_NP_INT      = 0x65
     CMD_DISP_ADR    = 0x63
     CMD_BT_CTRL     = 0x46
     CMD_BT_PIN      = 0x62
@@ -636,6 +637,13 @@ class RNode():
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while sending display intensity command to device")
+
+    def set_neopixel_intensity(self, intensity):
+        data = bytes([intensity & 0xFF])
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_NP_INT])+data+bytes([KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending NeoPixel intensity command to device")
 
     def set_display_address(self, address):
         data = bytes([address & 0xFF])
@@ -1262,6 +1270,8 @@ def main():
 
         parser.add_argument("-D", "--display", action="store", metavar="i", type=int, default=None, help="Set display intensity (0-255)")
         parser.add_argument("--display-addr", action="store", metavar="byte", type=str, default=None, help="Set display address as hex byte (00 - FF)")
+
+        parser.add_argument("--np", action="store", metavar="i", type=int, default=None, help="Set NeoPixel intensity (0-255)")
 
         parser.add_argument("--freq", action="store", metavar="Hz", type=int, default=None, help="Frequency in Hz for TNC mode")
         parser.add_argument("--bw", action="store", metavar="Hz", type=int, default=None, help="Bandwidth in Hz for TNC mode")
@@ -3167,6 +3177,15 @@ def main():
                     di = 255
                 RNS.log("Setting display intensity to "+str(di))
                 rnode.set_display_intensity(di)
+
+            if isinstance(args.np, int):
+                di = args.np
+                if di < 0:
+                    di = 0
+                if di > 255:
+                    di = 255
+                RNS.log("Setting NeoPixel intensity to "+str(di))
+                rnode.set_neopixel_intensity(di)
 
             if isinstance(args.display_addr, str):
                 set_addr = False
