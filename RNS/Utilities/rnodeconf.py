@@ -83,6 +83,7 @@ class KISS():
     CMD_DISP_INT    = 0x45
     CMD_NP_INT      = 0x65
     CMD_DISP_ADR    = 0x63
+    CMD_DISP_BLNK   = 0x64
     CMD_BT_CTRL     = 0x46
     CMD_BT_PIN      = 0x62
     CMD_BOARD       = 0x47
@@ -637,6 +638,13 @@ class RNode():
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while sending display intensity command to device")
+
+    def set_display_blanking(self, blanking_timeout):
+        data = bytes([blanking_timeout & 0xFF])
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_DISP_BLNK])+data+bytes([KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending display blanking timeout command to device")
 
     def set_neopixel_intensity(self, intensity):
         data = bytes([intensity & 0xFF])
@@ -1269,6 +1277,7 @@ def main():
         parser.add_argument("-p", "--bluetooth-pair", action="store_true", help="Put device into bluetooth pairing mode")
 
         parser.add_argument("-D", "--display", action="store", metavar="i", type=int, default=None, help="Set display intensity (0-255)")
+        parser.add_argument("-t", "--timeout", action="store", metavar="s", type=int, default=None, help="Set display timeout in seconds, 0 to disable")
         parser.add_argument("--display-addr", action="store", metavar="byte", type=str, default=None, help="Set display address as hex byte (00 - FF)")
 
         parser.add_argument("--np", action="store", metavar="i", type=int, default=None, help="Set NeoPixel intensity (0-255)")
@@ -3177,6 +3186,18 @@ def main():
                     di = 255
                 RNS.log("Setting display intensity to "+str(di))
                 rnode.set_display_intensity(di)
+
+            if isinstance(args.timeout, int):
+                di = args.timeout
+                if di < 0:
+                    di = 0
+                if di > 255:
+                    di = 255
+                if di == 0:
+                    RNS.log("Disabling display blanking")
+                else:
+                    RNS.log("Setting display timeout to "+str(di))
+                rnode.set_display_blanking(di)
 
             if isinstance(args.np, int):
                 di = args.np
