@@ -114,6 +114,18 @@ LilyGO LoRa32 v2.0
 - **Manufacturer** `LilyGO <https://lilygo.cn>`_
 
 
+LilyGO LoRa32 v1.0
+""""""""""""""""""
+.. image:: graphics/board_t3v10.png
+    :width: 46%
+    :align: center
+
+- **Supported Firmware Lines** v1.x & v2.x
+- **Transceiver IC** Semtech SX1276
+- **Device Platform** ESP32
+- **Manufacturer** `LilyGO <https://lilygo.cn>`_
+
+
 LilyGO T-Beam
 """""""""""""
 .. image:: graphics/board_tbeam.png
@@ -126,9 +138,21 @@ LilyGO T-Beam
 - **Manufacturer** `LilyGO <https://lilygo.cn>`_
 
 
+Heltec LoRa32 v3.0
+""""""""""""""""""
+.. image:: graphics/board_heltec32v30.png
+    :width: 58%
+    :align: center
+
+- **Supported Firmware Lines** v1.x & v2.x
+- **Transceiver IC** Semtech SX1262
+- **Device Platform** ESP32
+- **Manufacturer** `Heltec Automation <https://heltec.org>`_
+
+
 Heltec LoRa32 v2.0
 """"""""""""""""""
-.. image:: graphics/board_heltec32.png
+.. image:: graphics/board_heltec32v20.png
     :width: 58%
     :align: center
 
