@@ -916,11 +916,28 @@ class Reticulum:
                                     st_alock = float(c["airtime_limit_short"]) if "airtime_limit_short" in c else None
                                     lt_alock = float(c["airtime_limit_long"]) if "airtime_limit_long" in c else None
 
+                                    force_ble = False
+                                    ble_name = None
+                                    ble_addr = None
+
                                     port = c["port"] if "port" in c else None
-                                    
+
                                     if port == None:
                                         raise ValueError("No port specified for RNode interface")
 
+                                    if port != None:
+                                        ble_uri_scheme = "ble://"
+                                        if port.lower().startswith(ble_uri_scheme):
+                                            force_ble = True
+                                            ble_string = port[len(ble_uri_scheme):]
+                                            port = None
+                                            if len(ble_string) == 0:
+                                                pass
+                                            elif len(ble_string.split(":")) == 6 and len(ble_string) == 17:
+                                                ble_addr = ble_string
+                                            else:
+                                                ble_name = ble_string
+                                    
                                     interface = RNodeInterface.RNodeInterface(
                                         RNS.Transport,
                                         name,
@@ -934,7 +951,10 @@ class Reticulum:
                                         id_interval = id_interval,
                                         id_callsign = id_callsign,
                                         st_alock = st_alock,
-                                        lt_alock = lt_alock
+                                        lt_alock = lt_alock,
+                                        ble_addr = ble_addr,
+                                        ble_name = ble_name,
+                                        force_ble = force_ble,
                                     )
 
                                     if "outgoing" in c and c.as_bool("outgoing") == False:
