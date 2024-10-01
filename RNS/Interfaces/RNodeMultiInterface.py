@@ -70,7 +70,7 @@ class KISS():
     CMD_INT1_DATA   = 0x10
     CMD_INT2_DATA   = 0x20
     CMD_INT3_DATA   = 0x70
-    CMD_INT4_DATA   = 0x80
+    CMD_INT4_DATA   = 0x75
     CMD_INT5_DATA   = 0x90
     CMD_INT6_DATA   = 0xA0
     CMD_INT7_DATA   = 0xB0
@@ -82,8 +82,8 @@ class KISS():
     CMD_SEL_INT0    = 0x1E
     CMD_SEL_INT1    = 0x1F
     CMD_SEL_INT2    = 0x2F
-    CMD_SEL_INT3    = 0x7F
-    CMD_SEL_INT4    = 0x8F
+    CMD_SEL_INT3    = 0x74
+    CMD_SEL_INT4    = 0x7F
     CMD_SEL_INT5    = 0x9F
     CMD_SEL_INT6    = 0xAF
     CMD_SEL_INT7    = 0xBF
