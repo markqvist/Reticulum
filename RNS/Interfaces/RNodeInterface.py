@@ -54,6 +54,7 @@ class KISS():
     CMD_STAT_SNR    = 0x24
     CMD_STAT_CHTM   = 0x25
     CMD_STAT_PHYPRM = 0x26
+    CMD_STAT_BAT    = 0x27
     CMD_BLINK       = 0x30
     CMD_RANDOM      = 0x40
     CMD_FB_EXT      = 0x41
@@ -107,7 +108,12 @@ class RNodeInterface(Interface):
     Q_SNR_MAX      = 6
     Q_SNR_STEP     = 2
 
-    def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None, st_alock = None, lt_alock = None):
+    BATTERY_STATE_UNKNOWN     = 0x00
+    BATTERY_STATE_DISCHARGING = 0x01
+    BATTERY_STATE_CHARGING    = 0x02
+    BATTERY_STATE_CHARGED     = 0x03
+
+    def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None, st_alock = None, lt_alock = None, ble_addr = None, ble_name = None, force_ble=False):
         if RNS.vendor.platformutils.is_android():
             raise SystemError("Invalid interface type. The Android-specific RNode interface must be used on Android")
 
@@ -135,6 +141,15 @@ class RNodeInterface(Interface):
         self.online      = False
         self.detached    = False
         self.reconnecting= False
+
+        self.use_ble     = False
+        self.ble_name    = ble_name
+        self.ble_addr    = ble_addr
+        self.ble         = None
+        self.ble_rx_lock = threading.Lock()
+        self.ble_tx_lock = threading.Lock()
+        self.ble_rx_queue= b""
+        self.ble_tx_queue= b""
 
         self.frequency   = frequency
         self.bandwidth   = bandwidth
@@ -179,11 +194,16 @@ class RNodeInterface(Interface):
         self.r_symbol_rate = None
         self.r_preamble_symbols = None
         self.r_premable_time_ms = None
+        self.r_battery_state = RNodeInterface.BATTERY_STATE_UNKNOWN
+        self.r_battery_percent = 0
 
         self.packet_queue    = []
         self.flow_control    = flow_control
         self.interface_ready = False
         self.announce_rate_target = None
+
+        if force_ble or self.ble_addr != None or self.ble_name != None:
+            self.use_ble = True
 
         self.validcfg  = True
         if (self.frequency < RNodeInterface.FREQ_MIN or self.frequency > RNodeInterface.FREQ_MAX):
@@ -248,20 +268,31 @@ class RNodeInterface(Interface):
 
 
     def open_port(self):
-        RNS.log("Opening serial port "+self.port+"...")
-        self.serial = self.pyserial.Serial(
-            port = self.port,
-            baudrate = self.speed,
-            bytesize = self.databits,
-            parity = self.pyserial.PARITY_NONE,
-            stopbits = self.stopbits,
-            xonxoff = False,
-            rtscts = False,
-            timeout = 0,
-            inter_byte_timeout = None,
-            write_timeout = None,
-            dsrdtr = False,
-        )
+        if not self.use_ble:
+            RNS.log("Opening serial port "+self.port+"...")
+            self.serial = self.pyserial.Serial(
+                port = self.port,
+                baudrate = self.speed,
+                bytesize = self.databits,
+                parity = self.pyserial.PARITY_NONE,
+                stopbits = self.stopbits,
+                xonxoff = False,
+                rtscts = False,
+                timeout = 0,
+                inter_byte_timeout = None,
+                write_timeout = None,
+                dsrdtr = False,
+            )
+        
+        else:
+            RNS.log(f"Opening BLE connection for {self}...")
+            if self.ble == None:
+                self.ble = BLEConnection(owner=self, target_name=self.ble_name, target_bt_addr=self.ble_addr)
+                self.serial = self.ble
+
+            open_time = time.time()
+            while not self.ble.connected and time.time() < open_time + self.ble.CONNECT_TIMEOUT:
+                time.sleep(1)
 
 
     def configure_device(self):
@@ -279,7 +310,17 @@ class RNodeInterface(Interface):
         thread.start()
 
         self.detect()
-        sleep(0.2)
+        if not self.use_ble:
+            sleep(0.2)
+        else:
+            ble_detect_timeout = 5
+            detect_time = time.time()
+            while not self.detected and time.time() < detect_time + ble_detect_timeout:
+                time.sleep(0.1)
+            if self.detected:
+                detect_time = RNS.prettytime(time.time()-detect_time)
+            else:
+                RNS.log(f"RNode detect timed out over {self.port}", RNS.LOG_ERROR)
         
         if not self.detected:
             RNS.log("Could not detect device for "+str(self), RNS.LOG_ERROR)
@@ -312,6 +353,9 @@ class RNodeInterface(Interface):
         self.setSTALock()
         self.setLTALock()
         self.setRadioState(KISS.RADIO_STATE_ON)
+
+        if self.use_ble:
+            time.sleep(2)
 
     def detect(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_DETECT, KISS.DETECT_REQ, KISS.FEND, KISS.CMD_FW_VERSION, 0x00, KISS.FEND, KISS.CMD_PLATFORM, 0x00, KISS.FEND, KISS.CMD_MCU, 0x00, KISS.FEND])
@@ -765,6 +809,25 @@ class RNodeInterface(Interface):
                                         RNS.log(str(self)+" Radio reporting symbol time is "+str(round(self.r_symbol_time_ms,2))+"ms (at "+str(self.r_symbol_rate)+" baud)", RNS.LOG_DEBUG)
                                         RNS.log(str(self)+" Radio reporting preamble is "+str(self.r_preamble_symbols)+" symbols ("+str(self.r_premable_time_ms)+"ms)", RNS.LOG_DEBUG)
                                         RNS.log(str(self)+" Radio reporting CSMA slot time is "+str(self.r_csma_slot_time_ms)+"ms", RNS.LOG_DEBUG)
+                        elif (command == KISS.CMD_STAT_BAT):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 2):
+                                    bat_percent = command_buffer[1]
+                                    if bat_percent > 100:
+                                        bat_percent = 100
+                                    if bat_percent < 0:
+                                        bat_percent = 0
+                                    self.r_battery_state   = command_buffer[0]
+                                    self.r_battery_percent = bat_percent
                         elif (command == KISS.CMD_RANDOM):
                             self.r_random = byte
                         elif (command == KISS.CMD_PLATFORM):
@@ -852,9 +915,195 @@ class RNodeInterface(Interface):
         self.disable_external_framebuffer()
         self.setRadioState(KISS.RADIO_STATE_OFF)
         self.leave()
+        
+        if self.use_ble:
+            self.ble.close()
 
     def should_ingress_limit(self):
         return False
 
+    def get_battery_state(self):
+        return self.r_battery_state
+
+    def get_battery_state_string(self):
+        if self.r_battery_state == RNodeInterface.BATTERY_STATE_CHARGED:
+            return "charged"
+        elif  self.r_battery_state == RNodeInterface.BATTERY_STATE_CHARGING:
+            return "charging"
+        elif self.r_battery_state == RNodeInterface.BATTERY_STATE_DISCHARGING:
+            return "discharging"
+        else:
+            return "unknown"
+
+    def get_battery_percent(self):
+        return self.r_battery_percent
+
+    def ble_receive(self, data):
+        with self.ble_rx_lock:
+            self.ble_rx_queue += data
+
+    def ble_waiting(self):
+        return len(self.ble_tx_queue) > 0
+
+    def get_ble_waiting(self, n):
+        with self.ble_tx_lock:
+            data = self.ble_tx_queue[:n]
+            self.ble_tx_queue = self.ble_tx_queue[n:]
+            return data
+
     def __str__(self):
         return "RNodeInterface["+str(self.name)+"]"
+
+class BLEConnection():
+    UART_SERVICE_UUID = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+    UART_RX_CHAR_UUID = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
+    UART_TX_CHAR_UUID = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+    bleak = None
+
+    SCAN_TIMEOUT = 2.0
+    CONNECT_TIMEOUT = 5.0
+
+    @property
+    def is_open(self):
+        return self.connected
+
+    @property
+    def in_waiting(self):
+        buflen = len(self.owner.ble_rx_queue)
+        return buflen > 0
+
+    def write(self, data_bytes):
+        with self.owner.ble_tx_lock:
+            self.owner.ble_tx_queue += data_bytes
+            return len(data_bytes)
+
+    def read(self, n):
+        with self.owner.ble_rx_lock:
+            data = self.owner.ble_rx_queue[:n]
+            self.owner.ble_rx_queue = self.owner.ble_rx_queue[n:]
+            return data
+
+    def close(self):
+        if self.connected and self.ble_device:
+            RNS.log(f"Disconnecting BLE device from {self.owner}", RNS.LOG_DEBUG)
+            self.must_disconnect = True
+
+            while self.connect_job_running:
+                time.sleep(0.1)
+
+    def __init__(self, owner=None, target_name=None, target_bt_addr=None):
+        self.owner = owner
+        self.target_name = target_name
+        self.target_bt_addr = target_bt_addr
+        self.scan_timeout = BLEConnection.SCAN_TIMEOUT
+        self.ble_device = None
+        self.connected = False
+        self.running = False
+        self.should_run = False
+        self.must_disconnect = False
+        self.connect_job_running = False
+
+        import importlib
+        if BLEConnection.bleak == None:
+            if importlib.util.find_spec("bleak") != None:
+                import bleak
+                BLEConnection.bleak = bleak
+                
+                import asyncio
+                BLEConnection.asyncio = asyncio
+            else:
+                RNS.log("Using the RNode interface over BLE requires a the \"bleak\" module to be installed.", RNS.LOG_CRITICAL)
+                RNS.log("You can install one with the command: python3 -m pip install bleak", RNS.LOG_CRITICAL)
+                RNS.panic()
+
+        self.should_run = True
+        self.connection_thread = threading.Thread(target=self.connection_job, daemon=True).start()
+
+    def connection_job(self):
+        while (self.should_run):
+            if self.ble_device == None:
+                self.ble_device = self.find_target_device()
+
+            if type(self.ble_device) == self.bleak.backends.device.BLEDevice:
+                if not self.connected:
+                    self.connect_device()
+
+            time.sleep(1)
+
+    def connect_device(self):
+        if self.ble_device != None and type(self.ble_device) == self.bleak.backends.device.BLEDevice:
+            RNS.log(f"Connecting BLE device {self.ble_device} for {self.owner}...", RNS.LOG_DEBUG)
+
+            async def connect_job():
+                self.connect_job_running = True
+                async with self.bleak.BleakClient(self.ble_device, disconnected_callback=self.device_disconnected) as ble_client:
+                    def handle_rx(device, data):
+                        if self.owner != None:
+                            self.owner.ble_receive(data)
+
+                    self.connected = True
+                    self.ble_device = ble_client
+                    self.owner.port = str(f"ble://{ble_client.address}")
+
+                    loop = self.asyncio.get_running_loop()
+                    uart_service = ble_client.services.get_service(BLEConnection.UART_SERVICE_UUID)
+                    rx_characteristic = uart_service.get_characteristic(BLEConnection.UART_RX_CHAR_UUID)
+                    await ble_client.start_notify(BLEConnection.UART_TX_CHAR_UUID, handle_rx)
+
+                    while self.connected:
+                        if self.owner != None and self.owner.ble_waiting():
+                            outbound_data = self.owner.get_ble_waiting(rx_characteristic.max_write_without_response_size)
+                            await ble_client.write_gatt_char(rx_characteristic, outbound_data, response=False)
+                        elif self.must_disconnect:
+                            await ble_client.disconnect()
+                        else:
+                            await self.asyncio.sleep(0.1)
+
+
+            try:
+                self.asyncio.run(connect_job())
+            except Exception as e:
+                RNS.log(f"Could not connect BLE device {self.ble_device} for {self.owner}. Possibly missing authentication.", RNS.LOG_ERROR)
+            self.connect_job_running = False
+
+    def device_disconnected(self, device):
+        RNS.log(f"BLE device for {self.owner} disconnected", RNS.LOG_NOTICE)
+        self.connected = False
+        self.ble_device = None
+
+    def find_target_device(self):
+        RNS.log(f"Searching for attachable BLE device for {self.owner}...", RNS.LOG_EXTREME)
+        def device_filter(device: self.bleak.backends.device.BLEDevice, adv: self.bleak.backends.scanner.AdvertisementData):
+            if BLEConnection.UART_SERVICE_UUID.lower() in adv.service_uuids:
+                if self.device_bonded(device):
+                    if self.target_bt_addr == None and self.target_name == None:
+                        if device.name.startswith("RNode "):
+                            return True
+
+                    if self.target_bt_addr == None or (device.address != None and device.address == self.target_bt_addr):
+                        if self.target_name == None or (device.name != None and device.name == self.target_name):
+                            return True
+
+                else:
+                    if self.target_bt_addr != None and device.address == self.target_bt_addr:
+                        RNS.log(f"Can't connect to target device {self.target_bt_addr} over BLE, device is not bonded", RNS.LOG_ERROR)
+                    
+                    elif self.target_name != None and device.name == self.target_name:
+                        RNS.log(f"Can't connect to target device {self.target_name} over BLE, device is not bonded", RNS.LOG_ERROR)
+
+            return False
+
+        device = self.asyncio.run(self.bleak.BleakScanner.find_device_by_filter(device_filter, timeout=self.scan_timeout))
+        return device
+
+    def device_bonded(self, device):
+        try:
+            if hasattr(device, "details"):
+                if "props" in device.details and "Bonded" in device.details["props"]:
+                    if device.details["props"]["Bonded"] == True:
+                        return True
+        
+        except Exception as e:
+            RNS.log(f"Error while determining device bond status for {device}, the contained exception was: {e}", RNS.LOG_ERROR)
+
+        return False
