@@ -82,6 +82,7 @@ class KISS():
     ERROR_TXFAILED      = 0x02
     ERROR_EEPROM_LOCKED = 0x03
     ERROR_INVALID_FIRMWARE = 0x10
+    ERROR_INVALID_BLE_MTU  = 0x20
 
     PLATFORM_AVR   = 0x90
     PLATFORM_ESP32 = 0x80
@@ -415,6 +416,7 @@ class RNodeInterface(Interface):
         self.last_id     = 0
         self.first_tx    = None
         self.reconnect_w = RNodeInterface.RECONNECT_WAIT
+        self.reconnect_lock = threading.Lock()
 
         self.r_frequency = None
         self.r_bandwidth = None
@@ -517,9 +519,7 @@ class RNodeInterface(Interface):
             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
             if len(self.hw_errors) == 0:
                 RNS.log("Reticulum will attempt to bring up this interface periodically", RNS.LOG_ERROR)
-                thread = threading.Thread(target=self.reconnect_port)
-                thread.daemon = True
-                thread.start()
+                thread = threading.Thread(target=self.reconnect_port, daemon=True).start()
 
 
     def read_mux(self, len=None):
@@ -543,6 +543,15 @@ class RNodeInterface(Interface):
         else:
             raise IOError("No ports available for writing")
 
+    # def reset_ble(self):
+    #     RNS.log(f"Clearing previous connection instance: "+str(self.ble))
+    #     del self.ble
+    #     self.ble = None
+    #     self.serial = None
+    #     self.ble = BLEConnection(owner=self, target_name=self.ble_name, target_bt_addr=self.ble_addr)
+    #     self.serial = self.ble
+    #     RNS.log(f"New connection instance: "+str(self.ble))
+        
     def open_port(self):
         if not self.use_ble:
             if self.port != None:
@@ -623,10 +632,9 @@ class RNodeInterface(Interface):
 
 
     def configure_device(self):
+        self.resetRadioState()
         sleep(2.0)
-        thread = threading.Thread(target=self.readLoop)
-        thread.daemon = True
-        thread.start()
+        thread = threading.Thread(target=self.readLoop, daemon=True).start()
 
         self.detect()
         if not self.use_ble:
@@ -859,16 +867,19 @@ class RNodeInterface(Interface):
             raise IOError("An IO error occurred while configuring radio state for "+str(self))
 
     def validate_firmware(self):
-        if (self.maj_version >= RNodeInterface.REQUIRED_FW_VER_MAJ):
-            if (self.min_version >= RNodeInterface.REQUIRED_FW_VER_MIN):
-                self.firmware_ok = True
+        if (self.maj_version > RNodeInterface.REQUIRED_FW_VER_MAJ):
+            self.firmware_ok = True
+        else:
+            if (self.maj_version >= RNodeInterface.REQUIRED_FW_VER_MAJ):
+                if (self.min_version >= RNodeInterface.REQUIRED_FW_VER_MIN):
+                    self.firmware_ok = True
         
         if self.firmware_ok:
             return
 
         RNS.log("The firmware version of the connected RNode is "+str(self.maj_version)+"."+str(self.min_version), RNS.LOG_ERROR)
         RNS.log("This version of Reticulum requires at least version "+str(RNodeInterface.REQUIRED_FW_VER_MAJ)+"."+str(RNodeInterface.REQUIRED_FW_VER_MIN), RNS.LOG_ERROR)
-        RNS.log("Please update your RNode firmware with rnodeconf from https://github.com/markqvist/rnodeconfigutil/")
+        RNS.log("Please update your RNode firmware with rnodeconf from https://github.com/markqvist/reticulum/")
         error_description  = "The firmware version of the connected RNode is "+str(self.maj_version)+"."+str(self.min_version)+". "
         error_description += "This version of Reticulum requires at least version "+str(RNodeInterface.REQUIRED_FW_VER_MAJ)+"."+str(RNodeInterface.REQUIRED_FW_VER_MIN)+". "
         error_description += "Please update your RNode firmware with rnodeconf from: https://github.com/markqvist/rnodeconfigutil/"
@@ -876,7 +887,7 @@ class RNodeInterface(Interface):
 
 
     def validateRadioState(self):
-        RNS.log("Wating for radio configuration validation for "+str(self)+"...", RNS.LOG_VERBOSE)
+        RNS.log("Waiting for radio configuration validation for "+str(self)+"...", RNS.LOG_VERBOSE)
         if not self.platform == KISS.PLATFORM_ESP32:
             sleep(1.00);
         else:
@@ -904,6 +915,13 @@ class RNodeInterface(Interface):
         else:
             return False
 
+    def resetRadioState(self):
+        self.r_frequency = None
+        self.r_bandwidth = None
+        self.r_txpower = None
+        self.r_sf = None
+        self.r_cr = None
+        self.r_state = None
 
     def updateBitrate(self):
         try:
@@ -1287,36 +1305,41 @@ class RNodeInterface(Interface):
             self.reconnect_port()
 
     def reconnect_port(self):
-        while not self.online and len(self.hw_errors) == 0:
-            try:
-                time.sleep(self.reconnect_w)
-                if self.serial != None and self.port != None:
-                    RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_EXTREME)
+        if self.reconnect_lock.locked():
+            RNS.log("Dropping superflous reconnect port job")
+            return
 
-                if self.bt_manager != None:
-                    RNS.log("Attempting to reconnect Bluetooth device for "+str(self)+"...", RNS.LOG_EXTREME)
+        with self.reconnect_lock:
+            while not self.online and len(self.hw_errors) == 0:
+                try:
+                    time.sleep(self.reconnect_w)
+                    if self.serial != None and self.port != None:
+                        RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_EXTREME)
 
-                self.open_port()
+                    if self.bt_manager != None:
+                        RNS.log("Attempting to reconnect Bluetooth device for "+str(self)+"...", RNS.LOG_EXTREME)
 
-                if hasattr(self, "serial") and self.serial != None and self.serial.is_open:
-                    self.configure_device()
-                    if self.online:
-                        if self.last_imagedata != None:
-                            self.display_image(self.last_imagedata)
-                            self.enable_external_framebuffer()
-                
-                elif hasattr(self, "bt_manager") and self.bt_manager != None and self.bt_manager.connected:
-                    self.configure_device()
-                    if self.online:
-                        if self.last_imagedata != None:
-                            self.display_image(self.last_imagedata)
-                            self.enable_external_framebuffer()
+                    self.open_port()
 
-            except Exception as e:
-                RNS.log("Error while reconnecting RNode, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                    if hasattr(self, "serial") and self.serial != None and self.serial.is_open:
+                        self.configure_device()
+                        if self.online:
+                            if self.last_imagedata != None:
+                                self.display_image(self.last_imagedata)
+                                self.enable_external_framebuffer()
+                    
+                    elif hasattr(self, "bt_manager") and self.bt_manager != None and self.bt_manager.connected:
+                        self.configure_device()
+                        if self.online:
+                            if self.last_imagedata != None:
+                                self.display_image(self.last_imagedata)
+                                self.enable_external_framebuffer()
 
-        if self.online:
-            RNS.log("Reconnected serial port for "+str(self))
+                except Exception as e:
+                    RNS.log("Error while reconnecting RNode, the contained exception was: "+str(e), RNS.LOG_ERROR)
+
+            if self.online:
+                RNS.log("Reconnected serial port for "+str(self))
 
     def detach(self):
         self.detached = True
@@ -1367,9 +1390,12 @@ class BLEConnection(BluetoothDispatcher):
     UART_RX_CHAR_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
     UART_TX_CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
     MAX_GATT_ATTR_LEN = 512
+    BASE_MTU          = 20
+    TARGET_MTU        = 512
 
-    SCAN_TIMEOUT = 2.0
+    MTU_TIMEOUT = 4.0
     CONNECT_TIMEOUT = 7.0
+    RECONNECT_WAIT = 1.0
 
     @property
     def is_open(self):
@@ -1394,19 +1420,26 @@ class BLEConnection(BluetoothDispatcher):
         try:
             if self.connected:
                 RNS.log(f"Disconnecting BLE device from {self.owner}", RNS.LOG_DEBUG)
-                RNS.log("Waiting for BLE write buffer to empty...")
-                while self.owner.ble_waiting():
+                # RNS.log("Waiting for BLE write buffer to empty...")
+                timeout = time.time() + 10
+                while self.owner.ble_waiting() and self.write_thread != None and time.time() < timeout:
                     time.sleep(0.1)
-                RNS.log("Writing concluded")
+                # if time.time() > timeout:
+                #     RNS.log("Writing timed out")
+                # else:
+                #     RNS.log("Writing concluded")
 
                 self.rx_char = None
                 self.tx_char = None
+                self.mtu = BLEConnection.BASE_MTU
+                self.mtu_requested_time = None
 
-                RNS.log("Waiting for write thread to finish...")
-                while self.write_thread != None:
-                    time.sleep(0.1)
+                if self.write_thread != None:
+                    # RNS.log("Waiting for write thread to finish...")
+                    while self.write_thread != None:
+                        time.sleep(0.1)
 
-                RNS.log("Writing finished, closing GATT connection")
+                # RNS.log("Writing finished, closing GATT connection")
                 self.close_gatt()
 
                 with self.owner.ble_rx_lock:
@@ -1414,6 +1447,9 @@ class BLEConnection(BluetoothDispatcher):
 
                 with self.owner.ble_tx_lock:
                     self.owner.ble_tx_queue = b""
+
+                self.connected = False
+                self.ble_device = None
 
         except Exception as e:
             RNS.log("An error occurred while closing BLE connection for {self.owner}: {e}", RNS.LOG_ERROR)
@@ -1424,15 +1460,20 @@ class BLEConnection(BluetoothDispatcher):
         self.owner = owner
         self.target_name = target_name
         self.target_bt_addr = target_bt_addr
-        self.scan_timeout = BLEConnection.SCAN_TIMEOUT
         self.connect_timeout = BLEConnection.CONNECT_TIMEOUT
         self.ble_device = None
+        self.rx_char = None
+        self.tx_char = None
         self.connected = False
+        self.was_connected = False
+        self.connected_time = None
+        self.mtu_requested_time = None
         self.running = False
         self.should_run = False
         self.connect_job_running = False
         self.write_thread = None
-        self.mtu = 20
+        self.mtu = BLEConnection.BASE_MTU
+        self.target_mtu = BLEConnection.TARGET_MTU
 
         self.bt_manager = AndroidBluetoothManager(owner=self)
 
@@ -1462,13 +1503,23 @@ class BLEConnection(BluetoothDispatcher):
 
                 if self.ble_device != None:
                     if not self.connected:
+                        if self.was_connected:
+                            RNS.log(f"Throttling BLE reconnect for {BLEConnection.RECONNECT_WAIT} seconds", RNS.LOG_DEBUG)
+                            time.sleep(BLEConnection.RECONNECT_WAIT)
+
                         self.connect_device()
+
+            else:
+                if self.connected:
+                    RNS.log("Bluetooth was disabled, closing active BLE device connection", RNS.LOG_ERROR)
+                    self.close()
 
             time.sleep(2)
 
     def connect_device(self):
         if self.ble_device != None and self.bt_manager.bt_enabled():
             RNS.log(f"Trying to connect BLE device {self.ble_device.getName()} / {self.ble_device.getAddress()} for {self.owner}...", RNS.LOG_DEBUG)
+            self.mtu = BLEConnection.BASE_MTU
             self.connect_by_device_address(self.ble_device.getAddress())
             end = time.time() + BLEConnection.CONNECT_TIMEOUT
             while time.time() < end and not self.connected:
@@ -1480,6 +1531,12 @@ class BLEConnection(BluetoothDispatcher):
                 self.write_thread.start()
             else:
                 RNS.log(f"BLE device connection timed out for {self.owner}", RNS.LOG_DEBUG)
+                if self.mtu_requested_time:
+                    RNS.log("MTU update timeout, tearing down connection")
+                    self.owner.hw_errors.append({"error": KISS.ERROR_INVALID_BLE_MTU, "description": "The Bluetooth Low Energy transfer MTU could not be configured for the connected device, and communication has failed. Restart Reticulum and any connected applications to retry connecting."})
+                    self.close()
+                    self.should_run = False
+                
                 self.close_gatt()
 
             self.connect_job_running = False
@@ -1515,8 +1572,6 @@ class BLEConnection(BluetoothDispatcher):
                         found_device = device
                         break
 
-        RNS.log("Found device "+str(found_device))
-
         return found_device
 
     def on_connection_state_change(self, status, state):
@@ -1526,21 +1581,37 @@ class BLEConnection(BluetoothDispatcher):
             self.device_disconnected()
 
     def on_services(self, status, services):
-        self.request_mtu(BLEConnection.MAX_GATT_ATTR_LEN)
-        self.rx_char = services.search(BLEConnection.UART_RX_CHAR_UUID)
-        
-        if self.rx_char is not None:
-            self.tx_char = services.search(BLEConnection.UART_TX_CHAR_UUID)
+        if status == GATT_SUCCESS:
+            self.rx_char = services.search(BLEConnection.UART_RX_CHAR_UUID)
+            
+            if self.rx_char is not None:
+                self.tx_char = services.search(BLEConnection.UART_TX_CHAR_UUID)
 
-            if self.tx_char is not None:                
-                if self.enable_notifications(self.tx_char):
-                    RNS.log("Enabled notifications for BLE TX characteristic")
-                    self.connected = True
+                if self.tx_char is not None:                
+                    if self.enable_notifications(self.tx_char):
+                        RNS.log("Enabled notifications for BLE TX characteristic", RNS.LOG_DEBUG)
+                        
+                        RNS.log(f"Requesting BLE connection MTU update to {self.target_mtu}", RNS.LOG_DEBUG)
+                        self.mtu_requested_time = time.time()
+                        self.request_mtu(self.target_mtu)
+
+                    else:
+                        RNS.log("Could not enable notifications for BLE TX characteristic", RNS.LOG_ERROR)
+
+        else:
+            RNS.log("BLE device service discovery failure", RNS.LOG_ERROR)
 
     def on_mtu_changed(self, mtu, status):
         if status == GATT_SUCCESS:
             self.mtu = min(mtu-5, BLEConnection.MAX_GATT_ATTR_LEN)
             RNS.log(f"BLE MTU updated to {self.mtu} for {self.owner}", RNS.LOG_DEBUG)
+            self.connected = True
+            self.was_connected = True
+            self.connected_time = time.time()
+            self.mtu_requested_time = None
+
+        else:
+            RNS.log(f"MTU update request did not succeed, mtu={mtu}, status={status}", RNS.LOG_ERROR)
 
     def on_characteristic_changed(self, characteristic):
         if characteristic.getUuid().toString() == BLEConnection.UART_TX_CHAR_UUID:
