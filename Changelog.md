@@ -1,3 +1,18 @@
+### 2024-10-02: RNS β 0.8.1
+
+This release add BLE support to RNodeInterface, and support for configuring additional options to `rnodeconf`.
+
+**Changes**
+- Added Bluetooth Low Energy support to RNodeInterface
+- Added RNode battery information to `rnstatus` output
+- Added display blanking configuration to `rnodeconf`
+- Added NeoPixel intensity configuration to `rnodeconf`
+
+**Release Hashes**
+```
+
+```
+
 ### 2024-09-25: RNS β 0.8.0
 
 This maintenance release improves the interface statistics API, and updates documentation.
