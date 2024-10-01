@@ -292,6 +292,13 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "bitrate" in ifstat and ifstat["bitrate"] != None:
                             print("    Rate      : {ss}".format(ss=speed_str(ifstat["bitrate"])))
 
+                        if "battery_percent" in ifstat and ifstat["battery_percent"] != None:
+                            try:
+                                bpi = int(ifstat["battery_percent"])
+                                print("    Battery   : {bp}%".format(bp=bpi))
+                            except:
+                                pass
+
                         if "airtime_short" in ifstat and "airtime_long" in ifstat:
                             print("    Airtime   : {ats}% (15s), {atl}% (1h)".format(ats=str(ifstat["airtime_short"]),atl=str(ifstat["airtime_long"])))
                         

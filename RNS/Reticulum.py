@@ -1319,6 +1319,13 @@ class Reticulum:
                 if hasattr(interface, "r_channel_load_long"):
                     ifstats["channel_load_long"] = interface.r_channel_load_long
 
+                if hasattr(interface, "r_battery_state"):
+                    if interface.r_battery_state != 0x00:
+                        ifstats["battery_state"] = interface.r_battery_state
+
+                    if hasattr(interface, "r_battery_percent"):
+                        ifstats["battery_percent"] = interface.r_battery_percent
+
                 if hasattr(interface, "bitrate"):
                     if interface.bitrate != None:
                         ifstats["bitrate"] = interface.bitrate
