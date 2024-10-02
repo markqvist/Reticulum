@@ -169,6 +169,10 @@ class ROM():
     MODEL_E3       = 0xE3
     MODEL_E8       = 0xE8
 
+    PRODUCT_TDECK  = 0xD0
+    MODEL_D4       = 0xD4
+    MODEL_D9       = 0xD9
+
     PRODUCT_RAK4631 = 0x10
     MODEL_11       = 0x11
     MODEL_12       = 0x12
@@ -207,6 +211,7 @@ class ROM():
     BOARD_RNODE         = 0x31
     BOARD_HMBRW         = 0x32
     BOARD_TBEAM         = 0x33
+    BOARD_TDECK         = 0x3B
     BOARD_HUZZAH32      = 0x34
     BOARD_GENERIC_ESP32 = 0x35
     BOARD_LORA32_V2_0   = 0x36
@@ -221,6 +226,7 @@ products = {
     ROM.PRODUCT_RNODE:  "RNode",
     ROM.PRODUCT_HMBRW:  "Hombrew RNode",
     ROM.PRODUCT_TBEAM:  "LilyGO T-Beam",
+    ROM.PRODUCT_TDECK:  "LilyGO T-Deck",
     ROM.PRODUCT_T32_10: "LilyGO LoRa32 v1.0",
     ROM.PRODUCT_T32_20: "LilyGO LoRa32 v2.0",
     ROM.PRODUCT_T32_21: "LilyGO LoRa32 v2.1",
@@ -267,12 +273,14 @@ models = {
     0xCA: [863000000, 928000000, 21, "863 - 928 MHz", "rnode_firmware_heltec32v3.zip", "SX1262"],
     0xE4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_tbeam.zip", "SX1278"],
     0xE9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_tbeam.zip", "SX1276"],
+    0xD4: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_tdeck.zip", "SX1268"],
+    0xD9: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tdeck.zip", "SX1262"],
     0xE3: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1268"],
     0xE8: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1262"],
     0x11: [430000000, 510000000, 22, "430 - 510 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
     0x12: [779000000, 928000000, 22, "779 - 928 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
-    0x11: [430000000, 510000000, 22, "430 - 510 MHz", "rnode_firmware_rak4631_sx1280.zip", "SX1262 + SX1280"],
-    0x12: [779000000, 928000000, 22, "779 - 928 MHz", "rnode_firmware_rak4631_sx1280.zip", "SX1262 + SX1280"],
+    0x13: [430000000, 510000000, 22, "430 - 510 MHz", "rnode_firmware_rak4631_sx1280.zip", "SX1262 + SX1280"],
+    0x14: [779000000, 928000000, 22, "779 - 928 MHz", "rnode_firmware_rak4631_sx1280.zip", "SX1262 + SX1280"],
     0x16: [779000000, 928000000, 22, "430 - 510 Mhz", "rnode_firmware_techo.zip", "SX1262"],
     0x17: [779000000, 928000000, 22, "779 - 928 Mhz", "rnode_firmware_techo.zip", "SX1262"],
     0x21: [820000000, 960000000, 22, "820 - 960 MHz", "rnode_firmware_opencom_xl.zip", "SX1262 + SX1280"],
