@@ -520,6 +520,23 @@ can be used, and offers full control over LoRa parameters.</p>
   <span class="c1"># Serial port for the device</span>
   <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB0</span>
 
+  <span class="c1"># It is also possible to use BLE devices</span>
+  <span class="c1"># instead of wired serial ports. The</span>
+  <span class="c1"># target RNode must be paired with the</span>
+  <span class="c1"># host device before connecting. BLE</span>
+  <span class="c1"># devices can be connected by name,</span>
+  <span class="c1"># BLE MAC address or by any available.</span>
+
+  <span class="c1"># Connect to specific device by name</span>
+  <span class="c1"># port = ble://RNode 3B87</span>
+
+  <span class="c1"># Or by BLE MAC address</span>
+  <span class="c1"># port = ble://F4:12:73:29:4E:89</span>
+
+  <span class="c1"># Or connect to the first available,</span>
+  <span class="c1"># paired device</span>
+  <span class="c1"># port = ble://</span>
+
   <span class="c1"># Set frequency to 867.2 MHz</span>
   <span class="n">frequency</span> <span class="o">=</span> <span class="mi">867200000</span>
 

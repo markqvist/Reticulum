@@ -358,6 +358,23 @@ can be used, and offers full control over LoRa parameters.
     # Serial port for the device
     port = /dev/ttyUSB0
 
+    # It is also possible to use BLE devices
+    # instead of wired serial ports. The
+    # target RNode must be paired with the
+    # host device before connecting. BLE
+    # devices can be connected by name,
+    # BLE MAC address or by any available.
+    
+    # Connect to specific device by name
+    # port = ble://RNode 3B87
+
+    # Or by BLE MAC address
+    # port = ble://F4:12:73:29:4E:89
+
+    # Or connect to the first available,
+    # paired device
+    # port = ble://
+
     # Set frequency to 867.2 MHz
     frequency = 867200000
 
