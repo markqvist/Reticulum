@@ -491,9 +491,12 @@ class RNodeInterface(Interface):
             raise IOError("An IO error occurred while configuring radio state for "+str(self))
 
     def validate_firmware(self):
-        if (self.maj_version >= RNodeInterface.REQUIRED_FW_VER_MAJ):
-            if (self.min_version >= RNodeInterface.REQUIRED_FW_VER_MIN):
-                self.firmware_ok = True
+        if (self.maj_version > RNodeInterface.REQUIRED_FW_VER_MAJ):
+            self.firmware_ok = True
+        else:
+            if (self.maj_version >= RNodeInterface.REQUIRED_FW_VER_MAJ):
+                if (self.min_version >= RNodeInterface.REQUIRED_FW_VER_MIN):
+                    self.firmware_ok = True
         
         if self.firmware_ok:
             return
