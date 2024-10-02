@@ -10,7 +10,8 @@ This release add BLE support to RNodeInterface, and support for configuring addi
 
 **Release Hashes**
 ```
-
+f4b6b99b67d6b33b8a4562e5d5d5ac54c76814fff26e6c7a79950b82bd80123f rns-0.8.1-py3-none-any.whl
+c2e540b4bf0f272bb51ae3e33a02f9c07f2619746d069d7ed83d88017bf7ea30 rnspure-0.8.1-py3-none-any.whl
 ```
 
 ### 2024-09-25: RNS β 0.8.0
