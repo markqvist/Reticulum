@@ -54,6 +54,9 @@ class Resource:
     # The maximum window size for transfers on slow links
     WINDOW_MAX_SLOW      = 10
 
+    # The maximum window size for transfers on very slow links
+    WINDOW_MAX_VERY_SLOW = 4
+
     # The maximum window size for transfers on fast links
     WINDOW_MAX_FAST      = 75
     
@@ -65,11 +68,21 @@ class Resource:
     # rounds, the fast link window size will be allowed.
     FAST_RATE_THRESHOLD  = WINDOW_MAX_SLOW - WINDOW - 2
 
+    # If the very slow rate is sustained for this many request
+    # rounds, window will be capped to the very slow limit.
+    VERY_SLOW_RATE_THRESHOLD = 2
+
     # If the RTT rate is higher than this value,
     # the max window size for fast links will be used.
     # The default is 50 Kbps (the value is stored in
     # bytes per second, hence the "/ 8").
     RATE_FAST            = (50*1000) / 8
+
+    # If the RTT rate is lower than this value,
+    # the window size will be capped at .
+    # The default is 50 Kbps (the value is stored in
+    # bytes per second, hence the "/ 8").
+    RATE_VERY_SLOW       = (2*1000) / 8
 
     # The minimum allowed flexibility of the window size.
     # The difference between window_max and window_min
@@ -275,6 +288,7 @@ class Resource:
         self.req_resp_rtt_rate = 0
         self.rtt_rxd_bytes_at_part_req = 0
         self.fast_rate_rounds = 0
+        self.very_slow_rate_rounds = 0
         self.request_id = request_id
         self.is_response = is_response
 
@@ -758,6 +772,12 @@ class Resource:
 
                                 if self.fast_rate_rounds == Resource.FAST_RATE_THRESHOLD:
                                     self.window_max = Resource.WINDOW_MAX_FAST
+
+                            if self.fast_rate_rounds == 0 and self.req_data_rtt_rate < Resource.RATE_VERY_SLOW and self.very_slow_rate_rounds < Resource.VERY_SLOW_RATE_THRESHOLD:
+                                self.very_slow_rate_rounds += 1
+
+                                if self.very_slow_rate_rounds == Resource.VERY_SLOW_RATE_THRESHOLD:
+                                    self.window_max = Resource.WINDOW_MAX_VERY_SLOW
 
                     self.request_next()
             else:
