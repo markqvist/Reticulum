@@ -65,7 +65,7 @@ class Transport:
 
     PATH_REQUEST_TIMEOUT        = 15           # Default timuout for client path requests in seconds
     PATH_REQUEST_GRACE          = 0.4          # Grace time before a path announcement is made, allows directly reachable peers to respond first
-    PATH_REQUEST_RG             = 0.6          # Extra grace time for roaming-mode interfaces to allow more suitable peers to respond first
+    PATH_REQUEST_RG             = 1.5          # Extra grace time for roaming-mode interfaces to allow more suitable peers to respond first
     PATH_REQUEST_MI             = 20           # Minimum interval in seconds for automated path requests
 
     STATE_UNKNOWN               = 0x00
