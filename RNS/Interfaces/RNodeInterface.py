@@ -78,6 +78,8 @@ class KISS():
     ERROR_INITRADIO     = 0x01
     ERROR_TXFAILED      = 0x02
     ERROR_EEPROM_LOCKED = 0x03
+    ERROR_QUEUE_FULL    = 0x04
+    ERROR_MEMORY_LOW    = 0x05
 
     PLATFORM_AVR   = 0x90
     PLATFORM_ESP32 = 0x80
@@ -844,6 +846,9 @@ class RNodeInterface(Interface):
                             elif (byte == KISS.ERROR_TXFAILED):
                                 RNS.log(str(self)+" hardware TX error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
                                 raise IOError("Hardware transmit failure")
+                            elif (byte == KISS.ERROR_MEMORY_LOW):
+                                RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+"): Memory exhausted", RNS.LOG_ERROR)
+                                self.hw_errors.append({"error": KISS.ERROR_MEMORY_LOW, "description": "Memory exhausted on connected device"})
                             else:
                                 RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
                                 raise IOError("Unknown hardware failure")
