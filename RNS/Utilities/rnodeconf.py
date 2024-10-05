@@ -139,6 +139,8 @@ class ROM():
     MODEL_A8       = 0xA8
     MODEL_A2       = 0xA2
     MODEL_A7       = 0xA7
+    MODEL_A5       = 0xA5
+    MODEL_AA       = 0xAA
 
     PRODUCT_T32_10 = 0xB2
     MODEL_BA       = 0xBA
@@ -168,6 +170,10 @@ class ROM():
     MODEL_E9       = 0xE9
     MODEL_E3       = 0xE3
     MODEL_E8       = 0xE8
+
+    PRODUCT_TBEAM_S= 0xEA
+    MODEL_E4       = 0xDB
+    MODEL_E9       = 0xDC
 
     PRODUCT_TDECK  = 0xD0
     MODEL_D4       = 0xD4
@@ -219,13 +225,14 @@ class ROM():
     BOARD_TECHO         = 0x43
     BOARD_RAK4631       = 0x51
 
-    MANUAL_FLASH_MODELS = [MODEL_A1, MODEL_A6]
+    MANUAL_FLASH_MODELS = []
 
 mapped_product = ROM.PRODUCT_RNODE
 products = {
     ROM.PRODUCT_RNODE:  "RNode",
     ROM.PRODUCT_HMBRW:  "Hombrew RNode",
     ROM.PRODUCT_TBEAM:  "LilyGO T-Beam",
+    ROM.PRODUCT_TBEAM_S:"LilyGO T-Beam Supreme",
     ROM.PRODUCT_TDECK:  "LilyGO T-Deck",
     ROM.PRODUCT_T32_10: "LilyGO LoRa32 v1.0",
     ROM.PRODUCT_T32_20: "LilyGO LoRa32 v2.0",
@@ -255,6 +262,8 @@ models = {
     0xA9: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware.hex", "SX1276"],
     0xA1: [410000000, 525000000, 22, "410 - 525 MHz", "rnode_firmware_t3s3.zip", "SX1268"],
     0xA6: [820000000, 1020000000, 22, "820 - 960 MHz", "rnode_firmware_t3s3.zip", "SX1262"],
+    0xA5: [410000000, 525000000, 17, "410 - 525 MHz", "rnode_firmware_t3s3_sx127x.zip", "SX1278"],
+    0xAA: [820000000, 1020000000, 17, "820 - 960 MHz", "rnode_firmware_t3s3_sx127x.zip", "SX1276"],
     0xA2: [410000000, 525000000, 17, "410 - 525 MHz", "rnode_firmware_ng21.zip", "SX1278"],
     0xA7: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware_ng21.zip", "SX1276"],
     0xA3: [410000000, 525000000, 17, "410 - 525 MHz", "rnode_firmware_ng20.zip", "SX1278"],
@@ -275,6 +284,8 @@ models = {
     0xE9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_tbeam.zip", "SX1276"],
     0xD4: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_tdeck.zip", "SX1268"],
     0xD9: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tdeck.zip", "SX1262"],
+    0xDB: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_tbeam_supreme.zip", "SX1268"],
+    0xDC: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tbeam_supreme.zip", "SX1262"],
     0xE3: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1268"],
     0xE8: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1262"],
     0x11: [430000000, 510000000, 22, "430 - 510 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
