@@ -250,6 +250,7 @@ class RNodeMultiInterface(Interface):
         if (not self.validcfg):
             raise ValueError("The configuration for "+str(self)+" contains errors, interface is offline")
 
+    def start(self):
         try:
             self.open_port()
 
@@ -324,8 +325,8 @@ class RNodeMultiInterface(Interface):
                         lt_alock=subint[9]
                 )
 
-                interface.OUT = self.OUT
-                interface.IN  = self.IN
+                interface.OUT = subint[10]
+                interface.IN  = True
                 
                 interface.announce_rate_target = self.announce_rate_target
                 interface.mode = self.mode
@@ -1006,6 +1007,11 @@ class RNodeSubInterface(Interface):
         self.interface_ready = False
         self.parent_interface = parent_interface
         self.announce_rate_target = None
+
+        self.mode = None
+        self.announce_cap = None
+        self.bitrate = None
+        self.ifac_size = None
 
         # add this interface to the subinterfaces array
         self.parent_interface.subinterfaces[index] = self
