@@ -453,7 +453,7 @@ class PacketReceipt:
             # This is an explicit proof
             proof_hash = proof[:RNS.Identity.HASHLENGTH//8]
             signature = proof[RNS.Identity.HASHLENGTH//8:RNS.Identity.HASHLENGTH//8+RNS.Identity.SIGLENGTH//8]
-            if proof_hash == self.hash:
+            if proof_hash == self.hash and hasattr(self.destination, "identity") and self.destination.identity != None:
                 proof_valid = self.destination.identity.validate(signature, self.hash)
                 if proof_valid:
                     self.status = PacketReceipt.DELIVERED
