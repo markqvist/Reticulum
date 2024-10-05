@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Configuring Interfaces" href="interfaces.html" /><link rel="prev" title="Understanding Reticulum" href="understanding.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
-        <title>Communications Hardware - Reticulum Network Stack 0.8.1 beta documentation</title>
+        <title>Communications Hardware - Reticulum Network Stack 0.8.2 beta documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 0.8.1 beta documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.8.2 beta documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -167,7 +167,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 0.8.1 beta documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.8.2 beta documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -291,85 +291,126 @@ to the configuration.</p>
 <span id="rnode-supported"></span><h3>Supported Boards<a class="headerlink" href="#supported-boards" title="Permalink to this heading">#</a></h3>
 <p>To create one or more RNodes, you will need to obtain supported development
 boards. The following boards are supported by the auto-installer.</p>
-<section id="lilygo-lora32-v2-1">
-<h4>LilyGO LoRa32 v2.1<a class="headerlink" href="#lilygo-lora32-v2-1" title="Permalink to this heading">#</a></h4>
-<a class="reference internal image-reference" href="_images/board_t3v21.png"><img alt="_images/board_t3v21.png" class="align-center" src="_images/board_t3v21.png" style="width: 46%;" /></a>
+<hr class="docutils" />
+<a class="reference internal image-reference" href="_images/board_tbeam_supreme.webp"><img alt="_images/board_tbeam_supreme.webp" class="align-center" src="_images/board_tbeam_supreme.webp" style="width: 75%;" /></a>
+<section id="lilygo-t-beam-supreme">
+<h4>LilyGO T-Beam Supreme<a class="headerlink" href="#lilygo-t-beam-supreme" title="Permalink to this heading">#</a></h4>
 <ul class="simple">
-<li><p><strong>Supported Firmware Lines</strong> v1.x &amp; v2.x</p></li>
-<li><p><strong>Transceiver IC</strong> Semtech SX1276</p></li>
+<li><p><strong>Transceiver IC</strong> Semtech SX1262, SX1268</p></li>
 <li><p><strong>Device Platform</strong> ESP32</p></li>
 <li><p><strong>Manufacturer</strong> <a class="reference external" href="https://lilygo.cn">LilyGO</a></p></li>
 </ul>
-</section>
-<section id="lilygo-lora32-v2-0">
-<h4>LilyGO LoRa32 v2.0<a class="headerlink" href="#lilygo-lora32-v2-0" title="Permalink to this heading">#</a></h4>
-<a class="reference internal image-reference" href="_images/board_t3v20.png"><img alt="_images/board_t3v20.png" class="align-center" src="_images/board_t3v20.png" style="width: 46%;" /></a>
-<ul class="simple">
-<li><p><strong>Supported Firmware Lines</strong> v1.x &amp; v2.x</p></li>
-<li><p><strong>Transceiver IC</strong> Semtech SX1276</p></li>
-<li><p><strong>Device Platform</strong> ESP32</p></li>
-<li><p><strong>Manufacturer</strong> <a class="reference external" href="https://lilygo.cn">LilyGO</a></p></li>
-</ul>
-</section>
-<section id="lilygo-lora32-v1-0">
-<h4>LilyGO LoRa32 v1.0<a class="headerlink" href="#lilygo-lora32-v1-0" title="Permalink to this heading">#</a></h4>
-<a class="reference internal image-reference" href="_images/board_t3v10.png"><img alt="_images/board_t3v10.png" class="align-center" src="_images/board_t3v10.png" style="width: 46%;" /></a>
-<ul class="simple">
-<li><p><strong>Supported Firmware Lines</strong> v1.x &amp; v2.x</p></li>
-<li><p><strong>Transceiver IC</strong> Semtech SX1276</p></li>
-<li><p><strong>Device Platform</strong> ESP32</p></li>
-<li><p><strong>Manufacturer</strong> <a class="reference external" href="https://lilygo.cn">LilyGO</a></p></li>
-</ul>
+<hr class="docutils" />
+<a class="reference internal image-reference" href="_images/board_tbeam.png"><img alt="_images/board_tbeam.png" class="align-center" src="_images/board_tbeam.png" style="width: 75%;" /></a>
 </section>
 <section id="lilygo-t-beam">
 <h4>LilyGO T-Beam<a class="headerlink" href="#lilygo-t-beam" title="Permalink to this heading">#</a></h4>
-<a class="reference internal image-reference" href="_images/board_tbeam.png"><img alt="_images/board_tbeam.png" class="align-center" src="_images/board_tbeam.png" style="width: 75%;" /></a>
 <ul class="simple">
-<li><p><strong>Supported Firmware Lines</strong> v1.x &amp; v2.x</p></li>
-<li><p><strong>Transceiver IC</strong> Semtech SX1276</p></li>
+<li><p><strong>Transceiver IC</strong> Semtech SX1262, SX1268, SX1276 and SX1278</p></li>
 <li><p><strong>Device Platform</strong> ESP32</p></li>
 <li><p><strong>Manufacturer</strong> <a class="reference external" href="https://lilygo.cn">LilyGO</a></p></li>
 </ul>
+<hr class="docutils" />
+<a class="reference internal image-reference" href="_images/board_t3s3.webp"><img alt="_images/board_t3s3.webp" class="align-center" src="_images/board_t3s3.webp" style="width: 50%;" /></a>
 </section>
-<section id="heltec-lora32-v3-0">
-<h4>Heltec LoRa32 v3.0<a class="headerlink" href="#heltec-lora32-v3-0" title="Permalink to this heading">#</a></h4>
-<a class="reference internal image-reference" href="_images/board_heltec32v30.png"><img alt="_images/board_heltec32v30.png" class="align-center" src="_images/board_heltec32v30.png" style="width: 58%;" /></a>
+<section id="lilygo-t3s3">
+<h4>LilyGO T3S3<a class="headerlink" href="#lilygo-t3s3" title="Permalink to this heading">#</a></h4>
 <ul class="simple">
-<li><p><strong>Supported Firmware Lines</strong> v1.x &amp; v2.x</p></li>
-<li><p><strong>Transceiver IC</strong> Semtech SX1262</p></li>
+<li><p><strong>Transceiver IC</strong> Semtech SX1262, SX1268, SX1276 and SX1278</p></li>
 <li><p><strong>Device Platform</strong> ESP32</p></li>
-<li><p><strong>Manufacturer</strong> <a class="reference external" href="https://heltec.org">Heltec Automation</a></p></li>
+<li><p><strong>Manufacturer</strong> <a class="reference external" href="https://lilygo.cn">LilyGO</a></p></li>
 </ul>
+<hr class="docutils" />
+<a class="reference internal image-reference" href="_images/board_rak4631.webp"><img alt="_images/board_rak4631.webp" class="align-center" src="_images/board_rak4631.webp" style="width: 45%;" /></a>
 </section>
-<section id="heltec-lora32-v2-0">
-<h4>Heltec LoRa32 v2.0<a class="headerlink" href="#heltec-lora32-v2-0" title="Permalink to this heading">#</a></h4>
-<a class="reference internal image-reference" href="_images/board_heltec32v20.png"><img alt="_images/board_heltec32v20.png" class="align-center" src="_images/board_heltec32v20.png" style="width: 58%;" /></a>
+<section id="rak4631-based-boards">
+<h4>RAK4631-based Boards<a class="headerlink" href="#rak4631-based-boards" title="Permalink to this heading">#</a></h4>
 <ul class="simple">
-<li><p><strong>Supported Firmware Lines</strong> v1.x &amp; v2.x</p></li>
-<li><p><strong>Transceiver IC</strong> Semtech SX1276</p></li>
-<li><p><strong>Device Platform</strong> ESP32</p></li>
-<li><p><strong>Manufacturer</strong> <a class="reference external" href="https://heltec.org">Heltec Automation</a></p></li>
+<li><p><strong>Transceiver IC</strong> Semtech SX1262, SX1268</p></li>
+<li><p><strong>Device Platform</strong> nRF52</p></li>
+<li><p><strong>Manufacturer</strong> <a class="reference external" href="https://www.rakwireless.com">RAK Wireless</a></p></li>
 </ul>
+<hr class="docutils" />
+<a class="reference internal image-reference" href="_images/board_rnodev2.webp"><img alt="_images/board_rnodev2.webp" class="align-center" src="_images/board_rnodev2.webp" style="width: 68%;" /></a>
 </section>
 <section id="unsigned-rnode-v2-x">
 <h4>Unsigned RNode v2.x<a class="headerlink" href="#unsigned-rnode-v2-x" title="Permalink to this heading">#</a></h4>
-<a class="reference internal image-reference" href="_images/board_rnodev2.png"><img alt="_images/board_rnodev2.png" class="align-center" src="_images/board_rnodev2.png" style="width: 58%;" /></a>
 <ul class="simple">
-<li><p><strong>Supported Firmware Lines</strong> v1.x &amp; v2.x</p></li>
-<li><p><strong>Transceiver IC</strong> Semtech SX1276</p></li>
+<li><p><strong>Transceiver IC</strong> Semtech SX1276 and SX1278</p></li>
 <li><p><strong>Device Platform</strong> ESP32</p></li>
 <li><p><strong>Manufacturer</strong> <a class="reference external" href="https://unsigned.io">unsigned.io</a></p></li>
 </ul>
+<hr class="docutils" />
+<a class="reference internal image-reference" href="_images/board_t3v21.png"><img alt="_images/board_t3v21.png" class="align-center" src="_images/board_t3v21.png" style="width: 46%;" /></a>
+</section>
+<section id="lilygo-lora32-v2-1">
+<h4>LilyGO LoRa32 v2.1<a class="headerlink" href="#lilygo-lora32-v2-1" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Transceiver IC</strong> Semtech SX1276 and SX1278</p></li>
+<li><p><strong>Device Platform</strong> ESP32</p></li>
+<li><p><strong>Manufacturer</strong> <a class="reference external" href="https://lilygo.cn">LilyGO</a></p></li>
+</ul>
+<hr class="docutils" />
+<a class="reference internal image-reference" href="_images/board_t3v20.png"><img alt="_images/board_t3v20.png" class="align-center" src="_images/board_t3v20.png" style="width: 46%;" /></a>
+</section>
+<section id="lilygo-lora32-v2-0">
+<h4>LilyGO LoRa32 v2.0<a class="headerlink" href="#lilygo-lora32-v2-0" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Transceiver IC</strong> Semtech SX1276 and SX1278</p></li>
+<li><p><strong>Device Platform</strong> ESP32</p></li>
+<li><p><strong>Manufacturer</strong> <a class="reference external" href="https://lilygo.cn">LilyGO</a></p></li>
+</ul>
+<hr class="docutils" />
+<a class="reference internal image-reference" href="_images/board_t3v10.png"><img alt="_images/board_t3v10.png" class="align-center" src="_images/board_t3v10.png" style="width: 46%;" /></a>
+</section>
+<section id="lilygo-lora32-v1-0">
+<h4>LilyGO LoRa32 v1.0<a class="headerlink" href="#lilygo-lora32-v1-0" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Transceiver IC</strong> Semtech SX1276 and SX1278</p></li>
+<li><p><strong>Device Platform</strong> ESP32</p></li>
+<li><p><strong>Manufacturer</strong> <a class="reference external" href="https://lilygo.cn">LilyGO</a></p></li>
+</ul>
+<hr class="docutils" />
+<a class="reference internal image-reference" href="_images/board_tdeck.webp"><img alt="_images/board_tdeck.webp" class="align-center" src="_images/board_tdeck.webp" style="width: 45%;" /></a>
+</section>
+<section id="lilygo-t-deck">
+<h4>LilyGO T-Deck<a class="headerlink" href="#lilygo-t-deck" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Transceiver IC</strong> Semtech SX1262, SX1268</p></li>
+<li><p><strong>Device Platform</strong> ESP32</p></li>
+<li><p><strong>Manufacturer</strong> <a class="reference external" href="https://lilygo.cn">LilyGO</a></p></li>
+</ul>
+<hr class="docutils" />
+<a class="reference internal image-reference" href="_images/board_heltec32v30.png"><img alt="_images/board_heltec32v30.png" class="align-center" src="_images/board_heltec32v30.png" style="width: 58%;" /></a>
+</section>
+<section id="heltec-lora32-v3-0">
+<h4>Heltec LoRa32 v3.0<a class="headerlink" href="#heltec-lora32-v3-0" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Transceiver IC</strong> Semtech SX1262 and SX1268</p></li>
+<li><p><strong>Device Platform</strong> ESP32</p></li>
+<li><p><strong>Manufacturer</strong> <a class="reference external" href="https://heltec.org">Heltec Automation</a></p></li>
+</ul>
+<hr class="docutils" />
+<a class="reference internal image-reference" href="_images/board_heltec32v20.png"><img alt="_images/board_heltec32v20.png" class="align-center" src="_images/board_heltec32v20.png" style="width: 58%;" /></a>
+</section>
+<section id="heltec-lora32-v2-0">
+<h4>Heltec LoRa32 v2.0<a class="headerlink" href="#heltec-lora32-v2-0" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Transceiver IC</strong> Semtech SX1276 and SX1278</p></li>
+<li><p><strong>Device Platform</strong> ESP32</p></li>
+<li><p><strong>Manufacturer</strong> <a class="reference external" href="https://heltec.org">Heltec Automation</a></p></li>
+</ul>
+<hr class="docutils" />
+<a class="reference internal image-reference" href="_images/board_rnode.png"><img alt="_images/board_rnode.png" class="align-center" src="_images/board_rnode.png" style="width: 50%;" /></a>
 </section>
 <section id="unsigned-rnode-v1-x">
 <h4>Unsigned RNode v1.x<a class="headerlink" href="#unsigned-rnode-v1-x" title="Permalink to this heading">#</a></h4>
-<a class="reference internal image-reference" href="_images/board_rnode.png"><img alt="_images/board_rnode.png" class="align-center" src="_images/board_rnode.png" style="width: 50%;" /></a>
 <ul class="simple">
-<li><p><strong>Supported Firmware Lines</strong> v1.x</p></li>
-<li><p><strong>Transceiver IC</strong> Semtech SX1276</p></li>
+<li><p><strong>Transceiver IC</strong> Semtech SX1276 and SX1278</p></li>
 <li><p><strong>Device Platform</strong> AVR ATmega1284p</p></li>
 <li><p><strong>Manufacturer</strong> <a class="reference external" href="https://unsigned.io">unsigned.io</a></p></li>
 </ul>
+<hr class="docutils" />
 </section>
 </section>
 <section id="installation">
@@ -512,11 +553,17 @@ can be used with Reticulum. This includes virtual software modems such as
 <li><a class="reference internal" href="#rnode">RNode</a><ul>
 <li><a class="reference internal" href="#creating-rnodes">Creating RNodes</a></li>
 <li><a class="reference internal" href="#supported-boards">Supported Boards</a><ul>
+<li><a class="reference internal" href="#lilygo-t-beam-supreme">LilyGO T-Beam Supreme</a></li>
+<li><a class="reference internal" href="#lilygo-t-beam">LilyGO T-Beam</a></li>
+<li><a class="reference internal" href="#lilygo-t3s3">LilyGO T3S3</a></li>
+<li><a class="reference internal" href="#rak4631-based-boards">RAK4631-based Boards</a></li>
+<li><a class="reference internal" href="#unsigned-rnode-v2-x">Unsigned RNode v2.x</a></li>
 <li><a class="reference internal" href="#lilygo-lora32-v2-1">LilyGO LoRa32 v2.1</a></li>
 <li><a class="reference internal" href="#lilygo-lora32-v2-0">LilyGO LoRa32 v2.0</a></li>
-<li><a class="reference internal" href="#lilygo-t-beam">LilyGO T-Beam</a></li>
+<li><a class="reference internal" href="#lilygo-lora32-v1-0">LilyGO LoRa32 v1.0</a></li>
+<li><a class="reference internal" href="#lilygo-t-deck">LilyGO T-Deck</a></li>
+<li><a class="reference internal" href="#heltec-lora32-v3-0">Heltec LoRa32 v3.0</a></li>
 <li><a class="reference internal" href="#heltec-lora32-v2-0">Heltec LoRa32 v2.0</a></li>
-<li><a class="reference internal" href="#unsigned-rnode-v2-x">Unsigned RNode v2.x</a></li>
 <li><a class="reference internal" href="#unsigned-rnode-v1-x">Unsigned RNode v1.x</a></li>
 </ul>
 </li>
