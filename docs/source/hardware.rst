@@ -92,7 +92,7 @@ boards. The following boards are supported by the auto-installer.
 
 ------------
 
-.. image:: graphics/board_tbeam_supreme.webp
+.. image:: graphics/board_tbeam_supreme.png
     :width: 75%
     :align: center
 
@@ -116,7 +116,7 @@ LilyGO T-Beam
 
 ------------
 
-.. image:: graphics/board_t3s3.webp
+.. image:: graphics/board_t3s3.png
     :width: 50%
     :align: center
 
@@ -128,7 +128,7 @@ LilyGO T3S3
 
 ------------
 
-.. image:: graphics/board_rak4631.webp
+.. image:: graphics/board_rak4631.png
     :width: 45%
     :align: center
 
@@ -140,7 +140,7 @@ RAK4631-based Boards
 
 ------------
 
-.. image:: graphics/board_rnodev2.webp
+.. image:: graphics/board_rnodev2.png
     :width: 68%
     :align: center
 
@@ -188,7 +188,7 @@ LilyGO LoRa32 v1.0
 
 ------------
 
-.. image:: graphics/board_tdeck.webp
+.. image:: graphics/board_tdeck.png
     :width: 45%
     :align: center
 
@@ -268,10 +268,8 @@ Usage with Reticulum
 ^^^^^^^^^^^^^^^^^^^^
 When the devices have been installed and provisioned, you can use them with Reticulum
 by adding the :ref:`relevant interface section<interfaces-rnode>` to the configuration
-file of Reticulum. For v1.x firmwares, you will have to specify all interface parameters,
-such as serial port and on-air parameters. For v2.x firmwares, you just need to specify
-the Connection ID of the RNode, and Reticulum will automatically locate and connect to the
-RNode, using the parameters stored in the RNode itself.
+file of Reticulum. In the configuraion you can specify all interface parameters,
+such as serial port and on-air parameters.
 
 
 WiFi-based Hardware
