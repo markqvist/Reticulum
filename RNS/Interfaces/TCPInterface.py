@@ -200,7 +200,7 @@ class TCPClientInterface(Interface):
             if initial:
                 RNS.log("Establishing TCP connection for "+str(self)+"...", RNS.LOG_DEBUG)
 
-            self.socket = socket.socket(socket.AF_INET|socket.AF_INET6, socket.SOCK_STREAM)
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.settimeout(TCPClientInterface.INITIAL_CONNECT_TIMEOUT)
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             self.socket.connect((self.target_ip, self.target_port))
