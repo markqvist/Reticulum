@@ -129,7 +129,7 @@ class Reticulum:
     HEADER_MAXSIZE   = 2+1+(TRUNCATED_HASHLENGTH//8)*2
     IFAC_MIN_SIZE    = 1
     IFAC_SALT        = bytes.fromhex("adf54d882c9a9b80771eb4995d702d4a3e733391b2a0f53f416d9f907e55cff8")
-    
+
     MDU              = MTU - HEADER_MAXSIZE - IFAC_MIN_SIZE
 
     RESOURCE_CACHE   = 24*60*60
@@ -140,7 +140,7 @@ class Reticulum:
 
     router           = None
     config           = None
-    
+
     # The default configuration path will be expanded to a directory
     # named ".reticulum" inside the current users home directory
     userdir          = os.path.expanduser("~")
@@ -150,7 +150,7 @@ class Reticulum:
     cachepath        = ""
 
     __instance       = None
-    
+
     @staticmethod
     def exit_handler():
         # This exit handler is called whenever Reticulum is asked to
@@ -212,7 +212,7 @@ class Reticulum:
         if logdest == RNS.LOG_FILE:
             RNS.logdest = RNS.LOG_FILE
             RNS.logfile = f"{Reticulum.configdir}/logfile"
-        
+
         Reticulum.configpath    = f"{Reticulum.configdir}/config"
         Reticulum.storagepath   = f"{Reticulum.configdir}/storage"
         Reticulum.cachepath     = f"{Reticulum.configdir}/storage/cache"
@@ -278,7 +278,7 @@ class Reticulum:
 
         self.__apply_config()
         RNS.log(f"Configuration loaded from {self.configpath}", RNS.LOG_VERBOSE)
-        
+
         RNS.Identity.load_known_destinations()
 
         RNS.Transport.start(self)
@@ -286,7 +286,7 @@ class Reticulum:
         self.rpc_addr = ("127.0.0.1", self.local_control_port)
         if self.rpc_key == None:
             self.rpc_key  = RNS.Identity.full_hash(RNS.Transport.identity.get_private_key())
-        
+
         if self.is_shared_instance:
             self.rpc_listener = multiprocessing.connection.Listener(self.rpc_addr, authkey=self.rpc_key)
             thread = threading.Thread(target=self.rpc_loop)
@@ -314,7 +314,7 @@ class Reticulum:
 
             if now > self.last_data_persist+Reticulum.PERSIST_INTERVAL:
                 self.__persist_data()
-            
+
             time.sleep(Reticulum.JOB_INTERVAL)
 
     def __start_local_interface(self):
@@ -330,7 +330,7 @@ class Reticulum:
                     interface._force_bitrate = Reticulum._force_shared_instance_bitrate
                     RNS.log(f"Forcing shared instance bitrate of {RNS.prettyspeed(interface.bitrate)}", RNS.LOG_WARNING)
                 RNS.Transport.interfaces.append(interface)
-                
+
                 self.is_shared_instance = True
                 RNS.log(f"Started shared instance interface: {interface}", RNS.LOG_DEBUG)
                 self.__start_jobs()
@@ -455,7 +455,7 @@ class Reticulum:
                         c = self.config["interfaces"][name]
 
                         interface_mode = Interface.Interface.MODE_FULL
-                        
+
                         if "interface_mode" in c:
                             c["interface_mode"] = str(c["interface_mode"]).lower()
                             if c["interface_mode"] == "full":
@@ -490,7 +490,7 @@ class Reticulum:
                         if "ifac_size" in c:
                             if c.as_int("ifac_size") >= Reticulum.IFAC_MIN_SIZE*8:
                                 ifac_size = c.as_int("ifac_size")//8
-                                
+
                         ifac_netname = None
                         if "networkname" in c:
                             if c["networkname"] != "":
@@ -506,7 +506,7 @@ class Reticulum:
                         if "pass_phrase" in c:
                             if c["pass_phrase"] != "":
                                 ifac_netkey = c["pass_phrase"]
-                                
+
                         ingress_control = True
                         if "ingress_control" in c: ingress_control = c.as_bool("ingress_control")
                         ic_max_held_announces = None
@@ -533,12 +533,12 @@ class Reticulum:
                         if "announce_rate_target" in c:
                             if c.as_int("announce_rate_target") > 0:
                                 announce_rate_target = c.as_int("announce_rate_target")
-                                
+
                         announce_rate_grace = None
                         if "announce_rate_grace" in c:
                             if c.as_int("announce_rate_grace") >= 0:
                                 announce_rate_grace = c.as_int("announce_rate_grace")
-                                
+
                         announce_rate_penalty = None
                         if "announce_rate_penalty" in c:
                             if c.as_int("announce_rate_penalty") >= 0:
@@ -554,7 +554,7 @@ class Reticulum:
                         if "announce_cap" in c:
                             if c.as_float("announce_cap") > 0 and c.as_float("announce_cap") <= 100:
                                 announce_cap = c.as_float("announce_cap")/100.0
-                                
+
                         try:
                             interface = None
 
@@ -661,7 +661,7 @@ class Reticulum:
                                     if interface_mode == Interface.Interface.MODE_ACCESS_POINT:
                                         RNS.log(f"{interface} does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
                                         interface_mode = Interface.Interface.MODE_FULL
-                                    
+
                                     interface.mode = interface_mode
 
                                     interface.announce_cap = announce_cap
@@ -698,7 +698,7 @@ class Reticulum:
                                     if interface_mode == Interface.Interface.MODE_ACCESS_POINT:
                                         RNS.log(f"{interface} does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
                                         interface_mode = Interface.Interface.MODE_FULL
-                                    
+
                                     interface.mode = interface_mode
 
                                     interface.announce_cap = announce_cap
@@ -735,7 +735,7 @@ class Reticulum:
                                     if interface_mode == Interface.Interface.MODE_ACCESS_POINT:
                                         RNS.log(f"{interface} does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
                                         interface_mode = Interface.Interface.MODE_FULL
-                                    
+
                                     interface.mode = interface_mode
 
                                     interface.announce_cap = announce_cap
@@ -938,7 +938,7 @@ class Reticulum:
                                                 ble_addr = ble_string
                                             else:
                                                 ble_name = ble_string
-                                    
+
                                     interface = RNodeInterface.RNodeInterface(
                                         RNS.Transport,
                                         name,
@@ -1012,11 +1012,11 @@ class Reticulum:
                                                 txpower = int(subinterface_config["txpower"]) if "txpower" in subinterface_config else None
                                                 subint_config[subint_index][4] = txpower
                                                 spreadingfactor = int(subinterface_config["spreadingfactor"]) if "spreadingfactor" in subinterface_config else None
-                                                subint_config[subint_index][5] = spreadingfactor 
+                                                subint_config[subint_index][5] = spreadingfactor
                                                 codingrate = int(subinterface_config["codingrate"]) if "codingrate" in subinterface_config else None
                                                 subint_config[subint_index][6] = codingrate
                                                 flow_control = subinterface_config.as_bool("flow_control") if "flow_control" in subinterface_config else False
-                                                subint_config[subint_index][7] = flow_control 
+                                                subint_config[subint_index][7] = flow_control
                                                 st_alock = float(subinterface_config["airtime_limit_short"]) if "airtime_limit_short" in subinterface_config else None
                                                 subint_config[subint_index][8] = st_alock
                                                 lt_alock = float(subinterface_config["airtime_limit_long"]) if "airtime_limit_long" in subinterface_config else None
@@ -1038,7 +1038,7 @@ class Reticulum:
                                     id_interval = int(c["id_interval"]) if "id_interval" in c else None
                                     id_callsign = c["id_callsign"] if "id_callsign" in c else None
                                     port = c["port"] if "port" in c else None
-                                    
+
                                     if port == None:
                                         raise ValueError(f"No port specified for {name}")
 
@@ -1122,7 +1122,7 @@ class Reticulum:
     def _add_interface(self,interface, mode = None, configured_bitrate=None, ifac_size=None, ifac_netname=None, ifac_netkey=None, announce_cap=None, announce_rate_target=None, announce_rate_grace=None, announce_rate_penalty=None):
         if not self.is_connected_to_shared_instance:
             if interface != None and issubclass(type(interface), RNS.Interfaces.Interface.Interface):
-                
+
                 if mode == None:
                     mode = Interface.Interface.MODE_FULL
                 interface.mode = mode
@@ -1200,14 +1200,14 @@ class Reticulum:
                     age = now - mtime
                     if age > RNS.Transport.DESTINATION_TIMEOUT:
                         os.unlink(filepath)
-            
+
             except Exception as e:
                 RNS.log(f"Error while cleaning resources cache, the contained exception was: {e}", RNS.LOG_ERROR)
 
     def __create_default_config(self):
         self.config = ConfigObj(__default_rns_config__)
         self.config.filename = Reticulum.configpath
-        
+
         if not os.path.isdir(Reticulum.configdir):
             os.makedirs(Reticulum.configdir)
         self.config.write()
@@ -1279,7 +1279,7 @@ class Reticulum:
             interfaces = []
             for interface in RNS.Transport.interfaces:
                 ifstats = {}
-                
+
                 if hasattr(interface, "clients"):
                     ifstats["clients"] = interface.clients
                 else:

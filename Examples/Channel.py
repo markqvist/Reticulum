@@ -98,7 +98,7 @@ latest_client_link = None
 def server(configpath):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
-    
+
     # Randomly create a new identity for our link example
     server_identity = RNS.Identity()
 
@@ -206,7 +206,7 @@ def client(destination_hexhash, configpath):
             raise ValueError(
                 f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes)."
             )
-            
+
         destination_hash = bytes.fromhex(destination_hexhash)
     except:
         RNS.log("Invalid destination entered. Check your input!\n")
@@ -315,7 +315,7 @@ def link_closed(link):
         RNS.log("The link was closed by the server, exiting now")
     else:
         RNS.log("Link closed, exiting now")
-    
+
     RNS.Reticulum.exit_handler()
     time.sleep(1.5)
     os._exit(0)

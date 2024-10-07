@@ -82,7 +82,7 @@ def main():
         parser.add_argument("-w", "--write", metavar="file", action="store", default=None, help="output file path", type=str)
         parser.add_argument("-f", "--force", action="store_true", default=None, help="write output even if it overwrites existing files")
         parser.add_argument("-I", "--stdin", action="store_true", default=False, help=argparse.SUPPRESS) # "read input from STDIN instead of file"
-        parser.add_argument("-O", "--stdout", action="store_true", default=False, help=argparse.SUPPRESS) # help="write output to STDOUT instead of file", 
+        parser.add_argument("-O", "--stdout", action="store_true", default=False, help=argparse.SUPPRESS) # help="write output to STDOUT instead of file",
 
         parser.add_argument("-R", "--request", action="store_true", default=False, help="request unknown Identities from the network")
         parser.add_argument("-t", action="store", metavar="seconds", type=float, help="identity request timeout before giving up", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
@@ -93,14 +93,14 @@ def main():
         parser.add_argument("-B", "--base32", action="store_true", default=False, help="Use base32-encoded input and output")
 
         parser.add_argument("--version", action="version", version=f"rnid {__version__}")
-        
+
         args = parser.parse_args()
 
         ops = 0;
         for t in [args.encrypt, args.decrypt, args.validate, args.sign]:
             if t:
                 ops += 1
-        
+
         if ops > 1:
             RNS.log("This utility currently only supports one of the encrypt, decrypt, sign or verify operations per invocation", RNS.LOG_ERROR)
             exit(1)
@@ -179,7 +179,7 @@ def main():
             quietness = args.quiet
             if verbosity != 0 or quietness != 0:
                 targetloglevel = targetloglevel+verbosity-quietness
-            
+
             # Start Reticulum
             reticulum = RNS.Reticulum(configdir=args.config, loglevel=targetloglevel)
             RNS.compact_log_fmt = True
@@ -234,7 +234,7 @@ def main():
                     RNS.log("Invalid hexadecimal hash provided", RNS.LOG_ERROR)
                     exit(7)
 
-                
+
             else:
                 # Try loading Identity from file
                 if not os.path.isfile(identity_str):
@@ -391,7 +391,7 @@ def main():
                             RNS.log("Could not open output file for writing", RNS.LOG_ERROR)
                             RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
                             exit(15)
-                
+
                 # TODO: Actually expand this to a good solution
                 # probably need to create a wrapper that takes
                 # into account not closing stdout when done
@@ -415,12 +415,12 @@ def main():
 
                         if not args.stdout:
                             RNS.log(f"Signing {args.read}")
-                        
+
                         try:
                             data_output.write(identity.sign(data_input.read()))
                             data_output.close()
                             data_input.close()
-                            
+
                             if not args.stdout:
                                 if args.read:
                                     RNS.log(f"File {args.read} signed with {identity} to {args.write}")
@@ -448,7 +448,7 @@ def main():
                     else:
                         # if not args.stdout:
                         #     RNS.log("Verifying "+str(args.validate)+" for "+str(args.read))
-                        
+
                         try:
                             try:
                                 sig_input = open(args.validate, "rb")
@@ -498,7 +498,7 @@ def main():
 
                         if not args.stdout:
                             RNS.log(f"Encrypting {args.read}")
-                        
+
                         try:
                             more_data = True
                             while more_data:
@@ -545,7 +545,7 @@ def main():
 
                         if not args.stdout:
                             RNS.log(f"Decrypting {args.read}...")
-                        
+
                         try:
                             more_data = True
                             while more_data:

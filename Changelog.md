@@ -1247,7 +1247,7 @@ This beta release brings a range of improvements and bugfixes.
  - Improved documentation.
  - Improved request timeouts and handling.
  - Improved link establishment.
- - Improved resource transfer timing. 
+ - Improved resource transfer timing.
 
 **Fixed bugs**
  - Fixed a race condition in inbound proof handling.

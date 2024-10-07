@@ -140,7 +140,7 @@ class Destination:
 
     def __init__(self, identity, direction, type, app_name, *aspects):
         # Check input values and build name string
-        if "." in app_name: raise ValueError("Dots can't be used in app names") 
+        if "." in app_name: raise ValueError("Dots can't be used in app names")
         if not type in Destination.types: raise ValueError("Unknown destination type")
         if not direction in Destination.directions: raise ValueError("Unknown destination direction")
 
@@ -241,7 +241,7 @@ class Destination:
 
         if self.direction != Destination.IN:
             raise TypeError("Only IN destination types can be announced")
-        
+
         ratchet = b""
         now = time.time()
         stale_responses = []
@@ -264,7 +264,7 @@ class Destination:
             # multiple available paths, and to choose the best one.
             RNS.log(f"Using cached announce data for answering path request with tag {RNS.prettyhexrep(tag)}", RNS.LOG_EXTREME)
             announce_data = self.path_responses[tag][1]
-        
+
         else:
             destination_hash = self.hash
             random_hash = RNS.Identity.get_random_hash()[0:5]+int(time.time()).to_bytes(5, "big")
@@ -281,7 +281,7 @@ class Destination:
                     returned_app_data = self.default_app_data()
                     if isinstance(returned_app_data, bytes):
                         app_data = returned_app_data
-            
+
             signed_data = self.hash+self.identity.get_public_key()+self.name_hash+random_hash+ratchet
             if app_data != None:
                 signed_data += app_data

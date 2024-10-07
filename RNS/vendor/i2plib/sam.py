@@ -8,7 +8,7 @@ I2P_B64_CHARS = "-~"
 
 def i2p_b64encode(x):
     """Encode I2P destination"""
-    return b64encode(x, altchars=I2P_B64_CHARS.encode()).decode() 
+    return b64encode(x, altchars=I2P_B64_CHARS.encode()).decode()
 
 def i2p_b64decode(x):
     """Decode I2P destination"""
@@ -79,9 +79,9 @@ class Destination:
 
     https://geti2p.net/spec/common-structures#destination
 
-    :param data: (optional) Base64 encoded data or binary data 
-    :param path: (optional) A path to a file with binary data 
-    :param has_private_key: (optional) Does data have a private key? 
+    :param data: (optional) Base64 encoded data or binary data
+    :param path: (optional) A path to a file with binary data
+    :param has_private_key: (optional) Does data have a private key?
     """
 
     ECDSA_SHA256_P256 = 1
@@ -97,12 +97,12 @@ class Destination:
 
     def __init__(self, data=None, path=None, has_private_key=False):
         #: Binary destination
-        self.data = b'' 
+        self.data = b''
         #: Base64 encoded destination
-        self.base64 = ""    
+        self.base64 = ""
         #: :class:`RNS.vendor.i2plib.PrivateKey` instance or None
-        self.private_key = None    
-        
+        self.private_key = None
+
         if path:
             with open(path, "rb") as f: data = f.read()
 
@@ -126,13 +126,13 @@ class Destination:
         """Base32 destination hash of this destination"""
         desthash = sha256(self.data).digest()
         return b32encode(desthash).decode()[:52].lower()
-    
+
 class PrivateKey:
     """I2P private key
 
     https://geti2p.net/spec/common-structures#keysandcert
 
-    :param data: Base64 encoded data or binary data 
+    :param data: Base64 encoded data or binary data
     """
 
     def __init__(self, data):

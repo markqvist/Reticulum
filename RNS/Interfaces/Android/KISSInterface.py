@@ -74,7 +74,7 @@ class KISSInterface(Interface):
 
                 from usbserial4a import serial4a as serial
                 self.parity = "N"
-            
+
             else:
                 RNS.log("Could not load USB serial module for Android, KISS interface cannot be created.", RNS.LOG_CRITICAL)
                 RNS.log("You can install this module by issuing: pip install usbserial4a", RNS.LOG_CRITICAL)
@@ -83,9 +83,9 @@ class KISSInterface(Interface):
             raise SystemError("Android-specific interface was used on non-Android OS")
 
         super().__init__()
-        
+
         self.HW_MTU = 564
-        
+
         if beacon_data == None:
             beacon_data = ""
 
@@ -172,7 +172,7 @@ class KISSInterface(Interface):
                 self.serial.timeout = 0.1
             elif vid == 0x10C4:
                 # Hardware parameters for SiLabs CP210x @ 115200 baud
-                self.serial.DEFAULT_READ_BUFFER_SIZE = 64 
+                self.serial.DEFAULT_READ_BUFFER_SIZE = 64
                 self.serial.USB_READ_TIMEOUT_MILLIS = 12
                 self.serial.timeout = 0.012
             elif vid == 0x1A86 and pid == 0x55D4:
@@ -352,7 +352,7 @@ class KISSInterface(Interface):
                                 data_buffer = data_buffer+bytes([byte])
                         elif (command == KISS.CMD_READY):
                             self.process_queue()
-                
+
                 if got == 0:
                     time_since_last = int(time.time()*1000) - last_read_ms
                     if len(data_buffer) > 0 and time_since_last > self.timeout:
@@ -379,7 +379,7 @@ class KISSInterface(Interface):
             self.online = False
             RNS.log(f"A serial port error occurred, the contained exception was: {e}", RNS.LOG_ERROR)
             RNS.log(f"The interface {self} experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
-            
+
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
 

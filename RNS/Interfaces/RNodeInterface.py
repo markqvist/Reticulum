@@ -33,7 +33,7 @@ class KISS():
     FESC            = 0xDB
     TFEND           = 0xDC
     TFESC           = 0xDD
-    
+
     CMD_UNKNOWN     = 0xFE
     CMD_DATA        = 0x00
     CMD_FREQUENCY   = 0x01
@@ -69,11 +69,11 @@ class KISS():
 
     DETECT_REQ      = 0x73
     DETECT_RESP     = 0x46
-    
+
     RADIO_STATE_OFF = 0x00
     RADIO_STATE_ON  = 0x01
     RADIO_STATE_ASK = 0xFF
-    
+
     CMD_ERROR           = 0x90
     ERROR_INITRADIO     = 0x01
     ERROR_TXFAILED      = 0x02
@@ -91,7 +91,7 @@ class KISS():
         data = data.replace(bytes([0xdb]), bytes([0xdb, 0xdd]))
         data = data.replace(bytes([0xc0]), bytes([0xdb, 0xdc]))
         return data
-    
+
 
 class RNodeInterface(Interface):
     MAX_CHUNK = 32768
@@ -132,7 +132,7 @@ class RNodeInterface(Interface):
         super().__init__()
 
         self.HW_MTU = 508
-        
+
         self.pyserial    = serial
         self.serial      = None
         self.owner       = owner
@@ -287,7 +287,7 @@ class RNodeInterface(Interface):
                 write_timeout = None,
                 dsrdtr = False,
             )
-        
+
         else:
             RNS.log(f"Opening BLE connection for {self}...")
             if self.ble != None and self.ble.running == False:
@@ -333,7 +333,7 @@ class RNodeInterface(Interface):
                 detect_time = RNS.prettytime(time.time()-detect_time)
             else:
                 RNS.log(f"RNode detect timed out over {self.port}", RNS.LOG_ERROR)
-        
+
         if not self.detected:
             RNS.log(f"Could not detect device for {self}", RNS.LOG_ERROR)
             self.serial.close()
@@ -354,7 +354,7 @@ class RNodeInterface(Interface):
             RNS.log("Make sure that your hardware actually supports the parameters specified in the configuration", RNS.LOG_ERROR)
             RNS.log("Aborting RNode startup", RNS.LOG_ERROR)
             self.serial.close()
-            
+
 
     def initRadio(self):
         self.setFrequency()
@@ -374,13 +374,13 @@ class RNodeInterface(Interface):
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise OSError(f"An IO error occurred while detecting hardware for {self}")
-    
+
     def leave(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_LEAVE, 0xFF, KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise OSError("An IO error occurred while sending host left command to device")
-    
+
     def enable_external_framebuffer(self):
         if self.display != None:
             kiss_command = bytes([KISS.FEND, KISS.CMD_FB_EXT, 0x01, KISS.FEND])
@@ -414,7 +414,7 @@ class RNodeInterface(Interface):
             data = line_byte+line_data
             escaped_data = KISS.escape(data)
             kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_FB_WRITE])+escaped_data+bytes([KISS.FEND])
-            
+
             written = self.serial.write(kiss_command)
             if written != len(kiss_command):
                 raise OSError("An IO error occurred while writing framebuffer data device")
@@ -509,7 +509,7 @@ class RNodeInterface(Interface):
             if (self.maj_version >= RNodeInterface.REQUIRED_FW_VER_MAJ):
                 if (self.min_version >= RNodeInterface.REQUIRED_FW_VER_MIN):
                     self.firmware_ok = True
-        
+
         if self.firmware_ok:
             return
 
@@ -799,7 +799,7 @@ class RNodeInterface(Interface):
                                     atl = command_buffer[2] << 8 | command_buffer[3]
                                     cus = command_buffer[4] << 8 | command_buffer[5]
                                     cul = command_buffer[6] << 8 | command_buffer[7]
-                                    
+
                                     self.r_airtime_short      = ats/100.0
                                     self.r_airtime_long       = atl/100.0
                                     self.r_channel_load_short = cus/100.0
@@ -885,7 +885,7 @@ class RNodeInterface(Interface):
                                 self.detected = True
                             else:
                                 self.detected = False
-                        
+
                 else:
                     time_since_last = int(time.time()*1000) - last_read_ms
                     if len(data_buffer) > 0 and time_since_last > self.timeout:
@@ -943,7 +943,7 @@ class RNodeInterface(Interface):
         self.disable_external_framebuffer()
         self.setRadioState(KISS.RADIO_STATE_OFF)
         self.leave()
-        
+
         if self.use_ble:
             self.ble.close()
 
@@ -1038,7 +1038,7 @@ class BLEConnection():
             if importlib.util.find_spec("bleak") != None:
                 import bleak
                 BLEConnection.bleak = bleak
-                
+
                 import asyncio
                 BLEConnection.asyncio = asyncio
             else:
@@ -1133,7 +1133,7 @@ class BLEConnection():
                 else:
                     if self.target_bt_addr != None and device.address == self.target_bt_addr:
                         RNS.log(f"Can't connect to target device {self.target_bt_addr} over BLE, device is not bonded", RNS.LOG_ERROR)
-                    
+
                     elif self.target_name != None and device.name == self.target_name:
                         RNS.log(f"Can't connect to target device {self.target_name} over BLE, device is not bonded", RNS.LOG_ERROR)
 
@@ -1154,7 +1154,7 @@ class BLEConnection():
                 if "props" in device.details and "Bonded" in device.details["props"]:
                     if device.details["props"]["Bonded"] == True:
                         return True
-        
+
         except Exception as e:
             RNS.log(f"Error while determining device bond status for {device}, the contained exception was: {e}", RNS.LOG_ERROR)
 

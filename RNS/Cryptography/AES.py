@@ -25,7 +25,7 @@ import RNS.vendor.platformutils as pu
 
 if cp.PROVIDER == cp.PROVIDER_INTERNAL:
     from .aes import AES
-    
+
 elif cp.PROVIDER == cp.PROVIDER_PYCA:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
@@ -46,7 +46,7 @@ class AES_128_CBC:
                 cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
             else:
                 cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-            
+
             encryptor = cipher.encryptor()
             ciphertext = encryptor.update(plaintext) + encryptor.finalize()
             return ciphertext

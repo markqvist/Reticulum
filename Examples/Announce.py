@@ -22,7 +22,7 @@ noble_gases = ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon", "Oganesso
 def program_setup(configpath):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
-    
+
     # Randomly create a new identity for our example
     identity = RNS.Identity()
 
@@ -70,7 +70,7 @@ def program_setup(configpath):
 
     # We register the announce handler with Reticulum
     RNS.Transport.register_announce_handler(announce_handler)
-    
+
     # Everything's ready!
     # Let's hand over control to the announce loop
     announceLoop(destination_1, destination_2)
@@ -86,7 +86,7 @@ def announceLoop(destination_1, destination_2):
     # know how to create messages directed towards it.
     while True:
         entered = input()
-        
+
         # Randomly select a fruit
         fruit = fruits[random.randint(0,len(fruits)-1)]
 

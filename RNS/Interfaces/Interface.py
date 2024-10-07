@@ -146,7 +146,7 @@ class Interface:
                         def release():
                             RNS.Transport.inbound(selected_announce_packet.raw, selected_announce_packet.receiving_interface)
                         threading.Thread(target=release, daemon=True).start()
-        
+
         except Exception as e:
             RNS.log(f"An error occurred while processing held announces for {self}", RNS.LOG_ERROR)
             RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
@@ -170,7 +170,7 @@ class Interface:
             for i in range(1,dq_len):
                 delta_sum += self.ia_freq_deque[i]-self.ia_freq_deque[i-1]
             delta_sum += time.time() - self.ia_freq_deque[dq_len-1]
-            
+
             if delta_sum == 0:
                 avg = 0
             else:
@@ -187,7 +187,7 @@ class Interface:
             for i in range(1,dq_len):
                 delta_sum += self.oa_freq_deque[i]-self.oa_freq_deque[i-1]
             delta_sum += time.time() - self.oa_freq_deque[dq_len-1]
-            
+
             if delta_sum == 0:
                 avg = 0
             else:

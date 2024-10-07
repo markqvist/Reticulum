@@ -38,7 +38,7 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
     if full_name == None:
         print("The full destination name including application name aspects must be specified for the destination")
         exit()
-    
+
     try:
         app_name, aspects = RNS.Destination.app_and_aspects_from_name(full_name)
 
@@ -133,7 +133,7 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
 
         if time.time() > _timeout:
             print("\r                                                                \rProbe timed out")
-        
+
         else:
             print("\b\b ")
             sys.stdout.flush()
@@ -162,10 +162,10 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
 
                     if reception_rssi != None:
                         reception_stats += f" [RSSI {reception_rssi} dBm]"
-                    
+
                     if reception_snr != None:
                         reception_stats += f" [SNR {reception_snr} dB]"
-                    
+
                     if reception_q != None:
                         reception_stats += f" [Link Quality {reception_q}%]"
 
@@ -173,7 +173,7 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
                     if receipt.proof_packet != None:
                         if receipt.proof_packet.rssi != None:
                             reception_stats += f" [RSSI {receipt.proof_packet.rssi} dBm]"
-                        
+
                         if receipt.proof_packet.snr != None:
                             reception_stats += f" [SNR {receipt.proof_packet.snr} dB]"
 
@@ -192,7 +192,7 @@ def program_setup(configdir, destination_hexhash, size=None, full_name = None, v
         exit(2)
     else:
         exit(0)
-    
+
 
 def main():
     try:

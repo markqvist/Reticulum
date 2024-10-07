@@ -49,7 +49,7 @@ class Fernet():
 
         if len(key) != 32:
             raise ValueError(f"Token key must be 32 bytes, not {len(key)}")
-            
+
         self._signing_key = key[:16]
         self._encryption_key = key[16:]
 

@@ -56,7 +56,7 @@ def main():
         parser.add_argument('-s', '--service', action='store_true', default=False, help="rnsd is running as a service and should log to file")
         parser.add_argument("--exampleconfig", action='store_true', default=False, help="print verbose configuration example to stdout and exit")
         parser.add_argument("--version", action="version", version=f"rnsd {__version__}")
-        
+
         args = parser.parse_args()
 
         if args.exampleconfig:
@@ -192,7 +192,7 @@ loglevel = 4
 
   # The following example enables communication with other
   # local Reticulum peers using UDP broadcasts.
-  
+
   [[UDP Interface]]
     type = UDPInterface
     enabled = no
@@ -235,24 +235,24 @@ loglevel = 4
   # This example demonstrates a TCP server interface.
   # It will listen for incoming connections on the
   # specified IP address and port number.
-  
+
   [[TCP Server Interface]]
     type = TCPServerInterface
     enabled = no
 
     # This configuration will listen on all IP
     # interfaces on port 4242
-    
+
     listen_ip = 0.0.0.0
     listen_port = 4242
 
     # Alternatively you can bind to a specific IP
-    
+
     # listen_ip = 10.0.0.88
     # listen_port = 4242
 
     # Or a specific network device
-    
+
     # device = eth0
     # port = 4242
 
@@ -300,7 +300,7 @@ loglevel = 4
     # host device before connecting. BLE
     # devices can be connected by name,
     # BLE MAC address or by any available.
-    
+
     # Connect to specific device by name
     # port = ble://RNode 3B87
 
@@ -320,7 +320,7 @@ loglevel = 4
     # Set TX power to 7 dBm (5 mW)
     txpower = 7
 
-    # Select spreading factor 8. Valid 
+    # Select spreading factor 8. Valid
     # range is 7 through 12, with 7
     # being the fastest and 12 having
     # the longest range.
@@ -349,8 +349,8 @@ loglevel = 4
     # flow control can be useful. By default
     # it is disabled.
     flow_control = False
-    
-    
+
+
   # An example KISS modem interface. Useful for running
   # Reticulum over packet radio hardware.
 
@@ -365,7 +365,7 @@ loglevel = 4
 
     # Set the serial baud-rate and other
     # configuration parameters.
-    speed = 115200    
+    speed = 115200
     databits = 8
     parity = none
     stopbits = 1
@@ -413,7 +413,7 @@ loglevel = 4
   # way, Reticulum will automatically encapsulate it's
   # traffic in AX.25 and also identify your stations
   # transmissions with your callsign and SSID.
-  # 
+  #
   # Only do this if you really need to! Reticulum doesn't
   # need the AX.25 layer for anything, and it incurs extra
   # overhead on every packet to encapsulate in AX.25.
@@ -436,7 +436,7 @@ loglevel = 4
 
     # Set the serial baud-rate and other
     # configuration parameters.
-    speed = 115200    
+    speed = 115200
     databits = 8
     parity = none
     stopbits = 1

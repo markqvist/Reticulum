@@ -138,9 +138,9 @@ class X25519PrivateKey:
             peer_public_key = X25519PublicKey.from_public_bytes(peer_public_key)
 
         start = time.time()
-        
+
         shared = _pack_number(_raw_curve25519(peer_public_key.x, self.a))
-        
+
         end = time.time()
         duration = end-start
 
@@ -150,7 +150,7 @@ class X25519PrivateKey:
         if end > X25519PrivateKey.T_CLEAR:
             X25519PrivateKey.T_CLEAR = end + X25519PrivateKey.DELAY_WINDOW
             X25519PrivateKey.T_MAX = 0
-        
+
         if duration < X25519PrivateKey.T_MAX or duration < X25519PrivateKey.MIN_EXEC_TIME:
             target = start+X25519PrivateKey.T_MAX
 

@@ -136,7 +136,7 @@ class MessageBase(abc.ABC):
     MSGTYPE = None
     """
     Defines a unique identifier for a message class.
-    
+
     * Must be unique within all classes registered with a ``Channel``
     * Must be less than ``0xf000``. Values greater than or equal to ``0xf000`` are reserved.
     """
@@ -247,11 +247,11 @@ class Channel(contextlib.AbstractContextManager):
 
     # The maximum window size for transfers on fast links
     WINDOW_MAX_FAST      = 48
-    
+
     # For calculating maps and guard segments, this
     # must be set to the global maximum window.
     WINDOW_MAX           = WINDOW_MAX_FAST
-    
+
     # If the fast rate is sustained for this many request
     # rounds, the fast link window size will be allowed.
     FAST_RATE_THRESHOLD  = 10
@@ -380,21 +380,21 @@ class Channel(contextlib.AbstractContextManager):
     def _emplace_envelope(self, envelope: Envelope, ring: collections.deque[Envelope]) -> bool:
         with self._lock:
             i = 0
-            
+
             for existing in ring:
 
                 if envelope.sequence == existing.sequence:
                     RNS.log(f"Envelope: Emplacement of duplicate envelope with sequence {envelope.sequence}", RNS.LOG_EXTREME)
                     return False
-                
+
                 if envelope.sequence < existing.sequence and not (self._next_rx_sequence - envelope.sequence) > (Channel.SEQ_MAX//2):
                     ring.insert(i, envelope)
 
                     envelope.tracked = True
                     return True
-                
+
                 i += 1
-            
+
             envelope.tracked = True
             ring.append(envelope)
 
@@ -449,7 +449,7 @@ class Channel(contextlib.AbstractContextManager):
                             m = e.unpack(self._message_factories)
                         else:
                             m = e.message
-                            
+
                         self._rx_ring.remove(e)
                         self._run_callbacks(m)
 
@@ -468,7 +468,7 @@ class Channel(contextlib.AbstractContextManager):
         with self._lock:
             outstanding = 0
             for envelope in self._tx_ring:
-                if envelope.outlet == self._outlet: 
+                if envelope.outlet == self._outlet:
                     if not envelope.packet or not self._outlet.get_packet_state(envelope.packet) == MessageState.MSGSTATE_DELIVERED:
                         outstanding += 1
 
@@ -508,7 +508,7 @@ class Channel(contextlib.AbstractContextManager):
                                     # TODO: Remove at some point
                                     # RNS.log("Increased "+str(self)+" max window to "+str(self.window_max), RNS.LOG_DEBUG)
                                     # RNS.log("Increased "+str(self)+" min window to "+str(self.window_min), RNS.LOG_DEBUG)
-                            
+
                         else:
                             self.fast_rate_rounds += 1
                             if self.window_max < Channel.WINDOW_MAX_FAST and self.fast_rate_rounds == Channel.FAST_RATE_THRESHOLD:
@@ -581,7 +581,7 @@ class Channel(contextlib.AbstractContextManager):
         with self._lock:
             if not self.is_ready_to_send():
                 raise ChannelException(CEType.ME_LINK_NOT_READY, f"Link is not ready")
-        
+
             envelope = Envelope(self._outlet, message=message, sequence=self._next_sequence)
             self._next_sequence = (self._next_sequence + 1) % Channel.SEQ_MODULUS
             self._emplace_envelope(envelope, self._tx_ring)
@@ -592,7 +592,7 @@ class Channel(contextlib.AbstractContextManager):
         envelope.pack()
         if len(envelope.raw) > self._outlet.mdu:
             raise ChannelException(CEType.ME_TOO_BIG, f"Packed message too big for packet: {len(envelope.raw)} > {self._outlet.mdu}")
-        
+
         envelope.packet = self._outlet.send(envelope.raw)
         envelope.tries += 1
         self._outlet.set_packet_delivered_callback(envelope.packet, self._packet_delivered)

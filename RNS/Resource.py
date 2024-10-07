@@ -59,11 +59,11 @@ class Resource:
 
     # The maximum window size for transfers on fast links
     WINDOW_MAX_FAST      = 75
-    
+
     # For calculating maps and guard segments, this
     # must be set to the global maximum window.
     WINDOW_MAX           = WINDOW_MAX_FAST
-    
+
     # If the fast rate is sustained for this many request
     # rounds, the fast link window size will be allowed.
     FAST_RATE_THRESHOLD  = WINDOW_MAX_SLOW - WINDOW - 2
@@ -111,7 +111,7 @@ class Resource:
     # fit in 3 bytes in resource advertisements.
     MAX_EFFICIENT_SIZE      = 16 * 1024 * 1024 - 1
     RESPONSE_MAX_GRACE_TIME = 10
-    
+
     # The maximum size to auto-compress with
     # bz2 before sending.
     AUTO_COMPRESS_MAX_SIZE = MAX_EFFICIENT_SIZE
@@ -186,7 +186,7 @@ class Resource:
             resource.waiting_for_hmu = False
             resource.receiving_part = False
             resource.consecutive_completed_height = -1
-            
+
             if not resource.link.has_incoming_resource(resource):
                 resource.link.register_incoming_resource(resource)
 
@@ -255,7 +255,7 @@ class Resource:
         elif isinstance(data, bytes):
             data_size = len(data)
             self.total_size  = data_size
-            
+
             resource_data = data
             self.total_segments = 1
             self.segment_index  = 1
@@ -322,7 +322,7 @@ class Resource:
                 self.data  = b""
                 self.data += RNS.Identity.get_random_hash()[:Resource.RANDOM_HASH_SIZE]
                 self.data += self.compressed_data
-                
+
                 self.compressed = True
                 self.uncompressed_data = None
 
@@ -348,7 +348,7 @@ class Resource:
             self.sent_parts = 0
             hashmap_entries = int(math.ceil(self.size/float(Resource.SDU)))
             self.total_parts = hashmap_entries
-                
+
             hashmap_ok = False
             while not hashmap_ok:
                 hashmap_computation_began = time.time()
@@ -389,12 +389,12 @@ class Resource:
                         self.parts.append(part)
 
                 RNS.log(f"Hashmap computation concluded in {round(time.time() - hashmap_computation_began, 3)} seconds", RNS.LOG_DEBUG)
-                
+
             if advertise:
                 self.advertise()
         else:
             self.receive_lock = Lock()
-            
+
 
     def hashmap_update_packet(self, plaintext):
         if not self.status == Resource.FAILED:
@@ -489,7 +489,7 @@ class Resource:
                         except Exception as e:
                             RNS.log(f"Could not resend advertisement packet, cancelling resource. The contained exception was: {e}", RNS.LOG_VERBOSE)
                             self.cancel()
-                    
+
 
             elif self.status == Resource.TRANSFERRING:
                 if not self.initiator:
@@ -504,7 +504,7 @@ class Resource:
                     retries_used = self.max_retries - self.retries_left
                     extra_wait = retries_used * Resource.PER_RETRY_DELAY
                     sleep_time = self.last_activity + (rtt*(self.part_timeout_factor+window_remaining)) + Resource.RETRY_GRACE_TIME + extra_wait - time.time()
-                    
+
                     if sleep_time < 0:
                         if self.retries_left > 0:
                             ms = "" if self.outstanding_parts == 1 else "s"
@@ -558,7 +558,7 @@ class Resource:
             if sleep_time == None or sleep_time < 0:
                 RNS.log("Timing error, cancelling resource transfer.", RNS.LOG_ERROR)
                 self.cancel()
-            
+
             if sleep_time != None:
                 sleep(min(sleep_time, Resource.WATCHDOG_MAX_SLEEP))
 
@@ -697,7 +697,7 @@ class Resource:
             if self.req_resp == None:
                 self.req_resp = self.last_activity
                 rtt = self.req_resp-self.req_sent
-                
+
                 self.part_timeout_factor = Resource.PART_TIMEOUT_FACTOR_AFTER_RTT
                 if self.rtt == None:
                     self.rtt = self.link.rtt
@@ -737,7 +737,7 @@ class Resource:
                             # Update consecutive completed pointer
                             if i == self.consecutive_completed_height + 1:
                                 self.consecutive_completed_height = i
-                            
+
                             cp = self.consecutive_completed_height + 1
                             while cp < len(self.parts) and self.parts[cp] != None:
                                 self.consecutive_completed_height = cp
@@ -802,7 +802,7 @@ class Resource:
                 i = 0; pn = self.consecutive_completed_height+1
                 search_start = pn
                 search_size = self.window
-                
+
                 for part in self.parts[search_start:search_start+search_size]:
                     if part == None:
                         part_hash = self.hashmap[pn]
@@ -883,10 +883,10 @@ class Resource:
                     RNS.log("Resource could not send parts, cancelling transfer!", RNS.LOG_DEBUG)
                     RNS.log(f"The contained exception was: {e}", RNS.LOG_DEBUG)
                     self.cancel()
-            
+
             if wants_more_hashmap:
                 last_map_hash = request_data[1:Resource.MAPHASH_LEN+1]
-                
+
                 part_index   = self.receiver_min_consecutive_height
                 search_start = part_index
                 search_end   = self.receiver_min_consecutive_height+ResourceAdvertisement.COLLISION_GUARD_SIZE
@@ -904,7 +904,7 @@ class Resource:
                 else:
                     segment = part_index // ResourceAdvertisement.HASHMAP_MAX_LEN
 
-                
+
                 hashmap_start = segment*ResourceAdvertisement.HASHMAP_MAX_LEN
                 hashmap_end   = min((segment+1)*ResourceAdvertisement.HASHMAP_MAX_LEN, len(self.parts))
 
@@ -949,7 +949,7 @@ class Resource:
                 self.link.cancel_outgoing_resource(self)
             else:
                 self.link.cancel_incoming_resource(self)
-            
+
             if self.callback != None:
                 try:
                     self.link.resource_concluded(self)
@@ -969,7 +969,7 @@ class Resource:
         """
         if self.status == RNS.Resource.COMPLETE and self.segment_index == self.total_segments:
             return 1.0
-        
+
         elif self.initiator:
             if not self.split:
                 self.processed_parts = self.sent_parts
@@ -1194,7 +1194,7 @@ class ResourceAdvertisement:
     @staticmethod
     def unpack(data):
         dictionary = umsgpack.unpackb(data)
-        
+
         adv   = ResourceAdvertisement()
         adv.t = dictionary["t"]
         adv.d = dictionary["d"]

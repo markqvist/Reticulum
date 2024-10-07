@@ -99,7 +99,7 @@ class UDPInterface(Interface):
             udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             udp_socket.sendto(data, (self.forward_ip, self.forward_port))
             self.txb += len(data)
-            
+
         except Exception as e:
             RNS.log(f"Could not transmit on {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 

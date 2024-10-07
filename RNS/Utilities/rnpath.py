@@ -235,7 +235,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                             hour_rate = round(len(entry["timestamps"])/span_hours, 3)
                             if hour_rate-int(hour_rate) == 0:
                                 hour_rate = int(hour_rate)
-                            
+
                             if entry["rate_violations"] > 0:
                                 if entry["rate_violations"] == 1:
                                     s_str = ""
@@ -245,14 +245,14 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                                 rv_str = f", {entry['rate_violations']} active rate violation{s_str}"
                             else:
                                 rv_str = ""
-                            
+
                             if entry["blocked_until"] > time.time():
                                 bli = time.time()-(int(entry["blocked_until"])-time.time())
                                 bl_str = f", new announces allowed in {pretty_date(int(bli))}"
                             else:
                                 bl_str = ""
 
-            
+
                             print(f"{RNS.prettyhexrep(entry['hash'])} last heard {last_str} ago, {hour_rate} announces/hour in the last {span_str}{rv_str}{bl_str}")
 
                         except Exception as e:
@@ -272,7 +272,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
 
         print("Dropping announce queues on all interfaces...")
         reticulum.drop_announce_queues()
-    
+
     elif drop:
         if remote_link:
             if not no_output:
@@ -341,7 +341,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
         except Exception as e:
             print(str(e))
             sys.exit(1)
-            
+
         if not RNS.Transport.has_path(destination_hash):
             RNS.Transport.request_path(destination_hash)
             print(f"Path to {RNS.prettyhexrep(destination_hash)} requested  ", end=" ")
@@ -376,7 +376,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             print("\r                                                       \rPath not found")
             sys.exit(1)
 
-    
+
 
 def main():
     try:
@@ -479,7 +479,7 @@ def main():
             help="timeout before giving up on remote queries",
             default=RNS.Transport.PATH_REQUEST_TIMEOUT
         )
-        
+
         parser.add_argument(
             "-j",
             "--json",
@@ -497,7 +497,7 @@ def main():
         )
 
         parser.add_argument('-v', '--verbose', action='count', default=0)
-        
+
         args = parser.parse_args()
 
         if args.config:

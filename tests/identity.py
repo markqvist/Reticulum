@@ -187,7 +187,7 @@ class TestIdentity(unittest.TestCase):
             lb = 1
         else:
             lb = 8
-        
+
         for i in range(1, lb):
             msg = os.urandom(mlen)
             b += mlen

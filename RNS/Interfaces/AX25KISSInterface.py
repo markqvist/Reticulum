@@ -80,7 +80,7 @@ class AX25KISSInterface(Interface):
         super().__init__()
 
         self.HW_MTU = 564
-        
+
         self.pyserial = serial
         self.serial   = None
         self.owner    = owner
@@ -343,7 +343,7 @@ class AX25KISSInterface(Interface):
             self.online = False
             RNS.log(f"A serial port error occurred, the contained exception was: {e}", RNS.LOG_ERROR)
             RNS.log(f"The interface {self} experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
-            
+
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
 

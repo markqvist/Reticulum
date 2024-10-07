@@ -105,7 +105,7 @@ class TestLink(unittest.TestCase):
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
-        
+
         l1 = RNS.Link(dest)
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
@@ -129,7 +129,7 @@ class TestLink(unittest.TestCase):
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
-        
+
         l1 = RNS.Link(dest)
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
@@ -176,7 +176,7 @@ class TestLink(unittest.TestCase):
         if n_failed > 0:
             ns = "s" if n_failed != 1 else ""
             print(f"Failed to receive proof for {n_failed} packet{ns}")
-            
+
         self.assertEqual(all_ok, True)
         print("OK!")
         print(f"Single packet and proof round-trip throughput is {self.size_str(b / pduration, 'b')}ps")
@@ -201,7 +201,7 @@ class TestLink(unittest.TestCase):
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
-        
+
         l1 = RNS.Link(dest)
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
@@ -241,7 +241,7 @@ class TestLink(unittest.TestCase):
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
 
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
-        
+
         l1 = RNS.Link(dest)
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
@@ -280,7 +280,7 @@ class TestLink(unittest.TestCase):
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
-        
+
         l1 = RNS.Link(dest)
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
@@ -310,7 +310,7 @@ class TestLink(unittest.TestCase):
         if RNS.Cryptography.backend() == "internal":
             print("Skipping medium resource test...")
             return
-        
+
         init_rns(self)
         print("")
         print("Medium resource test")
@@ -324,7 +324,7 @@ class TestLink(unittest.TestCase):
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
-        
+
         l1 = RNS.Link(dest)
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
@@ -371,7 +371,7 @@ class TestLink(unittest.TestCase):
 
         dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
-        
+
         l1 = RNS.Link(dest)
         time.sleep(0.5)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
@@ -553,11 +553,11 @@ class TestLink(unittest.TestCase):
                 target_bytes = 3000
             else:
                 target_bytes = BUFFER_TEST_TARGET
-            
+
             random.seed(154889)
             message = random.randbytes(target_bytes)
             buffer_read_target = len(message)
-            
+
             # the return message will have an appendage string " back at you"
             # for every StreamDataMessage that arrives. To verify, we need
             # to insert that string every MAX_DATA_LEN and also at the end.
@@ -572,7 +572,7 @@ class TestLink(unittest.TestCase):
             # StreamDataMessage, the appended text will end up in a
             # separate packet.
             print(f"Sending {len(message)} bytes, receiving {len(expected_rx_message)} bytes, ")
-            
+
             buffer.write(message)
             buffer.flush()
 
@@ -723,7 +723,7 @@ def profile_resource():
     resource_profiling()
 
 def profile_targets():
-    
+
     targets_profiling(yp=True)
     # cProfile.runctx("entry()", {"entry": targets_profiling, "size_str": size_str}, {}, "profile-targets.data")
     # p = pstats.Stats("profile-targets.data")
@@ -749,7 +749,7 @@ def resource_profiling():
 
     import yappi
     yappi.start()
-    
+
     resource = RNS.Resource(data, l1, timeout=resource_timeout)
     start = time.time()
 
