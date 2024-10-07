@@ -89,6 +89,7 @@ class KISS():
     ERROR_EEPROM_LOCKED = 0x03
     ERROR_QUEUE_FULL    = 0x04
     ERROR_MEMORY_LOW    = 0x05
+    ERROR_MODEM_TIMEOUT = 0x06
     ERROR_INVALID_FIRMWARE = 0x10
     ERROR_INVALID_BLE_MTU  = 0x20
 
@@ -1254,6 +1255,9 @@ class RNodeInterface(Interface):
                             elif (byte == KISS.ERROR_MEMORY_LOW):
                                 RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+"): Memory exhausted", RNS.LOG_ERROR)
                                 self.hw_errors.append({"error": KISS.ERROR_MEMORY_LOW, "description": "Memory exhausted on connected device"})
+                            elif (byte == KISS.ERROR_MODEM_TIMEOUT):
+                                RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+"): Modem communication timed out", RNS.LOG_ERROR)
+                                self.hw_errors.append({"error": KISS.ERROR_MODEM_TIMEOUT, "description": "Modem communication timed out on connected device"})
                             else:
                                 RNS.log(str(self)+" hardware error (code "+RNS.hexrep(byte)+")", RNS.LOG_ERROR)
                                 raise IOError("Unknown hardware failure")
