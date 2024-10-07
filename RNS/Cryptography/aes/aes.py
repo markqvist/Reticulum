@@ -230,7 +230,7 @@ def test():
     print(f"Ciphertext Hex: {ciphertext_block.hex()}")
     print(f"Plaintext: {plaintext_block.decode()}")
     assert plaintext_block == single_block_text
-    print(bcolors.OK + "Single Block Test Passed Successfully" + bcolors.RESET)
+    print(f"{bcolors.OK}Single Block Test Passed Successfully{bcolors.RESET}")
     print()
 
     # test a less than a block length phrase
@@ -246,7 +246,7 @@ def test():
     print(f"Ciphertext Hex: {ciphertext_short.hex()}")
     print(f"Plaintext: {plaintext_short.decode()}")
     assert short_text == plaintext_short
-    print(bcolors.OK + "Short Text Test Passed Successfully" + bcolors.RESET)
+    print(f"{bcolors.OK}Short Text Test Passed Successfully{bcolors.RESET}")
     print()
 
     # test an arbitrary length phrase
@@ -262,7 +262,7 @@ def test():
     print(f"Ciphertext Hex: {ciphertext.hex()}")
     print(f"Plaintext: {plaintext.decode()}")
     assert text == plaintext
-    print(bcolors.OK + "Arbitrary Length Text Test Passed Successfully" + bcolors.RESET)
+    print(f"{bcolors.OK}Arbitrary Length Text Test Passed Successfully{bcolors.RESET}")
     print()
 
 

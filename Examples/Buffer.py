@@ -61,9 +61,7 @@ def server(configpath):
 def server_loop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Link buffer example "+
-        RNS.prettyhexrep(destination.hash)+
-        " running, waiting for a connection."
+        f"Link buffer example {RNS.prettyhexrep(destination.hash)} running, waiting for a connection."
     )
 
     RNS.log("Hit enter to manually send an announce (Ctrl-C to quit)")
@@ -75,7 +73,7 @@ def server_loop(destination):
     while True:
         entered = input()
         destination.announce()
-        RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
+        RNS.log(f"Sent announce from {RNS.prettyhexrep(destination.hash)}")
 
 # When a client establishes a link to our server
 # destination, this function will be called with
@@ -120,9 +118,9 @@ def server_buffer_ready(ready_bytes: int):
     data = latest_buffer.read(ready_bytes)
     data = data.decode("utf-8")
 
-    RNS.log("Received data over the buffer: " + data)
+    RNS.log(f"Received data over the buffer: {data}")
 
-    reply_message = "I received \""+data+"\" over the buffer"
+    reply_message = f"I received \"{data}\" over the buffer"
     reply_message = reply_message.encode("utf-8")
     latest_buffer.write(reply_message)
     latest_buffer.flush()
@@ -151,7 +149,7 @@ def client(destination_hexhash, configpath):
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
         if len(destination_hexhash) != dest_len:
             raise ValueError(
-                "Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2)
+                f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes)."
             )
             
         destination_hash = bytes.fromhex(destination_hexhash)
@@ -223,7 +221,7 @@ def client_loop():
 
 
         except Exception as e:
-            RNS.log("Error while sending data over the link buffer: "+str(e))
+            RNS.log(f"Error while sending data over the link buffer: {e}")
             should_quit = True
             server_link.teardown()
 
@@ -262,7 +260,7 @@ def link_closed(link):
 def client_buffer_ready(ready_bytes: int):
     global buffer
     data = buffer.read(ready_bytes)
-    RNS.log("Received data over the link buffer: " + data.decode("utf-8"))
+    RNS.log(f"Received data over the link buffer: {data.decode('utf-8')}")
     print("> ", end=" ")
     sys.stdout.flush()
 

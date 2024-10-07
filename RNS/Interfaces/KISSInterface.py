@@ -113,17 +113,17 @@ class KISSInterface(Interface):
         try:
             self.open_port()
         except Exception as e:
-            RNS.log("Could not open serial port "+self.port, RNS.LOG_ERROR)
+            RNS.log(f"Could not open serial port {self.port}", RNS.LOG_ERROR)
             raise e
 
         if self.serial.is_open:
             self.configure_device()
         else:
-            raise IOError("Could not open serial port")
+            raise OSError("Could not open serial port")
 
 
     def open_port(self):
-        RNS.log("Opening serial port "+self.port+"...", RNS.LOG_VERBOSE)
+        RNS.log(f"Opening serial port {self.port}...", RNS.LOG_VERBOSE)
         self.serial = self.pyserial.Serial(
             port = self.port,
             baudrate = self.speed,
@@ -146,7 +146,7 @@ class KISSInterface(Interface):
         thread.daemon = True
         thread.start()
         self.online = True
-        RNS.log("Serial port "+self.port+" is now open")
+        RNS.log(f"Serial port {self.port} is now open")
         RNS.log("Configuring KISS interface parameters...")
         self.setPreamble(self.preamble)
         self.setTxTail(self.txtail)
@@ -168,7 +168,7 @@ class KISSInterface(Interface):
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_TXDELAY])+bytes([preamble])+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("Could not configure KISS interface preamble to "+str(preamble_ms)+" (command value "+str(preamble)+")")
+            raise OSError(f"Could not configure KISS interface preamble to {preamble_ms} (command value {preamble})")
 
     def setTxTail(self, txtail):
         txtail_ms = txtail
@@ -181,7 +181,7 @@ class KISSInterface(Interface):
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_TXTAIL])+bytes([txtail])+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("Could not configure KISS interface TX tail to "+str(txtail_ms)+" (command value "+str(txtail)+")")
+            raise OSError(f"Could not configure KISS interface TX tail to {txtail_ms} (command value {txtail})")
 
     def setPersistence(self, persistence):
         if persistence < 0:
@@ -192,7 +192,7 @@ class KISSInterface(Interface):
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_P])+bytes([persistence])+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("Could not configure KISS interface persistence to "+str(persistence))
+            raise OSError(f"Could not configure KISS interface persistence to {persistence}")
 
     def setSlotTime(self, slottime):
         slottime_ms = slottime
@@ -205,16 +205,16 @@ class KISSInterface(Interface):
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_SLOTTIME])+bytes([slottime])+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("Could not configure KISS interface slot time to "+str(slottime_ms)+" (command value "+str(slottime)+")")
+            raise OSError(f"Could not configure KISS interface slot time to {slottime_ms} (command value {slottime})")
 
     def setFlowControl(self, flow_control):
         kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_READY])+bytes([0x01])+bytes([KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             if (flow_control):
-                raise IOError("Could not enable KISS interface flow control")
+                raise OSError("Could not enable KISS interface flow control")
             else:
-                raise IOError("Could not enable KISS interface flow control")
+                raise OSError("Could not enable KISS interface flow control")
 
 
     def processIncoming(self, data):
@@ -244,7 +244,7 @@ class KISSInterface(Interface):
                         self.first_tx = time.time()
 
                 if written != len(frame):
-                    raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))
+                    raise OSError(f"Serial interface only wrote {written} bytes of {len(data)}")
 
             else:
                 self.queue(data)
@@ -311,20 +311,20 @@ class KISSInterface(Interface):
                     if self.flow_control:
                         if not self.interface_ready:
                             if time.time() > self.flow_control_locked + self.flow_control_timeout:
-                                RNS.log("Interface "+str(self)+" is unlocking flow control due to time-out. This should not happen. Your hardware might have missed a flow-control READY command, or maybe it does not support flow-control.", RNS.LOG_WARNING)
+                                RNS.log(f"Interface {self} is unlocking flow control due to time-out. This should not happen. Your hardware might have missed a flow-control READY command, or maybe it does not support flow-control.", RNS.LOG_WARNING)
                                 self.process_queue()
 
                     if self.beacon_i != None and self.beacon_d != None:
                         if self.first_tx != None:
                             if time.time() > self.first_tx + self.beacon_i:
-                                RNS.log("Interface "+str(self)+" is transmitting beacon data: "+str(self.beacon_d.decode("utf-8")), RNS.LOG_DEBUG)
+                                RNS.log(f"Interface {self} is transmitting beacon data: {self.beacon_d.decode('utf-8')}", RNS.LOG_DEBUG)
                                 self.first_tx = None
                                 self.processOutgoing(self.beacon_d)
 
         except Exception as e:
             self.online = False
-            RNS.log("A serial port error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
+            RNS.log(f"A serial port error occurred, the contained exception was: {e}", RNS.LOG_ERROR)
+            RNS.log(f"The interface {self} experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
             
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
@@ -339,17 +339,17 @@ class KISSInterface(Interface):
         while not self.online:
             try:
                 time.sleep(5)
-                RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
+                RNS.log(f"Attempting to reconnect serial port {self.port} for {self}...", RNS.LOG_VERBOSE)
                 self.open_port()
                 if self.serial.is_open:
                     self.configure_device()
             except Exception as e:
-                RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log(f"Error while reconnecting port, the contained exception was: {e}", RNS.LOG_ERROR)
 
-        RNS.log("Reconnected serial port for "+str(self))
+        RNS.log(f"Reconnected serial port for {self}")
 
     def should_ingress_limit(self):
         return False
 
     def __str__(self):
-        return "KISSInterface["+self.name+"]"
+        return f"KISSInterface[{self.name}]"

@@ -64,9 +64,7 @@ def server(configpath):
 def announceLoop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Echo server "+
-        RNS.prettyhexrep(destination.hash)+
-        " running, hit enter to manually send an announce (Ctrl-C to quit)"
+        f"Echo server {RNS.prettyhexrep(destination.hash)} running, hit enter to manually send an announce (Ctrl-C to quit)"
     )
 
     # We enter a loop that runs until the users exits.
@@ -76,7 +74,7 @@ def announceLoop(destination):
     while True:
         entered = input()
         destination.announce()
-        RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
+        RNS.log(f"Sent announce from {RNS.prettyhexrep(destination.hash)}")
 
 
 def server_callback(message, packet):
@@ -93,19 +91,19 @@ def server_callback(message, packet):
         reception_snr  = reticulum.get_packet_snr(packet.packet_hash)
 
         if reception_rssi != None:
-            reception_stats += " [RSSI "+str(reception_rssi)+" dBm]"
+            reception_stats += f" [RSSI {reception_rssi} dBm]"
         
         if reception_snr != None:
-            reception_stats += " [SNR "+str(reception_snr)+" dBm]"
+            reception_stats += f" [SNR {reception_snr} dBm]"
 
     else:
         if packet.rssi != None:
-            reception_stats += " [RSSI "+str(packet.rssi)+" dBm]"
+            reception_stats += f" [RSSI {packet.rssi} dBm]"
         
         if packet.snr != None:
-            reception_stats += " [SNR "+str(packet.snr)+" dB]"
+            reception_stats += f" [SNR {packet.snr} dB]"
 
-    RNS.log("Received packet from echo client, proof sent"+reception_stats)
+    RNS.log(f"Received packet from echo client, proof sent{reception_stats}")
 
 
 ##########################################################
@@ -123,13 +121,13 @@ def client(destination_hexhash, configpath, timeout=None):
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
         if len(destination_hexhash) != dest_len:
             raise ValueError(
-                "Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2)
+                f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes)."
             )
 
         destination_hash = bytes.fromhex(destination_hexhash)
     except Exception as e:
         RNS.log("Invalid destination entered. Check your input!")
-        RNS.log(str(e)+"\n")
+        RNS.log(f"{e}\n")
         exit()
 
     # We must first initialise Reticulum
@@ -142,9 +140,7 @@ def client(destination_hexhash, configpath, timeout=None):
 
     # Tell the user that the client is ready!
     RNS.log(
-        "Echo client ready, hit enter to send echo request to "+
-        destination_hexhash+
-        " (Ctrl-C to quit)"
+        f"Echo client ready, hit enter to send echo request to {destination_hexhash} (Ctrl-C to quit)"
     )
 
     # We enter a loop that runs until the user exits.
@@ -205,7 +201,7 @@ def client(destination_hexhash, configpath, timeout=None):
             packet_receipt.set_delivery_callback(packet_delivered)
 
             # Tell the user that the echo request was sent
-            RNS.log("Sent echo request to "+RNS.prettyhexrep(request_destination.hash))
+            RNS.log(f"Sent echo request to {RNS.prettyhexrep(request_destination.hash)}")
         else:
             # If we do not know this destination, tell the
             # user to wait for an announce to arrive.
@@ -222,10 +218,10 @@ def packet_delivered(receipt):
         rtt = receipt.get_rtt()
         if (rtt >= 1):
             rtt = round(rtt, 3)
-            rttstring = str(rtt)+" seconds"
+            rttstring = f"{rtt} seconds"
         else:
             rtt = round(rtt*1000, 3)
-            rttstring = str(rtt)+" milliseconds"
+            rttstring = f"{rtt} milliseconds"
 
         reception_stats = ""
         if reticulum.is_connected_to_shared_instance:
@@ -233,30 +229,27 @@ def packet_delivered(receipt):
             reception_snr  = reticulum.get_packet_snr(receipt.proof_packet.packet_hash)
 
             if reception_rssi != None:
-                reception_stats += " [RSSI "+str(reception_rssi)+" dBm]"
+                reception_stats += f" [RSSI {reception_rssi} dBm]"
             
             if reception_snr != None:
-                reception_stats += " [SNR "+str(reception_snr)+" dB]"
+                reception_stats += f" [SNR {reception_snr} dB]"
 
         else:
             if receipt.proof_packet != None:
                 if receipt.proof_packet.rssi != None:
-                    reception_stats += " [RSSI "+str(receipt.proof_packet.rssi)+" dBm]"
+                    reception_stats += f" [RSSI {receipt.proof_packet.rssi} dBm]"
                 
                 if receipt.proof_packet.snr != None:
-                    reception_stats += " [SNR "+str(receipt.proof_packet.snr)+" dB]"
+                    reception_stats += f" [SNR {receipt.proof_packet.snr} dB]"
 
         RNS.log(
-            "Valid reply received from "+
-            RNS.prettyhexrep(receipt.destination.hash)+
-            ", round-trip time is "+rttstring+
-            reception_stats
+            f"Valid reply received from {RNS.prettyhexrep(receipt.destination.hash)}, round-trip time is {rttstring}{reception_stats}"
         )
 
 # This function is called if a packet times out.
 def packet_timed_out(receipt):
     if receipt.status == RNS.PacketReceipt.FAILED:
-        RNS.log("Packet "+RNS.prettyhexrep(receipt.hash)+" timed out")
+        RNS.log(f"Packet {RNS.prettyhexrep(receipt.hash)} timed out")
 
 
 ##########################################################

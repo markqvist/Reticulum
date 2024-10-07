@@ -93,9 +93,7 @@ def announceLoop(destination_1, destination_2):
         # Send the announce including the app data
         destination_1.announce(app_data=fruit.encode("utf-8"))
         RNS.log(
-            "Sent announce from "+
-            RNS.prettyhexrep(destination_1.hash)+
-            " ("+destination_1.name+")"
+            f"Sent announce from {RNS.prettyhexrep(destination_1.hash)} ({destination_1.name})"
         )
 
         # Randomly select a noble gas
@@ -104,9 +102,7 @@ def announceLoop(destination_1, destination_2):
         # Send the announce including the app data
         destination_2.announce(app_data=noble_gas.encode("utf-8"))
         RNS.log(
-            "Sent announce from "+
-            RNS.prettyhexrep(destination_2.hash)+
-            " ("+destination_2.name+")"
+            f"Sent announce from {RNS.prettyhexrep(destination_2.hash)} ({destination_2.name})"
         )
 
 # We will need to define an announce handler class that
@@ -126,14 +122,12 @@ class ExampleAnnounceHandler:
     # and cannot use wildcards.
     def received_announce(self, destination_hash, announced_identity, app_data):
         RNS.log(
-            "Received an announce from "+
-            RNS.prettyhexrep(destination_hash)
+            f"Received an announce from {RNS.prettyhexrep(destination_hash)}"
         )
 
         if app_data:
             RNS.log(
-                "The announce contained the following app data: "+
-                app_data.decode("utf-8")
+                f"The announce contained the following app data: {app_data.decode('utf-8')}"
             )
 
 ##########################################################

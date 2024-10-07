@@ -42,7 +42,7 @@ allowed_identity_hashes = []
 def prepare_identity(identity_path):
     global identity
     if identity_path == None:
-        identity_path = RNS.Reticulum.identitypath+"/"+APP_NAME
+        identity_path = f"{RNS.Reticulum.identitypath}/{APP_NAME}"
 
     if os.path.isfile(identity_path):
         identity = RNS.Identity.from_file(identity_path)                
@@ -62,8 +62,8 @@ def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed
     destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "execute")
 
     if print_identity:
-        print("Identity     : "+str(identity))
-        print("Listening on : "+RNS.prettyhexrep(destination.hash))
+        print(f"Identity     : {identity}")
+        print(f"Listening on : {RNS.prettyhexrep(destination.hash)}")
         exit(0)
 
     if disable_auth:
@@ -74,7 +74,7 @@ def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed
                 try:
                     dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
                     if len(a) != dest_len:
-                        raise ValueError("Allowed destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                        raise ValueError(f"Allowed destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
                     try:
                         destination_hash = bytes.fromhex(a)
                         allowed_identity_hashes.append(destination_hash)
@@ -103,7 +103,7 @@ def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed
             allow = RNS.Destination.ALLOW_ALL,
         )
 
-    RNS.log("rnx listening for commands on "+RNS.prettyhexrep(destination.hash))
+    RNS.log(f"rnx listening for commands on {RNS.prettyhexrep(destination.hash)}")
 
     if not disable_announce:
         destination.announce()
@@ -114,16 +114,16 @@ def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed
 def command_link_established(link):
     link.set_remote_identified_callback(initiator_identified)
     link.set_link_closed_callback(command_link_closed)
-    RNS.log("Command link "+str(link)+" established")
+    RNS.log(f"Command link {link} established")
 
 def command_link_closed(link):
-    RNS.log("Command link "+str(link)+" closed")
+    RNS.log(f"Command link {link} closed")
 
 def initiator_identified(link, identity):
     global allow_all
-    RNS.log("Initiator of link "+str(link)+" identified as "+RNS.prettyhexrep(identity.hash))
+    RNS.log(f"Initiator of link {link} identified as {RNS.prettyhexrep(identity.hash)}")
     if not allow_all and not identity.hash in allowed_identity_hashes:
-        RNS.log("Identity "+RNS.prettyhexrep(identity.hash)+" not allowed, tearing down link")
+        RNS.log(f"Identity {RNS.prettyhexrep(identity.hash)} not allowed, tearing down link")
         link.teardown()
 
 def execute_received_command(path, data, request_id, remote_identity, requested_at):
@@ -134,9 +134,9 @@ def execute_received_command(path, data, request_id, remote_identity, requested_
     stdin   = data[4]                  # Data passed to stdin
 
     if remote_identity != None:
-        RNS.log("Executing command ["+command+"] for "+RNS.prettyhexrep(remote_identity.hash))
+        RNS.log(f"Executing command [{command}] for {RNS.prettyhexrep(remote_identity.hash)}")
     else:
-        RNS.log("Executing command ["+command+"] for unknown requestor")
+        RNS.log(f"Executing command [{command}] for unknown requestor")
 
     result    = [
         False,                         # 0: Command was executed
@@ -178,7 +178,7 @@ def execute_received_command(path, data, request_id, remote_identity, requested_
             pass
 
         if timeout != None and time.time() > result[6]+timeout:
-            RNS.log("Command ["+command+"] timed out and is being killed...")
+            RNS.log(f"Command [{command}] timed out and is being killed...")
             process.terminate()
             process.wait()
             if process.poll() != None:
@@ -219,9 +219,9 @@ def execute_received_command(path, data, request_id, remote_identity, requested_
         return result
 
     if remote_identity != None:
-        RNS.log("Delivering result of command ["+str(command)+"] to "+RNS.prettyhexrep(remote_identity.hash))
+        RNS.log(f"Delivering result of command [{command}] to {RNS.prettyhexrep(remote_identity.hash)}")
     else:
-        RNS.log("Delivering result of command ["+str(command)+"] to unknown requestor")
+        RNS.log(f"Delivering result of command [{command}] to unknown requestor")
 
     return result
 
@@ -231,14 +231,14 @@ def spin(until=None, msg=None, timeout=None):
     if timeout != None:
         timeout = time.time()+timeout
 
-    print(msg+"  ", end=" ")
+    print(f"{msg}  ", end=" ")
     while (timeout == None or time.time()<timeout) and not until():
         time.sleep(0.1)
-        print(("\b\b"+syms[i]+" "), end="")
+        print(f"\b\b{syms[i]} ", end="")
         sys.stdout.flush()
         i = (i+1)%len(syms)
 
-    print("\r"+" "*len(msg)+"  \r", end="")
+    print(f"\r{' ' * len(msg)}  \r", end="")
 
     if timeout != None and time.time() > timeout:
         return False
@@ -259,8 +259,8 @@ def spin_stat(until=None, timeout=None):
         time.sleep(0.1)
         prg = current_progress
         percent = round(prg * 100.0, 1)
-        stat_str = str(percent)+"% - " + size_str(int(prg*response_transfer_size)) + " of " + size_str(response_transfer_size) + " - " +size_str(speed, "b")+"ps"
-        print("\r                                                                                  \rReceiving result "+syms[i]+" "+stat_str, end=" ")
+        stat_str = f"{percent}% - {size_str(int(prg * response_transfer_size))} of {size_str(response_transfer_size)} - {size_str(speed, 'b')}ps"
+        print(f'\r                                                                                  \rReceiving result {syms[i]} {stat_str}', end=" ")
 
         sys.stdout.flush()
         i = (i+1)%len(syms)
@@ -303,7 +303,7 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
     try:
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
         if len(destination) != dest_len:
-            raise ValueError("Allowed destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            raise ValueError(f"Allowed destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
         try:
             destination_hash = bytes.fromhex(destination)
         except Exception as e:
@@ -321,7 +321,7 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
 
     if not RNS.Transport.has_path(destination_hash):
         RNS.Transport.request_path(destination_hash)
-        if not spin(until=lambda: RNS.Transport.has_path(destination_hash), msg="Path to "+RNS.prettyhexrep(destination_hash)+" requested", timeout=timeout):
+        if not spin(until=lambda: RNS.Transport.has_path(destination_hash), msg=f"Path to {RNS.prettyhexrep(destination_hash)} requested", timeout=timeout):
             print("Path not found")
             exit(242)
 
@@ -339,8 +339,8 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
         link = RNS.Link(listener_destination)
         link.did_identify = False
     
-    if not spin(until=lambda: link.status == RNS.Link.ACTIVE, msg="Establishing link with "+RNS.prettyhexrep(destination_hash), timeout=timeout):
-        print("Could not establish link with "+RNS.prettyhexrep(destination_hash))
+    if not spin(until=lambda: link.status == RNS.Link.ACTIVE, msg=f"Establishing link with {RNS.prettyhexrep(destination_hash)}", timeout=timeout):
+        print(f"Could not establish link with {RNS.prettyhexrep(destination_hash)}")
         exit(243)
 
     if not noid and not link.did_identify:
@@ -443,7 +443,7 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
                 print("\n--- End of remote output, rnx done ---")
                 if started != None and concluded != None:
                     cmd_duration = round(concluded - started, 3)
-                    print("Remote command execution took "+str(cmd_duration)+" seconds")
+                    print(f"Remote command execution took {cmd_duration} seconds")
 
                     total_size = request_receipt.response_size
                     if request_receipt.request_size != None:
@@ -453,27 +453,27 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
                     if transfer_duration == 1:
                         tdstr = " in 1 second"
                     elif transfer_duration < 10:
-                        tdstr = " in "+str(transfer_duration)+" seconds"
+                        tdstr = f" in {transfer_duration} seconds"
                     else:
-                        tdstr = " in "+pretty_time(transfer_duration)
+                        tdstr = f" in {pretty_time(transfer_duration)}"
 
-                    spdstr = ", effective rate "+size_str(total_size/transfer_duration, "b")+"ps"
+                    spdstr = f", effective rate {size_str(total_size / transfer_duration, 'b')}ps"
 
-                    print("Transferred "+size_str(total_size)+tdstr+spdstr)
+                    print(f"Transferred {size_str(total_size)}{tdstr}{spdstr}")
 
                 if outlen != None and stdout != None:
                     if len(stdout) < outlen:
-                        tstr = ", "+str(len(stdout))+" bytes displayed"
+                        tstr = f", {len(stdout)} bytes displayed"
                     else:
                         tstr = ""
-                    print("Remote wrote "+str(outlen)+" bytes to stdout"+tstr)
+                    print(f"Remote wrote {outlen} bytes to stdout{tstr}")
                 
                 if errlen != None and stderr != None:
                     if len(stderr) < errlen:
-                        tstr = ", "+str(len(stderr))+" bytes displayed"
+                        tstr = f", {len(stderr)} bytes displayed"
                     else:
                         tstr = ""
-                    print("Remote wrote "+str(errlen)+" bytes to stderr"+tstr)
+                    print(f"Remote wrote {errlen} bytes to stderr{tstr}")
 
             else:
                 if stdout != None and len(stdout) > 0:
@@ -487,9 +487,9 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
                     sys.stderr.flush()
                     print("\nOutput truncated before being returned:")
                     if len(stdout) != 0 and len(stdout) < outlen:
-                        print("  stdout truncated to "+str(len(stdout))+" bytes")
+                        print(f"  stdout truncated to {len(stdout)} bytes")
                     if len(stderr) != 0 and len(stderr) < errlen:
-                        print("  stderr truncated to "+str(len(stderr))+" bytes")
+                        print(f"  stderr truncated to {len(stderr)} bytes")
         else:
             print("Remote could not execute command")
             if interactive:
@@ -547,7 +547,7 @@ def main():
         parser.add_argument("--stdin", action='store', default=None, help="pass input to stdin", type=str)
         parser.add_argument("--stdout", action='store', default=None, help="max size in bytes of returned stdout", type=int)
         parser.add_argument("--stderr", action='store', default=None, help="max size in bytes of returned stderr", type=int)
-        parser.add_argument("--version", action="version", version="rnx {version}".format(version=__version__))
+        parser.add_argument("--version", action="version", version=f"rnx {__version__}")
         
         args = parser.parse_args()
 
@@ -593,7 +593,7 @@ def main():
             while True:
                 try:
                     cstr = str(code) if code and code != 0 else ""
-                    prompt = cstr+"> "
+                    prompt = f"{cstr}> "
                     print(prompt,end="")
 
                     # cmdbuf = b""
@@ -661,12 +661,12 @@ def size_str(num, suffix='B'):
     for unit in units:
         if abs(num) < 1000.0:
             if unit == "":
-                return "%.0f %s%s" % (num, unit, suffix)
+                return f"{num:.0f} {unit}{suffix}"
             else:
-                return "%.2f %s%s" % (num, unit, suffix)
+                return f"{num:.2f} {unit}{suffix}"
         num /= 1000.0
 
-    return "%.2f%s%s" % (num, last_unit, suffix)
+    return f"{num:.2f}{last_unit}{suffix}"
 
 def pretty_time(time, verbose=False):
     days = int(time // (24 * 3600))
@@ -684,16 +684,16 @@ def pretty_time(time, verbose=False):
 
     components = []
     if days > 0:
-        components.append(str(days)+" day"+sd if verbose else str(days)+"d")
+        components.append(f"{days} day{sd}" if verbose else f"{days}d")
 
     if hours > 0:
-        components.append(str(hours)+" hour"+sh if verbose else str(hours)+"h")
+        components.append(f"{hours} hour{sh}" if verbose else f"{hours}h")
 
     if minutes > 0:
-        components.append(str(minutes)+" minute"+sm if verbose else str(minutes)+"m")
+        components.append(f"{minutes} minute{sm}" if verbose else f"{minutes}m")
 
     if seconds > 0:
-        components.append(str(seconds)+" second"+ss if verbose else str(seconds)+"s")
+        components.append(f"{seconds} second{ss}" if verbose else f"{seconds}s")
 
     i = 0
     tstr = ""

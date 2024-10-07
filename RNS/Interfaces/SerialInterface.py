@@ -86,17 +86,17 @@ class SerialInterface(Interface):
         try:
             self.open_port()
         except Exception as e:
-            RNS.log("Could not open serial port for interface "+str(self), RNS.LOG_ERROR)
+            RNS.log(f"Could not open serial port for interface {self}", RNS.LOG_ERROR)
             raise e
 
         if self.serial.is_open:
             self.configure_device()
         else:
-            raise IOError("Could not open serial port")
+            raise OSError("Could not open serial port")
 
 
     def open_port(self):
-        RNS.log("Opening serial port "+self.port+"...", RNS.LOG_VERBOSE)
+        RNS.log(f"Opening serial port {self.port}...", RNS.LOG_VERBOSE)
         self.serial = self.pyserial.Serial(
             port = self.port,
             baudrate = self.speed,
@@ -118,7 +118,7 @@ class SerialInterface(Interface):
         thread.daemon = True
         thread.start()
         self.online = True
-        RNS.log("Serial port "+self.port+" is now open", RNS.LOG_VERBOSE)
+        RNS.log(f"Serial port {self.port} is now open", RNS.LOG_VERBOSE)
 
 
     def processIncoming(self, data):
@@ -132,7 +132,7 @@ class SerialInterface(Interface):
             written = self.serial.write(data)
             self.txb += len(data)            
             if written != len(data):
-                raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))
+                raise OSError(f"Serial interface only wrote {written} bytes of {len(data)}")
 
 
     def readLoop(self):
@@ -175,8 +175,8 @@ class SerialInterface(Interface):
                     
         except Exception as e:
             self.online = False
-            RNS.log("A serial port error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
+            RNS.log(f"A serial port error occurred, the contained exception was: {e}", RNS.LOG_ERROR)
+            RNS.log(f"The interface {self} experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
             
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
@@ -191,17 +191,17 @@ class SerialInterface(Interface):
         while not self.online:
             try:
                 time.sleep(5)
-                RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
+                RNS.log(f"Attempting to reconnect serial port {self.port} for {self}...", RNS.LOG_VERBOSE)
                 self.open_port()
                 if self.serial.is_open:
                     self.configure_device()
             except Exception as e:
-                RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log(f"Error while reconnecting port, the contained exception was: {e}", RNS.LOG_ERROR)
 
-        RNS.log("Reconnected serial port for "+str(self))
+        RNS.log(f"Reconnected serial port for {self}")
 
     def should_ingress_limit(self):
         return False
 
     def __str__(self):
-        return "SerialInterface["+self.name+"]"
+        return f"SerialInterface[{self.name}]"

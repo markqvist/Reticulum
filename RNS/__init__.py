@@ -147,7 +147,7 @@ def rand():
 def trace_exception(e):
     import traceback
     exception_info = "".join(traceback.TracebackException.from_exception(e).format())
-    log(f"An unhandled {str(type(e))} exception occurred: {str(e)}", LOG_ERROR)
+    log(f"An unhandled {type(e)} exception occurred: {e}", LOG_ERROR)
     log(exception_info, LOG_ERROR)
 
 def hexrep(data, delimit=True):
@@ -159,12 +159,12 @@ def hexrep(data, delimit=True):
     delimiter = ":"
     if not delimit:
         delimiter = ""
-    hexrep = delimiter.join("{:02x}".format(c) for c in data)
+    hexrep = delimiter.join(f"{c:02x}" for c in data)
     return hexrep
 
 def prettyhexrep(data):
     delimiter = ""
-    hexrep = "<"+delimiter.join("{:02x}".format(c) for c in data)+">"
+    hexrep = "<"+delimiter.join(f"{c:02x}" for c in data)+">"
     return hexrep
 
 def prettyspeed(num, suffix="b"):
@@ -182,12 +182,12 @@ def prettysize(num, suffix='B'):
     for unit in units:
         if abs(num) < 1000.0:
             if unit == "":
-                return "%.0f %s%s" % (num, unit, suffix)
+                return f"{num:.0f} {unit}{suffix}"
             else:
-                return "%.2f %s%s" % (num, unit, suffix)
+                return f"{num:.2f} {unit}{suffix}"
         num /= 1000.0
 
-    return "%.2f%s%s" % (num, last_unit, suffix)
+    return f"{num:.2f}{last_unit}{suffix}"
 
 def prettyfrequency(hz, suffix="Hz"):
     num = hz*1e6
@@ -196,10 +196,10 @@ def prettyfrequency(hz, suffix="Hz"):
 
     for unit in units:
         if abs(num) < 1000.0:
-            return "%.2f %s%s" % (num, unit, suffix)
+            return f"{num:.2f} {unit}{suffix}"
         num /= 1000.0
 
-    return "%.2f%s%s" % (num, last_unit, suffix)
+    return f"{num:.2f}{last_unit}{suffix}"
 
 def prettydistance(m, suffix="m"):
     num = m*1e6
@@ -212,10 +212,10 @@ def prettydistance(m, suffix="m"):
         if unit == "c": divisor = 100
 
         if abs(num) < divisor:
-            return "%.2f %s%s" % (num, unit, suffix)
+            return f"{num:.2f} {unit}{suffix}"
         num /= divisor
 
-    return "%.2f %s%s" % (num, last_unit, suffix)
+    return f"{num:.2f} {last_unit}{suffix}"
 
 def prettytime(time, verbose=False, compact=False):
     days = int(time // (24 * 3600))

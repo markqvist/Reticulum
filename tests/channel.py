@@ -145,7 +145,7 @@ class SystemMessage(MessageBase):
     MSGTYPE = 0xf000
 
     def pack(self) -> bytes:
-        return bytes()
+        return b''
 
     def unpack(self, raw):
         pass
@@ -160,7 +160,7 @@ class ProtocolHarness(contextlib.AbstractContextManager):
     def cleanup(self):
         self.channel._shutdown()
 
-    def __exit__(self, __exc_type: typing.Type[BaseException], __exc_value: BaseException,
+    def __exit__(self, __exc_type: type[BaseException], __exc_value: BaseException,
                  __traceback: types.TracebackType) -> bool:
         # self._log.debug(f"__exit__({__exc_type}, {__exc_value}, {__traceback})")
         self.cleanup()
@@ -431,7 +431,7 @@ class TestChannel(unittest.TestCase):
         self.assertEqual(len(data), count)
 
         read_finished = False
-        result = bytes()
+        result = b''
 
         def read_thread():
             nonlocal read_finished, result

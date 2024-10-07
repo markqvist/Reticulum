@@ -48,15 +48,13 @@ def program_setup(configpath, channel=None):
 def packet_callback(data, packet):
     # Simply print out the received data
     print("")
-    print("Received data: "+data.decode("utf-8")+"\r\n> ", end="")
+    print(f"Received data: {data.decode('utf-8')}\r\n> ", end="")
     sys.stdout.flush()
 
 def broadcastLoop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Broadcast example "+
-        RNS.prettyhexrep(destination.hash)+
-        " running, enter text and hit enter to broadcast (Ctrl-C to quit)"
+        f"Broadcast example {RNS.prettyhexrep(destination.hash)} running, enter text and hit enter to broadcast (Ctrl-C to quit)"
     )
 
     # We enter a loop that runs until the users exits.

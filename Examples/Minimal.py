@@ -51,9 +51,7 @@ def program_setup(configpath):
 def announceLoop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Minimal example "+
-        RNS.prettyhexrep(destination.hash)+
-        " running, hit enter to manually send an announce (Ctrl-C to quit)"
+        f"Minimal example {RNS.prettyhexrep(destination.hash)} running, hit enter to manually send an announce (Ctrl-C to quit)"
     )
 
     # We enter a loop that runs until the users exits.
@@ -63,7 +61,7 @@ def announceLoop(destination):
     while True:
         entered = input()
         destination.announce()
-        RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
+        RNS.log(f"Sent announce from {RNS.prettyhexrep(destination.hash)}")
 
 
 ##########################################################

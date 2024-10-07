@@ -87,7 +87,7 @@ class Identity:
     @staticmethod
     def remember(packet_hash, destination_hash, public_key, app_data = None):
         if len(public_key) != Identity.KEYSIZE//8:
-            raise TypeError("Can't remember "+RNS.prettyhexrep(destination_hash)+", the public key size of "+str(len(public_key))+" is not valid.", RNS.LOG_ERROR)
+            raise TypeError(f"Can't remember {RNS.prettyhexrep(destination_hash)}, the public key size of {len(public_key)} is not valid.", RNS.LOG_ERROR)
         else:
             Identity.known_destinations[destination_hash] = [time.time(), packet_hash, public_key, app_data]
 
@@ -153,9 +153,9 @@ class Identity:
             save_start = time.time()
 
             storage_known_destinations = {}
-            if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
+            if os.path.isfile(f"{RNS.Reticulum.storagepath}/known_destinations"):
                 try:
-                    file = open(RNS.Reticulum.storagepath+"/known_destinations","rb")
+                    file = open(f"{RNS.Reticulum.storagepath}/known_destinations","rb")
                     storage_known_destinations = umsgpack.load(file)
                     file.close()
                 except:
@@ -166,32 +166,32 @@ class Identity:
                     if not destination_hash in Identity.known_destinations:
                         Identity.known_destinations[destination_hash] = storage_known_destinations[destination_hash]
             except Exception as e:
-                RNS.log("Skipped recombining known destinations from disk, since an error occurred: "+str(e), RNS.LOG_WARNING)
+                RNS.log(f"Skipped recombining known destinations from disk, since an error occurred: {e}", RNS.LOG_WARNING)
 
-            RNS.log("Saving "+str(len(Identity.known_destinations))+" known destinations to storage...", RNS.LOG_DEBUG)
-            file = open(RNS.Reticulum.storagepath+"/known_destinations","wb")
+            RNS.log(f"Saving {len(Identity.known_destinations)} known destinations to storage...", RNS.LOG_DEBUG)
+            file = open(f"{RNS.Reticulum.storagepath}/known_destinations","wb")
             umsgpack.dump(Identity.known_destinations, file)
             file.close()
 
             save_time = time.time() - save_start
             if save_time < 1:
-                time_str = str(round(save_time*1000,2))+"ms"
+                time_str = f"{round(save_time * 1000, 2)}ms"
             else:
-                time_str = str(round(save_time,2))+"s"
+                time_str = f"{round(save_time, 2)}s"
 
-            RNS.log("Saved known destinations to storage in "+time_str, RNS.LOG_DEBUG)
+            RNS.log(f"Saved known destinations to storage in {time_str}", RNS.LOG_DEBUG)
 
         except Exception as e:
-            RNS.log("Error while saving known destinations to disk, the contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log(f"Error while saving known destinations to disk, the contained exception was: {e}", RNS.LOG_ERROR)
             RNS.trace_exception(e)
 
         Identity.saving_known_destinations = False
 
     @staticmethod
     def load_known_destinations():
-        if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
+        if os.path.isfile(f"{RNS.Reticulum.storagepath}/known_destinations"):
             try:
-                file = open(RNS.Reticulum.storagepath+"/known_destinations","rb")
+                file = open(f"{RNS.Reticulum.storagepath}/known_destinations","rb")
                 loaded_known_destinations = umsgpack.load(file)
                 file.close()
 
@@ -200,7 +200,7 @@ class Identity:
                     if len(known_destination) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8:
                         Identity.known_destinations[known_destination] = loaded_known_destinations[known_destination]
 
-                RNS.log("Loaded "+str(len(Identity.known_destinations))+" known destination from storage", RNS.LOG_VERBOSE)
+                RNS.log(f"Loaded {len(Identity.known_destinations)} known destination from storage", RNS.LOG_VERBOSE)
 
             except Exception as e:
                 RNS.log("Error loading known destinations from disk, file will be recreated on exit", RNS.LOG_ERROR)
@@ -278,7 +278,7 @@ class Identity:
                         hexhash = RNS.hexrep(destination_hash, delimit=False)
                         ratchet_data = {"ratchet": ratchet, "received": time.time()}
 
-                        ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
+                        ratchetdir = f"{RNS.Reticulum.storagepath}/ratchets"
                         
                         if not os.path.isdir(ratchetdir):
                             os.makedirs(ratchetdir)
@@ -303,7 +303,7 @@ class Identity:
         RNS.log("Cleaning ratchets...", RNS.LOG_DEBUG)
         try:
             now = time.time()
-            ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
+            ratchetdir = f"{RNS.Reticulum.storagepath}/ratchets"
             if os.path.isdir(ratchetdir):
                 for filename in os.listdir(ratchetdir):
                     try:
@@ -326,7 +326,7 @@ class Identity:
     @staticmethod
     def get_ratchet(destination_hash):
         if not destination_hash in Identity.known_ratchets:
-            ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
+            ratchetdir = f"{RNS.Reticulum.storagepath}/ratchets"
             hexhash = RNS.hexrep(destination_hash, delimit=False)
             ratchet_path = f"{ratchetdir}/{hexhash}"
             if os.path.isfile(ratchet_path):
@@ -417,19 +417,19 @@ class Identity:
                         if packet.rssi != None or packet.snr != None:
                             signal_str = " ["
                             if packet.rssi != None:
-                                signal_str += "RSSI "+str(packet.rssi)+"dBm"
+                                signal_str += f"RSSI {packet.rssi}dBm"
                                 if packet.snr != None:
                                     signal_str += ", "
                             if packet.snr != None:
-                                signal_str += "SNR "+str(packet.snr)+"dB"
+                                signal_str += f"SNR {packet.snr}dB"
                             signal_str += "]"
                         else:
                             signal_str = ""
 
                         if hasattr(packet, "transport_id") and packet.transport_id != None:
-                            RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received via "+RNS.prettyhexrep(packet.transport_id)+" on "+str(packet.receiving_interface)+signal_str, RNS.LOG_EXTREME)
+                            RNS.log(f"Valid announce for {RNS.prettyhexrep(destination_hash)} {packet.hops} hops away, received via {RNS.prettyhexrep(packet.transport_id)} on {packet.receiving_interface}{signal_str}", RNS.LOG_EXTREME)
                         else:
-                            RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received on "+str(packet.receiving_interface)+signal_str, RNS.LOG_EXTREME)
+                            RNS.log(f"Valid announce for {RNS.prettyhexrep(destination_hash)} {packet.hops} hops away, received on {packet.receiving_interface}{signal_str}", RNS.LOG_EXTREME)
 
                         if ratchet:
                             Identity._remember_ratchet(destination_hash, ratchet)
@@ -437,16 +437,16 @@ class Identity:
                         return True
 
                     else:
-                        RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash)+": Destination mismatch.", RNS.LOG_DEBUG)
+                        RNS.log(f"Received invalid announce for {RNS.prettyhexrep(destination_hash)}: Destination mismatch.", RNS.LOG_DEBUG)
                         return False
 
                 else:
-                    RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash)+": Invalid signature.", RNS.LOG_DEBUG)
+                    RNS.log(f"Received invalid announce for {RNS.prettyhexrep(destination_hash)}: Invalid signature.", RNS.LOG_DEBUG)
                     del announced_identity
                     return False
         
         except Exception as e:
-            RNS.log("Error occurred while validating announce. The contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log(f"Error occurred while validating announce. The contained exception was: {e}", RNS.LOG_ERROR)
             return False
 
     @staticmethod
@@ -505,8 +505,8 @@ class Identity:
                 return True
             return False
         except Exception as e:
-            RNS.log("Error while saving identity to "+str(path), RNS.LOG_ERROR)
-            RNS.log("The contained exception was: "+str(e))
+            RNS.log(f"Error while saving identity to {path}", RNS.LOG_ERROR)
+            RNS.log(f"The contained exception was: {e}")
 
     def __init__(self,create_keys=True):
         # Initialize keys to none
@@ -541,7 +541,7 @@ class Identity:
 
         self.update_hashes()
 
-        RNS.log("Identity keys created for "+RNS.prettyhexrep(self.hash), RNS.LOG_VERBOSE)
+        RNS.log(f"Identity keys created for {RNS.prettyhexrep(self.hash)}", RNS.LOG_VERBOSE)
 
     def get_private_key(self):
         """
@@ -581,7 +581,7 @@ class Identity:
         except Exception as e:
             raise e
             RNS.log("Failed to load identity key", RNS.LOG_ERROR)
-            RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
             return False
 
     def load_public_key(self, pub_bytes):
@@ -600,7 +600,7 @@ class Identity:
 
             self.update_hashes()
         except Exception as e:
-            RNS.log("Error while loading public key, the contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log(f"Error while loading public key, the contained exception was: {e}", RNS.LOG_ERROR)
 
     def update_hashes(self):
         self.hash = Identity.truncated_hash(self.get_public_key())
@@ -613,8 +613,8 @@ class Identity:
                 return self.load_private_key(prv_bytes)
             return False
         except Exception as e:
-            RNS.log("Error while loading identity from "+str(path), RNS.LOG_ERROR)
-            RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log(f"Error while loading identity from {path}", RNS.LOG_ERROR)
+            RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
 
     def get_salt(self):
         return self.hash
@@ -697,7 +697,7 @@ class Identity:
                                 pass
 
                     if enforce_ratchets and plaintext == None:
-                        RNS.log("Decryption with ratchet enforcement by "+RNS.prettyhexrep(self.hash)+" failed. Dropping packet.", RNS.LOG_DEBUG)
+                        RNS.log(f"Decryption with ratchet enforcement by {RNS.prettyhexrep(self.hash)} failed. Dropping packet.", RNS.LOG_DEBUG)
                         if ratchet_id_receiver:
                             ratchet_id_receiver.latest_ratchet_id = None
                         return None
@@ -717,7 +717,7 @@ class Identity:
                             ratchet_id_receiver.latest_ratchet_id = None
 
                 except Exception as e:
-                    RNS.log("Decryption by "+RNS.prettyhexrep(self.hash)+" failed: "+str(e), RNS.LOG_DEBUG)
+                    RNS.log(f"Decryption by {RNS.prettyhexrep(self.hash)} failed: {e}", RNS.LOG_DEBUG)
                     if ratchet_id_receiver:
                         ratchet_id_receiver.latest_ratchet_id = None
                     
@@ -741,7 +741,7 @@ class Identity:
             try:
                 return self.sig_prv.sign(message)    
             except Exception as e:
-                RNS.log("The identity "+str(self)+" could not sign the requested message. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log(f"The identity {self} could not sign the requested message. The contained exception was: {e}", RNS.LOG_ERROR)
                 raise e
         else:
             raise KeyError("Signing failed because identity does not hold a private key")

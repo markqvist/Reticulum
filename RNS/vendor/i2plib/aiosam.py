@@ -11,7 +11,7 @@ def parse_reply(data):
 
     try:
         msg = sam.Message(data.decode().strip())
-        logger.debug("SAM reply: "+str(msg))
+        logger.debug(f"SAM reply: {msg}")
     except:
         raise ConnectionAbortedError("Invalid SAM response")
 
@@ -89,7 +89,7 @@ async def create_session(session_name, sam_address=sam.DEFAULT_ADDRESS,
     :param options: (optional) A dict object with i2cp options
     :return: A (reader, writer) pair
     """
-    logger.debug("Creating session {}".format(session_name))
+    logger.debug(f"Creating session {session_name}")
     if destination:
         if type(destination) == sam.Destination:
             destination = destination
@@ -101,7 +101,7 @@ async def create_session(session_name, sam_address=sam.DEFAULT_ADDRESS,
     else:
         dest_string = sam.TRANSIENT_DESTINATION
 
-    options = " ".join(["{}={}".format(k, v) for k, v in options.items()])
+    options = " ".join([f"{k}={v}" for k, v in options.items()])
 
     reader, writer = await get_sam_socket(sam_address, loop)
     writer.write(sam.session_create(
@@ -113,7 +113,7 @@ async def create_session(session_name, sam_address=sam.DEFAULT_ADDRESS,
             destination = sam.Destination(
                     reply["DESTINATION"], has_private_key=True) 
         logger.debug(destination.base32)
-        logger.debug("Session created {}".format(session_name))
+        logger.debug(f"Session created {session_name}")
         return (reader, writer)
     else:
         writer.close()
@@ -129,7 +129,7 @@ async def stream_connect(session_name, destination,
     :param loop: (optional) Event loop instance
     :return: A (reader, writer) pair
     """
-    logger.debug("Connecting stream {}".format(session_name))
+    logger.debug(f"Connecting stream {session_name}")
     if isinstance(destination, str) and not destination.endswith(".i2p"):
         destination = sam.Destination(destination)
     elif isinstance(destination, str):
@@ -140,7 +140,7 @@ async def stream_connect(session_name, destination,
                                            silent="false"))
     reply = parse_reply(await reader.readline())
     if reply.ok:
-        logger.debug("Stream connected {}".format(session_name))
+        logger.debug(f"Stream connected {session_name}")
         return (reader, writer)
     else:
         writer.close()

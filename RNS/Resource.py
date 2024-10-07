@@ -172,7 +172,7 @@ class Resource:
             resource.window_flexibility  = Resource.WINDOW_FLEXIBILITY
             resource.last_activity       = time.time()
 
-            resource.storagepath         = RNS.Reticulum.resourcepath+"/"+resource.original_hash.hex()
+            resource.storagepath         = f"{RNS.Reticulum.resourcepath}/{resource.original_hash.hex()}"
             resource.segment_index       = adv.i
             resource.total_segments      = adv.l
             if adv.l > 1:
@@ -194,7 +194,7 @@ class Resource:
                     try:
                         resource.link.callbacks.resource_started(resource)
                     except Exception as e:
-                        RNS.log("Error while executing resource started callback from "+str(resource)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                        RNS.log(f"Error while executing resource started callback from {resource}. The contained exception was: {e}", RNS.LOG_ERROR)
 
                 resource.hashmap_update(0, resource.hashmap_raw)
 
@@ -203,7 +203,7 @@ class Resource:
                 return resource
 
             else:
-                RNS.log("Ignoring resource advertisement for "+RNS.prettyhexrep(resource.hash)+", resource already transferring", RNS.LOG_DEBUG)
+                RNS.log(f"Ignoring resource advertisement for {RNS.prettyhexrep(resource.hash)}, resource already transferring", RNS.LOG_DEBUG)
                 return None
 
         except Exception as e:
@@ -307,7 +307,7 @@ class Resource:
             if (auto_compress and len(self.uncompressed_data) <= Resource.AUTO_COMPRESS_MAX_SIZE):
                 RNS.log("Compressing resource data...", RNS.LOG_DEBUG)
                 self.compressed_data   = bz2.compress(self.uncompressed_data)
-                RNS.log("Compression completed in "+str(round(time.time()-compression_began, 3))+" seconds", RNS.LOG_DEBUG)
+                RNS.log(f"Compression completed in {round(time.time() - compression_began, 3)} seconds", RNS.LOG_DEBUG)
             else:
                 self.compressed_data   = self.uncompressed_data
 
@@ -316,7 +316,7 @@ class Resource:
 
             if (self.compressed_size < self.uncompressed_size and auto_compress):
                 saved_bytes = len(self.uncompressed_data) - len(self.compressed_data)
-                RNS.log("Compression saved "+str(saved_bytes)+" bytes, sending compressed", RNS.LOG_DEBUG)
+                RNS.log(f"Compression saved {saved_bytes} bytes, sending compressed", RNS.LOG_DEBUG)
 
                 self.data  = b""
                 self.data += RNS.Identity.get_random_hash()[:Resource.RANDOM_HASH_SIZE]
@@ -351,7 +351,7 @@ class Resource:
             hashmap_ok = False
             while not hashmap_ok:
                 hashmap_computation_began = time.time()
-                RNS.log("Starting resource hashmap computation with "+str(hashmap_entries)+" entries...", RNS.LOG_DEBUG)
+                RNS.log(f"Starting resource hashmap computation with {hashmap_entries} entries...", RNS.LOG_DEBUG)
 
                 self.random_hash       = RNS.Identity.get_random_hash()[:Resource.RANDOM_HASH_SIZE]
                 self.hash = RNS.Identity.full_hash(data+self.random_hash)
@@ -387,7 +387,7 @@ class Resource:
                         self.hashmap += part.map_hash
                         self.parts.append(part)
 
-                RNS.log("Hashmap computation concluded in "+str(round(time.time()-hashmap_computation_began, 3))+" seconds", RNS.LOG_DEBUG)
+                RNS.log(f"Hashmap computation concluded in {round(time.time() - hashmap_computation_began, 3)} seconds", RNS.LOG_DEBUG)
                 
             if advertise:
                 self.advertise()
@@ -446,9 +446,9 @@ class Resource:
             self.status = Resource.ADVERTISED
             self.retries_left = self.max_adv_retries
             self.link.register_outgoing_resource(self)
-            RNS.log("Sent resource advertisement for "+RNS.prettyhexrep(self.hash), RNS.LOG_DEBUG)
+            RNS.log(f"Sent resource advertisement for {RNS.prettyhexrep(self.hash)}", RNS.LOG_DEBUG)
         except Exception as e:
-            RNS.log("Could not advertise resource, the contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log(f"Could not advertise resource, the contained exception was: {e}", RNS.LOG_ERROR)
             self.cancel()
             return
 
@@ -486,7 +486,7 @@ class Resource:
                             self.adv_sent = self.last_activity
                             sleep_time = 0.001
                         except Exception as e:
-                            RNS.log("Could not resend advertisement packet, cancelling resource. The contained exception was: "+str(e), RNS.LOG_VERBOSE)
+                            RNS.log(f"Could not resend advertisement packet, cancelling resource. The contained exception was: {e}", RNS.LOG_VERBOSE)
                             self.cancel()
                     
 
@@ -507,7 +507,7 @@ class Resource:
                     if sleep_time < 0:
                         if self.retries_left > 0:
                             ms = "" if self.outstanding_parts == 1 else "s"
-                            RNS.log("Timed out waiting for "+str(self.outstanding_parts)+" part"+ms+", requesting retry", RNS.LOG_DEBUG)
+                            RNS.log(f"Timed out waiting for {self.outstanding_parts} part{ms}, requesting retry", RNS.LOG_DEBUG)
                             if self.window > self.window_min:
                                 self.window -= 1
                                 if self.window_max > self.window_min:
@@ -590,7 +590,7 @@ class Resource:
 
             except Exception as e:
                 RNS.log("Error while assembling received resource.", RNS.LOG_ERROR)
-                RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
                 self.status = Resource.CORRUPT
 
             self.link.resource_concluded(self)
@@ -601,7 +601,7 @@ class Resource:
                     try:
                         self.callback(self)
                     except Exception as e:
-                        RNS.log("Error while executing resource assembled callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                        RNS.log(f"Error while executing resource assembled callback from {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 
                 try:
                     if hasattr(self.data, "close") and callable(self.data.close):
@@ -613,7 +613,7 @@ class Resource:
                     RNS.log("Error while cleaning up resource files, the contained exception was:", RNS.LOG_ERROR)
                     RNS.log(str(e))
             else:
-                RNS.log("Resource segment "+str(self.segment_index)+" of "+str(self.total_segments)+" received, waiting for next segment to be announced", RNS.LOG_DEBUG)
+                RNS.log(f"Resource segment {self.segment_index} of {self.total_segments} received, waiting for next segment to be announced", RNS.LOG_DEBUG)
 
 
     def prove(self):
@@ -625,7 +625,7 @@ class Resource:
                 proof_packet.send()
             except Exception as e:
                 RNS.log("Could not send proof packet, cancelling resource", RNS.LOG_DEBUG)
-                RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
+                RNS.log(f"The contained exception was: {e}", RNS.LOG_DEBUG)
                 self.cancel()
 
     def __prepare_next_segment(self):
@@ -656,7 +656,7 @@ class Resource:
                             try:
                                 self.callback(self)
                             except Exception as e:
-                                RNS.log("Error while executing resource concluded callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                                RNS.log(f"Error while executing resource concluded callback from {self}. The contained exception was: {e}", RNS.LOG_ERROR)
                             finally:
                                 try:
                                     if hasattr(self, "input_file"):
@@ -664,7 +664,7 @@ class Resource:
                                             self.input_file.close()
 
                                 except Exception as e:
-                                    RNS.log("Error while closing resource input file: "+str(e), RNS.LOG_ERROR)
+                                    RNS.log(f"Error while closing resource input file: {e}", RNS.LOG_ERROR)
                     else:
                         # Otherwise we'll recursively create the
                         # next segment of the resource
@@ -741,7 +741,7 @@ class Resource:
                                 try:
                                     self.__progress_callback(self)
                                 except Exception as e:
-                                    RNS.log("Error while executing progress callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                                    RNS.log(f"Error while executing progress callback from {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 
                     i += 1
 
@@ -829,7 +829,7 @@ class Resource:
 
                 except Exception as e:
                     RNS.log("Could not send resource request packet, cancelling resource", RNS.LOG_DEBUG)
-                    RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
+                    RNS.log(f"The contained exception was: {e}", RNS.LOG_DEBUG)
                     self.cancel()
 
     # Called on outgoing resource to make it send more data
@@ -875,7 +875,7 @@ class Resource:
 
                 except Exception as e:
                     RNS.log("Resource could not send parts, cancelling transfer!", RNS.LOG_DEBUG)
-                    RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
+                    RNS.log(f"The contained exception was: {e}", RNS.LOG_DEBUG)
                     self.cancel()
             
             if wants_more_hashmap:
@@ -914,7 +914,7 @@ class Resource:
                     self.last_activity = time.time()
                 except Exception as e:
                     RNS.log("Could not send resource HMU packet, cancelling resource", RNS.LOG_DEBUG)
-                    RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
+                    RNS.log(f"The contained exception was: {e}", RNS.LOG_DEBUG)
                     self.cancel()
 
             if self.sent_parts == len(self.parts):
@@ -924,7 +924,7 @@ class Resource:
                 try:
                     self.__progress_callback(self)
                 except Exception as e:
-                    RNS.log("Error while executing progress callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                    RNS.log(f"Error while executing progress callback from {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 
     def cancel(self):
         """
@@ -938,7 +938,7 @@ class Resource:
                         cancel_packet = RNS.Packet(self.link, self.hash, context=RNS.Packet.RESOURCE_ICL)
                         cancel_packet.send()
                     except Exception as e:
-                        RNS.log("Could not send resource cancel packet, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                        RNS.log(f"Could not send resource cancel packet, the contained exception was: {e}", RNS.LOG_ERROR)
                 self.link.cancel_outgoing_resource(self)
             else:
                 self.link.cancel_incoming_resource(self)
@@ -948,7 +948,7 @@ class Resource:
                     self.link.resource_concluded(self)
                     self.callback(self)
                 except Exception as e:
-                    RNS.log("Error while executing callbacks on resource cancel from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                    RNS.log(f"Error while executing callbacks on resource cancel from {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 
     def set_callback(self, callback):
         self.callback = callback
@@ -1061,7 +1061,7 @@ class Resource:
         return self.compressed
 
     def __str__(self):
-        return "<"+RNS.hexrep(self.hash,delimit=False)+"/"+RNS.hexrep(self.link.link_id,delimit=False)+">"
+        return f"<{RNS.hexrep(self.hash, delimit=False)}/{RNS.hexrep(self.link.link_id, delimit=False)}>"
 
 
 class ResourceAdvertisement:

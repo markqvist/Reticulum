@@ -208,14 +208,14 @@ class Packet:
                         # Announce packets are not encrypted
                         self.ciphertext = self.data
                 else:
-                    raise IOError("Packet with header type 2 must have a transport ID")
+                    raise OSError("Packet with header type 2 must have a transport ID")
 
 
         self.header += bytes([self.context])
         self.raw = self.header + self.ciphertext
 
         if len(self.raw) > self.MTU:
-            raise IOError("Packet size of "+str(len(self.raw))+" exceeds MTU of "+str(self.MTU)+" bytes")
+            raise OSError(f"Packet size of {len(self.raw)} exceeds MTU of {self.MTU} bytes")
 
         self.packed = True
         self.update_hash()
@@ -250,7 +250,7 @@ class Packet:
             return True
 
         except Exception as e:
-            RNS.log("Received malformed packet, dropping it. The contained exception was: "+str(e), RNS.LOG_EXTREME)
+            RNS.log(f"Received malformed packet, dropping it. The contained exception was: {e}", RNS.LOG_EXTREME)
             return False
 
     def send(self):
@@ -262,7 +262,7 @@ class Packet:
         if not self.sent:
             if self.destination.type == RNS.Destination.LINK:
                 if self.destination.status == RNS.Link.CLOSED:
-                    raise IOError("Attempt to transmit over a closed link")
+                    raise OSError("Attempt to transmit over a closed link")
                 else:
                     self.destination.last_outbound = time.time()
                     self.destination.tx += 1
@@ -280,7 +280,7 @@ class Packet:
                 return False
                 
         else:
-            raise IOError("Packet was already sent")
+            raise OSError("Packet was already sent")
 
     def resend(self):
         """
@@ -301,7 +301,7 @@ class Packet:
                 self.receipt = None
                 return False
         else:
-            raise IOError("Packet was not sent yet")
+            raise OSError("Packet was not sent yet")
 
     def prove(self, destination=None):
         if self.fromPacked and hasattr(self, "destination") and self.destination:
@@ -419,8 +419,8 @@ class PacketReceipt:
                         try:
                             self.callbacks.delivery(self)
                         except Exception as e:
-                            RNS.log("An error occurred while evaluating external delivery callback for "+str(link), RNS.LOG_ERROR)
-                            RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                            RNS.log(f"An error occurred while evaluating external delivery callback for {link}", RNS.LOG_ERROR)
+                            RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
                             RNS.trace_exception(e)
                             
                     return True
@@ -465,7 +465,7 @@ class PacketReceipt:
                         try:
                             self.callbacks.delivery(self)
                         except Exception as e:
-                            RNS.log("Error while executing proof validated callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                            RNS.log(f"Error while executing proof validated callback. The contained exception was: {e}", RNS.LOG_ERROR)
 
                     return True
                 else:
@@ -489,7 +489,7 @@ class PacketReceipt:
                         try:
                             self.callbacks.delivery(self)
                         except Exception as e:
-                            RNS.log("Error while executing proof validated callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                            RNS.log(f"Error while executing proof validated callback. The contained exception was: {e}", RNS.LOG_ERROR)
                             
                     return True
             else:

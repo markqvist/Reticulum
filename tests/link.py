@@ -28,7 +28,7 @@ BUFFER_TEST_TARGET = 32000
 
 def targets_job(caller):
     cmd = "python -c \"from tests.link import targets; targets()\""
-    print("Opening subprocess for "+str(cmd)+"...", RNS.LOG_VERBOSE)
+    print(f"Opening subprocess for {cmd}...", RNS.LOG_VERBOSE)
     ppath = os.getcwd()
 
     try:
@@ -144,7 +144,7 @@ class TestLink(unittest.TestCase):
 
         packet_size = RNS.Link.MDU
         pstart = time.time()
-        print("Sending "+str(num_packets)+" link packets of "+str(packet_size)+" bytes...")
+        print(f"Sending {num_packets} link packets of {packet_size} bytes...")
         for i in range(0, num_packets):
             time.sleep(0.003)
             b += packet_size
@@ -154,7 +154,7 @@ class TestLink(unittest.TestCase):
             receipts.append(p.send())
             pr_t += time.time() - start
 
-        print("Sent "+self.size_str(b)+", "+self.size_str(b/pr_t, "b")+"ps")
+        print(f"Sent {self.size_str(b)}, {self.size_str(b / pr_t, 'b')}ps")
         print("Checking receipts...", end=" ")
 
         all_ok = False
@@ -175,11 +175,11 @@ class TestLink(unittest.TestCase):
 
         if n_failed > 0:
             ns = "s" if n_failed != 1 else ""
-            print("Failed to receive proof for "+str(n_failed)+" packet"+ns)
+            print(f"Failed to receive proof for {n_failed} packet{ns}")
             
         self.assertEqual(all_ok, True)
         print("OK!")
-        print("Single packet and proof round-trip throughput is "+self.size_str(b/pduration, "b")+"ps")
+        print(f"Single packet and proof round-trip throughput is {self.size_str(b / pduration, 'b')}ps")
 
         l1.teardown()
         time.sleep(0.5)
@@ -209,7 +209,7 @@ class TestLink(unittest.TestCase):
         resource_timeout = 120
         resource_size = 128
         data = os.urandom(resource_size)
-        print("Sending "+self.size_str(resource_size)+" resource...")
+        print(f"Sending {self.size_str(resource_size)} resource...")
         resource = RNS.Resource(data, l1, timeout=resource_timeout)
         start = time.time()
 
@@ -219,7 +219,7 @@ class TestLink(unittest.TestCase):
 
         t = time.time() - start
         self.assertEqual(resource.status, RNS.Resource.COMPLETE)
-        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+        print(f"Resource completed at {self.size_str(resource_size / t, 'b')}ps")
 
         l1.teardown()
         time.sleep(0.5)
@@ -249,7 +249,7 @@ class TestLink(unittest.TestCase):
         resource_timeout = 120
         resource_size = 256*1000
         data = os.urandom(resource_size)
-        print("Sending "+self.size_str(resource_size)+" resource...")
+        print(f"Sending {self.size_str(resource_size)} resource...")
         resource = RNS.Resource(data, l1, timeout=resource_timeout)
         start = time.time()
 
@@ -259,7 +259,7 @@ class TestLink(unittest.TestCase):
 
         t = time.time() - start
         self.assertEqual(resource.status, RNS.Resource.COMPLETE)
-        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+        print(f"Resource completed at {self.size_str(resource_size / t, 'b')}ps")
 
         l1.teardown()
         time.sleep(0.5)
@@ -288,7 +288,7 @@ class TestLink(unittest.TestCase):
         resource_timeout = 120
         resource_size = 1000*1000
         data = os.urandom(resource_size)
-        print("Sending "+self.size_str(resource_size)+" resource...")
+        print(f"Sending {self.size_str(resource_size)} resource...")
         resource = RNS.Resource(data, l1, timeout=resource_timeout)
         start = time.time()
 
@@ -298,7 +298,7 @@ class TestLink(unittest.TestCase):
 
         t = time.time() - start
         self.assertEqual(resource.status, RNS.Resource.COMPLETE)
-        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+        print(f"Resource completed at {self.size_str(resource_size / t, 'b')}ps")
 
         l1.teardown()
         time.sleep(0.5)
@@ -332,7 +332,7 @@ class TestLink(unittest.TestCase):
         resource_timeout = 120
         resource_size = 5*1000*1000
         data = os.urandom(resource_size)
-        print("Sending "+self.size_str(resource_size)+" resource...")
+        print(f"Sending {self.size_str(resource_size)} resource...")
         resource = RNS.Resource(data, l1, timeout=resource_timeout)
         start = time.time()
 
@@ -342,7 +342,7 @@ class TestLink(unittest.TestCase):
 
         t = time.time() - start
         self.assertEqual(resource.status, RNS.Resource.COMPLETE)
-        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+        print(f"Resource completed at {self.size_str(resource_size / t, 'b')}ps")
 
         l1.teardown()
         time.sleep(0.5)
@@ -379,7 +379,7 @@ class TestLink(unittest.TestCase):
         resource_timeout = 120
         resource_size = 50*1000*1000
         data = os.urandom(resource_size)
-        print("Sending "+self.size_str(resource_size)+" resource...")
+        print(f"Sending {self.size_str(resource_size)} resource...")
         resource = RNS.Resource(data, l1, timeout=resource_timeout, callback=self.lr_callback)
         start = time.time()
 
@@ -389,7 +389,7 @@ class TestLink(unittest.TestCase):
 
         t = time.time() - start
         self.assertEqual(TestLink.large_resource_status, RNS.Resource.COMPLETE)
-        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+        print(f"Resource completed at {self.size_str(resource_size / t, 'b')}ps")
 
         l1.teardown()
         time.sleep(0.5)
@@ -478,7 +478,7 @@ class TestLink(unittest.TestCase):
         channel = l1.get_channel()
         buffer = RNS.Buffer.create_bidirectional_buffer(0, 0, channel, handle_data)
 
-        buffer.write("Hi there".encode("utf-8"))
+        buffer.write(b"Hi there")
         buffer.flush()
 
         time.sleep(0.5)
@@ -508,7 +508,7 @@ class TestLink(unittest.TestCase):
             if local_bitrate is not None:
                 local_interface.bitrate = local_bitrate
                 local_interface._force_bitrate = True
-                print("Forcing local bitrate of " + str(local_bitrate) + " bps (" + str(round(local_bitrate/8, 0)) + " B/s)")
+                print(f"Forcing local bitrate of {local_bitrate} bps ({round(local_bitrate / 8, 0)} B/s)")
 
             # TODO: Load this from public bytes only
             id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
@@ -525,7 +525,7 @@ class TestLink(unittest.TestCase):
             # delay a reasonable time for link to come up at current bitrate
             link_sleep = max(RNS.Link.MDU * 3 / local_interface.bitrate * 8, 2)
             timeout_at = time.time() + link_sleep
-            print("Waiting " + str(round(link_sleep, 1)) + " sec for link to come up")
+            print(f"Waiting {round(link_sleep, 1)} sec for link to come up")
             while l1.status != RNS.Link.ACTIVE and time.time() < timeout_at:
                 time.sleep(0.01)
 
@@ -564,14 +564,14 @@ class TestLink(unittest.TestCase):
             expected_rx_message = b""
             for i in range(0, len(message)):
                 if i > 0 and (i % StreamDataMessage.MAX_DATA_LEN) == 0:
-                    expected_rx_message += " back at you".encode("utf-8")
+                    expected_rx_message += b" back at you"
                 expected_rx_message += bytes([message[i]])
-            expected_rx_message += " back at you".encode("utf-8")
+            expected_rx_message += b" back at you"
 
             # since the segments will be received at max length for a
             # StreamDataMessage, the appended text will end up in a
             # separate packet.
-            print("Sending " + str(len(message)) + " bytes, receiving " + str(len(expected_rx_message)) + " bytes, ")
+            print(f"Sending {len(message)} bytes, receiving {len(expected_rx_message)} bytes, ")
             
             buffer.write(message)
             buffer.flush()
@@ -621,12 +621,12 @@ class TestLink(unittest.TestCase):
         for unit in units:
             if abs(num) < 1000.0:
                 if unit == "":
-                    return "%.0f %s%s" % (num, unit, suffix)
+                    return f"{num:.0f} {unit}{suffix}"
                 else:
-                    return "%.2f %s%s" % (num, unit, suffix)
+                    return f"{num:.2f} {unit}{suffix}"
             num /= 1000.0
 
-        return "%.2f%s%s" % (num, last_unit, suffix)
+        return f"{num:.2f}{last_unit}{suffix}"
 
 if __name__ == '__main__':
     unittest.main(verbosity=1)
@@ -650,16 +650,16 @@ def targets(yp=False):
                 threads = yappi.get_thread_stats()
                 for thread in threads:
                     print(
-                        "Function stats for (%s) (%d)" % (thread.name, thread.id)
+                        f"Function stats for ({thread.name}) ({int(thread.id)})"
                     )  # it is the Thread.__class__.__name__
-                    yappi.get_func_stats(ctx_id=thread.id).save("receiver_thread_"+str(thread.id)+".data", type="pstat")
+                    yappi.get_func_stats(ctx_id=thread.id).save(f"receiver_thread_{thread.id}.data", type="pstat")
             except Exception as e:
-                print("Error: "+str(e))
+                print(f"Error: {e}")
 
 
         if hasattr(resource.link.attached_interface, "rxptime"):
             rx_pr = (resource.link.attached_interface.rxb*8)/resource.link.attached_interface.rxptime
-            print("Average RX proccessing rate: "+size_str(rx_pr, "b")+"ps")
+            print(f"Average RX proccessing rate: {size_str(rx_pr, 'b')}ps")
 
     def link_established(link):
         print("Link established")
@@ -670,7 +670,7 @@ def targets(yp=False):
 
         def handle_message(message):
             if isinstance(message, MessageTest):
-                message.data = message.data + " back"
+                message.data = f"{message.data} back"
                 channel.send(message)
 
         channel.register_message_type(MessageTest)
@@ -685,17 +685,17 @@ def targets(yp=False):
             buffer_read_len += len(data)
             response_data.append(data)
 
-            if data == "Hi there".encode("utf-8"):
+            if data == b"Hi there":
                 RNS.log("Sending response")
                 for data in response_data:
-                    buffer.write(data + " back at you".encode("utf-8"))
+                    buffer.write(data + b" back at you")
                     buffer.flush()
                     buffer_read_len = 0
 
             if buffer_read_len == BUFFER_TEST_TARGET:
                 RNS.log("Sending response")
                 for data in response_data:
-                    buffer.write(data + " back at you".encode("utf-8"))
+                    buffer.write(data + b" back at you")
                     buffer.flush()
                     buffer_read_len = 0
 
@@ -745,7 +745,7 @@ def resource_profiling():
     resource_timeout = 120
     resource_size = 5*1000*1000
     data = os.urandom(resource_size)
-    print("Sending "+size_str(resource_size)+" resource...")
+    print(f"Sending {size_str(resource_size)} resource...")
 
     import yappi
     yappi.start()
@@ -759,22 +759,22 @@ def resource_profiling():
         time.sleep(0.01)
 
     t = time.time() - start
-    print("Resource completed at "+size_str(resource_size/t, "b")+"ps")
+    print(f"Resource completed at {size_str(resource_size / t, 'b')}ps")
 
     yappi.get_func_stats().save("sender_main_calls.data", type="pstat")
     threads = yappi.get_thread_stats()
     for thread in threads:
         print(
-            "Function stats for (%s) (%d)" % (thread.name, thread.id)
+            f"Function stats for ({thread.name}) ({int(thread.id)})"
         )  # it is the Thread.__class__.__name__
-        yappi.get_func_stats(ctx_id=thread.id).save("sender_thread_"+str(thread.id)+".data", type="pstat")
+        yappi.get_func_stats(ctx_id=thread.id).save(f"sender_thread_{thread.id}.data", type="pstat")
 
     # t_pstats = yappi.convert2pstats(tstats)
     # t_pstats.save("resource_tstat.data", type="pstat")
 
     if hasattr(resource.link.attached_interface, "rxptime"):
         rx_pr = (resource.link.attached_interface.rxb*8)/resource.link.attached_interface.rxptime
-        print("Average RX proccessing rate: "+size_str(rx_pr, "b")+"ps")
+        print(f"Average RX proccessing rate: {size_str(rx_pr, 'b')}ps")
 
     l1.teardown()
     time.sleep(0.5)
@@ -791,9 +791,9 @@ def size_str(num, suffix='B'):
     for unit in units:
         if abs(num) < 1000.0:
             if unit == "":
-                return "%.0f %s%s" % (num, unit, suffix)
+                return f"{num:.0f} {unit}{suffix}"
             else:
-                return "%.2f %s%s" % (num, unit, suffix)
+                return f"{num:.2f} {unit}{suffix}"
         num /= 1000.0
 
-    return "%.2f%s%s" % (num, last_unit, suffix)
+    return f"{num:.2f}{last_unit}{suffix}"

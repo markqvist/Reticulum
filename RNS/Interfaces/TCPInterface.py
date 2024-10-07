@@ -180,25 +180,25 @@ class TCPClientInterface(Interface):
         if self.socket != None:
             if hasattr(self.socket, "close"):
                 if callable(self.socket.close):
-                    RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
+                    RNS.log(f"Detaching {self}", RNS.LOG_DEBUG)
                     self.detached = True
                     
                     try:
                         self.socket.shutdown(socket.SHUT_RDWR)
                     except Exception as e:
-                        RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
+                        RNS.log(f"Error while shutting down socket for {self}: {e}")
 
                     try:
                         self.socket.close()
                     except Exception as e:
-                        RNS.log("Error while closing socket for "+str(self)+": "+str(e))
+                        RNS.log(f"Error while closing socket for {self}: {e}")
 
                     self.socket = None
 
     def connect(self, initial=False):
         try:
             if initial:
-                RNS.log("Establishing TCP connection for "+str(self)+"...", RNS.LOG_DEBUG)
+                RNS.log(f"Establishing TCP connection for {self}...", RNS.LOG_DEBUG)
 
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.settimeout(TCPClientInterface.INITIAL_CONNECT_TIMEOUT)
@@ -208,12 +208,12 @@ class TCPClientInterface(Interface):
             self.online  = True
 
             if initial:
-                RNS.log("TCP connection for "+str(self)+" established", RNS.LOG_DEBUG)
+                RNS.log(f"TCP connection for {self} established", RNS.LOG_DEBUG)
         
         except Exception as e:
             if initial:
-                RNS.log("Initial connection for "+str(self)+" could not be established: "+str(e), RNS.LOG_ERROR)
-                RNS.log("Leaving unconnected and retrying connection in "+str(TCPClientInterface.RECONNECT_WAIT)+" seconds.", RNS.LOG_ERROR)
+                RNS.log(f"Initial connection for {self} could not be established: {e}", RNS.LOG_ERROR)
+                RNS.log(f"Leaving unconnected and retrying connection in {TCPClientInterface.RECONNECT_WAIT} seconds.", RNS.LOG_ERROR)
                 return False
             
             else:
@@ -241,7 +241,7 @@ class TCPClientInterface(Interface):
                     attempts += 1
 
                     if self.max_reconnect_tries != None and attempts > self.max_reconnect_tries:
-                        RNS.log("Max reconnection attempts reached for "+str(self), RNS.LOG_ERROR)
+                        RNS.log(f"Max reconnection attempts reached for {self}", RNS.LOG_ERROR)
                         self.teardown()
                         break
 
@@ -249,10 +249,10 @@ class TCPClientInterface(Interface):
                         self.connect()
 
                     except Exception as e:
-                        RNS.log("Connection attempt for "+str(self)+" failed: "+str(e), RNS.LOG_DEBUG)
+                        RNS.log(f"Connection attempt for {self} failed: {e}", RNS.LOG_DEBUG)
 
                 if not self.never_connected:
-                    RNS.log("Reconnected socket for "+str(self)+".", RNS.LOG_INFO)
+                    RNS.log(f"Reconnected socket for {self}.", RNS.LOG_INFO)
 
                 self.reconnecting = False
                 thread = threading.Thread(target=self.read_loop)
@@ -263,7 +263,7 @@ class TCPClientInterface(Interface):
 
         else:
             RNS.log("Attempt to reconnect on a non-initiator TCP interface. This should not happen.", RNS.LOG_ERROR)
-            raise IOError("Attempt to reconnect on a non-initiator TCP interface")
+            raise OSError("Attempt to reconnect on a non-initiator TCP interface")
 
     def processIncoming(self, data):
         self.rxb += len(data)
@@ -292,8 +292,8 @@ class TCPClientInterface(Interface):
                     self.parent_interface.txb += len(data)
 
             except Exception as e:
-                RNS.log("Exception occurred while transmitting via "+str(self)+", tearing down interface", RNS.LOG_ERROR)
-                RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log(f"Exception occurred while transmitting via {self}, tearing down interface", RNS.LOG_ERROR)
+                RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
                 self.teardown()
 
 
@@ -361,10 +361,10 @@ class TCPClientInterface(Interface):
                 else:
                     self.online = False
                     if self.initiator and not self.detached:
-                        RNS.log("The socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
+                        RNS.log(f"The socket for {self} was closed, attempting to reconnect...", RNS.LOG_WARNING)
                         self.reconnect()
                     else:
-                        RNS.log("The socket for remote client "+str(self)+" was closed.", RNS.LOG_VERBOSE)
+                        RNS.log(f"The socket for remote client {self} was closed.", RNS.LOG_VERBOSE)
                         self.teardown()
 
                     break
@@ -372,7 +372,7 @@ class TCPClientInterface(Interface):
                 
         except Exception as e:
             self.online = False
-            RNS.log("An interface error occurred for "+str(self)+", the contained exception was: "+str(e), RNS.LOG_WARNING)
+            RNS.log(f"An interface error occurred for {self}, the contained exception was: {e}", RNS.LOG_WARNING)
 
             if self.initiator:
                 RNS.log("Attempting to reconnect...", RNS.LOG_WARNING)
@@ -382,12 +382,12 @@ class TCPClientInterface(Interface):
 
     def teardown(self):
         if self.initiator and not self.detached:
-            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
+            RNS.log(f"The interface {self} experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
 
         else:
-            RNS.log("The interface "+str(self)+" is being torn down.", RNS.LOG_VERBOSE)
+            RNS.log(f"The interface {self} is being torn down.", RNS.LOG_VERBOSE)
 
         self.online = False
         self.OUT = False
@@ -402,7 +402,7 @@ class TCPClientInterface(Interface):
 
 
     def __str__(self):
-        return "TCPInterface["+str(self.name)+"/"+str(self.target_ip)+":"+str(self.target_port)+"]"
+        return f"TCPInterface[{self.name}/{self.target_ip}:{self.target_port}]"
 
 
 class TCPServerInterface(Interface):
@@ -466,7 +466,7 @@ class TCPServerInterface(Interface):
 
     def incoming_connection(self, handler):
         RNS.log("Accepting incoming TCP connection", RNS.LOG_VERBOSE)
-        interface_name = "Client on "+self.name
+        interface_name = f"Client on {self.name}"
         spawned_interface = TCPClientInterface(self.owner, interface_name, target_ip=None, target_port=None, connected_socket=handler.request, i2p_tunneled=self.i2p_tunneled)
         spawned_interface.OUT = self.OUT
         spawned_interface.IN  = self.IN
@@ -501,7 +501,7 @@ class TCPServerInterface(Interface):
         spawned_interface.mode = self.mode
         spawned_interface.HW_MTU = self.HW_MTU
         spawned_interface.online = True
-        RNS.log("Spawned new TCPClient Interface: "+str(spawned_interface), RNS.LOG_VERBOSE)
+        RNS.log(f"Spawned new TCPClient Interface: {spawned_interface}", RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)
         self.clients += 1
         spawned_interface.read_loop()
@@ -521,17 +521,17 @@ class TCPServerInterface(Interface):
             if hasattr(self.server, "shutdown"):
                 if callable(self.server.shutdown):
                     try:
-                        RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
+                        RNS.log(f"Detaching {self}", RNS.LOG_DEBUG)
                         self.server.shutdown()
                         self.detached = True
                         self.server = None
 
                     except Exception as e:
-                        RNS.log("Error while shutting down server for "+str(self)+": "+str(e))
+                        RNS.log(f"Error while shutting down server for {self}: {e}")
 
 
     def __str__(self):
-        return "TCPServerInterface["+self.name+"/"+self.bind_ip+":"+str(self.bind_port)+"]"
+        return f"TCPServerInterface[{self.name}/{self.bind_ip}:{self.bind_port}]"
 
 
 class TCPInterfaceHandler(socketserver.BaseRequestHandler):

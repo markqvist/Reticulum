@@ -133,10 +133,10 @@ class LocalClientInterface(Interface):
                         self.connect()
 
                     except Exception as e:
-                        RNS.log("Connection attempt for "+str(self)+" failed: "+str(e), RNS.LOG_DEBUG)
+                        RNS.log(f"Connection attempt for {self} failed: {e}", RNS.LOG_DEBUG)
 
                 if not self.never_connected:
-                    RNS.log("Reconnected socket for "+str(self)+".", RNS.LOG_INFO)
+                    RNS.log(f"Reconnected socket for {self}.", RNS.LOG_INFO)
 
                 self.reconnecting = False
                 thread = threading.Thread(target=self.read_loop)
@@ -149,7 +149,7 @@ class LocalClientInterface(Interface):
         
         else:
             RNS.log("Attempt to reconnect on a non-initiator shared local interface. This should not happen.", RNS.LOG_ERROR)
-            raise IOError("Attempt to reconnect on a non-initiator local interface")
+            raise OSError("Attempt to reconnect on a non-initiator local interface")
 
 
     def processIncoming(self, data):
@@ -188,8 +188,8 @@ class LocalClientInterface(Interface):
                     self.parent_interface.txb += len(data)
 
             except Exception as e:
-                RNS.log("Exception occurred while transmitting via "+str(self)+", tearing down interface", RNS.LOG_ERROR)
-                RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log(f"Exception occurred while transmitting via {self}, tearing down interface", RNS.LOG_ERROR)
+                RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
                 self.teardown()
 
 
@@ -226,7 +226,7 @@ class LocalClientInterface(Interface):
                 else:
                     self.online = False
                     if self.is_connected_to_shared_instance and not self.detached:
-                        RNS.log("Socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
+                        RNS.log(f"Socket for {self} was closed, attempting to reconnect...", RNS.LOG_WARNING)
                         RNS.Transport.shared_connection_disappeared()
                         self.reconnect()
                     else:
@@ -237,26 +237,26 @@ class LocalClientInterface(Interface):
                 
         except Exception as e:
             self.online = False
-            RNS.log("An interface error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log("Tearing down "+str(self), RNS.LOG_ERROR)
+            RNS.log(f"An interface error occurred, the contained exception was: {e}", RNS.LOG_ERROR)
+            RNS.log(f"Tearing down {self}", RNS.LOG_ERROR)
             self.teardown()
 
     def detach(self):
         if self.socket != None:
             if hasattr(self.socket, "close"):
                 if callable(self.socket.close):
-                    RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
+                    RNS.log(f"Detaching {self}", RNS.LOG_DEBUG)
                     self.detached = True
                     
                     try:
                         self.socket.shutdown(socket.SHUT_RDWR)
                     except Exception as e:
-                        RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
+                        RNS.log(f"Error while shutting down socket for {self}: {e}")
 
                     try:
                         self.socket.close()
                     except Exception as e:
-                        RNS.log("Error while closing socket for "+str(self)+": "+str(e))
+                        RNS.log(f"Error while closing socket for {self}: {e}")
 
                     self.socket = None
 
@@ -276,7 +276,7 @@ class LocalClientInterface(Interface):
                     RNS.Transport.owner._should_persist_data()
 
         if nowarning == False:
-            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
+            RNS.log(f"The interface {self} experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
 
@@ -288,7 +288,7 @@ class LocalClientInterface(Interface):
 
 
     def __str__(self):
-        return "LocalInterface["+str(self.target_port)+"]"
+        return f"LocalInterface[{self.target_port}]"
 
 
 class LocalServerInterface(Interface):
@@ -360,7 +360,7 @@ class LocalServerInterface(Interface):
         if from_spawned: self.oa_freq_deque.append(time.time())
 
     def __str__(self):
-        return "Shared Instance["+str(self.bind_port)+"]"
+        return f"Shared Instance[{self.bind_port}]"
 
 class LocalInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):

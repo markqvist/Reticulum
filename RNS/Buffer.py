@@ -65,7 +65,7 @@ class StreamDataMessage(MessageBase):
             raise ValueError("stream_id must be 0-16383")
         self.stream_id = stream_id
         self.compressed = compressed
-        self.data = data or bytes()
+        self.data = data or b''
         self.eof = eof
 
     def pack(self) -> bytes:
@@ -73,7 +73,7 @@ class StreamDataMessage(MessageBase):
             raise ValueError("stream_id")
 
         header_val = (0x3fff & self.stream_id) | (0x8000 if self.eof else 0x0000) | (0x4000 if self.compressed > 0 else 0x0000)
-        return bytes(struct.pack(">H", header_val) + (self.data if self.data else bytes()))
+        return bytes(struct.pack(">H", header_val) + (self.data if self.data else b''))
 
     def unpack(self, raw):
         self.stream_id = struct.unpack(">H", raw[:2])[0]
@@ -148,7 +148,7 @@ class RawChannelReader(RawIOBase, AbstractContextManager):
                         try:
                             threading.Thread(target=listener, name="Message Callback", args=[len(self._buffer)], daemon=True).start()
                         except Exception as ex:
-                            RNS.log("Error calling RawChannelReader(" + str(self._stream_id) + ") callback: " + str(ex), RNS.LOG_ERROR)
+                            RNS.log(f"Error calling RawChannelReader({self._stream_id}) callback: {ex}", RNS.LOG_ERROR)
                     return True
         return False
 
@@ -264,7 +264,7 @@ class RawChannelWriter(RawIOBase, AbstractContextManager):
             time.sleep(0.05)
 
         self._eof = True
-        self.write(bytes())
+        self.write(b'')
 
     def __enter__(self):
         return self
