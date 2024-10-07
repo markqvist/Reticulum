@@ -48,7 +48,7 @@ def main():
         parser.add_argument('-v', '--verbose', action='count', default=0)
         parser.add_argument('-q', '--quiet', action='count', default=0)
         parser.add_argument("--exampleconfig", action='store_true', default=False, help="print verbose configuration example to stdout and exit")
-        parser.add_argument("--version", action="version", version="ir {version}".format(version=__version__))
+        parser.add_argument("--version", action="version", version=f"ir {__version__}")
         
         args = parser.parse_args()
 

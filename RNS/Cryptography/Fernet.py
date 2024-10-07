@@ -48,7 +48,7 @@ class Fernet():
             raise ValueError("Token key cannot be None")
 
         if len(key) != 32:
-            raise ValueError("Token key must be 32 bytes, not "+str(len(key)))
+            raise ValueError(f"Token key must be 32 bytes, not {len(key)}")
             
         self._signing_key = key[:16]
         self._encryption_key = key[16:]
@@ -56,7 +56,7 @@ class Fernet():
 
     def verify_hmac(self, token):
         if len(token) <= 32:
-            raise ValueError("Cannot verify HMAC on token of only "+str(len(token))+" bytes")
+            raise ValueError(f"Cannot verify HMAC on token of only {len(token)} bytes")
         else:
             received_hmac = token[-32:]
             expected_hmac = HMAC.new(self._signing_key, token[:-32]).digest()

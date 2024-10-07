@@ -72,17 +72,17 @@ class PipeInterface(Interface):
             self.open_pipe()
 
         except Exception as e:
-            RNS.log("Could connect pipe for interface "+str(self), RNS.LOG_ERROR)
+            RNS.log(f"Could connect pipe for interface {self}", RNS.LOG_ERROR)
             raise e
 
         if self.pipe_is_open:
             self.configure_pipe()
         else:
-            raise IOError("Could not connect pipe")
+            raise OSError("Could not connect pipe")
 
 
     def open_pipe(self):
-        RNS.log("Connecting subprocess pipe for "+str(self)+"...", RNS.LOG_VERBOSE)
+        RNS.log(f"Connecting subprocess pipe for {self}...", RNS.LOG_VERBOSE)
         
         try:
             self.process = subprocess.Popen(shlex.split(self.command), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -98,7 +98,7 @@ class PipeInterface(Interface):
         thread.daemon = True
         thread.start()
         self.online = True
-        RNS.log("Subprocess pipe for "+str(self)+" is now connected", RNS.LOG_VERBOSE)
+        RNS.log(f"Subprocess pipe for {self} is now connected", RNS.LOG_VERBOSE)
 
 
     def processIncoming(self, data):
@@ -113,7 +113,7 @@ class PipeInterface(Interface):
             self.process.stdin.flush()
             self.txb += len(data)            
             if written != len(data):
-                raise IOError("Pipe interface only wrote "+str(written)+" bytes of "+str(len(data)))
+                raise OSError(f"Pipe interface only wrote {written} bytes of {len(data)}")
 
 
     def readLoop(self):
@@ -150,7 +150,7 @@ class PipeInterface(Interface):
                                 escape = False
                             data_buffer = data_buffer+bytes([byte])
 
-            RNS.log("Subprocess terminated on "+str(self))
+            RNS.log(f"Subprocess terminated on {self}")
             self.process.kill()
                     
         except Exception as e:
@@ -160,8 +160,8 @@ class PipeInterface(Interface):
             except Exception as e:
                 pass
 
-            RNS.log("A pipe error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
+            RNS.log(f"A pipe error occurred, the contained exception was: {e}", RNS.LOG_ERROR)
+            RNS.log(f"The interface {self} experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
             
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
@@ -175,14 +175,14 @@ class PipeInterface(Interface):
         while not self.online:
             try:
                 time.sleep(self.respawn_delay)
-                RNS.log("Attempting to respawn subprocess for "+str(self)+"...", RNS.LOG_VERBOSE)
+                RNS.log(f"Attempting to respawn subprocess for {self}...", RNS.LOG_VERBOSE)
                 self.open_pipe()
                 if self.pipe_is_open:
                     self.configure_pipe()
             except Exception as e:
-                RNS.log("Error while spawning subprocess, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log(f"Error while spawning subprocess, the contained exception was: {e}", RNS.LOG_ERROR)
 
-        RNS.log("Reconnected pipe for "+str(self))
+        RNS.log(f"Reconnected pipe for {self}")
 
     def __str__(self):
-        return "PipeInterface["+self.name+"]"
+        return f"PipeInterface[{self.name}]"

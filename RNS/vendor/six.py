@@ -20,7 +20,6 @@
 
 """Utilities for writing code that runs on Python 2 and 3"""
 
-from __future__ import absolute_import
 
 import functools
 import itertools
@@ -57,7 +56,7 @@ else:
         MAXSIZE = int((1 << 31) - 1)
     else:
         # It's possible to have sizeof(long) != sizeof(Py_ssize_t).
-        class X(object):
+        class X:
 
             def __len__(self):
                 return 1 << 31
@@ -88,7 +87,7 @@ def _import_module(name):
     return sys.modules[name]
 
 
-class _LazyDescr(object):
+class _LazyDescr:
 
     def __init__(self, name):
         self.name = name
@@ -108,7 +107,7 @@ class _LazyDescr(object):
 class MovedModule(_LazyDescr):
 
     def __init__(self, name, old, new=None):
-        super(MovedModule, self).__init__(name)
+        super().__init__(name)
         if PY3:
             if new is None:
                 new = name
@@ -129,7 +128,7 @@ class MovedModule(_LazyDescr):
 class _LazyModule(types.ModuleType):
 
     def __init__(self, name):
-        super(_LazyModule, self).__init__(name)
+        super().__init__(name)
         self.__doc__ = self.__class__.__doc__
 
     def __dir__(self):
@@ -144,7 +143,7 @@ class _LazyModule(types.ModuleType):
 class MovedAttribute(_LazyDescr):
 
     def __init__(self, name, old_mod, new_mod, old_attr=None, new_attr=None):
-        super(MovedAttribute, self).__init__(name)
+        super().__init__(name)
         if PY3:
             if new_mod is None:
                 new_mod = name
@@ -166,7 +165,7 @@ class MovedAttribute(_LazyDescr):
         return getattr(module, self.attr)
 
 
-class _SixMetaPathImporter(object):
+class _SixMetaPathImporter:
 
     """
     A meta path importer to import six.moves and its submodules.
@@ -181,10 +180,10 @@ class _SixMetaPathImporter(object):
 
     def _add_module(self, mod, *fullnames):
         for fullname in fullnames:
-            self.known_modules[self.name + "." + fullname] = mod
+            self.known_modules[f"{self.name}.{fullname}"] = mod
 
     def _get_module(self, fullname):
-        return self.known_modules[self.name + "." + fullname]
+        return self.known_modules[f"{self.name}.{fullname}"]
 
     def find_module(self, fullname, path=None):
         if fullname in self.known_modules:
@@ -200,7 +199,7 @@ class _SixMetaPathImporter(object):
         try:
             return self.known_modules[fullname]
         except KeyError:
-            raise ImportError("This loader does not know module " + fullname)
+            raise ImportError(f"This loader does not know module {fullname}")
 
     def load_module(self, fullname):
         try:
@@ -312,9 +311,9 @@ _moved_attributes = [
     MovedModule("tkinter_messagebox", "tkMessageBox", "tkinter.messagebox"),
     MovedModule("tkinter_tksimpledialog", "tkSimpleDialog",
                 "tkinter.simpledialog"),
-    MovedModule("urllib_parse", __name__ + ".moves.urllib_parse", "urllib.parse"),
-    MovedModule("urllib_error", __name__ + ".moves.urllib_error", "urllib.error"),
-    MovedModule("urllib", __name__ + ".moves.urllib", __name__ + ".moves.urllib"),
+    MovedModule("urllib_parse", f"{__name__}.moves.urllib_parse", "urllib.parse"),
+    MovedModule("urllib_error", f"{__name__}.moves.urllib_error", "urllib.error"),
+    MovedModule("urllib", f"{__name__}.moves.urllib", f"{__name__}.moves.urllib"),
     MovedModule("urllib_robotparser", "robotparser", "urllib.robotparser"),
     MovedModule("xmlrpc_client", "xmlrpclib", "xmlrpc.client"),
     MovedModule("xmlrpc_server", "SimpleXMLRPCServer", "xmlrpc.server"),
@@ -328,12 +327,12 @@ if sys.platform == "win32":
 for attr in _moved_attributes:
     setattr(_MovedItems, attr.name, attr)
     if isinstance(attr, MovedModule):
-        _importer._add_module(attr, "moves." + attr.name)
+        _importer._add_module(attr, f"moves.{attr.name}")
 del attr
 
 _MovedItems._moved_attributes = _moved_attributes
 
-moves = _MovedItems(__name__ + ".moves")
+moves = _MovedItems(f"{__name__}.moves")
 _importer._add_module(moves, "moves")
 
 
@@ -375,7 +374,7 @@ del attr
 
 Module_six_moves_urllib_parse._moved_attributes = _urllib_parse_moved_attributes
 
-_importer._add_module(Module_six_moves_urllib_parse(__name__ + ".moves.urllib_parse"),
+_importer._add_module(Module_six_moves_urllib_parse(f"{__name__}.moves.urllib_parse"),
                       "moves.urllib_parse", "moves.urllib.parse")
 
 
@@ -395,7 +394,7 @@ del attr
 
 Module_six_moves_urllib_error._moved_attributes = _urllib_error_moved_attributes
 
-_importer._add_module(Module_six_moves_urllib_error(__name__ + ".moves.urllib.error"),
+_importer._add_module(Module_six_moves_urllib_error(f"{__name__}.moves.urllib.error"),
                       "moves.urllib_error", "moves.urllib.error")
 
 
@@ -447,7 +446,7 @@ del attr
 
 Module_six_moves_urllib_request._moved_attributes = _urllib_request_moved_attributes
 
-_importer._add_module(Module_six_moves_urllib_request(__name__ + ".moves.urllib.request"),
+_importer._add_module(Module_six_moves_urllib_request(f"{__name__}.moves.urllib.request"),
                       "moves.urllib_request", "moves.urllib.request")
 
 
@@ -468,7 +467,7 @@ del attr
 
 Module_six_moves_urllib_response._moved_attributes = _urllib_response_moved_attributes
 
-_importer._add_module(Module_six_moves_urllib_response(__name__ + ".moves.urllib.response"),
+_importer._add_module(Module_six_moves_urllib_response(f"{__name__}.moves.urllib.response"),
                       "moves.urllib_response", "moves.urllib.response")
 
 
@@ -486,7 +485,7 @@ del attr
 
 Module_six_moves_urllib_robotparser._moved_attributes = _urllib_robotparser_moved_attributes
 
-_importer._add_module(Module_six_moves_urllib_robotparser(__name__ + ".moves.urllib.robotparser"),
+_importer._add_module(Module_six_moves_urllib_robotparser(f"{__name__}.moves.urllib.robotparser"),
                       "moves.urllib_robotparser", "moves.urllib.robotparser")
 
 
@@ -503,7 +502,7 @@ class Module_six_moves_urllib(types.ModuleType):
     def __dir__(self):
         return ['parse', 'error', 'request', 'response', 'robotparser']
 
-_importer._add_module(Module_six_moves_urllib(__name__ + ".moves.urllib"),
+_importer._add_module(Module_six_moves_urllib(f"{__name__}.moves.urllib"),
                       "moves.urllib")
 
 
@@ -520,7 +519,7 @@ def remove_move(name):
         try:
             del moves.__dict__[name]
         except KeyError:
-            raise AttributeError("no such move, %r" % (name,))
+            raise AttributeError(f"no such move, {name!r}")
 
 
 if PY3:
@@ -576,7 +575,7 @@ else:
     def create_unbound_method(func, cls):
         return types.MethodType(func, None, cls)
 
-    class Iterator(object):
+    class Iterator:
 
         def next(self):
             return type(self).__next__(self)
@@ -910,7 +909,7 @@ def ensure_binary(s, encoding='utf-8', errors='strict'):
         return s
     if isinstance(s, text_type):
         return s.encode(encoding, errors)
-    raise TypeError("not expecting type '%s'" % type(s))
+    raise TypeError(f"not expecting type '{type(s)}'")
 
 
 def ensure_str(s, encoding='utf-8', errors='strict'):
@@ -932,7 +931,7 @@ def ensure_str(s, encoding='utf-8', errors='strict'):
     elif PY3 and isinstance(s, binary_type):
         return s.decode(encoding, errors)
     elif not isinstance(s, (text_type, binary_type)):
-        raise TypeError("not expecting type '%s'" % type(s))
+        raise TypeError(f"not expecting type '{type(s)}'")
     return s
 
 
@@ -952,7 +951,7 @@ def ensure_text(s, encoding='utf-8', errors='strict'):
     elif isinstance(s, text_type):
         return s
     else:
-        raise TypeError("not expecting type '%s'" % type(s))
+        raise TypeError(f"not expecting type '{type(s)}'")
 
 
 def python_2_unicode_compatible(klass):
@@ -965,9 +964,7 @@ def python_2_unicode_compatible(klass):
     """
     if PY2:
         if '__str__' not in klass.__dict__:
-            raise ValueError("@python_2_unicode_compatible cannot be applied "
-                             "to %s because it doesn't define __str__()." %
-                             klass.__name__)
+            raise ValueError(f"@python_2_unicode_compatible cannot be applied to {klass.__name__} because it doesn't define __str__().")
         klass.__unicode__ = klass.__str__
         klass.__str__ = lambda self: self.__unicode__().encode('utf-8')
     return klass

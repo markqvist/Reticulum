@@ -62,9 +62,7 @@ def server(configpath):
 def server_loop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Speedtest "+
-        RNS.prettyhexrep(destination.hash)+
-        " running, waiting for a connection."
+        f"Speedtest {RNS.prettyhexrep(destination.hash)} running, waiting for a connection."
     )
 
     RNS.log("Hit enter to manually send an announce (Ctrl-C to quit)")
@@ -76,7 +74,7 @@ def server_loop(destination):
     while True:
         entered = input()
         destination.announce()
-        RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
+        RNS.log(f"Sent announce from {RNS.prettyhexrep(destination.hash)}")
 
 # When a client establishes a link to our server
 # destination, this function will be called with
@@ -108,9 +106,9 @@ def size_str(num, suffix='B'):
 
     for unit in units:
         if abs(num) < 1024.0:
-            return "%3.2f %s%s" % (num, unit, suffix)
+            return f"{num:3.2f} {unit}{suffix}"
         num /= 1024.0
-    return "%.2f %s%s" % (num, last_unit, suffix)
+    return f"{num:.2f} {last_unit}{suffix}"
 
 
 def server_packet_received(message, packet):
@@ -134,14 +132,14 @@ def server_packet_received(message, packet):
         download_time = last_packet_at-first_packet_at
         hours, rem = divmod(download_time, 3600)
         minutes, seconds = divmod(rem, 60)
-        timestring = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds)
+        timestring = f"{int(hours):0>2}:{int(minutes):0>2}:{seconds:05.2f}"
 
         print("")
         print("")
         print("--- Statistics -----")
-        print("\tTime taken       : "+timestring)
-        print("\tData transferred : "+size_str(rcv_d))
-        print("\tTransfer rate    : "+size_str(rcv_d/download_time, suffix='b')+"/s")
+        print(f"\tTime taken       : {timestring}")
+        print(f"\tData transferred : {size_str(rcv_d)}")
+        print(f"\tTransfer rate    : {size_str(rcv_d / download_time, suffix='b')}/s")
         print("")
 
         sys.stdout.flush()
@@ -169,7 +167,7 @@ def client(destination_hexhash, configpath):
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
         if len(destination_hexhash) != dest_len:
             raise ValueError(
-                "Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2)
+                f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes)."
             )
             
         destination_hash = bytes.fromhex(destination_hexhash)
@@ -260,13 +258,13 @@ def link_established(link):
             download_time = ended-started
             hours, rem = divmod(download_time, 3600)
             minutes, seconds = divmod(rem, 60)
-            timestring = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds)
+            timestring = f"{int(hours):0>2}:{int(minutes):0>2}:{seconds:05.2f}"
             print("")
             print("")
             print("--- Statistics -----")
-            print("\tTime taken       : "+timestring)
-            print("\tData transferred : "+size_str(data_sent))
-            print("\tTransfer rate    : "+size_str(data_sent/download_time, suffix='b')+"/s")
+            print(f"\tTime taken       : {timestring}")
+            print(f"\tData transferred : {size_str(data_sent)}")
+            print(f"\tTransfer rate    : {size_str(data_sent / download_time, suffix='b')}/s")
             print("")
 
             sys.stdout.flush()

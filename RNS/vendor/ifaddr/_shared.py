@@ -26,7 +26,7 @@ import platform
 
 from typing import List, Optional, Tuple, Union
 
-class Adapter(object):
+class Adapter:
     """
     Represents a network interface device controller (NIC), such as a
     network card. An adapter can have multiple IPs.
@@ -58,9 +58,7 @@ class Adapter(object):
         self.index = index
 
     def __repr__(self) -> str:
-        return "Adapter(name={name}, nice_name={nice_name}, ips={ips}, index={index})".format(
-            name=repr(self.name), nice_name=repr(self.nice_name), ips=repr(self.ips), index=repr(self.index)
-        )
+        return f"Adapter(name={self.name!r}, nice_name={self.nice_name!r}, ips={self.ips!r}, index={self.index!r})"
 
 
 # Type of an IPv4 address (a string in "xxx.xxx.xxx.xxx" format)
@@ -70,7 +68,7 @@ _IPv4Address = str
 _IPv6Address = Tuple[str, int, int]
 
 
-class IP(object):
+class IP:
     """
     Represents an IP address of an adapter.
     """
@@ -112,9 +110,7 @@ class IP(object):
         return isinstance(self.ip, tuple)
 
     def __repr__(self) -> str:
-        return "IP(ip={ip}, network_prefix={network_prefix}, nice_name={nice_name})".format(
-            ip=repr(self.ip), network_prefix=repr(self.network_prefix), nice_name=repr(self.nice_name)
-        )
+        return f"IP(ip={self.ip!r}, network_prefix={self.network_prefix!r}, nice_name={self.nice_name!r})"
 
 
 if platform.system() == "Darwin" or "BSD" in platform.system():

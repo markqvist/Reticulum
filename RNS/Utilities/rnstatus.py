@@ -42,12 +42,12 @@ def size_str(num, suffix='B'):
     for unit in units:
         if abs(num) < 1000.0:
             if unit == "":
-                return "%.0f %s%s" % (num, unit, suffix)
+                return f"{num:.0f} {unit}{suffix}"
             else:
-                return "%.2f %s%s" % (num, unit, suffix)
+                return f"{num:.2f} {unit}{suffix}"
         num /= 1000.0
 
-    return "%.2f%s%s" % (num, last_unit, suffix)
+    return f"{num:.2f}{last_unit}{suffix}"
 
 request_result = None
 request_concluded = False
@@ -144,7 +144,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
             if len(remote) != dest_len:
-                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                raise ValueError(f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
             try:
                 identity_hash = bytes.fromhex(remote)
                 destination_hash = RNS.Destination.hash_from_name_and_identity("rnstransport.remote.management", identity_hash)
@@ -281,13 +281,13 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "ifac_netname" in ifstat and ifstat["ifac_netname"] != None:
                             print("    Network   : {nn}".format(nn=ifstat["ifac_netname"]))
 
-                        print("    Status    : {ss}".format(ss=ss))
+                        print(f"    Status    : {ss}")
 
                         if clients != None and clients_string != "":
                             print("    "+clients_string)
 
                         if not (name.startswith("Shared Instance[") or name.startswith("TCPInterface[Client") or name.startswith("LocalInterface[")):
-                            print("    Mode      : {mode}".format(mode=modestr))
+                            print(f"    Mode      : {modestr}")
 
                         if "bitrate" in ifstat and ifstat["bitrate"] != None:
                             print("    Rate      : {ss}".format(ss=speed_str(ifstat["bitrate"])))
@@ -489,10 +489,10 @@ def speed_str(num, suffix='bps'):
 
     for unit in units:
         if abs(num) < 1000.0:
-            return "%3.2f %s%s" % (num, unit, suffix)
+            return f"{num:3.2f} {unit}{suffix}"
         num /= 1000.0
 
-    return "%.2f %s%s" % (num, last_unit, suffix)
+    return f"{num:.2f} {last_unit}{suffix}"
 
 if __name__ == "__main__":
     main()

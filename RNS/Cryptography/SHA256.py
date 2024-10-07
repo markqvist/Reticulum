@@ -28,7 +28,7 @@ import sys
 def new(m=None):
     return sha256(m)
 
-class sha256(object):
+class sha256:
     _k = (0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
           0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
           0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
@@ -59,7 +59,7 @@ class sha256(object):
         
         if m is not None:
             if type(m) is not bytes:
-                raise TypeError('%s() argument 1 must be bytes, not %s' % (self.__class__.__name__, type(m).__name__))
+                raise TypeError(f'{self.__class__.__name__}() argument 1 must be bytes, not {type(m).__name__}')
             self.update(m)
         
     def _rotr(self, x, y):
@@ -100,7 +100,7 @@ class sha256(object):
             return
 
         if type(m) is not bytes:
-            raise TypeError('%s() argument 1 must be bytes, not %s' % (sys._getframe().f_code.co_name, type(m).__name__))
+            raise TypeError(f'{sys._getframe().f_code.co_name}() argument 1 must be bytes, not {type(m).__name__}')
         
         self._buffer += m
         self._counter += len(m)

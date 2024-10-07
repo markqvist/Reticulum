@@ -28,6 +28,6 @@ if os.name == "nt":
 elif os.name == "posix":
     from RNS.vendor.ifaddr._posix import get_adapters
 else:
-    raise RuntimeError("Unsupported Operating System: %s" % os.name)
+    raise RuntimeError(f"Unsupported Operating System: {os.name}")
 
 __all__ = ['Adapter', 'IP', 'get_adapters']

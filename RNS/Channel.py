@@ -168,7 +168,7 @@ class Envelope:
     Internal wrapper used to transport messages over a channel and
     track its state within the channel framework.
     """
-    def unpack(self, message_factories: dict[int, Type]) -> MessageBase:
+    def unpack(self, message_factories: dict[int, type]) -> MessageBase:
         msgtype, self.sequence, length = struct.unpack(">HHH", self.raw[:6])
         raw = self.raw[6:]
         ctor = message_factories.get(msgtype, None)
@@ -282,7 +282,7 @@ class Channel(contextlib.AbstractContextManager):
         self._message_callbacks: [MessageCallbackType] = []
         self._next_sequence = 0
         self._next_rx_sequence = 0
-        self._message_factories: dict[int, Type[MessageBase]] = {}
+        self._message_factories: dict[int, type[MessageBase]] = {}
         self._max_tries = 5
         self.fast_rate_rounds    = 0
         self.medium_rate_rounds  = 0
@@ -301,12 +301,12 @@ class Channel(contextlib.AbstractContextManager):
     def __enter__(self) -> Channel:
         return self
 
-    def __exit__(self, __exc_type: Type[BaseException] | None, __exc_value: BaseException | None,
+    def __exit__(self, __exc_type: type[BaseException] | None, __exc_value: BaseException | None,
                  __traceback: TracebackType | None) -> bool | None:
         self._shutdown()
         return False
 
-    def register_message_type(self, message_class: Type[MessageBase]):
+    def register_message_type(self, message_class: type[MessageBase]):
         """
         Register a message class for reception over a ``Channel``.
 
@@ -316,7 +316,7 @@ class Channel(contextlib.AbstractContextManager):
         """
         self._register_message_type(message_class, is_system_type=False)
 
-    def _register_message_type(self, message_class: Type[MessageBase], *, is_system_type: bool = False):
+    def _register_message_type(self, message_class: type[MessageBase], *, is_system_type: bool = False):
         with self._lock:
             if not issubclass(message_class, MessageBase):
                 raise ChannelException(CEType.ME_INVALID_MSG_TYPE,
@@ -384,7 +384,7 @@ class Channel(contextlib.AbstractContextManager):
             for existing in ring:
 
                 if envelope.sequence == existing.sequence:
-                    RNS.log(f"Envelope: Emplacement of duplicate envelope with sequence "+str(envelope.sequence), RNS.LOG_EXTREME)
+                    RNS.log(f"Envelope: Emplacement of duplicate envelope with sequence {envelope.sequence}", RNS.LOG_EXTREME)
                     return False
                 
                 if envelope.sequence < existing.sequence and not (self._next_rx_sequence - envelope.sequence) > (Channel.SEQ_MAX//2):
@@ -408,7 +408,7 @@ class Channel(contextlib.AbstractContextManager):
                 if cb(message):
                     return
             except Exception as e:
-                RNS.log("Channel "+str(self)+" experienced an error while running a message callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log(f"Channel {self} experienced an error while running a message callback. The contained exception was: {e}", RNS.LOG_ERROR)
 
     def _receive(self, raw: bytes):
         try:
@@ -420,16 +420,16 @@ class Channel(contextlib.AbstractContextManager):
                     window_overflow = (self._next_rx_sequence+Channel.WINDOW_MAX) % Channel.SEQ_MODULUS
                     if window_overflow < self._next_rx_sequence:
                         if envelope.sequence > window_overflow:
-                            RNS.log("Invalid packet sequence ("+str(envelope.sequence)+") received on channel "+str(self), RNS.LOG_EXTREME)
+                            RNS.log(f"Invalid packet sequence ({envelope.sequence}) received on channel {self}", RNS.LOG_EXTREME)
                             return
                     else:
-                        RNS.log("Invalid packet sequence ("+str(envelope.sequence)+") received on channel "+str(self), RNS.LOG_EXTREME)
+                        RNS.log(f"Invalid packet sequence ({envelope.sequence}) received on channel {self}", RNS.LOG_EXTREME)
                         return
 
                 is_new = self._emplace_envelope(envelope, self._rx_ring)
 
             if not is_new:
-                RNS.log("Duplicate message received on channel "+str(self), RNS.LOG_EXTREME)
+                RNS.log(f"Duplicate message received on channel {self}", RNS.LOG_EXTREME)
                 return
             else:
                 with self._lock:
@@ -454,7 +454,7 @@ class Channel(contextlib.AbstractContextManager):
                         self._run_callbacks(m)
 
         except Exception as e:
-            RNS.log("An error ocurred while receiving data on "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log(f"An error ocurred while receiving data on {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 
     def is_ready_to_send(self) -> bool:
         """
@@ -520,9 +520,9 @@ class Channel(contextlib.AbstractContextManager):
 
 
                 else:
-                    RNS.log("Envelope not found in TX ring for "+str(self), RNS.LOG_EXTREME)
+                    RNS.log(f"Envelope not found in TX ring for {self}", RNS.LOG_EXTREME)
         if not envelope:
-            RNS.log("Spurious message received on "+str(self), RNS.LOG_EXTREME)
+            RNS.log(f"Spurious message received on {self}", RNS.LOG_EXTREME)
 
     def _packet_delivered(self, packet: TPacket):
         self._packet_tx_op(packet, lambda env: True)
@@ -541,7 +541,7 @@ class Channel(contextlib.AbstractContextManager):
     def _packet_timeout(self, packet: TPacket):
         def retry_envelope(envelope: Envelope) -> bool:
             if envelope.tries >= self._max_tries:
-                RNS.log("Retry count exceeded on "+str(self)+", tearing down Link.", RNS.LOG_ERROR)
+                RNS.log(f"Retry count exceeded on {self}, tearing down Link.", RNS.LOG_ERROR)
                 self._shutdown()  # start on separate thread?
                 self._outlet.timed_out()
                 return True

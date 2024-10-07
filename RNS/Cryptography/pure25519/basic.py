@@ -141,7 +141,7 @@ def encodepoint(P):
     assert 0 <= y < (1<<255) # always < 0x7fff..ff
     if x & 1:
         y += 1<<255
-    return binascii.unhexlify("%064x" % y)[::-1]
+    return binascii.unhexlify(f"{y:064x}")[::-1]
 
 def isoncurve(P):
     x = P[0]
@@ -192,7 +192,7 @@ def password_to_scalar(pw):
 def scalar_to_bytes(y):
     y = y % L
     assert 0 <= y < 2**256
-    return binascii.unhexlify("%064x" % y)[::-1]
+    return binascii.unhexlify(f"{y:064x}")[::-1]
 
 # Elements, of various orders
 

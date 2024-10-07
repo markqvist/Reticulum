@@ -18,7 +18,7 @@ async def proxy_data(reader, writer):
                 break
             writer.write(data)
     except Exception as e:
-        logger.debug('proxy_data_task exception {}'.format(e))
+        logger.debug(f'proxy_data_task exception {e}')
     finally:
         try:
             writer.close()
@@ -26,7 +26,7 @@ async def proxy_data(reader, writer):
             pass
         logger.debug('close connection')
 
-class I2PTunnel(object):
+class I2PTunnel:
     """Base I2P Tunnel object, not to be used directly
 
     :param local_address: A local address to use for a tunnel. 
@@ -141,9 +141,8 @@ class ServerTunnel(I2PTunnel):
                 # data and dest may come in one chunk
                 dest, data = incoming.split(b"\n", 1) 
                 remote_destination = sam.Destination(dest.decode())
-                logger.debug("{} client connected: {}.b32.i2p".format(
-                    self.session_name, remote_destination.base32))
-            
+                logger.debug(f"{self.session_name} client connected: {remote_destination.base32}.b32.i2p")
+
             except Exception as e:
                 self.status["exception"] = e
                 self.status["setup_failed"] = True

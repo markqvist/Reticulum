@@ -96,10 +96,10 @@ class Destination:
         name = app_name
         for aspect in aspects:
             if "." in aspect: raise ValueError("Dots can't be used in aspects")
-            name += "." + aspect
+            name += f".{aspect}"
 
         if identity != None:
-            name += "." + identity.hexhash
+            name += f".{identity.hexhash}"
 
         return name
 
@@ -192,7 +192,7 @@ class Destination:
         """
         :returns: A human-readable representation of the destination including addressable hash and full name.
         """
-        return "<"+self.name+"/"+self.hexhash+">"
+        return f"<{self.name}/{self.hexhash}>"
 
     def _clean_ratchets(self):
         if self.ratchets != None:
@@ -210,13 +210,13 @@ class Destination:
         except Exception as e:
             self.ratchets = None
             self.ratchets_path = None
-            raise OSError("Could not write ratchet file contents for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+            raise OSError(f"Could not write ratchet file contents for {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 
     def rotate_ratchets(self):
         if self.ratchets != None:
             now = time.time()
             if now > self.latest_ratchet_time+self.ratchet_interval:
-                RNS.log("Rotating ratchets for "+str(self), RNS.LOG_DEBUG)
+                RNS.log(f"Rotating ratchets for {self}", RNS.LOG_DEBUG)
                 new_ratchet = RNS.Identity._generate_ratchet()
                 self.ratchets.insert(0, new_ratchet)
                 self.latest_ratchet_time = now
@@ -224,7 +224,7 @@ class Destination:
                 self._persist_ratchets()
             return True
         else:
-            raise SystemError("Cannot rotate ratchet on "+str(self)+", ratchets are not enabled")
+            raise SystemError(f"Cannot rotate ratchet on {self}, ratchets are not enabled")
 
         return False
 
@@ -262,7 +262,7 @@ class Destination:
             # received via multiple paths. The difference in reception time will
             # potentially also be useful in determining characteristics of the
             # multiple available paths, and to choose the best one.
-            RNS.log("Using cached announce data for answering path request with tag "+RNS.prettyhexrep(tag), RNS.LOG_EXTREME)
+            RNS.log(f"Using cached announce data for answering path request with tag {RNS.prettyhexrep(tag)}", RNS.LOG_EXTREME)
             announce_data = self.path_responses[tag][1]
         
         else:
@@ -413,7 +413,7 @@ class Destination:
                         try:
                             self.callbacks.packet(plaintext, packet)
                         except Exception as e:
-                            RNS.log("Error while executing receive callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                            RNS.log(f"Error while executing receive callback from {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 
     def incoming_link_request(self, data, packet):
         if self.accept_link_requests:
@@ -437,9 +437,9 @@ class Destination:
                 except Exception as e:
                     self.ratchets = None
                     self.ratchets_path = None
-                    raise OSError("Could not read ratchet file contents for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                    raise OSError(f"Could not read ratchet file contents for {self}. The contained exception was: {e}", RNS.LOG_ERROR)
         else:
-            RNS.log("No existing ratchet data found, initialising new ratchet file for "+str(self), RNS.LOG_DEBUG)
+            RNS.log(f"No existing ratchet data found, initialising new ratchet file for {self}", RNS.LOG_DEBUG)
             self.ratchets = []
             self.ratchets_path = ratchets_path
             self._persist_ratchets()
@@ -464,11 +464,11 @@ class Destination:
             self._reload_ratchets(ratchets_path)
 
             # TODO: Remove at some point
-            RNS.log("Ratchets enabled on "+str(self), RNS.LOG_DEBUG)
+            RNS.log(f"Ratchets enabled on {self}", RNS.LOG_DEBUG)
             return True
 
         else:
-            raise ValueError("No ratchet file path specified for "+str(self))
+            raise ValueError(f"No ratchet file path specified for {self}")
 
     def enforce_ratchets(self):
         """
@@ -478,7 +478,7 @@ class Destination:
         """
         if self.ratchets != None:
             self.__enforce_ratchets = True
-            RNS.log("Ratchets enforced on "+str(self), RNS.LOG_DEBUG)
+            RNS.log(f"Ratchets enforced on {self}", RNS.LOG_DEBUG)
             return True
         else:
             return False
@@ -586,7 +586,7 @@ class Destination:
                     return self.prv.encrypt(plaintext)
                 except Exception as e:
                     RNS.log("The GROUP destination could not encrypt data", RNS.LOG_ERROR)
-                    RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                    RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
             else:
                 raise ValueError("No private key held by GROUP destination. Did you create or load one?")
 
@@ -630,7 +630,7 @@ class Destination:
                     return self.prv.decrypt(ciphertext)
                 except Exception as e:
                     RNS.log("The GROUP destination could not decrypt data", RNS.LOG_ERROR)
-                    RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                    RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
             else:
                 raise ValueError("No private key held by GROUP destination. Did you create or load one?")
 

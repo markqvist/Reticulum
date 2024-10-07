@@ -25,7 +25,7 @@ import copy, struct, sys
 def new(m=None):
     return sha512(m)
 
-class sha512(object):
+class sha512:
     _k = (0x428a2f98d728ae22, 0x7137449123ef65cd, 0xb5c0fbcfec4d3b2f, 0xe9b5dba58189dbbc,
           0x3956c25bf348b538, 0x59f111f1b605d019, 0x923f82a4af194f9b, 0xab1c5ed5da6d8118,
           0xd807aa98a3030242, 0x12835b0145706fbe, 0x243185be4ee4b28c, 0x550c7dc3d5ffb4e2,
@@ -60,7 +60,7 @@ class sha512(object):
 
         if m is not None:
             if type(m) is not bytes:
-                raise TypeError('%s() argument 1 must be bytes, not %s' % (self.__class__.__name__, type(m).__name__))
+                raise TypeError(f'{self.__class__.__name__}() argument 1 must be bytes, not {type(m).__name__}')
             self.update(m)
 
     def _rotr(self, x, y):
@@ -100,7 +100,7 @@ class sha512(object):
         if not m:
             return
         if type(m) is not bytes:
-            raise TypeError('%s() argument 1 must be bytes, not %s' % (sys._getframe().f_code.co_name, type(m).__name__))
+            raise TypeError(f'{sys._getframe().f_code.co_name}() argument 1 must be bytes, not {type(m).__name__}')
 
         self._buffer += m
         self._counter += len(m)

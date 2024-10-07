@@ -90,7 +90,7 @@ class I2PController:
 
         time.sleep(0.10)
         if self.loop == None:
-            RNS.log("Could not get event loop for "+str(self)+", waiting for event loop to appear", RNS.LOG_VERBOSE)
+            RNS.log(f"Could not get event loop for {self}, waiting for event loop to appear", RNS.LOG_VERBOSE)
 
         while self.loop == None:
             self.loop = asyncio.get_event_loop()
@@ -101,7 +101,7 @@ class I2PController:
             self.loop.run_forever()
         except Exception as e:
             self.ready = False
-            RNS.log("Exception on event loop for "+str(self)+": "+str(e), RNS.LOG_ERROR)
+            RNS.log(f"Exception on event loop for {self}: {e}", RNS.LOG_ERROR)
         finally:
             self.loop.close()
 
@@ -136,7 +136,7 @@ class I2PController:
             if not self.client_tunnels[i2p_destination]:
                 try:
                     async def tunnel_up():
-                        RNS.log("Bringing up I2P tunnel to "+str(owner)+", this may take a while...", RNS.LOG_INFO)
+                        RNS.log(f"Bringing up I2P tunnel to {owner}, this may take a while...", RNS.LOG_INFO)
                         tunnel = self.i2plib.ClientTunnel(i2p_destination, owner.local_addr, sam_address=self.sam_address, loop=self.loop)
                         self.i2plib_tunnels[i2p_destination] = tunnel
                         await tunnel.run()
@@ -145,7 +145,7 @@ class I2PController:
                     result = asyncio.run_coroutine_threadsafe(tunnel_up(), self.loop).result()
                     
                     if not i2p_destination in self.i2plib_tunnels:
-                        raise IOError("No tunnel control instance was created")
+                        raise OSError("No tunnel control instance was created")
 
                     else: 
                         tn = self.i2plib_tunnels[i2p_destination]
@@ -167,19 +167,19 @@ class I2PController:
                                             try:
                                                 owner.socket.shutdown(socket.SHUT_RDWR)
                                             except Exception as e:
-                                                RNS.log("Error while shutting down socket for "+str(owner)+": "+str(e))
+                                                RNS.log(f"Error while shutting down socket for {owner}: {e}")
 
                                             try:
                                                 owner.socket.close()
                                             except Exception as e:
-                                                RNS.log("Error while closing socket for "+str(owner)+": "+str(e))
+                                                RNS.log(f"Error while closing socket for {owner}: {e}")
                                 self.client_tunnels[i2p_destination] = True
                                 owner.awaiting_i2p_tunnel = False
 
-                                RNS.log(str(owner)+" tunnel setup complete", RNS.LOG_VERBOSE)
+                                RNS.log(f"{owner} tunnel setup complete", RNS.LOG_VERBOSE)
 
                         else:
-                            raise IOError("Got no status response from SAM API")
+                            raise OSError("Got no status response from SAM API")
 
                 except ConnectionRefusedError as e:
                     raise e
@@ -188,7 +188,7 @@ class I2PController:
                     raise e
 
                 except Exception as e:
-                    RNS.log("Unexpected error type from I2P SAM: "+str(e), RNS.LOG_ERROR)
+                    RNS.log(f"Unexpected error type from I2P SAM: {e}", RNS.LOG_ERROR)
                     raise e
 
             else:
@@ -197,16 +197,16 @@ class I2PController:
                     i2p_exception = i2ptunnel.status["exception"]
 
                     if i2ptunnel.status["setup_ran"] == False:
-                        RNS.log(str(self)+" I2P tunnel setup did not complete", RNS.LOG_ERROR)
+                        RNS.log(f"{self} I2P tunnel setup did not complete", RNS.LOG_ERROR)
 
                         self.stop_tunnel(i2ptunnel)
                         return False
 
                     elif i2p_exception != None:
-                        RNS.log("An error ocurred while setting up I2P tunnel to "+str(i2p_destination), RNS.LOG_ERROR)
+                        RNS.log(f"An error ocurred while setting up I2P tunnel to {i2p_destination}", RNS.LOG_ERROR)
 
                         if isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.CantReachPeer):
-                            RNS.log("The I2P daemon can't reach peer "+str(i2p_destination), RNS.LOG_ERROR)
+                            RNS.log(f"The I2P daemon can't reach peer {i2p_destination}", RNS.LOG_ERROR)
 
                         elif isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.DuplicatedDest):
                             RNS.log("The I2P daemon reported that the destination is already in use", RNS.LOG_ERROR)
@@ -218,19 +218,19 @@ class I2PController:
                             RNS.log("The I2P daemon reported that the stream session ID doesn't exist", RNS.LOG_ERROR)
 
                         elif isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.InvalidKey):
-                            RNS.log("The I2P daemon reported that the key for "+str(i2p_destination)+" is invalid", RNS.LOG_ERROR)
+                            RNS.log(f"The I2P daemon reported that the key for {i2p_destination} is invalid", RNS.LOG_ERROR)
 
                         elif isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.KeyNotFound):
-                            RNS.log("The I2P daemon could not find the key for "+str(i2p_destination), RNS.LOG_ERROR)
+                            RNS.log(f"The I2P daemon could not find the key for {i2p_destination}", RNS.LOG_ERROR)
                         
                         elif isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.PeerNotFound):
-                            RNS.log("The I2P daemon mould not find the peer "+str(i2p_destination), RNS.LOG_ERROR)
+                            RNS.log(f"The I2P daemon mould not find the peer {i2p_destination}", RNS.LOG_ERROR)
                         
                         elif isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.I2PError):
                             RNS.log("The I2P daemon experienced an unspecified error", RNS.LOG_ERROR)
                         
                         elif isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.Timeout):
-                            RNS.log("I2P daemon timed out while setting up client tunnel to "+str(i2p_destination), RNS.LOG_ERROR)
+                            RNS.log(f"I2P daemon timed out while setting up client tunnel to {i2p_destination}", RNS.LOG_ERROR)
 
                         RNS.log("Resetting I2P tunnel and retrying later", RNS.LOG_ERROR)
 
@@ -238,13 +238,13 @@ class I2PController:
                         return False
 
                     elif i2ptunnel.status["setup_failed"] == True:
-                        RNS.log(str(self)+" Unspecified I2P tunnel setup error, resetting I2P tunnel", RNS.LOG_ERROR)
+                        RNS.log(f"{self} Unspecified I2P tunnel setup error, resetting I2P tunnel", RNS.LOG_ERROR)
 
                         self.stop_tunnel(i2ptunnel)
                         return False
 
                 else:
-                    RNS.log(str(self)+" Got no status from SAM API, resetting I2P tunnel", RNS.LOG_ERROR)
+                    RNS.log(f"{self} Got no status from SAM API, resetting I2P tunnel", RNS.LOG_ERROR)
 
                     self.stop_tunnel(i2ptunnel)
                     return False
@@ -259,11 +259,11 @@ class I2PController:
 
         # Old format
         i2p_dest_hash_of = RNS.Identity.full_hash(RNS.Identity.full_hash(owner.name.encode("utf-8")))
-        i2p_keyfile_of   = self.storagepath+"/"+RNS.hexrep(i2p_dest_hash_of, delimit=False)+".i2p"
+        i2p_keyfile_of   = f"{self.storagepath}/{RNS.hexrep(i2p_dest_hash_of, delimit=False)}.i2p"
 
         # New format
         i2p_dest_hash_nf = RNS.Identity.full_hash(RNS.Identity.full_hash(owner.name.encode("utf-8"))+RNS.Identity.full_hash(RNS.Transport.identity.hash))
-        i2p_keyfile_nf   = self.storagepath+"/"+RNS.hexrep(i2p_dest_hash_nf, delimit=False)+".i2p"
+        i2p_keyfile_nf   = f"{self.storagepath}/{RNS.hexrep(i2p_dest_hash_nf, delimit=False)}.i2p"
 
         # Use old format if a key is already present
         if os.path.isfile(i2p_keyfile_of):
@@ -279,7 +279,7 @@ class I2PController:
             key_file.write(i2p_dest.private_key.base64)
             key_file.close()
         else:
-            key_file = open(i2p_keyfile, "r")
+            key_file = open(i2p_keyfile)
             prvd = key_file.read()
             key_file.close()
             i2p_dest = self.i2plib.Destination(data=prvd, has_private_key=True)
@@ -294,12 +294,12 @@ class I2PController:
             if self.server_tunnels[i2p_b32] == False:
                 try:
                     async def tunnel_up():
-                        RNS.log(str(owner)+" Bringing up I2P endpoint, this may take a while...", RNS.LOG_INFO)
+                        RNS.log(f"{owner} Bringing up I2P endpoint, this may take a while...", RNS.LOG_INFO)
                         tunnel = self.i2plib.ServerTunnel((owner.bind_ip, owner.bind_port), loop=self.loop, destination=i2p_dest, sam_address=self.sam_address)
                         self.i2plib_tunnels[i2p_b32] = tunnel
                         await tunnel.run()
                         owner.online = True
-                        RNS.log(str(owner)+ " endpoint setup complete. Now reachable at: "+str(i2p_dest.base32)+".b32.i2p", RNS.LOG_VERBOSE)
+                        RNS.log(f"{owner} endpoint setup complete. Now reachable at: {i2p_dest.base32}.b32.i2p", RNS.LOG_VERBOSE)
 
                     asyncio.run_coroutine_threadsafe(tunnel_up(), self.loop).result()
                     self.server_tunnels[i2p_b32] = True
@@ -313,7 +313,7 @@ class I2PController:
                     i2p_exception = i2ptunnel.status["exception"]
 
                     if i2ptunnel.status["setup_ran"] == False:
-                        RNS.log(str(self)+" I2P tunnel setup did not complete", RNS.LOG_ERROR)
+                        RNS.log(f"{self} I2P tunnel setup did not complete", RNS.LOG_ERROR)
 
                         self.stop_tunnel(i2ptunnel)
                         return False
@@ -322,7 +322,7 @@ class I2PController:
                         RNS.log("An error ocurred while setting up I2P tunnel", RNS.LOG_ERROR)
                         
                         if isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.CantReachPeer):
-                            RNS.log("The I2P daemon can't reach peer "+str(i2p_destination), RNS.LOG_ERROR)
+                            RNS.log(f"The I2P daemon can't reach peer {i2p_destination}", RNS.LOG_ERROR)
 
                         elif isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.DuplicatedDest):
                             RNS.log("The I2P daemon reported that the destination is already in use", RNS.LOG_ERROR)
@@ -334,19 +334,19 @@ class I2PController:
                             RNS.log("The I2P daemon reported that the stream session ID doesn't exist", RNS.LOG_ERROR)
 
                         elif isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.InvalidKey):
-                            RNS.log("The I2P daemon reported that the key for "+str(i2p_destination)+" is invalid", RNS.LOG_ERROR)
+                            RNS.log(f"The I2P daemon reported that the key for {i2p_destination} is invalid", RNS.LOG_ERROR)
 
                         elif isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.KeyNotFound):
-                            RNS.log("The I2P daemon could not find the key for "+str(i2p_destination), RNS.LOG_ERROR)
+                            RNS.log(f"The I2P daemon could not find the key for {i2p_destination}", RNS.LOG_ERROR)
                         
                         elif isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.PeerNotFound):
-                            RNS.log("The I2P daemon mould not find the peer "+str(i2p_destination), RNS.LOG_ERROR)
+                            RNS.log(f"The I2P daemon mould not find the peer {i2p_destination}", RNS.LOG_ERROR)
                         
                         elif isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.I2PError):
                             RNS.log("The I2P daemon experienced an unspecified error", RNS.LOG_ERROR)
                         
                         elif isinstance(i2p_exception, RNS.vendor.i2plib.exceptions.Timeout):
-                            RNS.log("I2P daemon timed out while setting up client tunnel to "+str(i2p_destination), RNS.LOG_ERROR)
+                            RNS.log(f"I2P daemon timed out while setting up client tunnel to {i2p_destination}", RNS.LOG_ERROR)
 
                         RNS.log("Resetting I2P tunnel and retrying later", RNS.LOG_ERROR)
 
@@ -354,13 +354,13 @@ class I2PController:
                         return False
 
                     elif i2ptunnel.status["setup_failed"] == True:
-                        RNS.log(str(self)+" Unspecified I2P tunnel setup error, resetting I2P tunnel", RNS.LOG_ERROR)
+                        RNS.log(f"{self} Unspecified I2P tunnel setup error, resetting I2P tunnel", RNS.LOG_ERROR)
 
                         self.stop_tunnel(i2ptunnel)
                         return False
 
                 else:
-                    RNS.log(str(self)+" Got no status from SAM API, resetting I2P tunnel", RNS.LOG_ERROR)
+                    RNS.log(f"{self} Got no status from SAM API, resetting I2P tunnel", RNS.LOG_ERROR)
 
                     self.stop_tunnel(i2ptunnel)
                     return False
@@ -475,11 +475,11 @@ class I2PInterfacePeer(Interface):
                         self.target_port = self.bind_port
 
                         if not self.parent_interface.i2p.client_tunnel(self, target_i2p_dest):
-                            RNS.log(str(self)+" I2P control process experienced an error, requesting new tunnel...", RNS.LOG_ERROR)
+                            RNS.log(f"{self} I2P control process experienced an error, requesting new tunnel...", RNS.LOG_ERROR)
                             self.awaiting_i2p_tunnel = True
 
                     except Exception as e:
-                        RNS.log("Error while while configuring "+str(self)+": "+str(e), RNS.LOG_ERROR)
+                        RNS.log(f"Error while while configuring {self}: {e}", RNS.LOG_ERROR)
                         RNS.log("Check that I2P is installed and running, and that SAM is enabled. Retrying tunnel setup later.", RNS.LOG_ERROR)
 
                     time.sleep(8)
@@ -532,16 +532,16 @@ class I2PInterfacePeer(Interface):
                 if socket != None:
                     target_socket.shutdown(socket.SHUT_RDWR)
             except Exception as e:
-                RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
+                RNS.log(f"Error while shutting down socket for {self}: {e}")
 
             try:
                 if socket != None:
                     target_socket.close()
             except Exception as e:
-                RNS.log("Error while closing socket for "+str(self)+": "+str(e))    
+                RNS.log(f"Error while closing socket for {self}: {e}")    
     
     def detach(self):
-        RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
+        RNS.log(f"Detaching {self}", RNS.LOG_DEBUG)
         if self.socket != None:
             if hasattr(self.socket, "close"):
                 if callable(self.socket.close):
@@ -550,12 +550,12 @@ class I2PInterfacePeer(Interface):
                     try:
                         self.socket.shutdown(socket.SHUT_RDWR)
                     except Exception as e:
-                        RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
+                        RNS.log(f"Error while shutting down socket for {self}: {e}")
 
                     try:
                         self.socket.close()
                     except Exception as e:
-                        RNS.log("Error while closing socket for "+str(self)+": "+str(e))
+                        RNS.log(f"Error while closing socket for {self}: {e}")
 
                     self.socket = None
 
@@ -568,8 +568,8 @@ class I2PInterfacePeer(Interface):
         except Exception as e:
             if initial:
                 if not self.awaiting_i2p_tunnel:
-                    RNS.log("Initial connection for "+str(self)+" could not be established: "+str(e), RNS.LOG_ERROR)
-                    RNS.log("Leaving unconnected and retrying connection in "+str(I2PInterfacePeer.RECONNECT_WAIT)+" seconds.", RNS.LOG_ERROR)
+                    RNS.log(f"Initial connection for {self} could not be established: {e}", RNS.LOG_ERROR)
+                    RNS.log(f"Leaving unconnected and retrying connection in {I2PInterfacePeer.RECONNECT_WAIT} seconds.", RNS.LOG_ERROR)
 
                 return False
             
@@ -600,7 +600,7 @@ class I2PInterfacePeer(Interface):
                     attempts += 1
 
                     if self.max_reconnect_tries != None and attempts > self.max_reconnect_tries:
-                        RNS.log("Max reconnection attempts reached for "+str(self), RNS.LOG_ERROR)
+                        RNS.log(f"Max reconnection attempts reached for {self}", RNS.LOG_ERROR)
                         self.teardown()
                         break
 
@@ -609,12 +609,12 @@ class I2PInterfacePeer(Interface):
 
                     except Exception as e:
                         if not self.awaiting_i2p_tunnel:
-                            RNS.log("Connection attempt for "+str(self)+" failed: "+str(e), RNS.LOG_DEBUG)
+                            RNS.log(f"Connection attempt for {self} failed: {e}", RNS.LOG_DEBUG)
                         else:
-                            RNS.log(str(self)+" still waiting for I2P tunnel to appear", RNS.LOG_VERBOSE)
+                            RNS.log(f"{self} still waiting for I2P tunnel to appear", RNS.LOG_VERBOSE)
 
                 if not self.never_connected:
-                    RNS.log(str(self)+" Re-established connection via I2P tunnel", RNS.LOG_INFO)
+                    RNS.log(f"{self} Re-established connection via I2P tunnel", RNS.LOG_INFO)
 
                 self.reconnecting = False
                 thread = threading.Thread(target=self.read_loop)
@@ -625,7 +625,7 @@ class I2PInterfacePeer(Interface):
 
         else:
             RNS.log("Attempt to reconnect on a non-initiator I2P interface. This should not happen.", RNS.LOG_ERROR)
-            raise IOError("Attempt to reconnect on a non-initiator I2P interface")
+            raise OSError("Attempt to reconnect on a non-initiator I2P interface")
 
     def processIncoming(self, data):
         self.rxb += len(data)
@@ -656,8 +656,8 @@ class I2PInterfacePeer(Interface):
                     self.parent_interface.txb += len(data)
 
             except Exception as e:
-                RNS.log("Exception occurred while transmitting via "+str(self)+", tearing down interface", RNS.LOG_ERROR)
-                RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log(f"Exception occurred while transmitting via {self}, tearing down interface", RNS.LOG_ERROR)
+                RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
                 self.teardown()
 
 
@@ -683,7 +683,7 @@ class I2PInterfacePeer(Interface):
                         if self.socket != None:
                             self.socket.sendall(bytes([HDLC.FLAG, HDLC.FLAG]))
                     except Exception as e:
-                        RNS.log("An error ocurred while sending I2P keepalive. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                        RNS.log(f"An error ocurred while sending I2P keepalive. The contained exception was: {e}", RNS.LOG_ERROR)
                         self.shutdown_socket(self.socket)
                         should_run = False
                 
@@ -693,12 +693,12 @@ class I2PInterfacePeer(Interface):
                         try:
                             self.socket.shutdown(socket.SHUT_RDWR)
                         except Exception as e:
-                            RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
+                            RNS.log(f"Error while shutting down socket for {self}: {e}")
 
                         try:
                             self.socket.close()
                         except Exception as e:
-                            RNS.log("Error while closing socket for "+str(self)+": "+str(e))
+                            RNS.log(f"Error while closing socket for {self}: {e}")
 
                     should_run = False
 
@@ -782,10 +782,10 @@ class I2PInterfacePeer(Interface):
                     self.wd_reset = False
 
                     if self.initiator and not self.detached:
-                        RNS.log("Socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
+                        RNS.log(f"Socket for {self} was closed, attempting to reconnect...", RNS.LOG_WARNING)
                         self.reconnect()
                     else:
-                        RNS.log("Socket for remote client "+str(self)+" was closed.", RNS.LOG_VERBOSE)
+                        RNS.log(f"Socket for remote client {self} was closed.", RNS.LOG_VERBOSE)
                         self.teardown()
 
                     break
@@ -793,7 +793,7 @@ class I2PInterfacePeer(Interface):
                 
         except Exception as e:
             self.online = False
-            RNS.log("An interface error occurred for "+str(self)+", the contained exception was: "+str(e), RNS.LOG_WARNING)
+            RNS.log(f"An interface error occurred for {self}, the contained exception was: {e}", RNS.LOG_WARNING)
 
             if self.initiator:
                 RNS.log("Attempting to reconnect...", RNS.LOG_WARNING)
@@ -803,12 +803,12 @@ class I2PInterfacePeer(Interface):
 
     def teardown(self):
         if self.initiator and not self.detached:
-            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
+            RNS.log(f"The interface {self} experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
 
         else:
-            RNS.log("The interface "+str(self)+" is being torn down.", RNS.LOG_VERBOSE)
+            RNS.log(f"The interface {self} is being torn down.", RNS.LOG_VERBOSE)
 
         self.online = False
         self.OUT = False
@@ -824,7 +824,7 @@ class I2PInterfacePeer(Interface):
 
 
     def __str__(self):
-        return "I2PInterfacePeer["+str(self.name)+"]"
+        return f"I2PInterfacePeer[{self.name}]"
 
 
 class I2PInterface(Interface):
@@ -895,11 +895,11 @@ class I2PInterface(Interface):
                 while True:
                     try:
                         if not self.i2p.server_tunnel(self):
-                            RNS.log(str(self)+" I2P control process experienced an error, requesting new tunnel...", RNS.LOG_ERROR)
+                            RNS.log(f"{self} I2P control process experienced an error, requesting new tunnel...", RNS.LOG_ERROR)
                             self.online = False
 
                     except Exception as e:
-                        RNS.log("Error while while configuring "+str(self)+": "+str(e), RNS.LOG_ERROR)
+                        RNS.log(f"Error while while configuring {self}: {e}", RNS.LOG_ERROR)
                         RNS.log("Check that I2P is installed and running, and that SAM is enabled. Retrying tunnel setup later.", RNS.LOG_ERROR)
 
                     time.sleep(15)
@@ -911,7 +911,7 @@ class I2PInterface(Interface):
 
         if peers != None:
             for peer_addr in peers:
-                interface_name = self.name+" to "+peer_addr
+                interface_name = f"{self.name} to {peer_addr}"
                 peer_interface = I2PInterfacePeer(self, self.owner, interface_name, peer_addr)
                 peer_interface.OUT = True
                 peer_interface.IN  = True
@@ -921,7 +921,7 @@ class I2PInterface(Interface):
 
     def incoming_connection(self, handler):
         RNS.log("Accepting incoming I2P connection", RNS.LOG_VERBOSE)
-        interface_name = "Connected peer on "+self.name
+        interface_name = f"Connected peer on {self.name}"
         spawned_interface = I2PInterfacePeer(self, self.owner, interface_name, connected_socket=handler.request)
         spawned_interface.OUT = True
         spawned_interface.IN  = True
@@ -954,7 +954,7 @@ class I2PInterface(Interface):
         spawned_interface.announce_rate_penalty = self.announce_rate_penalty
         spawned_interface.mode = self.mode
         spawned_interface.HW_MTU = self.HW_MTU
-        RNS.log("Spawned new I2PInterface Peer: "+str(spawned_interface), RNS.LOG_VERBOSE)
+        RNS.log(f"Spawned new I2PInterface Peer: {spawned_interface}", RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)
         self.clients += 1
         spawned_interface.read_loop()
@@ -969,11 +969,11 @@ class I2PInterface(Interface):
         if from_spawned: self.oa_freq_deque.append(time.time())
 
     def detach(self):
-        RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
+        RNS.log(f"Detaching {self}", RNS.LOG_DEBUG)
         self.i2p.stop()
 
     def __str__(self):
-        return "I2PInterface["+self.name+"]"
+        return f"I2PInterface[{self.name}]"
 
 class I2PInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):

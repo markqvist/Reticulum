@@ -59,7 +59,7 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
 
     if jail != None:
         fetch_jail = os.path.abspath(os.path.expanduser(jail))
-        RNS.log("Restricting fetch requests to paths under \""+fetch_jail+"\"", RNS.LOG_VERBOSE)
+        RNS.log(f"Restricting fetch requests to paths under \"{fetch_jail}\"", RNS.LOG_VERBOSE)
 
     if save != None:
         sp = os.path.abspath(os.path.expanduser(save))
@@ -73,9 +73,9 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
             RNS.log("Output directory not found", RNS.LOG_ERROR)
             exit(3)
 
-        RNS.log("Saving received files in \""+save_path+"\"", RNS.LOG_VERBOSE)
+        RNS.log(f"Saving received files in \"{save_path}\"", RNS.LOG_VERBOSE)
 
-    identity_path = RNS.Reticulum.identitypath+"/"+APP_NAME
+    identity_path = f"{RNS.Reticulum.identitypath}/{APP_NAME}"
     if os.path.isfile(identity_path):
         identity = RNS.Identity.from_file(identity_path)                
 
@@ -87,8 +87,8 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
     destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "receive")
 
     if display_identity:
-        print("Identity     : "+str(identity))
-        print("Listening on : "+RNS.prettyhexrep(destination.hash))
+        print(f"Identity     : {identity}")
+        print(f"Listening on : {RNS.prettyhexrep(destination.hash)}")
         exit(0)
 
     if disable_auth:
@@ -98,14 +98,14 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
         try:
             allowed_file_name = "allowed_identities"
             allowed_file = None
-            if os.path.isfile(os.path.expanduser("/etc/rncp/"+allowed_file_name)):
-                allowed_file = os.path.expanduser("/etc/rncp/"+allowed_file_name)
-            elif os.path.isfile(os.path.expanduser("~/.config/rncp/"+allowed_file_name)):
-                allowed_file = os.path.expanduser("~/.config/rncp/"+allowed_file_name)
-            elif os.path.isfile(os.path.expanduser("~/.rncp/"+allowed_file_name)):
-                allowed_file = os.path.expanduser("~/.rncp/"+allowed_file_name)
+            if os.path.isfile(os.path.expanduser(f"/etc/rncp/{allowed_file_name}")):
+                allowed_file = os.path.expanduser(f"/etc/rncp/{allowed_file_name}")
+            elif os.path.isfile(os.path.expanduser(f"~/.config/rncp/{allowed_file_name}")):
+                allowed_file = os.path.expanduser(f"~/.config/rncp/{allowed_file_name}")
+            elif os.path.isfile(os.path.expanduser(f"~/.rncp/{allowed_file_name}")):
+                allowed_file = os.path.expanduser(f"~/.rncp/{allowed_file_name}")
             if allowed_file != None:
-                af = open(allowed_file, "r")
+                af = open(allowed_file)
                 al = af.read().replace("\r", "").split("\n")
                 ali = []
                 for a in al:
@@ -122,16 +122,16 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
                 else:
                     ms = "ies"
                 
-                RNS.log("Loaded "+str(len(ali))+" allowed identit"+ms+" from "+str(allowed_file), RNS.LOG_VERBOSE)
+                RNS.log(f"Loaded {len(ali)} allowed identit{ms} from {allowed_file}", RNS.LOG_VERBOSE)
 
         except Exception as e:
-            RNS.log("Error while parsing allowed_identities file. The contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log(f"Error while parsing allowed_identities file. The contained exception was: {e}", RNS.LOG_ERROR)
 
         if allowed != None:
             for a in allowed:
                 try:
                     if len(a) != dest_len:
-                        raise ValueError("Allowed destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                        raise ValueError(f"Allowed destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
                     try:
                         destination_hash = bytes.fromhex(a)
                         allowed_identity_hashes.append(destination_hash)
@@ -165,11 +165,11 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
                 target_link = link
 
         if not os.path.isfile(file_path):
-            RNS.log("Client-requested file not found: "+str(file_path), RNS.LOG_VERBOSE)
+            RNS.log(f"Client-requested file not found: {file_path}", RNS.LOG_VERBOSE)
             return False
         else:
             if target_link != None:
-                RNS.log("Sending file "+str(file_path)+" to client", RNS.LOG_VERBOSE)
+                RNS.log(f"Sending file {file_path} to client", RNS.LOG_VERBOSE)
 
                 temp_file = TemporaryFile()
                 real_file = open(file_path, "rb")
@@ -199,7 +199,7 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
         else:
             destination.register_request_handler("fetch_file", response_generator=fetch_request, allow=RNS.Destination.ALLOW_LIST, allowed_list=allowed_identity_hashes)
 
-    print("rncp listening on "+RNS.prettyhexrep(destination.hash))
+    print(f"rncp listening on {RNS.prettyhexrep(destination.hash)}")
 
     if announce >= 0:
         def job():
@@ -250,16 +250,16 @@ def receive_resource_callback(resource):
 
 def receive_resource_started(resource):
     if resource.link.get_remote_identity():
-        id_str = " from "+RNS.prettyhexrep(resource.link.get_remote_identity().hash)
+        id_str = f" from {RNS.prettyhexrep(resource.link.get_remote_identity().hash)}"
     else:
         id_str = ""
 
-    print("Starting resource transfer "+RNS.prettyhexrep(resource.hash)+id_str)
+    print(f"Starting resource transfer {RNS.prettyhexrep(resource.hash)}{id_str}")
 
 def receive_resource_concluded(resource):
     global save_path
     if resource.status == RNS.Resource.COMPLETE:
-        print(str(resource)+" completed")
+        print(f"{resource} completed")
 
         if resource.total_size > 4:
             filename_len = int.from_bytes(resource.data.read(2), "big")
@@ -277,7 +277,7 @@ def receive_resource_concluded(resource):
             full_save_path = saved_filename
             while os.path.isfile(full_save_path):
                 counter += 1
-                full_save_path = saved_filename+"."+str(counter)
+                full_save_path = f"{saved_filename}.{counter}"
             
             file = open(full_save_path, "wb")
             file.write(resource.data.read())
@@ -348,7 +348,7 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
     try:
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
         if len(destination) != dest_len:
-            raise ValueError("Allowed destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            raise ValueError(f"Allowed destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
         try:
             destination_hash = bytes.fromhex(destination)
         except Exception as e:
@@ -359,11 +359,11 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
 
     reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
 
-    identity_path = RNS.Reticulum.identitypath+"/"+APP_NAME
+    identity_path = f"{RNS.Reticulum.identitypath}/{APP_NAME}"
     if os.path.isfile(identity_path):
         identity = RNS.Identity.from_file(identity_path)
         if identity == None:
-            RNS.log("Could not load identity for rncp. The identity file at \""+str(identity_path)+"\" may be corrupt or unreadable.", RNS.LOG_ERROR)
+            RNS.log(f"Could not load identity for rncp. The identity file at \"{identity_path}\" may be corrupt or unreadable.", RNS.LOG_ERROR)
             exit(2)
     else:
         identity = None
@@ -376,9 +376,9 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
     if not RNS.Transport.has_path(destination_hash):
         RNS.Transport.request_path(destination_hash)
         if silent:
-            print("Path to "+RNS.prettyhexrep(destination_hash)+" requested")
+            print(f"Path to {RNS.prettyhexrep(destination_hash)} requested")
         else:
-            print("Path to "+RNS.prettyhexrep(destination_hash)+" requested  ", end=es)
+            print(f"Path to {RNS.prettyhexrep(destination_hash)} requested  ", end=es)
         sys.stdout.flush()
 
     i = 0
@@ -387,7 +387,7 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
     while not RNS.Transport.has_path(destination_hash) and time.time() < estab_timeout:
         if not silent:
             time.sleep(0.1)
-            print(("\b\b"+syms[i]+" "), end="")
+            print(f"\b\b{syms[i]} ", end="")
             sys.stdout.flush()
             i = (i+1)%len(syms)
 
@@ -399,9 +399,9 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
         exit(1)
     else:
         if silent:
-            print("Establishing link with "+RNS.prettyhexrep(destination_hash))
+            print(f"Establishing link with {RNS.prettyhexrep(destination_hash)}")
         else:
-            print(f"{erase_str}Establishing link with "+RNS.prettyhexrep(destination_hash)+"  ", end=es)
+            print(f"{erase_str}Establishing link with {RNS.prettyhexrep(destination_hash)}  ", end=es)
 
     listener_identity = RNS.Identity.recall(destination_hash)
     listener_destination = RNS.Destination(
@@ -416,15 +416,15 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
     while link.status != RNS.Link.ACTIVE and time.time() < estab_timeout:
         if not silent:
             time.sleep(0.1)
-            print(("\b\b"+syms[i]+" "), end="")
+            print(f"\b\b{syms[i]} ", end="")
             sys.stdout.flush()
             i = (i+1)%len(syms)
 
     if not RNS.Transport.has_path(destination_hash):
         if silent:
-            print("Could not establish link with "+RNS.prettyhexrep(destination_hash))
+            print(f"Could not establish link with {RNS.prettyhexrep(destination_hash)}")
         else:
-            print(f"{erase_str}Could not establish link with "+RNS.prettyhexrep(destination_hash))
+            print(f"{erase_str}Could not establish link with {RNS.prettyhexrep(destination_hash)}")
         exit(1)
     else:
         if silent:
@@ -481,8 +481,8 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
                 full_save_path = saved_filename
                 while os.path.isfile(full_save_path):
                     counter += 1
-                    full_save_path = saved_filename+"."+str(counter)
- 
+                    full_save_path = f"{saved_filename}.{counter)"
+
                 file = open(full_save_path, "wb")
                 file.write(resource.data.read())
                 file.close()
@@ -507,19 +507,19 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
     while not request_resolved:
         if not silent:
             time.sleep(0.1)
-            print(("\b\b"+syms[i]+" "), end="")
+            print(f"\b\b{syms[i]} ", end="")
             sys.stdout.flush()
             i = (i+1)%len(syms)
 
     if request_status == "fetch_not_allowed":
         if not silent: print(f"{erase_str}", end="")
-        print("Fetch request failed, fetching the file "+str(file)+" was not allowed by the remote")
+        print(f"Fetch request failed, fetching the file {file} was not allowed by the remote")
         link.teardown()
         time.sleep(0.15)
         exit(0)
     elif request_status == "not_found":
         if not silent: print(f"{erase_str}", end="")
-        print("Fetch request failed, the file "+str(file)+" was not found on the remote")
+        print(f"Fetch request failed, the file {file} was not found on the remote")
         link.teardown()
         time.sleep(0.15)
         exit(0)
@@ -570,9 +570,9 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
         exit(1)
     else:
         if silent:
-            print(str(file)+" fetched from "+RNS.prettyhexrep(destination_hash))
+            print(f"{file} fetched from {RNS.prettyhexrep(destination_hash)}")
         else:
-            print("\n"+str(file)+" fetched from "+RNS.prettyhexrep(destination_hash))
+            print(f"\n{file} fetched from {RNS.prettyhexrep(destination_hash)}")
         link.teardown()
         time.sleep(0.15)
         exit(0)
@@ -590,7 +590,7 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
     try:
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
         if len(destination) != dest_len:
-            raise ValueError("Allowed destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            raise ValueError(f"Allowed destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
         try:
             destination_hash = bytes.fromhex(destination)
         except Exception as e:
@@ -625,11 +625,11 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
 
     reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
 
-    identity_path = RNS.Reticulum.identitypath+"/"+APP_NAME
+    identity_path = f"{RNS.Reticulum.identitypath}/{APP_NAME}"
     if os.path.isfile(identity_path):
         identity = RNS.Identity.from_file(identity_path)
         if identity == None:
-            RNS.log("Could not load identity for rncp. The identity file at \""+str(identity_path)+"\" may be corrupt or unreadable.", RNS.LOG_ERROR)
+            RNS.log(f"Could not load identity for rncp. The identity file at \"{identity_path}\" may be corrupt or unreadable.", RNS.LOG_ERROR)
             exit(2)
     else:
         identity = None
@@ -642,9 +642,9 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
     if not RNS.Transport.has_path(destination_hash):
         RNS.Transport.request_path(destination_hash)
         if silent:
-            print("Path to "+RNS.prettyhexrep(destination_hash)+" requested")
+            print(f"Path to {RNS.prettyhexrep(destination_hash)} requested")
         else:
-            print("Path to "+RNS.prettyhexrep(destination_hash)+" requested  ", end=es)
+            print(f"Path to {RNS.prettyhexrep(destination_hash)} requested  ", end=es)
         sys.stdout.flush()
 
     i = 0
@@ -653,7 +653,7 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
     while not RNS.Transport.has_path(destination_hash) and time.time() < estab_timeout:
         if not silent:
             time.sleep(0.1)
-            print(("\b\b"+syms[i]+" "), end="")
+            print(f"\b\b{syms[i]} ", end="")
             sys.stdout.flush()
             i = (i+1)%len(syms)
 
@@ -665,9 +665,9 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
         exit(1)
     else:
         if silent:
-            print("Establishing link with "+RNS.prettyhexrep(destination_hash))
+            print(f"Establishing link with {RNS.prettyhexrep(destination_hash)}")
         else:
-            print(f"{erase_str}Establishing link with "+RNS.prettyhexrep(destination_hash)+" ", end=es)
+            print(f"{erase_str}Establishing link with {RNS.prettyhexrep(destination_hash)} ", end=es)
 
     receiver_identity = RNS.Identity.recall(destination_hash)
     receiver_destination = RNS.Destination(
@@ -682,21 +682,21 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
     while link.status != RNS.Link.ACTIVE and time.time() < estab_timeout:
         if not silent:
             time.sleep(0.1)
-            print(("\b\b"+syms[i]+" "), end="")
+            print(f"\b\b{syms[i]} ", end="")
             sys.stdout.flush()
             i = (i+1)%len(syms)
 
     if time.time() > estab_timeout:
         if silent:
-            print("Link establishment with "+RNS.prettyhexrep(destination_hash)+" timed out")
+            print(f"Link establishment with {RNS.prettyhexrep(destination_hash)} timed out")
         else:
-            print(f"{erase_str}Link establishment with "+RNS.prettyhexrep(destination_hash)+" timed out")
+            print(f"{erase_str}Link establishment with {RNS.prettyhexrep(destination_hash)} timed out")
         exit(1)
     elif not RNS.Transport.has_path(destination_hash):
         if silent:
-            print("No path found to "+RNS.prettyhexrep(destination_hash))
+            print(f"No path found to {RNS.prettyhexrep(destination_hash)}")
         else:
-            print(f"{erase_str}No path found to "+RNS.prettyhexrep(destination_hash))
+            print(f"{erase_str}No path found to {RNS.prettyhexrep(destination_hash)}")
         exit(1)
     else:
         if silent:
@@ -711,16 +711,16 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
     while resource.status < RNS.Resource.TRANSFERRING:
         if not silent:
             time.sleep(0.1)
-            print(("\b\b"+syms[i]+" "), end="")
+            print(f"\b\b{syms[i]} ", end="")
             sys.stdout.flush()
             i = (i+1)%len(syms)
 
     
     if resource.status > RNS.Resource.COMPLETE:
         if silent:
-            print("File was not accepted by "+RNS.prettyhexrep(destination_hash))
+            print(f"File was not accepted by {RNS.prettyhexrep(destination_hash)}")
         else:
-            print(f"{erase_str}File was not accepted by "+RNS.prettyhexrep(destination_hash))
+            print(f"{erase_str}File was not accepted by {RNS.prettyhexrep(destination_hash)}")
         exit(1)
     else:
         if silent:
@@ -743,9 +743,9 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
         ss = size_str(speed, "b")
         stat_str = f"{percent}% - {cs} of {ts} - {ss}ps{phy_str}"
         if not done:
-            print(f"{erase_str}Transferring file "+syms[i]+" "+stat_str, end=es)
+            print(f"{erase_str}Transferring file {syms[i]} {stat_str}", end=es)
         else:
-            print(f"{erase_str}Transfer complete  "+stat_str, end=es)
+            print(f"{erase_str}Transfer complete  {stat_str}", end=es)
         sys.stdout.flush()
         i = (i+1)%len(syms)
         return i
@@ -765,9 +765,9 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
         exit(1)
     else:
         if silent:
-            print(str(file_path)+" copied to "+RNS.prettyhexrep(destination_hash))
+            print(f"{file_path} copied to {RNS.prettyhexrep(destination_hash)}")
         else:
-            print("\n"+str(file_path)+" copied to "+RNS.prettyhexrep(destination_hash))
+            print(f"\n{file_path} copied to {RNS.prettyhexrep(destination_hash)}")
         link.teardown()
         time.sleep(0.25)
         real_file.close()
@@ -795,7 +795,7 @@ def main():
         parser.add_argument("-w", action="store", metavar="seconds", type=float, help="sender timeout before giving up", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
         parser.add_argument('-P', '--phy-rates', action='store_true', default=False, help="display physical layer transfer rates")
         # parser.add_argument("--limit", action="store", metavar="files", type=float, help="maximum number of files to accept", default=None)
-        parser.add_argument("--version", action="version", version="rncp {version}".format(version=__version__))
+        parser.add_argument("--version", action="version", version=f"rncp {__version__}")
         
         args = parser.parse_args()
 
@@ -869,12 +869,12 @@ def size_str(num, suffix='B'):
     for unit in units:
         if abs(num) < 1000.0:
             if unit == "":
-                return "%.0f %s%s" % (num, unit, suffix)
+                return f"{num:.0f} {unit}{suffix}"
             else:
-                return "%.2f %s%s" % (num, unit, suffix)
+                return f"{num:.2f} {unit}{suffix}"
         num /= 1000.0
 
-    return "%.2f%s%s" % (num, last_unit, suffix)
+    return f"{num:.2f}{last_unit}{suffix}"
 
 if __name__ == "__main__":
     main()

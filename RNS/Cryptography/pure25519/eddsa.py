@@ -78,16 +78,16 @@ def sign(skbytes, msg):
     """Return just the signature, given the message and just the secret
     key."""
     if len(skbytes) != 32:
-        raise ValueError("Bad signing key length %d" % len(skbytes))
+        raise ValueError(f"Bad signing key length {len(skbytes)}")
     vkbytes = create_verifying_key(skbytes)
     sig = signature(msg, skbytes, vkbytes)
     return sig
 
 def verify(vkbytes, sig, msg):
     if len(vkbytes) != 32:
-        raise ValueError("Bad verifying key length %d" % len(vkbytes))
+        raise ValueError(f"Bad verifying key length {len(vkbytes)}")
     if len(sig) != 64:
-        raise ValueError("Bad signature length %d" % len(sig))
+        raise ValueError(f"Bad signature length {len(sig)}")
     rc = checkvalid(sig, msg, vkbytes)
     if not rc:
         raise ValueError("rc != 0", rc)

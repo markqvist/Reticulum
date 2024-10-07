@@ -38,5 +38,5 @@ def generate_session_id(length=6):
     """Generate random session id"""
     rand = random.SystemRandom()
     sid = [rand.choice(string.ascii_letters) for _ in range(length)]
-    return "reticulum-" + "".join(sid)
+    return f"reticulum-{''.join(sid)}"
 

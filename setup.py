@@ -9,14 +9,14 @@ if '--pure' in sys.argv:
     sys.argv.remove('--pure')
     print("Building pure-python wheel")
 
-exec(open("RNS/_version.py", "r").read())
-with open("README.md", "r") as fh:
+exec(open("RNS/_version.py").read())
+with open("README.md") as fh:
     long_description = fh.read()
 
 if pure_python:
     pkg_name = "rnspure"
     requirements = []
-    long_description = long_description.replace("</p>", "</p>"+pure_notice)
+    long_description = long_description.replace("</p>", f"</p>{pure_notice}")
 else:
     pkg_name = "rns"
     requirements = ['cryptography>=3.4.7', 'pyserial>=3.5']

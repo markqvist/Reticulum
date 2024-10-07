@@ -40,9 +40,9 @@ def program_setup(configdir, verbosity = 0, quietness = 0, service = False):
 
     reticulum = RNS.Reticulum(configdir=configdir, verbosity=targetverbosity, logdest=targetlogdest)
     if reticulum.is_connected_to_shared_instance:
-        RNS.log("Started rnsd version {version} connected to another shared local instance, this is probably NOT what you want!".format(version=__version__), RNS.LOG_WARNING)
+        RNS.log(f"Started rnsd version {__version__} connected to another shared local instance, this is probably NOT what you want!", RNS.LOG_WARNING)
     else:
-        RNS.log("Started rnsd version {version}".format(version=__version__), RNS.LOG_NOTICE)
+        RNS.log(f"Started rnsd version {__version__}", RNS.LOG_NOTICE)
 
     while True:
         time.sleep(1)
@@ -55,7 +55,7 @@ def main():
         parser.add_argument('-q', '--quiet', action='count', default=0)
         parser.add_argument('-s', '--service', action='store_true', default=False, help="rnsd is running as a service and should log to file")
         parser.add_argument("--exampleconfig", action='store_true', default=False, help="print verbose configuration example to stdout and exit")
-        parser.add_argument("--version", action="version", version="rnsd {version}".format(version=__version__))
+        parser.add_argument("--version", action="version", version=f"rnsd {__version__}")
         
         args = parser.parse_args()
 

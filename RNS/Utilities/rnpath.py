@@ -35,7 +35,7 @@ def connect_remote(destination_hash, auth_identity, timeout, no_output = False):
     global remote_link, reticulum
     if not RNS.Transport.has_path(destination_hash):
         if not no_output:
-            print("Path to "+RNS.prettyhexrep(destination_hash)+" requested", end=" ")
+            print(f"Path to {RNS.prettyhexrep(destination_hash)} requested", end=" ")
             sys.stdout.flush()
         RNS.Transport.request_path(destination_hash)
         pr_time = time.time()
@@ -88,7 +88,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
             if len(remote) != dest_len:
-                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                raise ValueError(f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
             try:
                 identity_hash = bytes.fromhex(remote)
                 remote_hash = RNS.Destination.hash_from_name_and_identity("rnstransport.remote.management", identity_hash)
@@ -97,7 +97,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
 
             identity = RNS.Identity.from_file(os.path.expanduser(management_identity))
             if identity == None:
-                raise ValueError("Could not load management identity from "+str(management_identity))
+                raise ValueError(f"Could not load management identity from {management_identity}")
 
             try:
                 connect_remote(remote_hash, identity, remote_timeout, no_output)
@@ -118,7 +118,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             try:
                 dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
                 if len(destination_hexhash) != dest_len:
-                    raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                    raise ValueError(f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
                 try:
                     destination_hash = bytes.fromhex(destination_hexhash)
                 except Exception as e:
@@ -166,7 +166,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                         m_str = " "
                     else:
                         m_str = "s"
-                    print(RNS.prettyhexrep(path["hash"])+" is "+str(path["hops"])+" hop"+m_str+" away via "+RNS.prettyhexrep(path["via"])+" on "+path["interface"]+" expires "+RNS.timestamp_str(path["expires"]))
+                    print(f"{RNS.prettyhexrep(path['hash'])} is {path['hops']} hop{m_str} away via {RNS.prettyhexrep(path['via'])} on {path['interface']} expires {RNS.timestamp_str(path['expires'])}")
 
             if destination_hash != None and displayed == 0:
                 print("No path known")
@@ -178,7 +178,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             try:
                 dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
                 if len(destination_hexhash) != dest_len:
-                    raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                    raise ValueError(f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
                 try:
                     destination_hash = bytes.fromhex(destination_hexhash)
                 except Exception as e:
@@ -242,21 +242,21 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                                 else:
                                     s_str = "s"
 
-                                rv_str = ", "+str(entry["rate_violations"])+" active rate violation"+s_str
+                                rv_str = f", {entry['rate_violations']} active rate violation{s_str}"
                             else:
                                 rv_str = ""
                             
                             if entry["blocked_until"] > time.time():
                                 bli = time.time()-(int(entry["blocked_until"])-time.time())
-                                bl_str = ", new announces allowed in "+pretty_date(int(bli))
+                                bl_str = f", new announces allowed in {pretty_date(int(bli))}"
                             else:
                                 bl_str = ""
 
             
-                            print(RNS.prettyhexrep(entry["hash"])+" last heard "+last_str+" ago, "+str(hour_rate)+" announces/hour in the last "+span_str+rv_str+bl_str)
+                            print(f"{RNS.prettyhexrep(entry['hash'])} last heard {last_str} ago, {hour_rate} announces/hour in the last {span_str}{rv_str}{bl_str}")
 
                         except Exception as e:
-                            print("Error while processing entry for "+RNS.prettyhexrep(entry["hash"]))
+                            print(f"Error while processing entry for {RNS.prettyhexrep(entry['hash'])}")
                             print(str(e))
 
                 if destination_hash != None and displayed == 0:
@@ -283,7 +283,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
             if len(destination_hexhash) != dest_len:
-                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                raise ValueError(f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
             try:
                 destination_hash = bytes.fromhex(destination_hexhash)
             except Exception as e:
@@ -293,9 +293,9 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             sys.exit(1)
 
         if reticulum.drop_path(destination_hash):
-            print("Dropped path to "+RNS.prettyhexrep(destination_hash))
+            print(f"Dropped path to {RNS.prettyhexrep(destination_hash)}")
         else:
-            print("Unable to drop path to "+RNS.prettyhexrep(destination_hash)+". Does it exist?")
+            print(f"Unable to drop path to {RNS.prettyhexrep(destination_hash)}. Does it exist?")
             sys.exit(1)
 
     elif drop_via:
@@ -308,7 +308,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
             if len(destination_hexhash) != dest_len:
-                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                raise ValueError(f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
             try:
                 destination_hash = bytes.fromhex(destination_hexhash)
             except Exception as e:
@@ -318,9 +318,9 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             sys.exit(1)
 
         if reticulum.drop_all_via(destination_hash):
-            print("Dropped all paths via "+RNS.prettyhexrep(destination_hash))
+            print(f"Dropped all paths via {RNS.prettyhexrep(destination_hash)}")
         else:
-            print("Unable to drop paths via "+RNS.prettyhexrep(destination_hash)+". Does the transport instance exist?")
+            print(f"Unable to drop paths via {RNS.prettyhexrep(destination_hash)}. Does the transport instance exist?")
             sys.exit(1)
 
     else:
@@ -333,7 +333,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
             if len(destination_hexhash) != dest_len:
-                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                raise ValueError(f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
             try:
                 destination_hash = bytes.fromhex(destination_hexhash)
             except Exception as e:
@@ -344,7 +344,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             
         if not RNS.Transport.has_path(destination_hash):
             RNS.Transport.request_path(destination_hash)
-            print("Path to "+RNS.prettyhexrep(destination_hash)+" requested  ", end=" ")
+            print(f"Path to {RNS.prettyhexrep(destination_hash)} requested  ", end=" ")
             sys.stdout.flush()
 
         i = 0
@@ -352,7 +352,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
         limit = time.time()+timeout
         while not RNS.Transport.has_path(destination_hash) and time.time()<limit:
             time.sleep(0.1)
-            print(("\b\b"+syms[i]+" "), end="")
+            print(f"\b\b{syms[i]} ", end="")
             sys.stdout.flush()
             i = (i+1)%len(syms)
 
@@ -371,7 +371,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                 else:
                     ms = ""
 
-                print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+str(hops)+" hop"+ms+" away via "+next_hop+" on "+next_hop_interface)
+                print(f'\rPath found, destination {RNS.prettyhexrep(destination_hash)} is {hops} hop{ms} away via {next_hop} on {next_hop_interface}')
         else:
             print("\r                                                       \rPath not found")
             sys.exit(1)
@@ -392,7 +392,7 @@ def main():
         parser.add_argument(
             "--version",
             action="version",
-            version="rnpath {version}".format(version=__version__)
+            version=f"rnpath {__version__}"
         )
 
         parser.add_argument(
@@ -547,26 +547,26 @@ def pretty_date(time=False):
         return ''
     if day_diff == 0:
         if second_diff < 10:
-            return str(second_diff) + " seconds"
+            return f"{second_diff} seconds"
         if second_diff < 60:
-            return str(second_diff) + " seconds"
+            return f"{second_diff} seconds"
         if second_diff < 120:
             return "1 minute"
         if second_diff < 3600:
-            return str(int(second_diff / 60)) + " minutes"
+            return f"{int(second_diff / 60)} minutes"
         if second_diff < 7200:
             return "an hour"
         if second_diff < 86400:
-            return str(int(second_diff / 3600)) + " hours"
+            return f"{int(second_diff / 3600)} hours"
     if day_diff == 1:
         return "1 day"
     if day_diff < 7:
-        return str(day_diff) + " days"
+        return f"{day_diff} days"
     if day_diff < 31:
-        return str(int(day_diff / 7)) + " weeks"
+        return f"{int(day_diff / 7)} weeks"
     if day_diff < 365:
-        return str(int(day_diff / 30)) + " months"
-    return str(int(day_diff / 365)) + " years"
+        return f"{int(day_diff / 30)} months"
+    return f"{int(day_diff / 365)} years"
 
 if __name__ == "__main__":
     main()

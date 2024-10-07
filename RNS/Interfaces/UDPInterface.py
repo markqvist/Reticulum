@@ -101,11 +101,11 @@ class UDPInterface(Interface):
             self.txb += len(data)
             
         except Exception as e:
-            RNS.log("Could not transmit on "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log(f"Could not transmit on {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 
 
     def __str__(self):
-        return "UDPInterface["+self.name+"/"+self.bind_ip+":"+str(self.bind_port)+"]"
+        return f"UDPInterface[{self.name}/{self.bind_ip}:{self.bind_port}]"
 
 class UDPInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):

@@ -35,7 +35,7 @@ import RNS
 class AutoInterface(Interface):
     DEFAULT_DISCOVERY_PORT = 29716
     DEFAULT_DATA_PORT      = 42671
-    DEFAULT_GROUP_ID       = "reticulum".encode("utf-8")
+    DEFAULT_GROUP_ID       = b"reticulum"
 
     SCOPE_LINK         = "2"
     SCOPE_ADMIN        = "4"
@@ -169,32 +169,32 @@ class AutoInterface(Interface):
 
         self.group_hash = RNS.Identity.full_hash(self.group_id)
         g = self.group_hash
-        #gt  = "{:02x}".format(g[1]+(g[0]<<8))
+        #gt  = f"{g[1] + (g[0] << 8):02x}"
         gt  = "0"
-        gt += ":"+"{:02x}".format(g[3]+(g[2]<<8))
-        gt += ":"+"{:02x}".format(g[5]+(g[4]<<8))
-        gt += ":"+"{:02x}".format(g[7]+(g[6]<<8))
-        gt += ":"+"{:02x}".format(g[9]+(g[8]<<8))
-        gt += ":"+"{:02x}".format(g[11]+(g[10]<<8))
-        gt += ":"+"{:02x}".format(g[13]+(g[12]<<8))
-        self.mcast_discovery_address = "ff"+self.multicast_address_type+self.discovery_scope+":"+gt
+        gt += f":{g[3] + (g[2] << 8):02x}"
+        gt += f":{g[5] + (g[4] << 8):02x}"
+        gt += f":{g[7] + (g[6] << 8):02x}"
+        gt += f":{g[9] + (g[8] << 8):02x}"
+        gt += f":{g[11] + (g[10] << 8):02x}"
+        gt += f":{g[13] + (g[12] << 8):02x}"
+        self.mcast_discovery_address = f"ff{self.multicast_address_type}{self.discovery_scope}:{gt}"
 
         suitable_interfaces = 0
         for ifname in self.list_interfaces():
             try:
                 if RNS.vendor.platformutils.is_darwin() and ifname in AutoInterface.DARWIN_IGNORE_IFS and not ifname in self.allowed_interfaces:
-                    RNS.log(str(self)+" skipping Darwin AWDL or tethering interface "+str(ifname), RNS.LOG_EXTREME)
+                    RNS.log(f"{self} skipping Darwin AWDL or tethering interface {ifname}", RNS.LOG_EXTREME)
                 elif RNS.vendor.platformutils.is_darwin() and ifname == "lo0":
-                    RNS.log(str(self)+" skipping Darwin loopback interface "+str(ifname), RNS.LOG_EXTREME)
+                    RNS.log(f"{self} skipping Darwin loopback interface {ifname}", RNS.LOG_EXTREME)
                 elif RNS.vendor.platformutils.is_android() and ifname in AutoInterface.ANDROID_IGNORE_IFS and not ifname in self.allowed_interfaces:
-                    RNS.log(str(self)+" skipping Android system interface "+str(ifname), RNS.LOG_EXTREME)
+                    RNS.log(f"{self} skipping Android system interface {ifname}", RNS.LOG_EXTREME)
                 elif ifname in self.ignored_interfaces:
-                    RNS.log(str(self)+" ignoring disallowed interface "+str(ifname), RNS.LOG_EXTREME)
+                    RNS.log(f"{self} ignoring disallowed interface {ifname}", RNS.LOG_EXTREME)
                 elif ifname in AutoInterface.ALL_IGNORE_IFS:
-                    RNS.log(str(self)+" skipping interface "+str(ifname), RNS.LOG_EXTREME)
+                    RNS.log(f"{self} skipping interface {ifname}", RNS.LOG_EXTREME)
                 else:
                     if len(self.allowed_interfaces) > 0 and not ifname in self.allowed_interfaces:
-                        RNS.log(str(self)+" ignoring interface "+str(ifname)+" since it was not allowed", RNS.LOG_EXTREME)
+                        RNS.log(f"{self} ignoring interface {ifname} since it was not allowed", RNS.LOG_EXTREME)
                     else:
                         addresses = self.list_addresses(ifname)
                         if self.netinfo.AF_INET6 in addresses:
@@ -213,10 +213,10 @@ class AutoInterface(Interface):
                                             RNS.log(f"{self} Selecting link-local address {link_local_addr} for interface {ifname}", RNS.LOG_EXTREME)
 
                             if link_local_addr == None:
-                                RNS.log(str(self)+" No link-local IPv6 address configured for "+str(ifname)+", skipping interface", RNS.LOG_EXTREME)
+                                RNS.log(f"{self} No link-local IPv6 address configured for {ifname}, skipping interface", RNS.LOG_EXTREME)
                             else:
                                 mcast_addr = self.mcast_discovery_address
-                                RNS.log(str(self)+" Creating multicast discovery listener on "+str(ifname)+" with address "+str(mcast_addr), RNS.LOG_EXTREME)
+                                RNS.log(f"{self} Creating multicast discovery listener on {ifname} with address {mcast_addr}", RNS.LOG_EXTREME)
 
                                 # Struct with interface index
                                 if_struct = struct.pack("I", self.interface_name_to_index(ifname))
@@ -243,7 +243,7 @@ class AutoInterface(Interface):
                                 else:
 
                                     if self.discovery_scope == AutoInterface.SCOPE_LINK:
-                                        addr_info = socket.getaddrinfo(mcast_addr+"%"+ifname, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                                        addr_info = socket.getaddrinfo(f"{mcast_addr}%{ifname}", self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
                                     else:
                                         addr_info = socket.getaddrinfo(mcast_addr, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
 
@@ -267,7 +267,7 @@ class AutoInterface(Interface):
                     RNS.log(f"Could not configure the system interface {ifname} for use with {self}, skipping it. The contained exception was: {e}", RNS.LOG_ERROR)
 
         if suitable_interfaces == 0:
-            RNS.log(str(self)+" could not autoconfigure. This interface currently provides no connectivity.", RNS.LOG_WARNING)
+            RNS.log(f"{self} could not autoconfigure. This interface currently provides no connectivity.", RNS.LOG_WARNING)
         else:
             self.receives = True
 
@@ -277,13 +277,13 @@ class AutoInterface(Interface):
                 self.bitrate = AutoInterface.BITRATE_GUESS
 
             peering_wait = self.announce_interval*1.2
-            RNS.log(str(self)+" discovering peers for "+str(round(peering_wait, 2))+" seconds...", RNS.LOG_VERBOSE)
+            RNS.log(f"{self} discovering peers for {round(peering_wait, 2)} seconds...", RNS.LOG_VERBOSE)
 
             self.owner = owner
             socketserver.UDPServer.address_family = socket.AF_INET6
 
             for ifname in self.adopted_interfaces:
-                local_addr = self.adopted_interfaces[ifname]+"%"+str(self.interface_name_to_index(ifname))
+                local_addr = f"{self.adopted_interfaces[ifname]}%{self.interface_name_to_index(ifname)}"
                 addr_info = socket.getaddrinfo(local_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
                 address = addr_info[0][4]
 
@@ -317,7 +317,7 @@ class AutoInterface(Interface):
             if data == expected_hash:
                 self.add_peer(ipv6_src[0], ifname)
             else:
-                RNS.log(str(self)+" received peering packet on "+str(ifname)+" from "+str(ipv6_src[0])+", but authentication hash was incorrect.", RNS.LOG_DEBUG)
+                RNS.log(f"{self} received peering packet on {ifname} from {ipv6_src[0]}, but authentication hash was incorrect.", RNS.LOG_DEBUG)
 
     def peer_jobs(self):
         while True:
@@ -335,7 +335,7 @@ class AutoInterface(Interface):
             # Remove any timed out peers
             for peer_addr in timed_out_peers:
                 removed_peer = self.peers.pop(peer_addr)
-                RNS.log(str(self)+" removed peer "+str(peer_addr)+" on "+str(removed_peer[0]), RNS.LOG_DEBUG)
+                RNS.log(f"{self} removed peer {peer_addr} on {removed_peer[0]}", RNS.LOG_DEBUG)
 
             for ifname in self.adopted_interfaces:
                 # Check that the link-local address has not changed
@@ -349,25 +349,25 @@ class AutoInterface(Interface):
                                     link_local_addr = self.descope_linklocal(address["addr"])
                                     if link_local_addr != self.adopted_interfaces[ifname]:
                                         old_link_local_address = self.adopted_interfaces[ifname]
-                                        RNS.log("Replacing link-local address "+str(old_link_local_address)+" for "+str(ifname)+" with "+str(link_local_addr), RNS.LOG_DEBUG)
+                                        RNS.log(f"Replacing link-local address {old_link_local_address} for {ifname} with {link_local_addr}", RNS.LOG_DEBUG)
                                         self.adopted_interfaces[ifname] = link_local_addr
                                         self.link_local_addresses.append(link_local_addr)
 
                                         if old_link_local_address in self.link_local_addresses:
                                             self.link_local_addresses.remove(old_link_local_address)
 
-                                        local_addr = link_local_addr+"%"+ifname
+                                        local_addr = f"{link_local_addr}%{ifname}"
                                         addr_info = socket.getaddrinfo(local_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
                                         listen_address = addr_info[0][4]
 
                                         if ifname in self.interface_servers:
-                                            RNS.log("Shutting down previous UDP listener for "+str(self)+" "+str(ifname), RNS.LOG_DEBUG)
+                                            RNS.log(f"Shutting down previous UDP listener for {self} {ifname}", RNS.LOG_DEBUG)
                                             previous_server = self.interface_servers[ifname]
                                             def shutdown_server():
                                                 previous_server.shutdown()
                                             threading.Thread(target=shutdown_server, daemon=True).start()
 
-                                        RNS.log("Starting new UDP listener for "+str(self)+" "+str(ifname), RNS.LOG_DEBUG)
+                                        RNS.log(f"Starting new UDP listener for {self} {ifname}", RNS.LOG_DEBUG)
 
                                         udp_server = socketserver.UDPServer(listen_address, self.handler_factory(self.processIncoming))
                                         self.interface_servers[ifname] = udp_server
@@ -379,7 +379,7 @@ class AutoInterface(Interface):
                                         self.carrier_changed = True
 
                 except Exception as e:
-                    RNS.log("Could not get device information while updating link-local addresses for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                    RNS.log(f"Could not get device information while updating link-local addresses for {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 
                 # Check multicast echo timeouts
                 last_multicast_echo = 0
@@ -389,12 +389,12 @@ class AutoInterface(Interface):
                 if now - last_multicast_echo > self.multicast_echo_timeout:
                     if ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == False:
                         self.carrier_changed = True
-                        RNS.log("Multicast echo timeout for "+str(ifname)+". Carrier lost.", RNS.LOG_WARNING)
+                        RNS.log(f"Multicast echo timeout for {ifname}. Carrier lost.", RNS.LOG_WARNING)
                     self.timed_out_interfaces[ifname] = True
                 else:
                     if ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == True:
                         self.carrier_changed = True
-                        RNS.log(str(self)+" Carrier recovered on "+str(ifname), RNS.LOG_WARNING)
+                        RNS.log(f"{self} Carrier recovered on {ifname}", RNS.LOG_WARNING)
                     self.timed_out_interfaces[ifname] = False
                 
 
@@ -417,7 +417,7 @@ class AutoInterface(Interface):
             
         except Exception as e:
             if (ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == False) or not ifname in self.timed_out_interfaces:
-                RNS.log(str(self)+" Detected possible carrier loss on "+str(ifname)+": "+str(e), RNS.LOG_WARNING)
+                RNS.log(f"{self} Detected possible carrier loss on {ifname}: {e}", RNS.LOG_WARNING)
             else:
                 pass
 
@@ -431,12 +431,12 @@ class AutoInterface(Interface):
             if ifname != None:
                 self.multicast_echoes[ifname] = time.time()
             else:
-                RNS.log(str(self)+" received multicast echo on unexpected interface "+str(ifname), RNS.LOG_WARNING)
+                RNS.log(f"{self} received multicast echo on unexpected interface {ifname}", RNS.LOG_WARNING)
 
         else:
             if not addr in self.peers:
                 self.peers[addr] = [ifname, time.time()]
-                RNS.log(str(self)+" added peer "+str(addr)+" on "+str(ifname), RNS.LOG_DEBUG)
+                RNS.log(f"{self} added peer {addr} on {ifname}", RNS.LOG_DEBUG)
             else:
                 self.refresh_peer(addr)
 
@@ -464,12 +464,12 @@ class AutoInterface(Interface):
                     if self.outbound_udp_socket == None:
                         self.outbound_udp_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
 
-                    peer_addr = str(peer)+"%"+str(self.interface_name_to_index(self.peers[peer][0]))
+                    peer_addr = f"{peer}%{self.interface_name_to_index(self.peers[peer][0])}"
                     addr_info = socket.getaddrinfo(peer_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
                     self.outbound_udp_socket.sendto(data, addr_info[0][4])
 
                 except Exception as e:
-                    RNS.log("Could not transmit on "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                    RNS.log(f"Could not transmit on {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 
             
             self.txb += len(data)
@@ -481,7 +481,7 @@ class AutoInterface(Interface):
         return False
 
     def __str__(self):
-        return "AutoInterface["+self.name+"]"
+        return f"AutoInterface[{self.name}]"
 
 class AutoInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):

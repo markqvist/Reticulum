@@ -24,7 +24,7 @@ APP_NAME = "example_utilities"
 latest_client_link = None
 
 def random_text_generator(path, data, request_id, link_id, remote_identity, requested_at):
-    RNS.log("Generating response to request "+RNS.prettyhexrep(request_id)+" on link "+RNS.prettyhexrep(link_id))
+    RNS.log(f"Generating response to request {RNS.prettyhexrep(request_id)} on link {RNS.prettyhexrep(link_id)}")
     texts = ["They looked up", "On each full moon", "Becky was upset", "I’ll stay away from it", "The pet shop stocks everything"]
     return texts[random.randint(0, len(texts)-1)]
 
@@ -67,9 +67,7 @@ def server(configpath):
 def server_loop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Request example "+
-        RNS.prettyhexrep(destination.hash)+
-        " running, waiting for a connection."
+        f"Request example {RNS.prettyhexrep(destination.hash)} running, waiting for a connection."
     )
 
     RNS.log("Hit enter to manually send an announce (Ctrl-C to quit)")
@@ -81,7 +79,7 @@ def server_loop(destination):
     while True:
         entered = input()
         destination.announce()
-        RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
+        RNS.log(f"Sent announce from {RNS.prettyhexrep(destination.hash)}")
 
 # When a client establishes a link to our server
 # destination, this function will be called with
@@ -113,7 +111,7 @@ def client(destination_hexhash, configpath):
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
         if len(destination_hexhash) != dest_len:
             raise ValueError(
-                "Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2)
+                f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes)."
             )
             
         destination_hash = bytes.fromhex(destination_hexhash)
@@ -187,7 +185,7 @@ def client_loop():
 
 
         except Exception as e:
-            RNS.log("Error while sending request over the link: "+str(e))
+            RNS.log(f"Error while sending request over the link: {e}")
             should_quit = True
             server_link.teardown()
 
@@ -195,13 +193,13 @@ def got_response(request_receipt):
     request_id = request_receipt.request_id
     response = request_receipt.response
 
-    RNS.log("Got response for request "+RNS.prettyhexrep(request_id)+": "+str(response))
+    RNS.log(f"Got response for request {RNS.prettyhexrep(request_id)}: {response}")
 
 def request_received(request_receipt):
-    RNS.log("The request "+RNS.prettyhexrep(request_receipt.request_id)+" was received by the remote peer.")
+    RNS.log(f"The request {RNS.prettyhexrep(request_receipt.request_id)} was received by the remote peer.")
 
 def request_failed(request_receipt):
-    RNS.log("The request "+RNS.prettyhexrep(request_receipt.request_id)+" failed.")
+    RNS.log(f"The request {RNS.prettyhexrep(request_receipt.request_id)} failed.")
 
 
 # This function is called when a link

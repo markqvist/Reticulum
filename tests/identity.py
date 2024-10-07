@@ -62,8 +62,8 @@ class TestIdentity(unittest.TestCase):
         tmdev = tmax - tmin
         mpct = (tmax/tmed)*100
         print("Random messages:")
-        print("  Signature timing min/avg/med/max/mdev: "+str(round(tmin, 3))+"/"+str(round(tmean, 3))+"/"+str(round(tmed, 3))+"/"+str(round(tmax, 3))+"/"+str(round(tmdev, 3)))
-        print("  Max deviation from median: "+str(round(mpct, 1))+"%")
+        print(f"  Signature timing min/avg/med/max/mdev: {round(tmin, 3)}/{round(tmean, 3)}/{round(tmed, 3)}/{round(tmax, 3)}/{round(tmdev, 3)}")
+        print(f"  Max deviation from median: {round(mpct, 1)}%")
         print()
 
         id1 = RNS.Identity()
@@ -85,8 +85,8 @@ class TestIdentity(unittest.TestCase):
         tmdev = tmax - tmin
         mpct = (tmax/tmed)*100
         print("All 0xff messages:")
-        print("  Signature timing min/avg/med/max/mdev: "+str(round(tmin, 3))+"/"+str(round(tmean, 3))+"/"+str(round(tmed, 3))+"/"+str(round(tmax, 3))+"/"+str(round(tmdev, 3)))
-        print("  Max deviation from median: "+str(round(mpct, 1))+"%")
+        print(f"  Signature timing min/avg/med/max/mdev: {round(tmin, 3)}/{round(tmean, 3)}/{round(tmed, 3)}/{round(tmax, 3)}/{round(tmdev, 3)}")
+        print(f"  Max deviation from median: {round(mpct, 1)}%")
         print()
 
         id1 = RNS.Identity()
@@ -108,8 +108,8 @@ class TestIdentity(unittest.TestCase):
         tmdev = tmax - tmin
         mpct = (tmax/tmed)*100
         print("All 0x00 messages:")
-        print("  Signature timing min/avg/med/max/mdev: "+str(round(tmin, 3))+"/"+str(round(tmean, 3))+"/"+str(round(tmed, 3))+"/"+str(round(tmax, 3))+"/"+str(round(tmdev, 3)))
-        print("  Max deviation from median: "+str(round(mpct, 1))+"%")
+        print(f"  Signature timing min/avg/med/max/mdev: {round(tmin, 3)}/{round(tmean, 3)}/{round(tmed, 3)}/{round(tmax, 3)}/{round(tmdev, 3)}")
+        print(f"  Max deviation from median: {round(mpct, 1)}%")
         print()
 
         b = 0
@@ -127,7 +127,7 @@ class TestIdentity(unittest.TestCase):
             self.assertEqual(True, id2.validate(signature, msg))
             t += time.time() - start
 
-        print("Sign/validate chunks < MTU: "+self.size_str(b/t, "b")+"ps")
+        print(f"Sign/validate chunks < MTU: {self.size_str(b / t, 'b')}ps")
 
         for i in range(1, 500):
             mlen = 16*1024
@@ -142,7 +142,7 @@ class TestIdentity(unittest.TestCase):
             self.assertEqual(True, id2.validate(signature, msg))
             t += time.time() - start
 
-        print("Sign/validate 16KB chunks: "+self.size_str(b/t, "b")+"ps")
+        print(f"Sign/validate 16KB chunks: {self.size_str(b / t, 'b')}ps")
 
 
     def test_2_encrypt(self):
@@ -176,8 +176,8 @@ class TestIdentity(unittest.TestCase):
             self.assertEqual(msg, decrypted)
             d_t += time.time() - d_start
 
-        print("Encrypt chunks < MTU: "+self.size_str(b/e_t, "b")+"ps")
-        print("Decrypt chunks < MTU: "+self.size_str(b/d_t, "b")+"ps")
+        print(f"Encrypt chunks < MTU: {self.size_str(b / e_t, 'b')}ps")
+        print(f"Decrypt chunks < MTU: {self.size_str(b / d_t, 'b')}ps")
         print("")
 
         # Test encrypt and decrypt of large chunks
@@ -203,8 +203,8 @@ class TestIdentity(unittest.TestCase):
             self.assertEqual(msg, id1.decrypt(token))
             d_t += time.time() - d_start
 
-        print("Encrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/e_t, "b")+"ps")
-        print("Decrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/d_t, "b")+"ps")
+        print(f"Encrypt {self.size_str(mlen)} chunks: {self.size_str(b / e_t, 'b')}ps")
+        print(f"Decrypt {self.size_str(mlen)} chunks: {self.size_str(b / d_t, 'b')}ps")
 
     def size_str(self, num, suffix='B'):
         units = ['','K','M','G','T','P','E','Z']
@@ -218,12 +218,12 @@ class TestIdentity(unittest.TestCase):
         for unit in units:
             if abs(num) < 1000.0:
                 if unit == "":
-                    return "%.0f %s%s" % (num, unit, suffix)
+                    return f"{num:.0f} {unit}{suffix}"
                 else:
-                    return "%.2f %s%s" % (num, unit, suffix)
+                    return f"{num:.2f} {unit}{suffix}"
             num /= 1000.0
 
-        return "%.2f%s%s" % (num, last_unit, suffix)
+        return f"{num:.2f}{last_unit}{suffix}"
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

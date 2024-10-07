@@ -39,7 +39,7 @@ class BadPrefixError(Exception):
 def remove_prefix(s_bytes, prefix):
     assert(type(s_bytes) == type(prefix))
     if s_bytes[:len(prefix)] != prefix:
-        raise BadPrefixError("did not see expected '%s' prefix" % (prefix,))
+        raise BadPrefixError(f"did not see expected '{prefix}' prefix")
     return s_bytes[len(prefix):]
 
 def to_ascii(s_bytes, prefix="", encoding="base64"):
@@ -93,7 +93,7 @@ def from_ascii(s_ascii, prefix="", encoding="base64"):
         raise NotImplementedError
     return s_bytes
 
-class SigningKey(object):
+class SigningKey:
     # this can only be used to reconstruct a key created by create_keypair().
     def __init__(self, sk_s, prefix="", encoding=None):
         assert isinstance(sk_s, bytes)
@@ -150,7 +150,7 @@ class SigningKey(object):
             return to_ascii(sig_out, prefix, encoding)
         return prefix+sig_out
 
-class VerifyingKey(object):
+class VerifyingKey:
     def __init__(self, vk_s, prefix="", encoding=None):
         if not isinstance(prefix, bytes):
             prefix = prefix.encode('ascii')

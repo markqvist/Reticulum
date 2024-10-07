@@ -79,7 +79,7 @@ def get_adapters(include_unconfigured: bool = False) -> Iterable[shared.Adapter]
                 prefixlen = shared.ipv6_prefixlength(ipaddress.IPv6Address(netmaskStr))
             else:
                 assert netmask is not None, f'sockaddr_to_ip({addr[0].ifa_netmask}) returned None'
-                netmaskStr = str('0.0.0.0/' + netmask)
+                netmaskStr = str(f"0.0.0.0/{netmask}")
                 prefixlen = ipaddress.IPv4Network(netmaskStr).prefixlen
             ip = shared.IP(ip_addr, prefixlen, name)
             add_ip(name, ip)
