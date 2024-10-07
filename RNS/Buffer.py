@@ -244,7 +244,7 @@ class RawChannelWriter(RawIOBase, AbstractContextManager):
                 processed_length = len(chunk)
 
             message = StreamDataMessage(self._stream_id, chunk, self._eof, comp_success)
-            
+
             self._channel.send(message)
             return processed_length
 

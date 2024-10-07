@@ -161,7 +161,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                     stats, link_count = remote_status
             except Exception as e:
                 raise e
-                    
+
         except Exception as e:
             print(str(e))
             exit(20)
@@ -215,7 +215,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
             if sorting == "held":
                 interfaces.sort(key=lambda i: i["held_announces"], reverse=not sort_reverse)
 
-            
+
         for ifstat in interfaces:
             name = ifstat["name"]
 
@@ -301,10 +301,10 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
 
                         if "airtime_short" in ifstat and "airtime_long" in ifstat:
                             print("    Airtime   : {ats}% (15s), {atl}% (1h)".format(ats=str(ifstat["airtime_short"]),atl=str(ifstat["airtime_long"])))
-                        
+
                         if "channel_load_short" in ifstat and "channel_load_long" in ifstat:
                             print("    Ch.Load   : {ats}% (15s), {atl}% (1h)".format(ats=str(ifstat["channel_load_short"]),atl=str(ifstat["channel_load_long"])))
-                        
+
                         if "peers" in ifstat and ifstat["peers"] != None:
                             print("    Peers     : {np} reachable".format(np=ifstat["peers"]))
 
@@ -314,7 +314,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "ifac_signature" in ifstat and ifstat["ifac_signature"] != None:
                             sigstr = "<…"+RNS.hexrep(ifstat["ifac_signature"][-5:], delimit=False)+">"
                             print("    Access    : {nb}-bit IFAC by {sig}".format(nb=ifstat["ifac_size"]*8, sig=sigstr))
-                        
+
                         if "i2p_b32" in ifstat and ifstat["i2p_b32"] != None:
                             print("    I2P B32   : {ep}".format(ep=str(ifstat["i2p_b32"])))
 
@@ -324,14 +324,14 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                                 print("    Queued    : {np} announce".format(np=aqn))
                             else:
                                 print("    Queued    : {np} announces".format(np=aqn))
-                        
+
                         if astats and "held_announces" in ifstat and ifstat["held_announces"] != None and ifstat["held_announces"] > 0:
                             aqn = ifstat["held_announces"]
                             if aqn == 1:
                                 print("    Held      : {np} announce".format(np=aqn))
                             else:
                                 print("    Held      : {np} announces".format(np=aqn))
-                        
+
                         if astats and "incoming_announce_frequency" in ifstat and ifstat["incoming_announce_frequency"] != None:
                             print("    Announces : {iaf}↑".format(iaf=RNS.prettyfrequency(ifstat["outgoing_announce_frequency"])))
                             print("                {iaf}↓".format(iaf=RNS.prettyfrequency(ifstat["incoming_announce_frequency"])))
@@ -357,7 +357,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 print(f"\n{lstr}")
 
         print("")
-                
+
     else:
         if not remote:
             print("Could not get RNS status")
@@ -378,7 +378,7 @@ def main():
             help="show all interfaces",
             default=False
         )
-        
+
         parser.add_argument(
             "-A",
             "--announce-stats",
@@ -386,7 +386,7 @@ def main():
             help="show announce stats",
             default=False
         )
-        
+
         parser.add_argument(
             "-l",
             "--link-stats",
@@ -394,7 +394,7 @@ def main():
             help="show link stats",
             default=False,
         )
-        
+
         parser.add_argument(
             "-s",
             "--sort",
@@ -403,7 +403,7 @@ def main():
             default=None,
             type=str
         )
-        
+
         parser.add_argument(
             "-r",
             "--reverse",
@@ -411,7 +411,7 @@ def main():
             help="reverse sorting",
             default=False,
         )
-        
+
         parser.add_argument(
             "-j",
             "--json",
@@ -450,7 +450,7 @@ def main():
         parser.add_argument('-v', '--verbose', action='count', default=0)
 
         parser.add_argument("filter", nargs="?", default=None, help="only display interfaces with names including filter", type=str)
-        
+
         args = parser.parse_args()
 
         if args.config:

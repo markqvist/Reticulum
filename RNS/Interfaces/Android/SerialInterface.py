@@ -64,7 +64,7 @@ class SerialInterface(Interface):
 
                 from usbserial4a import serial4a as serial
                 self.parity = "N"
-            
+
             else:
                 RNS.log("Could not load USB serial module for Android, Serial interface cannot be created.", RNS.LOG_CRITICAL)
                 RNS.log("You can install this module by issuing: pip install usbserial4a", RNS.LOG_CRITICAL)
@@ -75,7 +75,7 @@ class SerialInterface(Interface):
         super().__init__()
 
         self.HW_MTU = 564
-        
+
         self.pyserial = serial
         self.serial   = None
         self.owner    = owner
@@ -145,7 +145,7 @@ class SerialInterface(Interface):
                 self.serial.timeout = 0.1
             elif vid == 0x10C4:
                 # Hardware parameters for SiLabs CP210x @ 115200 baud
-                self.serial.DEFAULT_READ_BUFFER_SIZE = 64 
+                self.serial.DEFAULT_READ_BUFFER_SIZE = 64
                 self.serial.USB_READ_TIMEOUT_MILLIS = 12
                 self.serial.timeout = 0.012
             elif vid == 0x1A86 and pid == 0x55D4:
@@ -182,7 +182,7 @@ class SerialInterface(Interface):
         if self.online:
             data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
             written = self.serial.write(data)
-            self.txb += len(data)            
+            self.txb += len(data)
             if written != len(data):
                 raise OSError(f"Serial interface only wrote {written} bytes of {len(data)}")
 
@@ -217,7 +217,7 @@ class SerialInterface(Interface):
                                     byte = HDLC.ESC
                                 escape = False
                             data_buffer = data_buffer+bytes([byte])
-                        
+
                 if got == 0:
                     time_since_last = int(time.time()*1000) - last_read_ms
                     if len(data_buffer) > 0 and time_since_last > self.timeout:
@@ -225,12 +225,12 @@ class SerialInterface(Interface):
                         in_frame = False
                         escape = False
                     # sleep(0.08)
-                    
+
         except Exception as e:
             self.online = False
             RNS.log(f"A serial port error occurred, the contained exception was: {e}", RNS.LOG_ERROR)
             RNS.log(f"The interface {self} experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
-            
+
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
 

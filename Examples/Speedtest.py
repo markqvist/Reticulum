@@ -36,7 +36,7 @@ printed = False
 def server(configpath):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
-    
+
     # Randomly create a new identity for our link example
     server_identity = RNS.Identity()
 
@@ -113,9 +113,9 @@ def size_str(num, suffix='B'):
 
 def server_packet_received(message, packet):
     global latest_client_link, first_packet_at, last_packet_at, received_data, rc, data_cap
-    
+
     received_data += len(packet.data)
-    
+
     rc += 1
     if rc >= 50:
         RNS.log(size_str(received_data))
@@ -127,7 +127,7 @@ def server_packet_received(message, packet):
         rc = 0
 
         last_packet_at = time.time()
-        
+
         # Print statistics
         download_time = last_packet_at-first_packet_at
         hours, rem = divmod(download_time, 3600)
@@ -169,7 +169,7 @@ def client(destination_hexhash, configpath):
             raise ValueError(
                 f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes)."
             )
-            
+
         destination_hash = bytes.fromhex(destination_hexhash)
     except:
         RNS.log("Invalid destination entered. Check your input!\n")
@@ -280,7 +280,7 @@ def link_closed(link):
         RNS.log("The link was closed by the server, exiting now")
     else:
         RNS.log("Link closed, exiting now")
-    
+
     RNS.Reticulum.exit_handler()
 
     time.sleep(1.5)

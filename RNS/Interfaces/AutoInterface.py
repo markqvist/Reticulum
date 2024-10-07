@@ -289,7 +289,7 @@ class AutoInterface(Interface):
 
                 udp_server = socketserver.UDPServer(address, self.handler_factory(self.processIncoming))
                 self.interface_servers[ifname] = udp_server
-                
+
                 thread = threading.Thread(target=udp_server.serve_forever)
                 thread.daemon = True
                 thread.start()
@@ -306,11 +306,11 @@ class AutoInterface(Interface):
     def discovery_handler(self, socket, ifname):
         def announce_loop():
             self.announce_handler(ifname)
-            
+
         thread = threading.Thread(target=announce_loop)
         thread.daemon = True
         thread.start()
-        
+
         while True:
             data, ipv6_src = socket.recvfrom(1024)
             expected_hash = RNS.Identity.full_hash(self.group_id+ipv6_src[0].encode("utf-8"))
@@ -396,13 +396,13 @@ class AutoInterface(Interface):
                         self.carrier_changed = True
                         RNS.log(f"{self} Carrier recovered on {ifname}", RNS.LOG_WARNING)
                     self.timed_out_interfaces[ifname] = False
-                
+
 
     def announce_handler(self, ifname):
         while True:
             self.peer_announce(ifname)
             time.sleep(self.announce_interval)
-            
+
     def peer_announce(self, ifname):
         try:
             link_local_address = self.adopted_interfaces[ifname]
@@ -414,7 +414,7 @@ class AutoInterface(Interface):
             announce_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, ifis)
             announce_socket.sendto(discovery_token, addr_info[0][4])
             announce_socket.close()
-            
+
         except Exception as e:
             if (ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == False) or not ifname in self.timed_out_interfaces:
                 RNS.log(f"{self} Detected possible carrier loss on {ifname}: {e}", RNS.LOG_WARNING)
@@ -471,9 +471,9 @@ class AutoInterface(Interface):
                 except Exception as e:
                     RNS.log(f"Could not transmit on {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 
-            
+
             self.txb += len(data)
-            
+
 
     # Until per-device sub-interfacing is implemented,
     # ingress limiting should be disabled on AutoInterface

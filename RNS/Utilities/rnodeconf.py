@@ -61,7 +61,7 @@ class KISS():
     FESC            = 0xDB
     TFEND           = 0xDC
     TFESC           = 0xDD
-    
+
     CMD_UNKNOWN     = 0xFE
     CMD_DATA        = 0x00
     CMD_FREQUENCY   = 0x01
@@ -104,11 +104,11 @@ class KISS():
 
     DETECT_REQ      = 0x73
     DETECT_RESP     = 0x46
-    
+
     RADIO_STATE_OFF = 0x00
     RADIO_STATE_ON  = 0x01
     RADIO_STATE_ASK = 0xFF
-    
+
     CMD_ERROR           = 0x90
     ERROR_INITRADIO     = 0x01
     ERROR_TXFAILED      = 0x02
@@ -191,7 +191,7 @@ class ROM():
     PRODUCT_TECHO  = 0x15
     MODEL_T4       = 0x16
     MODEL_T9       = 0x17
-    
+
     PRODUCT_HMBRW  = 0xF0
     MODEL_FF       = 0xFF
     MODEL_FE       = 0xFE
@@ -610,7 +610,7 @@ class RNode():
                                 self.detected = True
                             else:
                                 self.detected = False
-                        
+
                 else:
                     time_since_last = int(time.time()*1000) - last_read_ms
                     if len(data_buffer) > 0 and time_since_last > self.timeout:
@@ -886,7 +886,7 @@ class RNode():
                     from cryptography.hazmat.primitives.serialization import load_der_private_key
                     from cryptography.hazmat.primitives.asymmetric import padding
 
-                    # Try loading local signing key for 
+                    # Try loading local signing key for
                     # validation of self-signed devices
                     if os.path.isdir(FWD_DIR) and os.path.isfile(FWD_DIR+"/signing.key"):
                         private_bytes = None
@@ -922,7 +922,7 @@ class RNode():
                             RNS.log("Could not deserialize local signing key")
                             RNS.log(str(e))
 
-                    # Try loading trusted signing key for 
+                    # Try loading trusted signing key for
                     # validation of devices
                     if os.path.isdir(TK_DIR):
                         for f in os.listdir(TK_DIR):
@@ -1230,11 +1230,11 @@ def rnode_open_serial(port):
         write_timeout = None,
         dsrdtr = False
     )
-    
-    
+
+
 def graceful_exit(C=0):
     if RNS.vendor.platformutils.is_windows():
-        RNS.log("Windows detected; delaying DTR",RNS.LOG_VERBOSE) 
+        RNS.log("Windows detected; delaying DTR",RNS.LOG_VERBOSE)
         if rnode:
             RNS.log("Sending \"Leave\" to Rnode",RNS.LOG_VERBOSE)
             rnode.leave() # Leave has wait built in
@@ -1319,13 +1319,13 @@ def main():
 
         parser.add_argument("-f", "--flash", action="store_true", help="Flash firmware and bootstrap EEPROM")
         parser.add_argument("-r", "--rom", action="store_true", help="Bootstrap EEPROM without flashing firmware")
-        parser.add_argument("-k", "--key", action="store_true", help="Generate a new signing key and exit") # 
+        parser.add_argument("-k", "--key", action="store_true", help="Generate a new signing key and exit") #
         parser.add_argument("-S", "--sign", action="store_true", help="Display public part of signing key")
         parser.add_argument("-H", "--firmware-hash", action="store", help="Display installed firmware hash")
         parser.add_argument("-K", "--get-target-firmware-hash", action="store_true", help=argparse.SUPPRESS) # Get target firmware hash from device
         parser.add_argument("-L", "--get-firmware-hash", action="store_true", help=argparse.SUPPRESS) # Get calculated firmware hash from device
         parser.add_argument("--platform", action="store", metavar="platform", type=str, default=None, help="Platform specification for device bootstrap")
-        parser.add_argument("--product", action="store", metavar="product", type=str, default=None, help="Product specification for device bootstrap") # 
+        parser.add_argument("--product", action="store", metavar="product", type=str, default=None, help="Product specification for device bootstrap") #
         parser.add_argument("--model", action="store", metavar="model", type=str, default=None, help="Model code for device bootstrap")
         parser.add_argument("--hwrev", action="store", metavar="revision", type=int, default=None, help="Hardware revision for device bootstrap")
 
@@ -1354,7 +1354,7 @@ def main():
 
         if args.fw_version != None:
             selected_version = args.fw_version
-            try: 
+            try:
                 check_float = float(selected_version)
             except ValueError:
                 RNS.log("Selected version \""+selected_version+"\" does not appear to be a number.")
@@ -1368,7 +1368,7 @@ def main():
 
         if args.nocheck:
             upd_nocheck = True
-            
+
         if args.public or args.key or args.flash or args.rom or args.autoinstall or args.trust_key:
             from cryptography.hazmat.primitives import hashes
             from cryptography.hazmat.backends import default_backend
@@ -1419,8 +1419,8 @@ def main():
                 ports = list_ports.comports()
                 portlist = []
                 for port in ports:
-                    portlist.insert(0, port) 
-                
+                    portlist.insert(0, port)
+
                 pi = 1
                 print("Detected serial ports:")
                 for port in portlist:
@@ -1556,8 +1556,8 @@ def main():
                 ports = list_ports.comports()
                 portlist = []
                 for port in ports:
-                    portlist.insert(0, port) 
-                
+                    portlist.insert(0, port)
+
                 pi = 1
                 print("Detected serial ports:")
                 for port in portlist:
@@ -1638,7 +1638,7 @@ def main():
                 print("correct firmware and provision it.")
             else:
                 print("\nIt looks like this is a fresh device with no RNode firmware.")
-                
+
             print("")
             print("What kind of device is this?\n")
             print("[1] A specific kind of RNode")
@@ -2224,7 +2224,7 @@ def main():
                         fw_filename = "rnode_firmware.hex"
                     elif selected_mcu == ROM.MCU_2560:
                         fw_filename = "rnode_firmware_m2560.hex"
-                
+
                 elif selected_platform == ROM.PLATFORM_ESP32:
                     fw_filename = None
                     print("\nWhat kind of ESP32 board is this?\n")
@@ -2337,7 +2337,7 @@ def main():
 
             except Exception as e:
                 RNS.log("Could not load device signing key")
-                
+
 
             graceful_exit()
 
@@ -2413,7 +2413,7 @@ def main():
                         return part_hash
                     else:
                         return None
-                
+
                 elif platform == ROM.PLATFORM_NRF52:
                     # Calculate digest manually, as it is not included in the image.
                     firmware_data = open(partition_file, "rb")
@@ -2994,7 +2994,7 @@ def main():
             wants_fw_provision = False
             if args.flash:
                 from subprocess import call
-                
+
                 if fw_filename == None:
                     fw_filename = "rnode_firmware.hex"
 
@@ -3032,7 +3032,7 @@ def main():
                         RNS.log("Error while flashing")
                         RNS.log(str(e))
                         graceful_exit(1)
-                
+
                 else:
                     fw_src = UPD_DIR+"/"+selected_version+"/"
                     if os.path.isfile(fw_src+fw_filename):
@@ -3215,7 +3215,7 @@ def main():
                     update_full_path = EXT_DIR+"/extracted_rnode_firmware.version"
                 else:
                     update_full_path = UPD_DIR+"/"+selected_version+"/"+fw_filename
-                if os.path.isfile(update_full_path): 
+                if os.path.isfile(update_full_path):
                     try:
                         args.info = False
                         RNS.log("Updating RNode firmware for device on "+args.port)
@@ -3468,7 +3468,7 @@ def main():
                         if args.autoinstall:
                             RNS.log("Clearing old EEPROM, this will take about 15 seconds...")
                             rnode.wipe_eeprom()
-                            
+
                         if rnode.platform == ROM.PLATFORM_ESP32:
                             RNS.log("Waiting for ESP32 reset...")
                             time.sleep(6)
@@ -3849,7 +3849,7 @@ def main():
                 else:
                     RNS.log("This device has not been provisioned yet, cannot get firmware hash")
                     exit(77)
-                
+
             if args.get_firmware_hash:
                 if rnode.provisioned:
                     RNS.log(f"The actual firmware hash is: {rnode.firmware_hash.hex()}")
@@ -3923,7 +3923,7 @@ def main():
     except KeyboardInterrupt:
         print("")
         graceful_exit()
-        
+
     graceful_exit()
 
 def extract_recovery_esptool():

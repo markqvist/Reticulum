@@ -62,7 +62,7 @@ class Packet:
 
     def set_delivered_callback(self, callback: Callable[[Packet], None]):
         self.delivered_callback = callback
-        
+
     def delivered(self):
         with self.lock:
             self.state = MessageState.MSGSTATE_DELIVERED

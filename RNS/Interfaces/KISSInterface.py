@@ -71,9 +71,9 @@ class KISSInterface(Interface):
             RNS.panic()
 
         super().__init__()
-        
+
         self.HW_MTU = 564
-        
+
         if beacon_data == None:
             beacon_data = ""
 
@@ -218,7 +218,7 @@ class KISSInterface(Interface):
 
 
     def processIncoming(self, data):
-        self.rxb += len(data)  
+        self.rxb += len(data)
         self.owner.inbound(data, self)
 
 
@@ -325,7 +325,7 @@ class KISSInterface(Interface):
             self.online = False
             RNS.log(f"A serial port error occurred, the contained exception was: {e}", RNS.LOG_ERROR)
             RNS.log(f"The interface {self} experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
-            
+
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
 

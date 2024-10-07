@@ -97,7 +97,7 @@ class Packet:
     # the below calculation; 383 bytes.
     ENCRYPTED_MDU  = math.floor((RNS.Reticulum.MDU-RNS.Identity.FERNET_OVERHEAD-RNS.Identity.KEYSIZE//16)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
     """
-    The maximum size of the payload data in a single encrypted packet 
+    The maximum size of the payload data in a single encrypted packet
     """
     PLAIN_MDU      = MDU
     """
@@ -256,7 +256,7 @@ class Packet:
     def send(self):
         """
         Sends the packet.
-        
+
         :returns: A :ref:`RNS.PacketReceipt<api-packetreceipt>` instance if *create_receipt* was set to *True* when the packet was instantiated, if not returns *None*. If the packet could not be sent *False* is returned.
         """
         if not self.sent:
@@ -278,21 +278,21 @@ class Packet:
                 self.sent = False
                 self.receipt = None
                 return False
-                
+
         else:
             raise OSError("Packet was already sent")
 
     def resend(self):
         """
         Re-sends the packet.
-        
+
         :returns: A :ref:`RNS.PacketReceipt<api-packetreceipt>` instance if *create_receipt* was set to *True* when the packet was instantiated, if not returns *None*. If the packet could not be sent *False* is returned.
         """
         if self.sent:
             # Re-pack the packet to obtain new ciphertext for
             # encrypted destinations
             self.pack()
-            
+
             if RNS.Transport.outbound(self):
                 return self.receipt
             else:
@@ -388,7 +388,7 @@ class PacketReceipt:
 
     def get_status(self):
         """
-        :returns: The status of the associated :ref:`RNS.Packet<api-packet>` instance. Can be one of ``RNS.PacketReceipt.SENT``, ``RNS.PacketReceipt.DELIVERED``, ``RNS.PacketReceipt.FAILED`` or ``RNS.PacketReceipt.CULLED``. 
+        :returns: The status of the associated :ref:`RNS.Packet<api-packet>` instance. Can be one of ``RNS.PacketReceipt.SENT``, ``RNS.PacketReceipt.DELIVERED``, ``RNS.PacketReceipt.FAILED`` or ``RNS.PacketReceipt.CULLED``.
         """
         return self.status
 
@@ -422,7 +422,7 @@ class PacketReceipt:
                             RNS.log(f"An error occurred while evaluating external delivery callback for {link}", RNS.LOG_ERROR)
                             RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
                             RNS.trace_exception(e)
-                            
+
                     return True
                 else:
                     return False
@@ -490,7 +490,7 @@ class PacketReceipt:
                             self.callbacks.delivery(self)
                         except Exception as e:
                             RNS.log(f"Error while executing proof validated callback. The contained exception was: {e}", RNS.LOG_ERROR)
-                            
+
                     return True
             else:
                 return False
@@ -524,7 +524,7 @@ class PacketReceipt:
     def set_timeout(self, timeout):
         """
         Sets a timeout in seconds
-        
+
         :param timeout: The timeout in seconds.
         """
         self.timeout = float(timeout)

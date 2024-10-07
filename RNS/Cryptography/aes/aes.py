@@ -144,7 +144,7 @@ class AES:
         return matrix2bytes(state)
 
 
-    # will encrypt the entire data 
+    # will encrypt the entire data
     def encrypt(self, plaintext, iv):
         """
         Encrypts `plaintext` using CBC mode and PKCS#7 padding, with the given
@@ -173,7 +173,7 @@ class AES:
         return b''.join(ciphertext_blocks)
 
 
-    # will decrypt the entire data 
+    # will decrypt the entire data
     def decrypt(self, ciphertext, iv):
         """
         Decrypts `ciphertext` using CBC mode and PKCS#7 padding, with the given
@@ -188,7 +188,7 @@ class AES:
         for ciphertext_block in split_blocks(ciphertext):
             # in CBC mode every block is XOR'd with the previous block
             xorred = xor_bytes(previous, self._decrypt_block(ciphertext_block))
-            
+
             # append plaintext
             plaintext_blocks.append(xorred)
             previous = ciphertext_block
@@ -223,7 +223,7 @@ def test():
     print("Single Block Tests")
     print("------------------")
     print(f"iv: {iv.hex()}")
-    
+
     print(f"plain text: '{single_block_text.decode()}'")
     ciphertext_block = _aes._encrypt_block(single_block_text)
     plaintext_block = _aes._decrypt_block(ciphertext_block)
@@ -268,4 +268,4 @@ def test():
 
 if __name__ == "__main__":
     # test AES class
-    test()    
+    test()

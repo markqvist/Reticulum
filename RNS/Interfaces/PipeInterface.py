@@ -49,7 +49,7 @@ class PipeInterface(Interface):
 
     owner    = None
     command  = None
-    
+
     def __init__(self, owner, name, command, respawn_delay):
         if respawn_delay == None:
             respawn_delay = 5
@@ -57,7 +57,7 @@ class PipeInterface(Interface):
         super().__init__()
 
         self.HW_MTU = 1064
-        
+
         self.owner    = owner
         self.name     = name
         self.command  = command
@@ -83,7 +83,7 @@ class PipeInterface(Interface):
 
     def open_pipe(self):
         RNS.log(f"Connecting subprocess pipe for {self}...", RNS.LOG_VERBOSE)
-        
+
         try:
             self.process = subprocess.Popen(shlex.split(self.command), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             self.pipe_is_open = True
@@ -102,7 +102,7 @@ class PipeInterface(Interface):
 
 
     def processIncoming(self, data):
-        self.rxb += len(data)            
+        self.rxb += len(data)
         self.owner.inbound(data, self)
 
 
@@ -111,7 +111,7 @@ class PipeInterface(Interface):
             data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
             written = self.process.stdin.write(data)
             self.process.stdin.flush()
-            self.txb += len(data)            
+            self.txb += len(data)
             if written != len(data):
                 raise OSError(f"Pipe interface only wrote {written} bytes of {len(data)}")
 
@@ -152,7 +152,7 @@ class PipeInterface(Interface):
 
             RNS.log(f"Subprocess terminated on {self}")
             self.process.kill()
-                    
+
         except Exception as e:
             self.online = False
             try:
@@ -162,7 +162,7 @@ class PipeInterface(Interface):
 
             RNS.log(f"A pipe error occurred, the contained exception was: {e}", RNS.LOG_ERROR)
             RNS.log(f"The interface {self} experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
-            
+
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
 

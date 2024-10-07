@@ -33,7 +33,7 @@ class KISS():
     FESC            = 0xDB
     TFEND           = 0xDC
     TFESC           = 0xDD
-    
+
     CMD_UNKNOWN     = 0xFE
     CMD_FREQUENCY   = 0x01
     CMD_BANDWIDTH   = 0x02
@@ -94,11 +94,11 @@ class KISS():
 
     DETECT_REQ      = 0x73
     DETECT_RESP     = 0x46
-    
+
     RADIO_STATE_OFF = 0x00
     RADIO_STATE_ON  = 0x01
     RADIO_STATE_ASK = 0xFF
-    
+
     CMD_ERROR           = 0x90
     ERROR_INITRADIO     = 0x01
     ERROR_TXFAILED      = 0x02
@@ -159,7 +159,7 @@ class KISS():
         data = data.replace(bytes([0xdb]), bytes([0xdb, 0xdd]))
         data = data.replace(bytes([0xc0]), bytes([0xdb, 0xdc]))
         return data
-    
+
 
 class RNodeMultiInterface(Interface):
     MAX_CHUNK = 32768
@@ -188,7 +188,7 @@ class RNodeMultiInterface(Interface):
         super().__init__()
 
         self.HW_MTU = 508
-        
+
         self.clients = 0
         self.pyserial    = serial
         self.serial      = None
@@ -294,7 +294,7 @@ class RNodeMultiInterface(Interface):
 
         self.detect()
         sleep(0.2)
-        
+
         if not self.detected:
             RNS.log(f"Could not detect device for {self}", RNS.LOG_ERROR)
             self.serial.close()
@@ -327,7 +327,7 @@ class RNodeMultiInterface(Interface):
 
                 interface.OUT = subint[10]
                 interface.IN  = True
-                
+
                 interface.announce_rate_target = self.announce_rate_target
                 interface.mode = self.mode
                 interface.HW_MTU = self.HW_MTU
@@ -345,13 +345,13 @@ class RNodeMultiInterface(Interface):
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise OSError(f"An IO error occurred while detecting hardware for {self}")
-    
+
     def leave(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_LEAVE, 0xFF, KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise OSError("An IO error occurred while sending host left command to device")
-    
+
     def enable_external_framebuffer(self):
         if self.display != None:
             kiss_command = bytes([KISS.FEND, KISS.CMD_FB_EXT, 0x01, KISS.FEND])
@@ -385,7 +385,7 @@ class RNodeMultiInterface(Interface):
             data = line_byte+line_data
             escaped_data = KISS.escape(data)
             kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_FB_WRITE])+escaped_data+bytes([KISS.FEND])
-            
+
             written = self.serial.write(kiss_command)
             if written != len(kiss_command):
                 raise OSError("An IO error occurred while writing framebuffer data device")
@@ -485,7 +485,7 @@ class RNodeMultiInterface(Interface):
         if (self.maj_version >= RNodeMultiInterface.REQUIRED_FW_VER_MAJ):
             if (self.min_version >= RNodeMultiInterface.REQUIRED_FW_VER_MIN):
                 self.firmware_ok = True
-        
+
         if self.firmware_ok:
             return
 
@@ -737,7 +737,7 @@ class RNodeMultiInterface(Interface):
                                     atl = command_buffer[2] << 8 | command_buffer[3]
                                     cus = command_buffer[4] << 8 | command_buffer[5]
                                     cul = command_buffer[6] << 8 | command_buffer[7]
-                                    
+
                                     self.r_airtime_short      = ats/100.0
                                     self.r_airtime_long       = atl/100.0
                                     self.r_channel_load_short = cus/100.0
@@ -804,7 +804,7 @@ class RNodeMultiInterface(Interface):
                                 # add the interface to the back of the list, they're all given from vport 0 and up in order
                                 self.subinterface_types.append(KISS.interface_type_to_str(command_buffer[1]))
                                 command_buffer = b""
-                        
+
                 else:
                     time_since_last = int(time.time()*1000) - last_read_ms
                     if len(data_buffer) > 0 and time_since_last > self.timeout:
@@ -918,7 +918,7 @@ class RNodeSubInterface(Interface):
             RNS.panic()
 
         super().__init__()
-        
+
         if index == 0:
             sel_cmd = KISS.CMD_SEL_INT0
             data_cmd= KISS.CMD_INT0_DATA
@@ -1079,7 +1079,7 @@ class RNodeSubInterface(Interface):
             RNS.log(f"After configuring {self}, the reported radio parameters did not match your configuration.", RNS.LOG_ERROR)
             RNS.log("Make sure that your hardware actually supports the parameters specified in the configuration", RNS.LOG_ERROR)
             RNS.log("Aborting RNode startup", RNS.LOG_ERROR)
-            
+
 
     def initRadio(self):
         self.parent_interface.setFrequency(self.frequency, self)

@@ -28,7 +28,7 @@ def server(configpath):
 
     # TODO: Remove
     RNS.loglevel = RNS.LOG_DEBUG
-    
+
     # Randomly create a new identity for our echo server
     server_identity = RNS.Identity()
 
@@ -37,7 +37,7 @@ def server(configpath):
     # create a "single" destination that can receive encrypted
     # messages. This way the client can send a request and be
     # certain that no-one else than this destination was able
-    # to read it. 
+    # to read it.
     echo_destination = RNS.Destination(
         server_identity,
         RNS.Destination.IN,
@@ -61,7 +61,7 @@ def server(configpath):
     # generate a proof for each incoming packet and transmit it
     # back to the sender of that packet.
     echo_destination.set_proof_strategy(RNS.Destination.PROVE_ALL)
-    
+
     # Tell the destination which function in our program to
     # run when a packet is received. We do this so we can
     # print a log message when the server receives a request
@@ -90,7 +90,7 @@ def announceLoop(destination):
 
 def server_callback(message, packet):
     global reticulum
-    
+
     # Tell the user that we received an echo request, and
     # that we are going to send a reply to the requester.
     # Sending the proof is handled automatically, since we
@@ -103,14 +103,14 @@ def server_callback(message, packet):
 
         if reception_rssi != None:
             reception_stats += f" [RSSI {reception_rssi} dBm]"
-        
+
         if reception_snr != None:
             reception_stats += f" [SNR {reception_snr} dBm]"
 
     else:
         if packet.rssi != None:
             reception_stats += f" [RSSI {packet.rssi} dBm]"
-        
+
         if packet.snr != None:
             reception_stats += f" [SNR {packet.snr} dB]"
 
@@ -125,7 +125,7 @@ def server_callback(message, packet):
 # to run as a client
 def client(destination_hexhash, configpath, timeout=None):
     global reticulum
-    
+
     # We need a binary representation of the destination
     # hash that was entered on the command line
     try:
@@ -160,7 +160,7 @@ def client(destination_hexhash, configpath, timeout=None):
     # command line.
     while True:
         input()
-        
+
         # Let's first check if RNS knows a path to the destination.
         # If it does, we'll load the server identity and create a packet
         if RNS.Transport.has_path(destination_hash):
@@ -242,7 +242,7 @@ def packet_delivered(receipt):
 
             if reception_rssi != None:
                 reception_stats += f" [RSSI {reception_rssi} dBm]"
-            
+
             if reception_snr != None:
                 reception_stats += f" [SNR {reception_snr} dB]"
 
@@ -250,7 +250,7 @@ def packet_delivered(receipt):
             if receipt.proof_packet != None:
                 if receipt.proof_packet.rssi != None:
                     reception_stats += f" [RSSI {receipt.proof_packet.rssi} dBm]"
-                
+
                 if receipt.proof_packet.snr != None:
                     reception_stats += f" [SNR {receipt.proof_packet.snr} dB]"
 

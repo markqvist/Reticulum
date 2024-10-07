@@ -137,7 +137,7 @@ class Identity:
         # save, but the only changes. It might be possible to
         # simply overwrite on exit now that every local client
         # disconnect triggers a data persist.
-        
+
         try:
             if hasattr(Identity, "saving_known_destinations"):
                 wait_interval = 0.2
@@ -279,7 +279,7 @@ class Identity:
                         ratchet_data = {"ratchet": ratchet, "received": time.time()}
 
                         ratchetdir = f"{RNS.Reticulum.storagepath}/ratchets"
-                        
+
                         if not os.path.isdir(ratchetdir):
                             os.makedirs(ratchetdir)
 
@@ -290,7 +290,7 @@ class Identity:
                         ratchet_file.close()
                         os.replace(outpath, finalpath)
 
-                
+
                 threading.Thread(target=persist_job, daemon=True).start()
 
         except Exception as e:
@@ -337,7 +337,7 @@ class Identity:
                         Identity.known_ratchets[destination_hash] = ratchet_data["ratchet"]
                     else:
                         return None
-                
+
                 except Exception as e:
                     RNS.log(f"An error occurred while loading ratchet data for {RNS.prettyhexrep(destination_hash)} from storage.", RNS.LOG_ERROR)
                     RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
@@ -444,7 +444,7 @@ class Identity:
                     RNS.log(f"Received invalid announce for {RNS.prettyhexrep(destination_hash)}: Invalid signature.", RNS.LOG_DEBUG)
                     del announced_identity
                     return False
-        
+
         except Exception as e:
             RNS.log(f"Error occurred while validating announce. The contained exception was: {e}", RNS.LOG_ERROR)
             return False
@@ -567,7 +567,7 @@ class Identity:
             self.prv           = X25519PrivateKey.from_private_bytes(self.prv_bytes)
             self.sig_prv_bytes = prv_bytes[Identity.KEYSIZE//8//2:]
             self.sig_prv       = Ed25519PrivateKey.from_private_bytes(self.sig_prv_bytes)
-            
+
             self.pub           = self.prv.public_key()
             self.pub_bytes     = self.pub.public_bytes()
 
@@ -640,7 +640,7 @@ class Identity:
                 target_public_key = self.pub
 
             shared_key = ephemeral_key.exchange(target_public_key)
-            
+
             derived_key = RNS.Cryptography.hkdf(
                 length=32,
                 derive_from=shared_key,
@@ -690,9 +690,9 @@ class Identity:
                                 plaintext = fernet.decrypt(ciphertext)
                                 if ratchet_id_receiver:
                                     ratchet_id_receiver.latest_ratchet_id = ratchet_id
-                                
+
                                 break
-                            
+
                             except Exception as e:
                                 pass
 
@@ -720,7 +720,7 @@ class Identity:
                     RNS.log(f"Decryption by {RNS.prettyhexrep(self.hash)} failed: {e}", RNS.LOG_DEBUG)
                     if ratchet_id_receiver:
                         ratchet_id_receiver.latest_ratchet_id = None
-                    
+
                 return plaintext;
             else:
                 RNS.log("Decryption failed because the token size was invalid.", RNS.LOG_DEBUG)
@@ -739,7 +739,7 @@ class Identity:
         """
         if self.sig_prv != None:
             try:
-                return self.sig_prv.sign(message)    
+                return self.sig_prv.sign(message)
             except Exception as e:
                 RNS.log(f"The identity {self} could not sign the requested message. The contained exception was: {e}", RNS.LOG_ERROR)
                 raise e
@@ -770,7 +770,7 @@ class Identity:
             proof_data = signature
         else:
             proof_data = packet.packet_hash + signature
-        
+
         if destination == None:
             destination = packet.generate_proof_destination()
 

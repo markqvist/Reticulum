@@ -80,9 +80,9 @@ class TCPClientInterface(Interface):
 
     def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None, max_reconnect_tries=None, kiss_framing=False, i2p_tunneled = False, connect_timeout = None):
         super().__init__()
-        
+
         self.HW_MTU = 1064
-        
+
         self.IN               = True
         self.OUT              = False
         self.socket           = None
@@ -99,7 +99,7 @@ class TCPClientInterface(Interface):
         self.i2p_tunneled     = i2p_tunneled
         self.mode             = RNS.Interfaces.Interface.Interface.MODE_FULL
         self.bitrate          = TCPClientInterface.BITRATE_GUESS
-        
+
         if max_reconnect_tries == None:
             self.max_reconnect_tries = TCPClientInterface.RECONNECT_MAX_TRIES
         else:
@@ -128,14 +128,14 @@ class TCPClientInterface(Interface):
                 self.connect_timeout = connect_timeout
             else:
                 self.connect_timeout = TCPClientInterface.INITIAL_CONNECT_TIMEOUT
-            
+
             if TCPClientInterface.SYNCHRONOUS_START:
                 self.initial_connect()
             else:
                 thread = threading.Thread(target=self.initial_connect)
                 thread.daemon = True
                 thread.start()
-            
+
     def initial_connect(self):
         if not self.connect(initial=True):
             thread = threading.Thread(target=self.reconnect)
@@ -170,19 +170,19 @@ class TCPClientInterface(Interface):
             TCP_KEEPIDLE = 0x10
 
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-        
+
         if not self.i2p_tunneled:
             self.socket.setsockopt(socket.IPPROTO_TCP, TCP_KEEPIDLE, int(TCPClientInterface.TCP_PROBE_AFTER))
         else:
             self.socket.setsockopt(socket.IPPROTO_TCP, TCP_KEEPIDLE, int(TCPClientInterface.I2P_PROBE_AFTER))
-        
+
     def detach(self):
         if self.socket != None:
             if hasattr(self.socket, "close"):
                 if callable(self.socket.close):
                     RNS.log(f"Detaching {self}", RNS.LOG_DEBUG)
                     self.detached = True
-                    
+
                     try:
                         self.socket.shutdown(socket.SHUT_RDWR)
                     except Exception as e:
@@ -209,13 +209,13 @@ class TCPClientInterface(Interface):
 
             if initial:
                 RNS.log(f"TCP connection for {self} established", RNS.LOG_DEBUG)
-        
+
         except Exception as e:
             if initial:
                 RNS.log(f"Initial connection for {self} could not be established: {e}", RNS.LOG_ERROR)
                 RNS.log(f"Leaving unconnected and retrying connection in {TCPClientInterface.RECONNECT_WAIT} seconds.", RNS.LOG_ERROR)
                 return False
-            
+
             else:
                 raise e
 
@@ -223,7 +223,7 @@ class TCPClientInterface(Interface):
             self.set_timeouts_linux()
         elif platform.system() == "Darwin":
             self.set_timeouts_osx()
-        
+
         self.online  = True
         self.writing = False
         self.never_connected = False
@@ -269,7 +269,7 @@ class TCPClientInterface(Interface):
         self.rxb += len(data)
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.rxb += len(data)
-                    
+
         self.owner.inbound(data, self)
 
     def processOutgoing(self, data):
@@ -369,7 +369,7 @@ class TCPClientInterface(Interface):
 
                     break
 
-                
+
         except Exception as e:
             self.online = False
             RNS.log(f"An interface error occurred for {self}, the contained exception was: {e}", RNS.LOG_WARNING)
@@ -427,7 +427,7 @@ class TCPServerInterface(Interface):
 
         self.online = False
         self.clients = 0
-        
+
         self.IN  = True
         self.OUT = False
         self.name = name
@@ -474,7 +474,7 @@ class TCPServerInterface(Interface):
         spawned_interface.target_port = str(handler.client_address[1])
         spawned_interface.parent_interface = self
         spawned_interface.bitrate = self.bitrate
-        
+
         spawned_interface.ifac_size = self.ifac_size
         spawned_interface.ifac_netname = self.ifac_netname
         spawned_interface.ifac_netkey = self.ifac_netkey

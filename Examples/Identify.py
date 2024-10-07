@@ -27,7 +27,7 @@ latest_client_link = None
 def server(configpath):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
-    
+
     # Randomly create a new identity for our link example
     server_identity = RNS.Identity()
 
@@ -99,7 +99,7 @@ def server_packet_received(message, packet):
     text = message.decode("utf-8")
 
     RNS.log(f"Received data from {remote_peer}: {text}")
-    
+
     reply_text = f"I received \"{text}\" over the link from {remote_peer}"
     reply_data = reply_text.encode("utf-8")
     RNS.Packet(latest_client_link, reply_data).send()
@@ -239,7 +239,7 @@ def link_closed(link):
         RNS.log("The link was closed by the server, exiting now")
     else:
         RNS.log("Link closed, exiting now")
-    
+
     RNS.Reticulum.exit_handler()
     time.sleep(1.5)
     os._exit(0)

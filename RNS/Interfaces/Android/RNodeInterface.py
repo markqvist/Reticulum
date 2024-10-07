@@ -42,7 +42,7 @@ class KISS():
     FESC            = 0xDB
     TFEND           = 0xDC
     TFESC           = 0xDD
-    
+
     CMD_UNKNOWN     = 0xFE
     CMD_DATA        = 0x00
     CMD_FREQUENCY   = 0x01
@@ -78,11 +78,11 @@ class KISS():
 
     DETECT_REQ      = 0x73
     DETECT_RESP     = 0x46
-    
+
     RADIO_STATE_OFF = 0x00
     RADIO_STATE_ON  = 0x01
     RADIO_STATE_ASK = 0xFF
-    
+
     CMD_ERROR           = 0x90
     ERROR_INITRADIO     = 0x01
     ERROR_TXFAILED      = 0x02
@@ -194,7 +194,7 @@ class AndroidBluetoothManager():
             if self.rfcomm_reader != None:
                 self.rfcomm_reader.close()
                 self.rfcomm_reader = None
-            
+
             if self.rfcomm_writer != None:
                 self.rfcomm_writer.close()
                 self.rfcomm_writer = None
@@ -371,7 +371,7 @@ class RNodeInterface(Interface):
 
                 else:
                     self.bt_manager = None
-            
+
             else:
                 RNS.log("Could not load USB serial module for Android, RNode interface cannot be created.", RNS.LOG_CRITICAL)
                 RNS.log("You can install this module by issuing: pip install usbserial4a", RNS.LOG_CRITICAL)
@@ -382,7 +382,7 @@ class RNodeInterface(Interface):
         super().__init__()
 
         self.HW_MTU = 508
-        
+
         self.pyserial    = serial
         self.serial      = None
         self.owner       = owner
@@ -561,7 +561,7 @@ class RNodeInterface(Interface):
     #     self.ble = BLEConnection(owner=self, target_name=self.ble_name, target_bt_addr=self.ble_addr)
     #     self.serial = self.ble
     #     RNS.log(f"New connection instance: "+str(self.ble))
-        
+
     def open_port(self):
         if not self.use_ble:
             if self.port != None:
@@ -602,7 +602,7 @@ class RNodeInterface(Interface):
                         self.serial.timeout = 0.1
                     elif vid == 0x10C4:
                         # Hardware parameters for SiLabs CP210x @ 115200 baud
-                        self.serial.DEFAULT_READ_BUFFER_SIZE = 64 
+                        self.serial.DEFAULT_READ_BUFFER_SIZE = 64
                         self.serial.USB_READ_TIMEOUT_MILLIS = 12
                         self.serial.timeout = 0.012
                     elif vid == 0x1A86 and pid == 0x55D4:
@@ -687,14 +687,14 @@ class RNodeInterface(Interface):
             RNS.log(f"After configuring {self}, the reported radio parameters did not match your configuration.", RNS.LOG_ERROR)
             RNS.log("Make sure that your hardware actually supports the parameters specified in the configuration", RNS.LOG_ERROR)
             RNS.log("Aborting RNode startup", RNS.LOG_ERROR)
-            
+
             if self.serial != None:
                 self.serial.close()
             if self.bt_manager != None:
                 self.bt_manager.close()
 
             raise OSError("RNode interface did not pass configuration validation")
-            
+
 
     def initRadio(self):
         self.setFrequency()
@@ -702,22 +702,22 @@ class RNodeInterface(Interface):
 
         self.setBandwidth()
         time.sleep(0.15)
-        
+
         self.setTXPower()
         time.sleep(0.15)
-        
+
         self.setSpreadingFactor()
         time.sleep(0.15)
-        
+
         self.setCodingRate()
         time.sleep(0.15)
 
         self.setSTALock()
         time.sleep(0.15)
-        
+
         self.setLTALock()
         time.sleep(0.15)
-        
+
         self.setRadioState(KISS.RADIO_STATE_ON)
         time.sleep(0.15)
 
@@ -735,7 +735,7 @@ class RNodeInterface(Interface):
         written = self.write_mux(kiss_command)
         if written != len(kiss_command):
             raise OSError("An IO error occurred while sending host left command to device")
-    
+
     def enable_bluetooth(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_BT_CTRL, 0x01, KISS.FEND])
         written = self.write_mux(kiss_command)
@@ -788,7 +788,7 @@ class RNodeInterface(Interface):
             data = line_byte+line_data
             escaped_data = KISS.escape(data)
             kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_FB_WRITE])+escaped_data+bytes([KISS.FEND])
-            
+
             written = self.write_mux(kiss_command)
             if written != len(kiss_command):
                 raise OSError("An IO error occurred while writing framebuffer data device")
@@ -883,7 +883,7 @@ class RNodeInterface(Interface):
             if (self.maj_version >= RNodeInterface.REQUIRED_FW_VER_MAJ):
                 if (self.min_version >= RNodeInterface.REQUIRED_FW_VER_MIN):
                     self.firmware_ok = True
-        
+
         if self.firmware_ok:
             return
 
@@ -1188,7 +1188,7 @@ class RNodeInterface(Interface):
                                     atl = command_buffer[2] << 8 | command_buffer[3]
                                     cus = command_buffer[4] << 8 | command_buffer[5]
                                     cul = command_buffer[6] << 8 | command_buffer[7]
-                                    
+
                                     self.r_airtime_short      = ats/100.0
                                     self.r_airtime_long       = atl/100.0
                                     self.r_channel_load_short = cus/100.0
@@ -1289,10 +1289,10 @@ class RNodeInterface(Interface):
                             if time.time() > self.first_tx + self.id_interval:
                                 RNS.log(f"Interface {self} is transmitting beacon data: {self.id_callsign.decode('utf-8')}", RNS.LOG_DEBUG)
                                 self.processOutgoing(self.id_callsign)
-                    
+
                     if (time.time() - self.last_port_io > self.port_io_timeout):
                         self.detect()
-                    
+
                     if (time.time() - self.last_port_io > self.port_io_timeout*3):
                         raise OSError(f"Connected port for {self} became unresponsive")
 
@@ -1343,7 +1343,7 @@ class RNodeInterface(Interface):
                             if self.last_imagedata != None:
                                 self.display_image(self.last_imagedata)
                                 self.enable_external_framebuffer()
-                    
+
                     elif hasattr(self, "bt_manager") and self.bt_manager != None and self.bt_manager.connected:
                         self.configure_device()
                         if self.online:
@@ -1504,7 +1504,7 @@ class BLEConnection(BluetoothDispatcher):
                     self.write_characteristic(self.rx_char, data)
                 else:
                     time.sleep(0.1)
-        
+
         except Exception as e:
             RNS.log("An error occurred in {self} write loop: {e}", RNS.LOG_ERROR)
             RNS.trace_exception(e)
@@ -1552,7 +1552,7 @@ class BLEConnection(BluetoothDispatcher):
                     self.owner.hw_errors.append({"error": KISS.ERROR_INVALID_BLE_MTU, "description": "The Bluetooth Low Energy transfer MTU could not be configured for the connected device, and communication has failed. Restart Reticulum and any connected applications to retry connecting."})
                     self.close()
                     self.should_run = False
-                
+
                 self.close_gatt()
 
             self.connect_job_running = False
@@ -1599,14 +1599,14 @@ class BLEConnection(BluetoothDispatcher):
     def on_services(self, status, services):
         if status == GATT_SUCCESS:
             self.rx_char = services.search(BLEConnection.UART_RX_CHAR_UUID)
-            
+
             if self.rx_char is not None:
                 self.tx_char = services.search(BLEConnection.UART_TX_CHAR_UUID)
 
-                if self.tx_char is not None:                
+                if self.tx_char is not None:
                     if self.enable_notifications(self.tx_char):
                         RNS.log("Enabled notifications for BLE TX characteristic", RNS.LOG_DEBUG)
-                        
+
                         RNS.log(f"Requesting BLE connection MTU update to {self.target_mtu}", RNS.LOG_DEBUG)
                         self.mtu_requested_time = time.time()
                         self.request_mtu(self.target_mtu)

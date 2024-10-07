@@ -45,7 +45,7 @@ def prepare_identity(identity_path):
         identity_path = f"{RNS.Reticulum.identitypath}/{APP_NAME}"
 
     if os.path.isfile(identity_path):
-        identity = RNS.Identity.from_file(identity_path)                
+        identity = RNS.Identity.from_file(identity_path)
 
     if identity == None:
         RNS.log("No valid saved identity found, creating new...", RNS.LOG_INFO)
@@ -57,7 +57,7 @@ def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed
 
     targetloglevel = 3+verbosity-quietness
     reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
-    
+
     prepare_identity(identitypath)
     destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "execute")
 
@@ -107,7 +107,7 @@ def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed
 
     if not disable_announce:
         destination.announce()
-    
+
     while True:
         time.sleep(1)
 
@@ -338,7 +338,7 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
     if link == None or link.status == RNS.Link.CLOSED or link.status == RNS.Link.PENDING:
         link = RNS.Link(listener_destination)
         link.did_identify = False
-    
+
     if not spin(until=lambda: link.status == RNS.Link.ACTIVE, msg=f"Establishing link with {RNS.prettyhexrep(destination_hash)}", timeout=timeout):
         print(f"Could not establish link with {RNS.prettyhexrep(destination_hash)}")
         exit(243)
@@ -467,7 +467,7 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
                     else:
                         tstr = ""
                     print(f"Remote wrote {outlen} bytes to stdout{tstr}")
-                
+
                 if errlen != None and stderr != None:
                     if len(stderr) < errlen:
                         tstr = f", {len(stderr)} bytes displayed"
@@ -548,7 +548,7 @@ def main():
         parser.add_argument("--stdout", action='store', default=None, help="max size in bytes of returned stdout", type=int)
         parser.add_argument("--stderr", action='store', default=None, help="max size in bytes of returned stderr", type=int)
         parser.add_argument("--version", action="version", version=f"rnx {__version__}")
-        
+
         args = parser.parse_args()
 
         if args.listen or args.print_identity:
@@ -600,8 +600,8 @@ def main():
                     # while True:
                     #     ch = sys.stdin.read(1)
                     #     cmdbuf += ch.encode("utf-8")
-                    #     print("\r"+prompt+cmdbuf.decode("utf-8"), end="")    
-                    
+                    #     print("\r"+prompt+cmdbuf.decode("utf-8"), end="")
+
                     command = input()
                     if command.lower() == "exit" or command.lower() == "quit":
                         exit(0)
@@ -676,7 +676,7 @@ def pretty_time(time, verbose=False):
     minutes = int(time // 60)
     time %= 60
     seconds = round(time, 2)
-    
+
     ss = "" if seconds == 1 else "s"
     sm = "" if minutes == 1 else "s"
     sh = "" if hours == 1 else "s"

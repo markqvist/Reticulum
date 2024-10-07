@@ -62,7 +62,7 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
 
     identity_path = f"{RNS.Reticulum.identitypath}/{APP_NAME}"
     if os.path.isfile(identity_path):
-        identity = RNS.Identity.from_file(identity_path)                
+        identity = RNS.Identity.from_file(identity_path)
 
     if identity == None:
         RNS.log("No valid saved identity found, creating new...", RNS.LOG_INFO)
@@ -106,7 +106,7 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
                     ms = "y"
                 else:
                     ms = "ies"
-                
+
                 RNS.log(f"Loaded {len(ali)} allowed identit{ms} from {allowed_file}", RNS.LOG_VERBOSE)
 
         except Exception as e:
@@ -193,7 +193,7 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
                     destination.announce()
 
         threading.Thread(target=job, daemon=True).start()
-    
+
     while True:
         time.sleep(1)
 
@@ -219,7 +219,7 @@ def receive_sender_identified(link, identity):
 
 def receive_resource_callback(resource):
     global allow_all
-    
+
     sender_identity = resource.link.get_remote_identity()
 
     if sender_identity != None:
@@ -261,7 +261,7 @@ def receive_resource_concluded(resource):
             while os.path.isfile(full_save_path):
                 counter += 1
                 full_save_path = f"{saved_filename}.{counter}"
-            
+
             file = open(full_save_path, "wb")
             file.write(resource.data.read())
             file.close()
@@ -446,7 +446,7 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
                 while os.path.isfile(saved_filename):
                     counter += 1
                     saved_filename = f"{filename}.{counter}"
-                
+
                 file = open(saved_filename, "wb")
                 file.write(resource.data.read())
                 file.close()
@@ -563,7 +563,7 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
         print(str(e))
         exit(1)
 
-    
+
     file_path = os.path.expanduser(file)
     if not os.path.isfile(file_path):
         print("File not found")
@@ -679,7 +679,7 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
             sys.stdout.flush()
             i = (i+1)%len(syms)
 
-    
+
     if resource.status > RNS.Resource.COMPLETE:
         if silent:
             print(f"File was not accepted by {RNS.prettyhexrep(destination_hash)}")
@@ -759,7 +759,7 @@ def main():
         parser.add_argument('-P', '--phy-rates', action='store_true', default=False, help="display physical layer transfer rates")
         # parser.add_argument("--limit", action="store", metavar="files", type=float, help="maximum number of files to accept", default=None)
         parser.add_argument("--version", action="version", version=f"rncp {__version__}")
-        
+
         args = parser.parse_args()
 
         if args.listen or args.print_identity:

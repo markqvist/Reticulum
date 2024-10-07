@@ -44,7 +44,7 @@ serve_path = None
 def server(configpath, path):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
-    
+
     # Randomly create a new identity for our file server
     server_identity = RNS.Identity()
 
@@ -120,7 +120,7 @@ def client_connected(link):
             RNS.log("Too many files in served directory!", RNS.LOG_ERROR)
             RNS.log("You should implement a function to split the filelist over multiple packets.", RNS.LOG_ERROR)
             RNS.log("Hint: The client already supports it :)", RNS.LOG_ERROR)
-            
+
         # After this, we're just going to keep the link
         # open until the client requests a file. We'll
         # configure a function that get's called when
@@ -147,7 +147,7 @@ def client_request(message, packet):
             # read it and pack it as a resource
             RNS.log(f"Client requested \"{filename}\"")
             file = open(os.path.join(serve_path, filename), "rb")
-            
+
             file_resource = RNS.Resource(
                 file,
                 packet.link,
@@ -220,7 +220,7 @@ def client(destination_hexhash, configpath):
             raise ValueError(
                 f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes)."
             )
-            
+
         destination_hash = bytes.fromhex(destination_hexhash)
     except:
         RNS.log("Invalid destination entered. Check your input!\n")
@@ -291,7 +291,7 @@ def download(filename):
     # packet receipt.
     request_packet = RNS.Packet(server_link, filename.encode("utf-8"), create_receipt=False)
     request_packet.send()
-    
+
     print("")
     print(f"Requested \"{filename}\" from server, waiting for download to begin...")
     menu_mode = "download_started"
@@ -474,7 +474,7 @@ def link_closed(link):
         RNS.log("The link was closed by the server, exiting now")
     else:
         RNS.log("Link closed, exiting now")
-    
+
     RNS.Reticulum.exit_handler()
     time.sleep(1.5)
     os._exit(0)
@@ -486,17 +486,17 @@ def link_closed(link):
 def download_began(resource):
     global menu_mode, current_download, download_started, transfer_size, file_size
     current_download = resource
-    
+
     if download_started == 0:
         download_started = time.time()
-    
+
     transfer_size += resource.size
     file_size = resource.total_size
-    
+
     menu_mode = "downloading"
 
 # When the download concludes, successfully
-# or not, we'll update our menu state and 
+# or not, we'll update our menu state and
 # inform the user about how it all went.
 def download_concluded(resource):
     global menu_mode, current_filename, download_started, download_finished, download_time
