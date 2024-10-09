@@ -1,3 +1,20 @@
+### 2024-10-10: RNS β 0.8.3
+
+This release fixes a bug in resource transfer progress calculation, improves RNode error handling, and brings minor improvements to the `rncp` utility.
+
+**Changes**
+- Fixed a bug in resource transfer progress calculations
+- Added physical layer transfer rate output option to `rncp`
+- Added save directory option to `rncp`
+- Improved path handling for the fetch-jail option of of `rncp`
+- Added error detection for modem communication timeouts on connected RNode devices
+
+**Release Hashes**
+```
+54ddab32769081045db5fe45b27492cc012bf2fad64bc65ed37011f3651469fb rns-0.8.3-py3-none-any.whl
+a04915111d65b05a5f2ef2687ed208813034196c0c5e711cb01e6db72faa23ef rnspure-0.8.3-py3-none-any.whl
+```
+
 ### 2024-10-06: RNS β 0.8.2
 
 This release adds several new boards to `rnodeconf`, fixes a range of bugs and improves transport reliability.
