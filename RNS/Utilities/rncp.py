@@ -35,6 +35,7 @@ APP_NAME = "rncp"
 allow_all = False
 allow_fetch = False
 fetch_jail = None
+save_path = None
 show_phy_rates = False
 allowed_identity_hashes = []
 
@@ -44,8 +45,8 @@ es = " "
 erase_str = "\33[2K\r"
 
 def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identity = False,
-           limit = None, disable_auth = None, fetch_allowed = False, jail = None, announce = False):
-    global allow_all, allow_fetch, allowed_identity_hashes, fetch_jail
+           limit = None, disable_auth = None, fetch_allowed = False, jail = None, save = None, announce = False):
+    global allow_all, allow_fetch, allowed_identity_hashes, fetch_jail, save_path
     from tempfile import TemporaryFile
 
     allow_fetch = fetch_allowed
@@ -59,6 +60,20 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
     if jail != None:
         fetch_jail = os.path.abspath(os.path.expanduser(jail))
         RNS.log("Restricting fetch requests to paths under \""+fetch_jail+"\"", RNS.LOG_VERBOSE)
+
+    if save != None:
+        sp = os.path.abspath(os.path.expanduser(save))
+        if os.path.isdir(sp):
+            if os.access(sp, os.W_OK):
+                save_path = sp
+            else:
+                RNS.log("Output directory not writable", RNS.LOG_ERROR)
+                exit(4)
+        else:
+            RNS.log("Output directory not found", RNS.LOG_ERROR)
+            exit(3)
+
+        RNS.log("Saving received files in \""+save_path+"\"", RNS.LOG_VERBOSE)
 
     identity_path = RNS.Reticulum.identitypath+"/"+APP_NAME
     if os.path.isfile(identity_path):
@@ -135,9 +150,11 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
             return REQ_FETCH_NOT_ALLOWED
 
         if fetch_jail:
+            if data.startswith(fetch_jail+"/"):
+                data = data.replace(fetch_jail+"/", "")
             file_path = os.path.abspath(os.path.expanduser(f"{fetch_jail}/{data}"))
-            RNS.log(f"Disallowing fetch request for {file_path} outside of fetch jail {fetch_jail}", RNS.LOG_WARNING)
-            if not file_path.startswith(fetch_jail):
+            if not file_path.startswith(fetch_jail+"/"):
+                RNS.log(f"Disallowing fetch request for {file_path} outside of fetch jail {fetch_jail}", RNS.LOG_WARNING)
                 return REQ_FETCH_NOT_ALLOWED
         else:
             file_path = os.path.abspath(os.path.expanduser(f"{data}"))
@@ -240,7 +257,7 @@ def receive_resource_started(resource):
     print("Starting resource transfer "+RNS.prettyhexrep(resource.hash)+id_str)
 
 def receive_resource_concluded(resource):
-    global fetch_jail
+    global save_path
     if resource.status == RNS.Resource.COMPLETE:
         print(str(resource)+" completed")
 
@@ -249,9 +266,9 @@ def receive_resource_concluded(resource):
             filename = resource.data.read(filename_len).decode("utf-8")
 
             counter = 0
-            if fetch_jail:
-                saved_filename = os.path.abspath(os.path.expanduser(fetch_jail+"/"+filename))
-                if not saved_filename.startswith(fetch_jail):
+            if save_path:
+                saved_filename = os.path.abspath(os.path.expanduser(save_path+"/"+filename))
+                if not saved_filename.startswith(save_path+"/"):
                     RNS.log(f"Invalid save path {saved_filename}, ignoring", RNS.LOG_ERROR)
                     return
             else:
@@ -311,10 +328,22 @@ def sender_progress(resource):
         resource_done = True
 
 link = None
-def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, silent=False, phy_rates=False):
-    global current_resource, resource_done, link, speed, show_phy_rates
+def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, silent=False, phy_rates=False, save=None):
+    global current_resource, resource_done, link, speed, show_phy_rates, save_path
     targetloglevel = 3+verbosity-quietness
     show_phy_rates = phy_rates
+
+    if save:
+        sp = os.path.abspath(os.path.expanduser(save))
+        if os.path.isdir(sp):
+            if os.access(sp, os.W_OK):
+                save_path = sp
+            else:
+                RNS.log("Output directory not writable", RNS.LOG_ERROR)
+                exit(4)
+        else:
+            RNS.log("Output directory not found", RNS.LOG_ERROR)
+            exit(3)
 
     try:
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
@@ -436,18 +465,25 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
 
     def fetch_resource_concluded(resource):
         nonlocal resource_resolved, resource_status
+        global save_path
         if resource.status == RNS.Resource.COMPLETE:
             if resource.total_size > 4:
                 filename_len = int.from_bytes(resource.data.read(2), "big")
                 filename = resource.data.read(filename_len).decode("utf-8")
 
                 counter = 0
-                saved_filename = filename
-                while os.path.isfile(saved_filename):
+                if save_path:
+                    saved_filename = os.path.abspath(os.path.expanduser(save_path+"/"+filename))
+
+                else:
+                    saved_filename = filename
+
+                full_save_path = saved_filename
+                while os.path.isfile(full_save_path):
                     counter += 1
-                    saved_filename = filename+"."+str(counter)
-                
-                file = open(saved_filename, "wb")
+                    full_save_path = saved_filename+"."+str(counter)
+ 
+                file = open(full_save_path, "wb")
                 file.write(resource.data.read())
                 file.close()
                 resource_status = "completed"
@@ -751,8 +787,9 @@ def main():
         parser.add_argument("-F", '--allow-fetch', action='store_true', default=False, help="allow authenticated clients to fetch files")
         parser.add_argument("-f", '--fetch', action='store_true', default=False, help="fetch file from remote listener instead of sending")
         parser.add_argument("-j", "--jail", metavar="path", action="store", default=None, help="restrict fetch requests to specified path", type=str)
+        parser.add_argument("-s", "--save", metavar="path", action="store", default=None, help="save received files in specified path", type=str)
         parser.add_argument("-b", action='store', metavar="seconds", default=-1, help="announce interval, 0 to only announce at startup", type=int)
-        parser.add_argument('-a', metavar="allowed_hash", dest="allowed", action='append', help="allow this identity", type=str)
+        parser.add_argument('-a', metavar="allowed_hash", dest="allowed", action='append', help="allow this identity (or add in ~/.rncp/allowed_identities)", type=str)
         parser.add_argument('-n', '--no-auth', action='store_true', default=False, help="accept requests from anyone")
         parser.add_argument('-p', '--print-identity', action='store_true', default=False, help="print identity and destination info and exit")
         parser.add_argument("-w", action="store", metavar="seconds", type=float, help="sender timeout before giving up", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
@@ -770,6 +807,7 @@ def main():
                 allowed = args.allowed,
                 fetch_allowed = args.allow_fetch,
                 jail = args.jail,
+                save = args.save,
                 display_identity=args.print_identity,
                 # limit=args.limit,
                 disable_auth=args.no_auth,
@@ -787,6 +825,7 @@ def main():
                     timeout = args.w,
                     silent = args.silent,
                     phy_rates = args.phy_rates,
+                    save = args.save,
                 )
             else:
                 print("")
