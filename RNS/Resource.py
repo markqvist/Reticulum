@@ -160,7 +160,7 @@ class Resource:
             resource.encrypted           = True if resource.flags & 0x01 else False
             resource.compressed          = True if resource.flags >> 1 & 0x01 else False
             resource.initiator           = False
-            resource.callback             = callback
+            resource.callback            = callback
             resource.__progress_callback = progress_callback
             resource.total_parts         = int(math.ceil(resource.size/float(Resource.SDU)))
             resource.received_count      = 0
@@ -233,7 +233,6 @@ class Resource:
                 data_size = os.stat(data.name).st_size
 
             self.total_size = data_size
-            self.grand_total_parts = math.ceil(data_size/Resource.SDU)
 
             if data_size <= Resource.MAX_EFFICIENT_SIZE:
                 self.total_segments = 1
@@ -254,7 +253,6 @@ class Resource:
 
         elif isinstance(data, bytes):
             data_size = len(data)
-            self.grand_total_parts = math.ceil(data_size/Resource.SDU)
             self.total_size  = data_size
             
             resource_data = data
@@ -348,6 +346,7 @@ class Resource:
             self.size = len(self.data)
             self.sent_parts = 0
             hashmap_entries = int(math.ceil(self.size/float(Resource.SDU)))
+            self.total_parts = hashmap_entries
                 
             hashmap_ok = False
             while not hashmap_ok:
@@ -963,19 +962,66 @@ class Resource:
         """
         if self.status == RNS.Resource.COMPLETE and self.segment_index == self.total_segments:
             return 1.0
+        
         elif self.initiator:
-            self.processed_parts  = (self.segment_index-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)
-            self.processed_parts += self.sent_parts
-            self.progress_total_parts = float(self.grand_total_parts)
-        else:
-            self.processed_parts  = (self.segment_index-1)*math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)            
-            self.processed_parts += self.received_count
-            if self.split:
-                self.progress_total_parts = float(math.ceil(self.total_size/Resource.SDU))
-            else:
+            if not self.split:
+                self.processed_parts = self.sent_parts
                 self.progress_total_parts = float(self.total_parts)
 
+            else:
+                is_last_segment = self.segment_index != self.total_segments
+                total_segments = self.total_segments
+                processed_segments = self.segment_index-1
+
+                current_segment_parts = self.total_parts
+                max_parts_per_segment = math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)
+
+                previously_processed_parts = processed_segments*max_parts_per_segment
+
+                if current_segment_parts < max_parts_per_segment:
+                    current_segment_factor = max_parts_per_segment / current_segment_parts
+                else:
+                    current_segment_factor = 1
+
+                self.processed_parts = previously_processed_parts + self.sent_parts*current_segment_factor
+                self.progress_total_parts = self.total_segments*max_parts_per_segment
+
+        else:
+            if not self.split:
+                self.processed_parts = self.received_count
+                self.progress_total_parts = float(self.total_parts)
+
+            else:
+                is_last_segment = self.segment_index != self.total_segments
+                total_segments = self.total_segments
+                processed_segments = self.segment_index-1
+
+                current_segment_parts = self.total_parts
+                max_parts_per_segment = math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)
+
+                previously_processed_parts = processed_segments*max_parts_per_segment
+
+                if current_segment_parts < max_parts_per_segment:
+                    current_segment_factor = max_parts_per_segment / current_segment_parts
+                else:
+                    current_segment_factor = 1
+
+                self.processed_parts = previously_processed_parts + self.received_count*current_segment_factor
+                self.progress_total_parts = self.total_segments*max_parts_per_segment
+
+
         progress = min(1.0, self.processed_parts / self.progress_total_parts)
+        return progress
+
+    def get_segment_progress(self):
+        if self.status == RNS.Resource.COMPLETE and self.segment_index == self.total_segments:
+            return 1.0
+        elif self.initiator:
+            processed_parts = self.sent_parts
+        else:
+            processed_parts = self.received_count
+
+        progress = min(1.0, processed_parts / self.total_parts)
         return progress
 
     def get_transfer_size(self):
