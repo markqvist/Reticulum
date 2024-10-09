@@ -176,8 +176,8 @@ class LocalClientInterface(Interface):
                         self.send_lock = Lock()
 
                     with self.send_lock:
+                        # RNS.log(f"Simulating latency of {RNS.prettytime(s)} for {len(data)} bytes", RNS.LOG_EXTREME)
                         s = len(data) / self.bitrate * 8
-                        RNS.log(f"Simulating latency of {RNS.prettytime(s)} for {len(data)} bytes")
                         time.sleep(s)
 
                 data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
