@@ -509,10 +509,14 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
                 prg = current_resource.get_progress()
                 percent = round(prg * 100.0, 1)
                 if show_phy_rates:
-                    phy_str = f" ({size_str(phy_speed, "b")}ps at physical layer)"
+                    pss = size_str(phy_speed, "b")
+                    phy_str = f" ({pss}ps at physical layer)"
                 else:
                     phy_str = ""
-                stat_str = f"{percent}% - {size_str(int(prg*current_resource.total_size))} of {size_str(current_resource.total_size)} - {size_str(speed, "b")}ps{phy_str}"
+                ps = size_str(int(prg*current_resource.total_size))
+                ts = size_str(current_resource.total_size)
+                ss = size_str(speed, "b")
+                stat_str = f"{percent}% - {ps} of {ts} - {ss}ps{phy_str}"
                 if prg != 1.0:
                     print(f"{erase_str}Transferring file {syms[i]} {stat_str}", end=es)
                 else:
@@ -693,11 +697,15 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
         prg = current_resource.get_progress()
         percent = round(prg * 100.0, 1)
         if show_phy_rates:
-            phy_str = f" ({size_str(phy_speed, "b")}ps at physical layer)"
+            pss = size_str(phy_speed, "b")
+            phy_str = f" ({pss}ps at physical layer)"
         else:
             phy_str = ""
         es = "  "
-        stat_str = f"{percent}% - {size_str(int(prg*current_resource.total_size))} of {size_str(current_resource.total_size)} - {size_str(speed, "b")}ps{phy_str}"
+        cs = size_str(int(prg*current_resource.total_size))
+        ts = size_str(current_resource.total_size)
+        ss = size_str(speed, "b")
+        stat_str = f"{percent}% - {cs} of {ts} - {ss}ps{phy_str}"
         if not done:
             print(f"{erase_str}Transferring file "+syms[i]+" "+stat_str, end=es)
         else:
