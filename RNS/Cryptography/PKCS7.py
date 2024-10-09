@@ -35,6 +35,6 @@ class PKCS7:
         l = len(data)
         n = data[-1]
         if n > bs:
-            raise ValueError("Cannot unpad, invalid padding length of "+str(n)+" bytes")
+            raise ValueError(f"Cannot unpad, invalid padding length of {n} bytes")
         else:
             return data[:l-n]

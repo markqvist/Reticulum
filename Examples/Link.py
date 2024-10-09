@@ -27,7 +27,7 @@ latest_client_link = None
 def server(configpath):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
-    
+
     # Randomly create a new identity for our link example
     server_identity = RNS.Identity()
 
@@ -53,9 +53,7 @@ def server(configpath):
 def server_loop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Link example "+
-        RNS.prettyhexrep(destination.hash)+
-        " running, waiting for a connection."
+        f"Link example {RNS.prettyhexrep(destination.hash)} running, waiting for a connection."
     )
 
     RNS.log("Hit enter to manually send an announce (Ctrl-C to quit)")
@@ -67,7 +65,7 @@ def server_loop(destination):
     while True:
         entered = input()
         destination.announce()
-        RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
+        RNS.log(f"Sent announce from {RNS.prettyhexrep(destination.hash)}")
 
 # When a client establishes a link to our server
 # destination, this function will be called with
@@ -90,9 +88,9 @@ def server_packet_received(message, packet):
     # it will all be directed to the last client
     # that connected.
     text = message.decode("utf-8")
-    RNS.log("Received data on the link: "+text)
-    
-    reply_text = "I received \""+text+"\" over the link"
+    RNS.log(f"Received data on the link: {text}")
+
+    reply_text = f"I received \"{text}\" over the link"
     reply_data = reply_text.encode("utf-8")
     RNS.Packet(latest_client_link, reply_data).send()
 
@@ -113,9 +111,9 @@ def client(destination_hexhash, configpath):
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
         if len(destination_hexhash) != dest_len:
             raise ValueError(
-                "Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2)
+                f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes)."
             )
-            
+
         destination_hash = bytes.fromhex(destination_hexhash)
     except:
         RNS.log("Invalid destination entered. Check your input!\n")
@@ -189,14 +187,12 @@ def client_loop():
                     RNS.Packet(server_link, data).send()
                 else:
                     RNS.log(
-                        "Cannot send this packet, the data size of "+
-                        str(len(data))+" bytes exceeds the link packet MDU of "+
-                        str(RNS.Link.MDU)+" bytes",
+                        f"Cannot send this packet, the data size of {len(data)} bytes exceeds the link packet MDU of {RNS.Link.MDU} bytes",
                         RNS.LOG_ERROR
                     )
 
         except Exception as e:
-            RNS.log("Error while sending data over the link: "+str(e))
+            RNS.log(f"Error while sending data over the link: {e}")
             should_quit = True
             server_link.teardown()
 
@@ -221,7 +217,7 @@ def link_closed(link):
         RNS.log("The link was closed by the server, exiting now")
     else:
         RNS.log("Link closed, exiting now")
-    
+
     RNS.Reticulum.exit_handler()
     time.sleep(1.5)
     os._exit(0)
@@ -230,7 +226,7 @@ def link_closed(link):
 # simply print out the data.
 def client_packet_received(message, packet):
     text = message.decode("utf-8")
-    RNS.log("Received data on the link: "+text)
+    RNS.log(f"Received data on the link: {text}")
     print("> ", end=" ")
     sys.stdout.flush()
 

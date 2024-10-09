@@ -42,12 +42,12 @@ def size_str(num, suffix='B'):
     for unit in units:
         if abs(num) < 1000.0:
             if unit == "":
-                return "%.0f %s%s" % (num, unit, suffix)
+                return f"{num:.0f} {unit}{suffix}"
             else:
-                return "%.2f %s%s" % (num, unit, suffix)
+                return f"{num:.2f} {unit}{suffix}"
         num /= 1000.0
 
-    return "%.2f%s%s" % (num, last_unit, suffix)
+    return f"{num:.2f}{last_unit}{suffix}"
 
 request_result = None
 request_concluded = False
@@ -144,7 +144,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
             if len(remote) != dest_len:
-                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                raise ValueError(f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes).")
             try:
                 identity_hash = bytes.fromhex(remote)
                 destination_hash = RNS.Destination.hash_from_name_and_identity("rnstransport.remote.management", identity_hash)
@@ -161,7 +161,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                     stats, link_count = remote_status
             except Exception as e:
                 raise e
-                    
+
         except Exception as e:
             print(str(e))
             exit(20)
@@ -215,7 +215,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
             if sorting == "held":
                 interfaces.sort(key=lambda i: i["held_announces"], reverse=not sort_reverse)
 
-            
+
         for ifstat in interfaces:
             name = ifstat["name"]
 
@@ -281,13 +281,13 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "ifac_netname" in ifstat and ifstat["ifac_netname"] != None:
                             print("    Network   : {nn}".format(nn=ifstat["ifac_netname"]))
 
-                        print("    Status    : {ss}".format(ss=ss))
+                        print(f"    Status    : {ss}")
 
                         if clients != None and clients_string != "":
                             print("    "+clients_string)
 
                         if not (name.startswith("Shared Instance[") or name.startswith("TCPInterface[Client") or name.startswith("LocalInterface[")):
-                            print("    Mode      : {mode}".format(mode=modestr))
+                            print(f"    Mode      : {modestr}")
 
                         if "bitrate" in ifstat and ifstat["bitrate"] != None:
                             print("    Rate      : {ss}".format(ss=speed_str(ifstat["bitrate"])))
@@ -295,16 +295,16 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "battery_percent" in ifstat and ifstat["battery_percent"] != None:
                             try:
                                 bpi = int(ifstat["battery_percent"])
-                                print("    Battery   : {bp}%".format(bp=bpi))
+                                print(f"    Battery   : {bpi}%")
                             except:
                                 pass
 
                         if "airtime_short" in ifstat and "airtime_long" in ifstat:
                             print("    Airtime   : {ats}% (15s), {atl}% (1h)".format(ats=str(ifstat["airtime_short"]),atl=str(ifstat["airtime_long"])))
-                        
+
                         if "channel_load_short" in ifstat and "channel_load_long" in ifstat:
                             print("    Ch.Load   : {ats}% (15s), {atl}% (1h)".format(ats=str(ifstat["channel_load_short"]),atl=str(ifstat["channel_load_long"])))
-                        
+
                         if "peers" in ifstat and ifstat["peers"] != None:
                             print("    Peers     : {np} reachable".format(np=ifstat["peers"]))
 
@@ -314,7 +314,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "ifac_signature" in ifstat and ifstat["ifac_signature"] != None:
                             sigstr = "<…"+RNS.hexrep(ifstat["ifac_signature"][-5:], delimit=False)+">"
                             print("    Access    : {nb}-bit IFAC by {sig}".format(nb=ifstat["ifac_size"]*8, sig=sigstr))
-                        
+
                         if "i2p_b32" in ifstat and ifstat["i2p_b32"] != None:
                             print("    I2P B32   : {ep}".format(ep=str(ifstat["i2p_b32"])))
 
@@ -324,14 +324,14 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                                 print("    Queued    : {np} announce".format(np=aqn))
                             else:
                                 print("    Queued    : {np} announces".format(np=aqn))
-                        
+
                         if astats and "held_announces" in ifstat and ifstat["held_announces"] != None and ifstat["held_announces"] > 0:
                             aqn = ifstat["held_announces"]
                             if aqn == 1:
                                 print("    Held      : {np} announce".format(np=aqn))
                             else:
                                 print("    Held      : {np} announces".format(np=aqn))
-                        
+
                         if astats and "incoming_announce_frequency" in ifstat and ifstat["incoming_announce_frequency"] != None:
                             print("    Announces : {iaf}↑".format(iaf=RNS.prettyfrequency(ifstat["outgoing_announce_frequency"])))
                             print("                {iaf}↓".format(iaf=RNS.prettyfrequency(ifstat["incoming_announce_frequency"])))
@@ -357,7 +357,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 print(f"\n{lstr}")
 
         print("")
-                
+
     else:
         if not remote:
             print("Could not get RNS status")
@@ -378,7 +378,7 @@ def main():
             help="show all interfaces",
             default=False
         )
-        
+
         parser.add_argument(
             "-A",
             "--announce-stats",
@@ -386,7 +386,7 @@ def main():
             help="show announce stats",
             default=False
         )
-        
+
         parser.add_argument(
             "-l",
             "--link-stats",
@@ -394,7 +394,7 @@ def main():
             help="show link stats",
             default=False,
         )
-        
+
         parser.add_argument(
             "-s",
             "--sort",
@@ -403,7 +403,7 @@ def main():
             default=None,
             type=str
         )
-        
+
         parser.add_argument(
             "-r",
             "--reverse",
@@ -411,7 +411,7 @@ def main():
             help="reverse sorting",
             default=False,
         )
-        
+
         parser.add_argument(
             "-j",
             "--json",
@@ -450,7 +450,7 @@ def main():
         parser.add_argument('-v', '--verbose', action='count', default=0)
 
         parser.add_argument("filter", nargs="?", default=None, help="only display interfaces with names including filter", type=str)
-        
+
         args = parser.parse_args()
 
         if args.config:
@@ -488,10 +488,10 @@ def speed_str(num, suffix='bps'):
 
     for unit in units:
         if abs(num) < 1000.0:
-            return "%3.2f %s%s" % (num, unit, suffix)
+            return f"{num:3.2f} {unit}{suffix}"
         num /= 1000.0
 
-    return "%.2f %s%s" % (num, last_unit, suffix)
+    return f"{num:.2f} {last_unit}{suffix}"
 
 if __name__ == "__main__":
     main()

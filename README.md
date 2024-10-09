@@ -109,8 +109,8 @@ network, and vice versa.
 
 ## How do I get started?
 The best way to get started with the Reticulum Network Stack depends on what
-you want to do. For full details and examples, have a look at the 
-[Getting Started Fast](https://markqvist.github.io/Reticulum/manual/gettingstartedfast.html) 
+you want to do. For full details and examples, have a look at the
+[Getting Started Fast](https://markqvist.github.io/Reticulum/manual/gettingstartedfast.html)
 section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
 
 To simply install Reticulum and related utilities on your system, the easiest way is via `pip`.
@@ -143,15 +143,15 @@ creating a more complex configuration.
 
 If you have an old version of `pip` on your system, you may need to upgrade it first with `pip install pip --upgrade`. If you no not already have `pip` installed, you can install it using the package manager of your system with `sudo apt install python3-pip` or similar.
 
-For more detailed examples on how to expand communication over many mediums such 
-as packet radio or LoRa, serial ports, or over fast IP links and the Internet using 
-the UDP and TCP interfaces, take a look at the [Supported Interfaces](https://markqvist.github.io/Reticulum/manual/interfaces.html) 
+For more detailed examples on how to expand communication over many mediums such
+as packet radio or LoRa, serial ports, or over fast IP links and the Internet using
+the UDP and TCP interfaces, take a look at the [Supported Interfaces](https://markqvist.github.io/Reticulum/manual/interfaces.html)
 section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
 
 ## Included Utilities
-Reticulum includes a range of useful utilities for managing your networks, 
-viewing status and information, and other tasks. You can read more about these 
-programs in the [Included Utility Programs](https://markqvist.github.io/Reticulum/manual/using.html#included-utility-programs) 
+Reticulum includes a range of useful utilities for managing your networks,
+viewing status and information, and other tasks. You can read more about these
+programs in the [Included Utility Programs](https://markqvist.github.io/Reticulum/manual/using.html#included-utility-programs)
 section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
 
 - The system daemon `rnsd` for running Reticulum as an always-available service
@@ -242,7 +242,7 @@ The testnet is just that, an informal network for testing and experimenting.
 It will be up most of the time, and anyone can join, but it also means that
 there's no guarantees for service availability.
 
-It probably goes without saying, but *don't use the testnet entry-points as 
+It probably goes without saying, but *don't use the testnet entry-points as
 hardcoded or default interfaces in any applications you ship to users*. When
 shipping applications, the best practice is to provide your own default
 connectivity solutions, if needed and applicable, or in most cases, simply

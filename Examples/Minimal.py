@@ -17,7 +17,7 @@ APP_NAME = "example_utilities"
 def program_setup(configpath):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
-    
+
     # Randomly create a new identity for our example
     identity = RNS.Identity()
 
@@ -42,7 +42,7 @@ def program_setup(configpath):
     # tries to communicate with the destination know whether their
     # communication was received correctly.
     destination.set_proof_strategy(RNS.Destination.PROVE_ALL)
-    
+
     # Everything's ready!
     # Let's hand over control to the announce loop
     announceLoop(destination)
@@ -51,9 +51,7 @@ def program_setup(configpath):
 def announceLoop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Minimal example "+
-        RNS.prettyhexrep(destination.hash)+
-        " running, hit enter to manually send an announce (Ctrl-C to quit)"
+        f"Minimal example {RNS.prettyhexrep(destination.hash)} running, hit enter to manually send an announce (Ctrl-C to quit)"
     )
 
     # We enter a loop that runs until the users exits.
@@ -63,7 +61,7 @@ def announceLoop(destination):
     while True:
         entered = input()
         destination.announce()
-        RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
+        RNS.log(f"Sent announce from {RNS.prettyhexrep(destination.hash)}")
 
 
 ##########################################################

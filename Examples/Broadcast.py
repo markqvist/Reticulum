@@ -17,7 +17,7 @@ APP_NAME = "example_utilities"
 def program_setup(configpath, channel=None):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
-    
+
     # If the user did not select a "channel" we use
     # a default one called "public_information".
     # This "channel" is added to the destination name-
@@ -40,7 +40,7 @@ def program_setup(configpath, channel=None):
     # We specify a callback that will get called every time
     # the destination receives data.
     broadcast_destination.set_packet_callback(packet_callback)
-    
+
     # Everything's ready!
     # Let's hand over control to the main loop
     broadcastLoop(broadcast_destination)
@@ -48,15 +48,13 @@ def program_setup(configpath, channel=None):
 def packet_callback(data, packet):
     # Simply print out the received data
     print("")
-    print("Received data: "+data.decode("utf-8")+"\r\n> ", end="")
+    print(f"Received data: {data.decode('utf-8')}\r\n> ", end="")
     sys.stdout.flush()
 
 def broadcastLoop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Broadcast example "+
-        RNS.prettyhexrep(destination.hash)+
-        " running, enter text and hit enter to broadcast (Ctrl-C to quit)"
+        f"Broadcast example {RNS.prettyhexrep(destination.hash)} running, enter text and hit enter to broadcast (Ctrl-C to quit)"
     )
 
     # We enter a loop that runs until the users exits.

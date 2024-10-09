@@ -44,7 +44,7 @@ serve_path = None
 def server(configpath, path):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
-    
+
     # Randomly create a new identity for our file server
     server_identity = RNS.Identity()
 
@@ -73,7 +73,7 @@ def server(configpath, path):
 
 def announceLoop(destination):
     # Let the user know that everything is ready
-    RNS.log("File server "+RNS.prettyhexrep(destination.hash)+" running")
+    RNS.log(f"File server {RNS.prettyhexrep(destination.hash)} running")
     RNS.log("Hit enter to manually send an announce (Ctrl-C to quit)")
 
     # We enter a loop that runs until the users exits.
@@ -83,7 +83,7 @@ def announceLoop(destination):
     while True:
         entered = input()
         destination.announce()
-        RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
+        RNS.log(f"Sent announce from {RNS.prettyhexrep(destination.hash)}")
 
 # Here's a convenience function for listing all files
 # in our served directory
@@ -120,7 +120,7 @@ def client_connected(link):
             RNS.log("Too many files in served directory!", RNS.LOG_ERROR)
             RNS.log("You should implement a function to split the filelist over multiple packets.", RNS.LOG_ERROR)
             RNS.log("Hint: The client already supports it :)", RNS.LOG_ERROR)
-            
+
         # After this, we're just going to keep the link
         # open until the client requests a file. We'll
         # configure a function that get's called when
@@ -145,9 +145,9 @@ def client_request(message, packet):
         try:
             # If we have the requested file, we'll
             # read it and pack it as a resource
-            RNS.log("Client requested \""+filename+"\"")
+            RNS.log(f"Client requested \"{filename}\"")
             file = open(os.path.join(serve_path, filename), "rb")
-            
+
             file_resource = RNS.Resource(
                 file,
                 packet.link,
@@ -158,7 +158,7 @@ def client_request(message, packet):
         except Exception as e:
             # If somethign went wrong, we close
             # the link
-            RNS.log("Error while reading file \""+filename+"\"", RNS.LOG_ERROR)
+            RNS.log(f"Error while reading file \"{filename}\"", RNS.LOG_ERROR)
             packet.link.teardown()
             raise e
     else:
@@ -175,9 +175,9 @@ def resource_sending_concluded(resource):
         name = "resource"
 
     if resource.status == RNS.Resource.COMPLETE:
-        RNS.log("Done sending \""+name+"\" to client")
+        RNS.log(f"Done sending \"{name}\" to client")
     elif resource.status == RNS.Resource.FAILED:
-        RNS.log("Sending \""+name+"\" to client failed")
+        RNS.log(f"Sending \"{name}\" to client failed")
 
 def list_delivered(receipt):
     RNS.log("The file list was received by the client")
@@ -218,9 +218,9 @@ def client(destination_hexhash, configpath):
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
         if len(destination_hexhash) != dest_len:
             raise ValueError(
-                "Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2)
+                f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes)."
             )
-            
+
         destination_hash = bytes.fromhex(destination_hexhash)
     except:
         RNS.log("Invalid destination entered. Check your input!\n")
@@ -291,9 +291,9 @@ def download(filename):
     # packet receipt.
     request_packet = RNS.Packet(server_link, filename.encode("utf-8"), create_receipt=False)
     request_packet.send()
-    
+
     print("")
-    print(("Requested \""+filename+"\" from server, waiting for download to begin..."))
+    print(f"Requested \"{filename}\" from server, waiting for download to begin...")
     menu_mode = "download_started"
 
 # This function runs a simple menu for the user
@@ -363,7 +363,7 @@ def print_menu():
         while menu_mode == "downloading":
             global current_download
             percent = round(current_download.get_progress() * 100.0, 1)
-            print(("\rProgress: "+str(percent)+" %   "), end=' ')
+            print(f'\rProgress: {percent} %   ', end=' ')
             sys.stdout.flush()
             time.sleep(0.1)
 
@@ -383,15 +383,15 @@ def print_menu():
             # Print statistics
             hours, rem = divmod(download_time, 3600)
             minutes, seconds = divmod(rem, 60)
-            timestring = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds)
+            timestring = f"{int(hours):0>2}:{int(minutes):0>2}:{seconds:05.2f}"
             print("")
             print("")
             print("--- Statistics -----")
-            print("\tTime taken       : "+timestring)
-            print("\tFile size        : "+size_str(file_size))
-            print("\tData transferred : "+size_str(transfer_size))
-            print("\tEffective rate   : "+size_str(file_size/download_time, suffix='b')+"/s")
-            print("\tTransfer rate    : "+size_str(transfer_size/download_time, suffix='b')+"/s")
+            print(f"\tTime taken       : {timestring}")
+            print(f"\tFile size        : {size_str(file_size)}")
+            print(f"\tData transferred : {size_str(transfer_size)}")
+            print(f"\tEffective rate   : {size_str(file_size / download_time, suffix='b')}/s")
+            print(f"\tTransfer rate    : {size_str(transfer_size / download_time, suffix='b')}/s")
             print("")
             print("The download completed! Press enter to return to the menu.")
             print("")
@@ -412,7 +412,7 @@ def print_filelist():
     global server_files
     print("Files on server:")
     for index,file in enumerate(server_files):
-        print("\t("+str(index)+")\t"+file)
+        print(f"\t({index})\t{file}")
 
 def filelist_received(filelist_data, packet):
     global server_files, menu_mode
@@ -474,7 +474,7 @@ def link_closed(link):
         RNS.log("The link was closed by the server, exiting now")
     else:
         RNS.log("Link closed, exiting now")
-    
+
     RNS.Reticulum.exit_handler()
     time.sleep(1.5)
     os._exit(0)
@@ -486,17 +486,17 @@ def link_closed(link):
 def download_began(resource):
     global menu_mode, current_download, download_started, transfer_size, file_size
     current_download = resource
-    
+
     if download_started == 0:
         download_started = time.time()
-    
+
     transfer_size += resource.size
     file_size = resource.total_size
-    
+
     menu_mode = "downloading"
 
 # When the download concludes, successfully
-# or not, we'll update our menu state and 
+# or not, we'll update our menu state and
 # inform the user about how it all went.
 def download_concluded(resource):
     global menu_mode, current_filename, download_started, download_finished, download_time
@@ -509,7 +509,7 @@ def download_concluded(resource):
         counter = 0
         while os.path.isfile(saved_filename):
             counter += 1
-            saved_filename = current_filename+"."+str(counter)
+            saved_filename = f"{current_filename}.{counter}"
 
         try:
             file = open(saved_filename, "wb")
@@ -534,9 +534,9 @@ def size_str(num, suffix='B'):
 
     for unit in units:
         if abs(num) < 1024.0:
-            return "%3.2f %s%s" % (num, unit, suffix)
+            return f"{num:3.2f} {unit}{suffix}"
         num /= 1024.0
-    return "%.2f %s%s" % (num, last_unit, suffix)
+    return f"{num:.2f} {last_unit}{suffix}"
 
 # A convenience function for clearing the screen
 def clear_screen():

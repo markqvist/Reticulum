@@ -136,7 +136,7 @@ class MessageBase(abc.ABC):
     MSGTYPE = None
     """
     Defines a unique identifier for a message class.
-    
+
     * Must be unique within all classes registered with a ``Channel``
     * Must be less than ``0xf000``. Values greater than or equal to ``0xf000`` are reserved.
     """
@@ -168,7 +168,7 @@ class Envelope:
     Internal wrapper used to transport messages over a channel and
     track its state within the channel framework.
     """
-    def unpack(self, message_factories: dict[int, Type]) -> MessageBase:
+    def unpack(self, message_factories: dict[int, type]) -> MessageBase:
         msgtype, self.sequence, length = struct.unpack(">HHH", self.raw[:6])
         raw = self.raw[6:]
         ctor = message_factories.get(msgtype, None)
@@ -247,11 +247,11 @@ class Channel(contextlib.AbstractContextManager):
 
     # The maximum window size for transfers on fast links
     WINDOW_MAX_FAST      = 48
-    
+
     # For calculating maps and guard segments, this
     # must be set to the global maximum window.
     WINDOW_MAX           = WINDOW_MAX_FAST
-    
+
     # If the fast rate is sustained for this many request
     # rounds, the fast link window size will be allowed.
     FAST_RATE_THRESHOLD  = 10
@@ -282,7 +282,7 @@ class Channel(contextlib.AbstractContextManager):
         self._message_callbacks: [MessageCallbackType] = []
         self._next_sequence = 0
         self._next_rx_sequence = 0
-        self._message_factories: dict[int, Type[MessageBase]] = {}
+        self._message_factories: dict[int, type[MessageBase]] = {}
         self._max_tries = 5
         self.fast_rate_rounds    = 0
         self.medium_rate_rounds  = 0
@@ -301,12 +301,12 @@ class Channel(contextlib.AbstractContextManager):
     def __enter__(self) -> Channel:
         return self
 
-    def __exit__(self, __exc_type: Type[BaseException] | None, __exc_value: BaseException | None,
+    def __exit__(self, __exc_type: type[BaseException] | None, __exc_value: BaseException | None,
                  __traceback: TracebackType | None) -> bool | None:
         self._shutdown()
         return False
 
-    def register_message_type(self, message_class: Type[MessageBase]):
+    def register_message_type(self, message_class: type[MessageBase]):
         """
         Register a message class for reception over a ``Channel``.
 
@@ -316,7 +316,7 @@ class Channel(contextlib.AbstractContextManager):
         """
         self._register_message_type(message_class, is_system_type=False)
 
-    def _register_message_type(self, message_class: Type[MessageBase], *, is_system_type: bool = False):
+    def _register_message_type(self, message_class: type[MessageBase], *, is_system_type: bool = False):
         with self._lock:
             if not issubclass(message_class, MessageBase):
                 raise ChannelException(CEType.ME_INVALID_MSG_TYPE,
@@ -380,21 +380,21 @@ class Channel(contextlib.AbstractContextManager):
     def _emplace_envelope(self, envelope: Envelope, ring: collections.deque[Envelope]) -> bool:
         with self._lock:
             i = 0
-            
+
             for existing in ring:
 
                 if envelope.sequence == existing.sequence:
-                    RNS.log(f"Envelope: Emplacement of duplicate envelope with sequence "+str(envelope.sequence), RNS.LOG_EXTREME)
+                    RNS.log(f"Envelope: Emplacement of duplicate envelope with sequence {envelope.sequence}", RNS.LOG_EXTREME)
                     return False
-                
+
                 if envelope.sequence < existing.sequence and not (self._next_rx_sequence - envelope.sequence) > (Channel.SEQ_MAX//2):
                     ring.insert(i, envelope)
 
                     envelope.tracked = True
                     return True
-                
+
                 i += 1
-            
+
             envelope.tracked = True
             ring.append(envelope)
 
@@ -408,7 +408,7 @@ class Channel(contextlib.AbstractContextManager):
                 if cb(message):
                     return
             except Exception as e:
-                RNS.log("Channel "+str(self)+" experienced an error while running a message callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log(f"Channel {self} experienced an error while running a message callback. The contained exception was: {e}", RNS.LOG_ERROR)
 
     def _receive(self, raw: bytes):
         try:
@@ -420,16 +420,16 @@ class Channel(contextlib.AbstractContextManager):
                     window_overflow = (self._next_rx_sequence+Channel.WINDOW_MAX) % Channel.SEQ_MODULUS
                     if window_overflow < self._next_rx_sequence:
                         if envelope.sequence > window_overflow:
-                            RNS.log("Invalid packet sequence ("+str(envelope.sequence)+") received on channel "+str(self), RNS.LOG_EXTREME)
+                            RNS.log(f"Invalid packet sequence ({envelope.sequence}) received on channel {self}", RNS.LOG_EXTREME)
                             return
                     else:
-                        RNS.log("Invalid packet sequence ("+str(envelope.sequence)+") received on channel "+str(self), RNS.LOG_EXTREME)
+                        RNS.log(f"Invalid packet sequence ({envelope.sequence}) received on channel {self}", RNS.LOG_EXTREME)
                         return
 
                 is_new = self._emplace_envelope(envelope, self._rx_ring)
 
             if not is_new:
-                RNS.log("Duplicate message received on channel "+str(self), RNS.LOG_EXTREME)
+                RNS.log(f"Duplicate message received on channel {self}", RNS.LOG_EXTREME)
                 return
             else:
                 with self._lock:
@@ -449,12 +449,12 @@ class Channel(contextlib.AbstractContextManager):
                             m = e.unpack(self._message_factories)
                         else:
                             m = e.message
-                            
+
                         self._rx_ring.remove(e)
                         self._run_callbacks(m)
 
         except Exception as e:
-            RNS.log("An error ocurred while receiving data on "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log(f"An error ocurred while receiving data on {self}. The contained exception was: {e}", RNS.LOG_ERROR)
 
     def is_ready_to_send(self) -> bool:
         """
@@ -468,7 +468,7 @@ class Channel(contextlib.AbstractContextManager):
         with self._lock:
             outstanding = 0
             for envelope in self._tx_ring:
-                if envelope.outlet == self._outlet: 
+                if envelope.outlet == self._outlet:
                     if not envelope.packet or not self._outlet.get_packet_state(envelope.packet) == MessageState.MSGSTATE_DELIVERED:
                         outstanding += 1
 
@@ -508,7 +508,7 @@ class Channel(contextlib.AbstractContextManager):
                                     # TODO: Remove at some point
                                     # RNS.log("Increased "+str(self)+" max window to "+str(self.window_max), RNS.LOG_DEBUG)
                                     # RNS.log("Increased "+str(self)+" min window to "+str(self.window_min), RNS.LOG_DEBUG)
-                            
+
                         else:
                             self.fast_rate_rounds += 1
                             if self.window_max < Channel.WINDOW_MAX_FAST and self.fast_rate_rounds == Channel.FAST_RATE_THRESHOLD:
@@ -520,9 +520,9 @@ class Channel(contextlib.AbstractContextManager):
 
 
                 else:
-                    RNS.log("Envelope not found in TX ring for "+str(self), RNS.LOG_EXTREME)
+                    RNS.log(f"Envelope not found in TX ring for {self}", RNS.LOG_EXTREME)
         if not envelope:
-            RNS.log("Spurious message received on "+str(self), RNS.LOG_EXTREME)
+            RNS.log(f"Spurious message received on {self}", RNS.LOG_EXTREME)
 
     def _packet_delivered(self, packet: TPacket):
         self._packet_tx_op(packet, lambda env: True)
@@ -541,7 +541,7 @@ class Channel(contextlib.AbstractContextManager):
     def _packet_timeout(self, packet: TPacket):
         def retry_envelope(envelope: Envelope) -> bool:
             if envelope.tries >= self._max_tries:
-                RNS.log("Retry count exceeded on "+str(self)+", tearing down Link.", RNS.LOG_ERROR)
+                RNS.log(f"Retry count exceeded on {self}, tearing down Link.", RNS.LOG_ERROR)
                 self._shutdown()  # start on separate thread?
                 self._outlet.timed_out()
                 return True
@@ -581,7 +581,7 @@ class Channel(contextlib.AbstractContextManager):
         with self._lock:
             if not self.is_ready_to_send():
                 raise ChannelException(CEType.ME_LINK_NOT_READY, f"Link is not ready")
-        
+
             envelope = Envelope(self._outlet, message=message, sequence=self._next_sequence)
             self._next_sequence = (self._next_sequence + 1) % Channel.SEQ_MODULUS
             self._emplace_envelope(envelope, self._tx_ring)
@@ -592,7 +592,7 @@ class Channel(contextlib.AbstractContextManager):
         envelope.pack()
         if len(envelope.raw) > self._outlet.mdu:
             raise ChannelException(CEType.ME_TOO_BIG, f"Packed message too big for packet: {len(envelope.raw)} > {self._outlet.mdu}")
-        
+
         envelope.packet = self._outlet.send(envelope.raw)
         envelope.tries += 1
         self._outlet.set_packet_delivered_callback(envelope.packet, self._packet_delivered)
