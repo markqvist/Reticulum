@@ -1738,7 +1738,16 @@ class Transport:
                         if link.link_id == packet.destination_hash:
                             if link.attached_interface == packet.receiving_interface:
                                 packet.link = link
-                                link.receive(packet)
+                                if packet.context == RNS.Packet.CACHE_REQUEST:
+                                    cached_packet = Transport.get_cached_packet(packet.data)
+                                    if cached_packet != None:
+                                        cached_packet.unpack()
+                                        RNS.Packet(destination=link, data=cached_packet.data,
+                                                   packet_type=cached_packet.packet_type, context=cached_packet.context).send()
+
+                                    Transport.jobs_locked = False
+                                else:
+                                    link.receive(packet)
                             else:
                                 # In the strange and rare case that an interface
                                 # is partly malfunctioning, and a link-associated

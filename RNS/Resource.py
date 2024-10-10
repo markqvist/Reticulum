@@ -118,6 +118,7 @@ class Resource:
 
     PART_TIMEOUT_FACTOR           = 4
     PART_TIMEOUT_FACTOR_AFTER_RTT = 2
+    PROOF_TIMEOUT_FACTOR          = 3
     MAX_RETRIES                   = 16
     MAX_ADV_RETRIES               = 4
     SENDER_GRACE_TIME             = 10.0
@@ -532,6 +533,10 @@ class Resource:
                         sleep_time = 0.001
 
             elif self.status == Resource.AWAITING_PROOF:
+                # Decrease timeout factor since proof packets are
+                # significantly smaller than full req/resp roundtrip
+                self.timeout_factor = Resource.PROOF_TIMEOUT_FACTOR
+
                 sleep_time = self.last_part_sent + (self.rtt*self.timeout_factor+self.sender_grace_time) - time.time()
                 if sleep_time < 0:
                     if self.retries_left <= 0:
@@ -623,6 +628,7 @@ class Resource:
                 proof_data = self.hash+proof
                 proof_packet = RNS.Packet(self.link, proof_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.RESOURCE_PRF)
                 proof_packet.send()
+                RNS.Transport.cache(proof_packet, force_cache=True)
             except Exception as e:
                 RNS.log("Could not send proof packet, cancelling resource", RNS.LOG_DEBUG)
                 RNS.log("The contained exception was: "+str(e), RNS.LOG_DEBUG)
@@ -919,6 +925,7 @@ class Resource:
 
             if self.sent_parts == len(self.parts):
                 self.status = Resource.AWAITING_PROOF
+                self.retries_left = 3
 
             if self.__progress_callback != None:
                 try:
