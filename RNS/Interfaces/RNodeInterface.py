@@ -290,6 +290,11 @@ class RNodeInterface(Interface):
         
         else:
             RNS.log(f"Opening BLE connection for {self}...")
+            if self.ble != None and self.ble.running == False:
+                self.ble.close()
+                self.ble.cleanup()
+                self.ble = None
+
             if self.ble == None:
                 self.ble = BLEConnection(owner=self, target_name=self.ble_name, target_bt_addr=self.ble_addr)
                 self.serial = self.ble
@@ -298,8 +303,7 @@ class RNodeInterface(Interface):
             while not self.ble.connected and time.time() < open_time + self.ble.CONNECT_TIMEOUT:
                 time.sleep(1)
 
-
-    def configure_device(self):
+    def reset_radio_state(self):
         self.r_frequency = None
         self.r_bandwidth = None
         self.r_txpower   = None
@@ -307,6 +311,10 @@ class RNodeInterface(Interface):
         self.r_cr        = None
         self.r_state     = None
         self.r_lock      = None
+        self.detected    = False
+
+    def configure_device(self):
+        self.reset_radio_state()
         sleep(2.0)
 
         thread = threading.Thread(target=self.readLoop)
@@ -513,7 +521,14 @@ class RNodeInterface(Interface):
 
     def validateRadioState(self):
         RNS.log("Waiting for radio configuration validation for "+str(self)+"...", RNS.LOG_VERBOSE)
-        sleep(0.25);
+        if self.use_ble:
+            sleep(1.00)
+        else:
+            sleep(0.25)
+
+        if self.use_ble and self.ble != None and self.ble.device_disappeared:
+            RNS.log(f"Device disappeared during radio state validation for {self}", RNS.LOG_ERROR)
+            return False
 
         self.validcfg = True
         if (self.r_frequency != None and abs(self.frequency - int(self.r_frequency)) > 100):
@@ -1010,11 +1025,13 @@ class BLEConnection():
         self.target_bt_addr = target_bt_addr
         self.scan_timeout = BLEConnection.SCAN_TIMEOUT
         self.ble_device = None
+        self.last_client = None
         self.connected = False
         self.running = False
         self.should_run = False
         self.must_disconnect = False
         self.connect_job_running = False
+        self.device_disappeared = False
 
         import importlib
         if BLEConnection.bleak == None:
@@ -1032,8 +1049,17 @@ class BLEConnection():
         self.should_run = True
         self.connection_thread = threading.Thread(target=self.connection_job, daemon=True).start()
 
+    def cleanup(self):
+        try:
+            if self.last_client != None:
+                self.asyncio.run(self.last_client.disconnect())
+        except Exception as e:
+            RNS.log(f"Error while disconnecting BLE device on cleanup for {self.owner}", RNS.LOG_ERROR)
+
+        self.should_run = False
+
     def connection_job(self):
-        while (self.should_run):
+        while self.should_run:
             if self.ble_device == None:
                 self.ble_device = self.find_target_device()
 
@@ -1042,6 +1068,10 @@ class BLEConnection():
                     self.connect_device()
 
             time.sleep(1)
+
+        self.cleanup()
+        self.running = False
+        RNS.log(f"BLE connection job for {self.owner} ended", RNS.LOG_DEBUG)
 
     def connect_device(self):
         if self.ble_device != None and type(self.ble_device) == self.bleak.backends.device.BLEDevice:
@@ -1056,6 +1086,7 @@ class BLEConnection():
 
                     self.connected = True
                     self.ble_device = ble_client
+                    self.last_client = ble_client
                     self.owner.port = str(f"ble://{ble_client.address}")
 
                     loop = self.asyncio.get_running_loop()
@@ -1077,12 +1108,14 @@ class BLEConnection():
                 self.asyncio.run(connect_job())
             except Exception as e:
                 RNS.log(f"Could not connect BLE device {self.ble_device} for {self.owner}. Possibly missing authentication.", RNS.LOG_ERROR)
+
             self.connect_job_running = False
 
     def device_disconnected(self, device):
         RNS.log(f"BLE device for {self.owner} disconnected", RNS.LOG_NOTICE)
         self.connected = False
         self.ble_device = None
+        self.device_disappeared = True
 
     def find_target_device(self):
         RNS.log(f"Searching for attachable BLE device for {self.owner}...", RNS.LOG_EXTREME)
@@ -1106,7 +1139,13 @@ class BLEConnection():
 
             return False
 
-        device = self.asyncio.run(self.bleak.BleakScanner.find_device_by_filter(device_filter, timeout=self.scan_timeout))
+        device = None
+        try:
+            device = self.asyncio.run(self.bleak.BleakScanner.find_device_by_filter(device_filter, timeout=self.scan_timeout))
+        except Exception as e:
+            RNS.log(f"Error while finding BLE device for {self.owner}: {e}", RNS.LOG_ERROR)
+            self.should_run = False
+
         return device
 
     def device_bonded(self, device):
