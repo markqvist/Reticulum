@@ -295,7 +295,8 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "battery_percent" in ifstat and ifstat["battery_percent"] != None:
                             try:
                                 bpi = int(ifstat["battery_percent"])
-                                print("    Battery   : {bp}%".format(bp=bpi))
+                                bss = ifstat["battery_state"]
+                                print(f"    Battery   : {bpi}% ({bss})")
                             except:
                                 pass
 

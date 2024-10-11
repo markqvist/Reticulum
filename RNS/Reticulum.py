@@ -1328,7 +1328,7 @@ class Reticulum:
 
                 if hasattr(interface, "r_battery_state"):
                     if interface.r_battery_state != 0x00:
-                        ifstats["battery_state"] = interface.r_battery_state
+                        ifstats["battery_state"] = interface.get_battery_state_string()
 
                     if hasattr(interface, "r_battery_percent"):
                         ifstats["battery_percent"] = interface.r_battery_percent
