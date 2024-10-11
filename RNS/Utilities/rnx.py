@@ -28,8 +28,8 @@ import argparse
 import shlex
 import time
 import sys
-import tty
 import os
+#import tty
 
 from RNS._version import __version__
 
