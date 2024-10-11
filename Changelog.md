@@ -1,3 +1,19 @@
+### 2024-10-11: RNS β 0.8.4
+
+This release fixes a number of bugs and improves reliability of automatic reconnection when BLE-connected RNodes unexpectedly disappear or lose connection.
+
+**Changes**
+- Improved RNode BLE reconnection realiability
+- Added RNode battery state to `rnstatus` output
+- Fixed resource transfer hanging for a long time over slow links if proof packet is lost
+- Fixed missing import on Android
+
+**Release Hashes**
+```
+d3f7a9fddc6c1e59b1e4895756fe602408ac6ef09de377ee65ec62d09fff97a3 dist/rns-0.8.4-py3-none-any.whl
+eb3843bcab1428be0adb097988991229a4c03156ab40cc9c6e2d9c590d8b850b dist/rnspure-0.8.4-py3-none-any.whl
+```
+
 ### 2024-10-10: RNS β 0.8.3
 
 This release fixes a bug in resource transfer progress calculation, improves RNode error handling, and brings minor improvements to the `rncp` utility.
