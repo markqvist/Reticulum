@@ -98,7 +98,7 @@ latest_client_link = None
 def server(configpath):
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
-    
+
     # Randomly create a new identity for our link example
     server_identity = RNS.Identity()
 
@@ -124,9 +124,7 @@ def server(configpath):
 def server_loop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Link example "+
-        RNS.prettyhexrep(destination.hash)+
-        " running, waiting for a connection."
+        f"Link example {RNS.prettyhexrep(destination.hash)} running, waiting for a connection."
     )
 
     RNS.log("Hit enter to manually send an announce (Ctrl-C to quit)")
@@ -138,7 +136,7 @@ def server_loop(destination):
     while True:
         entered = input()
         destination.announce()
-        RNS.log("Sent announce from "+RNS.prettyhexrep(destination.hash))
+        RNS.log(f"Sent announce from {RNS.prettyhexrep(destination.hash)}")
 
 # When a client establishes a link to our server
 # destination, this function will be called with
@@ -176,9 +174,9 @@ def server_message_received(message):
     #
     #
     if isinstance(message, StringMessage):
-        RNS.log("Received data on the link: " + message.data + " (message created at " + str(message.timestamp) + ")")
+        RNS.log(f"Received data on the link: {message.data} (message created at {message.timestamp})")
 
-        reply_message = StringMessage("I received \""+message.data+"\" over the link")
+        reply_message = StringMessage(f"I received \"{message.data}\" over the link")
         latest_client_link.get_channel().send(reply_message)
 
         # Incoming messages are sent to each message
@@ -206,9 +204,9 @@ def client(destination_hexhash, configpath):
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
         if len(destination_hexhash) != dest_len:
             raise ValueError(
-                "Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2)
+                f"Destination length is invalid, must be {dest_len} hexadecimal characters ({dest_len // 2} bytes)."
             )
-            
+
         destination_hash = bytes.fromhex(destination_hexhash)
     except:
         RNS.log("Invalid destination entered. Check your input!\n")
@@ -280,17 +278,14 @@ def client_loop():
                         channel.send(message)
                     else:
                         RNS.log(
-                            "Cannot send this packet, the data size of "+
-                            str(packed_size)+" bytes exceeds the link packet MDU of "+
-                            str(channel.MDU)+" bytes",
+                            f"Cannot send this packet, the data size of {packed_size} bytes exceeds the link packet MDU of {channel.MDU} bytes",
                             RNS.LOG_ERROR
                         )
                 else:
-                    RNS.log("Channel is not ready to send, please wait for " +
-                            "pending messages to complete.", RNS.LOG_ERROR)
+                    RNS.log(f"Channel is not ready to send, please wait for pending messages to complete.", RNS.LOG_ERROR)
 
         except Exception as e:
-            RNS.log("Error while sending data over the link: "+str(e))
+            RNS.log(f"Error while sending data over the link: {e}")
             should_quit = True
             server_link.teardown()
 
@@ -320,7 +315,7 @@ def link_closed(link):
         RNS.log("The link was closed by the server, exiting now")
     else:
         RNS.log("Link closed, exiting now")
-    
+
     RNS.Reticulum.exit_handler()
     time.sleep(1.5)
     os._exit(0)
@@ -329,7 +324,7 @@ def link_closed(link):
 # simply print out the data.
 def client_message_received(message):
     if isinstance(message, StringMessage):
-        RNS.log("Received data on the link: " + message.data + " (message created at " + str(message.timestamp) + ")")
+        RNS.log(f"Received data on the link: {message.data} (message created at {message.timestamp})")
         print("> ", end=" ")
         sys.stdout.flush()
 

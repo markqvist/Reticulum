@@ -8,7 +8,7 @@ I2P_B64_CHARS = "-~"
 
 def i2p_b64encode(x):
     """Encode I2P destination"""
-    return b64encode(x, altchars=I2P_B64_CHARS.encode()).decode() 
+    return b64encode(x, altchars=I2P_B64_CHARS.encode()).decode()
 
 def i2p_b64decode(x):
     """Decode I2P destination"""
@@ -23,7 +23,7 @@ TRANSIENT_DESTINATION = "TRANSIENT"
 VALID_BASE32_ADDRESS = re.compile(r"^([a-zA-Z0-9]{52}).b32.i2p$")
 VALID_BASE64_ADDRESS = re.compile(r"^([a-zA-Z0-9-~=]{516,528})$")
 
-class Message(object):
+class Message:
     """Parse SAM message to an object"""
     def __init__(self, s):
         self.opts = {}
@@ -51,41 +51,37 @@ class Message(object):
 # SAM request messages
 
 def hello(min_version, max_version):
-    return "HELLO VERSION MIN={} MAX={}\n".format(min_version, 
-            max_version).encode()
+    return f"HELLO VERSION MIN={min_version} MAX={max_version}\n".encode()
 
 def session_create(style, session_id, destination, options=""):
-    return "SESSION CREATE STYLE={} ID={} DESTINATION={} {}\n".format(
-            style, session_id, destination, options).encode()
+    return f"SESSION CREATE STYLE={style} ID={session_id} DESTINATION={destination} {options}\n".encode()
 
 
 def stream_connect(session_id, destination, silent="false"):
-    return "STREAM CONNECT ID={} DESTINATION={} SILENT={}\n".format(
-            session_id, destination, silent).encode()
+    return f"STREAM CONNECT ID={session_id} DESTINATION={destination} SILENT={silent}\n".encode()
 
 def stream_accept(session_id, silent="false"):
-    return "STREAM ACCEPT ID={} SILENT={}\n".format(session_id, silent).encode()
+    return f"STREAM ACCEPT ID={session_id} SILENT={silent}\n".encode()
 
 def stream_forward(session_id, port, options=""):
-    return "STREAM FORWARD ID={} PORT={} {}\n".format(
-            session_id, port, options).encode()
+    return f"STREAM FORWARD ID={session_id} PORT={port} {options}\n".encode()
 
 
 
 def naming_lookup(name):
-    return "NAMING LOOKUP NAME={}\n".format(name).encode()
+    return f"NAMING LOOKUP NAME={name}\n".encode()
 
 def dest_generate(signature_type):
-    return "DEST GENERATE SIGNATURE_TYPE={}\n".format(signature_type).encode()
+    return f"DEST GENERATE SIGNATURE_TYPE={signature_type}\n".encode()
 
-class Destination(object):
+class Destination:
     """I2P destination
 
     https://geti2p.net/spec/common-structures#destination
 
-    :param data: (optional) Base64 encoded data or binary data 
-    :param path: (optional) A path to a file with binary data 
-    :param has_private_key: (optional) Does data have a private key? 
+    :param data: (optional) Base64 encoded data or binary data
+    :param path: (optional) A path to a file with binary data
+    :param has_private_key: (optional) Does data have a private key?
     """
 
     ECDSA_SHA256_P256 = 1
@@ -101,12 +97,12 @@ class Destination(object):
 
     def __init__(self, data=None, path=None, has_private_key=False):
         #: Binary destination
-        self.data = bytes() 
+        self.data = b''
         #: Base64 encoded destination
-        self.base64 = ""    
+        self.base64 = ""
         #: :class:`RNS.vendor.i2plib.PrivateKey` instance or None
-        self.private_key = None    
-        
+        self.private_key = None
+
         if path:
             with open(path, "rb") as f: data = f.read()
 
@@ -123,20 +119,20 @@ class Destination(object):
         self.base64 = data if type(data) == str else i2p_b64encode(data)
 
     def __repr__(self):
-        return "<Destination: {}>".format(self.base32)
+        return f"<Destination: {self.base32}>"
 
     @property
     def base32(self):
         """Base32 destination hash of this destination"""
         desthash = sha256(self.data).digest()
         return b32encode(desthash).decode()[:52].lower()
-    
-class PrivateKey(object):
+
+class PrivateKey:
     """I2P private key
 
     https://geti2p.net/spec/common-structures#keysandcert
 
-    :param data: Base64 encoded data or binary data 
+    :param data: Base64 encoded data or binary data
     """
 
     def __init__(self, data):

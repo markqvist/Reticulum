@@ -140,16 +140,16 @@ class Interface:
                             selected_announce_packet = announce_packet
 
                     if selected_announce_packet != None:
-                        RNS.log("Releasing held announce packet "+str(selected_announce_packet)+" from "+str(self), RNS.LOG_EXTREME)
+                        RNS.log(f"Releasing held announce packet {selected_announce_packet} from {self}", RNS.LOG_EXTREME)
                         self.ic_held_release = time.time() + self.ic_held_release_interval
                         self.held_announces.pop(selected_announce_packet.destination_hash)
                         def release():
                             RNS.Transport.inbound(selected_announce_packet.raw, selected_announce_packet.receiving_interface)
                         threading.Thread(target=release, daemon=True).start()
-        
+
         except Exception as e:
-            RNS.log("An error occurred while processing held announces for "+str(self), RNS.LOG_ERROR)
-            RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log(f"An error occurred while processing held announces for {self}", RNS.LOG_ERROR)
+            RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
 
     def received_announce(self):
         self.ia_freq_deque.append(time.time())
@@ -170,7 +170,7 @@ class Interface:
             for i in range(1,dq_len):
                 delta_sum += self.ia_freq_deque[i]-self.ia_freq_deque[i-1]
             delta_sum += time.time() - self.ia_freq_deque[dq_len-1]
-            
+
             if delta_sum == 0:
                 avg = 0
             else:
@@ -187,7 +187,7 @@ class Interface:
             for i in range(1,dq_len):
                 delta_sum += self.oa_freq_deque[i]-self.oa_freq_deque[i-1]
             delta_sum += time.time() - self.oa_freq_deque[dq_len-1]
-            
+
             if delta_sum == 0:
                 avg = 0
             else:
@@ -234,7 +234,7 @@ class Interface:
 
             except Exception as e:
                 self.announce_queue = []
-                RNS.log("Error while processing announce queue on "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log(f"Error while processing announce queue on {self}. The contained exception was: {e}", RNS.LOG_ERROR)
                 RNS.log("The announce queue for this interface has been cleared.", RNS.LOG_ERROR)
 
     def detach(self):

@@ -35,4 +35,4 @@ def backend():
     elif PROVIDER == PROVIDER_INTERNAL:
         return "internal"
     elif PROVIDER == PROVIDER_PYCA:
-        return "openssl, PyCA "+str(pyca_v)
+        return f"openssl, PyCA {pyca_v}"

@@ -64,7 +64,7 @@ class SerialInterface(Interface):
 
                 from usbserial4a import serial4a as serial
                 self.parity = "N"
-            
+
             else:
                 RNS.log("Could not load USB serial module for Android, Serial interface cannot be created.", RNS.LOG_CRITICAL)
                 RNS.log("You can install this module by issuing: pip install usbserial4a", RNS.LOG_CRITICAL)
@@ -75,7 +75,7 @@ class SerialInterface(Interface):
         super().__init__()
 
         self.HW_MTU = 564
-        
+
         self.pyserial = serial
         self.serial   = None
         self.owner    = owner
@@ -98,17 +98,17 @@ class SerialInterface(Interface):
         try:
             self.open_port()
         except Exception as e:
-            RNS.log("Could not open serial port for interface "+str(self), RNS.LOG_ERROR)
+            RNS.log(f"Could not open serial port for interface {self}", RNS.LOG_ERROR)
             raise e
 
         if self.serial.is_open:
             self.configure_device()
         else:
-            raise IOError("Could not open serial port")
+            raise OSError("Could not open serial port")
 
 
     def open_port(self):
-        RNS.log("Opening serial port "+self.port+"...")
+        RNS.log(f"Opening serial port {self.port}...")
         # Get device parameters
         from usb4a import usb
         device = usb.get_usb_device(self.port)
@@ -120,7 +120,7 @@ class SerialInterface(Interface):
             proxy = self.pyserial.get_serial_port
             if vid == 0x1A86 and pid == 0x55D4:
                 # Force CDC driver for Qinheng CH34x
-                RNS.log(str(self)+" using CDC driver for "+RNS.hexrep(vid)+":"+RNS.hexrep(pid), RNS.LOG_DEBUG)
+                RNS.log(f"{self} using CDC driver for {RNS.hexrep(vid)}:{RNS.hexrep(pid)}", RNS.LOG_DEBUG)
                 from usbserial4a.cdcacmserial4a import CdcAcmSerial
                 proxy = CdcAcmSerial
 
@@ -145,7 +145,7 @@ class SerialInterface(Interface):
                 self.serial.timeout = 0.1
             elif vid == 0x10C4:
                 # Hardware parameters for SiLabs CP210x @ 115200 baud
-                self.serial.DEFAULT_READ_BUFFER_SIZE = 64 
+                self.serial.DEFAULT_READ_BUFFER_SIZE = 64
                 self.serial.USB_READ_TIMEOUT_MILLIS = 12
                 self.serial.timeout = 0.012
             elif vid == 0x1A86 and pid == 0x55D4:
@@ -159,9 +159,9 @@ class SerialInterface(Interface):
                 self.serial.USB_READ_TIMEOUT_MILLIS = 100
                 self.serial.timeout = 0.1
 
-            RNS.log(str(self)+" USB read buffer size set to "+RNS.prettysize(self.serial.DEFAULT_READ_BUFFER_SIZE), RNS.LOG_DEBUG)
-            RNS.log(str(self)+" USB read timeout set to "+str(self.serial.USB_READ_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
-            RNS.log(str(self)+" USB write timeout set to "+str(self.serial.USB_WRITE_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
+            RNS.log(f"{self} USB read buffer size set to {RNS.prettysize(self.serial.DEFAULT_READ_BUFFER_SIZE)}", RNS.LOG_DEBUG)
+            RNS.log(f"{self} USB read timeout set to {self.serial.USB_READ_TIMEOUT_MILLIS}ms", RNS.LOG_DEBUG)
+            RNS.log(f"{self} USB write timeout set to {self.serial.USB_WRITE_TIMEOUT_MILLIS}ms", RNS.LOG_DEBUG)
 
     def configure_device(self):
         sleep(0.5)
@@ -169,7 +169,7 @@ class SerialInterface(Interface):
         thread.daemon = True
         thread.start()
         self.online = True
-        RNS.log("Serial port "+self.port+" is now open", RNS.LOG_VERBOSE)
+        RNS.log(f"Serial port {self.port} is now open", RNS.LOG_VERBOSE)
 
 
     def processIncoming(self, data):
@@ -182,9 +182,9 @@ class SerialInterface(Interface):
         if self.online:
             data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
             written = self.serial.write(data)
-            self.txb += len(data)            
+            self.txb += len(data)
             if written != len(data):
-                raise IOError("Serial interface only wrote "+str(written)+" bytes of "+str(len(data)))
+                raise OSError(f"Serial interface only wrote {written} bytes of {len(data)}")
 
     def readLoop(self):
         try:
@@ -217,7 +217,7 @@ class SerialInterface(Interface):
                                     byte = HDLC.ESC
                                 escape = False
                             data_buffer = data_buffer+bytes([byte])
-                        
+
                 if got == 0:
                     time_since_last = int(time.time()*1000) - last_read_ms
                     if len(data_buffer) > 0 and time_since_last > self.timeout:
@@ -225,12 +225,12 @@ class SerialInterface(Interface):
                         in_frame = False
                         escape = False
                     # sleep(0.08)
-                    
+
         except Exception as e:
             self.online = False
-            RNS.log("A serial port error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
-            
+            RNS.log(f"A serial port error occurred, the contained exception was: {e}", RNS.LOG_ERROR)
+            RNS.log(f"The interface {self} experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
+
             if RNS.Reticulum.panic_on_interface_error:
                 RNS.panic()
 
@@ -244,17 +244,17 @@ class SerialInterface(Interface):
         while not self.online:
             try:
                 time.sleep(5)
-                RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
+                RNS.log(f"Attempting to reconnect serial port {self.port} for {self}...", RNS.LOG_VERBOSE)
                 self.open_port()
                 if self.serial.is_open:
                     self.configure_device()
             except Exception as e:
-                RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log(f"Error while reconnecting port, the contained exception was: {e}", RNS.LOG_ERROR)
 
-        RNS.log("Reconnected serial port for "+str(self))
+        RNS.log(f"Reconnected serial port for {self}")
 
     def should_ingress_limit(self):
         return False
 
     def __str__(self):
-        return "SerialInterface["+self.name+"]"
+        return f"SerialInterface[{self.name}]"

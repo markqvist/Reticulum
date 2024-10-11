@@ -52,7 +52,7 @@ import io
 if sys.version_info[0:2] >= (3, 3):
     from collections.abc import Hashable
 else:
-    from collections import Hashable
+    from collections.abc import Hashable
 
 __version__ = "2.7.1"
 "Module version string"
@@ -66,7 +66,7 @@ version = (2, 7, 1)
 ##############################################################################
 
 # Extension type for application-defined types and data
-class Ext(object):
+class Ext:
     """
     The Ext class facilitates creating a serializable extension object to store
     an application-defined type and data byte array.
@@ -100,7 +100,7 @@ class Ext(object):
         if not isinstance(type, int):
             raise TypeError("ext type is not type integer")
         elif not (-2**7 <= type <= 2**7 - 1):
-            raise ValueError("ext type value {:d} is out of range (-128 to 127)".format(type))
+            raise ValueError(f"ext type value {type} is out of range (-128 to 127)")
         # Check data is type bytes or str
         elif sys.version_info[0] == 3 and not isinstance(data, bytes):
             raise TypeError("ext data is not type \'bytes\'")
@@ -127,8 +127,8 @@ class Ext(object):
         """
         String representation of this Ext object.
         """
-        s = "Ext Object (Type: {:d}, Data: ".format(self.type)
-        s += " ".join(["0x{:02}".format(ord(self.data[i:i + 1]))
+        s = f"Ext Object (Type: {self.type}, Data: "
+        s += " ".join([f"0x{ord(self.data[i:i + 1]):02}"
                        for i in xrange(min(len(self.data), 8))])
         if len(self.data) > 8:
             s += " ..."
@@ -177,11 +177,11 @@ def ext_serializable(ext_type):
         if not isinstance(ext_type, int):
             raise TypeError("Ext type is not type integer")
         elif not (-2**7 <= ext_type <= 2**7 - 1):
-            raise ValueError("Ext type value {:d} is out of range of -128 to 127".format(ext_type))
+            raise ValueError(f"Ext type value {ext_type} is out of range of -128 to 127")
         elif ext_type in _ext_type_to_class:
-            raise ValueError("Ext type {:d} already registered with class {:s}".format(ext_type, repr(_ext_type_to_class[ext_type])))
+            raise ValueError(f"Ext type {ext_type} already registered with class {_ext_type_to_class[ext_type]!r}")
         elif cls in _ext_class_to_type:
-            raise ValueError("Class {:s} already registered with Ext type {:d}".format(repr(cls), ext_type))
+            raise ValueError(f"Class {cls!r} already registered with Ext type {ext_type}")
 
         _ext_type_to_class[ext_type] = cls
         _ext_class_to_type[cls] = ext_type
@@ -495,7 +495,7 @@ def _pack2(obj, fp, **options):
         try:
             _pack_ext(Ext(_ext_class_to_type[obj.__class__], obj.packb()), fp, options)
         except AttributeError:
-            raise NotImplementedError("Ext serializable class {:s} is missing implementation of packb()".format(repr(obj.__class__)))
+            raise NotImplementedError(f"Ext serializable class {obj.__class__!r} is missing implementation of packb()")
     elif isinstance(obj, bool):
         _pack_boolean(obj, fp, options)
     elif isinstance(obj, (int, long)):
@@ -525,7 +525,7 @@ def _pack2(obj, fp, **options):
             _pack_ext(ext_handlers[t](obj), fp, options)
         else:
             raise UnsupportedTypeException(
-                "unsupported type: {:s}".format(str(type(obj))))
+                f"unsupported type: {type(obj)}")
     elif _ext_class_to_type:
         # Linear search for superclass
         t = next((t for t in _ext_class_to_type if isinstance(obj, t)), None)
@@ -533,11 +533,11 @@ def _pack2(obj, fp, **options):
             try:
                 _pack_ext(Ext(_ext_class_to_type[t], obj.packb()), fp, options)
             except AttributeError:
-                raise NotImplementedError("Ext serializable class {:s} is missing implementation of packb()".format(repr(t)))
+                raise NotImplementedError(f"Ext serializable class {t!r} is missing implementation of packb()")
         else:
-            raise UnsupportedTypeException("unsupported type: {:s}".format(str(type(obj))))
+            raise UnsupportedTypeException(f"unsupported type: {type(obj)}")
     else:
-        raise UnsupportedTypeException("unsupported type: {:s}".format(str(type(obj))))
+        raise UnsupportedTypeException(f"unsupported type: {type(obj)}")
 
 
 # Pack for Python 3, with unicode 'str' type, 'bytes' type, and no 'long' type
@@ -582,7 +582,7 @@ def _pack3(obj, fp, **options):
         try:
             _pack_ext(Ext(_ext_class_to_type[obj.__class__], obj.packb()), fp, options)
         except AttributeError:
-            raise NotImplementedError("Ext serializable class {:s} is missing implementation of packb()".format(repr(obj.__class__)))
+            raise NotImplementedError(f"Ext serializable class {obj.__class__!r} is missing implementation of packb()")
     elif isinstance(obj, bool):
         _pack_boolean(obj, fp, options)
     elif isinstance(obj, int):
@@ -612,7 +612,7 @@ def _pack3(obj, fp, **options):
             _pack_ext(ext_handlers[t](obj), fp, options)
         else:
             raise UnsupportedTypeException(
-                "unsupported type: {:s}".format(str(type(obj))))
+                f"unsupported type: {type(obj)}")
     elif _ext_class_to_type:
         # Linear search for superclass
         t = next((t for t in _ext_class_to_type if isinstance(obj, t)), None)
@@ -620,12 +620,12 @@ def _pack3(obj, fp, **options):
             try:
                 _pack_ext(Ext(_ext_class_to_type[t], obj.packb()), fp, options)
             except AttributeError:
-                raise NotImplementedError("Ext serializable class {:s} is missing implementation of packb()".format(repr(t)))
+                raise NotImplementedError(f"Ext serializable class {t!r} is missing implementation of packb()")
         else:
-            raise UnsupportedTypeException("unsupported type: {:s}".format(str(type(obj))))
+            raise UnsupportedTypeException(f"unsupported type: {type(obj)}")
     else:
         raise UnsupportedTypeException(
-            "unsupported type: {:s}".format(str(type(obj))))
+            f"unsupported type: {type(obj)}")
 
 
 def _packb2(obj, **options):
@@ -737,21 +737,21 @@ def _unpack_integer(code, fp, options):
         return struct.unpack(">I", _read_except(fp, 4))[0]
     elif code == b'\xcf':
         return struct.unpack(">Q", _read_except(fp, 8))[0]
-    raise Exception("logic error, not int: 0x{:02x}".format(ord(code)))
+    raise Exception(f"logic error, not int: 0x{ord(code):02x}")
 
 
 def _unpack_reserved(code, fp, options):
     if code == b'\xc1':
         raise ReservedCodeException(
-            "encountered reserved code: 0x{:02x}".format(ord(code)))
+            f"encountered reserved code: 0x{ord(code):02x}")
     raise Exception(
-        "logic error, not reserved code: 0x{:02x}".format(ord(code)))
+        f"logic error, not reserved code: 0x{ord(code):02x}")
 
 
 def _unpack_nil(code, fp, options):
     if code == b'\xc0':
         return None
-    raise Exception("logic error, not nil: 0x{:02x}".format(ord(code)))
+    raise Exception(f"logic error, not nil: 0x{ord(code):02x}")
 
 
 def _unpack_boolean(code, fp, options):
@@ -759,7 +759,7 @@ def _unpack_boolean(code, fp, options):
         return False
     elif code == b'\xc3':
         return True
-    raise Exception("logic error, not boolean: 0x{:02x}".format(ord(code)))
+    raise Exception(f"logic error, not boolean: 0x{ord(code):02x}")
 
 
 def _unpack_float(code, fp, options):
@@ -767,7 +767,7 @@ def _unpack_float(code, fp, options):
         return struct.unpack(">f", _read_except(fp, 4))[0]
     elif code == b'\xcb':
         return struct.unpack(">d", _read_except(fp, 8))[0]
-    raise Exception("logic error, not float: 0x{:02x}".format(ord(code)))
+    raise Exception(f"logic error, not float: 0x{ord(code):02x}")
 
 
 def _unpack_string(code, fp, options):
@@ -780,7 +780,7 @@ def _unpack_string(code, fp, options):
     elif code == b'\xdb':
         length = struct.unpack(">I", _read_except(fp, 4))[0]
     else:
-        raise Exception("logic error, not string: 0x{:02x}".format(ord(code)))
+        raise Exception(f"logic error, not string: 0x{ord(code):02x}")
 
     # Always return raw bytes in compatibility mode
     global compatibility
@@ -804,7 +804,7 @@ def _unpack_binary(code, fp, options):
     elif code == b'\xc6':
         length = struct.unpack(">I", _read_except(fp, 4))[0]
     else:
-        raise Exception("logic error, not binary: 0x{:02x}".format(ord(code)))
+        raise Exception(f"logic error, not binary: 0x{ord(code):02x}")
 
     return _read_except(fp, length)
 
@@ -827,7 +827,7 @@ def _unpack_ext(code, fp, options):
     elif code == b'\xc9':
         length = struct.unpack(">I", _read_except(fp, 4))[0]
     else:
-        raise Exception("logic error, not ext: 0x{:02x}".format(ord(code)))
+        raise Exception(f"logic error, not ext: 0x{ord(code):02x}")
 
     ext_type = struct.unpack("b", _read_except(fp, 1))[0]
     ext_data = _read_except(fp, length)
@@ -842,7 +842,7 @@ def _unpack_ext(code, fp, options):
         try:
             return _ext_type_to_class[ext_type].unpackb(ext_data)
         except AttributeError:
-            raise NotImplementedError("Ext serializable class {:s} is missing implementation of unpackb()".format(repr(_ext_type_to_class[ext_type])))
+            raise NotImplementedError(f"Ext serializable class {_ext_type_to_class[ext_type]!r} is missing implementation of unpackb()")
 
     # Timestamp extension
     if ext_type == -1:
@@ -868,7 +868,7 @@ def _unpack_ext_timestamp(ext_data, options):
         microseconds = struct.unpack(">I", ext_data[0:4])[0] // 1000
     else:
         raise UnsupportedTimestampException(
-            "unsupported timestamp with data length {:d}".format(len(ext_data)))
+            f"unsupported timestamp with data length {len(ext_data)}")
 
     return _epoch + datetime.timedelta(seconds=seconds,
                                        microseconds=microseconds)
@@ -882,10 +882,10 @@ def _unpack_array(code, fp, options):
     elif code == b'\xdd':
         length = struct.unpack(">I", _read_except(fp, 4))[0]
     else:
-        raise Exception("logic error, not array: 0x{:02x}".format(ord(code)))
+        raise Exception(f"logic error, not array: 0x{ord(code):02x}")
 
     if options.get('use_tuple'):
-        return tuple((_unpack(fp, options) for i in xrange(length)))
+        return tuple(_unpack(fp, options) for i in xrange(length))
 
     return [_unpack(fp, options) for i in xrange(length)]
 
@@ -904,7 +904,7 @@ def _unpack_map(code, fp, options):
     elif code == b'\xdf':
         length = struct.unpack(">I", _read_except(fp, 4))[0]
     else:
-        raise Exception("logic error, not map: 0x{:02x}".format(ord(code)))
+        raise Exception(f"logic error, not map: 0x{ord(code):02x}")
 
     d = {} if not options.get('use_ordered_dict') else collections.OrderedDict()
     for _ in xrange(length):
@@ -916,10 +916,10 @@ def _unpack_map(code, fp, options):
             k = _deep_list_to_tuple(k)
         elif not isinstance(k, Hashable):
             raise UnhashableKeyException(
-                "encountered unhashable key: \"{:s}\" ({:s})".format(str(k), str(type(k))))
+                f"encountered unhashable key: \"{k}\" ({type(k)})")
         elif k in d:
             raise DuplicateKeyException(
-                "encountered duplicate key: \"{:s}\" ({:s})".format(str(k), str(type(k))))
+                f"encountered duplicate key: \"{k}\" ({type(k)})")
 
         # Unpack value
         v = _unpack(fp, options)
@@ -928,7 +928,7 @@ def _unpack_map(code, fp, options):
             d[k] = v
         except TypeError:
             raise UnhashableKeyException(
-                "encountered unhashable key: \"{:s}\"".format(str(k)))
+                f"encountered unhashable key: \"{k}\"")
     return d
 
 

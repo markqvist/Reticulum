@@ -90,7 +90,7 @@ def loglevelname(level):
         return "Debug"
     if (level == LOG_EXTREME):
         return "Extra"
-    
+
     return "Unknown"
 
 def version():
@@ -124,7 +124,7 @@ def log(msg, level=3, _override_destination = False):
                 file = open(logfile, "a")
                 file.write(logstring+"\n")
                 file.close()
-                
+
                 if os.path.getsize(logfile) > LOG_MAXSIZE:
                     prevfile = logfile+".1"
                     if os.path.isfile(prevfile):
@@ -138,7 +138,7 @@ def log(msg, level=3, _override_destination = False):
                 log("Exception occurred while writing log message to log file: "+str(e), LOG_CRITICAL)
                 log("Dumping future log events to console!", LOG_CRITICAL)
                 log(msg, level)
-                
+
 
 def rand():
     result = instance_random.random()
@@ -147,7 +147,7 @@ def rand():
 def trace_exception(e):
     import traceback
     exception_info = "".join(traceback.TracebackException.from_exception(e).format())
-    log(f"An unhandled {str(type(e))} exception occurred: {str(e)}", LOG_ERROR)
+    log(f"An unhandled {type(e)} exception occurred: {e}", LOG_ERROR)
     log(exception_info, LOG_ERROR)
 
 def hexrep(data, delimit=True):
@@ -155,16 +155,16 @@ def hexrep(data, delimit=True):
         iter(data)
     except TypeError:
         data = [data]
-        
+
     delimiter = ":"
     if not delimit:
         delimiter = ""
-    hexrep = delimiter.join("{:02x}".format(c) for c in data)
+    hexrep = delimiter.join(f"{c:02x}" for c in data)
     return hexrep
 
 def prettyhexrep(data):
     delimiter = ""
-    hexrep = "<"+delimiter.join("{:02x}".format(c) for c in data)+">"
+    hexrep = "<"+delimiter.join(f"{c:02x}" for c in data)+">"
     return hexrep
 
 def prettyspeed(num, suffix="b"):
@@ -182,12 +182,12 @@ def prettysize(num, suffix='B'):
     for unit in units:
         if abs(num) < 1000.0:
             if unit == "":
-                return "%.0f %s%s" % (num, unit, suffix)
+                return f"{num:.0f} {unit}{suffix}"
             else:
-                return "%.2f %s%s" % (num, unit, suffix)
+                return f"{num:.2f} {unit}{suffix}"
         num /= 1000.0
 
-    return "%.2f%s%s" % (num, last_unit, suffix)
+    return f"{num:.2f}{last_unit}{suffix}"
 
 def prettyfrequency(hz, suffix="Hz"):
     num = hz*1e6
@@ -196,10 +196,10 @@ def prettyfrequency(hz, suffix="Hz"):
 
     for unit in units:
         if abs(num) < 1000.0:
-            return "%.2f %s%s" % (num, unit, suffix)
+            return f"{num:.2f} {unit}{suffix}"
         num /= 1000.0
 
-    return "%.2f%s%s" % (num, last_unit, suffix)
+    return f"{num:.2f}{last_unit}{suffix}"
 
 def prettydistance(m, suffix="m"):
     num = m*1e6
@@ -212,10 +212,10 @@ def prettydistance(m, suffix="m"):
         if unit == "c": divisor = 100
 
         if abs(num) < divisor:
-            return "%.2f %s%s" % (num, unit, suffix)
+            return f"{num:.2f} {unit}{suffix}"
         num /= divisor
 
-    return "%.2f %s%s" % (num, last_unit, suffix)
+    return f"{num:.2f} {last_unit}{suffix}"
 
 def prettytime(time, verbose=False, compact=False):
     days = int(time // (24 * 3600))
@@ -228,7 +228,7 @@ def prettytime(time, verbose=False, compact=False):
         seconds = int(time)
     else:
         seconds = round(time, 2)
-    
+
     ss = "" if seconds == 1 else "s"
     sm = "" if minutes == 1 else "s"
     sh = "" if hours == 1 else "s"
@@ -272,7 +272,7 @@ def prettytime(time, verbose=False, compact=False):
 
 def prettyshorttime(time, verbose=False, compact=False):
     time = time*1e6
-    
+
     seconds = int(time // 1e6); time %= 1e6
     milliseconds = int(time // 1e3); time %= 1e3
 
@@ -280,7 +280,7 @@ def prettyshorttime(time, verbose=False, compact=False):
         microseconds = int(time)
     else:
         microseconds = round(time, 2)
-    
+
     ss = "" if seconds == 1 else "s"
     sms = "" if milliseconds == 1 else "s"
     sus = "" if microseconds == 1 else "s"
@@ -365,16 +365,16 @@ def profiler(tag=None, capture=False, super_tag=None):
 def profiler_results():
     from statistics import mean, median, stdev
     results = {}
-    
+
     for tag in profiler_tags:
         tag_captures = []
         tag_entry = profiler_tags[tag]
-        
+
         for thread_ident in tag_entry["threads"]:
             thread_entry = tag_entry["threads"][thread_ident]
             thread_captures = thread_entry["captures"]
             sample_count = len(thread_captures)
-            
+
             if sample_count > 2:
                 thread_results = {
                     "count": sample_count,

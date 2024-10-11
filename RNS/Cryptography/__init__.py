@@ -20,5 +20,5 @@ elif cp.PROVIDER == cp.PROVIDER_PYCA:
     from RNS.Cryptography.Proxies import Ed25519PrivateKeyProxy as Ed25519PrivateKey
     from RNS.Cryptography.Proxies import Ed25519PublicKeyProxy as Ed25519PublicKey
 
-modules = glob.glob(os.path.dirname(__file__)+"/*.py")
+modules = glob.glob(f"{os.path.dirname(__file__)}/*.py")
 __all__ = [ os.path.basename(f)[:-3] for f in modules if not f.endswith('__init__.py')]

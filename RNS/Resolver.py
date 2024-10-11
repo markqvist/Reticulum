@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 class Resolver:
-  
+
   @staticmethod
   def resolve_identity(full_name):
     pass
