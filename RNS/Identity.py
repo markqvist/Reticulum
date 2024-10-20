@@ -155,9 +155,9 @@ class Identity:
             storage_known_destinations = {}
             if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
                 try:
-                    file = open(RNS.Reticulum.storagepath+"/known_destinations","rb")
-                    storage_known_destinations = umsgpack.load(file)
-                    file.close()
+                    with open(RNS.Reticulum.storagepath+"/known_destinations","rb") as file:
+                        storage_known_destinations = umsgpack.load(file)
+ 
                 except:
                     pass
 
@@ -169,9 +169,9 @@ class Identity:
                 RNS.log("Skipped recombining known destinations from disk, since an error occurred: "+str(e), RNS.LOG_WARNING)
 
             RNS.log("Saving "+str(len(Identity.known_destinations))+" known destinations to storage...", RNS.LOG_DEBUG)
-            file = open(RNS.Reticulum.storagepath+"/known_destinations","wb")
-            umsgpack.dump(Identity.known_destinations, file)
-            file.close()
+            with open(RNS.Reticulum.storagepath+"/known_destinations","wb") as file:
+                umsgpack.dump(Identity.known_destinations, file)
+            
 
             save_time = time.time() - save_start
             if save_time < 1:
@@ -191,9 +191,8 @@ class Identity:
     def load_known_destinations():
         if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
             try:
-                file = open(RNS.Reticulum.storagepath+"/known_destinations","rb")
-                loaded_known_destinations = umsgpack.load(file)
-                file.close()
+                with open(RNS.Reticulum.storagepath+"/known_destinations","rb") as file:
+                    loaded_known_destinations = umsgpack.load(file)
 
                 Identity.known_destinations = {}
                 for known_destination in loaded_known_destinations:
@@ -285,9 +284,8 @@ class Identity:
 
                         outpath   = f"{ratchetdir}/{hexhash}.out"
                         finalpath = f"{ratchetdir}/{hexhash}"
-                        ratchet_file = open(outpath, "wb")
-                        ratchet_file.write(umsgpack.packb(ratchet_data))
-                        ratchet_file.close()
+                        with open(outpath, "wb") as ratchet_file:
+                            ratchet_file.write(umsgpack.packb(ratchet_data))
                         os.replace(outpath, finalpath)
 
                 
@@ -331,8 +329,8 @@ class Identity:
             ratchet_path = f"{ratchetdir}/{hexhash}"
             if os.path.isfile(ratchet_path):
                 try:
-                    ratchet_file = open(ratchet_path, "rb")
-                    ratchet_data = umsgpack.unpackb(ratchet_file.read())
+                    with open(ratchet_path, "rb") as ratchet_file:
+                        ratchet_data = umsgpack.unpackb(ratchet_file.read())
                     if time.time() < ratchet_data["received"]+Identity.RATCHET_EXPIRY and len(ratchet_data["ratchet"]) == Identity.RATCHETSIZE//8:
                         Identity.known_ratchets[destination_hash] = ratchet_data["ratchet"]
                     else:
