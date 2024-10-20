@@ -1,10 +1,10 @@
 ### 2024-10-20: RNS β 0.8.5
 
-This maintenance release fixes a number of bugs.
+This maintenance release fixes a number of bugs. Thanks to @faragher for contributing to this release!
 
 **Changes**
 - Fixed missing close of file handles
-- Fixed invalid values returned from `get_snr()` and `get_q()` physical layer stats API functions.
+- Fixed invalid values returned from `get_snr()` and `get_q()` physical layer stats API functions
 
 **Release Hashes**
 ```
