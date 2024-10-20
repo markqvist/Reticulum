@@ -331,10 +331,10 @@ class Identity:
                 try:
                     with open(ratchet_path, "rb") as ratchet_file:
                         ratchet_data = umsgpack.unpackb(ratchet_file.read())
-                    if time.time() < ratchet_data["received"]+Identity.RATCHET_EXPIRY and len(ratchet_data["ratchet"]) == Identity.RATCHETSIZE//8:
-                        Identity.known_ratchets[destination_hash] = ratchet_data["ratchet"]
-                    else:
-                        return None
+                        if time.time() < ratchet_data["received"]+Identity.RATCHET_EXPIRY and len(ratchet_data["ratchet"]) == Identity.RATCHETSIZE//8:
+                            Identity.known_ratchets[destination_hash] = ratchet_data["ratchet"]
+                        else:
+                            return None
                 
                 except Exception as e:
                     RNS.log(f"An error occurred while loading ratchet data for {RNS.prettyhexrep(destination_hash)} from storage.", RNS.LOG_ERROR)
