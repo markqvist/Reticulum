@@ -123,14 +123,14 @@ class Link:
                 link.request_time = time.time()
                 RNS.Transport.register_link(link)
                 link.last_inbound = time.time()
+                link.__update_phy_stats(packet, force_update=True)
                 link.start_watchdog()
-                
+
                 RNS.log("Incoming link request "+str(link)+" accepted on "+str(link.attached_interface), RNS.LOG_DEBUG)
                 return link
 
             except Exception as e:
-                RNS.log("Validating link request failed", RNS.LOG_VERBOSE)
-                RNS.log("exc: "+str(e))
+                RNS.log(f"Validating link request failed: {e}", RNS.LOG_VERBOSE)
                 return None
 
         else:
@@ -309,6 +309,7 @@ class Link:
                         rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
                         rtt_packet.send()
                         self.had_outbound()
+                        self.__update_phy_stats(packet)
 
                         if self.callbacks.link_established != None:
                             thread = threading.Thread(target=self.callbacks.link_established, args=(self,))
@@ -435,19 +436,28 @@ class Link:
         """
         :returns: The physical layer *Received Signal Strength Indication* if available, otherwise ``None``. Physical layer statistics must be enabled on the link for this method to return a value.
         """
-        return self.rssi
+        if self.__track_phy_stats:
+            return self.rssi
+        else:
+            return None
 
     def get_snr(self):
         """
         :returns: The physical layer *Signal-to-Noise Ratio* if available, otherwise ``None``. Physical layer statistics must be enabled on the link for this method to return a value.
         """
-        return self.rssi
+        if self.__track_phy_stats:
+            return self.snr
+        else:
+            return None
 
     def get_q(self):
         """
         :returns: The physical layer *Link Quality* if available, otherwise ``None``. Physical layer statistics must be enabled on the link for this method to return a value.
         """
-        return self.rssi
+        if self.__track_phy_stats:
+            return self.q
+        else:
+            return None
 
     def get_establishment_rate(self):
         """
@@ -640,9 +650,14 @@ class Link:
 
                 sleep(sleep_time)
 
+                if not self.__track_phy_stats:
+                    self.rssi = None
+                    self.snr  = None
+                    self.q    = None
 
-    def __update_phy_stats(self, packet, query_shared = True):
-        if self.__track_phy_stats:
+
+    def __update_phy_stats(self, packet, query_shared = True, force_update = False):
+        if self.__track_phy_stats or force_update:
             if query_shared:
                 reticulum = RNS.Reticulum.get_instance()
                 if packet.rssi == None: packet.rssi = reticulum.get_packet_rssi(packet.packet_hash)
@@ -778,6 +793,8 @@ class Link:
                         plaintext = self.decrypt(packet.data)
                         packet.ratchet_id = self.link_id
                         if plaintext != None:
+                            self.__update_phy_stats(packet, query_shared=True)
+
                             if self.callbacks.packet != None:
                                 thread = threading.Thread(target=self.callbacks.packet, args=(plaintext, packet))
                                 thread.daemon = True
@@ -785,18 +802,14 @@ class Link:
                             
                             if self.destination.proof_strategy == RNS.Destination.PROVE_ALL:
                                 packet.prove()
-                                should_query = True
 
                             elif self.destination.proof_strategy == RNS.Destination.PROVE_APP:
                                 if self.destination.callbacks.proof_requested:
                                     try:
                                         if self.destination.callbacks.proof_requested(packet):
                                             packet.prove()
-                                            should_query = True
                                     except Exception as e:
                                         RNS.log("Error while executing proof request callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
-
-                            self.__update_phy_stats(packet, query_shared=should_query)
 
                     elif packet.context == RNS.Packet.LINKIDENTIFY:
                         plaintext = self.decrypt(packet.data)

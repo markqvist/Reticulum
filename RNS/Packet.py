@@ -341,6 +341,33 @@ class Packet:
 
         return hashable_part
 
+    def get_rssi(self):
+        """
+        :returns: The physical layer *Received Signal Strength Indication* if available, otherwise ``None``.
+        """
+        if self.rssi != None:
+            return self.rssi
+        else:
+            return reticulum.get_packet_rssi(self.packet_hash)
+            
+    def get_snr(self):
+        """
+        :returns: The physical layer *Signal-to-Noise Ratio* if available, otherwise ``None``.
+        """
+        if self.snr != None:
+            return self.snr
+        else:
+            return reticulum.get_packet_snr(self.packet_hash)
+
+    def get_q(self):
+        """
+        :returns: The physical layer *Link Quality* if available, otherwise ``None``.
+        """
+        if self.q != None:
+            return self.q
+        else:
+            return reticulum.get_packet_q(self.packet_hash)
+
 class ProofDestination:
     def __init__(self, packet):
         self.hash = packet.get_hash()[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8];
