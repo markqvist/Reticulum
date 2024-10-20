@@ -1,3 +1,17 @@
+### 2024-10-20: RNS β 0.8.5
+
+This maintenance release fixes a number of bugs.
+
+**Changes**
+- Fixed missing close of file handles
+- Fixed invalid values returned from `get_snr()` and `get_q()` physical layer stats API functions.
+
+**Release Hashes**
+```
+1757e809e083585bf4c23b6fe0f29954e5a1586ce14081099e38e606a75831df rns-0.8.5-py3-none-any.whl
+44254630634f4dbb1ce3242247fe8180379d27bff15d183263b1856fd662f88d rnspure-0.8.5-py3-none-any.whl
+```
+
 ### 2024-10-11: RNS β 0.8.4
 
 This release fixes a number of bugs and improves reliability of automatic reconnection when BLE-connected RNodes unexpectedly disappear or lose connection.
@@ -10,8 +24,8 @@ This release fixes a number of bugs and improves reliability of automatic reconn
 
 **Release Hashes**
 ```
-d3f7a9fddc6c1e59b1e4895756fe602408ac6ef09de377ee65ec62d09fff97a3 dist/rns-0.8.4-py3-none-any.whl
-eb3843bcab1428be0adb097988991229a4c03156ab40cc9c6e2d9c590d8b850b dist/rnspure-0.8.4-py3-none-any.whl
+d3f7a9fddc6c1e59b1e4895756fe602408ac6ef09de377ee65ec62d09fff97a3 rns-0.8.4-py3-none-any.whl
+eb3843bcab1428be0adb097988991229a4c03156ab40cc9c6e2d9c590d8b850b rnspure-0.8.4-py3-none-any.whl
 ```
 
 ### 2024-10-10: RNS β 0.8.3
