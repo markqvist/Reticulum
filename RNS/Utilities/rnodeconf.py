@@ -168,8 +168,10 @@ class ROM():
     PRODUCT_TBEAM  = 0xE0
     MODEL_E4       = 0xE4
     MODEL_E9       = 0xE9
+    MODEL_E9_GPS   = 0xE7
     MODEL_E3       = 0xE3
     MODEL_E8       = 0xE8
+    
 
     PRODUCT_TBEAM_S_V1= 0xEA
     MODEL_DB          = 0xDB
@@ -281,6 +283,7 @@ models = {
     0xC5: [420000000, 520000000, 21, "420 - 520 MHz", "rnode_firmware_heltec32v3.zip", "SX1262"],
     0xCA: [850000000, 950000000, 21, "850 - 950 MHz", "rnode_firmware_heltec32v3.zip", "SX1262"],
     0xE4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_tbeam.zip", "SX1278"],
+    0xE7: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_tbeam_GPS.zip", "SX1276 w/ GPS"],
     0xE9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_tbeam.zip", "SX1276"],
     0xD4: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_tdeck.zip", "SX1268"],
     0xD9: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tdeck.zip", "SX1262"],
@@ -1994,9 +1997,10 @@ def main():
                 print("\nWhat band is this T-Beam for?\n")
                 print("[1] 433 MHz         (with SX1278 chip)")
                 print("[2] 868/915/923 MHz (with SX1276 chip)")
+                print("[3] 868/915/923 MHz (with SX1276 chip) GPS Enabled")
                 print("");
-                print("[3] 433 MHz         (with SX1268 chip)")
-                print("[4] 868/915/923 MHz (with SX1262 chip)")
+                print("[4] 433 MHz         (with SX1268 chip)")
+                print("[5] 868/915/923 MHz (with SX1262 chip)")
                 print("\n? ", end="")
                 try:
                     c_model = int(input())
@@ -2009,9 +2013,12 @@ def main():
                         selected_model = ROM.MODEL_E9
                         selected_platform = ROM.PLATFORM_ESP32
                     elif c_model == 3:
-                        selected_model = ROM.MODEL_E3
+                        selected_model = ROM.MODEL_E9_GPS
                         selected_platform = ROM.PLATFORM_ESP32
                     elif c_model == 4:
+                        selected_model = ROM.MODEL_E3
+                        selected_platform = ROM.PLATFORM_ESP32
+                    elif c_model == 5:
                         selected_model = ROM.MODEL_E8
                         selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
@@ -2512,6 +2519,42 @@ def main():
                                 "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bootloader",
                                 "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.bin",
                                 "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam.partitions",
+                            ]
+                    elif fw_filename == "rnode_firmware_tbeam_GPS.zip":
+                        if numeric_version >= 1.55:
+                            return [
+                                sys.executable, flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", args.baud_flash,
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam_GPS.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam_GPS.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam_GPS.bin",
+                                "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam_GPS.partitions",
+                            ]
+                        else:
+                            return [
+                                sys.executable, flasher,
+                                "--chip", "esp32",
+                                "--port", args.port,
+                                "--baud", args.baud_flash,
+                                "--before", "default_reset",
+                                "--after", "hard_reset",
+                                "write_flash", "-z",
+                                "--flash_mode", "dio",
+                                "--flash_freq", "80m",
+                                "--flash_size", "4MB",
+                                "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam_GPS.boot_app0",
+                                "0x1000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam_GPS.bootloader",
+                                "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam_GPS.bin",
+                                "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_tbeam_GPS.partitions",
                             ]
                     elif fw_filename == "rnode_firmware_tbeam_sx1262.zip":
                         if numeric_version >= 1.55:
@@ -3532,6 +3575,8 @@ def main():
                             model = ROM.MODEL_B4
                         elif mapped_model == ROM.MODEL_B9_TCXO:
                             model = ROM.MODEL_B9
+                        elif mapped_model == ROM.MODEL_E9_GPS:
+                            model = ROM.MODEL_E9
                         else:
                             model = mapped_model
                     else:
