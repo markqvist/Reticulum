@@ -412,11 +412,6 @@ class TCPServerInterface(Interface):
     def get_address_for_if(name):
         import RNS.vendor.ifaddr.niwrapper as netinfo
         ifaddr = netinfo.ifaddresses(name)
-
-        # IPv6 preference (if present)
-        if(netinfo.AF_INET6 in ifaddr):
-            return ifaddr[netinfo.AF_INET6][0]["addr"]
-        
         return ifaddr[netinfo.AF_INET][0]["addr"]
 
     @staticmethod
