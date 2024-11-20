@@ -87,7 +87,6 @@ class AutoInterface(Interface):
 
         return socket.if_nametoindex(ifname)
 
-    # def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, multicast_address_type=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None, configured_bitrate=None):
     def __init__(self, owner, configuration):
         c = configuration
         name                   = c["name"]
