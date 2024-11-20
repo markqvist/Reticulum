@@ -200,6 +200,23 @@ configured, other Reticulum peers can connect to it with a TCP Client interface.
     # device = eth0
     # port = 4242
 
+If you are using the interface on a device which has both IPv4 and IPv6 addresses available,
+you can use the ``prefer_ipv6`` option to bind to the IPv6 address:
+
+.. code::
+
+  # This example demonstrates a TCP server interface.
+  # It will listen for incoming connections on the
+  # specified IP address and port number.
+  
+  [[TCP Server Interface]]
+    type = TCPServerInterface
+    interface_enabled = True
+
+    device = eth0
+    port = 4242
+    prefer_ipv6 = True
+
 **Please Note!** The TCP interfaces support tunneling over I2P, but to do so reliably,
 you must use the i2p_tunneled option:
 
@@ -231,7 +248,7 @@ and restore connectivity after a failure, once the other end of a TCP interface 
 .. code::
 
   # Here's an example of a TCP Client interface. The
-  # target_host can either be an IP address or a hostname.
+  # target_host can be a hostname or an IPv4 or IPv6 address.
 
   [[TCP Client Interface]]
     type = TCPClientInterface

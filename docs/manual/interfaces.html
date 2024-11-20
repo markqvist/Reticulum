@@ -387,6 +387,21 @@ configured, other Reticulum peers can connect to it with a TCP Client interface.
   <span class="c1"># port = 4242</span>
 </pre></div>
 </div>
+<p>If you are using the interface on a device which has both IPv4 and IPv6 addresses available,
+you can use the <code class="docutils literal notranslate"><span class="pre">prefer_ipv6</span></code> option to bind to the IPv6 address:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example demonstrates a TCP server interface.</span>
+<span class="c1"># It will listen for incoming connections on the</span>
+<span class="c1"># specified IP address and port number.</span>
+
+<span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="n">device</span> <span class="o">=</span> <span class="n">eth0</span>
+  <span class="n">port</span> <span class="o">=</span> <span class="mi">4242</span>
+  <span class="n">prefer_ipv6</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
 <p><strong>Please Note!</strong> The TCP interfaces support tunneling over I2P, but to do so reliably,
 you must use the i2p_tunneled option:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">on</span> <span class="n">I2P</span><span class="p">]]</span>
@@ -409,7 +424,7 @@ same TCP Server interface at the same time.</p>
 This means that Reticulum will gracefully handle IP links that go up and down,
 and restore connectivity after a failure, once the other end of a TCP interface reappears.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of a TCP Client interface. The</span>
-<span class="c1"># target_host can either be an IP address or a hostname.</span>
+<span class="c1"># target_host can be a hostname or an IPv4 or IPv6 address.</span>
 
 <span class="p">[[</span><span class="n">TCP</span> <span class="n">Client</span> <span class="n">Interface</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
