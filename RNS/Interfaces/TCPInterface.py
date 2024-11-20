@@ -22,12 +22,11 @@
 
 from .Interface import Interface
 import socketserver
+import ipaddress
 import threading
 import platform
 import socket
 import time
-import sys
-import os
 import RNS
 
 class HDLC():
@@ -57,6 +56,21 @@ class KISS():
 
 class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
+
+class ThreadingTCPServer6(ThreadingTCPServer):
+    address_family = socket.AF_INET6
+
+    def server_bind(self):
+        if '%' in self.server_address[0]:
+            addr, zone = self.server_address[0].split('%')
+            interface_index = socket.if_nametoindex(zone)
+        else:
+            addr = self.server_address[0]
+            interface_index = 0
+
+        self.server_address = (addr, self.server_address[1], 0, interface_index)
+        self.socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
+        self.socket.bind(self.server_address)
 
 class TCPClientInterface(Interface):
     BITRATE_GUESS = 10*1000*1000
@@ -200,12 +214,21 @@ class TCPClientInterface(Interface):
             if initial:
                 RNS.log("Establishing TCP connection for "+str(self)+"...", RNS.LOG_DEBUG)
 
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            addr_info = socket.getaddrinfo(
+                self.target_ip, 
+                self.target_port,
+                0,  # AF_UNSPEC - auto-detect IP version
+                socket.SOCK_STREAM
+            )
+
+            addr_family, socktype, proto, _, addr = addr_info[0]
+            
+            self.socket = socket.socket(addr_family, socktype)
             self.socket.settimeout(TCPClientInterface.INITIAL_CONNECT_TIMEOUT)
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-            self.socket.connect((self.target_ip, self.target_port))
+            self.socket.connect(addr)
             self.socket.settimeout(None)
-            self.online  = True
+            self.online = True
 
             if initial:
                 RNS.log("TCP connection for "+str(self)+" established", RNS.LOG_DEBUG)
@@ -402,31 +425,62 @@ class TCPClientInterface(Interface):
 
 
     def __str__(self):
-        return "TCPInterface["+str(self.name)+"/"+str(self.target_ip)+":"+str(self.target_port)+"]"
+        if ':' in self.target_ip:
+            addr_str = f"[{self.target_ip}]:{self.target_port}"
+        else:
+            addr_str = f"{self.target_ip}:{self.target_port}"
+        return f"TCPInterface[{str(self.name)}/{addr_str}]"
 
 
 class TCPServerInterface(Interface):
     BITRATE_GUESS      = 10*1000*1000
 
     @staticmethod
-    def get_address_for_if(name):
+    def get_addresses_for_if(name):
         import RNS.vendor.ifaddr.niwrapper as netinfo
         ifaddr = netinfo.ifaddresses(name)
-        return ifaddr[netinfo.AF_INET][0]["addr"]
+
+        addresses = []
+
+        if netinfo.AF_INET in ifaddr:
+            for addr_info in ifaddr[netinfo.AF_INET]:
+                addresses.append({
+                    "addr": addr_info["addr"],
+                    "family": netinfo.AF_INET
+                })
+
+        if netinfo.AF_INET6 in ifaddr:
+            for addr_info in ifaddr[netinfo.AF_INET6]:
+                addresses.append({
+                    "addr": addr_info["addr"],
+                    "family": netinfo.AF_INET6
+                })
+
+        return addresses
 
     @staticmethod
     def get_broadcast_for_if(name):
         import RNS.vendor.ifaddr.niwrapper as netinfo
         ifaddr = netinfo.ifaddresses(name)
         return ifaddr[netinfo.AF_INET][0]["broadcast"]
+    
+    @staticmethod
+    def is_link_local(addr):
+        try:
+            addr = ipaddress.IPv6Address(addr)
+            return addr.is_link_local
+        except ipaddress.AddressValueError:
+            return False
 
     def __init__(self, owner, name, device=None, bindip=None, bindport=None, i2p_tunneled=False):
+        import RNS.vendor.ifaddr.niwrapper as netinfo
+
         super().__init__()
 
         self.HW_MTU = 1064
-
         self.online = False
         self.clients = 0
+        self.servers = []
         
         self.IN  = True
         self.OUT = False
@@ -434,14 +488,21 @@ class TCPServerInterface(Interface):
         self.detached = False
 
         self.i2p_tunneled = i2p_tunneled
-        self.mode         = RNS.Interfaces.Interface.Interface.MODE_FULL
+        self.mode = RNS.Interfaces.Interface.Interface.MODE_FULL
 
         if device != None:
-            bindip = TCPServerInterface.get_address_for_if(device)
+            bind_addresses = TCPServerInterface.get_addresses_for_if(device)
+        elif bindip != None:
+            bind_addresses = []
+            ip_list = [bindip] if isinstance(bindip, str) else bindip
+            for ip in ip_list:
+                if ':' in ip:
+                    bind_addresses.append({"addr": ip, "family": netinfo.AF_INET6})
+                else:
+                    bind_addresses.append({"addr": ip, "family": netinfo.AF_INET})
 
-        if (bindip != None and bindport != None):
+        if (bind_addresses and bindport != None):
             self.receives = True
-            self.bind_ip = bindip
             self.bind_port = bindport
 
             def handlerFactory(callback):
@@ -450,18 +511,37 @@ class TCPServerInterface(Interface):
                 return createHandler
 
             self.owner = owner
-            address = (self.bind_ip, self.bind_port)
-
+            ThreadingTCPServer6.allow_reuse_address = True
             ThreadingTCPServer.allow_reuse_address = True
-            self.server = ThreadingTCPServer(address, handlerFactory(self.incoming_connection))
+
+            for addr_info in bind_addresses:
+                try:
+                    addr = addr_info["addr"]
+
+                    if addr_info["family"] == netinfo.AF_INET6 and TCPServerInterface.is_link_local(addr):
+                        addr = addr + '%' + device
+
+                    address = (addr, self.bind_port)
+                    if addr_info["family"] == netinfo.AF_INET6:
+                        addr_str = f"[{address[0]}]:{address[1]}"
+                        server = ThreadingTCPServer6(address, handlerFactory(self.incoming_connection))
+                    else:
+                        addr_str = f"{address[0]}:{address[1]}"
+                        server = ThreadingTCPServer(address, handlerFactory(self.incoming_connection))
+
+                    thread = threading.Thread(target=server.serve_forever)
+                    thread.daemon = True
+                    thread.start()
+                    
+                    self.servers.append(server)
+
+                    RNS.log(f"Listening on {addr_str}", RNS.LOG_DEBUG)
+
+                except Exception as e:
+                    RNS.log(f"Failed to bind to {addr_str}: {str(e)}", RNS.LOG_ERROR)
 
             self.bitrate = TCPServerInterface.BITRATE_GUESS
-
-            thread = threading.Thread(target=self.server.serve_forever)
-            thread.daemon = True
-            thread.start()
-
-            self.online = True
+            self.online = len(self.servers) > 0
 
 
     def incoming_connection(self, handler):
@@ -517,21 +597,38 @@ class TCPServerInterface(Interface):
 
 
     def detach(self):
-        if self.server != None:
-            if hasattr(self.server, "shutdown"):
-                if callable(self.server.shutdown):
+        RNS.log(f"Detaching {str(self)}", RNS.LOG_DEBUG)
+        
+        if self.servers:
+            for server in self.servers:
+                ip, port, *_ = server.server_address
+                if ':' in ip:
+                    addr_str = f"[{ip}]:{port}"
+                else:
+                    addr_str = f"{ip}:{port}"
+                RNS.log(f"Shutting down server instance bound to {addr_str}", RNS.LOG_DEBUG)
+                if hasattr(server, "shutdown") and callable(server.shutdown):
                     try:
-                        RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
-                        self.server.shutdown()
-                        self.detached = True
-                        self.server = None
-
+                        server.shutdown()
                     except Exception as e:
-                        RNS.log("Error while shutting down server for "+str(self)+": "+str(e))
+                        RNS.log(f"Error while shutting down server instance for {str(self)}: {str(e)}", RNS.LOG_DEBUG)
 
+            self.servers = []
+            self.detached = True
+            self.online = False
 
     def __str__(self):
-        return "TCPServerInterface["+self.name+"/"+self.bind_ip+":"+str(self.bind_port)+"]"
+        addresses = []
+        for server in self.servers:
+            ip, port, *_ = server.server_address
+            if ':' in ip:
+                addr_str = f"[{ip}]:{port}"
+            else:
+                addr_str = f"{ip}:{port}"
+            addresses.append(addr_str)
+
+        address_str = ", ".join(addresses) if addresses else "not bound"
+        return f"TCPServerInterface[{self.name}/{address_str}]"
 
 
 class TCPInterfaceHandler(socketserver.BaseRequestHandler):
