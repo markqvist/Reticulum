@@ -582,43 +582,8 @@ class Reticulum:
                                     interface_post_init(interface)
 
                                 if c["type"] == "UDPInterface":
-                                    device       = c["device"] if "device" in c else None
-                                    port         = int(c["port"]) if "port" in c else None
-                                    listen_ip    = c["listen_ip"] if "listen_ip" in c else None
-                                    listen_port  = int(c["listen_port"]) if "listen_port" in c else None
-                                    forward_ip   = c["forward_ip"] if "forward_ip" in c else None
-                                    forward_port = int(c["forward_port"]) if "forward_port" in c else None
-
-                                    if port != None:
-                                        if listen_port == None:
-                                            listen_port = port
-                                        if forward_port == None:
-                                            forward_port = port
-
-                                    interface = UDPInterface.UDPInterface(
-                                        RNS.Transport,
-                                        name,
-                                        device,
-                                        listen_ip,
-                                        listen_port,
-                                        forward_ip,
-                                        forward_port
-                                    )
-
-                                    if "outgoing" in c and c.as_bool("outgoing") == False:
-                                        interface.OUT = False
-                                    else:
-                                        interface.OUT = True
-
-                                    interface.mode = interface_mode
-
-                                    interface.announce_cap = announce_cap
-                                    if configured_bitrate:
-                                        interface.bitrate = configured_bitrate
-                                    if ifac_size != None:
-                                        interface.ifac_size = ifac_size
-                                    else:
-                                        interface.ifac_size = 16
+                                    interface = UDPInterface.UDPInterface(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
 
                                 if c["type"] == "TCPServerInterface":
                                     device       = c["device"] if "device" in c else None

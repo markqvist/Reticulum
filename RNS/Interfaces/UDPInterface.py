@@ -31,6 +31,7 @@ import RNS
 
 class UDPInterface(Interface):
     BITRATE_GUESS = 10*1000*1000
+    DEFAULT_IFAC_SIZE = 16
 
     @staticmethod
     def get_address_for_if(name):
@@ -44,8 +45,23 @@ class UDPInterface(Interface):
         ifaddr = netinfo.ifaddresses(name)
         return ifaddr[netinfo.AF_INET][0]["broadcast"]
 
-    def __init__(self, owner, name, device=None, bindip=None, bindport=None, forwardip=None, forwardport=None):
+    def __init__(self, owner, configuration):
         super().__init__()
+
+        c           = configuration
+        name        = c["name"]
+        device      = c["device"] if "device" in c else None
+        port        = int(c["port"]) if "port" in c else None
+        bindip      = c["listen_ip"] if "listen_ip" in c else None
+        bindport    = int(c["listen_port"]) if "listen_port" in c else None
+        forwardip   = c["forward_ip"] if "forward_ip" in c else None
+        forwardport = int(c["forward_port"]) if "forward_port" in c else None
+
+        if port != None:
+            if bindport == None:
+                bindport = port
+            if forwardport == None:
+                forwardport = port
 
         self.HW_MTU = 1064
 
