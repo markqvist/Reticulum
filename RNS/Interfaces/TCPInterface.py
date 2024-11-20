@@ -419,31 +419,29 @@ class TCPServerInterface(Interface):
     def get_address_for_if(name, bind_port, prefer_ipv6=False):
         import RNS.vendor.ifaddr.niwrapper as netinfo
         ifaddr = netinfo.ifaddresses(name)
-
         if len(ifaddr) < 1:
             raise SystemError(f"No addresses available on specified kernel interface \"{name}\" for TCPServerInterface to bind to")
 
         if prefer_ipv6 and netinfo.AF_INET6 in ifaddr:
             bind_ip = ifaddr[netinfo.AF_INET6][0]["addr"]
-            return TCPServerInterface.get_address_for_host(f"{bind_ip}%{name}", bind_port)
-
+            if bind_ip.lower().startswith("fe80::"):
+                # We'll need to add the interface as scope for link-local addresses
+                return TCPServerInterface.get_address_for_host(f"{bind_ip}%{name}", bind_port)
+            else:
+                return TCPServerInterface.get_address_for_host(bind_ip, bind_port)
         elif netinfo.AF_INET in ifaddr:
             bind_ip = ifaddr[netinfo.AF_INET][0]["addr"]
             return (bind_ip, bind_port)
-
         else:
             raise SystemError(f"No addresses available on specified kernel interface \"{name}\" for TCPServerInterface to bind to")
 
     @staticmethod
     def get_address_for_host(name, bind_port):
         address_info = socket.getaddrinfo(name, bind_port, proto=socket.IPPROTO_TCP)[0]
-
         if address_info[0] == socket.AF_INET6:
             return (name, bind_port, address_info[4][2], address_info[4][3])
-
         elif address_info[0] == socket.AF_INET:
             return (name, bind_port)
-
         else:
             raise SystemError(f"No suitable kernel interface available for address \"{name}\" for TCPServerInterface to bind to")
 
