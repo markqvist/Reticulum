@@ -409,7 +409,12 @@ class TCPClientInterface(Interface):
 
 
     def __str__(self):
-        return "TCPInterface["+str(self.name)+"/"+str(self.target_ip)+":"+str(self.target_port)+"]"
+        if ":" in self.target_ip:
+            ip_str = f"[{self.target_ip}]"
+        else:
+            ip_str = f"{self.target_ip}"
+
+        return "TCPInterface["+str(self.name)+"/"+ip_str+":"+str(self.target_port)+"]"
 
 
 class TCPServerInterface(Interface):
@@ -575,7 +580,12 @@ class TCPServerInterface(Interface):
 
 
     def __str__(self):
-        return "TCPServerInterface["+self.name+"/"+self.bind_ip+":"+str(self.bind_port)+"]"
+        if ":" in self.bind_ip:
+            ip_str = f"[{self.bind_ip}]"
+        else:
+            ip_str = f"{self.bind_ip}"
+
+        return "TCPServerInterface["+self.name+"/"+ip_str+":"+str(self.bind_port)+"]"
 
 
 class TCPInterfaceHandler(socketserver.BaseRequestHandler):
