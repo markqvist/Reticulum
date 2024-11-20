@@ -246,12 +246,22 @@ loglevel = 4
     listen_ip = 0.0.0.0
     listen_port = 4242
 
-    # Alternatively you can bind to a specific IP
-    
-    # listen_ip = 10.0.0.88
+    # You can listen on multiple specific IPs
+
+    # listen_ip = 10.0.0.42, 10.0.0.84
     # listen_port = 4242
 
-    # Or a specific network device
+    # Or listen on all IPv6 addresses
+
+    # listen_ip = ::0
+    # listen_port = 4242
+
+    # Or even listen on both IPv4 and IPv6
+
+    # listen_ip = 0.0.0.0, ::0
+    # listen_port = 4242
+
+    # You can also bind to a specific network device
     
     # device = eth0
     # port = 4242
@@ -268,6 +278,10 @@ loglevel = 4
     target_host = 127.0.0.1
     target_port = 4242
 
+    # IPv6 addresses are also supported
+
+    # target_host = ::1
+    # target_port = 4242
 
   # This example shows how to make your Reticulum
   # instance available over I2P, and connect to
