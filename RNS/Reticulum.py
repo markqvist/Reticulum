@@ -640,6 +640,7 @@ class Reticulum:
                                     listen_ip    = c["listen_ip"] if "listen_ip" in c else None
                                     listen_port  = int(c["listen_port"]) if "listen_port" in c else None
                                     i2p_tunneled = c.as_bool("i2p_tunneled") if "i2p_tunneled" in c else False
+                                    prefer_ipv6  = c.as_bool("prefer_ipv6") if "prefer_ipv6" in c else False
 
                                     if port != None:
                                         listen_port = port
@@ -650,7 +651,8 @@ class Reticulum:
                                         device,
                                         listen_ip,
                                         listen_port,
-                                        i2p_tunneled
+                                        i2p_tunneled,
+                                        prefer_ipv6,
                                     )
 
                                     if "outgoing" in c and c.as_bool("outgoing") == False:

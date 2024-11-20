@@ -415,15 +415,14 @@ class TCPServerInterface(Interface):
     BITRATE_GUESS      = 10*1000*1000
 
     @staticmethod
-    def get_address_for_if(name, bind_port):
+    def get_address_for_if(name, bind_port, prefer_ipv6=False):
         import RNS.vendor.ifaddr.niwrapper as netinfo
         ifaddr = netinfo.ifaddresses(name)
 
         if len(ifaddr) < 1:
             raise SystemError(f"No addresses available on specified kernel interface \"{name}\" for TCPServerInterface to bind to")
 
-        # TODO: Add IPv6 prefer option
-        if False and netinfo.AF_INET6 in ifaddr:
+        if prefer_ipv6 and netinfo.AF_INET6 in ifaddr:
             bind_ip = ifaddr[netinfo.AF_INET6][0]["addr"]
             return TCPServerInterface.get_address_for_host(f"{bind_ip}%{name}", bind_port)
 
@@ -448,7 +447,7 @@ class TCPServerInterface(Interface):
             raise SystemError(f"No suitable kernel interface available for address \"{name}\" for TCPServerInterface to bind to")
 
 
-    def __init__(self, owner, name, device=None, bindip=None, bindport=None, i2p_tunneled=False):
+    def __init__(self, owner, name, device=None, bindip=None, bindport=None, i2p_tunneled=False, prefer_ipv6=False):
         super().__init__()
 
         self.HW_MTU = 1064
@@ -471,7 +470,7 @@ class TCPServerInterface(Interface):
 
         bind_address = None
         if device != None:
-            bind_address = TCPServerInterface.get_address_for_if(device, self.bind_port)
+            bind_address = TCPServerInterface.get_address_for_if(device, self.bind_port, prefer_ipv6)
         else:
             if bindip == None:
                 raise SystemError(f"No TCP bind IP configured for interface \"{name}\"")
