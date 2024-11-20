@@ -594,41 +594,12 @@ class Reticulum:
                                     interface_post_init(interface)
 
                                 if c["type"] == "TCPClientInterface":
-                                    kiss_framing = False
-                                    if "kiss_framing" in c and c.as_bool("kiss_framing") == True:
-                                        kiss_framing = True
-                                    i2p_tunneled = c.as_bool("i2p_tunneled") if "i2p_tunneled" in c else False
-                                    tcp_connect_timeout = c.as_int("connect_timeout") if "connect_timeout" in c else None
-
-
-                                    interface = TCPInterface.TCPClientInterface(
-                                        RNS.Transport,
-                                        name,
-                                        c["target_host"],
-                                        int(c["target_port"]),
-                                        kiss_framing = kiss_framing,
-                                        i2p_tunneled = i2p_tunneled,
-                                        connect_timeout = tcp_connect_timeout,
-                                    )
-
-                                    if "outgoing" in c and c.as_bool("outgoing") == False:
-                                        interface.OUT = False
-                                    else:
-                                        interface.OUT = True
-
                                     if interface_mode == Interface.Interface.MODE_ACCESS_POINT:
                                         RNS.log(str(interface)+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
                                         interface_mode = Interface.Interface.MODE_FULL
                                     
-                                    interface.mode = interface_mode
-
-                                    interface.announce_cap = announce_cap
-                                    if configured_bitrate:
-                                        interface.bitrate = configured_bitrate
-                                    if ifac_size != None:
-                                        interface.ifac_size = ifac_size
-                                    else:
-                                        interface.ifac_size = 16
+                                    interface = TCPInterface.TCPClientInterface(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
 
                                 if c["type"] == "I2PInterface":
                                     i2p_peers = c.as_list("peers") if "peers" in c else None

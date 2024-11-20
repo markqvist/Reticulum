@@ -63,6 +63,7 @@ class ThreadingTCP6Server(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 class TCPClientInterface(Interface):
     BITRATE_GUESS = 10*1000*1000
+    DEFAULT_IFAC_SIZE = 16
 
     RECONNECT_WAIT = 5
     RECONNECT_MAX_TRIES = None
@@ -81,8 +82,19 @@ class TCPClientInterface(Interface):
     I2P_PROBE_INTERVAL = 9
     I2P_PROBES = 5
 
-    def __init__(self, owner, name, target_ip=None, target_port=None, connected_socket=None, max_reconnect_tries=None, kiss_framing=False, i2p_tunneled = False, connect_timeout = None):
+    def __init__(self, owner, configuration, connected_socket=None):
         super().__init__()
+
+        c = configuration
+        name = c["name"]
+        target_ip = c["target_host"]
+        target_port = int(c["target_port"])
+        kiss_framing = False
+        if "kiss_framing" in c and c.as_bool("kiss_framing") == True:
+            kiss_framing = True
+        i2p_tunneled = c.as_bool("i2p_tunneled") if "i2p_tunneled" in c else False
+        connect_timeout = c.as_int("connect_timeout") if "connect_timeout" in c else None
+        max_reconnect_tries = c.as_int("max_reconnect_tries") if "max_reconnect_tries" in c else None
         
         self.HW_MTU = 1064
         
@@ -454,6 +466,8 @@ class TCPServerInterface(Interface):
 
     # def __init__(self, owner, name, device=None, bindip=None, bindport=None, i2p_tunneled=False, prefer_ipv6=False):
     def __init__(self, owner, configuration):
+        super().__init__()
+
         c            = configuration
         name         = c["name"]
         device       = c["device"] if "device" in c else None
@@ -465,8 +479,6 @@ class TCPServerInterface(Interface):
 
         if port != None:
             bindport = port
-
-        super().__init__()
 
         self.HW_MTU = 1064
 
@@ -529,8 +541,8 @@ class TCPServerInterface(Interface):
 
     def incoming_connection(self, handler):
         RNS.log("Accepting incoming TCP connection", RNS.LOG_VERBOSE)
-        interface_name = "Client on "+self.name
-        spawned_interface = TCPClientInterface(self.owner, interface_name, target_ip=None, target_port=None, connected_socket=handler.request, i2p_tunneled=self.i2p_tunneled)
+        spawned_configuration = {"name": "Client on "+self.name, "target_host": None, "target_port": None, "i2p_tunneled": self.i2p_tunneled}
+        spawned_interface = TCPClientInterface(self.owner, spawned_configuration, connected_socket=handler.request)
         spawned_interface.OUT = self.OUT
         spawned_interface.IN  = self.IN
         spawned_interface.target_ip = handler.client_address[0]
