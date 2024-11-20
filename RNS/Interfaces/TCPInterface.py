@@ -58,6 +58,9 @@ class KISS():
 class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
+class ThreadingTCP6Server(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    address_family = socket.AF_INET6
+
 class TCPClientInterface(Interface):
     BITRATE_GUESS = 10*1000*1000
 
@@ -200,9 +203,10 @@ class TCPClientInterface(Interface):
             if initial:
                 RNS.log("Establishing TCP connection for "+str(self)+"...", RNS.LOG_DEBUG)
 
-            addrInfo=socket.getaddrinfo(self.target_ip, self.target_port)
-            addrFam=addrInfo[0]
-            self.socket = socket.socket(addrFam, socket.SOCK_STREAM)
+            address_info = socket.getaddrinfo(self.target_ip, self.target_port, proto=socket.IPPROTO_TCP)[0]
+            address_family = address_info[0]
+
+            self.socket = socket.socket(address_family, socket.SOCK_STREAM)
             self.socket.settimeout(TCPClientInterface.INITIAL_CONNECT_TIMEOUT)
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             self.socket.connect((self.target_ip, self.target_port))
@@ -411,21 +415,38 @@ class TCPServerInterface(Interface):
     BITRATE_GUESS      = 10*1000*1000
 
     @staticmethod
-    def get_address_for_if(name):
+    def get_address_for_if(name, bind_port):
         import RNS.vendor.ifaddr.niwrapper as netinfo
         ifaddr = netinfo.ifaddresses(name)
 
-        # IPv6 preference (if present)
-        if(netinfo.AF_INET6 in ifaddr):
-            return ifaddr[netinfo.AF_INET6][0]["addr"]
-        
-        return ifaddr[netinfo.AF_INET][0]["addr"]
+        if len(ifaddr) < 1:
+            raise SystemError(f"No addresses available on specified kernel interface \"{name}\" for TCPServerInterface to bind to")
+
+        # TODO: Add IPv6 prefer option
+        if False and netinfo.AF_INET6 in ifaddr:
+            bind_ip = ifaddr[netinfo.AF_INET6][0]["addr"]
+            return TCPServerInterface.get_address_for_host(f"{bind_ip}%{name}", bind_port)
+
+        elif netinfo.AF_INET in ifaddr:
+            bind_ip = ifaddr[netinfo.AF_INET][0]["addr"]
+            return (bind_ip, bind_port)
+
+        else:
+            raise SystemError(f"No addresses available on specified kernel interface \"{name}\" for TCPServerInterface to bind to")
 
     @staticmethod
-    def get_broadcast_for_if(name):
-        import RNS.vendor.ifaddr.niwrapper as netinfo
-        ifaddr = netinfo.ifaddresses(name)
-        return ifaddr[netinfo.AF_INET][0]["broadcast"]
+    def get_address_for_host(name, bind_port):
+        address_info = socket.getaddrinfo(name, bind_port, proto=socket.IPPROTO_TCP)[0]
+
+        if address_info[0] == socket.AF_INET6:
+            return (name, bind_port, address_info[4][2], address_info[4][3])
+
+        elif address_info[0] == socket.AF_INET:
+            return (name, bind_port)
+
+        else:
+            raise SystemError(f"No suitable kernel interface available for address \"{name}\" for TCPServerInterface to bind to")
+
 
     def __init__(self, owner, name, device=None, bindip=None, bindport=None, i2p_tunneled=False):
         super().__init__()
@@ -443,13 +464,22 @@ class TCPServerInterface(Interface):
         self.i2p_tunneled = i2p_tunneled
         self.mode         = RNS.Interfaces.Interface.Interface.MODE_FULL
 
-        if device != None:
-            bindip = TCPServerInterface.get_address_for_if(device)
-
-        if (bindip != None and bindport != None):
-            self.receives = True
-            self.bind_ip = bindip
+        if bindport == None:
+            raise SystemError(f"No TCP port configured for interface \"{name}\"")
+        else:
             self.bind_port = bindport
+
+        bind_address = None
+        if device != None:
+            bind_address = TCPServerInterface.get_address_for_if(device, self.bind_port)
+        else:
+            if bindip == None:
+                raise SystemError(f"No TCP bind IP configured for interface \"{name}\"")
+            bind_address = TCPServerInterface.get_address_for_host(bindip, self.bind_port)
+
+        if bind_address != None:
+            self.receives = True
+            self.bind_ip = bind_address[0]
 
             def handlerFactory(callback):
                 def createHandler(*args, **keys):
@@ -457,10 +487,17 @@ class TCPServerInterface(Interface):
                 return createHandler
 
             self.owner = owner
-            address = (self.bind_ip, self.bind_port)
 
-            ThreadingTCPServer.allow_reuse_address = True
-            self.server = ThreadingTCPServer(address, handlerFactory(self.incoming_connection))
+            if len(bind_address) == 4:
+                try:
+                    ThreadingTCP6Server.allow_reuse_address = True
+                    self.server = ThreadingTCP6Server(bind_address, handlerFactory(self.incoming_connection))
+                except Exception as e:
+                    RNS.log(f"Error while binding IPv6 socket for interface, the contained exception was: {e}", RNS.LOG_ERROR)
+                    raise SystemError("Could not bind IPv6 socket for interface. Please check the specified \"listen_ip\" configuration option")
+            else:
+                ThreadingTCPServer.allow_reuse_address = True
+                self.server = ThreadingTCPServer(bind_address, handlerFactory(self.incoming_connection))
 
             self.bitrate = TCPServerInterface.BITRATE_GUESS
 
@@ -470,6 +507,8 @@ class TCPServerInterface(Interface):
 
             self.online = True
 
+        else:
+            raise SystemError("Insufficient parameters to create TCP listener")
 
     def incoming_connection(self, handler):
         RNS.log("Accepting incoming TCP connection", RNS.LOG_VERBOSE)
