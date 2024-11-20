@@ -171,7 +171,7 @@ TCP Server Interface
 ====================
 
 The TCP Server interface is suitable for allowing other peers to connect over
-the Internet or private IP networks. When a TCP server interface has been
+the Internet or private IPv4 and IPv6 networks. When a TCP server interface has been
 configured, other Reticulum peers can connect to it with a TCP Client interface.
 
 .. code::
@@ -217,6 +217,17 @@ you can use the ``prefer_ipv6`` option to bind to the IPv6 address:
     port = 4242
     prefer_ipv6 = True
 
+To use the TCP Server Interface over `Yggdrasil <https://yggdrasil-network.github.io/>`_, you
+can simply specify the Yggdrasil ``tun`` device and a listening port, like so:
+
+.. code::
+
+  [[Yggdrasil TCP Server Interface]]
+      type = TCPServerInterface
+      interface_enabled = yes
+      device = tun0
+      listen_port = 4343
+
 **Please Note!** The TCP interfaces support tunneling over I2P, but to do so reliably,
 you must use the i2p_tunneled option:
 
@@ -255,6 +266,17 @@ and restore connectivity after a failure, once the other end of a TCP interface 
     interface_enabled = True
     target_host = 127.0.0.1
     target_port = 4242
+
+To use the TCP Client Interface over `Yggdrasil <https://yggdrasil-network.github.io/>`_, simply
+specify the target Yggdrasil IPv6 address and port, like so:
+
+.. code::
+
+  [[Yggdrasil TCP Client Interface]]
+      type = TCPClientInterface
+      interface_enabled = yes
+      target_host = 201:5d78:af73:5caf:a4de:a79f:3278:71e5
+      target_port = 4343
 
 It is also possible to use this interface type to connect via other programs
 or hardware devices that expose a KISS interface on a TCP port, for example

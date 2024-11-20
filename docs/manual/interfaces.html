@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Building Networks" href="networks.html" /><link rel="prev" title="Communications Hardware" href="hardware.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
-        <title>Configuring Interfaces - Reticulum Network Stack 0.8.5 beta documentation</title>
+        <title>Configuring Interfaces - Reticulum Network Stack 0.8.6 beta documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 0.8.5 beta documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.8.6 beta documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -167,7 +167,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 0.8.5 beta documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.8.6 beta documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -360,7 +360,7 @@ use-cases.</p>
 <section id="tcp-server-interface">
 <span id="interfaces-tcps"></span><h2>TCP Server Interface<a class="headerlink" href="#tcp-server-interface" title="Permalink to this heading">#</a></h2>
 <p>The TCP Server interface is suitable for allowing other peers to connect over
-the Internet or private IP networks. When a TCP server interface has been
+the Internet or private IPv4 and IPv6 networks. When a TCP server interface has been
 configured, other Reticulum peers can connect to it with a TCP Client interface.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example demonstrates a TCP server interface.</span>
 <span class="c1"># It will listen for incoming connections on the</span>
@@ -402,6 +402,15 @@ you can use the <code class="docutils literal notranslate"><span class="pre">pre
   <span class="n">prefer_ipv6</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 </div>
+<p>To use the TCP Server Interface over <a class="reference external" href="https://yggdrasil-network.github.io/">Yggdrasil</a>, you
+can simply specify the Yggdrasil <code class="docutils literal notranslate"><span class="pre">tun</span></code> device and a listening port, like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Yggdrasil</span> <span class="n">TCP</span> <span class="n">Server</span> <span class="n">Interface</span><span class="p">]]</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">tun0</span>
+    <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">4343</span>
+</pre></div>
+</div>
 <p><strong>Please Note!</strong> The TCP interfaces support tunneling over I2P, but to do so reliably,
 you must use the i2p_tunneled option:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">on</span> <span class="n">I2P</span><span class="p">]]</span>
@@ -431,6 +440,15 @@ and restore connectivity after a failure, once the other end of a TCP interface 
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
   <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0.0.1</span>
   <span class="n">target_port</span> <span class="o">=</span> <span class="mi">4242</span>
+</pre></div>
+</div>
+<p>To use the TCP Client Interface over <a class="reference external" href="https://yggdrasil-network.github.io/">Yggdrasil</a>, simply
+specify the target Yggdrasil IPv6 address and port, like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Yggdrasil</span> <span class="n">TCP</span> <span class="n">Client</span> <span class="n">Interface</span><span class="p">]]</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+    <span class="n">target_host</span> <span class="o">=</span> <span class="mi">201</span><span class="p">:</span><span class="mi">5</span><span class="n">d78</span><span class="p">:</span><span class="n">af73</span><span class="p">:</span><span class="mi">5</span><span class="n">caf</span><span class="p">:</span><span class="n">a4de</span><span class="p">:</span><span class="n">a79f</span><span class="p">:</span><span class="mi">3278</span><span class="p">:</span><span class="mf">71e5</span>
+    <span class="n">target_port</span> <span class="o">=</span> <span class="mi">4343</span>
 </pre></div>
 </div>
 <p>It is also possible to use this interface type to connect via other programs
