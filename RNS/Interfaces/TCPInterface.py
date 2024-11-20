@@ -419,6 +419,7 @@ class TCPClientInterface(Interface):
 
 class TCPServerInterface(Interface):
     BITRATE_GUESS      = 10*1000*1000
+    DEFAULT_IFAC_SIZE = 16
 
     @staticmethod
     def get_address_for_if(name, bind_port, prefer_ipv6=False):
@@ -451,7 +452,20 @@ class TCPServerInterface(Interface):
             raise SystemError(f"No suitable kernel interface available for address \"{name}\" for TCPServerInterface to bind to")
 
 
-    def __init__(self, owner, name, device=None, bindip=None, bindport=None, i2p_tunneled=False, prefer_ipv6=False):
+    # def __init__(self, owner, name, device=None, bindip=None, bindport=None, i2p_tunneled=False, prefer_ipv6=False):
+    def __init__(self, owner, configuration):
+        c            = configuration
+        name         = c["name"]
+        device       = c["device"] if "device" in c else None
+        port         = int(c["port"]) if "port" in c else None
+        bindip       = c["listen_ip"] if "listen_ip" in c else None
+        bindport     = int(c["listen_port"]) if "listen_port" in c else None
+        i2p_tunneled = c.as_bool("i2p_tunneled") if "i2p_tunneled" in c else False
+        prefer_ipv6  = c.as_bool("prefer_ipv6") if "prefer_ipv6" in c else False
+
+        if port != None:
+            bindport = port
+
         super().__init__()
 
         self.HW_MTU = 1064

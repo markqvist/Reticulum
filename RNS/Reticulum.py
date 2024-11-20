@@ -586,44 +586,12 @@ class Reticulum:
                                     interface_post_init(interface)
 
                                 if c["type"] == "TCPServerInterface":
-                                    device       = c["device"] if "device" in c else None
-                                    port         = int(c["port"]) if "port" in c else None
-                                    listen_ip    = c["listen_ip"] if "listen_ip" in c else None
-                                    listen_port  = int(c["listen_port"]) if "listen_port" in c else None
-                                    i2p_tunneled = c.as_bool("i2p_tunneled") if "i2p_tunneled" in c else False
-                                    prefer_ipv6  = c.as_bool("prefer_ipv6") if "prefer_ipv6" in c else False
-
-                                    if port != None:
-                                        listen_port = port
-
-                                    interface = TCPInterface.TCPServerInterface(
-                                        RNS.Transport,
-                                        name,
-                                        device,
-                                        listen_ip,
-                                        listen_port,
-                                        i2p_tunneled,
-                                        prefer_ipv6,
-                                    )
-
-                                    if "outgoing" in c and c.as_bool("outgoing") == False:
-                                        interface.OUT = False
-                                    else:
-                                        interface.OUT = True
-
                                     if interface_mode == Interface.Interface.MODE_ACCESS_POINT:
                                         RNS.log(str(interface)+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
                                         interface_mode = Interface.Interface.MODE_FULL
-                                    
-                                    interface.mode = interface_mode
 
-                                    interface.announce_cap = announce_cap
-                                    if configured_bitrate:
-                                        interface.bitrate = configured_bitrate
-                                    if ifac_size != None:
-                                        interface.ifac_size = ifac_size
-                                    else:
-                                        interface.ifac_size = 16
+                                    interface = TCPInterface.TCPServerInterface(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
 
                                 if c["type"] == "TCPClientInterface":
                                     kiss_framing = False
