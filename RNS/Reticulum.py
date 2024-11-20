@@ -556,44 +556,30 @@ class Reticulum:
                                 announce_cap = c.as_float("announce_cap")/100.0
                                 
                         try:
+                            def interface_post_init(interface):
+                                if "outgoing" in c and c.as_bool("outgoing") == False:
+                                    interface.OUT = False
+                                else:
+                                    interface.OUT = True
+
+                                interface.mode = interface_mode
+                                interface.announce_cap = announce_cap
+                                if configured_bitrate:
+                                    interface.bitrate = configured_bitrate
+                                if ifac_size != None:
+                                    interface.ifac_size = ifac_size
+                                else:
+                                    interface.ifac_size = interface.DEFAULT_IFAC_SIZE
+
                             interface = None
-
                             if (("interface_enabled" in c) and c.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
+                                interface_config = c
+                                interface_config["name"] = name
+                                interface_config["configured_bitrate"] = configured_bitrate
+
                                 if c["type"] == "AutoInterface":
-                                    group_id        = c["group_id"] if "group_id" in c else None
-                                    discovery_scope = c["discovery_scope"] if "discovery_scope" in c else None
-                                    discovery_port  = int(c["discovery_port"]) if "discovery_port" in c else None
-                                    multicast_address_type = c["multicast_address_type"] if "multicast_address_type" in c else None
-                                    data_port  = int(c["data_port"]) if "data_port" in c else None
-                                    allowed_interfaces = c.as_list("devices") if "devices" in c else None
-                                    ignored_interfaces = c.as_list("ignored_devices") if "ignored_devices" in c else None
-
-                                    interface = AutoInterface.AutoInterface(
-                                        RNS.Transport,
-                                        name,
-                                        group_id,
-                                        discovery_scope,
-                                        discovery_port,
-                                        multicast_address_type,
-                                        data_port,
-                                        allowed_interfaces,
-                                        ignored_interfaces
-                                    )
-
-                                    if "outgoing" in c and c.as_bool("outgoing") == False:
-                                        interface.OUT = False
-                                    else:
-                                        interface.OUT = True
-
-                                    interface.mode = interface_mode
-
-                                    interface.announce_cap = announce_cap
-                                    if configured_bitrate:
-                                        interface.bitrate = configured_bitrate
-                                    if ifac_size != None:
-                                        interface.ifac_size = ifac_size
-                                    else:
-                                        interface.ifac_size = 16
+                                    interface = AutoInterface.AutoInterface(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
 
                                 if c["type"] == "UDPInterface":
                                     device       = c["device"] if "device" in c else None

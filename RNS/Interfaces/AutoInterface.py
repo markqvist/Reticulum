@@ -36,6 +36,7 @@ class AutoInterface(Interface):
     DEFAULT_DISCOVERY_PORT = 29716
     DEFAULT_DATA_PORT      = 42671
     DEFAULT_GROUP_ID       = "reticulum".encode("utf-8")
+    DEFAULT_IFAC_SIZE      = 16
 
     SCOPE_LINK         = "2"
     SCOPE_ADMIN        = "4"
@@ -86,7 +87,19 @@ class AutoInterface(Interface):
 
         return socket.if_nametoindex(ifname)
 
-    def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, multicast_address_type=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None, configured_bitrate=None):
+    # def __init__(self, owner, name, group_id=None, discovery_scope=None, discovery_port=None, multicast_address_type=None, data_port=None, allowed_interfaces=None, ignored_interfaces=None, configured_bitrate=None):
+    def __init__(self, owner, configuration):
+        c = configuration
+        name                   = c["name"]
+        group_id               = c["group_id"] if "group_id" in c else None
+        discovery_scope        = c["discovery_scope"] if "discovery_scope" in c else None
+        discovery_port         = int(c["discovery_port"]) if "discovery_port" in c else None
+        multicast_address_type = c["multicast_address_type"] if "multicast_address_type" in c else None
+        data_port              = int(c["data_port"]) if "data_port" in c else None
+        allowed_interfaces     = c.as_list("devices") if "devices" in c else None
+        ignored_interfaces     = c.as_list("ignored_devices") if "ignored_devices" in c else None
+        configured_bitrate     = c["configured_bitrate"]
+
         from RNS.vendor.ifaddr import niwrapper
         super().__init__()
         self.netinfo = niwrapper
