@@ -422,7 +422,7 @@ class TCPServerInterface(Interface):
         if len(ifaddr) < 1:
             raise SystemError(f"No addresses available on specified kernel interface \"{name}\" for TCPServerInterface to bind to")
 
-        if prefer_ipv6 and netinfo.AF_INET6 in ifaddr:
+        if (prefer_ipv6 or not netinfo.AF_INET in ifaddr) and netinfo.AF_INET6 in ifaddr:
             bind_ip = ifaddr[netinfo.AF_INET6][0]["addr"]
             if bind_ip.lower().startswith("fe80::"):
                 # We'll need to add the interface as scope for link-local addresses
