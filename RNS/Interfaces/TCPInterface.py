@@ -205,11 +205,12 @@ class TCPClientInterface(Interface):
 
             address_info = socket.getaddrinfo(self.target_ip, self.target_port, proto=socket.IPPROTO_TCP)[0]
             address_family = address_info[0]
+            target_address = address_info[4]
 
             self.socket = socket.socket(address_family, socket.SOCK_STREAM)
             self.socket.settimeout(TCPClientInterface.INITIAL_CONNECT_TIMEOUT)
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-            self.socket.connect((self.target_ip, self.target_port))
+            self.socket.connect(target_address)
             self.socket.settimeout(None)
             self.online  = True
 
