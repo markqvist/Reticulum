@@ -42,6 +42,7 @@ class HDLC():
 
 class SerialInterface(Interface):
     MAX_CHUNK = 32768
+    DEFAULT_IFAC_SIZE = 8
 
     owner    = None
     port     = None
@@ -51,7 +52,7 @@ class SerialInterface(Interface):
     stopbits = None
     serial   = None
 
-    def __init__(self, owner, name, port, speed, databits, parity, stopbits):
+    def __init__(self, owner, configuration):
         import importlib
         if importlib.util.find_spec('serial') != None:
             import serial
@@ -61,6 +62,17 @@ class SerialInterface(Interface):
             RNS.panic()
 
         super().__init__()
+
+        c = configuration
+        name = c["name"]
+        port = c["port"] if "port" in c else None
+        speed = int(c["speed"]) if "speed" in c else 9600
+        databits = int(c["databits"]) if "databits" in c else 8
+        parity = c["parity"] if "parity" in c else "N"
+        stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+
+        if port == None:
+            raise ValueError("No port specified for serial interface")
 
         self.HW_MTU = 564
         

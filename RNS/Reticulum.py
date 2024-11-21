@@ -615,39 +615,8 @@ class Reticulum:
                                     interface_post_init(interface)
 
                                 if c["type"] == "SerialInterface":
-                                    port = c["port"] if "port" in c else None
-                                    speed = int(c["speed"]) if "speed" in c else 9600
-                                    databits = int(c["databits"]) if "databits" in c else 8
-                                    parity = c["parity"] if "parity" in c else "N"
-                                    stopbits = int(c["stopbits"]) if "stopbits" in c else 1
-
-                                    if port == None:
-                                        raise ValueError("No port specified for serial interface")
-
-                                    interface = SerialInterface.SerialInterface(
-                                        RNS.Transport,
-                                        name,
-                                        port,
-                                        speed,
-                                        databits,
-                                        parity,
-                                        stopbits
-                                    )
-
-                                    if "outgoing" in c and c.as_bool("outgoing") == False:
-                                        interface.OUT = False
-                                    else:
-                                        interface.OUT = True
-
-                                    interface.mode = interface_mode
-
-                                    interface.announce_cap = announce_cap
-                                    if configured_bitrate:
-                                        interface.bitrate = configured_bitrate
-                                    if ifac_size != None:
-                                        interface.ifac_size = ifac_size
-                                    else:
-                                        interface.ifac_size = 8
+                                    interface = SerialInterface.SerialInterface(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
 
                                 if c["type"] == "PipeInterface":
                                     command = c["command"] if "command" in c else None

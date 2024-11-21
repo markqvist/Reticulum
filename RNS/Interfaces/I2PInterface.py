@@ -829,6 +829,7 @@ class I2PInterfacePeer(Interface):
 
 class I2PInterface(Interface):
     BITRATE_GUESS      = 256*1000
+    DEFAULT_IFAC_SIZE  = 16
 
     def __init__(self, owner, configuration):
         super().__init__()
