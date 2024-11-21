@@ -134,11 +134,11 @@ class RNodeInterface(Interface):
 
         c = Interface.get_config_obj(configuration)
         name         = c["name"]
-        frequency    = int(c["frequency"]) if "frequency" in c else None
-        bandwidth    = int(c["bandwidth"]) if "bandwidth" in c else None
-        txpower      = int(c["txpower"]) if "txpower" in c else None
-        sf           = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
-        cr           = int(c["codingrate"]) if "codingrate" in c else None
+        frequency    = int(c["frequency"]) if "frequency" in c else 0
+        bandwidth    = int(c["bandwidth"]) if "bandwidth" in c else 0
+        txpower      = int(c["txpower"]) if "txpower" in c else 0
+        sf           = int(c["spreadingfactor"]) if "spreadingfactor" in c else 0
+        cr           = int(c["codingrate"]) if "codingrate" in c else 0
         flow_control = c.as_bool("flow_control") if "flow_control" in c else False
         id_interval  = int(c["id_interval"]) if "id_interval" in c else None
         id_callsign  = c["id_callsign"] if "id_callsign" in c else None

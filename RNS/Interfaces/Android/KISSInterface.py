@@ -97,7 +97,7 @@ class KISSInterface(Interface):
         databits = int(c["databits"]) if "databits" in c else 8
         parity = c["parity"] if "parity" in c else "N"
         stopbits = int(c["stopbits"]) if "stopbits" in c else 1
-        beacon_interval = int(c["beacon_interval"]) if "beacon_interval" in c else None
+        beacon_interval = int(c["beacon_interval"]) if "beacon_interval" in c and c["beacon_interval"] != None else None
         beacon_data = c["beacon_data"] if "beacon_data" in c else None
         
         self.HW_MTU = 564

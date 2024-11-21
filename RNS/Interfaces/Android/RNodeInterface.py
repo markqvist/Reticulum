@@ -345,22 +345,22 @@ class RNodeInterface(Interface):
     def __init__(self, owner, configuration):
         c = Interface.get_config_obj(configuration)
         name = c["name"]
-        allow_bluetooth = c["allow_bluetooth"]
-        target_device_name = c["target_device_name"]
-        target_device_address = c["target_device_address"]
-        ble_name = c["ble_name"]
-        ble_addr = c["ble_addr"]
-        force_ble = c["force_ble"]
-        frequency = int(c["frequency"]) if "frequency" in c else None
-        bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
-        txpower = int(c["txpower"]) if "txpower" in c else None
-        sf = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
-        cr = int(c["codingrate"]) if "codingrate" in c else None
+        allow_bluetooth = c.as_bool("allow_bluetooth") if "allow_bluetooth" in c else False
+        target_device_name = c["target_device_name"] if "target_device_name" in c else None
+        target_device_address = c["target_device_address"] if "target_device_address" in c else None
+        ble_name = c["ble_name"] if "ble_name" in c else None
+        ble_addr = c["ble_addr"] if "ble_addr" in c else None
+        force_ble = c["force_ble"] if "force_ble" in c else False
+        frequency = int(c["frequency"]) if "frequency" in c else 0
+        bandwidth = int(c["bandwidth"]) if "bandwidth" in c else 0
+        txpower = int(c["txpower"]) if "txpower" in c else 0
+        sf = int(c["spreadingfactor"]) if "spreadingfactor" in c else 0
+        cr = int(c["codingrate"]) if "codingrate" in c else 0
         flow_control = c.as_bool("flow_control") if "flow_control" in c else False
-        id_interval = int(c["id_interval"]) if "id_interval" in c else None
+        id_interval = int(c["id_interval"]) if "id_interval" in c and c["id_interval"] != None else None
         id_callsign = c["id_callsign"] if "id_callsign" in c else None
-        st_alock = float(c["airtime_limit_short"]) if "airtime_limit_short" in c else None
-        lt_alock = float(c["airtime_limit_long"]) if "airtime_limit_long" in c else None
+        st_alock = float(c["airtime_limit_short"]) if "airtime_limit_short" in c and c["airtime_limit_short"] != None else None
+        lt_alock = float(c["airtime_limit_long"]) if "airtime_limit_long" in c and c["airtime_limit_long"] != None else None
         port = c["port"] if "port" in c else None
 
         import importlib
