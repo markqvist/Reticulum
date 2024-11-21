@@ -52,6 +52,7 @@ class KISS():
 class KISSInterface(Interface):
     MAX_CHUNK = 32768
     BITRATE_GUESS = 1200
+    DEFAULT_IFAC_SIZE = 8
 
     owner    = None
     port     = None
@@ -61,7 +62,7 @@ class KISSInterface(Interface):
     stopbits = None
     serial   = None
 
-    def __init__(self, owner, name, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime, flow_control, beacon_interval, beacon_data):
+    def __init__(self, owner, configuration):
         import importlib
         if RNS.vendor.platformutils.is_android():
             self.on_android  = True
@@ -83,6 +84,21 @@ class KISSInterface(Interface):
             raise SystemError("Android-specific interface was used on non-Android OS")
 
         super().__init__()
+
+        c = configuration
+        name = c["name"]
+        preamble = int(c["preamble"]) if "preamble" in c else None
+        txtail = int(c["txtail"]) if "txtail" in c else None
+        persistence = int(c["persistence"]) if "persistence" in c else None
+        slottime = int(c["slottime"]) if "slottime" in c else None
+        flow_control = c.as_bool("flow_control") if "flow_control" in c else False
+        port = c["port"] if "port" in c else None
+        speed = int(c["speed"]) if "speed" in c else 9600
+        databits = int(c["databits"]) if "databits" in c else 8
+        parity = c["parity"] if "parity" in c else "N"
+        stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+        beacon_interval = int(c["beacon_interval"]) if "beacon_interval" in c else None
+        beacon_data = c["beacon_data"] if "beacon_data" in c else None
         
         self.HW_MTU = 564
         

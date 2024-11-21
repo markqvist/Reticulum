@@ -238,6 +238,7 @@ class AndroidBluetoothManager():
 
 class RNodeInterface(Interface):
     MAX_CHUNK = 32768
+    DEFAULT_IFAC_SIZE = 8
 
     FREQ_MIN = 137000000
     FREQ_MAX = 1020000000
@@ -341,12 +342,27 @@ class RNodeInterface(Interface):
                 serial.close()
 
 
-    def __init__(
-        self, owner, name, port, frequency = None, bandwidth = None, txpower = None,
-        sf = None, cr = None, flow_control = False, id_interval = None,
-        allow_bluetooth = False, target_device_name = None,
-        target_device_address = None, id_callsign = None, st_alock = None, lt_alock = None,
-        ble_addr = None, ble_name = None, force_ble=False):
+    def __init__(self, owner, configuration):
+        c = configuration
+        name = c["name"]
+        allow_bluetooth = c["allow_bluetooth"]
+        target_device_name = c["target_device_name"]
+        target_device_address = c["target_device_address"]
+        ble_name = c["ble_name"]
+        ble_addr = c["ble_addr"]
+        force_ble = c["force_ble"]
+        frequency = int(c["frequency"]) if "frequency" in c else None
+        bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
+        txpower = int(c["txpower"]) if "txpower" in c else None
+        sf = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
+        cr = int(c["codingrate"]) if "codingrate" in c else None
+        flow_control = c.as_bool("flow_control") if "flow_control" in c else False
+        id_interval = int(c["id_interval"]) if "id_interval" in c else None
+        id_callsign = c["id_callsign"] if "id_callsign" in c else None
+        st_alock = float(c["airtime_limit_short"]) if "airtime_limit_short" in c else None
+        lt_alock = float(c["airtime_limit_long"]) if "airtime_limit_long" in c else None
+        port = c["port"] if "port" in c else None
+
         import importlib
         if RNS.vendor.platformutils.is_android():
             self.on_android  = True
