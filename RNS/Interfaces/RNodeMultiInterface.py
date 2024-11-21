@@ -163,6 +163,7 @@ class KISS():
 
 class RNodeMultiInterface(Interface):
     MAX_CHUNK = 32768
+    DEFAULT_IFAC_SIZE = 8
 
     CALLSIGN_MAX_LEN    = 32
 
@@ -173,7 +174,7 @@ class RNodeMultiInterface(Interface):
 
     MAX_SUBINTERFACES = 11
 
-    def __init__(self, owner, name, port, subint_config, id_interval = None, id_callsign = None):
+    def __init__(self, owner, configuration):
         if RNS.vendor.platformutils.is_android():
             raise SystemError("Invalid interface type. The Android-specific RNode interface must be used on Android")
 
@@ -186,6 +187,77 @@ class RNodeMultiInterface(Interface):
             RNS.panic()
 
         super().__init__()
+
+        c = configuration
+        name = c["name"]
+
+        count = 0
+        enabled_count = 0
+
+        # Count how many interfaces are in the file
+        for subinterface in c:
+            # if the retrieved entry is not a string, it must be a dictionary, which is what we want
+            if not isinstance(c[subinterface], str):
+                count += 1
+
+        # Count how many interfaces are enabled to allow for appropriate matrix sizing
+        for subinterface in c:
+            # if the retrieved entry is not a string, it must be a dictionary, which is what we want
+            if not isinstance(c[subinterface], str):
+                subinterface_config = self.config["interfaces"][name][subinterface]
+                if (("interface_enabled" in subinterface_config) and subinterface_config.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
+                    enabled_count += 1
+
+        # Create an array with a row for each subinterface
+        subint_config = [[0 for x in range(11)] for y in range(enabled_count)]
+        subint_index = 0
+
+        for subinterface in c:
+            # If the retrieved entry is not a string, it must be a dictionary, which is what we want
+            if not isinstance(c[subinterface], str):
+                subinterface_config = self.config["interfaces"][name][subinterface]
+                if (("interface_enabled" in subinterface_config) and subinterface_config.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
+                    subint_config[subint_index][0] = subinterface
+
+                    subint_vport = subinterface_config["vport"] if "vport" in subinterface_config else None
+                    subint_config[subint_index][1] = subint_vport
+
+                    frequency = int(subinterface_config["frequency"]) if "frequency" in subinterface_config else None
+                    subint_config[subint_index][2] = frequency
+                    bandwidth = int(subinterface_config["bandwidth"]) if "bandwidth" in subinterface_config else None
+                    subint_config[subint_index][3] = bandwidth
+                    txpower = int(subinterface_config["txpower"]) if "txpower" in subinterface_config else None
+                    subint_config[subint_index][4] = txpower
+                    spreadingfactor = int(subinterface_config["spreadingfactor"]) if "spreadingfactor" in subinterface_config else None
+                    subint_config[subint_index][5] = spreadingfactor 
+                    codingrate = int(subinterface_config["codingrate"]) if "codingrate" in subinterface_config else None
+                    subint_config[subint_index][6] = codingrate
+                    flow_control = subinterface_config.as_bool("flow_control") if "flow_control" in subinterface_config else False
+                    subint_config[subint_index][7] = flow_control 
+                    st_alock = float(subinterface_config["airtime_limit_short"]) if "airtime_limit_short" in subinterface_config else None
+                    subint_config[subint_index][8] = st_alock
+                    lt_alock = float(subinterface_config["airtime_limit_long"]) if "airtime_limit_long" in subinterface_config else None
+                    subint_config[subint_index][9] = lt_alock
+
+                    if "outgoing" in subinterface_config and subinterface_config.as_bool("outgoing") == False:
+                        subint_config[subint_index][10] = False
+                    else:
+                        subint_config[subint_index][10] = True
+                    subint_index += 1
+
+        # if no subinterfaces are defined
+        if count == 0:
+            raise ValueError("No subinterfaces configured for "+name)
+        # if no subinterfaces are enabled
+        elif enabled_count == 0:
+            raise ValueError("No subinterfaces enabled for "+name)
+
+        id_interval = int(c["id_interval"]) if "id_interval" in c else None
+        id_callsign = c["id_callsign"] if "id_callsign" in c else None
+        port = c["port"] if "port" in c else None
+        
+        if port == None:
+            raise ValueError("No port specified for "+name)
 
         self.HW_MTU = 508
         
