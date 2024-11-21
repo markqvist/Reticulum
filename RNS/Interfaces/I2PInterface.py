@@ -830,8 +830,17 @@ class I2PInterfacePeer(Interface):
 class I2PInterface(Interface):
     BITRATE_GUESS      = 256*1000
 
-    def __init__(self, owner, name, rns_storagepath, peers, connectable = False, ifac_size = 16, ifac_netname = None, ifac_netkey = None):
+    def __init__(self, owner, configuration):
         super().__init__()
+
+        c = configuration
+        name = c["name"]
+        rns_storagepath = c["storagepath"]
+        peers = c.as_list("peers") if "peers" in c else None
+        connectable = c.as_bool("connectable") if "connectable" in c else False
+        ifac_size = c["ifac_size"]
+        ifac_netname = c["ifac_netname"]
+        ifac_netkey = c["ifac_netkey"]
         
         self.HW_MTU = 1064
 

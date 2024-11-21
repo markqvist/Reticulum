@@ -602,37 +602,17 @@ class Reticulum:
                                     interface_post_init(interface)
 
                                 if c["type"] == "I2PInterface":
-                                    i2p_peers = c.as_list("peers") if "peers" in c else None
-                                    connectable = c.as_bool("connectable") if "connectable" in c else False
-
-                                    if ifac_size == None:
-                                        ifac_size = 16
-
-                                    interface = I2PInterface.I2PInterface(
-                                        RNS.Transport,
-                                        name,
-                                        Reticulum.storagepath,
-                                        i2p_peers,
-                                        connectable = connectable,
-                                        ifac_size = ifac_size,
-                                        ifac_netname = ifac_netname,
-                                        ifac_netkey = ifac_netkey,
-                                    )
-
-                                    if "outgoing" in c and c.as_bool("outgoing") == False:
-                                        interface.OUT = False
-                                    else:
-                                        interface.OUT = True
-
                                     if interface_mode == Interface.Interface.MODE_ACCESS_POINT:
                                         RNS.log(str(interface)+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
                                         interface_mode = Interface.Interface.MODE_FULL
-                                    
-                                    interface.mode = interface_mode
 
-                                    interface.announce_cap = announce_cap
-                                    if configured_bitrate:
-                                        interface.bitrate = configured_bitrate
+                                    interface_config["storagepath"] = Reticulum.storagepath
+                                    interface_config["ifac_netname"] = ifac_netname
+                                    interface_config["ifac_netkey"] = ifac_netkey
+                                    interface_config["ifac_size"] = ifac_size
+
+                                    interface = I2PInterface.I2PInterface(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
 
                                 if c["type"] == "SerialInterface":
                                     port = c["port"] if "port" in c else None
