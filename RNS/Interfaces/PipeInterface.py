@@ -46,15 +46,24 @@ class HDLC():
 class PipeInterface(Interface):
     MAX_CHUNK = 32768
     BITRATE_GUESS = 1*1000*1000
+    DEFAULT_IFAC_SIZE = 8
 
     owner    = None
     command  = None
     
-    def __init__(self, owner, name, command, respawn_delay):
+    def __init__(self, owner, configuration):
+        super().__init__()
+
+        c = configuration
+        name = c["name"]
+        command = c["command"] if "command" in c else None
+        respawn_delay = c.as_float("respawn_delay") if "respawn_delay" in c else None
+
+        if command == None:
+            raise ValueError("No command specified for PipeInterface")
+
         if respawn_delay == None:
             respawn_delay = 5
-
-        super().__init__()
 
         self.HW_MTU = 1064
         

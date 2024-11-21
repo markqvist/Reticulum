@@ -619,33 +619,8 @@ class Reticulum:
                                     interface_post_init(interface)
 
                                 if c["type"] == "PipeInterface":
-                                    command = c["command"] if "command" in c else None
-                                    respawn_delay = c.as_float("respawn_delay") if "respawn_delay" in c else None
-
-                                    if command == None:
-                                        raise ValueError("No command specified for PipeInterface")
-
-                                    interface = PipeInterface.PipeInterface(
-                                        RNS.Transport,
-                                        name,
-                                        command,
-                                        respawn_delay,
-                                    )
-
-                                    if "outgoing" in c and c.as_bool("outgoing") == False:
-                                        interface.OUT = False
-                                    else:
-                                        interface.OUT = True
-
-                                    interface.mode = interface_mode
-
-                                    interface.announce_cap = announce_cap
-                                    if configured_bitrate:
-                                        interface.bitrate = configured_bitrate
-                                    if ifac_size != None:
-                                        interface.ifac_size = ifac_size
-                                    else:
-                                        interface.ifac_size = 8
+                                    interface = PipeInterface.PipeInterface(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
 
                                 if c["type"] == "KISSInterface":
                                     preamble = int(c["preamble"]) if "preamble" in c else None
