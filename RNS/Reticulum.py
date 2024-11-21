@@ -446,14 +446,7 @@ class Reticulum:
             if "interfaces" in self.config:
                 for name in self.config["interfaces"]:
                     if not name in interface_names:
-                        # TODO: We really need to generalise this way of instantiating
-                        # and configuring interfaces. Ideally, interfaces should just
-                        # have a conrfig dict passed to their init method, and return
-                        # a ready interface, onto which this routine can configure any
-                        # generic or extra parameters.
-
                         c = self.config["interfaces"][name]
-
                         interface_mode = Interface.Interface.MODE_FULL
                         
                         if "interface_mode" in c:
@@ -692,7 +685,7 @@ class Reticulum:
 
             RNS.log("System interfaces are ready", RNS.LOG_VERBOSE)
 
-    def _add_interface(self,interface, mode = None, configured_bitrate=None, ifac_size=None, ifac_netname=None, ifac_netkey=None, announce_cap=None, announce_rate_target=None, announce_rate_grace=None, announce_rate_penalty=None):
+    def _add_interface(self, interface, mode = None, configured_bitrate=None, ifac_size=None, ifac_netname=None, ifac_netkey=None, announce_cap=None, announce_rate_target=None, announce_rate_grace=None, announce_rate_penalty=None):
         if not self.is_connected_to_shared_instance:
             if interface != None and issubclass(type(interface), RNS.Interfaces.Interface.Interface):
                 
