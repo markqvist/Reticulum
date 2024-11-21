@@ -631,72 +631,8 @@ class Reticulum:
                                     interface_post_init(interface)
 
                                 if c["type"] == "RNodeInterface":
-                                    frequency = int(c["frequency"]) if "frequency" in c else None
-                                    bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
-                                    txpower = int(c["txpower"]) if "txpower" in c else None
-                                    spreadingfactor = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
-                                    codingrate = int(c["codingrate"]) if "codingrate" in c else None
-                                    flow_control = c.as_bool("flow_control") if "flow_control" in c else False
-                                    id_interval = int(c["id_interval"]) if "id_interval" in c else None
-                                    id_callsign = c["id_callsign"] if "id_callsign" in c else None
-                                    st_alock = float(c["airtime_limit_short"]) if "airtime_limit_short" in c else None
-                                    lt_alock = float(c["airtime_limit_long"]) if "airtime_limit_long" in c else None
-
-                                    force_ble = False
-                                    ble_name = None
-                                    ble_addr = None
-
-                                    port = c["port"] if "port" in c else None
-
-                                    if port == None:
-                                        raise ValueError("No port specified for RNode interface")
-
-                                    if port != None:
-                                        ble_uri_scheme = "ble://"
-                                        if port.lower().startswith(ble_uri_scheme):
-                                            force_ble = True
-                                            ble_string = port[len(ble_uri_scheme):]
-                                            port = None
-                                            if len(ble_string) == 0:
-                                                pass
-                                            elif len(ble_string.split(":")) == 6 and len(ble_string) == 17:
-                                                ble_addr = ble_string
-                                            else:
-                                                ble_name = ble_string
-                                    
-                                    interface = RNodeInterface.RNodeInterface(
-                                        RNS.Transport,
-                                        name,
-                                        port,
-                                        frequency = frequency,
-                                        bandwidth = bandwidth,
-                                        txpower = txpower,
-                                        sf = spreadingfactor,
-                                        cr = codingrate,
-                                        flow_control = flow_control,
-                                        id_interval = id_interval,
-                                        id_callsign = id_callsign,
-                                        st_alock = st_alock,
-                                        lt_alock = lt_alock,
-                                        ble_addr = ble_addr,
-                                        ble_name = ble_name,
-                                        force_ble = force_ble,
-                                    )
-
-                                    if "outgoing" in c and c.as_bool("outgoing") == False:
-                                        interface.OUT = False
-                                    else:
-                                        interface.OUT = True
-
-                                    interface.mode = interface_mode
-
-                                    interface.announce_cap = announce_cap
-                                    if configured_bitrate:
-                                        interface.bitrate = configured_bitrate
-                                    if ifac_size != None:
-                                        interface.ifac_size = ifac_size
-                                    else:
-                                        interface.ifac_size = 8
+                                    interface = RNodeInterface.RNodeInterface(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
 
                                 if c["type"] == "RNodeMultiInterface":
                                     count = 0

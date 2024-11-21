@@ -95,6 +95,7 @@ class KISS():
 
 class RNodeInterface(Interface):
     MAX_CHUNK = 32768
+    DEFAULT_IFAC_SIZE = 8
 
     FREQ_MIN = 137000000
     FREQ_MAX = 3000000000
@@ -117,7 +118,7 @@ class RNodeInterface(Interface):
     BATTERY_STATE_CHARGING    = 0x02
     BATTERY_STATE_CHARGED     = 0x03
 
-    def __init__(self, owner, name, port, frequency = None, bandwidth = None, txpower = None, sf = None, cr = None, flow_control = False, id_interval = None, id_callsign = None, st_alock = None, lt_alock = None, ble_addr = None, ble_name = None, force_ble=False):
+    def __init__(self, owner, configuration):
         if RNS.vendor.platformutils.is_android():
             raise SystemError("Invalid interface type. The Android-specific RNode interface must be used on Android")
 
@@ -130,6 +131,41 @@ class RNodeInterface(Interface):
             RNS.panic()
 
         super().__init__()
+
+        c = configuration
+        name = c["name"]
+        frequency = int(c["frequency"]) if "frequency" in c else None
+        bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
+        txpower = int(c["txpower"]) if "txpower" in c else None
+        sf = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
+        cr = int(c["codingrate"]) if "codingrate" in c else None
+        flow_control = c.as_bool("flow_control") if "flow_control" in c else False
+        id_interval = int(c["id_interval"]) if "id_interval" in c else None
+        id_callsign = c["id_callsign"] if "id_callsign" in c else None
+        st_alock = float(c["airtime_limit_short"]) if "airtime_limit_short" in c else None
+        lt_alock = float(c["airtime_limit_long"]) if "airtime_limit_long" in c else None
+
+        force_ble = False
+        ble_name = None
+        ble_addr = None
+
+        port = c["port"] if "port" in c else None
+
+        if port == None:
+            raise ValueError("No port specified for RNode interface")
+
+        if port != None:
+            ble_uri_scheme = "ble://"
+            if port.lower().startswith(ble_uri_scheme):
+                force_ble = True
+                ble_string = port[len(ble_uri_scheme):]
+                port = None
+                if len(ble_string) == 0:
+                    pass
+                elif len(ble_string.split(":")) == 6 and len(ble_string) == 17:
+                    ble_addr = ble_string
+                else:
+                    ble_name = ble_string
 
         self.HW_MTU = 508
         
