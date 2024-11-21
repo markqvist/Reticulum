@@ -88,7 +88,7 @@ class AutoInterface(Interface):
         return socket.if_nametoindex(ifname)
 
     def __init__(self, owner, configuration):
-        c = configuration
+        c                      = Interface.get_config_obj(configuration)
         name                   = c["name"]
         group_id               = c["group_id"] if "group_id" in c else None
         discovery_scope        = c["discovery_scope"] if "discovery_scope" in c else None
@@ -97,7 +97,7 @@ class AutoInterface(Interface):
         data_port              = int(c["data_port"]) if "data_port" in c else None
         allowed_interfaces     = c.as_list("devices") if "devices" in c else None
         ignored_interfaces     = c.as_list("ignored_devices") if "ignored_devices" in c else None
-        configured_bitrate     = c["configured_bitrate"]
+        configured_bitrate     = c["configured_bitrate"] if "configured_bitrate" in c else None
 
         from RNS.vendor.ifaddr import niwrapper
         super().__init__()

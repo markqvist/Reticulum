@@ -48,7 +48,7 @@ class UDPInterface(Interface):
     def __init__(self, owner, configuration):
         super().__init__()
 
-        c           = configuration
+        c           = Interface.get_config_obj(configuration)
         name        = c["name"]
         device      = c["device"] if "device" in c else None
         port        = int(c["port"]) if "port" in c else None

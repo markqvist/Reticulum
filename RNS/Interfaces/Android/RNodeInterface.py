@@ -343,7 +343,7 @@ class RNodeInterface(Interface):
 
 
     def __init__(self, owner, configuration):
-        c = configuration
+        c = Interface.get_config_obj(configuration)
         name = c["name"]
         allow_bluetooth = c["allow_bluetooth"]
         target_device_name = c["target_device_name"]

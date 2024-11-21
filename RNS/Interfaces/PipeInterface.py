@@ -54,7 +54,7 @@ class PipeInterface(Interface):
     def __init__(self, owner, configuration):
         super().__init__()
 
-        c = configuration
+        c = Interface.get_config_obj(configuration)
         name = c["name"]
         command = c["command"] if "command" in c else None
         respawn_delay = c.as_float("respawn_delay") if "respawn_delay" in c else None

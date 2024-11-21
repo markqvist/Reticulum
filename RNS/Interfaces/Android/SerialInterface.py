@@ -75,7 +75,7 @@ class SerialInterface(Interface):
 
         super().__init__()
 
-        c = configuration
+        c = Interface.get_config_obj(configuration)
         name = c["name"]
         port = c["port"] if "port" in c else None
         speed = int(c["speed"]) if "speed" in c else 9600

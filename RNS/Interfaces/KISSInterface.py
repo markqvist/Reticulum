@@ -73,7 +73,7 @@ class KISSInterface(Interface):
 
         super().__init__()
 
-        c = configuration
+        c = Interface.get_config_obj(configuration)
         name = c["name"]
         preamble = int(c["preamble"]) if "preamble" in c else None
         txtail = int(c["txtail"]) if "txtail" in c else None

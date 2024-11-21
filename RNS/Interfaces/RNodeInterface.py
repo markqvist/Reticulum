@@ -132,18 +132,18 @@ class RNodeInterface(Interface):
 
         super().__init__()
 
-        c = configuration
-        name = c["name"]
-        frequency = int(c["frequency"]) if "frequency" in c else None
-        bandwidth = int(c["bandwidth"]) if "bandwidth" in c else None
-        txpower = int(c["txpower"]) if "txpower" in c else None
-        sf = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
-        cr = int(c["codingrate"]) if "codingrate" in c else None
+        c = Interface.get_config_obj(configuration)
+        name         = c["name"]
+        frequency    = int(c["frequency"]) if "frequency" in c else None
+        bandwidth    = int(c["bandwidth"]) if "bandwidth" in c else None
+        txpower      = int(c["txpower"]) if "txpower" in c else None
+        sf           = int(c["spreadingfactor"]) if "spreadingfactor" in c else None
+        cr           = int(c["codingrate"]) if "codingrate" in c else None
         flow_control = c.as_bool("flow_control") if "flow_control" in c else False
-        id_interval = int(c["id_interval"]) if "id_interval" in c else None
-        id_callsign = c["id_callsign"] if "id_callsign" in c else None
-        st_alock = float(c["airtime_limit_short"]) if "airtime_limit_short" in c else None
-        lt_alock = float(c["airtime_limit_long"]) if "airtime_limit_long" in c else None
+        id_interval  = int(c["id_interval"]) if "id_interval" in c else None
+        id_callsign  = c["id_callsign"] if "id_callsign" in c else None
+        st_alock     = float(c["airtime_limit_short"]) if "airtime_limit_short" in c else None
+        lt_alock     = float(c["airtime_limit_long"]) if "airtime_limit_long" in c else None
 
         force_ble = False
         ble_name = None

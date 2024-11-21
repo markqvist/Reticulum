@@ -188,7 +188,7 @@ class RNodeMultiInterface(Interface):
 
         super().__init__()
 
-        c = configuration
+        c = Interface.get_config_obj(configuration)
         name = c["name"]
 
         count = 0

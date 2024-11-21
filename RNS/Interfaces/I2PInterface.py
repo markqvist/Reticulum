@@ -834,14 +834,14 @@ class I2PInterface(Interface):
     def __init__(self, owner, configuration):
         super().__init__()
 
-        c = configuration
+        c = Interface.get_config_obj(configuration)
         name = c["name"]
         rns_storagepath = c["storagepath"]
         peers = c.as_list("peers") if "peers" in c else None
         connectable = c.as_bool("connectable") if "connectable" in c else False
-        ifac_size = c["ifac_size"]
-        ifac_netname = c["ifac_netname"]
-        ifac_netkey = c["ifac_netkey"]
+        ifac_size = c["ifac_size"] if "ifac_size" in c else None
+        ifac_netname = c["ifac_netname"] if "ifac_netname" in c else None
+        ifac_netkey = c["ifac_netkey"] if "ifac_netkey" in c else None
         
         self.HW_MTU = 1064
 

@@ -85,10 +85,10 @@ class TCPClientInterface(Interface):
     def __init__(self, owner, configuration, connected_socket=None):
         super().__init__()
 
-        c = configuration
+        c = Interface.get_config_obj(configuration)
         name = c["name"]
-        target_ip = c["target_host"]
-        target_port = int(c["target_port"])
+        target_ip = c["target_host"] if "target_host" in c else None
+        target_port = int(c["target_port"]) if "target_port" in c else None
         kiss_framing = False
         if "kiss_framing" in c and c.as_bool("kiss_framing") == True:
             kiss_framing = True
@@ -468,7 +468,7 @@ class TCPServerInterface(Interface):
     def __init__(self, owner, configuration):
         super().__init__()
 
-        c            = configuration
+        c            = Interface.get_config_obj(configuration)
         name         = c["name"]
         device       = c["device"] if "device" in c else None
         port         = int(c["port"]) if "port" in c else None
