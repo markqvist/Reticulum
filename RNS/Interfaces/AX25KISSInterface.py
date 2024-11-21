@@ -59,6 +59,7 @@ class AX25():
 class AX25KISSInterface(Interface):
     MAX_CHUNK = 32768
     BITRATE_GUESS = 1200
+    DEFAULT_IFAC_SIZE = 8
 
     owner    = None
     port     = None
@@ -68,7 +69,7 @@ class AX25KISSInterface(Interface):
     stopbits = None
     serial   = None
 
-    def __init__(self, owner, name, callsign, ssid, port, speed, databits, parity, stopbits, preamble, txtail, persistence, slottime, flow_control):
+    def __init__(self, owner, configuration):
         import importlib
         if importlib.util.find_spec('serial') != None:
             import serial
@@ -78,6 +79,25 @@ class AX25KISSInterface(Interface):
             RNS.panic()
 
         super().__init__()
+
+        c = configuration
+        name = c["name"]
+        preamble = int(c["preamble"]) if "preamble" in c else None
+        txtail = int(c["txtail"]) if "txtail" in c else None
+        persistence = int(c["persistence"]) if "persistence" in c else None
+        slottime = int(c["slottime"]) if "slottime" in c else None
+        flow_control = c.as_bool("flow_control") if "flow_control" in c else False
+        port = c["port"] if "port" in c else None
+        speed = int(c["speed"]) if "speed" in c else 9600
+        databits = int(c["databits"]) if "databits" in c else 8
+        parity = c["parity"] if "parity" in c else "N"
+        stopbits = int(c["stopbits"]) if "stopbits" in c else 1
+
+        callsign = c["callsign"] if "callsign" in c else ""
+        ssid = int(c["ssid"]) if "ssid" in c else -1
+
+        if port == None:
+            raise ValueError("No port specified for serial interface")
 
         self.HW_MTU = 564
         
