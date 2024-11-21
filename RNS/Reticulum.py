@@ -623,53 +623,8 @@ class Reticulum:
                                     interface_post_init(interface)
 
                                 if c["type"] == "KISSInterface":
-                                    preamble = int(c["preamble"]) if "preamble" in c else None
-                                    txtail = int(c["txtail"]) if "txtail" in c else None
-                                    persistence = int(c["persistence"]) if "persistence" in c else None
-                                    slottime = int(c["slottime"]) if "slottime" in c else None
-                                    flow_control = c.as_bool("flow_control") if "flow_control" in c else False
-                                    port = c["port"] if "port" in c else None
-                                    speed = int(c["speed"]) if "speed" in c else 9600
-                                    databits = int(c["databits"]) if "databits" in c else 8
-                                    parity = c["parity"] if "parity" in c else "N"
-                                    stopbits = int(c["stopbits"]) if "stopbits" in c else 1
-                                    beacon_interval = int(c["id_interval"]) if "id_interval" in c else None
-                                    beacon_data = c["id_callsign"] if "id_callsign" in c else None
-
-                                    if port == None:
-                                        raise ValueError("No port specified for serial interface")
-
-                                    interface = KISSInterface.KISSInterface(
-                                        RNS.Transport,
-                                        name,
-                                        port,
-                                        speed,
-                                        databits,
-                                        parity,
-                                        stopbits,
-                                        preamble,
-                                        txtail,
-                                        persistence,
-                                        slottime,
-                                        flow_control,
-                                        beacon_interval,
-                                        beacon_data
-                                    )
-
-                                    if "outgoing" in c and c.as_bool("outgoing") == False:
-                                        interface.OUT = False
-                                    else:
-                                        interface.OUT = True
-
-                                    interface.mode = interface_mode
-
-                                    interface.announce_cap = announce_cap
-                                    if configured_bitrate:
-                                        interface.bitrate = configured_bitrate
-                                    if ifac_size != None:
-                                        interface.ifac_size = ifac_size
-                                    else:
-                                        interface.ifac_size = 8
+                                    interface = KISSInterface.KISSInterface(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
 
                                 if c["type"] == "AX25KISSInterface":
                                     preamble = int(c["preamble"]) if "preamble" in c else None
