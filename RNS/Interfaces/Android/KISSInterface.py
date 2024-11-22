@@ -389,7 +389,13 @@ class KISSInterface(Interface):
                             if time.time() > self.first_tx + self.beacon_i:
                                 RNS.log("Interface "+str(self)+" is transmitting beacon data: "+str(self.beacon_d.decode("utf-8")), RNS.LOG_DEBUG)
                                 self.first_tx = None
-                                self.processOutgoing(self.beacon_d)
+
+                                # Pad to minimum length
+                                frame = bytearray(self.beacon_d)
+                                while len(frame) < 15:
+                                    frame.append(0x00)
+
+                                self.processOutgoing(bytes(frame))
 
         except Exception as e:
             self.online = False
