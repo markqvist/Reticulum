@@ -87,8 +87,8 @@ class TCPClientInterface(Interface):
 
         c = Interface.get_config_obj(configuration)
         name = c["name"]
-        target_ip = c["target_host"] if "target_host" in c else None
-        target_port = int(c["target_port"]) if "target_port" in c else None
+        target_ip = c["target_host"] if "target_host" in c and c["target_host"] != None else None
+        target_port = int(c["target_port"]) if "target_port" in c and c["target_host"] != None else None
         kiss_framing = False
         if "kiss_framing" in c and c.as_bool("kiss_framing") == True:
             kiss_framing = True
@@ -413,7 +413,8 @@ class TCPClientInterface(Interface):
         self.IN = False
 
         if hasattr(self, "parent_interface") and self.parent_interface != None:
-            self.parent_interface.clients -= 1
+            while self in self.parent_interface.spawned_interfaces:
+                self.parent_interface.spawned_interfaces.remove(self)
 
         if self in RNS.Transport.interfaces:
             if not self.initiator:
@@ -464,7 +465,10 @@ class TCPServerInterface(Interface):
             raise SystemError(f"No suitable kernel interface available for address \"{name}\" for TCPServerInterface to bind to")
 
 
-    # def __init__(self, owner, name, device=None, bindip=None, bindport=None, i2p_tunneled=False, prefer_ipv6=False):
+    @property
+    def clients(self):
+        return len(self.spawned_interfaces)
+
     def __init__(self, owner, configuration):
         super().__init__()
 
@@ -483,7 +487,7 @@ class TCPServerInterface(Interface):
         self.HW_MTU = 1064
 
         self.online = False
-        self.clients = 0
+        self.spawned_interfaces = []
         
         self.IN  = True
         self.OUT = False
@@ -578,7 +582,9 @@ class TCPServerInterface(Interface):
         spawned_interface.online = True
         RNS.log("Spawned new TCPClient Interface: "+str(spawned_interface), RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)
-        self.clients += 1
+        while spawned_interface in self.spawned_interfaces:
+            self.spawned_interfaces.remove(spawned_interface)
+        self.spawned_interfaces.append(spawned_interface)
         spawned_interface.read_loop()
 
     def received_announce(self, from_spawned=False):

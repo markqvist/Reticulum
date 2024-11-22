@@ -815,8 +815,8 @@ class I2PInterfacePeer(Interface):
         self.IN = False
 
         if hasattr(self, "parent_interface") and self.parent_interface != None:
-            if self.parent_interface.clients > 0:
-                self.parent_interface.clients -= 1
+            while self in self.parent_interface.spawned_interfaces:
+                self.parent_interface.spawned_interfaces.remove(self)
 
         if self in RNS.Transport.interfaces:
             if not self.initiator:
@@ -830,6 +830,10 @@ class I2PInterfacePeer(Interface):
 class I2PInterface(Interface):
     BITRATE_GUESS      = 256*1000
     DEFAULT_IFAC_SIZE  = 16
+
+    @property
+    def clients(self):
+        return len(self.spawned_interfaces)
 
     def __init__(self, owner, configuration):
         super().__init__()
@@ -846,7 +850,7 @@ class I2PInterface(Interface):
         self.HW_MTU = 1064
 
         self.online = False
-        self.clients = 0
+        self.spawned_interfaces = []
         self.owner = owner
         self.connectable = connectable
         self.i2p_tunneled = True
@@ -966,7 +970,9 @@ class I2PInterface(Interface):
         spawned_interface.HW_MTU = self.HW_MTU
         RNS.log("Spawned new I2PInterface Peer: "+str(spawned_interface), RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)
-        self.clients += 1
+        while spawned_interface in self.spawned_interfaces:
+            self.spawned_interfaces.remove(spawned_interface)
+        self.spawned_interfaces.append(spawned_interface)
         spawned_interface.read_loop()
 
     def processOutgoing(self, data):
