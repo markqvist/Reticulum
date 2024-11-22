@@ -148,6 +148,7 @@ class Reticulum:
     configpath       = ""
     storagepath      = ""
     cachepath        = ""
+    interfacepath    = ""
 
     __instance       = None
     
@@ -218,6 +219,7 @@ class Reticulum:
         Reticulum.cachepath     = Reticulum.configdir+"/storage/cache"
         Reticulum.resourcepath  = Reticulum.configdir+"/storage/resources"
         Reticulum.identitypath  = Reticulum.configdir+"/storage/identities"
+        Reticulum.interfacepath = Reticulum.configdir+"/interfaces"
 
         Reticulum.__transport_enabled = False
         Reticulum.__remote_management_enabled = False
@@ -262,6 +264,9 @@ class Reticulum:
 
         if not os.path.isdir(Reticulum.identitypath):
             os.makedirs(Reticulum.identitypath)
+
+        if not os.path.isdir(Reticulum.interfacepath):
+            os.makedirs(Reticulum.interfacepath)
 
         if os.path.isfile(self.configpath):
             try:
@@ -670,6 +675,34 @@ class Reticulum:
                                     interface = RNodeMultiInterface.RNodeMultiInterface(RNS.Transport, interface_config)
                                     interface_post_init(interface)
                                     interface.start()
+
+                                if interface == None:
+                                    # Interface was not handled by any internal interface types,
+                                    # attempt to load and initialise it from user-supplied modules
+                                    interface_type = c["type"]
+                                    interface_file = f"{interface_type}.py"
+                                    interface_path = os.path.join(self.interfacepath, interface_file)
+                                    if not os.path.isfile(interface_path):
+                                        RNS.log(f"Could not locate external interface module \"{interface_file}\" in \"{self.interfacepath}\"", RNS.LOG_ERROR)
+                                    
+                                    else:
+                                        try:
+                                            RNS.log(f"Loading external interface \"{interface_file}\" from \"{self.interfacepath}\"", RNS.LOG_NOTICE)
+                                            interface_globals = {}
+                                            interface_globals["Interface"] = Interface.Interface
+                                            interface_globals["RNS"] = RNS
+                                            with open(interface_path) as class_file:
+                                                interface_code = class_file.read()
+                                                exec(interface_code, interface_globals)
+                                                interface_class = interface_globals["interface_class"]
+                                                
+                                                if interface_class != None:
+                                                    interface = interface_class(RNS.Transport, interface_config)
+                                                    interface_post_init(interface)
+
+                                        except Exception as e:
+                                            RNS.log(f"External interface initialisation failed for {interface_type} / {name}", RNS.LOG_ERROR)
+                                            RNS.trace_exception(e)
 
                             else:
                                 RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_DEBUG)
