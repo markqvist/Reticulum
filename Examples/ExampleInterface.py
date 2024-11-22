@@ -117,7 +117,7 @@ class ExampleInterface(Interface):
 
         # In this case, we can also set the indicated bit-
         # rate of the interface to the serial port speed.
-        self.bitrate  = self.speed
+        self.bitrate  = speed
         
         # Configure internal properties on the interface
         # according to the supplied configuration.
