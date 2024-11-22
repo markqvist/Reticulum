@@ -965,7 +965,7 @@ class RNodeInterface(Interface):
         threading.Thread(target=af, daemon=True).start()
 
 
-    def processOutgoing(self,data):
+    def process_outgoing(self,data):
         datalen = len(data)
         if self.online:
             if self.interface_ready:
@@ -996,7 +996,7 @@ class RNodeInterface(Interface):
         if len(self.packet_queue) > 0:
             data = self.packet_queue.pop(0)
             self.interface_ready = True
-            self.processOutgoing(data)
+            self.process_outgoing(data)
         elif len(self.packet_queue) == 0:
             self.interface_ready = True
 
@@ -1304,7 +1304,7 @@ class RNodeInterface(Interface):
                         if self.first_tx != None:
                             if time.time() > self.first_tx + self.id_interval:
                                 RNS.log("Interface "+str(self)+" is transmitting beacon data: "+str(self.id_callsign.decode("utf-8")), RNS.LOG_DEBUG)
-                                self.processOutgoing(self.id_callsign)
+                                self.process_outgoing(self.id_callsign)
                     
                     if (time.time() - self.last_port_io > self.port_io_timeout):
                         self.detect()

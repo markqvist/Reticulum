@@ -115,7 +115,7 @@ class PipeInterface(Interface):
         self.owner.inbound(data, self)
 
 
-    def processOutgoing(self,data):
+    def process_outgoing(self,data):
         if self.online:
             data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
             written = self.process.stdin.write(data)

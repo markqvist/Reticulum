@@ -634,7 +634,7 @@ class I2PInterfacePeer(Interface):
                     
         self.owner.inbound(data, self)
 
-    def processOutgoing(self, data):
+    def process_outgoing(self, data):
         if self.online:
             while self.writing:
                 time.sleep(0.001)
@@ -975,7 +975,7 @@ class I2PInterface(Interface):
         self.spawned_interfaces.append(spawned_interface)
         spawned_interface.read_loop()
 
-    def processOutgoing(self, data):
+    def process_outgoing(self, data):
         pass
 
     def received_announce(self, from_spawned=False):

@@ -190,7 +190,7 @@ class SerialInterface(Interface):
             self.owner.inbound(data, self)
         threading.Thread(target=af, daemon=True).start()
 
-    def processOutgoing(self,data):
+    def process_outgoing(self,data):
         if self.online:
             data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
             written = self.serial.write(data)

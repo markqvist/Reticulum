@@ -251,7 +251,7 @@ class AX25KISSInterface(Interface):
             self.owner.inbound(data[AX25.HEADER_SIZE:], self)
 
 
-    def processOutgoing(self,data):
+    def process_outgoing(self,data):
         datalen = len(data)
         if self.online:
             if self.interface_ready:
@@ -301,7 +301,7 @@ class AX25KISSInterface(Interface):
         if len(self.packet_queue) > 0:
             data = self.packet_queue.pop(0)
             self.interface_ready = True
-            self.processOutgoing(data)
+            self.process_outgoing(data)
         elif len(self.packet_queue) == 0:
             self.interface_ready = True
 

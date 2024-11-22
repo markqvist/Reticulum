@@ -470,7 +470,7 @@ class AutoInterface(Interface):
             self.rxb += len(data)
             self.owner.inbound(data, self)
 
-    def processOutgoing(self,data):
+    def process_outgoing(self,data):
             for peer in self.peers:
                 try:
                     if self.outbound_udp_socket == None:

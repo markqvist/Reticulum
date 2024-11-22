@@ -743,10 +743,10 @@ class Transport:
                     i += 1
 
                 # Send it
-                interface.processOutgoing(masked_raw)
+                interface.process_outgoing(masked_raw)
 
             else:
-                interface.processOutgoing(raw)
+                interface.process_outgoing(raw)
 
         except Exception as e:
             RNS.log("Error while transmitting on "+str(interface)+". The contained exception was: "+str(e), RNS.LOG_ERROR)

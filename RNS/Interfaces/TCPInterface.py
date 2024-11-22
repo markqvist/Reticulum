@@ -291,7 +291,7 @@ class TCPClientInterface(Interface):
                     
         self.owner.inbound(data, self)
 
-    def processOutgoing(self, data):
+    def process_outgoing(self, data):
         if self.online:
             # while self.writing:
             #     time.sleep(0.01)
@@ -593,7 +593,7 @@ class TCPServerInterface(Interface):
     def sent_announce(self, from_spawned=False):
         if from_spawned: self.oa_freq_deque.append(time.time())
 
-    def processOutgoing(self, data):
+    def process_outgoing(self, data):
         pass
 
 

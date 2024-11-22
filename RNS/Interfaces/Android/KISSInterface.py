@@ -289,7 +289,7 @@ class KISSInterface(Interface):
             self.owner.inbound(data, self)
         threading.Thread(target=af, daemon=True).start()
 
-    def processOutgoing(self,data):
+    def process_outgoing(self,data):
         datalen = len(data)
         if self.online:
             if self.interface_ready:
@@ -323,7 +323,7 @@ class KISSInterface(Interface):
         if len(self.packet_queue) > 0:
             data = self.packet_queue.pop(0)
             self.interface_ready = True
-            self.processOutgoing(data)
+            self.process_outgoing(data)
         elif len(self.packet_queue) == 0:
             self.interface_ready = True
 
@@ -395,7 +395,7 @@ class KISSInterface(Interface):
                                 while len(frame) < 15:
                                     frame.append(0x00)
 
-                                self.processOutgoing(bytes(frame))
+                                self.process_outgoing(bytes(frame))
 
         except Exception as e:
             self.online = False

@@ -566,7 +566,7 @@ class RNodeMultiInterface(Interface):
         RNS.log("Please update your RNode firmware with rnodeconf from https://github.com/markqvist/Reticulum/RNS/Utilities/rnodeconf.py")
         RNS.panic()
 
-    def processOutgoing(self, data, interface = None):
+    def process_outgoing(self, data, interface = None):
         if interface is None:
             # do nothing if RNS tries to transmit on this interface directly
             pass
@@ -893,7 +893,7 @@ class RNodeMultiInterface(Interface):
                                 for interface in self.subinterfaces:
                                     if interface != 0 and interface.online:
                                         interface_available = True
-                                        self.subinterfaces[interface.index].processOutgoing(self.id_callsign)
+                                        self.subinterfaces[interface.index].process_outgoing(self.id_callsign)
 
                                 if interface_available:
                                     RNS.log("Interface "+str(self)+" is transmitting beacon data on all subinterfaces: "+str(self.id_callsign.decode("utf-8")), RNS.LOG_DEBUG)
@@ -1205,7 +1205,7 @@ class RNodeSubInterface(Interface):
         self.r_stat_rssi = None
         self.r_stat_snr = None
 
-    def processOutgoing(self,data):
+    def process_outgoing(self,data):
         if self.online:
             if self.interface_ready:
                 if self.flow_control:
@@ -1217,7 +1217,7 @@ class RNodeSubInterface(Interface):
                     if self.parent_interface.first_tx == None:
                         self.parent_interface.first_tx = time.time()
                 self.txb += len(data)
-                self.parent_interface.processOutgoing(data, self)
+                self.parent_interface.process_outgoing(data, self)
             else:
                 self.queue(data)
 
@@ -1229,7 +1229,7 @@ class RNodeSubInterface(Interface):
         if len(self.packet_queue) > 0:
             data = self.packet_queue.pop(0)
             self.interface_ready = True
-            self.processOutgoing(data)
+            self.process_outgoing(data)
         elif len(self.packet_queue) == 0:
             self.interface_ready = True
 

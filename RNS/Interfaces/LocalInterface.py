@@ -166,7 +166,7 @@ class LocalClientInterface(Interface):
         # duration = time.time() - processing_start
         # self.rxptime += duration
 
-    def processOutgoing(self, data):
+    def process_outgoing(self, data):
         if self.online:
             try:
                 self.writing = True
@@ -350,7 +350,7 @@ class LocalServerInterface(Interface):
         self.clients += 1
         spawned_interface.read_loop()
 
-    def processOutgoing(self, data):
+    def process_outgoing(self, data):
         pass
 
     def received_announce(self, from_spawned=False):

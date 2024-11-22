@@ -223,7 +223,7 @@ class Interface:
                     wait_time = (tx_time / self.announce_cap)
                     self.announce_allowed_at = now + wait_time
 
-                    self.processOutgoing(selected["raw"])
+                    self.process_outgoing(selected["raw"])
                     self.sent_announce()
 
                     if selected in self.announce_queue:

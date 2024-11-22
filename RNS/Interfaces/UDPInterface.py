@@ -109,7 +109,7 @@ class UDPInterface(Interface):
         self.rxb += len(data)
         self.owner.inbound(data, self)
 
-    def processOutgoing(self,data):
+    def process_outgoing(self,data):
         try:
             udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
