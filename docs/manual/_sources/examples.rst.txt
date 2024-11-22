@@ -126,3 +126,17 @@ interface to efficiently pass files of any size over a Reticulum :ref:`Link<api-
 .. literalinclude:: ../../Examples/Filetransfer.py
 
 This example can also be found at `<https://github.com/markqvist/Reticulum/blob/master/Examples/Filetransfer.py>`_.
+
+.. _example-custominterface:
+
+Custom Interfaces
+=================
+
+The *ExampleInterface* demonstrates creating custom interfaces for Reticulum.
+Any number of custom interfaces can be loaded and utilised by Reticulum, and
+will be fully on-par with natively included interfaces, including all supported
+:ref:`interface modes<interfaces-modes>` and :ref:`common configuration options<interfaces-options>`.
+
+.. literalinclude:: ../../Examples/ExampleInterface.py
+
+This example can also be found at `<https://github.com/markqvist/Reticulum/blob/master/Examples/ExampleInterface.py>`_.

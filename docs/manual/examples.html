@@ -3241,6 +3241,315 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Filetransfer.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Filetransfer.py</a>.</p>
 </section>
+<section id="custom-interfaces">
+<span id="example-custominterface"></span><h2>Custom Interfaces<a class="headerlink" href="#custom-interfaces" title="Permalink to this heading">#</a></h2>
+<p>The <em>ExampleInterface</em> demonstrates creating custom interfaces for Reticulum.
+Any number of custom interfaces can be loaded and utilised by Reticulum, and
+will be fully on-par with natively included interfaces, including all supported
+<a class="reference internal" href="interfaces.html#interfaces-modes"><span class="std std-ref">interface modes</span></a> and <a class="reference internal" href="interfaces.html#interfaces-options"><span class="std std-ref">common configuration options</span></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># MIT License - Copyright (c) 2024 Mark Qvist / unsigned.io</span>
+
+<span class="c1"># This example illustrates creating a custom interface</span>
+<span class="c1"># definition, that can be loaded and used by Reticulum at</span>
+<span class="c1"># runtime. Any number of custom interfaces can be created</span>
+<span class="c1"># and loaded. To use the interface place it in the folder</span>
+<span class="c1"># ~/.reticulum/interfaces, and add an interface entry to</span>
+<span class="c1"># your Reticulum configuration file similar to this:</span>
+
+<span class="c1">#  [[Example Custom Interface]]</span>
+<span class="c1">#    type = ExampleInterface</span>
+<span class="c1">#    enabled = no</span>
+<span class="c1">#    mode = gateway</span>
+<span class="c1">#    port = /dev/ttyUSB0</span>
+<span class="c1">#    speed = 115200</span>
+<span class="c1">#    databits = 8</span>
+<span class="c1">#    parity = none</span>
+<span class="c1">#    stopbits = 1</span>
+
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="c1"># This HDLC helper class is used by the interface</span>
+<span class="c1"># to delimit and packetize data over the physical</span>
+<span class="c1"># medium - in this case a serial connection.</span>
+<span class="k">class</span> <span class="nc">HDLC</span><span class="p">():</span>
+    <span class="c1"># This example interface packetizes data using</span>
+    <span class="c1"># simplified HDLC framing, similar to PPP</span>
+    <span class="n">FLAG</span>     <span class="o">=</span> <span class="mh">0x7E</span>
+    <span class="n">ESC</span>      <span class="o">=</span> <span class="mh">0x7D</span>
+    <span class="n">ESC_MASK</span> <span class="o">=</span> <span class="mh">0x20</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">escape</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">bytes</span><span class="p">([</span><span class="n">HDLC</span><span class="o">.</span><span class="n">ESC</span><span class="p">]),</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">HDLC</span><span class="o">.</span><span class="n">ESC</span><span class="p">,</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">ESC</span><span class="o">^</span><span class="n">HDLC</span><span class="o">.</span><span class="n">ESC_MASK</span><span class="p">]))</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">bytes</span><span class="p">([</span><span class="n">HDLC</span><span class="o">.</span><span class="n">FLAG</span><span class="p">]),</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">HDLC</span><span class="o">.</span><span class="n">ESC</span><span class="p">,</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">FLAG</span><span class="o">^</span><span class="n">HDLC</span><span class="o">.</span><span class="n">ESC_MASK</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+<span class="c1"># Let&#39;s define our custom interface class. It must</span>
+<span class="c1"># be a sub-class of the RNS &quot;Interface&quot; class.</span>
+<span class="k">class</span> <span class="nc">ExampleInterface</span><span class="p">(</span><span class="n">Interface</span><span class="p">):</span>
+    <span class="c1"># All interface classes must define a default</span>
+    <span class="c1"># IFAC size, used in IFAC setup when the user</span>
+    <span class="c1"># has not specified a custom IFAC size. This</span>
+    <span class="c1"># option is specified in bytes.</span>
+    <span class="n">DEFAULT_IFAC_SIZE</span> <span class="o">=</span> <span class="mi">8</span>
+
+    <span class="c1"># The following properties are local to this</span>
+    <span class="c1"># particular interface implementation.</span>
+    <span class="n">owner</span>    <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">port</span>     <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">speed</span>    <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">databits</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">parity</span>   <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">stopbits</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">serial</span>   <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># All Reticulum interfaces must have an __init__</span>
+    <span class="c1"># method that takes 2 positional arguments:</span>
+    <span class="c1"># The owner RNS Transport instance, and a dict</span>
+    <span class="c1"># of configuration values.</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+
+        <span class="c1"># The following lines demonstrate handling</span>
+        <span class="c1"># potential dependencies required for the</span>
+        <span class="c1"># interface to function correctly.</span>
+        <span class="kn">import</span> <span class="nn">importlib</span>
+        <span class="k">if</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s1">&#39;serial&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">serial</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Using this interface requires a serial communication module to be installed.&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_CRITICAL</span><span class="p">)</span>
+            <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;You can install one with the command: python3 -m pip install pyserial&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_CRITICAL</span><span class="p">)</span>
+            <span class="n">RNS</span><span class="o">.</span><span class="n">panic</span><span class="p">()</span>
+
+        <span class="c1"># We start out by initialising the super-class</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1"># To make sure the configuration data is in the</span>
+        <span class="c1"># correct format, we parse it through the following</span>
+        <span class="c1"># method on the generic Interface class. This step</span>
+        <span class="c1"># is required to ensure compatibility on all the</span>
+        <span class="c1"># platforms that Reticulum supports.</span>
+        <span class="n">ifconf</span>    <span class="o">=</span> <span class="n">Interface</span><span class="o">.</span><span class="n">get_config_obj</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
+
+        <span class="c1"># Read the interface name from the configuration</span>
+        <span class="c1"># and set it on our interface instance.</span>
+        <span class="n">name</span>      <span class="o">=</span> <span class="n">ifconf</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="c1"># We read configuration parameters from the supplied</span>
+        <span class="c1"># configuration data, and provide default values in</span>
+        <span class="c1"># case any are missing.</span>
+        <span class="n">port</span>      <span class="o">=</span> <span class="n">ifconf</span><span class="p">[</span><span class="s2">&quot;port&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;port&quot;</span> <span class="ow">in</span> <span class="n">ifconf</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">speed</span>     <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ifconf</span><span class="p">[</span><span class="s2">&quot;speed&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="s2">&quot;speed&quot;</span> <span class="ow">in</span> <span class="n">ifconf</span> <span class="k">else</span> <span class="mi">9600</span>
+        <span class="n">databits</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ifconf</span><span class="p">[</span><span class="s2">&quot;databits&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="s2">&quot;databits&quot;</span> <span class="ow">in</span> <span class="n">ifconf</span> <span class="k">else</span> <span class="mi">8</span>
+        <span class="n">parity</span>    <span class="o">=</span> <span class="n">ifconf</span><span class="p">[</span><span class="s2">&quot;parity&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;parity&quot;</span> <span class="ow">in</span> <span class="n">ifconf</span> <span class="k">else</span> <span class="s2">&quot;N&quot;</span>
+        <span class="n">stopbits</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ifconf</span><span class="p">[</span><span class="s2">&quot;stopbits&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="s2">&quot;stopbits&quot;</span> <span class="ow">in</span> <span class="n">ifconf</span> <span class="k">else</span> <span class="mi">1</span>
+
+        <span class="c1"># In case no port is specified, we abort setup by</span>
+        <span class="c1"># raising an exception.</span>
+        <span class="k">if</span> <span class="n">port</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No port specified for </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># All interfaces must supply a hardware MTU value</span>
+        <span class="c1"># to the RNS Transport instance. This value should</span>
+        <span class="c1"># be the maximum data packet payload size that the</span>
+        <span class="c1"># underlying medium is capable of handling in all</span>
+        <span class="c1"># cases without any segmentation.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">HW_MTU</span> <span class="o">=</span> <span class="mi">564</span>
+
+        <span class="c1"># We initially set the &quot;online&quot; property to false,</span>
+        <span class="c1"># since the interface has not actually been fully</span>
+        <span class="c1"># initialised and connected yet.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">online</span>   <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># In this case, we can also set the indicated bit-</span>
+        <span class="c1"># rate of the interface to the serial port speed.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bitrate</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span>
+        
+        <span class="c1"># Configure internal properties on the interface</span>
+        <span class="c1"># according to the supplied configuration.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyserial</span> <span class="o">=</span> <span class="n">serial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serial</span>   <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">owner</span>    <span class="o">=</span> <span class="n">owner</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port</span>     <span class="o">=</span> <span class="n">port</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span>    <span class="o">=</span> <span class="n">speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">databits</span> <span class="o">=</span> <span class="n">databits</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parity</span>   <span class="o">=</span> <span class="n">serial</span><span class="o">.</span><span class="n">PARITY_NONE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stopbits</span> <span class="o">=</span> <span class="n">stopbits</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span>  <span class="o">=</span> <span class="mi">100</span>
+
+        <span class="k">if</span> <span class="n">parity</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;e&quot;</span> <span class="ow">or</span> <span class="n">parity</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;even&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parity</span> <span class="o">=</span> <span class="n">serial</span><span class="o">.</span><span class="n">PARITY_EVEN</span>
+
+        <span class="k">if</span> <span class="n">parity</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;o&quot;</span> <span class="ow">or</span> <span class="n">parity</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;odd&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parity</span> <span class="o">=</span> <span class="n">serial</span><span class="o">.</span><span class="n">PARITY_ODD</span>
+
+        <span class="c1"># Since all required parameters are now configured,</span>
+        <span class="c1"># we will try opening the serial port.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">open_port</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Could not open serial port for interface &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="c1"># If opening the port succeeded, run any post-open</span>
+        <span class="c1"># configuration required.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial</span><span class="o">.</span><span class="n">is_open</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">configure_device</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Could not open serial port&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Open the serial port with supplied configuration</span>
+    <span class="c1"># parameters and store a reference to the open port.</span>
+    <span class="k">def</span> <span class="nf">open_port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Opening serial port &quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="o">+</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_VERBOSE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pyserial</span><span class="o">.</span><span class="n">Serial</span><span class="p">(</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
+            <span class="n">baudrate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="p">,</span>
+            <span class="n">bytesize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">databits</span><span class="p">,</span>
+            <span class="n">parity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parity</span><span class="p">,</span>
+            <span class="n">stopbits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopbits</span><span class="p">,</span>
+            <span class="n">xonxoff</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">rtscts</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">timeout</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">inter_byte_timeout</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">write_timeout</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dsrdtr</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># The only thing required after opening the port</span>
+    <span class="c1"># is to wait a small amount of time for the</span>
+    <span class="c1"># hardware to initialise and then start a thread</span>
+    <span class="c1"># that reads any incoming data from the device.</span>
+    <span class="k">def</span> <span class="nf">configure_device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">read_loop</span><span class="p">)</span>
+        <span class="n">thread</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">online</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Serial port &quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="o">+</span><span class="s2">&quot; is now open&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_VERBOSE</span><span class="p">)</span>
+
+
+    <span class="c1"># This method will be called from our read-loop</span>
+    <span class="c1"># whenever a full packet has been received over</span>
+    <span class="c1"># the underlying medium.</span>
+    <span class="k">def</span> <span class="nf">process_incoming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># Update our received bytes counter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rxb</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>            
+
+        <span class="c1"># And send the data packet to the Transport</span>
+        <span class="c1"># instance for processing.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">inbound</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="c1"># The running Reticulum Transport instance will</span>
+    <span class="c1"># call this method on the interface whenever the</span>
+    <span class="c1"># interface must transmit a packet.</span>
+    <span class="k">def</span> <span class="nf">process_outgoing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">online</span><span class="p">:</span>
+            <span class="c1"># First, escape and packetize the data</span>
+            <span class="c1"># according to HDLC framing.</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">HDLC</span><span class="o">.</span><span class="n">FLAG</span><span class="p">])</span><span class="o">+</span><span class="n">HDLC</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">+</span><span class="nb">bytes</span><span class="p">([</span><span class="n">HDLC</span><span class="o">.</span><span class="n">FLAG</span><span class="p">])</span>
+
+            <span class="c1"># Then write the framed data to the port</span>
+            <span class="n">written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="c1"># Update the transmitted bytes counter</span>
+            <span class="c1"># and ensure that all data was written</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">txb</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>            
+            <span class="k">if</span> <span class="n">written</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Serial interface only wrote &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">written</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; bytes of &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+
+    <span class="c1"># This read loop runs in a thread and continously</span>
+    <span class="c1"># receives bytes from the underlying serial port.</span>
+    <span class="c1"># When a full packet has been received, it will</span>
+    <span class="c1"># be sent to the process_incoming methed, which</span>
+    <span class="c1"># will in turn pass it to the Transport instance.</span>
+    <span class="k">def</span> <span class="nf">read_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">in_frame</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">escape</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">data_buffer</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+            <span class="n">last_read_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span>
+
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial</span><span class="o">.</span><span class="n">is_open</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial</span><span class="o">.</span><span class="n">in_waiting</span><span class="p">:</span>
+                    <span class="n">byte</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serial</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="n">last_read_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="p">(</span><span class="n">in_frame</span> <span class="ow">and</span> <span class="n">byte</span> <span class="o">==</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">FLAG</span><span class="p">):</span>
+                        <span class="n">in_frame</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">process_incoming</span><span class="p">(</span><span class="n">data_buffer</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="n">byte</span> <span class="o">==</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">FLAG</span><span class="p">):</span>
+                        <span class="n">in_frame</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">data_buffer</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="n">in_frame</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_buffer</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">HW_MTU</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">byte</span> <span class="o">==</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">ESC</span><span class="p">):</span>
+                            <span class="n">escape</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">escape</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="p">(</span><span class="n">byte</span> <span class="o">==</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">FLAG</span> <span class="o">^</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">ESC_MASK</span><span class="p">):</span>
+                                    <span class="n">byte</span> <span class="o">=</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">FLAG</span>
+                                <span class="k">if</span> <span class="p">(</span><span class="n">byte</span> <span class="o">==</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">ESC</span>  <span class="o">^</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">ESC_MASK</span><span class="p">):</span>
+                                    <span class="n">byte</span> <span class="o">=</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">ESC</span>
+                                <span class="n">escape</span> <span class="o">=</span> <span class="kc">False</span>
+                            <span class="n">data_buffer</span> <span class="o">=</span> <span class="n">data_buffer</span><span class="o">+</span><span class="nb">bytes</span><span class="p">([</span><span class="n">byte</span><span class="p">])</span>
+                        
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">time_since_last</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span> <span class="o">-</span> <span class="n">last_read_ms</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_buffer</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">time_since_last</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span>
+                        <span class="n">data_buffer</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+                        <span class="n">in_frame</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="n">escape</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">sleep</span><span class="p">(</span><span class="mf">0.08</span><span class="p">)</span>
+                    
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">online</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;A serial port error occurred, the contained exception was: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span><span class="p">)</span>
+            <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;The interface &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; experienced an unrecoverable error and is now offline.&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">panic_on_interface_error</span><span class="p">:</span>
+                <span class="n">RNS</span><span class="o">.</span><span class="n">panic</span><span class="p">()</span>
+
+            <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Reticulum will attempt to reconnect the interface periodically.&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">online</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serial</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reconnect_port</span><span class="p">()</span>
+
+    <span class="c1"># This method handles serial port disconnects.</span>
+    <span class="k">def</span> <span class="nf">reconnect_port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">online</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+                <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Attempting to reconnect serial port &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; for &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_VERBOSE</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">open_port</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial</span><span class="o">.</span><span class="n">is_open</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">configure_device</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Error while reconnecting port, the contained exception was: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span><span class="p">)</span>
+
+        <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Reconnected serial port for &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="c1"># Signal to Reticulum that this interface should</span>
+    <span class="c1"># not perform any ingress limiting.</span>
+    <span class="k">def</span> <span class="nf">should_ingress_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># We must provide a string representation of this</span>
+    <span class="c1"># interface, that is used whenever the interface</span>
+    <span class="c1"># is printed in logs or external programs.</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;ExampleInterface[&quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;]&quot;</span>
+
+<span class="c1"># Finally, register the defined interface class as the</span>
+<span class="c1"># target class for Reticulum to use as an interface</span>
+<span class="n">interface_class</span> <span class="o">=</span> <span class="n">ExampleInterface</span>
+</pre></div>
+</div>
+<p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/ExampleInterface.py">https://github.com/markqvist/Reticulum/blob/master/Examples/ExampleInterface.py</a>.</p>
+</section>
 </section>
 
         </article>
@@ -3310,6 +3619,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 <li><a class="reference internal" href="#channel">Channel</a></li>
 <li><a class="reference internal" href="#buffer">Buffer</a></li>
 <li><a class="reference internal" href="#filetransfer">Filetransfer</a></li>
+<li><a class="reference internal" href="#custom-interfaces">Custom Interfaces</a></li>
 </ul>
 </li>
 </ul>

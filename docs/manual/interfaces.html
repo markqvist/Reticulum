@@ -230,6 +230,10 @@ common to them all is that you will need to define one or more <em>interfaces</e
 for Reticulum to use.</p>
 <p>The following sections describe the interfaces currently available in Reticulum,
 and gives example configurations for the respective interface types.</p>
+<p>In addition to the built-in interface types, Reticulum is fully extensible with
+custom, user- or community-supplied interfaces, and creating custom interface
+modules is straightforward. Please see the <a class="reference internal" href="examples.html#example-custominterface"><span class="std std-ref">custom interface</span></a>
+example for basic interface code to build upon.</p>
 <p>For a high-level overview of how networks can be formed over different interface
 types, have a look at the <a class="reference internal" href="networks.html#networks-main"><span class="std std-ref">Building Networks</span></a> chapter of this
 manual.</p>
@@ -644,89 +648,89 @@ Multi interface can be used to configure sub-interfaces individually.</p>
 <span class="c1"># id_interval = 600</span>
 
   <span class="c1"># A subinterface</span>
-  <span class="p">[[[</span><span class="n">HIGHDATARATE</span><span class="p">]]]</span>
-  <span class="c1"># Subinterfaces can be enabled and disabled in of themselves</span>
-  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="p">[[[</span><span class="n">High</span> <span class="n">Datarate</span><span class="p">]]]</span>
+    <span class="c1"># Subinterfaces can be enabled and disabled in of themselves</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
 
-  <span class="c1"># Set frequency to 2.4GHz</span>
-  <span class="n">frequency</span> <span class="o">=</span> <span class="mi">2400000000</span>
+    <span class="c1"># Set frequency to 2.4GHz</span>
+    <span class="n">frequency</span> <span class="o">=</span> <span class="mi">2400000000</span>
 
-  <span class="c1"># Set LoRa bandwidth to 1625 KHz</span>
-  <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">1625000</span>
+    <span class="c1"># Set LoRa bandwidth to 1625 KHz</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">1625000</span>
 
-  <span class="c1"># Set TX power to 0 dBm (0.12 mW)</span>
-  <span class="n">txpower</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># Set TX power to 0 dBm (0.12 mW)</span>
+    <span class="n">txpower</span> <span class="o">=</span> <span class="mi">0</span>
 
-  <span class="c1"># The virtual port, only the manufacturer</span>
-  <span class="c1"># or the person who wrote the board config</span>
-  <span class="c1"># can tell you what it will be for which</span>
-  <span class="c1"># physical hardware interface</span>
-  <span class="n">vport</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1"># The virtual port, only the manufacturer</span>
+    <span class="c1"># or the person who wrote the board config</span>
+    <span class="c1"># can tell you what it will be for which</span>
+    <span class="c1"># physical hardware interface</span>
+    <span class="n">vport</span> <span class="o">=</span> <span class="mi">1</span>
 
-  <span class="c1"># Select spreading factor 5. Valid</span>
-  <span class="c1"># range is 5 through 12, with 5</span>
-  <span class="c1"># being the fastest and 12 having</span>
-  <span class="c1"># the longest range.</span>
-  <span class="n">spreadingfactor</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="c1"># Select spreading factor 5. Valid</span>
+    <span class="c1"># range is 5 through 12, with 5</span>
+    <span class="c1"># being the fastest and 12 having</span>
+    <span class="c1"># the longest range.</span>
+    <span class="n">spreadingfactor</span> <span class="o">=</span> <span class="mi">5</span>
 
-  <span class="c1"># Select coding rate 5. Valid range</span>
-  <span class="c1"># is 5 throough 8, with 5 being the</span>
-  <span class="c1"># fastest, and 8 the longest range.</span>
-  <span class="n">codingrate</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="c1"># Select coding rate 5. Valid range</span>
+    <span class="c1"># is 5 throough 8, with 5 being the</span>
+    <span class="c1"># fastest, and 8 the longest range.</span>
+    <span class="n">codingrate</span> <span class="o">=</span> <span class="mi">5</span>
 
-  <span class="c1"># It is possible to limit the airtime</span>
-  <span class="c1"># utilisation of an RNode by using the</span>
-  <span class="c1"># following two configuration options.</span>
-  <span class="c1"># The short-term limit is applied in a</span>
-  <span class="c1"># window of approximately 15 seconds,</span>
-  <span class="c1"># and the long-term limit is enforced</span>
-  <span class="c1"># over a rolling 60 minute window. Both</span>
-  <span class="c1"># options are specified in percent.</span>
+    <span class="c1"># It is possible to limit the airtime</span>
+    <span class="c1"># utilisation of an RNode by using the</span>
+    <span class="c1"># following two configuration options.</span>
+    <span class="c1"># The short-term limit is applied in a</span>
+    <span class="c1"># window of approximately 15 seconds,</span>
+    <span class="c1"># and the long-term limit is enforced</span>
+    <span class="c1"># over a rolling 60 minute window. Both</span>
+    <span class="c1"># options are specified in percent.</span>
 
-  <span class="c1"># airtime_limit_long = 100</span>
-  <span class="c1"># airtime_limit_short = 100</span>
+    <span class="c1"># airtime_limit_long = 100</span>
+    <span class="c1"># airtime_limit_short = 100</span>
 
-  <span class="p">[[[</span><span class="n">LOWDATARATE</span><span class="p">]]]</span>
-  <span class="c1"># Subinterfaces can be enabled and disabled in of themselves</span>
-  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="p">[[[</span><span class="n">Low</span> <span class="n">Datarate</span><span class="p">]]]</span>
+    <span class="c1"># Subinterfaces can be enabled and disabled in of themselves</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
 
-  <span class="c1"># Set frequency to 865.6 MHz</span>
-  <span class="n">frequency</span> <span class="o">=</span> <span class="mi">865600000</span>
+    <span class="c1"># Set frequency to 865.6 MHz</span>
+    <span class="n">frequency</span> <span class="o">=</span> <span class="mi">865600000</span>
 
-  <span class="c1"># The virtual port, only the manufacturer</span>
-  <span class="c1"># or the person who wrote the board config</span>
-  <span class="c1"># can tell you what it will be for which</span>
-  <span class="c1"># physical hardware interface</span>
-  <span class="n">vport</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># The virtual port, only the manufacturer</span>
+    <span class="c1"># or the person who wrote the board config</span>
+    <span class="c1"># can tell you what it will be for which</span>
+    <span class="c1"># physical hardware interface</span>
+    <span class="n">vport</span> <span class="o">=</span> <span class="mi">0</span>
 
-  <span class="c1"># Set LoRa bandwidth to 125 KHz</span>
-  <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">125000</span>
+    <span class="c1"># Set LoRa bandwidth to 125 KHz</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">125000</span>
 
-  <span class="c1"># Set TX power to 0 dBm (0.12 mW)</span>
-  <span class="n">txpower</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># Set TX power to 0 dBm (0.12 mW)</span>
+    <span class="n">txpower</span> <span class="o">=</span> <span class="mi">0</span>
 
-  <span class="c1"># Select spreading factor 7. Valid</span>
-  <span class="c1"># range is 5 through 12, with 5</span>
-  <span class="c1"># being the fastest and 12 having</span>
-  <span class="c1"># the longest range.</span>
-  <span class="n">spreadingfactor</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="c1"># Select spreading factor 7. Valid</span>
+    <span class="c1"># range is 5 through 12, with 5</span>
+    <span class="c1"># being the fastest and 12 having</span>
+    <span class="c1"># the longest range.</span>
+    <span class="n">spreadingfactor</span> <span class="o">=</span> <span class="mi">7</span>
 
-  <span class="c1"># Select coding rate 5. Valid range</span>
-  <span class="c1"># is 5 throough 8, with 5 being the</span>
-  <span class="c1"># fastest, and 8 the longest range.</span>
-  <span class="n">codingrate</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="c1"># Select coding rate 5. Valid range</span>
+    <span class="c1"># is 5 throough 8, with 5 being the</span>
+    <span class="c1"># fastest, and 8 the longest range.</span>
+    <span class="n">codingrate</span> <span class="o">=</span> <span class="mi">5</span>
 
-  <span class="c1"># It is possible to limit the airtime</span>
-  <span class="c1"># utilisation of an RNode by using the</span>
-  <span class="c1"># following two configuration options.</span>
-  <span class="c1"># The short-term limit is applied in a</span>
-  <span class="c1"># window of approximately 15 seconds,</span>
-  <span class="c1"># and the long-term limit is enforced</span>
-  <span class="c1"># over a rolling 60 minute window. Both</span>
-  <span class="c1"># options are specified in percent.</span>
+    <span class="c1"># It is possible to limit the airtime</span>
+    <span class="c1"># utilisation of an RNode by using the</span>
+    <span class="c1"># following two configuration options.</span>
+    <span class="c1"># The short-term limit is applied in a</span>
+    <span class="c1"># window of approximately 15 seconds,</span>
+    <span class="c1"># and the long-term limit is enforced</span>
+    <span class="c1"># over a rolling 60 minute window. Both</span>
+    <span class="c1"># options are specified in percent.</span>
 
-  <span class="c1"># airtime_limit_long = 100</span>
-  <span class="c1"># airtime_limit_short = 100</span>
+    <span class="c1"># airtime_limit_long = 100</span>
+    <span class="c1"># airtime_limit_short = 100</span>
 </pre></div>
 </div>
 </section>

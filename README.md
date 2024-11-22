@@ -53,7 +53,10 @@ For more info, see [reticulum.network](https://reticulum.network/) and [the FAQ 
   - HMAC using SHA256 for authentication
   - IVs are generated through os.urandom()
 - Unforgeable packet delivery confirmations
-- A large variety of supported interface types
+- Flexible and extensible interface system
+  - Includes a large variety of built-in interface types
+  - Ability to load and utilise custom user- or community-supplied interface types
+  - Easily create your own custom interfaces for communicating over anything
 - An intuitive and easy-to-use API
 - Reliable and efficient transfer of arbitrary amounts of data
   - Reticulum can handle a few bytes of data or files of many gigabytes

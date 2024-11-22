@@ -14,6 +14,11 @@ for Reticulum to use.
 The following sections describe the interfaces currently available in Reticulum,
 and gives example configurations for the respective interface types.
 
+In addition to the built-in interface types, Reticulum is fully extensible with
+custom, user- or community-supplied interfaces, and creating custom interface
+modules is straightforward. Please see the :ref:`custom interface<example-custominterface>`
+example for basic interface code to build upon.
+
 For a high-level overview of how networks can be formed over different interface
 types, have a look at the :ref:`Building Networks<networks-main>` chapter of this
 manual.
@@ -493,89 +498,89 @@ Multi interface can be used to configure sub-interfaces individually.
   # id_interval = 600
 
     # A subinterface
-    [[[HIGHDATARATE]]]
-    # Subinterfaces can be enabled and disabled in of themselves
-    interface_enabled = True
+    [[[High Datarate]]]
+      # Subinterfaces can be enabled and disabled in of themselves
+      interface_enabled = True
 
-    # Set frequency to 2.4GHz
-    frequency = 2400000000
+      # Set frequency to 2.4GHz
+      frequency = 2400000000
 
-    # Set LoRa bandwidth to 1625 KHz
-    bandwidth = 1625000
+      # Set LoRa bandwidth to 1625 KHz
+      bandwidth = 1625000
 
-    # Set TX power to 0 dBm (0.12 mW)
-    txpower = 0
+      # Set TX power to 0 dBm (0.12 mW)
+      txpower = 0
 
-    # The virtual port, only the manufacturer
-    # or the person who wrote the board config
-    # can tell you what it will be for which
-    # physical hardware interface
-    vport = 1
+      # The virtual port, only the manufacturer
+      # or the person who wrote the board config
+      # can tell you what it will be for which
+      # physical hardware interface
+      vport = 1
 
-    # Select spreading factor 5. Valid
-    # range is 5 through 12, with 5 
-    # being the fastest and 12 having
-    # the longest range.
-    spreadingfactor = 5
+      # Select spreading factor 5. Valid
+      # range is 5 through 12, with 5 
+      # being the fastest and 12 having
+      # the longest range.
+      spreadingfactor = 5
 
-    # Select coding rate 5. Valid range
-    # is 5 throough 8, with 5 being the
-    # fastest, and 8 the longest range.
-    codingrate = 5
+      # Select coding rate 5. Valid range
+      # is 5 throough 8, with 5 being the
+      # fastest, and 8 the longest range.
+      codingrate = 5
 
-    # It is possible to limit the airtime
-    # utilisation of an RNode by using the
-    # following two configuration options.
-    # The short-term limit is applied in a
-    # window of approximately 15 seconds,
-    # and the long-term limit is enforced
-    # over a rolling 60 minute window. Both
-    # options are specified in percent.
+      # It is possible to limit the airtime
+      # utilisation of an RNode by using the
+      # following two configuration options.
+      # The short-term limit is applied in a
+      # window of approximately 15 seconds,
+      # and the long-term limit is enforced
+      # over a rolling 60 minute window. Both
+      # options are specified in percent.
 
-    # airtime_limit_long = 100
-    # airtime_limit_short = 100
+      # airtime_limit_long = 100
+      # airtime_limit_short = 100
 
-    [[[LOWDATARATE]]]
-    # Subinterfaces can be enabled and disabled in of themselves
-    interface_enabled = True
+    [[[Low Datarate]]]
+      # Subinterfaces can be enabled and disabled in of themselves
+      interface_enabled = True
 
-    # Set frequency to 865.6 MHz
-    frequency = 865600000
+      # Set frequency to 865.6 MHz
+      frequency = 865600000
 
-    # The virtual port, only the manufacturer
-    # or the person who wrote the board config
-    # can tell you what it will be for which
-    # physical hardware interface
-    vport = 0
+      # The virtual port, only the manufacturer
+      # or the person who wrote the board config
+      # can tell you what it will be for which
+      # physical hardware interface
+      vport = 0
 
-    # Set LoRa bandwidth to 125 KHz
-    bandwidth = 125000
+      # Set LoRa bandwidth to 125 KHz
+      bandwidth = 125000
 
-    # Set TX power to 0 dBm (0.12 mW)
-    txpower = 0
+      # Set TX power to 0 dBm (0.12 mW)
+      txpower = 0
 
-    # Select spreading factor 7. Valid
-    # range is 5 through 12, with 5 
-    # being the fastest and 12 having
-    # the longest range.
-    spreadingfactor = 7
+      # Select spreading factor 7. Valid
+      # range is 5 through 12, with 5 
+      # being the fastest and 12 having
+      # the longest range.
+      spreadingfactor = 7
 
-    # Select coding rate 5. Valid range
-    # is 5 throough 8, with 5 being the
-    # fastest, and 8 the longest range.
-    codingrate = 5
+      # Select coding rate 5. Valid range
+      # is 5 throough 8, with 5 being the
+      # fastest, and 8 the longest range.
+      codingrate = 5
 
-    # It is possible to limit the airtime
-    # utilisation of an RNode by using the
-    # following two configuration options.
-    # The short-term limit is applied in a
-    # window of approximately 15 seconds,
-    # and the long-term limit is enforced
-    # over a rolling 60 minute window. Both
-    # options are specified in percent.
+      # It is possible to limit the airtime
+      # utilisation of an RNode by using the
+      # following two configuration options.
+      # The short-term limit is applied in a
+      # window of approximately 15 seconds,
+      # and the long-term limit is enforced
+      # over a rolling 60 minute window. Both
+      # options are specified in percent.
 
-    # airtime_limit_long = 100
-    # airtime_limit_short = 100
+      # airtime_limit_long = 100
+      # airtime_limit_short = 100
 
 .. _interfaces-serial:
 
