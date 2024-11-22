@@ -614,7 +614,7 @@ class RNodeMultiInterface(Interface):
                             command == KISS.CMD_INT10_DATA or
                             command == KISS.CMD_INT11_DATA)):
                         in_frame = False
-                        self.subinterfaces[KISS.int_data_cmd_to_index(command)].processIncoming(data_buffer)
+                        self.subinterfaces[KISS.int_data_cmd_to_index(command)].process_incoming(data_buffer)
                         self.selected_index = KISS.int_data_cmd_to_index(command)
                         data_buffer = b""
                         command_buffer = b""
@@ -1199,7 +1199,7 @@ class RNodeSubInterface(Interface):
         except:
             self.bitrate = 0
 
-    def processIncoming(self, data):
+    def process_incoming(self, data):
         self.rxb += len(data)
         self.owner.inbound(data, self)
         self.r_stat_rssi = None

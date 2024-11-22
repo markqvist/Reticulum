@@ -299,7 +299,7 @@ class AutoInterface(Interface):
                 addr_info = socket.getaddrinfo(local_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
                 address = addr_info[0][4]
 
-                udp_server = socketserver.UDPServer(address, self.handler_factory(self.processIncoming))
+                udp_server = socketserver.UDPServer(address, self.handler_factory(self.process_incoming))
                 self.interface_servers[ifname] = udp_server
                 
                 thread = threading.Thread(target=udp_server.serve_forever)
@@ -381,7 +381,7 @@ class AutoInterface(Interface):
 
                                         RNS.log("Starting new UDP listener for "+str(self)+" "+str(ifname), RNS.LOG_DEBUG)
 
-                                        udp_server = socketserver.UDPServer(listen_address, self.handler_factory(self.processIncoming))
+                                        udp_server = socketserver.UDPServer(listen_address, self.handler_factory(self.process_incoming))
                                         self.interface_servers[ifname] = udp_server
 
                                         thread = threading.Thread(target=udp_server.serve_forever)
@@ -455,7 +455,7 @@ class AutoInterface(Interface):
     def refresh_peer(self, addr):
         self.peers[addr][1] = time.time()
 
-    def processIncoming(self, data):
+    def process_incoming(self, data):
         data_hash = RNS.Identity.full_hash(data)
         deque_hit = False
         if data_hash in self.mif_deque:

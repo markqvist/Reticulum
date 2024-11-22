@@ -133,7 +133,7 @@ class SerialInterface(Interface):
         RNS.log("Serial port "+self.port+" is now open", RNS.LOG_VERBOSE)
 
 
-    def processIncoming(self, data):
+    def process_incoming(self, data):
         self.rxb += len(data)            
         self.owner.inbound(data, self)
 
@@ -161,7 +161,7 @@ class SerialInterface(Interface):
 
                     if (in_frame and byte == HDLC.FLAG):
                         in_frame = False
-                        self.processIncoming(data_buffer)
+                        self.process_incoming(data_buffer)
                     elif (byte == HDLC.FLAG):
                         in_frame = True
                         data_buffer = b""

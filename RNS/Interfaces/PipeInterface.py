@@ -110,7 +110,7 @@ class PipeInterface(Interface):
         RNS.log("Subprocess pipe for "+str(self)+" is now connected", RNS.LOG_VERBOSE)
 
 
-    def processIncoming(self, data):
+    def process_incoming(self, data):
         self.rxb += len(data)            
         self.owner.inbound(data, self)
 
@@ -143,7 +143,7 @@ class PipeInterface(Interface):
 
                     if (in_frame and byte == HDLC.FLAG):
                         in_frame = False
-                        self.processIncoming(data_buffer)
+                        self.process_incoming(data_buffer)
                     elif (byte == HDLC.FLAG):
                         in_frame = True
                         data_buffer = b""

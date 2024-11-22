@@ -284,7 +284,7 @@ class TCPClientInterface(Interface):
             RNS.log("Attempt to reconnect on a non-initiator TCP interface. This should not happen.", RNS.LOG_ERROR)
             raise IOError("Attempt to reconnect on a non-initiator TCP interface")
 
-    def processIncoming(self, data):
+    def process_incoming(self, data):
         self.rxb += len(data)
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.rxb += len(data)
@@ -335,7 +335,7 @@ class TCPClientInterface(Interface):
                             # Read loop for KISS framing
                             if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
                                 in_frame = False
-                                self.processIncoming(data_buffer)
+                                self.process_incoming(data_buffer)
                             elif (byte == KISS.FEND):
                                 in_frame = True
                                 command = KISS.CMD_UNKNOWN
@@ -362,7 +362,7 @@ class TCPClientInterface(Interface):
                             # Read loop for HDLC framing
                             if (in_frame and byte == HDLC.FLAG):
                                 in_frame = False
-                                self.processIncoming(data_buffer)
+                                self.process_incoming(data_buffer)
                             elif (byte == HDLC.FLAG):
                                 in_frame = True
                                 data_buffer = b""

@@ -152,7 +152,7 @@ class LocalClientInterface(Interface):
             raise IOError("Attempt to reconnect on a non-initiator local interface")
 
 
-    def processIncoming(self, data):
+    def process_incoming(self, data):
         self.rxb += len(data)
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.rxb += len(data)
@@ -208,7 +208,7 @@ class LocalClientInterface(Interface):
                         pointer += 1
                         if (in_frame and byte == HDLC.FLAG):
                             in_frame = False
-                            self.processIncoming(data_buffer)
+                            self.process_incoming(data_buffer)
                         elif (byte == HDLC.FLAG):
                             in_frame = True
                             data_buffer = b""

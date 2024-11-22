@@ -236,7 +236,7 @@ class KISSInterface(Interface):
                 raise IOError("Could not enable KISS interface flow control")
 
 
-    def processIncoming(self, data):
+    def process_incoming(self, data):
         self.rxb += len(data)  
         self.owner.inbound(data, self)
 
@@ -294,7 +294,7 @@ class KISSInterface(Interface):
 
                     if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
                         in_frame = False
-                        self.processIncoming(data_buffer)
+                        self.process_incoming(data_buffer)
                     elif (byte == KISS.FEND):
                         in_frame = True
                         command = KISS.CMD_UNKNOWN

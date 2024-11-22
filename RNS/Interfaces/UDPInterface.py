@@ -91,7 +91,7 @@ class UDPInterface(Interface):
             self.owner = owner
             address = (self.bind_ip, self.bind_port)
             socketserver.UDPServer.address_family = socket.AF_INET
-            self.server = socketserver.UDPServer(address, handlerFactory(self.processIncoming))
+            self.server = socketserver.UDPServer(address, handlerFactory(self.process_incoming))
 
             thread = threading.Thread(target=self.server.serve_forever)
             thread.daemon = True
@@ -105,7 +105,7 @@ class UDPInterface(Interface):
             self.forward_port = forwardport
 
 
-    def processIncoming(self, data):
+    def process_incoming(self, data):
         self.rxb += len(data)
         self.owner.inbound(data, self)
 

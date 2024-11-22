@@ -245,7 +245,7 @@ class AX25KISSInterface(Interface):
                 raise IOError("Could not enable AX.25 KISS interface flow control")
 
 
-    def processIncoming(self, data):
+    def process_incoming(self, data):
         if (len(data) > AX25.HEADER_SIZE):
             self.rxb += len(data)
             self.owner.inbound(data[AX25.HEADER_SIZE:], self)
@@ -320,7 +320,7 @@ class AX25KISSInterface(Interface):
 
                     if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
                         in_frame = False
-                        self.processIncoming(data_buffer)
+                        self.process_incoming(data_buffer)
                     elif (byte == KISS.FEND):
                         in_frame = True
                         command = KISS.CMD_UNKNOWN
