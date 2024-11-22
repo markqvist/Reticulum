@@ -184,7 +184,7 @@ class Reticulum:
         """
         return Reticulum.__instance
 
-    def __init__(self,configdir=None, loglevel=None, logdest=None, verbosity=None):
+    def __init__(self,configdir=None, loglevel=None, logdest=None, verbosity=None, require_shared_instance=False):
         """
         Initialises and starts a Reticulum instance. This must be
         done before any other operations, and Reticulum will not
@@ -247,6 +247,7 @@ class Reticulum:
             RNS.loglevel = self.requested_loglevel
 
         self.is_shared_instance = False
+        self.require_shared = require_shared_instance
         self.is_connected_to_shared_instance = False
         self.is_standalone_instance = False
         self.jobs_thread = None
@@ -334,11 +335,17 @@ class Reticulum:
                     interface.bitrate = Reticulum._force_shared_instance_bitrate
                     interface._force_bitrate = Reticulum._force_shared_instance_bitrate
                     RNS.log(f"Forcing shared instance bitrate of {RNS.prettyspeed(interface.bitrate)}", RNS.LOG_WARNING)
-                RNS.Transport.interfaces.append(interface)
                 
-                self.is_shared_instance = True
-                RNS.log("Started shared instance interface: "+str(interface), RNS.LOG_DEBUG)
-                self.__start_jobs()
+                if self.require_shared == True:
+                    interface.detach()
+                    self.is_shared_instance = True
+                    RNS.log("Existing shared instance required, but this instance started as shared instance. Aborting startup.", RNS.LOG_VERBOSE)
+
+                else:
+                    RNS.Transport.interfaces.append(interface)
+                    self.is_shared_instance = True
+                    RNS.log("Started shared instance interface: "+str(interface), RNS.LOG_DEBUG)
+                    self.__start_jobs()
 
             except Exception as e:
                 try:
@@ -366,6 +373,10 @@ class Reticulum:
                     self.is_shared_instance = False
                     self.is_standalone_instance = True
                     self.is_connected_to_shared_instance = False
+
+            if self.is_shared_instance and self.require_shared:
+                raise SystemError("No shared instance available, but application that started Reticulum required it")
+
         else:
             self.is_shared_instance = False
             self.is_standalone_instance = True
