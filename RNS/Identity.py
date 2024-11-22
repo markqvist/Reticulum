@@ -31,7 +31,7 @@ import threading
 from .vendor import umsgpack as umsgpack
 
 from RNS.Cryptography import X25519PrivateKey, X25519PublicKey, Ed25519PrivateKey, Ed25519PublicKey
-from RNS.Cryptography import Fernet
+from RNS.Cryptography import Token
 
 
 class Identity:
@@ -66,7 +66,7 @@ class Identity:
     """
 
     # Non-configurable constants
-    FERNET_OVERHEAD           = RNS.Cryptography.Fernet.FERNET_OVERHEAD
+    TOKEN_OVERHEAD            = RNS.Cryptography.Token.TOKEN_OVERHEAD
     AES128_BLOCKSIZE          = 16          # In bytes
     HASHLENGTH                = 256         # In bits
     SIGLENGTH                 = KEYSIZE     # In bits
@@ -646,8 +646,8 @@ class Identity:
                 context=self.get_context(),
             )
 
-            fernet = Fernet(derived_key)
-            ciphertext = fernet.encrypt(plaintext)
+            token = Token(derived_key)
+            ciphertext = token.encrypt(plaintext)
             token = ephemeral_pub_bytes+ciphertext
 
             return token
@@ -684,8 +684,8 @@ class Identity:
                                     context=self.get_context(),
                                 )
 
-                                fernet = Fernet(derived_key)
-                                plaintext = fernet.decrypt(ciphertext)
+                                token = Token(derived_key)
+                                plaintext = token.decrypt(ciphertext)
                                 if ratchet_id_receiver:
                                     ratchet_id_receiver.latest_ratchet_id = ratchet_id
                                 
@@ -709,8 +709,8 @@ class Identity:
                             context=self.get_context(),
                         )
 
-                        fernet = Fernet(derived_key)
-                        plaintext = fernet.decrypt(ciphertext)
+                        token = Token(derived_key)
+                        plaintext = token.decrypt(ciphertext)
                         if ratchet_id_receiver:
                             ratchet_id_receiver.latest_ratchet_id = None
 

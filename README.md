@@ -325,12 +325,12 @@ In the default installation configuration, the `X25519`, `Ed25519` and
 (via the [PyCA/cryptography](https://github.com/pyca/cryptography) package).
 The hashing functions `SHA-256` and `SHA-512` are provided by the standard
 Python [hashlib](https://docs.python.org/3/library/hashlib.html). The `HKDF`,
-`HMAC`, `Fernet` primitives, and the `PKCS7` padding function are always
+`HMAC`, `Token` primitives, and the `PKCS7` padding function are always
 provided by the following internal implementations:
 
 - [HKDF.py](RNS/Cryptography/HKDF.py)
 - [HMAC.py](RNS/Cryptography/HMAC.py)
-- [Fernet.py](RNS/Cryptography/Fernet.py)
+- [Token.py](RNS/Cryptography/Token.py)
 - [PKCS7.py](RNS/Cryptography/PKCS7.py)
 
 

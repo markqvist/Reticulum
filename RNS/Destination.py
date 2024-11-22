@@ -26,7 +26,7 @@ import time
 import threading
 import RNS
 
-from RNS.Cryptography import Fernet
+from RNS.Cryptography import Token
 from .vendor import umsgpack as umsgpack
 
 class Callbacks:
@@ -525,8 +525,8 @@ class Destination:
             raise TypeError("A single destination holds keys through an Identity instance")
 
         if self.type == Destination.GROUP:
-            self.prv_bytes = Fernet.generate_key()
-            self.prv = Fernet(self.prv_bytes)
+            self.prv_bytes = Token.generate_key()
+            self.prv = Token(self.prv_bytes)
 
     def get_private_key(self):
         """
@@ -556,7 +556,7 @@ class Destination:
 
         if self.type == Destination.GROUP:
             self.prv_bytes = key
-            self.prv = Fernet(self.prv_bytes)
+            self.prv = Token(self.prv_bytes)
 
     def load_public_key(self, key):
         if self.type != Destination.SINGLE:

@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from RNS.Cryptography import X25519PrivateKey, X25519PublicKey, Ed25519PrivateKey, Ed25519PublicKey
-from RNS.Cryptography import Fernet
+from RNS.Cryptography import Token
 from RNS.Channel import Channel, LinkChannelOutlet
 
 from time import sleep
@@ -61,7 +61,7 @@ class Link:
     ECPUBSIZE         = 32+32
     KEYSIZE           = 32
 
-    MDU = math.floor((RNS.Reticulum.MTU-RNS.Reticulum.IFAC_MIN_SIZE-RNS.Reticulum.HEADER_MINSIZE-RNS.Identity.FERNET_OVERHEAD)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
+    MDU = math.floor((RNS.Reticulum.MTU-RNS.Reticulum.IFAC_MIN_SIZE-RNS.Reticulum.HEADER_MINSIZE-RNS.Identity.TOKEN_OVERHEAD)/RNS.Identity.AES128_BLOCKSIZE)*RNS.Identity.AES128_BLOCKSIZE - 1
 
     ESTABLISHMENT_TIMEOUT_PER_HOP = RNS.Reticulum.DEFAULT_PER_HOP_TIMEOUT
     """
@@ -188,7 +188,7 @@ class Link:
             self.prv     = X25519PrivateKey.generate()
             self.sig_prv = Ed25519PrivateKey.generate()
 
-        self.fernet  = None
+        self.token  = None
         
         self.pub = self.prv.public_key()
         self.pub_bytes = self.pub.public_bytes()
@@ -979,14 +979,14 @@ class Link:
 
     def encrypt(self, plaintext):
         try:
-            if not self.fernet:
+            if not self.token:
                 try:
-                    self.fernet = Fernet(self.derived_key)
+                    self.token = Token(self.derived_key)
                 except Exception as e:
-                    RNS.log("Could not instantiate Fernet while performin encryption on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                    RNS.log("Could not instantiate token while performing encryption on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
                     raise e
 
-            return self.fernet.encrypt(plaintext)
+            return self.token.encrypt(plaintext)
 
         except Exception as e:
             RNS.log("Encryption on link "+str(self)+" failed. The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -995,10 +995,10 @@ class Link:
 
     def decrypt(self, ciphertext):
         try:
-            if not self.fernet:
-                self.fernet = Fernet(self.derived_key)
+            if not self.token:
+                self.token = Token(self.derived_key)
                 
-            return self.fernet.decrypt(ciphertext)
+            return self.token.decrypt(ciphertext)
 
         except Exception as e:
             RNS.log("Decryption failed on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)

@@ -27,7 +27,7 @@ from RNS.Cryptography import HMAC
 from RNS.Cryptography import PKCS7
 from RNS.Cryptography.AES import AES_128_CBC
 
-class Fernet():
+class Token():
     """
     This class provides a slightly modified implementation of the Fernet spec
     found at: https://github.com/fernet/spec/blob/master/Spec.md
@@ -37,7 +37,7 @@ class Fernet():
     not relevant to Reticulum. They are therefore stripped from this
     implementation, since they incur overhead and leak initiator metadata.
     """
-    FERNET_OVERHEAD  = 48 # Bytes
+    TOKEN_OVERHEAD  = 48 # Bytes
 
     @staticmethod
     def generate_key():
