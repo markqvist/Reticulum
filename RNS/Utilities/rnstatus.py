@@ -136,7 +136,18 @@ def get_remote_status(destination_hash, include_lstats, identity, no_output=Fals
 def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False,
                   lstats=False, sorting=None, sort_reverse=False, remote=None, management_identity=None,
                   remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT):
-    reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
+    
+    if remote:
+        require_shared = False
+    else:
+        require_shared = True
+
+    try:
+        reticulum = RNS.Reticulum(configdir=configdir, loglevel=3+verbosity, require_shared_instance=require_shared)
+
+    except Exception as e:
+        print("No shared RNS instance available to get status from")
+        exit(1)
 
     link_count = None
     stats = None
@@ -364,7 +375,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
             print("Could not get RNS status")
         else:
             print("Could not get RNS status from remote transport instance "+RNS.prettyhexrep(identity_hash))
-        exit(1)
+        exit(2)
 
 def main():
     try:
