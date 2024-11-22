@@ -565,6 +565,43 @@ class Reticulum:
                                     else:
                                         interface.ifac_size = interface.DEFAULT_IFAC_SIZE
 
+                                    interface.announce_rate_target = announce_rate_target
+                                    interface.announce_rate_grace = announce_rate_grace
+                                    interface.announce_rate_penalty = announce_rate_penalty
+                                    interface.ingress_control = ingress_control
+                                    if ic_max_held_announces != None: interface.ic_max_held_announces = ic_max_held_announces
+                                    if ic_burst_hold != None: interface.ic_burst_hold = ic_burst_hold
+                                    if ic_burst_freq_new != None: interface.ic_burst_freq_new = ic_burst_freq_new
+                                    if ic_burst_freq != None: interface.ic_burst_freq = ic_burst_freq
+                                    if ic_new_time != None: interface.ic_new_time = ic_new_time
+                                    if ic_burst_penalty != None: interface.ic_burst_penalty = ic_burst_penalty
+                                    if ic_held_release_interval != None: interface.ic_held_release_interval = ic_held_release_interval
+
+                                    interface.ifac_netname = ifac_netname
+                                    interface.ifac_netkey = ifac_netkey
+
+                                    if interface.ifac_netname != None or interface.ifac_netkey != None:
+                                        ifac_origin = b""
+
+                                        if interface.ifac_netname != None:
+                                            ifac_origin += RNS.Identity.full_hash(interface.ifac_netname.encode("utf-8"))
+
+                                        if interface.ifac_netkey != None:
+                                            ifac_origin += RNS.Identity.full_hash(interface.ifac_netkey.encode("utf-8"))
+
+                                        ifac_origin_hash = RNS.Identity.full_hash(ifac_origin)
+                                        interface.ifac_key = RNS.Cryptography.hkdf(
+                                            length=64,
+                                            derive_from=ifac_origin_hash,
+                                            salt=self.ifac_salt,
+                                            context=None
+                                        )
+
+                                        interface.ifac_identity = RNS.Identity.from_bytes(interface.ifac_key)
+                                        interface.ifac_signature = interface.ifac_identity.sign(RNS.Identity.full_hash(interface.ifac_key))
+
+                                    RNS.Transport.interfaces.append(interface)
+
                             interface = None
                             if (("interface_enabled" in c) and c.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
                                 interface_config = c
@@ -632,47 +669,7 @@ class Reticulum:
                                 if c["type"] == "RNodeMultiInterface":
                                     interface = RNodeMultiInterface.RNodeMultiInterface(RNS.Transport, interface_config)
                                     interface_post_init(interface)
-
-                                if interface != None:
-                                    interface.announce_rate_target = announce_rate_target
-                                    interface.announce_rate_grace = announce_rate_grace
-                                    interface.announce_rate_penalty = announce_rate_penalty
-                                    interface.ingress_control = ingress_control
-                                    if ic_max_held_announces != None: interface.ic_max_held_announces = ic_max_held_announces
-                                    if ic_burst_hold != None: interface.ic_burst_hold = ic_burst_hold
-                                    if ic_burst_freq_new != None: interface.ic_burst_freq_new = ic_burst_freq_new
-                                    if ic_burst_freq != None: interface.ic_burst_freq = ic_burst_freq
-                                    if ic_new_time != None: interface.ic_new_time = ic_new_time
-                                    if ic_burst_penalty != None: interface.ic_burst_penalty = ic_burst_penalty
-                                    if ic_held_release_interval != None: interface.ic_held_release_interval = ic_held_release_interval
-
-                                    interface.ifac_netname = ifac_netname
-                                    interface.ifac_netkey = ifac_netkey
-
-                                    if interface.ifac_netname != None or interface.ifac_netkey != None:
-                                        ifac_origin = b""
-
-                                        if interface.ifac_netname != None:
-                                            ifac_origin += RNS.Identity.full_hash(interface.ifac_netname.encode("utf-8"))
-
-                                        if interface.ifac_netkey != None:
-                                            ifac_origin += RNS.Identity.full_hash(interface.ifac_netkey.encode("utf-8"))
-
-                                        ifac_origin_hash = RNS.Identity.full_hash(ifac_origin)
-                                        interface.ifac_key = RNS.Cryptography.hkdf(
-                                            length=64,
-                                            derive_from=ifac_origin_hash,
-                                            salt=self.ifac_salt,
-                                            context=None
-                                        )
-
-                                        interface.ifac_identity = RNS.Identity.from_bytes(interface.ifac_key)
-                                        interface.ifac_signature = interface.ifac_identity.sign(RNS.Identity.full_hash(interface.ifac_key))
-
-                                    RNS.Transport.interfaces.append(interface)
-
-                                    if isinstance(interface, RNS.Interfaces.RNodeMultiInterface.RNodeMultiInterface):
-                                        interface.start()
+                                    interface.start()
 
                             else:
                                 RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_DEBUG)
