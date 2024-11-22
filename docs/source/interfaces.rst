@@ -14,15 +14,20 @@ for Reticulum to use.
 The following sections describe the interfaces currently available in Reticulum,
 and gives example configurations for the respective interface types.
 
-In addition to the built-in interface types, Reticulum is fully extensible with
-custom, user- or community-supplied interfaces, and creating custom interface
-modules is straightforward. Please see the :ref:`custom interface<example-custominterface>`
-example for basic interface code to build upon.
-
 For a high-level overview of how networks can be formed over different interface
 types, have a look at the :ref:`Building Networks<networks-main>` chapter of this
 manual.
 
+
+.. _interfaces-custom:
+
+Custom Interfaces
+=================
+
+In addition to the built-in interface types, Reticulum is **fully extensible** with
+custom, user- or community-supplied interfaces, and creating custom interface
+modules is straightforward. Please see the :ref:`custom interface<example-custominterface>`
+example for basic interface code to build upon.
 
 .. _interfaces-auto:
 
