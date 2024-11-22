@@ -43,19 +43,30 @@ considered complete and stable at the moment, but could change if absolutely war
 
 What does Reticulum Offer?
 ==========================
+
 * Coordination-less globally unique addressing and identification
 
-* Fully self-configuring multi-hop routing
+* Fully self-configuring multi-hop routing over heterogeneous carriers
 
-* Complete initiator anonymity, communicate without revealing your identity
+* Flexible scalability over heterogeneous topologies
 
-* Asymmetric encryption based on X25519, and Ed25519 signatures as a basis for all communication
+  * Reticulum can carry data over any mixture of physical mediums and topologies
 
-* Forward Secrecy by using ephemeral Elliptic Curve Diffie-Hellman keys on Curve25519
+  * Low-bandwidth networks can co-exist and interoperate with large, high-bandwidth networks
 
-* Reticulum uses a modified version of the `Fernet <https://github.com/fernet/spec/blob/master/Spec.md>`_ specification for on-the-wire / over-the-air encryption
+* Initiator anonymity, communicate without revealing your identity
 
-  * Keys are ephemeral and derived from an ECDH key exchange on Curve25519
+  * Reticulum does not include source addresses on any packets
+
+* Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
+
+  * The foundational Reticulum Identity Keys are 512-bit Elliptic Curve keysets
+
+* Forward Secrecy is available for all communication types, both for single packets and over links
+
+* Reticulum uses the following format for encrypted tokens:
+
+  * Ephemeral per-packet and link keys and derived from an ECDH key exchange on Curve25519
 
   * AES-128 in CBC mode with PKCS7 padding
 
@@ -63,13 +74,33 @@ What does Reticulum Offer?
 
   * IVs are generated through os.urandom()
 
-  * No Version and Timestamp metadata included
-
 * Unforgeable packet delivery confirmations
 
-* A variety of supported interface types
+* Flexible and extensible interface system
 
-* An intuitive and developer-friendly API
+  * Reticulum includes a large variety of built-in interface types
+
+  * Ability to load and utilise custom user- or community-supplied interface types
+
+  * Easily create your own custom interfaces for communicating over anything
+
+* Authentication and virtual network segmentation on all supported interface types
+
+* An intuitive and easy-to-use API
+
+  * Simpler and easier to use than sockets APIs and simpler, but more powerful
+
+  * Makes building distributed and decentralised applications much simpler
+
+* Reliable and efficient transfer of arbitrary amounts of data
+
+  * Reticulum can handle a few bytes of data or files of many gigabytes
+
+  * Sequencing, compression, transfer coordination and checksumming are automatic
+
+  * The API is very easy to use, and provides transfer progress
+
+* Lightweight, flexible and expandable Request/Response mechanism
 
 * Efficient link establishment
 
@@ -77,17 +108,7 @@ What does Reticulum Offer?
 
   * Low cost of keeping links open at only 0.44 bits per second
 
-* Reliable and efficient transfer of arbitrary amounts of data
-
-  * Reticulum can handle a few bytes of data or files of many gigabytes
-
-  * Sequencing, transfer coordination and checksumming is automatic
-
-  * The API is very easy to use, and provides transfer progress
-
-* Authentication and virtual network segmentation on all supported interface types
-
-* Flexible scalability allowing extremely low-bandwidth networks to co-exist and interoperate with large, high-bandwidth networks
+* Reliable sequential delivery with Channel and Buffer mechanisms
 
 
 Where can Reticulum be Used?
@@ -118,7 +139,7 @@ network, and vice versa.
 
 Interface Types and Devices
 ===========================
-Reticulum implements a range of generalised interface types that covers the communications hardware that Reticulum can run over. If your hardware is not supported, it's relatively simple to implement an interface class. Currently, Reticulum can use the following devices and communication mediums:
+Reticulum implements a range of generalised interface types that covers the communications hardware that Reticulum can run over. If your hardware is not supported, it's simple to :ref:`implement an interface class<example-custominterface>`. Currently, Reticulum can use the following devices and communication mediums:
 
 * Any Ethernet device
 

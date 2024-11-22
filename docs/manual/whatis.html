@@ -258,37 +258,62 @@ considered complete and stable at the moment, but could change if absolutely war
 <h2>What does Reticulum Offer?<a class="headerlink" href="#what-does-reticulum-offer" title="Permalink to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Coordination-less globally unique addressing and identification</p></li>
-<li><p>Fully self-configuring multi-hop routing</p></li>
-<li><p>Complete initiator anonymity, communicate without revealing your identity</p></li>
-<li><p>Asymmetric encryption based on X25519, and Ed25519 signatures as a basis for all communication</p></li>
-<li><p>Forward Secrecy by using ephemeral Elliptic Curve Diffie-Hellman keys on Curve25519</p></li>
-<li><p>Reticulum uses a modified version of the <a class="reference external" href="https://github.com/fernet/spec/blob/master/Spec.md">Fernet</a> specification for on-the-wire / over-the-air encryption</p>
+<li><p>Fully self-configuring multi-hop routing over heterogeneous carriers</p></li>
+<li><p>Flexible scalability over heterogeneous topologies</p>
 <ul>
-<li><p>Keys are ephemeral and derived from an ECDH key exchange on Curve25519</p></li>
+<li><p>Reticulum can carry data over any mixture of physical mediums and topologies</p></li>
+<li><p>Low-bandwidth networks can co-exist and interoperate with large, high-bandwidth networks</p></li>
+</ul>
+</li>
+<li><p>Initiator anonymity, communicate without revealing your identity</p>
+<ul>
+<li><p>Reticulum does not include source addresses on any packets</p></li>
+</ul>
+</li>
+<li><p>Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication</p>
+<ul>
+<li><p>The foundational Reticulum Identity Keys are 512-bit Elliptic Curve keysets</p></li>
+</ul>
+</li>
+<li><p>Forward Secrecy is available for all communication types, both for single packets and over links</p></li>
+<li><p>Reticulum uses the following format for encrypted tokens:</p>
+<ul>
+<li><p>Ephemeral per-packet and link keys and derived from an ECDH key exchange on Curve25519</p></li>
 <li><p>AES-128 in CBC mode with PKCS7 padding</p></li>
 <li><p>HMAC using SHA256 for authentication</p></li>
 <li><p>IVs are generated through os.urandom()</p></li>
-<li><p>No Version and Timestamp metadata included</p></li>
 </ul>
 </li>
 <li><p>Unforgeable packet delivery confirmations</p></li>
-<li><p>A variety of supported interface types</p></li>
-<li><p>An intuitive and developer-friendly API</p></li>
+<li><p>Flexible and extensible interface system</p>
+<ul>
+<li><p>Reticulum includes a large variety of built-in interface types</p></li>
+<li><p>Ability to load and utilise custom user- or community-supplied interface types</p></li>
+<li><p>Easily create your own custom interfaces for communicating over anything</p></li>
+</ul>
+</li>
+<li><p>Authentication and virtual network segmentation on all supported interface types</p></li>
+<li><p>An intuitive and easy-to-use API</p>
+<ul>
+<li><p>Simpler and easier to use than sockets APIs and simpler, but more powerful</p></li>
+<li><p>Makes building distributed and decentralised applications much simpler</p></li>
+</ul>
+</li>
+<li><p>Reliable and efficient transfer of arbitrary amounts of data</p>
+<ul>
+<li><p>Reticulum can handle a few bytes of data or files of many gigabytes</p></li>
+<li><p>Sequencing, compression, transfer coordination and checksumming are automatic</p></li>
+<li><p>The API is very easy to use, and provides transfer progress</p></li>
+</ul>
+</li>
+<li><p>Lightweight, flexible and expandable Request/Response mechanism</p></li>
 <li><p>Efficient link establishment</p>
 <ul>
 <li><p>Total cost of setting up an encrypted and verified link is only 3 packets, totalling 297 bytes</p></li>
 <li><p>Low cost of keeping links open at only 0.44 bits per second</p></li>
 </ul>
 </li>
-<li><p>Reliable and efficient transfer of arbitrary amounts of data</p>
-<ul>
-<li><p>Reticulum can handle a few bytes of data or files of many gigabytes</p></li>
-<li><p>Sequencing, transfer coordination and checksumming is automatic</p></li>
-<li><p>The API is very easy to use, and provides transfer progress</p></li>
-</ul>
-</li>
-<li><p>Authentication and virtual network segmentation on all supported interface types</p></li>
-<li><p>Flexible scalability allowing extremely low-bandwidth networks to co-exist and interoperate with large, high-bandwidth networks</p></li>
+<li><p>Reliable sequential delivery with Channel and Buffer mechanisms</p></li>
 </ul>
 </section>
 <section id="where-can-reticulum-be-used">
@@ -316,7 +341,7 @@ network, and vice versa.</p>
 </section>
 <section id="interface-types-and-devices">
 <h2>Interface Types and Devices<a class="headerlink" href="#interface-types-and-devices" title="Permalink to this heading">#</a></h2>
-<p>Reticulum implements a range of generalised interface types that covers the communications hardware that Reticulum can run over. If your hardware is not supported, it’s relatively simple to implement an interface class. Currently, Reticulum can use the following devices and communication mediums:</p>
+<p>Reticulum implements a range of generalised interface types that covers the communications hardware that Reticulum can run over. If your hardware is not supported, it’s simple to <a class="reference internal" href="examples.html#example-custominterface"><span class="std std-ref">implement an interface class</span></a>. Currently, Reticulum can use the following devices and communication mediums:</p>
 <ul class="simple">
 <li><p>Any Ethernet device</p>
 <ul>

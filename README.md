@@ -42,6 +42,9 @@ For more info, see [reticulum.network](https://reticulum.network/) and [the FAQ 
 ## Notable Features
 - Coordination-less globally unique addressing and identification
 - Fully self-configuring multi-hop routing over heterogeneous carriers
+- Flexible scalability over heterogeneous topologies
+  - Reticulum can carry data over any mixture of physical mediums and topologies
+  - Low-bandwidth networks can co-exist and interoperate with large, high-bandwidth networks
 - Initiator anonymity, communicate without revealing your identity
   - Reticulum does not include source addresses on any packets
 - Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
@@ -54,10 +57,13 @@ For more info, see [reticulum.network](https://reticulum.network/) and [the FAQ 
   - IVs are generated through os.urandom()
 - Unforgeable packet delivery confirmations
 - Flexible and extensible interface system
-  - Includes a large variety of built-in interface types
+  - Reticulum includes a large variety of built-in interface types
   - Ability to load and utilise custom user- or community-supplied interface types
   - Easily create your own custom interfaces for communicating over anything
+- Authentication and virtual network segmentation on all supported interface types
 - An intuitive and easy-to-use API
+  - Simpler and easier to use than sockets APIs and simpler, but more powerful
+  - Makes building distributed and decentralised applications much simpler
 - Reliable and efficient transfer of arbitrary amounts of data
   - Reticulum can handle a few bytes of data or files of many gigabytes
   - Sequencing, compression, transfer coordination and checksumming are automatic
@@ -175,11 +181,12 @@ program.
 
 Reticulum implements a range of generalised interface types that covers most of
 the communications hardware that Reticulum can run over. If your hardware is
-not supported, it's relatively simple to implement an interface class. I will
-gratefully accept pull requests for custom interfaces if they are generally
-useful.
+not supported, it's [simple to implement a custom interface module](https://markqvist.github.io/Reticulum/manual/interfaces.html#custom-interfaces).
 
-Currently, the following interfaces are supported:
+Pull requests for custom interfaces are gratefully accepted, provided they are
+generally useful and well-tested in real-world usage.
+
+Currently, the following built-in interfaces are supported:
 
 - Any Ethernet device
 - LoRa using [RNode](https://unsigned.io/rnode/)

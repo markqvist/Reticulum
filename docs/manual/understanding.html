@@ -1069,11 +1069,13 @@ both on general-purpose CPUs and on microcontrollers. The necessary primitives a
 <li><p>Ed25519 for signatures</p></li>
 <li><p>X25519 for ECDH key exchanges</p></li>
 <li><p>HKDF for key derivation</p></li>
-<li><p>Modified Fernet for encrypted tokens</p>
+<li><p>Encrypted tokens are based on the Fernet spec</p>
 <ul>
-<li><p>AES-128 in CBC mode</p></li>
-<li><p>HMAC for message authentication</p></li>
-<li><p>No Version and Timestamp metadata included</p></li>
+<li><p>Ephemeral keys derived from an ECDH key exchange on Curve25519</p></li>
+<li><p>AES-128 in CBC mode with PKCS7 padding</p></li>
+<li><p>HMAC using SHA256 for message authentication</p></li>
+<li><p>IVs are generated through os.urandom()</p></li>
+<li><p>No Fernet version and timestamp metadata fields</p></li>
 </ul>
 </li>
 <li><p>SHA-256</p></li>
@@ -1083,12 +1085,12 @@ both on general-purpose CPUs and on microcontrollers. The necessary primitives a
 primitives are provided by <a class="reference external" href="https://www.openssl.org/">OpenSSL</a> (via the <a class="reference external" href="https://github.com/pyca/cryptography">PyCA/cryptography</a>
 package). The hashing functions <code class="docutils literal notranslate"><span class="pre">SHA-256</span></code> and <code class="docutils literal notranslate"><span class="pre">SHA-512</span></code> are provided by the standard
 Python <a class="reference external" href="https://docs.python.org/3/library/hashlib.html">hashlib</a>. The <code class="docutils literal notranslate"><span class="pre">HKDF</span></code>, <code class="docutils literal notranslate"><span class="pre">HMAC</span></code>,
-<code class="docutils literal notranslate"><span class="pre">Fernet</span></code> primitives, and the <code class="docutils literal notranslate"><span class="pre">PKCS7</span></code> padding function are always provided by the
+<code class="docutils literal notranslate"><span class="pre">Token</span></code> primitives, and the <code class="docutils literal notranslate"><span class="pre">PKCS7</span></code> padding function are always provided by the
 following internal implementations:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">RNS/Cryptography/HKDF.py</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">RNS/Cryptography/HMAC.py</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">RNS/Cryptography/Fernet.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RNS/Cryptography/Token.py</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">RNS/Cryptography/PKCS7.py</span></code></p></li>
 </ul>
 <p>Reticulum also includes a complete implementation of all necessary primitives in pure Python.
