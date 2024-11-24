@@ -1,3 +1,29 @@
+### 2024-11-24: RNS β 0.8.6
+
+This release adds full interface modularity and custom interface loading to RNS. Users can now easily create and use their own custom interfaces for communicating over practically anything. Support for IPv6 has also been added to the TCP-based interfaces.
+
+In addition, several bugs have been fixed, and various internal improvements to code consistency and naming conventions have been carried out.
+
+Thanks to @gretel and @deavmi, who contributed to this release!
+
+**Changes**
+- Added ability to load and configure custom, user-supplied interfaces
+- Added IPv6 support to `TCPClientInterface` and `TCPServerInterface`
+- Added an init option to the API for requiring an existing shared instance
+- Changed `rnstatus` behaviour to only show status if Reticulum is already running
+- Fixed `KISSInterface` beacon length for compatibility with software modems
+- Fixed interface client count sometimes reporting incorrect values on TCP and I2P interfaces
+- Refactored and improved interface initialisation and configuration handling
+- Refactored interface code to be more consistent
+- Refactored various deprecated references and names
+- Updated documentation and manual
+
+**Release Hashes**
+```
+60be127f003cd7838149bf8f01020206f829a7bd192706a608e39d8d7193d07b rns-0.8.6-py3-none-any.whl
+d8701e19279d292b5b8af9da7c67b6ac88a992ca65109f8182c3e5c761a9ebeb rnspure-0.8.6-py3-none-any.whl
+```
+
 ### 2024-10-20: RNS β 0.8.5
 
 This maintenance release fixes a number of bugs. Thanks to @faragher for contributing to this release!
