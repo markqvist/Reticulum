@@ -601,6 +601,18 @@ don’t always have packages available for some dependencies.</p>
 it will require manually configuring and installing some packages, and is not
 detailed in this manual.</p>
 </section>
+<section id="openwrt">
+<h3>OpenWRT<a class="headerlink" href="#openwrt" title="Permalink to this heading">#</a></h3>
+<p>On OpenWRT systems with sufficient storage and memory, you can easily install
+Reticulum and related utilities using the <cite>opkg</cite> package manager and <cite>pip</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
+<span class="n">opkg</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">cryptography</span> <span class="n">python3</span><span class="o">-</span><span class="n">pyserial</span>
+
+<span class="c1"># Install Reticulum</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+</pre></div>
+</div>
+</section>
 <section id="debian-bookworm">
 <h3>Debian Bookworm<a class="headerlink" href="#debian-bookworm" title="Permalink to this heading">#</a></h3>
 <p>On versions of Debian released after April 2023, it is no longer possible by default
@@ -623,6 +635,11 @@ the configuration file located at <code class="docutils literal notranslate"><sp
 following section:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[global]
 break-system-packages = true
+</pre></div>
+</div>
+<p>For a one-shot installation of Reticulum, without globally enabling the <code class="docutils literal notranslate"><span class="pre">break-system-packages</span></code>
+option, you can use the following command:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pip install rns --break-system-packages
 </pre></div>
 </div>
 <p>Please note that the “break-system-packages” directive is a somewhat misleading choice
@@ -652,6 +669,11 @@ the configuration file located at <code class="docutils literal notranslate"><sp
 following section:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[global]
 break-system-packages = true
+</pre></div>
+</div>
+<p>For a one-shot installation of Reticulum, without globally enabling the <code class="docutils literal notranslate"><span class="pre">break-system-packages</span></code>
+option, you can use the following command:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pip install rns --break-system-packages
 </pre></div>
 </div>
 <p>Please note that the “break-system-packages” directive is a somewhat misleading choice
@@ -759,6 +781,7 @@ section of this manual.</p>
 <li><a class="reference internal" href="#android">Android</a></li>
 <li><a class="reference internal" href="#arm64">ARM64</a></li>
 <li><a class="reference internal" href="#raspberry-pi">Raspberry Pi</a></li>
+<li><a class="reference internal" href="#openwrt">OpenWRT</a></li>
 <li><a class="reference internal" href="#debian-bookworm">Debian Bookworm</a></li>
 <li><a class="reference internal" href="#ubuntu-lunar">Ubuntu Lunar</a></li>
 </ul>

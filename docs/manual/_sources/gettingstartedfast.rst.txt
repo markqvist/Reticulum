@@ -474,6 +474,19 @@ While it is possible to install and run Reticulum on 32-bit Rasperry Pi OSes,
 it will require manually configuring and installing some packages, and is not
 detailed in this manual.
 
+OpenWRT
+^^^^^^^^^^^^^^^^^^^^^^^^^
+On OpenWRT systems with sufficient storage and memory, you can easily install
+Reticulum and related utilities using the `opkg` package manager and `pip`.
+
+.. code::
+
+   # Install dependencies
+   opkg install python3 python3-pip python3-cryptography python3-pyserial
+   
+   # Install Reticulum
+   pip install rns
+
 
 Debian Bookworm
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -502,6 +515,13 @@ following section:
 
     [global]
     break-system-packages = true
+
+For a one-shot installation of Reticulum, without globally enabling the ``break-system-packages``
+option, you can use the following command:
+
+.. code:: text
+
+    pip install rns --break-system-packages
 
 Please note that the "break-system-packages" directive is a somewhat misleading choice
 of words. Setting it will of course not break any system packages, but will simply
@@ -536,6 +556,13 @@ following section:
 
     [global]
     break-system-packages = true
+
+For a one-shot installation of Reticulum, without globally enabling the ``break-system-packages``
+option, you can use the following command:
+
+.. code:: text
+
+    pip install rns --break-system-packages
 
 Please note that the "break-system-packages" directive is a somewhat misleading choice
 of words. Setting it will of course not break any system packages, but will simply
