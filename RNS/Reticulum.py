@@ -335,6 +335,7 @@ class Reticulum:
             try:
                 interface = LocalInterface.LocalServerInterface(
                     RNS.Transport,
+                    self.share_instance_addr,
                     self.local_interface_port
                 )
                 interface.OUT = True
