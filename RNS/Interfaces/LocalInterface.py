@@ -293,7 +293,7 @@ class LocalClientInterface(Interface):
 
 class LocalServerInterface(Interface):
 
-    def __init__(self, owner, bindport=None):
+    def __init__(self, owner, bindaddr="127.0.0.1", bindport=None):
         super().__init__()
         self.online = False
         self.clients = 0
@@ -305,7 +305,7 @@ class LocalServerInterface(Interface):
 
         if (bindport != None):
             self.receives = True
-            self.bind_ip = "127.0.0.1"
+            self.bind_ip = bindaddr
             self.bind_port = bindport
 
             def handlerFactory(callback):
