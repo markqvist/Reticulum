@@ -229,7 +229,14 @@ class Reticulum:
         Reticulum.panic_on_interface_error = False
 
         self.local_interface_port = 37428
+        self.share_instance_addr = "127.0.0.1"
+        
+
         self.local_control_port   = 37429
+        self.instance_control_addr = "127.0.0.1"
+        
+        
+
         self.share_instance       = True
         self.rpc_listener         = None
         self.rpc_key              = None
@@ -289,7 +296,7 @@ class Reticulum:
 
         RNS.Transport.start(self)
 
-        self.rpc_addr = ("127.0.0.1", self.local_control_port)
+        self.rpc_addr = (self.instance_control_addr, self.local_control_port)
         if self.rpc_key == None:
             self.rpc_key  = RNS.Identity.full_hash(RNS.Transport.identity.get_private_key())
         
@@ -402,12 +409,26 @@ class Reticulum:
                 if option == "share_instance":
                     value = self.config["reticulum"].as_bool(option)
                     self.share_instance = value
+                
+                if option == "shared_instance_address":
+                    value = self.config["reticulum"][option]
+                    self.share_instance_addr = value
                 if option == "shared_instance_port":
                     value = int(self.config["reticulum"][option])
                     self.local_interface_port = value
+
+
+                if option == "instance_control_addr":
+                    value = self.config["reticulum"][option]
+                    self.instance_control_addr = value
                 if option == "instance_control_port":
                     value = int(self.config["reticulum"][option])
                     self.local_control_port = value
+
+
+                
+
+                
                 if option == "rpc_key":
                     try:
                         value = bytes.fromhex(self.config["reticulum"][option])
