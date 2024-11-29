@@ -27,6 +27,11 @@ and install them offline using ``pip``:
 
    pip install ./rns-0.5.1-py3-none-any.whl
 
+For more detailed instructions tailored to specific platforms, please see the
+:ref:`Platform-Specific Install Notes<install-guides>` section.
+
+After installation is complete, it might be helpful to refer to the
+:ref:`Using Reticulum on Your System<using-main>` chapter.
 
 Resolving Dependency & Installation Issues
 =============================================
@@ -305,6 +310,20 @@ you are welcome to head over to the `GitHub discussion pages <https://github.com
 and propose adding an interface for the hardware.
 
 
+Creating and Using Custom Interfaces
+===========================================
+
+While Reticulum includes a flexible and broad range of built-in interfaces, these
+will not cover every conceivable type of communications hardware that Reticulum
+can potentially use to communicate.
+
+It is therefore possible to easily write your own interface modules, that can be
+loaded at run-time and used on-par with any of the built-in interface types.
+
+For more information on this subject, and code examples to build on, please see
+the :ref:`Configuring Interfaces<interfaces-main>` chapter.
+
+
 Develop a Program with Reticulum
 ===========================================
 If you want to develop programs that use Reticulum, the easiest way to get
@@ -373,6 +392,7 @@ your first pull request, it is probably a good idea to introduce yourself on
 the `disucssion forum on GitHub <https://github.com/markqvist/Reticulum/discussions>`_,
 or ask one of the developers or maintainers for a good place to start.
 
+.. _install-guides:
 
 Platform-Specific Install Notes
 ==============================================
@@ -463,29 +483,8 @@ installing Reticulum or programs that depend on Reticulum.
    # Install Reticulum
    python3 -m pip install rns
 
-
-Raspberry Pi
-^^^^^^^^^^^^^^^^^^^^^^^^^
-It is currently recommended to use a 64-bit version of the Raspberry Pi OS
-if you want to run Reticulum on Raspberry Pi computers, since 32-bit versions
-don't always have packages available for some dependencies.
-
-While it is possible to install and run Reticulum on 32-bit Rasperry Pi OSes,
-it will require manually configuring and installing some packages, and is not
-detailed in this manual.
-
-OpenWRT
-^^^^^^^^^^^^^^^^^^^^^^^^^
-On OpenWRT systems with sufficient storage and memory, you can easily install
-Reticulum and related utilities using the `opkg` package manager and `pip`.
-
-.. code::
-
-   # Install dependencies
-   opkg install python3 python3-pip python3-cryptography python3-pyserial
-   
-   # Install Reticulum
-   pip install rns
+With these packages installed, ``pip`` will be able to build any missing dependencies
+on your system locally.
 
 
 Debian Bookworm
@@ -522,6 +521,46 @@ option, you can use the following command:
 .. code:: text
 
     pip install rns --break-system-packages
+
+Please note that the "break-system-packages" directive is a somewhat misleading choice
+of words. Setting it will of course not break any system packages, but will simply
+allow installing ``pip`` packages user- and system-wide. While this *could* in rare
+cases lead to version conflicts, it does not generally pose any problems.
+
+
+OpenWRT
+^^^^^^^^^^^^^^^^^^^^^^^^^
+On OpenWRT systems with sufficient storage and memory, you can easily install
+Reticulum and related utilities using the `opkg` package manager and `pip`.
+
+.. code::
+
+   # Install dependencies
+   opkg install python3 python3-pip python3-cryptography python3-pyserial
+   
+   # Install Reticulum
+   pip install rns
+
+
+Raspberry Pi
+^^^^^^^^^^^^^^^^^^^^^^^^^
+It is currently recommended to use a 64-bit version of the Raspberry Pi OS
+if you want to run Reticulum on Raspberry Pi computers, since 32-bit versions
+don't always have packages available for some dependencies. If Python and the
+`pip` package manager is not already installed, do that first, and then
+install Reticulum using `pip`.
+
+.. code::
+
+   # Install dependencies
+   sudo apt install python3 python3-pip python3-cryptography python3-pyserial
+   
+   # Install Reticulum
+   pip install rns --break-system-packages
+
+While it is possible to install and run Reticulum on 32-bit Rasperry Pi OSes,
+it will require manually configuring and installing required build dependencies,
+and is not detailed in this manual.
 
 Please note that the "break-system-packages" directive is a somewhat misleading choice
 of words. Setting it will of course not break any system packages, but will simply
@@ -568,6 +607,29 @@ Please note that the "break-system-packages" directive is a somewhat misleading 
 of words. Setting it will of course not break any system packages, but will simply
 allow installing ``pip`` packages user- and system-wide. While this _could_ in rare
 cases lead to version conflicts, it does not generally pose any problems.
+
+Windows
+^^^^^^^^^^^^^^^^^^^^^^^^^
+On Windows operating systems, the easiest way to install Reticulum is by using the
+``pip`` package manager from the command line (either the command prompt or Windows
+Powershell).
+
+If you don't already have Python installed, `download and install Python <https://www.python.org/downloads/>`_.
+At the time of writing this manual, the recommended version is `Python 3.12.7 <https://www.python.org/downloads/release/python-3127>`_.
+
+**Important!** When asked by the installer, make sure to add the Python program to
+your PATH environment variables. If you don't do this, you will not be able to
+use the ``pip`` installer, or run the included Reticulum utility programs (such as
+``rnsd`` and ``rnstatus``) from the command line.
+
+After installing Python, open the command prompt or Windows Powershell, and type:
+
+.. code::
+
+   pip install rns
+
+You can now use Reticulum and all included utility programs directly from your
+preferred command line interface.
 
 Pure-Python Reticulum
 ==============================================

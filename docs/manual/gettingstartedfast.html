@@ -241,6 +241,10 @@ and install them offline using <code class="docutils literal notranslate"><span 
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">./</span><span class="n">rns</span><span class="o">-</span><span class="mf">0.5.1</span><span class="o">-</span><span class="n">py3</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="nb">any</span><span class="o">.</span><span class="n">whl</span>
 </pre></div>
 </div>
+<p>For more detailed instructions tailored to specific platforms, please see the
+<a class="reference internal" href="#install-guides"><span class="std std-ref">Platform-Specific Install Notes</span></a> section.</p>
+<p>After installation is complete, it might be helpful to refer to the
+<a class="reference internal" href="using.html#using-main"><span class="std std-ref">Using Reticulum on Your System</span></a> chapter.</p>
 </section>
 <section id="resolving-dependency-installation-issues">
 <h2>Resolving Dependency &amp; Installation Issues<a class="headerlink" href="#resolving-dependency-installation-issues" title="Permalink to this heading">#</a></h2>
@@ -456,6 +460,16 @@ refer to these additional external resources:</p>
 you are welcome to head over to the <a class="reference external" href="https://github.com/markqvist/Reticulum/discussions">GitHub discussion pages</a>
 and propose adding an interface for the hardware.</p>
 </section>
+<section id="creating-and-using-custom-interfaces">
+<h2>Creating and Using Custom Interfaces<a class="headerlink" href="#creating-and-using-custom-interfaces" title="Permalink to this heading">#</a></h2>
+<p>While Reticulum includes a flexible and broad range of built-in interfaces, these
+will not cover every conceivable type of communications hardware that Reticulum
+can potentially use to communicate.</p>
+<p>It is therefore possible to easily write your own interface modules, that can be
+loaded at run-time and used on-par with any of the built-in interface types.</p>
+<p>For more information on this subject, and code examples to build on, please see
+the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Configuring Interfaces</span></a> chapter.</p>
+</section>
 <section id="develop-a-program-with-reticulum">
 <h2>Develop a Program with Reticulum<a class="headerlink" href="#develop-a-program-with-reticulum" title="Permalink to this heading">#</a></h2>
 <p>If you want to develop programs that use Reticulum, the easiest way to get
@@ -516,7 +530,7 @@ the <a class="reference external" href="https://github.com/markqvist/Reticulum/d
 or ask one of the developers or maintainers for a good place to start.</p>
 </section>
 <section id="platform-specific-install-notes">
-<h2>Platform-Specific Install Notes<a class="headerlink" href="#platform-specific-install-notes" title="Permalink to this heading">#</a></h2>
+<span id="install-guides"></span><h2>Platform-Specific Install Notes<a class="headerlink" href="#platform-specific-install-notes" title="Permalink to this heading">#</a></h2>
 <p>Some platforms require a slightly different installation procedure, or have
 various quirks that are worth being aware of. These are listed here.</p>
 <section id="android">
@@ -591,27 +605,8 @@ installing Reticulum or programs that depend on Reticulum.</p>
 <span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
 </pre></div>
 </div>
-</section>
-<section id="raspberry-pi">
-<h3>Raspberry Pi<a class="headerlink" href="#raspberry-pi" title="Permalink to this heading">#</a></h3>
-<p>It is currently recommended to use a 64-bit version of the Raspberry Pi OS
-if you want to run Reticulum on Raspberry Pi computers, since 32-bit versions
-don’t always have packages available for some dependencies.</p>
-<p>While it is possible to install and run Reticulum on 32-bit Rasperry Pi OSes,
-it will require manually configuring and installing some packages, and is not
-detailed in this manual.</p>
-</section>
-<section id="openwrt">
-<h3>OpenWRT<a class="headerlink" href="#openwrt" title="Permalink to this heading">#</a></h3>
-<p>On OpenWRT systems with sufficient storage and memory, you can easily install
-Reticulum and related utilities using the <cite>opkg</cite> package manager and <cite>pip</cite>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
-<span class="n">opkg</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">cryptography</span> <span class="n">python3</span><span class="o">-</span><span class="n">pyserial</span>
-
-<span class="c1"># Install Reticulum</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
-</pre></div>
-</div>
+<p>With these packages installed, <code class="docutils literal notranslate"><span class="pre">pip</span></code> will be able to build any missing dependencies
+on your system locally.</p>
 </section>
 <section id="debian-bookworm">
 <h3>Debian Bookworm<a class="headerlink" href="#debian-bookworm" title="Permalink to this heading">#</a></h3>
@@ -642,6 +637,40 @@ option, you can use the following command:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pip install rns --break-system-packages
 </pre></div>
 </div>
+<p>Please note that the “break-system-packages” directive is a somewhat misleading choice
+of words. Setting it will of course not break any system packages, but will simply
+allow installing <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages user- and system-wide. While this <em>could</em> in rare
+cases lead to version conflicts, it does not generally pose any problems.</p>
+</section>
+<section id="openwrt">
+<h3>OpenWRT<a class="headerlink" href="#openwrt" title="Permalink to this heading">#</a></h3>
+<p>On OpenWRT systems with sufficient storage and memory, you can easily install
+Reticulum and related utilities using the <cite>opkg</cite> package manager and <cite>pip</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
+<span class="n">opkg</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">cryptography</span> <span class="n">python3</span><span class="o">-</span><span class="n">pyserial</span>
+
+<span class="c1"># Install Reticulum</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+</pre></div>
+</div>
+</section>
+<section id="raspberry-pi">
+<h3>Raspberry Pi<a class="headerlink" href="#raspberry-pi" title="Permalink to this heading">#</a></h3>
+<p>It is currently recommended to use a 64-bit version of the Raspberry Pi OS
+if you want to run Reticulum on Raspberry Pi computers, since 32-bit versions
+don’t always have packages available for some dependencies. If Python and the
+<cite>pip</cite> package manager is not already installed, do that first, and then
+install Reticulum using <cite>pip</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">cryptography</span> <span class="n">python3</span><span class="o">-</span><span class="n">pyserial</span>
+
+<span class="c1"># Install Reticulum</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span> <span class="o">--</span><span class="k">break</span><span class="o">-</span><span class="n">system</span><span class="o">-</span><span class="n">packages</span>
+</pre></div>
+</div>
+<p>While it is possible to install and run Reticulum on 32-bit Rasperry Pi OSes,
+it will require manually configuring and installing required build dependencies,
+and is not detailed in this manual.</p>
 <p>Please note that the “break-system-packages” directive is a somewhat misleading choice
 of words. Setting it will of course not break any system packages, but will simply
 allow installing <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages user- and system-wide. While this <em>could</em> in rare
@@ -680,6 +709,24 @@ option, you can use the following command:</p>
 of words. Setting it will of course not break any system packages, but will simply
 allow installing <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages user- and system-wide. While this _could_ in rare
 cases lead to version conflicts, it does not generally pose any problems.</p>
+</section>
+<section id="windows">
+<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this heading">#</a></h3>
+<p>On Windows operating systems, the easiest way to install Reticulum is by using the
+<code class="docutils literal notranslate"><span class="pre">pip</span></code> package manager from the command line (either the command prompt or Windows
+Powershell).</p>
+<p>If you don’t already have Python installed, <a class="reference external" href="https://www.python.org/downloads/">download and install Python</a>.
+At the time of writing this manual, the recommended version is <a class="reference external" href="https://www.python.org/downloads/release/python-3127">Python 3.12.7</a>.</p>
+<p><strong>Important!</strong> When asked by the installer, make sure to add the Python program to
+your PATH environment variables. If you don’t do this, you will not be able to
+use the <code class="docutils literal notranslate"><span class="pre">pip</span></code> installer, or run the included Reticulum utility programs (such as
+<code class="docutils literal notranslate"><span class="pre">rnsd</span></code> and <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code>) from the command line.</p>
+<p>After installing Python, open the command prompt or Windows Powershell, and type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+</pre></div>
+</div>
+<p>You can now use Reticulum and all included utility programs directly from your
+preferred command line interface.</p>
 </section>
 </section>
 <section id="pure-python-reticulum">
@@ -775,15 +822,17 @@ section of this manual.</p>
 <li><a class="reference internal" href="#connecting-reticulum-instances-over-the-internet">Connecting Reticulum Instances Over the Internet</a></li>
 <li><a class="reference internal" href="#connect-to-the-public-testnet">Connect to the Public Testnet</a></li>
 <li><a class="reference internal" href="#adding-radio-interfaces">Adding Radio Interfaces</a></li>
+<li><a class="reference internal" href="#creating-and-using-custom-interfaces">Creating and Using Custom Interfaces</a></li>
 <li><a class="reference internal" href="#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
 <li><a class="reference internal" href="#participate-in-reticulum-development">Participate in Reticulum Development</a></li>
 <li><a class="reference internal" href="#platform-specific-install-notes">Platform-Specific Install Notes</a><ul>
 <li><a class="reference internal" href="#android">Android</a></li>
 <li><a class="reference internal" href="#arm64">ARM64</a></li>
-<li><a class="reference internal" href="#raspberry-pi">Raspberry Pi</a></li>
-<li><a class="reference internal" href="#openwrt">OpenWRT</a></li>
 <li><a class="reference internal" href="#debian-bookworm">Debian Bookworm</a></li>
+<li><a class="reference internal" href="#openwrt">OpenWRT</a></li>
+<li><a class="reference internal" href="#raspberry-pi">Raspberry Pi</a></li>
 <li><a class="reference internal" href="#ubuntu-lunar">Ubuntu Lunar</a></li>
+<li><a class="reference internal" href="#windows">Windows</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#pure-python-reticulum">Pure-Python Reticulum</a></li>
