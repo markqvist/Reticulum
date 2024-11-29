@@ -32,7 +32,9 @@ Provide Feedback
 ================
 All feedback on the usage, functioning and potential dysfunctioning of any and
 all components of the system is very valuable to the continued development and
-improvement of Reticulum. Absolutely no automated analytics, telemetry, error
+improvement of Reticulum.
+
+Absolutely no automated analytics, telemetry, error
 reporting or statistics is collected and reported by Reticulum under any
 circumstances, so we rely on old-fashioned human feedback.
 

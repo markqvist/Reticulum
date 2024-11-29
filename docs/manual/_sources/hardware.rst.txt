@@ -75,8 +75,8 @@ completely from scratch, to your exact desired specifications, this chapter
 will explain the easiest possible approach to creating RNodes: Using common
 LoRa development boards. This approach can be boiled down to two simple steps:
 
-1. Obtain one or more supported development boards
-2. Install the RNode firmware with the automated installer
+1. Obtain one or more :ref:`supported development boards<rnode-supported>`
+2. Install the RNode firmware with the :ref:`automated installer<rnode-installation>`
 
 Once the firmware has been installed and provisioned by the install script, it
 is ready to use with any software that supports RNodes, including Reticulum.
@@ -85,8 +85,8 @@ to the configuration.
 
 .. _rnode-supported:
 
-Supported Boards
-^^^^^^^^^^^^^^^^
+Supported Boards and Devices
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 To create one or more RNodes, you will need to obtain supported development
 boards. The following boards are supported by the auto-installer.
 

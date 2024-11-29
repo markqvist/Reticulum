@@ -241,13 +241,12 @@ and install them offline using <code class="docutils literal notranslate"><span 
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">./</span><span class="n">rns</span><span class="o">-</span><span class="mf">0.5.1</span><span class="o">-</span><span class="n">py3</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="nb">any</span><span class="o">.</span><span class="n">whl</span>
 </pre></div>
 </div>
-<p>For more detailed instructions tailored to specific platforms, please see the
+<p>For more detailed installation instructions, please see the
 <a class="reference internal" href="#install-guides"><span class="std std-ref">Platform-Specific Install Notes</span></a> section.</p>
 <p>After installation is complete, it might be helpful to refer to the
 <a class="reference internal" href="using.html#using-main"><span class="std std-ref">Using Reticulum on Your System</span></a> chapter.</p>
-</section>
 <section id="resolving-dependency-installation-issues">
-<h2>Resolving Dependency &amp; Installation Issues<a class="headerlink" href="#resolving-dependency-installation-issues" title="Permalink to this heading">#</a></h2>
+<h3>Resolving Dependency &amp; Installation Issues<a class="headerlink" href="#resolving-dependency-installation-issues" title="Permalink to this heading">#</a></h3>
 <p>On some platforms, there may not be binary packages available for all dependencies, and
 <code class="docutils literal notranslate"><span class="pre">pip</span></code> installation may fail with an error message. In these cases, the issue can usually
 be resolved by installing the development essentials packages for your platform:</p>
@@ -264,6 +263,7 @@ be resolved by installing the development essentials packages for your platform:
 <p>With the base development packages installed, <code class="docutils literal notranslate"><span class="pre">pip</span></code> should be able to compile any missing
 dependencies from source, and complete installation even on platforms that don’t have pre-
 compiled packages available.</p>
+</section>
 </section>
 <section id="try-using-a-reticulum-based-program">
 <h2>Try Using a Reticulum-based Program<a class="headerlink" href="#try-using-a-reticulum-based-program" title="Permalink to this heading">#</a></h2>
@@ -304,10 +304,14 @@ for the messaging and information-sharing protocol
 <span class="n">nomadnet</span>
 </pre></div>
 </div>
-<p><strong>Please Note</strong>: If this is the very first time you use pip to install a program
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If this is the very first time you use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install a program
 on your system, you might need to reboot your system for your program to become
 available. If you get a “command not found” error or similar when running the
-program, reboot your system and try again.</p>
+program, reboot your system and try again. In some cases, you may even need to
+manually add the <code class="docutils literal notranslate"><span class="pre">pip</span></code> install path to your <code class="docutils literal notranslate"><span class="pre">PATH</span></code> environment variable.</p>
+</div>
 </section>
 <section id="sideband">
 <h3>Sideband<a class="headerlink" href="#sideband" title="Permalink to this heading">#</a></h3>
@@ -480,11 +484,8 @@ started is to install the latest release of Reticulum via pip:</p>
 <p>The above command will install Reticulum and dependencies, and you will be
 ready to import and use RNS in your own programs. The next step will most
 likely be to look at some <a class="reference internal" href="examples.html#examples-main"><span class="std std-ref">Example Programs</span></a>.</p>
-<p>For extended functionality, you can install optional dependencies:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pyserial</span>
-</pre></div>
-</div>
-<p>Further information can be found in the <a class="reference internal" href="reference.html#api-main"><span class="std std-ref">API Reference</span></a>.</p>
+<p>The entire Reticulum API is documented in the <a class="reference internal" href="reference.html#api-main"><span class="std std-ref">API Reference</span></a>
+chapter of this manual.</p>
 </section>
 <section id="participate-in-reticulum-development">
 <h2>Participate in Reticulum Development<a class="headerlink" href="#participate-in-reticulum-development" title="Permalink to this heading">#</a></h2>
@@ -595,7 +596,7 @@ here at a later point. Until then you can use the <a class="reference external" 
 <section id="arm64">
 <h3>ARM64<a class="headerlink" href="#arm64" title="Permalink to this heading">#</a></h3>
 <p>On some architectures, including ARM64, not all dependencies have precompiled
-binaries. On such systems, you may need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> before
+binaries. On such systems, you may need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> (or similar) before
 installing Reticulum or programs that depend on Reticulum.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Python and development packages</span>
 <span class="n">sudo</span> <span class="n">apt</span> <span class="n">update</span>
@@ -637,10 +638,49 @@ option, you can use the following command:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pip install rns --break-system-packages
 </pre></div>
 </div>
-<p>Please note that the “break-system-packages” directive is a somewhat misleading choice
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--break-system-packages</span></code> directive is a somewhat misleading choice
 of words. Setting it will of course not break any system packages, but will simply
 allow installing <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages user- and system-wide. While this <em>could</em> in rare
-cases lead to version conflicts, it does not generally pose any problems.</p>
+cases lead to version conflicts, it does not generally pose any problems, especially
+not in the case of installing Reticulum.</p>
+</div>
+</section>
+<section id="macos">
+<h3>MacOS<a class="headerlink" href="#macos" title="Permalink to this heading">#</a></h3>
+<p>To install Reticulum on macOS, you will need to have Python and the <code class="docutils literal notranslate"><span class="pre">pip</span></code> package
+manager installed.</p>
+<p>Systems running macOS can vary quite widely in whether or not Python is pre-installed,
+and if it is, which version is installed, and whether the <code class="docutils literal notranslate"><span class="pre">pip</span></code> package manager is
+also installed and set up. If in doubt, you can <a class="reference external" href="https://www.python.org/downloads/">download and install</a>
+Python manually.</p>
+<p>When Python and <code class="docutils literal notranslate"><span class="pre">pip</span></code> is available on your system, simply open a terminal window
+and use one of the following commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Reticulum and utilities with pip:</span>
+<span class="n">pip3</span> <span class="n">install</span> <span class="n">rns</span>
+
+<span class="c1"># On some versions, you may need to use the</span>
+<span class="c1"># flag --break-system-packages to install:</span>
+<span class="n">pip3</span> <span class="n">install</span> <span class="n">rns</span> <span class="o">--</span><span class="k">break</span><span class="o">-</span><span class="n">system</span><span class="o">-</span><span class="n">packages</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--break-system-packages</span></code> directive is a somewhat misleading choice
+of words. Setting it will of course not break any system packages, but will simply
+allow installing <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages user- and system-wide. While this <em>could</em> in rare
+cases lead to version conflicts, it does not generally pose any problems, especially
+not in the case of installing Reticulum.</p>
+</div>
+<p>Additionally, some version combinations of macOS and Python require you to
+manually add your installed <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages directory to your <cite>PATH</cite> environment
+variable, before you can use installed commands in your terminal. Usually, adding
+the following line to your shell init script (for example <code class="docutils literal notranslate"><span class="pre">~/.zshrc</span></code>) will be enough:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export PATH=$PATH:
+</pre></div>
+</div>
+<p>Adjust Python version and shell init script location according to your system.</p>
 </section>
 <section id="openwrt">
 <h3>OpenWRT<a class="headerlink" href="#openwrt" title="Permalink to this heading">#</a></h3>
@@ -651,8 +691,25 @@ Reticulum and related utilities using the <cite>opkg</cite> package manager and 
 
 <span class="c1"># Install Reticulum</span>
 <span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+
+<span class="c1"># Start rnsd with debug logging enabled</span>
+<span class="n">rnsd</span> <span class="o">-</span><span class="n">vvv</span>
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The above instructions have been verified and tested on OpenWRT 21.02 only.
+It is likely that other versions may require slightly altered installation
+commands or package names. You will also need enough free space in your
+overlay FS, and enough free RAM to actually run Reticulum and any related
+programs and utilities.</p>
+</div>
+<p>Depending on your device configuration, you may need to adjust firewall rules
+for Reticulum connectivity to and from your device to work. Please also note
+that the <cite>AutoInterface</cite> requires link-local IPv6 addresses to be enabled for
+any Ethernet and WiFi devices you intend to use. If <code class="docutils literal notranslate"><span class="pre">ip</span> <span class="pre">a</span></code> shows an address
+starting with <code class="docutils literal notranslate"><span class="pre">fe80::</span></code> for the device in question, <code class="docutils literal notranslate"><span class="pre">AutoInterface</span></code> should
+work for that device.</p>
 </section>
 <section id="raspberry-pi">
 <h3>Raspberry Pi<a class="headerlink" href="#raspberry-pi" title="Permalink to this heading">#</a></h3>
@@ -668,13 +725,33 @@ install Reticulum using <cite>pip</cite>.</p>
 <span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span> <span class="o">--</span><span class="k">break</span><span class="o">-</span><span class="n">system</span><span class="o">-</span><span class="n">packages</span>
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--break-system-packages</span></code> directive is a somewhat misleading choice
+of words. Setting it will of course not break any system packages, but will simply
+allow installing <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages user- and system-wide. While this <em>could</em> in rare
+cases lead to version conflicts, it does not generally pose any problems, especially
+not in the case of installing Reticulum.</p>
+</div>
 <p>While it is possible to install and run Reticulum on 32-bit Rasperry Pi OSes,
 it will require manually configuring and installing required build dependencies,
 and is not detailed in this manual.</p>
-<p>Please note that the “break-system-packages” directive is a somewhat misleading choice
-of words. Setting it will of course not break any system packages, but will simply
-allow installing <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages user- and system-wide. While this <em>could</em> in rare
-cases lead to version conflicts, it does not generally pose any problems.</p>
+</section>
+<section id="risc-v">
+<h3>RISC-V<a class="headerlink" href="#risc-v" title="Permalink to this heading">#</a></h3>
+<p>On some architectures, including RISC-V, not all dependencies have precompiled
+binaries. On such systems, you may need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> (or similar) before
+installing Reticulum or programs that depend on Reticulum.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Python and development packages</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">dev</span>
+
+<span class="c1"># Install Reticulum</span>
+<span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+</pre></div>
+</div>
+<p>With these packages installed, <code class="docutils literal notranslate"><span class="pre">pip</span></code> will be able to build any missing dependencies
+on your system locally.</p>
 </section>
 <section id="ubuntu-lunar">
 <h3>Ubuntu Lunar<a class="headerlink" href="#ubuntu-lunar" title="Permalink to this heading">#</a></h3>
@@ -705,10 +782,14 @@ option, you can use the following command:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pip install rns --break-system-packages
 </pre></div>
 </div>
-<p>Please note that the “break-system-packages” directive is a somewhat misleading choice
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--break-system-packages</span></code> directive is a somewhat misleading choice
 of words. Setting it will of course not break any system packages, but will simply
-allow installing <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages user- and system-wide. While this _could_ in rare
-cases lead to version conflicts, it does not generally pose any problems.</p>
+allow installing <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages user- and system-wide. While this <em>could</em> in rare
+cases lead to version conflicts, it does not generally pose any problems, especially
+not in the case of installing Reticulum.</p>
+</div>
 </section>
 <section id="windows">
 <h3>Windows<a class="headerlink" href="#windows" title="Permalink to this heading">#</a></h3>
@@ -716,7 +797,7 @@ cases lead to version conflicts, it does not generally pose any problems.</p>
 <code class="docutils literal notranslate"><span class="pre">pip</span></code> package manager from the command line (either the command prompt or Windows
 Powershell).</p>
 <p>If you don’t already have Python installed, <a class="reference external" href="https://www.python.org/downloads/">download and install Python</a>.
-At the time of writing this manual, the recommended version is <a class="reference external" href="https://www.python.org/downloads/release/python-3127">Python 3.12.7</a>.</p>
+At the time of publication of this manual, the recommended version is <a class="reference external" href="https://www.python.org/downloads/release/python-3127">Python 3.12.7</a>.</p>
 <p><strong>Important!</strong> When asked by the installer, make sure to add the Python program to
 your PATH environment variables. If you don’t do this, you will not be able to
 use the <code class="docutils literal notranslate"><span class="pre">pip</span></code> installer, or run the included Reticulum utility programs (such as
@@ -744,10 +825,13 @@ only if they are <em>needed</em> and <em>available</em>. If for example you want
 on a system that cannot support <code class="docutils literal notranslate"><span class="pre">pyserial</span></code>, it is perfectly possible to do so using
 the <cite>rnspure</cite> package, but Reticulum will not be able to use serial-based interfaces.
 All other available modules will still be loaded when needed.</p>
-<p><strong>Please Note!</strong> If you use the <cite>rnspure</cite> package to run Reticulum on systems that
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you use the <code class="docutils literal notranslate"><span class="pre">rnspure</span></code> package to run Reticulum on systems that
 do not support <a class="reference external" href="https://github.com/pyca/cryptography">PyCA/cryptography</a>, it is
 important that you read and understand the <a class="reference internal" href="understanding.html#understanding-primitives"><span class="std std-ref">Cryptographic Primitives</span></a>
 section of this manual.</p>
+</div>
 </section>
 </section>
 
@@ -808,8 +892,10 @@ section of this manual.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Getting Started Fast</a><ul>
-<li><a class="reference internal" href="#standalone-reticulum-installation">Standalone Reticulum Installation</a></li>
+<li><a class="reference internal" href="#standalone-reticulum-installation">Standalone Reticulum Installation</a><ul>
 <li><a class="reference internal" href="#resolving-dependency-installation-issues">Resolving Dependency &amp; Installation Issues</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#try-using-a-reticulum-based-program">Try Using a Reticulum-based Program</a><ul>
 <li><a class="reference internal" href="#remote-shell">Remote Shell</a></li>
 <li><a class="reference internal" href="#nomad-network">Nomad Network</a></li>
@@ -829,8 +915,10 @@ section of this manual.</p>
 <li><a class="reference internal" href="#android">Android</a></li>
 <li><a class="reference internal" href="#arm64">ARM64</a></li>
 <li><a class="reference internal" href="#debian-bookworm">Debian Bookworm</a></li>
+<li><a class="reference internal" href="#macos">MacOS</a></li>
 <li><a class="reference internal" href="#openwrt">OpenWRT</a></li>
 <li><a class="reference internal" href="#raspberry-pi">Raspberry Pi</a></li>
+<li><a class="reference internal" href="#risc-v">RISC-V</a></li>
 <li><a class="reference internal" href="#ubuntu-lunar">Ubuntu Lunar</a></li>
 <li><a class="reference internal" href="#windows">Windows</a></li>
 </ul>

@@ -27,14 +27,14 @@ and install them offline using ``pip``:
 
    pip install ./rns-0.5.1-py3-none-any.whl
 
-For more detailed instructions tailored to specific platforms, please see the
+For more detailed installation instructions, please see the
 :ref:`Platform-Specific Install Notes<install-guides>` section.
 
 After installation is complete, it might be helpful to refer to the
 :ref:`Using Reticulum on Your System<using-main>` chapter.
 
 Resolving Dependency & Installation Issues
-=============================================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 On some platforms, there may not be binary packages available for all dependencies, and
 ``pip`` installation may fail with an error message. In these cases, the issue can usually
 be resolved by installing the development essentials packages for your platform:
@@ -105,10 +105,12 @@ You can install Nomad Network via pip:
    # ... and run
    nomadnet
 
-**Please Note**: If this is the very first time you use pip to install a program
-on your system, you might need to reboot your system for your program to become
-available. If you get a "command not found" error or similar when running the
-program, reboot your system and try again.
+.. note::
+   If this is the very first time you use ``pip`` to install a program
+   on your system, you might need to reboot your system for your program to become
+   available. If you get a "command not found" error or similar when running the
+   program, reboot your system and try again. In some cases, you may even need to
+   manually add the ``pip`` install path to your ``PATH`` environment variable.
 
 Sideband
 ^^^^^^^^
@@ -337,14 +339,8 @@ The above command will install Reticulum and dependencies, and you will be
 ready to import and use RNS in your own programs. The next step will most
 likely be to look at some :ref:`Example Programs<examples-main>`.
 
-For extended functionality, you can install optional dependencies:
-
-.. code::
-
-   pip install pyserial
-
-
-Further information can be found in the :ref:`API Reference<api-main>`.
+The entire Reticulum API is documented in the :ref:`API Reference<api-main>`
+chapter of this manual.
 
 
 Participate in Reticulum Development
@@ -471,7 +467,7 @@ here at a later point. Until then you can use the `Sideband source code <https:/
 ARM64
 ^^^^^^^^^^^^^^^^^^^^^^^^
 On some architectures, including ARM64, not all dependencies have precompiled
-binaries. On such systems, you may need to install ``python3-dev`` before
+binaries. On such systems, you may need to install ``python3-dev`` (or similar) before
 installing Reticulum or programs that depend on Reticulum.
 
 .. code::
@@ -522,10 +518,53 @@ option, you can use the following command:
 
     pip install rns --break-system-packages
 
-Please note that the "break-system-packages" directive is a somewhat misleading choice
-of words. Setting it will of course not break any system packages, but will simply
-allow installing ``pip`` packages user- and system-wide. While this *could* in rare
-cases lead to version conflicts, it does not generally pose any problems.
+.. note::
+   The ``--break-system-packages`` directive is a somewhat misleading choice
+   of words. Setting it will of course not break any system packages, but will simply
+   allow installing ``pip`` packages user- and system-wide. While this *could* in rare
+   cases lead to version conflicts, it does not generally pose any problems, especially
+   not in the case of installing Reticulum.
+
+
+MacOS
+^^^^^^^^^^^^^^^^^^^^^^^^^
+To install Reticulum on macOS, you will need to have Python and the ``pip`` package
+manager installed.
+
+Systems running macOS can vary quite widely in whether or not Python is pre-installed,
+and if it is, which version is installed, and whether the ``pip`` package manager is
+also installed and set up. If in doubt, you can `download and install <https://www.python.org/downloads/>`_
+Python manually.
+
+When Python and ``pip`` is available on your system, simply open a terminal window
+and use one of the following commands:
+
+.. code::
+
+   # Install Reticulum and utilities with pip:
+   pip3 install rns
+   
+   # On some versions, you may need to use the
+   # flag --break-system-packages to install:
+   pip3 install rns --break-system-packages
+
+.. note::
+   The ``--break-system-packages`` directive is a somewhat misleading choice
+   of words. Setting it will of course not break any system packages, but will simply
+   allow installing ``pip`` packages user- and system-wide. While this *could* in rare
+   cases lead to version conflicts, it does not generally pose any problems, especially
+   not in the case of installing Reticulum.
+
+Additionally, some version combinations of macOS and Python require you to
+manually add your installed ``pip`` packages directory to your `PATH` environment
+variable, before you can use installed commands in your terminal. Usually, adding
+the following line to your shell init script (for example ``~/.zshrc``) will be enough:
+
+.. code::
+
+   export PATH=$PATH:
+
+Adjust Python version and shell init script location according to your system.
 
 
 OpenWRT
@@ -541,6 +580,23 @@ Reticulum and related utilities using the `opkg` package manager and `pip`.
    # Install Reticulum
    pip install rns
 
+   # Start rnsd with debug logging enabled
+   rnsd -vvv
+
+.. note::
+   
+   The above instructions have been verified and tested on OpenWRT 21.02 only.
+   It is likely that other versions may require slightly altered installation
+   commands or package names. You will also need enough free space in your
+   overlay FS, and enough free RAM to actually run Reticulum and any related
+   programs and utilities.
+
+Depending on your device configuration, you may need to adjust firewall rules
+for Reticulum connectivity to and from your device to work. Please also note
+that the `AutoInterface` requires link-local IPv6 addresses to be enabled for
+any Ethernet and WiFi devices you intend to use. If ``ip a`` shows an address
+starting with ``fe80::`` for the device in question, ``AutoInterface`` should
+work for that device.
 
 Raspberry Pi
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -558,14 +614,35 @@ install Reticulum using `pip`.
    # Install Reticulum
    pip install rns --break-system-packages
 
+.. note::
+   The ``--break-system-packages`` directive is a somewhat misleading choice
+   of words. Setting it will of course not break any system packages, but will simply
+   allow installing ``pip`` packages user- and system-wide. While this *could* in rare
+   cases lead to version conflicts, it does not generally pose any problems, especially
+   not in the case of installing Reticulum.
+
 While it is possible to install and run Reticulum on 32-bit Rasperry Pi OSes,
 it will require manually configuring and installing required build dependencies,
 and is not detailed in this manual.
 
-Please note that the "break-system-packages" directive is a somewhat misleading choice
-of words. Setting it will of course not break any system packages, but will simply
-allow installing ``pip`` packages user- and system-wide. While this *could* in rare
-cases lead to version conflicts, it does not generally pose any problems.
+
+RISC-V
+^^^^^^^^^^^^^^^^^^^^^^^^
+On some architectures, including RISC-V, not all dependencies have precompiled
+binaries. On such systems, you may need to install ``python3-dev`` (or similar) before
+installing Reticulum or programs that depend on Reticulum.
+
+.. code::
+
+   # Install Python and development packages
+   sudo apt update
+   sudo apt install python3 python3-pip python3-dev
+
+   # Install Reticulum
+   python3 -m pip install rns
+
+With these packages installed, ``pip`` will be able to build any missing dependencies
+on your system locally.
 
 
 Ubuntu Lunar
@@ -603,10 +680,12 @@ option, you can use the following command:
 
     pip install rns --break-system-packages
 
-Please note that the "break-system-packages" directive is a somewhat misleading choice
-of words. Setting it will of course not break any system packages, but will simply
-allow installing ``pip`` packages user- and system-wide. While this _could_ in rare
-cases lead to version conflicts, it does not generally pose any problems.
+.. note::
+   The ``--break-system-packages`` directive is a somewhat misleading choice
+   of words. Setting it will of course not break any system packages, but will simply
+   allow installing ``pip`` packages user- and system-wide. While this *could* in rare
+   cases lead to version conflicts, it does not generally pose any problems, especially
+   not in the case of installing Reticulum.
 
 Windows
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -615,7 +694,7 @@ On Windows operating systems, the easiest way to install Reticulum is by using t
 Powershell).
 
 If you don't already have Python installed, `download and install Python <https://www.python.org/downloads/>`_.
-At the time of writing this manual, the recommended version is `Python 3.12.7 <https://www.python.org/downloads/release/python-3127>`_.
+At the time of publication of this manual, the recommended version is `Python 3.12.7 <https://www.python.org/downloads/release/python-3127>`_.
 
 **Important!** When asked by the installer, make sure to add the Python program to
 your PATH environment variables. If you don't do this, you will not be able to
@@ -648,7 +727,8 @@ on a system that cannot support ``pyserial``, it is perfectly possible to do so 
 the `rnspure` package, but Reticulum will not be able to use serial-based interfaces.
 All other available modules will still be loaded when needed.
 
-**Please Note!** If you use the `rnspure` package to run Reticulum on systems that
-do not support `PyCA/cryptography <https://github.com/pyca/cryptography>`_, it is
-important that you read and understand the :ref:`Cryptographic Primitives <understanding-primitives>`
-section of this manual.
+.. warning::
+   If you use the ``rnspure`` package to run Reticulum on systems that
+   do not support `PyCA/cryptography <https://github.com/pyca/cryptography>`_, it is
+   important that you read and understand the :ref:`Cryptographic Primitives <understanding-primitives>`
+   section of this manual.

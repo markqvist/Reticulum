@@ -162,11 +162,12 @@ It can take anywhere from a few seconds to a few minutes to establish
 I2P connections to the desired peers, so Reticulum handles the process
 in the background, and will output relevant events to the log.
 
-**Please Note!** While the I2P interface is the simplest way to use
-Reticulum over I2P, it is also possible to tunnel the TCP server and
-client interfaces over I2P manually. This can be useful in situations
-where more control is needed, but requires manual tunnel setup through
-the I2P daemon configuration.
+.. note::
+   While the I2P interface is the simplest way to use
+   Reticulum over I2P, it is also possible to tunnel the TCP server and
+   client interfaces over I2P manually. This can be useful in situations
+   where more control is needed, but requires manual tunnel setup through
+   the I2P daemon configuration.
 
 It is important to note that the two methods are *interchangably compatible*.
 You can use the I2PInterface to connect to a TCPServerInterface that
@@ -238,8 +239,9 @@ can simply specify the Yggdrasil ``tun`` device and a listening port, like so:
       device = tun0
       listen_port = 4343
 
-**Please Note!** The TCP interfaces support tunneling over I2P, but to do so reliably,
-you must use the i2p_tunneled option:
+.. note::
+   The TCP interfaces support tunneling over I2P, but to do so reliably,
+   you must use the i2p_tunneled option:
 
 .. code::
 
@@ -311,8 +313,9 @@ never enable ``kiss_framing``, since this will disable internal reliability and
 recovery mechanisms that greatly improves performance over unreliable and
 intermittent TCP links.
 
-**Please Note!** The TCP interfaces support tunneling over I2P, but to do so reliably,
-you must use the i2p_tunneled option:
+.. note::
+   The TCP interfaces support tunneling over I2P, but to do so reliably,
+   you must use the i2p_tunneled option:
 
 .. code::
 
@@ -334,11 +337,12 @@ private and the internet. It can also allow broadcast communication
 over IP networks, so it can provide an easy way to enable connectivity
 with all other peers on a local area network.
 
-*Please Note!* Using broadcast UDP traffic has performance implications,
-especially on WiFi. If your goal is simply to enable easy communication
-with all peers in your local Ethernet broadcast domain, the
-:ref:`Auto Interface<interfaces-auto>` performs better, and is even
-easier to use.
+.. warning::
+   Using broadcast UDP traffic has performance implications,
+   especially on WiFi. If your goal is simply to enable easy communication
+   with all peers in your local Ethernet broadcast domain, the
+   :ref:`Auto Interface<interfaces-auto>` performs better, and is even
+   easier to use.
 
 .. code::
 
@@ -392,6 +396,11 @@ RNode LoRa Interface
 
 To use Reticulum over LoRa, the `RNode <https://unsigned.io/rnode/>`_ interface
 can be used, and offers full control over LoRa parameters.
+
+.. warning::
+   Radio frequency spectrum is a legally controlled resource, and legislation
+   varies widely around the world. It is your responsibility to be aware of any
+   relevant regulation for your location, and to make decisions accordingly.
 
 .. code::
 
@@ -479,6 +488,11 @@ RNode Multi Interface
 
 For RNodes that support multiple LoRa transceivers, the RNode
 Multi interface can be used to configure sub-interfaces individually.
+
+.. warning::
+   Radio frequency spectrum is a legally controlled resource, and legislation
+   varies widely around the world. It is your responsibility to be aware of any
+   relevant regulation for your location, and to make decisions accordingly.
 
 .. code::
 
@@ -647,6 +661,11 @@ radio modems and TNCs, including `OpenModem <https://unsigned.io/openmodem/>`_.
 KISS interfaces can also be configured to periodically send out beacons
 for station identification purposes.
 
+.. warning::
+   Radio frequency spectrum is a legally controlled resource, and legislation
+   varies widely around the world. It is your responsibility to be aware of any
+   relevant regulation for your location, and to make decisions accordingly.
+
 .. code::
 
   [[Packet Radio KISS Interface]]
@@ -709,6 +728,11 @@ encapsulate in AX.25.
 
 A more efficient way is to use the plain KISS interface with the
 beaconing functionality described above.
+
+.. warning::
+   Radio frequency spectrum is a legally controlled resource, and legislation
+   varies widely around the world. It is your responsibility to be aware of any
+   relevant regulation for your location, and to make decisions accordingly.
 
 .. code::
 

@@ -353,11 +353,14 @@ list of I2P base32 addresses to the <code class="docutils literal notranslate"><
 <p>It can take anywhere from a few seconds to a few minutes to establish
 I2P connections to the desired peers, so Reticulum handles the process
 in the background, and will output relevant events to the log.</p>
-<p><strong>Please Note!</strong> While the I2P interface is the simplest way to use
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While the I2P interface is the simplest way to use
 Reticulum over I2P, it is also possible to tunnel the TCP server and
 client interfaces over I2P manually. This can be useful in situations
 where more control is needed, but requires manual tunnel setup through
 the I2P daemon configuration.</p>
+</div>
 <p>It is important to note that the two methods are <em>interchangably compatible</em>.
 You can use the I2PInterface to connect to a TCPServerInterface that
 was manually tunneled over I2P, for example. This offers a high degree
@@ -418,8 +421,11 @@ can simply specify the Yggdrasil <code class="docutils literal notranslate"><spa
     <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">4343</span>
 </pre></div>
 </div>
-<p><strong>Please Note!</strong> The TCP interfaces support tunneling over I2P, but to do so reliably,
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The TCP interfaces support tunneling over I2P, but to do so reliably,
 you must use the i2p_tunneled option:</p>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">on</span> <span class="n">I2P</span><span class="p">]]</span>
     <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
     <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
@@ -478,8 +484,11 @@ and programs like soundmodems and similar over TCP. When using the
 never enable <code class="docutils literal notranslate"><span class="pre">kiss_framing</span></code>, since this will disable internal reliability and
 recovery mechanisms that greatly improves performance over unreliable and
 intermittent TCP links.</p>
-<p><strong>Please Note!</strong> The TCP interfaces support tunneling over I2P, but to do so reliably,
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The TCP interfaces support tunneling over I2P, but to do so reliably,
 you must use the i2p_tunneled option:</p>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">TCP</span> <span class="n">Client</span> <span class="n">over</span> <span class="n">I2P</span><span class="p">]]</span>
     <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
     <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
@@ -495,11 +504,14 @@ you must use the i2p_tunneled option:</p>
 private and the internet. It can also allow broadcast communication
 over IP networks, so it can provide an easy way to enable connectivity
 with all other peers on a local area network.</p>
-<p><em>Please Note!</em> Using broadcast UDP traffic has performance implications,
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Using broadcast UDP traffic has performance implications,
 especially on WiFi. If your goal is simply to enable easy communication
 with all peers in your local Ethernet broadcast domain, the
 <a class="reference internal" href="#interfaces-auto"><span class="std std-ref">Auto Interface</span></a> performs better, and is even
 easier to use.</p>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example enables communication with other</span>
 <span class="c1"># local Reticulum peers over UDP.</span>
 
@@ -548,6 +560,12 @@ easier to use.</p>
 <span id="interfaces-rnode"></span><h2>RNode LoRa Interface<a class="headerlink" href="#rnode-lora-interface" title="Permalink to this heading">#</a></h2>
 <p>To use Reticulum over LoRa, the <a class="reference external" href="https://unsigned.io/rnode/">RNode</a> interface
 can be used, and offers full control over LoRa parameters.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Radio frequency spectrum is a legally controlled resource, and legislation
+varies widely around the world. It is your responsibility to be aware of any
+relevant regulation for your location, and to make decisions accordingly.</p>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of how to add a LoRa interface</span>
 <span class="c1"># using the RNode LoRa transceiver.</span>
 
@@ -630,6 +648,12 @@ can be used, and offers full control over LoRa parameters.</p>
 <span id="interfaces-rnode-multi"></span><h2>RNode Multi Interface<a class="headerlink" href="#rnode-multi-interface" title="Permalink to this heading">#</a></h2>
 <p>For RNodes that support multiple LoRa transceivers, the RNode
 Multi interface can be used to configure sub-interfaces individually.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Radio frequency spectrum is a legally controlled resource, and legislation
+varies widely around the world. It is your responsibility to be aware of any
+relevant regulation for your location, and to make decisions accordingly.</p>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of how to add an RNode Multi interface</span>
 <span class="c1"># using the RNode LoRa transceiver.</span>
 
@@ -784,6 +808,12 @@ Reticulum will try to respawn the program after waiting for <code class="docutil
 radio modems and TNCs, including <a class="reference external" href="https://unsigned.io/openmodem/">OpenModem</a>.
 KISS interfaces can also be configured to periodically send out beacons
 for station identification purposes.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Radio frequency spectrum is a legally controlled resource, and legislation
+varies widely around the world. It is your responsibility to be aware of any
+relevant regulation for your location, and to make decisions accordingly.</p>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Packet</span> <span class="n">Radio</span> <span class="n">KISS</span> <span class="n">Interface</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">KISSInterface</span>
   <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
@@ -841,6 +871,12 @@ layer for anything, and it incurs extra overhead on every packet to
 encapsulate in AX.25.</p>
 <p>A more efficient way is to use the plain KISS interface with the
 beaconing functionality described above.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Radio frequency spectrum is a legally controlled resource, and legislation
+varies widely around the world. It is your responsibility to be aware of any
+relevant regulation for your location, and to make decisions accordingly.</p>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Packet</span> <span class="n">Radio</span> <span class="n">AX</span><span class="mf">.25</span> <span class="n">KISS</span> <span class="n">Interface</span><span class="p">]]</span>
   <span class="nb">type</span> <span class="o">=</span> <span class="n">AX25KISSInterface</span>
 
