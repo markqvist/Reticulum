@@ -562,7 +562,7 @@ the following line to your shell init script (for example ``~/.zshrc``) will be 
 
 .. code::
 
-   export PATH=$PATH:
+   export PATH=$PATH:~/Library/Python/3.9/bin
 
 Adjust Python version and shell init script location according to your system.
 
