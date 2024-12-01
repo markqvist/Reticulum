@@ -34,9 +34,9 @@ if get_platform() == "android":
     from .Interfaces.Android import SerialInterface
     from .Interfaces.Android import KISSInterface
 else:
-    from .Interfaces import *
+    from RNS.Interfaces import *
 
-from .vendor.configobj import ConfigObj
+from RNS.vendor.configobj import ConfigObj
 import configparser
 import multiprocessing.connection
 import signal
