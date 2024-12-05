@@ -1,0 +1,96 @@
+name: Build Reticulum
+
+on:
+  push:
+    branches: 
+      - '*'
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+  pull_request:
+    branches: 
+      - master
+    paths-ignore:
+      - .gitignore
+      - LICENSE
+
+permissions:
+  contents: write
+
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - run: make test
+
+  package:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    environment: ${{ contains(github.ref, '-') && 'development' || 'production' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - run: |
+          python -m pip install -q build wheel setuptools
+          make remove_symlinks
+          make build_wheel
+          make build_pure_wheel
+          make create_symlinks
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: dist/*.whl
+
+  documentation:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    environment: ${{ contains(github.ref, '-') && 'development' || 'production' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - run: |
+          sudo apt-get -qq update && sudo apt-get -qq install latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended
+          python -m pip -q install sphinx sphinx-copybutton
+          cd docs && make latexpdf && make epub
+      - uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: |
+            docs/build/latex/*.pdf
+            docs/build/epub/*.epub
+
+  release:
+    needs: [package, documentation]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    environment: ${{ contains(github.ref, '-') && 'development' || 'production' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: .artifacts
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            .artifacts/package/**.whl
+            .artifacts/documentation/latex/reticulumnetworkstack.pdf
+            .artifacts/documentation/epub/ReticulumNetworkStack.epub
+          draft: true
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref, '-') }}
+          fail_on_unmatched_files: true
