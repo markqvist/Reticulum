@@ -18,7 +18,7 @@ permissions:
 
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -53,29 +53,29 @@ jobs:
           name: package
           path: dist/*.whl
 
-  documentation:
-    needs: test
-    if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
-    environment: ${{ contains(github.ref, '-') && 'development' || 'production' }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
-      - run: |
-          sudo apt-get -qq update && sudo apt-get -qq install latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended
-          python -m pip -q install sphinx sphinx-copybutton
-          cd docs && make latexpdf && make epub
-      - uses: actions/upload-artifact@v4
-        with:
-          name: documentation
-          path: |
-            docs/build/latex/*.pdf
-            docs/build/epub/*.epub
+  # documentation:
+  #   needs: test
+  #   if: startsWith(github.ref, 'refs/tags/')
+  #   runs-on: ubuntu-latest
+  #   environment: ${{ contains(github.ref, '-') && 'development' || 'production' }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-python@v5
+  #       with:
+  #         python-version: 3.x
+  #     - run: |
+  #         sudo apt-get -qq update && sudo apt-get -qq install latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended
+  #         python -m pip -q install sphinx sphinx-copybutton
+  #         cd docs && make latexpdf && make epub
+  #     - uses: actions/upload-artifact@v4
+  #       with:
+  #         name: documentation
+  #         path: |
+  #           docs/build/latex/*.pdf
+  #           docs/build/epub/*.epub
 
   release:
-    needs: [package, documentation]
+    needs: [package]
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     environment: ${{ contains(github.ref, '-') && 'development' || 'production' }}
