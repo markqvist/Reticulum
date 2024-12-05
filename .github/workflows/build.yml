@@ -88,8 +88,8 @@ jobs:
         with:
           files: |
             .artifacts/package/**.whl
-            .artifacts/documentation/latex/reticulumnetworkstack.pdf
-            .artifacts/documentation/epub/ReticulumNetworkStack.epub
+#            .artifacts/documentation/latex/reticulumnetworkstack.pdf
+#            .artifacts/documentation/epub/ReticulumNetworkStack.epub
           draft: true
           generate_release_notes: true
           prerelease: ${{ contains(github.ref, '-') }}
