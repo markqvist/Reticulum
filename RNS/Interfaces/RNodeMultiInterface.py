@@ -197,14 +197,13 @@ class RNodeMultiInterface(Interface):
         # Count how many interfaces are in the file
         for subinterface in c:
             # if the retrieved entry is not a string, it must be a dictionary, which is what we want
-            if not isinstance(c[subinterface], str):
+            if isinstance(c[subinterface], dict):
                 count += 1
 
         # Count how many interfaces are enabled to allow for appropriate matrix sizing
         for subinterface in c:
-            # if the retrieved entry is not a string, it must be a dictionary, which is what we want
-            if not isinstance(c[subinterface], str):
-                subinterface_config = self.config["interfaces"][name][subinterface]
+            if isinstance(c[subinterface], dict):
+                subinterface_config = c[subinterface]
                 if (("interface_enabled" in subinterface_config) and subinterface_config.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
                     enabled_count += 1
 
@@ -213,9 +212,8 @@ class RNodeMultiInterface(Interface):
         subint_index = 0
 
         for subinterface in c:
-            # If the retrieved entry is not a string, it must be a dictionary, which is what we want
-            if not isinstance(c[subinterface], str):
-                subinterface_config = self.config["interfaces"][name][subinterface]
+            if isinstance(c[subinterface], dict):
+                subinterface_config = c[subinterface]
                 if (("interface_enabled" in subinterface_config) and subinterface_config.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
                     subint_config[subint_index][0] = subinterface
 
