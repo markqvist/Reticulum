@@ -213,6 +213,9 @@ class Reticulum:
         if logdest == RNS.LOG_FILE:
             RNS.logdest = RNS.LOG_FILE
             RNS.logfile = Reticulum.configdir+"/logfile"
+        elif callable(logdest):
+            RNS.logdest = RNS.LOG_CALLBACK
+            RNS.logcall = logdest
         
         Reticulum.configpath    = Reticulum.configdir+"/config"
         Reticulum.storagepath   = Reticulum.configdir+"/storage"
