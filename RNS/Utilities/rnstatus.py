@@ -135,7 +135,7 @@ def get_remote_status(destination_hash, include_lstats, identity, no_output=Fals
 
 def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False,
                   lstats=False, sorting=None, sort_reverse=False, remote=None, management_identity=None,
-                  remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT):
+                  remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT, must_exit=True, rns_instance=None):
     
     if remote:
         require_shared = False
@@ -143,11 +143,18 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
         require_shared = True
 
     try:
-        reticulum = RNS.Reticulum(configdir=configdir, loglevel=3+verbosity, require_shared_instance=require_shared)
+        if rns_instance:
+            reticulum = rns_instance
+            must_exit = False
+        else:
+            reticulum = RNS.Reticulum(configdir=configdir, loglevel=3+verbosity, require_shared_instance=require_shared)
 
     except Exception as e:
         print("No shared RNS instance available to get status from")
-        exit(1)
+        if must_exit:
+            exit(1)
+        else:
+            return
 
     link_count = None
     stats = None
@@ -175,7 +182,10 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                     
         except Exception as e:
             print(str(e))
-            exit(20)
+            if must_exit:
+                exit(20)
+            else:
+                return
 
     else:
         if lstats:
@@ -204,7 +214,10 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                                     i[k] = RNS.hexrep(i[k], delimit=False)
 
             print(json.dumps(stats))
-            exit()
+            if must_exit:
+                exit()
+            else:
+                return
 
         interfaces = stats["interfaces"]
         if sorting != None and isinstance(sorting, str):
@@ -375,9 +388,12 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
             print("Could not get RNS status")
         else:
             print("Could not get RNS status from remote transport instance "+RNS.prettyhexrep(identity_hash))
-        exit(2)
+        if must_exit:
+            exit(2)
+        else:
+            return
 
-def main():
+def main(must_exit=True, rns_instance=None):
     try:
         parser = argparse.ArgumentParser(description="Reticulum Network Stack Status")
         parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
@@ -483,11 +499,16 @@ def main():
             remote=args.R,
             management_identity=args.i,
             remote_timeout=args.w,
+            must_exit=must_exit,
+            rns_instance=rns_instance,
         )
 
     except KeyboardInterrupt:
         print("")
-        exit()
+        if must_exit:
+            exit()
+        else:
+            return
 
 def speed_str(num, suffix='bps'):
     units = ['','k','M','G','T','P','E','Z']
