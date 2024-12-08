@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Using Reticulum on Your System" href="using.html" /><link rel="prev" title="What is Reticulum?" href="whatis.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
-        <title>Getting Started Fast - Reticulum Network Stack 0.8.6 beta documentation</title>
+        <title>Getting Started Fast - Reticulum Network Stack 0.8.7 beta documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 0.8.6 beta documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.8.7 beta documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -167,7 +167,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 0.8.6 beta documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.8.7 beta documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -687,8 +687,18 @@ the following line to your shell init script (for example <code class="docutils 
 </section>
 <section id="openwrt">
 <h3>OpenWRT<a class="headerlink" href="#openwrt" title="Permalink to this heading">#</a></h3>
-<p>On OpenWRT systems with sufficient storage and memory, you can easily install
+<p>On OpenWRT systems with sufficient storage and memory, you can install
 Reticulum and related utilities using the <cite>opkg</cite> package manager and <cite>pip</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>At the time of releasing this manual, work is underway to create pre-built
+Reticulum packages for OpenWRT, with full configuration, service
+and <code class="docutils literal notranslate"><span class="pre">uci</span></code> integration. Please see the <a class="reference external" href="https://github.com/gretel/feed-reticulum">feed-reticulum</a>
+and <a class="reference external" href="https://github.com/gretel/reticulum-openwrt">reticulum-openwrt</a>
+repositories for more information.</p>
+</div>
+<p>To install Reticulum on OpenWRT, first log into a command line session, and
+then use the following instructions:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
 <span class="n">opkg</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">cryptography</span> <span class="n">python3</span><span class="o">-</span><span class="n">pyserial</span>
 
@@ -708,11 +718,13 @@ overlay FS, and enough free RAM to actually run Reticulum and any related
 programs and utilities.</p>
 </div>
 <p>Depending on your device configuration, you may need to adjust firewall rules
-for Reticulum connectivity to and from your device to work. Please also note
-that the <cite>AutoInterface</cite> requires link-local IPv6 addresses to be enabled for
-any Ethernet and WiFi devices you intend to use. If <code class="docutils literal notranslate"><span class="pre">ip</span> <span class="pre">a</span></code> shows an address
-starting with <code class="docutils literal notranslate"><span class="pre">fe80::</span></code> for the device in question, <code class="docutils literal notranslate"><span class="pre">AutoInterface</span></code> should
-work for that device.</p>
+for Reticulum connectivity to and from your device to work. Until proper
+packaging is ready, you will also need to manually create a service or startup
+script to automatically laucnh Reticulum at boot time.</p>
+<p>Please also note that the <cite>AutoInterface</cite> requires link-local IPv6 addresses
+to be enabled for any Ethernet and WiFi devices you intend to use. If <code class="docutils literal notranslate"><span class="pre">ip</span> <span class="pre">a</span></code>
+shows an address starting with <code class="docutils literal notranslate"><span class="pre">fe80::</span></code> for the device in question,
+<code class="docutils literal notranslate"><span class="pre">AutoInterface</span></code> should work for that device.</p>
 </section>
 <section id="raspberry-pi">
 <h3>Raspberry Pi<a class="headerlink" href="#raspberry-pi" title="Permalink to this heading">#</a></h3>
@@ -815,6 +827,13 @@ preferred command line interface.</p>
 </section>
 <section id="pure-python-reticulum">
 <h2>Pure-Python Reticulum<a class="headerlink" href="#pure-python-reticulum" title="Permalink to this heading">#</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you use the <code class="docutils literal notranslate"><span class="pre">rnspure</span></code> package to run Reticulum on systems that
+do not support <a class="reference external" href="https://github.com/pyca/cryptography">PyCA/cryptography</a>, it is
+important that you read and understand the <a class="reference internal" href="understanding.html#understanding-primitives"><span class="std std-ref">Cryptographic Primitives</span></a>
+section of this manual.</p>
+</div>
 <p>In some rare cases, and on more obscure system types, it is not possible to
 install one or more dependencies. In such situations,
 you can use the <code class="docutils literal notranslate"><span class="pre">rnspure</span></code> package instead of the <code class="docutils literal notranslate"><span class="pre">rns</span></code> package, or use <code class="docutils literal notranslate"><span class="pre">pip</span></code>
@@ -828,13 +847,6 @@ only if they are <em>needed</em> and <em>available</em>. If for example you want
 on a system that cannot support <code class="docutils literal notranslate"><span class="pre">pyserial</span></code>, it is perfectly possible to do so using
 the <cite>rnspure</cite> package, but Reticulum will not be able to use serial-based interfaces.
 All other available modules will still be loaded when needed.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>If you use the <code class="docutils literal notranslate"><span class="pre">rnspure</span></code> package to run Reticulum on systems that
-do not support <a class="reference external" href="https://github.com/pyca/cryptography">PyCA/cryptography</a>, it is
-important that you read and understand the <a class="reference internal" href="understanding.html#understanding-primitives"><span class="std std-ref">Cryptographic Primitives</span></a>
-section of this manual.</p>
-</div>
 </section>
 </section>
 

@@ -569,8 +569,19 @@ Adjust Python version and shell init script location according to your system.
 
 OpenWRT
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-On OpenWRT systems with sufficient storage and memory, you can easily install
+On OpenWRT systems with sufficient storage and memory, you can install
 Reticulum and related utilities using the `opkg` package manager and `pip`.
+
+.. note::
+
+   At the time of releasing this manual, work is underway to create pre-built
+   Reticulum packages for OpenWRT, with full configuration, service
+   and ``uci`` integration. Please see the `feed-reticulum <https://github.com/gretel/feed-reticulum>`_
+   and `reticulum-openwrt <https://github.com/gretel/reticulum-openwrt>`_
+   repositories for more information.
+
+To install Reticulum on OpenWRT, first log into a command line session, and
+then use the following instructions:
 
 .. code::
 
@@ -592,11 +603,14 @@ Reticulum and related utilities using the `opkg` package manager and `pip`.
    programs and utilities.
 
 Depending on your device configuration, you may need to adjust firewall rules
-for Reticulum connectivity to and from your device to work. Please also note
-that the `AutoInterface` requires link-local IPv6 addresses to be enabled for
-any Ethernet and WiFi devices you intend to use. If ``ip a`` shows an address
-starting with ``fe80::`` for the device in question, ``AutoInterface`` should
-work for that device.
+for Reticulum connectivity to and from your device to work. Until proper
+packaging is ready, you will also need to manually create a service or startup
+script to automatically laucnh Reticulum at boot time.
+
+Please also note that the `AutoInterface` requires link-local IPv6 addresses
+to be enabled for any Ethernet and WiFi devices you intend to use. If ``ip a``
+shows an address starting with ``fe80::`` for the device in question,
+``AutoInterface`` should work for that device.
 
 Raspberry Pi
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -712,6 +726,13 @@ preferred command line interface.
 
 Pure-Python Reticulum
 ==============================================
+
+.. warning::
+   If you use the ``rnspure`` package to run Reticulum on systems that
+   do not support `PyCA/cryptography <https://github.com/pyca/cryptography>`_, it is
+   important that you read and understand the :ref:`Cryptographic Primitives <understanding-primitives>`
+   section of this manual.
+
 In some rare cases, and on more obscure system types, it is not possible to
 install one or more dependencies. In such situations,
 you can use the ``rnspure`` package instead of the ``rns`` package, or use ``pip``
@@ -726,9 +747,3 @@ only if they are *needed* and *available*. If for example you want to use Reticu
 on a system that cannot support ``pyserial``, it is perfectly possible to do so using
 the `rnspure` package, but Reticulum will not be able to use serial-based interfaces.
 All other available modules will still be loaded when needed.
-
-.. warning::
-   If you use the ``rnspure`` package to run Reticulum on systems that
-   do not support `PyCA/cryptography <https://github.com/pyca/cryptography>`_, it is
-   important that you read and understand the :ref:`Cryptographic Primitives <understanding-primitives>`
-   section of this manual.
