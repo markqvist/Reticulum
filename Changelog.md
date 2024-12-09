@@ -1,3 +1,23 @@
+### 2024-12-09: RNS β 0.8.7
+
+This maintenance release adds support for OpenWRT packaging, and brings several minor improvements and bugfixes.
+
+Thanks to @gretel and @jacobeva, who contributed to this release!
+
+**Changes**
+- Added support for packaging RNS to OpenWRT
+- Added ability to run `rnstatus` as application-local imported module
+- Added ability to reflect RNS log output to app-internal log handler callback
+- Added display read functionality to `RNodeInterface`
+- Fixed a regression in `RNodeMultiInterface` caused by earlier refactoring
+- Imrpoved documentation
+
+**Release Hashes**
+```
+e76ba8feeeae2c8df27e9906deebd7c721f0f0e887ad3fbd26df0212d6ce907a rns-0.8.7-py3-none-any.whl
+046608539bc235d52c970c7f3c54e7aa01a86016ae00263f8a55fc796b6939f5 rnspure-0.8.7-py3-none-any.whl
+```
+
 ### 2024-11-24: RNS β 0.8.6
 
 This release adds full interface modularity and custom interface loading to RNS. Users can now easily create and use their own custom interfaces for communicating over practically anything. Support for IPv6 has also been added to the TCP-based interfaces.
