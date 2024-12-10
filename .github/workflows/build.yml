@@ -48,10 +48,18 @@ jobs:
           make build_wheel
           make build_pure_wheel
           make create_symlinks
+      - name: Generate SHA256 checksums
+        run: |
+          cd dist
+          for file in *.whl; do
+            sha256sum "$file" > "${file}.sha256"
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: package
-          path: dist/*.whl
+          path: |
+            dist/*.whl
+            dist/*.sha256
 
   # documentation:
   #   needs: test
@@ -88,6 +96,7 @@ jobs:
         with:
           files: |
             .artifacts/package/**.whl
+            .artifacts/package/**.sha256
 #            .artifacts/documentation/latex/reticulumnetworkstack.pdf
 #            .artifacts/documentation/epub/ReticulumNetworkStack.epub
           draft: true
