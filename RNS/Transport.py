@@ -103,9 +103,9 @@ class Transport:
     path_requests               = {}           # A table for storing path request timestamps
     path_states                 = {}           # A table for keeping track of path states
     
-    discovery_path_requests     = {}       # A table for keeping track of path requests on behalf of other nodes
-    discovery_pr_tags           = []       # A table for keeping track of tagged path requests
-    max_pr_tags                 = 32000    # Maximum amount of unique path request tags to remember
+    discovery_path_requests     = {}           # A table for keeping track of path requests on behalf of other nodes
+    discovery_pr_tags           = []           # A table for keeping track of tagged path requests
+    max_pr_tags                 = 32000        # Maximum amount of unique path request tags to remember
 
     # Transport control destinations are used
     # for control purposes like path requests
