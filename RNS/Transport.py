@@ -25,6 +25,7 @@ import RNS
 import time
 import math
 import struct
+import inspect
 import threading
 from time import sleep
 from .vendor import umsgpack as umsgpack
@@ -1149,29 +1150,23 @@ class Transport:
             if hasattr(interface, "r_stat_rssi"):
                 if interface.r_stat_rssi != None:
                     packet.rssi = interface.r_stat_rssi
-                    if len(Transport.local_client_interfaces) > 0:
-                        Transport.local_client_rssi_cache.append([packet.packet_hash, packet.rssi])
-
-                        while len(Transport.local_client_rssi_cache) > Transport.LOCAL_CLIENT_CACHE_MAXSIZE:
-                            Transport.local_client_rssi_cache.pop(0)
+                    Transport.local_client_rssi_cache.append([packet.packet_hash, packet.rssi])
+                    while len(Transport.local_client_rssi_cache) > Transport.LOCAL_CLIENT_CACHE_MAXSIZE:
+                        Transport.local_client_rssi_cache.pop(0)
 
             if hasattr(interface, "r_stat_snr"):
                 if interface.r_stat_rssi != None:
                     packet.snr = interface.r_stat_snr
-                    if len(Transport.local_client_interfaces) > 0:
-                        Transport.local_client_snr_cache.append([packet.packet_hash, packet.snr])
-
-                        while len(Transport.local_client_snr_cache) > Transport.LOCAL_CLIENT_CACHE_MAXSIZE:
-                            Transport.local_client_snr_cache.pop(0)
+                    Transport.local_client_snr_cache.append([packet.packet_hash, packet.snr])
+                    while len(Transport.local_client_snr_cache) > Transport.LOCAL_CLIENT_CACHE_MAXSIZE:
+                        Transport.local_client_snr_cache.pop(0)
 
             if hasattr(interface, "r_stat_q"):
                 if interface.r_stat_q != None:
                     packet.q = interface.r_stat_q
-                    if len(Transport.local_client_interfaces) > 0:
-                        Transport.local_client_q_cache.append([packet.packet_hash, packet.q])
-
-                        while len(Transport.local_client_q_cache) > Transport.LOCAL_CLIENT_CACHE_MAXSIZE:
-                            Transport.local_client_q_cache.pop(0)
+                    Transport.local_client_q_cache.append([packet.packet_hash, packet.q])
+                    while len(Transport.local_client_q_cache) > Transport.LOCAL_CLIENT_CACHE_MAXSIZE:
+                        Transport.local_client_q_cache.pop(0)
 
         if len(Transport.local_client_interfaces) > 0:
             if Transport.is_local_client_interface(interface):
@@ -1713,11 +1708,20 @@ class Transport:
                                             execute_callback = False
 
                                     if execute_callback:
-                                        handler.received_announce(
-                                            destination_hash=packet.destination_hash,
-                                            announced_identity=announce_identity,
-                                            app_data=RNS.Identity.recall_app_data(packet.destination_hash)
-                                        )
+
+                                        if len(inspect.signature(handler.received_announce).parameters) == 3:
+                                            handler.received_announce(destination_hash=packet.destination_hash,
+                                                                      announced_identity=announce_identity,
+                                                                      app_data=RNS.Identity.recall_app_data(packet.destination_hash))
+                                        
+                                        elif len(inspect.signature(handler.received_announce).parameters) == 4:
+                                            handler.received_announce(destination_hash=packet.destination_hash,
+                                                                      announced_identity=announce_identity,
+                                                                      app_data=RNS.Identity.recall_app_data(packet.destination_hash),
+                                                                      announce_packet_hash = packet.packet_hash)
+                                        else:
+                                            raise TypeError("Invalid signature for announce handler callback")
+
                                 except Exception as e:
                                     RNS.log("Error while processing external announce callback.", RNS.LOG_ERROR)
                                     RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -2021,8 +2025,9 @@ class Transport:
         Registers an announce handler.
 
         :param handler: Must be an object with an *aspect_filter* attribute and a *received_announce(destination_hash, announced_identity, app_data)*
-                        callable. Can optionally have a *receive_path_responses* attribute set to ``True``, to also receive all path responses, in addition to live
-                        announces. See the :ref:`Announce Example<example-announce>` for more info.
+                        or *received_announce(destination_hash, announced_identity, app_data, announce_packet_hash)* callable. Can optionally have a
+                        *receive_path_responses* attribute set to ``True``, to also receive all path responses, in addition to live announces. See
+                        the :ref:`Announce Example<example-announce>` for more info.
         """
         if hasattr(handler, "received_announce") and callable(handler.received_announce):
             if hasattr(handler, "aspect_filter"):

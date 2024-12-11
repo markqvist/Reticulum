@@ -501,6 +501,10 @@ class PacketReceipt:
                 return False
         elif len(proof) == PacketReceipt.IMPL_LENGTH:
             # This is an implicit proof
+
+            if not hasattr(self.destination, "identity"):
+                return False
+
             if self.destination.identity == None:
                 return False
 
