@@ -1,3 +1,17 @@
+### 2024-12-11: RNS β 0.8.8
+
+This maintenance release adds a single API function and fixes a bug.
+
+**Changes**
+- Allow announce handlers to receive announce packet hash
+- Fix packet RSSI/SNR/Q cache not being available on standalone instances
+
+**Release Hashes**
+```
+9c1755a81049c67b051ecb9fe4b2c5f7d98bf09d20ed52d6ce6a410298b0527b rns-0.8.8-py3-none-any.whl
+d8871d69cde4b0a0b99b383f324d651dc77a2f44ec9641be828902c778a8d128 rnspure-0.8.8-py3-none-any.whl
+```
+
 ### 2024-12-09: RNS β 0.8.7
 
 This maintenance release adds support for OpenWRT packaging, and brings several minor improvements and bugfixes.
