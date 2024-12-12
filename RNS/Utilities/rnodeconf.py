@@ -2726,6 +2726,7 @@ def main():
                             "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.boot_app0",
                             "0x0",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.bootloader",
                             "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.bin",
+                            "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                             "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.partitions",
                         ]
                     elif fw_filename == "rnode_firmware_featheresp32.zip":
