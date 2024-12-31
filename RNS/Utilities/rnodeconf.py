@@ -84,6 +84,7 @@ class KISS():
     CMD_NP_INT      = 0x65
     CMD_DISP_ADR    = 0x63
     CMD_DISP_BLNK   = 0x64
+    CMD_DISP_ROT    = 0x67
     CMD_BT_CTRL     = 0x46
     CMD_BT_PIN      = 0x62
     CMD_BOARD       = 0x47
@@ -664,6 +665,13 @@ class RNode():
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while sending display blanking timeout command to device")
+
+    def set_display_rotation(self, rotation):
+        data = bytes([rotation & 0xFF])
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_DISP_ROT])+data+bytes([KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending display rotation command to device")
 
     def set_neopixel_intensity(self, intensity):
         data = bytes([intensity & 0xFF])
@@ -1298,6 +1306,7 @@ def main():
 
         parser.add_argument("-D", "--display", action="store", metavar="i", type=int, default=None, help="Set display intensity (0-255)")
         parser.add_argument("-t", "--timeout", action="store", metavar="s", type=int, default=None, help="Set display timeout in seconds, 0 to disable")
+        parser.add_argument("-R", "--rotation", action="store", metavar="rotation", type=int, default=None, help="Set display rotation, valid values are 0 through 3")
         parser.add_argument("--display-addr", action="store", metavar="byte", type=str, default=None, help="Set display address as hex byte (00 - FF)")
 
         parser.add_argument("--np", action="store", metavar="i", type=int, default=None, help="Set NeoPixel intensity (0-255)")
@@ -3354,6 +3363,16 @@ def main():
                 else:
                     RNS.log("Setting display timeout to "+str(di))
                 rnode.set_display_blanking(di)
+
+            if isinstance(args.rotation, int):
+                dr = args.rotation
+                if dr < 0:
+                    dr = 0
+                if dr > 3:
+                    dr = 3
+
+                RNS.log("Setting display rotation to "+str(dr))
+                rnode.set_display_rotation(dr)
 
             if isinstance(args.np, int):
                 di = args.np
