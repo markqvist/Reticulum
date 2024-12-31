@@ -85,6 +85,7 @@ class KISS():
     CMD_DISP_ADR    = 0x63
     CMD_DISP_BLNK   = 0x64
     CMD_DISP_ROT    = 0x67
+    CMD_DISP_RCND   = 0x68
     CMD_BT_CTRL     = 0x46
     CMD_BT_PIN      = 0x62
     CMD_BOARD       = 0x47
@@ -672,6 +673,13 @@ class RNode():
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while sending display rotation command to device")
+
+    def recondition_display(self):
+        data = bytes([0x01])
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_DISP_RCND])+data+bytes([KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending display recondition command to device")
 
     def set_neopixel_intensity(self, intensity):
         data = bytes([intensity & 0xFF])
@@ -1308,6 +1316,7 @@ def main():
         parser.add_argument("-t", "--timeout", action="store", metavar="s", type=int, default=None, help="Set display timeout in seconds, 0 to disable")
         parser.add_argument("-R", "--rotation", action="store", metavar="rotation", type=int, default=None, help="Set display rotation, valid values are 0 through 3")
         parser.add_argument("--display-addr", action="store", metavar="byte", type=str, default=None, help="Set display address as hex byte (00 - FF)")
+        parser.add_argument("--recondition-display", action="store_true", help="Start display reconditioning")
 
         parser.add_argument("--np", action="store", metavar="i", type=int, default=None, help="Set NeoPixel intensity (0-255)")
 
@@ -3373,6 +3382,11 @@ def main():
 
                 RNS.log("Setting display rotation to "+str(dr))
                 rnode.set_display_rotation(dr)
+
+            if isinstance(args.recondition_display, bool):
+                if args.recondition_display:
+                    RNS.log("Starting display reconditioning")
+                    rnode.recondition_display()
 
             if isinstance(args.np, int):
                 di = args.np
