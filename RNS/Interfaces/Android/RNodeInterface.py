@@ -242,7 +242,7 @@ class RNodeInterface(Interface):
     DEFAULT_IFAC_SIZE = 8
 
     FREQ_MIN = 137000000
-    FREQ_MAX = 1020000000
+    FREQ_MAX = 3000000000
 
     RSSI_OFFSET = 157
 

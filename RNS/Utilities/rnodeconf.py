@@ -143,6 +143,7 @@ class ROM():
     MODEL_A7       = 0xA7
     MODEL_A5       = 0xA5
     MODEL_AA       = 0xAA
+    MODEL_AC       = 0xAC
 
     PRODUCT_T32_10 = 0xB2
     MODEL_BA       = 0xBA
@@ -266,6 +267,7 @@ models = {
     0xA6: [820000000, 1020000000, 22, "820 - 960 MHz", "rnode_firmware_t3s3.zip", "SX1262"],
     0xA5: [410000000, 525000000, 17, "410 - 525 MHz", "rnode_firmware_t3s3_sx127x.zip", "SX1278"],
     0xAA: [820000000, 1020000000, 17, "820 - 960 MHz", "rnode_firmware_t3s3_sx127x.zip", "SX1276"],
+    0xAC: [2400000000, 2500000000, 20, "2.4 - 2.5 GHz", "rnode_firmware_t3s3_sx1280_pa.zip", "SX1280"],
     0xA2: [410000000, 525000000, 17, "410 - 525 MHz", "rnode_firmware_ng21.zip", "SX1278"],
     0xA7: [820000000, 1020000000, 17, "820 - 1020 MHz", "rnode_firmware_ng21.zip", "SX1276"],
     0xA3: [410000000, 525000000, 17, "410 - 525 MHz", "rnode_firmware_ng20.zip", "SX1278"],
