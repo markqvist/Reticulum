@@ -15,7 +15,11 @@ Before creating a bug report on this issue tracker, you **must** read the [Contr
 - After reading the [Contribution Guidelines](https://github.com/markqvist/Reticulum/blob/master/Contributing.md), delete this section from your bug report.
 
 **Describe the Bug**
-A clear and concise description of what the bug is.
+First of all: Is this really a bug? Is it reproducible?
+
+If this is a request for help because something is not working as you expected, stop right here, and go to the [discussions](https://github.com/markqvist/Reticulum/discussions) instead, where you can post your questions and get help from other users.
+
+If this really is a bug or issue with the software, remove this section of the template, and provide **a clear and concise description of what the bug is**.
 
 **To Reproduce**
 Describe in detail how to reproduce the bug.
@@ -24,7 +28,7 @@ Describe in detail how to reproduce the bug.
 A clear and concise description of what you expected to happen.
 
 **Logs & Screenshots**
-Please include any relevant log output. If applicable, also add screenshots to help explain your problem.
+Please include any relevant log output. If applicable, also add screenshots to help explain your problem. In most cases, without any relevant log output, we will not be able to determine the cause of the bug, or reproduce it.
 
 **System Information**
 - OS and version
