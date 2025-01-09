@@ -939,6 +939,9 @@ class Reticulum:
                 if hasattr(interface, "r_channel_load_long"):
                     ifstats["channel_load_long"] = interface.r_channel_load_long
 
+                if hasattr(interface, "r_noise_floor"):
+                    ifstats["noise_floor"] = interface.r_noise_floor
+
                 if hasattr(interface, "r_battery_state"):
                     if interface.r_battery_state != 0x00:
                         ifstats["battery_state"] = interface.get_battery_state_string()

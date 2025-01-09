@@ -316,6 +316,9 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "bitrate" in ifstat and ifstat["bitrate"] != None:
                             print("    Rate      : {ss}".format(ss=speed_str(ifstat["bitrate"])))
 
+                        if "noise_floor" in ifstat:
+                            print("    Noise Fl. : {nfl} dBm".format(nfl=str(ifstat["noise_floor"])))
+
                         if "battery_percent" in ifstat and ifstat["battery_percent"] != None:
                             try:
                                 bpi = int(ifstat["battery_percent"])
@@ -328,8 +331,8 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             print("    Airtime   : {ats}% (15s), {atl}% (1h)".format(ats=str(ifstat["airtime_short"]),atl=str(ifstat["airtime_long"])))
                         
                         if "channel_load_short" in ifstat and "channel_load_long" in ifstat:
-                            print("    Ch.Load   : {ats}% (15s), {atl}% (1h)".format(ats=str(ifstat["channel_load_short"]),atl=str(ifstat["channel_load_long"])))
-                        
+                            print("    Ch. Load  : {ats}% (15s), {atl}% (1h)".format(ats=str(ifstat["channel_load_short"]),atl=str(ifstat["channel_load_long"])))
+
                         if "peers" in ifstat and ifstat["peers"] != None:
                             print("    Peers     : {np} reachable".format(np=ifstat["peers"]))
 
