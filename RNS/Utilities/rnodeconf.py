@@ -88,6 +88,7 @@ class KISS():
     CMD_DISP_RCND   = 0x68
     CMD_BT_CTRL     = 0x46
     CMD_BT_PIN      = 0x62
+    CMD_DIS_IA      = 0x69
     CMD_BOARD       = 0x47
     CMD_PLATFORM    = 0x48
     CMD_MCU         = 0x49
@@ -688,6 +689,16 @@ class RNode():
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while sending display recondition command to device")
+
+    def set_disable_interference_avoidance(self, ia_disabled):
+        if ia_disabled:
+            data = bytes([0x01])
+        else:
+            data = bytes([0x00])
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_DIS_IA])+data+bytes([KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending interference avoidance configuration command to device")
 
     def set_neopixel_intensity(self, intensity):
         data = bytes([intensity & 0xFF])
@@ -1334,6 +1345,9 @@ def main():
         parser.add_argument("--txp", action="store", metavar="dBm", type=int, default=None, help="TX power in dBm for TNC mode")
         parser.add_argument("--sf", action="store", metavar="factor", type=int, default=None, help="Spreading factor for TNC mode (7 - 12)")
         parser.add_argument("--cr", action="store", metavar="rate", type=int, default=None, help="Coding rate for TNC mode (5 - 8)")
+
+        parser.add_argument("-x", "--ia-enable", action="store_true", help="Enable interference avoidance")
+        parser.add_argument("-X", "--ia-disable", action="store_true", help="Disable interference avoidance")
 
         parser.add_argument("--eeprom-backup", action="store_true", help="Backup EEPROM to file")
         parser.add_argument("--eeprom-dump", action="store_true", help="Dump EEPROM to console")
@@ -3433,6 +3447,16 @@ def main():
                 if args.recondition_display:
                     RNS.log("Starting display reconditioning")
                     rnode.recondition_display()
+
+            if isinstance(args.ia_enable, bool):
+                if args.ia_enable:
+                    RNS.log("Enabling interference avoidance")
+                    rnode.set_disable_interference_avoidance(False)
+
+            if isinstance(args.ia_disable, bool):
+                if args.ia_disable:
+                    RNS.log("Disabling interference avoidance")
+                    rnode.set_disable_interference_avoidance(True)
 
             if isinstance(args.np, int):
                 di = args.np
