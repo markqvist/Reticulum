@@ -41,7 +41,7 @@ import RNS
 RNS.logtimefmt      = "%H:%M:%S"
 RNS.compact_log_fmt = True
 
-program_version = "2.2.0"
+program_version = "2.3.0"
 eth_addr = "0xFDabC71AC4c0C78C95aDDDe3B4FA19d6273c5E73"
 btc_addr = "35G9uWVzrpJJibzUwpNUQGQNFzLirhrYAH"
 xmr_addr = "87HcDx6jRSkMQ9nPRd5K9hGGpZLn2s7vWETjMaVM5KfV4TD36NcYa8J8WSxhTSvBzzFpqDwp2fg5GX2moZ7VAP9QMZCZGET"
@@ -123,77 +123,80 @@ class KISS():
         return data
 
 class ROM():
-    PLATFORM_AVR   = 0x90
-    PLATFORM_ESP32 = 0x80
-    PLATFORM_NRF52 = 0x70
+    PLATFORM_AVR        = 0x90
+    PLATFORM_ESP32      = 0x80
+    PLATFORM_NRF52      = 0x70
 
-    MCU_1284P      = 0x91
-    MCU_2560       = 0x92
-    MCU_ESP32      = 0x81
-    MCU_NRF52      = 0x71
+    MCU_1284P           = 0x91
+    MCU_2560            = 0x92
+    MCU_ESP32           = 0x81
+    MCU_NRF52           = 0x71
 
-    PRODUCT_RNODE  = 0x03
-    MODEL_A1       = 0xA1
-    MODEL_A6       = 0xA6
-    MODEL_A4       = 0xA4
-    MODEL_A9       = 0xA9
-    MODEL_A3       = 0xA3
-    MODEL_A8       = 0xA8
-    MODEL_A2       = 0xA2
-    MODEL_A7       = 0xA7
-    MODEL_A5       = 0xA5
-    MODEL_AA       = 0xAA
-    MODEL_AC       = 0xAC
+    PRODUCT_RNODE       = 0x03
+    MODEL_A1            = 0xA1
+    MODEL_A6            = 0xA6
+    MODEL_A4            = 0xA4
+    MODEL_A9            = 0xA9
+    MODEL_A3            = 0xA3
+    MODEL_A8            = 0xA8
+    MODEL_A2            = 0xA2
+    MODEL_A7            = 0xA7
+    MODEL_A5            = 0xA5
+    MODEL_AA            = 0xAA
+    MODEL_AC            = 0xAC
 
-    PRODUCT_T32_10 = 0xB2
-    MODEL_BA       = 0xBA
-    MODEL_BB       = 0xBB
+    PRODUCT_T32_10      = 0xB2
+    MODEL_BA            = 0xBA
+    MODEL_BB            = 0xBB
 
-    PRODUCT_T32_20 = 0xB0
-    MODEL_B3       = 0xB3
-    MODEL_B8       = 0xB8
+    PRODUCT_T32_20      = 0xB0
+    MODEL_B3            = 0xB3
+    MODEL_B8            = 0xB8
 
-    PRODUCT_T32_21 = 0xB1
-    MODEL_B4       = 0xB4
-    MODEL_B9       = 0xB9
-    MODEL_B4_TCXO  = 0x04 # The TCXO model codes are only used here to select the
-    MODEL_B9_TCXO  = 0x09 # correct firmware, actual model codes in firmware is
-                          # still 0xB4 and 0xB9.
+    PRODUCT_T32_21      = 0xB1
+    MODEL_B4            = 0xB4
+    MODEL_B9            = 0xB9
+    MODEL_B4_TCXO       = 0x04 # The TCXO model codes are only used here to select the correct firmware,
+    MODEL_B9_TCXO       = 0x09 # actual model codes in firmware is still 0xB4 and 0xB9.
+    PRODUCT_H32_V2      = 0xC0
+    MODEL_C4            = 0xC4
+    MODEL_C9            = 0xC9
 
-    PRODUCT_H32_V2 = 0xC0
-    MODEL_C4       = 0xC4
-    MODEL_C9       = 0xC9
+    PRODUCT_H32_V3      = 0xC1
+    MODEL_C5            = 0xC5
+    MODEL_CA            = 0xCA
 
-    PRODUCT_H32_V3 = 0xC1
-    MODEL_C5       = 0xC5
-    MODEL_CA       = 0xCA
+    PRODUCT_TBEAM       = 0xE0
+    MODEL_E4            = 0xE4
+    MODEL_E9            = 0xE9
+    MODEL_E3            = 0xE3
+    MODEL_E8            = 0xE8
 
-    PRODUCT_TBEAM  = 0xE0
-    MODEL_E4       = 0xE4
-    MODEL_E9       = 0xE9
-    MODEL_E3       = 0xE3
-    MODEL_E8       = 0xE8
+    PRODUCT_TBEAM_S_V1  = 0xEA
+    MODEL_DB            = 0xDB
+    MODEL_DC            = 0xDC
 
-    PRODUCT_TBEAM_S_V1= 0xEA
-    MODEL_DB          = 0xDB
-    MODEL_DC          = 0xDC
+    PRODUCT_TDECK       = 0xD0
+    MODEL_D4            = 0xD4
+    MODEL_D9            = 0xD9
 
-    PRODUCT_TDECK  = 0xD0
-    MODEL_D4       = 0xD4
-    MODEL_D9       = 0xD9
+    PRODUCT_RAK4631     = 0x10
+    MODEL_11            = 0x11
+    MODEL_12            = 0x12
+    MODEL_13            = 0x13
+    MODEL_14            = 0x14
 
-    PRODUCT_RAK4631 = 0x10
-    MODEL_11       = 0x11
-    MODEL_12       = 0x12
-    MODEL_13       = 0x13
-    MODEL_14       = 0x14
-    PRODUCT_OPENCOM_XL = 0x20
-    MODEL_21       = 0x21
+    PRODUCT_OPENCOM_XL  = 0x20
+    MODEL_21            = 0x21
 
+    PRODUCT_TECHO       = 0x15
+    MODEL_T4            = 0x16
+    MODEL_T9            = 0x17
 
-    PRODUCT_TECHO  = 0x15
-    MODEL_T4       = 0x16
-    MODEL_T9       = 0x17
+    PRODUCT_HELTEC_T114 = 0xC2
+    BOARD_HELTEC_T114   = 0x3C
+    MODEL_C6            = 0xC6 # Heltec Mesh Node T114, 470-510 MHz (HT-n5262-LF)
+    MODEL_C7            = 0xC7 # Heltec Mesh Node T114, 863-928 MHz (HT-n5262-HF)
     
     PRODUCT_HMBRW  = 0xF0
     MODEL_FF       = 0xFF
@@ -245,6 +248,7 @@ products = {
     ROM.PRODUCT_TECHO:  "LilyGO T-Echo",
     ROM.PRODUCT_RAK4631: "RAK4631",
     ROM.PRODUCT_OPENCOM_XL: "openCom XL",
+    ROM.PRODUCT_HELTEC_T114: "Heltec Mesh Node T114",
 }
 
 platforms = {
@@ -282,8 +286,10 @@ models = {
     0xBB: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_lora32v10.zip", "SX1276"],
     0xC4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_heltec32v2.zip", "SX1278"],
     0xC9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_heltec32v2.zip", "SX1276"],
-    0xC5: [420000000, 520000000, 21, "420 - 520 MHz", "rnode_firmware_heltec32v3.zip", "SX1268"],
-    0xCA: [850000000, 950000000, 21, "850 - 950 MHz", "rnode_firmware_heltec32v3.zip", "SX1262"],
+    0xC5: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_heltec32v3.zip", "SX1268"],
+    0xCA: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_heltec32v3.zip", "SX1262"],
+    0xC6: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_heltec_t114.zip", "SX1268"],
+    0xC7: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_heltec_t114.zip", "SX1262"],
     0xE4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_tbeam.zip", "SX1278"],
     0xE9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_tbeam.zip", "SX1276"],
     0xD4: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_tdeck.zip", "SX1268"],
@@ -1166,9 +1172,10 @@ def ensure_firmware_file(fw_filename):
                 RNS.log("The selected firmware for this board is version "+selected_version)
 
             else:
-                RNS.log("Online firmware version check was disabled, but no firmware version specified for install.")
-                RNS.log("use the --fw-version option to manually specify a version.")
-                graceful_exit(98)
+                if selected_version == None:
+                    RNS.log("Online firmware version check was disabled, but no firmware version specified for install.")
+                    RNS.log("use the --fw-version option to manually specify a version.")
+                    graceful_exit(98)
 
             # if custom firmware url, use it
             if fw_url != None:
@@ -1661,30 +1668,31 @@ def main():
                 
             print("")
             print("What kind of device is this?\n")
-            print("[1] A specific kind of RNode")
-            print("       .")
-            print("      / \\   Select this option if you have an RNode of a specific")
-            print("       |    type, built from a recipe or bought from a vendor.")
+            print("       |   Select this option if you have an RNode of a specific")
+            print("      \\ /  type, built from a recipe or bought from a vendor.")
+            print("       '")
+            print("[1]  A specific kind of RNode")
             print("")
-            print("[2] Homebrew RNode")
-            print("       .")
-            print("      / \\   Select this option if you have put toghether an RNode")
-            print("       |    of your own design, or if you are prototyping one.")
+            print("       |   Select this option if you have put toghether an RNode")
+            print("      \\ /  of your own design, or if you are prototyping one.")
+            print("       '")
+            print("[2]  Homebrew RNode")
             print("")
-            print("[3] LilyGO LoRa32 v2.1 (aka T3 v1.6 / T3 v1.6.1)")
-            print("[4] LilyGO LoRa32 v2.0")
-            print("[5] LilyGO LoRa32 v1.0")
-            print("[6] LilyGO T-Beam")
-            print("[7] Heltec LoRa32 v2")
-            print("[8] Heltec LoRa32 v3")
-            print("[9] LilyGO LoRa T3S3")
+            print("       |   Select one of these options if you want to easily turn")
+            print("      \\ /  a supported development board into an RNode.")
+            print("       '")
+            print("[3]  LilyGO LoRa32 v2.1 (aka T3 v1.6 / T3 v1.6.1)")
+            print("[4]  LilyGO LoRa32 v2.0")
+            print("[5]  LilyGO LoRa32 v1.0")
+            print("[6]  LilyGO T-Beam")
+            print("[7]  Heltec LoRa32 v2")
+            print("[8]  Heltec LoRa32 v3")
+            print("[9]  LilyGO LoRa T3S3")
             print("[10] RAK4631")
             print("[11] LilyGo T-Echo")
             print("[12] LilyGO T-Beam Supreme")
             print("[13] LilyGO T-Deck")
-            print("       .")
-            print("      / \\   Select one of these options if you want to easily turn")
-            print("       |    a supported development board into an RNode.")
+            print("[14] Heltec T114")
             print("")
             print("---------------------------------------------------------------------------")
             print("\nEnter the number that matches your device type:\n? ", end="")
@@ -1693,7 +1701,7 @@ def main():
             try:
                 c_dev = int(input())
                 c_mod = False
-                if c_dev < 1 or c_dev > 13:
+                if c_dev < 1 or c_dev > 14:
                     raise ValueError()
                 elif c_dev == 1:
                     selected_product = ROM.PRODUCT_RNODE
@@ -1876,6 +1884,20 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
+                elif c_dev == 14:
+                    selected_product = ROM.PRODUCT_HELTEC_T114
+                    clear()
+                    print("")
+                    print("---------------------------------------------------------------------------")
+                    print("                      Heltec T114 RNode Installer")
+                    print("")
+                    print("Important! Using RNode firmware on Heltec T114 devices should currently be")
+                    print("considered experimental. It is not intended for production or critical use.")
+                    print("The currently supplied firmware is provided AS-IS as a courtesey to those")
+                    print("who would like to experiment with it. Hit enter to continue.")
+                    print("---------------------------------------------------------------------------")
+                    input()
+
             except Exception as e:
                 print("That device type does not exist, exiting now.")
                 graceful_exit()
@@ -2192,6 +2214,28 @@ def main():
                 except Exception as e:
                     print("That band does not exist, exiting now.")
                     exit()
+            
+            elif selected_product == ROM.PRODUCT_HELTEC_T114:
+                selected_mcu = ROM.MCU_NRF52
+                print("\nWhat band is this Heltec T114 for?\n")
+                print("[1] 433 MHz")
+                print("[2] 868 MHz")
+                print("[3] 915 MHz")
+                print("[4] 923 MHz")
+                try:
+                    c_model = int(input())
+                    if c_model < 1 or c_model > 4:
+                        raise ValueError()
+                    elif c_model == 1:
+                        selected_model = ROM.MODEL_C6
+                        selected_platform = ROM.PLATFORM_NRF52
+                    elif c_model > 1:
+                        selected_model = ROM.MODEL_C7
+                        selected_platform = ROM.PLATFORM_NRF52
+                except Exception as e:
+                    print("That band does not exist, exiting now.")
+                    exit()
+            
             elif selected_product == ROM.PRODUCT_RAK4631:
                 selected_mcu = ROM.MCU_NRF52
                 print("\nWhat band is this RAK4631 for?\n")
