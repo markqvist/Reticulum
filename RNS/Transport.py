@@ -1397,7 +1397,8 @@ class Transport:
                                 now = time.time()
                                 if now < announce_entry[1]:
                                     RNS.log("Rebroadcasted announce for "+RNS.prettyhexrep(packet.destination_hash)+" has been passed on to another node, no further tries needed", RNS.LOG_DEBUG)
-                                    Transport.announce_table.pop(packet.destination_hash)
+                                    if packet.destination_hash in Transport.announce_table:
+                                        Transport.announce_table.pop(packet.destination_hash)
 
                     else:
                         received_from = packet.destination_hash
