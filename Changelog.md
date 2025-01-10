@@ -1,3 +1,20 @@
+### 2025-01-09: RNS β 0.8.9
+
+This maintenance release adds a number of configuration options to `rnodeconf`.
+
+**Changes**
+- Added noise floor output to `rnstatus` for supported interfaces
+- Added channel noise floor and CSMA parameter reporting to `RNodeInterface`
+- Added ability to set display rotation in `rnodeconf`
+- Added ability to configure interference avoidance to `rnodeconf`
+- Fixed missing console image install on Heltec V3 in `rnodeconf`
+
+**Release Hashes**
+```
+b54fe8bc296f83a3a70569c9d1e9db3096249789c18f8d0217671479fa6881a1 rns-0.8.9-py3-none-any.whl
+52fd992e5f9478d5a1f61f8f37dc0ee2d268fdd0b8a4e6656d33d632490afc5a rnspure-0.8.9-py3-none-any.whl
+```
+
 ### 2024-12-11: RNS β 0.8.8
 
 This maintenance release adds a single API function and fixes a bug.
