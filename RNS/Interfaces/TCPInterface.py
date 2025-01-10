@@ -596,7 +596,6 @@ class TCPServerInterface(Interface):
     def process_outgoing(self, data):
         pass
 
-
     def detach(self):
         if self.server != None:
             if hasattr(self.server, "shutdown"):
