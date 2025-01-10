@@ -266,30 +266,34 @@ class Identity:
 
     @staticmethod
     def _remember_ratchet(destination_hash, ratchet):
-        # TODO: Remove at some point, and only log new ratchets
-        RNS.log(f"Remembering ratchet {RNS.prettyhexrep(Identity._get_ratchet_id(ratchet))} for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_EXTREME)
         try:
-            Identity.known_ratchets[destination_hash] = ratchet
+            if destination_hash in Identity.known_ratchets and Identity.known_ratchets[destination_hash] == ratchet:
+                ratchet_exists = True
+            else:
+                ratchet_exists = False
 
-            if not RNS.Transport.owner.is_connected_to_shared_instance:
-                def persist_job():
-                    with Identity.ratchet_persist_lock:
-                        hexhash = RNS.hexrep(destination_hash, delimit=False)
-                        ratchet_data = {"ratchet": ratchet, "received": time.time()}
+            if not ratchet_exists:
+                RNS.log(f"Remembering ratchet {RNS.prettyhexrep(Identity._get_ratchet_id(ratchet))} for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_EXTREME)
+                Identity.known_ratchets[destination_hash] = ratchet
+                if not RNS.Transport.owner.is_connected_to_shared_instance:
+                    def persist_job():
+                        with Identity.ratchet_persist_lock:
+                            hexhash = RNS.hexrep(destination_hash, delimit=False)
+                            ratchet_data = {"ratchet": ratchet, "received": time.time()}
 
-                        ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
-                        
-                        if not os.path.isdir(ratchetdir):
-                            os.makedirs(ratchetdir)
+                            ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
+                            
+                            if not os.path.isdir(ratchetdir):
+                                os.makedirs(ratchetdir)
 
-                        outpath   = f"{ratchetdir}/{hexhash}.out"
-                        finalpath = f"{ratchetdir}/{hexhash}"
-                        with open(outpath, "wb") as ratchet_file:
-                            ratchet_file.write(umsgpack.packb(ratchet_data))
-                        os.replace(outpath, finalpath)
+                            outpath   = f"{ratchetdir}/{hexhash}.out"
+                            finalpath = f"{ratchetdir}/{hexhash}"
+                            with open(outpath, "wb") as ratchet_file:
+                                ratchet_file.write(umsgpack.packb(ratchet_data))
+                            os.replace(outpath, finalpath)
 
-                
-                threading.Thread(target=persist_job, daemon=True).start()
+                    
+                    threading.Thread(target=persist_job, daemon=True).start()
 
         except Exception as e:
             RNS.log(f"Could not persist ratchet for {RNS.prettyhexrep(destination_hash)} to storage.", RNS.LOG_ERROR)
