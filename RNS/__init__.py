@@ -350,13 +350,37 @@ def exit():
 
 class Profiler:
     ran = False
+    profilers = {}
     tags = {}
 
+    @staticmethod
+    def get_profiler(tag=None, super_tag=None):
+        if tag in Profiler.profilers:
+            return Profiler.profilers[tag]
+        else:
+            profiler = Profiler(tag, super_tag)
+            Profiler.profilers[tag] = profiler
+            return profiler
+
     def __init__(self, tag=None, super_tag=None):
+        self.paused = False
+        self.pause_time = 0
+        self.pause_started = None
         self.tag = tag
         self.super_tag = super_tag
+        if self.super_tag in Profiler.profilers:
+            self.super_profiler = Profiler.profilers[self.super_tag]
+            self.pause_super = self.super_profiler.pause
+            self.resume_super = self.super_profiler.resume
+        else:
+            def noop(self=None):
+                pass
+            self.super_profiler = None
+            self.pause_super = noop
+            self.resume_super = noop
 
     def __enter__(self):
+        self.pause_super()
         tag = self.tag
         super_tag = self.super_tag
         thread_ident = threading.get_ident()
@@ -366,11 +390,14 @@ class Profiler:
             Profiler.tags[tag]["threads"][thread_ident] = {"current_start": None, "captures": []}
 
         Profiler.tags[tag]["threads"][thread_ident]["current_start"] = time.perf_counter()
+        self.resume_super()
 
     def __exit__(self, exc_type, exc_value, traceback):
+        self.pause_super()
         tag = self.tag
         super_tag = self.super_tag
-        end = time.perf_counter()
+        end = time.perf_counter() - self.pause_time
+        self.pause_time = 0
         thread_ident = threading.get_ident()
         if tag in Profiler.tags and thread_ident in Profiler.tags[tag]["threads"]:
             if Profiler.tags[tag]["threads"][thread_ident]["current_start"] != None:
@@ -379,6 +406,19 @@ class Profiler:
                 Profiler.tags[tag]["threads"][thread_ident]["captures"].append(end-begin)
                 if not Profiler.ran:
                     Profiler.ran = True
+        self.resume_super()
+
+    def pause(self, pause_started=None):
+        if not self.paused:
+            self.paused = True
+            self.pause_started = pause_started or time.perf_counter()
+            self.pause_super(self.pause_started)
+
+    def resume(self):
+        if self.paused:
+            self.pause_time += time.perf_counter() - self.pause_started
+            self.paused = False
+            self.resume_super()
 
     @staticmethod
     def ran():
@@ -446,3 +486,5 @@ class Profiler:
             tag = results[tag_name]
             if tag["super"] == None:
                 print_results_recursive(tag, results)
+
+profile = Profiler.get_profiler
