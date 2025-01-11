@@ -142,6 +142,12 @@ class Transport:
     interface_last_jobs         = 0.0
     interface_jobs_interval     = 5.0
 
+    traffic_rxb                 = 0
+    traffic_txb                 = 0
+    speed_rx                    = 0
+    speed_tx                    = 0
+    traffic_captured            = None
+
     identity = None
 
     @staticmethod
@@ -193,6 +199,9 @@ class Transport:
         
         Transport.jobs_running = False
         thread = threading.Thread(target=Transport.jobloop, daemon=True)
+        thread.start()
+
+        thread = threading.Thread(target=Transport.count_traffic_loop, daemon=True)
         thread.start()
 
         if RNS.Reticulum.transport_enabled():
@@ -320,6 +329,40 @@ class Transport:
 
         except Exception as e:
             RNS.log(f"Could not prioritize interfaces according to bitrate. The contained exception was: {e}", RNS.LOG_ERROR)
+
+    @staticmethod
+    def count_traffic_loop():
+        while True:
+            time.sleep(1)
+            try:
+                rxb = 0; txb = 0;
+                rxs = 0; txs = 0;
+                for interface in Transport.interfaces:
+                    if not hasattr(interface, "parent_interface") or interface.parent_interface == None:
+                        if hasattr(interface, "transport_traffic_counter"):
+                            now = time.time(); irxb = interface.rxb; itxb = interface.txb
+                            tc = interface.transport_traffic_counter
+                            rx_diff = irxb - tc["rxb"]
+                            tx_diff = itxb - tc["txb"]
+                            ts_diff = now  - tc["ts"]
+                            rxb    += rx_diff; crxs = (rx_diff*8)/ts_diff
+                            txb    += tx_diff; ctxs = (tx_diff*8)/ts_diff
+                            interface.current_rx_speed = crxs; rxs += crxs
+                            interface.current_tx_speed = ctxs; txs += ctxs
+                            tc["rxb"] = irxb;
+                            tc["txb"] = itxb;
+                            tc["ts"] = now;
+
+                        else:
+                            interface.transport_traffic_counter = {"ts": time.time(), "rxb": interface.rxb, "txb": interface.txb}
+
+                Transport.traffic_rxb += rxb
+                Transport.traffic_txb += txb
+                Transport.speed_rx    = rxs
+                Transport.speed_tx    = txs
+            
+            except Exception as e:
+                RNS.log(f"An error occurred while counting interface traffic: {e}", RNS.LOG_ERROR)
 
     @staticmethod
     def jobloop():

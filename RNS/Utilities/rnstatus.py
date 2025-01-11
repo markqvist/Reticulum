@@ -135,7 +135,7 @@ def get_remote_status(destination_hash, include_lstats, identity, no_output=Fals
 
 def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False,
                   lstats=False, sorting=None, sort_reverse=False, remote=None, management_identity=None,
-                  remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT, must_exit=True, rns_instance=None):
+                  remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT, must_exit=True, rns_instance=None, traffic_totals=False):
     
     if remote:
         require_shared = False
@@ -228,6 +228,10 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 interfaces.sort(key=lambda i: i["rxb"], reverse=not sort_reverse)
             if sorting == "tx":
                 interfaces.sort(key=lambda i: i["txb"], reverse=not sort_reverse)
+            if sorting == "rxs":
+                interfaces.sort(key=lambda i: i["rxs"], reverse=not sort_reverse)
+            if sorting == "txs":
+                interfaces.sort(key=lambda i: i["txs"], reverse=not sort_reverse)
             if sorting == "traffic":
                 interfaces.sort(key=lambda i: i["rxb"]+i["txb"], reverse=not sort_reverse)
             if sorting == "announces" or sorting == "announce":
@@ -364,7 +368,18 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             print("    Announces : {iaf}↑".format(iaf=RNS.prettyfrequency(ifstat["outgoing_announce_frequency"])))
                             print("                {iaf}↓".format(iaf=RNS.prettyfrequency(ifstat["incoming_announce_frequency"])))
 
-                        print("    Traffic   : {txb}↑\n                {rxb}↓".format(rxb=size_str(ifstat["rxb"]), txb=size_str(ifstat["txb"])))
+                        rxb_str = "↓"+RNS.prettysize(ifstat["rxb"])
+                        txb_str = "↑"+RNS.prettysize(ifstat["txb"])
+                        strdiff = len(rxb_str)-len(txb_str)
+                        if strdiff > 0:
+                            txb_str += " "*strdiff
+                        elif strdiff < 0:
+                            rxb_str += " "*-strdiff
+
+                        rxstat  = rxb_str+"  "+RNS.prettyspeed(ifstat["rxs"])
+                        txstat  = txb_str+"  "+RNS.prettyspeed(ifstat["txs"])
+                        
+                        print(f"    Traffic   : {txstat}\n                {rxstat}")
 
         lstr = ""
         if link_count != None and lstats:
@@ -373,6 +388,19 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 lstr = f", {link_count} entr{ms} in link table"
             else:
                 lstr = f" {link_count} entr{ms} in link table"
+
+        if traffic_totals:
+            rxb_str = "↓"+RNS.prettysize(stats["rxb"])
+            txb_str = "↑"+RNS.prettysize(stats["txb"])
+            strdiff = len(rxb_str)-len(txb_str)
+            if strdiff > 0:
+                txb_str += " "*strdiff
+            elif strdiff < 0:
+                rxb_str += " "*-strdiff
+
+            rxstat  = rxb_str+"  "+RNS.prettyspeed(stats["rxs"])
+            txstat  = txb_str+"  "+RNS.prettyspeed(stats["txs"])
+            print(f"\n Totals       : {txstat}\n                {rxstat}")
 
         if "transport_id" in stats and stats["transport_id"] != None:
             print("\n Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" running")
@@ -427,10 +455,18 @@ def main(must_exit=True, rns_instance=None):
         )
         
         parser.add_argument(
+            "-t",
+            "--totals",
+            action="store_true",
+            help="display traffic totals",
+            default=False,
+        )
+        
+        parser.add_argument(
             "-s",
             "--sort",
             action="store",
-            help="sort interfaces by [rate, traffic, rx, tx, announces, arx, atx, held]",
+            help="sort interfaces by [rate, traffic, rx, tx, rxs, txs, announces, arx, atx, held]",
             default=None,
             type=str
         )
@@ -504,6 +540,7 @@ def main(must_exit=True, rns_instance=None):
             remote_timeout=args.w,
             must_exit=must_exit,
             rns_instance=rns_instance,
+            traffic_totals=args.totals,
         )
 
     except KeyboardInterrupt:

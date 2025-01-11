@@ -172,8 +172,8 @@ class Reticulum:
         RNS.Transport.exit_handler()
         RNS.Identity.exit_handler()
 
-        if RNS.Profiler.ran():
-            RNS.Profiler.results()
+        # if RNS.Profiler.ran():
+        #     RNS.Profiler.results()
 
     @staticmethod
     def sigint_handler(signal, frame):
@@ -965,6 +965,18 @@ class Reticulum:
                     else:
                         ifstats["bitrate"] = None
 
+                if hasattr(interface, "current_rx_speed"):
+                    if interface.current_rx_speed != None:
+                        ifstats["rxs"] = interface.current_rx_speed
+                    else:
+                        ifstats["rxs"] = 0
+
+                if hasattr(interface, "current_tx_speed"):
+                    if interface.current_tx_speed != None:
+                        ifstats["txs"] = interface.current_tx_speed
+                    else:
+                        ifstats["txs"] = 0
+
                 if hasattr(interface, "peers"):
                     if interface.peers != None:
                         ifstats["peers"] = len(interface.peers)
@@ -1002,6 +1014,10 @@ class Reticulum:
 
             stats = {}
             stats["interfaces"] = interfaces
+            stats["rxb"] = RNS.Transport.traffic_rxb
+            stats["txb"] = RNS.Transport.traffic_txb
+            stats["rxs"] = RNS.Transport.speed_rx
+            stats["txs"] = RNS.Transport.speed_tx
             if Reticulum.transport_enabled():
                 stats["transport_id"] = RNS.Transport.identity.hash
                 stats["transport_uptime"] = time.time()-RNS.Transport.start_time
