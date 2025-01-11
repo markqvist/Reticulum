@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Support Reticulum" href="support.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
-        <title>API Reference - Reticulum Network Stack 0.8.9 beta documentation</title>
+        <title>API Reference - Reticulum Network Stack 0.9.0 beta documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 0.8.9 beta documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.9.0 beta documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -167,7 +167,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 0.8.9 beta documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.9.0 beta documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -259,6 +259,17 @@ completely break compatibility with all other RNS networks. An identical
 MTU is a prerequisite for peers to communicate in the same network.</p>
 <p>Unless you really know what you are doing, the MTU should be left at
 the default value.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RNS.Reticulum.LINK_MTU_DISCOVERY">
+<span class="sig-name descname"><span class="pre">LINK_MTU_DISCOVERY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#RNS.Reticulum.LINK_MTU_DISCOVERY" title="Permalink to this definition">#</a></dt>
+<dd><p>Whether automatic link MTU discovery is enabled by default in this
+release. Link MTU discovery significantly increases throughput over
+fast links, but requires all intermediary hops to also support it.
+Support for this feature was added in RNS version 0.9.0. This option
+will become enabled by default in the near future. Please update your
+RNS instances.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -2084,6 +2095,7 @@ will announce it.</p>
 <li><a class="reference internal" href="#">API Reference</a><ul>
 <li><a class="reference internal" href="#RNS.Reticulum"><code class="docutils literal notranslate"><span class="pre">Reticulum</span></code></a><ul>
 <li><a class="reference internal" href="#RNS.Reticulum.MTU"><code class="docutils literal notranslate"><span class="pre">MTU</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Reticulum.LINK_MTU_DISCOVERY"><code class="docutils literal notranslate"><span class="pre">LINK_MTU_DISCOVERY</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Reticulum.ANNOUNCE_CAP"><code class="docutils literal notranslate"><span class="pre">ANNOUNCE_CAP</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Reticulum.MINIMUM_BITRATE"><code class="docutils literal notranslate"><span class="pre">MINIMUM_BITRATE</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Reticulum.get_instance"><code class="docutils literal notranslate"><span class="pre">get_instance()</span></code></a></li>
