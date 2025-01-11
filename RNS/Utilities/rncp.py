@@ -581,7 +581,7 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
     exit(0)
 
 
-def send(configdir, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, silent=False, phy_rates=False):
+def send(configdir, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, silent=False, phy_rates=False, no_compress=False):
     global current_resource, resource_done, link, speed, show_phy_rates
     from tempfile import TemporaryFile
     targetloglevel = 3+verbosity-quietness
@@ -705,7 +705,10 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
             print(f"{erase_str}Advertising file resource  ", end=es)
 
     link.identify(identity)
-    resource = RNS.Resource(temp_file, link, callback = sender_progress, progress_callback = sender_progress)
+    auto_compress = True
+    if no_compress:
+        auto_compress = False
+    resource = RNS.Resource(temp_file, link, callback = sender_progress, progress_callback = sender_progress, auto_compress = auto_compress)
     current_resource = resource
 
     while resource.status < RNS.Resource.TRANSFERRING:
@@ -784,6 +787,7 @@ def main():
         parser.add_argument('-q', '--quiet', action='count', default=0, help="decrease verbosity")
         parser.add_argument("-S", '--silent', action='store_true', default=False, help="disable transfer progress output")
         parser.add_argument("-l", '--listen', action='store_true', default=False, help="listen for incoming transfer requests")
+        parser.add_argument("-C", '--no-compress', action='store_true', default=False, help="disable automatic compression")
         parser.add_argument("-F", '--allow-fetch', action='store_true', default=False, help="allow authenticated clients to fetch files")
         parser.add_argument("-f", '--fetch', action='store_true', default=False, help="fetch file from remote listener instead of sending")
         parser.add_argument("-j", "--jail", metavar="path", action="store", default=None, help="restrict fetch requests to specified path", type=str)
@@ -842,6 +846,7 @@ def main():
                 timeout = args.w,
                 silent = args.silent,
                 phy_rates = args.phy_rates,
+                no_compress = args.no_compress,
             )
 
         else:

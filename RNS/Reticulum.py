@@ -89,6 +89,16 @@ class Reticulum:
     the default value.
     """
 
+    LINK_MTU_DISCOVERY   = False
+    """
+    Whether automatic link MTU discovery is enabled by default in this
+    release. Link MTU discovery significantly increases throughput over
+    fast links, but requires all intermediary hops to also support it.
+    Support for this feature was added in RNS version 0.9.0. This option
+    will become enabled by default in the near future. Please update your
+    RNS instances.
+    """
+
     MAX_QUEUED_ANNOUNCES = 16384
     QUEUED_ANNOUNCE_LIFE = 60*60*24
 

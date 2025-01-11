@@ -163,7 +163,7 @@ class Resource:
             resource.initiator           = False
             resource.callback            = callback
             resource.__progress_callback = progress_callback
-            resource.total_parts         = int(math.ceil(resource.size/float(Resource.SDU)))
+            resource.total_parts         = int(math.ceil(resource.size/float(resource.sdu)))
             resource.received_count      = 0
             resource.outstanding_parts   = 0
             resource.parts               = [None] * resource.total_parts
@@ -209,6 +209,7 @@ class Resource:
 
         except Exception as e:
             RNS.log("Could not decode resource advertisement, dropping resource", RNS.LOG_DEBUG)
+            RNS.trace_exception(e) # TODO: Remove debug
             return None
 
     # Create a resource for transmission to a remote destination
@@ -271,6 +272,7 @@ class Resource:
 
         self.status = Resource.NONE
         self.link = link
+        self.sdu = link.mdu or Resource.SDU
         self.max_retries = Resource.MAX_RETRIES
         self.max_adv_retries = Resource.MAX_ADV_RETRIES
         self.retries_left = self.max_retries
@@ -290,6 +292,7 @@ class Resource:
         self.very_slow_rate_rounds = 0
         self.request_id = request_id
         self.is_response = is_response
+        self.auto_compress = auto_compress
 
         self.req_hashlist = []
         self.receiver_min_consecutive_height = 0
@@ -346,7 +349,7 @@ class Resource:
 
             self.size = len(self.data)
             self.sent_parts = 0
-            hashmap_entries = int(math.ceil(self.size/float(Resource.SDU)))
+            hashmap_entries = int(math.ceil(self.size/float(self.sdu)))
             self.total_parts = hashmap_entries
                 
             hashmap_ok = False
@@ -368,7 +371,7 @@ class Resource:
                 self.hashmap = b""
                 collision_guard_list = []
                 for i in range(0,hashmap_entries):
-                    data = self.data[i*Resource.SDU:(i+1)*Resource.SDU]
+                    data = self.data[i*self.sdu:(i+1)*self.sdu]
                     map_hash = self.get_map_hash(data)
 
                     if map_hash in collision_guard_list:
@@ -647,6 +650,7 @@ class Resource:
             request_id = self.request_id,
             is_response = self.is_response,
             advertise = False,
+            auto_compress = self.auto_compress,
         )
 
     def validate_proof(self, proof_data):
@@ -981,7 +985,7 @@ class Resource:
                 processed_segments = self.segment_index-1
 
                 current_segment_parts = self.total_parts
-                max_parts_per_segment = math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)
+                max_parts_per_segment = math.ceil(Resource.MAX_EFFICIENT_SIZE/self.sdu)
 
                 previously_processed_parts = processed_segments*max_parts_per_segment
 
@@ -1004,7 +1008,7 @@ class Resource:
                 processed_segments = self.segment_index-1
 
                 current_segment_parts = self.total_parts
-                max_parts_per_segment = math.ceil(Resource.MAX_EFFICIENT_SIZE/Resource.SDU)
+                max_parts_per_segment = math.ceil(Resource.MAX_EFFICIENT_SIZE/self.sdu)
 
                 previously_processed_parts = processed_segments*max_parts_per_segment
 

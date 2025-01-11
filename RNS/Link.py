@@ -139,13 +139,14 @@ class Link:
                 link.set_link_id(packet)
 
                 if len(data) == Link.ECPUBSIZE+Link.LINK_MTU_SIZE:
-                    RNS.log("Link request includes MTU signalling") # TODO: Remove debug
+                    RNS.log("Link request includes MTU signalling", RNS.LOG_DEBUG) # TODO: Remove debug
                     try:
                         link.mtu = Link.mtu_from_lr_packet(packet) or Reticulum.MTU
                     except Exception as e:
                         RNS.trace_exception(e)
                         link.mtu = RNS.Reticulum.MTU
 
+                link.update_mdu()
                 link.destination = packet.destination
                 link.establishment_timeout = Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, packet.hops) + Link.KEEPALIVE
                 link.establishment_cost += len(packet.raw)
@@ -247,9 +248,9 @@ class Link:
         if self.initiator:
             link_mtu = b""
             nh_hw_mtu = RNS.Transport.next_hop_interface_hw_mtu(destination.hash)
-            if nh_hw_mtu:
+            if RNS.Reticulum.LINK_MTU_DISCOVERY and nh_hw_mtu:
                 link_mtu = Link.mtu_bytes(nh_hw_mtu)
-                RNS.log(f"Signalling link MTU of {RNS.prettysize(nh_hw_mtu)} for link") # TODO: Remove debug
+                RNS.log(f"Signalling link MTU of {RNS.prettysize(nh_hw_mtu)} for link", RNS.LOG_DEBUG) # TODO: Remove debug
             self.request_data = self.pub_bytes+self.sig_pub_bytes+link_mtu
             self.packet = RNS.Packet(destination, self.request_data, packet_type=RNS.Packet.LINKREQUEST)
             self.packet.pack()
@@ -330,7 +331,7 @@ class Link:
                     confirmed_mtu = Link.mtu_from_lp_packet(packet)
                     mtu_bytes = Link.mtu_bytes(confirmed_mtu)
                     packet.data = packet.data[:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2]
-                    RNS.log(f"Destination confirmed link MTU of {RNS.prettysize(confirmed_mtu)}") # TODO: Remove debug
+                    RNS.log(f"Destination confirmed link MTU of {RNS.prettysize(confirmed_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
 
                 if self.initiator and len(packet.data) == RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:
                     peer_pub_bytes = packet.data[RNS.Identity.SIGLENGTH//8:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2]
@@ -349,6 +350,8 @@ class Link:
                         self.rtt = time.time() - self.request_time
                         self.attached_interface = packet.receiving_interface
                         self.__remote_identity = self.destination.identity
+                        self.mtu = confirmed_mtu or RNS.Reticulum.MTU
+                        self.update_mdu()
                         self.status = Link.ACTIVE
                         self.activated_at = time.time()
                         self.last_proof = self.activated_at
@@ -447,6 +450,10 @@ class Link:
                 request_size = len(packed_request),
             )
 
+
+    def update_mdu(self):
+        self.mdu = self.mtu - RNS.Reticulum.HEADER_MAXSIZE - RNS.Reticulum.IFAC_MIN_SIZE
+        RNS.log(f"Link MDU updated to {self.mdu}", RNS.LOG_DEBUG) # TODO: Remove debug
 
     def rtt_packet(self, packet):
         try:

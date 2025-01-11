@@ -137,7 +137,11 @@ class Packet:
             self.fromPacked     = True
             self.create_receipt = False
 
-        self.MTU         = RNS.Reticulum.MTU
+        if destination and destination.type == RNS.Destination.LINK:
+            self.MTU     = destination.mtu
+        else:
+            self.MTU     = RNS.Reticulum.MTU
+
         self.sent_at     = None
         self.packet_hash = None
         self.ratchet_id  = None
