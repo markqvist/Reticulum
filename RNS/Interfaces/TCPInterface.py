@@ -320,63 +320,36 @@ class TCPClientInterface(Interface):
         try:
             in_frame = False
             escape = False
+            frame_buffer = b""
+            data_in = b""
             data_buffer = b""
-            command = KISS.CMD_UNKNOWN
 
             while True:
                 data_in = self.socket.recv(4096)
                 if len(data_in) > 0:
-                    pointer = 0
-                    while pointer < len(data_in):
-                        byte = data_in[pointer]
-                        pointer += 1
+                    if self.kiss_framing:
+                        # TODO: Add KISS framing parser
+                        pass
 
-                        if self.kiss_framing:
-                            # Read loop for KISS framing
-                            if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
-                                in_frame = False
-                                self.process_incoming(data_buffer)
-                            elif (byte == KISS.FEND):
-                                in_frame = True
-                                command = KISS.CMD_UNKNOWN
-                                data_buffer = b""
-                            elif (in_frame and len(data_buffer) < self.HW_MTU):
-                                if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
-                                    # We only support one HDLC port for now, so
-                                    # strip off the port nibble
-                                    byte = byte & 0x0F
-                                    command = byte
-                                elif (command == KISS.CMD_DATA):
-                                    if (byte == KISS.FESC):
-                                        escape = True
-                                    else:
-                                        if (escape):
-                                            if (byte == KISS.TFEND):
-                                                byte = KISS.FEND
-                                            if (byte == KISS.TFESC):
-                                                byte = KISS.FESC
-                                            escape = False
-                                        data_buffer = data_buffer+bytes([byte])
-
-                        else:
-                            # Read loop for HDLC framing
-                            if (in_frame and byte == HDLC.FLAG):
-                                in_frame = False
-                                self.process_incoming(data_buffer)
-                            elif (byte == HDLC.FLAG):
-                                in_frame = True
-                                data_buffer = b""
-                            elif (in_frame and len(data_buffer) < self.HW_MTU):
-                                if (byte == HDLC.ESC):
-                                    escape = True
+                    else:
+                        frame_buffer += data_in
+                        flags_remaining = True
+                        while flags_remaining:
+                            frame_start = frame_buffer.find(HDLC.FLAG)
+                            if frame_start != -1:
+                                frame_end = frame_buffer.find(HDLC.FLAG, frame_start+1)
+                                if frame_end != -1:
+                                    frame = frame_buffer[frame_start+1:frame_end]
+                                    frame = frame.replace(bytes([HDLC.ESC, HDLC.FLAG ^ HDLC.ESC_MASK]), bytes([HDLC.FLAG]))
+                                    frame = frame.replace(bytes([HDLC.ESC, HDLC.ESC  ^ HDLC.ESC_MASK]), bytes([HDLC.ESC]))
+                                    if len(frame) > RNS.Reticulum.HEADER_MINSIZE:
+                                        self.process_incoming(frame)
+                                    frame_buffer = frame_buffer[frame_end:]
                                 else:
-                                    if (escape):
-                                        if (byte == HDLC.FLAG ^ HDLC.ESC_MASK):
-                                            byte = HDLC.FLAG
-                                        if (byte == HDLC.ESC  ^ HDLC.ESC_MASK):
-                                            byte = HDLC.ESC
-                                        escape = False
-                                    data_buffer = data_buffer+bytes([byte])
+                                    flags_remaining = False
+                            else:
+                                flags_remaining = False
+
                 else:
                     self.online = False
                     if self.initiator and not self.detached:
