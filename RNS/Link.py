@@ -297,7 +297,7 @@ class Link:
 
     def prove(self):
         mtu_bytes = b""
-        if self.mtu != RNS.Reticulum.MTU:
+        if RNS.Reticulum.LINK_MTU_DISCOVERY and self.mtu != RNS.Reticulum.MTU:
             mtu_bytes = Link.mtu_bytes(self.mtu)
 
         signed_data = self.link_id+self.pub_bytes+self.sig_pub_bytes+mtu_bytes
