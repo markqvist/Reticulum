@@ -85,7 +85,8 @@ class Transport:
     destinations                = []           # All active destinations
     pending_links               = []           # Links that are being established
     active_links                = []           # Links that are active
-    packet_hashlist             = []           # A list of packet hashes for duplicate detection
+    packet_hashlist             = set()        # A list of packet hashes for duplicate detection
+    packet_hashlist_prev        = set()
     receipts                    = []           # Receipts of all outgoing packets for proof processing
 
     # TODO: "destination_table" should really be renamed to "path_table"
@@ -165,7 +166,8 @@ class Transport:
             if os.path.isfile(packet_hashlist_path):
                 try:
                     file = open(packet_hashlist_path, "rb")
-                    Transport.packet_hashlist = umsgpack.unpackb(file.read())
+                    hashlist_data = umsgpack.unpackb(file.read())
+                    Transport.packet_hashlist = set(hashlist_data)
                     file.close()
                 except Exception as e:
                     RNS.log("Could not load packet hashlist from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -446,8 +448,9 @@ class Transport:
 
 
                 # Cull the packet hashlist if it has reached its max size
-                if len(Transport.packet_hashlist) > Transport.hashlist_maxsize:
-                    Transport.packet_hashlist = Transport.packet_hashlist[len(Transport.packet_hashlist)-Transport.hashlist_maxsize:len(Transport.packet_hashlist)-1]
+                if len(Transport.packet_hashlist) > Transport.hashlist_maxsize//2:
+                    Transport.packet_hashlist_prev = Transport.packet_hashlist
+                    Transport.packet_hashlist = set()
 
                 # Cull the path request tags list if it has reached its max size
                 if len(Transport.discovery_pr_tags) > Transport.max_pr_tags:
@@ -986,7 +989,7 @@ class Transport:
                             
                     if should_transmit:
                         if not stored_hash:
-                            Transport.packet_hashlist.append(packet.packet_hash)
+                            Transport.packet_hashlist.add(packet.packet_hash)
                             stored_hash = True
 
                         # TODO: Re-evaluate potential for blocking
@@ -1052,7 +1055,7 @@ class Transport:
                 RNS.log("Dropped invalid GROUP announce packet", RNS.LOG_DEBUG)
                 return False
 
-        if not packet.packet_hash in Transport.packet_hashlist:
+        if not packet.packet_hash in Transport.packet_hashlist and not packet.packet_hash in Transport.packet_hashlist_prev:
             return True
         else:
             if packet.packet_type == RNS.Packet.ANNOUNCE:
@@ -1197,7 +1200,7 @@ class Transport:
                 remember_packet_hash = False
 
             if remember_packet_hash:
-                Transport.packet_hashlist.append(packet.packet_hash)
+                Transport.packet_hashlist.add(packet.packet_hash)
                 # TODO: Enable when caching has been redesigned
                 # Transport.cache(packet)
             
@@ -1286,7 +1289,6 @@ class Transport:
                                 path_mtu       = RNS.Link.mtu_from_lr_packet(packet)
                                 nh_mtu         = outbound_interface.HW_MTU
                                 if path_mtu:
-                                    RNS.log(f"Seeing transported LR path MTU of {RNS.prettysize(path_mtu)}") # TODO: Remove debug
                                     if outbound_interface.HW_MTU == None:
                                         RNS.log(f"No next-hop HW MTU, disabling link MTU upgrade") # TODO: Remove debug
                                         path_mtu = None
@@ -1360,7 +1362,7 @@ class Transport:
                             # Add this packet to the filter hashlist if we
                             # have determined that it's actually our turn
                             # to process it.
-                            Transport.packet_hashlist.append(packet.packet_hash)
+                            Transport.packet_hashlist.add(packet.packet_hash)
 
                             new_raw = packet.raw[0:1]
                             new_raw += struct.pack("!B", packet.hops)
@@ -1857,7 +1859,7 @@ class Transport:
                                     # Add this packet to the filter hashlist if we
                                     # have determined that it's actually destined
                                     # for this system, and then validate the proof
-                                    Transport.packet_hashlist.append(packet.packet_hash)
+                                    Transport.packet_hashlist.add(packet.packet_hash)
                                     link.validate_proof(packet)
 
                 elif packet.context == RNS.Packet.RESOURCE_PRF:
@@ -2679,13 +2681,13 @@ class Transport:
                 save_start = time.time()
 
                 if not RNS.Reticulum.transport_enabled():
-                    Transport.packet_hashlist = []
+                    Transport.packet_hashlist = set()
                 else:
                     RNS.log("Saving packet hashlist to storage...", RNS.LOG_DEBUG)
 
                 packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
                 file = open(packet_hashlist_path, "wb")
-                file.write(umsgpack.packb(Transport.packet_hashlist))
+                file.write(umsgpack.packb(list(Transport.packet_hashlist)))
                 file.close()
 
                 save_time = time.time() - save_start
