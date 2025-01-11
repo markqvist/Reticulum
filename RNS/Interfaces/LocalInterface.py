@@ -238,7 +238,6 @@ class LocalClientInterface(Interface):
             self.online = False
             RNS.log("An interface error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
             RNS.log("Tearing down "+str(self), RNS.LOG_ERROR)
-            RNS.trace_exception(e)
             self.teardown()
 
     def detach(self):
