@@ -96,7 +96,7 @@ class TCPClientInterface(Interface):
         connect_timeout = c.as_int("connect_timeout") if "connect_timeout" in c else None
         max_reconnect_tries = c.as_int("max_reconnect_tries") if "max_reconnect_tries" in c else None
         
-        self.HW_MTU = 1064
+        self.HW_MTU = 32768
         
         self.IN               = True
         self.OUT              = False

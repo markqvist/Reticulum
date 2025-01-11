@@ -59,7 +59,7 @@ class LocalClientInterface(Interface):
         # TODO: Remove at some point
         # self.rxptime = 0
         
-        self.HW_MTU = 1064
+        self.HW_MTU = 32768
 
         self.online  = False
         

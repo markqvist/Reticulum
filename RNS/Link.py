@@ -68,8 +68,9 @@ class Link:
     Timeout for link establishment in seconds per hop to destination.
     """
 
-    TRAFFIC_TIMEOUT_MIN_MS = 5
-    TRAFFIC_TIMEOUT_FACTOR = 6
+    LINK_MTU_SIZE            = 3
+    TRAFFIC_TIMEOUT_MIN_MS   = 5
+    TRAFFIC_TIMEOUT_FACTOR   = 6
     KEEPALIVE_TIMEOUT_FACTOR = 4
     """
     RTT timeout factor used in link timeout calculation.
@@ -108,14 +109,22 @@ class Link:
 
     @staticmethod
     def validate_request(owner, data, packet):
-        if len(data) == (Link.ECPUBSIZE):
+        if len(data) == Link.ECPUBSIZE or len(data) == Link.ECPUBSIZE+Link.LINK_MTU_SIZE:
             try:
                 link = Link(owner = owner, peer_pub_bytes=data[:Link.ECPUBSIZE//2], peer_sig_pub_bytes=data[Link.ECPUBSIZE//2:Link.ECPUBSIZE])
                 link.set_link_id(packet)
+
+                if len(data) == Link.ECPUBSIZE+Link.LINK_MTU_SIZE:
+                    try:
+                        link.mtu = (ord(a[Link.ECPUBSIZE]) << 16) + (ord(a[Link.ECPUBSIZE+1]) << 8) + (ord(a[Link.ECPUBSIZE+2]))
+                    except Exception as e:
+                        link.mtu = Reticulum.MTU
+
                 link.destination = packet.destination
                 link.establishment_timeout = Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, packet.hops) + Link.KEEPALIVE
                 link.establishment_cost += len(packet.raw)
-                RNS.log("Validating link request "+RNS.prettyhexrep(link.link_id), RNS.LOG_VERBOSE)
+                RNS.log(f"Validating link request {RNS.prettyhexrep(link.link_id), RNS.LOG_VERBOSE}")
+                RNS.log(f"Link MTU configured to {RNS.prettysize(link.mtu)}", RNS.LOG_EXTREME)
                 RNS.log(f"Establishment timeout is {RNS.prettytime(link.establishment_timeout)} for incoming link request "+RNS.prettyhexrep(link.link_id), RNS.LOG_EXTREME)
                 link.handshake()
                 link.attached_interface = packet.receiving_interface
@@ -142,6 +151,7 @@ class Link:
         if destination != None and destination.type != RNS.Destination.SINGLE:
             raise TypeError("Links can only be established to the \"single\" destination type")
         self.rtt = None
+        self.mtu = Reticulum.MTU
         self.establishment_cost = 0
         self.establishment_rate = None
         self.callbacks = LinkCallbacks()
