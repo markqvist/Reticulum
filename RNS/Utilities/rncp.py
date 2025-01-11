@@ -294,9 +294,10 @@ current_resource = None
 stats = []
 speed = 0.0
 phy_speed = 0.0
+phy_got_total = 0
 def sender_progress(resource):
     stats_max = 32
-    global current_resource, stats, speed, phy_speed, resource_done
+    global current_resource, stats, speed, phy_speed, phy_got_total, resource_done
     current_resource = resource
     
     now = time.time()
@@ -321,6 +322,7 @@ def sender_progress(resource):
         phy_diff = phy_got - stats[0][2]
         if phy_diff > 0:
             phy_speed = phy_diff/span
+            # phy_got_total += phy_diff
 
     if resource.status < RNS.Resource.COMPLETE:
         resource_done = False
@@ -582,7 +584,7 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
 
 
 def send(configdir, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, silent=False, phy_rates=False, no_compress=False):
-    global current_resource, resource_done, link, speed, show_phy_rates
+    global current_resource, resource_done, link, speed, show_phy_rates, phy_got_total, phy_speed
     from tempfile import TemporaryFile
     targetloglevel = 3+verbosity-quietness
     show_phy_rates = phy_rates
@@ -718,6 +720,7 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
             sys.stdout.flush()
             i = (i+1)%len(syms)
 
+    resource_started_at = time.time()
     
     if resource.status > RNS.Resource.COMPLETE:
         if silent:
@@ -735,7 +738,7 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
         time.sleep(0.1)
         prg = current_resource.get_progress()
         percent = round(prg * 100.0, 1)
-        if show_phy_rates:
+        if show_phy_rates and not resource_done:
             pss = size_str(phy_speed, "b")
             phy_str = f" ({pss}ps at physical layer)"
         else:
@@ -756,6 +759,11 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
     while not resource_done:
         if not silent:
             i = progress_update(i)
+
+    resource_concluded_at = time.time()
+    transfer_time = resource_concluded_at - resource_started_at
+    speed = current_resource.total_size/transfer_time
+    # phy_speed = phy_got_total/transfer_time
 
     if not silent:
         i = progress_update(i, done=True)
