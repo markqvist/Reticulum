@@ -48,7 +48,7 @@ def hkdf(length=None, derive_from=None, salt=None, context=None):
     derived = b""
 
     for i in range(ceil(length / hash_len)):
-        block = hmac_sha256(pseudorandom_key, block + context + bytes([i + 1]))
+        block = hmac_sha256(pseudorandom_key, block + context + bytes([(i + 1)%(0xFF+1)]))
         derived += block
 
     return derived[:length]
