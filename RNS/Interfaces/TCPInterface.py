@@ -456,7 +456,7 @@ class TCPServerInterface(Interface):
         if port != None:
             bindport = port
 
-        self.HW_MTU = 1064
+        self.HW_MTU = 32768
 
         self.online = False
         self.spawned_interfaces = []
