@@ -183,6 +183,7 @@ class Link:
         self.establishment_rate = None
         self.callbacks = LinkCallbacks()
         self.resource_strategy = Link.ACCEPT_NONE
+        self.last_resource_window = None
         self.outgoing_resources = []
         self.incoming_resources = []
         self.pending_requests   = []
@@ -1136,6 +1137,7 @@ class Link:
 
     def resource_concluded(self, resource):
         if resource in self.incoming_resources:
+            self.last_resource_window = resource.window
             self.incoming_resources.remove(resource)
         if resource in self.outgoing_resources:
             self.outgoing_resources.remove(resource)
@@ -1164,6 +1166,9 @@ class Link:
                 return True
 
         return False
+
+    def get_last_resource_window(self):
+        return self.last_resource_window
 
     def cancel_outgoing_resource(self, resource):
         if resource in self.outgoing_resources:

@@ -186,6 +186,10 @@ class Resource:
             resource.waiting_for_hmu = False
             resource.receiving_part = False
             resource.consecutive_completed_height = -1
+
+            previous_window = resource.link.get_last_resource_window()
+            if previous_window:
+                resource.window = previous_window
             
             if not resource.link.has_incoming_resource(resource):
                 resource.link.register_incoming_resource(resource)
