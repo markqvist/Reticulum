@@ -128,10 +128,6 @@ class Link:
             return None
 
     @staticmethod
-    def link_id_from_lr_packet(packet):
-        return RNS.Identity.truncated_hash(packet.get_hashable_part()[:Link.ECPUBSIZE])
-
-    @staticmethod
     def validate_request(owner, data, packet):
         if len(data) == Link.ECPUBSIZE or len(data) == Link.ECPUBSIZE+Link.LINK_MTU_SIZE:
             try:
@@ -275,6 +271,15 @@ class Link:
 
         if not hasattr(self.peer_pub, "curve"):
             self.peer_pub.curve = Link.CURVE
+
+    @staticmethod
+    def link_id_from_lr_packet(packet):
+        hashable_part = packet.get_hashable_part()
+        if len(packet.data) > Link.ECPUBSIZE:
+            diff = len(packet.data) - Link.ECPUBSIZE
+            hashable_part = hashable_part[:-diff]
+
+        return RNS.Identity.truncated_hash(hashable_part)
 
     def set_link_id(self, packet):
         self.link_id = Link.link_id_from_lr_packet(packet)
