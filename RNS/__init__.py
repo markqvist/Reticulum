@@ -481,10 +481,10 @@ class Profiler:
             print(f"{ind}  St.dev. : {prettyshorttime(stdev)}")
             print("")
 
-        print("\nProfiler results:\n")
-        for tag_name in results:
-            tag = results[tag_name]
-            if tag["super"] == None:
-                print_results_recursive(tag, results)
+            print("\nProfiler results:\n")
+            for tag_name in results:
+                tag = results[tag_name]
+                if tag["super"] == None:
+                    print_results_recursive(tag, results)
 
 profile = Profiler.get_profiler
