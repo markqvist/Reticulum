@@ -1282,6 +1282,22 @@ class Transport:
                                 now = time.time()
                                 proof_timeout  = Transport.extra_link_proof_timeout(packet.receiving_interface)
                                 proof_timeout += now + RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, remaining_hops)
+                                
+                                path_mtu       = RNS.Link.mtu_from_lr_packet(packet)
+                                nh_mtu         = outbound_interface.HW_MTU
+                                if path_mtu:
+                                    RNS.log(f"Seeing transported LR path MTU of {RNS.prettysize(path_mtu)}") # TODO: Remove debug
+                                    if outbound_interface.HW_MTU == None:
+                                        RNS.log(f"No next-hop HW MTU, disabling link MTU upgrade") # TODO: Remove debug
+                                        path_mtu = None
+                                        new_raw  = new_raw[:RNS.Link.ECPUBSIZE]
+                                    else:
+                                        if nh_mtu < path_mtu:
+                                            path_mtu = nh_mtu
+                                            clamped_mtu = RNS.Link.mtu_bytes(path_mtu)
+                                            RNS.log(f"Clamping link MTU to {RNS.prettysize(nh_mtu)}: {RNS.hexrep(clamped_mtu)}") # TODO: Remove debug
+                                            RNS.log(f"New raw: {RNS.hexrep(new_raw)}")
+                                            new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]+clamped_mtu
 
                                 # Entry format is
                                 link_entry = [  now,                            # 0: Timestamp,
@@ -1294,7 +1310,7 @@ class Transport:
                                                 False,                          # 7: Validated
                                                 proof_timeout]                  # 8: Proof timeout timestamp
 
-                                Transport.link_table[packet.getTruncatedHash()] = link_entry
+                                Transport.link_table[RNS.Link.link_id_from_lr_packet(packet)] = link_entry
 
                             else:
                                 # Entry format is
@@ -1790,12 +1806,16 @@ class Transport:
                         if packet.hops == link_entry[3]:
                             if packet.receiving_interface == link_entry[2]:
                                 try:
-                                    if len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2:
+                                    if len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2 or len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2+RNS.Link.LINK_MTU_SIZE:
+                                        mtu_bytes = b""
+                                        if len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2+RNS.Link.LINK_MTU_SIZE:
+                                            mtu_bytes = RNS.Link.mtu_bytes(RNS.Link.mtu_from_lp_packet(packet))
+
                                         peer_pub_bytes = packet.data[RNS.Identity.SIGLENGTH//8:RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2]
                                         peer_identity = RNS.Identity.recall(link_entry[6])
                                         peer_sig_pub_bytes = peer_identity.get_public_key()[RNS.Link.ECPUBSIZE//2:RNS.Link.ECPUBSIZE]
 
-                                        signed_data = packet.destination_hash+peer_pub_bytes+peer_sig_pub_bytes
+                                        signed_data = packet.destination_hash+peer_pub_bytes+peer_sig_pub_bytes+mtu_bytes
                                         signature = packet.data[:RNS.Identity.SIGLENGTH//8]
 
                                         if peer_identity.validate(signature, signed_data):
@@ -2186,6 +2206,14 @@ class Transport:
         next_hop_interface = Transport.next_hop_interface(destination_hash)
         if next_hop_interface != None:
             return next_hop_interface.bitrate
+        else:
+            return None
+
+    @staticmethod
+    def next_hop_interface_hw_mtu(destination_hash):
+        next_hop_interface = Transport.next_hop_interface(destination_hash)
+        if next_hop_interface != None:
+            return next_hop_interface.HW_MTU
         else:
             return None
 

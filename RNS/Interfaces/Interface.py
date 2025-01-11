@@ -65,11 +65,12 @@ class Interface:
     IC_HELD_RELEASE_INTERVAL = 30
 
     def __init__(self):
-        self.rxb = 0
-        self.txb = 0
+        self.rxb     = 0
+        self.txb     = 0
         self.created = time.time()
-        self.online = False
+        self.online  = False
         self.bitrate = 1e6
+        self.HW_MTU  = None
 
         self.ingress_control = True
         self.ic_max_held_announces = Interface.MAX_HELD_ANNOUNCES

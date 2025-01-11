@@ -28,6 +28,7 @@ from time import sleep
 from .vendor import umsgpack as umsgpack
 import threading
 import inspect
+import struct
 import math
 import time
 import RNS
@@ -108,6 +109,29 @@ class Link:
     resource_strategies = [ACCEPT_NONE, ACCEPT_APP, ACCEPT_ALL]
 
     @staticmethod
+    def mtu_bytes(mtu):
+        return struct.pack(">I", mtu & 0xFFFFFF)[1:]
+
+    @staticmethod
+    def mtu_from_lr_packet(packet):
+        if len(packet.data) == Link.ECPUBSIZE+Link.LINK_MTU_SIZE:
+            return (packet.data[Link.ECPUBSIZE] << 16) + (packet.data[Link.ECPUBSIZE+1] << 8) + (packet.data[Link.ECPUBSIZE+2])
+        else:
+            return None
+
+    @staticmethod
+    def mtu_from_lp_packet(packet):
+        if len(packet.data) == RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2+Link.LINK_MTU_SIZE:
+            mtu_bytes = packet.data[RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2+Link.LINK_MTU_SIZE]
+            return (mtu_bytes[0] << 16) + (mtu_bytes[1] << 8) + (mtu_bytes[2])
+        else:
+            return None
+
+    @staticmethod
+    def link_id_from_lr_packet(packet):
+        return RNS.Identity.truncated_hash(packet.get_hashable_part()[:Link.ECPUBSIZE])
+
+    @staticmethod
     def validate_request(owner, data, packet):
         if len(data) == Link.ECPUBSIZE or len(data) == Link.ECPUBSIZE+Link.LINK_MTU_SIZE:
             try:
@@ -115,15 +139,17 @@ class Link:
                 link.set_link_id(packet)
 
                 if len(data) == Link.ECPUBSIZE+Link.LINK_MTU_SIZE:
+                    RNS.log("Link request includes MTU signalling") # TODO: Remove debug
                     try:
-                        link.mtu = (ord(a[Link.ECPUBSIZE]) << 16) + (ord(a[Link.ECPUBSIZE+1]) << 8) + (ord(a[Link.ECPUBSIZE+2]))
+                        link.mtu = Link.mtu_from_lr_packet(packet) or Reticulum.MTU
                     except Exception as e:
-                        link.mtu = Reticulum.MTU
+                        RNS.trace_exception(e)
+                        link.mtu = RNS.Reticulum.MTU
 
                 link.destination = packet.destination
                 link.establishment_timeout = Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, packet.hops) + Link.KEEPALIVE
                 link.establishment_cost += len(packet.raw)
-                RNS.log(f"Validating link request {RNS.prettyhexrep(link.link_id), RNS.LOG_VERBOSE}")
+                RNS.log(f"Validating link request {RNS.prettyhexrep(link.link_id)}", RNS.LOG_VERBOSE)
                 RNS.log(f"Link MTU configured to {RNS.prettysize(link.mtu)}", RNS.LOG_EXTREME)
                 RNS.log(f"Establishment timeout is {RNS.prettytime(link.establishment_timeout)} for incoming link request "+RNS.prettyhexrep(link.link_id), RNS.LOG_EXTREME)
                 link.handshake()
@@ -143,7 +169,7 @@ class Link:
                 return None
 
         else:
-            RNS.log("Invalid link request payload size, dropping request", RNS.LOG_DEBUG)
+            RNS.log(f"Invalid link request payload size of {len(data)} bytes, dropping request", RNS.LOG_DEBUG)
             return None
 
 
@@ -151,7 +177,7 @@ class Link:
         if destination != None and destination.type != RNS.Destination.SINGLE:
             raise TypeError("Links can only be established to the \"single\" destination type")
         self.rtt = None
-        self.mtu = Reticulum.MTU
+        self.mtu = RNS.Reticulum.MTU
         self.establishment_cost = 0
         self.establishment_rate = None
         self.callbacks = LinkCallbacks()
@@ -218,8 +244,13 @@ class Link:
         if closed_callback != None:
             self.set_link_closed_callback(closed_callback)
 
-        if (self.initiator):
-            self.request_data = self.pub_bytes+self.sig_pub_bytes
+        if self.initiator:
+            link_mtu = b""
+            nh_hw_mtu = RNS.Transport.next_hop_interface_hw_mtu(destination.hash)
+            if nh_hw_mtu:
+                link_mtu = Link.mtu_bytes(nh_hw_mtu)
+                RNS.log(f"Signalling link MTU of {RNS.prettysize(nh_hw_mtu)} for link") # TODO: Remove debug
+            self.request_data = self.pub_bytes+self.sig_pub_bytes+link_mtu
             self.packet = RNS.Packet(destination, self.request_data, packet_type=RNS.Packet.LINKREQUEST)
             self.packet.pack()
             self.establishment_cost += len(self.packet.raw)
@@ -244,7 +275,7 @@ class Link:
             self.peer_pub.curve = Link.CURVE
 
     def set_link_id(self, packet):
-        self.link_id = packet.getTruncatedHash()
+        self.link_id = Link.link_id_from_lr_packet(packet)
         self.hash = self.link_id
 
     def handshake(self):
@@ -263,10 +294,14 @@ class Link:
 
 
     def prove(self):
-        signed_data = self.link_id+self.pub_bytes+self.sig_pub_bytes
+        mtu_bytes = b""
+        if self.mtu != RNS.Reticulum.MTU:
+            mtu_bytes = Link.mtu_bytes(self.mtu)
+
+        signed_data = self.link_id+self.pub_bytes+self.sig_pub_bytes+mtu_bytes
         signature = self.owner.identity.sign(signed_data)
 
-        proof_data = signature+self.pub_bytes
+        proof_data = signature+self.pub_bytes+mtu_bytes
         proof = RNS.Packet(self, proof_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.LRPROOF)
         proof.send()
         self.establishment_cost += len(proof.raw)
@@ -289,6 +324,14 @@ class Link:
     def validate_proof(self, packet):
         try:
             if self.status == Link.PENDING:
+                mtu_bytes = b""
+                confirmed_mtu = None
+                if len(packet.data) == RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2+Link.LINK_MTU_SIZE:
+                    confirmed_mtu = Link.mtu_from_lp_packet(packet)
+                    mtu_bytes = Link.mtu_bytes(confirmed_mtu)
+                    packet.data = packet.data[:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2]
+                    RNS.log(f"Destination confirmed link MTU of {RNS.prettysize(confirmed_mtu)}") # TODO: Remove debug
+
                 if self.initiator and len(packet.data) == RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:
                     peer_pub_bytes = packet.data[RNS.Identity.SIGLENGTH//8:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2]
                     peer_sig_pub_bytes = self.destination.identity.get_public_key()[Link.ECPUBSIZE//2:Link.ECPUBSIZE]
@@ -296,7 +339,7 @@ class Link:
                     self.handshake()
 
                     self.establishment_cost += len(packet.raw)
-                    signed_data = self.link_id+self.peer_pub_bytes+self.peer_sig_pub_bytes
+                    signed_data = self.link_id+self.peer_pub_bytes+self.peer_sig_pub_bytes+mtu_bytes
                     signature = packet.data[:RNS.Identity.SIGLENGTH//8]
                     
                     if self.destination.identity.validate(signature, signed_data):
