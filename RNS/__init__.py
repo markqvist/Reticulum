@@ -349,7 +349,7 @@ def exit():
     sys.exit(0)
 
 class Profiler:
-    ran = False
+    _ran = False
     profilers = {}
     tags = {}
 
@@ -404,8 +404,8 @@ class Profiler:
                 begin = Profiler.tags[tag]["threads"][thread_ident]["current_start"]
                 Profiler.tags[tag]["threads"][thread_ident]["current_start"] = None
                 Profiler.tags[tag]["threads"][thread_ident]["captures"].append(end-begin)
-                if not Profiler.ran:
-                    Profiler.ran = True
+                if not Profiler._ran:
+                    Profiler._ran = True
         self.resume_super()
 
     def pause(self, pause_started=None):
@@ -422,7 +422,7 @@ class Profiler:
 
     @staticmethod
     def ran():
-        return Profiler.ran
+        return Profiler._ran
 
     @staticmethod
     def results():
@@ -438,18 +438,25 @@ class Profiler:
                 thread_captures = thread_entry["captures"]
                 sample_count = len(thread_captures)
                 
-                if sample_count > 2:
+                if sample_count > 1:
                     thread_results = {
                         "count": sample_count,
                         "mean": mean(thread_captures),
                         "median": median(thread_captures),
                         "stdev": stdev(thread_captures)
                     }
+                elif sample_count == 1:
+                    thread_results = {
+                        "count": sample_count,
+                        "mean": mean(thread_captures),
+                        "median": median(thread_captures),
+                        "stdev": None
+                    }
 
                 tag_captures.extend(thread_captures)
 
             sample_count = len(tag_captures)
-            if sample_count > 2:
+            if sample_count > 1:
                 tag_results = {
                     "name": tag,
                     "super": tag_entry["super"],
@@ -458,8 +465,17 @@ class Profiler:
                     "median": median(tag_captures),
                     "stdev": stdev(tag_captures)
                 }
+            elif sample_count == 1:
+                tag_results = {
+                    "name": tag,
+                    "super": tag_entry["super"],
+                    "count": len(tag_captures),
+                    "mean": mean(tag_captures),
+                    "median": median(tag_captures),
+                    "stdev": None
+                }
 
-                results[tag] = tag_results
+            results[tag] = tag_results
 
         def print_results_recursive(tag, results, level=0):
             print_tag_results(tag, level+1)
@@ -474,12 +490,13 @@ class Profiler:
             ind = "  "*level
             name = tag["name"]; count = tag["count"]
             mean = tag["mean"]; median = tag["median"]; stdev = tag["stdev"]
-            print(f"{ind}{name}")
-            print(f"{ind}  Samples  : {count}")
-            print(f"{ind}  Mean     : {prettyshorttime(mean)}")
-            print(f"{ind}  Median   : {prettyshorttime(median)}")
-            print(f"{ind}  St.dev.  : {prettyshorttime(stdev)}")
-            print(f"{ind}  Utilised : {prettyshorttime(mean*count)}")
+            print(    f"{ind}{name}")
+            print(    f"{ind}  Samples  : {count}")
+            if stdev != None:
+                print(f"{ind}  Mean     : {prettyshorttime(mean)}")
+                print(f"{ind}  Median   : {prettyshorttime(median)}")
+                print(f"{ind}  St.dev.  : {prettyshorttime(stdev)}")
+            print(    f"{ind}  Total    : {prettyshorttime(mean*count)}")
             print("")
 
         print("\nProfiler results:\n")
