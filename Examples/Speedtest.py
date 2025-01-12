@@ -246,8 +246,8 @@ def link_established(link):
 
     # Inform the user that the server is
     # connected
-    RNS.log("Link established with server,sending...")
-    rd = os.urandom(RNS.Link.MDU)
+    RNS.log("Link established with server, sending...")
+    rd = os.urandom(link.mdu)
     started = time.time()
     while link.status == RNS.Link.ACTIVE and data_sent < data_cap*1.25:
         RNS.Packet(server_link, rd, create_receipt=False).send()
