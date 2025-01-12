@@ -602,7 +602,7 @@ class Channel(contextlib.AbstractContextManager):
         return envelope
 
     @property
-    def MDU(self):
+    def mdu(self):
         """
         Maximum Data Unit: the number of bytes available
         for a message to consume in a single send. This
@@ -611,7 +611,10 @@ class Channel(contextlib.AbstractContextManager):
 
         :return: number of bytes available
         """
-        return self._outlet.mdu - 6  # sizeof(msgtype) + sizeof(length) + sizeof(sequence)
+        mdu = self._outlet.mdu - 6  # sizeof(msgtype) + sizeof(length) + sizeof(sequence)
+        if mdu > 0xFFFF:
+            mdu = 0xFFFF
+        return mdu
 
 
 class LinkChannelOutlet(ChannelOutletBase):
@@ -639,7 +642,7 @@ class LinkChannelOutlet(ChannelOutletBase):
 
     @property
     def mdu(self):
-        return self.link.MDU
+        return self.link.mdu
 
     @property
     def rtt(self):

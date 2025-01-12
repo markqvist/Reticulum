@@ -45,7 +45,8 @@ class StreamDataMessage(MessageBase):
     The stream id is limited to 2 bytes - 2 bit
     """
 
-    MAX_DATA_LEN = RNS.Link.MDU - 2 - 6  # 2 for stream data message header, 6 for channel envelope
+    OVERHEAD     = 2 + 6  # 2 for stream data message header, 6 for channel envelope
+    MAX_DATA_LEN = RNS.Link.MDU - OVERHEAD
     """
     When the Buffer package is imported, this value is
     calculcated based on the value of OVERHEAD
@@ -215,6 +216,7 @@ class RawChannelWriter(RawIOBase, AbstractContextManager):
         self._stream_id = stream_id
         self._channel = channel
         self._eof = False
+        self._mdu = channel.mdu - StreamDataMessage.OVERHEAD
 
     def write(self, __b: bytes) -> int | None:
         try:
