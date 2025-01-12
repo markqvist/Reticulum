@@ -57,7 +57,6 @@ class LocalClientInterface(Interface):
         super().__init__()
 
         self.HW_MTU = 32768
-        # self.HW_MTU = 500 # TODO: Remove debug
 
         self.online  = False
         
