@@ -56,7 +56,7 @@ class LocalClientInterface(Interface):
     def __init__(self, owner, name, target_port = None, connected_socket=None):
         super().__init__()
 
-        self.HW_MTU = 32768
+        self.HW_MTU = 262144
 
         self.online  = False
         

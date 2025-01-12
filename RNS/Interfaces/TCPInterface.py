@@ -31,7 +31,7 @@ import os
 import RNS
 
 class TCPInterface():
-    HW_MTU            = 2**20
+    HW_MTU            = 262144
 
 class HDLC():
     FLAG              = 0x7E
