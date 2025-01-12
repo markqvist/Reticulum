@@ -24,6 +24,7 @@ import os
 import sys
 import glob
 import time
+import datetime
 import random
 import threading
 
@@ -68,6 +69,7 @@ logfile         = None
 logdest         = LOG_STDOUT
 logcall         = None
 logtimefmt      = "%Y-%m-%d %H:%M:%S"
+logtimefmt_p    = "%H:%M:%S.%f"
 compact_log_fmt = False
 
 instance_random = random.Random()
@@ -108,14 +110,20 @@ def timestamp_str(time_s):
     timestamp = time.localtime(time_s)
     return time.strftime(logtimefmt, timestamp)
 
-def log(msg, level=3, _override_destination = False):
+def precise_timestamp_str(time_s):
+    return datetime.datetime.now().strftime(logtimefmt_p)[:-3]
+
+def log(msg, level=3, _override_destination = False, pt=False):
     global _always_override_destination, compact_log_fmt
     msg = str(msg)
     if loglevel >= level:
-        if not compact_log_fmt:
-            logstring = "["+timestamp_str(time.time())+"] ["+loglevelname(level)+"] "+msg
+        if pt:
+            logstring = "["+precise_timestamp_str(time.time())+"] ["+loglevelname(level)+"] "+msg
         else:
-            logstring = "["+timestamp_str(time.time())+"] "+msg
+            if not compact_log_fmt:
+                logstring = "["+timestamp_str(time.time())+"] ["+loglevelname(level)+"] "+msg
+            else:
+                logstring = "["+timestamp_str(time.time())+"] "+msg
 
         logging_lock.acquire()
 
