@@ -475,10 +475,11 @@ class Profiler:
             name = tag["name"]; count = tag["count"]
             mean = tag["mean"]; median = tag["median"]; stdev = tag["stdev"]
             print(f"{ind}{name}")
-            print(f"{ind}  Samples : {count}")
-            print(f"{ind}  Mean    : {prettyshorttime(mean)}")
-            print(f"{ind}  Median  : {prettyshorttime(median)}")
-            print(f"{ind}  St.dev. : {prettyshorttime(stdev)}")
+            print(f"{ind}  Samples  : {count}")
+            print(f"{ind}  Mean     : {prettyshorttime(mean)}")
+            print(f"{ind}  Median   : {prettyshorttime(median)}")
+            print(f"{ind}  St.dev.  : {prettyshorttime(stdev)}")
+            print(f"{ind}  Utilised : {prettyshorttime(mean*count)}")
             print("")
 
         print("\nProfiler results:\n")
