@@ -30,6 +30,9 @@ import sys
 import os
 import RNS
 
+class TCPInterface():
+    HW_MTU            = 2**20
+
 class HDLC():
     FLAG              = 0x7E
     ESC               = 0x7D
@@ -96,7 +99,7 @@ class TCPClientInterface(Interface):
         connect_timeout = c.as_int("connect_timeout") if "connect_timeout" in c else None
         max_reconnect_tries = c.as_int("max_reconnect_tries") if "max_reconnect_tries" in c else None
         
-        self.HW_MTU           = 32768
+        self.HW_MTU           = TCPInterface.HW_MTU
         self.IN               = True
         self.OUT              = False
         self.socket           = None
@@ -456,7 +459,7 @@ class TCPServerInterface(Interface):
         if port != None:
             bindport = port
 
-        self.HW_MTU = 32768
+        self.HW_MTU = TCPInterface.HW_MTU
 
         self.online = False
         self.spawned_interfaces = []
