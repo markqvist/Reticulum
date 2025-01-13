@@ -235,6 +235,7 @@ class Reticulum:
         Reticulum.interfacepath = Reticulum.configdir+"/interfaces"
 
         Reticulum.__transport_enabled = False
+        Reticulum.__link_mtu_discovery = Reticulum.LINK_MTU_DISCOVERY
         Reticulum.__remote_management_enabled = False
         Reticulum.__use_implicit_proof = True
         Reticulum.__allow_probes = False
@@ -433,6 +434,10 @@ class Reticulum:
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:
                         Reticulum.__transport_enabled = True
+                if option == "link_mtu_discovery":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v == True:
+                        Reticulum.__link_mtu_discovery = True
                 if option == "enable_remote_management":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:
@@ -1237,6 +1242,20 @@ class Reticulum:
         :returns: True if Transport is enabled, False if not.
         """
         return Reticulum.__transport_enabled
+
+    @staticmethod
+    def link_mtu_discovery():
+        """
+        Returns whether link MTU discovery is enabled for the running
+        instance.
+
+        When link MTU discovery is enabled, Reticulum will
+        automatically upgrade link MTUs to the highest supported
+        value, increasing transfer speed and efficiency.
+
+        :returns: True if link MTU discovery is enabled, False if not.
+        """
+        return Reticulum.__link_mtu_discovery
 
     @staticmethod
     def remote_management_enabled():

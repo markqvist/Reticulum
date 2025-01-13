@@ -245,7 +245,7 @@ class Link:
         if self.initiator:
             link_mtu = b""
             nh_hw_mtu = RNS.Transport.next_hop_interface_hw_mtu(destination.hash)
-            if RNS.Reticulum.LINK_MTU_DISCOVERY and nh_hw_mtu:
+            if RNS.Reticulum.link_mtu_discovery() and nh_hw_mtu:
                 link_mtu = Link.mtu_bytes(nh_hw_mtu)
                 RNS.log(f"Signalling link MTU of {RNS.prettysize(nh_hw_mtu)} for link", RNS.LOG_DEBUG) # TODO: Remove debug
             self.request_data = self.pub_bytes+self.sig_pub_bytes+link_mtu
