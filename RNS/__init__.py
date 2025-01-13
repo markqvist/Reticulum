@@ -28,6 +28,35 @@ import datetime
 import random
 import threading
 
+# Setup logging early so import failures get logged
+import logging
+# Add extra levels
+logging.addLevelName(25, 'NOTICE')
+logging.addLevelName(15, 'VERBOSE')
+logging.addLevelName(5, 'EXTREME')
+# Keep these for backwards compatibility
+LOG_CRITICAL = logging.CRITICAL
+LOG_ERROR    = logging.ERROR
+LOG_WARNING  = logging.WARNING
+LOG_NOTICE   = logging.NOTICE  = 25
+LOG_INFO     = logging.INFO
+LOG_VERBOSE  = logging.VERBOSE = 15
+LOG_DEBUG    = logging.DEBUG
+LOG_EXTREME  = logging.EXTREME = 5
+
+_log = logging.getLogger('RNS')
+
+ch = logging.StreamHandler()
+# Precise format:
+# formatter = logging.Formatter('[%(asctime)s] [$(name)s] [%(levelname)s] %(message)s')
+# Normal format:
+formatter = logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s', "%Y-%m-%d %H:%M:%S")
+# Compact format:
+# formatter = logging.Formatter('[%(asctime)s] %(message)s')
+ch.setFormatter(formatter)
+_log.addHandler(ch)
+del ch
+
 from ._version import __version__
 
 from .Reticulum import Reticulum
@@ -49,15 +78,6 @@ pyc_modules = glob.glob(os.path.dirname(__file__)+"/*.pyc")
 modules     = py_modules+pyc_modules
 __all__ = list(set([os.path.basename(f).replace(".pyc", "").replace(".py", "") for f in modules if not (f.endswith("__init__.py") or f.endswith("__init__.pyc"))]))
 
-LOG_CRITICAL = 0
-LOG_ERROR    = 1
-LOG_WARNING  = 2
-LOG_NOTICE   = 3
-LOG_INFO     = 4
-LOG_VERBOSE  = 5
-LOG_DEBUG    = 6
-LOG_EXTREME  = 7
-
 LOG_STDOUT   = 0x91
 LOG_FILE     = 0x92
 LOG_CALLBACK = 0x93
@@ -71,6 +91,7 @@ logcall         = None
 logtimefmt      = "%Y-%m-%d %H:%M:%S"
 logtimefmt_p    = "%H:%M:%S.%f"
 compact_log_fmt = False
+_log.setLevel(loglevel)
 
 instance_random = random.Random()
 instance_random.seed(os.urandom(10))
@@ -113,7 +134,12 @@ def timestamp_str(time_s):
 def precise_timestamp_str(time_s):
     return datetime.datetime.now().strftime(logtimefmt_p)[:-3]
 
-def log(msg, level=3, _override_destination = False, pt=False):
+def log(msg, level=3, _override_destination=False, pt=False):
+    _log.log(level, msg)
+    if _override_destination:
+        log.warn("Log override function not yet implemented")
+
+def oldlog(msg, level=3, _override_destination = False, pt=False):
     global _always_override_destination, compact_log_fmt
     msg = str(msg)
     if loglevel >= level:
