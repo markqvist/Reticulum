@@ -321,7 +321,10 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             print("    Rate      : {ss}".format(ss=speed_str(ifstat["bitrate"])))
 
                         if "noise_floor" in ifstat:
-                            print("    Noise Fl. : {nfl} dBm".format(nfl=str(ifstat["noise_floor"])))
+                            if ifstat["noise_floor"] != None:
+                                print("    Noise Fl. : {nfl} dBm".format(nfl=str(ifstat["noise_floor"])))
+                            else:
+                                print("    Noise Fl. : Unknown")
 
                         if "battery_percent" in ifstat and ifstat["battery_percent"] != None:
                             try:
