@@ -1362,7 +1362,7 @@ def main():
         parser.add_argument("-r", "--rom", action="store_true", help="Bootstrap EEPROM without flashing firmware")
         parser.add_argument("-k", "--key", action="store_true", help="Generate a new signing key and exit") # 
         parser.add_argument("-S", "--sign", action="store_true", help="Display public part of signing key")
-        parser.add_argument("-H", "--firmware-hash", action="store", help="Display installed firmware hash")
+        parser.add_argument("-H", "--firmware-hash", action="store", help="Set installed firmware hash")
         parser.add_argument("-K", "--get-target-firmware-hash", action="store_true", help=argparse.SUPPRESS) # Get target firmware hash from device
         parser.add_argument("-L", "--get-firmware-hash", action="store_true", help=argparse.SUPPRESS) # Get calculated firmware hash from device
         parser.add_argument("--platform", action="store", metavar="platform", type=str, default=None, help="Platform specification for device bootstrap")
