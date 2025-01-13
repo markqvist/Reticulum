@@ -276,7 +276,10 @@ class Resource:
 
         self.status = Resource.NONE
         self.link = link
-        self.sdu = link.mdu or Resource.SDU
+        if self.link.mtu:
+            self.sdu = self.link.mtu - RNS.Reticulum.HEADER_MAXSIZE - RNS.Reticulum.IFAC_MIN_SIZE
+        else:
+            self.sdu = link.mdu or Resource.SDU
         self.max_retries = Resource.MAX_RETRIES
         self.max_adv_retries = Resource.MAX_ADV_RETRIES
         self.retries_left = self.max_retries
