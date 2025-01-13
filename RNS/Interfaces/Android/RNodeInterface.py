@@ -1247,13 +1247,14 @@ class RNodeInterface(Interface):
                                         byte = KISS.FESC
                                     escape = False
                                 command_buffer = command_buffer+bytes([byte])
-                                if (len(command_buffer) == 10):
+                                if (len(command_buffer) == 11):
                                     ats = command_buffer[0] << 8 | command_buffer[1]
                                     atl = command_buffer[2] << 8 | command_buffer[3]
                                     cus = command_buffer[4] << 8 | command_buffer[5]
                                     cul = command_buffer[6] << 8 | command_buffer[7]
                                     crs = command_buffer[8]
                                     nfl = command_buffer[9]
+                                    ntf = command_buffer[10]
                                     
                                     self.r_airtime_short      = ats/100.0
                                     self.r_airtime_long       = atl/100.0
@@ -1261,8 +1262,16 @@ class RNodeInterface(Interface):
                                     self.r_channel_load_long  = cul/100.0
                                     self.r_current_rssi       = crs-RNodeInterface.RSSI_OFFSET
                                     self.r_noise_floor        = nfl-RNodeInterface.RSSI_OFFSET
+                                    if ntf == 0xFF:
+                                        self.r_interference   = None
+                                    else:
+                                        self.r_interference   = ntf-RNodeInterface.RSSI_OFFSET
+                                    
+                                    if self.r_interference != None:
+                                        RNS.log(f"{self} Radio detected interference at {self.r_interference} dBm", RNS.LOG_DEBUG)
+
                                     # TODO: Remove debug
-                                    # RNS.log(f"RSSI: {self.r_current_rssi}, Noise floor: {self.r_noise_floor}", RNS.LOG_EXTREME)
+                                    # RNS.log(f"RSSI: {self.r_current_rssi}, Noise floor: {self.r_noise_floor}, Interference: {self.r_interference}", RNS.LOG_EXTREME)
                         elif (command == KISS.CMD_STAT_PHYPRM):
                             if (byte == KISS.FESC):
                                 escape = True
