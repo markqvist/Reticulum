@@ -218,6 +218,17 @@ class ROM():
     ADDR_CONF_FREQ = 0xA3
     ADDR_CONF_OK   = 0xA7
 
+    ADDR_CONF_BT   = 0xB0
+    ADDR_CONF_DSET = 0xB1
+    ADDR_CONF_DINT = 0xB2
+    ADDR_CONF_DADR = 0xB3
+    ADDR_CONF_DBLK = 0xB4
+    ADDR_CONF_DROT = 0xB8
+    ADDR_CONF_PSET = 0xB5
+    ADDR_CONF_PINT = 0xB6
+    ADDR_CONF_BSET = 0xB7
+    ADDR_CONF_DIA  = 0xB9
+
     INFO_LOCK_BYTE = 0x73
     CONF_OK_BYTE   = 0x73
 
@@ -1348,6 +1359,8 @@ def main():
 
         parser.add_argument("-x", "--ia-enable", action="store_true", help="Enable interference avoidance")
         parser.add_argument("-X", "--ia-disable", action="store_true", help="Disable interference avoidance")
+
+        parser.add_argument("-c", "--config", action="store_true", help="Print device configuration")
 
         parser.add_argument("--eeprom-backup", action="store_true", help="Backup EEPROM to file")
         parser.add_argument("--eeprom-dump", action="store_true", help="Dump EEPROM to console")
@@ -3392,6 +3405,63 @@ def main():
                 else:
                     RNS.log("Firmware update file not found")
                     graceful_exit()
+
+            if args.config:
+                eeprom_reserved = 200
+                if rnode.platform == ROM.PLATFORM_ESP32:
+                    eeprom_size = 296
+                elif rnode.platform == ROM.PLATFORM_NRF52:
+                    eeprom_size = 296
+                else:
+                    eeprom_size = 4096
+
+                eeprom_offset = eeprom_size-eeprom_reserved
+                def ea(a):
+                    return a+eeprom_offset
+                ec_bt   = rnode.eeprom[ROM.ADDR_CONF_BT]
+                ec_dint = rnode.eeprom[ROM.ADDR_CONF_DINT]
+                ec_dadr = rnode.eeprom[ROM.ADDR_CONF_DADR]
+                ec_dblk = rnode.eeprom[ROM.ADDR_CONF_DBLK]
+                ec_drot = rnode.eeprom[ROM.ADDR_CONF_DROT]
+                ec_pset = rnode.eeprom[ROM.ADDR_CONF_PSET]
+                ec_pint = rnode.eeprom[ROM.ADDR_CONF_PINT]
+                ec_bset = rnode.eeprom[ROM.ADDR_CONF_BSET]
+                ec_dia  = rnode.eeprom[ROM.ADDR_CONF_DIA]
+                print("\nDevice configuration:")
+                if ec_bt == 0x73:
+                    print(f"  Bluetooth              : Enabled")
+                else:
+                    print(f"  Bluetooth              : Disabled")
+                if ec_dia == 0x00:
+                    print(f"  Interference avoidance : Enabled")
+                else:
+                    print(f"  Interference avoidance : Disabled")
+                print(    f"  Display brightness     : {ec_dint}")
+                if ec_dadr == 0xFF:
+                    print(f"  Display address        : Default")
+                else:
+                    print(f"  Display address        : {RNS.hexrep(ec_dadr, delimit=False)}")
+                if ec_bset == 0x73 and ec_dblk != 0x00:
+                    print(f"  Display blanking       : {ec_dblk}s")
+                else:
+                    print(f"  Display blanking       : Disabled")
+                if ec_drot != 0xFF:
+                    if ec_drot == 0x00:
+                        rstr = "Landscape"
+                    if ec_drot == 0x01:
+                        rstr = "Portrait"
+                    if ec_drot == 0x02:
+                        rstr = "Landscape 180"
+                    if ec_drot == 0x03:
+                        rstr = "Portrait 180"
+                    print(f"  Display rotation       : {rstr}")
+                else:
+                    print(f"  Display rotation       : Default")
+                if ec_pset == 0x73:
+                    print(f"  Neopixel Intensity     : {ec_pint}")
+                print("")
+
+                graceful_exit()
 
             if args.eeprom_dump:
                 RNS.log("EEPROM contents:")
