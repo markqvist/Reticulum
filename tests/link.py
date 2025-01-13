@@ -333,7 +333,7 @@ class TestLink(unittest.TestCase):
         resource_size = 5*1000*1000
         data = os.urandom(resource_size)
         print("Sending "+self.size_str(resource_size)+" resource...")
-        resource = RNS.Resource(data, l1, timeout=resource_timeout)
+        resource = RNS.Resource(data, l1, timeout=resource_timeout, auto_compress=False)
         start = time.time()
 
         # This is a hack, don't do it. Use the callbacks instead.
@@ -380,7 +380,7 @@ class TestLink(unittest.TestCase):
         resource_size = 50*1000*1000
         data = os.urandom(resource_size)
         print("Sending "+self.size_str(resource_size)+" resource...")
-        resource = RNS.Resource(data, l1, timeout=resource_timeout, callback=self.lr_callback)
+        resource = RNS.Resource(data, l1, timeout=resource_timeout, callback=self.lr_callback, auto_compress=False)
         start = time.time()
 
         TestLink.large_resource_status = resource.status
