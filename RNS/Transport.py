@@ -1029,7 +1029,7 @@ class Transport:
                                 
                                 else:
                                     pass
-                            
+
                     if should_transmit:
                         if not stored_hash:
                             Transport.packet_hashlist.add(packet.packet_hash)
@@ -1335,7 +1335,11 @@ class Transport:
                                     if outbound_interface.HW_MTU == None:
                                         RNS.log(f"No next-hop HW MTU, disabling link MTU upgrade", RNS.LOG_DEBUG) # TODO: Remove debug
                                         path_mtu = None
-                                        new_raw  = new_raw[:RNS.Link.ECPUBSIZE] # TODO: Fix this
+                                        new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]
+                                    elif not outbound_interface.AUTOCONFIGURE_MTU:
+                                        RNS.log(f"Outbound interface doesn't support MTU autoconfiguration, disabling link MTU upgrade", RNS.LOG_DEBUG) # TODO: Remove debug
+                                        path_mtu = None
+                                        new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]
                                     else:
                                         if nh_mtu < path_mtu:
                                             path_mtu = nh_mtu
@@ -1794,18 +1798,21 @@ class Transport:
                     for destination in Transport.destinations:
                         if destination.hash == packet.destination_hash and destination.type == packet.destination_type:
                             path_mtu       = RNS.Link.mtu_from_lr_packet(packet)
-                            nh_mtu         = packet.receiving_interface.HW_MTU
+                            if packet.receiving_interface.AUTOCONFIGURE_MTU:
+                                nh_mtu     = packet.receiving_interface.HW_MTU
+                            else:
+                                nh_mtu     = RNS.Reticulum.MTU
                             RNS.log(f"Final hop path MTU of {path_mtu}, possible MTU is {nh_mtu}", RNS.LOG_DEBUG) # TODO: Remove debug
                             if path_mtu:
                                 if packet.receiving_interface.HW_MTU == None:
                                     RNS.log(f"No next-hop HW MTU, disabling link MTU upgrade", RNS.LOG_DEBUG) # TODO: Remove debug
                                     path_mtu = None
-                                    packet.data  = packet.data[:RNS.Link.ECPUBSIZE] # TODO: Fix this
+                                    packet.data  = packet.data[:-RNS.Link.LINK_MTU_SIZE]
                                 else:
                                     if nh_mtu < path_mtu:
                                         path_mtu = nh_mtu
                                         clamped_mtu = RNS.Link.mtu_bytes(path_mtu)
-                                        RNS.log(f"Clamping link MTU to {RNS.prettysize(nh_mtu)}: {RNS.hexrep(clamped_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
+                                        RNS.log(f"Clamping link MTU to {RNS.prettysize(nh_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
                                         packet.data  = packet.data[:-RNS.Link.LINK_MTU_SIZE]+clamped_mtu
 
                             packet.destination = destination
@@ -2272,7 +2279,10 @@ class Transport:
     def next_hop_interface_hw_mtu(destination_hash):
         next_hop_interface = Transport.next_hop_interface(destination_hash)
         if next_hop_interface != None:
-            return next_hop_interface.HW_MTU
+            if next_hop_interface.AUTOCONFIGURE_MTU:
+                return next_hop_interface.HW_MTU
+            else:
+                return None
         else:
             return None
 
