@@ -64,12 +64,14 @@ class Interface:
     IC_BURST_PENALTY         = 5*60
     IC_HELD_RELEASE_INTERVAL = 30
 
+    AUTOCONFIGURE_MTU = False
+
     def __init__(self):
         self.rxb     = 0
         self.txb     = 0
         self.created = time.time()
         self.online  = False
-        self.bitrate = 1e6
+        self.bitrate = 62500
         self.HW_MTU  = None
 
         self.ingress_control = True
@@ -117,6 +119,31 @@ class Interface:
 
         else:
             return False
+
+    def optimise_mtu(self):
+        if self.AUTOCONFIGURE_MTU:
+            if self.bitrate   > 16_000_000:
+                self.HW_MTU = 262144
+            elif self.bitrate > 8_000_000:
+                self.HW_MTU = 131072
+            elif self.bitrate > 4_000_000:
+                self.HW_MTU = 65536
+            elif self.bitrate > 2_000_000:
+                self.HW_MTU = 32768
+            elif self.bitrate > 1_000_000:
+                self.HW_MTU = 16384
+            elif self.bitrate > 500_000:
+                self.HW_MTU = 8192
+            elif self.bitrate > 250_000:
+                self.HW_MTU = 4096
+            elif self.bitrate > 125_000:
+                self.HW_MTU = 2048
+            elif self.bitrate > 62_500:
+                self.HW_MTU = 1024
+            else:
+                self.HW_MTU = None
+
+        RNS.log(f"{self} hardware MTU set to {self.HW_MTU}", RNS.LOG_DEBUG) # TODO: Remove debug
 
     def age(self):
         return time.time()-self.created

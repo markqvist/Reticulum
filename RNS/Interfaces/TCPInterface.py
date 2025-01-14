@@ -67,6 +67,7 @@ class ThreadingTCP6Server(socketserver.ThreadingMixIn, socketserver.TCPServer):
 class TCPClientInterface(Interface):
     BITRATE_GUESS = 10*1000*1000
     DEFAULT_IFAC_SIZE = 16
+    AUTOCONFIGURE_MTU = True
 
     RECONNECT_WAIT = 5
     RECONNECT_MAX_TRIES = None
@@ -406,8 +407,9 @@ class TCPClientInterface(Interface):
 
 
 class TCPServerInterface(Interface):
-    BITRATE_GUESS      = 10*1000*1000
+    BITRATE_GUESS     = 10_000_000
     DEFAULT_IFAC_SIZE = 16
+    AUTOCONFIGURE_MTU = True
 
     @staticmethod
     def get_address_for_if(name, bind_port, prefer_ipv6=False):
@@ -528,6 +530,7 @@ class TCPServerInterface(Interface):
         spawned_interface.target_port = str(handler.client_address[1])
         spawned_interface.parent_interface = self
         spawned_interface.bitrate = self.bitrate
+        spawned_interface.optimise_mtu()
         
         spawned_interface.ifac_size = self.ifac_size
         spawned_interface.ifac_netname = self.ifac_netname

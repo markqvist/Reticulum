@@ -52,6 +52,7 @@ class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 class LocalClientInterface(Interface):
     RECONNECT_WAIT = 8
+    AUTOCONFIGURE_MTU = True
 
     def __init__(self, owner, name, target_port = None, connected_socket=None):
         super().__init__()
@@ -86,7 +87,7 @@ class LocalClientInterface(Interface):
             self.connect()
 
         self.owner   = owner
-        self.bitrate = 1000*1000*1000
+        self.bitrate = 1_000_000_000
         self.online  = True
         self.writing = False
 
@@ -288,6 +289,7 @@ class LocalClientInterface(Interface):
 
 
 class LocalServerInterface(Interface):
+    AUTOCONFIGURE_MTU = True
 
     def __init__(self, owner, bindport=None):
         super().__init__()
