@@ -241,6 +241,11 @@ def prettydistance(m, suffix="m"):
     return "%.2f %s%s" % (num, last_unit, suffix)
 
 def prettytime(time, verbose=False, compact=False):
+    neg = False
+    if time < 0:
+        time = abs(time)
+        neg = True
+
     days = int(time // (24 * 3600))
     time = time % (24 * 3600)
     hours = int(time // 3600)
@@ -291,10 +296,17 @@ def prettytime(time, verbose=False, compact=False):
     if tstr == "":
         return "0s"
     else:
-        return tstr
+        if not neg:
+            return tstr
+        else:
+            return f"-{tstr}"
 
 def prettyshorttime(time, verbose=False, compact=False):
+    neg = False
     time = time*1e6
+    if time < 0:
+        time = abs(time)
+        neg = True
     
     seconds = int(time // 1e6); time %= 1e6
     milliseconds = int(time // 1e3); time %= 1e3
@@ -338,7 +350,10 @@ def prettyshorttime(time, verbose=False, compact=False):
     if tstr == "":
         return "0us"
     else:
-        return tstr
+        if not neg:
+            return tstr
+        else:
+            return f"-{tstr}"
 
 def phyparams():
     print("Required Physical Layer MTU : "+str(Reticulum.MTU)+" bytes")
