@@ -350,6 +350,7 @@ class Reticulum:
                     interface.bitrate = Reticulum._force_shared_instance_bitrate
                     interface._force_bitrate = Reticulum._force_shared_instance_bitrate
                     RNS.log(f"Forcing shared instance bitrate of {RNS.prettyspeed(interface.bitrate)}", RNS.LOG_WARNING)
+                    interface.optimise_mtu()
                 
                 if self.require_shared == True:
                     interface.detach()
@@ -374,6 +375,7 @@ class Reticulum:
                         interface.bitrate = Reticulum._force_shared_instance_bitrate
                         interface._force_bitrate = True
                         RNS.log(f"Forcing shared instance bitrate of {RNS.prettyspeed(interface.bitrate)}", RNS.LOG_WARNING)
+                        interface.optimise_mtu()
                     RNS.Transport.interfaces.append(interface)
                     self.is_shared_instance = False
                     self.is_standalone_instance = False
@@ -595,6 +597,7 @@ class Reticulum:
                                     interface.announce_cap = announce_cap
                                     if configured_bitrate:
                                         interface.bitrate = configured_bitrate
+                                    interface.optimise_mtu()
                                     if ifac_size != None:
                                         interface.ifac_size = ifac_size
                                     else:
@@ -757,6 +760,7 @@ class Reticulum:
 
                 if configured_bitrate:
                     interface.bitrate = configured_bitrate
+                interface.optimise_mtu()
 
                 if ifac_size != None:
                     interface.ifac_size = ifac_size
