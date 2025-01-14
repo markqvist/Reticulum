@@ -379,8 +379,11 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         elif strdiff < 0:
                             rxb_str += " "*-strdiff
 
-                        rxstat  = rxb_str+"  "+RNS.prettyspeed(ifstat["rxs"])
-                        txstat  = txb_str+"  "+RNS.prettyspeed(ifstat["txs"])
+                        rxstat = rxb_str
+                        txstat = txb_str
+                        if "rxs" in ifstat and "txs" in ifstat:
+                            rxstat += "  "+RNS.prettyspeed(ifstat["rxs"])
+                            txstat += "  "+RNS.prettyspeed(ifstat["txs"])
                         
                         print(f"    Traffic   : {txstat}\n                {rxstat}")
 
