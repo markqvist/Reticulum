@@ -1802,7 +1802,7 @@ class Transport:
                                 nh_mtu     = packet.receiving_interface.HW_MTU
                             else:
                                 nh_mtu     = RNS.Reticulum.MTU
-                            RNS.log(f"Final hop path MTU of {path_mtu}, possible MTU is {nh_mtu}", RNS.LOG_DEBUG) # TODO: Remove debug
+
                             if path_mtu:
                                 if packet.receiving_interface.HW_MTU == None:
                                     RNS.log(f"No next-hop HW MTU, disabling link MTU upgrade", RNS.LOG_DEBUG) # TODO: Remove debug

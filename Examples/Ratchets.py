@@ -25,9 +25,6 @@ def server(configpath):
 
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
-
-    # TODO: Remove
-    RNS.loglevel = RNS.LOG_DEBUG
     
     # Randomly create a new identity for our echo server
     server_identity = RNS.Identity()
