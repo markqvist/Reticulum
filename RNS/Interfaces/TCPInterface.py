@@ -331,10 +331,38 @@ class TCPClientInterface(Interface):
                 data_in = self.socket.recv(4096)
                 if len(data_in) > 0:
                     if self.kiss_framing:
-                        # TODO: Add KISS framing parser
-                        pass
+                        # Read loop for KISS framing
+                        pointer = 0
+                        while pointer < len(data_in):
+                            byte = data_in[pointer]
+                            pointer += 1
+                            if (in_frame and byte == KISS.FEND and command == KISS.CMD_DATA):
+                                in_frame = False
+                                self.process_incoming(data_buffer)
+                            elif (byte == KISS.FEND):
+                                in_frame = True
+                                command = KISS.CMD_UNKNOWN
+                                data_buffer = b""
+                            elif (in_frame and len(data_buffer) < self.HW_MTU):
+                                if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
+                                    # We only support one HDLC port for now, so
+                                    # strip off the port nibble
+                                    byte = byte & 0x0F
+                                    command = byte
+                                elif (command == KISS.CMD_DATA):
+                                    if (byte == KISS.FESC):
+                                        escape = True
+                                    else:
+                                        if (escape):
+                                            if (byte == KISS.TFEND):
+                                                byte = KISS.FEND
+                                            if (byte == KISS.TFESC):
+                                                byte = KISS.FESC
+                                            escape = False
+                                        data_buffer = data_buffer+bytes([byte])
 
                     else:
+                        # Read loop for standard HDLC framing
                         frame_buffer += data_in
                         flags_remaining = True
                         while flags_remaining:
