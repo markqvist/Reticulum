@@ -2679,6 +2679,7 @@ class Transport:
         shared_instance_master = None
         local_interfaces = []
         detach_threads = []
+        RNS.log("Detaching interfaces", RNS.LOG_DEBUG)
         for interface in detachable_interfaces:
             try:
                 if type(interface) == RNS.Interfaces.LocalInterface.LocalServerInterface:
@@ -2687,7 +2688,7 @@ class Transport:
                     local_interfaces.append(interface)
                 else:
                     def detach_job():
-                        RNS.log(f"Detaching {interface}", RNS.LOG_DEBUG)
+                        RNS.log(f"Detaching {interface}", RNS.LOG_EXTREME)
                         interface.detach()
                     dt = threading.Thread(target=detach_job, daemon=True)
                     dt.start()
