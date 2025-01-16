@@ -191,8 +191,8 @@ class ROM():
     MODEL_21            = 0x21
 
     PRODUCT_TECHO       = 0x15
-    MODEL_T4            = 0x16
-    MODEL_T9            = 0x17
+    MODEL_16            = 0x16
+    MODEL_17            = 0x17
 
     PRODUCT_HELTEC_T114 = 0xC2
     BOARD_HELTEC_T114   = 0x3C
@@ -2294,13 +2294,13 @@ def main():
                 print("\n? ", end="")
                 try:
                     c_model = int(input())
-                    if c_model < 1 or c_model > 1:
+                    if c_model < 1 or c_model > 4:
                         raise ValueError()
                     elif c_model == 1:
-                        selected_model = ROM.MODEL_T4
+                        selected_model = ROM.MODEL_16
                         selected_platform = ROM.PLATFORM_NRF52
                     elif c_model > 1:
-                        selected_model = ROM.MODEL_T9
+                        selected_model = ROM.MODEL_17
                         selected_platform = ROM.PLATFORM_NRF52
                 except Exception as e:
                     print("That band does not exist, exiting now.")
@@ -3149,12 +3149,12 @@ def main():
                                 if args.platform == ROM.PLATFORM_ESP32:
                                     wants_fw_provision = True
                                     RNS.log("Waiting for ESP32 reset...")
-                                    time.sleep(7)
+                                    time.sleep(8)
                                 if args.platform == ROM.PLATFORM_NRF52:
                                     wants_fw_provision = True
                                     RNS.log("Waiting for NRF52 reset...")
                                     # Don't need to wait as long this time.
-                                    time.sleep(5)
+                                    time.sleep(6)
                             else:
                                 RNS.log("Error from flasher ("+str(flash_status)+") while writing.")
                                 RNS.log("Some boards have trouble flashing at high speeds, and you can")
@@ -3649,7 +3649,7 @@ def main():
                         elif rnode.platform == ROM.PLATFORM_NRF52:
                             rnode_serial.close()
                             RNS.log("Waiting for NRF52 reset...")
-                            time.sleep(14)
+                            time.sleep(18)
                             selected_port = None
                             ports = list_ports.comports()
                             for port in ports:
@@ -3879,7 +3879,7 @@ def main():
 
                                 # Give plenty of time for to allow for
                                 # potential e-ink display refresh too.
-                                time.sleep(14)
+                                time.sleep(20)
 
                                 # After the hard reset, the port number will
                                 # change. We need to find the new port number,
