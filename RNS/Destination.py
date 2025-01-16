@@ -424,7 +424,7 @@ class Destination:
     def _reload_ratchets(self, ratchets_path):
         if os.path.isfile(ratchets_path):
             with self.ratchet_file_lock:
-                try:
+                def load_attempt():
                     ratchets_file = open(ratchets_path, "rb")
                     persisted_data = umsgpack.unpackb(ratchets_file.read())
                     if "signature" in persisted_data and "ratchets" in persisted_data:
@@ -433,10 +433,22 @@ class Destination:
                             self.ratchets_path = ratchets_path
                         else:
                             raise KeyError("Invalid ratchet file signature")
+                
+                try:
+                    try:
+                        load_attempt()
+
+                    except Exception as e:
+                        RNS.trace_exception(e)
+                        RNS.log(f"First ratchet reload attempt for {self} failed. Possible I/O conflict. Retrying in 500ms.", RNS.LOG_ERROR)
+                        time.sleep(0.5)
+                        load_attempt()
+                        RNS.log(f"Ratchet reload retry succeeded", RNS.LOG_DEBUG)
 
                 except Exception as e:
                     self.ratchets = None
                     self.ratchets_path = None
+                    RNS.trace_exception(e)
                     raise OSError("Could not read ratchet file contents for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
         else:
             RNS.log("No existing ratchet data found, initialising new ratchet file for "+str(self), RNS.LOG_DEBUG)
