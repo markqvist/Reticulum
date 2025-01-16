@@ -246,12 +246,14 @@ class LocalClientInterface(Interface):
                     self.detached = True
                     
                     try:
-                        self.socket.shutdown(socket.SHUT_RDWR)
+                        if self.socket != None:
+                            self.socket.shutdown(socket.SHUT_RDWR)
                     except Exception as e:
                         RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
 
                     try:
-                        self.socket.close()
+                        if self.socket != None:
+                            self.socket.close()
                     except Exception as e:
                         RNS.log("Error while closing socket for "+str(self)+": "+str(e))
 
