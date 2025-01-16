@@ -195,10 +195,10 @@ class TCPClientInterface(Interface):
             self.socket.setsockopt(socket.IPPROTO_TCP, TCP_KEEPIDLE, int(TCPClientInterface.I2P_PROBE_AFTER))
         
     def detach(self):
+        self.online = False
         if self.socket != None:
             if hasattr(self.socket, "close"):
                 if callable(self.socket.close):
-                    RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
                     self.detached = True
                     
                     try:
@@ -288,14 +288,15 @@ class TCPClientInterface(Interface):
             raise IOError("Attempt to reconnect on a non-initiator TCP interface")
 
     def process_incoming(self, data):
-        self.rxb += len(data)
-        if hasattr(self, "parent_interface") and self.parent_interface != None:
-            self.parent_interface.rxb += len(data)
-                    
-        self.owner.inbound(data, self)
+        if self.online and not self.detached:
+            self.rxb += len(data)
+            if hasattr(self, "parent_interface") and self.parent_interface != None:
+                self.parent_interface.rxb += len(data)
+                        
+            self.owner.inbound(data, self)
 
     def process_outgoing(self, data):
-        if self.online:
+        if self.online and not self.detached:
             # while self.writing:
             #     time.sleep(0.01)
 

@@ -185,6 +185,7 @@ class RNodeInterface(Interface):
         self.online      = False
         self.detached    = False
         self.reconnecting= False
+        self.hw_errors   = []
 
         self.use_ble     = False
         self.ble_name    = ble_name

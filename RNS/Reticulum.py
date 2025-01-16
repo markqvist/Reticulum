@@ -161,14 +161,16 @@ class Reticulum:
     interfacepath    = ""
 
     __instance       = None
-    
+
+    __interface_detach_ran = False
     @staticmethod
     def exit_handler():
         # This exit handler is called whenever Reticulum is asked to
         # shut down, and will in turn call exit handlers in other
         # classes, saving necessary information to disk and carrying
         # out cleanup operations.
-
+        if not Reticulum.__interface_detach_ran:
+            RNS.Transport.detach_interfaces()
         RNS.Transport.exit_handler()
         RNS.Identity.exit_handler()
 
@@ -178,14 +180,14 @@ class Reticulum:
     @staticmethod
     def sigint_handler(signal, frame):
         RNS.Transport.detach_interfaces()
+        Reticulum.__interface_detach_ran = True
         RNS.exit()
-
 
     @staticmethod
     def sigterm_handler(signal, frame):
         RNS.Transport.detach_interfaces()
+        Reticulum.__interface_detach_ran = True
         RNS.exit()
-
 
     @staticmethod
     def get_instance():

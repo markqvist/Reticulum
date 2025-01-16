@@ -456,21 +456,23 @@ class AutoInterface(Interface):
         self.peers[addr][1] = time.time()
 
     def process_incoming(self, data):
-        data_hash = RNS.Identity.full_hash(data)
-        deque_hit = False
-        if data_hash in self.mif_deque:
-            for te in self.mif_deque_times:
-                if te[0] == data_hash and time.time() < te[1]+AutoInterface.MULTI_IF_DEQUE_TTL:
-                    deque_hit = True
-                    break
+        if self.online:
+            data_hash = RNS.Identity.full_hash(data)
+            deque_hit = False
+            if data_hash in self.mif_deque:
+                for te in self.mif_deque_times:
+                    if te[0] == data_hash and time.time() < te[1]+AutoInterface.MULTI_IF_DEQUE_TTL:
+                        deque_hit = True
+                        break
 
-        if not deque_hit:
-            self.mif_deque.append(data_hash)
-            self.mif_deque_times.append([data_hash, time.time()])
-            self.rxb += len(data)
-            self.owner.inbound(data, self)
+            if not deque_hit:
+                self.mif_deque.append(data_hash)
+                self.mif_deque_times.append([data_hash, time.time()])
+                self.rxb += len(data)
+                self.owner.inbound(data, self)
 
     def process_outgoing(self,data):
+        if self.online:
             for peer in self.peers:
                 try:
                     if self.outbound_udp_socket == None:
@@ -491,6 +493,9 @@ class AutoInterface(Interface):
     # ingress limiting should be disabled on AutoInterface
     def should_ingress_limit(self):
         return False
+
+    def detach(self):
+        self.online = False
 
     def __str__(self):
         return "AutoInterface["+self.name+"]"

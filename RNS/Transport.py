@@ -2662,7 +2662,7 @@ class Transport:
             # Currently no rules are being applied
             # here, and all interfaces will be sent
             # the detach call on RNS teardown.
-            if True:
+            if not interface.detached:
                 detachable_interfaces.append(interface)
             else:
                 pass
@@ -2671,16 +2671,43 @@ class Transport:
             # Currently no rules are being applied
             # here, and all interfaces will be sent
             # the detach call on RNS teardown.
-            if True:
+            if not interface.detached:
                 detachable_interfaces.append(interface)
             else:
                 pass
 
+        shared_instance_master = None
+        local_interfaces = []
+        detach_threads = []
         for interface in detachable_interfaces:
             try:
-                interface.detach()
+                if type(interface) == RNS.Interfaces.LocalInterface.LocalServerInterface:
+                    shared_instance_master = interface
+                elif type(interface) == RNS.Interfaces.LocalInterface.LocalClientInterface:
+                    local_interfaces.append(interface)
+                else:
+                    def detach_job():
+                        RNS.log(f"Detaching {interface}", RNS.LOG_DEBUG)
+                        interface.detach()
+                    dt = threading.Thread(target=detach_job, daemon=True)
+                    dt.start()
+                    detach_threads.append(dt)
+
             except Exception as e:
                 RNS.log("An error occurred while detaching "+str(interface)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+
+        for dt in detach_threads:
+            dt.join()
+
+        RNS.log("Detaching local clients", RNS.LOG_DEBUG)
+        for li in local_interfaces:
+            li.detach()
+
+        RNS.log("Detaching shared instance", RNS.LOG_DEBUG)
+        if shared_instance_master != None:
+            shared_instance_master.detach()
+
+        RNS.log("All interfaces detached", RNS.LOG_DEBUG)
 
     @staticmethod
     def shared_connection_disappeared():
