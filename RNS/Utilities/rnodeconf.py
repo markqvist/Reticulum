@@ -2033,10 +2033,12 @@ def main():
                     print("");
                     print("[3] 433 MHz         (with SX1268 chip)")
                     print("[4] 868/915/923 MHz (with SX1262 chip)")
+                    print("");
+                    print("[5] 2.4 GHz         (with SX1280 chip and PA)")
                     print("\n? ", end="")
                     try:
                         c_model = int(input())
-                        if c_model < 1 or c_model > 4:
+                        if c_model < 1 or c_model > 5:
                             raise ValueError()
                         elif c_model == 1:
                             selected_model = ROM.MODEL_A5
@@ -2052,6 +2054,10 @@ def main():
                             selected_platform = ROM.PLATFORM_ESP32
                         elif c_model == 4:
                             selected_model = ROM.MODEL_A6
+                            selected_mcu = ROM.MCU_ESP32
+                            selected_platform = ROM.PLATFORM_ESP32
+                        elif c_model == 5:
+                            selected_model = ROM.MODEL_AC
                             selected_mcu = ROM.MCU_ESP32
                             selected_platform = ROM.PLATFORM_ESP32
                     except Exception as e:
@@ -3000,6 +3006,24 @@ def main():
                             "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                             "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3_sx127x.partitions",
                         ]
+                    elif fw_filename == "rnode_firmware_t3s3_sx1280_pa.zip":
+                        return [
+                            sys.executable, flasher,
+                            "--chip", "esp32s3",
+                            "--port", args.port,
+                            "--baud", args.baud_flash,
+                            "--before", "default_reset",
+                            "--after", "hard_reset",
+                            "write_flash", "-z",
+                            "--flash_mode", "dio",
+                            "--flash_freq", "80m",
+                            "--flash_size", "4MB",
+                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3_sx1280_pa.boot_app0",
+                            "0x0",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3_sx1280_pa.bootloader",
+                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3_sx1280_pa.bin",
+                            "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
+                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_t3s3_sx1280_pa.partitions",
+                        ]
                     elif fw_filename == "rnode_firmware_tbeam_supreme.zip":
                         return [
                             sys.executable, flasher,
@@ -3860,7 +3884,9 @@ def main():
                             if rnode.platform == ROM.PLATFORM_ESP32:
                                 rnode.hard_reset()
                                 RNS.log("Waiting for ESP32 reset...")
-                                time.sleep(6.5)
+                                time.sleep(7)
+                                if selected_model in [ROM.MODEL_AC, ROM.MODEL_A6, ROM.MODEL_A1, ROM.MODEL_AA, ROM.MODEL_A5]:
+                                    time.sleep(5)
 
                             elif rnode.platform == ROM.PLATFORM_NRF52:
                                 # Wait a few seconds before hard resetting.
