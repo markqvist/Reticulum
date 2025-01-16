@@ -539,6 +539,7 @@ class TCPServerInterface(Interface):
             else:
                 ThreadingTCPServer.allow_reuse_address = True
                 self.server = ThreadingTCPServer(bind_address, handlerFactory(self.incoming_connection))
+                self.server.daemon_threads = True
 
             self.bitrate = TCPServerInterface.BITRATE_GUESS
 
@@ -606,13 +607,15 @@ class TCPServerInterface(Interface):
         pass
 
     def detach(self):
+        self.detached = True
+        self.online = False
         if self.server != None:
             if hasattr(self.server, "shutdown"):
                 if callable(self.server.shutdown):
                     try:
                         RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
                         self.server.shutdown()
-                        self.detached = True
+                        self.server.server_close()
                         self.server = None
 
                     except Exception as e:

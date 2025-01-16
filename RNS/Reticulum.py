@@ -263,6 +263,7 @@ class Reticulum:
             RNS.loglevel = self.requested_loglevel
 
         self.is_shared_instance = False
+        self.shared_instance_interface = None
         self.require_shared = require_shared_instance
         self.is_connected_to_shared_instance = False
         self.is_standalone_instance = False
@@ -361,6 +362,7 @@ class Reticulum:
 
                 else:
                     RNS.Transport.interfaces.append(interface)
+                    self.shared_instance_interface = interface
                     self.is_shared_instance = True
                     RNS.log("Started shared instance interface: "+str(interface), RNS.LOG_DEBUG)
                     self.__start_jobs()
