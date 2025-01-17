@@ -331,6 +331,21 @@ and pass announces over the network.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="RNS.Reticulum.link_mtu_discovery">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">link_mtu_discovery</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.link_mtu_discovery" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns whether link MTU discovery is enabled for the running
+instance.</p>
+<p>When link MTU discovery is enabled, Reticulum will
+automatically upgrade link MTUs to the highest supported
+value, increasing transfer speed and efficiency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if link MTU discovery is enabled, False if not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Reticulum.remote_management_enabled">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remote_management_enabled</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.remote_management_enabled" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns whether remote management is enabled for the
@@ -2101,6 +2116,7 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Reticulum.get_instance"><code class="docutils literal notranslate"><span class="pre">get_instance()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Reticulum.should_use_implicit_proof"><code class="docutils literal notranslate"><span class="pre">should_use_implicit_proof()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Reticulum.transport_enabled"><code class="docutils literal notranslate"><span class="pre">transport_enabled()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Reticulum.link_mtu_discovery"><code class="docutils literal notranslate"><span class="pre">link_mtu_discovery()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Reticulum.remote_management_enabled"><code class="docutils literal notranslate"><span class="pre">remote_management_enabled()</span></code></a></li>
 </ul>
 </li>
