@@ -87,7 +87,7 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: |
-            .artifacts/package/**.whl
+#            .artifacts/package/**.whl
 #            .artifacts/documentation/latex/reticulumnetworkstack.pdf
 #            .artifacts/documentation/epub/ReticulumNetworkStack.epub
           draft: true
