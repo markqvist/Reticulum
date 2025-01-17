@@ -1,3 +1,43 @@
+### 2025-01-17: RNS β 0.9.0
+
+This release lays the groundwork for future performance and resource utilisation optimisations. Most importantly, this release adds **link MTU autodiscovery**, which allow established links to use much higher MTUs than the base MTU of 500 bytes.
+
+**Please note!** To actually use link MTU discovery, all transport nodes along the path must be upgraded to at least version `0.9.0`. Since this is the first release to add support for this feature, *it is currently **not** activated by default*, and no clients or applications will use it yet. Using link MTU autodiscovery by default will be enabled by default in RNS version `0.9.1`. Please upgrade your nodes!
+
+Additionally, this release adds several new features, performance improvements and bug fixes, as well as support for RNodes running firmware version `1.81`.
+
+**Changes**
+- Added MTU autoconfiguration on interfaces that support higher MTUs
+- Added link MTU autodiscovery and path clamping
+- Added dynamic SDU calculations based on link MTU to `Resource`, `Channel` and `Buffer`
+- Added resource EIFR continuity to split resource handling
+- Added interference status to `RNodeInterface`
+- Fixed a display bug in `rnstatus`
+- Added live traffic stats to `rnstatus`
+- Added T3S3 support to `rnodeconf`
+- Added Heltec T114 support to `rnodeconf`
+- Added LilyGO T-Echo support to `rnodeconf`
+- Added option to print device configuration to `rnodeconf`
+- Improved CPU utilisation and memory consumption
+- Improved `rnsd` restart time on systems with many interfaces
+- Improved `rncp` status output
+- Improved packet filter performance
+- Improved interface detachment handling
+- Improved resource transfer timing and performance
+- Improved Transport core efficiency
+- Improved reliability of ratchet reloads if I/O conflicts occur
+- Improved logging
+- Improved built-in profiler
+- Fixed a potential deadlock in logging
+- Fixed time formatters not handling negative times
+- Updated example code
+
+**Release Hashes**
+```
+1ee60634cf0627c45b93f4e6c9adaf1fcdf9c1a8dfd4dd3dcd499e029554ab4f rns-0.9.0-py3-none-any.whl
+b67eec583fdb224ba8174b317e66b8f7344e338e93760ed1a90f0bafea8cf09e rnspure-0.9.0-py3-none-any.whl
+```
+
 ### 2025-01-09: RNS β 0.8.9
 
 This maintenance release adds a number of configuration options to `rnodeconf`.
