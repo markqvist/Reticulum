@@ -41,7 +41,7 @@ import RNS
 RNS.logtimefmt      = "%H:%M:%S"
 RNS.compact_log_fmt = True
 
-program_version = "2.3.0"
+program_version = "2.4.0"
 eth_addr = "0xFDabC71AC4c0C78C95aDDDe3B4FA19d6273c5E73"
 btc_addr = "35G9uWVzrpJJibzUwpNUQGQNFzLirhrYAH"
 xmr_addr = "87HcDx6jRSkMQ9nPRd5K9hGGpZLn2s7vWETjMaVM5KfV4TD36NcYa8J8WSxhTSvBzzFpqDwp2fg5GX2moZ7VAP9QMZCZGET"
