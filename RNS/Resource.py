@@ -141,6 +141,19 @@ class Resource:
     COMPLETE        = 0x06
     FAILED          = 0x07
     CORRUPT         = 0x08
+    REJECTED        = 0x00
+
+    @staticmethod
+    def reject(advertisement_packet):
+        try:
+            adv = ResourceAdvertisement.unpack(advertisement_packet.plaintext)
+            resource_hash = adv.h
+            reject_packet = RNS.Packet(advertisement_packet.link, resource_hash, context=RNS.Packet.RESOURCE_RCL)
+            reject_packet.send()
+
+        except Exception as e:
+            RNS.log(f"An error ocurred while rejecting advertised resource: {e}", RNS.LOG_ERROR)
+            RNS.trace_exception(e)
 
     @staticmethod
     def accept(advertisement_packet, callback=None, progress_callback = None, request_id = None):
@@ -585,6 +598,9 @@ class Resource:
                         self.last_part_sent = time.time()
                         sleep_time = 0.001
 
+            elif self.status == Resource.REJECTED:
+                sleep_time = 0.001
+
             if sleep_time == 0:
                 RNS.log("Warning! Link watchdog sleep time of 0!", RNS.LOG_DEBUG)
             if sleep_time == None or sleep_time < 0:
@@ -990,6 +1006,18 @@ class Resource:
                     self.callback(self)
                 except Exception as e:
                     RNS.log("Error while executing callbacks on resource cancel from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+
+    def _rejected(self):
+        if self.status < Resource.COMPLETE:
+            if self.initiator:
+                self.status = Resource.REJECTED
+                self.link.cancel_outgoing_resource(self)
+                if self.callback != None:
+                    try:
+                        self.link.resource_concluded(self)
+                        self.callback(self)
+                    except Exception as e:
+                        RNS.log("Error while executing callbacks on resource reject from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     def set_callback(self, callback):
         self.callback = callback

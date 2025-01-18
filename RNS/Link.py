@@ -962,6 +962,8 @@ class Link:
                                         resource_advertisement.link = self
                                         if self.callbacks.resource(resource_advertisement):
                                             RNS.Resource.accept(packet, self.callbacks.resource_concluded)
+                                        else:
+                                            RNS.Resource.reject(packet)
                                     except Exception as e:
                                         RNS.log("Error while executing resource accept callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
                             elif self.resource_strategy == Link.ACCEPT_ALL:
@@ -1006,6 +1008,15 @@ class Link:
                             for resource in self.incoming_resources:
                                 if resource_hash == resource.hash:
                                     resource.cancel()
+
+                    elif packet.context == RNS.Packet.RESOURCE_RCL:
+                        plaintext = self.decrypt(packet.data)
+                        if plaintext != None:
+                            self.__update_phy_stats(packet)
+                            resource_hash = plaintext[:RNS.Identity.HASHLENGTH//8]
+                            for resource in self.outgoing_resources:
+                                if resource_hash == resource.hash:
+                                    resource._rejected()
 
                     elif packet.context == RNS.Packet.KEEPALIVE:
                         if not self.initiator and packet.data == bytes([0xFF]):
