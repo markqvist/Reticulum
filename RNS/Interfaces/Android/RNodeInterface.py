@@ -85,15 +85,16 @@ class KISS():
     RADIO_STATE_ON  = 0x01
     RADIO_STATE_ASK = 0xFF
     
-    CMD_ERROR           = 0x90
-    ERROR_INITRADIO     = 0x01
-    ERROR_TXFAILED      = 0x02
-    ERROR_EEPROM_LOCKED = 0x03
-    ERROR_QUEUE_FULL    = 0x04
-    ERROR_MEMORY_LOW    = 0x05
-    ERROR_MODEM_TIMEOUT = 0x06
+    CMD_ERROR              = 0x90
+    ERROR_INITRADIO        = 0x01
+    ERROR_TXFAILED         = 0x02
+    ERROR_EEPROM_LOCKED    = 0x03
+    ERROR_QUEUE_FULL       = 0x04
+    ERROR_MEMORY_LOW       = 0x05
+    ERROR_MODEM_TIMEOUT    = 0x06
     ERROR_INVALID_FIRMWARE = 0x10
     ERROR_INVALID_BLE_MTU  = 0x20
+    ERROR_INVALID_CONFIG   = 0x40
 
     PLATFORM_AVR   = 0x90
     PLATFORM_ESP32 = 0x80
@@ -724,6 +725,7 @@ class RNodeInterface(Interface):
             RNS.log("After configuring "+str(self)+", the reported radio parameters did not match your configuration.", RNS.LOG_ERROR)
             RNS.log("Make sure that your hardware actually supports the parameters specified in the configuration", RNS.LOG_ERROR)
             RNS.log("Aborting RNode startup", RNS.LOG_ERROR)
+            self.hw_errors.append({"error": KISS.ERROR_INVALID_CONFIG, "description": "The configuration parameters were not validated by the device. Make sure that the device actually supports the TX power, frequency, bandwidth, spreading factor and coding rate you configured."})
             
             if self.serial != None:
                 self.serial.close()
