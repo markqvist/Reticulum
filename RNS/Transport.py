@@ -2690,7 +2690,7 @@ class Transport:
                     def detach_job():
                         RNS.log(f"Detaching {interface}", RNS.LOG_EXTREME)
                         interface.detach()
-                    dt = threading.Thread(target=detach_job, daemon=True)
+                    dt = threading.Thread(target=detach_job, daemon=False)
                     dt.start()
                     detach_threads.append(dt)
 

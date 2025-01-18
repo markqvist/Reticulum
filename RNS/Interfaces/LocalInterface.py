@@ -319,6 +319,7 @@ class LocalServerInterface(Interface):
             address = (self.bind_ip, self.bind_port)
 
             self.server = ThreadingTCPServer(address, handlerFactory(self.incoming_connection))
+            self.server.daemon_threads = True
 
             thread = threading.Thread(target=self.server.serve_forever)
             thread.daemon = True
