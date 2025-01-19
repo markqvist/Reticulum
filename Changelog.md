@@ -1,3 +1,19 @@
+### 2025-01-19: RNS β 0.9.1
+
+This maintenance release adds reject signalling mechanism to resource transfers, fixes inconsistencies in the code examples, and improves thread configuration in the transport core.
+
+**Changes**
+- Added resource reject signalling
+- Added error reporting on configured radio parameter mismatch on Android
+- Improved thread configuration for transport core threads
+- Updated examples
+
+**Release Hashes**
+```
+49288a562ad6d4b5647c3afec051a6bb6497b75e3f165a972436134d4a93ad76 rns-0.9.1-py3-none-any.whl
+abd6c4bdead2fc25d0b9b2cda5708586e8cb776b088f2a901a5f262e2ed901ae rnspure-0.9.1-py3-none-any.whl
+```
+
 ### 2025-01-17: RNS β 0.9.0
 
 This release lays the groundwork for future performance and resource utilisation optimisations. Most importantly, this release adds **link MTU autodiscovery**, which allow established links to use much higher MTUs than the base MTU of 500 bytes.
