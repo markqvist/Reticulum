@@ -124,7 +124,7 @@ def server(configpath):
 def server_loop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Link example "+
+        "Channel example "+
         RNS.prettyhexrep(destination.hash)+
         " running, waiting for a connection."
     )
@@ -212,7 +212,7 @@ def client(destination_hexhash, configpath):
         destination_hash = bytes.fromhex(destination_hexhash)
     except:
         RNS.log("Invalid destination entered. Check your input!\n")
-        exit()
+        sys.exit(0)
 
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
@@ -276,7 +276,7 @@ def client_loop():
                 packed_size = len(message.pack())
                 channel = server_link.get_channel()
                 if channel.is_ready_to_send():
-                    if packed_size <= channel.MDU:
+                    if packed_size <= channel.mdu:
                         channel.send(message)
                     else:
                         RNS.log(
@@ -321,9 +321,8 @@ def link_closed(link):
     else:
         RNS.log("Link closed, exiting now")
     
-    RNS.Reticulum.exit_handler()
     time.sleep(1.5)
-    os._exit(0)
+    sys.exit(0)
 
 # When a packet is received over the channel, we
 # simply print out the data.
@@ -387,4 +386,4 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print("")
-        exit()
+        sys.exit(0)

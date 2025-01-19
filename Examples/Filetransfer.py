@@ -224,7 +224,7 @@ def client(destination_hexhash, configpath):
         destination_hash = bytes.fromhex(destination_hexhash)
     except:
         RNS.log("Invalid destination entered. Check your input!\n")
-        exit()
+        sys.exit(0)
 
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
@@ -462,7 +462,7 @@ def filelist_timeout_job():
     global server_files
     if len(server_files) == 0:
         RNS.log("Timed out waiting for filelist, exiting")
-        os._exit(0)
+        sys.exit(0)
 
 
 # When a link is closed, we'll inform the
@@ -475,9 +475,8 @@ def link_closed(link):
     else:
         RNS.log("Link closed, exiting now")
     
-    RNS.Reticulum.exit_handler()
     time.sleep(1.5)
-    os._exit(0)
+    sys.exit(0)
 
 # When RNS detects that the download has
 # started, we'll update our menu state
@@ -601,4 +600,4 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print("")
-        exit()
+        sys.exit(0)

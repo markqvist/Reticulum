@@ -133,7 +133,7 @@ def client(destination_hexhash, configpath):
         destination_hash = bytes.fromhex(destination_hexhash)
     except:
         RNS.log("Invalid destination entered. Check your input!\n")
-        exit()
+        sys.exit(0)
 
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
@@ -245,9 +245,8 @@ def link_closed(link):
     else:
         RNS.log("Link closed, exiting now")
     
-    RNS.Reticulum.exit_handler()
     time.sleep(1.5)
-    os._exit(0)
+    sys.exit(0)
 
 # When a packet is received over the link, we
 # simply print out the data.
@@ -311,4 +310,4 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print("")
-        exit()
+        sys.exit(0)

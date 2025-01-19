@@ -5,6 +5,7 @@
 ##########################################################
 
 import argparse
+import sys
 import RNS
 
 # Let's define an app name. We'll use this for all
@@ -98,4 +99,4 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print("")
-        exit()
+        sys.exit(0)

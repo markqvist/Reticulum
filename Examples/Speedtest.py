@@ -149,8 +149,6 @@ def server_packet_received(message, packet):
         time.sleep(0.2)
         rc = 0
         received_data = 0
-        # latest_client_link.teardown()
-        # os._exit(0)
 
 
 ##########################################################
@@ -159,6 +157,7 @@ def server_packet_received(message, packet):
 
 # A reference to the server link
 server_link = None
+should_quit = False
 
 # This initialisation is executed when the users chooses
 # to run as a client
@@ -175,7 +174,7 @@ def client(destination_hexhash, configpath):
         destination_hash = bytes.fromhex(destination_hexhash)
     except:
         RNS.log("Invalid destination entered. Check your input!\n")
-        exit()
+        sys.exit(0)
 
     # We must first initialise Reticulum
     reticulum = RNS.Reticulum(configpath)
@@ -216,7 +215,7 @@ def client(destination_hexhash, configpath):
     client_loop()
 
 def client_loop():
-    global server_link
+    global server_link, should_quit
 
     # Wait for the link to become active
     while not server_link:
@@ -224,16 +223,7 @@ def client_loop():
 
     should_quit = False
     while not should_quit:
-        try:
-            text = input()
-
-            # Check if we should quit the example
-            if text == "quit" or text == "q" or text == "exit":
-                should_quit = True
-                server_link.teardown()
-
-        except Exception as e:
-            raise e
+        time.sleep(0.2)
 
 # This function is called when a link
 # has been established with the server
@@ -276,17 +266,17 @@ def link_established(link):
 # When a link is closed, we'll inform the
 # user, and exit the program
 def link_closed(link):
+    global should_quit
     if link.teardown_reason == RNS.Link.TIMEOUT:
         RNS.log("The link timed out, exiting now")
     elif link.teardown_reason == RNS.Link.DESTINATION_CLOSED:
         RNS.log("The link was closed by the server, exiting now")
     else:
         RNS.log("Link closed, exiting now")
-    
-    RNS.Reticulum.exit_handler()
 
+    should_quit = True
     time.sleep(1.5)
-    os._exit(0)
+    sys.exit(0)
 
 def client_packet_received(message, packet):
     pass
@@ -344,4 +334,4 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print("")
-        exit()
+        sys.exit(0)
