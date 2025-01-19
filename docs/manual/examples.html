@@ -238,6 +238,7 @@ program.</p>
 <span class="c1">##########################################################</span>
 
 <span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">RNS</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
@@ -331,7 +332,7 @@ program.</p>
 
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Minimal.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Minimal.py</a>.</p>
@@ -349,6 +350,7 @@ notifications about announces from relevant destinations.</p>
 
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">RNS</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
@@ -511,7 +513,7 @@ notifications about announces from relevant destinations.</p>
 
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Announce.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Announce.py</a>.</p>
@@ -640,7 +642,7 @@ over the network.</p>
 
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Broadcast.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Broadcast.py</a>.</p>
@@ -657,6 +659,7 @@ the Packet interface.</p>
 <span class="c1">##########################################################</span>
 
 <span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">RNS</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
@@ -781,7 +784,7 @@ the Packet interface.</p>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!&quot;</span><span class="p">)</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
@@ -979,7 +982,7 @@ the Packet interface.</p>
                 <span class="n">client</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">destination</span><span class="p">,</span> <span class="n">configarg</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeoutarg</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Echo.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Echo.py</a>.</p>
@@ -1109,7 +1112,7 @@ destination, and passing traffic back and forth over the link.</p>
         <span class="n">destination_hash</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
@@ -1212,9 +1215,8 @@ destination, and passing traffic back and forth over the link.</p>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Link closed, exiting now&quot;</span><span class="p">)</span>
     
-    <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">exit_handler</span><span class="p">()</span>
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="c1"># When a packet is received over the link, we</span>
 <span class="c1"># simply print out the data.</span>
@@ -1278,7 +1280,7 @@ destination, and passing traffic back and forth over the link.</p>
 
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Link.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Link.py</a>.</p>
@@ -1422,7 +1424,7 @@ the link has been established.</p>
         <span class="n">destination_hash</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
@@ -1534,9 +1536,8 @@ the link has been established.</p>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Link closed, exiting now&quot;</span><span class="p">)</span>
     
-    <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">exit_handler</span><span class="p">()</span>
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="c1"># When a packet is received over the link, we</span>
 <span class="c1"># simply print out the data.</span>
@@ -1600,7 +1601,7 @@ the link has been established.</p>
 
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Identify.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Identify.py</a>.</p>
@@ -1729,7 +1730,7 @@ the link has been established.</p>
         <span class="n">destination_hash</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
@@ -1836,9 +1837,8 @@ the link has been established.</p>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Link closed, exiting now&quot;</span><span class="p">)</span>
     
-    <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">exit_handler</span><span class="p">()</span>
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 
 <span class="c1">##########################################################</span>
@@ -1894,7 +1894,7 @@ the link has been established.</p>
 
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Request.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Request.py</a>.</p>
@@ -2029,7 +2029,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
 <span class="k">def</span> <span class="nf">server_loop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
     <span class="c1"># Let the user know that everything is ready</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
-        <span class="s2">&quot;Link example &quot;</span><span class="o">+</span>
+        <span class="s2">&quot;Channel example &quot;</span><span class="o">+</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">destination</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span><span class="o">+</span>
         <span class="s2">&quot; running, waiting for a connection.&quot;</span>
     <span class="p">)</span>
@@ -2117,7 +2117,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
         <span class="n">destination_hash</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
@@ -2181,7 +2181,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
                 <span class="n">packed_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">pack</span><span class="p">())</span>
                 <span class="n">channel</span> <span class="o">=</span> <span class="n">server_link</span><span class="o">.</span><span class="n">get_channel</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">channel</span><span class="o">.</span><span class="n">is_ready_to_send</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">packed_size</span> <span class="o">&lt;=</span> <span class="n">channel</span><span class="o">.</span><span class="n">MDU</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">packed_size</span> <span class="o">&lt;=</span> <span class="n">channel</span><span class="o">.</span><span class="n">mdu</span><span class="p">:</span>
                         <span class="n">channel</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
@@ -2226,9 +2226,8 @@ data between peers of a <code class="docutils literal notranslate"><span class="
     <span class="k">else</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Link closed, exiting now&quot;</span><span class="p">)</span>
     
-    <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">exit_handler</span><span class="p">()</span>
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="c1"># When a packet is received over the channel, we</span>
 <span class="c1"># simply print out the data.</span>
@@ -2292,7 +2291,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
 
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Channel.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Channel.py</a>.</p>
@@ -2460,7 +2459,7 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
         <span class="n">destination_hash</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
@@ -2557,9 +2556,8 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Link closed, exiting now&quot;</span><span class="p">)</span>
     
-    <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">exit_handler</span><span class="p">()</span>
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="c1"># When the buffer has new data, read it and write it to the terminal.</span>
 <span class="k">def</span> <span class="nf">client_buffer_ready</span><span class="p">(</span><span class="n">ready_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
@@ -2623,7 +2621,7 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
 
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Buffer.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Buffer.py</a>.</p>
@@ -2859,7 +2857,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
         <span class="n">destination_hash</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Invalid destination entered. Check your input!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
@@ -3097,7 +3095,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
     <span class="k">global</span> <span class="n">server_files</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">server_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Timed out waiting for filelist, exiting&quot;</span><span class="p">)</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 
 <span class="c1"># When a link is closed, we&#39;ll inform the</span>
@@ -3110,9 +3108,8 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
     <span class="k">else</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Link closed, exiting now&quot;</span><span class="p">)</span>
     
-    <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">exit_handler</span><span class="p">()</span>
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="c1"># When RNS detects that the download has</span>
 <span class="c1"># started, we&#39;ll update our menu state</span>
@@ -3236,7 +3233,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">exit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example can also be found at <a class="reference external" href="https://github.com/markqvist/Reticulum/blob/master/Examples/Filetransfer.py">https://github.com/markqvist/Reticulum/blob/master/Examples/Filetransfer.py</a>.</p>
