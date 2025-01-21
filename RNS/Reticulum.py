@@ -177,6 +177,8 @@ class Reticulum:
         if RNS.Profiler.ran():
             RNS.Profiler.results()
 
+        RNS.loglevel = -1
+
     @staticmethod
     def sigint_handler(signal, frame):
         RNS.Transport.detach_interfaces()

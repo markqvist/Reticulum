@@ -188,6 +188,7 @@ class LocalClientInterface(Interface):
             except Exception as e:
                 RNS.log("Exception occurred while transmitting via "+str(self)+", tearing down interface", RNS.LOG_ERROR)
                 RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.trace_exception(e)
                 self.teardown()
 
 

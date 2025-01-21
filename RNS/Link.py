@@ -146,7 +146,7 @@ class Link:
                 link.destination = packet.destination
                 link.establishment_timeout = Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, packet.hops) + Link.KEEPALIVE
                 link.establishment_cost += len(packet.raw)
-                RNS.log(f"Validating link request {RNS.prettyhexrep(link.link_id)}", RNS.LOG_VERBOSE)
+                RNS.log(f"Validating link request {RNS.prettyhexrep(link.link_id)}", RNS.LOG_DEBUG)
                 RNS.log(f"Link MTU configured to {RNS.prettysize(link.mtu)}", RNS.LOG_EXTREME)
                 RNS.log(f"Establishment timeout is {RNS.prettytime(link.establishment_timeout)} for incoming link request "+RNS.prettyhexrep(link.link_id), RNS.LOG_EXTREME)
                 link.handshake()
@@ -363,7 +363,7 @@ class Link:
                         self.activated_at = time.time()
                         self.last_proof = self.activated_at
                         RNS.Transport.activate_link(self)
-                        RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(round(self.rtt, 3))+"s", RNS.LOG_VERBOSE)
+                        RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(round(self.rtt, 3))+"s", RNS.LOG_DEBUG)
                         
                         if self.rtt != None and self.establishment_cost != None and self.rtt > 0 and self.establishment_cost > 0:
                             self.establishment_rate = self.establishment_cost/self.rtt
