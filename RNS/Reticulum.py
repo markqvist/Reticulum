@@ -302,7 +302,7 @@ class Reticulum:
             time.sleep(1.5)
 
         self.__apply_config()
-        RNS.log(f"Utilising cryptography backend \"{RNS.Cryptography.Provider.backend()}\"", RNS.LOG_VERBOSE)
+        RNS.log(f"Utilising cryptography backend \"{RNS.Cryptography.Provider.backend()}\"", RNS.LOG_DEBUG)
         RNS.log(f"Configuration loaded from {self.configpath}", RNS.LOG_VERBOSE)
         
         RNS.Identity.load_known_destinations()

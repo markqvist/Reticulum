@@ -81,21 +81,21 @@ logging_lock = threading.Lock()
 
 def loglevelname(level):
     if (level == LOG_CRITICAL):
-        return "Critical"
+        return "[Critical]"
     if (level == LOG_ERROR):
-        return "Error"
+        return "[Error]   "
     if (level == LOG_WARNING):
-        return "Warning"
+        return "[Warning] "
     if (level == LOG_NOTICE):
-        return "Notice"
+        return "[Notice]  "
     if (level == LOG_INFO):
-        return "Info"
+        return "[Info]    "
     if (level == LOG_VERBOSE):
-        return "Verbose"
+        return "[Verbose] "
     if (level == LOG_DEBUG):
-        return "Debug"
+        return "[Debug]   "
     if (level == LOG_EXTREME):
-        return "Extra"
+        return "[Extra]   "
     
     return "Unknown"
 
@@ -118,12 +118,12 @@ def log(msg, level=3, _override_destination = False, pt=False):
     msg = str(msg)
     if loglevel >= level:
         if pt:
-            logstring = "["+precise_timestamp_str(time.time())+"] ["+loglevelname(level)+"] "+msg
+            logstring = "["+precise_timestamp_str(time.time())+"] "+loglevelname(level)+" "+msg
         else:
             if not compact_log_fmt:
-                logstring = "["+timestamp_str(time.time())+"] ["+loglevelname(level)+"] "+msg
+                logstring = "["+timestamp_str(time.time())+"] "+loglevelname(level)+" "+msg
             else:
-                logstring = "["+timestamp_str(time.time())+"] "+msg
+                logstring = "["+timestamp_str(time.time())+" "+msg
 
         with logging_lock:
             if (logdest == LOG_STDOUT or _always_override_destination or _override_destination):
