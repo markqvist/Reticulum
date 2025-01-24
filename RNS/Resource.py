@@ -334,9 +334,9 @@ class Resource:
 
             compression_began = time.time()
             if (auto_compress and len(self.uncompressed_data) <= Resource.AUTO_COMPRESS_MAX_SIZE):
-                RNS.log("Compressing resource data...", RNS.LOG_DEBUG)
+                RNS.log("Compressing resource data...", RNS.LOG_EXTREME)
                 self.compressed_data   = bz2.compress(self.uncompressed_data)
-                RNS.log("Compression completed in "+str(round(time.time()-compression_began, 3))+" seconds", RNS.LOG_DEBUG)
+                RNS.log("Compression completed in "+str(round(time.time()-compression_began, 3))+" seconds", RNS.LOG_EXTREME)
             else:
                 self.compressed_data   = self.uncompressed_data
 
@@ -345,7 +345,7 @@ class Resource:
 
             if (self.compressed_size < self.uncompressed_size and auto_compress):
                 saved_bytes = len(self.uncompressed_data) - len(self.compressed_data)
-                RNS.log("Compression saved "+str(saved_bytes)+" bytes, sending compressed", RNS.LOG_DEBUG)
+                RNS.log("Compression saved "+str(saved_bytes)+" bytes, sending compressed", RNS.LOG_EXTREME)
 
                 self.data  = b""
                 self.data += RNS.Identity.get_random_hash()[:Resource.RANDOM_HASH_SIZE]
@@ -363,7 +363,7 @@ class Resource:
                 self.compressed = False
                 self.compressed_data = None
                 if auto_compress:
-                    RNS.log("Compression did not decrease size, sending uncompressed", RNS.LOG_DEBUG)
+                    RNS.log("Compression did not decrease size, sending uncompressed", RNS.LOG_EXTREME)
 
             # Resources handle encryption directly to
             # make optimal use of packet MTU on an entire
@@ -380,7 +380,7 @@ class Resource:
             hashmap_ok = False
             while not hashmap_ok:
                 hashmap_computation_began = time.time()
-                RNS.log("Starting resource hashmap computation with "+str(hashmap_entries)+" entries...", RNS.LOG_DEBUG)
+                RNS.log("Starting resource hashmap computation with "+str(hashmap_entries)+" entries...", RNS.LOG_EXTREME)
 
                 self.random_hash       = RNS.Identity.get_random_hash()[:Resource.RANDOM_HASH_SIZE]
                 self.hash = RNS.Identity.full_hash(data+self.random_hash)
@@ -400,7 +400,7 @@ class Resource:
                     map_hash = self.get_map_hash(data)
 
                     if map_hash in collision_guard_list:
-                        RNS.log("Found hash collision in resource map, remapping...", RNS.LOG_VERBOSE)
+                        RNS.log("Found hash collision in resource map, remapping...", RNS.LOG_DEBUG)
                         hashmap_ok = False
                         break
                     else:
@@ -416,7 +416,7 @@ class Resource:
                         self.hashmap += part.map_hash
                         self.parts.append(part)
 
-                RNS.log("Hashmap computation concluded in "+str(round(time.time()-hashmap_computation_began, 3))+" seconds", RNS.LOG_DEBUG)
+                RNS.log("Hashmap computation concluded in "+str(round(time.time()-hashmap_computation_began, 3))+" seconds", RNS.LOG_EXTREME)
                 
             if advertise:
                 self.advertise()
@@ -475,7 +475,7 @@ class Resource:
             self.status = Resource.ADVERTISED
             self.retries_left = self.max_adv_retries
             self.link.register_outgoing_resource(self)
-            RNS.log("Sent resource advertisement for "+RNS.prettyhexrep(self.hash), RNS.LOG_DEBUG)
+            RNS.log("Sent resource advertisement for "+RNS.prettyhexrep(self.hash), RNS.LOG_EXTREME)
         except Exception as e:
             RNS.log("Could not advertise resource, the contained exception was: "+str(e), RNS.LOG_ERROR)
             self.cancel()
