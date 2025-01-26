@@ -39,8 +39,9 @@ else:
 from RNS.vendor.configobj import ConfigObj
 import configparser
 import multiprocessing.connection
-import signal
+import importlib
 import threading
+import signal
 import atexit
 import struct
 import array
@@ -985,12 +986,16 @@ class Reticulum:
                         ifstats["rxs"] = interface.current_rx_speed
                     else:
                         ifstats["rxs"] = 0
+                else:
+                    ifstats["rxs"] = 0
 
                 if hasattr(interface, "current_tx_speed"):
                     if interface.current_tx_speed != None:
                         ifstats["txs"] = interface.current_tx_speed
                     else:
                         ifstats["txs"] = 0
+                else:
+                    ifstats["txs"] = 0
 
                 if hasattr(interface, "peers"):
                     if interface.peers != None:
@@ -1040,6 +1045,13 @@ class Reticulum:
                     stats["probe_responder"] = RNS.Transport.probe_destination.hash
                 else:
                     stats["probe_responder"] = None
+
+            if importlib.util.find_spec('psutil') != None:
+                import psutil
+                process = psutil.Process()
+                stats["rss"] = process.memory_info().rss
+            else:
+                stats["rss"] = None
 
             return stats
 
