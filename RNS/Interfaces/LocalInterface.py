@@ -155,14 +155,11 @@ class LocalClientInterface(Interface):
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.rxb += len(data)
         
-        # TODO: Remove at some point
-        # processing_start = time.time()
-        
-        self.owner.inbound(data, self)
-
-        # TODO: Remove at some point
-        # duration = time.time() - processing_start
-        # self.rxptime += duration
+        try:
+            self.owner.inbound(data, self)
+        except Exception as e:
+            RNS.log(f"An error in the processing of an incoming frame for {self}: {e}", RNS.LOG_ERROR)
+            RNS.trace_exception(e)
 
     def process_outgoing(self, data):
         if self.online:
