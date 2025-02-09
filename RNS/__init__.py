@@ -361,9 +361,14 @@ def phyparams():
 def panic():
     os._exit(255)
 
+exit_called = False
 def exit():
-    print("")
-    sys.exit(0)
+    global exit_called
+    if not exit_called:
+        exit_called = True
+        print("")
+        Reticulum.exit_handler()
+        os._exit(0)
 
 class Profiler:
     _ran = False
