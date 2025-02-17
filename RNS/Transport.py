@@ -1344,7 +1344,7 @@ class Transport:
                                         if nh_mtu < path_mtu:
                                             path_mtu = nh_mtu
                                             clamped_mtu = RNS.Link.mtu_bytes(path_mtu)
-                                            RNS.log(f"Clamping link MTU to {RNS.prettysize(nh_mtu)}: {RNS.hexrep(clamped_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
+                                            RNS.log(f"Clamping link MTU to {RNS.prettysize(nh_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
                                             new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]+clamped_mtu
 
                                 # Entry format is
@@ -1490,7 +1490,8 @@ class Transport:
                                 # replayed to forge paths.
                                 # TODO: Check whether this approach works
                                 # under all circumstances
-                                if not random_blob in random_blobs:
+                                path_timebase = Transport.timebase_from_random_blobs(random_blobs)
+                                if not random_blob in random_blobs and announce_emitted > path_timebase:
                                     Transport.mark_path_unknown_state(packet.destination_hash)
                                     should_add = True
                                 else:
@@ -2749,14 +2750,25 @@ class Transport:
                     interface.announce_queue = []
                     RNS.log("Dropped "+na_str+" on "+str(interface), RNS.LOG_VERBOSE)
 
+    @staticmethod
+    def timebase_from_random_blob(random_blob):
+        return int.from_bytes(random_blob[5:10], "big")
+
+    @staticmethod
+    def timebase_from_random_blobs(random_blobs):
+        timebase = 0
+        for random_blob in random_blobs:
+            emitted = Transport.timebase_from_random_blob(random_blob)
+            if emitted > timebase: timebase = emitted
+
+        return timebase
 
     @staticmethod
     def announce_emitted(packet):
         random_blob = packet.data[RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8:RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8+10]
-        announce_emitted = int.from_bytes(random_blob[5:10], "big")
+        announce_emitted = Transport.timebase_from_random_blob(random_blob)
 
         return announce_emitted
-
 
     @staticmethod
     def save_packet_hashlist():
