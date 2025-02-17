@@ -2794,7 +2794,7 @@ class Transport:
 
                 packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
                 file = open(packet_hashlist_path, "wb")
-                file.write(umsgpack.packb(list(Transport.packet_hashlist)))
+                file.write(umsgpack.packb(list(Transport.packet_hashlist.copy())))
                 file.close()
 
                 save_time = time.time() - save_start
@@ -2829,7 +2829,7 @@ class Transport:
                 RNS.log("Saving path table to storage...", RNS.LOG_DEBUG)
 
                 serialised_destinations = []
-                for destination_hash in Transport.destination_table:
+                for destination_hash in Transport.destination_table.copy():
                     # Get the destination entry from the destination table
                     de = Transport.destination_table[destination_hash]
                     interface_hash = de[5].get_hash()
@@ -2899,10 +2899,10 @@ class Transport:
                 RNS.log("Saving tunnel table to storage...", RNS.LOG_DEBUG)
 
                 serialised_tunnels = []
-                for tunnel_id in Transport.tunnels:
+                for tunnel_id in Transport.tunnels.copy():
                     te = Transport.tunnels[tunnel_id]
                     interface = te[1]
-                    tunnel_paths = te[2]
+                    tunnel_paths = te[2].copy()
                     expires = te[3]
 
                     if interface != None:
