@@ -1,3 +1,18 @@
+### 2025-01-19: RNS β 0.9.2
+
+This maintenance release fixes a number of bugs.
+
+**Changes**
+- Fixed missing RX/TX bytes statistics assignment
+- Fixed potential daemon thread IO buffer deadlock on externally mediated shutdown signal
+- Fixed missing check for path announce emission timestamp in lower hop-count announce processing
+
+**Release Hashes**
+```
+068eb4408b332ea6eec1a58fb4644fba3531c9ca10dcd79ecf893aaaf40e720d rns-0.9.2-py3-none-any.whl
+1e7c123d244cc14c287568f3a99953cc11ffc1e79a72a029aa1be72fa8eff24e rnspure-0.9.2-py3-none-any.whl
+```
+
 ### 2025-01-19: RNS β 0.9.1
 
 This maintenance release adds reject signalling mechanism to resource transfers, fixes inconsistencies in the code examples, and improves thread configuration in the transport core.
