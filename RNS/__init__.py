@@ -368,7 +368,7 @@ def exit():
         exit_called = True
         print("")
         Reticulum.exit_handler()
-        os._exit(0)
+        #os._exit(0)
 
 class Profiler:
     _ran = False

@@ -24,6 +24,7 @@
 
 import RNS
 import argparse
+import signal
 import time
 
 from RNS._version import __version__
@@ -45,9 +46,15 @@ def program_setup(configdir, verbosity = 0, quietness = 0, service = False):
         if RNS.Reticulum.get_instance().shared_instance_interface:
             RNS.Reticulum.get_instance().shared_instance_interface.server.daemon_threads = True
         RNS.log("Started rnsd version {version}".format(version=__version__), RNS.LOG_NOTICE)
+        #signal.signal(signal.SIGINT, reticulum.sigint_handler)
+        signal.signal(signal.SIGTERM, reticulum.sigterm_handler)
 
-    while True:
-        time.sleep(1)
+    try:
+        while True:
+            time.sleep(1)
+    finally:
+        reticulum.stop()
+
 
 def main():
     try:
@@ -63,7 +70,7 @@ def main():
 
         if args.exampleconfig:
             print(__example_rns_config__)
-            exit()
+            return
 
         if args.config:
             configarg = args.config

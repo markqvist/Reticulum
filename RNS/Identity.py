@@ -24,7 +24,6 @@ import math
 import os
 import RNS
 import time
-import atexit
 import hashlib
 import threading
 
