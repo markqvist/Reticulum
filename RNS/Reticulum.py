@@ -41,11 +41,11 @@ import configparser
 import multiprocessing.connection
 import importlib
 import threading
-import signal
 import atexit
 import struct
 import array
 import time
+import sys
 import os
 import RNS
 
@@ -172,8 +172,10 @@ class Reticulum:
         # classes, saving necessary information to disk and carrying
         # out cleanup operations.
         if not Reticulum.__exit_handler_ran:
+            Reticulum.__exit_handler_ran = True
             if not Reticulum.__interface_detach_ran:
                 RNS.Transport.detach_interfaces()
+                Reticulum.__interface_detach_ran = True
             RNS.Transport.exit_handler()
             RNS.Identity.exit_handler()
 
@@ -184,15 +186,20 @@ class Reticulum:
 
     @staticmethod
     def sigint_handler(signal, frame):
-        RNS.Transport.detach_interfaces()
-        Reticulum.__interface_detach_ran = True
-        RNS.exit()
+        Reticulum.exit_handler()
+        sys.exit(0)
 
     @staticmethod
     def sigterm_handler(signal, frame):
-        RNS.Transport.detach_interfaces()
-        Reticulum.__interface_detach_ran = True
-        RNS.exit()
+        Reticulum.exit_handler()
+        sys.exit(0)
+
+    @staticmethod
+    def atexit_handler():
+        Reticulum.exit_handler()
+
+    def stop(self):
+        Reticulum.exit_handler()
 
     @staticmethod
     def get_instance():
@@ -322,9 +329,7 @@ class Reticulum:
             thread.daemon = True
             thread.start()
 
-        atexit.register(Reticulum.exit_handler)
-        signal.signal(signal.SIGINT, Reticulum.sigint_handler)
-        signal.signal(signal.SIGTERM, Reticulum.sigterm_handler)
+        atexit.register(Reticulum.atexit_handler)
 
     def __start_jobs(self):
         if self.jobs_thread == None:
