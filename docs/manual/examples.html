@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Support Reticulum" href="support.html" /><link rel="prev" title="Building Networks" href="networks.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
@@ -237,9 +237,9 @@ program.</p>
 <span class="c1"># new destination, and let the user send an announce.    #</span>
 <span class="c1">##########################################################</span>
 
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">RNS</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">RNS</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
 <span class="c1"># destinations we create. Since this basic example</span>
@@ -248,7 +248,7 @@ program.</p>
 <span class="n">APP_NAME</span> <span class="o">=</span> <span class="s2">&quot;example_utilities&quot;</span>
 
 <span class="c1"># This initialisation is executed when the program is started</span>
-<span class="k">def</span> <span class="nf">program_setup</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">program_setup</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
@@ -282,7 +282,7 @@ program.</p>
     <span class="n">announceLoop</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">announceLoop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">announceLoop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
     <span class="c1"># Let the user know that everything is ready</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
         <span class="s2">&quot;Minimal example &quot;</span><span class="o">+</span>
@@ -348,10 +348,10 @@ notifications about announces from relevant destinations.</p>
 <span class="c1"># notification when an announce relevant for it arrives  #</span>
 <span class="c1">##########################################################</span>
 
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">RNS</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">RNS</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
 <span class="c1"># destinations we create. Since this basic example</span>
@@ -364,7 +364,7 @@ notifications about announces from relevant destinations.</p>
 <span class="n">noble_gases</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Helium&quot;</span><span class="p">,</span> <span class="s2">&quot;Neon&quot;</span><span class="p">,</span> <span class="s2">&quot;Argon&quot;</span><span class="p">,</span> <span class="s2">&quot;Krypton&quot;</span><span class="p">,</span> <span class="s2">&quot;Xenon&quot;</span><span class="p">,</span> <span class="s2">&quot;Radon&quot;</span><span class="p">,</span> <span class="s2">&quot;Oganesson&quot;</span><span class="p">]</span>
 
 <span class="c1"># This initialisation is executed when the program is started</span>
-<span class="k">def</span> <span class="nf">program_setup</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">program_setup</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
@@ -421,7 +421,7 @@ notifications about announces from relevant destinations.</p>
     <span class="n">announceLoop</span><span class="p">(</span><span class="n">destination_1</span><span class="p">,</span> <span class="n">destination_2</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">announceLoop</span><span class="p">(</span><span class="n">destination_1</span><span class="p">,</span> <span class="n">destination_2</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">announceLoop</span><span class="p">(</span><span class="n">destination_1</span><span class="p">,</span> <span class="n">destination_2</span><span class="p">):</span>
     <span class="c1"># Let the user know that everything is ready</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Announce example running, hit enter to manually send an announce (Ctrl-C to quit)&quot;</span><span class="p">)</span>
 
@@ -456,20 +456,20 @@ notifications about announces from relevant destinations.</p>
 
 <span class="c1"># We will need to define an announce handler class that</span>
 <span class="c1"># Reticulum can message when an announce arrives.</span>
-<span class="k">class</span> <span class="nc">ExampleAnnounceHandler</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleAnnounceHandler</span><span class="p">:</span>
     <span class="c1"># The initialisation method takes the optional</span>
     <span class="c1"># aspect_filter argument. If aspect_filter is set to</span>
     <span class="c1"># None, all announces will be passed to the instance.</span>
     <span class="c1"># If only some announces are wanted, it can be set to</span>
     <span class="c1"># an aspect string.</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aspect_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aspect_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aspect_filter</span> <span class="o">=</span> <span class="n">aspect_filter</span>
 
     <span class="c1"># This method will be called by Reticulums Transport</span>
     <span class="c1"># system when an announce arrives that matches the</span>
     <span class="c1"># configured aspect filter. Filters must be specific,</span>
     <span class="c1"># and cannot use wildcards.</span>
-    <span class="k">def</span> <span class="nf">received_announce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">destination_hash</span><span class="p">,</span> <span class="n">announced_identity</span><span class="p">,</span> <span class="n">app_data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">received_announce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">destination_hash</span><span class="p">,</span> <span class="n">announced_identity</span><span class="p">,</span> <span class="n">app_data</span><span class="p">):</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
             <span class="s2">&quot;Received an announce from &quot;</span><span class="o">+</span>
             <span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">destination_hash</span><span class="p">)</span>
@@ -527,9 +527,9 @@ over the network.</p>
 <span class="c1"># information to any listening destinations.             #</span>
 <span class="c1">##########################################################</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">RNS</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">RNS</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
 <span class="c1"># destinations we create. Since this basic example</span>
@@ -538,7 +538,7 @@ over the network.</p>
 <span class="n">APP_NAME</span> <span class="o">=</span> <span class="s2">&quot;example_utilities&quot;</span>
 
 <span class="c1"># This initialisation is executed when the program is started</span>
-<span class="k">def</span> <span class="nf">program_setup</span><span class="p">(</span><span class="n">configpath</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">program_setup</span><span class="p">(</span><span class="n">configpath</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
@@ -569,13 +569,13 @@ over the network.</p>
     <span class="c1"># Let&#39;s hand over control to the main loop</span>
     <span class="n">broadcastLoop</span><span class="p">(</span><span class="n">broadcast_destination</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">packet_callback</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">packet_callback</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
     <span class="c1"># Simply print out the received data</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Received data: &quot;</span><span class="o">+</span><span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&gt; &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">broadcastLoop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">broadcastLoop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
     <span class="c1"># Let the user know that everything is ready</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
         <span class="s2">&quot;Broadcast example &quot;</span><span class="o">+</span>
@@ -658,9 +658,9 @@ the Packet interface.</p>
 <span class="c1"># of the packet.                                         #</span>
 <span class="c1">##########################################################</span>
 
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">RNS</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">RNS</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
 <span class="c1"># destinations we create. Since this echo example</span>
@@ -675,7 +675,7 @@ the Packet interface.</p>
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a server</span>
-<span class="k">def</span> <span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">reticulum</span>
 
     <span class="c1"># We must first initialise Reticulum</span>
@@ -715,7 +715,7 @@ the Packet interface.</p>
     <span class="n">announceLoop</span><span class="p">(</span><span class="n">echo_destination</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">announceLoop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">announceLoop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
     <span class="c1"># Let the user know that everything is ready</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
         <span class="s2">&quot;Echo server &quot;</span><span class="o">+</span>
@@ -733,7 +733,7 @@ the Packet interface.</p>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Sent announce from &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">destination</span><span class="o">.</span><span class="n">hash</span><span class="p">))</span>
 
 
-<span class="k">def</span> <span class="nf">server_callback</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server_callback</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">reticulum</span>
     
     <span class="c1"># Tell the user that we received an echo request, and</span>
@@ -768,7 +768,7 @@ the Packet interface.</p>
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a client</span>
-<span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">reticulum</span>
     
     <span class="c1"># We need a binary representation of the destination</span>
@@ -869,7 +869,7 @@ the Packet interface.</p>
 
 <span class="c1"># This function is called when our reply destination</span>
 <span class="c1"># receives a proof packet.</span>
-<span class="k">def</span> <span class="nf">packet_delivered</span><span class="p">(</span><span class="n">receipt</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">packet_delivered</span><span class="p">(</span><span class="n">receipt</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">reticulum</span>
 
     <span class="k">if</span> <span class="n">receipt</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">PacketReceipt</span><span class="o">.</span><span class="n">DELIVERED</span><span class="p">:</span>
@@ -908,7 +908,7 @@ the Packet interface.</p>
         <span class="p">)</span>
 
 <span class="c1"># This function is called if a packet times out.</span>
-<span class="k">def</span> <span class="nf">packet_timed_out</span><span class="p">(</span><span class="n">receipt</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">packet_timed_out</span><span class="p">(</span><span class="n">receipt</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">receipt</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">PacketReceipt</span><span class="o">.</span><span class="n">FAILED</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Packet &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">receipt</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; timed out&quot;</span><span class="p">)</span>
 
@@ -996,11 +996,11 @@ destination, and passing traffic back and forth over the link.</p>
 <span class="c1"># a destination, and pass data back and forth over it.   #</span>
 <span class="c1">##########################################################</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">RNS</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">RNS</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
 <span class="c1"># destinations we create. Since this echo example</span>
@@ -1017,7 +1017,7 @@ destination, and passing traffic back and forth over the link.</p>
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a server</span>
-<span class="k">def</span> <span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
@@ -1043,7 +1043,7 @@ destination, and passing traffic back and forth over the link.</p>
     <span class="c1"># Let&#39;s Wait for client requests or user input</span>
     <span class="n">server_loop</span><span class="p">(</span><span class="n">server_destination</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">server_loop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server_loop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
     <span class="c1"># Let the user know that everything is ready</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
         <span class="s2">&quot;Link example &quot;</span><span class="o">+</span>
@@ -1065,7 +1065,7 @@ destination, and passing traffic back and forth over the link.</p>
 <span class="c1"># When a client establishes a link to our server</span>
 <span class="c1"># destination, this function will be called with</span>
 <span class="c1"># a reference to the link.</span>
-<span class="k">def</span> <span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">latest_client_link</span>
 
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client connected&quot;</span><span class="p">)</span>
@@ -1073,10 +1073,10 @@ destination, and passing traffic back and forth over the link.</p>
     <span class="n">link</span><span class="o">.</span><span class="n">set_packet_callback</span><span class="p">(</span><span class="n">server_packet_received</span><span class="p">)</span>
     <span class="n">latest_client_link</span> <span class="o">=</span> <span class="n">link</span>
 
-<span class="k">def</span> <span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client disconnected&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">server_packet_received</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server_packet_received</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">latest_client_link</span>
 
     <span class="c1"># When data is received over any active link,</span>
@@ -1099,7 +1099,7 @@ destination, and passing traffic back and forth over the link.</p>
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a client</span>
-<span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
     <span class="c1"># We need a binary representation of the destination</span>
     <span class="c1"># hash that was entered on the command line</span>
     <span class="k">try</span><span class="p">:</span>
@@ -1157,7 +1157,7 @@ destination, and passing traffic back and forth over the link.</p>
     <span class="c1"># for the user to interact with the example</span>
     <span class="n">client_loop</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">client_loop</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_loop</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">server_link</span>
 
     <span class="c1"># Wait for the link to become active</span>
@@ -1195,7 +1195,7 @@ destination, and passing traffic back and forth over the link.</p>
 
 <span class="c1"># This function is called when a link</span>
 <span class="c1"># has been established with the server</span>
-<span class="k">def</span> <span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="c1"># We store a reference to the link</span>
     <span class="c1"># instance for later use</span>
     <span class="k">global</span> <span class="n">server_link</span>
@@ -1207,7 +1207,7 @@ destination, and passing traffic back and forth over the link.</p>
 
 <span class="c1"># When a link is closed, we&#39;ll inform the</span>
 <span class="c1"># user, and exit the program</span>
-<span class="k">def</span> <span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;The link timed out, exiting now&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">DESTINATION_CLOSED</span><span class="p">:</span>
@@ -1220,7 +1220,7 @@ destination, and passing traffic back and forth over the link.</p>
 
 <span class="c1"># When a packet is received over the link, we</span>
 <span class="c1"># simply print out the data.</span>
-<span class="k">def</span> <span class="nf">client_packet_received</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_packet_received</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Received data on the link: &quot;</span><span class="o">+</span><span class="n">text</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
@@ -1294,11 +1294,11 @@ the link has been established.</p>
 <span class="c1"># a destination, and identify the initiator to it&#39;s peer #</span>
 <span class="c1">##########################################################</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">RNS</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">RNS</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
 <span class="c1"># destinations we create. Since this echo example</span>
@@ -1315,7 +1315,7 @@ the link has been established.</p>
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a server</span>
-<span class="k">def</span> <span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
@@ -1341,7 +1341,7 @@ the link has been established.</p>
     <span class="c1"># Let&#39;s Wait for client requests or user input</span>
     <span class="n">server_loop</span><span class="p">(</span><span class="n">server_destination</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">server_loop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server_loop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
     <span class="c1"># Let the user know that everything is ready</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
         <span class="s2">&quot;Link identification example &quot;</span><span class="o">+</span>
@@ -1363,7 +1363,7 @@ the link has been established.</p>
 <span class="c1"># When a client establishes a link to our server</span>
 <span class="c1"># destination, this function will be called with</span>
 <span class="c1"># a reference to the link.</span>
-<span class="k">def</span> <span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">latest_client_link</span>
 
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client connected&quot;</span><span class="p">)</span>
@@ -1372,13 +1372,13 @@ the link has been established.</p>
     <span class="n">link</span><span class="o">.</span><span class="n">set_remote_identified_callback</span><span class="p">(</span><span class="n">remote_identified</span><span class="p">)</span>
     <span class="n">latest_client_link</span> <span class="o">=</span> <span class="n">link</span>
 
-<span class="k">def</span> <span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client disconnected&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">remote_identified</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">identity</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">remote_identified</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">identity</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Remote identified as: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">identity</span><span class="p">))</span>
 
-<span class="k">def</span> <span class="nf">server_packet_received</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server_packet_received</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">latest_client_link</span>
 
     <span class="c1"># Get the originating identity for display</span>
@@ -1410,7 +1410,7 @@ the link has been established.</p>
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a client</span>
-<span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">client_identity</span>
     <span class="c1"># We need a binary representation of the destination</span>
     <span class="c1"># hash that was entered on the command line</span>
@@ -1476,7 +1476,7 @@ the link has been established.</p>
     <span class="c1"># for the user to interact with the example</span>
     <span class="n">client_loop</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">client_loop</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_loop</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">server_link</span>
 
     <span class="c1"># Wait for the link to become active</span>
@@ -1514,7 +1514,7 @@ the link has been established.</p>
 
 <span class="c1"># This function is called when a link</span>
 <span class="c1"># has been established with the server</span>
-<span class="k">def</span> <span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="c1"># We store a reference to the link</span>
     <span class="c1"># instance for later use</span>
     <span class="k">global</span> <span class="n">server_link</span><span class="p">,</span> <span class="n">client_identity</span>
@@ -1528,7 +1528,7 @@ the link has been established.</p>
 
 <span class="c1"># When a link is closed, we&#39;ll inform the</span>
 <span class="c1"># user, and exit the program</span>
-<span class="k">def</span> <span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;The link timed out, exiting now&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">DESTINATION_CLOSED</span><span class="p">:</span>
@@ -1541,7 +1541,7 @@ the link has been established.</p>
 
 <span class="c1"># When a packet is received over the link, we</span>
 <span class="c1"># simply print out the data.</span>
-<span class="k">def</span> <span class="nf">client_packet_received</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_packet_received</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Received data on the link: &quot;</span><span class="o">+</span><span class="n">text</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
@@ -1614,12 +1614,12 @@ the link has been established.</p>
 <span class="c1"># requests and receive responses over a link.            #</span>
 <span class="c1">##########################################################</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">RNS</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">RNS</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
 <span class="c1"># destinations we create. Since this echo example</span>
@@ -1634,14 +1634,14 @@ the link has been established.</p>
 <span class="c1"># A reference to the latest client link that connected</span>
 <span class="n">latest_client_link</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="k">def</span> <span class="nf">random_text_generator</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">request_id</span><span class="p">,</span> <span class="n">link_id</span><span class="p">,</span> <span class="n">remote_identity</span><span class="p">,</span> <span class="n">requested_at</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_text_generator</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">request_id</span><span class="p">,</span> <span class="n">link_id</span><span class="p">,</span> <span class="n">remote_identity</span><span class="p">,</span> <span class="n">requested_at</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Generating response to request &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">request_id</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; on link &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">link_id</span><span class="p">))</span>
     <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;They looked up&quot;</span><span class="p">,</span> <span class="s2">&quot;On each full moon&quot;</span><span class="p">,</span> <span class="s2">&quot;Becky was upset&quot;</span><span class="p">,</span> <span class="s2">&quot;I’ll stay away from it&quot;</span><span class="p">,</span> <span class="s2">&quot;The pet shop stocks everything&quot;</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">texts</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a server</span>
-<span class="k">def</span> <span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
@@ -1675,7 +1675,7 @@ the link has been established.</p>
     <span class="c1"># Let&#39;s Wait for client requests or user input</span>
     <span class="n">server_loop</span><span class="p">(</span><span class="n">server_destination</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">server_loop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server_loop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
     <span class="c1"># Let the user know that everything is ready</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
         <span class="s2">&quot;Request example &quot;</span><span class="o">+</span>
@@ -1697,14 +1697,14 @@ the link has been established.</p>
 <span class="c1"># When a client establishes a link to our server</span>
 <span class="c1"># destination, this function will be called with</span>
 <span class="c1"># a reference to the link.</span>
-<span class="k">def</span> <span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">latest_client_link</span>
 
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client connected&quot;</span><span class="p">)</span>
     <span class="n">link</span><span class="o">.</span><span class="n">set_link_closed_callback</span><span class="p">(</span><span class="n">client_disconnected</span><span class="p">)</span>
     <span class="n">latest_client_link</span> <span class="o">=</span> <span class="n">link</span>
 
-<span class="k">def</span> <span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client disconnected&quot;</span><span class="p">)</span>
 
 
@@ -1717,7 +1717,7 @@ the link has been established.</p>
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a client</span>
-<span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
     <span class="c1"># We need a binary representation of the destination</span>
     <span class="c1"># hash that was entered on the command line</span>
     <span class="k">try</span><span class="p">:</span>
@@ -1770,7 +1770,7 @@ the link has been established.</p>
     <span class="c1"># for the user to interact with the example</span>
     <span class="n">client_loop</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">client_loop</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_loop</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">server_link</span>
 
     <span class="c1"># Wait for the link to become active</span>
@@ -1802,22 +1802,22 @@ the link has been established.</p>
             <span class="n">should_quit</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">server_link</span><span class="o">.</span><span class="n">teardown</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">got_response</span><span class="p">(</span><span class="n">request_receipt</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">got_response</span><span class="p">(</span><span class="n">request_receipt</span><span class="p">):</span>
     <span class="n">request_id</span> <span class="o">=</span> <span class="n">request_receipt</span><span class="o">.</span><span class="n">request_id</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">request_receipt</span><span class="o">.</span><span class="n">response</span>
 
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Got response for request &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">request_id</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
 
-<span class="k">def</span> <span class="nf">request_received</span><span class="p">(</span><span class="n">request_receipt</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">request_received</span><span class="p">(</span><span class="n">request_receipt</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;The request &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">request_receipt</span><span class="o">.</span><span class="n">request_id</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; was received by the remote peer.&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">request_failed</span><span class="p">(</span><span class="n">request_receipt</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">request_failed</span><span class="p">(</span><span class="n">request_receipt</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;The request &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">request_receipt</span><span class="o">.</span><span class="n">request_id</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; failed.&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># This function is called when a link</span>
 <span class="c1"># has been established with the server</span>
-<span class="k">def</span> <span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="c1"># We store a reference to the link</span>
     <span class="c1"># instance for later use</span>
     <span class="k">global</span> <span class="n">server_link</span>
@@ -1829,7 +1829,7 @@ the link has been established.</p>
 
 <span class="c1"># When a link is closed, we&#39;ll inform the</span>
 <span class="c1"># user, and exit the program</span>
-<span class="k">def</span> <span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;The link timed out, exiting now&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">DESTINATION_CLOSED</span><span class="p">:</span>
@@ -1909,14 +1909,14 @@ data between peers of a <code class="docutils literal notranslate"><span class="
 <span class="c1"># using a channel.                                       #</span>
 <span class="c1">##########################################################</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 
-<span class="kn">import</span> <span class="nn">RNS</span>
-<span class="kn">from</span> <span class="nn">RNS.vendor</span> <span class="kn">import</span> <span class="n">umsgpack</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">RNS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">RNS.vendor</span><span class="w"> </span><span class="kn">import</span> <span class="n">umsgpack</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
 <span class="c1"># destinations we create. Since this echo example</span>
@@ -1944,7 +1944,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
 <span class="c1"># Let&#39;s make a simple message class called StringMessage</span>
 <span class="c1"># that will convey a string with a timestamp.</span>
 
-<span class="k">class</span> <span class="nc">StringMessage</span><span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">MessageBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StringMessage</span><span class="p">(</span><span class="n">RNS</span><span class="o">.</span><span class="n">MessageBase</span><span class="p">):</span>
     <span class="c1"># The MSGTYPE class variable needs to be assigned a</span>
     <span class="c1"># 2 byte integer value. This identifier allows the</span>
     <span class="c1"># channel to look up your message&#39;s constructor when a</span>
@@ -1962,7 +1962,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
     <span class="c1"># This is needed so the channel can create an empty</span>
     <span class="c1"># version of our message into which the incoming</span>
     <span class="c1"># message can be unpacked.</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
@@ -1982,12 +1982,12 @@ data between peers of a <code class="docutils literal notranslate"><span class="
 
     <span class="c1"># The pack function encodes the message contents into</span>
     <span class="c1"># a byte stream.</span>
-    <span class="k">def</span> <span class="nf">pack</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pack</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">umsgpack</span><span class="o">.</span><span class="n">packb</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="p">))</span>
 
     <span class="c1"># And the unpack function decodes a byte stream into</span>
     <span class="c1"># the message contents.</span>
-    <span class="k">def</span> <span class="nf">unpack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unpack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">umsgpack</span><span class="o">.</span><span class="n">unpackb</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
 
 
@@ -2000,7 +2000,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a server</span>
-<span class="k">def</span> <span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
@@ -2026,7 +2026,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
     <span class="c1"># Let&#39;s Wait for client requests or user input</span>
     <span class="n">server_loop</span><span class="p">(</span><span class="n">server_destination</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">server_loop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server_loop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
     <span class="c1"># Let the user know that everything is ready</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
         <span class="s2">&quot;Channel example &quot;</span><span class="o">+</span>
@@ -2048,7 +2048,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
 <span class="c1"># When a client establishes a link to our server</span>
 <span class="c1"># destination, this function will be called with</span>
 <span class="c1"># a reference to the link.</span>
-<span class="k">def</span> <span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">latest_client_link</span>
     <span class="n">latest_client_link</span> <span class="o">=</span> <span class="n">link</span>
 
@@ -2060,10 +2060,10 @@ data between peers of a <code class="docutils literal notranslate"><span class="
     <span class="n">channel</span><span class="o">.</span><span class="n">register_message_type</span><span class="p">(</span><span class="n">StringMessage</span><span class="p">)</span>
     <span class="n">channel</span><span class="o">.</span><span class="n">add_message_handler</span><span class="p">(</span><span class="n">server_message_received</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client disconnected&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">server_message_received</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server_message_received</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A message handler</span>
 <span class="sd">    @param message: An instance of a subclass of MessageBase</span>
@@ -2104,7 +2104,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a client</span>
-<span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
     <span class="c1"># We need a binary representation of the destination</span>
     <span class="c1"># hash that was entered on the command line</span>
     <span class="k">try</span><span class="p">:</span>
@@ -2157,7 +2157,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
     <span class="c1"># for the user to interact with the example</span>
     <span class="n">client_loop</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">client_loop</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_loop</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">server_link</span>
 
     <span class="c1"># Wait for the link to become active</span>
@@ -2201,7 +2201,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
 
 <span class="c1"># This function is called when a link</span>
 <span class="c1"># has been established with the server</span>
-<span class="k">def</span> <span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="c1"># We store a reference to the link</span>
     <span class="c1"># instance for later use</span>
     <span class="k">global</span> <span class="n">server_link</span>
@@ -2218,7 +2218,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
 
 <span class="c1"># When a link is closed, we&#39;ll inform the</span>
 <span class="c1"># user, and exit the program</span>
-<span class="k">def</span> <span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;The link timed out, exiting now&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">DESTINATION_CLOSED</span><span class="p">:</span>
@@ -2231,7 +2231,7 @@ data between peers of a <code class="docutils literal notranslate"><span class="
 
 <span class="c1"># When a packet is received over the channel, we</span>
 <span class="c1"># simply print out the data.</span>
-<span class="k">def</span> <span class="nf">client_message_received</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_message_received</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">StringMessage</span><span class="p">):</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Received data on the link: &quot;</span> <span class="o">+</span> <span class="n">message</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="s2">&quot; (message created at &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
@@ -2305,15 +2305,15 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
 <span class="c1"># a destination, and pass binary data over it using a    #</span>
 <span class="c1"># channel buffer.                                        #</span>
 <span class="c1">##########################################################</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 
-<span class="kn">import</span> <span class="nn">RNS</span>
-<span class="kn">from</span> <span class="nn">RNS.vendor</span> <span class="kn">import</span> <span class="n">umsgpack</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">RNS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">RNS.vendor</span><span class="w"> </span><span class="kn">import</span> <span class="n">umsgpack</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
 <span class="c1"># destinations we create. Since this echo example</span>
@@ -2334,7 +2334,7 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a server</span>
-<span class="k">def</span> <span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">):</span>
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
@@ -2360,7 +2360,7 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
     <span class="c1"># Let&#39;s Wait for client requests or user input</span>
     <span class="n">server_loop</span><span class="p">(</span><span class="n">server_destination</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">server_loop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server_loop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
     <span class="c1"># Let the user know that everything is ready</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
         <span class="s2">&quot;Link buffer example &quot;</span><span class="o">+</span>
@@ -2382,7 +2382,7 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
 <span class="c1"># When a client establishes a link to our server</span>
 <span class="c1"># destination, this function will be called with</span>
 <span class="c1"># a reference to the link.</span>
-<span class="k">def</span> <span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">latest_client_link</span><span class="p">,</span> <span class="n">latest_buffer</span>
     <span class="n">latest_client_link</span> <span class="o">=</span> <span class="n">link</span>
 
@@ -2408,10 +2408,10 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
     <span class="n">channel</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">get_channel</span><span class="p">()</span>
     <span class="n">latest_buffer</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Buffer</span><span class="o">.</span><span class="n">create_bidirectional_buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">server_buffer_ready</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client disconnected&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">server_buffer_ready</span><span class="p">(</span><span class="n">ready_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server_buffer_ready</span><span class="p">(</span><span class="n">ready_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Callback from buffer when buffer has data available</span>
 
@@ -2446,7 +2446,7 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a client</span>
-<span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
     <span class="c1"># We need a binary representation of the destination</span>
     <span class="c1"># hash that was entered on the command line</span>
     <span class="k">try</span><span class="p">:</span>
@@ -2499,7 +2499,7 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
     <span class="c1"># for the user to interact with the example</span>
     <span class="n">client_loop</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">client_loop</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_loop</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">server_link</span>
 
     <span class="c1"># Wait for the link to become active</span>
@@ -2531,7 +2531,7 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
 
 <span class="c1"># This function is called when a link</span>
 <span class="c1"># has been established with the server</span>
-<span class="k">def</span> <span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="c1"># We store a reference to the link</span>
     <span class="c1"># instance for later use</span>
     <span class="k">global</span> <span class="n">server_link</span><span class="p">,</span> <span class="n">buffer</span>
@@ -2548,7 +2548,7 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
 
 <span class="c1"># When a link is closed, we&#39;ll inform the</span>
 <span class="c1"># user, and exit the program</span>
-<span class="k">def</span> <span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;The link timed out, exiting now&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">DESTINATION_CLOSED</span><span class="p">:</span>
@@ -2560,7 +2560,7 @@ binary data between peers of a <code class="docutils literal notranslate"><span 
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="c1"># When the buffer has new data, read it and write it to the terminal.</span>
-<span class="k">def</span> <span class="nf">client_buffer_ready</span><span class="p">(</span><span class="n">ready_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_buffer_ready</span><span class="p">(</span><span class="n">ready_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">buffer</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">ready_bytes</span><span class="p">)</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Received data over the link buffer: &quot;</span> <span class="o">+</span> <span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
@@ -2649,13 +2649,13 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 <span class="c1"># into chunks suitable for packing as a Resource.        #</span>
 <span class="c1">##########################################################</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">threading</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">RNS</span>
-<span class="kn">import</span> <span class="nn">RNS.vendor.umsgpack</span> <span class="k">as</span> <span class="nn">umsgpack</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">RNS</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">RNS.vendor.umsgpack</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">umsgpack</span>
 
 <span class="c1"># Let&#39;s define an app name. We&#39;ll use this for all</span>
 <span class="c1"># destinations we create. Since this echo example</span>
@@ -2674,7 +2674,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a server</span>
-<span class="k">def</span> <span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">server</span><span class="p">(</span><span class="n">configpath</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
     <span class="c1"># We must first initialise Reticulum</span>
     <span class="n">reticulum</span> <span class="o">=</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span>
     
@@ -2704,7 +2704,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
     <span class="c1"># Let&#39;s Wait for client requests or user input</span>
     <span class="n">announceLoop</span><span class="p">(</span><span class="n">server_destination</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">announceLoop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">announceLoop</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
     <span class="c1"># Let the user know that everything is ready</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;File server &quot;</span><span class="o">+</span><span class="n">RNS</span><span class="o">.</span><span class="n">prettyhexrep</span><span class="p">(</span><span class="n">destination</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; running&quot;</span><span class="p">)</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Hit enter to manually send an announce (Ctrl-C to quit)&quot;</span><span class="p">)</span>
@@ -2720,7 +2720,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 
 <span class="c1"># Here&#39;s a convenience function for listing all files</span>
 <span class="c1"># in our served directory</span>
-<span class="k">def</span> <span class="nf">list_files</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_files</span><span class="p">():</span>
     <span class="c1"># We add all entries from the directory that are</span>
     <span class="c1"># actual files, and does not start with &quot;.&quot;</span>
     <span class="k">global</span> <span class="n">serve_path</span>
@@ -2730,7 +2730,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 <span class="c1"># destination, this function will be called with</span>
 <span class="c1"># a reference to the link. We then send the client</span>
 <span class="c1"># a list of files hosted on the server.</span>
-<span class="k">def</span> <span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_connected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="c1"># Check if the served directory still exists</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">serve_path</span><span class="p">):</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client connected, sending file list...&quot;</span><span class="p">)</span>
@@ -2763,10 +2763,10 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client connected, but served path no longer exists!&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_ERROR</span><span class="p">)</span>
         <span class="n">link</span><span class="o">.</span><span class="n">teardown</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_disconnected</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Client disconnected&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">client_request</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client_request</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">serve_path</span>
 
     <span class="k">try</span><span class="p">:</span>
@@ -2801,7 +2801,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 
 <span class="c1"># This function is called on the server when a</span>
 <span class="c1"># resource transfer concludes.</span>
-<span class="k">def</span> <span class="nf">resource_sending_concluded</span><span class="p">(</span><span class="n">resource</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">resource_sending_concluded</span><span class="p">(</span><span class="n">resource</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="s2">&quot;filename&quot;</span><span class="p">):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">filename</span>
     <span class="k">else</span><span class="p">:</span>
@@ -2812,10 +2812,10 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
     <span class="k">elif</span> <span class="n">resource</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Resource</span><span class="o">.</span><span class="n">FAILED</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Sending </span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2"> to client failed&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">list_delivered</span><span class="p">(</span><span class="n">receipt</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_delivered</span><span class="p">(</span><span class="n">receipt</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;The file list was received by the client&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">list_timeout</span><span class="p">(</span><span class="n">receipt</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_timeout</span><span class="p">(</span><span class="n">receipt</span><span class="p">):</span>
     <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Sending list to client timed out, closing this link&quot;</span><span class="p">)</span>
     <span class="n">link</span> <span class="o">=</span> <span class="n">receipt</span><span class="o">.</span><span class="n">destination</span>
     <span class="n">link</span><span class="o">.</span><span class="n">teardown</span><span class="p">()</span>
@@ -2844,7 +2844,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 
 <span class="c1"># This initialisation is executed when the users chooses</span>
 <span class="c1"># to run as a client</span>
-<span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client</span><span class="p">(</span><span class="n">destination_hexhash</span><span class="p">,</span> <span class="n">configpath</span><span class="p">):</span>
     <span class="c1"># We need a binary representation of the destination</span>
     <span class="c1"># hash that was entered on the command line</span>
     <span class="k">try</span><span class="p">:</span>
@@ -2912,7 +2912,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
     <span class="n">menu</span><span class="p">()</span>
 
 <span class="c1"># Requests the specified file from the server</span>
-<span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">server_link</span><span class="p">,</span> <span class="n">menu_mode</span><span class="p">,</span> <span class="n">current_filename</span><span class="p">,</span> <span class="n">transfer_size</span><span class="p">,</span> <span class="n">download_started</span>
     <span class="n">current_filename</span> <span class="o">=</span> <span class="n">filename</span>
     <span class="n">download_started</span> <span class="o">=</span> <span class="mi">0</span>
@@ -2932,7 +2932,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 <span class="c1"># This function runs a simple menu for the user</span>
 <span class="c1"># to select which files to download, or quit</span>
 <span class="n">menu_mode</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="k">def</span> <span class="nf">menu</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">menu</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">server_files</span><span class="p">,</span> <span class="n">server_link</span>
     <span class="c1"># Wait until we have a filelist</span>
     <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">server_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2972,7 +2972,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 <span class="c1"># It&#39;s simple and quite uninteresting.</span>
 <span class="c1"># I won&#39;t go into detail here. Just</span>
 <span class="c1"># strings basically.</span>
-<span class="k">def</span> <span class="nf">print_menu</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_menu</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">menu_mode</span><span class="p">,</span> <span class="n">download_time</span><span class="p">,</span> <span class="n">download_started</span><span class="p">,</span> <span class="n">download_finished</span><span class="p">,</span> <span class="n">transfer_size</span><span class="p">,</span> <span class="n">file_size</span>
 
     <span class="k">if</span> <span class="n">menu_mode</span> <span class="o">==</span> <span class="s2">&quot;main&quot;</span><span class="p">:</span>
@@ -3041,13 +3041,13 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 
 <span class="c1"># This function prints out a list of files</span>
 <span class="c1"># on the connected server.</span>
-<span class="k">def</span> <span class="nf">print_filelist</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_filelist</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">server_files</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Files on server:&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">server_files</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">(&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;)</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">file</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">filelist_received</span><span class="p">(</span><span class="n">filelist_data</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filelist_received</span><span class="p">(</span><span class="n">filelist_data</span><span class="p">,</span> <span class="n">packet</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">server_files</span><span class="p">,</span> <span class="n">menu_mode</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Unpack the list and extend our</span>
@@ -3068,7 +3068,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 
 <span class="c1"># This function is called when a link</span>
 <span class="c1"># has been established with the server</span>
-<span class="k">def</span> <span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">link_established</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="c1"># We store a reference to the link</span>
     <span class="c1"># instance for later use</span>
     <span class="k">global</span> <span class="n">server_link</span>
@@ -3089,7 +3089,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 <span class="c1"># time, and then checks if the file list</span>
 <span class="c1"># was received. If not, the program will</span>
 <span class="c1"># exit.</span>
-<span class="k">def</span> <span class="nf">filelist_timeout_job</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filelist_timeout_job</span><span class="p">():</span>
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">APP_TIMEOUT</span><span class="p">)</span>
 
     <span class="k">global</span> <span class="n">server_files</span>
@@ -3100,7 +3100,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 
 <span class="c1"># When a link is closed, we&#39;ll inform the</span>
 <span class="c1"># user, and exit the program</span>
-<span class="k">def</span> <span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">link_closed</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">:</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;The link timed out, exiting now&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">link</span><span class="o">.</span><span class="n">teardown_reason</span> <span class="o">==</span> <span class="n">RNS</span><span class="o">.</span><span class="n">Link</span><span class="o">.</span><span class="n">DESTINATION_CLOSED</span><span class="p">:</span>
@@ -3115,7 +3115,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 <span class="c1"># started, we&#39;ll update our menu state</span>
 <span class="c1"># so the user can be shown a progress of</span>
 <span class="c1"># the download.</span>
-<span class="k">def</span> <span class="nf">download_began</span><span class="p">(</span><span class="n">resource</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_began</span><span class="p">(</span><span class="n">resource</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">menu_mode</span><span class="p">,</span> <span class="n">current_download</span><span class="p">,</span> <span class="n">download_started</span><span class="p">,</span> <span class="n">transfer_size</span><span class="p">,</span> <span class="n">file_size</span>
     <span class="n">current_download</span> <span class="o">=</span> <span class="n">resource</span>
     
@@ -3130,7 +3130,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 <span class="c1"># When the download concludes, successfully</span>
 <span class="c1"># or not, we&#39;ll update our menu state and </span>
 <span class="c1"># inform the user about how it all went.</span>
-<span class="k">def</span> <span class="nf">download_concluded</span><span class="p">(</span><span class="n">resource</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_concluded</span><span class="p">(</span><span class="n">resource</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">menu_mode</span><span class="p">,</span> <span class="n">current_filename</span><span class="p">,</span> <span class="n">download_started</span><span class="p">,</span> <span class="n">download_finished</span><span class="p">,</span> <span class="n">download_time</span>
     <span class="n">download_finished</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="n">download_time</span> <span class="o">=</span> <span class="n">download_finished</span> <span class="o">-</span> <span class="n">download_started</span>
@@ -3155,7 +3155,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
 
 <span class="c1"># A convenience function for printing a human-</span>
 <span class="c1"># readable file size</span>
-<span class="k">def</span> <span class="nf">size_str</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">size_str</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">):</span>
     <span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="s1">&#39;Ki&#39;</span><span class="p">,</span><span class="s1">&#39;Mi&#39;</span><span class="p">,</span><span class="s1">&#39;Gi&#39;</span><span class="p">,</span><span class="s1">&#39;Ti&#39;</span><span class="p">,</span><span class="s1">&#39;Pi&#39;</span><span class="p">,</span><span class="s1">&#39;Ei&#39;</span><span class="p">,</span><span class="s1">&#39;Zi&#39;</span><span class="p">]</span>
     <span class="n">last_unit</span> <span class="o">=</span> <span class="s1">&#39;Yi&#39;</span>
 
@@ -3171,7 +3171,7 @@ interface to efficiently pass files of any size over a Reticulum <a class="refer
     <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%.2f</span><span class="s2"> </span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">last_unit</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
 
 <span class="c1"># A convenience function for clearing the screen</span>
-<span class="k">def</span> <span class="nf">clear_screen</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clear_screen</span><span class="p">():</span>
     <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cls&#39;</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="s1">&#39;nt&#39;</span> <span class="k">else</span> <span class="s1">&#39;clear&#39;</span><span class="p">)</span>
 
 <span class="c1">##########################################################</span>
@@ -3263,15 +3263,15 @@ will be fully on-par with natively included interfaces, including all supported
 <span class="c1">#    parity = none</span>
 <span class="c1">#    stopbits = 1</span>
 
-<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">threading</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
 <span class="c1"># This HDLC helper class is used by the interface</span>
 <span class="c1"># to delimit and packetize data over the physical</span>
 <span class="c1"># medium - in this case a serial connection.</span>
-<span class="k">class</span> <span class="nc">HDLC</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HDLC</span><span class="p">():</span>
     <span class="c1"># This example interface packetizes data using</span>
     <span class="c1"># simplified HDLC framing, similar to PPP</span>
     <span class="n">FLAG</span>     <span class="o">=</span> <span class="mh">0x7E</span>
@@ -3279,14 +3279,14 @@ will be fully on-par with natively included interfaces, including all supported
     <span class="n">ESC_MASK</span> <span class="o">=</span> <span class="mh">0x20</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">escape</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">escape</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">bytes</span><span class="p">([</span><span class="n">HDLC</span><span class="o">.</span><span class="n">ESC</span><span class="p">]),</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">HDLC</span><span class="o">.</span><span class="n">ESC</span><span class="p">,</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">ESC</span><span class="o">^</span><span class="n">HDLC</span><span class="o">.</span><span class="n">ESC_MASK</span><span class="p">]))</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">bytes</span><span class="p">([</span><span class="n">HDLC</span><span class="o">.</span><span class="n">FLAG</span><span class="p">]),</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">HDLC</span><span class="o">.</span><span class="n">ESC</span><span class="p">,</span> <span class="n">HDLC</span><span class="o">.</span><span class="n">FLAG</span><span class="o">^</span><span class="n">HDLC</span><span class="o">.</span><span class="n">ESC_MASK</span><span class="p">]))</span>
         <span class="k">return</span> <span class="n">data</span>
 
 <span class="c1"># Let&#39;s define our custom interface class. It must</span>
 <span class="c1"># be a sub-class of the RNS &quot;Interface&quot; class.</span>
-<span class="k">class</span> <span class="nc">ExampleInterface</span><span class="p">(</span><span class="n">Interface</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleInterface</span><span class="p">(</span><span class="n">Interface</span><span class="p">):</span>
     <span class="c1"># All interface classes must define a default</span>
     <span class="c1"># IFAC size, used in IFAC setup when the user</span>
     <span class="c1"># has not specified a custom IFAC size. This</span>
@@ -3307,14 +3307,14 @@ will be fully on-par with natively included interfaces, including all supported
     <span class="c1"># method that takes 2 positional arguments:</span>
     <span class="c1"># The owner RNS Transport instance, and a dict</span>
     <span class="c1"># of configuration values.</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
 
         <span class="c1"># The following lines demonstrate handling</span>
         <span class="c1"># potential dependencies required for the</span>
         <span class="c1"># interface to function correctly.</span>
-        <span class="kn">import</span> <span class="nn">importlib</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
         <span class="k">if</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s1">&#39;serial&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="kn">import</span> <span class="nn">serial</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">serial</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Using this interface requires a serial communication module to be installed.&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_CRITICAL</span><span class="p">)</span>
             <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;You can install one with the command: python3 -m pip install pyserial&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_CRITICAL</span><span class="p">)</span>
@@ -3400,7 +3400,7 @@ will be fully on-par with natively included interfaces, including all supported
 
     <span class="c1"># Open the serial port with supplied configuration</span>
     <span class="c1"># parameters and store a reference to the open port.</span>
-    <span class="k">def</span> <span class="nf">open_port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">RNS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Opening serial port &quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="o">+</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="n">RNS</span><span class="o">.</span><span class="n">LOG_VERBOSE</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">serial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pyserial</span><span class="o">.</span><span class="n">Serial</span><span class="p">(</span>
             <span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
@@ -3420,7 +3420,7 @@ will be fully on-par with natively included interfaces, including all supported
     <span class="c1"># is to wait a small amount of time for the</span>
     <span class="c1"># hardware to initialise and then start a thread</span>
     <span class="c1"># that reads any incoming data from the device.</span>
-    <span class="k">def</span> <span class="nf">configure_device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure_device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
         <span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">read_loop</span><span class="p">)</span>
         <span class="n">thread</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
@@ -3432,7 +3432,7 @@ will be fully on-par with natively included interfaces, including all supported
     <span class="c1"># This method will be called from our read-loop</span>
     <span class="c1"># whenever a full packet has been received over</span>
     <span class="c1"># the underlying medium.</span>
-    <span class="k">def</span> <span class="nf">process_incoming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_incoming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="c1"># Update our received bytes counter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rxb</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>            
 
@@ -3443,7 +3443,7 @@ will be fully on-par with natively included interfaces, including all supported
     <span class="c1"># The running Reticulum Transport instance will</span>
     <span class="c1"># call this method on the interface whenever the</span>
     <span class="c1"># interface must transmit a packet.</span>
-    <span class="k">def</span> <span class="nf">process_outgoing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_outgoing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">online</span><span class="p">:</span>
             <span class="c1"># First, escape and packetize the data</span>
             <span class="c1"># according to HDLC framing.</span>
@@ -3463,7 +3463,7 @@ will be fully on-par with natively included interfaces, including all supported
     <span class="c1"># When a full packet has been received, it will</span>
     <span class="c1"># be sent to the process_incoming methed, which</span>
     <span class="c1"># will in turn pass it to the Transport instance.</span>
-    <span class="k">def</span> <span class="nf">read_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">in_frame</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">escape</span> <span class="o">=</span> <span class="kc">False</span>
@@ -3516,7 +3516,7 @@ will be fully on-par with natively included interfaces, including all supported
         <span class="bp">self</span><span class="o">.</span><span class="n">reconnect_port</span><span class="p">()</span>
 
     <span class="c1"># This method handles serial port disconnects.</span>
-    <span class="k">def</span> <span class="nf">reconnect_port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reconnect_port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">online</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
@@ -3531,13 +3531,13 @@ will be fully on-par with natively included interfaces, including all supported
 
     <span class="c1"># Signal to Reticulum that this interface should</span>
     <span class="c1"># not perform any ingress limiting.</span>
-    <span class="k">def</span> <span class="nf">should_ingress_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">should_ingress_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
 
     <span class="c1"># We must provide a string representation of this</span>
     <span class="c1"># interface, that is used whenever the interface</span>
     <span class="c1"># is printed in logs or external programs.</span>
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;ExampleInterface[&quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;]&quot;</span>
 
 <span class="c1"># Finally, register the defined interface class as the</span>
