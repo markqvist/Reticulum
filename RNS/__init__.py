@@ -25,6 +25,7 @@ import sys
 import glob
 import time
 import datetime
+import logging
 import random
 import threading
 
@@ -58,6 +59,17 @@ LOG_VERBOSE  = 5
 LOG_DEBUG    = 6
 LOG_EXTREME  = 7
 
+_log_map_to_standard = (
+    logging.CRITICAL,
+    logging.ERROR,
+    logging.WARNING,
+    25,  # NOTICE
+    logging.INFO,
+    15,  # VERBOSE
+    logging.DEBUG,
+    5,  # EXTREME
+    )
+
 LOG_STDOUT   = 0x91
 LOG_FILE     = 0x92
 LOG_CALLBACK = 0x93
@@ -72,12 +84,19 @@ logtimefmt      = "%Y-%m-%d %H:%M:%S"
 logtimefmt_p    = "%H:%M:%S.%f"
 compact_log_fmt = False
 
-instance_random = random.Random()
-instance_random.seed(os.urandom(10))
-
 _always_override_destination = False
-
 logging_lock = threading.Lock()
+
+# Set the default/root format for anything which doesn't use RNS.log():
+logging.basicConfig(level=logging.NOTSET,
+    format='[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s')
+# Configure the logger for RNS.log():
+_logger = logging.getLogger('rns')
+ch = logging.StreamHandler()
+ch.setFormatter(logging.Formatter('%(message)s'))
+_logger.addHandler(ch)
+_logger.propagate = False
+del ch
 
 def loglevelname(level):
     if (level == LOG_CRITICAL):
@@ -98,6 +117,9 @@ def loglevelname(level):
         return "[Extra]   "
     
     return "Unknown"
+
+instance_random = random.Random()
+instance_random.seed(os.urandom(10))
 
 def version():
     return __version__
@@ -127,7 +149,7 @@ def log(msg, level=3, _override_destination = False, pt=False):
 
         with logging_lock:
             if (logdest == LOG_STDOUT or _always_override_destination or _override_destination):
-                print(logstring)
+                _logger.log(_log_map_to_standard[level], logstring)
 
             elif (logdest == LOG_FILE and logfile != None):
                 try:
