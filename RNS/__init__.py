@@ -84,9 +84,6 @@ logtimefmt      = "%Y-%m-%d %H:%M:%S"
 logtimefmt_p    = "%H:%M:%S.%f"
 compact_log_fmt = False
 
-instance_random = random.Random()
-instance_random.seed(os.urandom(10))
-
 _always_override_destination = False
 logging_lock = threading.Lock()
 
@@ -120,6 +117,9 @@ def loglevelname(level):
         return "[Extra]   "
     
     return "Unknown"
+
+instance_random = random.Random()
+instance_random.seed(os.urandom(10))
 
 def version():
     return __version__
