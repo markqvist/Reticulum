@@ -14,7 +14,7 @@ def notice_job():
     while compiling:
         if time.time() > started+notice_delay and compiling:
             noticed = True
-            print("Compiling Reticulum object code... ", end="")
+            print("Compiling RNS object code... ", end="")
             sys.stdout.flush()
             break
         time.sleep(0.1)

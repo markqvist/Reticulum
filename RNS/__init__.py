@@ -53,6 +53,7 @@ import importlib
 if importlib.util.find_spec("cython"): import cython; compiled = cython.compiled
 else: compiled = False
 
+LOG_NONE     = -1
 LOG_CRITICAL = 0
 LOG_ERROR    = 1
 LOG_WARNING  = 2
@@ -118,6 +119,7 @@ def precise_timestamp_str(time_s):
     return datetime.datetime.now().strftime(logtimefmt_p)[:-3]
 
 def log(msg, level=3, _override_destination = False, pt=False):
+    if loglevel == LOG_NONE: return
     global _always_override_destination, compact_log_fmt
     msg = str(msg)
     if loglevel >= level:
@@ -131,7 +133,8 @@ def log(msg, level=3, _override_destination = False, pt=False):
 
         with logging_lock:
             if (logdest == LOG_STDOUT or _always_override_destination or _override_destination):
-                print(logstring)
+                if not threading.main_thread().is_alive(): return
+                else: print(logstring)
 
             elif (logdest == LOG_FILE and logfile != None):
                 try:
@@ -366,13 +369,13 @@ def panic():
     os._exit(255)
 
 exit_called = False
-def exit():
+def exit(code=0):
     global exit_called
     if not exit_called:
         exit_called = True
         print("")
         Reticulum.exit_handler()
-        os._exit(0)
+        os._exit(code)
 
 class Profiler:
     _ran = False
