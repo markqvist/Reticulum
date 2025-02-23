@@ -163,32 +163,33 @@ class Resource:
             resource = Resource(None, advertisement_packet.link, request_id = request_id)
             resource.status = Resource.TRANSFERRING
 
-            resource.flags               = adv.f
-            resource.size                = adv.t
-            resource.total_size          = adv.d
-            resource.uncompressed_size   = adv.d
-            resource.hash                = adv.h
-            resource.original_hash       = adv.o
-            resource.random_hash         = adv.r
-            resource.hashmap_raw         = adv.m
-            resource.encrypted           = True if resource.flags & 0x01 else False
-            resource.compressed          = True if resource.flags >> 1 & 0x01 else False
-            resource.initiator           = False
-            resource.callback            = callback
-            resource.__progress_callback = progress_callback
-            resource.total_parts         = int(math.ceil(resource.size/float(resource.sdu)))
-            resource.received_count      = 0
-            resource.outstanding_parts   = 0
-            resource.parts               = [None] * resource.total_parts
-            resource.window              = Resource.WINDOW
-            resource.window_max          = Resource.WINDOW_MAX_SLOW
-            resource.window_min          = Resource.WINDOW_MIN
-            resource.window_flexibility  = Resource.WINDOW_FLEXIBILITY
-            resource.last_activity       = time.time()
+            resource.flags                = adv.f
+            resource.size                 = adv.t
+            resource.total_size           = adv.d
+            resource.uncompressed_size    = adv.d
+            resource.hash                 = adv.h
+            resource.original_hash        = adv.o
+            resource.random_hash          = adv.r
+            resource.hashmap_raw          = adv.m
+            resource.encrypted            = True if resource.flags & 0x01 else False
+            resource.compressed           = True if resource.flags >> 1 & 0x01 else False
+            resource.initiator            = False
+            resource.callback             = callback
+            resource.__progress_callback  = progress_callback
+            resource.total_parts          = int(math.ceil(resource.size/float(resource.sdu)))
+            resource.received_count       = 0
+            resource.outstanding_parts    = 0
+            resource.parts                = [None] * resource.total_parts
+            resource.window               = Resource.WINDOW
+            resource.window_max           = Resource.WINDOW_MAX_SLOW
+            resource.window_min           = Resource.WINDOW_MIN
+            resource.window_flexibility   = Resource.WINDOW_FLEXIBILITY
+            resource.last_activity        = time.time()
+            resource.started_transferring = self.last_activity
 
-            resource.storagepath         = RNS.Reticulum.resourcepath+"/"+resource.original_hash.hex()
-            resource.segment_index       = adv.i
-            resource.total_segments      = adv.l
+            resource.storagepath          = RNS.Reticulum.resourcepath+"/"+resource.original_hash.hex()
+            resource.segment_index        = adv.i
+            resource.total_segments       = adv.l
             if adv.l > 1:
                 resource.split = True
             else:
@@ -316,6 +317,7 @@ class Resource:
         self.fast_rate_rounds = 0
         self.very_slow_rate_rounds = 0
         self.request_id = request_id
+        self.started_transferring = None
         self.is_response = is_response
         self.auto_compress = auto_compress
 
@@ -470,6 +472,7 @@ class Resource:
         try:
             self.advertisement_packet.send()
             self.last_activity = time.time()
+            self.started_transferring = self.last_activity
             self.adv_sent = self.last_activity
             self.rtt = None
             self.status = Resource.ADVERTISED
@@ -498,6 +501,7 @@ class Resource:
                 expected_inflight_rate = self.link.establishment_cost*8 / rtt
 
         self.eifr = expected_inflight_rate
+        if self.link: self.link.expected_rate = self.eifr
 
     def watchdog_job(self):
         thread = threading.Thread(target=self.__watchdog_job)

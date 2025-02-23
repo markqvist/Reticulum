@@ -177,6 +177,7 @@ class Link:
         self.mtu = RNS.Reticulum.MTU
         self.establishment_cost = 0
         self.establishment_rate = None
+        self.expected_rate = None
         self.callbacks = LinkCallbacks()
         self.resource_strategy = Link.ACCEPT_NONE
         self.last_resource_window = None
@@ -532,6 +533,33 @@ class Link:
         """
         if self.establishment_rate != None:
             return self.establishment_rate*8
+        else:
+            return None
+
+    def get_mtu(self):
+        """
+        :returns: The MTU of an established link.
+        """
+        if self.status == Link.ACTIVE:
+            return self.mtu
+        else:
+            return None
+
+    def get_mdu(self):
+        """
+        :returns: The packet MDU of an established link.
+        """
+        if self.status == Link.ACTIVE:
+            return self.mdu
+        else:
+            return None
+
+    def get_expected_rate(self):
+        """
+        :returns: The packet expected in-flight data rate of an established link.
+        """
+        if self.status == Link.ACTIVE:
+            return self.expected_rate
         else:
             return None
 
@@ -1153,12 +1181,15 @@ class Link:
         self.callbacks.remote_identified = callback
 
     def resource_concluded(self, resource):
+        concluded_at = time.time()
         if resource in self.incoming_resources:
             self.last_resource_window = resource.window
             self.last_resource_eifr = resource.eifr
             self.incoming_resources.remove(resource)
+            self.expected_rate = (resource.size*8)/(max(concluded_at-resource.started_transferring, 0.0001))
         if resource in self.outgoing_resources:
             self.outgoing_resources.remove(resource)
+            self.expected_rate = (resource.size*8)/(max(concluded_at-resource.started_transferring, 0.0001))
 
     def set_resource_strategy(self, resource_strategy):
         """
