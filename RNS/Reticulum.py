@@ -484,6 +484,8 @@ class Reticulum:
                     if v == False:
                         Reticulum.__use_implicit_proof = False
 
+        if RNS.compiled: RNS.log("Reticulum running in compiled mode", RNS.LOG_DEBUG)
+        else: RNS.log("Reticulum running in interpreted mode", RNS.LOG_DEBUG)
         self.__start_local_interface()
 
         if self.is_shared_instance or self.is_standalone_instance:
