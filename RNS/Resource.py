@@ -185,7 +185,7 @@ class Resource:
             resource.window_min           = Resource.WINDOW_MIN
             resource.window_flexibility   = Resource.WINDOW_FLEXIBILITY
             resource.last_activity        = time.time()
-            resource.started_transferring = self.last_activity
+            resource.started_transferring = resource.last_activity
 
             resource.storagepath          = RNS.Reticulum.resourcepath+"/"+resource.original_hash.hex()
             resource.segment_index        = adv.i

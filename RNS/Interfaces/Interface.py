@@ -65,6 +65,7 @@ class Interface:
     IC_HELD_RELEASE_INTERVAL = 30
 
     AUTOCONFIGURE_MTU = False
+    FIXED_MTU         = False
 
     def __init__(self):
         self.rxb      = 0

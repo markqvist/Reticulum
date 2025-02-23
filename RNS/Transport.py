@@ -1336,7 +1336,7 @@ class Transport:
                                         RNS.log(f"No next-hop HW MTU, disabling link MTU upgrade", RNS.LOG_DEBUG) # TODO: Remove debug
                                         path_mtu = None
                                         new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]
-                                    elif not outbound_interface.AUTOCONFIGURE_MTU:
+                                    elif not outbound_interface.AUTOCONFIGURE_MTU and not outbound_interface.FIXED_MTU:
                                         RNS.log(f"Outbound interface doesn't support MTU autoconfiguration, disabling link MTU upgrade", RNS.LOG_DEBUG) # TODO: Remove debug
                                         path_mtu = None
                                         new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]
@@ -1799,7 +1799,7 @@ class Transport:
                     for destination in Transport.destinations:
                         if destination.hash == packet.destination_hash and destination.type == packet.destination_type:
                             path_mtu       = RNS.Link.mtu_from_lr_packet(packet)
-                            if packet.receiving_interface.AUTOCONFIGURE_MTU:
+                            if packet.receiving_interface.AUTOCONFIGURE_MTU or packet.receiving_interface.FIXED_MTU:
                                 nh_mtu     = packet.receiving_interface.HW_MTU
                             else:
                                 nh_mtu     = RNS.Reticulum.MTU
@@ -2280,7 +2280,7 @@ class Transport:
     def next_hop_interface_hw_mtu(destination_hash):
         next_hop_interface = Transport.next_hop_interface(destination_hash)
         if next_hop_interface != None:
-            if next_hop_interface.AUTOCONFIGURE_MTU:
+            if next_hop_interface.AUTOCONFIGURE_MTU or next_hop_interface.FIXED_MTU:
                 return next_hop_interface.HW_MTU
             else:
                 return None

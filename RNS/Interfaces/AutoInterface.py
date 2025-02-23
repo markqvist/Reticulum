@@ -33,6 +33,9 @@ import RNS
 
 
 class AutoInterface(Interface):
+    HW_MTU = 1196
+    FIXED_MTU = True
+
     DEFAULT_DISCOVERY_PORT = 29716
     DEFAULT_DATA_PORT      = 42671
     DEFAULT_GROUP_ID       = "reticulum".encode("utf-8")
@@ -103,8 +106,7 @@ class AutoInterface(Interface):
         super().__init__()
         self.netinfo = niwrapper
 
-        self.HW_MTU = 1064
-
+        self.HW_MTU = AutoInterface.HW_MTU
         self.IN  = True
         self.OUT = False
         self.name = name
