@@ -182,12 +182,12 @@ class Interface:
             RNS.log("An error occurred while processing held announces for "+str(self), RNS.LOG_ERROR)
             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
 
-    def received_announce(self):
+    def received_announce(self, from_spawned=False):
         self.ia_freq_deque.append(time.time())
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.received_announce(from_spawned=True)
 
-    def sent_announce(self):
+    def sent_announce(self, from_spawned=False):
         self.oa_freq_deque.append(time.time())
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.sent_announce(from_spawned=True)
