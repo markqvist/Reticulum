@@ -90,7 +90,7 @@ class Reticulum:
     the default value.
     """
 
-    LINK_MTU_DISCOVERY   = False
+    LINK_MTU_DISCOVERY   = True
     """
     Whether automatic link MTU discovery is enabled by default in this
     release. Link MTU discovery significantly increases throughput over
