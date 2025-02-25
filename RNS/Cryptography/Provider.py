@@ -4,13 +4,14 @@ PROVIDER_NONE     = 0x00
 PROVIDER_INTERNAL = 0x01
 PROVIDER_PYCA     = 0x02
 
+FORCE_INTERNAL = False
 PROVIDER = PROVIDER_NONE
 
 pyca_v = None
 use_pyca = False
 
 try:
-    if importlib.util.find_spec('cryptography') != None:
+    if not FORCE_INTERNAL and importlib.util.find_spec('cryptography') != None:
         import cryptography
         pyca_v = cryptography.__version__
         v = pyca_v.split(".")

@@ -159,6 +159,8 @@ class TestIdentity(unittest.TestCase):
         b = 0
         e_t = 0
         d_t = 0
+        e_times = []
+        d_times = []
         for i in range(1, 500):
             mlen = i % (RNS.Reticulum.MTU//2) + (RNS.Reticulum.MTU//2)
             msg = os.urandom(mlen)
@@ -169,16 +171,34 @@ class TestIdentity(unittest.TestCase):
 
             e_start = time.time()
             token = id2.encrypt(msg)
-            e_t += time.time() - e_start
+            e_now = time.time()
+            e_t += e_now - e_start
+            e_times.append(e_now - e_start)
 
             d_start = time.time()
             decrypted = id1.decrypt(token)
             self.assertEqual(msg, decrypted)
-            d_t += time.time() - d_start
+            d_now = time.time()
+            d_t += d_now - d_start
+            d_times.append(d_now - d_start)
 
-        print("Encrypt chunks < MTU: "+self.size_str(b/e_t, "b")+"ps")
-        print("Decrypt chunks < MTU: "+self.size_str(b/d_t, "b")+"ps")
-        print("")
+        import statistics
+        e_tmin  = min(e_times)*1000; d_tmin  = min(d_times)*1000
+        e_tmax  = max(e_times)*1000; d_tmax  = max(d_times)*1000
+        e_tmean  = (sum(e_times)/len(e_times))*1000; d_tmean  = (sum(d_times)/len(d_times))*1000
+        e_tmed = statistics.median(e_times)*1000; d_tmed = statistics.median(d_times)*1000
+        e_tmdev = e_tmax - e_tmin; d_tmdev = d_tmax - d_tmin
+        e_mpct = (e_tmax/e_tmed)*100; d_mpct = (d_tmax/d_tmed)*100
+
+        print("  Encrypt chunks < MTU: "+self.size_str(b/e_t, "b")+"ps")
+        print("    Encryption timing min/avg/med/max/mdev: "+str(round(e_tmin, 3))+"/"+str(round(e_tmean, 3))+"/"+str(round(e_tmed, 3))+"/"+str(round(e_tmax, 3))+"/"+str(round(e_tmdev, 3)))
+        print("    Max deviation from median: "+str(round(e_mpct, 1))+"%")
+        print()
+
+        print("  Decrypt chunks < MTU: "+self.size_str(b/d_t, "b")+"ps")
+        print("    Decryption timing min/avg/med/max/mdev: "+str(round(d_tmin, 3))+"/"+str(round(d_tmean, 3))+"/"+str(round(d_tmed, 3))+"/"+str(round(d_tmax, 3))+"/"+str(round(d_tmdev, 3)))
+        print("    Max deviation from median: "+str(round(d_mpct, 1))+"%")
+        print()
 
         # Test encrypt and decrypt of large chunks
         print("Testing large chunk encrypt/decrypt")
@@ -197,14 +217,32 @@ class TestIdentity(unittest.TestCase):
 
             e_start = time.time()
             token = id2.encrypt(msg)
-            e_t += time.time() - e_start
+            e_now = time.time()
+            e_t += e_now - e_start
+            e_times.append(e_now - e_start)
 
             d_start = time.time()
             self.assertEqual(msg, id1.decrypt(token))
-            d_t += time.time() - d_start
+            d_now = time.time()
+            d_t += d_now - d_start
+            d_times.append(d_now - d_start)
 
-        print("Encrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/e_t, "b")+"ps")
-        print("Decrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/d_t, "b")+"ps")
+        e_tmin  = min(e_times)*1000; d_tmin  = min(d_times)*1000
+        e_tmax  = max(e_times)*1000; d_tmax  = max(d_times)*1000
+        e_tmean  = (sum(e_times)/len(e_times))*1000; d_tmean  = (sum(d_times)/len(d_times))*1000
+        e_tmed = statistics.median(e_times)*1000; d_tmed = statistics.median(d_times)*1000
+        e_tmdev = e_tmax - e_tmin; d_tmdev = d_tmax - d_tmin
+        e_mpct = (e_tmax/e_tmed)*100; d_mpct = (d_tmax/d_tmed)*100
+
+        print("  Encrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/e_t, "b")+"ps")
+        print("    Encryption timing min/avg/med/max/mdev: "+str(round(e_tmin, 3))+"/"+str(round(e_tmean, 3))+"/"+str(round(e_tmed, 3))+"/"+str(round(e_tmax, 3))+"/"+str(round(e_tmdev, 3)))
+        print("    Max deviation from median: "+str(round(e_mpct, 1))+"%")
+        print()
+
+        print("  Decrypt "+self.size_str(mlen)+" chunks: "+self.size_str(b/d_t, "b")+"ps")
+        print("    Decryption timing min/avg/med/max/mdev: "+str(round(d_tmin, 3))+"/"+str(round(d_tmean, 3))+"/"+str(round(d_tmed, 3))+"/"+str(round(d_tmax, 3))+"/"+str(round(d_tmdev, 3)))
+        print("    Max deviation from median: "+str(round(d_mpct, 1))+"%")
+        print()
 
     def size_str(self, num, suffix='B'):
         units = ['','K','M','G','T','P','E','Z']
