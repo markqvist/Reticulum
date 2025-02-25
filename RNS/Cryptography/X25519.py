@@ -82,10 +82,13 @@ def _fix_secret(n):
     n |= 64 << 8 * 31
     return n
 
+def _fix_base_point(n):
+    n &= ~(2**255)
+    return n
 
 def curve25519(base_point_raw, secret_raw):
     """Raise the base point to a given power"""
-    base_point = _unpack_number(base_point_raw)
+    base_point = _fix_base_point(_unpack_number(base_point_raw))
     secret = _fix_secret(_unpack_number(secret_raw))
     return _pack_number(_raw_curve25519(base_point, secret))
 
