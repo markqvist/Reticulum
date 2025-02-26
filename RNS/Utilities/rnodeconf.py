@@ -177,6 +177,9 @@ class ROM():
     MODEL_DB            = 0xDB
     MODEL_DC            = 0xDC
 
+    PRODUCT_SEEED_XIAO_ESP32S3  = 0xEB
+    MODEL_DD            = 0xDD
+
     PRODUCT_TDECK       = 0xD0
     MODEL_D4            = 0xD4
     MODEL_D9            = 0xD9
@@ -251,6 +254,7 @@ products = {
     ROM.PRODUCT_HMBRW:  "Hombrew RNode",
     ROM.PRODUCT_TBEAM:  "LilyGO T-Beam",
     ROM.PRODUCT_TBEAM_S_V1:"LilyGO T-Beam Supreme",
+    ROM.PRODUCT_SEEED_XIAO_ESP32S3: "Seeed Xiao ESP32S3 with Wio-SX1262",
     ROM.PRODUCT_TDECK:  "LilyGO T-Deck",
     ROM.PRODUCT_T32_10: "LilyGO LoRa32 v1.0",
     ROM.PRODUCT_T32_20: "LilyGO LoRa32 v2.0",
@@ -308,6 +312,7 @@ models = {
     0xD9: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tdeck.zip", "SX1262"],
     0xDB: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_tbeam_supreme.zip", "SX1268"],
     0xDC: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tbeam_supreme.zip", "SX1262"],
+    0xDD: [868000000, 960000000, 22, "868 - 960 MHz", None, "SX1262"],
     0xE3: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1268"],
     0xE8: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_tbeam_sx1262.zip", "SX1262"],
     0x11: [430000000, 510000000, 22, "430 - 510 MHz", "rnode_firmware_rak4631.zip", "SX1262"],
@@ -1720,6 +1725,7 @@ def main():
             print("[12] LilyGO T-Beam Supreme")
             print("[13] LilyGO T-Deck")
             print("[14] Heltec T114")
+            print("[15] Seeed Xiao ESP32S3 w/Wio-SX1262")
             print("")
             print("---------------------------------------------------------------------------")
             print("\nEnter the number that matches your device type:\n? ", end="")
@@ -1776,6 +1782,22 @@ def main():
                     print("using the SX1262 and SX1268 transceiver chips.")
                     print("")
                     print("Important! Using RNode firmware on T-Beam devices should currently be")
+                    print("considered experimental. It is not intended for production or critical use.")
+                    print("The currently supplied firmware is provided AS-IS as a courtesey to those")
+                    print("who would like to experiment with it. Hit enter to continue.")
+                    print("---------------------------------------------------------------------------")
+                    input()
+                elif c_dev == 15:
+                    selected_product = ROM.PRODUCT_SEEED_XIAO_ESP32S3
+                    clear()
+                    print("")
+                    print("---------------------------------------------------------------------------")
+                    print("                       Seeed Xiao ESP32S3 RNode Installer")
+                    print("")
+                    print("The RNode firmware can currently be installed on Seeed ESP32S3 devices")
+                    print("using the Wio-SX1262 transceiver daughter board.")
+                    print("")
+                    print("Important! Using RNode firmware on Seeed devices should currently be")
                     print("considered experimental. It is not intended for production or critical use.")
                     print("The currently supplied firmware is provided AS-IS as a courtesey to those")
                     print("who would like to experiment with it. Hit enter to continue.")
@@ -2112,6 +2134,12 @@ def main():
                 except Exception as e:
                     print("That band does not exist, exiting now.")
                     graceful_exit()
+
+            elif selected_product == ROM.PRODUCT_SEEED_XIAO_ESP32S3:
+                selected_mcu = ROM.MCU_ESP32
+                # with Wio-SX1262 - 868-960MHz
+                selected_model = ROM.MODEL_DD
+                selected_platform = ROM.PLATFORM_ESP32
 
             elif selected_product == ROM.PRODUCT_TDECK:
                 selected_mcu = ROM.MCU_ESP32
