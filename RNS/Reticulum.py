@@ -808,6 +808,7 @@ class Reticulum:
                     interface.ifac_signature = interface.ifac_identity.sign(RNS.Identity.full_hash(interface.ifac_key))
 
                 RNS.Transport.interfaces.append(interface)
+                interface.final_init()
 
     def _should_persist_data(self):
         if time.time() > self.last_data_persist+Reticulum.GRACIOUS_PERSIST_INTERVAL:
