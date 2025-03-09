@@ -650,6 +650,7 @@ class Reticulum:
                                         interface.ifac_signature = interface.ifac_identity.sign(RNS.Identity.full_hash(interface.ifac_key))
 
                                     RNS.Transport.interfaces.append(interface)
+                                    interface.final_init()
 
                             interface = None
                             if (("interface_enabled" in c) and c.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):

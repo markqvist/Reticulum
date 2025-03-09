@@ -268,6 +268,9 @@ class Interface:
                 RNS.log("Error while processing announce queue on "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
                 RNS.log("The announce queue for this interface has been cleared.", RNS.LOG_ERROR)
 
+    def final_init(self):
+        pass
+
     def detach(self):
         pass
 

@@ -110,6 +110,7 @@ class AutoInterface(Interface):
         self.IN  = True
         self.OUT = False
         self.name = name
+        self.owner = owner
         self.online = False
         self.peers = {}
         self.link_local_addresses = []
@@ -292,33 +293,31 @@ class AutoInterface(Interface):
             else:
                 self.bitrate = AutoInterface.BITRATE_GUESS
 
-            peering_wait = self.announce_interval*1.2
-            RNS.log(str(self)+" discovering peers for "+str(round(peering_wait, 2))+" seconds...", RNS.LOG_VERBOSE)
+    def final_init(self):
+        peering_wait = self.announce_interval*1.2
+        RNS.log(str(self)+" discovering peers for "+str(round(peering_wait, 2))+" seconds...", RNS.LOG_VERBOSE)
 
-            self.owner = owner
-            socketserver.UDPServer.address_family = socket.AF_INET6
+        socketserver.UDPServer.address_family = socket.AF_INET6
 
-            for ifname in self.adopted_interfaces:
-                local_addr = self.adopted_interfaces[ifname]+"%"+str(self.interface_name_to_index(ifname))
-                addr_info = socket.getaddrinfo(local_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
-                address = addr_info[0][4]
+        for ifname in self.adopted_interfaces:
+            local_addr = self.adopted_interfaces[ifname]+"%"+str(self.interface_name_to_index(ifname))
+            addr_info = socket.getaddrinfo(local_addr, self.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
+            address = addr_info[0][4]
 
-                udp_server = socketserver.UDPServer(address, self.handler_factory(self.process_incoming))
-                self.interface_servers[ifname] = udp_server
-                
-                thread = threading.Thread(target=udp_server.serve_forever)
-                thread.daemon = True
-                thread.start()
+            udp_server = socketserver.UDPServer(address, self.handler_factory(self.process_incoming))
+            self.interface_servers[ifname] = udp_server
+            
+            thread = threading.Thread(target=udp_server.serve_forever)
+            thread.daemon = True
+            thread.start()
 
-            job_thread = threading.Thread(target=self.peer_jobs)
-            job_thread.daemon = True
-            job_thread.start()
+        job_thread = threading.Thread(target=self.peer_jobs)
+        job_thread.daemon = True
+        job_thread.start()
 
-            # TODO: Fix this
-            # time.sleep(peering_wait)
+        time.sleep(peering_wait)
 
-            self.online = True
-
+        self.online = True
 
     def discovery_handler(self, socket, ifname):
         def announce_loop():
