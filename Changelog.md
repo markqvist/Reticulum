@@ -1,5 +1,23 @@
 ### 2025-01-19: RNS β 0.9.2
 
+This maintenance release improves performance and fixes a number of bugs.
+
+**Changes**
+- Enabled link MTU discovery by default
+- Added on-demand object code compilation and loader shim
+- Added link API methods
+- Added child interface spawning for AutoInterface
+- Fixed corrupt ratchet files not being removed on maintenance cleaning
+- Fixed `rnid` not waiting for announce timebase tick before announcing
+
+**Release Hashes**
+```
+0270c988a2b898b28348cd78138667115d4ef3f7e09c86531baaefbee35ef851 rns-0.9.3-py3-none-any.whl
+eee1a6c4c9c0f04bb17b12b8fb37b9c4cec12a99c87a046730eb7c9a6ffd999f rnspure-0.9.3-py3-none-any.whl
+```
+
+### 2025-01-19: RNS β 0.9.2
+
 This maintenance release fixes a number of bugs.
 
 **Changes**
