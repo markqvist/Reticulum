@@ -310,12 +310,19 @@ class Identity:
                 for filename in os.listdir(ratchetdir):
                     try:
                         expired = False
+                        corrupted = False
                         with open(f"{ratchetdir}/{filename}", "rb") as rf:
-                            ratchet_data = umsgpack.unpackb(rf.read())
-                            if now > ratchet_data["received"]+Identity.RATCHET_EXPIRY:
-                                expired = True
+                            # TODO: Remove individual ratchet file if corrupt
+                            try:
+                                ratchet_data = umsgpack.unpackb(rf.read())
+                                if now > ratchet_data["received"]+Identity.RATCHET_EXPIRY:
+                                    expired = True
 
-                        if expired:
+                            except Exception as e:
+                                RNS.log(f"Corrupted ratchet data while reading {ratchetdir}/{filename}, removing file", RNS.LOG_ERROR)
+                                corrupted = True
+
+                        if expired or corrupted:
                             os.unlink(f"{ratchetdir}/{filename}")
 
                     except Exception as e:
