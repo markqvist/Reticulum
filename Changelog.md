@@ -1,4 +1,4 @@
-### 2025-01-19: RNS β 0.9.2
+### 2025-03-13: RNS β 0.9.3
 
 This maintenance release improves performance and fixes a number of bugs.
 
