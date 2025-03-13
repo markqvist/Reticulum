@@ -286,6 +286,7 @@ def main():
                                 destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, app_name, *aspects)
                                 RNS.log("Created destination "+str(destination))
                                 RNS.log("Announcing destination "+RNS.prettyhexrep(destination.hash))
+                                time.sleep(1.1)
                                 destination.announce()
                                 time.sleep(0.25)
                                 exit(0)
