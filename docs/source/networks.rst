@@ -147,7 +147,7 @@ A member of the organisation at site D, named Dori, is willing to help by sharin
 the Internet connection she already has in her home, and is able to leave a Raspberry
 Pi running. A new Reticulum interface is configured on her Pi, connecting to the newly
 enabled Internet interface on the gateway at site A. Dori is now connected to both
-all the nodes at her own local site (through the hill-top LoRa gateway), and all the
+the nodes at her own local site (through the hill-top LoRa gateway), and all the
 combined users of sites A, B and C. She then enables transport on her node, and
 traffic from site D can now reach everyone at site A, B and C, and vice versa.
 
