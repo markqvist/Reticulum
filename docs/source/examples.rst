@@ -86,7 +86,7 @@ This example can also be found at `<https://github.com/markqvist/Reticulum/blob/
 Requests & Responses
 ====================
 
-The *Request* example explores sendig requests and receiving responses.
+The *Request* example explores sending requests and receiving responses.
 
 .. literalinclude:: ../../Examples/Request.py
 
