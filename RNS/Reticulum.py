@@ -669,7 +669,7 @@ class Reticulum:
 
                                 if c["type"] == "TCPServerInterface":
                                     if interface_mode == Interface.Interface.MODE_ACCESS_POINT:
-                                        RNS.log(str(interface)+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
+                                        RNS.log(str(c["type"])+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
                                         interface_mode = Interface.Interface.MODE_FULL
 
                                     interface = TCPInterface.TCPServerInterface(RNS.Transport, interface_config)
@@ -677,7 +677,7 @@ class Reticulum:
 
                                 if c["type"] == "TCPClientInterface":
                                     if interface_mode == Interface.Interface.MODE_ACCESS_POINT:
-                                        RNS.log(str(interface)+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
+                                        RNS.log(str(c["type"])+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
                                         interface_mode = Interface.Interface.MODE_FULL
                                     
                                     interface = TCPInterface.TCPClientInterface(RNS.Transport, interface_config)
@@ -685,7 +685,7 @@ class Reticulum:
 
                                 if c["type"] == "I2PInterface":
                                     if interface_mode == Interface.Interface.MODE_ACCESS_POINT:
-                                        RNS.log(str(interface)+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
+                                        RNS.log(str(c["type"])+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
                                         interface_mode = Interface.Interface.MODE_FULL
 
                                     interface_config["storagepath"] = Reticulum.storagepath
