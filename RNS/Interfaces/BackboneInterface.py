@@ -291,18 +291,17 @@ class BackboneInterface(Interface):
     def detach(self):
         self.detached = True
         self.online = False
-        if self.server != None:
-            if hasattr(self.server, "shutdown"):
-                if callable(self.server.shutdown):
+        for listener_socket in self.listeners:
+            if hasattr(listener_socket, "shutdown"):
+                if callable(listener_socket.shutdown):
                     try:
-                        RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
-                        self.server.shutdown()
-                        self.server.server_close()
-                        self.server = None
-
+                        # RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
+                        listener_socket.shutdown(socket.SHUT_RDWR)
+                        
                     except Exception as e:
                         RNS.log("Error while shutting down server for "+str(self)+": "+str(e))
 
+        while len(self.listeners): self.listeners.pop()
 
     def __str__(self):
         if ":" in self.bind_ip:
