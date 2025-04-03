@@ -96,6 +96,9 @@ class BackboneInterface(Interface):
         return len(self.spawned_interfaces)
 
     def __init__(self, owner, configuration):
+        if not RNS.vendor.platformutils.is_linux() and not RNS.vendor.platformutils.is_android():
+            raise OSError("BackboneInterface is only supported on Linux-based operating systems")
+
         super().__init__()
 
         c            = Interface.get_config_obj(configuration)
