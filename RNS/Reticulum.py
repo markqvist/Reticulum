@@ -663,6 +663,10 @@ class Reticulum:
                                     interface = AutoInterface.AutoInterface(RNS.Transport, interface_config)
                                     interface_post_init(interface)
 
+                                if c["type"] == "BackboneInterface":
+                                    interface = BackboneInterface.BackboneInterface(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
+
                                 if c["type"] == "UDPInterface":
                                     interface = UDPInterface.UDPInterface(RNS.Transport, interface_config)
                                     interface_post_init(interface)
