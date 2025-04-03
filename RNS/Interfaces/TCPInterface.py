@@ -331,7 +331,8 @@ class TCPClientInterface(Interface):
             data_buffer = b""
 
             while True:
-                data_in = self.socket.recv(4096)
+                if self.socket: data_in = self.socket.recv(4096)
+                else: data_in = b""
                 if len(data_in) > 0:
                     if self.kiss_framing:
                         # Read loop for KISS framing
