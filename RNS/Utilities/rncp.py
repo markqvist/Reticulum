@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from CRNS import RNS
+import RNS
 import argparse
 import threading
 import time
@@ -34,6 +34,7 @@ from RNS._version import __version__
 APP_NAME = "rncp"
 allow_all = False
 allow_fetch = False
+fetch_auto_compress = True
 fetch_jail = None
 save_path = None
 show_phy_rates = False
@@ -45,11 +46,14 @@ es = " "
 erase_str = "\33[2K\r"
 
 def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identity = False,
-           limit = None, disable_auth = None, fetch_allowed = False, jail = None, save = None, announce = False):
-    global allow_all, allow_fetch, allowed_identity_hashes, fetch_jail, save_path
+           limit = None, disable_auth = None, fetch_allowed = False, no_compress=False,
+           jail = None, save = None, announce = False):
+
+    global allow_all, allow_fetch, allowed_identity_hashes, fetch_jail, save_path, fetch_auto_compress
     from tempfile import TemporaryFile
 
     allow_fetch = fetch_allowed
+    fetch_auto_compress = not no_compress
     identity = None
     if announce < 0:
         announce = False
@@ -145,7 +149,7 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
         print("Warning: No allowed identities configured, rncp will not accept any files!")
 
     def fetch_request(path, data, request_id, link_id, remote_identity, requested_at):
-        global allow_fetch, fetch_jail
+        global allow_fetch, fetch_jail, fetch_auto_compress
         if not allow_fetch:
             return REQ_FETCH_NOT_ALLOWED
 
@@ -185,7 +189,7 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
                 temp_file.write(real_file.read())
                 temp_file.seek(0)
 
-                fetch_resource = RNS.Resource(temp_file, target_link)
+                fetch_resource = RNS.Resource(temp_file, target_link, auto_compress=fetch_auto_compress)
                 return True
             else:
                 return None
@@ -441,6 +445,7 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
     resource_resolved = False
     resource_status = "unrequested"
     current_resource = None
+    current_transfer_started = None
     def request_response(request_receipt):
         nonlocal request_resolved, request_status
         if request_receipt.response == False:
@@ -460,10 +465,11 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
         request_resolved = True
 
     def fetch_resource_started(resource):
-        nonlocal resource_status
+        nonlocal resource_status, current_transfer_started
         current_resource = resource
         current_resource.progress_callback(sender_progress)
         resource_status = "started"
+        if not current_transfer_started: current_transfer_started = time.time()
 
     def fetch_resource_concluded(resource):
         nonlocal resource_resolved, resource_status
@@ -558,6 +564,10 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
                 if prg != 1.0:
                     print(f"{erase_str}Transferring file {syms[i]} {stat_str}", end=es)
                 else:
+                    end_time = time.time(); delta_time = end_time - current_transfer_started
+                    speed = current_resource.total_size/delta_time; dt_str = RNS.prettytime(delta_time)
+                    ss = size_str(speed, "b")
+                    stat_str = f"{percent}% - {ps} of {ts} in {dt_str} - {ss}ps{phy_str}"
                     print(f"{erase_str}Transfer complete  {stat_str}", end=es)
             else:
                 print(f"{erase_str}Waiting for transfer to start {syms[i]} ", end=es)
@@ -604,7 +614,7 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
     file_path = os.path.expanduser(file)
     if not os.path.isfile(file_path):
         print("File not found")
-        RNS.exit(1)
+        sys.exit(1)
 
     temp_file = TemporaryFile()
     real_file = open(file_path, "rb")
@@ -817,6 +827,7 @@ def main():
                 quietness=args.quiet,
                 allowed = args.allowed,
                 fetch_allowed = args.allow_fetch,
+                no_compress = args.no_compress,
                 jail = args.jail,
                 save = args.save,
                 display_identity=args.print_identity,
