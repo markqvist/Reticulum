@@ -40,20 +40,6 @@ class HDLC():
         data = data.replace(bytes([HDLC.FLAG]), bytes([HDLC.ESC, HDLC.FLAG^HDLC.ESC_MASK]))
         return data
 
-class KISS():
-    FEND              = 0xC0
-    FESC              = 0xDB
-    TFEND             = 0xDC
-    TFESC             = 0xDD
-    CMD_DATA          = 0x00
-    CMD_UNKNOWN       = 0xFE
-
-    @staticmethod
-    def escape(data):
-        data = data.replace(bytes([0xdb]), bytes([0xdb, 0xdd]))
-        data = data.replace(bytes([0xc0]), bytes([0xdb, 0xdc]))
-        return data
-
 class BackboneInterface(Interface):
     HW_MTU            = 1048576
     BITRATE_GUESS     = 100_000_000
@@ -177,23 +163,19 @@ class BackboneInterface(Interface):
                         if fileno == clientsocket.fileno() and (event & select.EPOLLIN):
                             inb = clientsocket.recv(4096)
                             if len(inb):
-                                # print(f"READ {clientsocket}: {inb}")
                                 spawned_interface.receive(inb)
                             else:
-                                # print(f"EOF {clientsocket}")
                                 self.epoll.unregister(fileno)
                                 clientsocket.close()
                                 spawned_interface.receive(inb)
                         
                         elif fileno == clientsocket.fileno() and (event & select.EPOLLOUT):
-                            # print(f"WRITE {clientsocket}")
                             written = clientsocket.send(spawned_interface.transmit_buffer)
                             spawned_interface.transmit_buffer = spawned_interface.transmit_buffer[written:]
                             if len(spawned_interface.transmit_buffer) == 0: self.epoll.modify(fileno, select.EPOLLIN)
                             self.txb += written; spawned_interface.txb += written
                         
                         elif fileno == clientsocket.fileno() and event & (select.EPOLLHUP):
-                           # print(f"HUP {clientsocket}")
                            self.epoll.unregister(fileno)
                            clientsocket.close()
                            spawned_interface.receive(b"")
@@ -341,9 +323,6 @@ class BackboneClientInterface(Interface):
         name = c["name"]
         target_ip = c["target_host"] if "target_host" in c and c["target_host"] != None else None
         target_port = int(c["target_port"]) if "target_port" in c and c["target_host"] != None else None
-        kiss_framing = False
-        if "kiss_framing" in c and c.as_bool("kiss_framing") == True:
-            kiss_framing = True
         i2p_tunneled = c.as_bool("i2p_tunneled") if "i2p_tunneled" in c else False
         connect_timeout = c.as_int("connect_timeout") if "connect_timeout" in c else None
         max_reconnect_tries = c.as_int("max_reconnect_tries") if "max_reconnect_tries" in c else None
@@ -360,7 +339,6 @@ class BackboneClientInterface(Interface):
         self.owner            = owner
         self.online           = False
         self.detached         = False
-        self.kiss_framing     = kiss_framing
         self.i2p_tunneled     = i2p_tunneled
         self.mode             = RNS.Interfaces.Interface.Interface.MODE_FULL
         self.bitrate          = BackboneClientInterface.BITRATE_GUESS
@@ -408,8 +386,7 @@ class BackboneClientInterface(Interface):
             thread = threading.Thread(target=self.read_loop)
             thread.daemon = True
             thread.start()
-            if not self.kiss_framing:
-                self.wants_tunnel = True
+            self.wants_tunnel = True
 
     def set_timeouts_linux(self):
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_USER_TIMEOUT, int(BackboneClientInterface.TCP_USER_TIMEOUT * 1000))
@@ -502,8 +479,7 @@ class BackboneClientInterface(Interface):
                 thread = threading.Thread(target=self.read_loop)
                 thread.daemon = True
                 thread.start()
-                if not self.kiss_framing:
-                    RNS.Transport.synthesize_tunnel(self)
+                RNS.Transport.synthesize_tunnel(self)
 
         else:
             RNS.log("Attempt to reconnect on a non-initiator TCP interface. This should not happen.", RNS.LOG_ERROR)
@@ -543,7 +519,6 @@ class BackboneClientInterface(Interface):
                             frame = frame.replace(bytes([HDLC.ESC, HDLC.FLAG ^ HDLC.ESC_MASK]), bytes([HDLC.FLAG]))
                             frame = frame.replace(bytes([HDLC.ESC, HDLC.ESC  ^ HDLC.ESC_MASK]), bytes([HDLC.ESC]))
                             if len(frame) > RNS.Reticulum.HEADER_MINSIZE:
-                                # RNS.log(f"GOT FRAME {self}")
                                 self.process_incoming(frame)
                             self.frame_buffer = self.frame_buffer[frame_end:]
                         else:
