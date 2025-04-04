@@ -377,7 +377,6 @@ projects:
 - [I2Plib](https://github.com/l-n-s/i2plib) by [Viktor Villainov](https://github.com/l-n-s)
 - [PySerial](https://github.com/pyserial/pyserial) by Chris Liechti, *BSD License*
 - [Configobj](https://github.com/DiffSK/configobj) by Michael Foord, Nicola Larosa, Rob Dennis & Eli Courtwright, *BSD License*
-- [Six](https://github.com/benjaminp/six) by [Benjamin Peterson](https://github.com/benjaminp), *MIT License*
 - [ifaddr](https://github.com/pydron/ifaddr) by [Pydron](https://github.com/pydron), *MIT License*
 - [Umsgpack.py](https://github.com/vsergeev/u-msgpack-python) by [Ivan A. Sergeev](https://github.com/vsergeev)
 - [Python](https://www.python.org)
