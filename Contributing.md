@@ -6,7 +6,7 @@ Apart from writing code, there are many ways in which you can contribute. Before
 
 ## Expected Conduct
 
-First and foremost, there is one simple requirement for taking part in this community: While we primarily interact virtually, your actions matter and have real consequences. Therefore: **Act like a responsible, civilized person** - also in the face of disputes and heated disagreements. Speak your mind here, discussions are welcome. Just do so in the spirit of being face-to-face with everyone else. Thank you.
+First and foremost, there is one simple requirement for taking part in this community: While we primarily interact virtually, your actions matter and have real consequences. Therefore: **Act like a responsible, civilized person** - especially in the face of disputes and heated disagreements. Speak your mind here; discussions are welcome. Just do so in the spirit of being face-to-face with everyone else. Thank you.
 
 ## Asking Questions
 
