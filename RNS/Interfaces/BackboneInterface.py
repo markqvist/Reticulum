@@ -161,7 +161,12 @@ class BackboneInterface(Interface):
                     clientsocket = spawned_interface.socket
                     for fileno, event in events:
                         if fileno == clientsocket.fileno() and (event & select.EPOLLIN):
-                            inb = clientsocket.recv(4096)
+                            try:
+                                inb = clientsocket.recv(4096)
+                            except Exception as e:
+                                RNS.log(f"Error while reading from {spawned_interface}: {e}", RNS.LOG_ERROR)
+                                inb = b""
+
                             if len(inb):
                                 spawned_interface.receive(inb)
                             else:
@@ -170,19 +175,28 @@ class BackboneInterface(Interface):
                                 spawned_interface.receive(inb)
                         
                         elif fileno == clientsocket.fileno() and (event & select.EPOLLOUT):
-                            written = clientsocket.send(spawned_interface.transmit_buffer)
+                            try:
+                                written = clientsocket.send(spawned_interface.transmit_buffer)
+                            except Exception as e:
+                                RNS.log(f"Error while writing to {spawned_interface}: {e}", RNS.LOG_ERROR)
+                                written = 0
+
                             spawned_interface.transmit_buffer = spawned_interface.transmit_buffer[written:]
                             if len(spawned_interface.transmit_buffer) == 0: self.epoll.modify(fileno, select.EPOLLIN)
                             self.txb += written; spawned_interface.txb += written
                         
                         elif fileno == clientsocket.fileno() and event & (select.EPOLLHUP):
-                           self.epoll.unregister(fileno)
-                           clientsocket.close()
-                           spawned_interface.receive(b"")
+                            self.epoll.unregister(fileno)
+                            try: clientsocket.close()
+                            except Exception as e:
+                                RNS.log(f"Error while closing socket for {spawned_interface}: {e}", RNS.LOG_ERROR)
+
+                            spawned_interface.receive(b"")
 
                 for serversocket in self.listeners:
                     for fileno, event in events:
-                        if fileno == serversocket.fileno():
+                        if fileno == serversocket.fileno(): RNS.log(f"Listener {serversocket}, fd {fileno}, event {event}")
+                        if fileno == serversocket.fileno() and (event & select.EPOLLIN):
                             connection, address = serversocket.accept()
                             connection.setblocking(0)
                             if self.incoming_connection(connection):
@@ -190,19 +204,25 @@ class BackboneInterface(Interface):
                             else:
                                 connection.close()
                         
-                        elif event & select.EPOLLHUP:
-                            self.epoll.unregister(fileno)
-                            connections[fileno].close()
-                            del connections[fileno]
+                        elif fileno == serversocket.fileno() and (event & select.EPOLLHUP):
+                            try: self.epoll.unregister(fileno)
+                            except Exception as e:
+                                RNS.log(f"Error while unregistering file descriptor {fileno}: {e}", RNS.LOG_ERROR)
+
+                            try: serversocket.close()
+                            except Exception as e:
+                                RNS.log(f"Error while closing socket for {serversocket}: {e}", RNS.LOG_ERROR)
         
         except Exception as e:
             RNS.log(f"{self} error: {e}", RNS.LOG_ERROR)
             RNS.trace_exception(e)
 
         finally:
-           self.epoll.unregister(self.server_socket.fileno())
-           self.epoll.close()
-           serversocket.close()
+            for serversocket in self.listeners:
+                self.epoll.unregister(serversocket.fileno())
+                serversocket.close()
+            
+            self.epoll.close()
     
     def add_listener(self, bind_address):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -221,8 +241,8 @@ class BackboneInterface(Interface):
         spawned_interface.OUT = self.OUT
         spawned_interface.IN  = self.IN
         spawned_interface.socket = socket
-        spawned_interface.target_ip = socket.getsockname()[0]
-        spawned_interface.target_port = str(socket.getsockname()[1])
+        spawned_interface.target_ip = socket.getpeername()[0]
+        spawned_interface.target_port = str(socket.getpeername()[1])
         spawned_interface.parent_interface = self
         spawned_interface.bitrate = self.bitrate
         spawned_interface.optimise_mtu()

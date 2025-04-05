@@ -250,6 +250,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
             if dispall or not (
                 name.startswith("LocalInterface[") or
                 name.startswith("TCPInterface[Client") or
+                name.startswith("BackboneInterface[Client on") or
                 name.startswith("AutoInterfacePeer[") or
                 name.startswith("I2PInterfacePeer[Connected peer") or
                 (name.startswith("I2PInterface[") and ("i2p_connectable" in ifstat and ifstat["i2p_connectable"] == False))
