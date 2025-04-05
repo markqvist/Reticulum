@@ -271,7 +271,11 @@ class Packet:
         if not self.sent:
             if self.destination.type == RNS.Destination.LINK:
                 if self.destination.status == RNS.Link.CLOSED:
-                    raise IOError("Attempt to transmit over a closed link")
+                    RNS.log("Attempt to transmit over a closed link, dropping packet", RNS.LOG_DEBUG)
+                    self.sent = False
+                    self.receipt = None
+                    return False
+
                 else:
                     self.destination.last_outbound = time.time()
                     self.destination.tx += 1

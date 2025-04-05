@@ -33,7 +33,6 @@ import math
 import time
 import RNS
 
-
 class LinkCallbacks:
     def __init__(self):
         self.link_established = None
