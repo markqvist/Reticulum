@@ -47,7 +47,6 @@ class BackboneInterface(Interface):
     AUTOCONFIGURE_MTU = True
 
     listener_filenos = {}
-    spawned_interfaces = []
     spawned_interface_filenos = {}
     epoll = None
     _job_active = False
@@ -111,6 +110,7 @@ class BackboneInterface(Interface):
         self.name = name
         self.detached = False
         self.mode = RNS.Interfaces.Interface.Interface.MODE_FULL
+        self.spawned_interfaces = []
 
         if bindport == None:
             raise SystemError(f"No TCP port configured for interface \"{name}\"")
@@ -326,11 +326,6 @@ class BackboneClientInterface(Interface):
     INITIAL_CONNECT_TIMEOUT = 5
     SYNCHRONOUS_START = True
 
-    I2P_USER_TIMEOUT = 45
-    I2P_PROBE_AFTER = 10
-    I2P_PROBE_INTERVAL = 9
-    I2P_PROBES = 5
-
     def __init__(self, owner, configuration, connected_socket=None):
         super().__init__()
 
@@ -465,7 +460,6 @@ class BackboneClientInterface(Interface):
         self.never_connected = False
 
         return True
-
 
     def reconnect(self):
         if self.initiator:
