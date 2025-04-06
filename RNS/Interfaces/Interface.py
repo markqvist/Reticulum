@@ -76,6 +76,7 @@ class Interface:
         self.bitrate  = 62500
         self.HW_MTU   = None
 
+        self.parent_interface = None
         self.ingress_control = True
         self.ic_max_held_announces = Interface.MAX_HELD_ANNOUNCES
         self.ic_burst_hold = Interface.IC_BURST_HOLD
