@@ -667,6 +667,10 @@ class Reticulum:
                                     interface = BackboneInterface.BackboneInterface(RNS.Transport, interface_config)
                                     interface_post_init(interface)
 
+                                if c["type"] == "BackboneClientInterface":
+                                    interface = BackboneInterface.BackboneClientInterface(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
+
                                 if c["type"] == "UDPInterface":
                                     interface = UDPInterface.UDPInterface(RNS.Transport, interface_config)
                                     interface_post_init(interface)

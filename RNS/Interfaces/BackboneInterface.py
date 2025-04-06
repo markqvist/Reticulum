@@ -46,6 +46,7 @@ class BackboneInterface(Interface):
     DEFAULT_IFAC_SIZE = 16
     AUTOCONFIGURE_MTU = True
 
+    epoll = None
     listener_filenos = {}
     spawned_interface_filenos = {}
     epoll = None
@@ -130,7 +131,6 @@ class BackboneInterface(Interface):
             self.bind_ip = bind_address[0]
             self.owner = owner
 
-            if not BackboneInterface.epoll: BackboneInterface.epoll = select.epoll()
             self.add_listener(bind_address)
             self.bitrate = self.BITRATE_GUESS
             
@@ -140,16 +140,38 @@ class BackboneInterface(Interface):
         else:
             raise SystemError("Insufficient parameters to create listener")
 
-    def start(self):
-        RNS.log(f"Starting {self}")
-        if not BackboneInterface._job_active: threading.Thread(target=self.__job, daemon=True).start()
+    @staticmethod
+    def start():
+        if not BackboneInterface._job_active: threading.Thread(target=BackboneInterface.__job, daemon=True).start()
+
+    @staticmethod
+    def ensure_epoll():
+        if not BackboneInterface.epoll: BackboneInterface.epoll = select.epoll()
+
+    @staticmethod
+    def add_client_socket(client_socket, interface):
+        BackboneInterface.ensure_epoll()
+        BackboneInterface.spawned_interface_filenos[client_socket.fileno()] = interface
+        BackboneInterface.epoll.register(client_socket.fileno(), select.EPOLLIN)
+
+    @staticmethod
+    def tx_ready(interface):
+        if interface.socket:
+            fileno = interface.socket.fileno()
+            if fileno in BackboneInterface.spawned_interface_filenos:
+                try:
+                    BackboneInterface.epoll.modify(interface.socket.fileno(), select.EPOLLOUT)
+                except Exception as e:
+                    RNS.trace_exception(e)
 
     @staticmethod
     def __job():
         with BackboneInterface._job_lock:
             if BackboneInterface._job_active: return
             else:
+                RNS.log(f"Starting BackboneInterface I/O handler") # TODO: Remove debug
                 BackboneInterface._job_active = True
+                BackboneInterface.ensure_epoll()
                 try:
                     while True:
                         events = BackboneInterface.epoll.poll(1)
@@ -181,7 +203,8 @@ class BackboneInterface(Interface):
 
                                     spawned_interface.transmit_buffer = spawned_interface.transmit_buffer[written:]
                                     if len(spawned_interface.transmit_buffer) == 0: BackboneInterface.epoll.modify(fileno, select.EPOLLIN)
-                                    spawned_interface.parent_interface.txb += written; spawned_interface.txb += written
+                                    spawned_interface.txb += written
+                                    if spawned_interface.parent_interface: spawned_interface.parent_interface.txb += written
                                 
                                 elif fileno == client_socket.fileno() and event & (select.EPOLLHUP):
                                     BackboneInterface.epoll.unregister(fileno)
@@ -194,10 +217,8 @@ class BackboneInterface(Interface):
                                 if fileno == server_socket.fileno() and (event & select.EPOLLIN):
                                     client_socket, address = server_socket.accept()
                                     client_socket.setblocking(0)
-                                    if owner_interface.incoming_connection(client_socket):
-                                        BackboneInterface.epoll.register(client_socket.fileno(), select.EPOLLIN)
-                                    else:
-                                        client_socket.close()
+                                    if owner_interface.incoming_connection(client_socket): pass
+                                    else: client_socket.close()
                                 
                                 elif fileno == server_socket.fileno() and (event & select.EPOLLHUP):
                                     try: BackboneInterface.epoll.unregister(fileno)
@@ -217,7 +238,6 @@ class BackboneInterface(Interface):
                         serversocket.close()
 
                     BackboneInterface.listener_filenos.clear()
-                    BackboneInterface.epoll.close()
     
     def add_listener(self, bind_address, socket_type=socket.AF_INET):
         if socket_type == socket.AF_INET:
@@ -271,11 +291,11 @@ class BackboneInterface(Interface):
         spawned_interface.mode = self.mode
         spawned_interface.HW_MTU = self.HW_MTU
         spawned_interface.online = True
-        RNS.log("Spawned new BackBoneClient Interface: "+str(spawned_interface), RNS.LOG_VERBOSE)
+        RNS.log("Spawned new BackboneClient Interface: "+str(spawned_interface), RNS.LOG_VERBOSE)
         RNS.Transport.interfaces.append(spawned_interface)
         while spawned_interface in self.spawned_interfaces: self.spawned_interfaces.remove(spawned_interface)
         self.spawned_interfaces.append(spawned_interface)
-        self.spawned_interface_filenos[socket.fileno()] = spawned_interface
+        BackboneInterface.add_client_socket(client_socket, spawned_interface)
 
         return True
 
@@ -393,9 +413,6 @@ class BackboneClientInterface(Interface):
             thread.daemon = True
             thread.start()
         else:
-            thread = threading.Thread(target=self.read_loop)
-            thread.daemon = True
-            thread.start()
             self.wants_tunnel = True
 
     def set_timeouts_linux(self):
@@ -440,6 +457,10 @@ class BackboneClientInterface(Interface):
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             self.socket.connect(target_address)
             self.socket.settimeout(None)
+
+            BackboneInterface.add_client_socket(self.socket, self)
+            BackboneInterface.start()
+
             self.online  = True
 
             if initial:
@@ -485,9 +506,6 @@ class BackboneClientInterface(Interface):
                     RNS.log("Reconnected socket for "+str(self)+".", RNS.LOG_INFO)
 
                 self.reconnecting = False
-                thread = threading.Thread(target=self.read_loop)
-                thread.daemon = True
-                thread.start()
                 RNS.Transport.synthesize_tunnel(self)
 
         else:
@@ -506,8 +524,7 @@ class BackboneClientInterface(Interface):
         if self.online and not self.detached:
             try:
                 self.transmit_buffer += bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
-                if hasattr(self, "parent_interface") and self.parent_interface != None:
-                    self.parent_interface.epoll.modify(self.socket.fileno(), select.EPOLLOUT)
+                BackboneInterface.tx_ready(self)
 
             except Exception as e:
                 RNS.log("Exception occurred while transmitting via "+str(self)+", tearing down interface", RNS.LOG_ERROR)
