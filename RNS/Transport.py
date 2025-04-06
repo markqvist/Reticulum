@@ -29,6 +29,7 @@ import inspect
 import threading
 from time import sleep
 from .vendor import umsgpack as umsgpack
+from RNS.Interfaces.BackboneInterface import BackboneInterface
 
 class Transport:
     """
@@ -2706,8 +2707,8 @@ class Transport:
             li.detach()
 
         RNS.log("Detaching shared instance", RNS.LOG_DEBUG)
-        if shared_instance_master != None:
-            shared_instance_master.detach()
+        if shared_instance_master != None: shared_instance_master.detach()
+        BackboneInterface.deregister_listeners()
 
         RNS.log("All interfaces detached", RNS.LOG_DEBUG)
 

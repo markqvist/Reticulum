@@ -251,6 +251,7 @@ class Reticulum:
 
         self.local_interface_port = 37428
         self.local_control_port   = 37429
+        self.local_socket_path    = None
         self.share_instance       = True
         self.rpc_listener         = None
         self.rpc_key              = None
@@ -351,7 +352,8 @@ class Reticulum:
             try:
                 interface = LocalInterface.LocalServerInterface(
                     RNS.Transport,
-                    self.local_interface_port
+                    self.local_interface_port,
+                    socket_path=self.local_socket_path
                 )
                 interface.OUT = True
                 if hasattr(Reticulum, "_force_shared_instance_bitrate"):
@@ -377,7 +379,8 @@ class Reticulum:
                     interface = LocalInterface.LocalClientInterface(
                         RNS.Transport,
                         "Local shared instance",
-                        self.local_interface_port)
+                        self.local_interface_port,
+                        socket_path=self.local_socket_path)
                     interface.target_port = self.local_interface_port
                     interface.OUT = True
                     if hasattr(Reticulum, "_force_shared_instance_bitrate"):
@@ -428,6 +431,9 @@ class Reticulum:
                 if option == "share_instance":
                     value = self.config["reticulum"].as_bool(option)
                     self.share_instance = value
+                if option == "instance_name":
+                    value = self.config["reticulum"][option]
+                    self.local_socket_path = value
                 if option == "shared_instance_port":
                     value = int(self.config["reticulum"][option])
                     self.local_interface_port = value

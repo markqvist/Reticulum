@@ -147,6 +147,24 @@ class BackboneInterface(Interface):
         if not BackboneInterface.epoll: BackboneInterface.epoll = select.epoll()
 
     @staticmethod
+    def add_listener(interface, bind_address, socket_type=socket.AF_INET):
+        BackboneInterface.ensure_epoll()
+        if socket_type == socket.AF_INET:
+            server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            server_socket.bind(bind_address)
+        elif socket_type == socket.AF_UNIX:
+            server_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            server_socket.bind(bind_address)
+        else: raise TypeError(f"Invalid socket type {socket_type} for {interface}")
+
+        server_socket.listen(1)
+        server_socket.setblocking(0)
+        BackboneInterface.listener_filenos[server_socket.fileno()] = (interface, server_socket)
+        BackboneInterface.epoll.register(server_socket.fileno(), select.EPOLLIN)
+        BackboneInterface.start()
+
+    @staticmethod
     def add_client_socket(client_socket, interface):
         BackboneInterface.ensure_epoll()
         BackboneInterface.spawned_interface_filenos[client_socket.fileno()] = interface
@@ -156,14 +174,28 @@ class BackboneInterface(Interface):
     @staticmethod
     def register_in(fileno):
         # TODO: Remove debug
-        RNS.log(f"Registering EPOLL_IN for {fileno}", RNS.LOG_DEBUG)
-        BackboneInterface.epoll.register(fileno, select.EPOLLIN)
+        # RNS.log(f"Registering EPOLL_IN for {fileno}", RNS.LOG_DEBUG)
+        try: BackboneInterface.epoll.register(fileno, select.EPOLLIN)
+        except Exception as e:
+            RNS.log(f"An error occurred while registering EPOLL_IN for file descriptor {fileno}: {e}", RNS.LOG_ERROR)
 
     @staticmethod
     def deregister_fileno(fileno):
         # TODO: Remove debug
-        RNS.log(f"Deregistering {fileno}", RNS.LOG_DEBUG)
-        BackboneInterface.epoll.unregister(fileno)
+        # RNS.log(f"Deregistering {fileno}", RNS.LOG_DEBUG)
+        try: BackboneInterface.epoll.unregister(fileno)
+        except Exception as e:
+            RNS.log(f"An error occurred while deregistering file descriptor {fileno}: {e}", RNS.LOG_DEBUG)
+
+    @staticmethod
+    def deregister_listeners():
+        for fileno in BackboneInterface.listener_filenos:
+            owner_interface, server_socket = BackboneInterface.listener_filenos[fileno]
+            fileno = server_socket.fileno()
+            BackboneInterface.deregister_fileno(fileno)
+            server_socket.close()
+
+        BackboneInterface.listener_filenos.clear()
 
     @staticmethod
     def tx_ready(interface):
@@ -205,8 +237,8 @@ class BackboneInterface(Interface):
                                     try:
                                         written = client_socket.send(spawned_interface.transmit_buffer)
                                     except Exception as e:
-                                        RNS.log(f"Error while writing to {spawned_interface}: {e}", RNS.LOG_ERROR)
                                         written = 0
+                                        if not spawned_interface.detached: RNS.log(f"Error while writing to {spawned_interface}: {e}", RNS.LOG_ERROR)
                                         BackboneInterface.deregister_fileno(fileno)
                                         try: client_socket.close()
                                         except Exception as e: RNS.log(f"Error while closing socket for {spawned_interface}: {e}", RNS.LOG_ERROR)
@@ -243,28 +275,8 @@ class BackboneInterface(Interface):
                     RNS.trace_exception(e)
 
                 finally:
-                    for owner_interface, serversocket in BackboneInterface.listener_filenos:
-                        fileno = serversocket.fileno()
-                        BackboneInterface.deregister_fileno(fileno)
-                        serversocket.close()
-
-                    BackboneInterface.listener_filenos.clear()
+                    BackboneInterface.deregister_listeners()
     
-    @staticmethod
-    def add_listener(interface, bind_address, socket_type=socket.AF_INET):
-        BackboneInterface.ensure_epoll()
-        if socket_type == socket.AF_INET:
-            server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            server_socket.bind(bind_address)
-        else: raise TypeError(f"Invalid socket type {socket_type} for {interface}")
-
-        server_socket.listen(1)
-        server_socket.setblocking(0)
-        BackboneInterface.listener_filenos[server_socket.fileno()] = (interface, server_socket)
-        BackboneInterface.epoll.register(server_socket.fileno(), select.EPOLLIN)
-        BackboneInterface.start()
-
     def incoming_connection(self, socket):
         RNS.log("Accepting incoming connection", RNS.LOG_VERBOSE)
         spawned_configuration = {"name": "Client on "+self.name, "target_host": None, "target_port": None}
@@ -331,7 +343,7 @@ class BackboneInterface(Interface):
                 if hasattr(listener_socket, "shutdown"):
                     if callable(listener_socket.shutdown):
                         try: listener_socket.shutdown(socket.SHUT_RDWR)
-                        except Exception as e: RNS.log("Error while shutting down server for "+str(self)+": "+str(e))
+                        except Exception as e: RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
 
     def __str__(self):
         if ":" in self.bind_ip:

@@ -55,12 +55,15 @@ class LocalClientInterface(Interface):
     RECONNECT_WAIT = 8
     AUTOCONFIGURE_MTU = True
 
-    def __init__(self, owner, name, target_port = None, connected_socket=None):
+    def __init__(self, owner, name, target_port = None, connected_socket=None, socket_path=None):
         super().__init__()
 
         self.epoll_backend    = False
         self.HW_MTU           = 262144
         self.online           = False
+        
+        if RNS.vendor.platformutils.is_linux(): self.socket_path = f"\0rns/{socket_path}"
+        else: self.socket_path = None
         
         self.IN               = True
         self.OUT              = False
@@ -82,9 +85,17 @@ class LocalClientInterface(Interface):
             self.target_ip   = None
             self.target_port = None
             self.socket      = connected_socket
-            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+
+            if self.socket.family == socket.AF_INET:
+                self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
             self.is_connected_to_shared_instance = False
+
+        elif self.socket_path != None:
+            self.receives    = True
+            self.target_ip   = None
+            self.target_port = None
+            self.connect()
 
         elif target_port != None:
             self.receives    = True
@@ -113,9 +124,14 @@ class LocalClientInterface(Interface):
         return False
 
     def connect(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-        self.socket.connect((self.target_ip, self.target_port))
+        if self.socket_path != None:
+            self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            self.socket.connect(self.socket_path)
+        
+        else:
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+            self.socket.connect((self.target_ip, self.target_port))
 
         self.online = True
         self.is_connected_to_shared_instance = True
@@ -319,11 +335,14 @@ class LocalClientInterface(Interface):
 class LocalServerInterface(Interface):
     AUTOCONFIGURE_MTU = True
 
-    def __init__(self, owner, bindport=None):
+    def __init__(self, owner, bindport=None, socket_path=None):
         super().__init__()
         self.epoll_backend = False
         self.online = False
         self.clients = 0
+        
+        if RNS.vendor.platformutils.is_linux(): self.socket_path = f"\0rns/{socket_path}"
+        else: self.socket_path = None
         
         self.IN  = True
         self.OUT = False
@@ -333,53 +352,73 @@ class LocalServerInterface(Interface):
         if RNS.vendor.platformutils.is_linux():
             self.epoll_backend = True
 
-        if (bindport != None):
+        if socket_path != None and self.epoll_backend:
+            self.receives = True
+            self.bind_ip = None
+            self.bind_port = None
+
+            self.owner = owner
+            self.is_local_shared_instance = True
+            BackboneInterface.add_listener(self, self.socket_path, socket_type=socket.AF_UNIX)
+
+        elif bindport != None:
             self.receives = True
             self.bind_ip = "127.0.0.1"
             self.bind_port = bindport
-
-            def handlerFactory(callback):
-                def createHandler(*args, **keys):
-                    return LocalInterfaceHandler(callback, *args, **keys)
-                return createHandler
 
             self.owner = owner
             self.is_local_shared_instance = True
 
             address = (self.bind_ip, self.bind_port)
-
             if self.epoll_backend: BackboneInterface.add_listener(self, address)
             else:
+                def handlerFactory(callback):
+                    def createHandler(*args, **keys):
+                        return LocalInterfaceHandler(callback, *args, **keys)
+                    return createHandler
+
                 self.server = ThreadingTCPServer(address, handlerFactory(self.incoming_connection))
                 self.server.daemon_threads = True
                 thread = threading.Thread(target=self.server.serve_forever)
                 thread.daemon = True
                 thread.start()
 
-            self.announce_rate_target  = None
-            self.announce_rate_grace   = None
-            self.announce_rate_penalty = None
+        self.announce_rate_target  = None
+        self.announce_rate_grace   = None
+        self.announce_rate_penalty = None
 
-            self.bitrate = 1000*1000*1000
-            self.online = True
+        self.bitrate = 1000*1000*1000
+        self.online = True
 
     def incoming_connection(self, handler):
         if self.epoll_backend:
-            socket = handler
-            interface_name = str(str(socket.getpeername()[1]))
-            spawned_interface = LocalClientInterface(self.owner, name=interface_name, connected_socket=socket)
+            client_socket = handler
+            if client_socket.family == socket.AF_INET:
+                interface_name = str(str(client_socket.getpeername()[1]))
+            elif client_socket.family == socket.AF_UNIX:
+                interface_name = f"{self.clients}@{self.socket_path}"
+
+            spawned_interface = LocalClientInterface(self.owner, name=interface_name, connected_socket=client_socket)
             spawned_interface.OUT = self.OUT
             spawned_interface.IN  = self.IN
-            spawned_interface.socket = socket
-            spawned_interface.target_ip = socket.getpeername()[0]
-            spawned_interface.target_port = str(socket.getpeername()[1])
+            spawned_interface.socket = client_socket
             spawned_interface.parent_interface = self
             spawned_interface.bitrate = self.bitrate
+
+            if client_socket.family == socket.AF_INET:
+                spawned_interface.target_ip = client_socket.getpeername()[0]
+                spawned_interface.target_port = str(client_socket.getpeername()[1])
+
+            elif client_socket.family == socket.AF_UNIX:
+                spawned_interface.target_ip = None
+                spawned_interface.target_port = interface_name
+                spawned_interface.socket_path = self.socket_path
+
             if hasattr(self, "_force_bitrate"): spawned_interface._force_bitrate = self._force_bitrate
             RNS.Transport.interfaces.append(spawned_interface)
             RNS.Transport.local_client_interfaces.append(spawned_interface)
+            BackboneInterface.add_client_socket(client_socket, spawned_interface)
             self.clients += 1
-            BackboneInterface.add_client_socket(socket, spawned_interface)
             return True
 
         else:
@@ -407,7 +446,8 @@ class LocalServerInterface(Interface):
         if from_spawned: self.oa_freq_deque.append(time.time())
 
     def __str__(self):
-        return "Shared Instance["+str(self.bind_port)+"]"
+        if self.socket_path: return "Shared Instance["+str(self.socket_path)+"]"
+        else: return "Shared Instance["+str(self.bind_port)+"]"
 
 class LocalInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):
