@@ -131,7 +131,7 @@ class BackboneInterface(Interface):
             self.bind_ip = bind_address[0]
             self.owner = owner
 
-            BackboneInterface.add_listener(bind_address)
+            BackboneInterface.add_listener(self, bind_address)
             self.bitrate = self.BITRATE_GUESS
             self.online = True
 
