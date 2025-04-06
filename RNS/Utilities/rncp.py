@@ -586,9 +586,11 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
         else:
             print("\n"+str(file)+" fetched from "+RNS.prettyhexrep(destination_hash))
         link.teardown()
+        time.sleep(0.1)
         RNS.exit(0)
 
     link.teardown()
+    time.sleep(0.1)
     RNS.exit(0)
 
 

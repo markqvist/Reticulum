@@ -42,8 +42,9 @@ def program_setup(configdir, verbosity = 0, quietness = 0, service = False):
     if reticulum.is_connected_to_shared_instance:
         RNS.log("Started rnsd version {version} connected to another shared local instance, this is probably NOT what you want!".format(version=__version__), RNS.LOG_WARNING)
     else:
-        if RNS.Reticulum.get_instance().shared_instance_interface:
-            RNS.Reticulum.get_instance().shared_instance_interface.server.daemon_threads = True
+        # TODO: Rethink why this was added
+        # if RNS.Reticulum.get_instance().shared_instance_interface:
+        #     RNS.Reticulum.get_instance().shared_instance_interface.server.daemon_threads = True
         RNS.log("Started rnsd version {version}".format(version=__version__), RNS.LOG_NOTICE)
 
     while True:

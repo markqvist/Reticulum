@@ -62,7 +62,7 @@ class LocalClientInterface(Interface):
         self.HW_MTU           = 262144
         self.online           = False
         
-        if RNS.vendor.platformutils.is_linux(): self.socket_path = f"\0rns/{socket_path}"
+        if socket_path != None and RNS.vendor.platformutils.is_linux(): self.socket_path = f"\0rns/{socket_path}"
         else: self.socket_path = None
         
         self.IN               = True
@@ -341,7 +341,7 @@ class LocalServerInterface(Interface):
         self.online = False
         self.clients = 0
         
-        if RNS.vendor.platformutils.is_linux(): self.socket_path = f"\0rns/{socket_path}"
+        if socket_path != None and RNS.vendor.platformutils.is_linux(): self.socket_path = f"\0rns/{socket_path}"
         else: self.socket_path = None
         
         self.IN  = True

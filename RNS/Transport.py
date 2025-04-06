@@ -2219,7 +2219,7 @@ class Transport:
         if cached_packet:
             # The packet was found in the local cache,
             # replay it to the Transport instance.
-            Transport.inbound(packet.raw, packet.receiving_interface)
+            Transport.inbound(cached_packet.raw, cached_packet.receiving_interface)
         else:
             # The packet is not in the local cache,
             # query the network.
