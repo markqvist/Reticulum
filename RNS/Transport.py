@@ -2186,11 +2186,13 @@ class Transport:
                         packet.receiving_interface = interface
 
                 return packet
-            else:
-                return None
+
+            else: return None
+        
         except Exception as e:
             RNS.log("Exception occurred while getting cached packet.", RNS.LOG_ERROR)
             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+            return None
 
     @staticmethod
     def cache_request_packet(packet):
