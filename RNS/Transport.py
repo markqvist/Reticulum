@@ -1585,8 +1585,9 @@ class Transport:
                             else:
                                 expires            = now + Transport.PATHFINDER_E
                             
-                            random_blobs.append(random_blob)
-                            random_blobs = random_blobs[-Transport.MAX_RANDOM_BLOBS:]
+                            if not random_blob in random_blobs:
+                                random_blobs.append(random_blob)
+                                random_blobs = random_blobs[-Transport.MAX_RANDOM_BLOBS:]
 
                             if (RNS.Reticulum.transport_enabled() or Transport.from_local_client(packet)) and packet.context != RNS.Packet.PATH_RESPONSE:
                                 # Insert announce into announce table for retransmission
@@ -2806,7 +2807,7 @@ class Transport:
                         received_from = de[IDX_PT_NEXT_HOP]
                         hops = de[IDX_PT_HOPS]
                         expires = de[IDX_PT_EXPIRES]
-                        random_blobs = list(set(de[IDX_PT_RANDBLOBS]))
+                        random_blobs = de[IDX_PT_RANDBLOBS]
                         packet_hash = de[IDX_PT_PACKET]
 
                         serialised_entry = [
