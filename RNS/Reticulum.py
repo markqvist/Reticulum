@@ -1084,16 +1084,16 @@ class Reticulum:
 
         else:
             path_table = []
-            for dst_hash in RNS.Transport.destination_table:
-                path_hops = RNS.Transport.destination_table[dst_hash][2]
+            for dst_hash in RNS.Transport.path_table:
+                path_hops = RNS.Transport.path_table[dst_hash][2]
                 if max_hops == None or path_hops <= max_hops:
                     entry = {
                         "hash": dst_hash,
-                        "timestamp": RNS.Transport.destination_table[dst_hash][0],
-                        "via": RNS.Transport.destination_table[dst_hash][1],
+                        "timestamp": RNS.Transport.path_table[dst_hash][0],
+                        "via": RNS.Transport.path_table[dst_hash][1],
                         "hops": path_hops,
-                        "expires": RNS.Transport.destination_table[dst_hash][3],
-                        "interface": str(RNS.Transport.destination_table[dst_hash][5]),
+                        "expires": RNS.Transport.path_table[dst_hash][3],
+                        "interface": str(RNS.Transport.path_table[dst_hash][5]),
                     }
                     path_table.append(entry)
 
@@ -1139,8 +1139,8 @@ class Reticulum:
 
         else:
             dropped_count = 0
-            for destination_hash in RNS.Transport.destination_table:
-                if RNS.Transport.destination_table[destination_hash][1] == transport_hash:
+            for destination_hash in RNS.Transport.path_table:
+                if RNS.Transport.path_table[destination_hash][1] == transport_hash:
                     RNS.Transport.expire_path(destination_hash)
                     dropped_count += 1
 
