@@ -569,8 +569,8 @@ class AutoInterfacePeer(Interface):
                 try:
                     if self.owner.outbound_udp_socket == None: self.owner.outbound_udp_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
                     if self.peer_addr == None: self.peer_addr = str(self.addr)+"%"+str(self.owner.interface_name_to_index(self.ifname))
-                    if self.addr_info == None: addr_info = socket.getaddrinfo(self.peer_addr, self.owner.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
-                    self.owner.outbound_udp_socket.sendto(data, addr_info[0][4])
+                    if self.addr_info == None: self.addr_info = socket.getaddrinfo(self.peer_addr, self.owner.data_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                    self.owner.outbound_udp_socket.sendto(data, self.addr_info[0][4])
                     self.txb += len(data)
                     self.owner.txb += len(data)
                 except Exception as e:
