@@ -378,6 +378,7 @@ class Transport:
 
         try:
             if not Transport.jobs_locked:
+                should_collect = False
 
                 # Process active and pending link lists
                 if time.time() > Transport.links_last_checked+Transport.links_check_interval:
@@ -418,6 +419,7 @@ class Transport:
                         culled_receipt = Transport.receipts.pop(0)
                         culled_receipt.timeout = -1
                         culled_receipt.check_timeout()
+                        should_collect = True
 
                     for receipt in Transport.receipts:
                         receipt.check_timeout()
@@ -606,9 +608,11 @@ class Transport:
 
                         if time.time() > destination_expiry:
                             stale_paths.append(destination_hash)
+                            should_collect = True
                             RNS.log("Path to "+RNS.prettyhexrep(destination_hash)+" timed out and was removed", RNS.LOG_DEBUG)
                         elif not attached_interface in Transport.interfaces:
                             stale_paths.append(destination_hash)
+                            should_collect = True
                             RNS.log("Path to "+RNS.prettyhexrep(destination_hash)+" was removed since the attached interface no longer exists", RNS.LOG_DEBUG)
 
                     # Cull the pending discovery path requests table
@@ -618,6 +622,7 @@ class Transport:
 
                         if time.time() > entry["timeout"]:
                             stale_discovery_path_requests.append(destination_hash)
+                            should_collect = True
                             RNS.log("Waiting path request for "+RNS.prettyhexrep(destination_hash)+" timed out and was removed", RNS.LOG_DEBUG)
 
                     # Cull the tunnel table
@@ -628,6 +633,7 @@ class Transport:
                         expires = tunnel_entry[3]
                         if time.time() > expires:
                             stale_tunnels.append(tunnel_id)
+                            should_collect = True
                             RNS.log("Tunnel "+RNS.prettyhexrep(tunnel_id)+" timed out and was removed", RNS.LOG_EXTREME)
                         else:
                             stale_tunnel_paths = []
@@ -637,6 +643,7 @@ class Transport:
 
                                 if time.time() > tunnel_path_entry[0] + Transport.DESTINATION_TIMEOUT:
                                     stale_tunnel_paths.append(tunnel_path)
+                                    should_collect = True
                                     RNS.log("Tunnel path to "+RNS.prettyhexrep(tunnel_path)+" timed out and was removed", RNS.LOG_EXTREME)
 
                             for tunnel_path in stale_tunnel_paths:
@@ -710,6 +717,8 @@ class Transport:
                         interface.process_held_announces()
                     Transport.interface_last_jobs = time.time()
 
+                if should_collect: gc.collect()
+
             else:
                 # Transport jobs were locked, do nothing
                 pass
@@ -718,7 +727,6 @@ class Transport:
             RNS.log("An exception occurred while running Transport jobs.", RNS.LOG_ERROR)
             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
 
-        finally: gc.collect()
         Transport.jobs_running = False
 
         for packet in outgoing:
