@@ -231,7 +231,17 @@ class BackboneInterface(Interface):
                                     if len(received_bytes): spawned_interface.receive(received_bytes)
                                     else:
                                         BackboneInterface.deregister_fileno(fileno); client_socket.close()
-                                        if fileno in BackboneInterface.spawned_interface_filenos: BackboneInterface.spawned_interface_filenos.pop(fileno)
+                                        try:
+                                            if fileno in BackboneInterface.spawned_interface_filenos: BackboneInterface.spawned_interface_filenos.pop(fileno)
+                                        except Exception as e: RNS.log(f"Error while removing spawned interface file descriptor from BackboneInterface I/O handler: {e}", RNS.LOG_ERROR)
+
+                                        try:
+                                            if spawned_interface.parent_interface:
+                                                pif = spawned_interface.parent_interface
+                                                if pif.spawned_interfaces != None:
+                                                    while spawned_interface in pif.spawned_interfaces: pif.spawned_interfaces.remove(spawned_interface)
+                                        except Exception as e: RNS.log(f"Error while removing spawned interface from {pif}: {e}", RNS.LOG_ERROR)
+
                                         spawned_interface.receive(received_bytes)
                                 
                                 elif client_socket and fileno == client_socket.fileno() and (event & select.EPOLLOUT):
@@ -241,7 +251,18 @@ class BackboneInterface(Interface):
                                         written = 0
                                         if not spawned_interface.detached: RNS.log(f"Error while writing to {spawned_interface}: {e}", RNS.LOG_DEBUG)
                                         BackboneInterface.deregister_fileno(fileno)
-                                        if fileno in BackboneInterface.spawned_interface_filenos: BackboneInterface.spawned_interface_filenos.pop(fileno)
+
+                                        try:
+                                            if fileno in BackboneInterface.spawned_interface_filenos: BackboneInterface.spawned_interface_filenos.pop(fileno)
+                                        except Exception as e: RNS.log(f"Error while removing spawned interface file descriptor from BackboneInterface I/O handler: {e}", RNS.LOG_ERROR)
+                                        
+                                        try:
+                                            if spawned_interface.parent_interface:
+                                                pif = spawned_interface.parent_interface
+                                                if pif.spawned_interfaces != None:
+                                                    while spawned_interface in pif.spawned_interfaces: pif.spawned_interfaces.remove(spawned_interface)
+                                        except Exception as e: RNS.log(f"Error while removing spawned interface from {pif}: {e}", RNS.LOG_ERROR)
+
                                         try: client_socket.close()
                                         except Exception as e: RNS.log(f"Error while closing socket for {spawned_interface}: {e}", RNS.LOG_ERROR)
                                         spawned_interface.receive(b"")
@@ -253,7 +274,17 @@ class BackboneInterface(Interface):
                                 
                                 elif client_socket and fileno == client_socket.fileno() and event & (select.EPOLLHUP):
                                     BackboneInterface.deregister_fileno(fileno)
-                                    if fileno in BackboneInterface.spawned_interface_filenos: BackboneInterface.spawned_interface_filenos.pop(fileno)
+                                    try:
+                                        if fileno in BackboneInterface.spawned_interface_filenos: BackboneInterface.spawned_interface_filenos.pop(fileno)
+                                    except Exception as e: RNS.log(f"Error while removing spawned interface file descriptor from BackboneInterface I/O handler: {e}", RNS.LOG_ERROR)
+
+                                    try:
+                                        if spawned_interface.parent_interface:
+                                            pif = spawned_interface.parent_interface
+                                            if pif.spawned_interfaces != None:
+                                                while spawned_interface in pif.spawned_interfaces: pif.spawned_interfaces.remove(spawned_interface)
+                                    except Exception as e: RNS.log(f"Error while removing spawned interface from {pif}: {e}", RNS.LOG_ERROR)
+
                                     try: client_socket.close()
                                     except Exception as e: RNS.log(f"Error while closing socket for {spawned_interface}: {e}", RNS.LOG_ERROR)
                                     spawned_interface.receive(b"")
