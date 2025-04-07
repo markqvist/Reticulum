@@ -2838,6 +2838,7 @@ class Transport:
 
             except Exception as e:
                 RNS.log("Could not save path table to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.trace_exception(e)
 
             Transport.saving_path_table = False
 
