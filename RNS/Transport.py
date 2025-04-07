@@ -234,7 +234,7 @@ class Transport:
                                 # over an interface. It is cached with it's non-
                                 # increased hop-count.
                                 announce_packet.hops += 1
-                                Transport.path_table[destination_hash] = [timestamp, received_from, hops, expires, random_blobs, receiving_interface, announce_packet]
+                                Transport.path_table[destination_hash] = [timestamp, received_from, hops, expires, random_blobs, receiving_interface, announce_packet.packet_hash]
                                 RNS.log("Loaded path table entry for "+RNS.prettyhexrep(destination_hash)+" from storage", RNS.LOG_DEBUG)
                             else:
                                 RNS.log("Could not reconstruct path table entry from storage for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG)
@@ -285,7 +285,7 @@ class Transport:
                                 # increased hop-count.
                                 announce_packet.hops += 1
 
-                                tunnel_path = [timestamp, received_from, hops, expires, random_blobs, receiving_interface, announce_packet]
+                                tunnel_path = [timestamp, received_from, hops, expires, random_blobs, receiving_interface, announce_packet.packet_hash]
                                 tunnel_paths[destination_hash] = tunnel_path
 
                         tunnel = [tunnel_id, None, tunnel_paths, expires]
@@ -1568,12 +1568,8 @@ class Transport:
                                     current_rate = now - rate_entry["last"]
 
                                     if now > rate_entry["blocked_until"]:
-
-                                        if current_rate < packet.receiving_interface.announce_rate_target:
-                                            rate_entry["rate_violations"] += 1
-
-                                        else:
-                                            rate_entry["rate_violations"] = max(0, rate_entry["rate_violations"]-1)
+                                        if current_rate < packet.receiving_interface.announce_rate_target: rate_entry["rate_violations"] += 1
+                                        else: rate_entry["rate_violations"] = max(0, rate_entry["rate_violations"]-1)
 
                                         if rate_entry["rate_violations"] > packet.receiving_interface.announce_rate_grace:
                                             rate_target = packet.receiving_interface.announce_rate_target
@@ -1731,7 +1727,8 @@ class Transport:
                                 new_announce.hops = packet.hops
                                 new_announce.send()
 
-                            path_table_entry = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet]
+                            Transport.cache(packet, force_cache=True)
+                            path_table_entry = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet.packet_hash]
                             Transport.path_table[packet.destination_hash] = path_table_entry
                             RNS.log("Destination "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_DEBUG)
 
@@ -2037,27 +2034,24 @@ class Transport:
                 expires = path_entry[3]
                 random_blobs = path_entry[4]
                 receiving_interface = interface
-                packet = path_entry[6]
-                new_entry = [time.time(), received_from, announce_hops, expires, random_blobs, receiving_interface, packet]
+                packet_hash = path_entry[6]
+                new_entry = [time.time(), received_from, announce_hops, expires, random_blobs, receiving_interface, packet_hash]
 
                 should_add = False
                 if destination_hash in Transport.path_table:
                     old_entry = Transport.path_table[destination_hash]
                     old_hops = old_entry[IDX_PT_HOPS]
                     old_expires = old_entry[IDX_PT_EXPIRES]
-                    if announce_hops <= old_hops or time.time() > old_expires:
-                        should_add = True
-                    else:
-                        RNS.log("Did not restore path to "+RNS.prettyhexrep(packet.destination_hash)+" because a newer path with fewer hops exist", RNS.LOG_DEBUG)
+                    if announce_hops <= old_hops or time.time() > old_expires: should_add = True
+                    else: RNS.log("Did not restore path to "+RNS.prettyhexrep(destination_hash)+" because a newer path with fewer hops exist", RNS.LOG_DEBUG)
+                
                 else:
-                    if time.time() < expires:
-                        should_add = True
-                    else:
-                        RNS.log("Did not restore path to "+RNS.prettyhexrep(packet.destination_hash)+" because it has expired", RNS.LOG_DEBUG)
+                    if time.time() < expires: should_add = True
+                    else: RNS.log("Did not restore path to "+RNS.prettyhexrep(destination_hash)+" because it has expired", RNS.LOG_DEBUG)
 
                 if should_add:
                     Transport.path_table[destination_hash] = new_entry
-                    RNS.log("Restored path to "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(receiving_interface), RNS.LOG_DEBUG)
+                    RNS.log("Restored path to "+RNS.prettyhexrep(destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(receiving_interface), RNS.LOG_DEBUG)
                 else:
                     deprecated_paths.append(destination_hash)
 
@@ -2522,14 +2516,24 @@ class Transport:
             RNS.log("Answering path request for "+RNS.prettyhexrep(destination_hash)+interface_str+", destination is local to this system", RNS.LOG_DEBUG)
 
         elif (RNS.Reticulum.transport_enabled() or is_from_local_client) and (destination_hash in Transport.path_table):
-            packet = Transport.path_table[destination_hash][IDX_PT_PACKET]
+            packet = Transport.get_cached_packet(Transport.path_table[destination_hash][IDX_PT_PACKET])
             next_hop = Transport.path_table[destination_hash][IDX_PT_NEXT_HOP]
             received_from = Transport.path_table[destination_hash][IDX_PT_RVCD_IF]
 
-            if attached_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING and attached_interface == received_from:
+            if packet == None:
+                RNS.log("Could not retrieve announce packet from cache while answering path request for "+RNS.prettyhexrep(destination_hash))
+
+            elif attached_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING and attached_interface == received_from:
                 RNS.log("Not answering path request on roaming-mode interface, since next hop is on same roaming-mode interface", RNS.LOG_DEBUG)
-            
+
             else:
+                # We increase the hops, since reading a packet
+                # from cache is equivalent to receiving it again
+                # over an interface. It is cached with it's non-
+                # increased hop-count.
+                packet.unpack()
+                packet.hops += 1
+
                 if requestor_transport_id != None and next_hop == requestor_transport_id:
                     # TODO: Find a bandwidth efficient way to invalidate our
                     # known path on this signal. The obvious way of signing
@@ -2816,7 +2820,7 @@ class Transport:
                         hops = de[IDX_PT_HOPS]
                         expires = de[IDX_PT_EXPIRES]
                         random_blobs = list(set(de[IDX_PT_RANDBLOBS]))
-                        packet_hash = de[IDX_PT_PACKET].get_hash()
+                        packet_hash = de[IDX_PT_PACKET]
 
                         serialised_entry = [
                             destination_hash,
@@ -2831,7 +2835,8 @@ class Transport:
 
                         serialised_destinations.append(serialised_entry)
 
-                        Transport.cache(de[IDX_PT_PACKET], force_cache=True)
+                        # TODO: Reevaluate whether there is any cases where this is needed
+                        # Transport.cache(de[IDX_PT_PACKET], force_cache=True)
 
                 path_table_path = RNS.Reticulum.storagepath+"/destination_table"
                 file = open(path_table_path, "wb")
@@ -2874,10 +2879,8 @@ class Transport:
                     tunnel_paths = te[2].copy()
                     expires = te[3]
 
-                    if interface != None:
-                        interface_hash = interface.get_hash()
-                    else:
-                        interface_hash = None
+                    if interface != None: interface_hash = interface.get_hash()
+                    else: interface_hash = None
 
                     serialised_paths = []
                     for destination_hash in tunnel_paths:
@@ -2888,7 +2891,7 @@ class Transport:
                         hops = de[2]
                         expires = de[3]
                         random_blobs = de[4][-Transport.PERSIST_RANDOM_BLOBS:]
-                        packet_hash = de[6].get_hash()
+                        packet_hash = de[6]
 
                         serialised_entry = [
                             destination_hash,
@@ -2903,8 +2906,8 @@ class Transport:
 
                         serialised_paths.append(serialised_entry)
 
-                        Transport.cache(de[6], force_cache=True)
-
+                        # TODO: Reevaluate whether there are any cases where this is needed
+                        # Transport.cache(de[6], force_cache=True)
 
                     serialised_tunnel = [tunnel_id, interface_hash, serialised_paths, expires]
                     serialised_tunnels.append(serialised_tunnel)
