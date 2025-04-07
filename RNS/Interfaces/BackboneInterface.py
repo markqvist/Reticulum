@@ -222,7 +222,7 @@ class BackboneInterface(Interface):
                             if fileno in BackboneInterface.spawned_interface_filenos:
                                 spawned_interface = BackboneInterface.spawned_interface_filenos[fileno]
                                 client_socket = spawned_interface.socket
-                                if fileno == client_socket.fileno() and (event & select.EPOLLIN):
+                                if client_socket and fileno == client_socket.fileno() and (event & select.EPOLLIN):
                                     try: received_bytes = client_socket.recv(4096)
                                     except Exception as e:
                                         RNS.log(f"Error while reading from {spawned_interface}: {e}", RNS.LOG_ERROR)
@@ -233,7 +233,7 @@ class BackboneInterface(Interface):
                                         BackboneInterface.deregister_fileno(fileno); client_socket.close()
                                         spawned_interface.receive(received_bytes)
                                 
-                                elif fileno == client_socket.fileno() and (event & select.EPOLLOUT):
+                                elif client_socket and fileno == client_socket.fileno() and (event & select.EPOLLOUT):
                                     try:
                                         written = client_socket.send(spawned_interface.transmit_buffer)
                                     except Exception as e:
@@ -249,7 +249,7 @@ class BackboneInterface(Interface):
                                     spawned_interface.txb += written
                                     if spawned_interface.parent_interface: spawned_interface.parent_interface.txb += written
                                 
-                                elif fileno == client_socket.fileno() and event & (select.EPOLLHUP):
+                                elif client_socket and fileno == client_socket.fileno() and event & (select.EPOLLHUP):
                                     BackboneInterface.deregister_fileno(fileno)
                                     try: client_socket.close()
                                     except Exception as e: RNS.log(f"Error while closing socket for {spawned_interface}: {e}", RNS.LOG_ERROR)
