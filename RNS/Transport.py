@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 import os
+import gc
 import RNS
 import time
 import math
@@ -620,8 +621,7 @@ class Transport:
                             RNS.log("Waiting path request for "+RNS.prettyhexrep(destination_hash)+" timed out and was removed", RNS.LOG_DEBUG)
 
                     # Cull the tunnel table
-                    stale_tunnels = []
-                    ti = 0
+                    stale_tunnels = []; ti = 0
                     for tunnel_id in Transport.tunnels:
                         tunnel_entry = Transport.tunnels[tunnel_id]
 
@@ -645,10 +645,8 @@ class Transport:
 
 
                     if ti > 0:
-                        if ti == 1:
-                            RNS.log("Removed "+str(ti)+" tunnel path", RNS.LOG_EXTREME)
-                        else:
-                            RNS.log("Removed "+str(ti)+" tunnel paths", RNS.LOG_EXTREME)
+                        if ti == 1: RNS.log("Removed "+str(ti)+" tunnel path", RNS.LOG_EXTREME)
+                        else: RNS.log("Removed "+str(ti)+" tunnel paths", RNS.LOG_EXTREME)
 
                     i = 0
                     for truncated_packet_hash in stale_reverse_entries:
@@ -656,10 +654,8 @@ class Transport:
                         i += 1
 
                     if i > 0:
-                        if i == 1:
-                            RNS.log("Released "+str(i)+" reverse table entry", RNS.LOG_EXTREME)
-                        else:
-                            RNS.log("Released "+str(i)+" reverse table entries", RNS.LOG_EXTREME)
+                        if i == 1: RNS.log("Released "+str(i)+" reverse table entry", RNS.LOG_EXTREME)
+                        else: RNS.log("Released "+str(i)+" reverse table entries", RNS.LOG_EXTREME)
 
                     i = 0
                     for link_id in stale_links:
@@ -667,10 +663,8 @@ class Transport:
                         i += 1
 
                     if i > 0:
-                        if i == 1:
-                            RNS.log("Released "+str(i)+" link", RNS.LOG_EXTREME)
-                        else:
-                            RNS.log("Released "+str(i)+" links", RNS.LOG_EXTREME)
+                        if i == 1: RNS.log("Released "+str(i)+" link", RNS.LOG_EXTREME)
+                        else: RNS.log("Released "+str(i)+" links", RNS.LOG_EXTREME)
 
                     i = 0
                     for destination_hash in stale_paths:
@@ -678,10 +672,8 @@ class Transport:
                         i += 1
 
                     if i > 0:
-                        if i == 1:
-                            RNS.log("Removed "+str(i)+" path", RNS.LOG_EXTREME)
-                        else:
-                            RNS.log("Removed "+str(i)+" paths", RNS.LOG_EXTREME)
+                        if i == 1: RNS.log("Removed "+str(i)+" path", RNS.LOG_EXTREME)
+                        else: RNS.log("Removed "+str(i)+" paths", RNS.LOG_EXTREME)
 
                     i = 0
                     for destination_hash in stale_discovery_path_requests:
@@ -689,10 +681,8 @@ class Transport:
                         i += 1
 
                     if i > 0:
-                        if i == 1:
-                            RNS.log("Removed "+str(i)+" waiting path request", RNS.LOG_EXTREME)
-                        else:
-                            RNS.log("Removed "+str(i)+" waiting path requests", RNS.LOG_EXTREME)
+                        if i == 1: RNS.log("Removed "+str(i)+" waiting path request", RNS.LOG_EXTREME)
+                        else: RNS.log("Removed "+str(i)+" waiting path requests", RNS.LOG_EXTREME)
 
                     i = 0
                     for tunnel_id in stale_tunnels:
@@ -700,10 +690,8 @@ class Transport:
                         i += 1
 
                     if i > 0:
-                        if i == 1:
-                            RNS.log("Removed "+str(i)+" tunnel", RNS.LOG_EXTREME)
-                        else:
-                            RNS.log("Removed "+str(i)+" tunnels", RNS.LOG_EXTREME)
+                        if i == 1: RNS.log("Removed "+str(i)+" tunnel", RNS.LOG_EXTREME)
+                        else: RNS.log("Removed "+str(i)+" tunnels", RNS.LOG_EXTREME)
 
                     i = 0
                     for destination_hash in stale_path_states:
@@ -711,10 +699,8 @@ class Transport:
                         i += 1
 
                     if i > 0:
-                        if i == 1:
-                            RNS.log("Removed "+str(i)+" path state entry", RNS.LOG_EXTREME)
-                        else:
-                            RNS.log("Removed "+str(i)+" path state entries", RNS.LOG_EXTREME)
+                        if i == 1: RNS.log("Removed "+str(i)+" path state entry", RNS.LOG_EXTREME)
+                        else: RNS.log("Removed "+str(i)+" path state entries", RNS.LOG_EXTREME)
 
                     Transport.tables_last_culled = time.time()
 
@@ -732,6 +718,7 @@ class Transport:
             RNS.log("An exception occurred while running Transport jobs.", RNS.LOG_ERROR)
             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
 
+        finally: gc.collect()
         Transport.jobs_running = False
 
         for packet in outgoing:

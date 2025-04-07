@@ -225,7 +225,7 @@ class BackboneInterface(Interface):
                                 if client_socket and fileno == client_socket.fileno() and (event & select.EPOLLIN):
                                     try: received_bytes = client_socket.recv(4096)
                                     except Exception as e:
-                                        RNS.log(f"Error while reading from {spawned_interface}: {e}", RNS.LOG_ERROR)
+                                        RNS.log(f"Error while reading from {spawned_interface}: {e}", RNS.LOG_DEBUG)
                                         received_bytes = b""
 
                                     if len(received_bytes): spawned_interface.receive(received_bytes)
@@ -238,7 +238,7 @@ class BackboneInterface(Interface):
                                         written = client_socket.send(spawned_interface.transmit_buffer)
                                     except Exception as e:
                                         written = 0
-                                        if not spawned_interface.detached: RNS.log(f"Error while writing to {spawned_interface}: {e}", RNS.LOG_ERROR)
+                                        if not spawned_interface.detached: RNS.log(f"Error while writing to {spawned_interface}: {e}", RNS.LOG_DEBUG)
                                         BackboneInterface.deregister_fileno(fileno)
                                         try: client_socket.close()
                                         except Exception as e: RNS.log(f"Error while closing socket for {spawned_interface}: {e}", RNS.LOG_ERROR)
@@ -343,7 +343,7 @@ class BackboneInterface(Interface):
                 if hasattr(listener_socket, "shutdown"):
                     if callable(listener_socket.shutdown):
                         try: listener_socket.shutdown(socket.SHUT_RDWR)
-                        except Exception as e: RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
+                        except Exception as e: RNS.log("Error while shutting down socket for "+str(self)+": "+str(e), RNS.LOG_ERROR)
 
     def __str__(self):
         if ":" in self.bind_ip:
@@ -455,16 +455,12 @@ class BackboneClientInterface(Interface):
                     self.detached = True
                     
                     try:
-                        if self.socket != None:
-                            self.socket.shutdown(socket.SHUT_RDWR)
-                    except Exception as e:
-                        RNS.log("Error while shutting down socket for "+str(self)+": "+str(e))
+                        if self.socket != None: self.socket.shutdown(socket.SHUT_RDWR)
+                    except Exception as e: RNS.log("Error while shutting down socket for "+str(self)+": "+str(e), RNS.LOG_ERROR)
 
                     try:
-                        if self.socket != None:
-                            self.socket.close()
-                    except Exception as e:
-                        RNS.log("Error while closing socket for "+str(self)+": "+str(e))
+                        if self.socket != None: self.socket.close()
+                    except Exception as e: RNS.log("Error while closing socket for "+str(self)+": "+str(e), RNS.LOG_ERROR)
 
                     self.socket = None
 
