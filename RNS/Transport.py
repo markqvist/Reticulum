@@ -76,7 +76,7 @@ class Transport:
     STATE_RESPONSIVE            = 0x02
 
     LINK_TIMEOUT                = RNS.Link.STALE_TIME * 1.25
-    REVERSE_TIMEOUT             = 30*60        # Reverse table entries are removed after 30 minutes
+    REVERSE_TIMEOUT             = 8*60         # Reverse table entries are removed after 8 minutes
     DESTINATION_TIMEOUT         = 60*60*24*7   # Destination table entries are removed if unused for one week
     MAX_RECEIPTS                = 1024         # Maximum number of receipts to keep track of
     MAX_RATE_TIMESTAMPS         = 16           # Maximum number of announce timestamps to keep per destination
@@ -137,6 +137,8 @@ class Transport:
     receipts_check_interval     = 1.0
     announces_last_checked      = 0.0
     announces_check_interval    = 1.0
+    pending_prs_last_checked    = 0.0
+    pending_prs_check_interval  = 30.0
     hashlist_maxsize            = 1000000
     tables_last_culled          = 0.0
     tables_cull_interval        = 5.0
@@ -501,6 +503,15 @@ class Transport:
                     Transport.packet_hashlist_prev = Transport.packet_hashlist
                     Transport.packet_hashlist = set()
 
+                # Cull invalidated path requests
+                if time.time() > Transport.pending_prs_last_checked+Transport.pending_prs_check_interval:
+                    for destination_hash in Transport.pending_local_path_requests.copy():
+                        if not Transport.pending_local_path_requests[destination_hash] in Transport.interfaces:
+                            RNS.log(f"Removing {RNS.Transport.pending_local_path_requests[destination_hash]} for pending path request", RNS.LOG_CRITICAL) # TODO: Remove debug
+                            Transport.pending_local_path_requests.pop(destination_hash)
+
+                    Transport.pending_prs_last_checked = time.time()
+
                 # Cull the path request tags list if it has reached its max size
                 if len(Transport.discovery_pr_tags) > Transport.max_pr_tags:
                     Transport.discovery_pr_tags = Transport.discovery_pr_tags[len(Transport.discovery_pr_tags)-Transport.max_pr_tags:len(Transport.discovery_pr_tags)-1]
@@ -518,6 +529,12 @@ class Transport:
                         reverse_entry = Transport.reverse_table[truncated_packet_hash]
                         if time.time() > reverse_entry[IDX_RT_TIMESTAMP] + Transport.REVERSE_TIMEOUT:
                             stale_reverse_entries.append(truncated_packet_hash)
+                        elif not reverse_entry[IDX_RT_OUTB_IF] in Transport.interfaces:
+                            RNS.log(f"Removing reverse table entry since next-hop interface disappeared", RNS.LOG_CRITICAL) # TODO: Remove
+                            stale_reverse_entries.append(truncated_packet_hash)
+                        elif not reverse_entry[IDX_RT_RCVD_IF] in Transport.interfaces:
+                            stale_reverse_entries.append(truncated_packet_hash)
+                            RNS.log(f"Removing reverse table entry since prev-hop interface disappeared", RNS.LOG_CRITICAL) # TODO: Remove
 
                     # Cull the link table according to timeout
                     stale_links = []
@@ -526,6 +543,12 @@ class Transport:
 
                         if link_entry[IDX_LT_VALIDATED] == True:
                             if time.time() > link_entry[IDX_LT_TIMESTAMP] + Transport.LINK_TIMEOUT:
+                                stale_links.append(link_id)
+                            elif not link_entry[IDX_LT_NH_IF] in Transport.interfaces:
+                                RNS.log(f"Removing link {RNS.prettyhexrep(link_id)} since next-hop interface disappeared", RNS.LOG_CRITICAL) # TODO: Remove
+                                stale_links.append(link_id)
+                            elif not link_entry[IDX_LT_RCVD_IF] in Transport.interfaces:
+                                RNS.log(f"Removing link {RNS.prettyhexrep(link_id)} since prev-hop interface disappeared", RNS.LOG_CRITICAL) # TODO: Remove
                                 stale_links.append(link_id)
                         else:
                             if time.time() > link_entry[IDX_LT_PROOF_TMO]:
