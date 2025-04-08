@@ -140,7 +140,7 @@ class Transport:
     pending_prs_last_checked    = 0.0
     pending_prs_check_interval  = 30.0
     cache_last_cleaned          = 0.0
-    cache_clean_interval        = 60.0
+    cache_clean_interval        = 300.0
     hashlist_maxsize            = 1000000
     tables_last_culled          = 0.0
     tables_cull_interval        = 5.0
