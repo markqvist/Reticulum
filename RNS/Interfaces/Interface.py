@@ -128,7 +128,7 @@ class Interface:
     def optimise_mtu(self):
         if self.AUTOCONFIGURE_MTU:
             if self.bitrate   > 500_000_000:
-                self.HW_MTU = 1048576
+                self.HW_MTU = 524288
             elif self.bitrate > 16_000_000:
                 self.HW_MTU = 262144
             elif self.bitrate > 8_000_000:

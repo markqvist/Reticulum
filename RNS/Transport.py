@@ -1744,7 +1744,7 @@ class Transport:
                             if hasattr(packet.receiving_interface, "tunnel_id") and packet.receiving_interface.tunnel_id != None:
                                 tunnel_entry = Transport.tunnels[packet.receiving_interface.tunnel_id]
                                 paths = tunnel_entry[IDX_TT_PATHS]
-                                paths[packet.destination_hash] = path_table_entry
+                                paths[packet.destination_hash] = [now, received_from, announce_hops, expires, random_blobs, None, packet.packet_hash]
                                 expires = time.time() + Transport.DESTINATION_TIMEOUT
                                 tunnel_entry[IDX_TT_EXPIRES] = expires
                                 RNS.log("Path to "+RNS.prettyhexrep(packet.destination_hash)+" associated with tunnel "+RNS.prettyhexrep(packet.receiving_interface.tunnel_id), RNS.LOG_DEBUG)
@@ -2045,7 +2045,7 @@ class Transport:
                 received_from = path_entry[1]
                 announce_hops = path_entry[2]
                 expires = path_entry[3]
-                random_blobs = path_entry[4]
+                random_blobs = list(set(path_entry[4]))
                 receiving_interface = interface
                 packet_hash = path_entry[6]
                 new_entry = [time.time(), received_from, announce_hops, expires, random_blobs, receiving_interface, packet_hash]

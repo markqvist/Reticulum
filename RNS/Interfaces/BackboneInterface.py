@@ -173,16 +173,20 @@ class BackboneInterface(Interface):
 
     @staticmethod
     def register_in(fileno):
-        # TODO: Remove debug
-        # RNS.log(f"Registering EPOLL_IN for {fileno}", RNS.LOG_DEBUG)
+        if fileno < 0:
+            RNS.log(f"Attempt to register invalid file descriptor {fileno}", RNS.LOG_ERROR)
+            return
+
         try: BackboneInterface.epoll.register(fileno, select.EPOLLIN)
         except Exception as e:
             RNS.log(f"An error occurred while registering EPOLL_IN for file descriptor {fileno}: {e}", RNS.LOG_ERROR)
 
     @staticmethod
     def deregister_fileno(fileno):
-        # TODO: Remove debug
-        # RNS.log(f"Deregistering {fileno}", RNS.LOG_DEBUG)
+        if fileno < 0:
+            RNS.log(f"Attempt to deregister invalid file descriptor {fileno}", RNS.LOG_ERROR)
+            return
+
         try: BackboneInterface.epoll.unregister(fileno)
         except Exception as e:
             RNS.log(f"An error occurred while deregistering file descriptor {fileno}: {e}", RNS.LOG_DEBUG)
@@ -223,7 +227,7 @@ class BackboneInterface(Interface):
                                 spawned_interface = BackboneInterface.spawned_interface_filenos[fileno]
                                 client_socket = spawned_interface.socket
                                 if client_socket and fileno == client_socket.fileno() and (event & select.EPOLLIN):
-                                    try: received_bytes = client_socket.recv(4096)
+                                    try: received_bytes = client_socket.recv(spawned_interface.HW_MTU)
                                     except Exception as e:
                                         RNS.log(f"Error while reading from {spawned_interface}: {e}", RNS.LOG_DEBUG)
                                         received_bytes = b""
@@ -647,9 +651,6 @@ class BackboneClientInterface(Interface):
 
 
     def __str__(self):
-        if ":" in self.target_ip:
-            ip_str = f"[{self.target_ip}]"
-        else:
-            ip_str = f"{self.target_ip}"
-
+        if ":" in self.target_ip: ip_str = f"[{self.target_ip}]"
+        else: ip_str = f"{self.target_ip}"
         return "BackboneInterface["+str(self.name)+"/"+ip_str+":"+str(self.target_port)+"]"
