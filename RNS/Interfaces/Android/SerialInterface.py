@@ -53,7 +53,7 @@ class SerialInterface(Interface):
     serial   = None
 
     def __init__(self, owner, configuration):
-        import importlib
+        import importlib.util
         if RNS.vendor.platformutils.is_android():
             self.on_android  = True
             if importlib.util.find_spec('usbserial4a') != None:

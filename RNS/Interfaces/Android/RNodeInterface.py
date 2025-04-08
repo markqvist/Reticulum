@@ -368,7 +368,7 @@ class RNodeInterface(Interface):
         lt_alock = float(c["airtime_limit_long"]) if "airtime_limit_long" in c and c["airtime_limit_long"] != None else None
         port = c["port"] if "port" in c else None
 
-        import importlib
+        import importlib.util
         if RNS.vendor.platformutils.is_android():
             self.on_android  = True
             if importlib.util.find_spec('usbserial4a') != None:

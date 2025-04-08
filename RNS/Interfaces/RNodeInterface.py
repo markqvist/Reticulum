@@ -126,7 +126,7 @@ class RNodeInterface(Interface):
         if RNS.vendor.platformutils.is_android():
             raise SystemError("Invalid interface type. The Android-specific RNode interface must be used on Android")
 
-        import importlib
+        import importlib.util
         if importlib.util.find_spec('serial') != None:
             import serial
         else:
@@ -1190,7 +1190,7 @@ class BLEConnection():
         self.connect_job_running = False
         self.device_disappeared = False
 
-        import importlib
+        import importlib.util
         if BLEConnection.bleak == None:
             if importlib.util.find_spec("bleak") != None:
                 import bleak

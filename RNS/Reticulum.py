@@ -39,7 +39,7 @@ else:
 from RNS.vendor.configobj import ConfigObj
 import configparser
 import multiprocessing.connection
-import importlib
+import importlib.util
 import threading
 import signal
 import atexit

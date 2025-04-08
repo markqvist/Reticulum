@@ -49,7 +49,7 @@ pyc_modules = glob.glob(os.path.dirname(__file__)+"/*.pyc")
 modules     = py_modules+pyc_modules
 __all__ = list(set([os.path.basename(f).replace(".pyc", "").replace(".py", "") for f in modules if not (f.endswith("__init__.py") or f.endswith("__init__.pyc"))]))
 
-import importlib
+import importlib.util
 if importlib.util.find_spec("cython"): import cython; compiled = cython.compiled
 else: compiled = False
 

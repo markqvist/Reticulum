@@ -141,7 +141,7 @@ class RNodeMultiInterface(Interface):
         if RNS.vendor.platformutils.is_android():
             raise SystemError("Invalid interface type. The Android-specific RNode interface must be used on Android")
 
-        import importlib
+        import importlib.util
         if importlib.util.find_spec('serial') != None:
             import serial
         else:
@@ -927,7 +927,7 @@ class RNodeSubInterface(Interface):
         if RNS.vendor.platformutils.is_android():
             raise SystemError("Invalid interface type. The Android-specific RNode interface must be used on Android")
 
-        import importlib
+        import importlib.util
         if importlib.util.find_spec('serial') != None:
             import serial
         else:

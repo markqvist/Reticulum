@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import importlib
+import importlib.util
 if importlib.util.find_spec('hashlib') != None:
     import hashlib
 else:

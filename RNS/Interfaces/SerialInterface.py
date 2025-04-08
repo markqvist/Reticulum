@@ -53,7 +53,7 @@ class SerialInterface(Interface):
     serial   = None
 
     def __init__(self, owner, configuration):
-        import importlib
+        import importlib.util
         if importlib.util.find_spec('serial') != None:
             import serial
         else:
