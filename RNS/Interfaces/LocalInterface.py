@@ -446,7 +446,7 @@ class LocalServerInterface(Interface):
         if from_spawned: self.oa_freq_deque.append(time.time())
 
     def __str__(self):
-        if self.socket_path: return "Shared Instance["+str(self.socket_path)+"]"
+        if self.socket_path: return "Shared Instance["+str(self.socket_path.replace("\0", ""))+"]"
         else: return "Shared Instance["+str(self.bind_port)+"]"
 
 class LocalInterfaceHandler(socketserver.BaseRequestHandler):
