@@ -129,7 +129,7 @@ def log(msg, level=3, _override_destination = False, pt=False):
             if not compact_log_fmt:
                 logstring = "["+timestamp_str(time.time())+"] "+loglevelname(level)+" "+msg
             else:
-                logstring = "["+timestamp_str(time.time())+" "+msg
+                logstring = "["+timestamp_str(time.time())+"] "+msg
 
         with logging_lock:
             if (logdest == LOG_STDOUT or _always_override_destination or _override_destination):
