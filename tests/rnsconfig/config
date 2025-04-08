@@ -1,6 +1,7 @@
 [reticulum]
   enable_transport = no
   share_instance = Yes
+  instance_name = testrunner
   shared_instance_port = 55905
   instance_control_port = 55906
   panic_on_interface_error = No

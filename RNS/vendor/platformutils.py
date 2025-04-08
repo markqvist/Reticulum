@@ -32,6 +32,10 @@ def is_windows():
     else:
         return False
 
+def use_epoll():
+    if is_linux(): return True
+    else: return False
+
 def platform_checks():
     if is_windows():
         import sys

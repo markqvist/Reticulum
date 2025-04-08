@@ -62,7 +62,7 @@ class LocalClientInterface(Interface):
         self.HW_MTU           = 262144
         self.online           = False
         
-        if socket_path != None and RNS.vendor.platformutils.is_linux(): self.socket_path = f"\0rns/{socket_path}"
+        if socket_path != None and RNS.vendor.platformutils.use_epoll(): self.socket_path = f"\0rns/{socket_path}"
         else: self.socket_path = None
         
         self.IN               = True
@@ -77,7 +77,7 @@ class LocalClientInterface(Interface):
         self.frame_buffer     = b""
         self.transmit_buffer  = b""
 
-        if RNS.vendor.platformutils.is_linux():
+        if RNS.vendor.platformutils.use_epoll():
             self.epoll_backend = True
 
         if connected_socket != None:
@@ -349,7 +349,7 @@ class LocalServerInterface(Interface):
         self.name = "Reticulum"
         self.mode = RNS.Interfaces.Interface.Interface.MODE_FULL
 
-        if RNS.vendor.platformutils.is_linux():
+        if RNS.vendor.platformutils.use_epoll():
             self.epoll_backend = True
 
         if socket_path != None and self.epoll_backend:
