@@ -283,6 +283,9 @@ class Reticulum:
         if not os.path.isdir(Reticulum.cachepath):
             os.makedirs(Reticulum.cachepath)
 
+        if not os.path.isdir(os.path.join(Reticulum.cachepath, "announces")):
+            os.makedirs(os.path.join(Reticulum.cachepath, "announces"))
+
         if not os.path.isdir(Reticulum.resourcepath):
             os.makedirs(Reticulum.resourcepath)
 
