@@ -11,5 +11,8 @@ rns*.egg-info
 profile.data
 tests/rnsconfig/storage
 tests/rnsconfig/logfile*
+docs/manual/*
+docs/*.pdf
+docs/*.epub
 *.data
 *.result
