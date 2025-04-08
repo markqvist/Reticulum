@@ -21,7 +21,7 @@ else:
     pkg_name = "rns"
     requirements = ['cryptography>=3.4.7', 'pyserial>=3.5']
 
-excluded_modules = exclude=["tests.*", "tests"]
+excluded_modules = ["tests.*", "tests"]
 packages = setuptools.find_packages(exclude=excluded_modules)
 
 setuptools.setup(

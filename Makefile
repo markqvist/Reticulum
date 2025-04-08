@@ -24,6 +24,12 @@ clean:
 	@make -C docs clean
 	@echo Done
 
+purge_docs:
+	@echo Purging documentation build...
+	@-rm -rf ./docs/manual
+	@-rm -rf ./docs/*.pdf
+	@-rm -rf ./docs/*.epub
+
 remove_symlinks:
 	@echo Removing symlinks for build...
 	-rm Examples/RNS
@@ -34,14 +40,14 @@ create_symlinks:
 	-ln -s ../RNS ./Examples/
 	-ln -s ../../RNS ./RNS/Utilities/
 
-build_sdist_only:
+build_sdist: purge_docs
 	python3 setup.py sdist
 
 build_wheel:
-	python3 setup.py sdist bdist_wheel
+	python3 setup.py bdist_wheel
 
 build_pure_wheel:
-	python3 setup.py sdist bdist_wheel --pure
+	python3 setup.py bdist_wheel --pure
 
 documentation:
 	make -C docs html
@@ -49,7 +55,7 @@ documentation:
 manual:
 	make -C docs latexpdf epub
 
-release: test remove_symlinks build_wheel build_pure_wheel documentation manual create_symlinks
+release: test remove_symlinks build_sdist build_wheel build_pure_wheel documentation manual create_symlinks
 
 debug: remove_symlinks build_wheel build_pure_wheel create_symlinks
 
