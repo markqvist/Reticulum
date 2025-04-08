@@ -95,7 +95,12 @@ class Identity:
     @staticmethod
     def recall(target_hash, from_identity_hash=False):
         """
-        Recall identity for a destination or identity hash.
+        Recall identity for a destination or identity hash. By default, this function
+        will return the identity associated with a given *destination* hash. As an
+        example, if you know the ``lxmf.delivery`` destination hash of an endpoint,
+        this function will return the associated underlying identity. You can also
+        search for an identity from a known *identity hash*, by setting the
+        ``from_identity_hash`` argument.
 
         :param target_hash: Destination or identity hash as *bytes*.
         :param from_identity_hash: Whether to search based on identity hash instead of destination hash as *bool*.
