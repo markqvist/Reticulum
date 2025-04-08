@@ -63,7 +63,7 @@ def main():
         # parser.add_argument("file", nargs="?", default=None, help="input file path", type=str)
 
         parser.add_argument("--config", metavar="path", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
-        parser.add_argument("-i", "--identity", metavar="identity", action="store", default=None, help="hexadecimal Reticulum Destination hash or path to Identity file", type=str)
+        parser.add_argument("-i", "--identity", metavar="identity", action="store", default=None, help="hexadecimal Reticulum identity or destination hash, or path to Identity file", type=str)
         parser.add_argument("-g", "--generate", metavar="file", action="store", default=None, help="generate a new Identity")
         parser.add_argument("-m", "--import", dest="import_str", metavar="identity_data", action="store", default=None, help="import Reticulum identity in hex, base32 or base64 format", type=str)
         parser.add_argument("-x", "--export", action="store_true", default=None, help="export identity to hex, base32 or base64 format")
@@ -205,29 +205,32 @@ def main():
             if len(identity_str) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8*2 and not os.path.isfile(identity_str):
                 # Try recalling Identity from hex-encoded hash
                 try:
-                    destination_hash = bytes.fromhex(identity_str)
-                    identity = RNS.Identity.recall(destination_hash)
+                    ident_hash = bytes.fromhex(identity_str)
+                    identity = RNS.Identity.recall(ident_hash) or RNS.Identity.recall(ident_hash, from_identity_hash=True)
 
                     if identity == None:
                         if not args.request:
-                            RNS.log("Could not recall Identity for "+RNS.prettyhexrep(destination_hash)+".", RNS.LOG_ERROR)
+                            RNS.log("Could not recall Identity for "+RNS.prettyhexrep(ident_hash)+".", RNS.LOG_ERROR)
                             RNS.log("You can query the network for unknown Identities with the -R option.", RNS.LOG_ERROR)
                             exit(5)
                         else:
-                            RNS.Transport.request_path(destination_hash)
+                            RNS.Transport.request_path(ident_hash)
                             def spincheck():
-                                return RNS.Identity.recall(destination_hash) != None
-                            spin(spincheck, "Requesting unknown Identity for "+RNS.prettyhexrep(destination_hash), args.t)
+                                return RNS.Identity.recall(ident_hash) != None
+                            spin(spincheck, "Requesting unknown Identity for "+RNS.prettyhexrep(ident_hash), args.t)
 
                             if not spincheck():
                                 RNS.log("Identity request timed out", RNS.LOG_ERROR)
                                 exit(6)
                             else:
-                                identity = RNS.Identity.recall(destination_hash)
-                                RNS.log("Received Identity "+str(identity)+" for destination "+RNS.prettyhexrep(destination_hash)+" from the network")
+                                identity = RNS.Identity.recall(ident_hash)
+                                RNS.log("Received Identity "+str(identity)+" for destination "+RNS.prettyhexrep(ident_hash)+" from the network")
 
                     else:
-                        RNS.log("Recalled Identity "+str(identity)+" for destination "+RNS.prettyhexrep(destination_hash))
+                        ident_str = str(identity)
+                        hash_str  = RNS.prettyhexrep(ident_hash)
+                        if ident_str == hash_str: RNS.log(f"Recalled Identity {ident_str}")
+                        else:                     RNS.log(f"Recalled Identity {ident_str} for destination {hash_str}")
 
 
                 except Exception as e:

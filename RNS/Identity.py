@@ -93,28 +93,41 @@ class Identity:
 
 
     @staticmethod
-    def recall(destination_hash):
+    def recall(target_hash, from_identity_hash=False):
         """
-        Recall identity for a destination hash.
+        Recall identity for a destination or identity hash.
 
-        :param destination_hash: Destination hash as *bytes*.
+        :param target_hash: Destination or identity hash as *bytes*.
+        :param from_identity_hash: Whether to search based on identity hash instead of destination hash as *bool*.
         :returns: An :ref:`RNS.Identity<api-identity>` instance that can be used to create an outgoing :ref:`RNS.Destination<api-destination>`, or *None* if the destination is unknown.
         """
-        if destination_hash in Identity.known_destinations:
-            identity_data = Identity.known_destinations[destination_hash]
-            identity = Identity(create_keys=False)
-            identity.load_public_key(identity_data[2])
-            identity.app_data = identity_data[3]
-            return identity
-        else:
-            for registered_destination in RNS.Transport.destinations:
-                if destination_hash == registered_destination.hash:
+        if from_identity_hash:
+            for destination_hash in Identity.known_destinations:
+                if target_hash == Identity.truncated_hash(Identity.known_destinations[destination_hash][2]):
+                    identity_data = Identity.known_destinations[destination_hash]
                     identity = Identity(create_keys=False)
-                    identity.load_public_key(registered_destination.identity.get_public_key())
-                    identity.app_data = None
+                    identity.load_public_key(identity_data[2])
+                    identity.app_data = identity_data[3]
                     return identity
 
             return None
+
+        else:
+            if target_hash in Identity.known_destinations:
+                identity_data = Identity.known_destinations[target_hash]
+                identity = Identity(create_keys=False)
+                identity.load_public_key(identity_data[2])
+                identity.app_data = identity_data[3]
+                return identity
+            else:
+                for registered_destination in RNS.Transport.destinations:
+                    if target_hash == registered_destination.hash:
+                        identity = Identity(create_keys=False)
+                        identity.load_public_key(registered_destination.identity.get_public_key())
+                        identity.app_data = None
+                        return identity
+
+                return None
 
     @staticmethod
     def recall_app_data(destination_hash):

@@ -192,7 +192,7 @@ class Destination:
         """
         :returns: A human-readable representation of the destination including addressable hash and full name.
         """
-        return "<"+self.name+"/"+self.hexhash+">"
+        return "<"+self.name+":"+self.hexhash+">"
 
     def _clean_ratchets(self):
         if self.ratchets != None:
