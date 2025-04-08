@@ -1,0 +1,1133 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Understanding Reticulum" href="understanding.html" /><link rel="prev" title="Getting Started Fast" href="gettingstartedfast.html" />
+
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
+        <title>Using Reticulum on Your System - Reticulum Network Stack 0.9.4 beta documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.9.4 beta documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.9.4 beta documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="whatis.html">What is Reticulum?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstartedfast.html">Getting Started Fast</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Using Reticulum on Your System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interfaces.html">Configuring Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="using-reticulum-on-your-system">
+<span id="using-main"></span><h1>Using Reticulum on Your System<a class="headerlink" href="#using-reticulum-on-your-system" title="Permalink to this heading">#</a></h1>
+<p>Reticulum is not installed as a driver or kernel module, as one might expect
+of a networking stack. Instead, Reticulum is distributed as a Python module,
+containing the networking core, and a set of utility and daemon programs.</p>
+<p>This means that no special privileges are required to install or use it. It
+is also very light-weight, and easy to transfer to, and install on new systems.</p>
+<p>When you have Reticulum installed, any program or application that uses Reticulum
+will automatically load and initialise Reticulum when it starts, if it is not
+already running.</p>
+<p>In many cases, this approach is sufficient. When any program needs to use
+Reticulum, it is loaded, initialised, interfaces are brought up, and the
+program can now communicate over any Reticulum networks available. If another
+program starts up and also wants access to the same Reticulum network, the already
+running instance is simply shared. This works for any number of programs running
+concurrently, and is very easy to use, but depending on your use case, there
+are other options.</p>
+<section id="configuration-data">
+<h2>Configuration &amp; Data<a class="headerlink" href="#configuration-data" title="Permalink to this heading">#</a></h2>
+<p>Reticulum stores all information that it needs to function in a single file-system
+directory. When Reticulum is started, it will look for a valid configuration
+directory in the following places:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">/etc/reticulum</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">~/.config/reticulum</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">~/.reticulum</span></code></p></li>
+</ul>
+<p>If no existing configuration directory is found, the directory <code class="docutils literal notranslate"><span class="pre">~/.reticulum</span></code>
+is created, and the default configuration will be automatically created here.
+You can move it to one of the other locations if you wish.</p>
+<p>It is also possible to use completely arbitrary configuration directories by
+specifying the relevant command-line parameters when running Reticulum-based
+programs. You can also run multiple separate Reticulum instances on the same
+physical system, either in isolation from each other, or connected together.</p>
+<p>In most cases, a single physical system will only need to run one Reticulum
+instance. This can either be launched at boot, as a system service, or simply
+be brought up when a program needs it. In either case, any number of programs
+running on the same system will automatically share the same Reticulum instance,
+if the configuration allows for it, which it does by default.</p>
+<p>The entire configuration of Reticulum is found in the <code class="docutils literal notranslate"><span class="pre">~/.reticulum/config</span></code>
+file. When Reticulum is first started on a new system, a basic, but fully functional
+configuration file is created. The default configuration looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This is the default Reticulum config file.</span>
+<span class="c1"># You should probably edit it to include any additional,</span>
+<span class="c1"># interfaces and settings you might need.</span>
+
+<span class="c1"># Only the most basic options are included in this default</span>
+<span class="c1"># configuration. To see a more verbose, and much longer,</span>
+<span class="c1"># configuration example, you can run the command:</span>
+<span class="c1"># rnsd --exampleconfig</span>
+
+
+<span class="p">[</span><span class="n">reticulum</span><span class="p">]</span>
+
+<span class="c1"># If you enable Transport, your system will route traffic</span>
+<span class="c1"># for other peers, pass announces and serve path requests.</span>
+<span class="c1"># This should only be done for systems that are suited to</span>
+<span class="c1"># act as transport nodes, ie. if they are stationary and</span>
+<span class="c1"># always-on. This directive is optional and can be removed</span>
+<span class="c1"># for brevity.</span>
+
+<span class="n">enable_transport</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="c1"># By default, the first program to launch the Reticulum</span>
+<span class="c1"># Network Stack will create a shared instance, that other</span>
+<span class="c1"># programs can communicate with. Only the shared instance</span>
+<span class="c1"># opens all the configured interfaces directly, and other</span>
+<span class="c1"># local programs communicate with the shared instance over</span>
+<span class="c1"># a local socket. This is completely transparent to the</span>
+<span class="c1"># user, and should generally be turned on. This directive</span>
+<span class="c1"># is optional and can be removed for brevity.</span>
+
+<span class="n">share_instance</span> <span class="o">=</span> <span class="n">Yes</span>
+
+
+<span class="c1"># If you want to run multiple *different* shared instances</span>
+<span class="c1"># on the same system, you will need to specify different</span>
+<span class="c1"># shared instance ports for each. The defaults are given</span>
+<span class="c1"># below, and again, these options can be left out if you</span>
+<span class="c1"># don&#39;t need them.</span>
+
+<span class="n">shared_instance_port</span> <span class="o">=</span> <span class="mi">37428</span>
+<span class="n">instance_control_port</span> <span class="o">=</span> <span class="mi">37429</span>
+
+
+<span class="c1"># On systems where running instances may not have access</span>
+<span class="c1"># to the same shared Reticulum configuration directory,</span>
+<span class="c1"># it is still possible to allow full interactivity for</span>
+<span class="c1"># running instances, by manually specifying a shared RPC</span>
+<span class="c1"># key. In almost all cases, this option is not needed, but</span>
+<span class="c1"># it can be useful on operating systems such as Android.</span>
+<span class="c1"># The key must be specified as bytes in hexadecimal.</span>
+
+<span class="c1"># rpc_key = e5c032d3ec4e64a6aca9927ba8ab73336780f6d71790</span>
+
+
+<span class="c1"># You can configure Reticulum to panic and forcibly close</span>
+<span class="c1"># if an unrecoverable interface error occurs, such as the</span>
+<span class="c1"># hardware device for an interface disappearing. This is</span>
+<span class="c1"># an optional directive, and can be left out for brevity.</span>
+<span class="c1"># This behaviour is disabled by default.</span>
+
+<span class="n">panic_on_interface_error</span> <span class="o">=</span> <span class="n">No</span>
+
+
+<span class="c1"># When Transport is enabled, it is possible to allow the</span>
+<span class="c1"># Transport Instance to respond to probe requests from</span>
+<span class="c1"># the rnprobe utility. This can be a useful tool to test</span>
+<span class="c1"># connectivity. When this option is enabled, the probe</span>
+<span class="c1"># destination will be generated from the Identity of the</span>
+<span class="c1"># Transport Instance, and printed to the log at startup.</span>
+<span class="c1"># Optional, and disabled by default.</span>
+
+<span class="n">respond_to_probes</span> <span class="o">=</span> <span class="n">No</span>
+
+
+<span class="p">[</span><span class="n">logging</span><span class="p">]</span>
+<span class="c1"># Valid log levels are 0 through 7:</span>
+<span class="c1">#   0: Log only critical information</span>
+<span class="c1">#   1: Log errors and lower log levels</span>
+<span class="c1">#   2: Log warnings and lower log levels</span>
+<span class="c1">#   3: Log notices and lower log levels</span>
+<span class="c1">#   4: Log info and lower (this is the default)</span>
+<span class="c1">#   5: Verbose logging</span>
+<span class="c1">#   6: Debug logging</span>
+<span class="c1">#   7: Extreme logging</span>
+
+<span class="n">loglevel</span> <span class="o">=</span> <span class="mi">4</span>
+
+
+<span class="c1"># The interfaces section defines the physical and virtual</span>
+<span class="c1"># interfaces Reticulum will use to communicate on. This</span>
+<span class="c1"># section will contain examples for a variety of interface</span>
+<span class="c1"># types. You can modify these or use them as a basis for</span>
+<span class="c1"># your own config, or simply remove the unused ones.</span>
+
+<span class="p">[</span><span class="n">interfaces</span><span class="p">]</span>
+
+  <span class="c1"># This interface enables communication with other</span>
+  <span class="c1"># link-local Reticulum nodes over UDP. It does not</span>
+  <span class="c1"># need any functional IP infrastructure like routers</span>
+  <span class="c1"># or DHCP servers, but will require that at least link-</span>
+  <span class="c1"># local IPv6 is enabled in your operating system, which</span>
+  <span class="c1"># should be enabled by default in almost any OS. See</span>
+  <span class="c1"># the Reticulum Manual for more configuration options.</span>
+
+  <span class="p">[[</span><span class="n">Default</span> <span class="n">Interface</span><span class="p">]]</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">AutoInterface</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>If Reticulum infrastructure already exists locally, you probably don’t need to
+change anything, and you may already be connected to a wider network. If not,
+you will probably need to add relevant <em>interfaces</em> to the configuration, in
+order to communicate with other systems.</p>
+<p>You can generate a much more verbose configuration example by running the command:</p>
+<p><code class="docutils literal notranslate"><span class="pre">rnsd</span> <span class="pre">--exampleconfig</span></code></p>
+<p>The output includes examples for most interface types supported
+by Reticulum, along with additional options and configuration parameters.</p>
+<p>It is a good idea to read the comments and explanations in the above default config.
+It will teach you the basic concepts you need to understand to configure your network.
+Once you have done that, take a look at the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> chapter
+of this manual.</p>
+</section>
+<section id="included-utility-programs">
+<h2>Included Utility Programs<a class="headerlink" href="#included-utility-programs" title="Permalink to this heading">#</a></h2>
+<p>Reticulum includes a range of useful utilities, both for managing your Reticulum
+networks, and for carrying out common tasks over Reticulum networks, such as
+transferring files to remote systems, and executing commands and programs remotely.</p>
+<p>If you often use Reticulum from several different programs, or simply want
+Reticulum to stay available all the time, for example if you are hosting
+a transport node, you might want to run Reticulum as a separate service that
+other programs, applications and services can utilise.</p>
+<section id="the-rnsd-utility">
+<h3>The rnsd Utility<a class="headerlink" href="#the-rnsd-utility" title="Permalink to this heading">#</a></h3>
+<p>It is very easy to run Reticulum as a service. Simply run the included <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> command.
+When <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> is running, it will keep all configured interfaces open, handle transport if
+it is enabled, and allow any other programs to immediately utilise the
+Reticulum network it is configured for.</p>
+<p>You can even run multiple instances of <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> with different configurations on
+the same system.</p>
+<p><strong>Usage Examples</strong></p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">rnsd</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnsd
+
+[2023-08-18 17:59:56] [Notice] Started rnsd version 0.5.8
+</pre></div>
+</div>
+<p>Run <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> in service mode, ensuring all logging output is sent directly to file:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnsd -s
+</pre></div>
+</div>
+<p>Generate a verbose and detailed configuration example, with explanations of all the
+various configuration options, and interface configuration examples:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnsd --exampleconfig
+</pre></div>
+</div>
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnsd.py [-h] [--config CONFIG] [-v] [-q] [-s] [--exampleconfig] [--version]
+
+Reticulum Network Stack Daemon
+
+options:
+  -h, --help       show this help message and exit
+  --config CONFIG  path to alternative Reticulum config directory
+  -v, --verbose
+  -q, --quiet
+  -s, --service    rnsd is running as a service and should log to file
+  --exampleconfig  print verbose configuration example to stdout and exit
+  --version        show program&#39;s version number and exit
+</pre></div>
+</div>
+<p>You can easily add <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> as an always-on service by <a class="reference internal" href="#using-systemd"><span class="std std-ref">configuring a service</span></a>.</p>
+</section>
+<section id="the-rnstatus-utility">
+<h3>The rnstatus Utility<a class="headerlink" href="#the-rnstatus-utility" title="Permalink to this heading">#</a></h3>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> utility, you can view the status of configured Reticulum
+interfaces, similar to the <code class="docutils literal notranslate"><span class="pre">ifconfig</span></code> program.</p>
+<p><strong>Usage Examples</strong></p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnstatus
+
+Shared Instance[37428]
+   Status  : Up
+   Serving : 1 program
+   Rate    : 1.00 Gbps
+   Traffic : 83.13 KB↑
+             86.10 KB↓
+
+AutoInterface[Local]
+   Status  : Up
+   Mode    : Full
+   Rate    : 10.00 Mbps
+   Peers   : 1 reachable
+   Traffic : 63.23 KB↑
+             80.17 KB↓
+
+TCPInterface[RNS Testnet Dublin/dublin.connect.reticulum.network:4965]
+   Status  : Up
+   Mode    : Full
+   Rate    : 10.00 Mbps
+   Traffic : 187.27 KB↑
+             74.17 KB↓
+
+RNodeInterface[RNode UHF]
+   Status  : Up
+   Mode    : Access Point
+   Rate    : 1.30 kbps
+   Access  : 64-bit IFAC by &lt;…e702c42ba8&gt;
+   Traffic : 8.49 KB↑
+             9.23 KB↓
+
+Reticulum Transport Instance &lt;5245a8efe1788c6a1cd36144a270e13b&gt; running
+</pre></div>
+</div>
+<p>Filter output to only show some interfaces:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnstatus rnode
+
+RNodeInterface[RNode UHF]
+   Status  : Up
+   Mode    : Access Point
+   Rate    : 1.30 kbps
+   Access  : 64-bit IFAC by &lt;…e702c42ba8&gt;
+   Traffic : 8.49 KB↑
+             9.23 KB↓
+
+Reticulum Transport Instance &lt;5245a8efe1788c6a1cd36144a270e13b&gt; running
+</pre></div>
+</div>
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnstatus [-h] [--config CONFIG] [--version] [-a] [-A]
+                [-l] [-s SORT] [-r] [-j] [-R hash] [-i path]
+                [-w seconds] [-v] [filter]
+
+Reticulum Network Stack Status
+
+positional arguments:
+  filter                only display interfaces with names including filter
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG       path to alternative Reticulum config directory
+  --version             show program&#39;s version number and exit
+  -a, --all             show all interfaces
+  -A, --announce-stats  show announce stats
+  -l, --link-stats      show link stats
+  -s SORT, --sort SORT  sort interfaces by [rate, traffic, rx, tx, announces, arx, atx, held]
+  -r, --reverse         reverse sorting
+  -j, --json            output in JSON format
+  -R hash               transport identity hash of remote instance to get status from
+  -i path               path to identity used for remote management
+  -w seconds            timeout before giving up on remote queries
+  -v, --verbose
+</pre></div>
+</div>
+</section>
+<section id="the-rnid-utility">
+<h3>The rnid Utility<a class="headerlink" href="#the-rnid-utility" title="Permalink to this heading">#</a></h3>
+<p>With the <code class="docutils literal notranslate"><span class="pre">rnid</span></code> utility, you can generate, manage and view Reticulum Identities.
+The program can also calculate Destination hashes, and perform encryption and
+decryption of files.</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">rnid</span></code>, it is possible to asymmetrically encrypt files and information for
+any Reticulum destination hash, and also to create and verify cryptographic signatures.</p>
+<p><strong>Usage Examples</strong></p>
+<p>Generate a new Identity:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnid -g ./new_identity
+</pre></div>
+</div>
+<p>Display Identity key information:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnid -i ./new_identity -p
+
+Loaded Identity &lt;984b74a3f768bef236af4371e6f248cd&gt; from new_id
+Public Key  : 0f4259fef4521ab75a3409e353fe9073eb10783b4912a6a9937c57bf44a62c1e
+Private Key : Hidden
+</pre></div>
+</div>
+<p>Encrypt a file for an LXMF user:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnid -i 8dd57a738226809646089335a6b03695 -e my_file.txt
+
+Recalled Identity &lt;bc7291552be7a58f361522990465165c&gt; for destination &lt;8dd57a738226809646089335a6b03695&gt;
+Encrypting my_file.txt
+File my_file.txt encrypted for &lt;bc7291552be7a58f361522990465165c&gt; to my_file.txt.rfe
+</pre></div>
+</div>
+<p>If the Identity for the destination is not already known, you can fetch it from the network by using the <code class="docutils literal notranslate"><span class="pre">-R</span></code> command-line option:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnid -R -i 30602def3b3506a28ed33db6f60cc6c9 -e my_file.txt
+
+Requesting unknown Identity for &lt;30602def3b3506a28ed33db6f60cc6c9&gt;...
+Received Identity &lt;2b489d06eaf7c543808c76a5332a447d&gt; for destination &lt;30602def3b3506a28ed33db6f60cc6c9&gt; from the network
+Encrypting my_file.txt
+File my_file.txt encrypted for &lt;2b489d06eaf7c543808c76a5332a447d&gt; to my_file.txt.rfe
+</pre></div>
+</div>
+<p>Decrypt a file using the Reticulum Identity it was encrypted for:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnid -i ./my_identity -d my_file.txt.rfe
+
+Loaded Identity &lt;2225fdeecaf6e2db4556c3c2d7637294&gt; from ./my_identity
+Decrypting ./my_file.txt.rfe...
+File ./my_file.txt.rfe decrypted with &lt;2225fdeecaf6e2db4556c3c2d7637294&gt; to ./my_file.txt
+</pre></div>
+</div>
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnid.py [-h] [--config path] [-i identity] [-g path] [-v] [-q] [-a aspects]
+               [-H aspects] [-e path] [-d path] [-s path] [-V path] [-r path] [-w path]
+               [-f] [-R] [-t seconds] [-p] [-P] [--version]
+
+Reticulum Identity &amp; Encryption Utility
+
+options:
+  -h, --help            show this help message and exit
+  --config path         path to alternative Reticulum config directory
+  -i identity, --identity identity
+                        hexadecimal Reticulum Destination hash or path to Identity file
+  -g path, --generate path
+                        generate a new Identity
+  -v, --verbose         increase verbosity
+  -q, --quiet           decrease verbosity
+  -a aspects, --announce aspects
+                        announce a destination based on this Identity
+  -H aspects, --hash aspects
+                        show destination hashes for other aspects for this Identity
+  -e path, --encrypt path
+                        encrypt file
+  -d path, --decrypt path
+                        decrypt file
+  -s path, --sign path  sign file
+  -V path, --validate path
+                        validate signature
+  -r path, --read path  input file path
+  -w path, --write path
+                        output file path
+  -f, --force           write output even if it overwrites existing files
+  -R, --request         request unknown Identities from the network
+  -t seconds            identity request timeout before giving up
+  -p, --print-identity  print identity info and exit
+  -P, --print-private   allow displaying private keys
+  --version             show program&#39;s version number and exit
+</pre></div>
+</div>
+</section>
+<section id="the-rnpath-utility">
+<h3>The rnpath Utility<a class="headerlink" href="#the-rnpath-utility" title="Permalink to this heading">#</a></h3>
+<p>With the <code class="docutils literal notranslate"><span class="pre">rnpath</span></code> utility, you can look up and view paths for
+destinations on the Reticulum network.</p>
+<p><strong>Usage Examples</strong></p>
+<p>Resolve path to a destination:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnpath c89b4da064bf66d280f0e4d8abfd9806
+
+Path found, destination &lt;c89b4da064bf66d280f0e4d8abfd9806&gt; is 4 hops away via &lt;f53a1c4278e0726bb73fcc623d6ce763&gt; on TCPInterface[Testnet/dublin.connect.reticulum.network:4965]
+</pre></div>
+</div>
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-m hops]
+              [-r] [-d] [-D] [-x] [-w seconds] [-R hash] [-i path]
+              [-W seconds] [-j] [-v] [destination]
+
+Reticulum Path Discovery Utility
+
+positional arguments:
+  destination           hexadecimal hash of the destination
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG       path to alternative Reticulum config directory
+  --version             show program&#39;s version number and exit
+  -t, --table           show all known paths
+  -m hops, --max hops   maximum hops to filter path table by
+  -r, --rates           show announce rate info
+  -d, --drop            remove the path to a destination
+  -D, --drop-announces  drop all queued announces
+  -x, --drop-via        drop all paths via specified transport instance
+  -w seconds            timeout before giving up
+  -R hash               transport identity hash of remote instance to manage
+  -i path               path to identity used for remote management
+  -W seconds            timeout before giving up on remote queries
+  -j, --json            output in JSON format
+  -v, --verbose
+</pre></div>
+</div>
+</section>
+<section id="the-rnprobe-utility">
+<h3>The rnprobe Utility<a class="headerlink" href="#the-rnprobe-utility" title="Permalink to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">rnprobe</span></code> utility lets you probe a destination for connectivity, similar
+to the <code class="docutils literal notranslate"><span class="pre">ping</span></code> program. Please note that probes will only be answered if the
+specified destination is configured to send proofs for received packets. Many
+destinations will not have this option enabled, so most destinations will not
+be probable.</p>
+<p>You can enable a probe-reply destination on Reticulum Transport Instances by
+setting the <code class="docutils literal notranslate"><span class="pre">respond_to_probes</span></code> configuration directive. Reticulum will then
+print the probe destination to the log on Transport Instance startup.</p>
+<p><strong>Usage Examples</strong></p>
+<p>Probe a destination:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnprobe rnstransport.probe 2d03725b327348980d570f739a3a5708
+
+Sent 16 byte probe to &lt;2d03725b327348980d570f739a3a5708&gt;
+Valid reply received from &lt;2d03725b327348980d570f739a3a5708&gt;
+Round-trip time is 38.469 milliseconds over 2 hops
+</pre></div>
+</div>
+<p>Send a larger probe:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnprobe rnstransport.probe 2d03725b327348980d570f739a3a5708 -s 256
+
+Sent 16 byte probe to &lt;2d03725b327348980d570f739a3a5708&gt;
+Valid reply received from &lt;2d03725b327348980d570f739a3a5708&gt;
+Round-trip time is 38.781 milliseconds over 2 hops
+</pre></div>
+</div>
+<p>If the interface that receives the probe replies supports reporting radio
+parameters such as <strong>RSSI</strong> and <strong>SNR</strong>, the <code class="docutils literal notranslate"><span class="pre">rnprobe</span></code> utility will print
+these as part of the result as well.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnprobe rnstransport.probe e7536ee90bd4a440e130490b87a25124
+
+Sent 16 byte probe to &lt;e7536ee90bd4a440e130490b87a25124&gt;
+Valid reply received from &lt;e7536ee90bd4a440e130490b87a25124&gt;
+Round-trip time is 1.809 seconds over 1 hop [RSSI -73 dBm] [SNR 12.0 dB]
+</pre></div>
+</div>
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnprobe [-h] [--config CONFIG] [-s SIZE] [-n PROBES]
+               [-t seconds] [-w seconds] [--version] [-v]
+               [full_name] [destination_hash]
+
+Reticulum Probe Utility
+
+positional arguments:
+  full_name             full destination name in dotted notation
+  destination_hash      hexadecimal hash of the destination
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG       path to alternative Reticulum config directory
+  -s SIZE, --size SIZE  size of probe packet payload in bytes
+  -n PROBES, --probes PROBES
+                        number of probes to send
+  -t seconds, --timeout seconds
+                        timeout before giving up
+  -w seconds, --wait seconds
+                        time between each probe
+  --version             show program&#39;s version number and exit
+  -v, --verbose
+</pre></div>
+</div>
+</section>
+<section id="the-rncp-utility">
+<h3>The rncp Utility<a class="headerlink" href="#the-rncp-utility" title="Permalink to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">rncp</span></code> utility is a simple file transfer tool. Using it, you can transfer
+files through Reticulum.</p>
+<p><strong>Usage Examples</strong></p>
+<p>Run rncp on the receiving system, specifying which identities are allowed to send files:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rncp --listen -a 1726dbad538775b5bf9b0ea25a4079c8 -a c50cc4e4f7838b6c31f60ab9032cbc62
+</pre></div>
+</div>
+<p>You can also specify allowed identity hashes (one per line) in the file ~/.rncp/allowed_identities
+and simply running the program in listener mode:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rncp --listen
+</pre></div>
+</div>
+<p>From another system, copy a file to the receiving system:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rncp ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
+</pre></div>
+</div>
+<p>Or fetch a file from the remote system:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rncp --fetch ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
+</pre></div>
+</div>
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rncp [-h] [--config path] [-v] [-q] [-S] [-l] [-F] [-f]
+            [-j path] [-b seconds] [-a allowed_hash] [-n] [-p]
+            [-w seconds] [--version] [file] [destination]
+
+Reticulum File Transfer Utility
+
+positional arguments:
+  file                  file to be transferred
+  destination           hexadecimal hash of the receiver
+
+options:
+  -h, --help            show this help message and exit
+  --config path         path to alternative Reticulum config directory
+  -v, --verbose         increase verbosity
+  -q, --quiet           decrease verbosity
+  -S, --silent          disable transfer progress output
+  -l, --listen          listen for incoming transfer requests
+  -F, --allow-fetch     allow authenticated clients to fetch files
+  -f, --fetch           fetch file from remote listener instead of sending
+  -j path, --jail path  restrict fetch requests to specified path
+  -b seconds            announce interval, 0 to only announce at startup
+  -a allowed_hash       allow this identity
+  -n, --no-auth         accept requests from anyone
+  -p, --print-identity  print identity and destination info and exit
+  -w seconds            sender timeout before giving up
+  --version             show program&#39;s version number and exit
+</pre></div>
+</div>
+</section>
+<section id="the-rnx-utility">
+<h3>The rnx Utility<a class="headerlink" href="#the-rnx-utility" title="Permalink to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">rnx</span></code> utility is a basic remote command execution program. It allows you to
+execute commands on remote systems over Reticulum, and to view returned command
+output. For a fully interactive remote shell solution, be sure to also take a look
+at the <a class="reference external" href="https://github.com/acehoss/rnsh">rnsh</a> program.</p>
+<p><strong>Usage Examples</strong></p>
+<p>Run rnx on the listening system, specifying which identities are allowed to execute commands:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnx --listen -a 941bed5e228775e5a8079fc38b1ccf3f -a 1b03013c25f1c2ca068a4f080b844a10
+</pre></div>
+</div>
+<p>From another system, run a command on the remote:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnx 7a55144adf826958a9529a3bcf08b149 &quot;cat /proc/cpuinfo&quot;
+</pre></div>
+</div>
+<p>Or enter the interactive mode pseudo-shell:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnx 7a55144adf826958a9529a3bcf08b149 -x
+</pre></div>
+</div>
+<p>The default identity file is stored in <code class="docutils literal notranslate"><span class="pre">~/.reticulum/identities/rnx</span></code>, but you can use
+another one, which will be created if it does not already exist</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnx 7a55144adf826958a9529a3bcf08b149 -i /path/to/identity -x
+</pre></div>
+</div>
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnx [-h] [--config path] [-v] [-q] [-p] [-l] [-i identity] [-x] [-b] [-n] [-N]
+           [-d] [-m] [-a allowed_hash] [-w seconds] [-W seconds] [--stdin STDIN]
+           [--stdout STDOUT] [--stderr STDERR] [--version] [destination] [command]
+
+Reticulum Remote Execution Utility
+
+positional arguments:
+  destination           hexadecimal hash of the listener
+  command               command to be execute
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --config path         path to alternative Reticulum config directory
+  -v, --verbose         increase verbosity
+  -q, --quiet           decrease verbosity
+  -p, --print-identity  print identity and destination info and exit
+  -l, --listen          listen for incoming commands
+  -i identity           path to identity to use
+  -x, --interactive     enter interactive mode
+  -b, --no-announce     don&#39;t announce at program start
+  -a allowed_hash       accept from this identity
+  -n, --noauth          accept files from anyone
+  -N, --noid            don&#39;t identify to listener
+  -d, --detailed        show detailed result output
+  -m                    mirror exit code of remote command
+  -w seconds            connect and request timeout before giving up
+  -W seconds            max result download time
+  --stdin STDIN         pass input to stdin
+  --stdout STDOUT       max size in bytes of returned stdout
+  --stderr STDERR       max size in bytes of returned stderr
+  --version             show program&#39;s version number and exit
+</pre></div>
+</div>
+</section>
+<section id="the-rnodeconf-utility">
+<h3>The rnodeconf Utility<a class="headerlink" href="#the-rnodeconf-utility" title="Permalink to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">rnodeconf</span></code> utility allows you to inspect and configure existing <a class="reference internal" href="hardware.html#rnode-main"><span class="std std-ref">RNodes</span></a>, and
+to create and provision new <a class="reference internal" href="hardware.html#rnode-main"><span class="std std-ref">RNodes</span></a> from any supported hardware devices.</p>
+<p><strong>All Command-Line Options</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnodeconf [-h] [-i] [-a] [-u] [-U] [--fw-version version]
+                 [--fw-url url] [--nocheck] [-e] [-E] [-C]
+                 [--baud-flash baud_flash] [-N] [-T] [-b] [-B] [-p] [-D i]
+                 [--display-addr byte] [--freq Hz] [--bw Hz] [--txp dBm]
+                 [--sf factor] [--cr rate] [--eeprom-backup] [--eeprom-dump]
+                 [--eeprom-wipe] [-P] [--trust-key hexbytes] [--version] [-f]
+                 [-r] [-k] [-S] [-H FIRMWARE_HASH] [--platform platform]
+                 [--product product] [--model model] [--hwrev revision]
+                 [port]
+
+RNode Configuration and firmware utility. This program allows you to change
+various settings and startup modes of RNode. It can also install, flash and
+update the firmware on supported devices.
+
+positional arguments:
+  port                  serial port where RNode is attached
+
+options:
+  -h, --help            show this help message and exit
+  -i, --info            Show device info
+  -a, --autoinstall     Automatic installation on various supported devices
+  -u, --update          Update firmware to the latest version
+  -U, --force-update    Update to specified firmware even if version matches
+                        or is older than installed version
+  --fw-version version  Use a specific firmware version for update or
+                        autoinstall
+  --fw-url url          Use an alternate firmware download URL
+  --nocheck             Don&#39;t check for firmware updates online
+  -e, --extract         Extract firmware from connected RNode for later use
+  -E, --use-extracted   Use the extracted firmware for autoinstallation or
+                        update
+  -C, --clear-cache     Clear locally cached firmware files
+  --baud-flash baud_flash
+                        Set specific baud rate when flashing device. Default
+                        is 921600
+  -N, --normal          Switch device to normal mode
+  -T, --tnc             Switch device to TNC mode
+  -b, --bluetooth-on    Turn device bluetooth on
+  -B, --bluetooth-off   Turn device bluetooth off
+  -p, --bluetooth-pair  Put device into bluetooth pairing mode
+  -D i, --display i     Set display intensity (0-255)
+  --display-addr byte   Set display address as hex byte (00 - FF)
+  --freq Hz             Frequency in Hz for TNC mode
+  --bw Hz               Bandwidth in Hz for TNC mode
+  --txp dBm             TX power in dBm for TNC mode
+  --sf factor           Spreading factor for TNC mode (7 - 12)
+  --cr rate             Coding rate for TNC mode (5 - 8)
+  --eeprom-backup       Backup EEPROM to file
+  --eeprom-dump         Dump EEPROM to console
+  --eeprom-wipe         Unlock and wipe EEPROM
+  -P, --public          Display public part of signing key
+  --trust-key hexbytes  Public key to trust for device verification
+  --version             Print program version and exit
+  -f, --flash           Flash firmware and bootstrap EEPROM
+  -r, --rom             Bootstrap EEPROM without flashing firmware
+  -k, --key             Generate a new signing key and exit
+  -S, --sign            Display public part of signing key
+  -H FIRMWARE_HASH, --firmware-hash FIRMWARE_HASH
+                        Display installed firmware hash
+  --platform platform   Platform specification for device bootstrap
+  --product product     Product specification for device bootstrap
+  --model model         Model code for device bootstrap
+  --hwrev revision      Hardware revision for device bootstrap
+</pre></div>
+</div>
+<p>For more information on how to create your own RNodes, please read the <a class="reference internal" href="hardware.html#rnode-creating"><span class="std std-ref">Creating RNodes</span></a>
+section of this manual.</p>
+</section>
+</section>
+<section id="remote-management">
+<h2>Remote Management<a class="headerlink" href="#remote-management" title="Permalink to this heading">#</a></h2>
+<p>It is possible to allow remote management of Reticulum
+systems using the various built-in utilities, such as
+<code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> and <code class="docutils literal notranslate"><span class="pre">rnpath</span></code>. To do so, you will need to set
+the <code class="docutils literal notranslate"><span class="pre">enable_remote_management</span></code> directive in the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code>
+section of the configuration file. You will also need to specify
+one or more Reticulum Identity hashes for authenticating the
+queries from client programs. For this purpose, you can use
+existing identity files, or generate new ones with the rnid utility.</p>
+<p>The following is a truncated example of enabling remote management
+in the Reticulum configuration file:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[reticulum]
+...
+enable_remote_management = yes
+remote_management_allowed = 9fb6d773498fb3feda407ed8ef2c3229, 2d882c5586e548d79b5af27bca1776dc
+...
+</pre></div>
+</div>
+<p>For a complete example configuration, you can run <code class="docutils literal notranslate"><span class="pre">rnsd</span> <span class="pre">--exampleconfig</span></code>.</p>
+</section>
+<section id="improving-system-configuration">
+<h2>Improving System Configuration<a class="headerlink" href="#improving-system-configuration" title="Permalink to this heading">#</a></h2>
+<p>If you are setting up a system for permanent use with Reticulum, there is a
+few system configuration changes that can make this easier to administrate.
+These changes will be detailed here.</p>
+<section id="fixed-serial-port-names">
+<h3>Fixed Serial Port Names<a class="headerlink" href="#fixed-serial-port-names" title="Permalink to this heading">#</a></h3>
+<p>On a Reticulum instance with several serial port based interfaces, it can be
+beneficial to use the fixed device names for the serial ports, instead
+of the dynamically allocated shorthands such as <code class="docutils literal notranslate"><span class="pre">/dev/ttyUSB0</span></code>. Under most
+Debian-based distributions, including Ubuntu and Raspberry Pi OS, these nodes
+can be found under <code class="docutils literal notranslate"><span class="pre">/dev/serial/by-id</span></code>.</p>
+<p>You can use such a device path directly in place of the numbered shorthands.
+Here is an example of a packet radio TNC configured as such:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[[Packet Radio KISS Interface]]
+  type = KISSInterface
+  interface_enabled = True
+  outgoing = true
+  port = /dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_43891CKM-if00-port0
+  speed = 115200
+  databits = 8
+  parity = none
+  stopbits = 1
+  preamble = 150
+  txtail = 10
+  persistence = 200
+  slottime = 20
+</pre></div>
+</div>
+<p>Using this methodology avoids potential naming mix-ups where physical devices
+might be plugged and unplugged in different orders, or when device name
+assignment varies from one boot to another.</p>
+</section>
+<section id="reticulum-as-a-system-service">
+<span id="using-systemd"></span><h3>Reticulum as a System Service<a class="headerlink" href="#reticulum-as-a-system-service" title="Permalink to this heading">#</a></h3>
+<p>Instead of starting Reticulum manually, you can install <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> as a system
+service and have it start automatically at boot.</p>
+<section id="systemwide-service">
+<h4>Systemwide Service<a class="headerlink" href="#systemwide-service" title="Permalink to this heading">#</a></h4>
+<p>If you installed Reticulum with <code class="docutils literal notranslate"><span class="pre">pip</span></code>, the <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> program will most likely
+be located in a user-local installation path only, which means <code class="docutils literal notranslate"><span class="pre">systemd</span></code> will not
+be able to execute it. In this case, you can simply symlink the <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> program
+into a directory that is in systemd’s path:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo ln -s $(which rnsd) /usr/local/bin/
+</pre></div>
+</div>
+<p>You can then create the service file <code class="docutils literal notranslate"><span class="pre">/etc/systemd/system/rnsd.service</span></code> with the
+following content:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[Unit]
+Description=Reticulum Network Stack Daemon
+After=multi-user.target
+
+[Service]
+# If you run Reticulum on WiFi devices,
+# or other devices that need some extra
+# time to initialise, you might want to
+# add a short delay before Reticulum is
+# started by systemd:
+# ExecStartPre=/bin/sleep 10
+Type=simple
+Restart=always
+RestartSec=3
+User=USERNAMEHERE
+ExecStart=rnsd --service
+
+[Install]
+WantedBy=multi-user.target
+</pre></div>
+</div>
+<p>Be sure to replace <code class="docutils literal notranslate"><span class="pre">USERNAMEHERE</span></code> with the user you want to run <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> as.</p>
+<p>To manually start <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo systemctl start rnsd
+</pre></div>
+</div>
+<p>If you want to automatically start <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> at boot, run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo systemctl enable rnsd
+</pre></div>
+</div>
+</section>
+<section id="userspace-service">
+<h4>Userspace Service<a class="headerlink" href="#userspace-service" title="Permalink to this heading">#</a></h4>
+<p>Alternatively you can use a user systemd service instead of a system wide one. This way the whole setup can be done as a regular user.
+Create a user systemd service files <code class="docutils literal notranslate"><span class="pre">~/.config/systemd/user/rnsd.service</span></code> with the following content:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[Unit]
+Description=Reticulum Network Stack Daemon
+After=default.target
+
+[Service]
+# If you run Reticulum on WiFi devices,
+# or other devices that need some extra
+# time to initialise, you might want to
+# add a short delay before Reticulum is
+# started by systemd:
+# ExecStartPre=/bin/sleep 10
+Type=simple
+Restart=always
+RestartSec=3
+ExecStart=RNS_BIN_DIR/rnsd --service
+
+[Install]
+WantedBy=default.target
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">RNS_BIN_DIR</span></code> with the path to your Reticulum binary directory (eg. /home/USERNAMEHERE/rns/bin).</p>
+<p>Start user service:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>systemctl --user daemon-reload
+systemctl --user start rnsd.service
+</pre></div>
+</div>
+<p>If you want to automatically start <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> without having to log in as the USERNAMEHERE, do:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo loginctl enable-linger USERNAMEHERE
+systemctl --user enable rnsd.service
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="understanding.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Understanding Reticulum</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="gettingstartedfast.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Getting Started Fast</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Mark Qvist
+            </div>
+            Generated with <a href="https://www.sphinx-doc.org/">Sphinx</a> and 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Using Reticulum on Your System</a><ul>
+<li><a class="reference internal" href="#configuration-data">Configuration &amp; Data</a></li>
+<li><a class="reference internal" href="#included-utility-programs">Included Utility Programs</a><ul>
+<li><a class="reference internal" href="#the-rnsd-utility">The rnsd Utility</a></li>
+<li><a class="reference internal" href="#the-rnstatus-utility">The rnstatus Utility</a></li>
+<li><a class="reference internal" href="#the-rnid-utility">The rnid Utility</a></li>
+<li><a class="reference internal" href="#the-rnpath-utility">The rnpath Utility</a></li>
+<li><a class="reference internal" href="#the-rnprobe-utility">The rnprobe Utility</a></li>
+<li><a class="reference internal" href="#the-rncp-utility">The rncp Utility</a></li>
+<li><a class="reference internal" href="#the-rnx-utility">The rnx Utility</a></li>
+<li><a class="reference internal" href="#the-rnodeconf-utility">The rnodeconf Utility</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#remote-management">Remote Management</a></li>
+<li><a class="reference internal" href="#improving-system-configuration">Improving System Configuration</a><ul>
+<li><a class="reference internal" href="#fixed-serial-port-names">Fixed Serial Port Names</a></li>
+<li><a class="reference internal" href="#reticulum-as-a-system-service">Reticulum as a System Service</a><ul>
+<li><a class="reference internal" href="#systemwide-service">Systemwide Service</a></li>
+<li><a class="reference internal" href="#userspace-service">Userspace Service</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    </body>
+</html>

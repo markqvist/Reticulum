@@ -1,0 +1,493 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="What is Reticulum?" href="whatis.html" />
+
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
+        <title>Reticulum Network Stack 0.9.4 beta documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="#"><div class="brand">Reticulum Network Stack 0.9.4 beta documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="#">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.9.4 beta documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="whatis.html">What is Reticulum?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstartedfast.html">Getting Started Fast</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using.html">Using Reticulum on Your System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interfaces.html">Configuring Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="reticulum-network-stack-manual">
+<h1>Reticulum Network Stack Manual<a class="headerlink" href="#reticulum-network-stack-manual" title="Permalink to this heading">#</a></h1>
+<p>This manual aims to provide you with all the information you need to
+understand Reticulum, build networks or develop programs using it, or
+to participate in the development of Reticulum itself.</p>
+<p>This manual is also available in <a class="reference external" href="https://github.com/markqvist/Reticulum/releases/latest/download/Reticulum.Manual.pdf">PDF</a> and <a class="reference external" href="https://github.com/markqvist/Reticulum/releases/latest/download/Reticulum.Manual.epub">EPUB</a> formats.</p>
+<section id="table-of-contents">
+<h2>Table Of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this heading">#</a></h2>
+</section>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="whatis.html">What is Reticulum?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="whatis.html#current-status">Current Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatis.html#what-does-reticulum-offer">What does Reticulum Offer?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatis.html#where-can-reticulum-be-used">Where can Reticulum be Used?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatis.html#interface-types-and-devices">Interface Types and Devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatis.html#caveat-emptor">Caveat Emptor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstartedfast.html">Getting Started Fast</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gettingstartedfast.html#standalone-reticulum-installation">Standalone Reticulum Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#resolving-dependency-installation-issues">Resolving Dependency &amp; Installation Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstartedfast.html#try-using-a-reticulum-based-program">Try Using a Reticulum-based Program</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#remote-shell">Remote Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#nomad-network">Nomad Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#sideband">Sideband</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#meshchat">MeshChat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstartedfast.html#using-the-included-utilities">Using the Included Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstartedfast.html#creating-a-network-with-reticulum">Creating a Network With Reticulum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstartedfast.html#connecting-reticulum-instances-over-the-internet">Connecting Reticulum Instances Over the Internet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstartedfast.html#connect-to-the-public-testnet">Connect to the Public Testnet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstartedfast.html#adding-radio-interfaces">Adding Radio Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstartedfast.html#creating-and-using-custom-interfaces">Creating and Using Custom Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstartedfast.html#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstartedfast.html#participate-in-reticulum-development">Participate in Reticulum Development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstartedfast.html#platform-specific-install-notes">Platform-Specific Install Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#android">Android</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#arm64">ARM64</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#debian-bookworm">Debian Bookworm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#macos">MacOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#openwrt">OpenWRT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#raspberry-pi">Raspberry Pi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#risc-v">RISC-V</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#ubuntu-lunar">Ubuntu Lunar</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gettingstartedfast.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstartedfast.html#pure-python-reticulum">Pure-Python Reticulum</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="using.html">Using Reticulum on Your System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="using.html#configuration-data">Configuration &amp; Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="using.html#included-utility-programs">Included Utility Programs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="using.html#the-rnsd-utility">The rnsd Utility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="using.html#the-rnstatus-utility">The rnstatus Utility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="using.html#the-rnid-utility">The rnid Utility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="using.html#the-rnpath-utility">The rnpath Utility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="using.html#the-rnprobe-utility">The rnprobe Utility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="using.html#the-rncp-utility">The rncp Utility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="using.html#the-rnx-utility">The rnx Utility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="using.html#the-rnodeconf-utility">The rnodeconf Utility</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="using.html#remote-management">Remote Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="using.html#improving-system-configuration">Improving System Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="using.html#fixed-serial-port-names">Fixed Serial Port Names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="using.html#reticulum-as-a-system-service">Reticulum as a System Service</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="understanding.html#motivation">Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="understanding.html#goals">Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="understanding.html#introduction-basic-functionality">Introduction &amp; Basic Functionality</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#destinations">Destinations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#public-key-announcements">Public Key Announcements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#understanding-identities">Identities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#getting-further">Getting Further</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding.html#reticulum-transport">Reticulum Transport</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#node-types">Node Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#the-announce-mechanism-in-detail">The Announce Mechanism in Detail</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#reaching-the-destination">Reaching the Destination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#resources">Resources</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding.html#reference-setup">Reference Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="understanding.html#protocol-specifics">Protocol Specifics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#packet-prioritisation">Packet Prioritisation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#interface-access-codes">Interface Access Codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#wire-format">Wire Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#announce-propagation-rules">Announce Propagation Rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding.html#cryptographic-primitives">Cryptographic Primitives</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hardware.html#combining-hardware-types">Combining Hardware Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware.html#rnode">RNode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hardware.html#creating-rnodes">Creating RNodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hardware.html#supported-boards-and-devices">Supported Boards and Devices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hardware.html#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hardware.html#usage-with-reticulum">Usage with Reticulum</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="hardware.html#wifi-based-hardware">WiFi-based Hardware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware.html#ethernet-based-hardware">Ethernet-based Hardware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware.html#serial-lines-devices">Serial Lines &amp; Devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware.html#packet-radio-modems">Packet Radio Modems</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="interfaces.html">Configuring Interfaces</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#custom-interfaces">Custom Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#auto-interface">Auto Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#i2p-interface">I2P Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#tcp-server-interface">TCP Server Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#tcp-client-interface">TCP Client Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#udp-interface">UDP Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#rnode-lora-interface">RNode LoRa Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#rnode-multi-interface">RNode Multi Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#serial-interface">Serial Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#pipe-interface">Pipe Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#kiss-interface">KISS Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#ax-25-kiss-interface">AX.25 KISS Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#common-interface-options">Common Interface Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#interface-modes">Interface Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#announce-rate-control">Announce Rate Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#new-destination-rate-limiting">New Destination Rate Limiting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="networks.html#concepts-overview">Concepts &amp; Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="networks.html#example-scenarios">Example Scenarios</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="networks.html#interconnected-lora-sites">Interconnected LoRa Sites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="networks.html#bridging-over-the-internet">Bridging Over the Internet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="networks.html#growth-and-convergence">Growth and Convergence</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#minimal">Minimal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#announce">Announce</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#broadcast">Broadcast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#echo">Echo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#link">Link</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#example-identify">Identification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#requests-responses">Requests &amp; Responses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#channel">Channel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#buffer">Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#filetransfer">Filetransfer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#custom-interfaces">Custom Interfaces</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="support.html#donations">Donations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support.html#provide-feedback">Provide Feedback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support.html#contribute-code">Contribute Code</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.Reticulum"><code class="docutils literal notranslate"><span class="pre">Reticulum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.Identity"><code class="docutils literal notranslate"><span class="pre">Identity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.Destination"><code class="docutils literal notranslate"><span class="pre">Destination</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.Packet"><code class="docutils literal notranslate"><span class="pre">Packet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.PacketReceipt"><code class="docutils literal notranslate"><span class="pre">PacketReceipt</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.Link"><code class="docutils literal notranslate"><span class="pre">Link</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.RequestReceipt"><code class="docutils literal notranslate"><span class="pre">RequestReceipt</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.Resource"><code class="docutils literal notranslate"><span class="pre">Resource</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.Channel.Channel"><code class="docutils literal notranslate"><span class="pre">Channel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.MessageBase"><code class="docutils literal notranslate"><span class="pre">MessageBase</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.Buffer"><code class="docutils literal notranslate"><span class="pre">Buffer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.RawChannelReader"><code class="docutils literal notranslate"><span class="pre">RawChannelReader</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.RawChannelWriter"><code class="docutils literal notranslate"><span class="pre">RawChannelWriter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#RNS.Transport"><code class="docutils literal notranslate"><span class="pre">Transport</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="indices-and-tables">
+<h2>Indices and Tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="whatis.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">What is Reticulum?</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Mark Qvist
+            </div>
+            Generated with <a href="https://www.sphinx-doc.org/">Sphinx</a> and 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Reticulum Network Stack Manual</a><ul>
+<li><a class="reference internal" href="#table-of-contents">Table Of Contents</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and Tables</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    </body>
+</html>

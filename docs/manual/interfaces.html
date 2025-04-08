@@ -1,0 +1,1342 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Building Networks" href="networks.html" /><link rel="prev" title="Communications Hardware" href="hardware.html" />
+
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
+        <title>Configuring Interfaces - Reticulum Network Stack 0.9.4 beta documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.9.4 beta documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.9.4 beta documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="whatis.html">What is Reticulum?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstartedfast.html">Getting Started Fast</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using.html">Using Reticulum on Your System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Configuring Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="configuring-interfaces">
+<span id="interfaces-main"></span><h1>Configuring Interfaces<a class="headerlink" href="#configuring-interfaces" title="Permalink to this heading">#</a></h1>
+<p>Reticulum supports using many kinds of devices as networking interfaces, and
+allows you to mix and match them in any way you choose. The number of distinct
+network topologies you can create with Reticulum is more or less endless, but
+common to them all is that you will need to define one or more <em>interfaces</em>
+for Reticulum to use.</p>
+<p>The following sections describe the interfaces currently available in Reticulum,
+and gives example configurations for the respective interface types.</p>
+<p>For a high-level overview of how networks can be formed over different interface
+types, have a look at the <a class="reference internal" href="networks.html#networks-main"><span class="std std-ref">Building Networks</span></a> chapter of this
+manual.</p>
+<section id="custom-interfaces">
+<span id="interfaces-custom"></span><h2>Custom Interfaces<a class="headerlink" href="#custom-interfaces" title="Permalink to this heading">#</a></h2>
+<p>In addition to the built-in interface types, Reticulum is <strong>fully extensible</strong> with
+custom, user- or community-supplied interfaces, and creating custom interface
+modules is straightforward. Please see the <a class="reference internal" href="examples.html#example-custominterface"><span class="std std-ref">custom interface</span></a>
+example for basic interface code to build upon.</p>
+</section>
+<section id="auto-interface">
+<span id="interfaces-auto"></span><h2>Auto Interface<a class="headerlink" href="#auto-interface" title="Permalink to this heading">#</a></h2>
+<p>The Auto Interface enables communication with other discoverable Reticulum
+nodes over autoconfigured IPv6 and UDP. It does not need any functional IP
+infrastructure like routers or DHCP servers, but will require at least some
+sort of switching medium between peers (a wired switch, a hub, a WiFi access
+point or similar), and that link-local IPv6 is enabled in your operating
+system, which should be enabled by default in almost all OSes.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example demonstrates a bare-minimum setup</span>
+<span class="c1"># of an Auto Interface. It will allow communica-</span>
+<span class="c1"># tion with all other reachable devices on all</span>
+<span class="c1"># usable physical ethernet-based devices that</span>
+<span class="c1"># are available on the system.</span>
+
+<span class="p">[[</span><span class="n">Default</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">AutoInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># This example demonstrates an more specifically</span>
+<span class="c1"># configured Auto Interface, that only uses spe-</span>
+<span class="c1"># cific physical interfaces, and has a number of</span>
+<span class="c1"># other configuration options set.</span>
+
+<span class="p">[[</span><span class="n">Default</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">AutoInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># You can create multiple isolated Reticulum</span>
+  <span class="c1"># networks on the same physical LAN by</span>
+  <span class="c1"># specifying different Group IDs.</span>
+
+  <span class="n">group_id</span> <span class="o">=</span> <span class="n">reticulum</span>
+
+  <span class="c1"># You can also choose the multicast address type:</span>
+  <span class="c1"># temporary (default, Temporary Multicast Address)</span>
+  <span class="c1"># or permanent (Permanent Multicast Address)</span>
+
+  <span class="n">multicast_address_type</span> <span class="o">=</span> <span class="n">permanent</span>
+
+  <span class="c1"># You can also select specifically which</span>
+  <span class="c1"># kernel networking devices to use.</span>
+
+  <span class="n">devices</span> <span class="o">=</span> <span class="n">wlan0</span><span class="p">,</span><span class="n">eth1</span>
+
+  <span class="c1"># Or let AutoInterface use all suitable</span>
+  <span class="c1"># devices except for a list of ignored ones.</span>
+
+  <span class="n">ignored_devices</span> <span class="o">=</span> <span class="n">tun0</span><span class="p">,</span><span class="n">eth0</span>
+</pre></div>
+</div>
+<p>If you are connected to the Internet with IPv6, and your provider will route
+IPv6 multicast, you can potentially configure the Auto Interface to globally
+autodiscover other Reticulum nodes within your selected Group ID. You can specify
+the discovery scope by setting it to one of <code class="docutils literal notranslate"><span class="pre">link</span></code>, <code class="docutils literal notranslate"><span class="pre">admin</span></code>, <code class="docutils literal notranslate"><span class="pre">site</span></code>,
+<code class="docutils literal notranslate"><span class="pre">organisation</span></code> or <code class="docutils literal notranslate"><span class="pre">global</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Default</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">AutoInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># Configure global discovery</span>
+
+  <span class="n">group_id</span> <span class="o">=</span> <span class="n">custom_network_name</span>
+  <span class="n">discovery_scope</span> <span class="o">=</span> <span class="k">global</span>
+
+  <span class="c1"># Other configuration options</span>
+
+  <span class="n">discovery_port</span> <span class="o">=</span> <span class="mi">48555</span>
+  <span class="n">data_port</span> <span class="o">=</span> <span class="mi">49555</span>
+</pre></div>
+</div>
+</section>
+<section id="i2p-interface">
+<span id="interfaces-i2p"></span><h2>I2P Interface<a class="headerlink" href="#i2p-interface" title="Permalink to this heading">#</a></h2>
+<p>The I2P interface lets you connect Reticulum instances over the
+<a class="reference external" href="https://i2pd.website">Invisible Internet Protocol</a>. This can be
+especially useful in cases where you want to host a globally reachable
+Reticulum instance, but do not have access to any public IP addresses,
+have a frequently changing IP address, or have firewalls blocking
+inbound traffic.</p>
+<p>Using the I2P interface, you will get a globally reachable, portable
+and persistent I2P address that your Reticulum instance can be reached
+at.</p>
+<p>To use the I2P interface, you must have an I2P router running
+on your system. The easiest way to achieve this is to download and
+install the <a class="reference external" href="https://github.com/PurpleI2P/i2pd/releases/latest">latest release</a>
+of the <code class="docutils literal notranslate"><span class="pre">i2pd</span></code> package. For more details about I2P, see the
+<a class="reference external" href="https://geti2p.net/en/about/intro">geti2p.net website</a>.</p>
+<p>When an I2P router is running on your system, you can simply add
+an I2P interface to Reticulum:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">I2P</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">I2PInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+  <span class="n">connectable</span> <span class="o">=</span> <span class="n">yes</span>
+</pre></div>
+</div>
+<p>On the first start, Reticulum will generate a new I2P address for the
+interface and start listening for inbound traffic on it. This can take
+a while the first time, especially if your I2P router was also just
+started, and is not yet well-connected to the I2P network. When ready,
+you should see I2P base32 address printed to your log file. You can
+also inspect the status of the interface using the <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> utility.</p>
+<p>To connect to other Reticulum instances over I2P, just add a comma-separated
+list of I2P base32 addresses to the <code class="docutils literal notranslate"><span class="pre">peers</span></code> option of the interface:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">I2P</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">I2PInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+  <span class="n">connectable</span> <span class="o">=</span> <span class="n">yes</span>
+  <span class="n">peers</span> <span class="o">=</span> <span class="mi">5</span><span class="n">urvjicpzi7q3ybztsef4i5ow2aq4soktfj7zedz53s47r54jnqq</span><span class="o">.</span><span class="n">b32</span><span class="o">.</span><span class="n">i2p</span>
+</pre></div>
+</div>
+<p>It can take anywhere from a few seconds to a few minutes to establish
+I2P connections to the desired peers, so Reticulum handles the process
+in the background, and will output relevant events to the log.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While the I2P interface is the simplest way to use
+Reticulum over I2P, it is also possible to tunnel the TCP server and
+client interfaces over I2P manually. This can be useful in situations
+where more control is needed, but requires manual tunnel setup through
+the I2P daemon configuration.</p>
+</div>
+<p>It is important to note that the two methods are <em>interchangably compatible</em>.
+You can use the I2PInterface to connect to a TCPServerInterface that
+was manually tunneled over I2P, for example. This offers a high degree
+of flexibility in network setup, while retaining ease of use in simpler
+use-cases.</p>
+</section>
+<section id="tcp-server-interface">
+<span id="interfaces-tcps"></span><h2>TCP Server Interface<a class="headerlink" href="#tcp-server-interface" title="Permalink to this heading">#</a></h2>
+<p>The TCP Server interface is suitable for allowing other peers to connect over
+the Internet or private IPv4 and IPv6 networks. When a TCP server interface has been
+configured, other Reticulum peers can connect to it with a TCP Client interface.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example demonstrates a TCP server interface.</span>
+<span class="c1"># It will listen for incoming connections on the</span>
+<span class="c1"># specified IP address and port number.</span>
+
+<span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># This configuration will listen on all IP</span>
+  <span class="c1"># interfaces on port 4242</span>
+
+  <span class="n">listen_ip</span> <span class="o">=</span> <span class="mf">0.0.0.0</span>
+  <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">4242</span>
+
+  <span class="c1"># Alternatively you can bind to a specific IP</span>
+
+  <span class="c1"># listen_ip = 10.0.0.88</span>
+  <span class="c1"># listen_port = 4242</span>
+
+  <span class="c1"># Or a specific network device</span>
+
+  <span class="c1"># device = eth0</span>
+  <span class="c1"># port = 4242</span>
+</pre></div>
+</div>
+<p>If you are using the interface on a device which has both IPv4 and IPv6 addresses available,
+you can use the <code class="docutils literal notranslate"><span class="pre">prefer_ipv6</span></code> option to bind to the IPv6 address:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example demonstrates a TCP server interface.</span>
+<span class="c1"># It will listen for incoming connections on the</span>
+<span class="c1"># specified IP address and port number.</span>
+
+<span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="n">device</span> <span class="o">=</span> <span class="n">eth0</span>
+  <span class="n">port</span> <span class="o">=</span> <span class="mi">4242</span>
+  <span class="n">prefer_ipv6</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>To use the TCP Server Interface over <a class="reference external" href="https://yggdrasil-network.github.io/">Yggdrasil</a>, you
+can simply specify the Yggdrasil <code class="docutils literal notranslate"><span class="pre">tun</span></code> device and a listening port, like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Yggdrasil</span> <span class="n">TCP</span> <span class="n">Server</span> <span class="n">Interface</span><span class="p">]]</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">tun0</span>
+    <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">4343</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The TCP interfaces support tunneling over I2P, but to do so reliably,
+you must use the i2p_tunneled option:</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">TCP</span> <span class="n">Server</span> <span class="n">on</span> <span class="n">I2P</span><span class="p">]]</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPServerInterface</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+    <span class="n">listen_ip</span> <span class="o">=</span> <span class="mf">127.0.0.1</span>
+    <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">5001</span>
+    <span class="n">i2p_tunneled</span> <span class="o">=</span> <span class="n">yes</span>
+</pre></div>
+</div>
+<p>In almost all cases, it is easier to use the dedicated <code class="docutils literal notranslate"><span class="pre">I2PInterface</span></code>, but for complete
+control, and using I2P routers running on external systems, this option also exists.</p>
+</section>
+<section id="tcp-client-interface">
+<span id="interfaces-tcpc"></span><h2>TCP Client Interface<a class="headerlink" href="#tcp-client-interface" title="Permalink to this heading">#</a></h2>
+<p>To connect to a TCP server interface, you would naturally use the TCP client
+interface. Many TCP Client interfaces from different peers can connect to the
+same TCP Server interface at the same time.</p>
+<p>The TCP interface types can also tolerate intermittency in the IP link layer.
+This means that Reticulum will gracefully handle IP links that go up and down,
+and restore connectivity after a failure, once the other end of a TCP interface reappears.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of a TCP Client interface. The</span>
+<span class="c1"># target_host can be a hostname or an IPv4 or IPv6 address.</span>
+
+<span class="p">[[</span><span class="n">TCP</span> <span class="n">Client</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0.0.1</span>
+  <span class="n">target_port</span> <span class="o">=</span> <span class="mi">4242</span>
+</pre></div>
+</div>
+<p>To use the TCP Client Interface over <a class="reference external" href="https://yggdrasil-network.github.io/">Yggdrasil</a>, simply
+specify the target Yggdrasil IPv6 address and port, like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Yggdrasil</span> <span class="n">TCP</span> <span class="n">Client</span> <span class="n">Interface</span><span class="p">]]</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+    <span class="n">target_host</span> <span class="o">=</span> <span class="mi">201</span><span class="p">:</span><span class="mi">5</span><span class="n">d78</span><span class="p">:</span><span class="n">af73</span><span class="p">:</span><span class="mi">5</span><span class="n">caf</span><span class="p">:</span><span class="n">a4de</span><span class="p">:</span><span class="n">a79f</span><span class="p">:</span><span class="mi">3278</span><span class="p">:</span><span class="mf">71e5</span>
+    <span class="n">target_port</span> <span class="o">=</span> <span class="mi">4343</span>
+</pre></div>
+</div>
+<p>It is also possible to use this interface type to connect via other programs
+or hardware devices that expose a KISS interface on a TCP port, for example
+software-based soundmodems. To do this, use the <code class="docutils literal notranslate"><span class="pre">kiss_framing</span></code> option:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of a TCP Client interface that connects</span>
+<span class="c1"># to a software TNC soundmodem on a KISS over TCP port.</span>
+
+<span class="p">[[</span><span class="n">TCP</span> <span class="n">KISS</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">kiss_framing</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0.0.1</span>
+  <span class="n">target_port</span> <span class="o">=</span> <span class="mi">8001</span>
+</pre></div>
+</div>
+<p><strong>Caution!</strong> Only use the KISS framing option when connecting to external devices
+and programs like soundmodems and similar over TCP. When using the
+<code class="docutils literal notranslate"><span class="pre">TCPClientInterface</span></code> in conjunction with the <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> you should
+never enable <code class="docutils literal notranslate"><span class="pre">kiss_framing</span></code>, since this will disable internal reliability and
+recovery mechanisms that greatly improves performance over unreliable and
+intermittent TCP links.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The TCP interfaces support tunneling over I2P, but to do so reliably,
+you must use the i2p_tunneled option:</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">TCP</span> <span class="n">Client</span> <span class="n">over</span> <span class="n">I2P</span><span class="p">]]</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="n">yes</span>
+    <span class="n">target_host</span> <span class="o">=</span> <span class="mf">127.0.0.1</span>
+    <span class="n">target_port</span> <span class="o">=</span> <span class="mi">5001</span>
+    <span class="n">i2p_tunneled</span> <span class="o">=</span> <span class="n">yes</span>
+</pre></div>
+</div>
+</section>
+<section id="udp-interface">
+<span id="interfaces-udp"></span><h2>UDP Interface<a class="headerlink" href="#udp-interface" title="Permalink to this heading">#</a></h2>
+<p>A UDP interface can be useful for communicating over IP networks, both
+private and the internet. It can also allow broadcast communication
+over IP networks, so it can provide an easy way to enable connectivity
+with all other peers on a local area network.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Using broadcast UDP traffic has performance implications,
+especially on WiFi. If your goal is simply to enable easy communication
+with all peers in your local Ethernet broadcast domain, the
+<a class="reference internal" href="#interfaces-auto"><span class="std std-ref">Auto Interface</span></a> performs better, and is even
+easier to use.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example enables communication with other</span>
+<span class="c1"># local Reticulum peers over UDP.</span>
+
+<span class="p">[[</span><span class="n">UDP</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">UDPInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="n">listen_ip</span> <span class="o">=</span> <span class="mf">0.0.0.0</span>
+  <span class="n">listen_port</span> <span class="o">=</span> <span class="mi">4242</span>
+  <span class="n">forward_ip</span> <span class="o">=</span> <span class="mf">255.255.255.255</span>
+  <span class="n">forward_port</span> <span class="o">=</span> <span class="mi">4242</span>
+
+  <span class="c1"># The above configuration will allow communication</span>
+  <span class="c1"># within the local broadcast domains of all local</span>
+  <span class="c1"># IP interfaces.</span>
+
+  <span class="c1"># Instead of specifying listen_ip, listen_port,</span>
+  <span class="c1"># forward_ip and forward_port, you can also bind</span>
+  <span class="c1"># to a specific network device like below.</span>
+
+  <span class="c1"># device = eth0</span>
+  <span class="c1"># port = 4242</span>
+
+  <span class="c1"># Assuming the eth0 device has the address</span>
+  <span class="c1"># 10.55.0.72/24, the above configuration would</span>
+  <span class="c1"># be equivalent to the following manual setup.</span>
+  <span class="c1"># Note that we are both listening and forwarding to</span>
+  <span class="c1"># the broadcast address of the network segments.</span>
+
+  <span class="c1"># listen_ip = 10.55.0.255</span>
+  <span class="c1"># listen_port = 4242</span>
+  <span class="c1"># forward_ip = 10.55.0.255</span>
+  <span class="c1"># forward_port = 4242</span>
+
+  <span class="c1"># You can of course also communicate only with</span>
+  <span class="c1"># a single IP address</span>
+
+  <span class="c1"># listen_ip = 10.55.0.15</span>
+  <span class="c1"># listen_port = 4242</span>
+  <span class="c1"># forward_ip = 10.55.0.16</span>
+  <span class="c1"># forward_port = 4242</span>
+</pre></div>
+</div>
+</section>
+<section id="rnode-lora-interface">
+<span id="interfaces-rnode"></span><h2>RNode LoRa Interface<a class="headerlink" href="#rnode-lora-interface" title="Permalink to this heading">#</a></h2>
+<p>To use Reticulum over LoRa, the <a class="reference external" href="https://unsigned.io/rnode/">RNode</a> interface
+can be used, and offers full control over LoRa parameters.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Radio frequency spectrum is a legally controlled resource, and legislation
+varies widely around the world. It is your responsibility to be aware of any
+relevant regulation for your location, and to make decisions accordingly.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of how to add a LoRa interface</span>
+<span class="c1"># using the RNode LoRa transceiver.</span>
+
+<span class="p">[[</span><span class="n">RNode</span> <span class="n">LoRa</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">RNodeInterface</span>
+
+  <span class="c1"># Enable interface if you want use it!</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># Serial port for the device</span>
+  <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB0</span>
+
+  <span class="c1"># It is also possible to use BLE devices</span>
+  <span class="c1"># instead of wired serial ports. The</span>
+  <span class="c1"># target RNode must be paired with the</span>
+  <span class="c1"># host device before connecting. BLE</span>
+  <span class="c1"># devices can be connected by name,</span>
+  <span class="c1"># BLE MAC address or by any available.</span>
+
+  <span class="c1"># Connect to specific device by name</span>
+  <span class="c1"># port = ble://RNode 3B87</span>
+
+  <span class="c1"># Or by BLE MAC address</span>
+  <span class="c1"># port = ble://F4:12:73:29:4E:89</span>
+
+  <span class="c1"># Or connect to the first available,</span>
+  <span class="c1"># paired device</span>
+  <span class="c1"># port = ble://</span>
+
+  <span class="c1"># Set frequency to 867.2 MHz</span>
+  <span class="n">frequency</span> <span class="o">=</span> <span class="mi">867200000</span>
+
+  <span class="c1"># Set LoRa bandwidth to 125 KHz</span>
+  <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">125000</span>
+
+  <span class="c1"># Set TX power to 7 dBm (5 mW)</span>
+  <span class="n">txpower</span> <span class="o">=</span> <span class="mi">7</span>
+
+  <span class="c1"># Select spreading factor 8. Valid</span>
+  <span class="c1"># range is 7 through 12, with 7</span>
+  <span class="c1"># being the fastest and 12 having</span>
+  <span class="c1"># the longest range.</span>
+  <span class="n">spreadingfactor</span> <span class="o">=</span> <span class="mi">8</span>
+
+  <span class="c1"># Select coding rate 5. Valid range</span>
+  <span class="c1"># is 5 throough 8, with 5 being the</span>
+  <span class="c1"># fastest, and 8 the longest range.</span>
+  <span class="n">codingrate</span> <span class="o">=</span> <span class="mi">5</span>
+
+  <span class="c1"># You can configure the RNode to send</span>
+  <span class="c1"># out identification on the channel with</span>
+  <span class="c1"># a set interval by configuring the</span>
+  <span class="c1"># following two parameters.</span>
+
+  <span class="c1"># id_callsign = MYCALL-0</span>
+  <span class="c1"># id_interval = 600</span>
+
+  <span class="c1"># For certain homebrew RNode interfaces</span>
+  <span class="c1"># with low amounts of RAM, using packet</span>
+  <span class="c1"># flow control can be useful. By default</span>
+  <span class="c1"># it is disabled.</span>
+
+  <span class="c1"># flow_control = False</span>
+
+  <span class="c1"># It is possible to limit the airtime</span>
+  <span class="c1"># utilisation of an RNode by using the</span>
+  <span class="c1"># following two configuration options.</span>
+  <span class="c1"># The short-term limit is applied in a</span>
+  <span class="c1"># window of approximately 15 seconds,</span>
+  <span class="c1"># and the long-term limit is enforced</span>
+  <span class="c1"># over a rolling 60 minute window. Both</span>
+  <span class="c1"># options are specified in percent.</span>
+
+  <span class="c1"># airtime_limit_long = 1.5</span>
+  <span class="c1"># airtime_limit_short = 33</span>
+</pre></div>
+</div>
+</section>
+<section id="rnode-multi-interface">
+<span id="interfaces-rnode-multi"></span><h2>RNode Multi Interface<a class="headerlink" href="#rnode-multi-interface" title="Permalink to this heading">#</a></h2>
+<p>For RNodes that support multiple LoRa transceivers, the RNode
+Multi interface can be used to configure sub-interfaces individually.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Radio frequency spectrum is a legally controlled resource, and legislation
+varies widely around the world. It is your responsibility to be aware of any
+relevant regulation for your location, and to make decisions accordingly.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here&#39;s an example of how to add an RNode Multi interface</span>
+<span class="c1"># using the RNode LoRa transceiver.</span>
+
+<span class="p">[[</span><span class="n">RNode</span> <span class="n">Multi</span> <span class="n">Interface</span><span class="p">]]</span>
+<span class="nb">type</span> <span class="o">=</span> <span class="n">RNodeMultiInterface</span>
+
+<span class="c1"># Enable interface if you want to use it!</span>
+<span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Serial port for the device</span>
+<span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyACM0</span>
+
+<span class="c1"># You can configure the RNode to send</span>
+<span class="c1"># out identification on the channel with</span>
+<span class="c1"># a set interval by configuring the</span>
+<span class="c1"># following two parameters.</span>
+
+<span class="c1"># id_callsign = MYCALL-0</span>
+<span class="c1"># id_interval = 600</span>
+
+  <span class="c1"># A subinterface</span>
+  <span class="p">[[[</span><span class="n">High</span> <span class="n">Datarate</span><span class="p">]]]</span>
+    <span class="c1"># Subinterfaces can be enabled and disabled in of themselves</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># Set frequency to 2.4GHz</span>
+    <span class="n">frequency</span> <span class="o">=</span> <span class="mi">2400000000</span>
+
+    <span class="c1"># Set LoRa bandwidth to 1625 KHz</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">1625000</span>
+
+    <span class="c1"># Set TX power to 0 dBm (0.12 mW)</span>
+    <span class="n">txpower</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># The virtual port, only the manufacturer</span>
+    <span class="c1"># or the person who wrote the board config</span>
+    <span class="c1"># can tell you what it will be for which</span>
+    <span class="c1"># physical hardware interface</span>
+    <span class="n">vport</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Select spreading factor 5. Valid</span>
+    <span class="c1"># range is 5 through 12, with 5</span>
+    <span class="c1"># being the fastest and 12 having</span>
+    <span class="c1"># the longest range.</span>
+    <span class="n">spreadingfactor</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="c1"># Select coding rate 5. Valid range</span>
+    <span class="c1"># is 5 throough 8, with 5 being the</span>
+    <span class="c1"># fastest, and 8 the longest range.</span>
+    <span class="n">codingrate</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="c1"># It is possible to limit the airtime</span>
+    <span class="c1"># utilisation of an RNode by using the</span>
+    <span class="c1"># following two configuration options.</span>
+    <span class="c1"># The short-term limit is applied in a</span>
+    <span class="c1"># window of approximately 15 seconds,</span>
+    <span class="c1"># and the long-term limit is enforced</span>
+    <span class="c1"># over a rolling 60 minute window. Both</span>
+    <span class="c1"># options are specified in percent.</span>
+
+    <span class="c1"># airtime_limit_long = 100</span>
+    <span class="c1"># airtime_limit_short = 100</span>
+
+  <span class="p">[[[</span><span class="n">Low</span> <span class="n">Datarate</span><span class="p">]]]</span>
+    <span class="c1"># Subinterfaces can be enabled and disabled in of themselves</span>
+    <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># Set frequency to 865.6 MHz</span>
+    <span class="n">frequency</span> <span class="o">=</span> <span class="mi">865600000</span>
+
+    <span class="c1"># The virtual port, only the manufacturer</span>
+    <span class="c1"># or the person who wrote the board config</span>
+    <span class="c1"># can tell you what it will be for which</span>
+    <span class="c1"># physical hardware interface</span>
+    <span class="n">vport</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Set LoRa bandwidth to 125 KHz</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">125000</span>
+
+    <span class="c1"># Set TX power to 0 dBm (0.12 mW)</span>
+    <span class="n">txpower</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Select spreading factor 7. Valid</span>
+    <span class="c1"># range is 5 through 12, with 5</span>
+    <span class="c1"># being the fastest and 12 having</span>
+    <span class="c1"># the longest range.</span>
+    <span class="n">spreadingfactor</span> <span class="o">=</span> <span class="mi">7</span>
+
+    <span class="c1"># Select coding rate 5. Valid range</span>
+    <span class="c1"># is 5 throough 8, with 5 being the</span>
+    <span class="c1"># fastest, and 8 the longest range.</span>
+    <span class="n">codingrate</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="c1"># It is possible to limit the airtime</span>
+    <span class="c1"># utilisation of an RNode by using the</span>
+    <span class="c1"># following two configuration options.</span>
+    <span class="c1"># The short-term limit is applied in a</span>
+    <span class="c1"># window of approximately 15 seconds,</span>
+    <span class="c1"># and the long-term limit is enforced</span>
+    <span class="c1"># over a rolling 60 minute window. Both</span>
+    <span class="c1"># options are specified in percent.</span>
+
+    <span class="c1"># airtime_limit_long = 100</span>
+    <span class="c1"># airtime_limit_short = 100</span>
+</pre></div>
+</div>
+</section>
+<section id="serial-interface">
+<span id="interfaces-serial"></span><h2>Serial Interface<a class="headerlink" href="#serial-interface" title="Permalink to this heading">#</a></h2>
+<p>Reticulum can be used over serial ports directly, or over any device with a
+serial port, that will transparently pass data. Useful for communicating
+directly over a wire-pair, or for using devices such as data radios and lasers.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Serial</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">SerialInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># Serial port for the device</span>
+  <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB0</span>
+
+  <span class="c1"># Set the serial baud-rate and other</span>
+  <span class="c1"># configuration parameters.</span>
+  <span class="n">speed</span> <span class="o">=</span> <span class="mi">115200</span>
+  <span class="n">databits</span> <span class="o">=</span> <span class="mi">8</span>
+  <span class="n">parity</span> <span class="o">=</span> <span class="n">none</span>
+  <span class="n">stopbits</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</section>
+<section id="pipe-interface">
+<span id="interfaces-pipe"></span><h2>Pipe Interface<a class="headerlink" href="#pipe-interface" title="Permalink to this heading">#</a></h2>
+<p>Using this interface, Reticulum can use any program as an interface via <cite>stdin</cite> and
+<cite>stdout</cite>. This can be used to easily create virtual interfaces, or to interface with
+custom hardware or other systems.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Pipe</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">PipeInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># External command to execute</span>
+  <span class="n">command</span> <span class="o">=</span> <span class="n">netcat</span> <span class="o">-</span><span class="n">l</span> <span class="mi">5757</span>
+
+  <span class="c1"># Optional respawn delay, in seconds</span>
+  <span class="n">respawn_delay</span> <span class="o">=</span> <span class="mi">5</span>
+</pre></div>
+</div>
+<p>Reticulum will write all packets to <cite>stdin</cite> of the <code class="docutils literal notranslate"><span class="pre">command</span></code> option, and will
+continuously read and scan its <cite>stdout</cite> for Reticulum packets. If <code class="docutils literal notranslate"><span class="pre">EOF</span></code> is reached,
+Reticulum will try to respawn the program after waiting for <code class="docutils literal notranslate"><span class="pre">respawn_interval</span></code> seconds.</p>
+</section>
+<section id="kiss-interface">
+<span id="interfaces-kiss"></span><h2>KISS Interface<a class="headerlink" href="#kiss-interface" title="Permalink to this heading">#</a></h2>
+<p>With the KISS interface, you can use Reticulum over a variety of packet
+radio modems and TNCs, including <a class="reference external" href="https://unsigned.io/openmodem/">OpenModem</a>.
+KISS interfaces can also be configured to periodically send out beacons
+for station identification purposes.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Radio frequency spectrum is a legally controlled resource, and legislation
+varies widely around the world. It is your responsibility to be aware of any
+relevant regulation for your location, and to make decisions accordingly.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Packet</span> <span class="n">Radio</span> <span class="n">KISS</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">KISSInterface</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># Serial port for the device</span>
+  <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB1</span>
+
+  <span class="c1"># Set the serial baud-rate and other</span>
+  <span class="c1"># configuration parameters.</span>
+  <span class="n">speed</span> <span class="o">=</span> <span class="mi">115200</span>
+  <span class="n">databits</span> <span class="o">=</span> <span class="mi">8</span>
+  <span class="n">parity</span> <span class="o">=</span> <span class="n">none</span>
+  <span class="n">stopbits</span> <span class="o">=</span> <span class="mi">1</span>
+
+  <span class="c1"># Set the modem preamble.</span>
+  <span class="n">preamble</span> <span class="o">=</span> <span class="mi">150</span>
+
+  <span class="c1"># Set the modem TX tail.</span>
+  <span class="n">txtail</span> <span class="o">=</span> <span class="mi">10</span>
+
+  <span class="c1"># Configure CDMA parameters. These</span>
+  <span class="c1"># settings are reasonable defaults.</span>
+  <span class="n">persistence</span> <span class="o">=</span> <span class="mi">200</span>
+  <span class="n">slottime</span> <span class="o">=</span> <span class="mi">20</span>
+
+  <span class="c1"># You can configure the interface to send</span>
+  <span class="c1"># out identification on the channel with</span>
+  <span class="c1"># a set interval by configuring the</span>
+  <span class="c1"># following two parameters. The KISS</span>
+  <span class="c1"># interface will only ID if the set</span>
+  <span class="c1"># interval has elapsed since it&#39;s last</span>
+  <span class="c1"># actual transmission. The interval is</span>
+  <span class="c1"># configured in seconds.</span>
+  <span class="c1"># This option is commented out and not</span>
+  <span class="c1"># used by default.</span>
+  <span class="c1"># id_callsign = MYCALL-0</span>
+  <span class="c1"># id_interval = 600</span>
+
+  <span class="c1"># Whether to use KISS flow-control.</span>
+  <span class="c1"># This is useful for modems that have</span>
+  <span class="c1"># a small internal packet buffer, but</span>
+  <span class="c1"># support packet flow control instead.</span>
+  <span class="n">flow_control</span> <span class="o">=</span> <span class="n">false</span>
+</pre></div>
+</div>
+</section>
+<section id="ax-25-kiss-interface">
+<span id="interfaces-ax25"></span><h2>AX.25 KISS Interface<a class="headerlink" href="#ax-25-kiss-interface" title="Permalink to this heading">#</a></h2>
+<p>If you’re using Reticulum on amateur radio spectrum, you might want to
+use the AX.25 KISS interface. This way, Reticulum will automatically
+encapsulate it’s traffic in AX.25 and also identify your stations
+transmissions with your callsign and SSID.</p>
+<p>Only do this if you really need to! Reticulum doesn’t need the AX.25
+layer for anything, and it incurs extra overhead on every packet to
+encapsulate in AX.25.</p>
+<p>A more efficient way is to use the plain KISS interface with the
+beaconing functionality described above.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Radio frequency spectrum is a legally controlled resource, and legislation
+varies widely around the world. It is your responsibility to be aware of any
+relevant regulation for your location, and to make decisions accordingly.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">Packet</span> <span class="n">Radio</span> <span class="n">AX</span><span class="mf">.25</span> <span class="n">KISS</span> <span class="n">Interface</span><span class="p">]]</span>
+  <span class="nb">type</span> <span class="o">=</span> <span class="n">AX25KISSInterface</span>
+
+  <span class="c1"># Set the station callsign and SSID</span>
+  <span class="n">callsign</span> <span class="o">=</span> <span class="n">NO1CLL</span>
+  <span class="n">ssid</span> <span class="o">=</span> <span class="mi">0</span>
+
+  <span class="c1"># Enable interface if you want use it!</span>
+  <span class="n">interface_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+  <span class="c1"># Serial port for the device</span>
+  <span class="n">port</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB2</span>
+
+  <span class="c1"># Set the serial baud-rate and other</span>
+  <span class="c1"># configuration parameters.</span>
+  <span class="n">speed</span> <span class="o">=</span> <span class="mi">115200</span>
+  <span class="n">databits</span> <span class="o">=</span> <span class="mi">8</span>
+  <span class="n">parity</span> <span class="o">=</span> <span class="n">none</span>
+  <span class="n">stopbits</span> <span class="o">=</span> <span class="mi">1</span>
+
+  <span class="c1"># Set the modem preamble. A 150ms</span>
+  <span class="c1"># preamble should be a reasonable</span>
+  <span class="c1"># default, but may need to be</span>
+  <span class="c1"># increased for radios with slow-</span>
+  <span class="c1"># opening squelch and long TX/RX</span>
+  <span class="c1"># turnaround</span>
+  <span class="n">preamble</span> <span class="o">=</span> <span class="mi">150</span>
+
+  <span class="c1"># Set the modem TX tail. In most</span>
+  <span class="c1"># cases this should be kept as low</span>
+  <span class="c1"># as possible to not waste airtime.</span>
+  <span class="n">txtail</span> <span class="o">=</span> <span class="mi">10</span>
+
+  <span class="c1"># Configure CDMA parameters. These</span>
+  <span class="c1"># settings are reasonable defaults.</span>
+  <span class="n">persistence</span> <span class="o">=</span> <span class="mi">200</span>
+  <span class="n">slottime</span> <span class="o">=</span> <span class="mi">20</span>
+
+  <span class="c1"># Whether to use KISS flow-control.</span>
+  <span class="c1"># This is useful for modems with a</span>
+  <span class="c1"># small internal packet buffer.</span>
+  <span class="n">flow_control</span> <span class="o">=</span> <span class="n">false</span>
+</pre></div>
+</div>
+</section>
+<section id="common-interface-options">
+<span id="interfaces-options"></span><h2>Common Interface Options<a class="headerlink" href="#common-interface-options" title="Permalink to this heading">#</a></h2>
+<p>A number of general configuration options are available on most interfaces.
+These can be used to control various aspects of interface behaviour.</p>
+<blockquote>
+<div><ul>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">enabled</span></code> option tells Reticulum whether or not
+to bring up the interface. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>. For any
+interface to be brought up, the <code class="docutils literal notranslate"><span class="pre">enabled</span></code> option
+must be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">Yes</span></code>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">mode</span></code> option allows selecting the high-level behaviour
+of the interface from a number of options.</div>
+</div>
+<blockquote>
+<div><ul class="simple">
+<li><p>The default value is <code class="docutils literal notranslate"><span class="pre">full</span></code>. In this mode, all discovery,
+meshing and transport functionality is available.</p></li>
+<li><p>In the <code class="docutils literal notranslate"><span class="pre">access_point</span></code> (or shorthand <code class="docutils literal notranslate"><span class="pre">ap</span></code>) mode, the
+interface will operate as a network access point. In this
+mode, announces will not be automatically broadcasted on
+the interface, and paths to destinations on the interface
+will have a much shorter expiry time. This mode is useful
+for creating interfaces that are mostly quiet, unless when
+someone is actually using them. An example of this could
+be a radio interface serving a wide area, where users are
+expected to connect momentarily, use the network, and then
+disappear again.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">outgoing</span></code> option sets whether an interface is allowed
+to transmit. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>. If set to <code class="docutils literal notranslate"><span class="pre">False</span></code> or <code class="docutils literal notranslate"><span class="pre">No</span></code>
+the interface will only receive data, and never transmit.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">network_name</span></code> option sets the virtual network name for
+the interface. This allows multiple separate network segments
+to exist on the same physical channel or medium.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">passphrase</span></code> option sets an authentication passphrase on
+the interface. This option can be used in conjunction with the
+<code class="docutils literal notranslate"><span class="pre">network_name</span></code> option, or be used alone.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ifac_size</span></code> option allows customising the length of the
+Interface Authentication Codes carried by each packet on named
+and/or authenticated network segments. It is set by default to
+a size suitable for the interface in question, but can be set
+to a custom size between 8 and 512 bits by using this option.
+In normal usage, this option should not be changed from the
+default.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">announce_cap</span></code> option lets you configure the maximum
+bandwidth to allocate, at any given time, to propagating
+announces and other network upkeep traffic. It is configured at
+2% by default, and should normally not need to be changed. Can
+be set to any value between <code class="docutils literal notranslate"><span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">100</span></code>.</div>
+</div>
+<blockquote>
+<div><p><em>If an interface exceeds its announce cap, it will queue announces
+for later transmission. Reticulum will always prioritise propagating
+announces from nearby nodes first. This ensures that the local
+topology is prioritised, and that slow networks are not overwhelmed
+by interconnected fast networks.</em></p>
+<p><em>Destinations that are rapidly re-announcing will be down-prioritised
+further. Trying to get “first-in-line” by announce spamming will have
+the exact opposite effect: Getting moved to the back of the queue every
+time a new announce from the excessively announcing destination is received.</em></p>
+<p><em>This means that it is always beneficial to select a balanced
+announce rate, and not announce more often than is actually necesarry
+for your application to function.</em></p>
+</div></blockquote>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">bitrate</span></code> option configures the interface bitrate.
+Reticulum will use interface speeds reported by hardware, or
+try to guess a suitable rate when the hardware doesn’t report
+any. In most cases, the automatically found rate should be
+sufficient, but it can be configured by using the <code class="docutils literal notranslate"><span class="pre">bitrate</span></code>
+option, to set the interface speed in <em>bits per second</em>.</div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</section>
+<section id="interface-modes">
+<span id="interfaces-modes"></span><h2>Interface Modes<a class="headerlink" href="#interface-modes" title="Permalink to this heading">#</a></h2>
+<p>The optional <code class="docutils literal notranslate"><span class="pre">mode</span></code> setting is available on all interfaces, and allows
+selecting the high-level behaviour of the interface from a number of modes.
+These modes affect how Reticulum selects paths in the network, how announces
+are propagated, how long paths are valid and how paths are discovered.</p>
+<p>Configuring modes on interfaces is <strong>not</strong> strictly necessary, but can be useful
+when building or connecting to more complex networks. If your Reticulum
+instance is not running a Transport Node, it is rarely useful to configure
+interface modes, and in such cases interfaces should generally be left in
+the default mode.</p>
+<blockquote>
+<div><ul>
+<li><div class="line-block">
+<div class="line">The default mode is <code class="docutils literal notranslate"><span class="pre">full</span></code>. In this mode, all discovery,
+meshing and transport functionality is activated.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">gateway</span></code> mode (or shorthand <code class="docutils literal notranslate"><span class="pre">gw</span></code>) also has all
+discovery, meshing and transport functionality available,
+but will additionally try to discover unknown paths on
+behalf of other nodes residing on the <code class="docutils literal notranslate"><span class="pre">gateway</span></code> interface.
+If Reticulum receives a path request for an unknown
+destination, from a node on a <code class="docutils literal notranslate"><span class="pre">gateway</span></code> interface, it
+will try to discover this path via all other active interfaces,
+and forward the discovered path to the requestor if one is
+found.</div>
+</div>
+<div class="line-block">
+<div class="line">If you want to allow other nodes to widely resolve paths or connect
+to a network via an interface, it might be useful to put it in this
+mode. By creating a chain of <code class="docutils literal notranslate"><span class="pre">gateway</span></code> interfaces, other
+nodes will be able to immediately discover paths to any
+destination along the chain.</div>
+</div>
+<div class="line-block">
+<div class="line"><em>Please note!</em> It is the interface <em>facing the clients</em> that
+must be put into <code class="docutils literal notranslate"><span class="pre">gateway</span></code> mode for this to work, not
+the interface facing the wider network (for this, the <code class="docutils literal notranslate"><span class="pre">boundary</span></code>
+mode can be useful, though).</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">In the <code class="docutils literal notranslate"><span class="pre">access_point</span></code> (or shorthand <code class="docutils literal notranslate"><span class="pre">ap</span></code>) mode, the
+interface will operate as a network access point. In this
+mode, announces will not be automatically broadcasted on
+the interface, and paths to destinations on the interface
+will have a much shorter expiry time. In addition, path
+requests from clients on the access point interface will
+be handled in the same way as the <code class="docutils literal notranslate"><span class="pre">gateway</span></code> interface.</div>
+</div>
+<div class="line-block">
+<div class="line">This mode is useful for creating interfaces that remain
+quiet, until someone actually starts using them. An example
+of this could be a radio interface serving a wide area,
+where users are expected to connect momentarily, use the
+network, and then disappear again.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">roaming</span></code> mode should be used on interfaces that are
+roaming (physically mobile), seen from the perspective of
+other nodes in the network. As an example, if a vehicle is
+equipped with an external LoRa interface, and an internal,
+WiFi-based interface, that serves devices that are moving
+<em>with</em> the vehicle, the external LoRa interface should be
+configured as <code class="docutils literal notranslate"><span class="pre">roaming</span></code>, and the internal interface can
+be left in the default mode. With transport enabled, such
+a setup will allow all internal devices to reach each other,
+and all other devices that are available on the LoRa side
+of the network, when they are in range. Devices on the LoRa
+side of the network will also be able to reach devices
+internal to the vehicle, when it is in range. Paths via
+<code class="docutils literal notranslate"><span class="pre">roaming</span></code> interfaces also expire faster.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The purpose of the <code class="docutils literal notranslate"><span class="pre">boundary</span></code> mode is to specify interfaces
+that establish connectivity with network segments that are
+significantly different than the one this node exists on.
+As an example, if a Reticulum instance is part of a LoRa-based
+network, but also has a high-speed connection to a
+public Transport Node available on the Internet, the interface
+connecting over the Internet should be set to <code class="docutils literal notranslate"><span class="pre">boundary</span></code> mode.</div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+<p>For a table describing the impact of all modes on announce propagation,
+please see the <a class="reference internal" href="understanding.html#understanding-announcepropagation"><span class="std std-ref">Announce Propagation Rules</span></a> section.</p>
+</section>
+<section id="announce-rate-control">
+<span id="interfaces-announcerates"></span><h2>Announce Rate Control<a class="headerlink" href="#announce-rate-control" title="Permalink to this heading">#</a></h2>
+<p>The built-in announce control mechanisms and the default <code class="docutils literal notranslate"><span class="pre">announce_cap</span></code>
+option described above are sufficient most of the time, but in some cases, especially on fast
+interfaces, it may be useful to control the target announce rate. Using the
+<code class="docutils literal notranslate"><span class="pre">announce_rate_target</span></code>, <code class="docutils literal notranslate"><span class="pre">announce_rate_grace</span></code> and <code class="docutils literal notranslate"><span class="pre">announce_rate_penalty</span></code>
+options, this can be done on a per-interface basis, and moderates the <em>rate at
+which received announces are re-broadcasted to other interfaces</em>.</p>
+<blockquote>
+<div><ul>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">announce_rate_target</span></code> option sets the minimum amount of time,
+in seconds, that should pass between received announces, for any one
+destination. As an example, setting this value to <code class="docutils literal notranslate"><span class="pre">3600</span></code> means that
+announces <em>received</em> on this interface will only be re-transmitted and
+propagated to other interfaces once every hour, no matter how often they
+are received.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The optional <code class="docutils literal notranslate"><span class="pre">announce_rate_grace</span></code> defines the number of times a destination
+can violate the announce rate before the target rate is enforced.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The optional <code class="docutils literal notranslate"><span class="pre">announce_rate_penalty</span></code> configures an extra amount of
+time that is added to the normal rate target. As an example, if a penalty
+of <code class="docutils literal notranslate"><span class="pre">7200</span></code> seconds is defined, once the rate target is enforced, the
+destination in question will only have its announces propagated every
+3 hours, until it lowers its actual announce rate to within the target.</div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+<p>These mechanisms, in conjunction with the <code class="docutils literal notranslate"><span class="pre">annouce_cap</span></code> mechanisms mentioned
+above means that it is essential to select a balanced announce strategy for
+your destinations. The more balanced you can make this decision, the easier
+it will be for your destinations to make it into slower networks that many hops
+away. Or you can prioritise only reaching high-capacity networks with more frequent
+announces.</p>
+<p>Current statistics and information about announce rates can be viewed using the
+<code class="docutils literal notranslate"><span class="pre">rnpath</span> <span class="pre">-r</span></code> command.</p>
+<p>It is important to note that there is no one right or wrong way to set up announce
+rates. Slower networks will naturally tend towards using less frequent announces to
+conserve bandwidth, while very fast networks can support applications that
+need very frequent announces. Reticulum implements these mechanisms to ensure
+that a large span of network types can seamlessly <em>co-exist</em> and interconnect.</p>
+</section>
+<section id="new-destination-rate-limiting">
+<span id="interfaces-ingress-control"></span><h2>New Destination Rate Limiting<a class="headerlink" href="#new-destination-rate-limiting" title="Permalink to this heading">#</a></h2>
+<p>On public interfaces, where anyone may connect and announce new destinations,
+it can be useful to control the rate at which announces for <em>new</em>  destinations are
+processed.</p>
+<p>If a large influx of announces for newly created or previously unknown destinations
+occur within a short amount of time, Reticulum will place these announces on hold,
+so that announce traffic for known and previously established destinations can
+continue to be processed without interruptions.</p>
+<p>After the burst subsides, and an additional waiting period has passed, the held
+announces will be released at a slow rate, until the hold queue is cleared. This
+also means, that should a node decide to connect to a public interface, announce
+a large amount of bogus destinations, and then disconnect, these destination will
+never make it into path tables and waste network bandwidth on retransmitted
+announces.</p>
+<p><strong>It’s important to note</strong> that the ingress control works at the level of <em>individual
+sub-interfaces</em>. As an example, this means that one client on a <a class="reference internal" href="#interfaces-tcps"><span class="std std-ref">TCP Server Interface</span></a>
+cannot disrupt processing of incoming announces for other connected clients on the same
+<a class="reference internal" href="#interfaces-tcps"><span class="std std-ref">TCP Server Interface</span></a>. All other clients on the same interface will still have new announces
+processed without interruption.</p>
+<p>By default, Reticulum will handle this automatically, and ingress announce
+control will be enabled on interface where it is sensible to do so. It should
+generally not be neccessary to modify the ingress control configuration,
+but all the parameters are exposed for configuration if needed.</p>
+<blockquote>
+<div><ul>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ingress_control</span></code> option tells Reticulum whether or not
+to enable announce ingress control on the interface. Defaults to
+<code class="docutils literal notranslate"><span class="pre">True</span></code>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_new_time</span></code> option configures how long (in seconds) an
+interface is considered newly spawned. Defaults to <code class="docutils literal notranslate"><span class="pre">2*60*60</span></code> seconds. This
+option is useful on publicly accessible interfaces that spawn new
+sub-interfaces when a new client connects.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_freq_new</span></code> option sets the maximum announce ingress
+frequency for newly spawned interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">3.5</span></code>
+announces per second.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_freq</span></code> option sets the maximum announce ingress
+frequency for other interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">12</span></code> announces
+per second.</div>
+</div>
+<blockquote>
+<div><p><em>If an interface exceeds its burst frequency, incoming announces
+for unknown destinations will be temporarily held in a queue, and
+not processed until later.</em></p>
+</div></blockquote>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_max_held_announces</span></code> option sets the maximum amount of
+unique announces that will be held in the queue. Any additional
+unique announces will be dropped. Defaults to <code class="docutils literal notranslate"><span class="pre">256</span></code> announces.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_hold</span></code> option sets how much time (in seconds) must
+pass after the burst frequency drops below its threshold, for the
+announce burst to be considered cleared. Defaults to <code class="docutils literal notranslate"><span class="pre">60</span></code>
+seconds.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_penalty</span></code> option sets how much time (in seconds) must
+pass after the burst is considered cleared, before held announces can
+start being released from the queue. Defaults to <code class="docutils literal notranslate"><span class="pre">5*60</span></code>
+seconds.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_held_release_interval</span></code> option sets how much time (in seconds)
+must pass between releasing each held announce from the queue. Defaults
+to <code class="docutils literal notranslate"><span class="pre">30</span></code> seconds.</div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="networks.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Building Networks</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="hardware.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Communications Hardware</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Mark Qvist
+            </div>
+            Generated with <a href="https://www.sphinx-doc.org/">Sphinx</a> and 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Configuring Interfaces</a><ul>
+<li><a class="reference internal" href="#custom-interfaces">Custom Interfaces</a></li>
+<li><a class="reference internal" href="#auto-interface">Auto Interface</a></li>
+<li><a class="reference internal" href="#i2p-interface">I2P Interface</a></li>
+<li><a class="reference internal" href="#tcp-server-interface">TCP Server Interface</a></li>
+<li><a class="reference internal" href="#tcp-client-interface">TCP Client Interface</a></li>
+<li><a class="reference internal" href="#udp-interface">UDP Interface</a></li>
+<li><a class="reference internal" href="#rnode-lora-interface">RNode LoRa Interface</a></li>
+<li><a class="reference internal" href="#rnode-multi-interface">RNode Multi Interface</a></li>
+<li><a class="reference internal" href="#serial-interface">Serial Interface</a></li>
+<li><a class="reference internal" href="#pipe-interface">Pipe Interface</a></li>
+<li><a class="reference internal" href="#kiss-interface">KISS Interface</a></li>
+<li><a class="reference internal" href="#ax-25-kiss-interface">AX.25 KISS Interface</a></li>
+<li><a class="reference internal" href="#common-interface-options">Common Interface Options</a></li>
+<li><a class="reference internal" href="#interface-modes">Interface Modes</a></li>
+<li><a class="reference internal" href="#announce-rate-control">Announce Rate Control</a></li>
+<li><a class="reference internal" href="#new-destination-rate-limiting">New Destination Rate Limiting</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    </body>
+</html>

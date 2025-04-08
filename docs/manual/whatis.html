@@ -1,0 +1,474 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Getting Started Fast" href="gettingstartedfast.html" /><link rel="prev" title="Reticulum Network Stack Manual" href="index.html" />
+
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
+        <title>What is Reticulum? - Reticulum Network Stack 0.9.4 beta documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Reticulum Network Stack 0.9.4 beta documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Reticulum Network Stack 0.9.4 beta documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">What is Reticulum?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstartedfast.html">Getting Started Fast</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using.html">Using Reticulum on Your System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interfaces.html">Configuring Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="what-is-reticulum">
+<h1>What is Reticulum?<a class="headerlink" href="#what-is-reticulum" title="Permalink to this heading">#</a></h1>
+<p>Reticulum is a cryptography-based networking stack for building both local and
+wide-area networks with readily available hardware, that can continue to operate
+under adverse conditions, such as extremely low bandwidth and very high latency.</p>
+<p>Reticulum allows you to build wide-area networks with off-the-shelf tools, and
+offers end-to-end encryption, forward secrecy, autoconfiguring cryptographically
+backed multi-hop transport, efficient addressing, unforgeable packet
+acknowledgements and more.</p>
+<p>From a users perspective, Reticulum allows the creation of applications that
+respect and empower the autonomy and sovereignty of communities and individuals.
+Reticulum enables secure digital communication that cannot be subjected to
+outside control, manipulation or censorship.</p>
+<p>Reticulum enables the construction of both small and potentially planetary-scale
+networks, without any need for hierarchical or bureaucratic structures to control
+or manage them, while ensuring individuals and communities full sovereignty
+over their own network segments.</p>
+<p>Reticulum is a <strong>complete networking stack</strong>, and does not need IP or higher
+layers, although it is easy to utilise IP (with TCP or UDP) as the underlying
+carrier for Reticulum. It is therefore trivial to tunnel Reticulum over the
+Internet or private IP networks. Reticulum is built directly on cryptographic
+principles, allowing resilience and stable functionality in open and trustless
+networks.</p>
+<p>No kernel modules or drivers are required. Reticulum can run completely in
+userland, and will run on practically any system that runs Python 3. Reticulum
+runs well even on small single-board computers like the Pi Zero.</p>
+<section id="current-status">
+<h2>Current Status<a class="headerlink" href="#current-status" title="Permalink to this heading">#</a></h2>
+<p><strong>Please know!</strong> Reticulum should currently be considered beta software. All core protocol
+features are implemented and functioning, but additions will probably occur as
+real-world use is explored. <em>There will be bugs</em>. The API and wire-format can be
+considered complete and stable at the moment, but could change if absolutely warranted.</p>
+</section>
+<section id="what-does-reticulum-offer">
+<h2>What does Reticulum Offer?<a class="headerlink" href="#what-does-reticulum-offer" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Coordination-less globally unique addressing and identification</p></li>
+<li><p>Fully self-configuring multi-hop routing over heterogeneous carriers</p></li>
+<li><p>Flexible scalability over heterogeneous topologies</p>
+<ul>
+<li><p>Reticulum can carry data over any mixture of physical mediums and topologies</p></li>
+<li><p>Low-bandwidth networks can co-exist and interoperate with large, high-bandwidth networks</p></li>
+</ul>
+</li>
+<li><p>Initiator anonymity, communicate without revealing your identity</p>
+<ul>
+<li><p>Reticulum does not include source addresses on any packets</p></li>
+</ul>
+</li>
+<li><p>Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication</p>
+<ul>
+<li><p>The foundational Reticulum Identity Keys are 512-bit Elliptic Curve keysets</p></li>
+</ul>
+</li>
+<li><p>Forward Secrecy is available for all communication types, both for single packets and over links</p></li>
+<li><p>Reticulum uses the following format for encrypted tokens:</p>
+<ul>
+<li><p>Ephemeral per-packet and link keys and derived from an ECDH key exchange on Curve25519</p></li>
+<li><p>AES-128 in CBC mode with PKCS7 padding</p></li>
+<li><p>HMAC using SHA256 for authentication</p></li>
+<li><p>IVs are generated through os.urandom()</p></li>
+</ul>
+</li>
+<li><p>Unforgeable packet delivery confirmations</p></li>
+<li><p>Flexible and extensible interface system</p>
+<ul>
+<li><p>Reticulum includes a large variety of built-in interface types</p></li>
+<li><p>Ability to load and utilise custom user- or community-supplied interface types</p></li>
+<li><p>Easily create your own custom interfaces for communicating over anything</p></li>
+</ul>
+</li>
+<li><p>Authentication and virtual network segmentation on all supported interface types</p></li>
+<li><p>An intuitive and easy-to-use API</p>
+<ul>
+<li><p>Simpler and easier to use than sockets APIs and simpler, but more powerful</p></li>
+<li><p>Makes building distributed and decentralised applications much simpler</p></li>
+</ul>
+</li>
+<li><p>Reliable and efficient transfer of arbitrary amounts of data</p>
+<ul>
+<li><p>Reticulum can handle a few bytes of data or files of many gigabytes</p></li>
+<li><p>Sequencing, compression, transfer coordination and checksumming are automatic</p></li>
+<li><p>The API is very easy to use, and provides transfer progress</p></li>
+</ul>
+</li>
+<li><p>Lightweight, flexible and expandable Request/Response mechanism</p></li>
+<li><p>Efficient link establishment</p>
+<ul>
+<li><p>Total cost of setting up an encrypted and verified link is only 3 packets, totalling 297 bytes</p></li>
+<li><p>Low cost of keeping links open at only 0.44 bits per second</p></li>
+</ul>
+</li>
+<li><p>Reliable sequential delivery with Channel and Buffer mechanisms</p></li>
+</ul>
+</section>
+<section id="where-can-reticulum-be-used">
+<h2>Where can Reticulum be Used?<a class="headerlink" href="#where-can-reticulum-be-used" title="Permalink to this heading">#</a></h2>
+<p>Over practically any medium that can support at least a half-duplex channel
+with greater throughput than 5 bits per second, and an MTU of 500 bytes. Data radios,
+modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes,
+ad-hoc WiFi, free-space optical links and similar systems are all examples
+of the types of interfaces Reticulum was designed for.</p>
+<p>An open-source LoRa-based interface called <a class="reference external" href="https://unsigned.io/rnode">RNode</a>
+has been designed as an example transceiver that is very suitable for
+Reticulum. It is possible to build it yourself, to transform a common LoRa
+development board into one, or it can be purchased as a complete transceiver
+from various vendors.</p>
+<p>Reticulum can also be encapsulated over existing IP networks, so there’s
+nothing stopping you from using it over wired Ethernet or your local WiFi
+network, where it’ll work just as well. In fact, one of the strengths of
+Reticulum is how easily it allows you to connect different mediums into a
+self-configuring, resilient and encrypted mesh.</p>
+<p>As an example, it’s possible to set up a Raspberry Pi connected to both a
+LoRa radio, a packet radio TNC and a WiFi network. Once the interfaces are
+added, Reticulum will take care of the rest, and any device on the WiFi
+network can communicate with nodes on the LoRa and packet radio sides of the
+network, and vice versa.</p>
+</section>
+<section id="interface-types-and-devices">
+<h2>Interface Types and Devices<a class="headerlink" href="#interface-types-and-devices" title="Permalink to this heading">#</a></h2>
+<p>Reticulum implements a range of generalised interface types that covers the communications hardware that Reticulum can run over. If your hardware is not supported, it’s simple to <a class="reference internal" href="examples.html#example-custominterface"><span class="std std-ref">implement an interface class</span></a>. Currently, Reticulum can use the following devices and communication mediums:</p>
+<ul class="simple">
+<li><p>Any Ethernet device</p>
+<ul>
+<li><p>WiFi devices</p></li>
+<li><p>Wired Ethernet devices</p></li>
+<li><p>Fibre-optic transceivers</p></li>
+<li><p>Data radios with Ethernet ports</p></li>
+</ul>
+</li>
+<li><p>LoRa using <a class="reference external" href="https://unsigned.io/rnode">RNode</a></p>
+<ul>
+<li><p>Can be installed on <a class="reference external" href="https://github.com/markqvist/rnodeconfigutil#supported-devices">many popular LoRa boards</a></p></li>
+<li><p>Can be purchased as a <a class="reference external" href="https://unsigned.io/rnode">ready to use transceiver</a></p></li>
+</ul>
+</li>
+<li><p>Packet Radio TNCs, such as <a class="reference external" href="https://unsigned.io/openmodem">OpenModem</a></p>
+<ul>
+<li><p>Any packet radio TNC in KISS mode</p></li>
+<li><p>Ideal for VHF and UHF radio</p></li>
+</ul>
+</li>
+<li><p>Any device with a serial port</p></li>
+<li><p>The I2P network</p></li>
+<li><p>TCP over IP networks</p></li>
+<li><p>UDP over IP networks</p></li>
+<li><p>Anything you can connect via stdio</p>
+<ul>
+<li><p>Reticulum can use external programs and pipes as interfaces</p></li>
+<li><p>This can be used to easily hack in virtual interfaces</p></li>
+<li><p>Or to quickly create interfaces with custom hardware</p></li>
+</ul>
+</li>
+</ul>
+<p>For a full list and more details, see the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Supported Interfaces</span></a> chapter.</p>
+</section>
+<section id="caveat-emptor">
+<h2>Caveat Emptor<a class="headerlink" href="#caveat-emptor" title="Permalink to this heading">#</a></h2>
+<p>Reticulum is an experimental networking stack, and should be considered as
+such. While it has been built with cryptography best-practices very foremost in
+mind, it has not yet been externally security audited, and there could very well be
+privacy-breaking bugs. To be considered secure, Reticulum needs a thorough
+security review by independent cryptographers and security researchers. If you
+want to help out with this, or can help sponsor an audit, please do get in touch.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="gettingstartedfast.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Getting Started Fast</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Home</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Mark Qvist
+            </div>
+            Generated with <a href="https://www.sphinx-doc.org/">Sphinx</a> and 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">What is Reticulum?</a><ul>
+<li><a class="reference internal" href="#current-status">Current Status</a></li>
+<li><a class="reference internal" href="#what-does-reticulum-offer">What does Reticulum Offer?</a></li>
+<li><a class="reference internal" href="#where-can-reticulum-be-used">Where can Reticulum be Used?</a></li>
+<li><a class="reference internal" href="#interface-types-and-devices">Interface Types and Devices</a></li>
+<li><a class="reference internal" href="#caveat-emptor">Caveat Emptor</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    </body>
+</html>

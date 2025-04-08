@@ -1,0 +1,20 @@
+h3 {
+	margin-top: 1.75rem;
+	margin-bottom: 0.5rem;
+}
+
+code.literal {
+	padding-left: 0.25rem !important;
+	padding-right: 0.25rem !important;
+	padding-top: 0.25rem !important;
+	padding-bottom: 0.15rem !important;
+}
+
+img[src*="if_mode_graph_b.png"] {
+	background-color: rgb(169, 177, 186);
+}
+
+dt.sig {
+	margin-bottom: 0.75rem;
+	margin-top: 1.75rem;
+}
