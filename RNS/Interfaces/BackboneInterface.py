@@ -64,9 +64,9 @@ class BackboneInterface(Interface):
             bind_ip = ifaddr[netinfo.AF_INET6][0]["addr"]
             if bind_ip.lower().startswith("fe80::"):
                 # We'll need to add the interface as scope for link-local addresses
-                return self.get_address_for_host(f"{bind_ip}%{name}", bind_port)
+                return BackboneInterface.get_address_for_host(f"{bind_ip}%{name}", bind_port, prefer_ipv6)
             else:
-                return self.get_address_for_host(bind_ip, bind_port)
+                return BackboneInterface.get_address_for_host(bind_ip, bind_port, prefer_ipv6)
         elif netinfo.AF_INET in ifaddr:
             bind_ip = ifaddr[netinfo.AF_INET][0]["addr"]
             return (bind_ip, bind_port)
@@ -74,8 +74,15 @@ class BackboneInterface(Interface):
             raise SystemError(f"No addresses available on specified kernel interface \"{name}\" for BackboneInterface to bind to")
 
     @staticmethod
-    def get_address_for_host(name, bind_port):
-        address_info = socket.getaddrinfo(name, bind_port, proto=socket.IPPROTO_TCP)[0]
+    def get_address_for_host(name, bind_port, prefer_ipv6=False):
+        address_infos = socket.getaddrinfo(name, bind_port, proto=socket.IPPROTO_TCP)
+        address_info  = address_infos[0]
+        for entry in address_infos:
+            if prefer_ipv6 and entry[0] == socket.AF_INET6:
+                address_info = entry; break
+            elif not prefer_ipv6 and entry[0] == socket.AF_INET:
+                address_info = entry; break
+
         if address_info[0] == socket.AF_INET6:
             return (name, bind_port, address_info[4][2], address_info[4][3])
         elif address_info[0] == socket.AF_INET:
@@ -124,14 +131,16 @@ class BackboneInterface(Interface):
         else:
             if bindip == None:
                 raise SystemError(f"No TCP bind IP configured for interface \"{name}\"")
-            bind_address = self.get_address_for_host(bindip, self.bind_port)
+            bind_address = self.get_address_for_host(bindip, self.bind_port, prefer_ipv6)
 
         if bind_address != None:
             self.receives = True
             self.bind_ip = bind_address[0]
             self.owner = owner
 
-            BackboneInterface.add_listener(self, bind_address)
+            if len(bind_address) == 2  : BackboneInterface.add_listener(self, bind_address, socket_type=socket.AF_INET)
+            elif len(bind_address) == 4: BackboneInterface.add_listener(self, bind_address, socket_type=socket.AF_INET6)
+
             self.bitrate = self.BITRATE_GUESS
             self.online = True
 
@@ -151,6 +160,10 @@ class BackboneInterface(Interface):
         BackboneInterface.ensure_epoll()
         if socket_type == socket.AF_INET:
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            server_socket.bind(bind_address)
+        elif socket_type == socket.AF_INET6:
+            server_socket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
             server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             server_socket.bind(bind_address)
         elif socket_type == socket.AF_UNIX:
@@ -216,7 +229,6 @@ class BackboneInterface(Interface):
         with BackboneInterface._job_lock:
             if BackboneInterface._job_active: return
             else:
-                RNS.log(f"Starting BackboneInterface I/O handler", RNS.LOG_DEBUG) # TODO: Remove debug
                 BackboneInterface._job_active = True
                 BackboneInterface.ensure_epoll()
                 try:
@@ -419,6 +431,7 @@ class BackboneClientInterface(Interface):
         i2p_tunneled = c.as_bool("i2p_tunneled") if "i2p_tunneled" in c else False
         connect_timeout = c.as_int("connect_timeout") if "connect_timeout" in c else None
         max_reconnect_tries = c.as_int("max_reconnect_tries") if "max_reconnect_tries" in c else None
+        prefer_ipv6  = c.as_bool("prefer_ipv6") if "prefer_ipv6" in c else False
         
         self.HW_MTU           = BackboneInterface.HW_MTU
         self.IN               = True
@@ -432,6 +445,7 @@ class BackboneClientInterface(Interface):
         self.owner            = owner
         self.online           = False
         self.detached         = False
+        self.prefer_ipv6      = prefer_ipv6
         self.i2p_tunneled     = i2p_tunneled
         self.mode             = RNS.Interfaces.Interface.Interface.MODE_FULL
         self.bitrate          = BackboneClientInterface.BITRATE_GUESS
@@ -507,7 +521,14 @@ class BackboneClientInterface(Interface):
             if initial:
                 RNS.log("Establishing TCP connection for "+str(self)+"...", RNS.LOG_DEBUG)
 
-            address_info = socket.getaddrinfo(self.target_ip, self.target_port, proto=socket.IPPROTO_TCP)[0]
+            address_infos = socket.getaddrinfo(self.target_ip, self.target_port, proto=socket.IPPROTO_TCP)
+            address_info  = address_infos[0]
+            for entry in address_infos:
+                if self.prefer_ipv6 and entry[0] == socket.AF_INET6:
+                    address_info = entry; break
+                elif not self.prefer_ipv6 and entry[0] == socket.AF_INET:
+                    address_info = entry; break
+
             address_family = address_info[0]
             target_address = address_info[4]
 

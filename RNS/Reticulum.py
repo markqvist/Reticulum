@@ -672,8 +672,15 @@ class Reticulum:
                                     interface = AutoInterface.AutoInterface(RNS.Transport, interface_config)
                                     interface_post_init(interface)
 
+                                if c["type"] == "BackboneInterface" or c["type"] == "BackboneClientInterface":
+                                    if "port" in c: c["listen_port"] = c["port"]
+                                    if "port" in c: c["target_port"] = c["port"]
+                                    if "remote" in c: c["target_host"] = c["remote"]
+                                    if "listen_on" in c: c["listen_ip"] = c["listen_on"]
+
                                 if c["type"] == "BackboneInterface":
-                                    interface = BackboneInterface.BackboneInterface(RNS.Transport, interface_config)
+                                    if "target_host" in c: interface = BackboneInterface.BackboneClientInterface(RNS.Transport, interface_config)
+                                    else: interface = BackboneInterface.BackboneInterface(RNS.Transport, interface_config)
                                     interface_post_init(interface)
 
                                 if c["type"] == "BackboneClientInterface":
@@ -1194,10 +1201,6 @@ class Reticulum:
             rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
             rpc_connection.send({"get": "next_hop", "destination_hash": destination})
             response = rpc_connection.recv()
-
-            # TODO: Remove this debugging function
-            # if not response:
-            #     response = RNS.Transport.next_hop(destination)
 
             return response
 

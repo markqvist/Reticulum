@@ -454,9 +454,9 @@ class TCPServerInterface(Interface):
             bind_ip = ifaddr[netinfo.AF_INET6][0]["addr"]
             if bind_ip.lower().startswith("fe80::"):
                 # We'll need to add the interface as scope for link-local addresses
-                return TCPServerInterface.get_address_for_host(f"{bind_ip}%{name}", bind_port)
+                return TCPServerInterface.get_address_for_host(f"{bind_ip}%{name}", bind_port, prefer_ipv6)
             else:
-                return TCPServerInterface.get_address_for_host(bind_ip, bind_port)
+                return TCPServerInterface.get_address_for_host(bind_ip, bind_port, prefer_ipv6)
         elif netinfo.AF_INET in ifaddr:
             bind_ip = ifaddr[netinfo.AF_INET][0]["addr"]
             return (bind_ip, bind_port)
@@ -464,8 +464,15 @@ class TCPServerInterface(Interface):
             raise SystemError(f"No addresses available on specified kernel interface \"{name}\" for TCPServerInterface to bind to")
 
     @staticmethod
-    def get_address_for_host(name, bind_port):
-        address_info = socket.getaddrinfo(name, bind_port, proto=socket.IPPROTO_TCP)[0]
+    def get_address_for_host(name, bind_port, prefer_ipv6=False):
+        address_infos = socket.getaddrinfo(name, bind_port, proto=socket.IPPROTO_TCP)
+        address_info  = address_infos[0]
+        for entry in address_infos:
+            if prefer_ipv6 and entry[0] == socket.AF_INET6:
+                address_info = entry; break
+            elif not prefer_ipv6 and entry[0] == socket.AF_INET:
+                address_info = entry; break
+
         if address_info[0] == socket.AF_INET6:
             return (name, bind_port, address_info[4][2], address_info[4][3])
         elif address_info[0] == socket.AF_INET:
@@ -517,7 +524,7 @@ class TCPServerInterface(Interface):
         else:
             if bindip == None:
                 raise SystemError(f"No TCP bind IP configured for interface \"{name}\"")
-            bind_address = TCPServerInterface.get_address_for_host(bindip, self.bind_port)
+            bind_address = TCPServerInterface.get_address_for_host(bindip, self.bind_port, prefer_ipv6)
 
         if bind_address != None:
             self.receives = True
