@@ -242,13 +242,13 @@ example for basic interface code to build upon.</p>
 </section>
 <section id="auto-interface">
 <span id="interfaces-auto"></span><h2>Auto Interface<a class="headerlink" href="#auto-interface" title="Permalink to this heading">#</a></h2>
-<p>The Auto Interface enables communication with other discoverable Reticulum
-nodes over autoconfigured IPv6 and UDP. Even though it uses IPv6 for peer
+<p>The <code class="docutils literal notranslate"><span class="pre">AutoInterface</span></code> enables communication with other discoverable Reticulum
+nodes over any kind of local Ethernet or WiFi-based medium. Even though it uses IPv6 for peer
 discovery, and UDP for packet transport, it <strong>does not</strong> need any functional IP
 infrastructure like routers or DHCP servers, on your physical network.</p>
 <p>As long as there is at least some sort of switching medium present between peers (a
-wired switch, a hub, a WiFi access point or similar), it will work without
-any configuration, setup or intermediary devices.</p>
+wired switch, a hub, a WiFi access point or similar, or simply two devices connected
+directly by Ethernet cable), it will work without any configuration, setup or intermediary devices.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">AutoInterface</span></code> peer discovery to work, it’s also required that link-local
 IPv6 support is available on your system, which it should be by default in all
 current operating systems, both desktop and mobile.</p>

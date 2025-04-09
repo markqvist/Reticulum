@@ -88,7 +88,8 @@ to the configuration.
 Supported Boards and Devices
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 To create one or more RNodes, you will need to obtain supported development
-boards. The following boards are supported by the auto-installer.
+boards or completed devices. The following boards and devices are supported
+by the auto-installer.
 
 ------------
 
@@ -98,7 +99,7 @@ boards. The following boards are supported by the auto-installer.
 
 LilyGO T-Beam Supreme
 """""""""""""
-- **Transceiver IC** Semtech SX1262, SX1268
+- **Transceiver IC** Semtech SX1262 or SX1268
 - **Device Platform** ESP32
 - **Manufacturer** `LilyGO <https://lilygo.cn>`_
 
@@ -110,7 +111,7 @@ LilyGO T-Beam Supreme
 
 LilyGO T-Beam
 """""""""""""
-- **Transceiver IC** Semtech SX1262, SX1268, SX1276 and SX1278
+- **Transceiver IC** Semtech SX1262, SX1268, SX1276 or SX1278
 - **Device Platform** ESP32
 - **Manufacturer** `LilyGO <https://lilygo.cn>`_
 
@@ -122,7 +123,7 @@ LilyGO T-Beam
 
 LilyGO T3S3
 """""""""""
-- **Transceiver IC** Semtech SX1262, SX1268, SX1276 and SX1278
+- **Transceiver IC** Semtech SX1262, SX1268, SX1276 or SX1278
 - **Device Platform** ESP32
 - **Manufacturer** `LilyGO <https://lilygo.cn>`_
 
@@ -134,9 +135,21 @@ LilyGO T3S3
 
 RAK4631-based Boards
 """"""""""""""""""""
-- **Transceiver IC** Semtech SX1262, SX1268
+- **Transceiver IC** Semtech SX1262 or SX1268
 - **Device Platform** nRF52
 - **Manufacturer** `RAK Wireless <https://www.rakwireless.com>`_
+
+------------
+
+.. image:: graphics/board_opencomxl.png
+    :width: 45%
+    :align: center
+
+OpenCom XL
+""""""""""""""""""""
+- **Transceiver ICs** Semtech SX1262 and SX1280 (dual transceiver)
+- **Device Platform** nRF52
+- **Manufacturer** `RAK Wireless <https://liberatedsystems.co.uk/>`_
 
 ------------
 
@@ -146,7 +159,7 @@ RAK4631-based Boards
 
 Unsigned RNode v2.x
 """""""""""""""""""
-- **Transceiver IC** Semtech SX1276 and SX1278
+- **Transceiver IC** Semtech SX1276 or SX1278
 - **Device Platform** ESP32
 - **Manufacturer** `unsigned.io <https://unsigned.io>`_
 
@@ -158,7 +171,7 @@ Unsigned RNode v2.x
 
 LilyGO LoRa32 v2.1
 """"""""""""""""""
-- **Transceiver IC** Semtech SX1276 and SX1278
+- **Transceiver IC** Semtech SX1276 or SX1278
 - **Device Platform** ESP32
 - **Manufacturer** `LilyGO <https://lilygo.cn>`_
 
@@ -170,7 +183,7 @@ LilyGO LoRa32 v2.1
 
 LilyGO LoRa32 v2.0
 """"""""""""""""""
-- **Transceiver IC** Semtech SX1276 and SX1278
+- **Transceiver IC** Semtech SX1276 or SX1278
 - **Device Platform** ESP32
 - **Manufacturer** `LilyGO <https://lilygo.cn>`_
 
@@ -182,7 +195,7 @@ LilyGO LoRa32 v2.0
 
 LilyGO LoRa32 v1.0
 """"""""""""""""""
-- **Transceiver IC** Semtech SX1276 and SX1278
+- **Transceiver IC** Semtech SX1276 or SX1278
 - **Device Platform** ESP32
 - **Manufacturer** `LilyGO <https://lilygo.cn>`_
 
@@ -194,9 +207,33 @@ LilyGO LoRa32 v1.0
 
 LilyGO T-Deck
 """""""""""""
-- **Transceiver IC** Semtech SX1262, SX1268
+- **Transceiver IC** Semtech SX1262 or SX1268
 - **Device Platform** ESP32
 - **Manufacturer** `LilyGO <https://lilygo.cn>`_
+
+------------
+
+.. image:: graphics/board_techo.png
+    :width: 45%
+    :align: center
+
+LilyGO T-Echo
+"""""""""""""
+- **Transceiver IC** Semtech SX1262 or SX1268
+- **Device Platform** nRF52
+- **Manufacturer** `LilyGO <https://lilygo.cn>`_
+
+------------
+
+.. image:: graphics/board_t114.png
+    :width: 58%
+    :align: center
+
+Heltec T114
+"""""""""""
+- **Transceiver IC** Semtech SX1262 or SX1268
+- **Device Platform** ESP32
+- **Manufacturer** `Heltec Automation <https://heltec.org>`_
 
 ------------
 
@@ -206,7 +243,7 @@ LilyGO T-Deck
 
 Heltec LoRa32 v3.0
 """"""""""""""""""
-- **Transceiver IC** Semtech SX1262 and SX1268
+- **Transceiver IC** Semtech SX1262 or SX1268
 - **Device Platform** ESP32
 - **Manufacturer** `Heltec Automation <https://heltec.org>`_
 
@@ -218,21 +255,9 @@ Heltec LoRa32 v3.0
 
 Heltec LoRa32 v2.0
 """"""""""""""""""
-- **Transceiver IC** Semtech SX1276 and SX1278
+- **Transceiver IC** Semtech SX1276 or SX1278
 - **Device Platform** ESP32
 - **Manufacturer** `Heltec Automation <https://heltec.org>`_
-
-------------
-
-.. image:: graphics/board_rnode.png
-    :width: 50%
-    :align: center
-
-Unsigned RNode v1.x
-"""""""""""""""""""
-- **Transceiver IC** Semtech SX1276 and SX1278
-- **Device Platform** AVR ATmega1284p
-- **Manufacturer** `unsigned.io <https://unsigned.io>`_
 
 ------------
 
