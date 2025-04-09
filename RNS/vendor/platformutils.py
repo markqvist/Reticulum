@@ -33,7 +33,11 @@ def is_windows():
         return False
 
 def use_epoll():
-    if is_linux(): return True
+    if is_linux() or is_android(): return True
+    else: return False
+
+def use_af_unix():
+    if is_linux() or is_android(): return True
     else: return False
 
 def platform_checks():

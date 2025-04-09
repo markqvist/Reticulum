@@ -26,6 +26,7 @@ if get_platform() == "android":
     from .Interfaces import Interface
     from .Interfaces import LocalInterface
     from .Interfaces import AutoInterface
+    from .Interfaces import BackboneInterface
     from .Interfaces import TCPInterface
     from .Interfaces import UDPInterface
     from .Interfaces import I2PInterface
@@ -255,6 +256,7 @@ class Reticulum:
         self.share_instance       = True
         self.rpc_listener         = None
         self.rpc_key              = None
+        self.rpc_type             = "AF_INET"
 
         self.ifac_salt = Reticulum.IFAC_SALT
 
@@ -316,12 +318,18 @@ class Reticulum:
 
         RNS.Transport.start(self)
 
-        self.rpc_addr = ("127.0.0.1", self.local_control_port)
+        if RNS.vendor.platformutils.use_af_unix():
+            self.rpc_addr = f"\0rns/{self.local_socket_path}/rpc"
+            self.rpc_type = "AF_UNIX"
+        else:
+            self.rpc_addr = ("127.0.0.1", self.local_control_port)
+            self.rpc_type = "AF_INET"
+
         if self.rpc_key == None:
             self.rpc_key  = RNS.Identity.full_hash(RNS.Transport.identity.get_private_key())
         
         if self.is_shared_instance:
-            self.rpc_listener = multiprocessing.connection.Listener(self.rpc_addr, authkey=self.rpc_key)
+            self.rpc_listener = multiprocessing.connection.Listener(self.rpc_addr, family=self.rpc_type, authkey=self.rpc_key)
             thread = threading.Thread(target=self.rpc_loop)
             thread.daemon = True
             thread.start()
@@ -434,9 +442,11 @@ class Reticulum:
                 if option == "share_instance":
                     value = self.config["reticulum"].as_bool(option)
                     self.share_instance = value
-                if option == "instance_name":
-                    value = self.config["reticulum"][option]
-                    self.local_socket_path = value
+                if RNS.vendor.platformutils.use_af_unix():
+                    if option == "instance_name":
+                        value = self.config["reticulum"][option]
+                        self.local_socket_path = value
+                    else: self.local_socket_path = "default"
                 if option == "shared_instance_port":
                     value = int(self.config["reticulum"][option])
                     self.local_interface_port = value
@@ -938,9 +948,11 @@ class Reticulum:
             except Exception as e:
                 RNS.log("An error ocurred while handling RPC call from local client: "+str(e), RNS.LOG_ERROR)
 
+    def get_rpc_client(self): return multiprocessing.connection.Client(self.rpc_addr, family=self.rpc_type, authkey=self.rpc_key)
+
     def get_interface_stats(self):
         if self.is_connected_to_shared_instance:
-            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection = self.get_rpc_client()
             rpc_connection.send({"get": "interface_stats"})
             response = rpc_connection.recv()
             return response
@@ -1087,7 +1099,7 @@ class Reticulum:
 
     def get_path_table(self, max_hops=None):
         if self.is_connected_to_shared_instance:
-            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection = self.get_rpc_client()
             rpc_connection.send({"get": "path_table", "max_hops": max_hops})
             response = rpc_connection.recv()
             return response
@@ -1111,7 +1123,7 @@ class Reticulum:
 
     def get_rate_table(self):
         if self.is_connected_to_shared_instance:
-            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection = self.get_rpc_client()
             rpc_connection.send({"get": "rate_table"})
             response = rpc_connection.recv()
             return response
@@ -1132,7 +1144,7 @@ class Reticulum:
 
     def drop_path(self, destination):
         if self.is_connected_to_shared_instance:
-            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection = self.get_rpc_client()
             rpc_connection.send({"drop": "path", "destination_hash": destination})
             response = rpc_connection.recv()
             return response
@@ -1142,7 +1154,7 @@ class Reticulum:
 
     def drop_all_via(self, transport_hash):
         if self.is_connected_to_shared_instance:
-            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection = self.get_rpc_client()
             rpc_connection.send({"drop": "all_via", "destination_hash": transport_hash})
             response = rpc_connection.recv()
             return response
@@ -1158,7 +1170,7 @@ class Reticulum:
 
     def drop_announce_queues(self):
         if self.is_connected_to_shared_instance:
-            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection = self.get_rpc_client()
             rpc_connection.send({"drop": "announce_queues"})
             response = rpc_connection.recv()
             return response
@@ -1168,7 +1180,7 @@ class Reticulum:
 
     def get_next_hop_if_name(self, destination):
         if self.is_connected_to_shared_instance:
-            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection = self.get_rpc_client()
             rpc_connection.send({"get": "next_hop_if_name", "destination_hash": destination})
             response = rpc_connection.recv()
             return response
@@ -1179,7 +1191,7 @@ class Reticulum:
     def get_first_hop_timeout(self, destination):
         if self.is_connected_to_shared_instance:
             try:
-                rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+                rpc_connection = self.get_rpc_client()
                 rpc_connection.send({"get": "first_hop_timeout", "destination_hash": destination})
                 response = rpc_connection.recv()
 
@@ -1198,7 +1210,7 @@ class Reticulum:
 
     def get_next_hop(self, destination):
         if self.is_connected_to_shared_instance:
-            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection = self.get_rpc_client()
             rpc_connection.send({"get": "next_hop", "destination_hash": destination})
             response = rpc_connection.recv()
 
@@ -1209,7 +1221,7 @@ class Reticulum:
 
     def get_link_count(self):
         if self.is_connected_to_shared_instance:
-            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection = self.get_rpc_client()
             rpc_connection.send({"get": "link_count"})
             response = rpc_connection.recv()
             return response
@@ -1219,7 +1231,7 @@ class Reticulum:
 
     def get_packet_rssi(self, packet_hash):
         if self.is_connected_to_shared_instance:
-            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection = self.get_rpc_client()
             rpc_connection.send({"get": "packet_rssi", "packet_hash": packet_hash})
             response = rpc_connection.recv()
             return response
@@ -1233,7 +1245,7 @@ class Reticulum:
 
     def get_packet_snr(self, packet_hash):
         if self.is_connected_to_shared_instance:
-            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection = self.get_rpc_client()
             rpc_connection.send({"get": "packet_snr", "packet_hash": packet_hash})
             response = rpc_connection.recv()
             return response
@@ -1247,7 +1259,7 @@ class Reticulum:
 
     def get_packet_q(self, packet_hash):
         if self.is_connected_to_shared_instance:
-            rpc_connection = multiprocessing.connection.Client(self.rpc_addr, authkey=self.rpc_key)
+            rpc_connection = self.get_rpc_client()
             rpc_connection.send({"get": "packet_q", "packet_hash": packet_hash})
             response = rpc_connection.recv()
             return response
