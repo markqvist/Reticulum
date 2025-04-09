@@ -35,11 +35,25 @@ Auto Interface
 ==============
 
 The Auto Interface enables communication with other discoverable Reticulum
-nodes over autoconfigured IPv6 and UDP. It does not need any functional IP
-infrastructure like routers or DHCP servers, but will require at least some
-sort of switching medium between peers (a wired switch, a hub, a WiFi access
-point or similar), and that link-local IPv6 is enabled in your operating
-system, which should be enabled by default in almost all OSes.
+nodes over autoconfigured IPv6 and UDP. Even though it uses IPv6 for peer
+discovery, and UDP for packet transport, it **does not** need any functional IP
+infrastructure like routers or DHCP servers, on your physical network.
+
+As long as there is at least some sort of switching medium present between peers (a
+wired switch, a hub, a WiFi access point or similar), it will work without
+any configuration, setup or intermediary devices.
+
+For ``AutoInterface`` peer discovery to work, it's also required that link-local
+IPv6 support is available on your system, which it should be by default in all
+current operating systems, both desktop and mobile.
+
+.. note::
+  Almost all current Ethernet and WiFi hardware will work without any kind
+  of configuration or setup with ``AutoInterface``, but a small subset of
+  devices turn on options that limit device-to-device communication by default,
+  resulting in ``AutoInterface`` peer discovery being blocked. This issue is
+  most commonly seen on very cheap, ISP-supplied WiFi routers, and can sometimes
+  be turned off in the router configuration.
 
 .. code::
 
@@ -48,40 +62,34 @@ system, which should be enabled by default in almost all OSes.
   # tion with all other reachable devices on all
   # usable physical ethernet-based devices that
   # are available on the system.
-
   [[Default Interface]]
     type = AutoInterface
-    interface_enabled = True
+    enabled = yes
 
   # This example demonstrates an more specifically
   # configured Auto Interface, that only uses spe-
   # cific physical interfaces, and has a number of
   # other configuration options set.
-  
   [[Default Interface]]
     type = AutoInterface
-    interface_enabled = True
+    enabled = yes
 
     # You can create multiple isolated Reticulum
     # networks on the same physical LAN by
     # specifying different Group IDs.
-
     group_id = reticulum
 
     # You can also choose the multicast address type:
     # temporary (default, Temporary Multicast Address)
     # or permanent (Permanent Multicast Address)
-
     multicast_address_type = permanent
 
     # You can also select specifically which
     # kernel networking devices to use.
-
     devices = wlan0,eth1
 
     # Or let AutoInterface use all suitable
     # devices except for a list of ignored ones.
-
     ignored_devices = tun0,eth0
 
 
@@ -95,7 +103,7 @@ the discovery scope by setting it to one of ``link``, ``admin``, ``site``,
   
   [[Default Interface]]
     type = AutoInterface
-    interface_enabled = True
+    enabled = yes
 
     # Configure global discovery
 
@@ -108,73 +116,114 @@ the discovery scope by setting it to one of ``link``, ``admin``, ``site``,
     data_port = 49555
 
 
-.. _interfaces-i2p:
+.. _interfaces-backbone:
 
-I2P Interface
-=============
+Backbone Interface
+====================
 
-The I2P interface lets you connect Reticulum instances over the
-`Invisible Internet Protocol <https://i2pd.website>`_. This can be
-especially useful in cases where you want to host a globally reachable
-Reticulum instance, but do not have access to any public IP addresses,
-have a frequently changing IP address, or have firewalls blocking
-inbound traffic.
-
-Using the I2P interface, you will get a globally reachable, portable
-and persistent I2P address that your Reticulum instance can be reached
-at.
-
-To use the I2P interface, you must have an I2P router running
-on your system. The easiest way to achieve this is to download and
-install the `latest release <https://github.com/PurpleI2P/i2pd/releases/latest>`_
-of the ``i2pd`` package. For more details about I2P, see the
-`geti2p.net website <https://geti2p.net/en/about/intro>`_.
-
-When an I2P router is running on your system, you can simply add
-an I2P interface to Reticulum:
-
-.. code::
-
-  [[I2P]]
-    type = I2PInterface
-    interface_enabled = yes
-    connectable = yes
-
-On the first start, Reticulum will generate a new I2P address for the
-interface and start listening for inbound traffic on it. This can take
-a while the first time, especially if your I2P router was also just
-started, and is not yet well-connected to the I2P network. When ready,
-you should see I2P base32 address printed to your log file. You can
-also inspect the status of the interface using the ``rnstatus`` utility.
-
-To connect to other Reticulum instances over I2P, just add a comma-separated
-list of I2P base32 addresses to the ``peers`` option of the interface:
-
-.. code::
-
-  [[I2P]]
-    type = I2PInterface
-    interface_enabled = yes
-    connectable = yes
-    peers = 5urvjicpzi7q3ybztsef4i5ow2aq4soktfj7zedz53s47r54jnqq.b32.i2p
-
-It can take anywhere from a few seconds to a few minutes to establish
-I2P connections to the desired peers, so Reticulum handles the process
-in the background, and will output relevant events to the log.
+The Backbone interface is a very fast and resource efficient interface type, primarily
+intended for interconnecting Reticulum instances over many different types of mediums.
+It uses a kernel-event I/O backend, and can handle thousands of interfaces and/or clients
+with relatively low system resource utilisation. **This interface type is currently only
+supported on Linux and Android**.
 
 .. note::
-   While the I2P interface is the simplest way to use
-   Reticulum over I2P, it is also possible to tunnel the TCP server and
-   client interfaces over I2P manually. This can be useful in situations
-   where more control is needed, but requires manual tunnel setup through
-   the I2P daemon configuration.
+  The Backbone Interface is fully compatible with the ``TCPServerInterface`` and ``TCPClientInterface``
+  types, and they can be used interchangably, and cross-connect with each other. On systems that support
+  ``BackboneInterface``, it is generally recommended to use it, unless you need specific options or
+  features that the TCP server and client interfaces provide.
 
-It is important to note that the two methods are *interchangably compatible*.
-You can use the I2PInterface to connect to a TCPServerInterface that
-was manually tunneled over I2P, for example. This offers a high degree
-of flexibility in network setup, while retaining ease of use in simpler
-use-cases.
+While the goal is to support *all* socket types and I/O devices provided by the underlying
+operating system, the initial release only provides support for TCP connections over IPv4
+and IPv6.
 
+For all types of connections over a ``BackboneInterface``, Reticulum will gracefully
+handle intermittency, link loss, and connections that come and go.
+
+Listeners
+---------
+
+The following examples illustrates various ways to set up ``BackboneInterface`` listeners.
+
+.. code::
+
+  # This example demonstrates a backbone interface
+  # that listens for incoming connections on the
+  # specified IP address and port number.
+  [[Backbone Listener]]
+    type = BackboneInterface
+    enabled = yes    
+    listen_on = 0.0.0.0
+    port = 4242
+
+  # Alternatively you can bind to a specific IP
+  [[Backbone Listener]]
+    type = BackboneInterface
+    enabled = yes    
+    listen_on = 10.0.0.88
+    port = 4242
+
+  # Or a specific network device
+  [[Backbone Listener]]
+    type = BackboneInterface
+    enabled = yes
+    device = eth0
+    port = 4242
+
+If you are using the interface on a device which has both IPv4 and IPv6 addresses available,
+you can use the ``prefer_ipv6`` option to bind to the IPv6 address:
+
+.. code::
+
+  # This example demonstrates a backbone interface
+  # listening on the IPv6 address of a specified
+  # kernel networking device.
+  [[Backbone Listener]]
+    type = BackboneInterface
+    enabled = yes
+    prefer_ipv6 = yes
+    device = eth0
+    port = 4242
+
+To use the ``BackboneInterface`` over `Yggdrasil <https://yggdrasil-network.github.io/>`_, you
+can simply specify the Yggdrasil ``tun`` device and a listening port, like so:
+
+.. code::
+
+  # This example demonstrates a backbone interface
+  # listening for connections over Yggdrasil.
+  [[Yggdrasil Backbone Interface]]
+    type = BackboneInterface
+    enabled = yes
+    device = tun0
+    port = 4343
+
+Connecting Remotes
+------------------
+The following examples illustrates various ways to connect to remote ``BackboneInterface`` listeners.
+As noted above, ``BackboneInterface`` interfaces can also connect to remote ``TCPServerInterface``,
+and as such these interface types can be used interchangably.
+
+.. code::
+
+  # Here's an example of a backbone interface that
+  # connects to a remote listener.
+  [[Backbone Remote]]
+    type = BackboneInterface
+    enabled = yes
+    remote = amsterdam.connect.reticulum.network
+    target_port = 4251
+
+To connect to remotes over `Yggdrasil <https://yggdrasil-network.github.io/>`_, simply
+specify the target Yggdrasil IPv6 address and port, like so:
+
+.. code::
+
+  [[Yggdrasil Remote]]
+      type = BackboneInterface
+      enabled = yes
+      target_host = 201:5d78:af73:5caf:a4de:a79f:3278:71e5
+      target_port = 4343
 
 .. _interfaces-tcps:
 
@@ -188,28 +237,27 @@ configured, other Reticulum peers can connect to it with a TCP Client interface.
 .. code::
 
   # This example demonstrates a TCP server interface.
-  # It will listen for incoming connections on the
-  # specified IP address and port number.
-  
+  # It will listen for incoming connections on all IP
+  # interfaces on port 4242.  
   [[TCP Server Interface]]
     type = TCPServerInterface
-    interface_enabled = True
-
-    # This configuration will listen on all IP
-    # interfaces on port 4242
-    
+    enabled = yes
     listen_ip = 0.0.0.0
     listen_port = 4242
 
-    # Alternatively you can bind to a specific IP
-    
-    # listen_ip = 10.0.0.88
-    # listen_port = 4242
+  # Alternatively you can bind to a specific IP
+  [[TCP Server Interface]]
+    type = TCPServerInterface
+    enabled = yes
+    listen_ip = 10.0.0.88
+    listen_port = 4242
 
-    # Or a specific network device
-    
-    # device = eth0
-    # port = 4242
+  # Or a specific network device
+  [[TCP Server Interface]]
+    type = TCPServerInterface
+    enabled = yes    
+    device = eth0
+    listen_port = 4242
 
 If you are using the interface on a device which has both IPv4 and IPv6 addresses available,
 you can use the ``prefer_ipv6`` option to bind to the IPv6 address:
@@ -222,11 +270,10 @@ you can use the ``prefer_ipv6`` option to bind to the IPv6 address:
   
   [[TCP Server Interface]]
     type = TCPServerInterface
-    interface_enabled = True
-
+    enabled = yes
+    prefer_ipv6 = True
     device = eth0
     port = 4242
-    prefer_ipv6 = True
 
 To use the TCP Server Interface over `Yggdrasil <https://yggdrasil-network.github.io/>`_, you
 can simply specify the Yggdrasil ``tun`` device and a listening port, like so:
@@ -234,10 +281,10 @@ can simply specify the Yggdrasil ``tun`` device and a listening port, like so:
 .. code::
 
   [[Yggdrasil TCP Server Interface]]
-      type = TCPServerInterface
-      interface_enabled = yes
-      device = tun0
-      listen_port = 4343
+    type = TCPServerInterface
+    enabled = yes
+    device = tun0
+    listen_port = 4343
 
 .. note::
    The TCP interfaces support tunneling over I2P, but to do so reliably,
@@ -246,11 +293,11 @@ can simply specify the Yggdrasil ``tun`` device and a listening port, like so:
 .. code::
 
   [[TCP Server on I2P]]
-      type = TCPServerInterface
-      interface_enabled = yes
-      listen_ip = 127.0.0.1
-      listen_port = 5001
-      i2p_tunneled = yes
+    type = TCPServerInterface
+    enabled = yes
+    listen_ip = 127.0.0.1
+    listen_port = 5001
+    i2p_tunneled = yes
 
 In almost all cases, it is easier to use the dedicated ``I2PInterface``, but for complete
 control, and using I2P routers running on external systems, this option also exists.
@@ -260,7 +307,7 @@ control, and using I2P routers running on external systems, this option also exi
 TCP Client Interface
 ====================
 
-To connect to a TCP server interface, you would naturally use the TCP client
+To connect to a TCP server interface, you can use the TCP client
 interface. Many TCP Client interfaces from different peers can connect to the
 same TCP Server interface at the same time.
 
@@ -272,10 +319,9 @@ and restore connectivity after a failure, once the other end of a TCP interface 
 
   # Here's an example of a TCP Client interface. The
   # target_host can be a hostname or an IPv4 or IPv6 address.
-
   [[TCP Client Interface]]
     type = TCPClientInterface
-    interface_enabled = True
+    enabled = yes
     target_host = 127.0.0.1
     target_port = 4242
 
@@ -286,7 +332,7 @@ specify the target Yggdrasil IPv6 address and port, like so:
 
   [[Yggdrasil TCP Client Interface]]
       type = TCPClientInterface
-      interface_enabled = yes
+      enabled = yes
       target_host = 201:5d78:af73:5caf:a4de:a79f:3278:71e5
       target_port = 4343
 
@@ -301,7 +347,7 @@ software-based soundmodems. To do this, use the ``kiss_framing`` option:
 
   [[TCP KISS Interface]]
     type = TCPClientInterface
-    interface_enabled = True
+    enabled = yes
     kiss_framing = True
     target_host = 127.0.0.1
     target_port = 8001
@@ -321,7 +367,7 @@ intermittent TCP links.
 
   [[TCP Client over I2P]]
       type = TCPClientInterface
-      interface_enabled = yes
+      enabled = yes
       target_host = 127.0.0.1
       target_port = 5001
       i2p_tunneled = yes
@@ -351,7 +397,7 @@ with all other peers on a local area network.
   
   [[UDP Interface]]
     type = UDPInterface
-    interface_enabled = True
+    enabled = yes
 
     listen_ip = 0.0.0.0
     listen_port = 4242
@@ -389,6 +435,74 @@ with all other peers on a local area network.
     # forward_port = 4242
 
 
+.. _interfaces-i2p:
+
+I2P Interface
+=============
+
+The I2P interface lets you connect Reticulum instances over the
+`Invisible Internet Protocol <https://i2pd.website>`_. This can be
+especially useful in cases where you want to host a globally reachable
+Reticulum instance, but do not have access to any public IP addresses,
+have a frequently changing IP address, or have firewalls blocking
+inbound traffic.
+
+Using the I2P interface, you will get a globally reachable, portable
+and persistent I2P address that your Reticulum instance can be reached
+at.
+
+To use the I2P interface, you must have an I2P router running
+on your system. The easiest way to achieve this is to download and
+install the `latest release <https://github.com/PurpleI2P/i2pd/releases/latest>`_
+of the ``i2pd`` package. For more details about I2P, see the
+`geti2p.net website <https://geti2p.net/en/about/intro>`_.
+
+When an I2P router is running on your system, you can simply add
+an I2P interface to Reticulum:
+
+.. code::
+
+  [[I2P]]
+    type = I2PInterface
+    enabled = yes
+    connectable = yes
+
+On the first start, Reticulum will generate a new I2P address for the
+interface and start listening for inbound traffic on it. This can take
+a while the first time, especially if your I2P router was also just
+started, and is not yet well-connected to the I2P network. When ready,
+you should see I2P base32 address printed to your log file. You can
+also inspect the status of the interface using the ``rnstatus`` utility.
+
+To connect to other Reticulum instances over I2P, just add a comma-separated
+list of I2P base32 addresses to the ``peers`` option of the interface:
+
+.. code::
+
+  [[I2P]]
+    type = I2PInterface
+    enabled = yes
+    connectable = yes
+    peers = 5urvjicpzi7q3ybztsef4i5ow2aq4soktfj7zedz53s47r54jnqq.b32.i2p
+
+It can take anywhere from a few seconds to a few minutes to establish
+I2P connections to the desired peers, so Reticulum handles the process
+in the background, and will output relevant events to the log.
+
+.. note::
+   While the I2P interface is the simplest way to use
+   Reticulum over I2P, it is also possible to tunnel the TCP server and
+   client interfaces over I2P manually. This can be useful in situations
+   where more control is needed, but requires manual tunnel setup through
+   the I2P daemon configuration.
+
+It is important to note that the two methods are *interchangably compatible*.
+You can use the I2PInterface to connect to a TCPServerInterface that
+was manually tunneled over I2P, for example. This offers a high degree
+of flexibility in network setup, while retaining ease of use in simpler
+use-cases.
+
+
 .. _interfaces-rnode:
 
 RNode LoRa Interface
@@ -411,7 +525,7 @@ can be used, and offers full control over LoRa parameters.
     type = RNodeInterface
 
     # Enable interface if you want use it!
-    interface_enabled = True
+    enabled = yes
 
     # Serial port for the device
     port = /dev/ttyUSB0
@@ -503,7 +617,7 @@ Multi interface can be used to configure sub-interfaces individually.
   type = RNodeMultiInterface
 
   # Enable interface if you want to use it!
-  interface_enabled = True
+  enabled = yes
 
   # Serial port for the device
   port = /dev/ttyACM0
@@ -519,7 +633,7 @@ Multi interface can be used to configure sub-interfaces individually.
     # A subinterface
     [[[High Datarate]]]
       # Subinterfaces can be enabled and disabled in of themselves
-      interface_enabled = True
+      enabled = yes
 
       # Set frequency to 2.4GHz
       frequency = 2400000000
@@ -561,7 +675,7 @@ Multi interface can be used to configure sub-interfaces individually.
 
     [[[Low Datarate]]]
       # Subinterfaces can be enabled and disabled in of themselves
-      interface_enabled = True
+      enabled = yes
 
       # Set frequency to 865.6 MHz
       frequency = 865600000
@@ -614,7 +728,7 @@ directly over a wire-pair, or for using devices such as data radios and lasers.
 
   [[Serial Interface]]
     type = SerialInterface
-    interface_enabled = True
+    enabled = yes
 
     # Serial port for the device
     port = /dev/ttyUSB0
@@ -639,7 +753,7 @@ custom hardware or other systems.
 
   [[Pipe Interface]]
     type = PipeInterface
-    interface_enabled = True
+    enabled = yes
 
     # External command to execute
     command = netcat -l 5757
@@ -670,7 +784,7 @@ for station identification purposes.
 
   [[Packet Radio KISS Interface]]
     type = KISSInterface
-    interface_enabled = True
+    enabled = yes
 
     # Serial port for the device
     port = /dev/ttyUSB1
@@ -744,7 +858,7 @@ beaconing functionality described above.
     ssid = 0
 
     # Enable interface if you want use it!
-    interface_enabled = True
+    enabled = yes
 
     # Serial port for the device
     port = /dev/ttyUSB2
