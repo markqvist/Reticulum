@@ -687,6 +687,9 @@ class Reticulum:
                                     if "port" in c: c["target_port"] = c["port"]
                                     if "remote" in c: c["target_host"] = c["remote"]
                                     if "listen_on" in c: c["listen_ip"] = c["listen_on"]
+                                    if interface_mode == Interface.Interface.MODE_ACCESS_POINT:
+                                        RNS.log(str(c["type"])+" does not support Access Point mode, reverting to default mode: Full", RNS.LOG_WARNING)
+                                        interface_mode = Interface.Interface.MODE_FULL
 
                                 if c["type"] == "BackboneInterface":
                                     if "target_host" in c: interface = BackboneInterface.BackboneClientInterface(RNS.Transport, interface_config)
