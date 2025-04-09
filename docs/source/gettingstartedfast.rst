@@ -125,7 +125,7 @@ Linux, macOS and Windows.
       :align: center
       :target: _images/sideband_devices.webp
 
-.. only:: latexpdf
+.. only:: latex
 
   .. image:: screenshots/sideband_devices.png
       :align: center
@@ -149,7 +149,7 @@ functionality, and a range of other interesting functions.
       :align: center
       :target: _images/meshchat_1.webp
 
-.. only:: latexpdf
+.. only:: latex
 
   .. image:: screenshots/meshchat_1.png
       :align: center
