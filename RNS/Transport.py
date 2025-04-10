@@ -66,7 +66,7 @@ class Transport:
     # various situations
     LOCAL_REBROADCASTS_MAX      = 2            # How many local rebroadcasts of an announce is allowed
 
-    PATH_REQUEST_TIMEOUT        = 15           # Default timuout for client path requests in seconds
+    PATH_REQUEST_TIMEOUT        = 15           # Default timeout for client path requests in seconds
     PATH_REQUEST_GRACE          = 0.4          # Grace time before a path announcement is made, allows directly reachable peers to respond first
     PATH_REQUEST_RG             = 1.5          # Extra grace time for roaming-mode interfaces to allow more suitable peers to respond first
     PATH_REQUEST_MI             = 20           # Minimum interval in seconds for automated path requests
