@@ -84,7 +84,7 @@ def get_adapters(include_unconfigured=False):
     else: raise RuntimeError(f"Unsupported Operating System: {os.name}")
 
 class Adapter(object):
-    def __init__(self, name: str, nice_name: str, ips: List['IP'], index: Optional[int] = None) -> None:
+    def __init__(self, name: str, nice_name: str, ips: List["IP"], index: Optional[int] = None) -> None:
         self.name = name
         self.nice_name = nice_name
         self.ips = ips
@@ -114,47 +114,47 @@ class IP(object):
 if platform.system() == "Darwin" or "BSD" in platform.system():
     class sockaddr(ctypes.Structure):
         _fields_ = [
-            ('sa_len', ctypes.c_uint8),
-            ('sa_familiy', ctypes.c_uint8),
-            ('sa_data', ctypes.c_uint8 * 14)]
+            ("sa_len", ctypes.c_uint8),
+            ("sa_familiy", ctypes.c_uint8),
+            ("sa_data", ctypes.c_uint8 * 14)]
 
     class sockaddr_in(ctypes.Structure):
         _fields_ = [
-            ('sa_len', ctypes.c_uint8),
-            ('sa_familiy', ctypes.c_uint8),
-            ('sin_port', ctypes.c_uint16),
-            ('sin_addr', ctypes.c_uint8 * 4),
-            ('sin_zero', ctypes.c_uint8 * 8)]
+            ("sa_len", ctypes.c_uint8),
+            ("sa_familiy", ctypes.c_uint8),
+            ("sin_port", ctypes.c_uint16),
+            ("sin_addr", ctypes.c_uint8 * 4),
+            ("sin_zero", ctypes.c_uint8 * 8)]
 
     class sockaddr_in6(ctypes.Structure):
         _fields_ = [
-            ('sa_len', ctypes.c_uint8),
-            ('sa_familiy', ctypes.c_uint8),
-            ('sin6_port', ctypes.c_uint16),
-            ('sin6_flowinfo', ctypes.c_uint32),
-            ('sin6_addr', ctypes.c_uint8 * 16),
-            ('sin6_scope_id', ctypes.c_uint32)]
+            ("sa_len", ctypes.c_uint8),
+            ("sa_familiy", ctypes.c_uint8),
+            ("sin6_port", ctypes.c_uint16),
+            ("sin6_flowinfo", ctypes.c_uint32),
+            ("sin6_addr", ctypes.c_uint8 * 16),
+            ("sin6_scope_id", ctypes.c_uint32)]
 
 else:
     class sockaddr(ctypes.Structure):  # type: ignore
-        _fields_ = [('sa_familiy', ctypes.c_uint16), ('sa_data', ctypes.c_uint8 * 14)]
+        _fields_ = [("sa_familiy", ctypes.c_uint16), ("sa_data", ctypes.c_uint8 * 14)]
 
     class sockaddr_in(ctypes.Structure):  # type: ignore
         _fields_ = [
-            ('sin_familiy', ctypes.c_uint16),
-            ('sin_port', ctypes.c_uint16),
-            ('sin_addr', ctypes.c_uint8 * 4),
-            ('sin_zero', ctypes.c_uint8 * 8)]
+            ("sin_familiy", ctypes.c_uint16),
+            ("sin_port", ctypes.c_uint16),
+            ("sin_addr", ctypes.c_uint8 * 4),
+            ("sin_zero", ctypes.c_uint8 * 8)]
 
     class sockaddr_in6(ctypes.Structure):  # type: ignore
         _fields_ = [
-            ('sin6_familiy', ctypes.c_uint16),
-            ('sin6_port', ctypes.c_uint16),
-            ('sin6_flowinfo', ctypes.c_uint32),
-            ('sin6_addr', ctypes.c_uint8 * 16),
-            ('sin6_scope_id', ctypes.c_uint32)]
+            ("sin6_familiy", ctypes.c_uint16),
+            ("sin6_port", ctypes.c_uint16),
+            ("sin6_flowinfo", ctypes.c_uint32),
+            ("sin6_addr", ctypes.c_uint8 * 16),
+            ("sin6_scope_id", ctypes.c_uint32)]
 
-def sockaddr_to_ip(sockaddr_ptr: 'ctypes.pointer[sockaddr]') -> Optional[Union[_IPv4Address, _IPv6Address]]:
+def sockaddr_to_ip(sockaddr_ptr: "ctypes.pointer[sockaddr]") -> Optional[Union[_IPv4Address, _IPv6Address]]:
     if sockaddr_ptr:
         if sockaddr_ptr[0].sa_familiy == socket.AF_INET:
             ipv4 = ctypes.cast(sockaddr_ptr, ctypes.POINTER(sockaddr_in))
@@ -180,11 +180,11 @@ def ipv6_prefixlength(address: ipaddress.IPv6Address) -> int:
 if os.name == "posix":
     class ifaddrs(ctypes.Structure): pass
     ifaddrs._fields_ = [
-        ('ifa_next', ctypes.POINTER(ifaddrs)),
-        ('ifa_name', ctypes.c_char_p),
-        ('ifa_flags', ctypes.c_uint),
-        ('ifa_addr', ctypes.POINTER(sockaddr)),
-        ('ifa_netmask', ctypes.POINTER(sockaddr)),]
+        ("ifa_next", ctypes.POINTER(ifaddrs)),
+        ("ifa_name", ctypes.c_char_p),
+        ("ifa_flags", ctypes.c_uint),
+        ("ifa_addr", ctypes.POINTER(sockaddr)),
+        ("ifa_netmask", ctypes.POINTER(sockaddr)),]
 
     libc = ctypes.CDLL(ctypes.util.find_library("socket" if os.uname()[0] == "SunOS" else "c"), use_errno=True) # type: ignore
 
@@ -208,7 +208,7 @@ if os.name == "posix":
                 ips[adapter_name].ips.append(ip)
 
         while addr:
-            name = addr[0].ifa_name.decode(encoding='UTF-8')
+            name = addr[0].ifa_name.decode(encoding="UTF-8")
             ip_addr = sockaddr_to_ip(addr[0].ifa_addr)
             if ip_addr:
                 if addr[0].ifa_netmask and not addr[0].ifa_netmask[0].sa_familiy:
@@ -218,8 +218,8 @@ if os.name == "posix":
                     netmaskStr = str(netmask[0])
                     prefixlen = ipv6_prefixlength(ipaddress.IPv6Address(netmaskStr))
                 else:
-                    assert netmask is not None, f'sockaddr_to_ip({addr[0].ifa_netmask}) returned None'
-                    netmaskStr = str('0.0.0.0/' + netmask)
+                    assert netmask is not None, f"sockaddr_to_ip({addr[0].ifa_netmask}) returned None"
+                    netmaskStr = str("0.0.0.0/" + netmask)
                     prefixlen = ipaddress.IPv4Network(netmaskStr).prefixlen
                 ip = IP(ip_addr, prefixlen, name)
                 add_ip(name, ip)
@@ -239,34 +239,34 @@ elif os.name == "nt":
     MAX_ADAPTER_ADDRESS_LENGTH = 8
     AF_UNSPEC = 0
 
-    class SOCKET_ADDRESS(ctypes.Structure): _fields_ = [('lpSockaddr', ctypes.POINTER(shared.sockaddr)), ('iSockaddrLength', wintypes.INT)]
+    class SOCKET_ADDRESS(ctypes.Structure): _fields_ = [("lpSockaddr", ctypes.POINTER(shared.sockaddr)), ("iSockaddrLength", wintypes.INT)]
     class IP_ADAPTER_UNICAST_ADDRESS(ctypes.Structure): pass
     IP_ADAPTER_UNICAST_ADDRESS._fields_ = [
-        ('Length', wintypes.ULONG),
-        ('Flags', wintypes.DWORD),
-        ('Next', ctypes.POINTER(IP_ADAPTER_UNICAST_ADDRESS)),
-        ('Address', SOCKET_ADDRESS),
-        ('PrefixOrigin', ctypes.c_uint),
-        ('SuffixOrigin', ctypes.c_uint),
-        ('DadState', ctypes.c_uint),
-        ('ValidLifetime', wintypes.ULONG),
-        ('PreferredLifetime', wintypes.ULONG),
-        ('LeaseLifetime', wintypes.ULONG),
-        ('OnLinkPrefixLength', ctypes.c_uint8)]
+        ("Length", wintypes.ULONG),
+        ("Flags", wintypes.DWORD),
+        ("Next", ctypes.POINTER(IP_ADAPTER_UNICAST_ADDRESS)),
+        ("Address", SOCKET_ADDRESS),
+        ("PrefixOrigin", ctypes.c_uint),
+        ("SuffixOrigin", ctypes.c_uint),
+        ("DadState", ctypes.c_uint),
+        ("ValidLifetime", wintypes.ULONG),
+        ("PreferredLifetime", wintypes.ULONG),
+        ("LeaseLifetime", wintypes.ULONG),
+        ("OnLinkPrefixLength", ctypes.c_uint8)]
 
     class IP_ADAPTER_ADDRESSES(ctypes.Structure): pass
     IP_ADAPTER_ADDRESSES._fields_ = [
-        ('Length', wintypes.ULONG),
-        ('IfIndex', wintypes.DWORD),
-        ('Next', ctypes.POINTER(IP_ADAPTER_ADDRESSES)),
-        ('AdapterName', ctypes.c_char_p),
-        ('FirstUnicastAddress', ctypes.POINTER(IP_ADAPTER_UNICAST_ADDRESS)),
-        ('FirstAnycastAddress', ctypes.c_void_p),
-        ('FirstMulticastAddress', ctypes.c_void_p),
-        ('FirstDnsServerAddress', ctypes.c_void_p),
-        ('DnsSuffix', ctypes.c_wchar_p),
-        ('Description', ctypes.c_wchar_p),
-        ('FriendlyName', ctypes.c_wchar_p)]
+        ("Length", wintypes.ULONG),
+        ("IfIndex", wintypes.DWORD),
+        ("Next", ctypes.POINTER(IP_ADAPTER_ADDRESSES)),
+        ("AdapterName", ctypes.c_char_p),
+        ("FirstUnicastAddress", ctypes.POINTER(IP_ADAPTER_UNICAST_ADDRESS)),
+        ("FirstAnycastAddress", ctypes.c_void_p),
+        ("FirstMulticastAddress", ctypes.c_void_p),
+        ("FirstDnsServerAddress", ctypes.c_void_p),
+        ("DnsSuffix", ctypes.c_wchar_p),
+        ("Description", ctypes.c_wchar_p),
+        ("FriendlyName", ctypes.c_wchar_p)]
 
     iphlpapi = ctypes.windll.LoadLibrary("Iphlpapi") # type: ignore
 
@@ -280,7 +280,7 @@ elif os.name == "nt":
 
         for address in addresses:
             ip = shared.sockaddr_to_ip(address.Address.lpSockaddr)
-            assert ip is not None, f'sockaddr_to_ip({address.Address.lpSockaddr}) returned None'
+            assert ip is not None, f"sockaddr_to_ip({address.Address.lpSockaddr}) returned None"
             network_prefix = address.OnLinkPrefixLength
             yield shared.IP(ip, network_prefix, nice_name)
 
