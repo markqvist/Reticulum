@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2016-2025 Mark Qvist
+# Copyright (c) 2025 Mark Qvist
 # Copyright (c) 2014 Stefan C. Mueller
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
