@@ -82,7 +82,6 @@ class AutoInterface(Interface):
         return ifas
 
     def interface_name_to_index(self, ifname):
-
         # socket.if_nametoindex doesn't work with uuid interface names on windows, it wants the ethernet_0 style
         # we will just get the index from netinfo instead as it seems to work
         if RNS.vendor.platformutils.is_windows():
@@ -102,7 +101,7 @@ class AutoInterface(Interface):
         ignored_interfaces     = c.as_list("ignored_devices") if "ignored_devices" in c else None
         configured_bitrate     = c["configured_bitrate"] if "configured_bitrate" in c else None
 
-        from RNS.vendor import netinfo
+        from RNS.Interfaces import netinfo
         super().__init__()
         self.netinfo = netinfo
 

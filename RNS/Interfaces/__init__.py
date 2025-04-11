@@ -23,6 +23,7 @@
 import os
 import glob
 import RNS.Interfaces.Android
+import RNS.Interfaces.util.netinfo as netinfo
 
 py_modules  = glob.glob(os.path.dirname(__file__)+"/*.py")
 pyc_modules = glob.glob(os.path.dirname(__file__)+"/*.pyc")

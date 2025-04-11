@@ -35,13 +35,13 @@ class UDPInterface(Interface):
 
     @staticmethod
     def get_address_for_if(name):
-        from RNS.vendor import netinfo
+        from RNS.Interfaces import netinfo
         ifaddr = netinfo.ifaddresses(name)
         return ifaddr[netinfo.AF_INET][0]["addr"]
 
     @staticmethod
     def get_broadcast_for_if(name):
-        from RNS.vendor import netinfo
+        from RNS.Interfaces import netinfo
         ifaddr = netinfo.ifaddresses(name)
         return ifaddr[netinfo.AF_INET][0]["broadcast"]
 
