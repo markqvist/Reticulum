@@ -55,7 +55,7 @@ class BackboneInterface(Interface):
 
     @staticmethod
     def get_address_for_if(name, bind_port, prefer_ipv6=False):
-        import RNS.vendor.ifaddr.niwrapper as netinfo
+        from RNS.vendor import netinfo
         ifaddr = netinfo.ifaddresses(name)
         if len(ifaddr) < 1:
             raise SystemError(f"No addresses available on specified kernel interface \"{name}\" for BackboneInterface to bind to")

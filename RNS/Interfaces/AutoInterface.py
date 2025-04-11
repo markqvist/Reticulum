@@ -102,9 +102,9 @@ class AutoInterface(Interface):
         ignored_interfaces     = c.as_list("ignored_devices") if "ignored_devices" in c else None
         configured_bitrate     = c["configured_bitrate"] if "configured_bitrate" in c else None
 
-        from RNS.vendor.ifaddr import niwrapper
+        from RNS.vendor import netinfo
         super().__init__()
-        self.netinfo = niwrapper
+        self.netinfo = netinfo
 
         self.HW_MTU = AutoInterface.HW_MTU
         self.IN  = True
