@@ -329,7 +329,8 @@ class LocalClientInterface(Interface):
 
 
     def __str__(self):
-        return "LocalInterface["+str(self.target_port)+"]"
+        if self.socket_path: return "Shared Instance["+str(self.socket_path.replace("\0", ""))+"]"
+        else: return "Shared Instance["+str(self.target_port)+"]"
 
 
 class LocalServerInterface(Interface):
