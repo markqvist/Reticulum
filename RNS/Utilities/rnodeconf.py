@@ -199,9 +199,10 @@ class ROM():
     MODEL_C6            = 0xC6 # Heltec Mesh Node T114, 470-510 MHz (HT-n5262-LF)
     MODEL_C7            = 0xC7 # Heltec Mesh Node T114, 863-928 MHz (HT-n5262-HF)
     
-    PRODUCT_XIAO_ESP32S3 = 0xEB
-    BOARD_XIAO_ESP32S3   = 0x3E
-    MODEL_DD             = 0xDD # Xiao ESP32S3 with WIO lora module, 868 MHz
+    PRODUCT_XIAO_S3     = 0xEB
+    BOARD_XIAO_S3       = 0x3E
+    MODEL_DE            = 0xDE # Xiao ESP32S3 with Wio-SX1262 module, 433 MHz
+    MODEL_DD            = 0xDD # Xiao ESP32S3 with Wio-SX1262 module, 868 MHz
 
     PRODUCT_HMBRW  = 0xF0
     MODEL_FF       = 0xFF
@@ -265,7 +266,7 @@ products = {
     ROM.PRODUCT_RAK4631: "RAK4631",
     ROM.PRODUCT_OPENCOM_XL: "openCom XL",
     ROM.PRODUCT_HELTEC_T114: "Heltec Mesh Node T114",
-    ROM.PRODUCT_XIAO_ESP32S3: "SeeedStudio XIAO esp32s3 wio",
+    ROM.PRODUCT_XIAO_S3: "Seeed XIAO ESP32S3 Wio-SX1262",
 }
 
 platforms = {
@@ -322,6 +323,7 @@ models = {
     0x16: [779000000, 928000000, 22, "430 - 510 Mhz", "rnode_firmware_techo.zip", "SX1262"],
     0x17: [779000000, 928000000, 22, "779 - 928 Mhz", "rnode_firmware_techo.zip", "SX1262"],
     0x21: [820000000, 960000000, 22, "820 - 960 MHz", "rnode_firmware_opencom_xl.zip", "SX1262 + SX1280"],
+    0xDE: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_xiao_esp32s3.zip", "SX1262"],
     0xDD: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_xiao_esp32s3.zip", "SX1262"],
     0xFE: [100000000, 1100000000, 17, "(Band capabilities unknown)", None, "Unknown"],
     0xFF: [100000000, 1100000000, 14, "(Band capabilities unknown)", None, "Unknown"],
@@ -1726,7 +1728,7 @@ def main():
             print("[12] LilyGO T-Beam Supreme")
             print("[13] LilyGO T-Deck")
             print("[14] Heltec T114")
-            print("[15] SeeedStudio esp32s3 xiao wio")
+            print("[15] Seeed XIAO ESP32S3 Wio-SX1262")
             print("")
             print("---------------------------------------------------------------------------")
             print("\nEnter the number that matches your device type:\n? ", end="")
@@ -1932,7 +1934,7 @@ def main():
                     print("---------------------------------------------------------------------------")
                     input()
                 elif c_dev == 15:
-                    selected_product = ROM.PRODUCT_XIAO_ESP32S3
+                    selected_product = ROM.PRODUCT_XIAO_S3
                     clear()
                     print("")
                     print("---------------------------------------------------------------------------")
@@ -2289,15 +2291,19 @@ def main():
                     print("That band does not exist, exiting now.")
                     exit()
 
-            elif selected_product == ROM.PRODUCT_XIAO_ESP32S3:
+            elif selected_product == ROM.PRODUCT_XIAO_S3:
                 selected_mcu = ROM.MCU_ESP32
                 print("\nWhat band is this XIAO esp32s3 wio module for?\n")
-                print("[1] 868 MHz")
+                print("[1] 433 MHz")
+                print("[2] 868 MHz")
                 try:
                     c_model = int(input())
-                    if c_model < 1 or c_model > 1:
+                    if c_model < 1 or c_model > 2:
                         raise ValueError()
                     elif c_model == 1:
+                        selected_model = ROM.MODEL_DE
+                        selected_platform = ROM.PLATFORM_ESP32
+                    elif c_model == 2:
                         selected_model = ROM.MODEL_DD
                         selected_platform = ROM.PLATFORM_ESP32
                 except Exception as e:
