@@ -28,7 +28,6 @@ from time import sleep
 from .vendor import umsgpack as umsgpack
 import threading
 import inspect
-import struct
 import math
 import time
 import RNS
@@ -109,7 +108,7 @@ class Link:
 
     @staticmethod
     def mtu_bytes(mtu):
-        return struct.pack(">I", mtu & 0xFFFFFF)[1:]
+        return mtu.to_bytes(3, byteorder='big', signed=False)
 
     @staticmethod
     def mtu_from_lr_packet(packet):
