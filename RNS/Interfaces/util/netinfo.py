@@ -232,6 +232,7 @@ if os.name == "posix":
         return ips.values()
 
 elif os.name == "nt":
+    from ctypes import wintypes
     NO_ERROR = 0
     ERROR_BUFFER_OVERFLOW = 111
     MAX_ADAPTER_NAME_LENGTH = 256
@@ -239,7 +240,7 @@ elif os.name == "nt":
     MAX_ADAPTER_ADDRESS_LENGTH = 8
     AF_UNSPEC = 0
 
-    class SOCKET_ADDRESS(ctypes.Structure): _fields_ = [("lpSockaddr", ctypes.POINTER(shared.sockaddr)), ("iSockaddrLength", wintypes.INT)]
+    class SOCKET_ADDRESS(ctypes.Structure): _fields_ = [("lpSockaddr", ctypes.POINTER(sockaddr)), ("iSockaddrLength", wintypes.INT)]
     class IP_ADAPTER_UNICAST_ADDRESS(ctypes.Structure): pass
     IP_ADAPTER_UNICAST_ADDRESS._fields_ = [
         ("Length", wintypes.ULONG),
@@ -270,7 +271,7 @@ elif os.name == "nt":
 
     iphlpapi = ctypes.windll.LoadLibrary("Iphlpapi") # type: ignore
 
-    def _enumerate_interfaces_of_adapter_win(nice_name: str, address: IP_ADAPTER_UNICAST_ADDRESS) -> Iterable[shared.IP]:
+    def _enumerate_interfaces_of_adapter_win(nice_name: str, address: IP_ADAPTER_UNICAST_ADDRESS) -> Iterable[IP]:
         # Iterate through linked list and fill list
         addresses = [] # type: List[IP_ADAPTER_UNICAST_ADDRESS]
         while True:
@@ -279,12 +280,12 @@ elif os.name == "nt":
             address = address.Next[0]
 
         for address in addresses:
-            ip = shared.sockaddr_to_ip(address.Address.lpSockaddr)
+            ip = sockaddr_to_ip(address.Address.lpSockaddr)
             assert ip is not None, f"sockaddr_to_ip({address.Address.lpSockaddr}) returned None"
             network_prefix = address.OnLinkPrefixLength
-            yield shared.IP(ip, network_prefix, nice_name)
+            yield IP(ip, network_prefix, nice_name)
 
-    def _get_adapters_win(include_unconfigured: bool = False) -> Iterable[shared.Adapter]:
+    def _get_adapters_win(include_unconfigured: bool = False) -> Iterable[Adapter]:
         addressbuffersize = wintypes.ULONG(15 * 1024)
         retval = ERROR_BUFFER_OVERFLOW
         while retval == ERROR_BUFFER_OVERFLOW:
@@ -308,7 +309,7 @@ elif os.name == "nt":
             address_info = address_info.Next[0]
 
         # Iterate through unicast addresses
-        result = [] # type: List[shared.Adapter]
+        result = [] # type: List[Adapter]
         for adapter_info in address_infos:
             name = adapter_info.AdapterName.decode()
             nice_name = adapter_info.Description
@@ -317,8 +318,8 @@ elif os.name == "nt":
             if adapter_info.FirstUnicastAddress:
                 ips = _enumerate_interfaces_of_adapter_win(adapter_info.FriendlyName, adapter_info.FirstUnicastAddress[0])
                 ips = list(ips)
-                result.append(shared.Adapter(name, nice_name, ips, index=index))
+                result.append(Adapter(name, nice_name, ips, index=index))
             
-            elif include_unconfigured: result.append(shared.Adapter(name, nice_name, [], index=index))
+            elif include_unconfigured: result.append(Adapter(name, nice_name, [], index=index))
 
         return result
