@@ -863,7 +863,7 @@ primitives, with widely available implementations that can be used both on
 general-purpose CPUs and on microcontrollers.
 
 One of the primary considerations for choosing this particular set of primitives is
-that they can be implemented *safely* and with relatively few pitfalls, on practically
+that they can be implemented *safely* with relatively few pitfalls, on practically
 all current computing platforms.
 
 The primitives listed here *are authoritative*. Anything claiming to be Reticulum,
