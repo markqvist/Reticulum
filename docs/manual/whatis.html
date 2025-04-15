@@ -279,7 +279,7 @@ considered complete and stable at the moment, but could change if absolutely war
 <li><p>Reticulum uses the following format for encrypted tokens:</p>
 <ul>
 <li><p>Ephemeral per-packet and link keys and derived from an ECDH key exchange on Curve25519</p></li>
-<li><p>AES-128 in CBC mode with PKCS7 padding</p></li>
+<li><p>AES-128 or AES-256 in CBC mode with PKCS7 padding</p></li>
 <li><p>HMAC using SHA256 for authentication</p></li>
 <li><p>IVs are generated through os.urandom()</p></li>
 </ul>

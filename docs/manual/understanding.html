@@ -1062,9 +1062,15 @@ of the different interface modes, and how they are configured.</p>
 </section>
 <section id="cryptographic-primitives">
 <span id="understanding-primitives"></span><h3>Cryptographic Primitives<a class="headerlink" href="#cryptographic-primitives" title="Permalink to this heading">#</a></h3>
-<p>Reticulum has been designed to use a simple suite of efficient, strong and modern
-cryptographic primitives, with widely available implementations that can be used
-both on general-purpose CPUs and on microcontrollers. The necessary primitives are:</p>
+<p>Reticulum uses a simple suite of efficient, strong and well-tested cryptographic
+primitives, with widely available implementations that can be used both on
+general-purpose CPUs and on microcontrollers.</p>
+<p>One of the primary considerations for choosing this particular set of primitives is
+that they can be implemented <em>safely</em> with relatively few pitfalls, on practically
+all current computing platforms.</p>
+<p>The primitives listed here <em>are authoritative</em>. Anything claiming to be Reticulum,
+but not using these exact primitives <strong>is not</strong> Reticulum, and possibly an
+intentionally compromised or weakened clone. The utilised primitives are:</p>
 <ul class="simple">
 <li><p>Ed25519 for signatures</p></li>
 <li><p>X25519 for ECDH key exchanges</p></li>
@@ -1072,16 +1078,16 @@ both on general-purpose CPUs and on microcontrollers. The necessary primitives a
 <li><p>Encrypted tokens are based on the Fernet spec</p>
 <ul>
 <li><p>Ephemeral keys derived from an ECDH key exchange on Curve25519</p></li>
-<li><p>AES-128 in CBC mode with PKCS7 padding</p></li>
+<li><p>AES-128 or AES-256 in CBC mode with PKCS7 padding</p></li>
 <li><p>HMAC using SHA256 for message authentication</p></li>
-<li><p>IVs are generated through os.urandom()</p></li>
+<li><p>IVs must be generated through <code class="docutils literal notranslate"><span class="pre">os.urandom()</span></code> or better</p></li>
 <li><p>No Fernet version and timestamp metadata fields</p></li>
 </ul>
 </li>
 <li><p>SHA-256</p></li>
 <li><p>SHA-512</p></li>
 </ul>
-<p>In the default installation configuration, the <code class="docutils literal notranslate"><span class="pre">X25519</span></code>, <code class="docutils literal notranslate"><span class="pre">Ed25519</span></code> and <code class="docutils literal notranslate"><span class="pre">AES-128-CBC</span></code>
+<p>In the default installation configuration, the <code class="docutils literal notranslate"><span class="pre">X25519</span></code>, <code class="docutils literal notranslate"><span class="pre">Ed25519</span></code>, <code class="docutils literal notranslate"><span class="pre">AES-128-CBC</span></code> and <code class="docutils literal notranslate"><span class="pre">AES-256-CBC</span></code>
 primitives are provided by <a class="reference external" href="https://www.openssl.org/">OpenSSL</a> (via the <a class="reference external" href="https://github.com/pyca/cryptography">PyCA/cryptography</a>
 package). The hashing functions <code class="docutils literal notranslate"><span class="pre">SHA-256</span></code> and <code class="docutils literal notranslate"><span class="pre">SHA-512</span></code> are provided by the standard
 Python <a class="reference external" href="https://docs.python.org/3/library/hashlib.html">hashlib</a>. The <code class="docutils literal notranslate"><span class="pre">HKDF</span></code>, <code class="docutils literal notranslate"><span class="pre">HMAC</span></code>,
