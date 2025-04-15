@@ -52,7 +52,7 @@ For more info, see [reticulum.network](https://reticulum.network/) and [the FAQ 
 - Forward Secrecy is available for all communication types, both for single packets and over links
 - Reticulum uses the following format for encrypted tokens:
   - Ephemeral per-packet and link keys and derived from an ECDH key exchange on Curve25519
-  - AES-128 in CBC mode with PKCS7 padding
+  - AES-128 or AES-256 in CBC mode with PKCS7 padding
   - HMAC using SHA256 for authentication
   - IVs are generated through os.urandom()
 - Unforgeable packet delivery confirmations
@@ -335,8 +335,8 @@ intentionally compromised or weakened clone. The utilised primitives are:
 - SHA-256
 - SHA-512
 
-In the default installation configuration, the `X25519`, `Ed25519` and
-`AES-128-CBC` primitives are provided by [OpenSSL](https://www.openssl.org/)
+In the default installation configuration, the `X25519`, `Ed25519`, `AES-128-CBC`
+and `AES-256-CBC` primitives are provided by [OpenSSL](https://www.openssl.org/)
 (via the [PyCA/cryptography](https://github.com/pyca/cryptography) package).
 The hashing functions `SHA-256` and `SHA-512` are provided by the standard
 Python [hashlib](https://docs.python.org/3/library/hashlib.html). The `HKDF`,
