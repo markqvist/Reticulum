@@ -866,7 +866,7 @@ One of the primary considerations for choosing this particular set of primitives
 that they can be implemented *safely* with relatively few pitfalls, on practically
 all current computing platforms.
 
-The primitives listed here *are authoritative*. Anything claiming to be Reticulum,
+The primitives listed here **are authoritative**. Anything claiming to be Reticulum,
 but not using these exact primitives **is not** Reticulum, and possibly an
 intentionally compromised or weakened clone. The utilised primitives are:
 
