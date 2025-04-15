@@ -173,6 +173,7 @@ class Reticulum:
         # classes, saving necessary information to disk and carrying
         # out cleanup operations.
         if not Reticulum.__exit_handler_ran:
+            Reticulum.__exit_handler_ran = True
             if not Reticulum.__interface_detach_ran:
                 RNS.Transport.detach_interfaces()
             RNS.Transport.exit_handler()

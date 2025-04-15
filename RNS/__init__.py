@@ -373,7 +373,6 @@ def exit(code=0):
     global exit_called
     if not exit_called:
         exit_called = True
-        print("")
         Reticulum.exit_handler()
         os._exit(code)
 
