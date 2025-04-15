@@ -312,7 +312,15 @@ organisation? Make them a reality quickly by sponsoring their implementation.
 ## Cryptographic Primitives
 Reticulum uses a simple suite of efficient, strong and well-tested cryptographic
 primitives, with widely available implementations that can be used both on
-general-purpose CPUs and on microcontrollers. The utilised primitives are:
+general-purpose CPUs and on microcontrollers.
+
+One of the primary considerations for choosing this particular set of primitives is
+that they can be implemented *safely* and with relatively few pitfalls, on practically
+all current computing platforms.
+
+The primitives listed here *are authoritative*. Anything claiming to be Reticulum,
+but not using these exact primitives **is not** Reticulum, and possibly an
+intentionally compromised or weakened clone. The utilised primitives are:
 
 - Reticulum Identity Keys are 512-bit Curve25519 keysets
   - A 256-bit Ed25519 key for signatures
@@ -320,9 +328,9 @@ general-purpose CPUs and on microcontrollers. The utilised primitives are:
 - HKDF for key derivation
 - Encrypted tokens are based on the [Fernet spec](https://github.com/fernet/spec/)
   - Ephemeral keys derived from an ECDH key exchange on Curve25519
-  - AES-128 in CBC mode with PKCS7 padding
   - HMAC using SHA256 for message authentication
-  - IVs are generated through os.urandom()
+  - IVs must be generated through `os.urandom()` or better
+  - AES-128 or AES-256 in CBC mode with PKCS7 padding
   - No Fernet version and timestamp metadata fields
 - SHA-256
 - SHA-512
