@@ -100,39 +100,68 @@ class Link:
     and will be torn down.
     """
 
-    PENDING   = 0x00
-    HANDSHAKE = 0x01
-    ACTIVE    = 0x02
-    STALE     = 0x03
-    CLOSED    = 0x04
+    PENDING             = 0x00
+    HANDSHAKE           = 0x01
+    ACTIVE              = 0x02
+    STALE               = 0x03
+    CLOSED              = 0x04
 
-    TIMEOUT            = 0x01
-    INITIATOR_CLOSED   = 0x02
-    DESTINATION_CLOSED = 0x03
+    TIMEOUT             = 0x01
+    INITIATOR_CLOSED    = 0x02
+    DESTINATION_CLOSED  = 0x03
 
-    ACCEPT_NONE = 0x00
-    ACCEPT_APP  = 0x01
-    ACCEPT_ALL  = 0x02
+    ACCEPT_NONE         = 0x00
+    ACCEPT_APP          = 0x01
+    ACCEPT_ALL          = 0x02
     resource_strategies = [ACCEPT_NONE, ACCEPT_APP, ACCEPT_ALL]
+
+    MODE_AES128_CBC     = 0x00
+    MODE_AES256_CBC     = 0x01
+    MODE_AES256_GCM     = 0x02
+    MODE_OTP_RESERVED   = 0x03
+    MODE_PQ_RESERVED_1  = 0x04
+    MODE_PQ_RESERVED_2  = 0x05
+    MODE_PQ_RESERVED_3  = 0x06
+    MODE_PQ_RESERVED_4  = 0x07
+    enabled_modes       = [MODE_AES128_CBC]
+
+    MTU_BYTEMASK        = 0x1FFFFF
+    MODE_BYTEMASK       = 0xE0
 
     @staticmethod
     def mtu_bytes(mtu):
-        return struct.pack(">I", mtu & 0xFFFFFF)[1:]
+        return struct.pack(">I", mtu & Link.MTU_BYTEMASK)[1:]
 
     @staticmethod
     def mtu_from_lr_packet(packet):
         if len(packet.data) == Link.ECPUBSIZE+Link.LINK_MTU_SIZE:
-            return (packet.data[Link.ECPUBSIZE] << 16) + (packet.data[Link.ECPUBSIZE+1] << 8) + (packet.data[Link.ECPUBSIZE+2])
-        else:
-            return None
+            return (packet.data[Link.ECPUBSIZE] << 16) + (packet.data[Link.ECPUBSIZE+1] << 8) + (packet.data[Link.ECPUBSIZE+2]) & Link.MTU_BYTEMASK
+        else: return None
 
     @staticmethod
     def mtu_from_lp_packet(packet):
         if len(packet.data) == RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2+Link.LINK_MTU_SIZE:
             mtu_bytes = packet.data[RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2+Link.LINK_MTU_SIZE]
-            return (mtu_bytes[0] << 16) + (mtu_bytes[1] << 8) + (mtu_bytes[2])
-        else:
-            return None
+            return (mtu_bytes[0] << 16) + (mtu_bytes[1] << 8) + (mtu_bytes[2]) & Link.MTU_BYTEMASK
+        else: return None
+
+    @staticmethod
+    def mode_byte(mode):
+        if mode in Link.enabled_modes: return (mode << 5) & Link.MODE_BYTEMASK
+        else: raise TypeError(f"Requested link mode {mode} not enabled")
+
+    @staticmethod
+    def mode_from_lr_packet(packet):
+        if len(packet.data) > Link.ECPUBSIZE:
+            return (packet.data[Link.ECPUBSIZE] << 16) + (packet.data[Link.ECPUBSIZE+1] << 8) + (packet.data[Link.ECPUBSIZE+2]) & Link.MODE_BYTEMASK
+        else: return None
+
+    @staticmethod
+    def mode_from_lp_packet(packet):
+        if len(packet.data) > RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:
+            mode_byte = packet.data[RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2+1]
+            return mode_byte & Link.MODE_BYTEMASK
+        else: return None
 
     @staticmethod
     def validate_request(owner, data, packet):
@@ -177,9 +206,9 @@ class Link:
             return None
 
 
-    def __init__(self, destination=None, established_callback = None, closed_callback = None, owner=None, peer_pub_bytes = None, peer_sig_pub_bytes = None):
-        if destination != None and destination.type != RNS.Destination.SINGLE:
-            raise TypeError("Links can only be established to the \"single\" destination type")
+    def __init__(self, destination=None, established_callback=None, closed_callback=None, owner=None, peer_pub_bytes=None, peer_sig_pub_bytes=None, mode=MODE_AES128_CBC):
+        if destination != None and destination.type != RNS.Destination.SINGLE: raise TypeError("Links can only be established to the \"single\" destination type")
+        self.mode = mode
         self.rtt = None
         self.mtu = RNS.Reticulum.MTU
         self.establishment_cost = 0
@@ -299,14 +328,17 @@ class Link:
             self.status = Link.HANDSHAKE
             self.shared_key = self.prv.exchange(self.peer_pub)
 
+            if   self.mode == Link.MODE_AES128_CBC: derived_key_length = 32
+            elif self.mode == Link.MODE_AES256_CBC: derived_key_length = 64
+            else: raise TypeError(f"Invalid link mode {self.mode} on {self}")
+
             self.derived_key = RNS.Cryptography.hkdf(
-                length=32,
+                length=derived_key_length,
                 derive_from=self.shared_key,
                 salt=self.get_salt(),
-                context=self.get_context(),
-            )
-        else:
-            RNS.log("Handshake attempt on "+str(self)+" with invalid state "+str(self.status), RNS.LOG_ERROR)
+                context=self.get_context())
+
+        else: RNS.log("Handshake attempt on "+str(self)+" with invalid state "+str(self.status), RNS.LOG_ERROR)
 
 
     def prove(self):
@@ -1093,8 +1125,7 @@ class Link:
     def encrypt(self, plaintext):
         try:
             if not self.token:
-                try:
-                    self.token = Token(self.derived_key)
+                try: self.token = Token(self.derived_key)
                 except Exception as e:
                     RNS.log("Could not instantiate token while performing encryption on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
                     raise e
@@ -1108,9 +1139,7 @@ class Link:
 
     def decrypt(self, ciphertext):
         try:
-            if not self.token:
-                self.token = Token(self.derived_key)
-                
+            if not self.token: self.token = Token(self.derived_key)
             return self.token.decrypt(ciphertext)
 
         except Exception as e:

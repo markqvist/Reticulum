@@ -33,7 +33,9 @@ import time
 
 from RNS.Cryptography import HMAC
 from RNS.Cryptography import PKCS7
+from RNS.Cryptography import AES
 from RNS.Cryptography.AES import AES_128_CBC
+from RNS.Cryptography.AES import AES_256_CBC
 
 class Token():
     """
@@ -48,45 +50,50 @@ class Token():
     TOKEN_OVERHEAD  = 48 # Bytes
 
     @staticmethod
-    def generate_key():
-        return os.urandom(32)
+    def generate_key(mode=AES_128_CBC):
+        if   mode == AES_128_CBC: return os.urandom(32)
+        elif mode == AES_256_CBC: return os.urandom(64)
+        else: raise TypeError(f"Invalid token mode: {mode}")
 
-    def __init__(self, key = None):
-        if key == None:
-            raise ValueError("Token key cannot be None")
+    def __init__(self, key=None, mode=AES):
+        if key == None: raise ValueError("Token key cannot be None")
 
-        if len(key) != 32:
-            raise ValueError("Token key must be 32 bytes, not "+str(len(key)))
-            
-        self._signing_key = key[:16]
-        self._encryption_key = key[16:]
+        if mode == AES:
+            if len(key) == 32:
+                self.mode = AES_128_CBC
+                self._signing_key = key[:16]
+                self._encryption_key = key[16:]
+
+            elif len(key) == 64:
+                self.mode = AES_256_CBC
+                self._signing_key = key[:32]
+                self._encryption_key = key[32:]
+
+            else: raise ValueError("Token key must be 128 or 256 bits, not "+str(len(key)*8))
+
+        else: raise TypeError(f"Invalid token mode: {mode}")
 
 
     def verify_hmac(self, token):
-        if len(token) <= 32:
-            raise ValueError("Cannot verify HMAC on token of only "+str(len(token))+" bytes")
+        if len(token) <= 32: raise ValueError("Cannot verify HMAC on token of only "+str(len(token))+" bytes")
         else:
             received_hmac = token[-32:]
             expected_hmac = HMAC.new(self._signing_key, token[:-32]).digest()
 
-            if received_hmac == expected_hmac:
-                return True
-            else:
-                return False
+            if received_hmac == expected_hmac: return True
+            else: return False
 
 
     def encrypt(self, data = None):
         iv = os.urandom(16)
         current_time = int(time.time())
 
-        if not isinstance(data, bytes):
-            raise TypeError("Token plaintext input must be bytes")
+        if not isinstance(data, bytes): raise TypeError("Token plaintext input must be bytes")
 
-        ciphertext = AES_128_CBC.encrypt(
+        ciphertext = self.mode.encrypt(
             plaintext = PKCS7.pad(data),
             key = self._encryption_key,
-            iv = iv,
-        )
+            iv = iv)
 
         signed_parts = iv+ciphertext
 
@@ -94,25 +101,19 @@ class Token():
 
 
     def decrypt(self, token = None):
-        if not isinstance(token, bytes):
-            raise TypeError("Token must be bytes")
-
-        if not self.verify_hmac(token):
-            raise ValueError("Token HMAC was invalid")
+        if not isinstance(token, bytes): raise TypeError("Token must be bytes")
+        if not self.verify_hmac(token): raise ValueError("Token HMAC was invalid")
 
         iv = token[:16]
         ciphertext = token[16:-32]
 
         try:
             plaintext = PKCS7.unpad(
-                AES_128_CBC.decrypt(
-                    ciphertext,
-                    self._encryption_key,
-                    iv,
-                )
-            )
+                self.mode.decrypt(
+                    ciphertext = ciphertext,
+                    key = self._encryption_key,
+                    iv = iv))
 
             return plaintext
 
-        except Exception as e:
-            raise ValueError("Could not decrypt token")
+        except Exception as e: raise ValueError("Could not decrypt token")

@@ -22,6 +22,7 @@
 
 from .utils import *
 
+# TODO: Add AES-256 support to pure-python implementation
 
 class AES:
     # AES-128 block size
