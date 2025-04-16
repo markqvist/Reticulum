@@ -328,14 +328,17 @@ class Link:
             self.status = Link.HANDSHAKE
             self.shared_key = self.prv.exchange(self.peer_pub)
 
+            if   self.mode == Link.MODE_AES128_CBC: derived_key_length = 32
+            elif self.mode == Link.MODE_AES256_CBC: derived_key_length = 64
+            else: raise TypeError(f"Invalid link mode {self.mode} on {self}")
+
             self.derived_key = RNS.Cryptography.hkdf(
-                length=32,
+                length=derived_key_length,
                 derive_from=self.shared_key,
                 salt=self.get_salt(),
-                context=self.get_context(),
-            )
-        else:
-            RNS.log("Handshake attempt on "+str(self)+" with invalid state "+str(self.status), RNS.LOG_ERROR)
+                context=self.get_context())
+
+        else: RNS.log("Handshake attempt on "+str(self)+" with invalid state "+str(self.status), RNS.LOG_ERROR)
 
 
     def prove(self):
@@ -1122,8 +1125,7 @@ class Link:
     def encrypt(self, plaintext):
         try:
             if not self.token:
-                try:
-                    self.token = Token(self.derived_key)
+                try: self.token = Token(self.derived_key)
                 except Exception as e:
                     RNS.log("Could not instantiate token while performing encryption on link "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
                     raise e
@@ -1137,9 +1139,7 @@ class Link:
 
     def decrypt(self, ciphertext):
         try:
-            if not self.token:
-                self.token = Token(self.derived_key)
-                
+            if not self.token: self.token = Token(self.derived_key)
             return self.token.decrypt(ciphertext)
 
         except Exception as e:
