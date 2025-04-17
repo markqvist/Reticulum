@@ -267,6 +267,9 @@ class Reticulum:
         self.rpc_key              = None
         self.rpc_type             = "AF_INET"
 
+        if RNS.vendor.platformutils.use_af_unix():
+            self.local_socket_path = "default"
+
         self.ifac_salt = Reticulum.IFAC_SALT
 
         self.requested_loglevel = loglevel
@@ -455,7 +458,6 @@ class Reticulum:
                     if option == "instance_name":
                         value = self.config["reticulum"][option]
                         self.local_socket_path = value
-                    else: self.local_socket_path = "default"
                 if option == "shared_instance_port":
                     value = int(self.config["reticulum"][option])
                     self.local_interface_port = value
