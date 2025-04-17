@@ -210,11 +210,14 @@ class Destination:
     def _persist_ratchets(self):
         try:
             with self.ratchet_file_lock:
+                temp_write_path = self.ratchets_path+".tmp"
                 packed_ratchets = umsgpack.packb(self.ratchets)
                 persisted_data = {"signature": self.sign(packed_ratchets), "ratchets": packed_ratchets}
-                ratchets_file = open(self.ratchets_path, "wb")
+                ratchets_file = open(temp_write_path, "wb")
                 ratchets_file.write(umsgpack.packb(persisted_data))
                 ratchets_file.close()
+                os.unlink(self.ratchets_path)
+                os.rename(temp_write_path, self.ratchets_path)
         except Exception as e:
             self.ratchets = None
             self.ratchets_path = None
@@ -458,6 +461,7 @@ class Destination:
                     self.ratchets_path = None
                     RNS.trace_exception(e)
                     raise OSError("Could not read ratchet file contents for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+
         else:
             RNS.log("No existing ratchet data found, initialising new ratchet file for "+str(self), RNS.LOG_DEBUG)
             self.ratchets = []
