@@ -1,3 +1,34 @@
+### 2025-04-15: RNS β 0.9.4
+
+This release significantly improves memory utilisation and performance. It also includes a few new features and general improvements to the included utilities and programs.
+
+**Changes**
+- Significantly improved memory utilisation, thread count and performance on nodes with many interfaces or clients
+- Switched local instance communication to run over abstract domain sockets on Linux and Android
+- Switched instance IPC to run over abstract domain sockets on Linux and Android
+- Added kernel event based I/O backend on Linux and Android
+- Added fast `BackboneInterface` type
+- Added support for XIAO-ESP32S3 to `rnodeconf`
+- Added interactive shell option to `rnsd`
+- Added API option to search for identity by identity hash
+- Added option to run TCP and Backbone interfaces in AP mode
+- Improved `RNodeMultiInterface` host communications specification
+- Improved `rncp` statistics output
+- Improved link and reverse-table culling
+- Fixed an occasional I/O thread hang on instance shutdown, that would result in an error printed to the console
+- Fixed various minor interface logging inconsistencies
+- Fixed various minor interface checking inconsistencies
+- Updated internal `configobj` implementation
+- Refactored various parts of the transport core code
+- Swicthed to using internal `netinfo` implementation instead of including full `ifaddr` library
+- Cleaned out unneeded dependencies
+
+**Release Hashes**
+```
+737294f29e013f9fa9c8c1326006d0547497607156828fee3dc2a0d3ddd754e7  rns-0.9.4-py3-none-any.whl
+0bd8a908af115c27733484853d779574d6383ebc1d78160e5a72c14ed9692a13  rnspure-0.9.4-py3-none-any.whl
+```
+
 ### 2025-03-13: RNS β 0.9.3
 
 This maintenance release improves performance and fixes a number of bugs.

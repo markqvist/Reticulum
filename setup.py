@@ -36,7 +36,7 @@ setuptools.setup(
     packages=packages,
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "License :: Reticulum License",
         "Operating System :: OS Independent",
     ],
     entry_points= {
