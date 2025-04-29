@@ -296,18 +296,15 @@ You can help support the continued development of open, free and private communi
   ```
   84FpY1QbxHcgdseePYNmhTHcrgMX4nFfBYtz2GKYToqHVVhJp8Eaw1Z1EedRnKD19b3B8NiLCGVxzKV17UMmmeEsCrPyA5w
   ```
-- Ethereum
-  ```
-  0xFDabC71AC4c0C78C95aDDDe3B4FA19d6273c5E73
-  ```
 - Bitcoin
   ```
-  35G9uWVzrpJJibzUwpNUQGQNFzLirhrYAH
+  bc1p4a6axuvl7n9hpapfj8sv5reqj8kz6uxa67d5en70vzrttj0fmcusgxsfk5
+  ```
+- Ethereum
+  ```
+  0xae89F3B94fC4AD6563F0864a55F9a697a90261ff
   ```
 - Ko-Fi: https://ko-fi.com/markqvist
-
-Are certain features in the development roadmap are important to you or your
-organisation? Make them a reality quickly by sponsoring their implementation.
 
 ## Cryptographic Primitives
 Reticulum uses a simple suite of efficient, strong and well-tested cryptographic
