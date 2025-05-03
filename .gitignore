@@ -13,3 +13,4 @@ tests/rnsconfig/storage
 tests/rnsconfig/logfile*
 *.data
 *.result
+.vscode
