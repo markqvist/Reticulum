@@ -1,6 +1,6 @@
 FROM python:3.13-alpine
 
-ADD dist/rns-*.whl /tmp/
+ADD .artifacts/package/rns-*.whl /tmp/
 
 ENV PIP_ROOT_USER_ACTION=ignore
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
