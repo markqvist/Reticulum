@@ -118,6 +118,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          file: docker/Dockerfile.dist
           platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6, linux/386, linux/ppc64le, linux/s390x, linux/riscv64
           push: true
           tags: lbatalha/reticulum:${{ github.ref_name }}
