@@ -1,11 +1,13 @@
-FROM python:3.13-alpine as build
+FROM python:3.13-alpine AS build
 
 RUN apk add --no-cache build-base linux-headers libffi-dev libressl-dev cargo
+
+ADD .artifacts/package/rns-*.whl /tmp/
 
 ENV PIP_ROOT_USER_ACTION=ignore
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
-RUN pip install rns
+RUN pip install /tmp/rns-*.whl
 
 FROM python:3.13-alpine
 

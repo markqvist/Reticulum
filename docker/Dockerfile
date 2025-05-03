@@ -1,9 +1,15 @@
-FROM python:3.13-alpine
+FROM python:3.13-alpine AS build
+
+RUN apk add --no-cache build-base linux-headers libffi-dev libressl-dev cargo
 
 ENV PIP_ROOT_USER_ACTION=ignore
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 RUN pip install rns
+
+FROM python:3.13-alpine
+
+COPY --from=build /usr/local/bin/ /usr/local/bin/
 
 RUN mkdir /config
 
