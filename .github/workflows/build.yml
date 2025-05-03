@@ -146,6 +146,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
+          file: docker/Dockerfile.dist
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ env.REGISTRY_IMAGE }}
