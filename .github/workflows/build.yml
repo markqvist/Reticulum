@@ -1,5 +1,8 @@
 name: Build Reticulum
 
+env:
+  REGISTRY_IMAGE: ${{ github.repository_owner }}/reticulum
+
 on:
   push:
     branches:
@@ -99,8 +102,25 @@ jobs:
     needs: release
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
+          - linux/arm/v7
+          - linux/arm/v6
+          - linux/386
+          - linux/ppc64le
+          - linux/riscv64
+          - linux/s390x
     environment: ${{ contains(github.ref, '-') && 'development' || 'production' }}
     steps:
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: lbatalha/reticulum:${{ github.ref_name }}
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -115,10 +135,75 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: .artifacts
-      - name: Build and push
+      # - name: Build and push
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     file: docker/Dockerfile.dist
+      #     platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6, linux/386, linux/ppc64le
+      #     push: true
+      #     tags: ${{ github.repository_owner }}/reticulum:${{ github.ref_name }}
+      - name: Build and push by digest
+        id: build
         uses: docker/build-push-action@v6
         with:
-          file: docker/Dockerfile.dist
-          platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6, linux/386, linux/ppc64le, linux/s390x, linux/riscv64
-          push: true
-          tags: lbatalha/reticulum:${{ github.ref_name }}
+          platforms: ${{ matrix.platform }}
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ env.REGISTRY_IMAGE }}
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+
+      - name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ env.PLATFORM_PAIR }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  container-manifest-merge:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    needs:
+      - build-containers-release
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY_IMAGE }}
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}
