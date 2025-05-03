@@ -1,0 +1,29 @@
+services:
+  reticulum:
+    container_name: reticulum
+    image: reticulum:latest
+    restart: unless-stopped
+    # Mount the config directory on the host in the same location as the docker-compose.yml
+    # to allow data persistency
+    volumes:
+      - ./config:/config:rw
+    # Define ports to expose, for example a TCP Listener
+    ports:
+      - "4242:4242/tcp"
+    networks:
+      - reticulum
+    # Define resource limits, useful if more services exist on the same host
+    # to avoid accidental resource contention, monitor and adjust as needed
+    deploy:
+      resources:
+        limits:
+          memory: "200M"
+
+# We define a custom network to allow easy communication between containers,
+# for example if you want to run a nomadnet node and make use of the reticulum
+# running in this container, you can add nomadnet container to this same network
+# and use the service name as the hostname (eg: "reticulum")
+# see: https://docs.docker.com/compose/how-tos/networking/#use-a-pre-existing-network
+networks:
+  reticulum:
+    name: reticulum

@@ -1,0 +1,19 @@
+FROM python:3.13-alpine
+
+ENV PIP_ROOT_USER_ACTION=ignore
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PIP_NO_CACHE_DIR=1
+RUN pip install rns
+
+RUN mkdir /config
+
+RUN addgroup -S rns --gid 1000 && adduser -S rns --uid 1000 -G rns dialout
+RUN chown rns:rns /config
+
+USER rns:rns
+
+VOLUME ["/config"]
+
+ENV PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["/usr/local/bin/rnsd", "--config", "/config"]
