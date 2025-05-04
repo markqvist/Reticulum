@@ -1,4 +1,6 @@
-FROM python:3.13-alpine AS build
+ARG python_version=3.13
+
+FROM python:${python_version}-alpine AS build
 
 RUN apk add --no-cache build-base linux-headers libffi-dev libressl-dev cargo
 
@@ -7,9 +9,12 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
 RUN pip install rns
 
-FROM python:3.13-alpine
+FROM python:${python_version}-alpine
+ARG python_version
 
-COPY --from=build /usr/local/ /usr/local/
+# Only copy the necessary files from the build stage, to improve layer efficiency
+COPY --from=build /usr/local/bin/ /usr/local/bin/
+COPY --from=build /usr/local/lib/python${python_version}/site-packages/ /usr/local/lib/python${python_version}/site-packages/
 
 RUN mkdir /config
 
