@@ -9,7 +9,7 @@ RUN pip install rns
 
 FROM python:3.13-alpine
 
-COPY --from=build /usr/local/bin/ /usr/local/bin/
+COPY --from=build /usr/local/ /usr/local/
 
 RUN mkdir /config
 

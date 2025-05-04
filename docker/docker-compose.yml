@@ -1,7 +1,7 @@
 services:
   reticulum:
     container_name: reticulum
-    image: reticulum:latest
+    image: ghcr.io/markqvist/reticulum:latest
     restart: unless-stopped
     # Mount the config directory on the host in the same location as the docker-compose.yml
     # to allow data persistency
