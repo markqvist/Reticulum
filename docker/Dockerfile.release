@@ -15,7 +15,7 @@ FROM python:${python_version}-alpine
 ARG python_version
 
 # Only copy the necessary files from the build stage, to improve layer efficiency
-COPY --from=build /usr/local/bin/ /usr/local/bin/
+COPY --from=build /usr/local/bin/rn* /usr/local/bin/
 COPY --from=build /usr/local/lib/python${python_version}/site-packages/ /usr/local/lib/python${python_version}/site-packages/
 
 RUN mkdir /config
