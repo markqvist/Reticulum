@@ -1879,18 +1879,17 @@ class Transport:
                     for destination in Transport.destinations:
                         if destination.hash == packet.destination_hash and destination.type == packet.destination_type:
                             packet.destination = destination
-                            destination.receive(packet)
+                            if destination.receive(packet):
+                                if destination.proof_strategy == RNS.Destination.PROVE_ALL:
+                                    packet.prove()
 
-                            if destination.proof_strategy == RNS.Destination.PROVE_ALL:
-                                packet.prove()
-
-                            elif destination.proof_strategy == RNS.Destination.PROVE_APP:
-                                if destination.callbacks.proof_requested:
-                                    try:
-                                        if destination.callbacks.proof_requested(packet):
-                                            packet.prove()
-                                    except Exception as e:
-                                        RNS.log("Error while executing proof request callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                                elif destination.proof_strategy == RNS.Destination.PROVE_APP:
+                                    if destination.callbacks.proof_requested:
+                                        try:
+                                            if destination.callbacks.proof_requested(packet):
+                                                packet.prove()
+                                        except Exception as e:
+                                            RNS.log("Error while executing proof request callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
             # Handling for proofs and link-request proofs
             elif packet.packet_type == RNS.Packet.PROOF:

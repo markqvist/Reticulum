@@ -544,6 +544,8 @@ class Identity:
             RNS.log("The contained exception was: "+str(e))
 
     def __init__(self,create_keys=True):
+        self.derived_key_length = 64
+
         # Initialize keys to none
         self.prv           = None
         self.prv_bytes     = None
@@ -677,7 +679,7 @@ class Identity:
             shared_key = ephemeral_key.exchange(target_public_key)
             
             derived_key = RNS.Cryptography.hkdf(
-                length=32,
+                length=self.derived_key_length,
                 derive_from=shared_key,
                 salt=self.get_salt(),
                 context=self.get_context(),
@@ -715,7 +717,7 @@ class Identity:
                                 ratchet_id = Identity._get_ratchet_id(ratchet_prv.public_key().public_bytes())
                                 shared_key = ratchet_prv.exchange(peer_pub)
                                 derived_key = RNS.Cryptography.hkdf(
-                                    length=32,
+                                    length=self.derived_key_length,
                                     derive_from=shared_key,
                                     salt=self.get_salt(),
                                     context=self.get_context(),
@@ -740,7 +742,7 @@ class Identity:
                     if plaintext == None:
                         shared_key = self.prv.exchange(peer_pub)
                         derived_key = RNS.Cryptography.hkdf(
-                            length=32,
+                            length=self.derived_key_length,
                             derive_from=shared_key,
                             salt=self.get_salt(),
                             context=self.get_context(),
