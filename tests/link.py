@@ -217,7 +217,6 @@ class TestLink(unittest.TestCase):
     def test_03b_packets(self):
         init_rns(self)
         print("")
-        
         print("Testing AES_256_CBC mode link packets...")
 
         # TODO: Load this from public bytes only

@@ -124,6 +124,7 @@ class Link:
     MODE_PQ_RESERVED_3  = 0x06
     MODE_PQ_RESERVED_4  = 0x07
     ENABLED_MODES       = [MODE_AES128_CBC, MODE_AES256_CBC]
+    MODE_DEFAULT        =  MODE_AES128_CBC
     MODE_DESCRIPTIONS   = {MODE_AES128_CBC: "AES_128_CBC",
                            MODE_AES256_CBC: "AES_256_CBC",
                            MODE_AES256_GCM: "MODE_AES256_GCM",
@@ -169,14 +170,14 @@ class Link:
         if len(packet.data) > Link.ECPUBSIZE:
             mode = (packet.data[Link.ECPUBSIZE] & Link.MODE_BYTEMASK) >> 5
             return mode
-        else: return None
+        else: return Link.MODE_DEFAULT
 
     @staticmethod
     def mode_from_lp_packet(packet):
         if len(packet.data) > RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:
             mode = packet.data[RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2] >> 5
             return mode
-        else: return None
+        else: return Link.MODE_DEFAULT
 
     @staticmethod
     def validate_request(owner, data, packet):
@@ -192,6 +193,11 @@ class Link:
                     except Exception as e:
                         RNS.trace_exception(e)
                         link.mtu = RNS.Reticulum.MTU
+
+                link.mode = Link.mode_from_lr_packet(packet)
+                
+                # TODO: Remove
+                RNS.log(f"Incoming link request with mode {Link.MODE_DESCRIPTIONS[link.mode]}")
 
                 link.update_mdu()
                 link.destination = packet.destination
@@ -222,7 +228,7 @@ class Link:
 
 
     # TODO: Set default link mode to AES_256_CBC after migration
-    def __init__(self, destination=None, established_callback=None, closed_callback=None, owner=None, peer_pub_bytes=None, peer_sig_pub_bytes=None, mode=MODE_AES128_CBC):
+    def __init__(self, destination=None, established_callback=None, closed_callback=None, owner=None, peer_pub_bytes=None, peer_sig_pub_bytes=None, mode=MODE_DEFAULT):
         if destination != None and destination.type != RNS.Destination.SINGLE: raise TypeError("Links can only be established to the \"single\" destination type")
         self.mode = mode
         self.rtt = None
@@ -297,12 +303,15 @@ class Link:
             self.set_link_closed_callback(closed_callback)
 
         if self.initiator:
-            link_mtu = b""
+            signalling_bytes = b""
             nh_hw_mtu = RNS.Transport.next_hop_interface_hw_mtu(destination.hash)
             if RNS.Reticulum.link_mtu_discovery() and nh_hw_mtu:
-                link_mtu = Link.mtu_bytes(nh_hw_mtu)
+                signalling_bytes = Link.signalling_bytes(nh_hw_mtu, self.mode)
                 RNS.log(f"Signalling link MTU of {RNS.prettysize(nh_hw_mtu)} for link", RNS.LOG_DEBUG) # TODO: Remove debug
-            self.request_data = self.pub_bytes+self.sig_pub_bytes+link_mtu
+            else: signalling_bytes = Link.signalling_bytes(RNS.Reticulum.MTU, self.mode)
+            # TODO: Remove
+            RNS.log(f"Establishing link with mode {Link.MODE_DESCRIPTIONS[self.mode]}")
+            self.request_data = self.pub_bytes+self.sig_pub_bytes+signalling_bytes
             self.packet = RNS.Packet(destination, self.request_data, packet_type=RNS.Packet.LINKREQUEST)
             self.packet.pack()
             self.establishment_cost += len(self.packet.raw)
@@ -358,14 +367,11 @@ class Link:
 
 
     def prove(self):
-        mtu_bytes = b""
-        if self.mtu != RNS.Reticulum.MTU:
-            mtu_bytes = Link.mtu_bytes(self.mtu)
-
-        signed_data = self.link_id+self.pub_bytes+self.sig_pub_bytes+mtu_bytes
+        signalling_bytes = Link.signalling_bytes(self.mtu, self.mode)
+        signed_data = self.link_id+self.pub_bytes+self.sig_pub_bytes+signalling_bytes
         signature = self.owner.identity.sign(signed_data)
 
-        proof_data = signature+self.pub_bytes+mtu_bytes
+        proof_data = signature+self.pub_bytes+signalling_bytes
         proof = RNS.Packet(self, proof_data, packet_type=RNS.Packet.PROOF, context=RNS.Packet.LRPROOF)
         proof.send()
         self.establishment_cost += len(proof.raw)
@@ -388,11 +394,14 @@ class Link:
     def validate_proof(self, packet):
         try:
             if self.status == Link.PENDING:
-                mtu_bytes = b""
+                signalling_bytes = b""
                 confirmed_mtu = None
+                mode = Link.mode_from_lp_packet(packet)
+                # TODO: Remove
+                RNS.log(f"Validating link proof with mode {Link.MODE_DESCRIPTIONS[mode]}")
                 if len(packet.data) == RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2+Link.LINK_MTU_SIZE:
                     confirmed_mtu = Link.mtu_from_lp_packet(packet)
-                    mtu_bytes = Link.mtu_bytes(confirmed_mtu)
+                    signalling_bytes = Link.signalling_bytes(confirmed_mtu, mode)
                     packet.data = packet.data[:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2]
                     RNS.log(f"Destination confirmed link MTU of {RNS.prettysize(confirmed_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
 
@@ -403,7 +412,7 @@ class Link:
                     self.handshake()
 
                     self.establishment_cost += len(packet.raw)
-                    signed_data = self.link_id+self.peer_pub_bytes+self.peer_sig_pub_bytes+mtu_bytes
+                    signed_data = self.link_id+self.peer_pub_bytes+self.peer_sig_pub_bytes+signalling_bytes
                     signature = packet.data[:RNS.Identity.SIGLENGTH//8]
                     
                     if self.destination.identity.validate(signature, signed_data):
