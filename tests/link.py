@@ -25,6 +25,7 @@ fixed_keys = [
 ]
 
 BUFFER_TEST_TARGET = 32000
+LINK_UP_WAIT = 0.050
 
 def targets_job(caller):
     cmd = "python -c \"from tests.link import targets; targets()\""
@@ -65,10 +66,11 @@ class TestLink(unittest.TestCase):
         close_rns()
 
     @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
-    def test_0_valid_announce(self):
+    def test_00_valid_announce(self):
         init_rns(self)
         print("")
 
+        print("Testing valid announce...")
         fid = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[3][0]))
         dst = RNS.Destination(fid, RNS.Destination.IN, RNS.Destination.SINGLE, "test", "announce")
         ap  = dst.announce(send=False)
@@ -76,10 +78,11 @@ class TestLink(unittest.TestCase):
         self.assertEqual(RNS.Identity.validate_announce(ap), True)
 
     @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
-    def test_1_invalid_announce(self):
+    def test_01_invalid_announce(self):
         init_rns(self)
         print("")
 
+        print("Testing invalid announce...")
         fid = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[4][0]))
         dst = RNS.Destination(fid, RNS.Destination.IN, RNS.Destination.SINGLE, "test", "announce")
         ap  = dst.announce(send=False)
@@ -92,7 +95,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(RNS.Identity.validate_announce(ap), False)
 
     @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
-    def test_2_establish(self):
+    def test_02_establish(self):
         init_rns(self)
         print("")
 
@@ -106,18 +109,42 @@ class TestLink(unittest.TestCase):
 
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
+        print("Testing default mode link establishment...")
         l1 = RNS.Link(dest)
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         l1.teardown()
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
+        
+        print("Testing AES_128_CBC mode link establishment...")
+        l2 = RNS.Link(dest, mode=RNS.Link.MODE_AES128_CBC)
+        time.sleep(LINK_UP_WAIT)
+        self.assertEqual(l2.status, RNS.Link.ACTIVE)
+        self.assertEqual(l2.mode, RNS.Link.MODE_AES128_CBC)
+        self.assertEqual(len(l2.derived_key), 32)
+
+        l2.teardown()
+        time.sleep(LINK_UP_WAIT)
+        self.assertEqual(l2.status, RNS.Link.CLOSED)
+        
+        print("Testing AES_256_CBC mode link establishment...")
+        l3 = RNS.Link(dest, mode=RNS.Link.MODE_AES256_CBC)
+        time.sleep(LINK_UP_WAIT)
+        self.assertEqual(l3.status, RNS.Link.ACTIVE)
+        self.assertEqual(l3.mode, RNS.Link.MODE_AES256_CBC)
+        self.assertEqual(len(l3.derived_key), 64)
+
+        l3.teardown()
+        time.sleep(LINK_UP_WAIT)
+        self.assertEqual(l3.status, RNS.Link.CLOSED)
 
     @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
-    def test_3_packets(self):
+    def test_03a_packets(self):
         init_rns(self)
         print("")
+        print("Testing default mode link packets...")
 
         # TODO: Load this from public bytes only
         id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
@@ -131,7 +158,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         b = 0
@@ -165,6 +192,7 @@ class TestLink(unittest.TestCase):
                 if not r.status == RNS.PacketReceipt.DELIVERED:
                     all_ok = False
                     break
+            time.sleep(0.01)
 
         pduration = time.time()-pstart
 
@@ -182,11 +210,85 @@ class TestLink(unittest.TestCase):
         print("Single packet and proof round-trip throughput is "+self.size_str(b/pduration, "b")+"ps")
 
         l1.teardown()
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
     @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
-    def test_4_micro_resource(self):
+    def test_03b_packets(self):
+        init_rns(self)
+        print("")
+        
+        print("Testing AES_256_CBC mode link packets...")
+
+        # TODO: Load this from public bytes only
+        id1 = RNS.Identity.from_bytes(bytes.fromhex(fixed_keys[0][0]))
+        self.assertEqual(id1.hash, bytes.fromhex(fixed_keys[0][1]))
+
+        RNS.Transport.request_path(bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+        time.sleep(0.2)
+
+        dest = RNS.Destination(id1, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "link", "establish")
+
+        self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
+        
+        l1 = RNS.Link(dest, mode=RNS.Link.MODE_AES256_CBC)
+        time.sleep(LINK_UP_WAIT)
+        self.assertEqual(l1.status, RNS.Link.ACTIVE)
+
+        b = 0
+        pr_t = 0
+        receipts = []
+        if RNS.Cryptography.backend() == "internal" or RNS.Reticulum.MTU > 500:
+            num_packets = 50
+        else:
+            num_packets = 500
+
+        packet_size = RNS.Link.MDU
+        pstart = time.time()
+        print("Sending "+str(num_packets)+" link packets of "+str(packet_size)+" bytes...")
+        for i in range(0, num_packets):
+            time.sleep(0.003)
+            b += packet_size
+            data = os.urandom(packet_size)
+            start = time.time()
+            p = RNS.Packet(l1, data)
+            receipts.append(p.send())
+            pr_t += time.time() - start
+
+        print("Sent "+self.size_str(b)+", "+self.size_str(b/pr_t, "b")+"ps")
+        print("Checking receipts...", end=" ")
+
+        all_ok = False
+        receipt_timeout = time.time() + 35
+        while not all_ok and time.time() < receipt_timeout:
+            for r in receipts:
+                all_ok = True
+                if not r.status == RNS.PacketReceipt.DELIVERED:
+                    all_ok = False
+                    break
+            time.sleep(0.01)
+
+        pduration = time.time()-pstart
+
+        n_failed = 0
+        for r in receipts:
+            if not r.status == RNS.PacketReceipt.DELIVERED:
+                n_failed += 1
+
+        if n_failed > 0:
+            ns = "s" if n_failed != 1 else ""
+            print("Failed to receive proof for "+str(n_failed)+" packet"+ns)
+            
+        self.assertEqual(all_ok, True)
+        print("OK!")
+        print("Single packet and proof round-trip throughput is "+self.size_str(b/pduration, "b")+"ps")
+
+        l1.teardown()
+        time.sleep(LINK_UP_WAIT)
+        self.assertEqual(l1.status, RNS.Link.CLOSED)
+
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
+    def test_04_micro_resource(self):
         init_rns(self)
         print("")
         print("Micro resource test")
@@ -203,7 +305,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         resource_timeout = 120
@@ -226,7 +328,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
     @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
-    def test_5_mini_resource(self):
+    def test_05_mini_resource(self):
         init_rns(self)
         print("")
         print("Mini resource test")
@@ -243,7 +345,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         resource_timeout = 120
@@ -266,7 +368,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
     @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
-    def test_6_small_resource(self):
+    def test_06_small_resource(self):
         init_rns(self)
         print("")
         print("Small resource test")
@@ -282,7 +384,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         resource_timeout = 120
@@ -301,12 +403,12 @@ class TestLink(unittest.TestCase):
         print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
 
         l1.teardown()
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
 
     @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
-    def test_7_medium_resource(self):
+    def test_07_medium_resource(self):
         if RNS.Cryptography.backend() == "internal":
             print("Skipping medium resource test...")
             return
@@ -326,7 +428,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         resource_timeout = 120
@@ -345,7 +447,7 @@ class TestLink(unittest.TestCase):
         print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
 
         l1.teardown()
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
     large_resource_status = None
@@ -353,7 +455,7 @@ class TestLink(unittest.TestCase):
         TestLink.large_resource_status = resource.status
 
     @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
-    def test_9_large_resource(self):
+    def test_09_large_resource(self):
         if RNS.Cryptography.backend() == "internal":
             print("Skipping large resource test...")
             return
@@ -373,7 +475,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         resource_timeout = 120
@@ -392,7 +494,7 @@ class TestLink(unittest.TestCase):
         print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
 
         l1.teardown()
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
     #@skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
@@ -430,7 +532,7 @@ class TestLink(unittest.TestCase):
         channel.add_message_handler(handle_message)
         channel.send(test_message)
 
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
 
         self.assertEqual(1, len(received))
 
@@ -443,7 +545,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(0, len(l1._channel._rx_ring))
 
         l1.teardown()
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
         self.assertEqual(0, len(l1._channel._rx_ring))
 
@@ -466,7 +568,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
 
         l1 = RNS.Link(dest)
-        time.sleep(1)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
         buffer = None
 
@@ -481,7 +583,7 @@ class TestLink(unittest.TestCase):
         buffer.write("Hi there".encode("utf-8"))
         buffer.flush()
 
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
 
         self.assertEqual(1 , len(received))
 
@@ -490,7 +592,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual("Hi there back at you", rx_message)
 
         l1.teardown()
-        time.sleep(0.5)
+        time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
     # @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None and os.getenv('RUN_SLOW_TESTS') == None, "Skipping")
@@ -595,7 +697,7 @@ class TestLink(unittest.TestCase):
             self.assertEqual(expected_rx_message, rx_message)
 
             l1.teardown()
-            time.sleep(0.5)
+            time.sleep(LINK_UP_WAIT)
             self.assertEqual(l1.status, RNS.Link.CLOSED)
         finally:
             local_interface.bitrate = original_bitrate
