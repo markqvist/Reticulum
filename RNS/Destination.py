@@ -216,9 +216,10 @@ class Destination:
                 ratchets_file = open(temp_write_path, "wb")
                 ratchets_file.write(umsgpack.packb(persisted_data))
                 ratchets_file.close()
-                os.unlink(self.ratchets_path)
+                if os.path.isfile(self.ratchets_path): os.unlink(self.ratchets_path)
                 os.rename(temp_write_path, self.ratchets_path)
         except Exception as e:
+            RNS.trace_exception(e)
             self.ratchets = None
             self.ratchets_path = None
             raise OSError("Could not write ratchet file contents for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
