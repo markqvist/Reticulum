@@ -138,10 +138,6 @@ class Link:
     MODE_BYTEMASK       = 0xE0
 
     @staticmethod
-    def mtu_bytes(mtu):
-        return struct.pack(">I", mtu & Link.MTU_BYTEMASK)[1:]
-
-    @staticmethod
     def signalling_bytes(mtu, mode):
         if not mode in Link.ENABLED_MODES: raise TypeError(f"Requested link mode {Link.MODE_DESCRIPTIONS[mode]} not enabled")
         signalling_value = (mtu & Link.MTU_BYTEMASK)+(((mode<<5) & Link.MODE_BYTEMASK)<<16)

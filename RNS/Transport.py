@@ -1361,6 +1361,7 @@ class Transport:
                                 proof_timeout += now + RNS.Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, remaining_hops)
                                 
                                 path_mtu       = RNS.Link.mtu_from_lr_packet(packet)
+                                mode           = RNS.Link.mode_from_lr_packet(packet)
                                 nh_mtu         = outbound_interface.HW_MTU
                                 if path_mtu:
                                     if outbound_interface.HW_MTU == None:
@@ -1374,7 +1375,7 @@ class Transport:
                                     else:
                                         if nh_mtu < path_mtu:
                                             path_mtu = nh_mtu
-                                            clamped_mtu = RNS.Link.mtu_bytes(path_mtu)
+                                            clamped_mtu = RNS.Link.signalling_bytes(path_mtu, mode)
                                             RNS.log(f"Clamping link MTU to {RNS.prettysize(nh_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
                                             new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]+clamped_mtu
 
@@ -1828,6 +1829,7 @@ class Transport:
                     for destination in Transport.destinations:
                         if destination.hash == packet.destination_hash and destination.type == packet.destination_type:
                             path_mtu       = RNS.Link.mtu_from_lr_packet(packet)
+                            mode           = RNS.Link.mode_from_lr_packet(packet)
                             if packet.receiving_interface.AUTOCONFIGURE_MTU or packet.receiving_interface.FIXED_MTU:
                                 nh_mtu     = packet.receiving_interface.HW_MTU
                             else:
@@ -1841,7 +1843,7 @@ class Transport:
                                 else:
                                     if nh_mtu < path_mtu:
                                         path_mtu = nh_mtu
-                                        clamped_mtu = RNS.Link.mtu_bytes(path_mtu)
+                                        clamped_mtu = RNS.Link.signalling_bytes(path_mtu, mode)
                                         RNS.log(f"Clamping link MTU to {RNS.prettysize(nh_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
                                         packet.data  = packet.data[:-RNS.Link.LINK_MTU_SIZE]+clamped_mtu
 
@@ -1902,15 +1904,15 @@ class Transport:
                             if packet.receiving_interface == link_entry[IDX_LT_NH_IF]:
                                 try:
                                     if len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2 or len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2+RNS.Link.LINK_MTU_SIZE:
-                                        mtu_bytes = b""
+                                        signalling_bytes = b""
                                         if len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2+RNS.Link.LINK_MTU_SIZE:
-                                            mtu_bytes = RNS.Link.mtu_bytes(RNS.Link.mtu_from_lp_packet(packet))
+                                            signalling_bytes = RNS.Link.signalling_bytes(RNS.Link.mtu_from_lp_packet(packet), RNS.Link.mode_from_lp_packet(packet))
 
                                         peer_pub_bytes = packet.data[RNS.Identity.SIGLENGTH//8:RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2]
                                         peer_identity = RNS.Identity.recall(link_entry[IDX_LT_DSTHASH])
                                         peer_sig_pub_bytes = peer_identity.get_public_key()[RNS.Link.ECPUBSIZE//2:RNS.Link.ECPUBSIZE]
 
-                                        signed_data = packet.destination_hash+peer_pub_bytes+peer_sig_pub_bytes+mtu_bytes
+                                        signed_data = packet.destination_hash+peer_pub_bytes+peer_sig_pub_bytes+signalling_bytes
                                         signature = packet.data[:RNS.Identity.SIGLENGTH//8]
 
                                         if peer_identity.validate(signature, signed_data):
