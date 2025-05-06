@@ -32,7 +32,8 @@ import RNS.Cryptography.Provider as cp
 import RNS.vendor.platformutils as pu
 
 if cp.PROVIDER == cp.PROVIDER_INTERNAL:
-    from .aes import AES
+    from .aes import AES128
+    from .aes import AES256
     
 elif cp.PROVIDER == cp.PROVIDER_PYCA:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -44,7 +45,7 @@ class AES_128_CBC:
     def encrypt(plaintext, key, iv):
         if len(key) != 16: raise ValueError(f"Invalid key length {len(key)*8} for {self}")
         if cp.PROVIDER == cp.PROVIDER_INTERNAL:
-            cipher = AES(key)
+            cipher = AES128(key)
             return cipher.encrypt(plaintext, iv)
 
         elif cp.PROVIDER == cp.PROVIDER_PYCA:
@@ -61,7 +62,7 @@ class AES_128_CBC:
     def decrypt(ciphertext, key, iv):
         if len(key) != 16: raise ValueError(f"Invalid key length {len(key)*8} for {self}")
         if cp.PROVIDER == cp.PROVIDER_INTERNAL:
-            cipher = AES(key)
+            cipher = AES128(key)
             return cipher.decrypt(ciphertext, iv)
 
         elif cp.PROVIDER == cp.PROVIDER_PYCA:
@@ -79,8 +80,8 @@ class AES_256_CBC:
     def encrypt(plaintext, key, iv):
         if len(key) != 32: raise ValueError(f"Invalid key length {len(key)*8} for {self}")
         if cp.PROVIDER == cp.PROVIDER_INTERNAL:
-            cipher = AES(key)
-            return cipher.encrypt(plaintext, iv)
+            cipher = AES256(key)
+            return cipher.encrypt_cbc(plaintext, iv)
 
         elif cp.PROVIDER == cp.PROVIDER_PYCA:
             if not pu.cryptography_old_api():
@@ -96,8 +97,8 @@ class AES_256_CBC:
     def decrypt(ciphertext, key, iv):
         if len(key) != 32: raise ValueError(f"Invalid key length {len(key)*8} for {self}")
         if cp.PROVIDER == cp.PROVIDER_INTERNAL:
-            cipher = AES(key)
-            return cipher.decrypt(ciphertext, iv)
+            cipher = AES256(key)
+            return cipher.decrypt_cbc(ciphertext, iv)
 
         elif cp.PROVIDER == cp.PROVIDER_PYCA:
             if not pu.cryptography_old_api():

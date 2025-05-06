@@ -377,7 +377,8 @@ projects:
 - [PyCA/cryptography](https://github.com/pyca/cryptography), *BSD License*
 - [Pure-25519](https://github.com/warner/python-pure25519) by [Brian Warner](https://github.com/warner), *MIT License*
 - [Pysha2](https://github.com/thomdixon/pysha2) by [Thom Dixon](https://github.com/thomdixon), *MIT License*
-- [Python-AES](https://github.com/orgurar/python-aes) by [Or Gur Arie](https://github.com/orgurar), *MIT License*
+- [Python AES-128](https://github.com/orgurar/python-aes) by [Or Gur Arie](https://github.com/orgurar), *MIT License*
+- [Python AES-256](https://github.com/boppreh/aes) by [BoppreH](https://github.com/boppreh), *MIT License*
 - [Curve25519.py](https://gist.github.com/nickovs/cc3c22d15f239a2640c185035c06f8a3#file-curve25519-py) by [Nicko van Someren](https://gist.github.com/nickovs), *Public Domain*
 - [I2Plib](https://github.com/l-n-s/i2plib) by [Viktor Villainov](https://github.com/l-n-s)
 - [PySerial](https://github.com/pyserial/pyserial) by Chris Liechti, *BSD License*
