@@ -347,12 +347,18 @@ provided by the following internal implementations:
 
 
 Reticulum also includes a complete implementation of all necessary primitives
-in pure Python. If OpenSSL & PyCA are not available on the system when
+in pure Python. If OpenSSL and PyCA are not available on the system when
 Reticulum is started, Reticulum will instead use the internal pure-python
 primitives. A trivial consequence of this is performance, with the OpenSSL
 backend being *much* faster. The most important consequence however, is the
 potential loss of security by using primitives that has not seen the same
 amount of scrutiny, testing and review as those from OpenSSL.
+
+Please note that by default, installing Reticulum will **require** OpenSSL and
+PyCA to also be automatically installed if not already available. It is only
+possible to use the pure-python primitives if this requirement is specifically
+overridden by the user, for example by installing the `rnspure` package instead
+of the normal `rns` package, or by running directly from local source-code.
 
 If you want to use the internal pure-python primitives, it is **highly
 advisable** that you have a good understanding of the risks that this pose, and
