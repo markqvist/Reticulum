@@ -123,7 +123,15 @@ class Link:
     MODE_PQ_RESERVED_2  = 0x05
     MODE_PQ_RESERVED_3  = 0x06
     MODE_PQ_RESERVED_4  = 0x07
-    enabled_modes       = [MODE_AES128_CBC, MODE_AES256_CBC]
+    ENABLED_MODES       = [MODE_AES128_CBC, MODE_AES256_CBC]
+    MODE_DESCRIPTIONS   = {MODE_AES128_CBC: "AES_128_CBC",
+                           MODE_AES256_CBC: "AES_256_CBC",
+                           MODE_AES256_GCM: "MODE_AES256_GCM",
+                           MODE_OTP_RESERVED: "MODE_OTP_RESERVED",
+                           MODE_PQ_RESERVED_1: "MODE_PQ_RESERVED_1",
+                           MODE_PQ_RESERVED_2: "MODE_PQ_RESERVED_2",
+                           MODE_PQ_RESERVED_3: "MODE_PQ_RESERVED_3",
+                           MODE_PQ_RESERVED_4: "MODE_PQ_RESERVED_4"}
 
     MTU_BYTEMASK        = 0x1FFFFF
     MODE_BYTEMASK       = 0xE0
@@ -131,6 +139,12 @@ class Link:
     @staticmethod
     def mtu_bytes(mtu):
         return struct.pack(">I", mtu & Link.MTU_BYTEMASK)[1:]
+
+    @staticmethod
+    def signalling_bytes(mtu, mode):
+        if not mode in Link.ENABLED_MODES: raise TypeError(f"Requested link mode {Link.MODE_DESCRIPTIONS[mode]} not enabled")
+        signalling_value = (mtu & Link.MTU_BYTEMASK)+(((mode<<5) & Link.MODE_BYTEMASK)<<16)
+        return struct.pack(">I", signalling_value)[1:]
 
     @staticmethod
     def mtu_from_lr_packet(packet):
@@ -147,20 +161,21 @@ class Link:
 
     @staticmethod
     def mode_byte(mode):
-        if mode in Link.enabled_modes: return (mode << 5) & Link.MODE_BYTEMASK
+        if mode in Link.ENABLED_MODES: return (mode << 5) & Link.MODE_BYTEMASK
         else: raise TypeError(f"Requested link mode {mode} not enabled")
 
     @staticmethod
     def mode_from_lr_packet(packet):
         if len(packet.data) > Link.ECPUBSIZE:
-            return (packet.data[Link.ECPUBSIZE] << 16) + (packet.data[Link.ECPUBSIZE+1] << 8) + (packet.data[Link.ECPUBSIZE+2]) & Link.MODE_BYTEMASK
+            mode = (packet.data[Link.ECPUBSIZE] & Link.MODE_BYTEMASK) >> 5
+            return mode
         else: return None
 
     @staticmethod
     def mode_from_lp_packet(packet):
         if len(packet.data) > RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:
-            mode_byte = packet.data[RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2+1]
-            return mode_byte & Link.MODE_BYTEMASK
+            mode = packet.data[RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2] >> 5
+            return mode
         else: return None
 
     @staticmethod
