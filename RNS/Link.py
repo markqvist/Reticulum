@@ -193,7 +193,7 @@ class Link:
                 link.mode = Link.mode_from_lr_packet(packet)
                 
                 # TODO: Remove
-                RNS.log(f"Incoming link request with mode {Link.MODE_DESCRIPTIONS[link.mode]}")
+                RNS.log(f"Incoming link request with mode {Link.MODE_DESCRIPTIONS[link.mode]}", RNS.LOG_DEBUG)
 
                 link.update_mdu()
                 link.destination = packet.destination
@@ -305,8 +305,7 @@ class Link:
                 signalling_bytes = Link.signalling_bytes(nh_hw_mtu, self.mode)
                 RNS.log(f"Signalling link MTU of {RNS.prettysize(nh_hw_mtu)} for link", RNS.LOG_DEBUG) # TODO: Remove debug
             else: signalling_bytes = Link.signalling_bytes(RNS.Reticulum.MTU, self.mode)
-            # TODO: Remove
-            RNS.log(f"Establishing link with mode {Link.MODE_DESCRIPTIONS[self.mode]}")
+            RNS.log(f"Establishing link with mode {Link.MODE_DESCRIPTIONS[self.mode]}", RNS.LOG_DEBUG) # TODO: Remove debug
             self.request_data = self.pub_bytes+self.sig_pub_bytes+signalling_bytes
             self.packet = RNS.Packet(destination, self.request_data, packet_type=RNS.Packet.LINKREQUEST)
             self.packet.pack()
@@ -393,8 +392,8 @@ class Link:
                 signalling_bytes = b""
                 confirmed_mtu = None
                 mode = Link.mode_from_lp_packet(packet)
-                # TODO: Remove
-                RNS.log(f"Validating link proof with mode {Link.MODE_DESCRIPTIONS[mode]}")
+                RNS.log(f"Validating link request proof with mode {Link.MODE_DESCRIPTIONS[mode]}", RNS.LOG_DEBUG) # TODO: Remove debug
+                if mode != self.mode: raise TypeError(f"Invalid link mode {mode} in link request proof")
                 if len(packet.data) == RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2+Link.LINK_MTU_SIZE:
                     confirmed_mtu = Link.mtu_from_lp_packet(packet)
                     signalling_bytes = Link.signalling_bytes(confirmed_mtu, mode)
@@ -622,6 +621,12 @@ class Link:
             return self.expected_rate
         else:
             return None
+
+    def get_mode(self):
+        """
+        :returns: The mode of an established link.
+        """
+        return self.mode
 
     def get_salt(self):
         return self.link_id
