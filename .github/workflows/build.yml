@@ -29,7 +29,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - run: make test
+      - run: |
+          python -m pip install -q cryptography
+          make test
 
   package:
     needs: test
