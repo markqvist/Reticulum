@@ -123,7 +123,7 @@ class Link:
     MODE_PQ_RESERVED_2  = 0x05
     MODE_PQ_RESERVED_3  = 0x06
     MODE_PQ_RESERVED_4  = 0x07
-    enabled_modes       = [MODE_AES128_CBC]
+    enabled_modes       = [MODE_AES128_CBC, MODE_AES256_CBC]
 
     MTU_BYTEMASK        = 0x1FFFFF
     MODE_BYTEMASK       = 0xE0
@@ -206,6 +206,7 @@ class Link:
             return None
 
 
+    # TODO: Set default link mode to AES_256_CBC after migration
     def __init__(self, destination=None, established_callback=None, closed_callback=None, owner=None, peer_pub_bytes=None, peer_sig_pub_bytes=None, mode=MODE_AES128_CBC):
         if destination != None and destination.type != RNS.Destination.SINGLE: raise TypeError("Links can only be established to the \"single\" destination type")
         self.mode = mode
