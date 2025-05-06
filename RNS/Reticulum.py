@@ -1370,13 +1370,17 @@ share_instance = Yes
 
 # If you want to run multiple *different* shared instances
 # on the same system, you will need to specify different
-# shared instance ports for each. The defaults are given
-# below, and again, these options can be left out if you
-# don't need them.
+# instance names for each. On platforms supporting domain
+# sockets, this can be done with the instance_name option:
+
+instance_name = default
+
+# Some platforms don't support domain sockets, and if that
+# is the case, you can isolate different instances by
+# specifying a unique set of ports for each:
 
 shared_instance_port = 37428
 instance_control_port = 37429
-
 
 # You can configure Reticulum to panic and forcibly close
 # if an unrecoverable interface error occurs, such as the
