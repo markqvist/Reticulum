@@ -319,7 +319,8 @@ class BackboneInterface(Interface):
                                     client_socket, address = server_socket.accept()
                                     client_socket.setblocking(0)
                                     if not owner_interface.incoming_connection(client_socket):
-                                        client_socket.close()
+                                        try: client_socket.close()
+                                        except Exception as e: RNS.log(f"Error while closing socket for failed incoming connection: {e}", RNS.LOG_ERROR)
                                 
                                 elif fileno == server_socket.fileno() and (event & select.EPOLLHUP):
                                     try: BackboneInterface.deregister_fileno(fileno)
@@ -337,48 +338,53 @@ class BackboneInterface(Interface):
     
     def incoming_connection(self, socket):
         RNS.log("Accepting incoming connection", RNS.LOG_VERBOSE)
-        spawned_configuration = {"name": "Client on "+self.name, "target_host": None, "target_port": None}
-        spawned_interface = BackboneClientInterface(self.owner, spawned_configuration, connected_socket=socket)
-        spawned_interface.OUT = self.OUT
-        spawned_interface.IN  = self.IN
-        spawned_interface.socket = socket
-        spawned_interface.target_ip = socket.getpeername()[0]
-        spawned_interface.target_port = str(socket.getpeername()[1])
-        spawned_interface.parent_interface = self
-        spawned_interface.bitrate = self.bitrate
-        spawned_interface.optimise_mtu()
-        
-        spawned_interface.ifac_size = self.ifac_size
-        spawned_interface.ifac_netname = self.ifac_netname
-        spawned_interface.ifac_netkey = self.ifac_netkey
-        if spawned_interface.ifac_netname != None or spawned_interface.ifac_netkey != None:
-            ifac_origin = b""
-            if spawned_interface.ifac_netname != None:
-                ifac_origin += RNS.Identity.full_hash(spawned_interface.ifac_netname.encode("utf-8"))
-            if spawned_interface.ifac_netkey != None:
-                ifac_origin += RNS.Identity.full_hash(spawned_interface.ifac_netkey.encode("utf-8"))
+        try:
+            spawned_configuration = {"name": "Client on "+self.name, "target_host": None, "target_port": None}
+            spawned_interface = BackboneClientInterface(self.owner, spawned_configuration, connected_socket=socket)
+            spawned_interface.OUT = self.OUT
+            spawned_interface.IN  = self.IN
+            spawned_interface.socket = socket
+            spawned_interface.target_ip = socket.getpeername()[0]
+            spawned_interface.target_port = str(socket.getpeername()[1])
+            spawned_interface.parent_interface = self
+            spawned_interface.bitrate = self.bitrate
+            spawned_interface.optimise_mtu()
+            
+            spawned_interface.ifac_size = self.ifac_size
+            spawned_interface.ifac_netname = self.ifac_netname
+            spawned_interface.ifac_netkey = self.ifac_netkey
+            if spawned_interface.ifac_netname != None or spawned_interface.ifac_netkey != None:
+                ifac_origin = b""
+                if spawned_interface.ifac_netname != None:
+                    ifac_origin += RNS.Identity.full_hash(spawned_interface.ifac_netname.encode("utf-8"))
+                if spawned_interface.ifac_netkey != None:
+                    ifac_origin += RNS.Identity.full_hash(spawned_interface.ifac_netkey.encode("utf-8"))
 
-            ifac_origin_hash = RNS.Identity.full_hash(ifac_origin)
-            spawned_interface.ifac_key = RNS.Cryptography.hkdf(
-                length=64,
-                derive_from=ifac_origin_hash,
-                salt=RNS.Reticulum.IFAC_SALT,
-                context=None
-            )
-            spawned_interface.ifac_identity = RNS.Identity.from_bytes(spawned_interface.ifac_key)
-            spawned_interface.ifac_signature = spawned_interface.ifac_identity.sign(RNS.Identity.full_hash(spawned_interface.ifac_key))
+                ifac_origin_hash = RNS.Identity.full_hash(ifac_origin)
+                spawned_interface.ifac_key = RNS.Cryptography.hkdf(
+                    length=64,
+                    derive_from=ifac_origin_hash,
+                    salt=RNS.Reticulum.IFAC_SALT,
+                    context=None
+                )
+                spawned_interface.ifac_identity = RNS.Identity.from_bytes(spawned_interface.ifac_key)
+                spawned_interface.ifac_signature = spawned_interface.ifac_identity.sign(RNS.Identity.full_hash(spawned_interface.ifac_key))
 
-        spawned_interface.announce_rate_target = self.announce_rate_target
-        spawned_interface.announce_rate_grace = self.announce_rate_grace
-        spawned_interface.announce_rate_penalty = self.announce_rate_penalty
-        spawned_interface.mode = self.mode
-        spawned_interface.HW_MTU = self.HW_MTU
-        spawned_interface.online = True
-        RNS.log("Spawned new BackboneClient Interface: "+str(spawned_interface), RNS.LOG_VERBOSE)
-        RNS.Transport.interfaces.append(spawned_interface)
-        while spawned_interface in self.spawned_interfaces: self.spawned_interfaces.remove(spawned_interface)
-        self.spawned_interfaces.append(spawned_interface)
-        BackboneInterface.add_client_socket(socket, spawned_interface)
+            spawned_interface.announce_rate_target = self.announce_rate_target
+            spawned_interface.announce_rate_grace = self.announce_rate_grace
+            spawned_interface.announce_rate_penalty = self.announce_rate_penalty
+            spawned_interface.mode = self.mode
+            spawned_interface.HW_MTU = self.HW_MTU
+            spawned_interface.online = True
+            RNS.log("Spawned new BackboneClient Interface: "+str(spawned_interface), RNS.LOG_VERBOSE)
+            RNS.Transport.interfaces.append(spawned_interface)
+            while spawned_interface in self.spawned_interfaces: self.spawned_interfaces.remove(spawned_interface)
+            self.spawned_interfaces.append(spawned_interface)
+            BackboneInterface.add_client_socket(socket, spawned_interface)
+
+        except Exception as e:
+            RNS.log(f"An error occurred while accepting incoming connection on {self}: {e}", RNS.LOG_ERROR)
+            return False
 
         return True
 
