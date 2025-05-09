@@ -12,7 +12,6 @@ Before creating a bug report on this issue tracker, you **must** read the [Contr
 
 - The issue tracker is used by developers of this project. **Do not use it to ask general questions, or for support requests**.
 - Ideas and feature requests can be made on the [Discussions](https://github.com/markqvist/Reticulum/discussions). **Only** feature requests accepted by maintainers and developers are tracked and included on the issue tracker. **Do not post feature requests here**.
-- Do not submit code written using large language models (LLMs) or other generative 'AI' programs (see the [Generative AI Policy](/Contributing.md#generative-ai-policy) for details).
 - After reading the [Contribution Guidelines](https://github.com/markqvist/Reticulum/blob/master/Contributing.md), **delete this section only** (*"Read the Contribution Guidelines"*) from your bug report, **and fill in all the other sections**.
 
 **Describe the Bug**
