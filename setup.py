@@ -34,10 +34,12 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://reticulum.network/",
     packages=packages,
+    license="Reticulum License",
+    license_files = ("LICENSE"),
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: Reticulum License",
         "Operating System :: OS Independent",
+        "Development Status :: 4 - Beta",
     ],
     entry_points= {
         'console_scripts': [

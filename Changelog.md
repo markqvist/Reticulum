@@ -20,8 +20,8 @@ The update requires no intervention, configuration changes or anything similar f
 
 **Release Hashes**
 ```
-0b880827369dd4bda7e4691e0e157e75fab4c22554743c1c7f07a350106114e8 rns-0.9.5-py3-none-any.whl
-6c00d12176de40d7dc45d9edd7952a161413f4cc4cc276b82bf3811f99440556 rnspure-0.9.5-py3-none-any.whl
+ae6587c86c98cae0df73567af093cc92fe204e71bb01f2506da9aec626a27e97 rns-0.9.5-py3-none-any.whl
+96208c1d1234e3e4b1c18ca986bad5d4693aeb431453efd7ade33b87f35600e1 rnspure-0.9.5-py3-none-any.whl
 ```
 
 ### 2025-04-15: RNS β 0.9.4
