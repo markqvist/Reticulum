@@ -4,7 +4,7 @@ This release initiates migration of Reticulum from AES-128 to AES-256 as the def
 
 In the next release, version `0.9.6`, Reticulum will transition fully to AES-256 and use it by default for all communications. That means that both single packets and links will use AES-256 by default. The old AES-128 link mode may or may not be available for a few releases, but will ultimately be phased out entirely.
 
-The update requires no intervention, configuration changes or anything similar from a users or developers perspective. Everything should simply work. This goes both for the 0.9.5 update, and the next 0.9.6 update that transitions fully to AES-256.
+The update requires no intervention, configuration changes or anything similar from a users or developers perspective. Everything should simply work. This goes both for the `0.9.5` update, and the next `0.9.6` update that transitions fully to AES-256.
 
 **Changes**
 - Added support for AES-256 mode to links and packets
