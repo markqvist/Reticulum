@@ -1,3 +1,29 @@
+### 2025-05-09: RNS β 0.9.5
+
+This release initiates migration of Reticulum from AES-128 to AES-256 as the default link and packet cipher mode. It is a compatibility/migration release, that while supporting AES-256 doesn't use it by default. It will work with both the old AES-128 based modes, and the new AES-256 based modes. There's a very slight penalty in performance to support both the old and new modes at the same time, but only for single packet APIs (not links), and it really shouldn't be noticeable in any everyday use.
+
+In the next release, version `0.9.6`, Reticulum will transition fully to AES-256 and use it by default for all communications. That means that both single packets and links will use AES-256 by default. The old AES-128 link mode may or may not be available for a few releases, but will ultimately be phased out entirely.
+
+The update requires no intervention, configuration changes or anything similar from a users or developers perspective. Everything should simply work. This goes both for the 0.9.5 update, and the next 0.9.6 update that transitions fully to AES-256.
+
+**Changes**
+- Added support for AES-256 mode to links and packets
+- Added dynamic link mode support
+- Added temporary backwards compatibility for AES-128 link and packet modes
+- Added `get_mode()` method to link API
+- Added tests for all enabled link modes
+- Added `instance_name` option and description to default config file
+- Improved ratchet persist reliability if Reticulum is force killed while persisting ratchets
+- Fixed interface string representation for some interfaces
+- Fixed instance name config option being overwritten if option was not last in section
+- Fixed unhandled potential exception on fast-flapping `BackboneInterface` connections
+
+**Release Hashes**
+```
+0b880827369dd4bda7e4691e0e157e75fab4c22554743c1c7f07a350106114e8 rns-0.9.5-py3-none-any.whl
+6c00d12176de40d7dc45d9edd7952a161413f4cc4cc276b82bf3811f99440556 rnspure-0.9.5-py3-none-any.whl
+```
+
 ### 2025-04-15: RNS β 0.9.4
 
 This release significantly improves memory utilisation and performance. It also includes a few new features and general improvements to the included utilities and programs.
