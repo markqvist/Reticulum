@@ -92,7 +92,10 @@ def resource_concluded(resource):
     if resource.status == RNS.Resource.COMPLETE:
         RNS.log(f"Resource {resource} received")
         RNS.log(f"Metadata: {resource.metadata}")
-        RNS.log(f"Data can be read from: {resource.data}")
+        RNS.log(f"Data length: {os.stat(resource.data.name).st_size}")
+        RNS.log(f"Data can be read directly from: {resource.data}")
+        RNS.log(f"Data can be moved or copied from: {resource.data.name}")
+        RNS.log(f"First 32 bytes of data: {RNS.hexrep(resource.data.read(32))}")
     else:
         RNS.log(f"Receiving resource {resource} failed")
 
@@ -185,6 +188,8 @@ def client_loop():
             else:
                 # Generate 32 megabytes of random data
                 data     = os.urandom(32*1024*1024)
+                RNS.log(f"Data length: {len(data)}")
+                RNS.log(f"First 32 bytes of data: {RNS.hexrep(data[:32])}")
                 
                 # Generate some metadata
                 metadata = {"text": random_text_generator(), "numbers": [1,2,3,4], "blob": os.urandom(16)}
