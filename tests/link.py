@@ -493,12 +493,12 @@ class TestLink(unittest.TestCase):
         resource_size = 5*1000*1000
         data = os.urandom(resource_size)
         print("Sending "+self.size_str(resource_size)+" resource...")
-        resource = RNS.Resource(data, l1, timeout=resource_timeout, auto_compress=False)
+        resource = RNS.Resource(data, l1, timeout=resource_timeout, callback=self.lr_callback, auto_compress=False)
         start = time.time()
 
-        # This is a hack, don't do it. Use the callbacks instead.
-        while resource.status < RNS.Resource.COMPLETE:
-            time.sleep(0.01)
+        TestLink.large_resource_status = resource.status
+        while TestLink.large_resource_status < RNS.Resource.COMPLETE:
+            time.sleep(0.001)
 
         t = time.time() - start
         self.assertEqual(resource.status, RNS.Resource.COMPLETE)
@@ -508,12 +508,12 @@ class TestLink(unittest.TestCase):
         data = os.urandom(resource_size)
         metadata = {"text": "Some text", "numbers": [1,2,3,4], "blob": os.urandom(8192)}
         print("Sending "+self.size_str(resource_size)+" resource with metadata...")
-        resource = RNS.Resource(data, l1, metadata=metadata, timeout=resource_timeout)
+        resource = RNS.Resource(data, l1, timeout=resource_timeout, callback=self.lr_callback, auto_compress=False)
         start = time.time()
 
-        # This is a hack, don't do it. Use the callbacks instead.
-        while resource.status < RNS.Resource.COMPLETE:
-            time.sleep(0.01)
+        TestLink.large_resource_status = resource.status
+        while TestLink.large_resource_status < RNS.Resource.COMPLETE:
+            time.sleep(0.001)
 
         t = time.time() - start
         self.assertEqual(resource.status, RNS.Resource.COMPLETE)
@@ -560,7 +560,7 @@ class TestLink(unittest.TestCase):
 
         TestLink.large_resource_status = resource.status
         while TestLink.large_resource_status < RNS.Resource.COMPLETE:
-            time.sleep(0.01)
+            time.sleep(0.001)
 
         t = time.time() - start
         self.assertEqual(TestLink.large_resource_status, RNS.Resource.COMPLETE)
