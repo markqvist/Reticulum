@@ -43,6 +43,7 @@ from RNS._version import __version__
 APP_NAME = "rncp"
 allow_all = False
 allow_fetch = False
+allow_overwrite_on_receive = False
 fetch_auto_compress = True
 fetch_jail = None
 save_path = None
@@ -56,12 +57,14 @@ erase_str = "\33[2K\r"
 
 def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identity = False,
            limit = None, disable_auth = None, fetch_allowed = False, no_compress=False,
-           jail = None, save = None, announce = False):
+           jail = None, save = None, announce = False, allow_overwrite=False):
 
-    global allow_all, allow_fetch, allowed_identity_hashes, fetch_jail, save_path, fetch_auto_compress
+    global allow_all, allow_fetch, allowed_identity_hashes, fetch_jail, save_path
+    global fetch_auto_compress, allow_overwrite_on_receive
 
     allow_fetch = fetch_allowed
     fetch_auto_compress = not no_compress
+    allow_overwrite_on_receive = allow_overwrite
     identity = None
     if announce < 0:
         announce = False
@@ -261,7 +264,7 @@ def receive_resource_started(resource):
     print("Starting resource transfer "+RNS.prettyhexrep(resource.hash)+id_str)
 
 def receive_resource_concluded(resource):
-    global save_path
+    global save_path, allow_overwrite_on_receive
     if resource.status == RNS.Resource.COMPLETE:
         print(str(resource)+" completed")
 
@@ -282,6 +285,12 @@ def receive_resource_concluded(resource):
                     saved_filename = filename
 
                 full_save_path = saved_filename
+                if allow_overwrite_on_receive:
+                    if os.path.isfile(full_save_path):
+                        try: os.unlink(full_save_path)
+                        except Exception as e:
+                            RNS.log(f"Could not overwrite existing file {full_save_path}, renaming instead", RNS.LOG_ERROR)
+
                 while os.path.isfile(full_save_path):
                     counter += 1
                     full_save_path = saved_filename+"."+str(counter)
@@ -336,10 +345,11 @@ def sender_progress(resource):
         resource_done = True
 
 link = None
-def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, silent=False, phy_rates=False, save=None):
-    global current_resource, resource_done, link, speed, show_phy_rates, save_path
+def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, silent=False, phy_rates=False, save=None, allow_overwrite=False):
+    global current_resource, resource_done, link, speed, show_phy_rates, save_path, allow_overwrite_on_receive
     targetloglevel = 3+verbosity-quietness
     show_phy_rates = phy_rates
+    allow_overwrite_on_receive = allow_overwrite
 
     if save:
         sp = os.path.abspath(os.path.expanduser(save))
@@ -475,7 +485,7 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
 
     def fetch_resource_concluded(resource):
         nonlocal resource_resolved, resource_status
-        global save_path
+        global save_path, allow_overwrite_on_receive
         if resource.status == RNS.Resource.COMPLETE:
             if resource.metadata == None:
                 print("Invalid data received, ignoring resource")
@@ -494,6 +504,12 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
                         saved_filename = filename
 
                     full_save_path = saved_filename
+                    if allow_overwrite_on_receive:
+                        if os.path.isfile(full_save_path):
+                            try: os.unlink(full_save_path)
+                            except Exception as e:
+                                print(f"Could not overwrite existing file {full_save_path}, renaming instead")
+
                     while os.path.isfile(full_save_path):
                         counter += 1
                         full_save_path = saved_filename+"."+str(counter)
@@ -801,6 +817,7 @@ def main():
         parser.add_argument("-f", '--fetch', action='store_true', default=False, help="fetch file from remote listener instead of sending")
         parser.add_argument("-j", "--jail", metavar="path", action="store", default=None, help="restrict fetch requests to specified path", type=str)
         parser.add_argument("-s", "--save", metavar="path", action="store", default=None, help="save received files in specified path", type=str)
+        parser.add_argument('-O', '--overwrite', action='store_true', default=False, help="Allow overwriting received files, instead of adding postfix")
         parser.add_argument("-b", action='store', metavar="seconds", default=-1, help="announce interval, 0 to only announce at startup", type=int)
         parser.add_argument('-a', metavar="allowed_hash", dest="allowed", action='append', help="allow this identity (or add in ~/.rncp/allowed_identities)", type=str)
         parser.add_argument('-n', '--no-auth', action='store_true', default=False, help="accept requests from anyone")
@@ -826,6 +843,7 @@ def main():
                 # limit=args.limit,
                 disable_auth=args.no_auth,
                 announce=args.b,
+                allow_overwrite=args.overwrite,
             )
 
         elif args.fetch:
@@ -840,6 +858,7 @@ def main():
                     silent = args.silent,
                     phy_rates = args.phy_rates,
                     save = args.save,
+                    allow_overwrite=args.overwrite,
                 )
             else:
                 print("")
