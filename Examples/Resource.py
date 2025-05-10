@@ -1,6 +1,6 @@
 ##########################################################
-# This RNS example demonstrates how to perform requests  #
-# and receive responses over a link.                     #
+# This RNS example demonstrates how to transfer a        #
+# resource over an established link                      #
 ##########################################################
 
 import os
@@ -23,11 +23,6 @@ APP_NAME = "example_utilities"
 # A reference to the latest client link that connected
 latest_client_link = None
 
-def random_text_generator(path, data, request_id, link_id, remote_identity, requested_at):
-    RNS.log("Generating response to request "+RNS.prettyhexrep(request_id)+" on link "+RNS.prettyhexrep(link_id))
-    texts = ["They looked up", "On each full moon", "Becky was upset", "I’ll stay away from it", "The pet shop stocks everything"]
-    return texts[random.randint(0, len(texts)-1)]
-
 # This initialisation is executed when the users chooses
 # to run as a server
 def server(configpath):
@@ -45,29 +40,21 @@ def server(configpath):
         RNS.Destination.IN,
         RNS.Destination.SINGLE,
         APP_NAME,
-        "requestexample"
+        "resourceexample"
     )
 
     # We configure a function that will get called every time
     # a new client creates a link to this destination.
     server_destination.set_link_established_callback(client_connected)
 
-    # We register a request handler for handling incoming
-    # requests over any established links.
-    server_destination.register_request_handler(
-        "/random/text",
-        response_generator = random_text_generator,
-        allow = RNS.Destination.ALLOW_ALL
-    )
-
     # Everything's ready!
-    # Let's Wait for client requests or user input
+    # Let's Wait for client resources or user input
     server_loop(server_destination)
 
 def server_loop(destination):
     # Let the user know that everything is ready
     RNS.log(
-        "Request example "+
+        "Resource example "+
         RNS.prettyhexrep(destination.hash)+
         " running, waiting for a connection."
     )
@@ -88,13 +75,27 @@ def server_loop(destination):
 # a reference to the link.
 def client_connected(link):
     global latest_client_link
-
     RNS.log("Client connected")
+
+    # We configure the link to accept all resources
+    # and set a callback for completed resources
+    link.set_resource_strategy(RNS.Link.ACCEPT_ALL)
+    link.set_resource_concluded_callback(resource_concluded)
+
     link.set_link_closed_callback(client_disconnected)
     latest_client_link = link
 
 def client_disconnected(link):
     RNS.log("Client disconnected")
+
+def resource_concluded(resource):
+    if resource.status == RNS.Resource.COMPLETE:
+        RNS.log(f"Resource {resource} received")
+        RNS.log(f"Metadata: {resource.metadata}")
+        RNS.log(f"Data can be read from: {resource.data}")
+    else:
+        RNS.log(f"Receiving resource {resource} failed")
+
 
 
 ##########################################################
@@ -103,6 +104,10 @@ def client_disconnected(link):
 
 # A reference to the server link
 server_link = None
+
+def random_text_generator():
+    texts = ["They looked up", "On each full moon", "Becky was upset", "I’ll stay away from it", "The pet shop stocks everything"]
+    return texts[random.randint(0, len(texts)-1)]
 
 # This initialisation is executed when the users chooses
 # to run as a client
@@ -144,7 +149,7 @@ def client(destination_hexhash, configpath):
         RNS.Destination.OUT,
         RNS.Destination.SINGLE,
         APP_NAME,
-        "requestexample"
+        "resourceexample"
     )
 
     # And create a link
@@ -178,31 +183,29 @@ def client_loop():
                 server_link.teardown()
 
             else:
-                server_link.request(
-                    "/random/text",
-                    data = None,
-                    response_callback = got_response,
-                    failed_callback = request_failed
-                )
+                # Generate 32 megabytes of random data
+                data     = os.urandom(32*1024*1024)
+                
+                # Generate some metadata
+                metadata = {"text": random_text_generator(), "numbers": [1,2,3,4], "blob": os.urandom(16)}
+                
+                # Send the resource
+                resource = RNS.Resource(data, server_link, metadata=metadata, callback=resource_concluded_sending, auto_compress=False)
 
+                # Alternatively, you can stream data
+                # directly from an open file descriptor
+
+                # with open("/path/to/file", "rb") as data_file:
+                #     resource = RNS.Resource(data_file, server_link, metadata=metadata, callback=resource_concluded_sending, auto_compress=False)
 
         except Exception as e:
-            RNS.log("Error while sending request over the link: "+str(e))
+            RNS.log("Error while sending resource over the link: "+str(e))
             should_quit = True
             server_link.teardown()
 
-def got_response(request_receipt):
-    request_id = request_receipt.request_id
-    response = request_receipt.response
-
-    RNS.log("Got response for request "+RNS.prettyhexrep(request_id)+": "+str(response))
-
-def request_received(request_receipt):
-    RNS.log("The request "+RNS.prettyhexrep(request_receipt.request_id)+" was received by the remote peer.")
-
-def request_failed(request_receipt):
-    RNS.log("The request "+RNS.prettyhexrep(request_receipt.request_id)+" failed.")
-
+def resource_concluded_sending(resource):
+    if resource.status == RNS.Resource.COMPLETE: RNS.log(f"The resource {resource} was sent successfully")
+    else: RNS.log(f"Sending the resource {resource} failed")
 
 # This function is called when a link
 # has been established with the server
@@ -214,7 +217,7 @@ def link_established(link):
 
     # Inform the user that the server is
     # connected
-    RNS.log("Link established with server, hit enter to perform a request, or type in \"quit\" to quit")
+    RNS.log("Link established with server, hit enter to sand a resource, or type in \"quit\" to quit")
 
 # When a link is closed, we'll inform the
 # user, and exit the program
@@ -239,13 +242,13 @@ def link_closed(link):
 # starts up the desired program mode.
 if __name__ == "__main__":
     try:
-        parser = argparse.ArgumentParser(description="Simple request/response example")
+        parser = argparse.ArgumentParser(description="Simple resource example")
 
         parser.add_argument(
             "-s",
             "--server",
             action="store_true",
-            help="wait for incoming requests from clients"
+            help="wait for incoming resources from clients"
         )
 
         parser.add_argument(
