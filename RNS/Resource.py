@@ -678,21 +678,22 @@ class Resource:
                 if calculated_hash == self.hash:
                     if self.has_metadata and self.segment_index == 1:
                         # TODO: Add early metadata_ready callback
-                        metadata_size = data[0] << 16 | data[1] << 8 | data[2]
-                        packed_metadata = data[3:3+metadata_size]
+                        metadata_size = self.data[0] << 16 | self.data[1] << 8 | self.data[2]
+                        packed_metadata = self.data[3:3+metadata_size]
                         metadata_file = open(self.meta_storagepath, "wb")
                         metadata_file.write(packed_metadata)
                         metadata_file.close()
                         del packed_metadata
-                        data = data[3+metadata_size:]
+                        data = self.data[3+metadata_size:]
 
                     self.file = open(self.storagepath, "ab")
-                    self.file.write(self.data)
+                    self.file.write(data)
                     self.file.close()
                     self.status = Resource.COMPLETE
+                    del data
                     self.prove()
-                else:
-                    self.status = Resource.CORRUPT
+                
+                else: self.status = Resource.CORRUPT
 
 
             except Exception as e:
@@ -721,7 +722,7 @@ class Resource:
 
                 try:
                     if hasattr(self.data, "close") and callable(self.data.close): self.data.close()
-                    os.unlink(self.storagepath)
+                    if os.path.isfile(self.storagepath): os.unlink(self.storagepath)
 
                 except Exception as e:
                     RNS.log(f"Error while cleaning up resource files, the contained exception was: {e}", RNS.LOG_ERROR)
@@ -788,8 +789,7 @@ class Resource:
                             RNS.log(f"Next segment preparation for resource {self} was not started yet, manually preparing now. This will cause transfer slowdown.", RNS.LOG_WARNING)
                             self.__prepare_next_segment()
 
-                        while self.next_segment == None:
-                            time.sleep(0.05)
+                        while self.next_segment == None: time.sleep(0.05)
                         self.next_segment.advertise()
                 else:
                     pass
