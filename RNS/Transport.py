@@ -1070,7 +1070,7 @@ class Transport:
 
                     if should_transmit:
                         if not stored_hash:
-                            Transport.packet_hashlist.add(packet.packet_hash)
+                            Transport.add_packet_hash(packet.packet_hash)
                             stored_hash = True
 
                         Transport.transmit(interface, packet.raw)
@@ -1083,10 +1083,17 @@ class Transport:
         return sent
 
     @staticmethod
+    def add_packet_hash(packet_hash):
+        if not Transport.owner.is_connected_to_shared_instance:
+            Transport.packet_hashlist.add(packet_hash)
+
+    @staticmethod
     def packet_filter(packet):
         # TODO: Think long and hard about this.
         # Is it even strictly necessary with the current
         # transport rules?
+
+        if Transport.owner.is_connected_to_shared_instance: return True
 
         # Filter packets intended for other transport instances
         if packet.transport_id != None and packet.packet_type != RNS.Packet.ANNOUNCE:
@@ -1274,7 +1281,7 @@ class Transport:
                 remember_packet_hash = False
 
             if remember_packet_hash:
-                Transport.packet_hashlist.add(packet.packet_hash)
+                Transport.add_packet_hash(packet.packet_hash)
                 # TODO: Enable when caching has been redesigned
                 # Transport.cache(packet)
             
@@ -1440,7 +1447,7 @@ class Transport:
                             # Add this packet to the filter hashlist if we
                             # have determined that it's actually our turn
                             # to process it.
-                            Transport.packet_hashlist.add(packet.packet_hash)
+                            Transport.add_packet_hash(packet.packet_hash)
 
                             new_raw = packet.raw[0:1]
                             new_raw += struct.pack("!B", packet.hops)
@@ -1954,7 +1961,7 @@ class Transport:
                                     # Add this packet to the filter hashlist if we
                                     # have determined that it's actually destined
                                     # for this system, and then validate the proof
-                                    Transport.packet_hashlist.add(packet.packet_hash)
+                                    Transport.add_packet_hash(packet.packet_hash)
                                     link.validate_proof(packet)
 
                 elif packet.context == RNS.Packet.RESOURCE_PRF:
