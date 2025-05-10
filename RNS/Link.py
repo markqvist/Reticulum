@@ -100,6 +100,8 @@ class Link:
     and will be torn down.
     """
 
+    WATCHDOG_MAX_SLEEP  = 1
+
     PENDING             = 0x00
     HANDSHAKE           = 0x01
     ACTIVE              = 0x02
@@ -808,6 +810,7 @@ class Link:
                     self.teardown()
                     sleep_time = 0.1
 
+                sleep_time = min(sleep_time, Link.WATCHDOG_MAX_SLEEP)
                 sleep(sleep_time)
 
                 if not self.__track_phy_stats:
