@@ -1,3 +1,6 @@
+# import tracemalloc
+# tracemalloc.start()
+
 import unittest
 
 import subprocess
@@ -320,7 +323,31 @@ class TestLink(unittest.TestCase):
 
         t = time.time() - start
         self.assertEqual(resource.status, RNS.Resource.COMPLETE)
-        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+        print("Resource completed at "+self.size_str(resource.total_size/t, "b")+f"ps ({RNS.prettysize(resource.total_size)}, {RNS.prettyshorttime(t)})")
+
+        # Test sending resource with metadata
+        data = os.urandom(resource_size)
+        metadata = {"text": "Some text", "numbers": [1,2,3,4], "blob": os.urandom(32)}
+        print("Sending "+self.size_str(resource_size)+" resource with metadata...")
+        resource = RNS.Resource(data, l1, metadata=metadata, timeout=resource_timeout)
+        start = time.time()
+
+        # This is a hack, don't do it. Use the callbacks instead.
+        while resource.status < RNS.Resource.COMPLETE:
+            time.sleep(0.01)
+
+        t = time.time() - start
+        self.assertEqual(resource.status, RNS.Resource.COMPLETE)
+        print("Resource completed at "+self.size_str(resource.total_size/t, "b")+f"ps ({RNS.prettysize(resource.total_size)}, {RNS.prettyshorttime(t)})")
+
+        # Test sending resource with invalid size metadata
+        data = os.urandom(resource_size)
+        metadata = os.urandom(RNS.Resource.METADATA_MAX_SIZE+1)
+        print("Sending "+self.size_str(resource_size)+" resource with invalid size metadata...")
+        exception_raised = False
+        try: resource = RNS.Resource(data, l1, metadata=metadata, timeout=resource_timeout)
+        except SystemError: exception_raised = True
+        self.assertEqual(exception_raised, True)
 
         l1.teardown()
         time.sleep(0.5)
@@ -349,6 +376,8 @@ class TestLink(unittest.TestCase):
 
         resource_timeout = 120
         resource_size = 256*1000
+
+        # Test sending resource without metadata
         data = os.urandom(resource_size)
         print("Sending "+self.size_str(resource_size)+" resource...")
         resource = RNS.Resource(data, l1, timeout=resource_timeout)
@@ -360,7 +389,22 @@ class TestLink(unittest.TestCase):
 
         t = time.time() - start
         self.assertEqual(resource.status, RNS.Resource.COMPLETE)
-        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+        print("Resource completed at "+self.size_str(resource.total_size/t, "b")+f"ps ({RNS.prettysize(resource.total_size)}, {RNS.prettyshorttime(t)})")
+
+        # Test sending resource with metadata
+        data = os.urandom(resource_size)
+        metadata = {"text": "Some text", "numbers": [1,2,3,4], "blob": os.urandom(8192)}
+        print("Sending "+self.size_str(resource_size)+" resource with metadata...")
+        resource = RNS.Resource(data, l1, metadata=metadata, timeout=resource_timeout)
+        start = time.time()
+
+        # This is a hack, don't do it. Use the callbacks instead.
+        while resource.status < RNS.Resource.COMPLETE:
+            time.sleep(0.01)
+
+        t = time.time() - start
+        self.assertEqual(resource.status, RNS.Resource.COMPLETE)
+        print("Resource completed at "+self.size_str(resource.total_size/t, "b")+f"ps ({RNS.prettysize(resource.total_size)}, {RNS.prettyshorttime(t)})")
 
         l1.teardown()
         time.sleep(0.5)
@@ -399,7 +443,22 @@ class TestLink(unittest.TestCase):
 
         t = time.time() - start
         self.assertEqual(resource.status, RNS.Resource.COMPLETE)
-        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+        print("Resource completed at "+self.size_str(resource.total_size/t, "b")+f"ps ({RNS.prettysize(resource.total_size)}, {RNS.prettyshorttime(t)})")
+
+        # Test sending resource with metadata
+        data = os.urandom(resource_size)
+        metadata = {"text": "Some text", "numbers": [1,2,3,4], "blob": os.urandom(8192)}
+        print("Sending "+self.size_str(resource_size)+" resource with metadata...")
+        resource = RNS.Resource(data, l1, metadata=metadata, timeout=resource_timeout)
+        start = time.time()
+
+        # This is a hack, don't do it. Use the callbacks instead.
+        while resource.status < RNS.Resource.COMPLETE:
+            time.sleep(0.01)
+
+        t = time.time() - start
+        self.assertEqual(resource.status, RNS.Resource.COMPLETE)
+        print("Resource completed at "+self.size_str(resource.total_size/t, "b")+f"ps ({RNS.prettysize(resource.total_size)}, {RNS.prettyshorttime(t)})")
 
         l1.teardown()
         time.sleep(LINK_UP_WAIT)
@@ -443,7 +502,22 @@ class TestLink(unittest.TestCase):
 
         t = time.time() - start
         self.assertEqual(resource.status, RNS.Resource.COMPLETE)
-        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+        print("Resource completed at "+self.size_str(resource.total_size/t, "b")+f"ps ({RNS.prettysize(resource.total_size)}, {RNS.prettyshorttime(t)})")
+
+        # Test sending resource with metadata
+        data = os.urandom(resource_size)
+        metadata = {"text": "Some text", "numbers": [1,2,3,4], "blob": os.urandom(8192)}
+        print("Sending "+self.size_str(resource_size)+" resource with metadata...")
+        resource = RNS.Resource(data, l1, metadata=metadata, timeout=resource_timeout)
+        start = time.time()
+
+        # This is a hack, don't do it. Use the callbacks instead.
+        while resource.status < RNS.Resource.COMPLETE:
+            time.sleep(0.01)
+
+        t = time.time() - start
+        self.assertEqual(resource.status, RNS.Resource.COMPLETE)
+        print("Resource completed at "+self.size_str(resource.total_size/t, "b")+f"ps ({RNS.prettysize(resource.total_size)}, {RNS.prettyshorttime(t)})")
 
         l1.teardown()
         time.sleep(LINK_UP_WAIT)
@@ -490,13 +564,27 @@ class TestLink(unittest.TestCase):
 
         t = time.time() - start
         self.assertEqual(TestLink.large_resource_status, RNS.Resource.COMPLETE)
-        print("Resource completed at "+self.size_str(resource_size/t, "b")+"ps")
+        print("Resource completed at "+self.size_str(resource.total_size/t, "b")+f"ps ({RNS.prettysize(resource.total_size)}, {RNS.prettyshorttime(t)})")
+
+        # Test sending resource with metadata
+        metadata = {"text": "Some text", "numbers": [1,2,3,4], "blob": os.urandom(8192)}
+        print("Sending "+self.size_str(resource_size)+" resource with metadata...")
+        resource = RNS.Resource(data, l1, timeout=resource_timeout, callback=self.lr_callback, auto_compress=False)
+        start = time.time()
+
+        TestLink.large_resource_status = resource.status
+        while TestLink.large_resource_status < RNS.Resource.COMPLETE:
+            time.sleep(0.01)
+
+        t = time.time() - start
+        self.assertEqual(resource.status, RNS.Resource.COMPLETE)
+        print("Resource with metadata completed at "+self.size_str(resource.total_size/t, "b")+f"ps ({RNS.prettysize(resource.total_size)}, {RNS.prettyshorttime(t)})")
 
         l1.teardown()
         time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    #@skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_10_channel_round_trip(self):
         global c_rns
         init_rns(self)
@@ -548,7 +636,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(l1.status, RNS.Link.CLOSED)
         self.assertEqual(0, len(l1._channel._rx_ring))
 
-    # @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None, "Skipping")
     def test_11_buffer_round_trip(self):
         global c_rns
         init_rns(self)
@@ -594,7 +682,7 @@ class TestLink(unittest.TestCase):
         time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
 
-    # @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None and os.getenv('RUN_SLOW_TESTS') == None, "Skipping")
+    @skipIf(os.getenv('SKIP_NORMAL_TESTS') != None and os.getenv('RUN_SLOW_TESTS') == None, "Skipping")
     def test_12_buffer_round_trip_big(self, local_bitrate = None):
         global c_rns, buffer_read_target
         init_rns(self)
