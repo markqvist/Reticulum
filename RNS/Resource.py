@@ -118,7 +118,7 @@ class Resource:
     #
     # Capped at 16777215 (0xFFFFFF) per segment to
     # fit in 3 bytes in resource advertisements.
-    MAX_EFFICIENT_SIZE      = 16 * 1024 * 1024 - 1
+    MAX_EFFICIENT_SIZE      = 1 * 1024 * 1024 - 1
     RESPONSE_MAX_GRACE_TIME = 10
 
     # Max metadata size is 16777215 (0xFFFFFF) bytes
@@ -398,18 +398,19 @@ class Resource:
                 self.data += self.compressed_data
                 
                 self.compressed = True
-                self.uncompressed_data = None
 
             else:
                 self.data  = b""
                 self.data += RNS.Identity.get_random_hash()[:Resource.RANDOM_HASH_SIZE]
                 self.data += self.uncompressed_data
-                self.uncompressed_data = self.data
 
                 self.compressed = False
                 self.compressed_data = None
                 if auto_compress:
                     RNS.log("Compression did not decrease size, sending uncompressed", RNS.LOG_EXTREME)
+
+            self.compressed_data = None
+            self.uncompressed_data = None
 
             # Resources handle encryption directly to
             # make optimal use of packet MTU on an entire
@@ -463,7 +464,8 @@ class Resource:
                         self.parts.append(part)
 
                 RNS.log("Hashmap computation concluded in "+str(round(time.time()-hashmap_computation_began, 3))+" seconds", RNS.LOG_EXTREME)
-                
+
+            self.data = None
             if advertise:
                 self.advertise()
         else:
@@ -548,8 +550,7 @@ class Resource:
         if self.link: self.link.expected_rate = self.eifr
 
     def watchdog_job(self):
-        thread = threading.Thread(target=self.__watchdog_job)
-        thread.daemon = True
+        thread = threading.Thread(target=self.__watchdog_job, daemon=True)
         thread.start()
 
     def __watchdog_job(self):
@@ -685,6 +686,8 @@ class Resource:
                         metadata_file.close()
                         del packed_metadata
                         data = self.data[3+metadata_size:]
+                    else:
+                        data = self.data
 
                     self.file = open(self.storagepath, "ab")
                     self.file.write(data)
@@ -790,6 +793,15 @@ class Resource:
                             self.__prepare_next_segment()
 
                         while self.next_segment == None: time.sleep(0.05)
+
+                        self.data = None
+                        self.metadata = None
+                        self.parts = None
+                        self.input_file = None
+                        self.link = None
+                        self.req_hashlist = None
+                        self.hashmap = None
+
                         self.next_segment.advertise()
                 else:
                     pass
