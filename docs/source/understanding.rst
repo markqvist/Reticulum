@@ -453,7 +453,7 @@ For exchanges of small amounts of information, Reticulum offers the *Packet* API
     public signing key.
 
 * | In case the packet is addressed to a *group* destination type, the packet will be encrypted with the
-    pre-shared AES-128 key associated with the destination. In case the packet is addressed to a *plain*
+    pre-shared AES-256 key associated with the destination. In case the packet is addressed to a *plain*
     destination type, the payload data will not be encrypted. Neither of these two destination types can offer
     forward secrecy. In general, it is recommended to always use the *single* destination type, unless it is
     strictly necessary to use one of the others.
@@ -880,7 +880,7 @@ intentionally compromised or weakened clone. The utilised primitives are:
 
   * Ephemeral keys derived from an ECDH key exchange on Curve25519
 
-  * AES-128 or AES-256 in CBC mode with PKCS7 padding
+  * AES-256 in CBC mode with PKCS7 padding
 
   * HMAC using SHA256 for message authentication
 
@@ -892,7 +892,7 @@ intentionally compromised or weakened clone. The utilised primitives are:
 
 * SHA-512
 
-In the default installation configuration, the ``X25519``, ``Ed25519``, ``AES-128-CBC`` and ``AES-256-CBC``
+In the default installation configuration, the ``X25519``, ``Ed25519`` and ``AES-256-CBC``
 primitives are provided by `OpenSSL <https://www.openssl.org/>`_ (via the `PyCA/cryptography <https://github.com/pyca/cryptography>`_
 package). The hashing functions ``SHA-256`` and ``SHA-512`` are provided by the standard
 Python `hashlib <https://docs.python.org/3/library/hashlib.html>`_. The ``HKDF``, ``HMAC``,

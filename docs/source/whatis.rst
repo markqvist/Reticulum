@@ -68,7 +68,7 @@ What does Reticulum Offer?
 
   * Ephemeral per-packet and link keys and derived from an ECDH key exchange on Curve25519
 
-  * AES-128 or AES-256 in CBC mode with PKCS7 padding
+  * AES-256 in CBC mode with PKCS7 padding
 
   * HMAC using SHA256 for authentication
 

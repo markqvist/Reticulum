@@ -43,10 +43,10 @@ class Packet:
 
     For ``RNS.Destination.GROUP`` destinations, Reticulum will use the
     pre-shared key configured for the destination. All packets to group
-    destinations are encrypted with the same AES-128 key.
+    destinations are encrypted with the same AES-256 key.
 
     For ``RNS.Destination.SINGLE`` destinations, Reticulum will use a newly
-    derived ephemeral AES-128 key for every packet.
+    derived ephemeral AES-256 key for every packet.
 
     For :ref:`RNS.Link<api-link>` destinations, Reticulum will use per-link
     ephemeral keys, and offers **Forward Secrecy**.
