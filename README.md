@@ -62,7 +62,7 @@ For more info, see [reticulum.network](https://reticulum.network/) and [the FAQ 
   - Easily create your own custom interfaces for communicating over anything
 - Authentication and virtual network segmentation on all supported interface types
 - An intuitive and easy-to-use API
-  - Simpler and easier to use than sockets APIs and simpler, but more powerful
+  - Simpler and easier to use than sockets APIs, but more powerful
   - Makes building distributed and decentralised applications much simpler
 - Reliable and efficient transfer of arbitrary amounts of data
   - Reticulum can handle a few bytes of data or files of many gigabytes
