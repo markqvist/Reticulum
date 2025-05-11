@@ -14,18 +14,6 @@ This document outlines the currently established development roadmap for Reticul
 ## Currently Active Work Areas
 For each release cycle of Reticulum, improvements and additions from the five [Primary Efforts](#primary-efforts) are selected as active work areas, and can be expected to be included in the upcoming releases within that cycle. While not entirely set in stone for each release cycle, they serve as a pointer of what to expect in the near future.
 
-- The current `0.8.x` release cycle aims at completing
-  - [ ] Hot-pluggable interface system
-  - [ ] External interface plugins
-  - [ ] Network-wide path balancing and multi-pathing
-  - [ ] Expanded hardware support
-  - [ ] Overhauling and updating the documentation
-  - [ ] Distributed Destination Naming System
-  - [ ] A standalone RNS Daemon app for Android
-  - [ ] Addding automatic retries to all use cases of the `Request` API
-  - [ ] Performance and memory optimisations of the Python reference implementation
-  - [ ] Fixing bugs discovered while operating Reticulum systems and applications
-
 ## Primary Efforts
 The development path for Reticulum is currently laid out in five distinct areas: *Comprehensibility*, *Universality*, *Functionality*, *Usability & Utility* and *Interfaceability*. Conceptualising the development of Reticulum into these areas serves to advance the implementation and work towards the Foundational Goals & Values of Reticulum.
 
@@ -50,17 +38,14 @@ These efforts are aimed at improving the ease of which Reticulum is understood, 
 ### Universality
 These efforts seek to broaden the universality of the Reticulum software and hardware ecosystem by continously diversifying platform support, and by improving the overall availability and ease of deployment of the Reticulum stack.
 
-- OpenWRT support
 - Create a standalone RNS Daemon app for Android
 - A lightweight and portable C implementation for microcontrollers, µRNS
 - A portable, high-performance Reticulum implementation in C/C++, see [#21](https://github.com/markqvist/Reticulum/discussions/21)
-- Performance and memory optimisations of the Python implementation
 - Bindings for other programming languages
 
 ### Functionality
 These efforts aim to expand and improve the core functionality and reliability of Reticulum.
 
-- Add support for user-supplied external interface drivers
 - Add interface hot-plug and live up/down control to running instances
 - Add automatic retries to all use cases of the `Request` API
 - Network-wide path balancing
@@ -70,11 +55,11 @@ These efforts aim to expand and improve the core functionality and reliability o
 - [Metric-based path selection and multiple paths](https://github.com/markqvist/Reticulum/discussions/86)
 
 ### Usability & Utility
-These effors seek to make Reticulum easier to use and operate, and to expand the utility of the stack on deployed systems.
+These efforts seek to make Reticulum easier to use and operate, and to expand the utility of the stack on deployed systems.
 
 - Easy way to share interface configurations, see [#19](https://github.com/markqvist/Reticulum/discussions/19)
-- Transit traffic display in rnstatus
-- rnsconfig utility
+- Transit traffic display in `rnstatus`
+- `rnsconfig` utility
 
 ### Interfaceability
 These efforts aim to expand the types of physical and virtual interfaces that Reticulum can natively use to transport data.
