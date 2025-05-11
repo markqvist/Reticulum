@@ -108,11 +108,6 @@ class Resource:
     # it is to be handled within reasonable
     # time constraint, even on small systems.
     #
-    # A small system in this regard is
-    # defined as a Raspberry Pi, which should
-    # be able to compress, encrypt and hash-map
-    # the resource in about 10 seconds.
-    #
     # This constant will be used when determining
     # how to sequence the sending of large resources.
     #
