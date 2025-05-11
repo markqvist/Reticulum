@@ -126,7 +126,7 @@ class Resource:
     
     # The maximum size to auto-compress with
     # bz2 before sending.
-    AUTO_COMPRESS_MAX_SIZE = MAX_EFFICIENT_SIZE
+    AUTO_COMPRESS_MAX_SIZE = 64 * 1024 * 1024
 
     PART_TIMEOUT_FACTOR           = 4
     PART_TIMEOUT_FACTOR_AFTER_RTT = 2
@@ -271,6 +271,7 @@ class Resource:
                 self.has_metadata = True
         else:
             self.metadata = b""
+            if sent_metadata_size > 0: self.has_metadata = True
 
         if data != None:
             if not hasattr(data, "read") and self.metadata_size + len(data) > Resource.MAX_EFFICIENT_SIZE:
@@ -363,7 +364,16 @@ class Resource:
         self.request_id = request_id
         self.started_transferring = None
         self.is_response = is_response
-        self.auto_compress = auto_compress
+        self.auto_compress_limit = Resource.AUTO_COMPRESS_MAX_SIZE
+        self.auto_compress_option = auto_compress
+
+        if type(auto_compress) == bool:
+            self.auto_compress = auto_compress
+        elif type(auto_compress) == int:
+            self.auto_compress = True
+            self.auto_compress_limit = auto_compress
+        else:
+            raise TypeError(f"Invalid type {type(auto_compress)} for auto_compress option")
 
         self.req_hashlist = []
         self.receiver_min_consecutive_height = 0
@@ -379,7 +389,7 @@ class Resource:
             self.uncompressed_data = data
 
             compression_began = time.time()
-            if (auto_compress and len(self.uncompressed_data) <= Resource.AUTO_COMPRESS_MAX_SIZE):
+            if self.auto_compress and data_size <= self.auto_compress_limit:
                 RNS.log("Compressing resource data...", RNS.LOG_EXTREME)
                 self.compressed_data   = bz2.compress(self.uncompressed_data)
                 RNS.log("Compression completed in "+str(round(time.time()-compression_began, 3))+" seconds", RNS.LOG_EXTREME)
@@ -406,7 +416,7 @@ class Resource:
 
                 self.compressed = False
                 self.compressed_data = None
-                if auto_compress:
+                if self.auto_compress and data_size <= self.auto_compress_limit:
                     RNS.log("Compression did not decrease size, sending uncompressed", RNS.LOG_EXTREME)
 
             self.compressed_data = None
@@ -759,7 +769,7 @@ class Resource:
             request_id = self.request_id,
             is_response = self.is_response,
             advertise = False,
-            auto_compress = self.auto_compress,
+            auto_compress = self.auto_compress_option,
             sent_metadata_size = self.metadata_size,
         )
 
