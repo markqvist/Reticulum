@@ -40,6 +40,7 @@ import struct
 import math
 import time
 import RNS
+import io
 
 class LinkCallbacks:
     def __init__(self):
@@ -194,7 +195,7 @@ class Link:
 
                 link.mode = Link.mode_from_lr_packet(packet)
                 
-                # TODO: Remove
+                # TODO: Remove debug
                 RNS.log(f"Incoming link request with mode {Link.MODE_DESCRIPTIONS[link.mode]}", RNS.LOG_DEBUG)
 
                 link.update_mdu()
@@ -851,6 +852,7 @@ class Link:
                 response_generator = request_handler[1]
                 allow              = request_handler[2]
                 allowed_list       = request_handler[3]
+                auto_compress      = request_handler[4]
 
                 allowed = False
                 if not allow == RNS.Destination.ALLOW_NONE:
@@ -869,18 +871,29 @@ class Link:
                     else:
                         raise TypeError("Invalid signature for response generator callback")
 
-                    if response != None:
-                        packed_response = umsgpack.packb([request_id, response])
+                    file_response = False
+                    file_handle   = None
+                    if type(response) == list or type(response) == tuple:
+                        metadata = None
+                        if len(response) > 0 and type(response[0]) == io.BufferedReader:
+                            if len(response) > 1: metadata = response[1]
+                            file_handle = response[0]
+                            file_response = True
 
-                        if len(packed_response) <= self.mdu:
-                            RNS.Packet(self, packed_response, RNS.Packet.DATA, context = RNS.Packet.RESPONSE).send()
+                    if response != None:
+                        if file_response:
+                            response_resource = RNS.Resource(file_handle, self, metadata=metadata, request_id = request_id, is_response = True, auto_compress=auto_compress)
                         else:
-                            response_resource = RNS.Resource(packed_response, self, request_id = request_id, is_response = True)
+                            packed_response = umsgpack.packb([request_id, response])
+                            if len(packed_response) <= self.mdu:
+                                RNS.Packet(self, packed_response, RNS.Packet.DATA, context = RNS.Packet.RESPONSE).send()
+                            else:
+                                response_resource = RNS.Resource(packed_response, self, request_id = request_id, is_response = True, auto_compress=auto_compress)
                 else:
                     identity_string = str(self.get_remote_identity()) if self.get_remote_identity() != None else "<Unknown>"
                     RNS.log("Request "+RNS.prettyhexrep(request_id)+" from "+identity_string+" not allowed for: "+str(path), RNS.LOG_DEBUG)
 
-    def handle_response(self, request_id, response_data, response_size, response_transfer_size):
+    def handle_response(self, request_id, response_data, response_size, response_transfer_size, metadata=None):
         if self.status == Link.ACTIVE:
             remove = None
             for pending_request in self.pending_requests:
@@ -891,7 +904,7 @@ class Link:
                         if pending_request.response_transfer_size == None:
                             pending_request.response_transfer_size = 0
                         pending_request.response_transfer_size += response_transfer_size
-                        pending_request.response_received(response_data)
+                        pending_request.response_received(response_data, metadata)
                     except Exception as e:
                         RNS.log("Error occurred while handling response. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
@@ -914,12 +927,21 @@ class Link:
 
     def response_resource_concluded(self, resource):
         if resource.status == RNS.Resource.COMPLETE:
-            packed_response   = resource.data.read()
-            unpacked_response = umsgpack.unpackb(packed_response)
-            request_id        = unpacked_response[0]
-            response_data     = unpacked_response[1]
+            # If the response resource has metadata, this
+            # is a file response, and we'll pass the open
+            # file handle directly.
+            if resource.has_metadata:
+                self.handle_response(resource.request_id, resource.data, resource.total_size, resource.size, metadata=resource.metadata)
 
-            self.handle_response(request_id, response_data, resource.total_size, resource.size)
+            # If not, we'll unpack the response data and
+            # pass the unpacked structure to the handler
+            else:
+                packed_response   = resource.data.read()
+                unpacked_response = umsgpack.unpackb(packed_response)
+                request_id        = unpacked_response[0]
+                response_data     = unpacked_response[1]
+                self.handle_response(request_id, response_data, resource.total_size, resource.size)
+
         else:
             RNS.log("Incoming response resource failed with status: "+RNS.hexrep([resource.status]), RNS.LOG_DEBUG)
             for pending_request in self.pending_requests:
@@ -1343,6 +1365,7 @@ class RequestReceipt():
         self.response               = None
         self.response_transfer_size = None
         self.response_size          = None
+        self.metadata               = None
         self.status                 = RequestReceipt.SENT
         self.sent_at                = time.time()
         self.progress               = 0
@@ -1429,10 +1452,11 @@ class RequestReceipt():
                 resource.cancel()
 
     
-    def response_received(self, response):
+    def response_received(self, response, metadata=None):
         if not self.status == RequestReceipt.FAILED:
             self.progress = 1.0
             self.response = response
+            self.metadata = metadata
             self.status = RequestReceipt.READY
             self.response_concluded_at = time.time()
 

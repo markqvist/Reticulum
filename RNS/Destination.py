@@ -377,7 +377,7 @@ class Destination:
         else:
             self.proof_strategy = proof_strategy
 
-    def register_request_handler(self, path, response_generator = None, allow = ALLOW_NONE, allowed_list = None):
+    def register_request_handler(self, path, response_generator = None, allow = ALLOW_NONE, allowed_list = None, auto_compress = True):
         """
         Registers a request handler.
 
@@ -385,17 +385,15 @@ class Destination:
         :param response_generator: A function or method with the signature *response_generator(path, data, request_id, link_id, remote_identity, requested_at)* to be called. Whatever this funcion returns will be sent as a response to the requester. If the function returns ``None``, no response will be sent.
         :param allow: One of ``RNS.Destination.ALLOW_NONE``, ``RNS.Destination.ALLOW_ALL`` or ``RNS.Destination.ALLOW_LIST``. If ``RNS.Destination.ALLOW_LIST`` is set, the request handler will only respond to requests for identified peers in the supplied list.
         :param allowed_list: A list of *bytes-like* :ref:`RNS.Identity<api-identity>` hashes.
+        :param auto_compress: If ``True`` or ``False``, determines whether automatic compression of responses should be carried out. If set to an integer value, responses will only be auto-compressed if under this size in bytes. If omitted, the default compression settings will be followed.
         :raises: ``ValueError`` if any of the supplied arguments are invalid.
         """
-        if path == None or path == "":
-            raise ValueError("Invalid path specified")
-        elif not callable(response_generator):
-            raise ValueError("Invalid response generator specified")
-        elif not allow in Destination.request_policies:
-            raise ValueError("Invalid request policy")
+        if path == None or path == "": raise ValueError("Invalid path specified")
+        elif not callable(response_generator): raise ValueError("Invalid response generator specified")
+        elif not allow in Destination.request_policies: raise ValueError("Invalid request policy")
         else:
             path_hash = RNS.Identity.truncated_hash(path.encode("utf-8"))
-            request_handler = [path, response_generator, allow, allowed_list]
+            request_handler = [path, response_generator, allow, allowed_list, auto_compress]
             self.request_handlers[path_hash] = request_handler
 
     def deregister_request_handler(self, path):
@@ -491,7 +489,6 @@ class Destination:
             self.latest_ratchet_time = 0
             self._reload_ratchets(ratchets_path)
 
-            # TODO: Remove at some point
             RNS.log("Ratchets enabled on "+str(self), RNS.LOG_DEBUG)
             return True
 
