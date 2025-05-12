@@ -673,7 +673,7 @@ public signing key.</div>
 </li>
 <li><div class="line-block">
 <div class="line">In case the packet is addressed to a <em>group</em> destination type, the packet will be encrypted with the
-pre-shared AES-128 key associated with the destination. In case the packet is addressed to a <em>plain</em>
+pre-shared AES-256 key associated with the destination. In case the packet is addressed to a <em>plain</em>
 destination type, the payload data will not be encrypted. Neither of these two destination types can offer
 forward secrecy. In general, it is recommended to always use the <em>single</em> destination type, unless it is
 strictly necessary to use one of the others.</div>
@@ -1078,7 +1078,7 @@ intentionally compromised or weakened clone. The utilised primitives are:</p>
 <li><p>Encrypted tokens are based on the Fernet spec</p>
 <ul>
 <li><p>Ephemeral keys derived from an ECDH key exchange on Curve25519</p></li>
-<li><p>AES-128 or AES-256 in CBC mode with PKCS7 padding</p></li>
+<li><p>AES-256 in CBC mode with PKCS7 padding</p></li>
 <li><p>HMAC using SHA256 for message authentication</p></li>
 <li><p>IVs must be generated through <code class="docutils literal notranslate"><span class="pre">os.urandom()</span></code> or better</p></li>
 <li><p>No Fernet version and timestamp metadata fields</p></li>
@@ -1087,7 +1087,7 @@ intentionally compromised or weakened clone. The utilised primitives are:</p>
 <li><p>SHA-256</p></li>
 <li><p>SHA-512</p></li>
 </ul>
-<p>In the default installation configuration, the <code class="docutils literal notranslate"><span class="pre">X25519</span></code>, <code class="docutils literal notranslate"><span class="pre">Ed25519</span></code>, <code class="docutils literal notranslate"><span class="pre">AES-128-CBC</span></code> and <code class="docutils literal notranslate"><span class="pre">AES-256-CBC</span></code>
+<p>In the default installation configuration, the <code class="docutils literal notranslate"><span class="pre">X25519</span></code>, <code class="docutils literal notranslate"><span class="pre">Ed25519</span></code> and <code class="docutils literal notranslate"><span class="pre">AES-256-CBC</span></code>
 primitives are provided by <a class="reference external" href="https://www.openssl.org/">OpenSSL</a> (via the <a class="reference external" href="https://github.com/pyca/cryptography">PyCA/cryptography</a>
 package). The hashing functions <code class="docutils literal notranslate"><span class="pre">SHA-256</span></code> and <code class="docutils literal notranslate"><span class="pre">SHA-512</span></code> are provided by the standard
 Python <a class="reference external" href="https://docs.python.org/3/library/hashlib.html">hashlib</a>. The <code class="docutils literal notranslate"><span class="pre">HKDF</span></code>, <code class="docutils literal notranslate"><span class="pre">HMAC</span></code>,

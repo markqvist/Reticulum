@@ -817,7 +817,7 @@ proofs should be returned for received packets.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Destination.register_request_handler">
-<span class="sig-name descname"><span class="pre">register_request_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ALLOW_NONE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowed_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.register_request_handler" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">register_request_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ALLOW_NONE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowed_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.register_request_handler" title="Permalink to this definition">#</a></dt>
 <dd><p>Registers a request handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -826,6 +826,7 @@ proofs should be returned for received packets.</p>
 <li><p><strong>response_generator</strong> – A function or method with the signature <em>response_generator(path, data, request_id, link_id, remote_identity, requested_at)</em> to be called. Whatever this funcion returns will be sent as a response to the requester. If the function returns <code class="docutils literal notranslate"><span class="pre">None</span></code>, no response will be sent.</p></li>
 <li><p><strong>allow</strong> – One of <code class="docutils literal notranslate"><span class="pre">RNS.Destination.ALLOW_NONE</span></code>, <code class="docutils literal notranslate"><span class="pre">RNS.Destination.ALLOW_ALL</span></code> or <code class="docutils literal notranslate"><span class="pre">RNS.Destination.ALLOW_LIST</span></code>. If <code class="docutils literal notranslate"><span class="pre">RNS.Destination.ALLOW_LIST</span></code> is set, the request handler will only respond to requests for identified peers in the supplied list.</p></li>
 <li><p><strong>allowed_list</strong> – A list of <em>bytes-like</em> <a class="reference internal" href="#api-identity"><span class="std std-ref">RNS.Identity</span></a> hashes.</p></li>
+<li><p><strong>auto_compress</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>, determines whether automatic compression of responses should be carried out. If set to an integer value, responses will only be auto-compressed if under this size in bytes. If omitted, the default compression settings will be followed.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -1015,9 +1016,9 @@ they are addressed to a <code class="docutils literal notranslate"><span class="
 <code class="docutils literal notranslate"><span class="pre">RNS.Destination.GROUP</span></code> destination or a <a class="reference internal" href="#api-link"><span class="std std-ref">RNS.Link</span></a>.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">RNS.Destination.GROUP</span></code> destinations, Reticulum will use the
 pre-shared key configured for the destination. All packets to group
-destinations are encrypted with the same AES-128 key.</p>
+destinations are encrypted with the same AES-256 key.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">RNS.Destination.SINGLE</span></code> destinations, Reticulum will use a newly
-derived ephemeral AES-128 key for every packet.</p>
+derived ephemeral AES-256 key for every packet.</p>
 <p>For <a class="reference internal" href="#api-link"><span class="std std-ref">RNS.Link</span></a> destinations, Reticulum will use per-link
 ephemeral keys, and offers <strong>Forward Secrecy</strong>.</p>
 <dl class="field-list simple">
