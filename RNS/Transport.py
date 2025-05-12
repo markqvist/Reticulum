@@ -1089,10 +1089,8 @@ class Transport:
 
     @staticmethod
     def packet_filter(packet):
-        # TODO: Think long and hard about this.
-        # Is it even strictly necessary with the current
-        # transport rules?
-
+        # If connected to a shared instance, it will handle
+        # packet filtering
         if Transport.owner.is_connected_to_shared_instance: return True
 
         # Filter packets intended for other transport instances
@@ -2779,7 +2777,6 @@ class Transport:
         Transport.reverse_table     = {}
         Transport.link_table        = {}
         Transport.held_announces    = {}
-        Transport.announce_handlers = []
         Transport.tunnels           = {}
 
     @staticmethod
