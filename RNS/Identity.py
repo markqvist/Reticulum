@@ -87,6 +87,7 @@ class Identity:
     """
 
     DERIVED_KEY_LENGTH        = 512//8
+    DERIVED_KEY_LENGTH_LEGACY = 256//8
 
     # Storage
     known_destinations = {}
@@ -720,10 +721,8 @@ class Identity:
             token = Token(derived_key)
             plaintext = token.decrypt(ciphertext)
 
-        # TODO: Remove after migration
-        # If decryption fails, try legacy decryption mode
         except Exception as e:
-            RNS.log("Decryption failed, attempting legacy mode fallback", RNS.LOG_DEBUG)
+            # RNS.log("Decryption failed, attempting legacy mode fallback", RNS.LOG_DEBUG)
             derived_key = RNS.Cryptography.hkdf(
                 length=Identity.DERIVED_KEY_LENGTH_LEGACY,
                 derive_from=shared_key,
