@@ -226,7 +226,6 @@ class Link:
             return None
 
 
-    # TODO: Set default link mode to AES_256_CBC after migration
     def __init__(self, destination=None, established_callback=None, closed_callback=None, owner=None, peer_pub_bytes=None, peer_sig_pub_bytes=None, mode=MODE_DEFAULT):
         if destination != None and destination.type != RNS.Destination.SINGLE: raise TypeError("Links can only be established to the \"single\" destination type")
         self.mode = mode
