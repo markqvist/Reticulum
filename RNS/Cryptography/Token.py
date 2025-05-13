@@ -37,9 +37,6 @@ from RNS.Cryptography import AES
 from RNS.Cryptography.AES import AES_128_CBC
 from RNS.Cryptography.AES import AES_256_CBC
 
-# TODO: Remove after migration
-import RNS
-
 class Token():
     """
     This class provides a slightly modified implementation of the Fernet spec
@@ -53,7 +50,7 @@ class Token():
     TOKEN_OVERHEAD  = 48 # Bytes
 
     @staticmethod
-    def generate_key(mode=AES_128_CBC):
+    def generate_key(mode=AES_256_CBC):
         if   mode == AES_128_CBC: return os.urandom(32)
         elif mode == AES_256_CBC: return os.urandom(64)
         else: raise TypeError(f"Invalid token mode: {mode}")
@@ -91,14 +88,12 @@ class Token():
         if not isinstance(data, bytes): raise TypeError("Token plaintext input must be bytes")
         iv = os.urandom(16)
 
-        # RNS.log(f"Encrypting with {self.mode}") # TODO: Remove
         ciphertext = self.mode.encrypt(
             plaintext = PKCS7.pad(data),
             key = self._encryption_key,
             iv = iv)
 
         signed_parts = iv+ciphertext
-
         return signed_parts + HMAC.new(self._signing_key, signed_parts).digest()
 
 
@@ -110,15 +105,10 @@ class Token():
         ciphertext = token[16:-32]
 
         try:
-            plaintext = PKCS7.unpad(
+            return PKCS7.unpad(
                 self.mode.decrypt(
                     ciphertext = ciphertext,
                     key = self._encryption_key,
                     iv = iv))
 
-            # RNS.log(f"Decrypted packet with {self.mode}") # TODO: Remove
-            return plaintext
-
-        except Exception as e:
-            RNS.trace_exception(e) # TODO: Remove after migration
-            raise ValueError("Could not decrypt token")
+        except Exception as e: raise ValueError(f"Could not decrypt token: {e}")
