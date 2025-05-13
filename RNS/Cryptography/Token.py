@@ -103,7 +103,6 @@ class Token():
 
 
     def decrypt(self, token = None):
-        # RNS.log(f"Trying decryption with {self.mode}") # TODO: Remove
         if not isinstance(token, bytes): raise TypeError("Token must be bytes")
         if not self.verify_hmac(token): raise ValueError("Token HMAC was invalid")
 

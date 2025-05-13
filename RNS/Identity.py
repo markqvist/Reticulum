@@ -87,7 +87,6 @@ class Identity:
     """
 
     DERIVED_KEY_LENGTH        = 512//8
-    DERIVED_KEY_LENGTH_LEGACY = 256//8
 
     # Storage
     known_destinations = {}
@@ -679,20 +678,8 @@ class Identity:
 
             shared_key = ephemeral_key.exchange(target_public_key)
             
-            # TODO: Reset after migration
-            # derived_key = RNS.Cryptography.hkdf(
-            #     length=Identity.DERIVED_KEY_LENGTH,
-            #     derive_from=shared_key,
-            #     salt=self.get_salt(),
-            #     context=self.get_context(),
-            # )
-
-            # Use legacy derived key length (AES-128) during migration by
-            # default. This allows AES-256 capable instances on RNS 0.9.5
-            # to still communicate with older versions. This migration
-            # handling will be removed in RNS 0.9.6.
             derived_key = RNS.Cryptography.hkdf(
-                length=Identity.DERIVED_KEY_LENGTH_LEGACY,
+                length=Identity.DERIVED_KEY_LENGTH,
                 derive_from=shared_key,
                 salt=self.get_salt(),
                 context=self.get_context(),
@@ -706,6 +693,16 @@ class Identity:
         else:
             raise KeyError("Encryption failed because identity does not hold a public key")
 
+    def __decrypt(self, shared_key, ciphertext):
+        derived_key = RNS.Cryptography.hkdf(
+            length=Identity.DERIVED_KEY_LENGTH,
+            derive_from=shared_key,
+            salt=self.get_salt(),
+            context=self.get_context())
+
+        token = Token(derived_key)
+        plaintext = token.decrypt(ciphertext)
+        return plaintext
 
     def decrypt(self, ciphertext_token, ratchets=None, enforce_ratchets=False, ratchet_id_receiver=None):
         """
@@ -715,36 +712,6 @@ class Identity:
         :returns: Plaintext as *bytes*, or *None* if decryption fails.
         :raises: *KeyError* if the instance does not hold a private key.
         """
-
-        # This handles decryption during migration to AES-256 where
-        # older instances may still use AES-128. If decryption fails
-        # initially, AES-128 will be attempted as a fallback mode.
-        # This handler will be removed in RNS 0.9.6.
-        def migration_decrypt(shared_key, ciphertext):
-            try:
-                derived_key = RNS.Cryptography.hkdf(
-                    length=Identity.DERIVED_KEY_LENGTH,
-                    derive_from=shared_key,
-                    salt=self.get_salt(),
-                    context=self.get_context())
-
-                token = Token(derived_key)
-                plaintext = token.decrypt(ciphertext)
-
-            # TODO: Remove after migration
-            # If decryption fails, try legacy decryption mode
-            except Exception as e:
-                RNS.log("Decryption failed, attempting legacy mode fallback", RNS.LOG_DEBUG)
-                derived_key = RNS.Cryptography.hkdf(
-                    length=Identity.DERIVED_KEY_LENGTH_LEGACY,
-                    derive_from=shared_key,
-                    salt=self.get_salt(),
-                    context=self.get_context())
-
-                token = Token(derived_key)
-                plaintext = token.decrypt(ciphertext)
-
-            return plaintext
 
         if self.prv != None:
             if len(ciphertext_token) > Identity.KEYSIZE//8//2:
@@ -760,8 +727,7 @@ class Identity:
                                 ratchet_prv = X25519PrivateKey.from_private_bytes(ratchet)
                                 ratchet_id = Identity._get_ratchet_id(ratchet_prv.public_key().public_bytes())
                                 shared_key = ratchet_prv.exchange(peer_pub)
-                                plaintext = migration_decrypt(shared_key, ciphertext)
-
+                                plaintext = self.__decrypt(shared_key, ciphertext)
                                 if ratchet_id_receiver:
                                     ratchet_id_receiver.latest_ratchet_id = ratchet_id
                                 
@@ -778,7 +744,7 @@ class Identity:
 
                     if plaintext == None:
                         shared_key = self.prv.exchange(peer_pub)
-                        plaintext = migration_decrypt(shared_key, ciphertext)
+                        plaintext = self.__decrypt(shared_key, ciphertext)
 
                         if ratchet_id_receiver:
                             ratchet_id_receiver.latest_ratchet_id = None
@@ -788,7 +754,8 @@ class Identity:
                     if ratchet_id_receiver:
                         ratchet_id_receiver.latest_ratchet_id = None
                     
-                return plaintext;
+                return plaintext
+            
             else:
                 RNS.log("Decryption failed because the token size was invalid.", RNS.LOG_DEBUG)
                 return None
