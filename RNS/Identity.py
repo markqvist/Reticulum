@@ -693,6 +693,7 @@ class Identity:
         else:
             raise KeyError("Encryption failed because identity does not hold a public key")
 
+    # Post 0.9.6 decryption will only accept AES-256
     def __decrypt(self, shared_key, ciphertext):
         derived_key = RNS.Cryptography.hkdf(
             length=Identity.DERIVED_KEY_LENGTH,
@@ -702,6 +703,36 @@ class Identity:
 
         token = Token(derived_key)
         plaintext = token.decrypt(ciphertext)
+        return plaintext
+
+    # This handles decryption during migration to AES-256 where
+    # older instances may still use AES-128. If decryption fails
+    # initially, AES-128 will be attempted as a fallback mode.
+    # This handler will be removed in RNS 0.9.6.
+    def __migration_decrypt(self, shared_key, ciphertext):
+        try:
+            derived_key = RNS.Cryptography.hkdf(
+                length=Identity.DERIVED_KEY_LENGTH,
+                derive_from=shared_key,
+                salt=self.get_salt(),
+                context=self.get_context())
+
+            token = Token(derived_key)
+            plaintext = token.decrypt(ciphertext)
+
+        # TODO: Remove after migration
+        # If decryption fails, try legacy decryption mode
+        except Exception as e:
+            RNS.log("Decryption failed, attempting legacy mode fallback", RNS.LOG_DEBUG)
+            derived_key = RNS.Cryptography.hkdf(
+                length=Identity.DERIVED_KEY_LENGTH_LEGACY,
+                derive_from=shared_key,
+                salt=self.get_salt(),
+                context=self.get_context())
+
+            token = Token(derived_key)
+            plaintext = token.decrypt(ciphertext)
+
         return plaintext
 
     def decrypt(self, ciphertext_token, ratchets=None, enforce_ratchets=False, ratchet_id_receiver=None):
@@ -727,7 +758,7 @@ class Identity:
                                 ratchet_prv = X25519PrivateKey.from_private_bytes(ratchet)
                                 ratchet_id = Identity._get_ratchet_id(ratchet_prv.public_key().public_bytes())
                                 shared_key = ratchet_prv.exchange(peer_pub)
-                                plaintext = self.__decrypt(shared_key, ciphertext)
+                                plaintext = self.__migration_decrypt(shared_key, ciphertext)
                                 if ratchet_id_receiver:
                                     ratchet_id_receiver.latest_ratchet_id = ratchet_id
                                 
@@ -744,7 +775,7 @@ class Identity:
 
                     if plaintext == None:
                         shared_key = self.prv.exchange(peer_pub)
-                        plaintext = self.__decrypt(shared_key, ciphertext)
+                        plaintext = self.__migration_decrypt(shared_key, ciphertext)
 
                         if ratchet_id_receiver:
                             ratchet_id_receiver.latest_ratchet_id = None
