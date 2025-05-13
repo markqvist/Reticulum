@@ -642,7 +642,7 @@ class Destination:
                         RNS.log(f"Decryption still failing after ratchet reload. The contained exception was: {e}", RNS.LOG_ERROR)
                         raise e
 
-                    RNS.log("Decryption succeeded after ratchet reload", RNS.LOG_NOTICE)
+                    if decrypted: RNS.log("Decryption succeeded after ratchet reload", RNS.LOG_NOTICE)
 
                 return decrypted
 
