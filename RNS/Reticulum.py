@@ -211,7 +211,8 @@ class Reticulum:
         """
         return Reticulum.__instance
 
-    def __init__(self,configdir=None, loglevel=None, logdest=None, verbosity=None, require_shared_instance=False):
+    def __init__(self,configdir=None, loglevel=None, logdest=None, verbosity=None,
+                 require_shared_instance=False, shared_instance_type=None):
         """
         Initialises and starts a Reticulum instance. This must be
         done before any other operations, and Reticulum will not
@@ -263,12 +264,11 @@ class Reticulum:
         self.local_control_port   = 37429
         self.local_socket_path    = None
         self.share_instance       = True
+        self.shared_instance_type = shared_instance_type
         self.rpc_listener         = None
         self.rpc_key              = None
         self.rpc_type             = "AF_INET"
-
-        if RNS.vendor.platformutils.use_af_unix():
-            self.local_socket_path = "default"
+        self.use_af_unix          = False
 
         self.ifac_salt = Reticulum.IFAC_SALT
 
@@ -325,12 +325,11 @@ class Reticulum:
         self.__apply_config()
         RNS.log(f"Utilising cryptography backend \"{RNS.Cryptography.Provider.backend()}\"", RNS.LOG_DEBUG)
         RNS.log(f"Configuration loaded from {self.configpath}", RNS.LOG_VERBOSE)
-        
-        RNS.Identity.load_known_destinations()
 
+        RNS.Identity.load_known_destinations()
         RNS.Transport.start(self)
 
-        if RNS.vendor.platformutils.use_af_unix():
+        if self.use_af_unix:
             self.rpc_addr = f"\0rns/{self.local_socket_path}/rpc"
             self.rpc_type = "AF_UNIX"
         else:
@@ -458,6 +457,11 @@ class Reticulum:
                     if option == "instance_name":
                         value = self.config["reticulum"][option]
                         self.local_socket_path = value
+                if option == "shared_instance_type":
+                    if self.shared_instance_type == None:
+                        value = self.config["reticulum"][option].lower()
+                        if value in ["tcp", "unix"]:
+                            self.shared_instance_type = value
                 if option == "shared_instance_port":
                     value = int(self.config["reticulum"][option])
                     self.local_interface_port = value
@@ -516,6 +520,17 @@ class Reticulum:
 
         if RNS.compiled: RNS.log("Reticulum running in compiled mode", RNS.LOG_DEBUG)
         else: RNS.log("Reticulum running in interpreted mode", RNS.LOG_DEBUG)
+
+        if RNS.vendor.platformutils.use_af_unix():
+            if self.shared_instance_type == "tcp": self.use_af_unix = False
+            else:                                  self.use_af_unix = True
+        else:
+            self.shared_instance_type = "tcp"
+            self.use_af_unix          = False
+
+        if self.local_socket_path == None and self.use_af_unix:
+            self.local_socket_path = "default"
+
         self.__start_local_interface()
 
         if self.is_shared_instance or self.is_standalone_instance:
@@ -1379,8 +1394,16 @@ instance_name = default
 # is the case, you can isolate different instances by
 # specifying a unique set of ports for each:
 
-shared_instance_port = 37428
-instance_control_port = 37429
+# shared_instance_port = 37428
+# instance_control_port = 37429
+
+
+# If you want to explicitly use TCP for shared instance
+# communication, instead of domain sockets, this is also
+# possible, by using the following option:
+
+# shared_instance_type = tcp
+
 
 # You can configure Reticulum to panic and forcibly close
 # if an unrecoverable interface error occurs, such as the
@@ -1388,7 +1411,7 @@ instance_control_port = 37429
 # an optional directive, and can be left out for brevity.
 # This behaviour is disabled by default.
 
-panic_on_interface_error = No
+# panic_on_interface_error = No
 
 
 [logging]

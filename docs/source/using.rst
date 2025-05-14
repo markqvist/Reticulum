@@ -69,12 +69,12 @@ configuration file is created. The default configuration looks like this:
 
   # If you enable Transport, your system will route traffic
   # for other peers, pass announces and serve path requests.
-  # This should only be done for systems that are suited to
-  # act as transport nodes, ie. if they are stationary and
+  # This should be done for systems that are suited to act
+  # as transport nodes, ie. if they are stationary and
   # always-on. This directive is optional and can be removed
   # for brevity.
 
-  enable_transport = False
+  enable_transport = No
 
 
   # By default, the first program to launch the Reticulum
@@ -91,12 +91,24 @@ configuration file is created. The default configuration looks like this:
 
   # If you want to run multiple *different* shared instances
   # on the same system, you will need to specify different
-  # shared instance ports for each. The defaults are given
-  # below, and again, these options can be left out if you
-  # don't need them.
+  # instance names for each. On platforms supporting domain
+  # sockets, this can be done with the instance_name option:
 
-  shared_instance_port = 37428
-  instance_control_port = 37429
+  instance_name = default
+
+  # Some platforms don't support domain sockets, and if that
+  # is the case, you can isolate different instances by
+  # specifying a unique set of ports for each:
+
+  # shared_instance_port = 37428
+  # instance_control_port = 37429
+
+
+  # If you want to explicitly use TCP for shared instance
+  # communication, instead of domain sockets, this is also
+  # possible, by using the following option:
+
+  # shared_instance_type = tcp
 
 
   # On systems where running instances may not have access
@@ -110,13 +122,25 @@ configuration file is created. The default configuration looks like this:
   # rpc_key = e5c032d3ec4e64a6aca9927ba8ab73336780f6d71790
 
 
+  # It is possible to allow remote management of Reticulum
+  # systems using the various built-in utilities, such as
+  # rnstatus and rnpath. You will need to specify one or
+  # more Reticulum Identity hashes for authenticating the
+  # queries from client programs. For this purpose, you can
+  # use existing identity files, or generate new ones with
+  # the rnid utility.
+
+  # enable_remote_management = yes
+  # remote_management_allowed = 9fb6d773498fb3feda407ed8ef2c3229, 2d882c5586e548d79b5af27bca1776dc
+
+
   # You can configure Reticulum to panic and forcibly close
   # if an unrecoverable interface error occurs, such as the
   # hardware device for an interface disappearing. This is
   # an optional directive, and can be left out for brevity.
   # This behaviour is disabled by default.
 
-  panic_on_interface_error = No
+  # panic_on_interface_error = No
 
 
   # When Transport is enabled, it is possible to allow the
@@ -127,7 +151,7 @@ configuration file is created. The default configuration looks like this:
   # Transport Instance, and printed to the log at startup.
   # Optional, and disabled by default.
 
-  respond_to_probes = No
+  # respond_to_probes = No
 
 
   [logging]

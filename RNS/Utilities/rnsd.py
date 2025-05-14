@@ -117,12 +117,24 @@ share_instance = Yes
 
 # If you want to run multiple *different* shared instances
 # on the same system, you will need to specify different
-# shared instance ports for each. The defaults are given
-# below, and again, these options can be left out if you
-# don't need them.
+# instance names for each. On platforms supporting domain
+# sockets, this can be done with the instance_name option:
 
-shared_instance_port = 37428
-instance_control_port = 37429
+instance_name = default
+
+# Some platforms don't support domain sockets, and if that
+# is the case, you can isolate different instances by
+# specifying a unique set of ports for each:
+
+# shared_instance_port = 37428
+# instance_control_port = 37429
+
+
+# If you want to explicitly use TCP for shared instance
+# communication, instead of domain sockets, this is also
+# possible, by using the following option:
+
+# shared_instance_type = tcp
 
 
 # On systems where running instances may not have access
@@ -154,7 +166,7 @@ instance_control_port = 37429
 # an optional directive, and can be left out for brevity.
 # This behaviour is disabled by default.
 
-panic_on_interface_error = No
+# panic_on_interface_error = No
 
 
 # When Transport is enabled, it is possible to allow the
@@ -165,7 +177,7 @@ panic_on_interface_error = No
 # Transport Instance, and printed to the log at startup.
 # Optional, and disabled by default.
 
-respond_to_probes = No
+# respond_to_probes = No
 
 
 [logging]
