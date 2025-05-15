@@ -277,12 +277,12 @@ configuration file is created. The default configuration looks like this:</p>
 
 <span class="c1"># If you enable Transport, your system will route traffic</span>
 <span class="c1"># for other peers, pass announces and serve path requests.</span>
-<span class="c1"># This should only be done for systems that are suited to</span>
-<span class="c1"># act as transport nodes, ie. if they are stationary and</span>
+<span class="c1"># This should be done for systems that are suited to act</span>
+<span class="c1"># as transport nodes, ie. if they are stationary and</span>
 <span class="c1"># always-on. This directive is optional and can be removed</span>
 <span class="c1"># for brevity.</span>
 
-<span class="n">enable_transport</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">enable_transport</span> <span class="o">=</span> <span class="n">No</span>
 
 
 <span class="c1"># By default, the first program to launch the Reticulum</span>
@@ -299,12 +299,24 @@ configuration file is created. The default configuration looks like this:</p>
 
 <span class="c1"># If you want to run multiple *different* shared instances</span>
 <span class="c1"># on the same system, you will need to specify different</span>
-<span class="c1"># shared instance ports for each. The defaults are given</span>
-<span class="c1"># below, and again, these options can be left out if you</span>
-<span class="c1"># don&#39;t need them.</span>
+<span class="c1"># instance names for each. On platforms supporting domain</span>
+<span class="c1"># sockets, this can be done with the instance_name option:</span>
 
-<span class="n">shared_instance_port</span> <span class="o">=</span> <span class="mi">37428</span>
-<span class="n">instance_control_port</span> <span class="o">=</span> <span class="mi">37429</span>
+<span class="n">instance_name</span> <span class="o">=</span> <span class="n">default</span>
+
+<span class="c1"># Some platforms don&#39;t support domain sockets, and if that</span>
+<span class="c1"># is the case, you can isolate different instances by</span>
+<span class="c1"># specifying a unique set of ports for each:</span>
+
+<span class="c1"># shared_instance_port = 37428</span>
+<span class="c1"># instance_control_port = 37429</span>
+
+
+<span class="c1"># If you want to explicitly use TCP for shared instance</span>
+<span class="c1"># communication, instead of domain sockets, this is also</span>
+<span class="c1"># possible, by using the following option:</span>
+
+<span class="c1"># shared_instance_type = tcp</span>
 
 
 <span class="c1"># On systems where running instances may not have access</span>
@@ -318,13 +330,25 @@ configuration file is created. The default configuration looks like this:</p>
 <span class="c1"># rpc_key = e5c032d3ec4e64a6aca9927ba8ab73336780f6d71790</span>
 
 
+<span class="c1"># It is possible to allow remote management of Reticulum</span>
+<span class="c1"># systems using the various built-in utilities, such as</span>
+<span class="c1"># rnstatus and rnpath. You will need to specify one or</span>
+<span class="c1"># more Reticulum Identity hashes for authenticating the</span>
+<span class="c1"># queries from client programs. For this purpose, you can</span>
+<span class="c1"># use existing identity files, or generate new ones with</span>
+<span class="c1"># the rnid utility.</span>
+
+<span class="c1"># enable_remote_management = yes</span>
+<span class="c1"># remote_management_allowed = 9fb6d773498fb3feda407ed8ef2c3229, 2d882c5586e548d79b5af27bca1776dc</span>
+
+
 <span class="c1"># You can configure Reticulum to panic and forcibly close</span>
 <span class="c1"># if an unrecoverable interface error occurs, such as the</span>
 <span class="c1"># hardware device for an interface disappearing. This is</span>
 <span class="c1"># an optional directive, and can be left out for brevity.</span>
 <span class="c1"># This behaviour is disabled by default.</span>
 
-<span class="n">panic_on_interface_error</span> <span class="o">=</span> <span class="n">No</span>
+<span class="c1"># panic_on_interface_error = No</span>
 
 
 <span class="c1"># When Transport is enabled, it is possible to allow the</span>
@@ -335,7 +359,7 @@ configuration file is created. The default configuration looks like this:</p>
 <span class="c1"># Transport Instance, and printed to the log at startup.</span>
 <span class="c1"># Optional, and disabled by default.</span>
 
-<span class="n">respond_to_probes</span> <span class="o">=</span> <span class="n">No</span>
+<span class="c1"># respond_to_probes = No</span>
 
 
 <span class="p">[</span><span class="n">logging</span><span class="p">]</span>
