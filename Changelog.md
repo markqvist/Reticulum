@@ -1,4 +1,4 @@
-### 2025-05-14: RNS β 0.9.6
+### 2025-05-15: RNS β 0.9.6
 
 This release activates AES-256 as the default encryption mode for all communication. It is the last release that will support the old AES-128 based modes, which will be entirely phased out in the next release.
 
