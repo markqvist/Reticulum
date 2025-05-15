@@ -6,6 +6,7 @@ This release also includes a number of API and resource consumption improvements
 
 **Changes**
 - Enabled AES-256 as default encryption mode for all traffic
+- Added dynamic link keepalive and timeout calculation
 - Added ability to efficiently transfer files as responses in the `Request` API
 - Added ability to include metadata on `Resource` transfers
 - Added option to specify `Resource` auto-compression limits
@@ -21,8 +22,8 @@ This release also includes a number of API and resource consumption improvements
 
 **Release Hashes**
 ```
-597939c69c3861e0854f62b64484527c146850d6a5444f22ab49721b9c901e15 rns-0.9.6-py3-none-any.whl
-72aa816b7a8ce05d5ef76e4f26906b57a5aec96bd83ac74b19d53295ae24d3a8 rnspure-0.9.6-py3-none-any.whl
+a23c64a04c1e83fd0ab449f564ac904da7fd4f61c0faf68a063f486cc48b44bd rns-0.9.6-py3-none-any.whl
+4544882dea902b18b00d8a04c9ab93201974573b7b63c3db06cb310b0acec240 rnspure-0.9.6-py3-none-any.whl
 ```
 
 ### 2025-05-09: RNS β 0.9.5
