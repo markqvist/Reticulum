@@ -80,19 +80,23 @@ class Link:
     LINK_MTU_SIZE            = 3
     TRAFFIC_TIMEOUT_MIN_MS   = 5
     TRAFFIC_TIMEOUT_FACTOR   = 6
+    KEEPALIVE_MAX_RTT        = 1.75
     KEEPALIVE_TIMEOUT_FACTOR = 4
     """
     RTT timeout factor used in link timeout calculation.
     """
-    STALE_GRACE = 2
+    STALE_GRACE = 5
     """
     Grace period in seconds used in link timeout calculation.
     """
-    KEEPALIVE = 360
+    KEEPALIVE_MAX = 360
+    KEEPALIVE_MIN = 5
+    KEEPALIVE     = KEEPALIVE_MAX
     """
-    Interval for sending keep-alive packets on established links in seconds.
+    Default interval for sending keep-alive packets on established links in seconds.
     """
-    STALE_TIME = 2*KEEPALIVE
+    STALE_FACTOR = 2
+    STALE_TIME = STALE_FACTOR*KEEPALIVE
     """
     If no traffic or keep-alive packets are received within this period, the
     link will be marked as stale, and a final keep-alive packet will be sent.
@@ -101,7 +105,7 @@ class Link:
     and will be torn down.
     """
 
-    WATCHDOG_MAX_SLEEP  = 1
+    WATCHDOG_MAX_SLEEP  = 5
 
     PENDING             = 0x00
     HANDSHAKE           = 0x01
@@ -243,6 +247,7 @@ class Link:
         self.pending_requests   = []
         self.last_inbound = 0
         self.last_outbound = 0
+        self.last_keepalive = 0
         self.last_proof = 0
         self.last_data = 0
         self.tx = 0
@@ -425,10 +430,12 @@ class Link:
                         self.activated_at = time.time()
                         self.last_proof = self.activated_at
                         RNS.Transport.activate_link(self)
-                        RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+str(round(self.rtt, 3))+"s", RNS.LOG_DEBUG)
+                        RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+RNS.prettyshorttime(self.rtt), RNS.LOG_DEBUG)
                         
                         if self.rtt != None and self.establishment_cost != None and self.rtt > 0 and self.establishment_cost > 0:
                             self.establishment_rate = self.establishment_cost/self.rtt
+
+                        self.__update_keepalive()
 
                         rtt_data = umsgpack.packb(self.rtt)
                         rtt_packet = RNS.Packet(self, rtt_data, context=RNS.Packet.LRRTT)
@@ -536,6 +543,8 @@ class Link:
 
                 if self.rtt != None and self.establishment_cost != None and self.rtt > 0 and self.establishment_cost > 0:
                     self.establishment_rate = self.establishment_cost/self.rtt
+
+                self.__update_keepalive()
 
                 try:
                     if self.owner.callbacks.link_established != None:
@@ -679,23 +688,23 @@ class Link:
 
     def had_outbound(self, is_keepalive=False):
         self.last_outbound = time.time()
-        if not is_keepalive:
-            self.last_data = self.last_outbound
+        if not is_keepalive: self.last_data = self.last_outbound
+        else:                self.last_keepalive = self.last_outbound
+
+    def __teardown_packet(self):
+        teardown_packet = RNS.Packet(self, self.link_id, context=RNS.Packet.LINKCLOSE)
+        teardown_packet.send()
+        self.had_outbound()
 
     def teardown(self):
         """
         Closes the link and purges encryption keys. New keys will
         be used if a new link to the same destination is established.
         """
-        if self.status != Link.PENDING and self.status != Link.CLOSED:
-            teardown_packet = RNS.Packet(self, self.link_id, context=RNS.Packet.LINKCLOSE)
-            teardown_packet.send()
-            self.had_outbound()
+        if self.status != Link.PENDING and self.status != Link.CLOSED: self.__teardown_packet()
         self.status = Link.CLOSED
-        if self.initiator:
-            self.teardown_reason = Link.INITIATOR_CLOSED
-        else:
-            self.teardown_reason = Link.DESTINATION_CLOSED
+        if self.initiator: self.teardown_reason = Link.INITIATOR_CLOSED
+        else: self.teardown_reason = Link.DESTINATION_CLOSED
         self.link_closed()
 
     def teardown_packet(self, packet):
@@ -782,9 +791,10 @@ class Link:
                 elif self.status == Link.ACTIVE:
                     activated_at = self.activated_at if self.activated_at != None else 0
                     last_inbound = max(max(self.last_inbound, self.last_proof), activated_at)
+                    now = time.time()
 
-                    if time.time() >= last_inbound + self.keepalive:
-                        if self.initiator:
+                    if now >= last_inbound + self.keepalive:
+                        if self.initiator and now >= self.last_keepalive + self.keepalive:
                             self.send_keepalive()
 
                         if time.time() >= last_inbound + self.stale_time:
@@ -798,6 +808,7 @@ class Link:
 
                 elif self.status == Link.STALE:
                     sleep_time = 0.001
+                    self.__teardown_packet()
                     self.status = Link.CLOSED
                     self.teardown_reason = Link.TIMEOUT
                     self.link_closed()
@@ -833,6 +844,10 @@ class Link:
                 self.snr = packet.snr
             if packet.q != None:
                 self.q = packet.q
+
+    def __update_keepalive(self):
+        self.keepalive = max(min(self.rtt*(Link.KEEPALIVE_MAX/Link.KEEPALIVE_MAX_RTT), Link.KEEPALIVE_MAX), Link.KEEPALIVE_MIN)
+        self.stale_time = self.keepalive * Link.STALE_FACTOR
     
     def send_keepalive(self):
         keepalive_packet = RNS.Packet(self, bytes([0xFF]), context=RNS.Packet.KEEPALIVE)
