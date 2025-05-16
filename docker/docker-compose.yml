@@ -3,11 +3,17 @@ services:
     container_name: reticulum
     image: ghcr.io/markqvist/reticulum:latest
     restart: unless-stopped
+    # You can mount devices, make sure to add the user to the group id
+    # which has rw access to the device on the host
+    devices:
+      - /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0:/dev/ttyACM0
+    group_add:
+      - 986
     # Mount the config directory on the host in the same location as the docker-compose.yml
     # to allow data persistency
     volumes:
       - ./config:/config:rw
-    # Define ports to expose, for example a TCP Listener
+    # Define ports to expose, for example a default TCP Listener
     ports:
       - "4242:4242/tcp"
     networks:

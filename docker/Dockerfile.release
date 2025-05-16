@@ -20,7 +20,7 @@ COPY --from=build /usr/local/lib/python${python_version}/site-packages/ /usr/loc
 
 RUN mkdir /config
 
-RUN addgroup -S rns --gid 1000 && adduser -S rns --uid 1000 -G rns dialout
+RUN addgroup -S rns --gid 1000 && adduser -S rns --uid 1000 -G rns
 RUN chown rns:rns /config
 
 USER rns:rns
