@@ -22,6 +22,9 @@ Donations are gratefully accepted via the following channels:
     Bitcoin:
     3CPmacGm34qYvR6XWLVEJmi2aNe3PZqUuq
 
+    Liberapay:
+    https://ko-fi.com/markqvist
+
     Ko-Fi:
     https://ko-fi.com/markqvist
 
