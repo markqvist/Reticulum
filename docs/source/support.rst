@@ -23,7 +23,7 @@ Donations are gratefully accepted via the following channels:
     3CPmacGm34qYvR6XWLVEJmi2aNe3PZqUuq
 
     Liberapay:
-    https://ko-fi.com/markqvist
+    https://liberapay.com/Reticulum/
 
     Ko-Fi:
     https://ko-fi.com/markqvist
