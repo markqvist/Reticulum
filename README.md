@@ -306,6 +306,7 @@ You can help support the continued development of open, free and private communi
   0xae89F3B94fC4AD6563F0864a55F9a697a90261ff
   ```
 - Liberapay: https://liberapay.com/Reticulum/
+
 - Ko-Fi: https://ko-fi.com/markqvist
 
 ## Cryptographic Primitives
