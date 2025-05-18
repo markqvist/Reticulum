@@ -113,6 +113,9 @@ class Transport:
     path_requests               = {}           # A table for storing path request timestamps
     path_states                 = {}           # A table for keeping track of path states
     
+    transmission_handlers       = []
+    receive_handlers            = []
+
     discovery_path_requests     = {}           # A table for keeping track of path requests on behalf of other nodes
     discovery_pr_tags           = []           # A table for keeping track of tagged path requests
     max_pr_tags                 = 32000        # Maximum amount of unique path request tags to remember
@@ -832,6 +835,23 @@ class Transport:
 
             else:
                 interface.process_outgoing(raw)
+            
+            # send transmission to handlers
+            #   TODO: this won't capture things left in the queue
+            for handler in Transport.transmission_handlers:
+                try:
+                    # grab parameters from interface
+                    params = dict(
+                        frequency=getattr(interface, "frequency", None),
+                        bandwidth=getattr(interface, "bandwidth", None),
+                        txpower=getattr(interface, "tx_power", None),
+                        sf=getattr(interface, "sf", None),
+                        state=getattr(interface, "state", None),
+                    )
+                    handler(interface, raw, params)
+                except Exception as e:
+                    print(f"Handler {handler} encountered exception {e}")
+                    pass
 
         except Exception as e:
             RNS.log("Error while transmitting on "+str(interface)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -1256,6 +1276,14 @@ class Transport:
 
         elif Transport.interface_to_shared_instance(interface):
             packet.hops -= 1
+
+        # NOTE - placing handlers here means we don't capture anything if IFAC is enabled
+        for handler in Transport.receive_handlers:
+            try:
+                handler(packet)
+            except Exception as e:
+                print(f"Encountered exception {e}, passing")
+                pass
 
         if Transport.packet_filter(packet):
             # By default, remember packet hashes to avoid routing
@@ -2167,6 +2195,26 @@ class Transport:
         :param handler: The announce handler to be deregistered.
         """
         while handler in Transport.announce_handlers: Transport.announce_handlers.remove(handler)
+        gc.collect()
+
+    @staticmethod
+    def register_transmission_handler(handler):
+        if callable(handler):
+            Transport.transmission_handlers.append(handler)
+    
+    @staticmethod
+    def deregister_transmission_handler(handler):
+        while handler in Transport.transmission_handlers: Transport.transmission_handlers.remove(handler)
+        gc.collect()
+
+    @staticmethod
+    def register_receive_handler(handler):
+        if callable(handler):
+            Transport.receive_handlers.append(handler)
+
+    @staticmethod
+    def deregister_receive_handler(handler):
+        while handler in Transport.receive_handlers: Transport.receive_handlers.remove(handler)
         gc.collect()
 
     @staticmethod
