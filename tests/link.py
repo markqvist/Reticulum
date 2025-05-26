@@ -121,16 +121,11 @@ class TestLink(unittest.TestCase):
         time.sleep(LINK_UP_WAIT)
         self.assertEqual(l1.status, RNS.Link.CLOSED)
         
+        exc_triggered = False
         print("Testing AES_128_CBC mode link establishment...")
-        l2 = RNS.Link(dest, mode=RNS.Link.MODE_AES128_CBC)
-        time.sleep(LINK_UP_WAIT)
-        self.assertEqual(l2.status, RNS.Link.ACTIVE)
-        self.assertEqual(l2.mode, RNS.Link.MODE_AES128_CBC)
-        self.assertEqual(len(l2.derived_key), 32)
-
-        l2.teardown()
-        time.sleep(LINK_UP_WAIT)
-        self.assertEqual(l2.status, RNS.Link.CLOSED)
+        try: l2 = RNS.Link(dest, mode=RNS.Link.MODE_AES128_CBC)
+        except TypeError as e: exc_triggered = True
+        self.assertEqual(exc_triggered, True)
         
         print("Testing AES_256_CBC mode link establishment...")
         l3 = RNS.Link(dest, mode=RNS.Link.MODE_AES256_CBC)
