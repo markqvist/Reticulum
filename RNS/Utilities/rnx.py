@@ -91,7 +91,25 @@ def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed
                 except Exception as e:
                     print(str(e))
                     exit(1)
-
+        try:
+            allowed_file_name = "allowed_identities"
+            allowed_file = None
+            if os.path.isfile(os.path.expanduser("/etc/rnx/"+allowed_file_name)):
+                allowed_file = os.path.expanduser("/etc/rnx/"+allowed_file_name)
+            elif os.path.isfile(os.path.expanduser("~/.config/rnx/"+allowed_file_name)):
+                allowed_file = os.path.expanduser("~/.config/rnx/"+allowed_file_name)
+            elif os.path.isfile(os.path.expanduser("~/.rnx/"+allowed_file_name)):
+                allowed_file = os.path.expanduser("~/.rnx/"+allowed_file_name)
+            if allowed_file != None:
+                with open(allowed_file, "r") as af_handle:
+                    allowed_by_file = af_handle.read().replace("\r", "").split("\n")
+                    for allowed_ID in allowed_by_file:
+                        if len(allowed_ID) == (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2:
+                            allowed_identity_hashes.append(bytes.fromhex(allowed_ID))      
+        except Exception as e:
+            print(str(e))
+            exit(1)
+                    
     if len(allowed_identity_hashes) < 1 and not disable_auth:
         print("Warning: No allowed identities configured, rncx will not accept any commands!")
 
