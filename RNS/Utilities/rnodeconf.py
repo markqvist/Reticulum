@@ -1716,7 +1716,7 @@ def main():
             print("       '")
             print("[1]  A specific kind of RNode")
             print("")
-            print("       |   Select this option if you have put toghether an RNode")
+            print("       |   Select this option if you have put together an RNode")
             print("      \\ /  of your own design, or if you are prototyping one.")
             print("       '")
             print("[2]  Homebrew RNode")
