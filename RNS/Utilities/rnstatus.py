@@ -168,6 +168,9 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
     stats = None
     if remote:
         try:
+            if management_identity is None:
+                raise ValueError("Remote management requires an identity file. Use -i to specify the path to a management identity.")
+
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
             if len(remote) != dest_len:
                 raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
