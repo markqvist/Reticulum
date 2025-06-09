@@ -355,11 +355,14 @@ Filter output to only show some interfaces:
     -s SORT, --sort SORT  sort interfaces by [rate, traffic, rx, tx, announces, arx, atx, held]
     -r, --reverse         reverse sorting
     -j, --json            output in JSON format
-    -R hash               transport identity hash of remote instance to get status from
+    -R hash               transport identity hash of remote instance to get status from (requires -i)
     -i path               path to identity used for remote management
     -w seconds            timeout before giving up on remote queries
     -v, --verbose
 
+
+.. note::
+   When using ``-R`` to query a remote transport instance, you must also specify ``-i`` with the path to a management identity file that is authorized for remote management on the target system.
 
 The rnid Utility
 ====================
