@@ -1,5 +1,6 @@
 import setuptools
 import sys
+from RNS._version import __version__
 
 pure_python = False
 pure_notice = "\n\n**Warning!** *This package is the zero-dependency version of Reticulum. You should almost certainly use the [normal package](https://pypi.org/project/rns) instead. Do NOT install this package unless you know exactly why you are doing it!*"
@@ -9,7 +10,9 @@ if '--pure' in sys.argv:
     sys.argv.remove('--pure')
     print("Building pure-python wheel")
 
-exec(open("RNS/_version.py", "r").read())
+with open("RNS/_version.py", "r") as f:
+    __version__ = f.read().split('=')[1].strip().strip('"')
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
