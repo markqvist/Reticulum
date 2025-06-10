@@ -369,6 +369,7 @@ class Packet:
         if self.rssi != None:
             return self.rssi
         else:
+            reticulum = RNS.Reticulum.get_instance()
             return reticulum.get_packet_rssi(self.packet_hash)
             
     def get_snr(self):
@@ -378,6 +379,7 @@ class Packet:
         if self.snr != None:
             return self.snr
         else:
+            reticulum = RNS.Reticulum.get_instance()
             return reticulum.get_packet_snr(self.packet_hash)
 
     def get_q(self):
@@ -387,6 +389,7 @@ class Packet:
         if self.q != None:
             return self.q
         else:
+            reticulum = RNS.Reticulum.get_instance()
             return reticulum.get_packet_q(self.packet_hash)
 
 class ProofDestination:
