@@ -34,7 +34,7 @@ import enum
 import threading
 import time
 from types import TracebackType
-from typing import Type, Callable, TypeVar, Generic, NewType
+from typing import Type, Callable, TypeVar, Generic, NewType, List
 import abc
 import contextlib
 import struct
@@ -167,7 +167,8 @@ class MessageBase(abc.ABC):
         """
         raise NotImplemented()
 
-
+# Pylance does not like this, but it is correct.
+# We use `# type: ignore` to suppress future `reportInvalidTypeForm` errors.
 MessageCallbackType = NewType("MessageCallbackType", Callable[[MessageBase], bool])
 
 
@@ -287,7 +288,7 @@ class Channel(contextlib.AbstractContextManager):
         self._lock = threading.RLock()
         self._tx_ring: collections.deque[Envelope] = collections.deque()
         self._rx_ring: collections.deque[Envelope] = collections.deque()
-        self._message_callbacks: [MessageCallbackType] = []
+        self._message_callbacks: List[MessageCallbackType] = [] # type: ignore
         self._next_sequence = 0
         self._next_rx_sequence = 0
         self._message_factories: dict[int, Type[MessageBase]] = {}
@@ -343,7 +344,7 @@ class Channel(contextlib.AbstractContextManager):
 
             self._message_factories[message_class.MSGTYPE] = message_class
 
-    def add_message_handler(self, callback: MessageCallbackType):
+    def add_message_handler(self, callback: MessageCallbackType): # type: ignore
         """
         Add a handler for incoming messages. A handler
         has the following signature:
@@ -361,7 +362,7 @@ class Channel(contextlib.AbstractContextManager):
             if callback not in self._message_callbacks:
                 self._message_callbacks.append(callback)
 
-    def remove_message_handler(self, callback: MessageCallbackType):
+    def remove_message_handler(self, callback: MessageCallbackType): # type: ignore
         """
         Remove a handler added with ``add_message_handler``.
 
