@@ -314,7 +314,7 @@ class TestChannel(unittest.TestCase):
 
 
     def eat_own_dog_food(self, message: MessageBase, checker: typing.Callable[[MessageBase], None]):
-        decoded: [MessageBase] = []
+        decoded: typing.List[MessageBase] = []
 
         def handle_message(message: MessageBase):
             decoded.append(message)
