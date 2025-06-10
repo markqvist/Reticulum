@@ -43,7 +43,16 @@ if get_platform() == "android":
     from .Interfaces.Android import SerialInterface
     from .Interfaces.Android import KISSInterface
 else:
-    from RNS.Interfaces import *
+    from .Interfaces import Interface
+    from .Interfaces import LocalInterface
+    from .Interfaces import AutoInterface
+    from .Interfaces import BackboneInterface
+    from .Interfaces import TCPInterface
+    from .Interfaces import UDPInterface
+    from .Interfaces import I2PInterface
+    from .Interfaces import RNodeMultiInterface
+    from .Interfaces import PipeInterface
+    from .Interfaces import AX25KISSInterface
 
 from RNS.vendor.configobj import ConfigObj
 import configparser
