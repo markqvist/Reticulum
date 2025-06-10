@@ -13,3 +13,5 @@ tests/rnsconfig/storage
 tests/rnsconfig/logfile*
 *.data
 *.result
+.venv/
+__pycache__
