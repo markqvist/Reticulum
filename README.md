@@ -1,4 +1,4 @@
-Reticulum Network Stack β <img align="right" src="https://static.pepy.tech/personalized-badge/rns?period=month&units=international_system&left_color=grey&right_color=blue&left_text=Installs/month" style="padding-left:10px"/><a href="https://github.com/markqvist/Reticulum/actions/workflows/build.yml"><img align="right" src="https://github.com/markqvist/Reticulum/actions/workflows/build.yml/badge.svg"/></a>
+Reticulum Network Stack <img align="right" src="https://static.pepy.tech/personalized-badge/rns?period=month&units=international_system&left_color=grey&right_color=blue&left_text=Installs/month" style="padding-left:10px"/><a href="https://github.com/markqvist/Reticulum/actions/workflows/build.yml"><img align="right" src="https://github.com/markqvist/Reticulum/actions/workflows/build.yml/badge.svg"/></a>
 ==========
 
 <p align="center"><img width="200" src="https://raw.githubusercontent.com/markqvist/Reticulum/master/docs/source/graphics/rns_logo_512.png"></p>
@@ -211,10 +211,9 @@ saturated. Performance beyond the current level is intended for future
 upgrades, but not highly prioritised at this point in time.
 
 ## Current Status
-Reticulum should currently be considered beta software. All core protocol
-features are implemented and functioning, but additions will probably occur as
-real-world use is explored. There will be bugs. The API and wire-format can be
-considered relatively stable at the moment, but could change if warranted.
+All core protocol features are implemented and functioning, but additions will
+probably occur as real-world use is explored and understood. The API and wire-format
+can be considered stable.
 
 ## Dependencies
 The installation of the default `rns` package requires the dependencies listed
