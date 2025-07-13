@@ -1115,7 +1115,7 @@ class Transport:
         if packet.destination_type == RNS.Destination.PLAIN:
             if packet.packet_type != RNS.Packet.ANNOUNCE:
                 if packet.hops > 1:
-                    RNS.log("Dropped PLAIN packet "+RNS.prettyhexrep(packet.hash)+" with "+str(packet.hops)+" hops", RNS.LOG_DEBUG)
+                    RNS.log("Dropped PLAIN packet "+RNS.prettyhexrep(packet.packet_hash)+" with "+str(packet.hops)+" hops", RNS.LOG_DEBUG)
                     return False
                 else:
                     return True
@@ -1126,7 +1126,7 @@ class Transport:
         if packet.destination_type == RNS.Destination.GROUP:
             if packet.packet_type != RNS.Packet.ANNOUNCE:
                 if packet.hops > 1:
-                    RNS.log("Dropped GROUP packet "+RNS.prettyhexrep(packet.hash)+" with "+str(packet.hops)+" hops", RNS.LOG_DEBUG)
+                    RNS.log("Dropped GROUP packet "+RNS.prettyhexrep(packet.packet_hash)+" with "+str(packet.hops)+" hops", RNS.LOG_DEBUG)
                     return False
                 else:
                     return True
