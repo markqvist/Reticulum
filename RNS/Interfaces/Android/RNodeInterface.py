@@ -1558,7 +1558,7 @@ class BLEConnection(BluetoothDispatcher):
 
     MTU_TIMEOUT = 4.0
     CONNECT_TIMEOUT = 7.0
-    RECONNECT_WAIT = 1.0
+    RECONNECT_WAIT = 2.5
 
     @property
     def is_open(self):
@@ -1659,13 +1659,17 @@ class BLEConnection(BluetoothDispatcher):
         self.write_thread = None
 
     def connection_job(self):
+        ble_devices = []
         while self.should_run:
             if self.bt_manager.bt_enabled():
-                if self.ble_device == None:
-                    self.ble_device = self.find_target_device()
+                if not self.connected:
+                    if len(ble_devices) == 0:
+                        ble_devices = self.find_target_devices()
+                    
+                    if len(ble_devices) > 0: self.ble_device = ble_devices.pop()
+                    else:                    self.ble_device == None
 
-                if self.ble_device != None:
-                    if not self.connected:
+                    if self.ble_device != None:
                         if self.was_connected:
                             RNS.log(f"Throttling BLE reconnect for {BLEConnection.RECONNECT_WAIT} seconds", RNS.LOG_DEBUG)
                             time.sleep(BLEConnection.RECONNECT_WAIT)
@@ -1677,7 +1681,7 @@ class BLEConnection(BluetoothDispatcher):
                     RNS.log("Bluetooth was disabled, closing active BLE device connection", RNS.LOG_ERROR)
                     self.close()
 
-            time.sleep(2)
+            time.sleep(1)
 
     def connect_device(self):
         if self.ble_device != None and self.bt_manager.bt_enabled():
@@ -1710,15 +1714,17 @@ class BLEConnection(BluetoothDispatcher):
         self.ble_device = None
         self.close_gatt()
 
-    def find_target_device(self):
+    def find_target_devices(self):
         found_device = None
         potential_devices = self.bt_manager.get_paired_devices()
+        suitable_devices = []
 
         if self.target_bt_addr != None:
             for device in potential_devices:
                 if (device.getType() == AndroidBluetoothManager.DEVICE_TYPE_LE) or (device.getType() == AndroidBluetoothManager.DEVICE_TYPE_DUAL):
                     if str(device.getAddress()).replace(":", "").lower() == str(self.target_bt_addr).replace(":", "").lower():
                         found_device = device
+                        suitable_devices.append(device)
                         break
 
         if not found_device and self.target_name != None:
@@ -1726,6 +1732,7 @@ class BLEConnection(BluetoothDispatcher):
                 if (device.getType() == AndroidBluetoothManager.DEVICE_TYPE_LE) or (device.getType() == AndroidBluetoothManager.DEVICE_TYPE_DUAL):
                     if device.getName().lower() == self.target_name.lower():
                         found_device = device
+                        suitable_devices.append(device)
                         break
 
         if not found_device:
@@ -1733,9 +1740,9 @@ class BLEConnection(BluetoothDispatcher):
                 if (device.getType() == AndroidBluetoothManager.DEVICE_TYPE_LE) or (device.getType() == AndroidBluetoothManager.DEVICE_TYPE_DUAL):
                     if device.getName().startswith("RNode "):
                         found_device = device
-                        break
+                        suitable_devices.append(device)
 
-        return found_device
+        return suitable_devices
 
     def on_connection_state_change(self, status, state):
         if status == GATT_SUCCESS and state:
