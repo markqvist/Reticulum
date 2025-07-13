@@ -639,7 +639,6 @@ class Identity:
             self.update_hashes()
         except Exception as e:
             RNS.log("Error while loading public key, the contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.trace_exception(e)
 
     def update_hashes(self):
         self.hash = Identity.truncated_hash(self.get_public_key())
