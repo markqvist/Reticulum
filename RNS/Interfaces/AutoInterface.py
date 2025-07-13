@@ -119,6 +119,7 @@ class AutoInterface(Interface):
         self.name = name
         self.owner = owner
         self.online = False
+        self.final_init_done = False
         self.peers = {}
         self.link_local_addresses = []
         self.adopted_interfaces = {}
@@ -274,8 +275,7 @@ class AutoInterface(Interface):
                                     discovery_socket.bind(addr_info[0][4])
 
                                 # Set up thread for discovery packets
-                                def discovery_loop():
-                                    self.discovery_handler(discovery_socket, ifname)
+                                def discovery_loop(): self.discovery_handler(discovery_socket, ifname)
 
                                 thread = threading.Thread(target=discovery_loop)
                                 thread.daemon = True
@@ -325,6 +325,7 @@ class AutoInterface(Interface):
         time.sleep(peering_wait)
 
         self.online = True
+        self.final_init_done = True
 
     def discovery_handler(self, socket, ifname):
         def announce_loop():
@@ -336,12 +337,13 @@ class AutoInterface(Interface):
         
         while True:
             data, ipv6_src = socket.recvfrom(1024)
-            peering_hash = data[:RNS.Identity.HASHLENGTH//8]
-            expected_hash = RNS.Identity.full_hash(self.group_id+ipv6_src[0].encode("utf-8"))
-            if peering_hash == expected_hash:
-                self.add_peer(ipv6_src[0], ifname)
-            else:
-                RNS.log(str(self)+" received peering packet on "+str(ifname)+" from "+str(ipv6_src[0])+", but authentication hash was incorrect.", RNS.LOG_DEBUG)
+            if self.final_init_done:
+                peering_hash = data[:RNS.Identity.HASHLENGTH//8]
+                expected_hash = RNS.Identity.full_hash(self.group_id+ipv6_src[0].encode("utf-8"))
+                if peering_hash == expected_hash:
+                    self.add_peer(ipv6_src[0], ifname)
+                else:
+                    RNS.log(str(self)+" received peering packet on "+str(ifname)+" from "+str(ipv6_src[0])+", but authentication hash was incorrect.", RNS.LOG_DEBUG)
 
     def peer_jobs(self):
         while True:
