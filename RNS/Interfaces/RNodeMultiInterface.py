@@ -993,7 +993,6 @@ class RNodeSubInterface(Interface):
         self.announce_rate_target = None
 
         self.mode = None
-        self.announce_cap = None
         self.bitrate = None
         self.ifac_size = None
 
