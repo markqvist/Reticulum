@@ -1379,10 +1379,14 @@ class Transport:
                                         new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]
                                     else:
                                         if nh_mtu < path_mtu:
-                                            path_mtu = nh_mtu
-                                            clamped_mtu = RNS.Link.signalling_bytes(path_mtu, mode)
-                                            RNS.log(f"Clamping link MTU to {RNS.prettysize(nh_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
-                                            new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]+clamped_mtu
+                                            try:
+                                                path_mtu = nh_mtu
+                                                clamped_mtu = RNS.Link.signalling_bytes(path_mtu, mode)
+                                                RNS.log(f"Clamping link MTU to {RNS.prettysize(nh_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
+                                                new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]+clamped_mtu
+                                            except Exception as e:
+                                                RNS.log(f"Dropping link request packet. The contained exception was: {e}", RNS.LOG_WARNING)
+                                                return
 
                                 # Entry format is
                                 link_entry = [  now,                            # 0: Timestamp,
@@ -1847,10 +1851,14 @@ class Transport:
                                     packet.data  = packet.data[:-RNS.Link.LINK_MTU_SIZE]
                                 else:
                                     if nh_mtu < path_mtu:
-                                        path_mtu = nh_mtu
-                                        clamped_mtu = RNS.Link.signalling_bytes(path_mtu, mode)
-                                        RNS.log(f"Clamping link MTU to {RNS.prettysize(nh_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
-                                        packet.data  = packet.data[:-RNS.Link.LINK_MTU_SIZE]+clamped_mtu
+                                        try:
+                                            path_mtu = nh_mtu
+                                            clamped_mtu = RNS.Link.signalling_bytes(path_mtu, mode)
+                                            RNS.log(f"Clamping link MTU to {RNS.prettysize(nh_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
+                                            packet.data  = packet.data[:-RNS.Link.LINK_MTU_SIZE]+clamped_mtu
+                                        except Exception as e:
+                                            RNS.log(f"Dropping link request packet to local destination. The contained exception was: {e}", RNS.LOG_WARNING)
+                                            return
 
                             packet.destination = destination
                             destination.receive(packet)
