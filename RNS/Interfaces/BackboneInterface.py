@@ -588,9 +588,7 @@ class BackboneClientInterface(Interface):
                         self.teardown()
                         break
 
-                    try:
-                        self.connect()
-
+                    try: self.connect()
                     except Exception as e:
                         RNS.log("Connection attempt for "+str(self)+" failed: "+str(e), RNS.LOG_DEBUG)
 
@@ -648,7 +646,8 @@ class BackboneClientInterface(Interface):
                 self.online = False
                 if self.initiator and not self.detached:
                     RNS.log("The socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
-                    self.reconnect()
+                    def job(): self.reconnect()
+                    threading.Thread(target=job, daemon=True).start()
                 else:
                     RNS.log("The socket for remote client "+str(self)+" was closed.", RNS.LOG_VERBOSE)
                     self.teardown()
@@ -659,7 +658,8 @@ class BackboneClientInterface(Interface):
 
             if self.initiator:
                 RNS.log("Attempting to reconnect...", RNS.LOG_WARNING)
-                self.reconnect()
+                def job(): self.reconnect()
+                threading.Thread(target=job, daemon=True).start()
             else:
                 self.teardown()
 

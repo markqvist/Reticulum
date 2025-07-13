@@ -254,6 +254,9 @@ class LocalClientInterface(Interface):
                 if self.is_connected_to_shared_instance and not self.detached:
                     RNS.log("Socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
                     RNS.Transport.shared_connection_disappeared()
+                    # TODO: Potentially run this in a thread, but since if we get here,
+                    # there's no other connectivity left to block anyway, it might be
+                    # unnecessary.
                     self.reconnect()
                 else:
                     self.teardown(nowarning=True)
@@ -276,6 +279,9 @@ class LocalClientInterface(Interface):
                     if self.is_connected_to_shared_instance and not self.detached:
                         RNS.log("Socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
                         RNS.Transport.shared_connection_disappeared()
+                        # TODO: Potentially run this in a thread, but since if we get here,
+                        # there's no other connectivity left to block anyway, it might be
+                        # unnecessary.
                         self.reconnect()
                     else:
                         self.teardown(nowarning=True)
