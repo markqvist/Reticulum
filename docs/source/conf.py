@@ -18,7 +18,7 @@ version = __version__
 
 # The full version, including alpha/beta/rc tags
 import RNS
-release = RNS._version.__version__+" beta"
+release = RNS._version.__version__
 
 # -- General configuration ---------------------------------------------------
 extensions = [

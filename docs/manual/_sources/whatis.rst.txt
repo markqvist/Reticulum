@@ -35,10 +35,9 @@ runs well even on small single-board computers like the Pi Zero.
 
 Current Status
 ==============
-**Please know!** Reticulum should currently be considered beta software. All core protocol
-features are implemented and functioning, but additions will probably occur as
-real-world use is explored. *There will be bugs*. The API and wire-format can be
-considered complete and stable at the moment, but could change if absolutely warranted.
+All core protocol features are implemented and functioning, but additions will probably occur as
+real-world use is explored. The API and wire-format can be considered complete and stable, but
+could change if absolutely warranted.
 
 
 What does Reticulum Offer?
