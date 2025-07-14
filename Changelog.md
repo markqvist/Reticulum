@@ -1,3 +1,26 @@
+### 2025-07-14: RNS 1.0.0
+
+We're out of beta. Thanks to **everyone** who helped make it this far.
+
+This release brings a number of bugfixes, as well as stability and reliability improvements.
+
+**Changes**
+- Improved BLE device discovery on Android
+- Improved BLE MTU configuration on Android
+- Fixed a bug in handling of link requests with invalid link mode bytes
+- Fixed potential AutoInterface peer discovery add before final init complete
+- Fixed a potential EPOLL backend hang on interface failure
+- Fixed various log statements
+- Fixed announce cap crash for `RNodeMultiInterface` with transport mode enabled
+- Updated documentation
+- Removed legacy AES-128 handlers
+
+**Release Hashes**
+```
+5a9f18840510b69f89c6706d130177e2843c9e19c774707ae2661030d693dfc1 rns-1.0.0-py3-none-any.whl
+acfd52af9bf41f78be017579ca06c0abe748d0b98dbdc9baacf140a0606599ec rnspure-1.0.0-py3-none-any.whl
+```
+
 ### 2025-05-15: RNS β 0.9.6
 
 This release activates AES-256 as the default encryption mode for all communication. It is the last release that will support the old AES-128 based modes, which will be entirely phased out in the next release.
