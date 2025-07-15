@@ -206,7 +206,7 @@ provide a dynamic performance envelope from 250 bits per second, to 1 gigabit
 per second on normal hardware.
 
 Currently, the usable performance envelope is approximately 150 bits per second
-to 40 megabits per second, with physical mediums faster than that not being
+to 500 megabits per second, with physical mediums faster than that not being
 saturated. Performance beyond the current level is intended for future
 upgrades, but not highly prioritised at this point in time.
 
