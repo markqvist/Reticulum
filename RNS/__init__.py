@@ -382,7 +382,7 @@ def exit(code=0):
     if not exit_called:
         exit_called = True
         Reticulum.exit_handler()
-        os._exit(code)
+        sys.exit(code)
 
 class Profiler:
     _ran = False

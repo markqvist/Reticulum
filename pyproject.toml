@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rns"
+dynamic = ["version"]
+authors = [
+    {name = "Mark Qvist", email = "mark@unsigned.io"},
+]
+description = "Self-configuring, encrypted and resilient mesh networking stack for LoRa, packet radio, WiFi and everything in between"
+readme = "README.md"
+license = {text = "Reticulum License"}
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8", 
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+]
+keywords = ["mesh", "networking", "reticulum", "lora", "radio", "communication"]
+dependencies = [
+    "cryptography>=3.4.7",
+    "pyserial>=3.5",
+]
+
+[project.urls]
+Homepage = "https://reticulum.network/"
+Repository = "https://github.com/markqvist/Reticulum"
+Documentation = "https://reticulum.network/manual/"
+Issues = "https://github.com/markqvist/Reticulum/issues"
+
+[project.scripts]
+rnsd = "RNS.Utilities.rnsd:main"
+rnstatus = "RNS.Utilities.rnstatus:main"
+rnprobe = "RNS.Utilities.rnprobe:main"
+rnpath = "RNS.Utilities.rnpath:main"
+rnid = "RNS.Utilities.rnid:main"
+rncp = "RNS.Utilities.rncp:main"
+rnx = "RNS.Utilities.rnx:main"
+rnir = "RNS.Utilities.rnir:main"
+rnodeconf = "RNS.Utilities.rnodeconf:main"
+
+[project.optional-dependencies]
+pure = []
+
+[tool.setuptools.dynamic]
+version = {attr = "RNS._version.__version__"}
+
+[tool.setuptools.packages.find]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+RNS = ["LICENSE"]

@@ -38,7 +38,7 @@ import struct
 from RNS.Channel import Channel, MessageBase, SystemMessageTypes
 import RNS
 from io import RawIOBase, BufferedRWPair, BufferedReader, BufferedWriter
-from typing import Callable
+from typing import Callable, List
 from contextlib import AbstractContextManager
 
 class StreamDataMessage(MessageBase):
@@ -124,7 +124,7 @@ class RawChannelReader(RawIOBase, AbstractContextManager):
         self._eof = False
         self._channel._register_message_type(StreamDataMessage, is_system_type=True)
         self._channel.add_message_handler(self._handle_message)
-        self._listeners: [Callable[[int], None]] = []
+        self._listeners: List[Callable[[int], None]] = []
 
     def add_ready_callback(self, cb: Callable[[int], None]):
         """
