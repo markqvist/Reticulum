@@ -1072,7 +1072,8 @@ class Reticulum:
                     else:
                         ifstats["announce_queue"] = None
 
-                ifstats["name"] = str(interface)
+                ifstats["name"] = str(interface.name)
+                ifstats["repr_name"] = str(interface)
                 ifstats["short_name"] = str(interface.name)
                 ifstats["hash"] = interface.get_hash()
                 ifstats["type"] = str(type(interface).__name__)
