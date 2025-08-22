@@ -417,7 +417,7 @@ class AutoInterface(Interface):
                     last_multicast_echo = self.multicast_echoes[ifname]
 
                 if now - last_multicast_echo > self.multicast_echo_timeout:
-                    if ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == False:
+                    if ifname not in self.timed_out_interfaces or self.timed_out_interfaces[ifname] == False:
                         self.carrier_changed = True
                         RNS.log("Multicast echo timeout for "+str(ifname)+". Carrier lost.", RNS.LOG_WARNING)
                     self.timed_out_interfaces[ifname] = True
