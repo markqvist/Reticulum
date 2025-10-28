@@ -1554,7 +1554,7 @@ class BLEConnection(BluetoothDispatcher):
     UART_TX_CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
     MAX_GATT_ATTR_LEN = 512
     BASE_MTU          = 20
-    TARGET_MTU        = 242
+    TARGET_MTU        = 512
 
     MTU_TIMEOUT = 4.0
     CONNECT_TIMEOUT = 7.0
