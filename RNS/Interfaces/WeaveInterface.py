@@ -637,7 +637,7 @@ class WeaveDevice():
         else:
             ts = RNS.prettytime(frame.timestamp)
             if frame.event == Evt.ET_MSG:
-                if len(frame.data): data_string = f"{frame.data.decode("utf-8")}"
+                if len(frame.data): data_string = frame.data.decode("utf-8")
                 else: data_string = ""
                 rendered = f"[{ts}] [{Evt.level(frame.level)}]: {data_string}"
 
