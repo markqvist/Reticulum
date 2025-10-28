@@ -456,6 +456,7 @@ class RNodeInterface(Interface):
         self.first_tx    = None
         self.reconnect_w = RNodeInterface.RECONNECT_WAIT
         self.reconnect_lock = threading.Lock()
+        self.awaiting_ble_reset = False
 
         self.r_frequency = None
         self.r_bandwidth = None
@@ -599,14 +600,16 @@ class RNodeInterface(Interface):
         else:
             raise IOError("No ports available for writing")
 
-    # def reset_ble(self):
-    #     RNS.log(f"Clearing previous connection instance: "+str(self.ble))
-    #     del self.ble
-    #     self.ble = None
-    #     self.serial = None
-    #     self.ble = BLEConnection(owner=self, target_name=self.ble_name, target_bt_addr=self.ble_addr)
-    #     self.serial = self.ble
-    #     RNS.log(f"New connection instance: "+str(self.ble))
+    def reset_ble(self):
+        if not self.awaiting_ble_reset: return
+        else:
+            RNS.log(f"Clearing previous connection instance: "+str(self.ble), RNS.LOG_DEBUG)
+            self.ble = None
+            self.serial = None
+            self.ble = BLEConnection(owner=self, target_name=self.ble_name, target_bt_addr=self.ble_addr)
+            self.serial = self.ble
+            self.awaiting_ble_reset = False
+            RNS.log(f"New connection instance: "+str(self.ble), RNS.LOG_DEBUG)
         
     def open_port(self):
         if not self.use_ble:
@@ -1699,12 +1702,15 @@ class BLEConnection(BluetoothDispatcher):
             else:
                 RNS.log(f"BLE device connection timed out for {self.owner}", RNS.LOG_DEBUG)
                 if self.mtu_requested_time:
-                    RNS.log("MTU update timeout, tearing down connection")
+                    RNS.log("MTU update timeout, tearing down connection and resetting BLE dispatcher")
                     self.owner.hw_errors.append({"error": KISS.ERROR_INVALID_BLE_MTU, "description": "The Bluetooth Low Energy transfer MTU could not be configured for the connected device, and communication has failed. Restart Reticulum and any connected applications to retry connecting."})
                     self.close()
+                    self.close_gatt()
                     self.should_run = False
-                
-                self.close_gatt()
+                    self.owner.awaiting_ble_reset = True
+
+                else:
+                    self.close_gatt()
 
             self.connect_job_running = False
 
