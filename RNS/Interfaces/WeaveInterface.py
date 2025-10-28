@@ -1,6 +1,5 @@
 import RNS
 import threading
-import serial
 import time
 
 from collections import deque

@@ -767,6 +767,10 @@ class Reticulum:
                                     interface_post_init(interface)
                                     interface.start()
 
+                                if c["type"] == "WeaveInterface":
+                                    interface = WeaveInterface.WeaveInterface(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
+
                                 if interface == None:
                                     # Interface was not handled by any internal interface types,
                                     # attempt to load and initialise it from user-supplied modules
