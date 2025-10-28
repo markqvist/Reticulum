@@ -74,7 +74,7 @@ class KISS():
     CMD_FW_VERSION  = 0x50
     CMD_ROM_READ    = 0x51
     CMD_RESET       = 0x55
-    CMD_INTERFACES  = 0x64
+    CMD_INTERFACES  = 0x71
 
     CMD_INT0_DATA   = 0x00
     CMD_INT1_DATA   = 0x10
