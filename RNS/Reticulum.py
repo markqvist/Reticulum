@@ -39,6 +39,7 @@ if get_platform() == "android":
     from .Interfaces import UDPInterface
     from .Interfaces import I2PInterface
     from .Interfaces import RNodeMultiInterface
+    from .Interfaces import WeaveInterface
     from .Interfaces.Android import RNodeInterface
     from .Interfaces.Android import SerialInterface
     from .Interfaces.Android import KISSInterface
@@ -1036,6 +1037,10 @@ class Reticulum:
                 if hasattr(interface, "switch_id"):
                     if interface.switch_id != None: ifstats["switch_id"] = RNS.hexrep(interface.switch_id)
                     else:                           ifstats["switch_id"] = None
+
+                if hasattr(interface, "via_switch_id"):
+                    if interface.via_switch_id != None: ifstats["via_switch_id"] = RNS.hexrep(interface.via_switch_id)
+                    else:                               ifstats["via_switch_id"] = None
 
                 if hasattr(interface, "endpoint_id"):
                     if interface.endpoint_id != None: ifstats["endpoint_id"] = RNS.hexrep(interface.endpoint_id)

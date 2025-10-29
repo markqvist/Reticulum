@@ -96,7 +96,8 @@ class WDCL():
                 RNS.log("You can install one with the command: python3 -m pip install pyserial", RNS.LOG_CRITICAL)
                 RNS.panic()
 
-        if port == None: raise ValueError("No port specified")
+        if not RNS.vendor.platformutils.is_android():
+            if port == None: raise ValueError("No port specified")
         
         self.switch_identity = owner.switch_identity
         self.switch_id = self.switch_identity.sig_pub_bytes[-4:]
@@ -130,8 +131,7 @@ class WDCL():
         if self.as_interface:
             try:
                 self.open_port()
-
-                if self.serial.is_open: self.configure_device()
+                if self.serial and self.serial.is_open: self.configure_device()
                 else: raise IOError("Could not open serial port")
 
             except Exception as e:
@@ -176,59 +176,60 @@ class WDCL():
                 dsrdtr = False)
 
         else:
-            # Get device parameters
-            from usb4a import usb
-            device = usb.get_usb_device(self.port)
-            if device:
-                vid = device.getVendorId()
-                pid = device.getProductId()
+            if self.port != None:
+                # Get device parameters
+                from usb4a import usb
+                device = usb.get_usb_device(self.port)
+                if device:
+                    vid = device.getVendorId()
+                    pid = device.getProductId()
 
-                # Driver overrides for speficic chips
-                proxy = self.pyserial.get_serial_port
-                if vid == 0x1A86 and pid == 0x55D4:
-                    # Force CDC driver for Qinheng CH34x
-                    RNS.log(str(self)+" using CDC driver for "+RNS.hexrep(vid)+":"+RNS.hexrep(pid), RNS.LOG_DEBUG)
-                    from usbserial4a.cdcacmserial4a import CdcAcmSerial
-                    proxy = CdcAcmSerial
+                    # Driver overrides for speficic chips
+                    proxy = self.pyserial.get_serial_port
+                    if vid == 0x1A86 and pid == 0x55D4:
+                        # Force CDC driver for Qinheng CH34x
+                        RNS.log(str(self)+" using CDC driver for "+RNS.hexrep(vid)+":"+RNS.hexrep(pid), RNS.LOG_DEBUG)
+                        from usbserial4a.cdcacmserial4a import CdcAcmSerial
+                        proxy = CdcAcmSerial
 
-                self.serial = proxy(
-                    self.port,
-                    baudrate = self.speed,
-                    bytesize = self.databits,
-                    parity = self.parity,
-                    stopbits = self.stopbits,
-                    xonxoff = False,
-                    rtscts = False,
-                    timeout = None,
-                    inter_byte_timeout = None,
-                    # write_timeout = wtimeout,
-                    dsrdtr = False,
-                )
+                    self.serial = proxy(
+                        self.port,
+                        baudrate = self.speed,
+                        bytesize = self.databits,
+                        parity = self.parity,
+                        stopbits = self.stopbits,
+                        xonxoff = False,
+                        rtscts = False,
+                        timeout = None,
+                        inter_byte_timeout = None,
+                        # write_timeout = wtimeout,
+                        dsrdtr = False,
+                    )
 
-                if vid == 0x0403:
-                    # Hardware parameters for FTDI devices @ 115200 baud
-                    self.serial.DEFAULT_READ_BUFFER_SIZE = 16 * 1024
-                    self.serial.USB_READ_TIMEOUT_MILLIS = 100
-                    self.serial.timeout = 0.1
-                elif vid == 0x10C4:
-                    # Hardware parameters for SiLabs CP210x @ 115200 baud
-                    self.serial.DEFAULT_READ_BUFFER_SIZE = 64 
-                    self.serial.USB_READ_TIMEOUT_MILLIS = 12
-                    self.serial.timeout = 0.012
-                elif vid == 0x1A86 and pid == 0x55D4:
-                    # Hardware parameters for Qinheng CH34x @ 115200 baud
-                    self.serial.DEFAULT_READ_BUFFER_SIZE = 64
-                    self.serial.USB_READ_TIMEOUT_MILLIS = 12
-                    self.serial.timeout = 0.1
-                else:
-                    # Default values
-                    self.serial.DEFAULT_READ_BUFFER_SIZE = 1 * 1024
-                    self.serial.USB_READ_TIMEOUT_MILLIS = 100
-                    self.serial.timeout = 0.1
+                    if vid == 0x0403:
+                        # Hardware parameters for FTDI devices @ 115200 baud
+                        self.serial.DEFAULT_READ_BUFFER_SIZE = 16 * 1024
+                        self.serial.USB_READ_TIMEOUT_MILLIS = 100
+                        self.serial.timeout = 0.1
+                    elif vid == 0x10C4:
+                        # Hardware parameters for SiLabs CP210x @ 115200 baud
+                        self.serial.DEFAULT_READ_BUFFER_SIZE = 64 
+                        self.serial.USB_READ_TIMEOUT_MILLIS = 12
+                        self.serial.timeout = 0.012
+                    elif vid == 0x1A86 and pid == 0x55D4:
+                        # Hardware parameters for Qinheng CH34x @ 115200 baud
+                        self.serial.DEFAULT_READ_BUFFER_SIZE = 64
+                        self.serial.USB_READ_TIMEOUT_MILLIS = 12
+                        self.serial.timeout = 0.1
+                    else:
+                        # Default values
+                        self.serial.DEFAULT_READ_BUFFER_SIZE = 1 * 1024
+                        self.serial.USB_READ_TIMEOUT_MILLIS = 100
+                        self.serial.timeout = 0.1
 
-                RNS.log(str(self)+" USB read buffer size set to "+RNS.prettysize(self.serial.DEFAULT_READ_BUFFER_SIZE), RNS.LOG_DEBUG)
-                RNS.log(str(self)+" USB read timeout set to "+str(self.serial.USB_READ_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
-                RNS.log(str(self)+" USB write timeout set to "+str(self.serial.USB_WRITE_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
+                    RNS.log(str(self)+" USB read buffer size set to "+RNS.prettysize(self.serial.DEFAULT_READ_BUFFER_SIZE), RNS.LOG_DEBUG)
+                    RNS.log(str(self)+" USB read timeout set to "+str(self.serial.USB_READ_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
+                    RNS.log(str(self)+" USB write timeout set to "+str(self.serial.USB_WRITE_TIMEOUT_MILLIS)+"ms", RNS.LOG_DEBUG)
 
     def close(self):
         self.should_run = False
@@ -280,9 +281,6 @@ class WDCL():
             while self.serial.is_open:
                 data_in = self.serial.read(1500)
                 if len(data_in) > 0:
-                    # TODO: Remove debug
-                    # self.device.receiver.log(f"Read {len(data_in)}")
-                    # self.device.receiver.log(f"Raw:\n {RNS.hexrep(data_in).replace("7e", "[bold red]7e[/bold red]")}")
                     self.frame_buffer += data_in
                     flags_remaining = True
                     while flags_remaining:
@@ -312,8 +310,6 @@ class WDCL():
                     self.owner.wlog("Will attempt to reconnect the interface periodically.")
                 RNS.trace_exception(e)
 
-        RNS.log("READ LOOP EXIT")
-
         self.online = False
         self.wdcl_connected = False
         try: self.serial.close()
@@ -327,21 +323,21 @@ class WDCL():
         while not self.online:
             try:
                 time.sleep(5)
-                if self.as_interface: RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_INFO)
-                else: self.owner.wlog("Attempting to reconnect serial port "+str(self.port.device)+" for "+str(self)+"...")
+                if self.as_interface: RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self.owner)+"...", RNS.LOG_DEBUG)
+                else: self.owner.wlog("Attempting to reconnect serial port "+str(self.port.device)+" for "+str(self.owner)+"...")
                 self.open_port()
-                if self.serial.is_open: self.configure_device()
+                if self.serial and self.serial.is_open: self.configure_device()
             except Exception as e:
                 if self.as_interface: RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
                 else: self.owner.wlog("Error while reconnecting port, the contained exception was: "+str(e))
+                RNS.trace_exception(e)
 
         self.reconnecting = False
         if self.as_interface: RNS.log("Reconnected serial port for "+str(self), RNS.LOG_INFO)
         else: self.owner.wlog("Reconnected serial port for "+str(self))
 
     def __str__(self):
-        if self.as_interface:
-            return self.port
+        if self.as_interface: return f"WDCL over {self.port}"
         else:
             if self.port.serial_number: sn_str = f" {self.port.serial_number}"
             else: sn_str = ""
@@ -394,6 +390,7 @@ class Evt():
     ET_PROTO_WEAVE_RUNNING       = 0x3101
     ET_PROTO_WEAVE_EP_ALIVE      = 0x3102
     ET_PROTO_WEAVE_EP_TIMEOUT    = 0x3103
+    ET_PROTO_WEAVE_EP_VIA        = 0x3104
     ET_SRVCTL_REMOTE_DISPLAY     = 0xA000
     ET_INTERFACE_REGISTERED      = 0xD000
     ET_STAT_STATE                = 0xE000
@@ -458,7 +455,7 @@ class Evt():
         ET_PROTO_WDCL_HOST_ENDPOINT: "Weave host endpoint",
         ET_PROTO_WEAVE_INIT: "Weave protocol initialization",
         ET_PROTO_WEAVE_RUNNING: "Weave protocol activation",
-        ET_PROTO_WEAVE_EP_ALIVE: "Weave endpoint appeared",
+        ET_PROTO_WEAVE_EP_ALIVE: "Weave endpoint alive",
         ET_PROTO_WEAVE_EP_TIMEOUT: "Weave endpoint disappeared",
         ET_SRVCTL_REMOTE_DISPLAY: "Remote display service control event",
         ET_INTERFACE_REGISTERED: "Interface registration",
@@ -566,6 +563,7 @@ class WeaveEndpoint():
     def __init__(self, endpoint_addr):
         self.endpoint_addr = endpoint_addr
         self.alive = time.time()
+        self.via = None
         self.received = deque(maxlen=WeaveEndpoint.QUEUE_LEN)
 
     def receive(self, data):
@@ -701,6 +699,10 @@ class WeaveDevice():
 
         if self.as_interface: self.rns_interface.add_peer(endpoint_id)
 
+    def endpoint_via(self, endpoint_id, via_switch_id):
+        if endpoint_id in self.endpoints: self.endpoints[endpoint_id].via = via_switch_id
+        if self.as_interface: self.rns_interface.endpoint_via(endpoint_id, via_switch_id)
+
     def deliver_packet(self, endpoint_id, data):
         packet_data = endpoint_id+data
         self.wdcl_send_command(Cmd.WDCL_CMD_ENDPOINT_PKT, packet_data)
@@ -760,8 +762,8 @@ class WeaveDevice():
         # Handle system event signalling
         if frame.event == Evt.ET_PROTO_WDCL_CONNECTION: self.connection.wdcl_connected = True
         if frame.event == Evt.ET_PROTO_WDCL_HOST_ENDPOINT and len(frame.data) == self.WEAVE_ENDPOINT_ID_LEN: self.endpoint_id = frame.data
-        if frame.event == Evt.ET_PROTO_WEAVE_EP_ALIVE and len(frame.data) == 8:
-            self.endpoint_alive(frame.data)
+        if frame.event == Evt.ET_PROTO_WEAVE_EP_ALIVE and len(frame.data) == self.WEAVE_ENDPOINT_ID_LEN: self.endpoint_alive(frame.data)
+        if frame.event == Evt.ET_PROTO_WEAVE_EP_VIA and len(frame.data) == self.WEAVE_ENDPOINT_ID_LEN+self.WEAVE_SWITCH_ID_LEN: self.endpoint_via(frame.data[:self.WEAVE_ENDPOINT_ID_LEN], frame.data[self.WEAVE_ENDPOINT_ID_LEN:])
         elif frame.event == Evt.ET_STAT_TASK_CPU: self.active_tasks[frame.data[1:].decode("utf-8")] = { "cpu_load": frame.data[0], "timestamp": time.time() }
         elif frame.event == Evt.ET_STAT_CPU: 
             self.cpu_load = frame.data[0]
@@ -829,7 +831,7 @@ class WeaveInterface(Interface):
 
     DEFAULT_IFAC_SIZE  = 16
     PEERING_TIMEOUT    = 20.0
-    BITRATE_GUESS      = 500*1000
+    BITRATE_GUESS      = 250*1000
 
     MULTI_IF_DEQUE_LEN = 48
     MULTI_IF_DEQUE_TTL = 0.75
@@ -871,6 +873,7 @@ class WeaveInterface(Interface):
         self.port = port
         self.switch_identity = RNS.Identity()
         self.owner = owner
+        self.hw_errors = []
         self._online = False
         self.final_init_done = False
         self.peers = {}
@@ -925,10 +928,11 @@ class WeaveInterface(Interface):
     def peer_count(self):
         return len(self.spawned_interfaces)
 
+    def endpoint_via(self, endpoint_addr, via_switch_addr):
+        if endpoint_addr in self.peers: self.peers[endpoint_addr][2].via_switch_id = via_switch_addr
+
     def add_peer(self, endpoint_addr):    
         if not endpoint_addr in self.peers:
-            self.peers[endpoint_addr] = [endpoint_addr, time.time()]
-
             spawned_interface = WeaveInterfacePeer(self, endpoint_addr)
             spawned_interface.OUT = self.OUT
             spawned_interface.IN  = self.IN
@@ -966,7 +970,9 @@ class WeaveInterface(Interface):
                 self.spawned_interfaces[endpoint_addr].detach()
                 self.spawned_interfaces[endpoint_addr].teardown()
                 self.spawned_interfaces.pop(spawned_interface)
+
             self.spawned_interfaces[endpoint_addr] = spawned_interface
+            self.peers[endpoint_addr] = [endpoint_addr, time.time(), spawned_interface]
 
             RNS.log(f"{self} added peer {RNS.hexrep(endpoint_addr)}", RNS.LOG_DEBUG)
         else:
@@ -1010,6 +1016,7 @@ class WeaveInterfacePeer(Interface):
         self.owner = owner
         self.parent_interface = owner
         self.endpoint_addr = endpoint_addr
+        self.via_switch_id = None
         self.peer_addr = None
         self.addr_info = None
         self.HW_MTU = self.owner.HW_MTU

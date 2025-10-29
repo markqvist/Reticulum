@@ -370,6 +370,10 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             if ifstat["endpoint_id"] != None: print("    Endpoint  : {v}".format(v=str(ifstat["endpoint_id"])))
                             else:                             print("    Endpoint  : Unknown")
 
+                        if "via_switch_id" in ifstat:
+                            if ifstat["via_switch_id"] != None: print("    Via       : {v}".format(v=str(ifstat["via_switch_id"])))
+                            else:                               print("    Via       : Unknown")
+
                         if "peers" in ifstat and ifstat["peers"] != None:
                             print("    Peers     : {np} reachable".format(np=ifstat["peers"]))
 
