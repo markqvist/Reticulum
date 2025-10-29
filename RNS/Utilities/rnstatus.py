@@ -263,6 +263,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 name.startswith("TCPInterface[Client") or
                 name.startswith("BackboneInterface[Client on") or
                 name.startswith("AutoInterfacePeer[") or
+                name.startswith("WeaveInterfacePeer[") or
                 name.startswith("I2PInterfacePeer[Connected peer") or
                 (name.startswith("I2PInterface[") and ("i2p_connectable" in ifstat and ifstat["i2p_connectable"] == False))
                 ):
@@ -339,6 +340,14 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             else:
                                 print("    Noise Fl. : Unknown")
 
+                        if "cpu_load" in ifstat:
+                            if ifstat["cpu_load"] != None: print("    CPU load  : {v} %".format(v=str(ifstat["cpu_load"])))
+                            else:                          print("    CPU load  : Unknown")
+
+                        if "mem_load" in ifstat:
+                            if ifstat["cpu_load"] != None: print("    Mem usage : {v} %".format(v=str(ifstat["mem_load"])))
+                            else:                          print("    Mem usage : Unknown")
+
                         if "battery_percent" in ifstat and ifstat["battery_percent"] != None:
                             try:
                                 bpi = int(ifstat["battery_percent"])
@@ -352,6 +361,14 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         
                         if "channel_load_short" in ifstat and "channel_load_long" in ifstat:
                             print("    Ch. Load  : {ats}% (15s), {atl}% (1h)".format(ats=str(ifstat["channel_load_short"]),atl=str(ifstat["channel_load_long"])))
+
+                        if "switch_id" in ifstat:
+                            if ifstat["switch_id"] != None: print("    Switch ID : {v}".format(v=str(ifstat["switch_id"])))
+                            else:                           print("    Switch ID : Unknown")
+
+                        if "endpoint_id" in ifstat:
+                            if ifstat["endpoint_id"] != None: print("    Endpoint  : {v}".format(v=str(ifstat["endpoint_id"])))
+                            else:                             print("    Endpoint  : Unknown")
 
                         if "peers" in ifstat and ifstat["peers"] != None:
                             print("    Peers     : {np} reachable".format(np=ifstat["peers"]))

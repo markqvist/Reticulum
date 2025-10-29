@@ -805,6 +805,7 @@ class Reticulum:
                         except Exception as e:
                             RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
                             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                            RNS.trace_exception(e)
                             RNS.panic()
                     else:
                         RNS.log("The interface name \""+name+"\" was already used. Check your configuration file for errors!", RNS.LOG_ERROR)
@@ -1025,6 +1026,20 @@ class Reticulum:
 
                 if hasattr(interface, "r_noise_floor"):
                     ifstats["noise_floor"] = interface.r_noise_floor
+
+                if hasattr(interface, "cpu_load"):
+                    ifstats["cpu_load"] = interface.cpu_load
+
+                if hasattr(interface, "mem_load"):
+                    ifstats["mem_load"] = interface.mem_load
+
+                if hasattr(interface, "switch_id"):
+                    if interface.switch_id != None: ifstats["switch_id"] = RNS.hexrep(interface.switch_id)
+                    else:                           ifstats["switch_id"] = None
+
+                if hasattr(interface, "endpoint_id"):
+                    if interface.endpoint_id != None: ifstats["endpoint_id"] = RNS.hexrep(interface.endpoint_id)
+                    else:                             ifstats["endpoint_id"] = None
 
                 if hasattr(interface, "r_battery_state"):
                     if interface.r_battery_state != 0x00:
