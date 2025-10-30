@@ -1824,6 +1824,13 @@ class Transport:
                                                                       announced_identity=announce_identity,
                                                                       app_data=RNS.Identity.recall_app_data(packet.destination_hash),
                                                                       announce_packet_hash = packet.packet_hash)
+                                        
+                                        elif len(inspect.signature(handler.received_announce).parameters) == 5:
+                                            handler.received_announce(destination_hash=packet.destination_hash,
+                                                                      announced_identity=announce_identity,
+                                                                      app_data=RNS.Identity.recall_app_data(packet.destination_hash),
+                                                                      announce_packet_hash = packet.packet_hash,
+                                                                      is_path_response = packet.context == RNS.Packet.PATH_RESPONSE)
                                         else:
                                             raise TypeError("Invalid signature for announce handler callback")
 
@@ -2159,9 +2166,10 @@ class Transport:
         Registers an announce handler.
 
         :param handler: Must be an object with an *aspect_filter* attribute and a *received_announce(destination_hash, announced_identity, app_data)*
-                        or *received_announce(destination_hash, announced_identity, app_data, announce_packet_hash)* callable. Can optionally have a
-                        *receive_path_responses* attribute set to ``True``, to also receive all path responses, in addition to live announces. See
-                        the :ref:`Announce Example<example-announce>` for more info.
+                        or *received_announce(destination_hash, announced_identity, app_data, announce_packet_hash)* or
+                        *received_announce(destination_hash, announced_identity, app_data, announce_packet_hash, is_path_response)* callable. Can
+                        optionally have a *receive_path_responses* attribute set to ``True``, to also receive all path responses, in addition to live
+                        announces. See the :ref:`Announce Example<example-announce>` for more info.
         """
         if hasattr(handler, "received_announce") and callable(handler.received_announce):
             if hasattr(handler, "aspect_filter"):
