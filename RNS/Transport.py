@@ -2133,7 +2133,10 @@ class Transport:
 
             if Transport.owner.is_connected_to_shared_instance:
                 if destination.type == RNS.Destination.SINGLE:
-                    destination.announce(path_response=True)
+                    def job():
+                        time.sleep(0.25)
+                        destination.announce(path_response=True)
+                    threading.Thread(target=job, daemon=True).start()
 
     @staticmethod
     def deregister_destination(destination):
