@@ -167,6 +167,7 @@ class ROM():
     MODEL_B9            = 0xB9
     MODEL_B4_TCXO       = 0x04 # The TCXO model codes are only used here to select the correct firmware,
     MODEL_B9_TCXO       = 0x09 # actual model codes in firmware is still 0xB4 and 0xB9.
+    
     PRODUCT_H32_V2      = 0xC0
     MODEL_C4            = 0xC4
     MODEL_C9            = 0xC9
@@ -174,6 +175,9 @@ class ROM():
     PRODUCT_H32_V3      = 0xC1
     MODEL_C5            = 0xC5
     MODEL_CA            = 0xCA
+
+    PRODUCT_H32_V4      = 0xC3
+    MODEL_C8            = 0xC8 # 868/915/923 MHz with PA
 
     PRODUCT_TBEAM       = 0xE0
     MODEL_E4            = 0xE4
@@ -270,6 +274,7 @@ products = {
     ROM.PRODUCT_T32_21: "LilyGO LoRa32 v2.1",
     ROM.PRODUCT_H32_V2: "Heltec LoRa32 v2",
     ROM.PRODUCT_H32_V3: "Heltec LoRa32 v3",
+    ROM.PRODUCT_H32_V4: "Heltec LoRa32 v4",
     ROM.PRODUCT_TECHO:  "LilyGO T-Echo",
     ROM.PRODUCT_RAK4631: "RAK4631",
     ROM.PRODUCT_OPENCOM_XL: "openCom XL",
@@ -314,6 +319,7 @@ models = {
     0xC9: [850000000, 950000000, 17, "850 - 950 MHz", "rnode_firmware_heltec32v2.zip", "SX1276"],
     0xC5: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_heltec32v3.zip", "SX1268"],
     0xCA: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_heltec32v3.zip", "SX1262"],
+    0xC8: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_heltec32v4pa.zip", "SX1262"],
     0xC6: [420000000, 520000000, 22, "420 - 520 MHz", "rnode_firmware_heltec_t114.zip", "SX1268"],
     0xC7: [850000000, 950000000, 22, "850 - 950 MHz", "rnode_firmware_heltec_t114.zip", "SX1262"],
     0xE4: [420000000, 520000000, 17, "420 - 520 MHz", "rnode_firmware_tbeam.zip", "SX1278"],
@@ -1730,13 +1736,14 @@ def main():
             print("[6]  LilyGO T-Beam")
             print("[7]  Heltec LoRa32 v2")
             print("[8]  Heltec LoRa32 v3")
-            print("[9]  LilyGO LoRa T3S3")
-            print("[10] RAK4631")
-            print("[11] LilyGo T-Echo")
-            print("[12] LilyGO T-Beam Supreme")
-            print("[13] LilyGO T-Deck")
-            print("[14] Heltec T114")
-            print("[15] Seeed XIAO ESP32S3 Wio-SX1262")
+            print("[9]  Heltec LoRa32 v4")
+            print("[10]  LilyGO LoRa T3S3")
+            print("[11] RAK4631")
+            print("[12] LilyGo T-Echo")
+            print("[13] LilyGO T-Beam Supreme")
+            print("[14] LilyGO T-Deck")
+            print("[15] Heltec T114")
+            print("[16] Seeed XIAO ESP32S3 Wio-SX1262")
             print("")
             print("---------------------------------------------------------------------------")
             print("\nEnter the number that matches your device type:\n? ", end="")
@@ -1745,7 +1752,7 @@ def main():
             try:
                 c_dev = int(input())
                 c_mod = False
-                if c_dev < 1 or c_dev > 15:
+                if c_dev < 1 or c_dev > 16:
                     raise ValueError()
                 elif c_dev == 1:
                     selected_product = ROM.PRODUCT_RNODE
@@ -1782,7 +1789,7 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 12:
+                elif c_dev == 13:
                     selected_product = ROM.PRODUCT_TBEAM_S_V1
                     clear()
                     print("")
@@ -1798,7 +1805,7 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 13:
+                elif c_dev == 14:
                     selected_product = ROM.PRODUCT_TDECK
                     clear()
                     print("")
@@ -1873,7 +1880,7 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 9:
+                elif c_dev == 10:
                     selected_product = ROM.PRODUCT_RNODE
                     c_mod = True
                     clear()
@@ -1902,7 +1909,21 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 10:
+                elif c_dev == 9:
+                    selected_product = ROM.PRODUCT_H32_V4
+                    clear()
+                    print("")
+                    print("---------------------------------------------------------------------------")
+                    print("                      Heltec LoRa32 v4 RNode Installer")
+                    print("")
+                    print("Important! Using RNode firmware on Heltec devices should currently be")
+                    print("considered experimental. It is not intended for production or critical use.")
+                    print("")
+                    print("The currently supplied firmware is provided AS-IS as a courtesy to those")
+                    print("who would like to experiment with it. Hit enter to continue.")
+                    print("---------------------------------------------------------------------------")
+                    input()
+                elif c_dev == 11:
                     selected_product = ROM.PRODUCT_RAK4631
                     clear()
                     print("")
@@ -1915,7 +1936,7 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 11:
+                elif c_dev == 12:
                     selected_product = ROM.PRODUCT_TECHO
                     clear()
                     print("")
@@ -1928,7 +1949,7 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 14:
+                elif c_dev == 15:
                     selected_product = ROM.PRODUCT_HELTEC_T114
                     clear()
                     print("")
@@ -1941,7 +1962,7 @@ def main():
                     print("who would like to experiment with it. Hit enter to continue.")
                     print("---------------------------------------------------------------------------")
                     input()
-                elif c_dev == 15:
+                elif c_dev == 16:
                     selected_product = ROM.PRODUCT_XIAO_S3
                     clear()
                     print("")
@@ -2264,6 +2285,7 @@ def main():
                 print("[2] 868 MHz")
                 print("[3] 915 MHz")
                 print("[4] 923 MHz")
+                print("\n? ", end="")
                 try:
                     c_model = int(input())
                     if c_model < 1 or c_model > 4:
@@ -2278,6 +2300,24 @@ def main():
                     print("That band does not exist, exiting now.")
                     exit()
             
+            elif selected_product == ROM.PRODUCT_H32_V4:
+                selected_mcu = ROM.MCU_ESP32
+                print("\nWhat band is this Heltec LoRa32 V4 for?\n")
+                print("[1] 868 MHz (28 dBm output)")
+                print("[2] 915 MHz (28 dBm output)")
+                print("[3] 923 MHz (28 dBm output)")
+                print("\n? ", end="")
+                try:
+                    c_model = int(input())
+                    if c_model < 1 or c_model > 3:
+                        raise ValueError()
+                    else:
+                        selected_model = ROM.MODEL_C8
+                        selected_platform = ROM.PLATFORM_ESP32
+                except Exception as e:
+                    print("That band does not exist, exiting now.")
+                    exit()
+            
             elif selected_product == ROM.PRODUCT_HELTEC_T114:
                 selected_mcu = ROM.MCU_NRF52
                 print("\nWhat band is this Heltec T114 for?\n")
@@ -2285,6 +2325,7 @@ def main():
                 print("[2] 868 MHz")
                 print("[3] 915 MHz")
                 print("[4] 923 MHz")
+                print("\n? ", end="")
                 try:
                     c_model = int(input())
                     if c_model < 1 or c_model > 4:
@@ -2304,6 +2345,7 @@ def main():
                 print("\nWhat band is this XIAO esp32s3 wio module for?\n")
                 print("[1] 433 MHz")
                 print("[2] 868 MHz")
+                print("\n? ", end="")
                 try:
                     c_model = int(input())
                     if c_model < 1 or c_model > 2:
@@ -2874,6 +2916,24 @@ def main():
                             "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.bin",
                             "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
                             "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v3.partitions",
+                        ]
+                    elif fw_filename == "rnode_firmware_heltec32v4pa.zip":
+                        return [
+                            sys.executable, flasher,
+                            "--chip", "esp32-s3",
+                            "--port", args.port,
+                            "--baud", args.baud_flash,
+                            "--before", "default_reset",
+                            "--after", "hard_reset",
+                            "write_flash", "-z",
+                            "--flash_mode", "dio",
+                            "--flash_freq", "80m",
+                            "--flash_size", "16MB",
+                            "0xe000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v4pa.boot_app0",
+                            "0x0",     UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v4pa.bootloader",
+                            "0x10000", UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v4pa.bin",
+                            "0x210000",UPD_DIR+"/"+selected_version+"/console_image.bin",
+                            "0x8000",  UPD_DIR+"/"+selected_version+"/rnode_firmware_heltec32v4pa.partitions",
                         ]
                     elif fw_filename == "rnode_firmware_featheresp32.zip":
                         if numeric_version >= 1.55:
