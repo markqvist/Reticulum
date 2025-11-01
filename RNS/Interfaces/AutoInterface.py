@@ -58,7 +58,10 @@ class AutoInterface(Interface):
     MULTICAST_PERMANENT_ADDRESS_TYPE = "0"
     MULTICAST_TEMPORARY_ADDRESS_TYPE = "1"
 
-    PEERING_TIMEOUT    = 10.0
+    PEERING_TIMEOUT    = 22.0
+    ANNOUNCE_INTERVAL  =  1.6
+    PEER_JOB_INTERVAL  =  4.0
+    MCAST_ECHO_TIMEOUT =  6.5
 
     ALL_IGNORE_IFS     = ["lo0"]
     DARWIN_IGNORE_IFS  = ["awdl0", "llw0", "lo0", "en5"]
@@ -136,15 +139,15 @@ class AutoInterface(Interface):
         self.outbound_udp_socket = None
 
         self.announce_rate_target = None
-        self.announce_interval = AutoInterface.PEERING_TIMEOUT/6.0
-        self.peer_job_interval = AutoInterface.PEERING_TIMEOUT*1.1
+        self.announce_interval = AutoInterface.ANNOUNCE_INTERVAL
+        self.peer_job_interval = AutoInterface.PEER_JOB_INTERVAL
         self.peering_timeout   = AutoInterface.PEERING_TIMEOUT
-        self.multicast_echo_timeout = AutoInterface.PEERING_TIMEOUT/2
+        self.multicast_echo_timeout = AutoInterface.MCAST_ECHO_TIMEOUT
 
         # Increase peering timeout on Android, due to potential
         # low-power modes implemented on many chipsets.
         if RNS.vendor.platformutils.is_android():
-            self.peering_timeout *= 2.5
+            self.peering_timeout *= 1.25
 
         if allowed_interfaces == None:
             self.allowed_interfaces = []
