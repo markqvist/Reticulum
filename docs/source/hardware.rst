@@ -232,7 +232,7 @@ LilyGO T-Echo
 Heltec T114
 """""""""""
 - **Transceiver IC** Semtech SX1262 or SX1268
-- **Device Platform** ESP32
+- **Device Platform** nRF52
 - **Manufacturer** `Heltec Automation <https://heltec.org>`_
 
 ------------
