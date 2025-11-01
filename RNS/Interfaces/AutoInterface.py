@@ -125,6 +125,7 @@ class AutoInterface(Interface):
         self.adopted_interfaces = {}
         self.interface_servers = {}
         self.multicast_echoes = {}
+        self.initial_echoes = {}
         self.timed_out_interfaces = {}
         self.spawned_interfaces = {}
         self.write_lock = threading.Lock()
@@ -412,9 +413,10 @@ class AutoInterface(Interface):
                     RNS.log("Could not get device information while updating link-local addresses for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
                 # Check multicast echo timeouts
-                last_multicast_echo = 0
-                if ifname in self.multicast_echoes:
-                    last_multicast_echo = self.multicast_echoes[ifname]
+                last_multicast_echo     = 0
+                multicast_echo_received = False
+                if ifname in self.multicast_echoes: last_multicast_echo     = self.multicast_echoes[ifname]
+                if ifname in self.initial_echoes:   multicast_echo_received = True
 
                 if now - last_multicast_echo > self.multicast_echo_timeout:
                     if ifname in self.timed_out_interfaces and self.timed_out_interfaces[ifname] == False:
@@ -426,6 +428,11 @@ class AutoInterface(Interface):
                         self.carrier_changed = True
                         RNS.log(str(self)+" Carrier recovered on "+str(ifname), RNS.LOG_WARNING)
                     self.timed_out_interfaces[ifname] = False
+
+                if not multicast_echo_received:
+                    RNS.log(f"{self} No multicast echoes received on {ifname}. The networking hardware or a firewall may be blocking multicast traffic.", RNS.LOG_ERROR)
+                # else:
+                #     RNS.log(f"{self} Initial multicast echo on {ifname} received {RNS.prettytime(time.time()-self.initial_echoes[ifname])} ago.", RNS.LOG_DEBUG)
                 
 
     def announce_handler(self, ifname):
@@ -464,6 +471,7 @@ class AutoInterface(Interface):
 
             if ifname != None:
                 self.multicast_echoes[ifname] = time.time()
+                if not ifname in self.initial_echoes: self.initial_echoes[ifname] = time.time()
             else:
                 RNS.log(str(self)+" received multicast echo on unexpected interface "+str(ifname), RNS.LOG_WARNING)
 
