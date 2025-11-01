@@ -272,23 +272,15 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                     if name_filter == None or name_filter.lower() in name.lower():
                         print("")
 
-                        if ifstat["status"]:
-                            ss = "Up"
-                        else:
-                            ss = "Down"
+                        if ifstat["status"]: ss = "Up"
+                        else: ss = "Down"
 
-                        if ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
-                            modestr = "Access Point"
-                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_POINT_TO_POINT:
-                            modestr = "Point-to-Point"
-                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
-                            modestr = "Roaming"
-                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
-                            modestr = "Boundary"
-                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_GATEWAY:
-                            modestr = "Gateway"
-                        else:
-                            modestr = "Full"
+                        if ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT: modestr = "Access Point"
+                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_POINT_TO_POINT: modestr = "Point-to-Point"
+                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ROAMING: modestr = "Roaming"
+                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY: modestr = "Boundary"
+                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_GATEWAY: modestr = "Gateway"
+                        else: modestr = "Full"
 
 
                         if ifstat["clients"] != None:
