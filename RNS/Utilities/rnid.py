@@ -202,7 +202,7 @@ def main():
                 else:
                     try:
                         identity.to_file(args.generate)
-                        RNS.log("New identity written to "+str(args.generate))
+                        RNS.log(f"New identity {identity} written to {args.generate}")
                         exit(0)
                     except Exception as e:
                         RNS.log("An error ocurred while saving the generated Identity.", RNS.LOG_ERROR)
