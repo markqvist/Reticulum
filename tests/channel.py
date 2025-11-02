@@ -415,7 +415,7 @@ class TestChannel(unittest.TestCase):
             nonlocal count, write_finished
             count = writer.write(data.encode("utf-8"))
             writer.flush()
-            # writer.close() # TODO: Temporary workaround for https://github.com/python/cpython/issues/138720
+            writer.close() # TODO: Workaround for https://github.com/python/cpython/issues/138720
             write_finished = True
         threading.Thread(target=write_thread, name="Write Thread", daemon=True).start()
 
