@@ -1,25 +1,26 @@
 <!doctype html>
-<html class="no-js" lang="en">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Using Reticulum on Your System" href="using.html" /><link rel="prev" title="What is Reticulum?" href="whatis.html" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Using Reticulum on Your System" href="using.html"><link rel="prev" title="What is Reticulum?" href="whatis.html">
+        <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
-    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
-        <title>Getting Started Fast - Reticulum Network Stack 1.0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
-    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
+        <title>Getting Started Fast - Reticulum Network Stack 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=bb3cebc5" />
     
     
 
 
 <style>
   body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
   
   }
   @media not print {
@@ -86,7 +87,7 @@
   <symbol id="svg-sun" viewBox="0 0 24 24">
     <title>Light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
       <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -101,34 +102,73 @@
   <symbol id="svg-moon" viewBox="0 0 24 24">
     <title>Dark mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
   </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
 </svg>
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
 
 
@@ -136,38 +176,35 @@
   <header class="mobile-header">
     <div class="header-left">
       <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.0.0 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.0.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
       <label class="toc-overlay-icon toc-header-icon" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
   </header>
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="index.html">
-  
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   <div class="sidebar-logo-container">
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.0.0 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.0.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -183,8 +220,8 @@
 <li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interfaces.html">Configuring Interfaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a></li>
@@ -208,29 +245,28 @@
         </a>
         <div class="content-icon-container">
           <div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
           <label class="toc-overlay-icon toc-content-icon" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <section id="getting-started-fast">
-<h1>Getting Started Fast<a class="headerlink" href="#getting-started-fast" title="Permalink to this heading">#</a></h1>
+<h1>Getting Started Fast<a class="headerlink" href="#getting-started-fast" title="Link to this heading">¶</a></h1>
 <p>The best way to get started with the Reticulum Network Stack depends on what
 you want to do. This guide will outline sensible starting paths for different
 scenarios.</p>
 <section id="standalone-reticulum-installation">
-<h2>Standalone Reticulum Installation<a class="headerlink" href="#standalone-reticulum-installation" title="Permalink to this heading">#</a></h2>
+<h2>Standalone Reticulum Installation<a class="headerlink" href="#standalone-reticulum-installation" title="Link to this heading">¶</a></h2>
 <p>If you simply want to install Reticulum and related utilities on a system,
 the easiest way is via the <code class="docutils literal notranslate"><span class="pre">pip</span></code> package manager:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>rns
 </pre></div>
 </div>
 <p>If you do not already have pip installed, you can install it using the package manager
@@ -238,7 +274,14 @@ of your system with a command like <code class="docutils literal notranslate"><s
 <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">pamac</span> <span class="pre">install</span> <span class="pre">python-pip</span></code> or similar.</p>
 <p>You can also dowload the Reticulum release wheels from GitHub, or other release channels,
 and install them offline using <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">./</span><span class="n">rns</span><span class="o">-</span><span class="mf">0.5.1</span><span class="o">-</span><span class="n">py3</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="nb">any</span><span class="o">.</span><span class="n">whl</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>./rns-1.0.1-py3-none-any.whl
+</pre></div>
+</div>
+<p>On platforms that limit user package installation via <code class="docutils literal notranslate"><span class="pre">pip</span></code>, you may need to manually
+allow this using the <code class="docutils literal notranslate"><span class="pre">--break-system-packages</span></code> command line flag when installing. This
+will not actually break any packages, unless you have installed Reticulum directly via
+your operating system’s package manager.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>rns<span class="w"> </span>--break-system-packages
 </pre></div>
 </div>
 <p>For more detailed installation instructions, please see the
@@ -246,18 +289,18 @@ and install them offline using <code class="docutils literal notranslate"><span 
 <p>After installation is complete, it might be helpful to refer to the
 <a class="reference internal" href="using.html#using-main"><span class="std std-ref">Using Reticulum on Your System</span></a> chapter.</p>
 <section id="resolving-dependency-installation-issues">
-<h3>Resolving Dependency &amp; Installation Issues<a class="headerlink" href="#resolving-dependency-installation-issues" title="Permalink to this heading">#</a></h3>
+<h3>Resolving Dependency &amp; Installation Issues<a class="headerlink" href="#resolving-dependency-installation-issues" title="Link to this heading">¶</a></h3>
 <p>On some platforms, there may not be binary packages available for all dependencies, and
 <code class="docutils literal notranslate"><span class="pre">pip</span></code> installation may fail with an error message. In these cases, the issue can usually
 be resolved by installing the development essentials packages for your platform:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Debian / Ubuntu / Derivatives</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Debian / Ubuntu / Derivatives</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>build-essential
 
 <span class="c1"># Arch / Manjaro / Derivatives</span>
-<span class="n">sudo</span> <span class="n">pamac</span> <span class="n">install</span> <span class="n">base</span><span class="o">-</span><span class="n">devel</span>
+sudo<span class="w"> </span>pamac<span class="w"> </span>install<span class="w"> </span>base-devel
 
 <span class="c1"># Fedora</span>
-<span class="n">sudo</span> <span class="n">dnf</span> <span class="n">groupinstall</span> <span class="s2">&quot;Development Tools&quot;</span> <span class="s2">&quot;Development Libraries&quot;</span>
+sudo<span class="w"> </span>dnf<span class="w"> </span>groupinstall<span class="w"> </span><span class="s2">&quot;Development Tools&quot;</span><span class="w"> </span><span class="s2">&quot;Development Libraries&quot;</span>
 </pre></div>
 </div>
 <p>With the base development packages installed, <code class="docutils literal notranslate"><span class="pre">pip</span></code> should be able to compile any missing
@@ -266,7 +309,7 @@ compiled packages available.</p>
 </section>
 </section>
 <section id="try-using-a-reticulum-based-program">
-<h2>Try Using a Reticulum-based Program<a class="headerlink" href="#try-using-a-reticulum-based-program" title="Permalink to this heading">#</a></h2>
+<h2>Try Using a Reticulum-based Program<a class="headerlink" href="#try-using-a-reticulum-based-program" title="Link to this heading">¶</a></h2>
 <p>If you simply want to try using a program built with Reticulum, a few different
 programs exist that allow basic communication and a range of other useful functions,
 even over extremely low-bandwidth Reticulum networks.</p>
@@ -278,7 +321,7 @@ transceivers or infrastructure just to try it out. Launching the programs on sep
 devices connected to the same WiFi network is enough to get started, and physical
 radio interfaces can then be added later.</p>
 <section id="remote-shell">
-<h3>Remote Shell<a class="headerlink" href="#remote-shell" title="Permalink to this heading">#</a></h3>
+<h3>Remote Shell<a class="headerlink" href="#remote-shell" title="Link to this heading">¶</a></h3>
 <p>The <a class="reference external" href="https://github.com/acehoss/rnsh">rnsh</a> program lets you establish fully interactive
 remote shell sessions over Reticulum. It also allows you to pipe any program to or from a
 remote system, and is similar to how <code class="docutils literal notranslate"><span class="pre">ssh</span></code> works. The <code class="docutils literal notranslate"><span class="pre">rnsh</span></code> is very efficient, and
@@ -286,7 +329,7 @@ can facilitate fully interactive shell sessions, even over extremely low-bandwid
 such as LoRa or packet radio.</p>
 </section>
 <section id="nomad-network">
-<h3>Nomad Network<a class="headerlink" href="#nomad-network" title="Permalink to this heading">#</a></h3>
+<h3>Nomad Network<a class="headerlink" href="#nomad-network" title="Link to this heading">¶</a></h3>
 <p>The terminal-based program <a class="reference external" href="https://github.com/markqvist/nomadnet">Nomad Network</a>
 provides a complete encrypted communications suite built with Reticulum. It features
 encrypted messaging (both direct and delayed-delivery for offline users), file sharing,
@@ -315,7 +358,7 @@ manually add the <code class="docutils literal notranslate"><span class="pre">pi
 </div>
 </section>
 <section id="sideband">
-<h3>Sideband<a class="headerlink" href="#sideband" title="Permalink to this heading">#</a></h3>
+<h3>Sideband<a class="headerlink" href="#sideband" title="Link to this heading">¶</a></h3>
 <p>If you would rather use a program with a graphical user interface, you can take
 a look at <a class="reference external" href="https://unsigned.io/sideband">Sideband</a>, which is available for Android,
 Linux, macOS and Windows.</p>
@@ -327,7 +370,7 @@ Paper Messages, or anything else Reticulum supports. It also interoperates with
 the Nomad Network program.</p>
 </section>
 <section id="meshchat">
-<h3>MeshChat<a class="headerlink" href="#meshchat" title="Permalink to this heading">#</a></h3>
+<h3>MeshChat<a class="headerlink" href="#meshchat" title="Link to this heading">¶</a></h3>
 <p>The <a class="reference external" href="https://github.com/liamcottle/reticulum-meshchat">Reticulum MeshChat</a> application
 is a user-friendly LXMF client for macOS and Windows, that also includes voice call
 functionality, and a range of other interesting functions.</p>
@@ -338,7 +381,7 @@ any other LXMF client.</p>
 </section>
 </section>
 <section id="using-the-included-utilities">
-<h2>Using the Included Utilities<a class="headerlink" href="#using-the-included-utilities" title="Permalink to this heading">#</a></h2>
+<h2>Using the Included Utilities<a class="headerlink" href="#using-the-included-utilities" title="Link to this heading">¶</a></h2>
 <p>Reticulum comes with a range of included utilities that make it easier to
 manage your network, check connectivity and make Reticulum available to other
 programs on your system.</p>
@@ -349,7 +392,7 @@ network status and connectivity.</p>
 <a class="reference internal" href="using.html#using-main"><span class="std std-ref">Using Reticulum on Your System</span></a> chapter of this manual.</p>
 </section>
 <section id="creating-a-network-with-reticulum">
-<h2>Creating a Network With Reticulum<a class="headerlink" href="#creating-a-network-with-reticulum" title="Permalink to this heading">#</a></h2>
+<h2>Creating a Network With Reticulum<a class="headerlink" href="#creating-a-network-with-reticulum" title="Link to this heading">¶</a></h2>
 <p>To create a network, you will need to specify one or more <em>interfaces</em> for
 Reticulum to use. This is done in the Reticulum configuration file, which by
 default is located at <code class="docutils literal notranslate"><span class="pre">~/.reticulum/config</span></code>. You can get an example
@@ -378,7 +421,7 @@ you want more information, you can read the <a class="reference internal" href="
 and <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> chapters of this manual.</p>
 </section>
 <section id="connecting-reticulum-instances-over-the-internet">
-<h2>Connecting Reticulum Instances Over the Internet<a class="headerlink" href="#connecting-reticulum-instances-over-the-internet" title="Permalink to this heading">#</a></h2>
+<h2>Connecting Reticulum Instances Over the Internet<a class="headerlink" href="#connecting-reticulum-instances-over-the-internet" title="Link to this heading">¶</a></h2>
 <p>Reticulum currently offers two interfaces suitable for connecting instances over the Internet: <a class="reference internal" href="interfaces.html#interfaces-tcps"><span class="std std-ref">TCP</span></a>
 and <a class="reference internal" href="interfaces.html#interfaces-i2p"><span class="std std-ref">I2P</span></a>. Each interface offers a different set of features, and Reticulum
 users should carefully choose the interface which best suites their needs.</p>
@@ -406,43 +449,88 @@ instance, while preserving anonymity. If you care more about performance, and a 
 easier setup, use TCP.</p>
 </section>
 <section id="connect-to-the-public-testnet">
-<h2>Connect to the Public Testnet<a class="headerlink" href="#connect-to-the-public-testnet" title="Permalink to this heading">#</a></h2>
-<p>An experimental public testnet has been made accessible over both I2P and TCP. You can join it
-by adding one of the following interfaces to your <code class="docutils literal notranslate"><span class="pre">.reticulum/config</span></code> file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># TCP/IP interface to the RNS Amsterdam Hub</span>
-<span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">Amsterdam</span><span class="p">]]</span>
-  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
-  <span class="n">enabled</span> <span class="o">=</span> <span class="n">yes</span>
-  <span class="n">target_host</span> <span class="o">=</span> <span class="n">amsterdam</span><span class="o">.</span><span class="n">connect</span><span class="o">.</span><span class="n">reticulum</span><span class="o">.</span><span class="n">network</span>
-  <span class="n">target_port</span> <span class="o">=</span> <span class="mi">4965</span>
-
-<span class="c1"># TCP/IP interface to the BetweenTheBorders Hub (community-provided)</span>
-<span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">BetweenTheBorders</span><span class="p">]]</span>
-  <span class="nb">type</span> <span class="o">=</span> <span class="n">TCPClientInterface</span>
-  <span class="n">enabled</span> <span class="o">=</span> <span class="n">yes</span>
-  <span class="n">target_host</span> <span class="o">=</span> <span class="n">reticulum</span><span class="o">.</span><span class="n">betweentheborders</span><span class="o">.</span><span class="n">com</span>
-  <span class="n">target_port</span> <span class="o">=</span> <span class="mi">4242</span>
-
-<span class="c1"># Interface to Testnet I2P Hub</span>
-<span class="p">[[</span><span class="n">RNS</span> <span class="n">Testnet</span> <span class="n">I2P</span> <span class="n">Hub</span><span class="p">]]</span>
-  <span class="nb">type</span> <span class="o">=</span> <span class="n">I2PInterface</span>
-  <span class="n">enabled</span> <span class="o">=</span> <span class="n">yes</span>
-  <span class="n">peers</span> <span class="o">=</span> <span class="n">g3br23bvx3lq5uddcsjii74xgmn6y5q325ovrkq2zw2wbzbqgbuq</span><span class="o">.</span><span class="n">b32</span><span class="o">.</span><span class="n">i2p</span>
+<h2>Connect to the Public Testnet<a class="headerlink" href="#connect-to-the-public-testnet" title="Link to this heading">¶</a></h2>
+<p>An experimental public testnet has been made accessible by volunteers in the community. You
+can find interface definitions for adding to your <code class="docutils literal notranslate"><span class="pre">.reticulum/config</span></code> file on the
+<a class="reference external" href="https://reticulum.network/connect.html">Reticulum Website</a> or the
+<a class="reference external" href="https://github.com/markqvist/Reticulum/wiki/Community-Node-List">Community Wiki</a></p>
+<p>You can connect your devices or instances to one or more of these to gain access to any
+Reticulum networks they are physically connected to. Simply add one or more interface
+snippets to your config file in the <code class="docutils literal notranslate"><span class="pre">[interface]</span></code> section, like in the example below:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># TCP/IP interface to the BetweenTheBorders Hub (community-provided)</span>
+<span class="k">[[RNS Testnet BetweenTheBorders]]</span>
+<span class="w">  </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">TCPClientInterface</span>
+<span class="w">  </span><span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="w">  </span><span class="na">target_host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">reticulum.betweentheborders.com</span>
+<span class="w">  </span><span class="na">target_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4242</span>
 </pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Ideally, set up a Reticulum Transport Node that your own devices can reach locally, and then
+connect that transport node to a couple of public entrypoints. This will provide efficient
+connections and redundancy in case any of them go down.</p>
 </div>
 <p>Many other Reticulum instances are connecting to this testnet, and you can also join it
 via other entry points if you know them. There is absolutely no control over the network
 topography, usage or what types of instances connect. It will also occasionally be used
 to test various failure scenarios, and there are no availability or service guarantees.
 Expect weird things to happen on this network, as people experiment and try out things.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>It probably goes without saying, but <em>don’t use the testnet entry-points as
 hardcoded or default interfaces in any applications you ship to users</em>. When
 shipping applications, the best practice is to provide your own default
 connectivity solutions, if needed and applicable, or in most cases, simply
 leave it up to the user which networks to connect to, and how.</p>
+</div>
+</section>
+<section id="hosting-public-entrypoints">
+<h2>Hosting Public Entrypoints<a class="headerlink" href="#hosting-public-entrypoints" title="Link to this heading">¶</a></h2>
+<p>If you want to host a public (or private) entry-point to a Reticulum network over the
+Internet, this section offers some helpful pointers. You will need a machine, physical or
+virtual with a public IP address, that can be reached by other devices on the Internet.</p>
+<p>The most efficient and performant way to host a connectable entry-point supporting many
+users is to use the <code class="docutils literal notranslate"><span class="pre">BackboneInterface</span></code>. This interface type is fully compatible with
+the <code class="docutils literal notranslate"><span class="pre">TCPClientInterface</span></code> and <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> types, but much faster and uses
+less system resources, allowing your device to handle thousands of connections even on
+small systems.</p>
+<p>It is also important to set your connectable interface to <code class="docutils literal notranslate"><span class="pre">gateway</span></code> mode, since this
+will greatly improve network convergence time and path resolution for anyone connecting
+to your entry-point.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># This example demonstrates a backbone interface</span>
+<span class="c1"># configured for acting as a gateway for users to</span>
+<span class="c1"># connect to either a public or private network</span>
+
+<span class="k">[[Public Gateway]]</span>
+<span class="w">  </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">BackboneInterface</span>
+<span class="w">  </span><span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="w">  </span><span class="na">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gateway</span>
+<span class="w">  </span><span class="na">listen_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0.0.0</span>
+<span class="w">  </span><span class="na">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4242</span>
+</pre></div>
+</div>
+<p>If instead you want to make a private entry-point from the Internet, you can use the
+<a class="reference internal" href="interfaces.html#interfaces-options"><span class="std std-ref">IFAC name and passphrase options</span></a> to secure your interface with a network name and passphrase.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># A private entry-point requiring a pre-shared</span>
+<span class="c1"># network name and passphrase to connect to.</span>
+
+<span class="k">[[Private Gateway]]</span>
+<span class="w">  </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">BackboneInterface</span>
+<span class="w">  </span><span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="w">  </span><span class="na">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gateway</span>
+<span class="w">  </span><span class="na">listen_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0.0.0</span>
+<span class="w">  </span><span class="na">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4242</span>
+<span class="w">  </span><span class="na">network_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">private_ret</span>
+<span class="w">  </span><span class="na">passphrase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2owjajquafIanPecAc</span>
+</pre></div>
+</div>
+<p>If you are hosting an entry-point on an operating system that does not support
+<code class="docutils literal notranslate"><span class="pre">BackboneInterface</span></code>, you can use <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> instead, although it will
+not be as performant.</p>
 </section>
 <section id="adding-radio-interfaces">
-<h2>Adding Radio Interfaces<a class="headerlink" href="#adding-radio-interfaces" title="Permalink to this heading">#</a></h2>
+<h2>Adding Radio Interfaces<a class="headerlink" href="#adding-radio-interfaces" title="Link to this heading">¶</a></h2>
 <p>Once you have Reticulum installed and working, you can add radio interfaces with
 any compatible hardware you have available. Reticulum supports a wide range of radio
 hardware, and if you already have any available, it is very likely that it will
@@ -468,7 +556,7 @@ you are welcome to head over to the <a class="reference external" href="https://
 and propose adding an interface for the hardware.</p>
 </section>
 <section id="creating-and-using-custom-interfaces">
-<h2>Creating and Using Custom Interfaces<a class="headerlink" href="#creating-and-using-custom-interfaces" title="Permalink to this heading">#</a></h2>
+<h2>Creating and Using Custom Interfaces<a class="headerlink" href="#creating-and-using-custom-interfaces" title="Link to this heading">¶</a></h2>
 <p>While Reticulum includes a flexible and broad range of built-in interfaces, these
 will not cover every conceivable type of communications hardware that Reticulum
 can potentially use to communicate.</p>
@@ -478,7 +566,7 @@ loaded at run-time and used on-par with any of the built-in interface types.</p>
 the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Configuring Interfaces</span></a> chapter.</p>
 </section>
 <section id="develop-a-program-with-reticulum">
-<h2>Develop a Program with Reticulum<a class="headerlink" href="#develop-a-program-with-reticulum" title="Permalink to this heading">#</a></h2>
+<h2>Develop a Program with Reticulum<a class="headerlink" href="#develop-a-program-with-reticulum" title="Link to this heading">¶</a></h2>
 <p>If you want to develop programs that use Reticulum, the easiest way to get
 started is to install the latest release of Reticulum via pip:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
@@ -491,40 +579,40 @@ likely be to look at some <a class="reference internal" href="examples.html#exam
 chapter of this manual.</p>
 </section>
 <section id="participate-in-reticulum-development">
-<h2>Participate in Reticulum Development<a class="headerlink" href="#participate-in-reticulum-development" title="Permalink to this heading">#</a></h2>
+<h2>Participate in Reticulum Development<a class="headerlink" href="#participate-in-reticulum-development" title="Link to this heading">¶</a></h2>
 <p>If you want to participate in the development of Reticulum and associated
 utilities, you’ll want to get the latest source from GitHub. In that case,
 don’t use pip, but try this recipe:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">cryptography</span> <span class="n">pyserial</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
+pip<span class="w"> </span>install<span class="w"> </span>cryptography<span class="w"> </span>pyserial
 
 <span class="c1"># Clone repository</span>
-<span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">markqvist</span><span class="o">/</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">git</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/markqvist/Reticulum.git
 
 <span class="c1"># Move into Reticulum folder and symlink library to examples folder</span>
-<span class="n">cd</span> <span class="n">Reticulum</span>
-<span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="o">../</span><span class="n">RNS</span> <span class="o">./</span><span class="n">Examples</span><span class="o">/</span>
+<span class="nb">cd</span><span class="w"> </span>Reticulum
+ln<span class="w"> </span>-s<span class="w"> </span>../RNS<span class="w"> </span>./Examples/
 
 <span class="c1"># Run an example</span>
-<span class="n">python</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">s</span>
+python<span class="w"> </span>Examples/Echo.py<span class="w"> </span>-s
 
 <span class="c1"># Unless you&#39;ve manually created a config file, Reticulum will do so now,</span>
 <span class="c1"># and immediately exit. Make any necessary changes to the file:</span>
-<span class="n">nano</span> <span class="o">~/.</span><span class="n">reticulum</span><span class="o">/</span><span class="n">config</span>
+nano<span class="w"> </span>~/.reticulum/config
 
 <span class="c1"># ... and launch the example again.</span>
-<span class="n">python</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">s</span>
+python<span class="w"> </span>Examples/Echo.py<span class="w"> </span>-s
 
 <span class="c1"># You can now repeat the process on another computer,</span>
 <span class="c1"># and run the same example with -h to get command line options.</span>
-<span class="n">python</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">h</span>
+python<span class="w"> </span>Examples/Echo.py<span class="w"> </span>-h
 
 <span class="c1"># Run the example in client mode to &quot;ping&quot; the server.</span>
 <span class="c1"># Replace the hash below with the actual destination hash of your server.</span>
-<span class="n">python</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Echo</span><span class="o">.</span><span class="n">py</span> <span class="mi">174</span><span class="n">a64852a75682259ad8b921b8bf416</span>
+python<span class="w"> </span>Examples/Echo.py<span class="w"> </span>174a64852a75682259ad8b921b8bf416
 
 <span class="c1"># Have a look at another example</span>
-<span class="n">python</span> <span class="n">Examples</span><span class="o">/</span><span class="n">Filetransfer</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">h</span>
+python<span class="w"> </span>Examples/Filetransfer.py<span class="w"> </span>-h
 </pre></div>
 </div>
 <p>When you have experimented with the basic examples, it’s time to go read the
@@ -534,11 +622,11 @@ the <a class="reference external" href="https://github.com/markqvist/Reticulum/d
 or ask one of the developers or maintainers for a good place to start.</p>
 </section>
 <section id="platform-specific-install-notes">
-<span id="install-guides"></span><h2>Platform-Specific Install Notes<a class="headerlink" href="#platform-specific-install-notes" title="Permalink to this heading">#</a></h2>
+<span id="install-guides"></span><h2>Platform-Specific Install Notes<a class="headerlink" href="#platform-specific-install-notes" title="Link to this heading">¶</a></h2>
 <p>Some platforms require a slightly different installation procedure, or have
 various quirks that are worth being aware of. These are listed here.</p>
 <section id="android">
-<h3>Android<a class="headerlink" href="#android" title="Permalink to this heading">#</a></h3>
+<h3>Android<a class="headerlink" href="#android" title="Link to this heading">¶</a></h3>
 <p>Reticulum can be used on Android in different ways. The easiest way to get
 started is using an app like <a class="reference external" href="https://unsigned.io/sideband">Sideband</a>.</p>
 <p>For more control and features, you can use Reticulum and related programs via
@@ -551,45 +639,45 @@ including Reticulum.</p>
 <code class="docutils literal notranslate"><span class="pre">python</span></code> and the <code class="docutils literal notranslate"><span class="pre">python-cryptography</span></code> library using <code class="docutils literal notranslate"><span class="pre">pkg</span></code>, the package-manager
 build into Termux. After that, you can use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install Reticulum.</p>
 <p>From within Termux, execute the following:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># First, make sure indexes and packages are up to date.</span>
-<span class="n">pkg</span> <span class="n">update</span>
-<span class="n">pkg</span> <span class="n">upgrade</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># First, make sure indexes and packages are up to date.</span>
+pkg<span class="w"> </span>update
+pkg<span class="w"> </span>upgrade
 
 <span class="c1"># Then install python and the cryptography library.</span>
-<span class="n">pkg</span> <span class="n">install</span> <span class="n">python</span> <span class="n">python</span><span class="o">-</span><span class="n">cryptography</span>
+pkg<span class="w"> </span>install<span class="w"> </span>python<span class="w"> </span>python-cryptography
 
 <span class="c1"># Make sure pip is up to date, and install the wheel module.</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">wheel</span> <span class="n">pip</span> <span class="o">--</span><span class="n">upgrade</span>
+pip<span class="w"> </span>install<span class="w"> </span>wheel<span class="w"> </span>pip<span class="w"> </span>--upgrade
 
 <span class="c1"># Install Reticulum</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+pip<span class="w"> </span>install<span class="w"> </span>rns
 </pre></div>
 </div>
 <p>If for some reason the <code class="docutils literal notranslate"><span class="pre">python-cryptography</span></code> package is not available for
 your platform via the Termux package manager, you can attempt to build it
 locally on your device using the following command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># First, make sure indexes and packages are up to date.</span>
-<span class="n">pkg</span> <span class="n">update</span>
-<span class="n">pkg</span> <span class="n">upgrade</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># First, make sure indexes and packages are up to date.</span>
+pkg<span class="w"> </span>update
+pkg<span class="w"> </span>upgrade
 
 <span class="c1"># Then install dependencies for the cryptography library.</span>
-<span class="n">pkg</span> <span class="n">install</span> <span class="n">python</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">openssl</span> <span class="n">libffi</span> <span class="n">rust</span>
+pkg<span class="w"> </span>install<span class="w"> </span>python<span class="w"> </span>build-essential<span class="w"> </span>openssl<span class="w"> </span>libffi<span class="w"> </span>rust
 
 <span class="c1"># Make sure pip is up to date, and install the wheel module.</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">wheel</span> <span class="n">pip</span> <span class="o">--</span><span class="n">upgrade</span>
+pip<span class="w"> </span>install<span class="w"> </span>wheel<span class="w"> </span>pip<span class="w"> </span>--upgrade
 
 <span class="c1"># To allow the installer to build the cryptography module,</span>
 <span class="c1"># we need to let it know what platform we are compiling for:</span>
-<span class="n">export</span> <span class="n">CARGO_BUILD_TARGET</span><span class="o">=</span><span class="s2">&quot;aarch64-linux-android&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">CARGO_BUILD_TARGET</span><span class="o">=</span><span class="s2">&quot;aarch64-linux-android&quot;</span>
 
 <span class="c1"># Start the install process for the cryptography module.</span>
 <span class="c1"># Depending on your device, this can take several minutes,</span>
 <span class="c1"># since the module must be compiled locally on your device.</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">cryptography</span>
+pip<span class="w"> </span>install<span class="w"> </span>cryptography
 
 <span class="c1"># If the above installation succeeds, you can now install</span>
 <span class="c1"># Reticulum and any related software</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+pip<span class="w"> </span>install<span class="w"> </span>rns
 </pre></div>
 </div>
 <p>It is also possible to include Reticulum in apps compiled and distributed as
@@ -597,48 +685,48 @@ Android APKs. A detailed tutorial and example source code will be included
 here at a later point. Until then you can use the <a class="reference external" href="https://github.com/markqvist/sideband">Sideband source code</a> as an example and starting point.</p>
 </section>
 <section id="arm64">
-<h3>ARM64<a class="headerlink" href="#arm64" title="Permalink to this heading">#</a></h3>
+<h3>ARM64<a class="headerlink" href="#arm64" title="Link to this heading">¶</a></h3>
 <p>On some architectures, including ARM64, not all dependencies have precompiled
 binaries. On such systems, you may need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> (or similar) before
 installing Reticulum or programs that depend on Reticulum.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Python and development packages</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">update</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">dev</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Python and development packages</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>update
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3<span class="w"> </span>python3-pip<span class="w"> </span>python3-dev
 
 <span class="c1"># Install Reticulum</span>
-<span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>rns
 </pre></div>
 </div>
 <p>With these packages installed, <code class="docutils literal notranslate"><span class="pre">pip</span></code> will be able to build any missing dependencies
 on your system locally.</p>
 </section>
 <section id="debian-bookworm">
-<h3>Debian Bookworm<a class="headerlink" href="#debian-bookworm" title="Permalink to this heading">#</a></h3>
+<h3>Debian Bookworm<a class="headerlink" href="#debian-bookworm" title="Link to this heading">¶</a></h3>
 <p>On versions of Debian released after April 2023, it is no longer possible by default
 to use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install packages onto your system. Unfortunately, you will need to
 use the replacement <code class="docutils literal notranslate"><span class="pre">pipx</span></code> command instead, which places installed packages in an
 isolated environment. This should not negatively affect Reticulum, but will not work
 for including and using Reticulum in your own scripts and programs.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pipx</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">pipx</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pipx</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>pipx
 
 <span class="c1"># Make installed programs available on the command line</span>
-<span class="n">pipx</span> <span class="n">ensurepath</span>
+pipx<span class="w"> </span>ensurepath
 
 <span class="c1"># Install Reticulum</span>
-<span class="n">pipx</span> <span class="n">install</span> <span class="n">rns</span>
+pipx<span class="w"> </span>install<span class="w"> </span>rns
 </pre></div>
 </div>
 <p>Alternatively, you can restore normal behaviour to <code class="docutils literal notranslate"><span class="pre">pip</span></code> by creating or editing
 the configuration file located at <code class="docutils literal notranslate"><span class="pre">~/.config/pip/pip.conf</span></code>, and adding the
 following section:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[global]
-break-system-packages = true
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[global]</span>
+<span class="na">break-system-packages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
 </pre></div>
 </div>
 <p>For a one-shot installation of Reticulum, without globally enabling the <code class="docutils literal notranslate"><span class="pre">break-system-packages</span></code>
 option, you can use the following command:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pip install rns --break-system-packages
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>rns<span class="w"> </span>--break-system-packages
 </pre></div>
 </div>
 <div class="admonition note">
@@ -651,7 +739,7 @@ not in the case of installing Reticulum.</p>
 </div>
 </section>
 <section id="macos">
-<h3>MacOS<a class="headerlink" href="#macos" title="Permalink to this heading">#</a></h3>
+<h3>MacOS<a class="headerlink" href="#macos" title="Link to this heading">¶</a></h3>
 <p>To install Reticulum on macOS, you will need to have Python and the <code class="docutils literal notranslate"><span class="pre">pip</span></code> package
 manager installed.</p>
 <p>Systems running macOS can vary quite widely in whether or not Python is pre-installed,
@@ -660,12 +748,12 @@ also installed and set up. If in doubt, you can <a class="reference external" hr
 Python manually.</p>
 <p>When Python and <code class="docutils literal notranslate"><span class="pre">pip</span></code> is available on your system, simply open a terminal window
 and use one of the following commands:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Reticulum and utilities with pip:</span>
-<span class="n">pip3</span> <span class="n">install</span> <span class="n">rns</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Reticulum and utilities with pip:</span>
+pip3<span class="w"> </span>install<span class="w"> </span>rns
 
 <span class="c1"># On some versions, you may need to use the</span>
 <span class="c1"># flag --break-system-packages to install:</span>
-<span class="n">pip3</span> <span class="n">install</span> <span class="n">rns</span> <span class="o">--</span><span class="k">break</span><span class="o">-</span><span class="n">system</span><span class="o">-</span><span class="n">packages</span>
+pip3<span class="w"> </span>install<span class="w"> </span>rns<span class="w"> </span>--break-system-packages
 </pre></div>
 </div>
 <div class="admonition note">
@@ -680,13 +768,13 @@ not in the case of installing Reticulum.</p>
 manually add your installed <code class="docutils literal notranslate"><span class="pre">pip</span></code> packages directory to your <cite>PATH</cite> environment
 variable, before you can use installed commands in your terminal. Usually, adding
 the following line to your shell init script (for example <code class="docutils literal notranslate"><span class="pre">~/.zshrc</span></code>) will be enough:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export PATH=$PATH:~/Library/Python/3.9/bin
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:~/Library/Python/3.9/bin
 </pre></div>
 </div>
 <p>Adjust Python version and shell init script location according to your system.</p>
 </section>
 <section id="openwrt">
-<h3>OpenWRT<a class="headerlink" href="#openwrt" title="Permalink to this heading">#</a></h3>
+<h3>OpenWRT<a class="headerlink" href="#openwrt" title="Link to this heading">¶</a></h3>
 <p>On OpenWRT systems with sufficient storage and memory, you can install
 Reticulum and related utilities using the <cite>opkg</cite> package manager and <cite>pip</cite>.</p>
 <div class="admonition note">
@@ -699,14 +787,14 @@ repositories for more information.</p>
 </div>
 <p>To install Reticulum on OpenWRT, first log into a command line session, and
 then use the following instructions:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
-<span class="n">opkg</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">cryptography</span> <span class="n">python3</span><span class="o">-</span><span class="n">pyserial</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
+opkg<span class="w"> </span>install<span class="w"> </span>python3<span class="w"> </span>python3-pip<span class="w"> </span>python3-cryptography<span class="w"> </span>python3-pyserial
 
 <span class="c1"># Install Reticulum</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+pip<span class="w"> </span>install<span class="w"> </span>rns
 
 <span class="c1"># Start rnsd with debug logging enabled</span>
-<span class="n">rnsd</span> <span class="o">-</span><span class="n">vvv</span>
+rnsd<span class="w"> </span>-vvv
 </pre></div>
 </div>
 <div class="admonition note">
@@ -727,17 +815,17 @@ shows an address starting with <code class="docutils literal notranslate"><span 
 <code class="docutils literal notranslate"><span class="pre">AutoInterface</span></code> should work for that device.</p>
 </section>
 <section id="raspberry-pi">
-<h3>Raspberry Pi<a class="headerlink" href="#raspberry-pi" title="Permalink to this heading">#</a></h3>
+<h3>Raspberry Pi<a class="headerlink" href="#raspberry-pi" title="Link to this heading">¶</a></h3>
 <p>It is currently recommended to use a 64-bit version of the Raspberry Pi OS
 if you want to run Reticulum on Raspberry Pi computers, since 32-bit versions
 don’t always have packages available for some dependencies. If Python and the
 <cite>pip</cite> package manager is not already installed, do that first, and then
 install Reticulum using <cite>pip</cite>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">cryptography</span> <span class="n">python3</span><span class="o">-</span><span class="n">pyserial</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3<span class="w"> </span>python3-pip<span class="w"> </span>python3-cryptography<span class="w"> </span>python3-pyserial
 
 <span class="c1"># Install Reticulum</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span> <span class="o">--</span><span class="k">break</span><span class="o">-</span><span class="n">system</span><span class="o">-</span><span class="n">packages</span>
+pip<span class="w"> </span>install<span class="w"> </span>rns<span class="w"> </span>--break-system-packages
 </pre></div>
 </div>
 <div class="admonition note">
@@ -753,36 +841,36 @@ it will require manually configuring and installing required build dependencies,
 and is not detailed in this manual.</p>
 </section>
 <section id="risc-v">
-<h3>RISC-V<a class="headerlink" href="#risc-v" title="Permalink to this heading">#</a></h3>
+<h3>RISC-V<a class="headerlink" href="#risc-v" title="Link to this heading">¶</a></h3>
 <p>On some architectures, including RISC-V, not all dependencies have precompiled
 binaries. On such systems, you may need to install <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> (or similar) before
 installing Reticulum or programs that depend on Reticulum.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Python and development packages</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">update</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">dev</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Python and development packages</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>update
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3<span class="w"> </span>python3-pip<span class="w"> </span>python3-dev
 
 <span class="c1"># Install Reticulum</span>
-<span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>rns
 </pre></div>
 </div>
 <p>With these packages installed, <code class="docutils literal notranslate"><span class="pre">pip</span></code> will be able to build any missing dependencies
 on your system locally.</p>
 </section>
 <section id="ubuntu-lunar">
-<h3>Ubuntu Lunar<a class="headerlink" href="#ubuntu-lunar" title="Permalink to this heading">#</a></h3>
+<h3>Ubuntu Lunar<a class="headerlink" href="#ubuntu-lunar" title="Link to this heading">¶</a></h3>
 <p>On versions of Ubuntu released after April 2023, it is no longer possible by default
 to use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install packages onto your system. Unfortunately, you will need to
 use the replacement <code class="docutils literal notranslate"><span class="pre">pipx</span></code> command instead, which places installed packages in an
 isolated environment. This should not negatively affect Reticulum, but will not work
 for including and using Reticulum in your own scripts and programs.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pipx</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">pipx</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pipx</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>pipx
 
 <span class="c1"># Make installed programs available on the command line</span>
-<span class="n">pipx</span> <span class="n">ensurepath</span>
+pipx<span class="w"> </span>ensurepath
 
 <span class="c1"># Install Reticulum</span>
-<span class="n">pipx</span> <span class="n">install</span> <span class="n">rns</span>
+pipx<span class="w"> </span>install<span class="w"> </span>rns
 </pre></div>
 </div>
 <p>Alternatively, you can restore normal behaviour to <code class="docutils literal notranslate"><span class="pre">pip</span></code> by creating or editing
@@ -807,7 +895,7 @@ not in the case of installing Reticulum.</p>
 </div>
 </section>
 <section id="windows">
-<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this heading">#</a></h3>
+<h3>Windows<a class="headerlink" href="#windows" title="Link to this heading">¶</a></h3>
 <p>On Windows operating systems, the easiest way to install Reticulum is by using the
 <code class="docutils literal notranslate"><span class="pre">pip</span></code> package manager from the command line (either the command prompt or Windows
 Powershell).</p>
@@ -818,7 +906,7 @@ your PATH environment variables. If you don’t do this, you will not be able to
 use the <code class="docutils literal notranslate"><span class="pre">pip</span></code> installer, or run the included Reticulum utility programs (such as
 <code class="docutils literal notranslate"><span class="pre">rnsd</span></code> and <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code>) from the command line.</p>
 <p>After installing Python, open the command prompt or Windows Powershell, and type:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">rns</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>rns
 </pre></div>
 </div>
 <p>You can now use Reticulum and all included utility programs directly from your
@@ -826,7 +914,7 @@ preferred command line interface.</p>
 </section>
 </section>
 <section id="pure-python-reticulum">
-<h2>Pure-Python Reticulum<a class="headerlink" href="#pure-python-reticulum" title="Permalink to this heading">#</a></h2>
+<h2>Pure-Python Reticulum<a class="headerlink" href="#pure-python-reticulum" title="Link to this heading">¶</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>If you use the <code class="docutils literal notranslate"><span class="pre">rnspure</span></code> package to run Reticulum on systems that
@@ -879,16 +967,14 @@ All other available modules will still be loaded when needed.</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2023, Mark Qvist
+                Copyright &#169; 2025, Mark Qvist
             </div>
             Generated with <a href="https://www.sphinx-doc.org/">Sphinx</a> and 
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             
           </div>
           <div class="right-details">
-            <div class="icons">
-              
-            </div>
+            
           </div>
         </div>
         
@@ -922,6 +1008,7 @@ All other available modules will still be loaded when needed.</p>
 <li><a class="reference internal" href="#creating-a-network-with-reticulum">Creating a Network With Reticulum</a></li>
 <li><a class="reference internal" href="#connecting-reticulum-instances-over-the-internet">Connecting Reticulum Instances Over the Internet</a></li>
 <li><a class="reference internal" href="#connect-to-the-public-testnet">Connect to the Public Testnet</a></li>
+<li><a class="reference internal" href="#hosting-public-entrypoints">Hosting Public Entrypoints</a></li>
 <li><a class="reference internal" href="#adding-radio-interfaces">Adding Radio Interfaces</a></li>
 <li><a class="reference internal" href="#creating-and-using-custom-interfaces">Creating and Using Custom Interfaces</a></li>
 <li><a class="reference internal" href="#develop-a-program-with-reticulum">Develop a Program with Reticulum</a></li>
@@ -950,14 +1037,11 @@ All other available modules will still be loaded when needed.</p>
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/scripts/furo.js"></script>
-    <script src="_static/clipboard.min.js"></script>
-    <script src="_static/copybutton.js"></script>
+</div><script src="_static/documentation_options.js?v=292eb321"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
     </body>
 </html>

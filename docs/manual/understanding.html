@@ -1,25 +1,26 @@
 <!doctype html>
-<html class="no-js" lang="en">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Communications Hardware" href="hardware.html" /><link rel="prev" title="Using Reticulum on Your System" href="using.html" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Communications Hardware" href="hardware.html"><link rel="prev" title="Using Reticulum on Your System" href="using.html">
+        <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
-    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29.dev1"/>
-        <title>Understanding Reticulum - Reticulum Network Stack 1.0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=189ec851f9bb375a2509b67be1f64f0cf212b702" />
-    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
+        <title>Understanding Reticulum - Reticulum Network Stack 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=bb3cebc5" />
     
     
 
 
 <style>
   body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
   
   }
   @media not print {
@@ -86,7 +87,7 @@
   <symbol id="svg-sun" viewBox="0 0 24 24">
     <title>Light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
       <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -101,34 +102,73 @@
   <symbol id="svg-moon" viewBox="0 0 24 24">
     <title>Dark mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
   </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
 </svg>
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
 
 
@@ -136,38 +176,35 @@
   <header class="mobile-header">
     <div class="header-left">
       <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.0.0 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.0.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
       <label class="toc-overlay-icon toc-header-icon" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
   </header>
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="index.html">
-  
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   <div class="sidebar-logo-container">
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.0.0 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.0.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -183,8 +220,8 @@
 <li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interfaces.html">Configuring Interfaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a></li>
@@ -208,21 +245,20 @@
         </a>
         <div class="content-icon-container">
           <div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
           <label class="toc-overlay-icon toc-content-icon" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <section id="understanding-reticulum">
-<span id="understanding-main"></span><h1>Understanding Reticulum<a class="headerlink" href="#understanding-reticulum" title="Permalink to this heading">#</a></h1>
+<span id="understanding-main"></span><h1>Understanding Reticulum<a class="headerlink" href="#understanding-reticulum" title="Link to this heading">¶</a></h1>
 <p>This chapter will briefly describe the overall purpose and operating principles of Reticulum.
 It should give you an overview of how the stack works, and an understanding of how to
 develop networked applications using Reticulum.</p>
@@ -237,7 +273,7 @@ development, this is also the place to start, since it will provide a pretty cle
 sentiments and the philosophy behind Reticulum, what problems it seeks to solve, and how it
 approaches those solutions.</p>
 <section id="motivation">
-<span id="understanding-motivation"></span><h2>Motivation<a class="headerlink" href="#motivation" title="Permalink to this heading">#</a></h2>
+<span id="understanding-motivation"></span><h2>Motivation<a class="headerlink" href="#motivation" title="Link to this heading">¶</a></h2>
 <p>The primary motivation for designing and implementing Reticulum has been the current lack of
 reliable, functional and secure minimal-infrastructure modes of digital communication. It is my
 belief that it is highly desirable to create a reliable and efficient way to set up long-range digital
@@ -265,7 +301,7 @@ kill-switches, surveillance, censorship and control. Networks that can freely in
 with each other, and require no central oversight. Networks for human beings. <em>Networks for the people</em>.</p>
 </section>
 <section id="goals">
-<span id="understanding-goals"></span><h2>Goals<a class="headerlink" href="#goals" title="Permalink to this heading">#</a></h2>
+<span id="understanding-goals"></span><h2>Goals<a class="headerlink" href="#goals" title="Link to this heading">¶</a></h2>
 <p>To be as widely usable and efficient to deploy as possible, the following goals have been used to
 guide the design of Reticulum:</p>
 <ul class="simple">
@@ -336,7 +372,7 @@ needs to be purchased.</p>
 </ul>
 </section>
 <section id="introduction-basic-functionality">
-<span id="understanding-basicfunctionality"></span><h2>Introduction &amp; Basic Functionality<a class="headerlink" href="#introduction-basic-functionality" title="Permalink to this heading">#</a></h2>
+<span id="understanding-basicfunctionality"></span><h2>Introduction &amp; Basic Functionality<a class="headerlink" href="#introduction-basic-functionality" title="Link to this heading">¶</a></h2>
 <p>Reticulum is a networking stack suited for high-latency, low-bandwidth links. Reticulum is at its
 core a <em>message oriented</em> system. It is suited for both local point-to-point or point-to-multipoint
 scenarios where all nodes are within range of each other, as well as scenarios where packets need
@@ -371,7 +407,7 @@ unencrypted packets for local broadcast purposes.</p>
 and offers the possibility to easily tunnel Reticulum traffic over IP links such as the Internet or
 private IP networks.</p>
 <section id="destinations">
-<span id="understanding-destinations"></span><h3>Destinations<a class="headerlink" href="#destinations" title="Permalink to this heading">#</a></h3>
+<span id="understanding-destinations"></span><h3>Destinations<a class="headerlink" href="#destinations" title="Link to this heading">¶</a></h3>
 <p>To receive and send data with the Reticulum stack, an application needs to create one or more
 destinations. Reticulum uses three different basic destination types, and one special:</p>
 <ul class="simple">
@@ -414,7 +450,7 @@ out requests and responses, large data transfers and more.</p>
 </li>
 </ul>
 <section id="destination-naming">
-<span id="understanding-destinationnaming"></span><h4>Destination Naming<a class="headerlink" href="#destination-naming" title="Permalink to this heading">#</a></h4>
+<span id="understanding-destinationnaming"></span><h4>Destination Naming<a class="headerlink" href="#destination-naming" title="Link to this heading">¶</a></h4>
 <p>Destinations are created and named in an easy to understand dotted notation of <em>aspects</em>, and
 represented on the network as a hash of this value. The hash is a SHA-256 truncated to 128 bits. The
 top level aspect should always be a unique identifier for the application using the destination.
@@ -481,7 +517,7 @@ if there is not a very good reason for doing it differently.</p>
 </section>
 </section>
 <section id="public-key-announcements">
-<span id="understanding-keyannouncements"></span><h3>Public Key Announcements<a class="headerlink" href="#public-key-announcements" title="Permalink to this heading">#</a></h3>
+<span id="understanding-keyannouncements"></span><h3>Public Key Announcements<a class="headerlink" href="#public-key-announcements" title="Link to this heading">¶</a></h3>
 <p>An <em>announce</em> will send a special packet over any relevant interfaces, containing all needed
 information about the destination hash and public key, and can also contain some additional,
 application specific data. The entire packet is signed by the sender to ensure authenticity. It is not
@@ -515,7 +551,7 @@ networks it is part of. After a short while, it will be globally reachable in th
 <p>Seeing how <em>single</em> destinations are always tied to a private/public key pair leads us to the next topic.</p>
 </section>
 <section id="understanding-identities">
-<span id="identities"></span><h3>Identities<a class="headerlink" href="#understanding-identities" title="Permalink to this heading">#</a></h3>
+<span id="identities"></span><h3>Identities<a class="headerlink" href="#understanding-identities" title="Link to this heading">¶</a></h3>
 <p>In Reticulum, an <em>identity</em> does not necessarily represent a personal identity, but is an abstraction that
 can represent any kind of <em>verifiable entity</em>. This could very well be a person, but it could also be the
 control interface of a machine, a program, robot, computer, sensor or something else entirely. In
@@ -533,7 +569,7 @@ Reticulum Identity securely and privately, since obtaining access to the identit
 obtaining access and controlling reachability to any destinations created by that identity.</p>
 </section>
 <section id="getting-further">
-<span id="understanding-gettingfurther"></span><h3>Getting Further<a class="headerlink" href="#getting-further" title="Permalink to this heading">#</a></h3>
+<span id="understanding-gettingfurther"></span><h3>Getting Further<a class="headerlink" href="#getting-further" title="Link to this heading">¶</a></h3>
 <p>The above functions and principles form the core of Reticulum, and would suffice to create
 functional networked applications in local clusters, for example over radio links where all interested
 nodes can directly hear each other. But to be truly useful, we need a way to direct traffic over multiple
@@ -542,7 +578,7 @@ hops in the network.</p>
 </section>
 </section>
 <section id="reticulum-transport">
-<span id="understanding-transport"></span><h2>Reticulum Transport<a class="headerlink" href="#reticulum-transport" title="Permalink to this heading">#</a></h2>
+<span id="understanding-transport"></span><h2>Reticulum Transport<a class="headerlink" href="#reticulum-transport" title="Link to this heading">¶</a></h2>
 <p>The methods of routing used in traditional networks are fundamentally incompatible with the physical medium
 types and circumstances that Reticulum was designed to handle. These mechanisms mostly assume trust at the physical layer,
 and often needs a lot more bandwidth than Reticulum can assume is available. Since Reticulum is designed to
@@ -553,7 +589,7 @@ destination. It is important to note that no single node in a Reticulum network 
 path to a destination. Every Transport node participating in a Reticulum network will only
 know the most direct way to get a packet one hop closer to it’s destination.</p>
 <section id="node-types">
-<span id="understanding-nodetypes"></span><h3>Node Types<a class="headerlink" href="#node-types" title="Permalink to this heading">#</a></h3>
+<span id="understanding-nodetypes"></span><h3>Node Types<a class="headerlink" href="#node-types" title="Link to this heading">¶</a></h3>
 <p>Currently, Reticulum distinguishes between two types of network nodes. All nodes on a Reticulum network
 are <em>Reticulum Instances</em>, and some are also <em>Transport Nodes</em>. If a system running Reticulum is fixed in
 one place, and is intended to be kept available most of the time, it is a good contender to be a <em>Transport Node</em>.</p>
@@ -565,7 +601,7 @@ is the default setting.</p>
 <p>If it is a <em>Transport Node</em>, it should be given the configuration directive <code class="docutils literal notranslate"><span class="pre">enable_transport</span> <span class="pre">=</span> <span class="pre">Yes</span></code>.</p>
 </section>
 <section id="the-announce-mechanism-in-detail">
-<span id="understanding-announce"></span><h3>The Announce Mechanism in Detail<a class="headerlink" href="#the-announce-mechanism-in-detail" title="Permalink to this heading">#</a></h3>
+<span id="understanding-announce"></span><h3>The Announce Mechanism in Detail<a class="headerlink" href="#the-announce-mechanism-in-detail" title="Link to this heading">¶</a></h3>
 <p>When an <em>announce</em> for a destination is transmitted by a Reticulum instance, it will be forwarded by
 any transport node receiving it, but according to some specific rules:</p>
 <ul>
@@ -630,7 +666,7 @@ end-to-end connectivity in about one minute, given there is enough bandwidth ava
 the required amount of announces.</p>
 </section>
 <section id="reaching-the-destination">
-<span id="understanding-paths"></span><h3>Reaching the Destination<a class="headerlink" href="#reaching-the-destination" title="Permalink to this heading">#</a></h3>
+<span id="understanding-paths"></span><h3>Reaching the Destination<a class="headerlink" href="#reaching-the-destination" title="Link to this heading">¶</a></h3>
 <p>In networks with changing topology and trustless connectivity, nodes need a way to establish
 <em>verified connectivity</em> with each other. Since the network is assumed to be trustless, Reticulum
 must provide a way to guarantee that the peer you are communicating with is actually who you
@@ -737,7 +773,7 @@ by referring to this <em>link id</em>.</p>
 a link open is practically negligible, at 0.45 bits per second. Even on a slow 1200 bits per second packet
 radio channel, 100 concurrent links will still leave 96% channel capacity for actual data.</p>
 <section id="link-establishment-in-detail">
-<h4>Link Establishment in Detail<a class="headerlink" href="#link-establishment-in-detail" title="Permalink to this heading">#</a></h4>
+<h4>Link Establishment in Detail<a class="headerlink" href="#link-establishment-in-detail" title="Link to this heading">¶</a></h4>
 <p>After exploring the basics of the announce mechanism, finding a path through the network, and an overview
 of the link establishment procedure, this section will go into greater detail about the Reticulum link
 establishment process.</p>
@@ -812,7 +848,7 @@ automate retransmissions if <em>Resources</em> are used.</p>
 </section>
 </section>
 <section id="resources">
-<span id="understanding-resources"></span><h3>Resources<a class="headerlink" href="#resources" title="Permalink to this heading">#</a></h3>
+<span id="understanding-resources"></span><h3>Resources<a class="headerlink" href="#resources" title="Link to this heading">¶</a></h3>
 <p>For exchanging small amounts of data over a Reticulum network, the <a class="reference internal" href="reference.html#api-packet"><span class="std std-ref">Packet</span></a> interface
 is sufficient, but for exchanging data that would require many packets, an efficient way to coordinate
 the transfer is needed.</p>
@@ -826,7 +862,7 @@ or stream data directly from files.</p>
 </section>
 </section>
 <section id="reference-setup">
-<span id="understanding-referencesystem"></span><h2>Reference Setup<a class="headerlink" href="#reference-setup" title="Permalink to this heading">#</a></h2>
+<span id="understanding-referencesystem"></span><h2>Reference Setup<a class="headerlink" href="#reference-setup" title="Link to this heading">¶</a></h2>
 <p>This section will detail a recommended <em>Reference Setup</em> for Reticulum. It is important to
 note that Reticulum is designed to be usable on more or less any computing device, and over more
 or less any medium that allows you to send and receive data, which satisfies some very low
@@ -894,18 +930,18 @@ even if you have none of the hardware already, and need to purchase everything.<
 tailor it to your own specific needs, or whatever hardware you have available.</p>
 </section>
 <section id="protocol-specifics">
-<span id="understanding-protocolspecifics"></span><h2>Protocol Specifics<a class="headerlink" href="#protocol-specifics" title="Permalink to this heading">#</a></h2>
+<span id="understanding-protocolspecifics"></span><h2>Protocol Specifics<a class="headerlink" href="#protocol-specifics" title="Link to this heading">¶</a></h2>
 <p>This chapter will detail protocol specific information that is essential to the implementation of
 Reticulum, but non critical in understanding how the protocol works on a general level. It should be
 treated more as a reference than as essential reading.</p>
 <section id="packet-prioritisation">
-<h3>Packet Prioritisation<a class="headerlink" href="#packet-prioritisation" title="Permalink to this heading">#</a></h3>
+<h3>Packet Prioritisation<a class="headerlink" href="#packet-prioritisation" title="Link to this heading">¶</a></h3>
 <p>Currently, Reticulum is completely priority-agnostic regarding general traffic. All traffic is handled
 on a first-come, first-serve basis. Announce re-transmission are handled according to the re-transmission
 times and priorities described earlier in this chapter.</p>
 </section>
 <section id="interface-access-codes">
-<h3>Interface Access Codes<a class="headerlink" href="#interface-access-codes" title="Permalink to this heading">#</a></h3>
+<h3>Interface Access Codes<a class="headerlink" href="#interface-access-codes" title="Link to this heading">¶</a></h3>
 <p>Reticulum can create named virtual networks, and networks that are only accessible by knowing a preshared
 passphrase. The configuration of this is detailed in the <a class="reference internal" href="interfaces.html#interfaces-options"><span class="std std-ref">Common Interface Options</span></a>
 section. To implement these feature, Reticulum uses the concept of Interface Access Codes, that are calculated
@@ -920,7 +956,7 @@ does not. This ensures that only packets sent with the correct naming and/or pas
 pass onto the network.</p>
 </section>
 <section id="wire-format">
-<span id="understanding-packetformat"></span><h3>Wire Format<a class="headerlink" href="#wire-format" title="Permalink to this heading">#</a></h3>
+<span id="understanding-packetformat"></span><h3>Wire Format<a class="headerlink" href="#wire-format" title="Link to this heading">¶</a></h3>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>== Reticulum Wire Format ======
 
 A Reticulum packet is composed of the following fields:
@@ -1052,7 +1088,7 @@ but excluding any interface access codes.
 </div>
 </section>
 <section id="announce-propagation-rules">
-<span id="understanding-announcepropagation"></span><h3>Announce Propagation Rules<a class="headerlink" href="#announce-propagation-rules" title="Permalink to this heading">#</a></h3>
+<span id="understanding-announcepropagation"></span><h3>Announce Propagation Rules<a class="headerlink" href="#announce-propagation-rules" title="Link to this heading">¶</a></h3>
 <p>The following table illustrates the rules for automatically propagating announces
 from one interface type to another, for all possible combinations. For the purpose
 of announce propagation, the <em>Full</em> and <em>Gateway</em> modes are identical.</p>
@@ -1061,7 +1097,7 @@ of announce propagation, the <em>Full</em> and <em>Gateway</em> modes are identi
 of the different interface modes, and how they are configured.</p>
 </section>
 <section id="cryptographic-primitives">
-<span id="understanding-primitives"></span><h3>Cryptographic Primitives<a class="headerlink" href="#cryptographic-primitives" title="Permalink to this heading">#</a></h3>
+<span id="understanding-primitives"></span><h3>Cryptographic Primitives<a class="headerlink" href="#cryptographic-primitives" title="Link to this heading">¶</a></h3>
 <p>Reticulum uses a simple suite of efficient, strong and well-tested cryptographic
 primitives, with widely available implementations that can be used both on
 general-purpose CPUs and on microcontrollers.</p>
@@ -1144,16 +1180,14 @@ those risks are acceptable to you.</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2023, Mark Qvist
+                Copyright &#169; 2025, Mark Qvist
             </div>
             Generated with <a href="https://www.sphinx-doc.org/">Sphinx</a> and 
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             
           </div>
           <div class="right-details">
-            <div class="icons">
-              
-            </div>
+            
           </div>
         </div>
         
@@ -1214,14 +1248,11 @@ those risks are acceptable to you.</p>
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/scripts/furo.js"></script>
-    <script src="_static/clipboard.min.js"></script>
-    <script src="_static/copybutton.js"></script>
+</div><script src="_static/documentation_options.js?v=292eb321"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
     </body>
 </html>

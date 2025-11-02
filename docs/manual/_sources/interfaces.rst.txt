@@ -39,6 +39,11 @@ nodes over any kind of local Ethernet or WiFi-based medium. Even though it uses 
 discovery, and UDP for packet transport, it **does not** need any functional IP
 infrastructure like routers or DHCP servers, on your physical network.
 
+.. warning::
+  If you have **firewall** software running on your computer, it may block traffic
+  required for ``AutoInterface`` to work. If this is the case, you will have to
+  allow UDP traffic on port ``29716`` and ``42671``.
+
 As long as there is at least some sort of switching medium present between peers (a
 wired switch, a hub, a WiFi access point or similar, or simply two devices connected
 directly by Ethernet cable), it will work without any configuration, setup or intermediary devices.
@@ -55,7 +60,7 @@ current operating systems, both desktop and mobile.
   most commonly seen on very cheap, ISP-supplied WiFi routers, and can sometimes
   be turned off in the router configuration.
 
-.. code::
+.. code:: ini
 
   # This example demonstrates a bare-minimum setup
   # of an Auto Interface. It will allow communica-
@@ -99,7 +104,7 @@ autodiscover other Reticulum nodes within your selected Group ID. You can specif
 the discovery scope by setting it to one of ``link``, ``admin``, ``site``,
 ``organisation`` or ``global``.
 
-.. code::
+.. code:: ini
   
   [[Default Interface]]
     type = AutoInterface
@@ -145,7 +150,7 @@ Listeners
 
 The following examples illustrates various ways to set up ``BackboneInterface`` listeners.
 
-.. code::
+.. code:: ini
 
   # This example demonstrates a backbone interface
   # that listens for incoming connections on the
@@ -173,7 +178,7 @@ The following examples illustrates various ways to set up ``BackboneInterface`` 
 If you are using the interface on a device which has both IPv4 and IPv6 addresses available,
 you can use the ``prefer_ipv6`` option to bind to the IPv6 address:
 
-.. code::
+.. code:: ini
 
   # This example demonstrates a backbone interface
   # listening on the IPv6 address of a specified
@@ -188,7 +193,7 @@ you can use the ``prefer_ipv6`` option to bind to the IPv6 address:
 To use the ``BackboneInterface`` over `Yggdrasil <https://yggdrasil-network.github.io/>`_, you
 can simply specify the Yggdrasil ``tun`` device and a listening port, like so:
 
-.. code::
+.. code:: ini
 
   # This example demonstrates a backbone interface
   # listening for connections over Yggdrasil.
@@ -204,7 +209,7 @@ The following examples illustrates various ways to connect to remote ``BackboneI
 As noted above, ``BackboneInterface`` interfaces can also connect to remote ``TCPServerInterface``,
 and as such these interface types can be used interchangably.
 
-.. code::
+.. code:: ini
 
   # Here's an example of a backbone interface that
   # connects to a remote listener.
@@ -217,7 +222,7 @@ and as such these interface types can be used interchangably.
 To connect to remotes over `Yggdrasil <https://yggdrasil-network.github.io/>`_, simply
 specify the target Yggdrasil IPv6 address and port, like so:
 
-.. code::
+.. code:: ini
 
   [[Yggdrasil Remote]]
       type = BackboneInterface
@@ -234,7 +239,7 @@ The TCP Server interface is suitable for allowing other peers to connect over
 the Internet or private IPv4 and IPv6 networks. When a TCP server interface has been
 configured, other Reticulum peers can connect to it with a TCP Client interface.
 
-.. code::
+.. code:: ini
 
   # This example demonstrates a TCP server interface.
   # It will listen for incoming connections on all IP
@@ -262,7 +267,7 @@ configured, other Reticulum peers can connect to it with a TCP Client interface.
 If you are using the interface on a device which has both IPv4 and IPv6 addresses available,
 you can use the ``prefer_ipv6`` option to bind to the IPv6 address:
 
-.. code::
+.. code:: ini
 
   # This example demonstrates a TCP server interface.
   # It will listen for incoming connections on the
@@ -278,7 +283,7 @@ you can use the ``prefer_ipv6`` option to bind to the IPv6 address:
 To use the TCP Server Interface over `Yggdrasil <https://yggdrasil-network.github.io/>`_, you
 can simply specify the Yggdrasil ``tun`` device and a listening port, like so:
 
-.. code::
+.. code:: ini
 
   [[Yggdrasil TCP Server Interface]]
     type = TCPServerInterface
@@ -315,7 +320,7 @@ The TCP interface types can also tolerate intermittency in the IP link layer.
 This means that Reticulum will gracefully handle IP links that go up and down,
 and restore connectivity after a failure, once the other end of a TCP interface reappears.
 
-.. code::
+.. code:: ini
 
   # Here's an example of a TCP Client interface. The
   # target_host can be a hostname or an IPv4 or IPv6 address.
@@ -328,7 +333,7 @@ and restore connectivity after a failure, once the other end of a TCP interface 
 To use the TCP Client Interface over `Yggdrasil <https://yggdrasil-network.github.io/>`_, simply
 specify the target Yggdrasil IPv6 address and port, like so:
 
-.. code::
+.. code:: ini
 
   [[Yggdrasil TCP Client Interface]]
       type = TCPClientInterface
@@ -340,7 +345,7 @@ It is also possible to use this interface type to connect via other programs
 or hardware devices that expose a KISS interface on a TCP port, for example
 software-based soundmodems. To do this, use the ``kiss_framing`` option:
 
-.. code::
+.. code:: ini
 
   # Here's an example of a TCP Client interface that connects
   # to a software TNC soundmodem on a KISS over TCP port.
@@ -363,7 +368,7 @@ intermittent TCP links.
    The TCP interfaces support tunneling over I2P, but to do so reliably,
    you must use the i2p_tunneled option:
 
-.. code::
+.. code:: ini
 
   [[TCP Client over I2P]]
       type = TCPClientInterface
@@ -387,10 +392,10 @@ with all other peers on a local area network.
    Using broadcast UDP traffic has performance implications,
    especially on WiFi. If your goal is simply to enable easy communication
    with all peers in your local Ethernet broadcast domain, the
-   :ref:`Auto Interface<interfaces-auto>` performs better, and is even
+   :ref:`Auto Interface<interfaces-auto>` performs *much* better, and is even
    easier to use.
 
-.. code::
+.. code:: ini
 
   # This example enables communication with other
   # local Reticulum peers over UDP.
@@ -460,7 +465,7 @@ of the ``i2pd`` package. For more details about I2P, see the
 When an I2P router is running on your system, you can simply add
 an I2P interface to Reticulum:
 
-.. code::
+.. code:: ini
 
   [[I2P]]
     type = I2PInterface
@@ -477,7 +482,7 @@ also inspect the status of the interface using the ``rnstatus`` utility.
 To connect to other Reticulum instances over I2P, just add a comma-separated
 list of I2P base32 addresses to the ``peers`` option of the interface:
 
-.. code::
+.. code:: ini
 
   [[I2P]]
     type = I2PInterface
@@ -516,7 +521,7 @@ can be used, and offers full control over LoRa parameters.
    varies widely around the world. It is your responsibility to be aware of any
    relevant regulation for your location, and to make decisions accordingly.
 
-.. code::
+.. code:: ini
 
   # Here's an example of how to add a LoRa interface
   # using the RNode LoRa transceiver.
@@ -608,7 +613,7 @@ Multi interface can be used to configure sub-interfaces individually.
    varies widely around the world. It is your responsibility to be aware of any
    relevant regulation for your location, and to make decisions accordingly.
 
-.. code::
+.. code:: ini
 
   # Here's an example of how to add an RNode Multi interface
   # using the RNode LoRa transceiver.
@@ -724,7 +729,7 @@ Reticulum can be used over serial ports directly, or over any device with a
 serial port, that will transparently pass data. Useful for communicating
 directly over a wire-pair, or for using devices such as data radios and lasers.
 
-.. code::
+.. code:: ini
 
   [[Serial Interface]]
     type = SerialInterface
@@ -749,7 +754,7 @@ Using this interface, Reticulum can use any program as an interface via `stdin` 
 `stdout`. This can be used to easily create virtual interfaces, or to interface with
 custom hardware or other systems.
 
-.. code::
+.. code:: ini
 
   [[Pipe Interface]]
     type = PipeInterface
@@ -780,7 +785,7 @@ for station identification purposes.
    varies widely around the world. It is your responsibility to be aware of any
    relevant regulation for your location, and to make decisions accordingly.
 
-.. code::
+.. code:: ini
 
   [[Packet Radio KISS Interface]]
     type = KISSInterface
@@ -848,7 +853,7 @@ beaconing functionality described above.
    varies widely around the world. It is your responsibility to be aware of any
    relevant regulation for your location, and to make decisions accordingly.
 
-.. code::
+.. code:: ini
 
   [[Packet Radio AX.25 KISS Interface]]
     type = AX25KISSInterface

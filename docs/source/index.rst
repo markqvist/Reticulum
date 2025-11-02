@@ -25,8 +25,8 @@ to participate in the development of Reticulum itself.
    hardware
    interfaces
    networks
-   examples
    support
+   examples
 
 .. toctree::
    :maxdepth: 2

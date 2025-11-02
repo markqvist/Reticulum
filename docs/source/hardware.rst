@@ -17,6 +17,9 @@ for example the :ref:`PipeInterface<interfaces-pipe>` or the :ref:`TCPClientInte
 in combination with code like `TCP KISS Server <https://github.com/simplyequipped/tcpkissserver>`_
 by `simplyequipped <https://github.com/simplyequipped>`_.
 
+It is also very easy to write and load :ref:`custom interface modules<interfaces-custom>`
+into Reticulum, allowing you to communicate with more or less anything you can think of.
+
 While this broad support and flexibility is very useful, an abundance of options
 can sometimes make it difficult to know where to begin, especially when you are
 starting from scratch.

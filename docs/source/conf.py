@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 project = 'Reticulum Network Stack'
-copyright = '2023, Mark Qvist'
+copyright = '2025, Mark Qvist'
 author = 'Mark Qvist'
 
 exec(open("../../RNS/_version.py", "r").read())

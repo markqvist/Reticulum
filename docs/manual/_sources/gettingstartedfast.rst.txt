@@ -12,7 +12,7 @@ Standalone Reticulum Installation
 If you simply want to install Reticulum and related utilities on a system,
 the easiest way is via the ``pip`` package manager:
 
-.. code::
+.. code:: shell
 
    pip install rns
 
@@ -23,9 +23,18 @@ of your system with a command like ``sudo apt install python3-pip``,
 You can also dowload the Reticulum release wheels from GitHub, or other release channels,
 and install them offline using ``pip``:
 
-.. code::
+.. code:: shell
 
-   pip install ./rns-0.5.1-py3-none-any.whl
+   pip install ./rns-1.0.1-py3-none-any.whl
+
+On platforms that limit user package installation via ``pip``, you may need to manually
+allow this using the ``--break-system-packages`` command line flag when installing. This
+will not actually break any packages, unless you have installed Reticulum directly via
+your operating system's package manager.
+
+.. code:: shell
+
+  pip install rns --break-system-packages
 
 For more detailed installation instructions, please see the
 :ref:`Platform-Specific Install Notes<install-guides>` section.
@@ -39,7 +48,7 @@ On some platforms, there may not be binary packages available for all dependenci
 ``pip`` installation may fail with an error message. In these cases, the issue can usually
 be resolved by installing the development essentials packages for your platform:
 
-.. code::
+.. code:: shell
 
     # Debian / Ubuntu / Derivatives
     sudo apt install build-essential
@@ -245,17 +254,16 @@ easier setup, use TCP.
 Connect to the Public Testnet
 ===========================================
 
-An experimental public testnet has been made accessible over both I2P and TCP. You can join it
-by adding one of the following interfaces to your ``.reticulum/config`` file:
+An experimental public testnet has been made accessible by volunteers in the community. You
+can find interface definitions for adding to your ``.reticulum/config`` file on the
+`Reticulum Website <https://reticulum.network/connect.html>`_ or the
+`Community Wiki <https://github.com/markqvist/Reticulum/wiki/Community-Node-List>`_
 
-.. code::
+You can connect your devices or instances to one or more of these to gain access to any
+Reticulum networks they are physically connected to. Simply add one or more interface
+snippets to your config file in the ``[interface]`` section, like in the example below:
 
-  # TCP/IP interface to the RNS Amsterdam Hub
-  [[RNS Testnet Amsterdam]]
-    type = TCPClientInterface
-    enabled = yes
-    target_host = amsterdam.connect.reticulum.network
-    target_port = 4965
+.. code:: ini
 
   # TCP/IP interface to the BetweenTheBorders Hub (community-provided)
   [[RNS Testnet BetweenTheBorders]]
@@ -264,11 +272,11 @@ by adding one of the following interfaces to your ``.reticulum/config`` file:
     target_host = reticulum.betweentheborders.com
     target_port = 4242
 
-  # Interface to Testnet I2P Hub
-  [[RNS Testnet I2P Hub]]
-    type = I2PInterface
-    enabled = yes
-    peers = g3br23bvx3lq5uddcsjii74xgmn6y5q325ovrkq2zw2wbzbqgbuq.b32.i2p
+
+.. tip::
+  Ideally, set up a Reticulum Transport Node that your own devices can reach locally, and then
+  connect that transport node to a couple of public entrypoints. This will provide efficient
+  connections and redundancy in case any of them go down.
 
 Many other Reticulum instances are connecting to this testnet, and you can also join it
 via other entry points if you know them. There is absolutely no control over the network
@@ -276,12 +284,64 @@ topography, usage or what types of instances connect. It will also occasionally 
 to test various failure scenarios, and there are no availability or service guarantees.
 Expect weird things to happen on this network, as people experiment and try out things.
 
-It probably goes without saying, but *don't use the testnet entry-points as 
-hardcoded or default interfaces in any applications you ship to users*. When
-shipping applications, the best practice is to provide your own default
-connectivity solutions, if needed and applicable, or in most cases, simply
-leave it up to the user which networks to connect to, and how.
+.. warning::
+  It probably goes without saying, but *don't use the testnet entry-points as 
+  hardcoded or default interfaces in any applications you ship to users*. When
+  shipping applications, the best practice is to provide your own default
+  connectivity solutions, if needed and applicable, or in most cases, simply
+  leave it up to the user which networks to connect to, and how.
 
+
+Hosting Public Entrypoints
+===========================================
+
+If you want to host a public (or private) entry-point to a Reticulum network over the
+Internet, this section offers some helpful pointers. You will need a machine, physical or
+virtual with a public IP address, that can be reached by other devices on the Internet.
+
+The most efficient and performant way to host a connectable entry-point supporting many
+users is to use the ``BackboneInterface``. This interface type is fully compatible with
+the ``TCPClientInterface`` and ``TCPServerInterface`` types, but much faster and uses
+less system resources, allowing your device to handle thousands of connections even on
+small systems.
+
+It is also important to set your connectable interface to ``gateway`` mode, since this
+will greatly improve network convergence time and path resolution for anyone connecting
+to your entry-point.
+
+.. code:: ini
+
+  # This example demonstrates a backbone interface
+  # configured for acting as a gateway for users to
+  # connect to either a public or private network
+
+  [[Public Gateway]]
+    type = BackboneInterface
+    enabled = yes
+    mode = gateway
+    listen_on = 0.0.0.0
+    port = 4242
+
+If instead you want to make a private entry-point from the Internet, you can use the
+:ref:`IFAC name and passphrase options<interfaces-options>` to secure your interface with a network name and passphrase.
+
+.. code:: ini
+
+  # A private entry-point requiring a pre-shared
+  # network name and passphrase to connect to.
+
+  [[Private Gateway]]
+    type = BackboneInterface
+    enabled = yes
+    mode = gateway
+    listen_on = 0.0.0.0
+    port = 4242
+    network_name = private_ret
+    passphrase = 2owjajquafIanPecAc
+
+If you are hosting an entry-point on an operating system that does not support
+``BackboneInterface``, you can use ``TCPServerInterface`` instead, although it will
+not be as performant.
 
 Adding Radio Interfaces
 ==============================================
@@ -349,7 +409,7 @@ If you want to participate in the development of Reticulum and associated
 utilities, you'll want to get the latest source from GitHub. In that case,
 don't use pip, but try this recipe:
 
-.. code::
+.. code:: shell
 
     # Install dependencies
     pip install cryptography pyserial
@@ -415,7 +475,7 @@ build into Termux. After that, you can use ``pip`` to install Reticulum.
 
 From within Termux, execute the following:
 
-.. code::
+.. code:: shell
 
     # First, make sure indexes and packages are up to date.
     pkg update
@@ -434,7 +494,7 @@ If for some reason the ``python-cryptography`` package is not available for
 your platform via the Termux package manager, you can attempt to build it
 locally on your device using the following command:
 
-.. code::
+.. code:: shell
 
     # First, make sure indexes and packages are up to date.
     pkg update
@@ -470,7 +530,7 @@ On some architectures, including ARM64, not all dependencies have precompiled
 binaries. On such systems, you may need to install ``python3-dev`` (or similar) before
 installing Reticulum or programs that depend on Reticulum.
 
-.. code::
+.. code:: shell
 
    # Install Python and development packages
    sudo apt update
@@ -491,7 +551,7 @@ use the replacement ``pipx`` command instead, which places installed packages in
 isolated environment. This should not negatively affect Reticulum, but will not work
 for including and using Reticulum in your own scripts and programs.
 
-.. code::
+.. code:: shell
 
     # Install pipx
     sudo apt install pipx
@@ -506,7 +566,7 @@ Alternatively, you can restore normal behaviour to ``pip`` by creating or editin
 the configuration file located at ``~/.config/pip/pip.conf``, and adding the
 following section:
 
-.. code:: text
+.. code:: ini
 
     [global]
     break-system-packages = true
@@ -514,7 +574,7 @@ following section:
 For a one-shot installation of Reticulum, without globally enabling the ``break-system-packages``
 option, you can use the following command:
 
-.. code:: text
+.. code:: shell
 
     pip install rns --break-system-packages
 
@@ -539,7 +599,7 @@ Python manually.
 When Python and ``pip`` is available on your system, simply open a terminal window
 and use one of the following commands:
 
-.. code::
+.. code:: shell
 
    # Install Reticulum and utilities with pip:
    pip3 install rns
@@ -560,7 +620,7 @@ manually add your installed ``pip`` packages directory to your `PATH` environmen
 variable, before you can use installed commands in your terminal. Usually, adding
 the following line to your shell init script (for example ``~/.zshrc``) will be enough:
 
-.. code::
+.. code:: shell
 
    export PATH=$PATH:~/Library/Python/3.9/bin
 
@@ -583,7 +643,7 @@ Reticulum and related utilities using the `opkg` package manager and `pip`.
 To install Reticulum on OpenWRT, first log into a command line session, and
 then use the following instructions:
 
-.. code::
+.. code:: shell
 
    # Install dependencies
    opkg install python3 python3-pip python3-cryptography python3-pyserial
@@ -620,7 +680,7 @@ don't always have packages available for some dependencies. If Python and the
 `pip` package manager is not already installed, do that first, and then
 install Reticulum using `pip`.
 
-.. code::
+.. code:: shell
 
    # Install dependencies
    sudo apt install python3 python3-pip python3-cryptography python3-pyserial
@@ -646,7 +706,7 @@ On some architectures, including RISC-V, not all dependencies have precompiled
 binaries. On such systems, you may need to install ``python3-dev`` (or similar) before
 installing Reticulum or programs that depend on Reticulum.
 
-.. code::
+.. code:: shell
 
    # Install Python and development packages
    sudo apt update
@@ -667,7 +727,7 @@ use the replacement ``pipx`` command instead, which places installed packages in
 isolated environment. This should not negatively affect Reticulum, but will not work
 for including and using Reticulum in your own scripts and programs.
 
-.. code::
+.. code:: shell
 
     # Install pipx
     sudo apt install pipx
@@ -717,7 +777,7 @@ use the ``pip`` installer, or run the included Reticulum utility programs (such 
 
 After installing Python, open the command prompt or Windows Powershell, and type:
 
-.. code::
+.. code:: shell
 
    pip install rns
 

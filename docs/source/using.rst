@@ -53,7 +53,7 @@ The entire configuration of Reticulum is found in the ``~/.reticulum/config``
 file. When Reticulum is first started on a new system, a basic, but fully functional
 configuration file is created. The default configuration looks like this:
 
-.. code::
+.. code:: ini
 
   # This is the default Reticulum config file.
   # You should probably edit it to include any additional,
@@ -260,13 +260,14 @@ various configuration options, and interface configuration examples:
   Reticulum Network Stack Daemon
 
   options:
-    -h, --help       show this help message and exit
-    --config CONFIG  path to alternative Reticulum config directory
+    -h, --help        show this help message and exit
+    --config CONFIG   path to alternative Reticulum config directory
     -v, --verbose
     -q, --quiet
-    -s, --service    rnsd is running as a service and should log to file
-    --exampleconfig  print verbose configuration example to stdout and exit
-    --version        show program's version number and exit
+    -s, --service     rnsd is running as a service and should log to file
+    -i, --interactive drop into interactive shell after initialisation
+    --exampleconfig   print verbose configuration example to stdout and exit
+    --version         show program's version number and exit
 
 You can easily add ``rnsd`` as an always-on service by :ref:`configuring a service<using-systemd>`.
 
@@ -436,31 +437,30 @@ Decrypt a file using the Reticulum Identity it was encrypted for:
   options:
     -h, --help            show this help message and exit
     --config path         path to alternative Reticulum config directory
-    -i identity, --identity identity
-                          hexadecimal Reticulum Destination hash or path to Identity file
-    -g path, --generate path
-                          generate a new Identity
+    -i, --identity identity
+                          hexadecimal Reticulum identity or destination hash, or path to Identity file
+    -g, --generate file   generate a new Identity
+    -m, --import identity_data
+                          import Reticulum identity in hex, base32 or base64 format
+    -x, --export          export identity to hex, base32 or base64 format
     -v, --verbose         increase verbosity
     -q, --quiet           decrease verbosity
-    -a aspects, --announce aspects
+    -a, --announce aspects
                           announce a destination based on this Identity
-    -H aspects, --hash aspects
-                          show destination hashes for other aspects for this Identity
-    -e path, --encrypt path
-                          encrypt file
-    -d path, --decrypt path
-                          decrypt file
-    -s path, --sign path  sign file
-    -V path, --validate path
-                          validate signature
-    -r path, --read path  input file path
-    -w path, --write path
-                          output file path
+    -H, --hash aspects    show destination hashes for other aspects for this Identity
+    -e, --encrypt file    encrypt file
+    -d, --decrypt file    decrypt file
+    -s, --sign path       sign file
+    -V, --validate path   validate signature
+    -r, --read file       input file path
+    -w, --write file      output file path
     -f, --force           write output even if it overwrites existing files
     -R, --request         request unknown Identities from the network
     -t seconds            identity request timeout before giving up
     -p, --print-identity  print identity info and exit
     -P, --print-private   allow displaying private keys
+    -b, --base64          Use base64-encoded input and output
+    -B, --base32          Use base32-encoded input and output
     --version             show program's version number and exit
 
 
@@ -640,14 +640,18 @@ Or fetch a file from the remote system:
     -q, --quiet           decrease verbosity
     -S, --silent          disable transfer progress output
     -l, --listen          listen for incoming transfer requests
+    -C, --no-compress     disable automatic compression
     -F, --allow-fetch     allow authenticated clients to fetch files
     -f, --fetch           fetch file from remote listener instead of sending
-    -j path, --jail path  restrict fetch requests to specified path
+    -j, --jail path       restrict fetch requests to specified path
+    -s, --save path       save received files in specified path
+    -O, --overwrite       Allow overwriting received files, instead of adding postfix
     -b seconds            announce interval, 0 to only announce at startup
-    -a allowed_hash       allow this identity
+    -a allowed_hash       allow this identity (or add in ~/.rncp/allowed_identities)
     -n, --no-auth         accept requests from anyone
     -p, --print-identity  print identity and destination info and exit
     -w seconds            sender timeout before giving up
+    -P, --phy-rates       display physical layer transfer rates
     --version             show program's version number and exit
 
 
@@ -755,31 +759,36 @@ to create and provision new :ref:`RNodes<rnode-main>` from any supported hardwar
     -i, --info            Show device info
     -a, --autoinstall     Automatic installation on various supported devices
     -u, --update          Update firmware to the latest version
-    -U, --force-update    Update to specified firmware even if version matches
-                          or is older than installed version
-    --fw-version version  Use a specific firmware version for update or
-                          autoinstall
+    -U, --force-update    Update to specified firmware even if version matches or is older than installed version
+    --fw-version version  Use a specific firmware version for update or autoinstall
     --fw-url url          Use an alternate firmware download URL
     --nocheck             Don't check for firmware updates online
     -e, --extract         Extract firmware from connected RNode for later use
-    -E, --use-extracted   Use the extracted firmware for autoinstallation or
-                          update
+    -E, --use-extracted   Use the extracted firmware for autoinstallation or update
     -C, --clear-cache     Clear locally cached firmware files
     --baud-flash baud_flash
-                          Set specific baud rate when flashing device. Default
-                          is 921600
+                          Set specific baud rate when flashing device. Default is 921600
     -N, --normal          Switch device to normal mode
     -T, --tnc             Switch device to TNC mode
     -b, --bluetooth-on    Turn device bluetooth on
     -B, --bluetooth-off   Turn device bluetooth off
     -p, --bluetooth-pair  Put device into bluetooth pairing mode
-    -D i, --display i     Set display intensity (0-255)
+    -D, --display i       Set display intensity (0-255)
+    -t, --timeout s       Set display timeout in seconds, 0 to disable
+    -R, --rotation rotation
+                          Set display rotation, valid values are 0 through 3
     --display-addr byte   Set display address as hex byte (00 - FF)
+    --recondition-display
+                          Start display reconditioning
+    --np i                Set NeoPixel intensity (0-255)
     --freq Hz             Frequency in Hz for TNC mode
     --bw Hz               Bandwidth in Hz for TNC mode
     --txp dBm             TX power in dBm for TNC mode
     --sf factor           Spreading factor for TNC mode (7 - 12)
     --cr rate             Coding rate for TNC mode (5 - 8)
+    -x, --ia-enable       Enable interference avoidance
+    -X, --ia-disable      Disable interference avoidance
+    -c, --config          Print device configuration
     --eeprom-backup       Backup EEPROM to file
     --eeprom-dump         Dump EEPROM to console
     --eeprom-wipe         Unlock and wipe EEPROM
@@ -790,8 +799,8 @@ to create and provision new :ref:`RNodes<rnode-main>` from any supported hardwar
     -r, --rom             Bootstrap EEPROM without flashing firmware
     -k, --key             Generate a new signing key and exit
     -S, --sign            Display public part of signing key
-    -H FIRMWARE_HASH, --firmware-hash FIRMWARE_HASH
-                          Display installed firmware hash
+    -H, --firmware-hash FIRMWARE_HASH
+                          Set installed firmware hash
     --platform platform   Platform specification for device bootstrap
     --product product     Product specification for device bootstrap
     --model model         Model code for device bootstrap
