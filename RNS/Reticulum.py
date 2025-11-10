@@ -1028,6 +1028,9 @@ class Reticulum:
                 if hasattr(interface, "r_noise_floor"):
                     ifstats["noise_floor"] = interface.r_noise_floor
 
+                if hasattr(interface, "cpu_temp"):
+                    ifstats["cpu_temp"] = interface.cpu_temp
+
                 if hasattr(interface, "cpu_load"):
                     ifstats["cpu_load"] = interface.cpu_load
 

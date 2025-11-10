@@ -73,6 +73,7 @@ class KISS():
     CMD_STAT_PHYPRM = 0x26
     CMD_STAT_BAT    = 0x27
     CMD_STAT_CSMA   = 0x28
+    CMD_STAT_TEMP   = 0x29
     CMD_BLINK       = 0x30
     CMD_RANDOM      = 0x40
     CMD_FB_EXT      = 0x41
@@ -444,6 +445,7 @@ class RNodeInterface(Interface):
         self.bitrate     = 0
         self.st_alock    = st_alock
         self.lt_alock    = lt_alock
+        self.cpu_temp    = None
         self.platform    = None
         self.display     = None
         self.mcu         = None
@@ -487,6 +489,7 @@ class RNodeInterface(Interface):
         self.r_csma_cw_max        = None
         self.r_current_rssi       = None
         self.r_noise_floor        = None
+        self.r_temperature        = None
 
         self.r_battery_state = RNodeInterface.BATTERY_STATE_UNKNOWN
         self.r_battery_percent = 0
@@ -1358,6 +1361,22 @@ class RNodeInterface(Interface):
                                         bat_percent = 0
                                     self.r_battery_state   = command_buffer[0]
                                     self.r_battery_percent = bat_percent
+                        elif (command == KISS.CMD_STAT_TEMP):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                command_buffer = command_buffer+bytes([byte])
+                                if (len(command_buffer) == 1):
+                                    temp = command_buffer[0]-120
+                                    if temp >= -30 and temp <= 90: self.r_temperature = temp
+                                    else:                          self.r_temperature = None
+                                    self.cpu_temp = self.r_temperature
                         elif (command == KISS.CMD_RANDOM):
                             self.r_random = byte
                         elif (command == KISS.CMD_PLATFORM):

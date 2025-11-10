@@ -336,6 +336,10 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             if ifstat["cpu_load"] != None: print("    CPU load  : {v} %".format(v=str(ifstat["cpu_load"])))
                             else:                          print("    CPU load  : Unknown")
 
+                        if "cpu_temp" in ifstat:
+                            if ifstat["cpu_temp"] != None: print("    CPU temp  : {v}°C".format(v=str(ifstat["cpu_temp"])))
+                            else:                          print("    CPU load  : Unknown")
+
                         if "mem_load" in ifstat:
                             if ifstat["cpu_load"] != None: print("    Mem usage : {v} %".format(v=str(ifstat["mem_load"])))
                             else:                          print("    Mem usage : Unknown")
