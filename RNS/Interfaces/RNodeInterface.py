@@ -1124,12 +1124,15 @@ class RNodeInterface(Interface):
 
     def detach(self):
         self.detached = True
-        self.disable_external_framebuffer()
-        self.setRadioState(KISS.RADIO_STATE_OFF)
-        self.leave()
+        try:
+            self.disable_external_framebuffer()
+            self.setRadioState(KISS.RADIO_STATE_OFF)
+            self.leave()
+
+        except Exception as e:
+            RNS.log(f"An error occurred while detaching {self}: {e}", RNS.LOG_ERROR)
         
-        if self.use_ble:
-            self.ble.close()
+        if self.use_ble: self.ble.close()
 
     def should_ingress_limit(self):
         return False
