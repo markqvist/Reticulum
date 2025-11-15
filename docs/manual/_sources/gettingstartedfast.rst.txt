@@ -25,7 +25,7 @@ and install them offline using ``pip``:
 
 .. code:: shell
 
-   pip install ./rns-1.0.1-py3-none-any.whl
+   pip install ./rns-1.0.2-py3-none-any.whl
 
 On platforms that limit user package installation via ``pip``, you may need to manually
 allow this using the ``--break-system-packages`` command line flag when installing. This
@@ -149,8 +149,8 @@ MeshChat
 ^^^^^^^^
 
 The `Reticulum MeshChat <https://github.com/liamcottle/reticulum-meshchat>`_ application
-is a user-friendly LXMF client for macOS and Windows, that also includes voice call
-functionality, and a range of other interesting functions.
+is a user-friendly LXMF client for Linux, macOS and Windows, that also includes a Nomad Network
+page browser and other interesting functionality.
 
 .. only:: html
 
