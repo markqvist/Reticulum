@@ -427,10 +427,10 @@ and <a class="reference internal" href="interfaces.html#interfaces-i2p"><span cl
 users should carefully choose the interface which best suites their needs.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> allows users to host an instance accessible over TCP/IP. This
 method is generally faster, lower latency, and more energy efficient than using <code class="docutils literal notranslate"><span class="pre">I2PInterface</span></code>,
-however it also leaks more data about the server host. The <code class="docutils literal notranslate"><span class="pre">BackboneInterface</span></code> is a very
-fast and efficient interface type available on POSIX operating systems, designed to handle
-many hundreds of connections simultaneously with low memory, processing and I/O overhead.
-It is fully compatible with the TCP-based interface types.</p>
+however it also leaks more data about the server host.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">BackboneInterface</span></code> is a very fast and efficient interface type available on POSIX operating
+systems, designed to handle many hundreds of connections simultaneously with low memory, processing
+and I/O overhead. It is fully compatible with the TCP-based interface types.</p>
 <p>TCP connections reveal the IP address of both your instance and the server to anyone who can
 inspect the connection. Someone could use this information to determine your location or identity. Adversaries
 inspecting your packets may be able to record packet metadata like time of transmission and packet size.
