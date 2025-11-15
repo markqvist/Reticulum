@@ -583,12 +583,9 @@ class RNodeInterface(Interface):
 
 
     def read_mux(self, len=None):
-        if self.serial != None:
-            return self.serial.read()
-        elif self.bt_manager != None:
-            return self.bt_manager.read()
-        else:
-            raise IOError("No ports available for reading")
+        if self.serial != None: return self.serial.read()
+        elif self.bt_manager != None: return self.bt_manager.read()
+        else: raise IOError("No ports available for reading")
 
     def write_mux(self, data):
         if self.serial != None:
@@ -722,11 +719,15 @@ class RNodeInterface(Interface):
 
         if self.serial != None and self.port != None:
             self.timeout = 200
-            RNS.log("Serial port "+self.port+" is now open")
+            RNS.log(f"Serial port {self.port} is now open")
 
         if self.bt_manager != None and self.bt_manager.connected:
             self.timeout = 1500
-            RNS.log("Bluetooth connection to RNode now open")
+            RNS.log(f"Bluetooth connection to RNode now open")
+
+        if self.ble != None and self.ble.connected:
+            self.timeout = 1500
+            RNS.log(f"BLE connection {self.port} to RNode now open")
 
         RNS.log("Configuring RNode interface...", RNS.LOG_VERBOSE)
         self.initRadio()
@@ -1447,7 +1448,7 @@ class RNodeInterface(Interface):
                 if got == 0:
                     time_since_last = int(time.time()*1000) - last_read_ms
                     if len(data_buffer) > 0 and time_since_last > self.timeout:
-                        RNS.log(str(self)+" serial read timeout in command "+str(command), RNS.LOG_WARNING)
+                        RNS.log(f"{self} serial read timeout in command {command} after {RNS.prettytime(self.timeout/1000.0)}", RNS.LOG_WARNING)
                         data_buffer = b""
                         in_frame = False
                         command = KISS.CMD_UNKNOWN
@@ -1459,14 +1460,9 @@ class RNodeInterface(Interface):
                                 RNS.log("Interface "+str(self)+" is transmitting beacon data: "+str(self.id_callsign.decode("utf-8")), RNS.LOG_DEBUG)
                                 self.process_outgoing(self.id_callsign)
                     
-                    if (time.time() - self.last_port_io > self.port_io_timeout):
-                        self.detect()
-                    
-                    if (time.time() - self.last_port_io > self.port_io_timeout*3):
-                        raise IOError("Connected port for "+str(self)+" became unresponsive")
-
-                    if self.bt_manager != None:
-                        sleep(0.08)
+                    if (time.time() - self.last_port_io > self.port_io_timeout): self.detect()
+                    if (time.time() - self.last_port_io > self.port_io_timeout*3): raise IOError("Connected port for "+str(self)+" became unresponsive")
+                    if self.bt_manager != None or self.ble != None: sleep(0.08)
 
         except Exception as e:
             self.online = False
