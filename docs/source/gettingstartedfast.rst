@@ -218,13 +218,16 @@ and :ref:`Interfaces<interfaces-main>` chapters of this manual.
 
 Connecting Reticulum Instances Over the Internet
 ================================================
-Reticulum currently offers two interfaces suitable for connecting instances over the Internet: :ref:`TCP<interfaces-tcps>`
+Reticulum currently offers three interfaces suitable for connecting instances over the Internet: :ref:`Backbone<interfaces-backbone>`, :ref:`TCP<interfaces-tcps>`
 and :ref:`I2P<interfaces-i2p>`. Each interface offers a different set of features, and Reticulum
 users should carefully choose the interface which best suites their needs.
 
 The ``TCPServerInterface`` allows users to host an instance accessible over TCP/IP. This
 method is generally faster, lower latency, and more energy efficient than using ``I2PInterface``,
-however it also leaks more data about the server host.
+however it also leaks more data about the server host. The ``BackboneInterface`` is a very
+fast and efficient interface type available on POSIX operating systems, designed to handle
+many hundreds of connections simultaneously with low memory, processing and I/O overhead.
+It is fully compatible with the TCP-based interface types.
 
 TCP connections reveal the IP address of both your instance and the server to anyone who can
 inspect the connection. Someone could use this information to determine your location or identity. Adversaries

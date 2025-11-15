@@ -422,12 +422,15 @@ and <a class="reference internal" href="interfaces.html#interfaces-main"><span c
 </section>
 <section id="connecting-reticulum-instances-over-the-internet">
 <h2>Connecting Reticulum Instances Over the Internet<a class="headerlink" href="#connecting-reticulum-instances-over-the-internet" title="Link to this heading">¶</a></h2>
-<p>Reticulum currently offers two interfaces suitable for connecting instances over the Internet: <a class="reference internal" href="interfaces.html#interfaces-tcps"><span class="std std-ref">TCP</span></a>
+<p>Reticulum currently offers three interfaces suitable for connecting instances over the Internet: <a class="reference internal" href="interfaces.html#interfaces-backbone"><span class="std std-ref">Backbone</span></a>, <a class="reference internal" href="interfaces.html#interfaces-tcps"><span class="std std-ref">TCP</span></a>
 and <a class="reference internal" href="interfaces.html#interfaces-i2p"><span class="std std-ref">I2P</span></a>. Each interface offers a different set of features, and Reticulum
 users should carefully choose the interface which best suites their needs.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> allows users to host an instance accessible over TCP/IP. This
 method is generally faster, lower latency, and more energy efficient than using <code class="docutils literal notranslate"><span class="pre">I2PInterface</span></code>,
-however it also leaks more data about the server host.</p>
+however it also leaks more data about the server host. The <code class="docutils literal notranslate"><span class="pre">BackboneInterface</span></code> is a very
+fast and efficient interface type available on POSIX operating systems, designed to handle
+many hundreds of connections simultaneously with low memory, processing and I/O overhead.
+It is fully compatible with the TCP-based interface types.</p>
 <p>TCP connections reveal the IP address of both your instance and the server to anyone who can
 inspect the connection. Someone could use this information to determine your location or identity. Adversaries
 inspecting your packets may be able to record packet metadata like time of transmission and packet size.
