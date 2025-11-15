@@ -608,7 +608,7 @@ class Resource:
                     if sleep_time < 0:
                         if self.retries_left > 0:
                             ms = "" if self.outstanding_parts == 1 else "s"
-                            RNS.log("Timed out waiting for "+str(self.outstanding_parts)+" part"+ms+", requesting retry", RNS.LOG_DEBUG)
+                            RNS.log(f"Timed out waiting for {self.outstanding_parts} part{ms}, requesting retry on {self}", RNS.LOG_DEBUG)
                             if self.window > self.window_min:
                                 self.window -= 1
                                 if self.window_max > self.window_min:
