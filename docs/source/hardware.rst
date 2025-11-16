@@ -104,7 +104,7 @@ LilyGO T-Beam Supreme
 """""""""""""
 - **Transceiver IC** Semtech SX1262 or SX1268
 - **Device Platform** ESP32
-- **Manufacturer** `LilyGO <https://lilygo.cn>`_
+- **Manufacturer** `LilyGO <https://lilygo.cc>`_
 
 ------------
 
@@ -116,7 +116,7 @@ LilyGO T-Beam
 """""""""""""
 - **Transceiver IC** Semtech SX1262, SX1268, SX1276 or SX1278
 - **Device Platform** ESP32
-- **Manufacturer** `LilyGO <https://lilygo.cn>`_
+- **Manufacturer** `LilyGO <https://lilygo.cc>`_
 
 ------------
 
@@ -128,7 +128,7 @@ LilyGO T3S3
 """""""""""
 - **Transceiver IC** Semtech SX1262, SX1268, SX1276 or SX1278
 - **Device Platform** ESP32
-- **Manufacturer** `LilyGO <https://lilygo.cn>`_
+- **Manufacturer** `LilyGO <https://lilygo.cc>`_
 
 ------------
 
@@ -176,7 +176,7 @@ LilyGO LoRa32 v2.1
 """"""""""""""""""
 - **Transceiver IC** Semtech SX1276 or SX1278
 - **Device Platform** ESP32
-- **Manufacturer** `LilyGO <https://lilygo.cn>`_
+- **Manufacturer** `LilyGO <https://lilygo.cc>`_
 
 ------------
 
@@ -188,7 +188,7 @@ LilyGO LoRa32 v2.0
 """"""""""""""""""
 - **Transceiver IC** Semtech SX1276 or SX1278
 - **Device Platform** ESP32
-- **Manufacturer** `LilyGO <https://lilygo.cn>`_
+- **Manufacturer** `LilyGO <https://lilygo.cc>`_
 
 ------------
 
@@ -200,7 +200,7 @@ LilyGO LoRa32 v1.0
 """"""""""""""""""
 - **Transceiver IC** Semtech SX1276 or SX1278
 - **Device Platform** ESP32
-- **Manufacturer** `LilyGO <https://lilygo.cn>`_
+- **Manufacturer** `LilyGO <https://lilygo.cc>`_
 
 ------------
 
@@ -212,7 +212,7 @@ LilyGO T-Deck
 """""""""""""
 - **Transceiver IC** Semtech SX1262 or SX1268
 - **Device Platform** ESP32
-- **Manufacturer** `LilyGO <https://lilygo.cn>`_
+- **Manufacturer** `LilyGO <https://lilygo.cc>`_
 
 ------------
 
@@ -224,7 +224,7 @@ LilyGO T-Echo
 """""""""""""
 - **Transceiver IC** Semtech SX1262 or SX1268
 - **Device Platform** nRF52
-- **Manufacturer** `LilyGO <https://lilygo.cn>`_
+- **Manufacturer** `LilyGO <https://lilygo.cc>`_
 
 ------------
 
