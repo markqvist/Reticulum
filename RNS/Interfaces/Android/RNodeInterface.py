@@ -757,6 +757,10 @@ class RNodeInterface(Interface):
             self.timeout = 1500
             RNS.log(f"BLE connection {self.port} to RNode now open")
 
+        if self.tcp != None and self.tcp.connected:
+            self.timeout = 1000
+            RNS.log(f"TCP connection tcp://{self.tcp_host} to RNode now open")
+
         RNS.log("Configuring RNode interface...", RNS.LOG_VERBOSE)
         self.initRadio()
         if (self.validateRadioState()):

@@ -380,6 +380,7 @@ class RNodeInterface(Interface):
         else:
             if self.use_ble:
                 RNS.log(f"Opening BLE connection for {self}...")
+                self.timeout = 1250
                 if self.ble != None and self.ble.running == False:
                     self.ble.close()
                     self.ble.cleanup()
@@ -394,6 +395,7 @@ class RNodeInterface(Interface):
                     time.sleep(1)
 
             if self.use_tcp:
+                self.timeout = 1000
                 RNS.log(f"Opening TCP connection for {self}...")
                 if self.tcp != None and self.tcp.running == False:
                     self.tcp.close()

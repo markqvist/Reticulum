@@ -97,10 +97,15 @@ class KISS():
     CMD_BT_CTRL     = 0x46
     CMD_BT_PIN      = 0x62
     CMD_DIS_IA      = 0x69
+    CMD_WIFI_MODE   = 0x6A
+    CMD_WIFI_SSID   = 0x6B
+    CMD_WIFI_PSK    = 0x6C
+    CMD_WIFI_CHN    = 0x6E
     CMD_BOARD       = 0x47
     CMD_PLATFORM    = 0x48
     CMD_MCU         = 0x49
     CMD_FW_VERSION  = 0x50
+    CMD_CFG_READ    = 0x6D
     CMD_ROM_READ    = 0x51
     CMD_ROM_WRITE   = 0x52
     CMD_ROM_WIPE    = 0x59
@@ -245,6 +250,10 @@ class ROM():
     ADDR_CONF_PINT = 0xB6
     ADDR_CONF_BSET = 0xB7
     ADDR_CONF_DIA  = 0xB9
+    ADDR_CONF_WIFI = 0xBA
+    ADDR_CONF_WCHN = 0xBB
+    ADDR_CONF_SSID = 0x00
+    ADDR_CONF_PSK  = 0x21
 
     INFO_LOCK_BYTE = 0x73
     CONF_OK_BYTE   = 0x73
@@ -402,6 +411,7 @@ class RNode():
         self.platform = None
         self.mcu = None
         self.eeprom = None
+        self.cfg_sector = None
         self.major_version = None
         self.minor_version = None
         self.version = None
@@ -461,15 +471,31 @@ class RNode():
                         in_frame = False
                         data_buffer = b""
                         command_buffer = b""
+                    elif (in_frame and byte == KISS.FEND and command == KISS.CMD_CFG_READ):
+                        self.cfg_sector = data_buffer
+                        in_frame = False
+                        data_buffer = b""
+                        command_buffer = b""
                     elif (byte == KISS.FEND):
                         in_frame = True
                         command = KISS.CMD_UNKNOWN
                         data_buffer = b""
                         command_buffer = b""
-                    elif (in_frame and len(data_buffer) < 512):
+                    elif (in_frame and len(data_buffer) < 1024):
                         if (len(data_buffer) == 0 and command == KISS.CMD_UNKNOWN):
                             command = byte
                         elif (command == KISS.CMD_ROM_READ):
+                            if (byte == KISS.FESC):
+                                escape = True
+                            else:
+                                if (escape):
+                                    if (byte == KISS.TFEND):
+                                        byte = KISS.FEND
+                                    if (byte == KISS.TFESC):
+                                        byte = KISS.FESC
+                                    escape = False
+                                data_buffer = data_buffer+bytes([byte])
+                        elif (command == KISS.CMD_CFG_READ):
                             if (byte == KISS.FESC):
                                 escape = True
                             else:
@@ -788,6 +814,50 @@ class RNode():
         if written != len(kiss_command):
             raise IOError("An IO error occurred while sending firmware update command to device")
 
+    def set_wifi_mode(self, mode):
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_WIFI_MODE, mode])+bytes([KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending wifi mode command to device")
+
+    def set_wifi_channel(self, channel):
+        try: ch = int(channel)
+        except: raise ValueError("Invalid WiFi channel")
+        if ch < 1 or ch > 14: raise ValueError("Invalid WiFi channel")
+        ch_data = bytes([ch])
+        data = KISS.escape(ch_data)
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_WIFI_CHN])+data+bytes([KISS.FEND])
+
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending wifi channel to device")
+
+    def set_wifi_ssid(self, ssid):
+        if ssid == None: data = bytes([0x00])
+        else:
+            ssid_data = ssid.encode("utf-8")+bytes([0x00])
+            if len(ssid_data) < 0 or len(ssid_data) > 33: raise ValueError("Invalid SSID length")
+            data = KISS.escape(ssid_data)
+
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_WIFI_SSID])+data+bytes([KISS.FEND])
+
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending wifi SSID to device")
+
+    def set_wifi_psk(self, psk):
+        if psk == None: data = bytes([0x00])
+        else:
+            psk_data = psk.encode("utf-8")+bytes([0x00])
+            if len(psk_data) < 8 or len(psk_data) > 33: raise ValueError("Invalid psk length")
+            data = KISS.escape(psk_data)
+        
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_WIFI_PSK])+data+bytes([KISS.FEND])
+
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while sending wifi SSID to device")
+
     def initRadio(self):
         self.setFrequency()
         self.setBandwidth()
@@ -894,7 +964,7 @@ class RNode():
         kiss_command = bytes([KISS.FEND, KISS.CMD_ROM_READ, 0x00, KISS.FEND])
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
-            raise IOError("An IO error occurred while configuring radio state")
+            raise IOError("An IO error occurred while downloading EEPROM")
 
         sleep(0.6)
         if self.eeprom == None:
@@ -902,6 +972,15 @@ class RNode():
             graceful_exit()
         else:
             self.parse_eeprom()
+
+    def download_cfg_sector(self):
+        self.cfg_sector = None
+        kiss_command = bytes([KISS.FEND, KISS.CMD_CFG_READ, 0x00, KISS.FEND])
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command):
+            raise IOError("An IO error occurred while downloading config sector")
+
+        sleep(0.6)
 
     def parse_eeprom(self):
         global squashvw;
@@ -1364,6 +1443,12 @@ def main():
         parser.add_argument("-b", "--bluetooth-on", action="store_true", help="Turn device bluetooth on")
         parser.add_argument("-B", "--bluetooth-off", action="store_true", help="Turn device bluetooth off")
         parser.add_argument("-p", "--bluetooth-pair", action="store_true", help="Put device into bluetooth pairing mode")
+
+        parser.add_argument("-w", "--wifi", action="store", metavar="mode", default=None, help="Set WiFi mode (OFF, AP or STATION)")
+        parser.add_argument("--channel", action="store", metavar="channel", default=None, help="Set WiFi channel")
+        parser.add_argument("--ssid", action="store", metavar="ssid", default=None, help="Set WiFi SSID (NONE to delete)")
+        parser.add_argument("--psk", action="store", metavar="psk", default=None, help="Set WiFi PSK (NONE to delete)")
+        parser.add_argument("--show-psk", action="store_true", default=False, help="Display stored WiFi PSK")
 
         parser.add_argument("-D", "--display", action="store", metavar="i", type=int, default=None, help="Set display intensity (0-255)")
         parser.add_argument("-t", "--timeout", action="store", metavar="s", type=int, default=None, help="Set display timeout in seconds, 0 to disable")
@@ -3558,17 +3643,14 @@ def main():
                     graceful_exit()
 
             if args.config:
+                rnode.download_cfg_sector()
                 eeprom_reserved = 200
-                if rnode.platform == ROM.PLATFORM_ESP32:
-                    eeprom_size = 296
-                elif rnode.platform == ROM.PLATFORM_NRF52:
-                    eeprom_size = 296
-                else:
-                    eeprom_size = 4096
+                if rnode.platform == ROM.PLATFORM_ESP32: eeprom_size = 296
+                elif rnode.platform == ROM.PLATFORM_NRF52: eeprom_size = 296
+                else: eeprom_size = 4096
 
                 eeprom_offset = eeprom_size-eeprom_reserved
-                def ea(a):
-                    return a+eeprom_offset
+                def ea(a): return a+eeprom_offset
                 ec_bt   = rnode.eeprom[ROM.ADDR_CONF_BT]
                 ec_dint = rnode.eeprom[ROM.ADDR_CONF_DINT]
                 ec_dadr = rnode.eeprom[ROM.ADDR_CONF_DADR]
@@ -3578,40 +3660,66 @@ def main():
                 ec_pint = rnode.eeprom[ROM.ADDR_CONF_PINT]
                 ec_bset = rnode.eeprom[ROM.ADDR_CONF_BSET]
                 ec_dia  = rnode.eeprom[ROM.ADDR_CONF_DIA]
+                ec_wifi = rnode.eeprom[ROM.ADDR_CONF_WIFI]
+                ec_wchn = rnode.eeprom[ROM.ADDR_CONF_WCHN]
+                ec_ssid = None
+                ec_psk  = None
+
+                if ec_wchn < 1 or ec_wchn > 14: ec_wchn = 1
+                if rnode.cfg_sector:
+                    ssid_bytes = b""
+                    for i in range(0, 32):
+                        byte = rnode.cfg_sector[ROM.ADDR_CONF_SSID+i]
+                        if byte == 0xFF: byte = 0x00
+                        if byte == 0x00: break
+                        else: ssid_bytes += bytes([byte])
+
+                    try: ec_ssid = ssid_bytes.decode("utf-8")
+                    except Exception as e: print(f"Error: Could not decode WiFi SSID read from device")
+
+                    psk_bytes = b""
+                    for i in range(0, 32):
+                        byte = rnode.cfg_sector[ROM.ADDR_CONF_PSK+i]
+                        if byte == 0xFF: byte = 0x00
+                        if byte == 0x00: break
+                        else: psk_bytes += bytes([byte])
+
+                    try: ec_psk = psk_bytes.decode("utf-8")
+                    except Exception as e: print(f"Error: Could not decode WiFi PSK read from device")
+                    if not args.show_psk and ec_psk: ec_psk = "*"*len(ec_psk)
+
                 print("\nDevice configuration:")
-                if ec_bt == 0x73:
-                    print(f"  Bluetooth              : Enabled")
-                else:
-                    print(f"  Bluetooth              : Disabled")
-                if ec_dia == 0x00:
-                    print(f"  Interference avoidance : Enabled")
-                else:
-                    print(f"  Interference avoidance : Disabled")
+                if ec_bt == 0x73:   print(f"  Bluetooth              : Enabled")
+                else:               print(f"  Bluetooth              : Disabled")
+                if ec_wifi == 0x01: print(f"  WiFi                   : Enabled (Station)")
+                if ec_wifi == 0x02: print(f"  WiFi                   : Enabled (AP)")
+                else:               print(f"  WiFi                   : Disabled")
+                if ec_wifi == 0x01 or ec_wifi == 0x02:
+                    if not ec_wchn: print(f"    Channel              : Unknown")
+                    else:           print(f"    Channel              : {ec_wchn}")
+                    if not ec_ssid: print(f"    SSID                 : Not set")
+                    else:           print(f"    SSID                 : {ec_ssid}")
+                    if not ec_psk:  print(f"    PSK                  : Not set")
+                    else:           print(f"    PSK                  : {ec_psk}")
+                if ec_dia == 0x00:  print(f"  Interference avoidance : Enabled")
+                else:               print(f"  Interference avoidance : Disabled")
                 print(    f"  Display brightness     : {ec_dint}")
-                if ec_dadr == 0xFF:
-                    print(f"  Display address        : Default")
-                else:
-                    print(f"  Display address        : {RNS.hexrep(ec_dadr, delimit=False)}")
-                if ec_bset == 0x73 and ec_dblk != 0x00:
-                    print(f"  Display blanking       : {ec_dblk}s")
-                else:
-                    print(f"  Display blanking       : Disabled")
+                if ec_dadr == 0xFF: print(f"  Display address        : Default")
+                else:               print(f"  Display address        : {RNS.hexrep(ec_dadr, delimit=False)}")
+                if ec_bset == 0x73 and ec_dblk != 0x00: print(f"  Display blanking       : {ec_dblk}s")
+                else:                                   print(f"  Display blanking       : Disabled")
                 if ec_drot != 0xFF:
-                    if ec_drot == 0x00:
-                        rstr = "Landscape"
-                    if ec_drot == 0x01:
-                        rstr = "Portrait"
-                    if ec_drot == 0x02:
-                        rstr = "Landscape 180"
-                    if ec_drot == 0x03:
-                        rstr = "Portrait 180"
+                    if ec_drot == 0x00: rstr = "Landscape"
+                    if ec_drot == 0x01: rstr = "Portrait"
+                    if ec_drot == 0x02: rstr = "Landscape 180"
+                    if ec_drot == 0x03: rstr = "Portrait 180"
                     print(f"  Display rotation       : {rstr}")
                 else:
                     print(f"  Display rotation       : Default")
-                if ec_pset == 0x73:
-                    print(f"  Neopixel Intensity     : {ec_pint}")
+                if ec_pset == 0x73: print(f"  Neopixel Intensity     : {ec_pint}")
                 print("")
 
+                rnode.leave()
                 graceful_exit()
 
             if args.eeprom_dump:
@@ -3721,6 +3829,51 @@ def main():
                 rnode.bluetooth_pair()
                 input()
                 rnode.leave()
+
+            if args.channel:
+                try:
+                    RNS.log(f"Setting WiFi channel to {args.channel}")
+                    rnode.set_wifi_channel(args.channel)
+                except Exception as e:
+                    print(f"Could not set WiFi channel: {e}")
+                    graceful_exit()
+
+            if args.ssid:
+                try:
+                    if args.ssid.lower() == "none":
+                        ssid_str = None
+                        RNS.log(f"Deleting WiFi SSID")
+                    else:
+                        ssid_str = str(args.ssid)
+                        RNS.log(f"Setting WiFi SSID to: {ssid_str}")
+                    rnode.set_wifi_ssid(ssid_str)
+                except Exception as e:
+                    print(f"Could not set WiFi SSID: {e}")
+                    graceful_exit()
+
+            if args.psk:
+                try:
+                    if args.psk.lower() == "none":
+                        psk_str = None
+                        RNS.log(f"Deleting WiFi PSK")
+                    else:
+                        psk_str = str(args.psk)
+                        RNS.log(f"Setting WiFi PSK")
+                    rnode.set_wifi_psk(psk_str)
+                except Exception as e:
+                    print(f"Could not set WiFi PSK: {e}")
+                    graceful_exit()
+
+            if args.wifi:
+                try:
+                    RNS.log(f"Setting WiFi mode...")
+                    mode = 0x00
+                    if   str(args.wifi).lower().startswith("sta"): mode = 0x01
+                    elif str(args.wifi).lower().startswith("ap"):  mode = 0x02
+                    rnode.set_wifi_mode(mode)
+                except Exception as e:
+                    print(f"Could not set WiFi mode: {e}")
+                    graceful_exit()
 
             if args.info:
                 if rnode.provisioned:
