@@ -101,6 +101,8 @@ class KISS():
     CMD_WIFI_SSID   = 0x6B
     CMD_WIFI_PSK    = 0x6C
     CMD_WIFI_CHN    = 0x6E
+    CMD_WIFI_IP     = 0x84
+    CMD_WIFI_NM     = 0x85
     CMD_BOARD       = 0x47
     CMD_PLATFORM    = 0x48
     CMD_MCU         = 0x49
@@ -254,6 +256,8 @@ class ROM():
     ADDR_CONF_WCHN = 0xBB
     ADDR_CONF_SSID = 0x00
     ADDR_CONF_PSK  = 0x21
+    ADDR_CONF_IP   = 0x42
+    ADDR_CONF_NM   = 0x46
 
     INFO_LOCK_BYTE = 0x73
     CONF_OK_BYTE   = 0x73
@@ -831,6 +835,48 @@ class RNode():
         written = self.serial.write(kiss_command)
         if written != len(kiss_command):
             raise IOError("An IO error occurred while sending wifi channel to device")
+
+    def set_wifi_ip(self, ip):
+        if ip == None: ip_data = bytes([0x00, 0x00, 0x00, 0x00])
+        else:
+            ip_data = b""
+            if not type(ip) == str: raise TypeError("Invalid IP address")
+            octets = ip.split(".")
+            if not len(octets) == 4: raise ValueError("Invalid IP address length")
+            try:
+                for i in range(0, 4):
+                    octet = int(octets[i])
+                    if octet < 0 or octet > 255: raise ValueError("Invalid IP octet value")
+                    else: ip_data += bytes([octet])
+            except Exception as e:
+                raise ValueError(f"Could not decode IP address octet: {e}")
+        
+        data = KISS.escape(ip_data)
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_WIFI_IP])+data+bytes([KISS.FEND])
+
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command): raise IOError("An IO error occurred while sending wifi IP address to device")
+
+    def set_wifi_nm(self, nm):
+        if nm == None: nm_data = bytes([0x00, 0x00, 0x00, 0x00])
+        else:
+            nm_data = b""
+            if not type(nm) == str: raise TypeError("Invalid IP address")
+            octets = nm.split(".")
+            if not len(octets) == 4: raise ValueError("Invalid IP address length")
+            try:
+                for i in range(0, 4):
+                    octet = int(octets[i])
+                    if octet < 0 or octet > 255: raise ValueError("Invalid IP octet value")
+                    else: nm_data += bytes([octet])
+            except Exception as e:
+                raise ValueError(f"Could not decode IP address octet: {e}")
+        
+        data = KISS.escape(nm_data)
+        kiss_command = bytes([KISS.FEND])+bytes([KISS.CMD_WIFI_NM])+data+bytes([KISS.FEND])
+
+        written = self.serial.write(kiss_command)
+        if written != len(kiss_command): raise IOError("An IO error occurred while sending wifi netmask to device")
 
     def set_wifi_ssid(self, ssid):
         if ssid == None: data = bytes([0x00])
@@ -1449,6 +1495,8 @@ def main():
         parser.add_argument("--ssid", action="store", metavar="ssid", default=None, help="Set WiFi SSID (NONE to delete)")
         parser.add_argument("--psk", action="store", metavar="psk", default=None, help="Set WiFi PSK (NONE to delete)")
         parser.add_argument("--show-psk", action="store_true", default=False, help="Display stored WiFi PSK")
+        parser.add_argument("--ip", action="store", metavar="ip", default=None, help="Set static WiFi IP address (NONE for DHCP)")
+        parser.add_argument("--nm", action="store", metavar="nm", default=None, help="Set static WiFi network mask (NONE for DHCP)")
 
         parser.add_argument("-D", "--display", action="store", metavar="i", type=int, default=None, help="Set display intensity (0-255)")
         parser.add_argument("-t", "--timeout", action="store", metavar="s", type=int, default=None, help="Set display timeout in seconds, 0 to disable")
@@ -3664,6 +3712,8 @@ def main():
                 ec_wchn = rnode.eeprom[ROM.ADDR_CONF_WCHN]
                 ec_ssid = None
                 ec_psk  = None
+                ec_ip   = None
+                ec_nm   = None
 
                 if ec_wchn < 1 or ec_wchn > 14: ec_wchn = 1
                 if rnode.cfg_sector:
@@ -3684,28 +3734,49 @@ def main():
                         if byte == 0x00: break
                         else: psk_bytes += bytes([byte])
 
+                    ip_bytes = b""
+                    for i in range(0, 4):
+                        byte = rnode.cfg_sector[ROM.ADDR_CONF_IP+i]
+                        ip_bytes += bytes([byte])
+                    if len(ip_bytes) == 4: ec_ip = f"{int(ip_bytes[0])}.{int(ip_bytes[1])}.{int(ip_bytes[2])}.{int(ip_bytes[3])}"
+                    if ec_ip == "255.255.255.255" or ec_ip == "0.0.0.0": ec_ip = None
+
+                    nm_bytes = b""
+                    for i in range(0, 4):
+                        byte = rnode.cfg_sector[ROM.ADDR_CONF_NM+i]
+                        nm_bytes += bytes([byte])
+                    if len(nm_bytes) == 4: ec_nm = f"{int(nm_bytes[0])}.{int(nm_bytes[1])}.{int(nm_bytes[2])}.{int(nm_bytes[3])}"
+                    if ec_nm == "255.255.255.255" or ec_nm == "0.0.0.0": ec_nm = None
+
+                    if ec_wifi == 0x02:
+                        ec_ip = "10.0.0.1"
+                        ec_nm = "255.255.255.0"
+
                     try: ec_psk = psk_bytes.decode("utf-8")
                     except Exception as e: print(f"Error: Could not decode WiFi PSK read from device")
                     if not args.show_psk and ec_psk: ec_psk = "*"*len(ec_psk)
 
                 print("\nDevice configuration:")
-                if ec_bt == 0x73:   print(f"  Bluetooth              : Enabled")
-                else:               print(f"  Bluetooth              : Disabled")
-                if ec_wifi == 0x01: print(f"  WiFi                   : Enabled (Station)")
-                if ec_wifi == 0x02: print(f"  WiFi                   : Enabled (AP)")
-                else:               print(f"  WiFi                   : Disabled")
+                if ec_bt == 0x73:       print(f"  Bluetooth              : Enabled")
+                else:                   print(f"  Bluetooth              : Disabled")
+                if ec_wifi == 0x01:     print(f"  WiFi                   : Enabled (Station)")
+                if ec_wifi == 0x02:     print(f"  WiFi                   : Enabled (AP)")
+                else:                   print(f"  WiFi                   : Disabled")
                 if ec_wifi == 0x01 or ec_wifi == 0x02:
-                    if not ec_wchn: print(f"    Channel              : Unknown")
-                    else:           print(f"    Channel              : {ec_wchn}")
-                    if not ec_ssid: print(f"    SSID                 : Not set")
-                    else:           print(f"    SSID                 : {ec_ssid}")
-                    if not ec_psk:  print(f"    PSK                  : Not set")
-                    else:           print(f"    PSK                  : {ec_psk}")
-                if ec_dia == 0x00:  print(f"  Interference avoidance : Enabled")
-                else:               print(f"  Interference avoidance : Disabled")
+                    if not ec_wchn:     print(f"    Channel              : Unknown")
+                    else:               print(f"    Channel              : {ec_wchn}")
+                    if not ec_ssid:     print(f"    SSID                 : Not set")
+                    else:               print(f"    SSID                 : {ec_ssid}")
+                    if not ec_psk:      print(f"    PSK                  : Not set")
+                    else:               print(f"    PSK                  : {ec_psk}")
+                    if not ec_ip:       print(f"    IP Address           : DHCP")
+                    else:               print(f"    IP Address           : {ec_ip}")
+                    if ec_ip and ec_nm: print(f"    Network Mask         : {ec_nm}")
+                if ec_dia == 0x00:      print(f"  Interference avoidance : Enabled")
+                else:                   print(f"  Interference avoidance : Disabled")
                 print(    f"  Display brightness     : {ec_dint}")
-                if ec_dadr == 0xFF: print(f"  Display address        : Default")
-                else:               print(f"  Display address        : {RNS.hexrep(ec_dadr, delimit=False)}")
+                if ec_dadr == 0xFF:     print(f"  Display address        : Default")
+                else:                   print(f"  Display address        : {RNS.hexrep(ec_dadr, delimit=False)}")
                 if ec_bset == 0x73 and ec_dblk != 0x00: print(f"  Display blanking       : {ec_dblk}s")
                 else:                                   print(f"  Display blanking       : Disabled")
                 if ec_drot != 0xFF:
@@ -3864,12 +3935,38 @@ def main():
                     print(f"Could not set WiFi PSK: {e}")
                     graceful_exit()
 
+            if args.ip:
+                try:
+                    if args.ip.lower() == "none":
+                        RNS.log(f"Setting WiFi IP to DHCP...")
+                        rnode.set_wifi_ip(None)
+                    else:
+                        RNS.log(f"Setting WiFi static IP to: {args.ip}")
+                        rnode.set_wifi_ip(args.ip)
+                except Exception as e:
+                    print(f"Could not set WiFi IP: {e}")
+                    graceful_exit()
+
+            if args.nm:
+                try:
+                    if args.nm.lower() == "none":
+                        RNS.log(f"Deleting WiFi static netmask configuration...")
+                        rnode.set_wifi_nm(None)
+                    else:
+                        RNS.log(f"Setting WiFi static netmask to: {args.nm}")
+                        rnode.set_wifi_nm(args.nm)
+                except Exception as e:
+                    print(f"Could not set WiFi netmask: {e}")
+                    graceful_exit()
+
             if args.wifi:
                 try:
-                    RNS.log(f"Setting WiFi mode...")
                     mode = 0x00
                     if   str(args.wifi).lower().startswith("sta"): mode = 0x01
                     elif str(args.wifi).lower().startswith("ap"):  mode = 0x02
+                    if mode == 0x00: RNS.log(f"Disabling WiFi...")
+                    elif mode == 0x01: RNS.log(f"Setting WiFi to station mode")
+                    elif mode == 0x02: RNS.log(f"Setting WiFi to AP mode")
                     rnode.set_wifi_mode(mode)
                 except Exception as e:
                     print(f"Could not set WiFi mode: {e}")
