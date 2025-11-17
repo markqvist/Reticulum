@@ -430,7 +430,8 @@ class RNodeInterface(Interface):
 
         self.detect()
         if not self.use_ble:
-            sleep(0.2)
+            if self.use_tcp: sleep(1.0)
+            else:            sleep(0.2)
         else:
             ble_detect_timeout = 5
             detect_time = time.time()
@@ -1400,8 +1401,8 @@ class BLEConnection():
 
 class TCPConnection():
     TARGET_PORT = 7633
-    CONNECT_TIMEOUT = 2.5
-    INITIAL_CONNECT_TIMEOUT = 2.5
+    CONNECT_TIMEOUT = 5.0
+    INITIAL_CONNECT_TIMEOUT = 5.0
     RECONNECT_WAIT = 4.0
 
     TCP_USER_TIMEOUT = 24
@@ -1473,9 +1474,7 @@ class TCPConnection():
     def cleanup(self):
         try:
             if self.socket: self.socket.close()
-        except Exception as e:
-            RNS.log(f"Error while disconnecting TCP socket on cleanup for {self.owner}", RNS.LOG_ERROR)
-
+        except Exception as e: RNS.log(f"Error while disconnecting TCP socket on cleanup for {self.owner}", RNS.LOG_ERROR)
         self.should_run = False
 
     def initial_connect(self):
