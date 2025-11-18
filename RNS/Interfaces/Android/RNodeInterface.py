@@ -572,10 +572,8 @@ class RNodeInterface(Interface):
             self.open_port()
 
             if self.serial != None:
-                if self.serial.is_open:
-                    self.configure_device()
-                else:
-                    raise IOError("Could not open serial port")
+                if self.serial.is_open: self.configure_device()
+                else: raise IOError("Could not open serial port")
             elif self.bt_manager != None:
                 if self.bt_manager.connected:
                     self.configure_device()
@@ -724,17 +722,19 @@ class RNodeInterface(Interface):
         thread = threading.Thread(target=self.readLoop, daemon=True).start()
 
         self.detect()
-        if not self.use_ble:
-            sleep(0.5)
-        else:
+        if self.use_tcp:
+            tcp_detect_timeout = 5.0
+            detect_time = time.time()
+            while not self.detected and time.time() < detect_time + tcp_detect_timeout: time.sleep(0.1)
+            if not self.detected: RNS.log(f"RNode detect timed out over TCP", RNS.LOG_ERROR)
+        elif self.use_ble:
             ble_detect_timeout = 5
             detect_time = time.time()
-            while not self.detected and time.time() < detect_time + ble_detect_timeout:
-                time.sleep(0.1)
-            if self.detected:
-                detect_time = RNS.prettytime(time.time()-detect_time)
-            else:
-                RNS.log(f"RNode detect timed out over {self.port}", RNS.LOG_ERROR)
+            while not self.detected and time.time() < detect_time + ble_detect_timeout: time.sleep(0.1)
+            if self.detected: detect_time = RNS.prettytime(time.time()-detect_time)
+            else: RNS.log(f"RNode detect timed out over {self.port}", RNS.LOG_ERROR)
+        else:
+            sleep(0.2)
 
         if not self.detected:
             raise IOError("Could not detect device")
@@ -1489,6 +1489,11 @@ class RNodeInterface(Interface):
                             if time.time() > self.first_tx + self.id_interval:
                                 RNS.log("Interface "+str(self)+" is transmitting beacon data: "+str(self.id_callsign.decode("utf-8")), RNS.LOG_DEBUG)
                                 self.process_outgoing(self.id_callsign)
+
+                    if self.use_tcp:
+                        if self.tcp and self.tcp.connected:
+                            if time.time() > self.tcp.last_write + self.tcp.ACTIVITY_KEEPALIVE:
+                                self.detect()
                     
                     if (time.time() - self.last_port_io > self.port_io_timeout): self.detect()
                     if (time.time() - self.last_port_io > self.port_io_timeout*3): raise IOError("Connected port for "+str(self)+" became unresponsive")
@@ -1858,9 +1863,11 @@ class BLEConnection(BluetoothDispatcher):
 
 class TCPConnection():
     TARGET_PORT = 7633
-    CONNECT_TIMEOUT = 2.5
-    INITIAL_CONNECT_TIMEOUT = 2.5
+    CONNECT_TIMEOUT = 5.0
+    INITIAL_CONNECT_TIMEOUT = 5.0
     RECONNECT_WAIT = 4.0
+    ACTIVITY_TIMEOUT = 6.0
+    ACTIVITY_KEEPALIVE = ACTIVITY_TIMEOUT-2.5
 
     TCP_USER_TIMEOUT = 24
     TCP_PROBE_AFTER = 5
@@ -1884,6 +1891,7 @@ class TCPConnection():
                     self.owner.tcp_tx_queue = b""
 
             self.socket.sendall(data_bytes)
+            self.last_write = time.time()
 
         else:
             with self.owner.tcp_tx_lock: self.owner.tcp_tx_queue += data_bytes
@@ -1911,6 +1919,7 @@ class TCPConnection():
         self.should_run = False
         self.must_disconnect = False
         self.connect_job_running = False
+        self.last_write = time.time()
 
         self.should_run = True
         self.connection_thread = threading.Thread(target=self.initial_connect, daemon=True).start()
@@ -1954,6 +1963,7 @@ class TCPConnection():
             self.socket.connect(target_address)
             self.socket.settimeout(None)
             self.connected  = True
+            self.last_write = time.time()
 
             RNS.log(f"TCP connection to device for {self.owner} established", RNS.LOG_DEBUG)
 
