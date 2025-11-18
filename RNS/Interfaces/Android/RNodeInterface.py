@@ -32,6 +32,7 @@ from RNS.Interfaces.Interface import Interface
 from time import sleep
 import sys
 import threading
+import socket
 import time
 import math
 import RNS
@@ -1501,7 +1502,7 @@ class RNodeInterface(Interface):
 
         except Exception as e:
             self.online = False
-            RNS.log("A serial port occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.log("A serial port error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
             RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
 
             if RNS.Reticulum.panic_on_interface_error:
@@ -1898,7 +1899,7 @@ class TCPConnection():
 
         return len(data_bytes)
 
-    def read(self, n):
+    def read(self, n=4096):
         with self.owner.tcp_rx_lock:
             data = self.owner.tcp_rx_queue[:n]
             self.owner.tcp_rx_queue = self.owner.tcp_rx_queue[n:]
