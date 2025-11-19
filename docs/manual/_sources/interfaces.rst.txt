@@ -535,6 +535,15 @@ can be used, and offers full control over LoRa parameters.
     # Serial port for the device
     port = /dev/ttyUSB0
 
+    # You can connect wirelessly to the
+    # RNode device if it supports WiFi.
+
+    # Connect by IP address
+    # port = tcp://10.0.0.1
+
+    # Or, connect by hostname
+    # port = tcp://rnodef3b9.local
+
     # It is also possible to use BLE devices
     # instead of wired serial ports. The
     # target RNode must be paired with the
