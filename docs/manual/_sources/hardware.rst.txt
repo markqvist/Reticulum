@@ -152,7 +152,7 @@ OpenCom XL
 """"""""""""""""""""
 - **Transceiver ICs** Semtech SX1262 and SX1280 (dual transceiver)
 - **Device Platform** nRF52
-- **Manufacturer** `RAK Wireless <https://liberatedsystems.co.uk/>`_
+- **Manufacturer** `Liberated Embedded Systems <https://liberatedsystems.co.uk/>`_
 
 ------------
 
@@ -236,6 +236,18 @@ Heltec T114
 """""""""""
 - **Transceiver IC** Semtech SX1262 or SX1268
 - **Device Platform** nRF52
+- **Manufacturer** `Heltec Automation <https://heltec.org>`_
+
+------------
+
+.. image:: graphics/board_heltec32v4.png
+    :width: 58%
+    :align: center
+
+Heltec LoRa32 v4.0
+""""""""""""""""""
+- **Transceiver IC** Semtech SX1262
+- **Device Platform** ESP32
 - **Manufacturer** `Heltec Automation <https://heltec.org>`_
 
 ------------
