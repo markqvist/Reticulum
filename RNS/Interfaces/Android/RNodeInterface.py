@@ -759,7 +759,7 @@ class RNodeInterface(Interface):
             RNS.log(f"BLE connection {self.port} to RNode now open")
 
         if self.tcp != None and self.tcp.connected:
-            self.timeout = 1000
+            self.timeout = 1500
             RNS.log(f"TCP connection tcp://{self.tcp_host} to RNode now open")
 
         RNS.log("Configuring RNode interface...", RNS.LOG_VERBOSE)
@@ -1479,7 +1479,7 @@ class RNodeInterface(Interface):
                 if got == 0:
                     time_since_last = int(time.time()*1000) - last_read_ms
                     if len(data_buffer) > 0 and time_since_last > self.timeout:
-                        RNS.log(f"{self} serial read timeout in command {command} after {RNS.prettytime(self.timeout/1000.0)}", RNS.LOG_WARNING)
+                        RNS.log(f"{self} device read timeout in command {command} after {RNS.prettytime(self.timeout/1000.0)}", RNS.LOG_WARNING)
                         data_buffer = b""
                         in_frame = False
                         command = KISS.CMD_UNKNOWN
