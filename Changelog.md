@@ -9,6 +9,12 @@ This release includes updates to RNode BLE reliability, and adds support for con
 - Added handling for edge case where RNode serial port was never opened due to failure on interface detach
 - Fixed broken links in documentation
 
+**Release Hashes**
+```
+6bafde4c838ad778bf6878967e84c798e34d6ca621b255f59a60f38cb04ac138  dist/rns-1.0.3-py3-none-any.whl
+f277899f95c1189c6bf3beb40ac656c8b36dfd3d7e4cfb2bc3b4a1e6dc3484fa  dist/rnspure-1.0.3-py3-none-any.whl
+```
+
 ### 2025-11-10: RNS 1.0.2
 
 This maintenance release adds support for high-power RNodes with a LoRa PA and/or LNA.
