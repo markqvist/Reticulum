@@ -327,10 +327,20 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             print("    Rate      : {ss}".format(ss=speed_str(ifstat["bitrate"])))
 
                         if "noise_floor" in ifstat:
-                            if ifstat["noise_floor"] != None:
-                                print("    Noise Fl. : {nfl} dBm".format(nfl=str(ifstat["noise_floor"])))
+                            if not "interference" in ifstat: nstr = ""
                             else:
-                                print("    Noise Fl. : Unknown")
+                                nf = ifstat["interference"]
+                                lstr = ", no interference"
+                                if "interference_last_ts" in ifstat and "interference_last_dbm" in ifstat:
+                                    lago = time.time()-ifstat["interference_last_ts"]
+                                    ldbm = ifstat["interference_last_dbm"]
+                                    lstr = f"\n    Intrfrnc. : {ldbm} dBm {RNS.prettytime(lago, compact=True)} ago"
+
+
+                                nstr = f"\n    Intrfrnc. : {nf} dBm" if nf else lstr
+
+                            if ifstat["noise_floor"] != None: print("    Noise Fl. : {nfl} dBm{ntr}".format(nfl=str(ifstat["noise_floor"]), ntr=nstr))
+                            else: print("    Noise Fl. : Unknown")
 
                         if "cpu_load" in ifstat:
                             if ifstat["cpu_load"] != None: print("    CPU load  : {v} %".format(v=str(ifstat["cpu_load"])))

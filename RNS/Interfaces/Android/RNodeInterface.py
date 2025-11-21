@@ -500,6 +500,8 @@ class RNodeInterface(Interface):
         self.r_csma_cw_max        = None
         self.r_current_rssi       = None
         self.r_noise_floor        = None
+        self.r_interference       = None
+        self.r_interference_l     = None
         self.r_temperature        = None
 
         self.r_battery_state = RNodeInterface.BATTERY_STATE_UNKNOWN
@@ -1314,6 +1316,7 @@ class RNodeInterface(Interface):
                                         self.r_interference   = None
                                     else:
                                         self.r_interference   = ntf-RNodeInterface.RSSI_OFFSET
+                                        self.r_interference_l = [time.time(), self.r_interference]
                                     
                                     if self.r_interference != None:
                                         RNS.log(f"{self} Radio detected interference at {self.r_interference} dBm", RNS.LOG_DEBUG)

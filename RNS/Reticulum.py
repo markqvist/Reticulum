@@ -1028,6 +1028,13 @@ class Reticulum:
                 if hasattr(interface, "r_noise_floor"):
                     ifstats["noise_floor"] = interface.r_noise_floor
 
+                if hasattr(interface, "r_interference"):
+                    ifstats["interference"] = interface.r_interference
+
+                if hasattr(interface, "r_interference_l") and type(interface.r_interference_l) == list:
+                    ifstats["interference_last_ts"] = interface.r_interference_l[0]
+                    ifstats["interference_last_dbm"] = interface.r_interference_l[1]
+
                 if hasattr(interface, "cpu_temp"):
                     ifstats["cpu_temp"] = interface.cpu_temp
 
