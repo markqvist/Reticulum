@@ -1,6 +1,6 @@
 ### 2025-11-19: RNS 1.0.4
 
-This release includes updates to RNode BLE reliability, and adds support for connecting RNodes to a host over WiFi and Ethernet.
+This maintenance release adds improved handling for RNodes with a PA/LNA combo.
 
 **Changes**
 - Improved handling for RNodes with PA/LNA combo
