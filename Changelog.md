@@ -1,3 +1,18 @@
+### 2025-11-19: RNS 1.0.4
+
+This release includes updates to RNode BLE reliability, and adds support for connecting RNodes to a host over WiFi and Ethernet.
+
+**Changes**
+- Improved handling for RNodes with PA/LNA combo
+- Added interference detection stats to `rnstatus` output for RNode interfaces
+- Updated documentation
+
+**Release Hashes**
+```
+7a2b7893410833b42c0fa7f9a9e3369cebb085cdd26bd83f3031fa6c1051653c rns-1.0.4-py3-none-any.whl
+ee647e7b3b94abdf1fab618a861390531a4aacc93eecce12c9e97280195c0e2d rnspure-1.0.4-py3-none-any.whl
+```
+
 ### 2025-11-19: RNS 1.0.3
 
 This release includes updates to RNode BLE reliability, and adds support for connecting RNodes to a host over WiFi and Ethernet.
@@ -11,8 +26,8 @@ This release includes updates to RNode BLE reliability, and adds support for con
 
 **Release Hashes**
 ```
-6bafde4c838ad778bf6878967e84c798e34d6ca621b255f59a60f38cb04ac138  dist/rns-1.0.3-py3-none-any.whl
-f277899f95c1189c6bf3beb40ac656c8b36dfd3d7e4cfb2bc3b4a1e6dc3484fa  dist/rnspure-1.0.3-py3-none-any.whl
+6bafde4c838ad778bf6878967e84c798e34d6ca621b255f59a60f38cb04ac138 rns-1.0.3-py3-none-any.whl
+f277899f95c1189c6bf3beb40ac656c8b36dfd3d7e4cfb2bc3b4a1e6dc3484fa rnspure-1.0.3-py3-none-any.whl
 ```
 
 ### 2025-11-10: RNS 1.0.2
