@@ -141,7 +141,7 @@ ratchets on a per-destination basis. The multi-hop transport, coordination, veri
 layers are fully autonomous and also based on elliptic curve cryptography.
 
 Reticulum also offers symmetric key encryption for group-oriented communications, as well as
-unencrypted packets for local broadcast purposes.
+unencrypted packets (for local broadcast purposes **only**).
 
 Reticulum can connect to a variety of interfaces such as radio modems, data radios and serial ports,
 and offers the possibility to easily tunnel Reticulum traffic over IP links such as the Internet or
