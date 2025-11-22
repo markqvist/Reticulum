@@ -117,7 +117,7 @@ Reticulum uses the singular concept of *destinations*. Any application using Ret
 networking stack will need to create one or more destinations to receive data, and know the
 destinations it needs to send data to.
 
-All destinations in Reticulum are _represented_ as a 16 byte hash. This hash is derived from truncating a full
+All destinations in Reticulum are *represented* as a 16 byte hash. This hash is derived from truncating a full
 SHA-256 hash of identifying characteristics of the destination. To users, the destination addresses
 will be displayed as 16 hexadecimal bytes, like this example: ``<13425ec15b621c1d928589718000d814>``.
 
@@ -141,7 +141,7 @@ ratchets on a per-destination basis. The multi-hop transport, coordination, veri
 layers are fully autonomous and also based on elliptic curve cryptography.
 
 Reticulum also offers symmetric key encryption for group-oriented communications, as well as
-unencrypted packets for local broadcast purposes.
+unencrypted packets (for local broadcast purposes **only**).
 
 Reticulum can connect to a variety of interfaces such as radio modems, data radios and serial ports,
 and offers the possibility to easily tunnel Reticulum traffic over IP links such as the Internet or
