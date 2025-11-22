@@ -650,17 +650,26 @@ application specific data, it will replace the old announce.</div>
 </div>
 </li>
 </ul>
-<p>Once an announce has reached a node in the network, any other node in direct contact with that
-node will be able to reach the destination the announce originated from, simply by sending a packet
-addressed to that destination. Any node with knowledge of the announce will be able to direct the
-packet towards the destination by looking up the next node with the shortest amount of hops to the
-destination.</p>
+<p>Once an announce has reached a transport node in the network, any other node in direct contact with that
+transport node will be able to reach the destination the announce originated from, simply by sending a packet
+addressed to that destination. Any transport node with knowledge of the announce will be able to direct the
+packet towards the destination by looking up the most efficient next node to the destination.</p>
 <p>According to these rules, an announce will propagate throughout the network in a predictable way,
 and make the announced destination reachable in a short amount of time. Fast networks that have the
 capacity to process many announces can reach full convergence very quickly, even when constantly adding
 new destinations. Slower segments of such networks might take a bit longer to gain full knowledge about
 the wide and fast networks they are connected to, but can still do so over time, while prioritising full
 and quickly converging end-to-end connectivity for their local, slower segments.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Even very slow networks, that simply don’t have the capacity to ever reach <em>full</em> convergence
+will generally still be able to reach <strong>any other destination on any connected segments</strong>, since
+interconnecting transport nodes will prioritize announces into the slower segments that are
+actually requested by nodes on these.</p>
+<p>This means that slow, low-capacity or low-resource segments <strong>don’t</strong> need to have full network
+knowledge, since paths can always be recursively resolved from other segments that do have
+knowledge about them.</p>
+</div>
 <p>In general, even extremely complex networks, that utilize the maximum 128 hops will converge to full
 end-to-end connectivity in about one minute, given there is enough bandwidth available to process
 the required amount of announces.</p>
@@ -668,7 +677,7 @@ the required amount of announces.</p>
 <section id="reaching-the-destination">
 <span id="understanding-paths"></span><h3>Reaching the Destination<a class="headerlink" href="#reaching-the-destination" title="Link to this heading">¶</a></h3>
 <p>In networks with changing topology and trustless connectivity, nodes need a way to establish
-<em>verified connectivity</em> with each other. Since the network is assumed to be trustless, Reticulum
+<em>verified connectivity</em> with each other. Since the underlying network mediums are assumed to be trustless, Reticulum
 must provide a way to guarantee that the peer you are communicating with is actually who you
 expect. Reticulum offers two ways to do this.</p>
 <p>For exchanges of small amounts of information, Reticulum offers the <em>Packet</em> API, which works exactly like you would expect - on a per packet level. The following process is employed when sending a packet:</p>
@@ -681,7 +690,7 @@ an ECDH key exchange with the destination’s public key (or ratchet key, if ava
 </li>
 <li><div class="line-block">
 <div class="line">It is important to note that this key exchange does not require any network traffic. The sender already
-knows the public key of the destination from an earlier received <em>announce</em>, and can thus perform the ECDH
+knows the public key of the destination from an earlier received announce, and can thus perform the ECDH
 key exchange locally, before sending the packet.</div>
 </div>
 </li>
@@ -719,16 +728,16 @@ strictly necessary to use one of the others.</div>
 <p>For exchanges of larger amounts of data, or when longer sessions of bidirectional communication is desired, Reticulum offers the <em>Link</em> API. To establish a <em>link</em>, the following process is employed:</p>
 <ul>
 <li><div class="line-block">
-<div class="line">First, the node that wishes to establish a link will send out a special packet, that
+<div class="line">First, the node that wishes to establish a link will send out a <em>link request</em> packet, that
 traverses the network and locates the desired destination. Along the way, the Transport Nodes that
-forward the packet will take note of this <em>link request</em>.</div>
+forward the packet will take note of this <em>link request</em>, and mark it as pending.</div>
 </div>
 </li>
 <li><div class="line-block">
 <div class="line">Second, if the destination accepts the <em>link request</em> , it will send back a packet that proves the
 authenticity of its identity (and the receipt of the link request) to the initiating node. All
 nodes that initially forwarded the packet will also be able to verify this proof, and thus
-accept the validity of the <em>link</em> throughout the network.</div>
+accept the validity of the <em>link</em> throughout the network. The link is now marked as <em>established</em>.</div>
 </div>
 </li>
 <li><div class="line-block">
@@ -841,8 +850,11 @@ that is used to encrypt the channel. Information can now be exchanged reliably a
 </div>
 </li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>It’s important to note that this methodology ensures that the source of the request does not need to
-reveal any identifying information about itself. The link initiator remains completely anonymous.</p>
+reveal any identifying information about itself. <strong>The link initiator remains completely anonymous</strong>.</p>
+</div>
 <p>When using <em>links</em>, Reticulum will automatically verify all data sent over the link, and can also
 automate retransmissions if <em>Resources</em> are used.</p>
 </section>
@@ -903,27 +915,30 @@ into the future. The current Reference System Setup is as follows:</p>
 <li><dl class="simple">
 <dt><strong>Interface Device</strong></dt><dd><p>A data radio consisting of a LoRa radio module, and a microcontroller with open source
 firmware, that can connect to host devices via USB. It operates in either the 430, 868 or 900
-MHz frequency bands. More details can be found on the <a class="reference external" href="https://unsigned.io/rnode">RNode Page</a>.</p>
+MHz frequency bands. More details can be found on the <a class="reference external" href="https://github.com/markqvist/rnode_firmware">RNode Page</a>.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt><strong>Host Device</strong></dt><dd><p>Any computer device running Linux and Python. A Raspberry Pi with a Debian based OS is
-recommended.</p>
+a good place to start, but anything can be used.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt><strong>Software Stack</strong></dt><dd><p>The most recently released Python Implementation of Reticulum, running on a Debian based
+<dt><strong>Software Stack</strong></dt><dd><p>The most recently released Python Implementation of Reticulum, running on a Linux-based
 operating system.</p>
 </dd>
 </dl>
 </li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>To avoid confusion, it is very important to note, that the reference interface device <strong>does not</strong>
 use the LoRaWAN standard, but uses a custom MAC layer on top of the plain LoRa modulation! As such, you will
-need a plain LoRa radio module connected to an controller with the correct firmware. Full details on how to
-get or make such a device is available on the <a class="reference external" href="https://unsigned.io/rnode">RNode Page</a>.</p>
+need a plain LoRa radio module connected to a controller with the correct firmware. Full details on how to
+get or make such a device is available on the <a class="reference external" href="https://github.com/markqvist/rnode_firmware">RNode Page</a>.</p>
+</div>
 <p>With the current reference setup, it should be possible to get on a Reticulum network for around 100$
 even if you have none of the hardware already, and need to purchase everything.</p>
 <p>This reference setup is of course just a recommendation for getting started easily, and you should
@@ -932,20 +947,20 @@ tailor it to your own specific needs, or whatever hardware you have available.</
 <section id="protocol-specifics">
 <span id="understanding-protocolspecifics"></span><h2>Protocol Specifics<a class="headerlink" href="#protocol-specifics" title="Link to this heading">¶</a></h2>
 <p>This chapter will detail protocol specific information that is essential to the implementation of
-Reticulum, but non critical in understanding how the protocol works on a general level. It should be
+Reticulum, but non-critical in understanding how the protocol works on a general level. It should be
 treated more as a reference than as essential reading.</p>
 <section id="packet-prioritisation">
 <h3>Packet Prioritisation<a class="headerlink" href="#packet-prioritisation" title="Link to this heading">¶</a></h3>
-<p>Currently, Reticulum is completely priority-agnostic regarding general traffic. All traffic is handled
-on a first-come, first-serve basis. Announce re-transmission are handled according to the re-transmission
-times and priorities described earlier in this chapter.</p>
+<p>Currently, Reticulum is completely priority-agnostic regarding <em>general</em> traffic. All traffic is handled
+on a first-come, first-serve basis. Announce re-transmission and other maintenance traffic is handled
+according to the re-transmission times and priorities described earlier in this chapter.</p>
 </section>
 <section id="interface-access-codes">
 <h3>Interface Access Codes<a class="headerlink" href="#interface-access-codes" title="Link to this heading">¶</a></h3>
 <p>Reticulum can create named virtual networks, and networks that are only accessible by knowing a preshared
 passphrase. The configuration of this is detailed in the <a class="reference internal" href="interfaces.html#interfaces-options"><span class="std std-ref">Common Interface Options</span></a>
-section. To implement these feature, Reticulum uses the concept of Interface Access Codes, that are calculated
-and verified per packet.</p>
+section. To implement this feature, Reticulum uses the concept of Interface Access Codes, that are calculated
+and verified per-packet.</p>
 <p>An interface with a named virtual network or passphrase authentication enabled will derive a shared Ed25519
 signing identity, and for every outbound packet generate a signature of the entire packet. This signature is
 then inserted into the packet as an Interface Access Code before transmission. Depending on the speed and
@@ -1141,6 +1156,10 @@ instead use the internal pure-python primitives. A trivial consequence of this i
 with the OpenSSL backend being <em>much</em> faster. The most important consequence however, is the
 potential loss of security by using primitives that has not seen the same amount of scrutiny,
 testing and review as those from OpenSSL.</p>
+<p>Using the normal RNS installation procedures, it is not possible to install Reticulum on a
+system without the required OpenSSL primitives being available, and if they are not, they will
+be resolved and installed as a dependency. It is only possible to use the pure-python primitives
+by manually specifying this, for example by using the <code class="docutils literal notranslate"><span class="pre">rnspure</span></code> package.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>If you want to use the internal pure-python primitives, it is <strong>highly advisable</strong> that you
