@@ -1312,6 +1312,7 @@ class RNodeInterface(Interface):
                                     self.r_channel_load_long  = cul/100.0
                                     self.r_current_rssi       = crs-RNodeInterface.RSSI_OFFSET
                                     self.r_noise_floor        = nfl-RNodeInterface.RSSI_OFFSET
+                                    
                                     if ntf == 0xFF:
                                         self.r_interference   = None
                                     else:

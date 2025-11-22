@@ -945,6 +945,24 @@ class RNodeInterface(Interface):
                                     self.r_channel_load_long  = cul/100.0
                                     self.r_current_rssi       = crs-RNodeInterface.RSSI_OFFSET
                                     self.r_noise_floor        = nfl-RNodeInterface.RSSI_OFFSET
+
+                                    # TODO: Remove debug
+                                    # interference_log_threshold = 10
+                                    # if ntf == 0xFF:
+                                    #     self.r_interference   = None
+                                    #     if self.r_noise_floor != None:
+                                    #         # Filter potential false interference events due to LNA recalibration
+                                    #         if self.r_interference_l != None:
+                                    #             if self.r_interference_l[1] < self.r_noise_floor+interference_log_threshold:
+                                    #                 self.r_interference_l = None
+                                    # else:
+                                    #     if self.r_noise_floor != None:
+                                    #         interference   = ntf-RNodeInterface.RSSI_OFFSET
+                                    #         # Filter potential false interference events due to LNA recalibration
+                                    #         if interference > self.r_noise_floor+interference_log_threshold:
+                                    #             self.r_interference   = ntf-RNodeInterface.RSSI_OFFSET
+                                    #             self.r_interference_l = [time.time(), self.r_interference]
+
                                     if ntf == 0xFF:
                                         self.r_interference   = None
                                     else:
