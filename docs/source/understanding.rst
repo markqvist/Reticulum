@@ -117,7 +117,7 @@ Reticulum uses the singular concept of *destinations*. Any application using Ret
 networking stack will need to create one or more destinations to receive data, and know the
 destinations it needs to send data to.
 
-All destinations in Reticulum are _represented_ as a 16 byte hash. This hash is derived from truncating a full
+All destinations in Reticulum are *represented* as a 16 byte hash. This hash is derived from truncating a full
 SHA-256 hash of identifying characteristics of the destination. To users, the destination addresses
 will be displayed as 16 hexadecimal bytes, like this example: ``<13425ec15b621c1d928589718000d814>``.
 
