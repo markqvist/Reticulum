@@ -185,7 +185,7 @@ class RNodeInterface(Interface):
                 else:
                     ble_name = ble_string
 
-            if port.lower().startswith(tcp_uri_scheme):
+            elif port.lower().startswith(tcp_uri_scheme):
                 force_tcp = True
                 tcp_string = port[len(tcp_uri_scheme):]
                 port = None
