@@ -55,6 +55,8 @@ documentation:
 manual:
 	make -C docs latexpdf epub
 
+build_spkg: remove_symlinks build_sdist create_symlinks
+
 release: test remove_symlinks build_sdist build_wheel build_pure_wheel documentation manual create_symlinks
 
 debug: remove_symlinks build_wheel build_pure_wheel create_symlinks
