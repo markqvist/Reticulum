@@ -555,7 +555,7 @@ Reticulum Transport Instance &lt;5245a8efe1788c6a1cd36144a270e13b&gt; running
 <p><strong>All Command-Line Options</strong></p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnstatus [-h] [--config CONFIG] [--version] [-a] [-A]
                 [-l] [-s SORT] [-r] [-j] [-R hash] [-i path]
-                [-w seconds] [-v] [filter]
+                [-w seconds] [-v] [-m] [-mi seconds] [filter]
 
 Reticulum Network Stack Status
 
@@ -576,6 +576,9 @@ options:
   -i path               path to identity used for remote management
   -w seconds            timeout before giving up on remote queries
   -v, --verbose
+  -m, --monitor         continuously monitor status
+  -mi seconds, --monitor-interval seconds
+                        refresh interval for monitor mode (default: 1)
 </pre></div>
 </div>
 <div class="admonition note">
