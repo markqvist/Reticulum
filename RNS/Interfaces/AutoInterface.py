@@ -538,16 +538,12 @@ class AutoInterface(Interface):
     def process_outgoing(self,data):
         pass
 
-    # Until per-device sub-interfacing is implemented,
-    # ingress limiting should be disabled on AutoInterface
-    def should_ingress_limit(self):
-        return False
+    # Ingress limiting happens on peer sub-interfaces
+    def should_ingress_limit(self): return False
 
-    def detach(self):
-        self.online = False
+    def detach(self): self.online = False
 
-    def __str__(self):
-        return "AutoInterface["+self.name+"]"
+    def __str__(self): return f"AutoInterface[{self.name}]"
 
 class AutoInterfacePeer(Interface):
 
@@ -618,9 +614,8 @@ class AutoInterfacePeer(Interface):
 
         if self in RNS.Transport.interfaces: RNS.Transport.interfaces.remove(self)
 
-    # Until per-device sub-interfacing is implemented,
-    # ingress limiting should be disabled on AutoInterface
-    def should_ingress_limit(self): return False
+    # Ingress-limit announces per discovered peer
+    def should_ingress_limit(self): return True
 
 class AutoInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):
