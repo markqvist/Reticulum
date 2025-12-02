@@ -518,7 +518,7 @@ class AutoInterface(Interface):
                 if addr in self.spawned_interfaces:
                     self.spawned_interfaces[addr].detach()
                     self.spawned_interfaces[addr].teardown()
-                    self.spawned_interfaces.pop(spawned_interface)
+                    if addr in self.spawned_interfaces: self.spawned_interfaces.pop(addr)
                 self.spawned_interfaces[addr] = spawned_interface
 
                 RNS.log(str(self)+" added peer "+str(addr)+" on "+str(ifname), RNS.LOG_DEBUG)
@@ -602,12 +602,10 @@ class AutoInterfacePeer(Interface):
         
     def teardown(self):
         if not self.detached:
-            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down.", RNS.LOG_ERROR)
-            if RNS.Reticulum.panic_on_interface_error:
-                RNS.panic()
+            RNS.log(f"The interface {self} experienced an unrecoverable error and is being torn down.", RNS.LOG_ERROR)
+            if RNS.Reticulum.panic_on_interface_error: RNS.panic()
 
-        else:
-            RNS.log("The interface "+str(self)+" is being torn down.", RNS.LOG_VERBOSE)
+        else: RNS.log(f"The interface {self} is being torn down.", RNS.LOG_VERBOSE)
 
         self.online = False
         self.OUT = False
@@ -618,13 +616,11 @@ class AutoInterfacePeer(Interface):
             except Exception as e:
                 RNS.log(f"Could not remove {self} from parent interface on detach. The contained exception was: {e}", RNS.LOG_ERROR)
 
-        if self in RNS.Transport.interfaces:
-            RNS.Transport.interfaces.remove(self)
+        if self in RNS.Transport.interfaces: RNS.Transport.interfaces.remove(self)
 
     # Until per-device sub-interfacing is implemented,
     # ingress limiting should be disabled on AutoInterface
-    def should_ingress_limit(self):
-        return False
+    def should_ingress_limit(self): return False
 
 class AutoInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):
