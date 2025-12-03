@@ -619,13 +619,20 @@ Or fetch a file from the remote system:
 
   $ rncp --fetch ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
 
+The default identity file is stored in ``~/.reticulum/identities/rncp``, but you can use
+another one, which will be created if it does not already exist
+
+.. code:: text
+
+  $ rncp ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e -i /path/to/identity
+
 **All Command-Line Options**
 
 .. code:: text
 
   usage: rncp [-h] [--config path] [-v] [-q] [-S] [-l] [-F] [-f]
               [-j path] [-b seconds] [-a allowed_hash] [-n] [-p]
-              [-w seconds] [--version] [file] [destination]
+              [-i identity] [-w seconds] [--version] [file] [destination]
 
   Reticulum File Transfer Utility
 
@@ -650,6 +657,7 @@ Or fetch a file from the remote system:
     -a allowed_hash       allow this identity (or add in ~/.rncp/allowed_identities)
     -n, --no-auth         accept requests from anyone
     -p, --print-identity  print identity and destination info and exit
+    -i identity           path to identity to use
     -w seconds            sender timeout before giving up
     -P, --phy-rates       display physical layer transfer rates
     --version             show program's version number and exit
