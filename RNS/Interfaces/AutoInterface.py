@@ -615,7 +615,9 @@ class AutoInterfacePeer(Interface):
         if self in RNS.Transport.interfaces: RNS.Transport.interfaces.remove(self)
 
     # Ingress-limit announces per discovered peer
-    def should_ingress_limit(self): return True
+    # TODO: Disabled until potential discovery issue
+    # has been diagnosed
+    def should_ingress_limit(self): return False
 
 class AutoInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):
