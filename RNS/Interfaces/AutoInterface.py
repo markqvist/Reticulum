@@ -138,11 +138,12 @@ class AutoInterface(Interface):
 
         self.outbound_udp_socket = None
 
-        self.announce_rate_target = None
-        self.announce_interval = AutoInterface.ANNOUNCE_INTERVAL
-        self.peer_job_interval = AutoInterface.PEER_JOB_INTERVAL
-        self.peering_timeout   = AutoInterface.PEERING_TIMEOUT
-        self.multicast_echo_timeout = AutoInterface.MCAST_ECHO_TIMEOUT
+        self.announce_rate_target     = None
+        self.announce_interval        = AutoInterface.ANNOUNCE_INTERVAL
+        self.peer_job_interval        = AutoInterface.PEER_JOB_INTERVAL
+        self.peering_timeout          = AutoInterface.PEERING_TIMEOUT
+        self.multicast_echo_timeout   = AutoInterface.MCAST_ECHO_TIMEOUT
+        self.reverse_peering_interval = self.announce_interval*3.25
 
         # Increase peering timeout on Android, due to potential
         # low-power modes implemented on many chipsets.
@@ -168,6 +169,8 @@ class AutoInterface(Interface):
             self.discovery_port = AutoInterface.DEFAULT_DISCOVERY_PORT
         else:
             self.discovery_port = discovery_port
+
+        self.unicast_discovery_port = self.discovery_port+1
 
         if multicast_address_type == None:
             self.multicast_address_type = AutoInterface.MULTICAST_TEMPORARY_ADDRESS_TYPE
@@ -244,33 +247,48 @@ class AutoInterface(Interface):
                             if link_local_addr == None:
                                 RNS.log(str(self)+" No link-local IPv6 address configured for "+str(ifname)+", skipping interface", RNS.LOG_EXTREME)
                             else:
-                                mcast_addr = self.mcast_discovery_address
-                                RNS.log(str(self)+" Creating multicast discovery listener on "+str(ifname)+" with address "+str(mcast_addr), RNS.LOG_EXTREME)
+                                RNS.log(str(self)+" Creating unicast discovery listener on "+str(ifname)+" with address "+str(link_local_addr), RNS.LOG_EXTREME)
 
                                 # Struct with interface index
                                 if_struct = struct.pack("I", self.interface_name_to_index(ifname))
 
-                                # Set up multicast socket
+                                # Set up unicast discovery socket
+                                unicast_discovery_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+                                unicast_discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                                if hasattr(socket, "SO_REUSEPORT"): unicast_discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+
+                                # Bind unicast discovery socket
+                                if RNS.vendor.platformutils.is_windows():
+                                    # Windows throws "[WinError 10049] The requested address is not valid in its context"
+                                    # when trying to use the multicast address as host, or when providing interface index
+                                    # passing an empty host appears to work, but probably not exactly how we want it to...
+                                    unicast_discovery_socket.bind(('', self.unicast_discovery_port))
+
+                                else:
+                                    addr_info = socket.getaddrinfo(link_local_addr+"%"+ifname, self.unicast_discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+                                    unicast_discovery_socket.bind(addr_info[0][4])
+
+                                mcast_addr = self.mcast_discovery_address
+                                RNS.log(str(self)+" Creating multicast discovery listener on "+str(ifname)+" with address "+str(mcast_addr), RNS.LOG_EXTREME)
+
+                                # Set up multicast discovery socket
                                 discovery_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
                                 discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                                if hasattr(socket, "SO_REUSEPORT"):
-                                    discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                                if hasattr(socket, "SO_REUSEPORT"): discovery_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
                                 discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, if_struct)
 
                                 # Join multicast group
                                 mcast_group = socket.inet_pton(socket.AF_INET6, mcast_addr) + if_struct
                                 discovery_socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mcast_group)
 
-                                # Bind socket
+                                # Bind multicast socket
                                 if RNS.vendor.platformutils.is_windows():
-
-                                    # window throws "[WinError 10049] The requested address is not valid in its context"
+                                    # Windows throws "[WinError 10049] The requested address is not valid in its context"
                                     # when trying to use the multicast address as host, or when providing interface index
                                     # passing an empty host appears to work, but probably not exactly how we want it to...
                                     discovery_socket.bind(('', self.discovery_port))
 
                                 else:
-
                                     if self.discovery_scope == AutoInterface.SCOPE_LINK:
                                         addr_info = socket.getaddrinfo(mcast_addr+"%"+ifname, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
                                     else:
@@ -278,12 +296,13 @@ class AutoInterface(Interface):
 
                                     discovery_socket.bind(addr_info[0][4])
 
-                                # Set up thread for discovery packets
+                                # Set up thread for multicast discovery packets
                                 def discovery_loop(): self.discovery_handler(discovery_socket, ifname)
-
-                                thread = threading.Thread(target=discovery_loop)
-                                thread.daemon = True
-                                thread.start()
+                                thread = threading.Thread(target=discovery_loop, daemon=True).start()
+                                
+                                # Set up thread for unicast discovery packets
+                                def unicast_discovery_loop(): self.discovery_handler(unicast_discovery_socket, ifname, announce=False)
+                                thread = threading.Thread(target=unicast_discovery_loop, daemon=True).start()
 
                                 suitable_interfaces += 1
 
@@ -331,13 +350,13 @@ class AutoInterface(Interface):
         self.online = True
         self.final_init_done = True
 
-    def discovery_handler(self, socket, ifname):
-        def announce_loop():
-            self.announce_handler(ifname)
-            
-        thread = threading.Thread(target=announce_loop)
-        thread.daemon = True
-        thread.start()
+    def discovery_handler(self, socket, ifname, announce=True):
+        def announce_loop(): self.announce_handler(ifname)
+        
+        if announce:
+            thread = threading.Thread(target=announce_loop)
+            thread.daemon = True
+            thread.start()
         
         while True:
             data, ipv6_src = socket.recvfrom(1024)
@@ -370,6 +389,18 @@ class AutoInterface(Interface):
                     spawned_interface.detach()
                     spawned_interface.teardown()
                 RNS.log(str(self)+" removed peer "+str(peer_addr)+" on "+str(removed_peer[0]), RNS.LOG_DEBUG)
+
+            # Send reverse peering packets
+            for peer_addr in self.peers:
+                try:
+                    peer = self.peers[peer_addr]
+                    ifname = peer[0]
+                    last_outbound = peer[2]
+                    if now > last_outbound+self.reverse_peering_interval:
+                        self.reverse_announce(ifname, peer_addr)
+                        peer[2] = time.time()
+                except Exception as e:
+                    RNS.log(f"Error while sending reverse peering packet to {peer_addr}: {e}", RNS.LOG_ERROR)
 
             for ifname in self.adopted_interfaces:
                 # Check that the link-local address has not changed
@@ -443,6 +474,20 @@ class AutoInterface(Interface):
             self.peer_announce(ifname)
             time.sleep(self.announce_interval)
             
+    def reverse_announce(self, ifname, peer_addr):
+        try:
+            link_local_address = self.adopted_interfaces[ifname]
+            discovery_token = RNS.Identity.full_hash(self.group_id+link_local_address.encode("utf-8"))
+            announce_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+            addr_info = socket.getaddrinfo(f"{peer_addr}%{ifname}", self.unicast_discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
+
+            ifis = struct.pack("I", self.interface_name_to_index(ifname))
+            announce_socket.sendto(discovery_token, addr_info[0][4])
+            announce_socket.close()
+            
+        except Exception as e:
+            RNS.log(f"Could not send reverse peering packet to {peer_addr} on {ifname}: {e}", RNS.LOG_ERROR)
+
     def peer_announce(self, ifname):
         try:
             link_local_address = self.adopted_interfaces[ifname]
@@ -480,7 +525,7 @@ class AutoInterface(Interface):
 
         else:
             if not addr in self.peers:
-                self.peers[addr] = [ifname, time.time()]
+                self.peers[addr] = [ifname, time.time(), time.time()]
 
                 spawned_interface = AutoInterfacePeer(self, addr, ifname)
                 spawned_interface.OUT = self.OUT
@@ -526,17 +571,14 @@ class AutoInterface(Interface):
                 self.refresh_peer(addr)
 
     def refresh_peer(self, addr):
-        try:
-            self.peers[addr][1] = time.time()
-        except Exception as e:
-            RNS.log(f"An error occurred while refreshing peer {addr} on {self}: {e}", RNS.LOG_ERROR)
+        try: self.peers[addr][1] = time.time()
+        except Exception as e: RNS.log(f"An error occurred while refreshing peer {addr} on {self}: {e}", RNS.LOG_ERROR)
 
     def process_incoming(self, data, addr=None):
         if self.online and addr in self.spawned_interfaces:
             self.spawned_interfaces[addr].process_incoming(data, addr)
 
-    def process_outgoing(self,data):
-        pass
+    def process_outgoing(self,data): pass
 
     # Ingress limiting happens on peer sub-interfaces
     def should_ingress_limit(self): return False
