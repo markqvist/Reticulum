@@ -8,6 +8,12 @@ Apart from writing code, there are many ways in which you can contribute. Before
 
 First and foremost, there is one simple requirement for taking part in this community: While we primarily interact virtually, your actions matter and have real consequences. Therefore: **Act like a responsible, civilized person** - especially in the face of disputes and heated disagreements. Speak your mind here; discussions are welcome. Just do so in the spirit of being face-to-face with everyone else. Thank you.
 
+In order to keep the discussion forums and issue trackers navigable and useful, the following types of posts will be deleted without notice:
+
+- Questions that have already been adequately answered elsewhere. Use the search function.
+- Low-effort posts or comments that contain no actual information or useful content. This is not a tea-house.
+- Post or comments solely containing personal opinions or beliefs without adding anything to the discussion. Facebook and X exists.
+
 ## Asking Questions
 
 If you want to ask a question, **do not open an issue**. The issue tracker is used by people *working on Reticulum* to track bugs, issues and improvements.
