@@ -578,7 +578,7 @@ class AutoInterface(Interface):
         if self.online and addr in self.spawned_interfaces:
             self.spawned_interfaces[addr].process_incoming(data, addr)
 
-    def process_outgoing(self,data): pass
+    def process_outgoing(self, data): pass
 
     # Ingress limiting happens on peer sub-interfaces
     def should_ingress_limit(self): return False
