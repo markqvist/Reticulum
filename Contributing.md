@@ -13,6 +13,8 @@ In order to keep the discussion forums and issue trackers navigable and useful, 
 - Questions that have already been adequately answered elsewhere. Use the search function.
 - Low-effort posts or comments that contain no actual information or useful content. This is not a tea-house.
 - Post or comments solely containing personal opinions or beliefs without adding anything to the discussion. Facebook and X exists.
+- Content that simply waste the developer's / maintainer's time with completely obvious "ideas", "insights" or "recommendations". Yes, we have *at least* 8 neurons ourselves.
+- Posts that fail to understand that developing a highly complex software project with a very small amount of resources and people takes time. Imagining perfection on our behalf is useless.
 
 ## Asking Questions
 
