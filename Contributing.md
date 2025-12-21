@@ -18,6 +18,8 @@ In order to keep the discussion forums and issue trackers navigable and useful, 
 
 If you're new to the community and start out your engagement with any of the above transgressions, you will simply be banned without notice or explanation, and your post will be deleted.
 
+If you find this "harsh", "unfair" or "unwelcoming", go somewhere else. This is not social club, but a work environment for the people contributing to the project.
+
 ## Asking Questions
 
 If you want to ask a question, **do not open an issue**. The issue tracker is used by people *working on Reticulum* to track bugs, issues and improvements.
