@@ -16,6 +16,8 @@ In order to keep the discussion forums and issue trackers navigable and useful, 
 - Content that simply waste the developer's / maintainer's time with completely obvious "ideas", "insights" or "recommendations". Yes, we have *at least* 8 neurons ourselves.
 - Posts that fail to understand that developing a highly complex software project with a very small amount of resources and people takes time. Imagining perfection on our behalf is useless.
 
+If you're new to the community and start out your engagement with any of the above transgressions, you will simply be banned without notice or explanation, and your post will be deleted.
+
 ## Asking Questions
 
 If you want to ask a question, **do not open an issue**. The issue tracker is used by people *working on Reticulum* to track bugs, issues and improvements.
