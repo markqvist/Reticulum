@@ -54,7 +54,7 @@ Even new ideas and proposals that have not been approved by a maintainer, or fal
 
 ## Generative AI Policy
 
-Contributions written using large language models (LLMs) or other generative 'AI' programs are prohibited. LLMs produce errors so frequently and in a way that is so unlike human error that issues will regularly remain undetected and slip through, even with stringent review. This is not a worthwhile tradeoff for Reticulum, especially considering the limited time maintainers have to correct these issues, and we ask that you refrain from using any such output in your contributions.
+Contributions written using large language models (LLMs) or other generative 'AI' programs are prohibited. LLMs produce errors so frequently and in a way that is so unlike human error that issues will regularly remain undetected and slip through, even with stringent review. This is not a worthwhile tradeoff for Reticulum, especially considering the limited time maintainers have to correct these issues, and we require that you refrain from using any such output in your contributions.
 
 This applies to all official Reticulum projects and documentation as well as all submitted issues and discussion in official channels, except in cases where language translation and/or speech recogntion technologies are required for communication.  We also ask that you avoid using LLMs for troubleshooting, as results can be misleading, and instead request help in one of our [various communities](https://reticulum.network/start.html).
 
