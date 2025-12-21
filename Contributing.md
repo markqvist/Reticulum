@@ -23,19 +23,13 @@ If you find this "harsh", "unfair" or "unwelcoming", go somewhere else. This is 
 
 ## Asking Questions
 
-If you want to ask a question, **do not open an issue**. The issue tracker is used by people *working on Reticulum* to track bugs, issues and improvements.
+If you want to ask a question, **do not open an issue**. The issue tracker is used by people *working on Reticulum* to track bugs, issues and improvements. Instead, ask away on the [discussions](https://github.com/markqvist/Reticulum/discussions).
 
-Instead, ask away on the [discussions](https://github.com/markqvist/Reticulum/discussions) or on the [Reticulum Matrix channel](https://matrix.to/#/#reticulum:matrix.org) at `#reticulum:matrix.org`
-
-## Providing Feedback & Ideas
-
-Likewise, feedback, ideas and feature requests are a very welcome way to contribute, and should also be posted on the [discussions](https://github.com/markqvist/Reticulum/discussions), or on the [Reticulum Matrix channel](https://matrix.to/#/#reticulum:matrix.org) at `#reticulum:matrix.org`.
-
-Please do not post feature requests or general ideas on the issue tracker, or in direct messages to the primary developers. You are much more likely to get a response and start a constructive discussion by posting your ideas in the public channels created for these purposes.
+Do not post feature requests or general ideas on the issue tracker, or in direct messages to the primary developers. You are much more likely to get a response and start a constructive discussion by posting your ideas in the public channels created for these purposes.
 
 ## Reporting Issues
 
-If you have found a bug or issue in this project, please report it using the [issue tracker](https://github.com/markqvist/Reticulum/issues). If at all possible, be sure to include details on how to reproduce the bug.
+If you have found a bug or issue in this project, please report it using the [issue tracker](https://github.com/markqvist/Reticulum/issues). Be sure to include details on how to reproduce the bug.
 
 Anything submitted to the issue tracker that does not follow these guidelines will be closed and removed without comments or explanation.
 
@@ -55,9 +49,9 @@ Even new ideas and proposals that have not been approved by a maintainer, or fal
 
 ## Generative AI Policy
 
-Contributions written using large language models (LLMs) or other generative 'AI' programs are prohibited. LLMs produce errors so frequently and in a way that is so unlike human error that issues will regularly remain undetected and slip through, even with stringent review. This is not a worthwhile tradeoff for Reticulum, especially considering the limited time maintainers have to correct these issues, and we require that you refrain from using any such output in your contributions.
+Contributions written using large language models (LLMs) or other generative 'AI' programs are prohibited. LLMs produce errors so frequently and in a way that is so unlike human error that such issues are incredibly time-consuming to spot and fix. This is not a worthwhile tradeoff for Reticulum.
 
-This applies to all official Reticulum projects and documentation as well as all submitted issues and discussion in official channels, except in cases where language translation and/or speech recogntion technologies are required for communication.  We also ask that you avoid using LLMs for troubleshooting, as results can be misleading, and instead request help in one of our [various communities](https://reticulum.network/start.html).
+This applies to all Reticulum-related projects and documentation, as well as all submitted issues and discussion in official channels, except in cases where language translation and/or speech recogntion technologies are required for communication.
 
 ## Contributor License Agreement
 
