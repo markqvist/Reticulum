@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>Configuring Interfaces - Reticulum Network Stack 1.0.4 documentation</title>
+        <title>Configuring Interfaces - Reticulum Network Stack 1.0.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.0.4 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.0.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.0.4 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.0.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -562,6 +562,7 @@ software-based soundmodems. To do this, use the <code class="docutils literal no
 <span class="w">  </span><span class="na">kiss_framing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
 <span class="w">  </span><span class="na">target_host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">127.0.0.1</span>
 <span class="w">  </span><span class="na">target_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8001</span>
+<span class="w">  </span><span class="na">fixed_mtu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">500</span>
 </pre></div>
 </div>
 <p><strong>Caution!</strong> Only use the KISS framing option when connecting to external devices
@@ -570,6 +571,8 @@ and programs like soundmodems and similar over TCP. When using the
 never enable <code class="docutils literal notranslate"><span class="pre">kiss_framing</span></code>, since this will disable internal reliability and
 recovery mechanisms that greatly improves performance over unreliable and
 intermittent TCP links.</p>
+<p>For KISS devices that need only supports a particular MTU, you can use the
+<code class="docutils literal notranslate"><span class="pre">fixed_mtu</span></code> option.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The TCP interfaces support tunneling over I2P, but to do so reliably,
@@ -1483,7 +1486,7 @@ to <code class="docutils literal notranslate"><span class="pre">30</span></code>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=71272d9f"></script>
+</div><script src="_static/documentation_options.js?v=d55fa986"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

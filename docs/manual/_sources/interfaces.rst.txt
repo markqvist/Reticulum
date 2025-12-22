@@ -356,6 +356,7 @@ software-based soundmodems. To do this, use the ``kiss_framing`` option:
     kiss_framing = True
     target_host = 127.0.0.1
     target_port = 8001
+    fixed_mtu = 500
 
 **Caution!** Only use the KISS framing option when connecting to external devices
 and programs like soundmodems and similar over TCP. When using the
@@ -363,6 +364,9 @@ and programs like soundmodems and similar over TCP. When using the
 never enable ``kiss_framing``, since this will disable internal reliability and
 recovery mechanisms that greatly improves performance over unreliable and
 intermittent TCP links.
+
+For KISS devices that need only supports a particular MTU, you can use the
+``fixed_mtu`` option.
 
 .. note::
    The TCP interfaces support tunneling over I2P, but to do so reliably,
