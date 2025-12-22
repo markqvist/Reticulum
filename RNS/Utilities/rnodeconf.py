@@ -49,9 +49,9 @@ import RNS
 RNS.logtimefmt      = "%H:%M:%S"
 RNS.compact_log_fmt = True
 
-program_version = "2.4.0"
-eth_addr = "0xFDabC71AC4c0C78C95aDDDe3B4FA19d6273c5E73"
-btc_addr = "35G9uWVzrpJJibzUwpNUQGQNFzLirhrYAH"
+program_version = "2.5.0"
+eth_addr = "0x91C421DdfB8a30a49A71d63447ddb54cEBe3465E"
+btc_addr = "bc1pgqgu8h8xvj4jtafslq396v7ju7hkgymyrzyqft4llfslz5vp99psqfk3a6"
 xmr_addr = "87HcDx6jRSkMQ9nPRd5K9hGGpZLn2s7vWETjMaVM5KfV4TD36NcYa8J8WSxhTSvBzzFpqDwp2fg5GX2moZ7VAP9QMZCZGET"
 
 rnode = None
@@ -1185,8 +1185,8 @@ class RNode():
                             print("     Always use a firmware downloaded as binaries or compiled from source")
                             print("     from one of the following locations:")
                             print("     ")
-                            print("        https://unsigned.io/rnode")
                             print("        https://github.com/markqvist/rnode_firmware")
+                            print("        https://github.com/liberatedsystems/RNode_Firmware_CE")
                             print("     ")
                             print("     You can reflash and bootstrap this device to a verifiable state")
                             print("     by using this utility. It is recommended to do so NOW!")
@@ -1228,7 +1228,7 @@ class RNode():
 
 selected_version = None
 selected_hash = None
-firmware_version_url = "https://unsigned.io/firmware/latest/?v="+program_version+"&variant="
+firmware_version_url          = "https://github.com/markqvist/rnode_firmware/releases/latest/download/release.json"
 fallback_firmware_version_url = "https://github.com/markqvist/rnode_firmware/releases/latest/download/release.json"
 def ensure_firmware_file(fw_filename):
     global selected_version, selected_hash, upd_nocheck
@@ -1269,9 +1269,15 @@ def ensure_firmware_file(fw_filename):
                 try:
                     # if custom firmware url, download latest release
                     if selected_version == None and fw_url == None:
-                        version_url = firmware_version_url+fw_filename
-                        RNS.log("Retrieving latest version info from "+version_url)
-                        urlretrieve(firmware_version_url+fw_filename, UPD_DIR+"/"+fw_filename+".version.latest")
+                        urlretrieve(firmware_version_url, UPD_DIR+"/release_info.json")
+                        import json
+                        with open(UPD_DIR+"/release_info.json", "rb") as rif:
+                            rdat = json.loads(rif.read())
+                            variant = rdat[fw_filename]
+                            with open(UPD_DIR+"/"+fw_filename+".version.latest", "wb") as verf:
+                                inf_str = str(variant["version"])+" "+str(variant["hash"])
+                                verf.write(inf_str.encode("utf-8"))
+
                     else:
                         if fw_url != None:
                             if selected_version == None:
@@ -1542,13 +1548,14 @@ def main():
         args = parser.parse_args()
 
         def print_donation_block():
-            print("  Ethereum : "+eth_addr)
-            print("  Bitcoin  : "+btc_addr)
-            print("  Monero   : "+xmr_addr)
-            print("  Ko-Fi    : https://ko-fi.com/markqvist")
+            print("  Ethereum  : "+eth_addr)
+            print("  Bitcoin   : "+btc_addr)
+            print("  Monero    : "+xmr_addr)
+            print("  Ko-Fi     : https://ko-fi.com/markqvist")
+            print("  LiberaPay : https://liberapay.com/reticulum")
             print("")
-            print("  Info     : https://unsigned.io/")
-            print("  Code     : https://github.com/markqvist")
+            print("  Info      : https://reticulum.network")
+            print("  Code      : https://github.com/markqvist")
 
         if args.version:
             print("rnodeconf "+program_version)
