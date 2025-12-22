@@ -178,6 +178,8 @@ Reticulum implements a range of generalised interface types that covers the comm
 
   * Or to quickly create interfaces with custom hardware
 
+* Anything else using :ref:`custom interface modules<interfaces-custom>` written in Python
+
 For a full list and more details, see the :ref:`Supported Interfaces<interfaces-main>` chapter.
 
 
