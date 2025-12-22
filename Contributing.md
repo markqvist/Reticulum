@@ -8,21 +8,28 @@ Apart from writing code, there are many ways in which you can contribute. Before
 
 First and foremost, there is one simple requirement for taking part in this community: While we primarily interact virtually, your actions matter and have real consequences. Therefore: **Act like a responsible, civilized person** - especially in the face of disputes and heated disagreements. Speak your mind here; discussions are welcome. Just do so in the spirit of being face-to-face with everyone else. Thank you.
 
+In order to keep the discussion forums and issue trackers navigable and useful, the following types of posts will be deleted without notice:
+
+- Spam.
+- Questions that have already been adequately answered elsewhere. Use the search function.
+- Low-effort posts or comments that contain no actual information or useful content. This is not a tea-house.
+- Post or comments solely containing personal opinions or beliefs without adding anything to the discussion. Facebook and X exists.
+- Content that simply waste the developer's / maintainer's time with completely obvious "ideas", "insights" or "recommendations". Yes, we have *at least* 8 neurons ourselves.
+- Posts that fail to understand that developing a highly complex software project with a very small amount of resources and people takes time. Imagining perfection on our behalf is useless.
+
+If you're new to the community and start out your engagement with any of the above transgressions, you will simply be banned without notice or explanation, and your post will be deleted.
+
+If you find this "harsh", "unfair" or "unwelcoming", go somewhere else. This is not social club, but a work environment for the people contributing to the project.
+
 ## Asking Questions
 
-If you want to ask a question, **do not open an issue**. The issue tracker is used by people *working on Reticulum* to track bugs, issues and improvements.
+If you want to ask a question, **do not open an issue**. The issue tracker is used by people *working on Reticulum* to track bugs, issues and improvements. Instead, ask away on the [discussions](https://github.com/markqvist/Reticulum/discussions).
 
-Instead, ask away on the [discussions](https://github.com/markqvist/Reticulum/discussions) or on the [Reticulum Matrix channel](https://matrix.to/#/#reticulum:matrix.org) at `#reticulum:matrix.org`
-
-## Providing Feedback & Ideas
-
-Likewise, feedback, ideas and feature requests are a very welcome way to contribute, and should also be posted on the [discussions](https://github.com/markqvist/Reticulum/discussions), or on the [Reticulum Matrix channel](https://matrix.to/#/#reticulum:matrix.org) at `#reticulum:matrix.org`.
-
-Please do not post feature requests or general ideas on the issue tracker, or in direct messages to the primary developers. You are much more likely to get a response and start a constructive discussion by posting your ideas in the public channels created for these purposes.
+Do not post feature requests or general ideas on the issue tracker, or in direct messages to the primary developers. You are much more likely to get a response and start a constructive discussion by posting your ideas in the public channels created for these purposes.
 
 ## Reporting Issues
 
-If you have found a bug or issue in this project, please report it using the [issue tracker](https://github.com/markqvist/Reticulum/issues). If at all possible, be sure to include details on how to reproduce the bug.
+If you have found a bug or issue in this project, please report it using the [issue tracker](https://github.com/markqvist/Reticulum/issues). Be sure to include details on how to reproduce the bug.
 
 Anything submitted to the issue tracker that does not follow these guidelines will be closed and removed without comments or explanation.
 
@@ -42,9 +49,9 @@ Even new ideas and proposals that have not been approved by a maintainer, or fal
 
 ## Generative AI Policy
 
-Contributions written using large language models (LLMs) or other generative 'AI' programs are prohibited. LLMs produce errors so frequently and in a way that is so unlike human error that issues will regularly remain undetected and slip through, even with stringent review. This is not a worthwhile tradeoff for Reticulum, especially considering the limited time maintainers have to correct these issues, and we ask that you refrain from using any such output in your contributions.
+Contributions written using large language models (LLMs) or other generative 'AI' programs are prohibited. LLMs produce errors so frequently and in a way that is so unlike human error that such issues are incredibly time-consuming to spot and fix. This is not a worthwhile tradeoff for Reticulum.
 
-This applies to all official Reticulum projects and documentation as well as all submitted issues and discussion in official channels, except in cases where language translation and/or speech recogntion technologies are required for communication.  We also ask that you avoid using LLMs for troubleshooting, as results can be misleading, and instead request help in one of our [various communities](https://reticulum.network/start.html).
+This applies to all Reticulum-related projects and documentation, as well as all submitted issues and discussion in official channels, except in cases where language translation and/or speech recogntion technologies are required for communication.
 
 ## Contributor License Agreement
 
