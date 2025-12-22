@@ -462,6 +462,10 @@ class Destination:
                     self.ratchets = None
                     self.ratchets_path = None
                     RNS.trace_exception(e)
+                    RNS.log(f"The ratchet file located at {ratchets_path} could not be loaded. This could indicate that the ratchet file has become corrupt.", RNS.LOG_CRITICAL)
+                    RNS.log(f"You can attempt to manually recover the ratchet file, or simply remove it to have Reticulum recreate it on the next use.", RNS.LOG_CRITICAL)
+                    RNS.log(f"If re-initialize this ratchet file, make sure to send an announce for the relevant destination as soon as possible,", RNS.LOG_CRITICAL)
+                    RNS.log(f"so that the new ratchet information is synchronized to the network.", RNS.LOG_CRITICAL)
                     raise OSError("Could not read ratchet file contents for "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
         else:
