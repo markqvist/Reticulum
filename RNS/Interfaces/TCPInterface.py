@@ -107,8 +107,13 @@ class TCPClientInterface(Interface):
         i2p_tunneled = c.as_bool("i2p_tunneled") if "i2p_tunneled" in c else False
         connect_timeout = c.as_int("connect_timeout") if "connect_timeout" in c else None
         max_reconnect_tries = c.as_int("max_reconnect_tries") if "max_reconnect_tries" in c else None
+        fixed_mtu = c.as_int("fixed_mtu") if "fixed_mtu" in c else None
+        if fixed_mtu:
+            if fixed_mtu < RNS.Reticulum.MTU: raise ValueError(f"Configured MTU of {fixed_mtu} bytes is too small")
+            self.AUTOCONFIGURE_MTU = False
+            self.FIXED_MTU = True
         
-        self.HW_MTU           = TCPInterface.HW_MTU
+        self.HW_MTU           = TCPInterface.HW_MTU if not fixed_mtu else fixed_mtu
         self.IN               = True
         self.OUT              = False
         self.socket           = None

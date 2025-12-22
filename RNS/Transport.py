@@ -1367,22 +1367,27 @@ class Transport:
                                 
                                 path_mtu       = RNS.Link.mtu_from_lr_packet(packet)
                                 mode           = RNS.Link.mode_from_lr_packet(packet)
+                                ph_mtu         = interface.HW_MTU if interface else None
                                 nh_mtu         = outbound_interface.HW_MTU
                                 if path_mtu:
+                                    # TODO: Remove debug
+                                    # RNS.log(f"PATH_MTU: {path_mtu}")
+                                    # RNS.log(f"PH_MTU: {ph_mtu}")
+                                    # RNS.log(f"NH_MTU: {nh_mtu}")
                                     if outbound_interface.HW_MTU == None:
-                                        RNS.log(f"No next-hop HW MTU, disabling link MTU upgrade", RNS.LOG_DEBUG) # TODO: Remove debug
+                                        RNS.log(f"No next-hop HW MTU, disabling link MTU upgrade", RNS.LOG_DEBUG)
                                         path_mtu = None
                                         new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]
                                     elif not outbound_interface.AUTOCONFIGURE_MTU and not outbound_interface.FIXED_MTU:
-                                        RNS.log(f"Outbound interface doesn't support MTU autoconfiguration, disabling link MTU upgrade", RNS.LOG_DEBUG) # TODO: Remove debug
+                                        RNS.log(f"Outbound interface doesn't support MTU autoconfiguration, disabling link MTU upgrade", RNS.LOG_DEBUG)
                                         path_mtu = None
                                         new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]
                                     else:
-                                        if nh_mtu < path_mtu:
+                                        if nh_mtu < path_mtu or (ph_mtu and ph_mtu < path_mtu):
                                             try:
-                                                path_mtu = nh_mtu
+                                                path_mtu = min(nh_mtu, ph_mtu)
                                                 clamped_mtu = RNS.Link.signalling_bytes(path_mtu, mode)
-                                                RNS.log(f"Clamping link MTU to {RNS.prettysize(nh_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
+                                                RNS.log(f"Clamping link MTU to {RNS.prettysize(path_mtu)}", RNS.LOG_DEBUG)
                                                 new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]+clamped_mtu
                                             except Exception as e:
                                                 RNS.log(f"Dropping link request packet. The contained exception was: {e}", RNS.LOG_WARNING)
