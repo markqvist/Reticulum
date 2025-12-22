@@ -16,12 +16,12 @@ Donations are gratefully accepted via the following channels:
     Monero:
     84FpY1QbxHcgdseePYNmhTHcrgMX4nFfBYtz2GKYToqHVVhJp8Eaw1Z1EedRnKD19b3B8NiLCGVxzKV17UMmmeEsCrPyA5w
 
-    Ethereum:
-    0x81F7B979fEa6134bA9FD5c701b3501A2e61E897a
-
     Bitcoin:
-    3CPmacGm34qYvR6XWLVEJmi2aNe3PZqUuq
+    bc1pgqgu8h8xvj4jtafslq396v7ju7hkgymyrzyqft4llfslz5vp99psqfk3a6
 
+    Ethereum:
+    0x91C421DdfB8a30a49A71d63447ddb54cEBe3465E
+    
     Liberapay:
     https://liberapay.com/Reticulum/
 
