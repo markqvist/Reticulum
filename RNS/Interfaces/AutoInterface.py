@@ -580,9 +580,6 @@ class AutoInterface(Interface):
 
     def process_outgoing(self, data): pass
 
-    # Ingress limiting happens on peer sub-interfaces
-    def should_ingress_limit(self): return False
-
     def detach(self): self.online = False
 
     def __str__(self): return f"AutoInterface[{self.name}]"
@@ -655,11 +652,6 @@ class AutoInterfacePeer(Interface):
                 RNS.log(f"Could not remove {self} from parent interface on detach. The contained exception was: {e}", RNS.LOG_ERROR)
 
         if self in RNS.Transport.interfaces: RNS.Transport.interfaces.remove(self)
-
-    # Ingress-limit announces per discovered peer
-    # TODO: Disabled until potential discovery issue
-    # has been diagnosed
-    def should_ingress_limit(self): return False
 
 class AutoInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):

@@ -991,9 +991,6 @@ class WeaveInterface(Interface):
     def process_outgoing(self,data):
         pass
 
-    def should_ingress_limit(self):
-        return False
-
     def detach(self):
         self._online = False
 
@@ -1086,6 +1083,3 @@ class WeaveInterfacePeer(Interface):
 
         if self in RNS.Transport.interfaces:
             RNS.Transport.interfaces.remove(self)
-
-    def should_ingress_limit(self):
-        return False
