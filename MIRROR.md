@@ -22,7 +22,7 @@ If you want to support continued work, you can do so at the donation links liste
 
 If you want Reticulum to continue evolving, you have the power to make that happen. The protocol is public domain. The code is open source. Everything you need is right here. I've provided the tools, but building what comes next is not my responsibility anymore. It's yours.
 
-To the small group of people who've actually been here, and understood what this work was and what it cost - you already know where to find me if it actually matters.
+To the small group of people who has actually been here, and understood what this work was and what it cost - you already know where to find me if it actually matters.
 
 To everyone else: This is where we part ways. No hard feelings. It's just time.
 
