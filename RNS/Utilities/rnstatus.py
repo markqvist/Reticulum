@@ -35,6 +35,7 @@ import os
 import sys
 import time
 import argparse
+import io
 
 from RNS._version import __version__
 
@@ -562,6 +563,24 @@ def main(must_exit=True, rns_instance=None):
 
         parser.add_argument('-v', '--verbose', action='count', default=0)
 
+        parser.add_argument(
+            "-m",
+            "--monitor",
+            action="store_true",
+            help="continuously monitor status",
+            default=False
+        )
+
+        parser.add_argument(
+            "-mi",
+            "--monitor-interval",
+            action="store",
+            metavar="seconds",
+            type=float,
+            help="refresh interval for monitor mode (default: 1)",
+            default=1.0
+        )
+
         parser.add_argument("filter", nargs="?", default=None, help="only display interfaces with names including filter", type=str)
         
         args = parser.parse_args()
@@ -571,23 +590,69 @@ def main(must_exit=True, rns_instance=None):
         else:
             configarg = None
 
-        program_setup(
-            configdir = configarg,
-            dispall = args.all,
-            verbosity=args.verbose,
-            name_filter=args.filter,
-            json=args.json,
-            astats=args.announce_stats,
-            lstats=args.link_stats,
-            sorting=args.sort,
-            sort_reverse=args.reverse,
-            remote=args.R,
-            management_identity=args.i,
-            remote_timeout=args.w,
-            must_exit=must_exit,
-            rns_instance=rns_instance,
-            traffic_totals=args.totals,
-        )
+        if args.monitor:
+            if args.R:
+                require_shared = False
+            else:
+                require_shared = True
+            
+            try:
+                reticulum = RNS.Reticulum(configdir=configarg, loglevel=3+args.verbose, require_shared_instance=require_shared)
+            except Exception as e:
+                print("No shared RNS instance available to get status from")
+                exit(1)
+
+
+            while True:
+                buffer = io.StringIO()
+                old_stdout = sys.stdout
+                sys.stdout = buffer
+                
+                try:
+                    program_setup(
+                        configdir = configarg,
+                        dispall = args.all,
+                        verbosity=args.verbose,
+                        name_filter=args.filter,
+                        json=args.json,
+                        astats=args.announce_stats,
+                        lstats=args.link_stats,
+                        sorting=args.sort,
+                        sort_reverse=args.reverse,
+                        remote=args.R,
+                        management_identity=args.i,
+                        remote_timeout=args.w,
+                        must_exit=False,
+                        rns_instance=reticulum,
+                        traffic_totals=args.totals,
+                    )
+                finally:
+                    sys.stdout = old_stdout
+                
+                output = buffer.getvalue()
+                print("\033[H\033[2J", end="")
+                print(output, end="", flush=True)
+                
+                time.sleep(args.monitor_interval)
+
+        else:
+            program_setup(
+                configdir = configarg,
+                dispall = args.all,
+                verbosity=args.verbose,
+                name_filter=args.filter,
+                json=args.json,
+                astats=args.announce_stats,
+                lstats=args.link_stats,
+                sorting=args.sort,
+                sort_reverse=args.reverse,
+                remote=args.R,
+                management_identity=args.i,
+                remote_timeout=args.w,
+                must_exit=must_exit,
+                rns_instance=rns_instance,
+                traffic_totals=args.totals,
+            )
 
     except KeyboardInterrupt:
         print("")
