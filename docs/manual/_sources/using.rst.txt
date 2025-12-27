@@ -339,7 +339,7 @@ Filter output to only show some interfaces:
 
   usage: rnstatus [-h] [--config CONFIG] [--version] [-a] [-A]
                   [-l] [-s SORT] [-r] [-j] [-R hash] [-i path]
-                  [-w seconds] [-v] [filter]
+                  [-w seconds] [-v] [-m] [-mi seconds] [filter]
 
   Reticulum Network Stack Status
 
@@ -360,6 +360,9 @@ Filter output to only show some interfaces:
     -i path               path to identity used for remote management
     -w seconds            timeout before giving up on remote queries
     -v, --verbose
+    -m, --monitor         continuously monitor status
+    -I seconds, --monitor-interval seconds
+                          refresh interval for monitor mode (default: 1)
 
 
 .. note::
