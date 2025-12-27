@@ -361,7 +361,7 @@ Filter output to only show some interfaces:
     -w seconds            timeout before giving up on remote queries
     -v, --verbose
     -m, --monitor         continuously monitor status
-    -mi seconds, --monitor-interval seconds
+    -I seconds, --monitor-interval seconds
                           refresh interval for monitor mode (default: 1)
 
 

@@ -572,7 +572,7 @@ def main(must_exit=True, rns_instance=None):
         )
 
         parser.add_argument(
-            "-mi",
+            "-I",
             "--monitor-interval",
             action="store",
             metavar="seconds",
