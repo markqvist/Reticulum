@@ -57,7 +57,10 @@ def prepare_identity(identity_path):
         identity_path = RNS.Reticulum.identitypath+"/"+APP_NAME
 
     if os.path.isfile(identity_path):
-        identity = RNS.Identity.from_file(identity_path)                
+        identity = RNS.Identity.from_file(identity_path)
+        if identity == None:
+            RNS.log(f"Could not load identity for rncp. The identity file at \"{identity_path}\" may be corrupt or unreadable.", RNS.LOG_ERROR)
+            RNS.exit(2)
 
     if identity == None:
         RNS.log("No valid saved identity found, creating new...", RNS.LOG_INFO)
