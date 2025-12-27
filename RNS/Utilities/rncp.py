@@ -49,17 +49,31 @@ fetch_jail = None
 save_path = None
 show_phy_rates = False
 allowed_identity_hashes = []
+identity = None
+
+def prepare_identity(identity_path):
+    global identity
+    if identity_path == None:
+        identity_path = RNS.Reticulum.identitypath+"/"+APP_NAME
+
+    if os.path.isfile(identity_path):
+        identity = RNS.Identity.from_file(identity_path)                
+
+    if identity == None:
+        RNS.log("No valid saved identity found, creating new...", RNS.LOG_INFO)
+        identity = RNS.Identity()
+        identity.to_file(identity_path)
 
 REQ_FETCH_NOT_ALLOWED = 0xF0
 
 es = " "
 erase_str = "\33[2K\r"
 
-def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identity = False,
+def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed = [], display_identity = False,
            limit = None, disable_auth = None, fetch_allowed = False, no_compress=False,
            jail = None, save = None, announce = False, allow_overwrite=False):
 
-    global allow_all, allow_fetch, allowed_identity_hashes, fetch_jail, save_path
+    global allow_all, allow_fetch, allowed_identity_hashes, fetch_jail, save_path, identity
     global fetch_auto_compress, allow_overwrite_on_receive
 
     allow_fetch = fetch_allowed
@@ -90,14 +104,7 @@ def listen(configdir, verbosity = 0, quietness = 0, allowed = [], display_identi
 
         RNS.log("Saving received files in \""+save_path+"\"", RNS.LOG_VERBOSE)
 
-    identity_path = RNS.Reticulum.identitypath+"/"+APP_NAME
-    if os.path.isfile(identity_path):
-        identity = RNS.Identity.from_file(identity_path)                
-
-    if identity == None:
-        RNS.log("No valid saved identity found, creating new...", RNS.LOG_INFO)
-        identity = RNS.Identity()
-        identity.to_file(identity_path)
+    prepare_identity(identitypath)
 
     destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "receive")
 
@@ -345,8 +352,8 @@ def sender_progress(resource):
         resource_done = True
 
 link = None
-def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, silent=False, phy_rates=False, save=None, allow_overwrite=False):
-    global current_resource, resource_done, link, speed, show_phy_rates, save_path, allow_overwrite_on_receive
+def fetch(configdir, identitypath = None, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, silent=False, phy_rates=False, save=None, allow_overwrite=False):
+    global current_resource, resource_done, link, speed, show_phy_rates, save_path, allow_overwrite_on_receive, identity
     targetloglevel = 3+verbosity-quietness
     show_phy_rates = phy_rates
     allow_overwrite_on_receive = allow_overwrite
@@ -377,19 +384,8 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
 
     reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
 
-    identity_path = RNS.Reticulum.identitypath+"/"+APP_NAME
-    if os.path.isfile(identity_path):
-        identity = RNS.Identity.from_file(identity_path)
-        if identity == None:
-            RNS.log("Could not load identity for rncp. The identity file at \""+str(identity_path)+"\" may be corrupt or unreadable.", RNS.LOG_ERROR)
-            RNS.exit(2)
-    else:
-        identity = None
-
     if identity == None:
-        RNS.log("No valid saved identity found, creating new...", RNS.LOG_INFO)
-        identity = RNS.Identity()
-        identity.to_file(identity_path)
+        prepare_identity(identitypath)
 
     if not RNS.Transport.has_path(destination_hash):
         RNS.Transport.request_path(destination_hash)
@@ -614,8 +610,8 @@ def fetch(configdir, verbosity = 0, quietness = 0, destination = None, file = No
     RNS.exit(0)
 
 
-def send(configdir, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, silent=False, phy_rates=False, no_compress=False):
-    global current_resource, resource_done, link, speed, show_phy_rates, phy_got_total, phy_speed
+def send(configdir, identitypath = None, verbosity = 0, quietness = 0, destination = None, file = None, timeout = RNS.Transport.PATH_REQUEST_TIMEOUT, silent=False, phy_rates=False, no_compress=False):
+    global current_resource, resource_done, link, speed, show_phy_rates, phy_got_total, phy_speed, identity
     targetloglevel = 3+verbosity-quietness
     show_phy_rates = phy_rates
 
@@ -643,19 +639,8 @@ def send(configdir, verbosity = 0, quietness = 0, destination = None, file = Non
 
     reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
 
-    identity_path = RNS.Reticulum.identitypath+"/"+APP_NAME
-    if os.path.isfile(identity_path):
-        identity = RNS.Identity.from_file(identity_path)
-        if identity == None:
-            RNS.log("Could not load identity for rncp. The identity file at \""+str(identity_path)+"\" may be corrupt or unreadable.", RNS.LOG_ERROR)
-            RNS.exit(2)
-    else:
-        identity = None
-
     if identity == None:
-        RNS.log("No valid saved identity found, creating new...", RNS.LOG_INFO)
-        identity = RNS.Identity()
-        identity.to_file(identity_path)
+        prepare_identity(identitypath)
 
     if not RNS.Transport.has_path(destination_hash):
         RNS.Transport.request_path(destination_hash)
@@ -822,6 +807,7 @@ def main():
         parser.add_argument('-a', metavar="allowed_hash", dest="allowed", action='append', help="allow this identity (or add in ~/.rncp/allowed_identities)", type=str)
         parser.add_argument('-n', '--no-auth', action='store_true', default=False, help="accept requests from anyone")
         parser.add_argument('-p', '--print-identity', action='store_true', default=False, help="print identity and destination info and exit")
+        parser.add_argument('-i', metavar="identity", action='store', dest="identity", default=None, help="path to identity to use", type=str)
         parser.add_argument("-w", action="store", metavar="seconds", type=float, help="sender timeout before giving up", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
         parser.add_argument('-P', '--phy-rates', action='store_true', default=False, help="display physical layer transfer rates")
         # parser.add_argument("--limit", action="store", metavar="files", type=float, help="maximum number of files to accept", default=None)
@@ -832,6 +818,7 @@ def main():
         if args.listen or args.print_identity:
             listen(
                 configdir = args.config,
+                identitypath = args.identity,
                 verbosity=args.verbose,
                 quietness=args.quiet,
                 allowed = args.allowed,
@@ -850,6 +837,7 @@ def main():
             if args.destination != None and args.file != None:
                 fetch(
                     configdir = args.config,
+                    identitypath = args.identity,
                     verbosity = args.verbose,
                     quietness = args.quiet,
                     destination = args.destination,
@@ -868,6 +856,7 @@ def main():
         elif args.destination != None and args.file != None:
             send(
                 configdir = args.config,
+                identitypath = args.identity,
                 verbosity = args.verbose,
                 quietness = args.quiet,
                 destination = args.destination,
