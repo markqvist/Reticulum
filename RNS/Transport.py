@@ -59,7 +59,7 @@ class Transport:
 
     APP_NAME = "rnstransport"
 
-    PATHFINDER_M                = 128       # Max hops
+    PATHFINDER_M                = 128          # Max hops
     """
     Maximum amount of hops that Reticulum will transport a packet.
     """
@@ -212,7 +212,7 @@ class Transport:
             Transport.control_hashes.append(Transport.remote_management_destination.hash)
             RNS.log("Enabled remote management on "+str(Transport.remote_management_destination), RNS.LOG_NOTICE)
 
-        # Defer cleaning packet cache for 30 seconds
+        # Defer cleaning packet cache for 60 seconds
         Transport.cache_last_cleaned = time.time() + 60
         
         # Start job loops
@@ -346,11 +346,8 @@ class Transport:
 
     @staticmethod
     def prioritize_interfaces():
-        try:
-            Transport.interfaces.sort(key=lambda interface: interface.bitrate, reverse=True)
-
-        except Exception as e:
-            RNS.log(f"Could not prioritize interfaces according to bitrate. The contained exception was: {e}", RNS.LOG_ERROR)
+        try: Transport.interfaces.sort(key=lambda interface: interface.bitrate, reverse=True)
+        except Exception as e: RNS.log(f"Could not prioritize interfaces according to bitrate. The contained exception was: {e}", RNS.LOG_ERROR)
 
     @staticmethod
     def count_traffic_loop():
@@ -380,8 +377,8 @@ class Transport:
 
                 Transport.traffic_rxb += rxb
                 Transport.traffic_txb += txb
-                Transport.speed_rx    = rxs
-                Transport.speed_tx    = txs
+                Transport.speed_rx     = rxs
+                Transport.speed_tx     = txs
             
             except Exception as e:
                 RNS.log(f"An error occurred while counting interface traffic: {e}", RNS.LOG_ERROR)
@@ -782,16 +779,11 @@ class Transport:
 
         for destination_hash in path_requests:
             blocked_if = path_requests[destination_hash]
-            if blocked_if == None:
-                Transport.request_path(destination_hash)
+            if blocked_if == None: Transport.request_path(destination_hash)
             else:
                 for interface in Transport.interfaces:
-                    if interface != blocked_if:
-                        # RNS.log("Transmitting path request on "+str(interface), RNS.LOG_DEBUG)
-                        Transport.request_path(destination_hash, on_interface=interface)
-                    else:
-                        pass
-                        # RNS.log("Blocking path request on "+str(interface), RNS.LOG_DEBUG)
+                    if interface != blocked_if: Transport.request_path(destination_hash, on_interface=interface)
+                    else: pass
 
     @staticmethod
     def transmit(interface, raw):
@@ -1064,11 +1056,9 @@ class Transport:
                                                     ql_str = str(len(interface.announce_queue))
                                                     RNS.log("Added announce to queue (height "+ql_str+") on "+str(interface)+" for processing in "+wait_time_str, RNS.LOG_EXTREME)
 
-                                        else:
-                                            pass
+                                        else: pass
                                 
-                                else:
-                                    pass
+                                else: pass
 
                     if should_transmit:
                         if not stored_hash:
@@ -1101,18 +1091,12 @@ class Transport:
                 RNS.log("Ignored packet "+RNS.prettyhexrep(packet.packet_hash)+" in transport for other transport instance", RNS.LOG_EXTREME)
                 return False
 
-        if packet.context == RNS.Packet.KEEPALIVE:
-            return True
-        if packet.context == RNS.Packet.RESOURCE_REQ:
-            return True
-        if packet.context == RNS.Packet.RESOURCE_PRF:
-            return True
-        if packet.context == RNS.Packet.RESOURCE:
-            return True
-        if packet.context == RNS.Packet.CACHE_REQUEST:
-            return True
-        if packet.context == RNS.Packet.CHANNEL:
-            return True
+        if packet.context == RNS.Packet.KEEPALIVE:     return True
+        if packet.context == RNS.Packet.RESOURCE_REQ:  return True
+        if packet.context == RNS.Packet.RESOURCE_PRF:  return True
+        if packet.context == RNS.Packet.RESOURCE:      return True
+        if packet.context == RNS.Packet.CACHE_REQUEST: return True
+        if packet.context == RNS.Packet.CHANNEL:       return True
 
         if packet.destination_type == RNS.Destination.PLAIN:
             if packet.packet_type != RNS.Packet.ANNOUNCE:
@@ -1372,10 +1356,6 @@ class Transport:
                                 ph_mtu         = interface.HW_MTU if interface else None
                                 nh_mtu         = outbound_interface.HW_MTU
                                 if path_mtu:
-                                    # TODO: Remove debug
-                                    # RNS.log(f"PATH_MTU: {path_mtu}")
-                                    # RNS.log(f"PH_MTU: {ph_mtu}")
-                                    # RNS.log(f"NH_MTU: {nh_mtu}")
                                     if outbound_interface.HW_MTU == None:
                                         RNS.log(f"No next-hop HW MTU, disabling link MTU upgrade", RNS.LOG_DEBUG)
                                         path_mtu = None
