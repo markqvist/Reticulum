@@ -1,3 +1,4 @@
+import os
 import RNS
 import time
 import threading
@@ -146,6 +147,11 @@ class InterfaceAnnounceHandler:
                 infohash  = RNS.Identity.full_hash(packed)
                 workblock = self.stamper.stamp_workblock(infohash, expand_rounds=InterfaceAnnouncer.WORKBLOCK_EXPAND_ROUNDS)
                 value     = self.stamper.stamp_value(workblock, stamp)
+                valid     = self.stamper.stamp_valid(stamp, self.required_value, workblock)
+
+                if not valid:
+                    RNS.log(f"Ignored discovered interface with invalid stamp", RNS.LOG_DEBUG)
+                    return
 
                 if value < self.required_value: RNS.log(f"Ignored discovered interface with stamp value {value}", RNS.LOG_DEBUG)
                 else:
@@ -156,7 +162,10 @@ class InterfaceAnnounceHandler:
                         info = {"type":      interface_type,
                                 "name":      unpacked[NAME] or f"Discovered {interface_type}",
                                 "received":  time.time(),
+                                "stamp":     stamp,
+                                "value":     value,
                                 "identity":  RNS.hexrep(announced_identity.hash, delimit=False),
+                                "hops":      RNS.Transport.hops_to(destination_hash),
                                 "latitude":  unpacked[LATITUDE],
                                 "longitude": unpacked[LONGITUDE],
                                 "height":    unpacked[HEIGHT]}
@@ -179,7 +188,7 @@ class InterfaceAnnounceHandler:
                             cfg_netname_str      = f"\n  network_name = {cfg_netname}" if cfg_netname else ""
                             cfg_netkey_str       = f"\n  passphrase = {cfg_netkey}" if cfg_netkey else ""
                             cfg_identity_str     = f"\n  transport_identity = {cfg_identity}"
-                            info["config_entry"] = f"[[{cfg_name}]]\n  type = {connection_interface}\n  enabled = yes\n  {remote_str} = {cfg_remote}\n  target_port = {cfg_port}{cfg_identity_str}{cfg_netkey_str}{cfg_netkey_str}"
+                            info["config_entry"] = f"[[{cfg_name}]]\n  type = {connection_interface}\n  enabled = yes\n  {remote_str} = {cfg_remote}\n  target_port = {cfg_port}{cfg_identity_str}{cfg_netname_str}{cfg_netkey_str}"
 
                         if interface_type == "I2PInterface":
                             info["reachable_on"] = unpacked[REACHABLE_ON]
@@ -191,7 +200,7 @@ class InterfaceAnnounceHandler:
                             cfg_netname_str      = f"\n  network_name = {cfg_netname}" if cfg_netname else ""
                             cfg_netkey_str       = f"\n  passphrase = {cfg_netkey}" if cfg_netkey else ""
                             cfg_identity_str     = f"\n  transport_identity = {cfg_identity}"
-                            info["config_entry"] = f"[[{cfg_name}]]\n  type = I2PInterface\n  enabled = yes\n  peers = {cfg_remote}{cfg_identity_str}{cfg_netkey_str}{cfg_netkey_str}"
+                            info["config_entry"] = f"[[{cfg_name}]]\n  type = I2PInterface\n  enabled = yes\n  peers = {cfg_remote}{cfg_identity_str}{cfg_netname_str}{cfg_netkey_str}"
 
                         if interface_type == "RNodeInterface":
                             info["frequency"]    = unpacked[FREQUENCY]
@@ -209,7 +218,7 @@ class InterfaceAnnounceHandler:
                             cfg_netname_str      = f"\n  network_name = {cfg_netname}" if cfg_netname else ""
                             cfg_netkey_str       = f"\n  passphrase = {cfg_netkey}" if cfg_netkey else ""
                             cfg_identity_str     = f"\n  transport_identity = {cfg_identity}"
-                            info["config_entry"] = f"[[{cfg_name}]]\n  type = RNodeInterface\n  enabled = yes\n  port = \n  frequency = {cfg_frequency}\n  bandwidth = {cfg_bandwidth}\n  spreadingfactor = {cfg_sf}\n  codingrate = {cfg_cr}\n  txpower = {cfg_netkey_str}{cfg_netkey_str}"
+                            info["config_entry"] = f"[[{cfg_name}]]\n  type = RNodeInterface\n  enabled = yes\n  port = \n  frequency = {cfg_frequency}\n  bandwidth = {cfg_bandwidth}\n  spreadingfactor = {cfg_sf}\n  codingrate = {cfg_cr}\n  txpower = {cfg_netname_str}{cfg_netkey_str}"
 
                         if interface_type == "KISSInterface":
                             info["frequency"]    = unpacked[FREQUENCY]
@@ -225,10 +234,79 @@ class InterfaceAnnounceHandler:
                             cfg_netname_str      = f"\n  network_name = {cfg_netname}" if cfg_netname else ""
                             cfg_netkey_str       = f"\n  passphrase = {cfg_netkey}" if cfg_netkey else ""
                             cfg_identity_str     = f"\n  transport_identity = {cfg_identity}"
-                            info["config_entry"] = f"[[{cfg_name}]]\n  type = KISSInterface\n  enabled = yes\n  port = \n  # Frequency: {cfg_frequency}\n  # Bandwidth: {cfg_bandwidth}\n  # Modulation: {cfg_modulation}{cfg_identity_str}{cfg_netkey_str}{cfg_netkey_str}"
+                            info["config_entry"] = f"[[{cfg_name}]]\n  type = KISSInterface\n  enabled = yes\n  port = \n  # Frequency: {cfg_frequency}\n  # Bandwidth: {cfg_bandwidth}\n  # Modulation: {cfg_modulation}{cfg_identity_str}{cfg_netname_str}{cfg_netkey_str}"
+
+                        discovery_hash_material = info["identity"]+info["name"]
+                        info["discovery_hash"] = RNS.Identity.full_hash(discovery_hash_material.encode("utf-8"))
 
                     RNS.log(f"Discovered interface with stamp value {value}: {info}", RNS.LOG_DEBUG)
                     if self.callback and callable(self.callback): self.callback(info)
 
         except Exception as e:
             RNS.log(f"An error occurred while trying to decode discovered interface. The contained exception was: {e}", RNS.LOG_ERROR)
+
+class InterfaceDiscovery():
+
+    def __init__(self, required_value=InterfaceAnnouncer.DEFAULT_STAMP_VALUE, callback=None, discover_interfaces=True):
+        self.required_value     = required_value
+        self.discovery_callback = callback
+        self.rns_instance       = RNS.Reticulum.get_instance()
+        
+        if discover_interfaces:
+            if not self.rns_instance: raise SystemError("Attempt to start interface discovery listener without an active RNS instance")
+            self.storagepath = os.path.join(RNS.Reticulum.storagepath, "discovery", "interfaces")
+            if not os.path.isdir(self.storagepath): os.makedirs(self.storagepath)
+            self.handler = InterfaceAnnounceHandler(callback=self.interface_discovered)
+            RNS.Transport.register_announce_handler(self.handler)
+
+    def interface_discovered(self, info):
+        try:
+            name = info["name"]
+            discovery_hash = info["discovery_hash"]
+            hops = info["hops"]; ms = "" if hops == 1 else "s"
+            filename = RNS.hexrep(discovery_hash, delimit=False)
+            filepath = os.path.join(self.storagepath, filename)
+            RNS.log(f"Discovered interface {RNS.prettyhexrep(discovery_hash)} {hops} hop{ms} away: {name}")
+            print(info["config_entry"])
+            if not os.path.isfile(filepath):
+                try:
+                    with open(filepath, "wb") as f:
+                        info["discovered"]  = info["received"]
+                        info["last_heard"]  = info["received"]
+                        info["heard_count"] = 0
+                        f.write(msgpack.packb(info))
+                
+                except Exception as e:
+                    RNS.log(f"Error while persisting discovered interface data: {e}", RNS.LOG_ERROR)
+                    RNS.trace_exception(e)
+                    return
+
+            else:
+                discovered  = None
+                heard_count = None
+                try:
+                    with open(filepath, "rb") as f:
+                        last_info   = msgpack.unpackb(f.read())
+                        discovered  = last_info["discovered"]
+                        heard_count = last_info["heard_count"]
+
+                    if discovered  == None: discovered  = info["discovered"]
+                    if heard_count == None: heard_count = 0
+
+                    with open(filepath, "wb") as f:
+                        info["discovered"] = discovered
+                        info["last_heard"] = info["received"]
+                        info["heard_count"] = heard_count+1
+                        f.write(msgpack.packb(info))
+
+                except Exception as e:
+                    RNS.log(f"Error while persisting discovered interface data: {e}", RNS.LOG_ERROR)
+                    RNS.trace_exception(e)
+                    return
+
+        except Exception as e:
+            RNS.log(f"Error processing discovered interface data: {e}", RNS.LOG_ERROR)
+            RNS.trace_exception(e)
+            return
+
+        if self.discovery_callback and callable(self.discovery_callback): self.discovery_callback(info)
