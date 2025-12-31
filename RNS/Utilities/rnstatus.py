@@ -243,7 +243,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
               
             else:
                 print(f"{'Name':<25} {'Type':<12} {'Status':<12} {'Last Heard':<12} {'Value':<8} {'Location':<15}")
-                print("-" * 91)
+                print("-" * 89)
                 
                 for i in filtered_ifs:
                     try:
