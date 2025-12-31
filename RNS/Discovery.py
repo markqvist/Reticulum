@@ -24,7 +24,7 @@ APP_NAME = "rnstransport"
 
 class InterfaceAnnouncer():
     JOB_INTERVAL = 60
-    DEFAULT_STAMP_VALUE = 20
+    DEFAULT_STAMP_VALUE = 14
     WORKBLOCK_EXPAND_ROUNDS = 20
 
     DISCOVERABLE_INTERFACE_TYPES = ["BackboneInterface", "TCPServerInterface", "TCPClientInterface", "RNodeInterface", "I2PInterface", "KISSInterface"]
@@ -125,7 +125,7 @@ class InterfaceAnnouncer():
             if not stamp: return None
             else:
                 self.stamp_cache[infohash] = stamp
-                return packed+stamp
+                return bytes([0x00])+packed+stamp
 
 class InterfaceAnnounceHandler:
     def __init__(self, required_value=InterfaceAnnouncer.DEFAULT_STAMP_VALUE, callback=None):
@@ -143,7 +143,8 @@ class InterfaceAnnounceHandler:
 
     def received_announce(self, destination_hash, announced_identity, app_data):
         try:
-            if app_data and len(app_data) > self.stamper.STAMP_SIZE:
+            if app_data and len(app_data) > self.stamper.STAMP_SIZE+1:
+                app_data  = app_data[1:]
                 stamp     = app_data[-self.stamper.STAMP_SIZE:]
                 packed    = app_data[:-self.stamper.STAMP_SIZE]
                 infohash  = RNS.Identity.full_hash(packed)
@@ -308,8 +309,7 @@ class InterfaceDiscovery():
             hops = info["hops"]; ms = "" if hops == 1 else "s"
             filename = RNS.hexrep(discovery_hash, delimit=False)
             filepath = os.path.join(self.storagepath, filename)
-            RNS.log(f"Discovered interface {RNS.prettyhexrep(discovery_hash)} {hops} hop{ms} away: {name}")
-            print(info["config_entry"])
+            RNS.log(f"Discovered interface {RNS.prettyhexrep(discovery_hash)} {hops} hop{ms} away: {name}", RNS.LOG_DEBUG)
             if not os.path.isfile(filepath):
                 try:
                     with open(filepath, "wb") as f:

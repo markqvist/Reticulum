@@ -173,7 +173,7 @@ instance_name = default
 # can configure the minimum required value to accept as
 # valid for discovered interfaces.
 
-# required_discovery_value = 20
+# required_discovery_value = 14
 
 
 # You can configure Reticulum to panic and forcibly close
