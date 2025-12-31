@@ -663,7 +663,7 @@ class Reticulum:
                                     if discovery_announce_interval < 5: discovery_announce_interval = 5*60
 
                                 if discovery_announce_interval == None: discovery_announce_interval = 6*60*60
-                                if "discovery_stamp_value" in c: latitude = c.as_int("discovery_stamp_value")
+                                if "discovery_stamp_value" in c: discovery_stamp_value = c.as_int("discovery_stamp_value")
                                 if "discovery_name" in c: discovery_name = c["discovery_name"]
                                 if "reachable_on" in c: reachable_on = c["reachable_on"]
                                 if "publish_ifac" in c: publish_ifac = c.as_bool("publish_ifac")
