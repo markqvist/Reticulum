@@ -668,7 +668,7 @@ class Reticulum:
                                 if "reachable_on" in c: reachable_on = c["reachable_on"]
                                 if "publish_ifac" in c: publish_ifac = c.as_bool("publish_ifac")
                                 if "latitude" in c: latitude = c.as_float("latitude")
-                                if "longitude" in c: latitude = c.as_float("longitude")
+                                if "longitude" in c: longitude = c.as_float("longitude")
                                 if "height" in c: height = c.as_float("height")
                                 if "discovery_frequency" in c: discovery_frequency = c.as_int("discovery_frequency")
                                 if "discovery_bandwidth" in c: discovery_bandwidth = c.as_int("discovery_bandwidth")
