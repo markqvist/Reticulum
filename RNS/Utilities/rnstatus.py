@@ -142,14 +142,12 @@ def get_remote_status(destination_hash, include_lstats, identity, no_output=Fals
 
     return request_result
 
-def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False,
-                  lstats=False, sorting=None, sort_reverse=False, remote=None, management_identity=None,
-                  remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT, must_exit=True, rns_instance=None, traffic_totals=False):
-    
-    if remote:
-        require_shared = False
-    else:
-        require_shared = True
+def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False, lstats=False, sorting=None, sort_reverse=False,
+                  remote=None, management_identity=None, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT, must_exit=True, rns_instance=None,
+                  traffic_totals=False, discovered_interfaces=False, config_entries=False):
+  
+    if remote: require_shared = False
+    else: require_shared = True
 
     try:
         if rns_instance:
@@ -160,13 +158,136 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
 
     except Exception as e:
         print("No shared RNS instance available to get status from")
-        if must_exit:
-            exit(1)
-        else:
-            return
+        if must_exit: exit(1)
+        else: return
 
     link_count = None
     stats = None
+
+    details = False
+    if config_entries:
+        discovered_interfaces = True
+        details = True
+
+    if discovered_interfaces:
+        if_discovery = RNS.Discovery.InterfaceDiscovery(discover_interfaces=False)
+        ifs = if_discovery.list_discovered_interfaces()
+        print("")
+
+        if json:
+            import json
+            for i in ifs:
+                for e in i:
+                    if isinstance(i[e], bytes): i[e] = RNS.hexrep(i[e], delimit=False)
+          
+            print(json.dumps(ifs))
+
+        else:
+            filtered_ifs = []
+            for i in ifs:
+                name = i["name"]
+                if not name_filter or name_filter.lower() in name.lower(): filtered_ifs.append(i)
+          
+            if details:
+                for idx, i in enumerate(filtered_ifs):
+                    try:
+                        name = i["name"]
+                        if_type = i["type"]
+                        status = i["status"]
+                      
+                        if status == "available": status_display = "✓ Available"
+                        elif status == "unknown": status_display = "? Unknown"
+                        elif status == "stale":   status_display = "× Stale"
+                        else:                     status_display = status
+                      
+                        now  = time.time()
+                        dago = now-i["discovered"]
+                        hago = now-i["last_heard"]
+                        discovered_display = f"{RNS.prettytime(dago, compact=True)} ago"
+                        last_heard_display = f"{RNS.prettytime(hago, compact=True)} ago"
+                        transport_str = "Enabled" if i["transport"] else "Disabled"
+                      
+                        if i["latitude"] is not None and i["longitude"] is not None:
+                            lat = round(i["latitude"], 4)
+                            lon = round(i["longitude"], 4)
+                            if i["height"] != None: height = ", "+str(i["height"])+"m h"
+                            else: height = ""
+                            location = f"{lat}, {lon}{height}"
+                        else: location = "Unknown"
+
+                      
+                        if idx > 0: print("\n"+"="*32+"\n")
+                        print(f"Name        : {name}")
+                        print(f"Type        : {if_type}")
+                        print(f"Transport   : {transport_str}")
+                        print(f"Status      : {status_display}")
+                        print(f"Discovered  : {discovered_display}")
+                        print(f"Last Heard  : {last_heard_display}")
+                        print(f"Location    : {location}")
+                      
+                        if "frequency" in i:    print(f"Frequency   : {i["frequency"]:,} Hz")
+                        if "bandwidth" in i:    print(f"Bandwidth   : {i["bandwidth"]:,} Hz")
+                        if "sf" in i:           print(f"Sprd.Factor : {i["sf"]}")
+                        if "cr" in i:           print(f"Coding Rate : {i["cr"]}")
+                        if "modulation" in i:   print(f"Modulation  : {i["modulation"]}")
+                        if "reachable_on" in i: print(f"Address     : {i["reachable_on"]}:{i["port"]}")
+
+                        print(f"Stamp Value : {i["value"]}")
+                      
+                        print(f"\nConfiguration Entry:")
+                        config_lines = i["config_entry"].split('\n')
+                        for line in config_lines: print(f"  {line}")
+
+                    except Exception as e:
+                        pass
+              
+            else:
+                print(f"{'Name':<25} {'Type':<12} {'Status':<12} {'Last Heard':<12} {'Value':<8} {'Location':<15}")
+                print("-" * 91)
+                
+                for i in filtered_ifs:
+                    try:
+                        name = i["name"][:24] + "…" if len(i["name"]) > 24 else i["name"]
+                        
+                        if_type = i["type"].replace("Interface", "")
+                        
+                        status = i["status"]
+                        if status == "available": status_display = "✓ Available"
+                        elif status == "unknown": status_display = "? Unknown"
+                        elif status == "stale":   status_display = "× Stale"
+                        else:                     status_display = status
+                        
+                        now = time.time()
+                        last_heard = i["last_heard"]
+                        diff = now - last_heard
+                        
+                        if diff < 60: last_heard_display = "Just now"
+                        elif diff < 3600:
+                            mins = int(diff / 60)
+                            last_heard_display = f"{mins}m ago"
+                        elif diff < 86400:
+                            hours = int(diff / 3600)
+                            last_heard_display = f"{hours}h ago"
+                        else:
+                            days = int(diff / 86400)
+                            last_heard_display = f"{days}d ago"
+                        
+                        value = str(i["value"])
+                        
+                        if i["latitude"] is not None and i["longitude"] is not None:
+                            lat = round(i["latitude"], 4)
+                            lon = round(i["longitude"], 4)
+                            location = f"{lat}, {lon}"
+                        else: location = "N/A"
+                        
+                        print(f"{name:<25} {if_type:<12} {status_display:<12} {last_heard_display:<12} {value:<8} {location:<15}")
+
+                    except Exception as e:
+                        pass
+
+        if must_exit: exit(0)
+        else: return
+
     if remote:
         try:
             if management_identity is None:
@@ -191,25 +312,19 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                     stats, link_count = remote_status
             except Exception as e:
                 raise e
-                    
+                  
         except Exception as e:
             print(str(e))
-            if must_exit:
-                exit(20)
-            else:
-                return
+            if must_exit: exit(20)
+            else: return
 
     else:
         if lstats:
-            try:
-                link_count = reticulum.get_link_count()
-            except Exception as e:
-                pass
+            try: link_count = reticulum.get_link_count()
+            except Exception as e: pass
 
-        try:
-            stats = reticulum.get_interface_stats()
-        except Exception as e:
-            pass
+        try: stats = reticulum.get_interface_stats()
+        except Exception as e: pass
 
     if stats != None:
         if json:
@@ -226,10 +341,8 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                                     i[k] = RNS.hexrep(i[k], delimit=False)
 
             print(json.dumps(stats))
-            if must_exit:
-                exit()
-            else:
-                return
+            if must_exit: exit()
+            else: return
 
         interfaces = stats["interfaces"]
         if sorting != None and isinstance(sorting, str):
@@ -255,7 +368,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
             if sorting == "held":
                 interfaces.sort(key=lambda i: i["held_announces"], reverse=not sort_reverse)
 
-            
+          
         for ifstat in interfaces:
             name = ifstat["name"]
 
@@ -365,7 +478,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
 
                         if "airtime_short" in ifstat and "airtime_long" in ifstat:
                             print("    Airtime   : {ats}% (15s), {atl}% (1h)".format(ats=str(ifstat["airtime_short"]),atl=str(ifstat["airtime_long"])))
-                        
+                      
                         if "channel_load_short" in ifstat and "channel_load_long" in ifstat:
                             print("    Ch. Load  : {ats}% (15s), {atl}% (1h)".format(ats=str(ifstat["channel_load_short"]),atl=str(ifstat["channel_load_long"])))
 
@@ -390,7 +503,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "ifac_signature" in ifstat and ifstat["ifac_signature"] != None:
                             sigstr = "<…"+RNS.hexrep(ifstat["ifac_signature"][-5:], delimit=False)+">"
                             print("    Access    : {nb}-bit IFAC by {sig}".format(nb=ifstat["ifac_size"]*8, sig=sigstr))
-                        
+                      
                         if "i2p_b32" in ifstat and ifstat["i2p_b32"] != None:
                             print("    I2P B32   : {ep}".format(ep=str(ifstat["i2p_b32"])))
 
@@ -400,14 +513,14 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                                 print("    Queued    : {np} announce".format(np=aqn))
                             else:
                                 print("    Queued    : {np} announces".format(np=aqn))
-                        
+                      
                         if astats and "held_announces" in ifstat and ifstat["held_announces"] != None and ifstat["held_announces"] > 0:
                             aqn = ifstat["held_announces"]
                             if aqn == 1:
                                 print("    Held      : {np} announce".format(np=aqn))
                             else:
                                 print("    Held      : {np} announces".format(np=aqn))
-                        
+                      
                         if astats and "incoming_announce_frequency" in ifstat and ifstat["incoming_announce_frequency"] != None:
                             print("    Announces : {iaf}↑".format(iaf=RNS.prettyfrequency(ifstat["outgoing_announce_frequency"])))
                             print("                {iaf}↓".format(iaf=RNS.prettyfrequency(ifstat["incoming_announce_frequency"])))
@@ -425,7 +538,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "rxs" in ifstat and "txs" in ifstat:
                             rxstat += "  "+RNS.prettyspeed(ifstat["rxs"])
                             txstat += "  "+RNS.prettyspeed(ifstat["txs"])
-                        
+                      
                         print(f"    Traffic   : {txstat}\n                {rxstat}")
 
         lstr = ""
@@ -460,7 +573,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 print(f"\n{lstr}")
 
         print("")
-                
+              
     else:
         if not remote:
             print("Could not get RNS status")
@@ -477,189 +590,67 @@ def main(must_exit=True, rns_instance=None):
         parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
         parser.add_argument("--version", action="version", version="rnstatus {version}".format(version=__version__))
 
-        parser.add_argument(
-            "-a",
-            "--all",
-            action="store_true",
-            help="show all interfaces",
-            default=False
-        )
-        
-        parser.add_argument(
-            "-A",
-            "--announce-stats",
-            action="store_true",
-            help="show announce stats",
-            default=False
-        )
-        
-        parser.add_argument(
-            "-l",
-            "--link-stats",
-            action="store_true",
-            help="show link stats",
-            default=False,
-        )
-        
-        parser.add_argument(
-            "-t",
-            "--totals",
-            action="store_true",
-            help="display traffic totals",
-            default=False,
-        )
-        
-        parser.add_argument(
-            "-s",
-            "--sort",
-            action="store",
-            help="sort interfaces by [rate, traffic, rx, tx, rxs, txs, announces, arx, atx, held]",
-            default=None,
-            type=str
-        )
-        
-        parser.add_argument(
-            "-r",
-            "--reverse",
-            action="store_true",
-            help="reverse sorting",
-            default=False,
-        )
-        
-        parser.add_argument(
-            "-j",
-            "--json",
-            action="store_true",
-            help="output in JSON format",
-            default=False
-        )
-
-        parser.add_argument(
-            "-R",
-            action="store",
-            metavar="hash",
-            help="transport identity hash of remote instance to get status from",
-            default=None,
-            type=str
-        )
-
-        parser.add_argument(
-            "-i",
-            action="store",
-            metavar="path",
-            help="path to identity used for remote management",
-            default=None,
-            type=str
-        )
-
-        parser.add_argument(
-            "-w",
-            action="store",
-            metavar="seconds",
-            type=float,
-            help="timeout before giving up on remote queries",
-            default=RNS.Transport.PATH_REQUEST_TIMEOUT
-        )
-
+        parser.add_argument("-a", "--all", action="store_true", help="show all interfaces", default=False)
+        parser.add_argument("-A", "--announce-stats", action="store_true", help="show announce stats", default=False)
+        parser.add_argument("-l", "--link-stats", action="store_true", help="show link stats", default=False)
+        parser.add_argument("-t", "--totals", action="store_true", help="display traffic totals", default=False)
+        parser.add_argument("-s", "--sort", action="store", help="sort interfaces by [rate, traffic, rx, tx, rxs, txs, announces, arx, atx, held]", default=None, type=str)
+        parser.add_argument("-r", "--reverse", action="store_true", help="reverse sorting", default=False)
+        parser.add_argument("-j", "--json", action="store_true", help="output in JSON format", default=False)
+        parser.add_argument("-R", action="store", metavar="hash", help="transport identity hash of remote instance to get status from", default=None, type=str)
+        parser.add_argument("-i", action="store", metavar="path", help="path to identity used for remote management", default=None, type=str)
+        parser.add_argument("-w", action="store", metavar="seconds", type=float, help="timeout before giving up on remote queries", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
+        parser.add_argument("-m", "--monitor", action="store_true", help="continuously monitor status", default=False)
+        parser.add_argument("-I", "--monitor-interval", action="store", metavar="seconds", type=float, help="refresh interval for monitor mode (default: 1)", default=1.0)
+        parser.add_argument("-d", "--discovered", action="store_true", help="list discovered interfaces", default=False)
+        parser.add_argument("-D",                 action="store_true", help="show details and config entries for discovered interfaces", default=False)
         parser.add_argument('-v', '--verbose', action='count', default=0)
-
-        parser.add_argument(
-            "-m",
-            "--monitor",
-            action="store_true",
-            help="continuously monitor status",
-            default=False
-        )
-
-        parser.add_argument(
-            "-I",
-            "--monitor-interval",
-            action="store",
-            metavar="seconds",
-            type=float,
-            help="refresh interval for monitor mode (default: 1)",
-            default=1.0
-        )
-
         parser.add_argument("filter", nargs="?", default=None, help="only display interfaces with names including filter", type=str)
-        
+      
         args = parser.parse_args()
 
-        if args.config:
-            configarg = args.config
-        else:
-            configarg = None
+        if args.config: configarg = args.config
+        else:           configarg = None
 
         if args.monitor:
-            if args.R:
-                require_shared = False
-            else:
-                require_shared = True
-            
-            try:
-                reticulum = RNS.Reticulum(configdir=configarg, loglevel=3+args.verbose, require_shared_instance=require_shared)
+            if args.R: require_shared = False
+            else:      require_shared = True
+          
+            try: reticulum = RNS.Reticulum(configdir=configarg, loglevel=3+args.verbose, require_shared_instance=require_shared)
             except Exception as e:
                 print("No shared RNS instance available to get status from")
                 exit(1)
-
 
             while True:
                 buffer = io.StringIO()
                 old_stdout = sys.stdout
                 sys.stdout = buffer
-                
+              
                 try:
-                    program_setup(
-                        configdir = configarg,
-                        dispall = args.all,
-                        verbosity=args.verbose,
-                        name_filter=args.filter,
-                        json=args.json,
-                        astats=args.announce_stats,
-                        lstats=args.link_stats,
-                        sorting=args.sort,
-                        sort_reverse=args.reverse,
-                        remote=args.R,
-                        management_identity=args.i,
-                        remote_timeout=args.w,
-                        must_exit=False,
-                        rns_instance=reticulum,
-                        traffic_totals=args.totals,
-                    )
+                    program_setup(configdir = configarg, dispall = args.all, verbosity=args.verbose, name_filter=args.filter, json=args.json,
+                                  astats=args.announce_stats, lstats=args.link_stats, sorting=args.sort, sort_reverse=args.reverse, remote=args.R,
+                                  management_identity=args.i, remote_timeout=args.w, must_exit=False, rns_instance=reticulum, traffic_totals=args.totals,
+                                  discovered_interfaces=args.discovered, config_entries=args.D)
+              
                 finally:
                     sys.stdout = old_stdout
-                
+              
                 output = buffer.getvalue()
                 print("\033[H\033[2J", end="")
                 print(output, end="", flush=True)
-                
+              
                 time.sleep(args.monitor_interval)
 
         else:
-            program_setup(
-                configdir = configarg,
-                dispall = args.all,
-                verbosity=args.verbose,
-                name_filter=args.filter,
-                json=args.json,
-                astats=args.announce_stats,
-                lstats=args.link_stats,
-                sorting=args.sort,
-                sort_reverse=args.reverse,
-                remote=args.R,
-                management_identity=args.i,
-                remote_timeout=args.w,
-                must_exit=must_exit,
-                rns_instance=rns_instance,
-                traffic_totals=args.totals,
-            )
+            program_setup(configdir = configarg, dispall = args.all, verbosity=args.verbose, name_filter=args.filter, json=args.json,
+                          astats=args.announce_stats, lstats=args.link_stats, sorting=args.sort, sort_reverse=args.reverse, remote=args.R,
+                          management_identity=args.i, remote_timeout=args.w, must_exit=must_exit, rns_instance=rns_instance, traffic_totals=args.totals,
+                          discovered_interfaces=args.discovered, config_entries=args.D)
 
     except KeyboardInterrupt:
         print("")
-        if must_exit:
-            exit()
-        else:
-            return
+        if must_exit: exit()
+        else: return
 
 def speed_str(num, suffix='bps'):
     units = ['','k','M','G','T','P','E','Z']
