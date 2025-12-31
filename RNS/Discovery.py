@@ -177,7 +177,7 @@ class InterfaceAnnounceHandler:
                             backbone_support     = not RNS.vendor.platformutils.is_windows()
                             info["reachable_on"] = unpacked[REACHABLE_ON]
                             info["port"]         = unpacked[PORT]
-                            connection_interface = "BackboneClientInterface" if backbone_support else "TCPClientInterface"
+                            connection_interface = "BackboneInterface" if backbone_support else "TCPClientInterface"
                             remote_str           = "remote" if backbone_support else "target_host"
                             cfg_name             = info["name"]
                             cfg_remote           = info["reachable_on"]
@@ -246,18 +246,55 @@ class InterfaceAnnounceHandler:
             RNS.log(f"An error occurred while trying to decode discovered interface. The contained exception was: {e}", RNS.LOG_ERROR)
 
 class InterfaceDiscovery():
+    THRESHOLD_UNKNOWN = 24*60*60
+    THRESHOLD_STALE   = 7*24*60*60
+    THRESHOLD_REMOVE  = 30*24*60*60
+
+    STATUS_STALE      = 0
+    STATUS_UNKNOWN    = 100
+    STATUS_AVAILABLE  = 1000
+
+    STATUS_CODE_MAP   = {"available": STATUS_AVAILABLE, "unknown": STATUS_UNKNOWN, "stale": STATUS_STALE}
 
     def __init__(self, required_value=InterfaceAnnouncer.DEFAULT_STAMP_VALUE, callback=None, discover_interfaces=True):
         self.required_value     = required_value
         self.discovery_callback = callback
         self.rns_instance       = RNS.Reticulum.get_instance()
+
+        if not self.rns_instance: raise SystemError("Attempt to start interface discovery listener without an active RNS instance")
+        self.storagepath = os.path.join(RNS.Reticulum.storagepath, "discovery", "interfaces")
+        if not os.path.isdir(self.storagepath): os.makedirs(self.storagepath)
         
         if discover_interfaces:
-            if not self.rns_instance: raise SystemError("Attempt to start interface discovery listener without an active RNS instance")
-            self.storagepath = os.path.join(RNS.Reticulum.storagepath, "discovery", "interfaces")
-            if not os.path.isdir(self.storagepath): os.makedirs(self.storagepath)
-            self.handler = InterfaceAnnounceHandler(callback=self.interface_discovered)
+            self.handler = InterfaceAnnounceHandler(callback=self.interface_discovered, required_value=self.required_value)
             RNS.Transport.register_announce_handler(self.handler)
+
+    def list_discovered_interfaces(self):
+        now = time.time()
+        discovered_interfaces = []
+        for filename in os.listdir(self.storagepath):
+            try:
+                filepath = os.path.join(self.storagepath, filename)
+                with open(filepath, "rb") as f: info = msgpack.unpackb(f.read())
+                heard_delta = now-info["last_heard"]
+                if heard_delta > self.THRESHOLD_REMOVE:
+                    os.unlink(filepath)
+                    continue
+                
+                else:
+                    if   heard_delta > self.THRESHOLD_STALE:   info["status"] = "stale"
+                    elif heard_delta > self.THRESHOLD_UNKNOWN: info["status"] = "unknown"
+                    else:                                      info["status"] = "available"
+
+                    info["status_code"] = self.STATUS_CODE_MAP[info["status"]]
+                    discovered_interfaces.append(info)
+
+            except Exception as e:
+                RNS.log(f"Error while loading discovered interface data: {e}", RNS.LOG_ERROR)
+                RNS.trace_exception(e)
+
+        discovered_interfaces.sort(key=lambda info: (info["status_code"], info["value"], info["last_heard"]), reverse=True)
+        return discovered_interfaces
 
     def interface_discovered(self, info):
         try:
