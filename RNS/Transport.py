@@ -156,6 +156,7 @@ class Transport:
     interface_last_jobs         = 0.0
     interface_jobs_interval     = 5.0
     inbound_announce_lock       = Lock()
+    interface_announcer         = None
 
     traffic_rxb                 = 0
     traffic_txb                 = 0
@@ -348,6 +349,12 @@ class Transport:
     def prioritize_interfaces():
         try: Transport.interfaces.sort(key=lambda interface: interface.bitrate, reverse=True)
         except Exception as e: RNS.log(f"Could not prioritize interfaces according to bitrate. The contained exception was: {e}", RNS.LOG_ERROR)
+
+    @staticmethod
+    def enable_discovery():
+        if not Transport.interface_announcer:
+            Transport.interface_announcer = RNS.Discovery.InterfaceAnnouncer(Transport)
+            Transport.interface_announcer.start()
 
     @staticmethod
     def count_traffic_loop():

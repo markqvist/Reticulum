@@ -44,6 +44,7 @@ from .Link import Link, RequestReceipt
 from .Channel import MessageBase
 from .Buffer import Buffer, RawChannelReader, RawChannelWriter
 from .Transport import Transport
+from .Discovery import InterfaceAnnouncer
 from .Destination import Destination
 from .Packet import Packet
 from .Packet import PacketReceipt

@@ -222,15 +222,12 @@ class Reticulum:
         :param configdir: Full path to a Reticulum configuration directory.
         """
 
-        if Reticulum.__instance != None:
-            raise OSError("Attempt to reinitialise Reticulum, when it was already running")
-        else:
-            Reticulum.__instance = self
+        if Reticulum.__instance != None: raise OSError("Attempt to reinitialise Reticulum, when it was already running")
+        else: Reticulum.__instance = self
 
         RNS.vendor.platformutils.platform_checks()
 
-        if configdir != None:
-            Reticulum.configdir = configdir
+        if configdir != None: Reticulum.configdir = configdir
         else:
             if os.path.isdir("/etc/reticulum") and os.path.isfile("/etc/reticulum/config"):
                 Reticulum.configdir = "/etc/reticulum"
@@ -258,6 +255,7 @@ class Reticulum:
         Reticulum.__remote_management_enabled = False
         Reticulum.__use_implicit_proof = True
         Reticulum.__allow_probes = False
+        Reticulum.__discovery_enabled = False
 
         Reticulum.panic_on_interface_error = False
 
@@ -345,6 +343,8 @@ class Reticulum:
             thread = threading.Thread(target=self.rpc_loop)
             thread.daemon = True
             thread.start()
+
+        if Reticulum.__discovery_enabled: RNS.Transport.enable_discovery()
 
         atexit.register(Reticulum.exit_handler)
         signal.signal(signal.SIGINT, Reticulum.sigint_handler)
@@ -641,6 +641,38 @@ class Reticulum:
                         if "announce_cap" in c:
                             if c.as_float("announce_cap") > 0 and c.as_float("announce_cap") <= 100:
                                 announce_cap = c.as_float("announce_cap")/100.0
+
+                        discoverable = False
+                        discovery_announce_interval = None
+                        discovery_stamp_value = None
+                        discovery_name = None
+                        reachable_on = None
+                        publish_ifac = False
+                        latitude = None
+                        longitude = None
+                        height = None
+                        discovery_frequency = None
+                        discovery_bandwidth = None
+                        discovery_modulation = None
+                        if "discoverable" in c:
+                            discoverable = c.as_bool("discoverable")
+                            if discoverable:
+                                Reticulum.__discovery_enabled = True
+                                if "announce_interval" in c:
+                                    discovery_announce_interval = c.as_int("announce_interval")*60
+                                    if discovery_announce_interval < 5: discovery_announce_interval = 5*60
+
+                                if discovery_announce_interval == None: discovery_announce_interval = 6*60*60
+                                if "discovery_stamp_value" in c: latitude = c.as_int("discovery_stamp_value")
+                                if "discovery_name" in c: discovery_name = c["discovery_name"]
+                                if "reachable_on" in c: reachable_on = c["reachable_on"]
+                                if "publish_ifac" in c: publish_ifac = c.as_bool("publish_ifac")
+                                if "latitude" in c: latitude = c.as_float("latitude")
+                                if "longitude" in c: latitude = c.as_float("longitude")
+                                if "height" in c: height = c.as_float("height")
+                                if "discovery_frequency" in c: discovery_frequency = c.as_int("discovery_frequency")
+                                if "discovery_bandwidth" in c: discovery_bandwidth = c.as_int("discovery_bandwidth")
+                                if "discovery_modulation" in c: discovery_modulation = c.as_int("discovery_modulation")
                                 
                         try:
                             def interface_post_init(interface):
@@ -657,6 +689,19 @@ class Reticulum:
                                     
                                     if ifac_size != None: interface.ifac_size = ifac_size
                                     else:                 interface.ifac_size = interface.DEFAULT_IFAC_SIZE
+
+                                    interface.discoverable = discoverable
+                                    interface.discovery_announce_interval = discovery_announce_interval
+                                    interface.discovery_publish_ifac = publish_ifac
+                                    interface.reachable_on = reachable_on
+                                    interface.discovery_name = discovery_name
+                                    interface.discovery_stamp_value = discovery_stamp_value
+                                    interface.discovery_latitude = latitude
+                                    interface.discovery_longitude = longitude
+                                    interface.discovery_height = height
+                                    interface.discovery_frequency = discovery_frequency
+                                    interface.discovery_bandwidth = discovery_bandwidth
+                                    interface.discovery_modulation = discovery_modulation
 
                                     interface.announce_rate_target = announce_rate_target
                                     interface.announce_rate_grace = announce_rate_grace

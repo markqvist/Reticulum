@@ -296,6 +296,7 @@ class RNodeInterface(Interface):
         self.flow_control    = flow_control
         self.interface_ready = False
         self.announce_rate_target = None
+        self.supports_discovery = True
 
         if force_ble or self.ble_addr != None or self.ble_name != None: self.use_ble = True
         if force_tcp or self.tcp_host != None:                          self.use_tcp = True

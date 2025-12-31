@@ -84,6 +84,9 @@ class Interface:
         self.bitrate  = 62500
         self.HW_MTU   = None
 
+        self.supports_discovery = False
+        self.discoverable = False
+        self.last_discovery_announce = 0
         self.parent_interface = None
         self.spawned_interfaces = None
         self.tunnel_id = None

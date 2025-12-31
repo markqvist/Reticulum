@@ -127,6 +127,7 @@ class BackboneInterface(Interface):
         self.detached = False
         self.mode = RNS.Interfaces.Interface.Interface.MODE_FULL
         self.spawned_interfaces = []
+        self.supports_discovery = True
 
         if bindport == None:
             raise SystemError(f"No TCP port configured for interface \"{name}\"")

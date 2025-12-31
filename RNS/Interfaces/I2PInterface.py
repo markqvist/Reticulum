@@ -880,6 +880,7 @@ class I2PInterface(Interface):
         self.ifac_size = ifac_size
         self.ifac_netname = ifac_netname
         self.ifac_netkey = ifac_netkey
+        self.supports_discovery = True
 
         self.online = False
 

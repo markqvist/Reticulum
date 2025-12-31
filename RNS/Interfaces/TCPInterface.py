@@ -131,10 +131,9 @@ class TCPClientInterface(Interface):
         self.mode             = RNS.Interfaces.Interface.Interface.MODE_FULL
         self.bitrate          = TCPClientInterface.BITRATE_GUESS
         
-        if max_reconnect_tries == None:
-            self.max_reconnect_tries = TCPClientInterface.RECONNECT_MAX_TRIES
-        else:
-            self.max_reconnect_tries = max_reconnect_tries
+        self.supports_discovery = True
+        if max_reconnect_tries == None: self.max_reconnect_tries = TCPClientInterface.RECONNECT_MAX_TRIES
+        else: self.max_reconnect_tries = max_reconnect_tries
 
         if connected_socket != None:
             self.receives    = True
@@ -513,6 +512,7 @@ class TCPServerInterface(Interface):
         if port != None:
             bindport = port
 
+        self.supports_discovery = True
         self.HW_MTU = TCPInterface.HW_MTU
 
         self.online = False
