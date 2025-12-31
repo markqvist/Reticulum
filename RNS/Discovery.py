@@ -251,8 +251,8 @@ class InterfaceAnnounceHandler:
 
 class InterfaceDiscovery():
     THRESHOLD_UNKNOWN = 24*60*60
-    THRESHOLD_STALE   = 7*24*60*60
-    THRESHOLD_REMOVE  = 30*24*60*60
+    THRESHOLD_STALE   = 3*24*60*60
+    THRESHOLD_REMOVE  = 7*24*60*60
 
     STATUS_STALE      = 0
     STATUS_UNKNOWN    = 100

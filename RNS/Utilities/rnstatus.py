@@ -195,9 +195,9 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if_type = i["type"]
                         status = i["status"]
                       
-                        if status == "available": status_display = "✓ Available"
-                        elif status == "unknown": status_display = "? Unknown"
-                        elif status == "stale":   status_display = "× Stale"
+                        if status == "available": status_display = "Available"
+                        elif status == "unknown": status_display = "Unknown"
+                        elif status == "stale":   status_display = "Stale"
                         else:                     status_display = status
                       
                         now  = time.time()
