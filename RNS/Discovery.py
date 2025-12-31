@@ -73,19 +73,25 @@ class InterfaceAnnouncer():
                 RNS.log(f"Error while preparing interface discovery announces: {e}", RNS.LOG_ERROR)
                 RNS.trace_exception(e)
 
+    def sanitize(self, in_str):
+        sanitized = in_str.replace("\n", "")
+        sanitized = sanitized.replace("\r", "")
+        sanitized = sanitized.strip()
+        return sanitized
+
     def get_interface_announce_data(self, interface):
         interface_type = type(interface).__name__
         stamp_value = interface.discovery_stamp_value if interface.discovery_stamp_value else self.DEFAULT_STAMP_VALUE
         if not interface_type in self.DISCOVERABLE_INTERFACE_TYPES: return None
         else:
             info = {INTERFACE_TYPE: interface_type,
-                    NAME:           interface.discovery_name,
+                    NAME:           self.sanitize(interface.discovery_name),
                     LATITUDE:       interface.discovery_latitude,
                     LONGITUDE:      interface.discovery_longitude,
                     HEIGHT:         interface.discovery_height}
 
             if interface_type in ["BackboneInterface", "TCPServerInterface"]:
-                info[REACHABLE_ON]    = interface.reachable_on
+                info[REACHABLE_ON]    = self.sanitize(interface.reachable_on)
                 info[PORT]            = interface.bind_port
 
             if interface_type == "I2PInterface" and interface.connectable and interface.b32:
@@ -101,11 +107,11 @@ class InterfaceAnnouncer():
                 info[INTERFACE_TYPE]  = "KISSInterface"
                 info[FREQUENCY]       = interface.discovery_frequency
                 info[BANDWIDTH]       = interface.discovery_bandwidth
-                info[MODULATION]      = interface.discovery_modulation
+                info[MODULATION]      = self.sanitize(interface.discovery_modulation)
 
             if interface.discovery_publish_ifac == True:
-                info[IFAC_NETNAME]    = interface.ifac_netname
-                info[IFAC_NETKEY] = interface.ifac_netkey
+                info[IFAC_NETNAME]    = self.sanitize(interface.ifac_netname)
+                info[IFAC_NETKEY]     = self.sanitize(interface.ifac_netkey)
 
             packed   = msgpack.packb(info)
             infohash = RNS.Identity.full_hash(packed)
