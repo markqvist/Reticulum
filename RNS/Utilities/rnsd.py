@@ -160,6 +160,22 @@ instance_name = default
 # remote_management_allowed = 9fb6d773498fb3feda407ed8ef2c3229, 2d882c5586e548d79b5af27bca1776dc
 
 
+# You can configure whether Reticulum should discover
+# available interfaces from other Transport Instances over
+# the network. If this option is enabled, Reticulum will
+# collect interface information discovered from the network.
+
+# discover_interfaces = No
+
+
+# To prevent interface discovery spamming, a valid crypto-
+# graphic stamp is required per announced interface. You
+# can configure the minimum required value to accept as
+# valid for discovered interfaces.
+
+# required_discovery_value = 20
+
+
 # You can configure Reticulum to panic and forcibly close
 # if an unrecoverable interface error occurs, such as the
 # hardware device for an interface disappearing. This is

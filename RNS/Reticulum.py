@@ -256,6 +256,8 @@ class Reticulum:
         Reticulum.__use_implicit_proof = True
         Reticulum.__allow_probes = False
         Reticulum.__discovery_enabled = False
+        Reticulum.__discover_interfaces = False
+        Reticulum.__required_discovery_value = None
 
         Reticulum.panic_on_interface_error = False
 
@@ -344,7 +346,9 @@ class Reticulum:
             thread.daemon = True
             thread.start()
 
-        if Reticulum.__discovery_enabled: RNS.Transport.enable_discovery()
+        if self.is_shared_instance or self.is_standalone_instance:
+            if Reticulum.__discovery_enabled: RNS.Transport.enable_discovery()
+            if Reticulum.__discover_interfaces: RNS.Transport.discover_interfaces()
 
         atexit.register(Reticulum.exit_handler)
         signal.signal(signal.SIGINT, Reticulum.sigint_handler)
@@ -478,16 +482,13 @@ class Reticulum:
                         self.rpc_key = None
                 if option == "enable_transport":
                     v = self.config["reticulum"].as_bool(option)
-                    if v == True:
-                        Reticulum.__transport_enabled = True
+                    if v == True: Reticulum.__transport_enabled = True
                 if option == "link_mtu_discovery":
                     v = self.config["reticulum"].as_bool(option)
-                    if v == True:
-                        Reticulum.__link_mtu_discovery = True
+                    if v == True: Reticulum.__link_mtu_discovery = True
                 if option == "enable_remote_management":
                     v = self.config["reticulum"].as_bool(option)
-                    if v == True:
-                        Reticulum.__remote_management_enabled = True
+                    if v == True: Reticulum.__remote_management_enabled = True
                 if option == "remote_management_allowed":
                     v = self.config["reticulum"].as_list(option)
                     for hexhash in v:
@@ -503,21 +504,25 @@ class Reticulum:
                             RNS.Transport.remote_management_allowed.append(allowed_hash)
                 if option == "respond_to_probes":
                     v = self.config["reticulum"].as_bool(option)
-                    if v == True:
-                        Reticulum.__allow_probes = True
+                    if v == True: Reticulum.__allow_probes = True
                 if option == "force_shared_instance_bitrate":
                     v = self.config["reticulum"].as_int(option)
                     Reticulum._force_shared_instance_bitrate = v
                 if option == "panic_on_interface_error":
                     v = self.config["reticulum"].as_bool(option)
-                    if v == True:
-                        Reticulum.panic_on_interface_error = True
+                    if v == True: Reticulum.panic_on_interface_error = True
                 if option == "use_implicit_proof":
                     v = self.config["reticulum"].as_bool(option)
-                    if v == True:
-                        Reticulum.__use_implicit_proof = True
-                    if v == False:
-                        Reticulum.__use_implicit_proof = False
+                    if v == True:  Reticulum.__use_implicit_proof = True
+                    if v == False: Reticulum.__use_implicit_proof = False
+                if option == "discover_interfaces":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v == True:  Reticulum.__discover_interfaces = True
+                    if v == False: Reticulum.__discover_interfaces = False
+                if option == "required_discovery_value":
+                    v = self.config["reticulum"].as_int(option)
+                    if v > 0: Reticulum.__required_discovery_value = v
+                    else:     Reticulum.__required_discovery_value = None
 
         if RNS.compiled: RNS.log("Reticulum running in compiled mode", RNS.LOG_DEBUG)
         else: RNS.log("Reticulum running in interpreted mode", RNS.LOG_DEBUG)
@@ -1425,6 +1430,16 @@ class Reticulum:
     def probe_destination_enabled():
         return Reticulum.__allow_probes
 
+    @staticmethod
+    def required_discovery_value():
+        """
+        Returns the required stam value for a discovered interface
+        to be considered valid and remembered.
+
+        :returns: The required stamp value as an integer.
+        """
+        return Reticulum.__required_discovery_value
+
 # Default configuration file:
 __default_rns_config__ = '''# This is the default Reticulum config file.
 # You should probably edit it to include any additional,
@@ -1467,6 +1482,7 @@ share_instance = Yes
 
 instance_name = default
 
+
 # Some platforms don't support domain sockets, and if that
 # is the case, you can isolate different instances by
 # specifying a unique set of ports for each:
@@ -1480,6 +1496,14 @@ instance_name = default
 # possible, by using the following option:
 
 # shared_instance_type = tcp
+
+
+# You can configure whether Reticulum should discover
+# available interfaces from other Transport Instances over
+# the network. If this option is enabled, Reticulum will
+# collect interface information discovered from the network.
+
+# discover_interfaces = No
 
 
 # You can configure Reticulum to panic and forcibly close

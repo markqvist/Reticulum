@@ -157,6 +157,7 @@ class Transport:
     interface_jobs_interval     = 5.0
     inbound_announce_lock       = Lock()
     interface_announcer         = None
+    discovery_handler           = None
 
     traffic_rxb                 = 0
     traffic_txb                 = 0
@@ -355,6 +356,11 @@ class Transport:
         if not Transport.interface_announcer:
             Transport.interface_announcer = RNS.Discovery.InterfaceAnnouncer(Transport)
             Transport.interface_announcer.start()
+
+    @staticmethod
+    def discover_interfaces():
+        if not Transport.discovery_handler:
+            Transport.discovery_handler = RNS.Discovery.InterfaceDiscovery(required_value=RNS.Reticulum.required_discovery_value(), discover_interfaces=True)
 
     @staticmethod
     def count_traffic_loop():

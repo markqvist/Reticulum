@@ -6,18 +6,19 @@ from .vendor import umsgpack as msgpack
 
 NAME            = 0xFF
 INTERFACE_TYPE  = 0x00
-REACHABLE_ON    = 0x01
-LATITUDE        = 0x02
-LONGITUDE       = 0x03
-HEIGHT          = 0x04
-PORT            = 0x05
-IFAC_NETNAME    = 0x06
-IFAC_NETKEY     = 0x07
-FREQUENCY       = 0x08
-BANDWIDTH       = 0x09
-SPREADINGFACTOR = 0x0A
-CODINGRATE      = 0x0B
-MODULATION      = 0x0C
+TRANSPORT       = 0x01
+REACHABLE_ON    = 0x02
+LATITUDE        = 0x03
+LONGITUDE       = 0x04
+HEIGHT          = 0x05
+PORT            = 0x06
+IFAC_NETNAME    = 0x07
+IFAC_NETKEY     = 0x08
+FREQUENCY       = 0x09
+BANDWIDTH       = 0x0A
+SPREADINGFACTOR = 0x0B
+CODINGRATE      = 0x0C
+MODULATION      = 0x0D
 
 APP_NAME = "rnstransport"
 
@@ -86,6 +87,7 @@ class InterfaceAnnouncer():
         if not interface_type in self.DISCOVERABLE_INTERFACE_TYPES: return None
         else:
             info = {INTERFACE_TYPE: interface_type,
+                    TRANSPORT:      RNS.Reticulum.transport_enabled(),
                     NAME:           self.sanitize(interface.discovery_name),
                     LATITUDE:       interface.discovery_latitude,
                     LONGITUDE:      interface.discovery_longitude,
@@ -160,6 +162,7 @@ class InterfaceAnnounceHandler:
                     if INTERFACE_TYPE in unpacked:
                         interface_type     = unpacked[INTERFACE_TYPE]
                         info = {"type":      interface_type,
+                                "transport": unpacked[TRANSPORT],
                                 "name":      unpacked[NAME] or f"Discovered {interface_type}",
                                 "received":  time.time(),
                                 "stamp":     stamp,
@@ -257,6 +260,8 @@ class InterfaceDiscovery():
     STATUS_CODE_MAP   = {"available": STATUS_AVAILABLE, "unknown": STATUS_UNKNOWN, "stale": STATUS_STALE}
 
     def __init__(self, required_value=InterfaceAnnouncer.DEFAULT_STAMP_VALUE, callback=None, discover_interfaces=True):
+        if not required_value: required_value = InterfaceAnnouncer.DEFAULT_STAMP_VALUE
+
         self.required_value     = required_value
         self.discovery_callback = callback
         self.rns_instance       = RNS.Reticulum.get_instance()
