@@ -142,6 +142,7 @@ class Transport:
     start_time                  = None
     jobs_locked                 = False
     jobs_running                = False
+    hashlist_maxsize            = 1000000
     job_interval                = 0.250
     links_last_checked          = 0.0
     links_check_interval        = 1.0
@@ -152,14 +153,15 @@ class Transport:
     pending_prs_last_checked    = 0.0
     pending_prs_check_interval  = 30.0
     cache_last_cleaned          = 0.0
-    cache_clean_interval        = 300.0
-    hashlist_maxsize            = 1000000
+    cache_clean_interval        = 5*60
     tables_last_culled          = 0.0
     tables_cull_interval        = 5.0
     interface_last_jobs         = 0.0
     interface_jobs_interval     = 5.0
     last_mgmt_announce          = 0
     mgmt_announce_interval      = 2*60*60
+    blackhole_last_checked      = 0
+    blackhole_check_interval    = 60
     inbound_announce_lock       = Lock()
     interface_announcer         = None
     discovery_handler           = None
@@ -387,6 +389,12 @@ class Transport:
     def discover_interfaces():
         if not Transport.discovery_handler:
             Transport.discovery_handler = RNS.Discovery.InterfaceDiscovery(required_value=RNS.Reticulum.required_discovery_value(), discover_interfaces=True)
+
+    @staticmethod
+    def enable_blackhole_updater():
+        if not Transport.blackhole_updater:
+            Transport.blackhole_updater = RNS.Discovery.BlackholeUpdater()
+            Transport.blackhole_updater.start()
 
     @staticmethod
     def count_traffic_loop():
@@ -814,6 +822,32 @@ class Transport:
 
                     except Exception as e:
                         RNS.log(f"Error while sending management announces: {e}", RNS.LOG_ERROR)
+
+                # Check expired blackhole entries
+                if time.time() > Transport.blackhole_last_checked+Transport.blackhole_check_interval:
+                    try:
+                        Transport.blackhole_last_checked = time.time()
+                        stale_blackhole_entries = []
+                        for identity_hash in Transport.blackholed_identities.copy():
+                            try:
+                                until = Transport.blackholed_identities[identity_hash]["until"]
+                                if until and time.time() > until: stale_blackhole_entries.append(identity_hash)
+
+                            except Exception as e:
+                                RNS.log(f"Error while checking blackhole expiry for {RNS.prettyhexrep(identity_hash)}: {e}", RNS.LOG_ERROR)
+
+                        i = 0
+                        for identity_hash in stale_blackhole_entries:
+                            if identity_hash in Transport.blackholed_identities:
+                                Transport.blackholed_identities.pop(identity_hash)
+                                i += 1
+
+                        if i > 0:
+                            if i == 1: RNS.log("Removed "+str(i)+" blackholed identity", RNS.LOG_VERBOSE)
+                            else: RNS.log("Removed "+str(i)+" blackholed identities", RNS.LOG_VERBOSE)
+
+                    except Exception as e:
+                        RNS.log(f"Error while checking blackholed identities: {e}", RNS.LOG_ERROR)
 
                 if should_collect: gc.collect()
 
@@ -3137,6 +3171,9 @@ class Transport:
                 else:
                     if len(filename) != dest_len: raise ValueError(f"Identity hash length for blackhole source {filename} is invalid")
                     source_identity_hash = bytes.fromhex(filename)
+                    if not source_identity_hash in RNS.Reticulum.blackhole_sources():
+                        RNS.log(f"Skipping disabled blackhole source {RNS.prettyhexrep(source_identity_hash)}", RNS.LOG_INFO)
+                        continue
 
                 sourcepath = os.path.join(RNS.Reticulum.blackholepath, filename)
                 with open(sourcepath, "rb") as f:

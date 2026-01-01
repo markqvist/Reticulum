@@ -337,8 +337,9 @@ class Reticulum:
             thread.start()
 
         if self.is_shared_instance or self.is_standalone_instance:
-            if Reticulum.__discovery_enabled: RNS.Transport.enable_discovery()
+            if Reticulum.__discovery_enabled:   RNS.Transport.enable_discovery()
             if Reticulum.__discover_interfaces: RNS.Transport.discover_interfaces()
+            if Reticulum.__blackhole_sources:   RNS.Transport.enable_blackhole_updater()
 
         atexit.register(Reticulum.exit_handler)
         signal.signal(signal.SIGINT, Reticulum.sigint_handler)

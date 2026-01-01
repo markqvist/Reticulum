@@ -185,7 +185,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                     until      = blackholed_list[identity_hash]["until"]
                     reason     = blackholed_list[identity_hash]["reason"]
                     source     = blackholed_list[identity_hash]["source"]
-                    until_str  = f"for {RNS.prettytime(until-now)}" if until else "indefinitely"
+                    until_str  = f"for {RNS.prettytime(max(0, until-now))}" if until else "indefinitely"
                     reason_str = f" ({trunc(reason)})" if reason else ""
                     by_str     = f" by {RNS.prettyhexrep(source)}" if source != RNS.Transport.identity.hash else ""
                     filter_str = f"{RNS.prettyhexrep(identity_hash)} {until_str} {reason_str} {by_str}"
@@ -494,7 +494,7 @@ def main():
         parser.add_argument("-b", "--blackholed", action="store_true", help="list blackholed identities", default=False)
         parser.add_argument("-B", "--blackhole", action="store_true", help="blackhole identity", default=False)
         parser.add_argument("-U", "--unblackhole", action="store_true", help="unblackhole identity", default=False)
-        parser.add_argument(      "--duration", action="store", type=int, help="duration of blackhole enforcement in hours", default=None)
+        parser.add_argument(      "--duration", action="store", type=float, help="duration of blackhole enforcement in hours", default=None)
         parser.add_argument(      "--reason", action="store", type=str, help="reason for blackholing identity", default=None)
         parser.add_argument("-p", "--blackholed-list", action="store_true", help="view published blackhole list for remote transport instance", default=False)
         parser.add_argument("-j", "--json", action="store_true", help="output in JSON format", default=False)
