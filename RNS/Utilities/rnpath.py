@@ -89,62 +89,51 @@ def connect_remote(destination_hash, auth_identity, timeout, no_output = False):
 
 def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues,
                   drop_via, max_hops, remote=None, management_identity=None, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT,
-                  no_output=False, json=False):
+                  blackholed=False, blackhole=False, unblackhole=False, no_output=False, json=False):
+
     global remote_link, reticulum
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
     if remote:
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
-            if len(remote) != dest_len:
-                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            if len(remote) != dest_len: raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
             try:
                 identity_hash = bytes.fromhex(remote)
                 remote_hash = RNS.Destination.hash_from_name_and_identity("rnstransport.remote.management", identity_hash)
-            except Exception as e:
-                raise ValueError("Invalid destination entered. Check your input.")
+            except Exception as e: raise ValueError("Invalid destination entered. Check your input.")
 
             identity = RNS.Identity.from_file(os.path.expanduser(management_identity))
-            if identity == None:
-                raise ValueError("Could not load management identity from "+str(management_identity))
+            if identity == None: raise ValueError("Could not load management identity from "+str(management_identity))
 
-            try:
-                connect_remote(remote_hash, identity, remote_timeout, no_output)
-            except Exception as e:
-                raise e
+            try: connect_remote(remote_hash, identity, remote_timeout, no_output)
+            except Exception as e: raise e
 
         except Exception as e:
             print(str(e))
             exit(20)
 
-        while remote_link == None:
-            time.sleep(0.1)
-
+        while remote_link == None: time.sleep(0.1)
 
     if table:
         destination_hash = None
         if destination_hexhash != None:
             try:
                 dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
-                if len(destination_hexhash) != dest_len:
-                    raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
-                try:
-                    destination_hash = bytes.fromhex(destination_hexhash)
-                except Exception as e:
-                    raise ValueError("Invalid destination entered. Check your input.")
+                if len(destination_hexhash) != dest_len: raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                try: destination_hash = bytes.fromhex(destination_hexhash)
+                except Exception as e: raise ValueError("Invalid destination entered. Check your input.")
             except Exception as e:
                 print(str(e))
                 sys.exit(1)
 
-        if not remote_link:
-            table = sorted(reticulum.get_path_table(max_hops=max_hops), key=lambda e: (e["interface"], e["hops"]) )
+        if not remote_link: table = sorted(reticulum.get_path_table(max_hops=max_hops), key=lambda e: (e["interface"], e["hops"]) )
         else:
             if not no_output:
                 print("\r                                                          \r", end="")
                 print("Sending request...", end=" ")
                 sys.stdout.flush()
             receipt = remote_link.request("/path", data = ["table", destination_hash, max_hops])
-            while not receipt.concluded():
-                time.sleep(0.1)
+            while not receipt.concluded(): time.sleep(0.1)
             response = receipt.get_response()
             if response:
                 table = response
@@ -160,20 +149,18 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             import json
             for p in table:
                 for k in p:
-                    if isinstance(p[k], bytes):
-                        p[k] = RNS.hexrep(p[k], delimit=False)
+                    if isinstance(p[k], bytes): p[k] = RNS.hexrep(p[k], delimit=False)
 
             print(json.dumps(table))
             exit()
+        
         else:
             for path in table:
                 if destination_hash == None or destination_hash == path["hash"]:
                     displayed += 1
                     exp_str = RNS.timestamp_str(path["expires"])
-                    if path["hops"] == 1:
-                        m_str = " "
-                    else:
-                        m_str = "s"
+                    if path["hops"] == 1: m_str = " "
+                    else: m_str = "s"
                     print(RNS.prettyhexrep(path["hash"])+" is "+str(path["hops"])+" hop"+m_str+" away via "+RNS.prettyhexrep(path["via"])+" on "+path["interface"]+" expires "+RNS.timestamp_str(path["expires"]))
 
             if destination_hash != None and displayed == 0:
@@ -185,18 +172,14 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
         if destination_hexhash != None:
             try:
                 dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
-                if len(destination_hexhash) != dest_len:
-                    raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
-                try:
-                    destination_hash = bytes.fromhex(destination_hexhash)
-                except Exception as e:
-                    raise ValueError("Invalid destination entered. Check your input.")
+                if len(destination_hexhash) != dest_len: raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                try: destination_hash = bytes.fromhex(destination_hexhash)
+                except Exception as e: raise ValueError("Invalid destination entered. Check your input.")
             except Exception as e:
                 print(str(e))
                 sys.exit(1)
 
-        if not remote_link:
-            table = reticulum.get_rate_table()
+        if not remote_link: table = reticulum.get_rate_table()
         else:
             if not no_output:
                 print("\r                                                          \r", end="")
@@ -220,15 +203,12 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             import json
             for p in table:
                 for k in p:
-                    if isinstance(p[k], bytes):
-                        p[k] = RNS.hexrep(p[k], delimit=False)
+                    if isinstance(p[k], bytes): p[k] = RNS.hexrep(p[k], delimit=False)
 
             print(json.dumps(table))
             exit()
         else:
-            if len(table) == 0:
-                print("No information available")
-
+            if len(table) == 0: print("No information available")
             else:
                 displayed = 0
                 for entry in table:
@@ -290,18 +270,14 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
 
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
-            if len(destination_hexhash) != dest_len:
-                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
-            try:
-                destination_hash = bytes.fromhex(destination_hexhash)
-            except Exception as e:
-                raise ValueError("Invalid destination entered. Check your input.")
+            if len(destination_hexhash) != dest_len: raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            try: destination_hash = bytes.fromhex(destination_hexhash)
+            except Exception as e: raise ValueError("Invalid destination entered. Check your input.")
         except Exception as e:
             print(str(e))
             sys.exit(1)
 
-        if reticulum.drop_path(destination_hash):
-            print("Dropped path to "+RNS.prettyhexrep(destination_hash))
+        if reticulum.drop_path(destination_hash): print("Dropped path to "+RNS.prettyhexrep(destination_hash))
         else:
             print("Unable to drop path to "+RNS.prettyhexrep(destination_hash)+". Does it exist?")
             sys.exit(1)
@@ -315,18 +291,14 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
 
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
-            if len(destination_hexhash) != dest_len:
-                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
-            try:
-                destination_hash = bytes.fromhex(destination_hexhash)
-            except Exception as e:
-                raise ValueError("Invalid destination entered. Check your input.")
+            if len(destination_hexhash) != dest_len: raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            try: destination_hash = bytes.fromhex(destination_hexhash)
+            except Exception as e: raise ValueError("Invalid destination entered. Check your input.")
         except Exception as e:
             print(str(e))
             sys.exit(1)
 
-        if reticulum.drop_all_via(destination_hash):
-            print("Dropped all paths via "+RNS.prettyhexrep(destination_hash))
+        if reticulum.drop_all_via(destination_hash): print("Dropped all paths via "+RNS.prettyhexrep(destination_hash))
         else:
             print("Unable to drop paths via "+RNS.prettyhexrep(destination_hash)+". Does the transport instance exist?")
             sys.exit(1)
@@ -340,12 +312,9 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
 
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
-            if len(destination_hexhash) != dest_len:
-                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
-            try:
-                destination_hash = bytes.fromhex(destination_hexhash)
-            except Exception as e:
-                raise ValueError("Invalid destination entered. Check your input.")
+            if len(destination_hexhash) != dest_len: raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            try: destination_hash = bytes.fromhex(destination_hexhash)
+            except Exception as e: raise ValueError("Invalid destination entered. Check your input.")
         except Exception as e:
             print(str(e))
             sys.exit(1)
@@ -374,166 +343,52 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                 next_hop = RNS.prettyhexrep(next_hop_bytes)
                 next_hop_interface = reticulum.get_next_hop_if_name(destination_hash)
 
-                if hops != 1:
-                    ms = "s"
-                else:
-                    ms = ""
+                if hops != 1: ms = "s"
+                else: ms = ""
 
                 print("\rPath found, destination "+RNS.prettyhexrep(destination_hash)+" is "+str(hops)+" hop"+ms+" away via "+next_hop+" on "+next_hop_interface)
         else:
             print("\r                                                       \rPath not found")
             sys.exit(1)
 
-    
 
 def main():
     try:
-        parser = argparse.ArgumentParser(description="Reticulum Path Discovery Utility")
-
-        parser.add_argument("--config",
-            action="store",
-            default=None,
-            help="path to alternative Reticulum config directory",
-            type=str
-        )
-
-        parser.add_argument(
-            "--version",
-            action="version",
-            version="rnpath {version}".format(version=__version__)
-        )
-
-        parser.add_argument(
-            "-t",
-            "--table",
-            action="store_true",
-            help="show all known paths",
-            default=False
-        )
-
-        parser.add_argument(
-            "-m",
-            "--max",
-            action="store",
-            metavar="hops",
-            type=int,
-            help="maximum hops to filter path table by",
-            default=None
-        )
-
-        parser.add_argument(
-            "-r",
-            "--rates",
-            action="store_true",
-            help="show announce rate info",
-            default=False
-        )
-
-        parser.add_argument(
-            "-d",
-            "--drop",
-            action="store_true",
-            help="remove the path to a destination",
-            default=False
-        )
-
-        parser.add_argument(
-            "-D",
-            "--drop-announces",
-            action="store_true",
-            help="drop all queued announces",
-            default=False
-        )
-
-        parser.add_argument(
-            "-x", "--drop-via",
-            action="store_true",
-            help="drop all paths via specified transport instance",
-            default=False
-        )
-
-        parser.add_argument(
-            "-w",
-            action="store",
-            metavar="seconds",
-            type=float,
-            help="timeout before giving up",
-            default=RNS.Transport.PATH_REQUEST_TIMEOUT
-        )
-
-        parser.add_argument(
-            "-R",
-            action="store",
-            metavar="hash",
-            help="transport identity hash of remote instance to manage",
-            default=None,
-            type=str
-        )
-
-        parser.add_argument(
-            "-i",
-            action="store",
-            metavar="path",
-            help="path to identity used for remote management",
-            default=None,
-            type=str
-        )
-
-        parser.add_argument(
-            "-W",
-            action="store",
-            metavar="seconds",
-            type=float,
-            help="timeout before giving up on remote queries",
-            default=RNS.Transport.PATH_REQUEST_TIMEOUT
-        )
-        
-        parser.add_argument(
-            "-j",
-            "--json",
-            action="store_true",
-            help="output in JSON format",
-            default=False
-        )
-
-        parser.add_argument(
-            "destination",
-            nargs="?",
-            default=None,
-            help="hexadecimal hash of the destination",
-            type=str
-        )
-
+        parser = argparse.ArgumentParser(description="Reticulum Path Management Utility")
+        parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
+        parser.add_argument("--version", action="version", version="rnpath {version}".format(version=__version__))
+        parser.add_argument("-t", "--table", action="store_true", help="show all known paths", default=False)
+        parser.add_argument("-m", "--max", action="store", metavar="hops", type=int, help="maximum hops to filter path table by", default=None)
+        parser.add_argument("-r", "--rates", action="store_true", help="show announce rate info", default=False)
+        parser.add_argument("-d", "--drop", action="store_true", help="remove the path to a destination", default=False)
+        parser.add_argument("-D", "--drop-announces", action="store_true", help="drop all queued announces", default=False)
+        parser.add_argument("-x", "--drop-via", action="store_true", help="drop all paths via specified transport instance", default=False)
+        parser.add_argument("-w", action="store", metavar="seconds", type=float, help="timeout before giving up", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
+        parser.add_argument("-R", action="store", metavar="hash", help="transport identity hash of remote instance to manage", default=None, type=str)
+        parser.add_argument("-i", action="store", metavar="path", help="path to identity used for remote management", default=None, type=str)
+        parser.add_argument("-W", action="store", metavar="seconds", type=float, help="timeout before giving up on remote queries", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
+        parser.add_argument("-b", "--blackholed", action="store_true", help="list blackholed identities", default=False)
+        parser.add_argument("-B", "--blackhole", action="store_true", help="blackhole identity", default=False)
+        parser.add_argument("-U", "--unblackhole", action="store_true", help="unblackhole identity", default=False)
+        parser.add_argument("-j", "--json", action="store_true", help="output in JSON format", default=False)
+        parser.add_argument("destination", nargs="?", default=None, help="hexadecimal hash of the destination", type=str)
         parser.add_argument('-v', '--verbose', action='count', default=0)
         
         args = parser.parse_args()
 
-        if args.config:
-            configarg = args.config
-        else:
-            configarg = None
+        if args.config: configarg = args.config
+        else: configarg = None
 
         if not args.drop_announces and not args.table and not args.rates and not args.destination and not args.drop_via:
             print("")
             parser.print_help()
             print("")
         else:
-            program_setup(
-                configdir = configarg,
-                table = args.table,
-                rates = args.rates,
-                drop = args.drop,
-                destination_hexhash = args.destination,
-                verbosity = args.verbose,
-                timeout = args.w,
-                drop_queues = args.drop_announces,
-                drop_via = args.drop_via,
-                max_hops = args.max,
-                remote=args.R,
-                management_identity=args.i,
-                remote_timeout=args.W,
-                json=args.json,
-            )
+            program_setup(configdir = configarg, table = args.table, rates = args.rates, drop = args.drop, destination_hexhash = args.destination,
+                          verbosity = args.verbose, timeout = args.w, drop_queues = args.drop_announces, drop_via = args.drop_via, max_hops = args.max,
+                          remote=args.R, management_identity=args.i, remote_timeout=args.W, blackholed=args.blackholed, blackhole=args.blackhole,
+                          unblackhole=args.unblackhole, json=args.json)
+
             sys.exit(0)
 
     except KeyboardInterrupt:
@@ -543,38 +398,23 @@ def main():
 def pretty_date(time=False):
     from datetime import datetime
     now = datetime.now()
-    if type(time) is int:
-        diff = now - datetime.fromtimestamp(time)
-    elif isinstance(time,datetime):
-        diff = now - time
-    elif not time:
-        diff = now - now
+    if type(time) is int: diff = now - datetime.fromtimestamp(time)
+    elif isinstance(time,datetime): diff = now - time
+    elif not time: diff = now - now
     second_diff = diff.seconds
     day_diff = diff.days
-    if day_diff < 0:
-        return ''
+    if day_diff < 0: return ''
     if day_diff == 0:
-        if second_diff < 10:
-            return str(second_diff) + " seconds"
-        if second_diff < 60:
-            return str(second_diff) + " seconds"
-        if second_diff < 120:
-            return "1 minute"
-        if second_diff < 3600:
-            return str(int(second_diff / 60)) + " minutes"
-        if second_diff < 7200:
-            return "an hour"
-        if second_diff < 86400:
-            return str(int(second_diff / 3600)) + " hours"
-    if day_diff == 1:
-        return "1 day"
-    if day_diff < 7:
-        return str(day_diff) + " days"
-    if day_diff < 31:
-        return str(int(day_diff / 7)) + " weeks"
-    if day_diff < 365:
-        return str(int(day_diff / 30)) + " months"
+        if second_diff < 10: return str(second_diff) + " seconds"
+        if second_diff < 60: return str(second_diff) + " seconds"
+        if second_diff < 120: return "1 minute"
+        if second_diff < 3600: return str(int(second_diff / 60)) + " minutes"
+        if second_diff < 7200: return "an hour"
+        if second_diff < 86400: return str(int(second_diff / 3600)) + " hours"
+    if day_diff == 1: return "1 day"
+    if day_diff < 7: return str(day_diff) + " days"
+    if day_diff < 31: return str(int(day_diff / 7)) + " weeks"
+    if day_diff < 365: return str(int(day_diff / 30)) + " months"
     return str(int(day_diff / 365)) + " years"
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__main__": main()

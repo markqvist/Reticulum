@@ -601,10 +601,10 @@ def main(must_exit=True, rns_instance=None):
         parser.add_argument("-R", action="store", metavar="hash", help="transport identity hash of remote instance to get status from", default=None, type=str)
         parser.add_argument("-i", action="store", metavar="path", help="path to identity used for remote management", default=None, type=str)
         parser.add_argument("-w", action="store", metavar="seconds", type=float, help="timeout before giving up on remote queries", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
-        parser.add_argument("-m", "--monitor", action="store_true", help="continuously monitor status", default=False)
-        parser.add_argument("-I", "--monitor-interval", action="store", metavar="seconds", type=float, help="refresh interval for monitor mode (default: 1)", default=1.0)
         parser.add_argument("-d", "--discovered", action="store_true", help="list discovered interfaces", default=False)
         parser.add_argument("-D",                 action="store_true", help="show details and config entries for discovered interfaces", default=False)
+        parser.add_argument("-m", "--monitor", action="store_true", help="continuously monitor status", default=False)
+        parser.add_argument("-I", "--monitor-interval", action="store", metavar="seconds", type=float, help="refresh interval for monitor mode (default: 1)", default=1.0)
         parser.add_argument('-v', '--verbose', action='count', default=0)
         parser.add_argument("filter", nargs="?", default=None, help="only display interfaces with names including filter", type=str)
       
