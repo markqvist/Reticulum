@@ -99,6 +99,12 @@ class WDCL():
         if not RNS.vendor.platformutils.is_android():
             if port == None: raise ValueError("No port specified")
         
+        self.supports_discovery   = True
+        self.discovery_frequency  = None
+        self.discovery_bandwidth  = None
+        self.discovery_channel    = None
+        self.discovery_modulation = None
+
         self.switch_identity = owner.switch_identity
         self.switch_id = self.switch_identity.sig_pub_bytes[-4:]
         self.switch_pub_bytes = self.switch_identity.sig_pub_bytes
