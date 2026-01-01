@@ -123,6 +123,8 @@ class Transport:
     # for control purposes like path requests
     control_destinations        = []
     control_hashes              = []
+    mgmt_destinations           = []
+    mgmt_hashes                 = []
     remote_management_allowed   = []
 
     # Interfaces for communicating with
@@ -156,6 +158,8 @@ class Transport:
     tables_cull_interval        = 5.0
     interface_last_jobs         = 0.0
     interface_jobs_interval     = 5.0
+    last_mgmt_announce          = 0
+    mgmt_announce_interval      = 2*60*60
     inbound_announce_lock       = Lock()
     interface_announcer         = None
     discovery_handler           = None
@@ -213,12 +217,22 @@ class Transport:
             Transport.remote_management_destination = RNS.Destination(Transport.identity, RNS.Destination.IN, RNS.Destination.SINGLE, Transport.APP_NAME, "remote", "management")
             Transport.remote_management_destination.register_request_handler("/status", response_generator = Transport.remote_status_handler, allow = RNS.Destination.ALLOW_LIST, allowed_list=Transport.remote_management_allowed)
             Transport.remote_management_destination.register_request_handler("/path", response_generator = Transport.remote_path_handler, allow = RNS.Destination.ALLOW_LIST, allowed_list=Transport.remote_management_allowed)
-            Transport.control_destinations.append(Transport.remote_management_destination)
-            Transport.control_hashes.append(Transport.remote_management_destination.hash)
+            Transport.mgmt_destinations.append(Transport.remote_management_destination)
+            Transport.mgmt_hashes.append(Transport.remote_management_destination.hash)
             RNS.log("Enabled remote management on "+str(Transport.remote_management_destination), RNS.LOG_NOTICE)
+
+        if RNS.Reticulum.publish_blackhole_enabled() and not Transport.owner.is_connected_to_shared_instance:
+            Transport.blackhole_destination = RNS.Destination(Transport.identity, RNS.Destination.IN, RNS.Destination.SINGLE, Transport.APP_NAME, "info", "blackhole")
+            Transport.blackhole_destination.register_request_handler("/list", response_generator = Transport.blackhole_list_handler, allow=RNS.Destination.ALLOW_ALL)
+            Transport.mgmt_destinations.append(Transport.blackhole_destination)
+            Transport.mgmt_hashes.append(Transport.blackhole_destination.hash)
+            RNS.log(f"Enabled blackhole list publishing for transport identity {RNS.prettyhexrep(Transport.identity.hash)}", RNS.LOG_NOTICE)
 
         # Defer cleaning packet cache for 60 seconds
         Transport.cache_last_cleaned = time.time() + 60
+
+        # Defer sending management announces for 15 seconds
+        Transport.last_mgmt_announce = time.time() - Transport.mgmt_announce_interval + 15
         
         # Start job loops
         Transport.jobs_running = False
@@ -338,7 +352,7 @@ class Transport:
                 Transport.probe_destination = RNS.Destination(Transport.identity, RNS.Destination.IN, RNS.Destination.SINGLE, Transport.APP_NAME, "probe")
                 Transport.probe_destination.accepts_links(False)
                 Transport.probe_destination.set_proof_strategy(RNS.Destination.PROVE_ALL)
-                Transport.probe_destination.announce()
+                Transport.mgmt_destinations.append(Transport.probe_destination)
                 RNS.log("Transport Instance will respond to probe requests on "+str(Transport.probe_destination), RNS.LOG_NOTICE)
             else:
                 Transport.probe_destination = None
@@ -788,6 +802,17 @@ class Transport:
                 # Clean packet caches
                 if time.time() > Transport.cache_last_cleaned+Transport.cache_clean_interval:
                     Transport.clean_cache()
+
+                # Send announces for management destinations
+                if time.time() > Transport.last_mgmt_announce+Transport.mgmt_announce_interval:
+                    try:
+                        Transport.last_mgmt_announce = time.time()
+                        def job():
+                            for destination in Transport.mgmt_destinations: destination.announce()
+                        threading.Thread(target=job, daemon=True).start()
+
+                    except Exception as e:
+                        RNS.log(f"Error while sending management announces: {e}", RNS.LOG_ERROR)
 
                 if should_collect: gc.collect()
 
@@ -3139,6 +3164,15 @@ class Transport:
         if len(drop_destinations) > 0:
             ms = "" if len(drop_destinations) == 1 else "s"
             RNS.log(f"Removed {len(drop_destinations)} destination{ms} associated with blackholed identities from path table", RNS.LOG_INFO)
+
+    @staticmethod
+    def blackhole_list_handler(path, data, request_id, link_id, remote_identity, requested_at):
+        try: return Transport.blackholed_identities
+        except Exception as e:
+            RNS.log("An error occurred while processing blackhole list request from "+str(remote_identity), RNS.LOG_ERROR)
+            RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+
+        return None
 
     @staticmethod
     def persist_blackhole():

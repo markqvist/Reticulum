@@ -39,7 +39,8 @@ import argparse
 from RNS._version import __version__
 
 remote_link = None
-def connect_remote(destination_hash, auth_identity, timeout, no_output = False):
+output_rst_str = "\r                                                          \r"
+def connect_remote(destination_hash, auth_identity, timeout, no_output = False, purpose="management"):
     global remote_link, reticulum
     if not RNS.Transport.has_path(destination_hash):
         if not no_output:
@@ -51,7 +52,7 @@ def connect_remote(destination_hash, auth_identity, timeout, no_output = False):
             time.sleep(0.1)
             if time.time() - pr_time > timeout:
                 if not no_output:
-                    print("\r                                                          \r", end="")
+                    print(output_rst_str, end="")
                     print("Path request timed out")
                     exit(12)
 
@@ -60,29 +61,30 @@ def connect_remote(destination_hash, auth_identity, timeout, no_output = False):
     def remote_link_closed(link):
         if link.teardown_reason == RNS.Link.TIMEOUT:
             if not no_output:
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
                 print("The link timed out, exiting now")
         elif link.teardown_reason == RNS.Link.DESTINATION_CLOSED:
             if not no_output:
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
                 print("The link was closed by the server, exiting now")
         else:
             if not no_output:
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
                 print("Link closed unexpectedly, exiting now")
         exit(10)
 
     def remote_link_established(link):
         global remote_link
-        link.identify(auth_identity)
+        if purpose == "management": link.identify(auth_identity)
         remote_link = link
 
     if not no_output:
-        print("\r                                                          \r", end="")
+        print(output_rst_str, end="")
         print("Establishing link with remote transport instance...", end=" ")
         sys.stdout.flush()
 
-    remote_destination = RNS.Destination(remote_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "rnstransport", "remote", "management")
+    if purpose == "management": remote_destination = RNS.Destination(remote_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "rnstransport", "remote", "management")
+    elif purpose == "blackhole": remote_destination = RNS.Destination(remote_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "rnstransport", "info", "blackhole")
     link = RNS.Link(remote_destination)
     link.set_link_established_callback(remote_link_established)
     link.set_link_closed_callback(remote_link_closed)
@@ -98,7 +100,7 @@ def parse_hash(input_str):
 def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues,
                   drop_via, max_hops, remote=None, management_identity=None, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT,
                   blackholed=False, blackhole=False, unblackhole=False, blackhole_duration=None, blackhole_reason=None,
-                  no_output=False, json=False):
+                  remote_blackhole_list=False, remote_blackhole_list_filter=None, no_output=False, json=False):
 
     global remote_link, reticulum
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
@@ -123,39 +125,86 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
 
         while remote_link == None: time.sleep(0.1)
 
-    if blackholed:
-        if remote_link:
+    if blackholed or remote_blackhole_list:
+        blackholed_list = None
+        if blackholed:
+            if remote_link:
+                if not no_output:
+                    print(output_rst_str, end="")
+                    print("Listing blackholed identities on remote instances not yet implemented")
+                exit(255)
+
+            try: blackholed_list = reticulum.get_blackholed_identities()
+            except Exception as e:
+                print(f"Could not get blackholed identities from RNS instance: {e}")
+                exit(20)
+
+        elif remote_blackhole_list:
+            try: identity_hash = parse_hash(destination_hexhash)
+            except Exception as e:
+                print(f"{e}")
+                exit(20)
+
+            remote_hash = RNS.Destination.hash_from_name_and_identity("rnstransport.info.blackhole", identity_hash)
+            connect_remote(remote_hash, None, remote_timeout, no_output, purpose="blackhole")
+            while remote_link == None: time.sleep(0.1)
+
             if not no_output:
-                print("\r                                                          \r", end="")
-                print("Listing blackholed identities on remote instances not yet implemented")
+                print(output_rst_str, end="")
+                print("Sending request...", end=" ")
+                sys.stdout.flush()
+            receipt = remote_link.request("/list")
+            while not receipt.concluded(): time.sleep(0.1)
+            response = receipt.get_response()
+            if type(response) == dict:
+                blackholed_list = response
+                print(output_rst_str, end="")
+            else:
+                if not no_output:
+                    print(output_rst_str, end="")
+                    print("The remote request failed.")
+                exit(10)
+
+        else:
+            print(f"Nowhere to fetch blackhole list from")
             exit(255)
 
-        try:
+        if not blackholed_list:
+            print("No blackholed identity data available")
+            exit(20)
+
+        else:
             rmlen = 64
             def trunc(input_str):
                 if len(input_str) <= rmlen: return input_str
                 else: return f"{input_str[:rmlen-1]}…"
 
-            blackholed = reticulum.get_blackholed_identities()
-            now = time.time()
-            for identity_hash in blackholed:
-                if destination_hexhash and not destination_hexhash in RNS.prettyhexrep(identity_hash): continue
-                until      = blackholed[identity_hash]["until"]
-                reason     = blackholed[identity_hash]["reason"]
-                source     = blackholed[identity_hash]["source"]
-                until_str  = f"for {RNS.prettytime(until-now)}" if until else "indefinitely"
-                reason_str = f" ({trunc(reason)})" if reason else ""
-                by_str     = f" by {RNS.prettyhexrep(source)}" if source != RNS.Transport.identity.hash else ""
-                print(f"{RNS.prettyhexrep(identity_hash)} blackholed {until_str}{reason_str}{by_str}")
-        
-        except Exception as e:
-            print(f"Could not get blackholed identities from RNS instance: {e}")
-            exit(20)
+            try:
+                now = time.time()
+                for identity_hash in blackholed_list:
+                    until      = blackholed_list[identity_hash]["until"]
+                    reason     = blackholed_list[identity_hash]["reason"]
+                    source     = blackholed_list[identity_hash]["source"]
+                    until_str  = f"for {RNS.prettytime(until-now)}" if until else "indefinitely"
+                    reason_str = f" ({trunc(reason)})" if reason else ""
+                    by_str     = f" by {RNS.prettyhexrep(source)}" if source != RNS.Transport.identity.hash else ""
+                    filter_str = f"{RNS.prettyhexrep(identity_hash)} {until_str} {reason_str} {by_str}"
+
+                    if not remote_blackhole_list:
+                        if destination_hexhash and not destination_hexhash in filter_str: continue
+                    else:
+                        if remote_blackhole_list_filter and not remote_blackhole_list_filter in filter_str: continue
+
+                    print(f"{RNS.prettyhexrep(identity_hash)} blackholed {until_str}{reason_str}{by_str}")
+
+            except Exception as e:
+                print(f"Error while displaying collected blackhole data: {e}")
+                exit(20)
 
     elif blackhole:
         if remote_link:
             if not no_output:
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
                 print("Blackholing identity on remote instances not yet implemented")
             exit(255)
 
@@ -174,7 +223,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
     elif unblackhole:
         if remote_link:
             if not no_output:
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
                 print("Blackholing identity on remote instances not yet implemented")
             exit(255)
 
@@ -204,7 +253,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
         if not remote_link: table = sorted(reticulum.get_path_table(max_hops=max_hops), key=lambda e: (e["interface"], e["hops"]) )
         else:
             if not no_output:
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
                 print("Sending request...", end=" ")
                 sys.stdout.flush()
             receipt = remote_link.request("/path", data = ["table", destination_hash, max_hops])
@@ -212,10 +261,10 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             response = receipt.get_response()
             if response:
                 table = response
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
             else:
                 if not no_output:
-                    print("\r                                                          \r", end="")
+                    print(output_rst_str, end="")
                     print("The remote request failed. Likely authentication failure.")
                 exit(10)
 
@@ -257,7 +306,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
         if not remote_link: table = reticulum.get_rate_table()
         else:
             if not no_output:
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
                 print("Sending request...", end=" ")
                 sys.stdout.flush()
             receipt = remote_link.request("/path", data = ["rates", destination_hash])
@@ -266,10 +315,10 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             response = receipt.get_response()
             if response:
                 table = response
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
             else:
                 if not no_output:
-                    print("\r                                                          \r", end="")
+                    print(output_rst_str, end="")
                     print("The remote request failed. Likely authentication failure.")
                 exit(10)
 
@@ -329,7 +378,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
     elif drop_queues:
         if remote_link:
             if not no_output:
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
                 print("Dropping announce queues on remote instances not yet implemented")
             exit(255)
 
@@ -339,7 +388,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
     elif drop:
         if remote_link:
             if not no_output:
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
                 print("Dropping path on remote instances not yet implemented")
             exit(255)
 
@@ -360,7 +409,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
     elif drop_via:
         if remote_link:
             if not no_output:
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
                 print("Dropping all paths via specific transport instance on remote instances yet not implemented")
             exit(255)
 
@@ -381,7 +430,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
     else:
         if remote_link:
             if not no_output:
-                print("\r                                                          \r", end="")
+                print(output_rst_str, end="")
                 print("Requesting paths on remote instances not implemented")
             exit(255)
 
@@ -447,8 +496,10 @@ def main():
         parser.add_argument("-U", "--unblackhole", action="store_true", help="unblackhole identity", default=False)
         parser.add_argument(      "--duration", action="store", type=int, help="duration of blackhole enforcement in hours", default=None)
         parser.add_argument(      "--reason", action="store", type=str, help="reason for blackholing identity", default=None)
+        parser.add_argument("-p", "--blackholed-list", action="store_true", help="view published blackhole list for remote transport instance", default=False)
         parser.add_argument("-j", "--json", action="store_true", help="output in JSON format", default=False)
         parser.add_argument("destination", nargs="?", default=None, help="hexadecimal hash of the destination", type=str)
+        parser.add_argument("list_filter", nargs="?", default=None, help="filter for remote blackhole list view", type=str)
         parser.add_argument('-v', '--verbose', action='count', default=0)
         
         args = parser.parse_args()
@@ -464,7 +515,8 @@ def main():
             program_setup(configdir = configarg, table = args.table, rates = args.rates, drop = args.drop, destination_hexhash = args.destination,
                           verbosity = args.verbose, timeout = args.w, drop_queues = args.drop_announces, drop_via = args.drop_via, max_hops = args.max,
                           remote=args.R, management_identity=args.i, remote_timeout=args.W, blackholed=args.blackholed, blackhole=args.blackhole,
-                          unblackhole=args.unblackhole, blackhole_duration=args.duration, blackhole_reason=args.reason, json=args.json)
+                          unblackhole=args.unblackhole, blackhole_duration=args.duration, blackhole_reason=args.reason, remote_blackhole_list=args.blackholed_list,
+                          remote_blackhole_list_filter=args.list_filter, json=args.json)
 
             sys.exit(0)
 
