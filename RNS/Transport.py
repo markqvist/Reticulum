@@ -163,6 +163,7 @@ class Transport:
     inbound_announce_lock       = Lock()
     interface_announcer         = None
     discovery_handler           = None
+    blackhole_updater           = None
 
     traffic_rxb                 = 0
     traffic_txb                 = 0
@@ -2465,6 +2466,23 @@ class Transport:
                 return True
 
         return False
+
+    @staticmethod
+    def await_path(destination_hash, timeout=None, on_interface=None):
+        """
+        Requests a path to the destination from the network and
+        blocks until the path is available, or the timeout is reached.
+
+        :param destination_hash: A destination hash as *bytes*.
+        :param timeout: An optional timeout in seconds.
+        :param on_interface: If specified, the path request will only be sent on this interface. In normal use, Reticulum handles this automatically, and this parameter should not be used.
+        :returns: *True* if a path to the destination is found, otherwise *False*.
+        """
+        timeout = time.time()+(timeout if timeout else Transport.PATH_REQUEST_TIMEOUT)
+        if Transport.has_path(destination_hash): return True
+        else: Transport.request_path(destination_hash, on_interface=on_interface)
+        while not Transport.has_path(destination_hash) and time.time() < timeout: time.sleep(0.05)
+        return Transport.has_path(destination_hash)
 
     @staticmethod
     def request_path(destination_hash, on_interface=None, tag=None, recursive=False):
