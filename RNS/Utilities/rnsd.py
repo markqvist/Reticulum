@@ -204,6 +204,14 @@ instance_name = default
 
 # List of remote transport identities from which to auto-
 # matically source lists of blackholed identities.
+#
+# If you're connecting to a large external network, you
+# can use one or more external blackhole list to block
+# spammy and excessive announces onto your network. This
+# funtionality is especially useful if you're hosting public
+# entrypoints or gateways. The list source below provides a
+# functional example, but better, more timely maintained
+# lists probably exist in the community.
 
 # blackhole_sources = 521c87a83afb8f29e4455e77930b973b
 
