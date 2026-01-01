@@ -97,7 +97,8 @@ def parse_hash(input_str):
 
 def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues,
                   drop_via, max_hops, remote=None, management_identity=None, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT,
-                  blackholed=False, blackhole=False, unblackhole=False, no_output=False, json=False):
+                  blackholed=False, blackhole=False, unblackhole=False, blackhole_duration=None, blackhole_reason=None,
+                  no_output=False, json=False):
 
     global remote_link, reticulum
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
@@ -130,14 +131,22 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             exit(255)
 
         try:
+            rmlen = 64
+            def trunc(input_str):
+                if len(input_str) <= rmlen: return input_str
+                else: return f"{input_str[:rmlen-1]}…"
+
             blackholed = reticulum.get_blackholed_identities()
             now = time.time()
             for identity_hash in blackholed:
-                until = blackholed[identity_hash]["until"]
-                if until == None: until_str = "indefinitely"
-                else: until_str = f" for {RNS.prettytime(until-now)}"
-                print(f"{RNS.prettyhexrep(identity_hash)} blackholed {until_str}")
-            
+                if destination_hexhash and not destination_hexhash in RNS.prettyhexrep(identity_hash): continue
+                until      = blackholed[identity_hash]["until"]
+                reason     = blackholed[identity_hash]["reason"]
+                source     = blackholed[identity_hash]["source"]
+                until_str  = f"for {RNS.prettytime(until-now)}" if until else "indefinitely"
+                reason_str = f" ({trunc(reason)})" if reason else ""
+                by_str     = f" by {RNS.prettyhexrep(source)}" if source != RNS.Transport.identity.hash else ""
+                print(f"{RNS.prettyhexrep(identity_hash)} blackholed {until_str}{reason_str}{by_str}")
         
         except Exception as e:
             print(f"Could not get blackholed identities from RNS instance: {e}")
@@ -152,7 +161,8 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
 
         try:
             identity_hash = parse_hash(destination_hexhash)
-            result = reticulum.blackhole_identity(identity_hash)
+            until = time.time()+blackhole_duration*60*60 if blackhole_duration else None
+            result = reticulum.blackhole_identity(identity_hash, until=until, reason=blackhole_reason)
             if result == True: print(f"Blackholed identity {destination_hexhash}")
             elif result == None: print(f"Identity {destination_hexhash} already blackholed")
             else: print(f"Could not blackhole identity {destination_hexhash}")
@@ -435,6 +445,8 @@ def main():
         parser.add_argument("-b", "--blackholed", action="store_true", help="list blackholed identities", default=False)
         parser.add_argument("-B", "--blackhole", action="store_true", help="blackhole identity", default=False)
         parser.add_argument("-U", "--unblackhole", action="store_true", help="unblackhole identity", default=False)
+        parser.add_argument(      "--duration", action="store", type=int, help="duration of blackhole enforcement in hours", default=None)
+        parser.add_argument(      "--reason", action="store", type=str, help="reason for blackholing identity", default=None)
         parser.add_argument("-j", "--json", action="store_true", help="output in JSON format", default=False)
         parser.add_argument("destination", nargs="?", default=None, help="hexadecimal hash of the destination", type=str)
         parser.add_argument('-v', '--verbose', action='count', default=0)
@@ -452,7 +464,7 @@ def main():
             program_setup(configdir = configarg, table = args.table, rates = args.rates, drop = args.drop, destination_hexhash = args.destination,
                           verbosity = args.verbose, timeout = args.w, drop_queues = args.drop_announces, drop_via = args.drop_via, max_hops = args.max,
                           remote=args.R, management_identity=args.i, remote_timeout=args.W, blackholed=args.blackholed, blackhole=args.blackhole,
-                          unblackhole=args.unblackhole, json=args.json)
+                          unblackhole=args.unblackhole, blackhole_duration=args.duration, blackhole_reason=args.reason, json=args.json)
 
             sys.exit(0)
 

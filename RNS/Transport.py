@@ -3052,10 +3052,10 @@ class Transport:
             Transport.persist_data()
 
     @staticmethod
-    def blackhole_identity(identity_hash):
+    def blackhole_identity(identity_hash, until=None, reason=None):
         try:
             if not identity_hash in Transport.blackholed_identities:
-                entry = {"source": Transport.identity.hash, "until": None}
+                entry = {"source": Transport.identity.hash, "until": until, "reason": reason}
                 Transport.blackholed_identities[identity_hash] = entry
                 Transport.persist_blackhole()
                 Transport.remove_blackholed_paths()
@@ -3105,10 +3105,12 @@ class Transport:
                                 if Transport.blackholed_identities[identity_hash]["source"] == Transport.identity.hash:
                                     continue
                             
-                            until = source_list[identity_hash]["until"]
-                            entry = {"source": source_identity_hash, "until": until}
-                            if until == None or now < until:
-                                Transport.blackholed_identities[identity_hash] = entry
+                            se        = source_list[identity_hash]
+                            until     = se["until"] if "until" in se else None
+                            reason    = se["reason"] if "reason" in se else None
+                            entry     = {"source": source_identity_hash, "until": until, "reason": reason}
+                            
+                            if until == None or now < until: Transport.blackholed_identities[identity_hash] = entry
 
                 source_count += 1
 

@@ -1008,7 +1008,9 @@ class Reticulum:
 
                 if "blackhole_identity" in call:
                     identity_hash = call["blackhole_identity"]
-                    rpc_connection.send(self.blackhole_identity(identity_hash))
+                    until = call["until"]
+                    reason = call["reason"]
+                    rpc_connection.send(self.blackhole_identity(identity_hash, until=until, reason=reason))
 
                 if "unblackhole_identity" in call:
                     identity_hash = call["unblackhole_identity"]
@@ -1388,16 +1390,16 @@ class Reticulum:
             
         else: return RNS.Transport.blackholed_identities
 
-    def blackhole_identity(self, identity_hash):
+    def blackhole_identity(self, identity_hash, until=None, reason=None):
         if len(identity_hash) != RNS.Reticulum.TRUNCATED_HASHLENGTH//8: return False
         else:
             if self.is_connected_to_shared_instance:
                 rpc_connection = self.get_rpc_client()
-                rpc_connection.send({"blackhole_identity": identity_hash})
+                rpc_connection.send({"blackhole_identity": identity_hash, "until": until, "reason": reason})
                 response = rpc_connection.recv()
                 return response
             
-            else: return RNS.Transport.blackhole_identity(identity_hash)
+            else: return RNS.Transport.blackhole_identity(identity_hash, until=until, reason=reason)
 
     def unblackhole_identity(self, identity_hash):
         if len(identity_hash) != RNS.Reticulum.TRUNCATED_HASHLENGTH//8: return False
