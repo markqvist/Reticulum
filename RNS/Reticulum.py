@@ -665,7 +665,7 @@ class Reticulum:
                                 Reticulum.__discovery_enabled = True
                                 if "announce_interval" in c:
                                     discovery_announce_interval = c.as_int("announce_interval")*60
-                                    if discovery_announce_interval < 5: discovery_announce_interval = 5*60
+                                    if discovery_announce_interval < 5*60: discovery_announce_interval = 5*60
 
                                 if discovery_announce_interval == None: discovery_announce_interval = 6*60*60
                                 if "discovery_stamp_value" in c: discovery_stamp_value = c.as_int("discovery_stamp_value")
