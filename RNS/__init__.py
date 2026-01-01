@@ -143,7 +143,9 @@ def log(msg, level=3, _override_destination = False, pt=False):
         with logging_lock:
             if (logdest == LOG_STDOUT or _always_override_destination or _override_destination):
                 if not threading.main_thread().is_alive(): return
-                else: print(logstring)
+                else:
+                    try: print(logstring)
+                    except: pass
 
             elif (logdest == LOG_FILE and logfile != None):
                 try:
