@@ -289,11 +289,9 @@ class Packet:
                     self.destination.tx += 1
                     self.destination.txbytes += len(self.data)
 
-            if not self.packed:
-                self.pack()
+            if not self.packed: self.pack()
 
-            if RNS.Transport.outbound(self):
-                return self.receipt
+            if RNS.Transport.outbound(self): return self.receipt
             else:
                 RNS.log("No interfaces could process the outbound packet", RNS.LOG_ERROR)
                 self.sent = False

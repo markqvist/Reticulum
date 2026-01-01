@@ -215,7 +215,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             location = f"{lat}, {lon}{height}"
                         else: location = "Unknown"
 
-                      
+
                         if idx > 0: print("\n"+"="*32+"\n")
                         print(f"Name        : {name}")
                         print(f"Type        : {if_type}")
@@ -225,7 +225,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         print(f"Discovered  : {discovered_display}")
                         print(f"Last Heard  : {last_heard_display}")
                         print(f"Location    : {location}")
-                      
+
                         if "frequency" in i:    print(f"Frequency   : {i['frequency']:,} Hz")
                         if "bandwidth" in i:    print(f"Bandwidth   : {i['bandwidth']:,} Hz")
                         if "sf" in i:           print(f"Sprd.Factor : {i['sf']}")
@@ -234,7 +234,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "reachable_on" in i: print(f"Address     : {i['reachable_on']}:{i['port']}")
 
                         print(f"Stamp Value : {i['value']}")
-                      
+
                         print(f"\nConfiguration Entry:")
                         config_lines = i["config_entry"].split('\n')
                         for line in config_lines: print(f"  {line}")
