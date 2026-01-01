@@ -248,6 +248,7 @@ class Reticulum:
         Reticulum.cachepath     = Reticulum.configdir+"/storage/cache"
         Reticulum.resourcepath  = Reticulum.configdir+"/storage/resources"
         Reticulum.identitypath  = Reticulum.configdir+"/storage/identities"
+        Reticulum.blackholepath = Reticulum.configdir+"/storage/blackhole"
         Reticulum.interfacepath = Reticulum.configdir+"/interfaces"
 
         Reticulum.__transport_enabled = False
@@ -258,6 +259,8 @@ class Reticulum:
         Reticulum.__discovery_enabled = False
         Reticulum.__discover_interfaces = False
         Reticulum.__required_discovery_value = None
+        Reticulum.__publish_blackhole = False
+        Reticulum.__blackhole_sources = []
 
         Reticulum.panic_on_interface_error = False
 
@@ -276,10 +279,8 @@ class Reticulum:
         self.requested_loglevel = loglevel
         self.requested_verbosity = verbosity
         if self.requested_loglevel != None:
-            if self.requested_loglevel > RNS.LOG_EXTREME:
-                self.requested_loglevel = RNS.LOG_EXTREME
-            if self.requested_loglevel < RNS.LOG_CRITICAL:
-                self.requested_loglevel = RNS.LOG_CRITICAL
+            if self.requested_loglevel > RNS.LOG_EXTREME:  self.requested_loglevel = RNS.LOG_EXTREME
+            if self.requested_loglevel < RNS.LOG_CRITICAL: self.requested_loglevel = RNS.LOG_CRITICAL
 
             RNS.loglevel = self.requested_loglevel
 
@@ -292,27 +293,16 @@ class Reticulum:
         self.last_data_persist = time.time()
         self.last_cache_clean = 0
 
-        if not os.path.isdir(Reticulum.storagepath):
-            os.makedirs(Reticulum.storagepath)
-
-        if not os.path.isdir(Reticulum.cachepath):
-            os.makedirs(Reticulum.cachepath)
-
-        if not os.path.isdir(os.path.join(Reticulum.cachepath, "announces")):
-            os.makedirs(os.path.join(Reticulum.cachepath, "announces"))
-
-        if not os.path.isdir(Reticulum.resourcepath):
-            os.makedirs(Reticulum.resourcepath)
-
-        if not os.path.isdir(Reticulum.identitypath):
-            os.makedirs(Reticulum.identitypath)
-
-        if not os.path.isdir(Reticulum.interfacepath):
-            os.makedirs(Reticulum.interfacepath)
+        if not os.path.isdir(Reticulum.storagepath):   os.makedirs(Reticulum.storagepath)
+        if not os.path.isdir(Reticulum.cachepath):     os.makedirs(Reticulum.cachepath)
+        if not os.path.isdir(Reticulum.resourcepath):  os.makedirs(Reticulum.resourcepath)
+        if not os.path.isdir(Reticulum.identitypath):  os.makedirs(Reticulum.identitypath)
+        if not os.path.isdir(Reticulum.blackholepath): os.makedirs(Reticulum.blackholepath)
+        if not os.path.isdir(Reticulum.interfacepath): os.makedirs(Reticulum.interfacepath)
+        if not os.path.isdir(os.path.join(Reticulum.cachepath, "announces")): os.makedirs(os.path.join(Reticulum.cachepath, "announces"))
 
         if os.path.isfile(self.configpath):
-            try:
-                self.config = ConfigObj(self.configpath)
+            try: self.config = ConfigObj(self.configpath)
             except Exception as e:
                 RNS.log("Could not parse the configuration at "+self.configpath, RNS.LOG_ERROR)
                 RNS.log("Check your configuration file for errors!", RNS.LOG_ERROR)
@@ -455,24 +445,30 @@ class Reticulum:
         if "reticulum" in self.config:
             for option in self.config["reticulum"]:
                 value = self.config["reticulum"][option]
+                
                 if option == "share_instance":
                     value = self.config["reticulum"].as_bool(option)
                     self.share_instance = value
+                
                 if RNS.vendor.platformutils.use_af_unix():
                     if option == "instance_name":
                         value = self.config["reticulum"][option]
                         self.local_socket_path = value
+                
                 if option == "shared_instance_type":
                     if self.shared_instance_type == None:
                         value = self.config["reticulum"][option].lower()
                         if value in ["tcp", "unix"]:
                             self.shared_instance_type = value
+                
                 if option == "shared_instance_port":
                     value = int(self.config["reticulum"][option])
                     self.local_interface_port = value
+                
                 if option == "instance_control_port":
                     value = int(self.config["reticulum"][option])
                     self.local_control_port = value
+                
                 if option == "rpc_key":
                     try:
                         value = bytes.fromhex(self.config["reticulum"][option])
@@ -480,49 +476,70 @@ class Reticulum:
                     except Exception as e:
                         RNS.log("Invalid shared instance RPC key specified, falling back to default key", RNS.LOG_ERROR)
                         self.rpc_key = None
+                
                 if option == "enable_transport":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True: Reticulum.__transport_enabled = True
+                
                 if option == "link_mtu_discovery":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True: Reticulum.__link_mtu_discovery = True
+                
                 if option == "enable_remote_management":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True: Reticulum.__remote_management_enabled = True
+                
                 if option == "remote_management_allowed":
                     v = self.config["reticulum"].as_list(option)
                     for hexhash in v:
                         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
-                        if len(hexhash) != dest_len:
-                            raise ValueError("Identity hash length for remote management ACL "+str(hexhash)+" is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
-                        try:
-                            allowed_hash = bytes.fromhex(hexhash)
-                        except Exception as e:
-                            raise ValueError("Invalid identity hash for remote management ACL: "+str(hexhash))
+                        if len(hexhash) != dest_len: raise ValueError("Identity hash length for remote management ACL "+str(hexhash)+" is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+                        try: allowed_hash = bytes.fromhex(hexhash)
+                        except Exception as e: raise ValueError("Invalid identity hash for remote management ACL: "+str(hexhash))
 
                         if not allowed_hash in RNS.Transport.remote_management_allowed:
                             RNS.Transport.remote_management_allowed.append(allowed_hash)
+                
                 if option == "respond_to_probes":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True: Reticulum.__allow_probes = True
+                
                 if option == "force_shared_instance_bitrate":
                     v = self.config["reticulum"].as_int(option)
                     Reticulum._force_shared_instance_bitrate = v
+                
                 if option == "panic_on_interface_error":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True: Reticulum.panic_on_interface_error = True
+                
                 if option == "use_implicit_proof":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:  Reticulum.__use_implicit_proof = True
                     if v == False: Reticulum.__use_implicit_proof = False
+                
                 if option == "discover_interfaces":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:  Reticulum.__discover_interfaces = True
                     if v == False: Reticulum.__discover_interfaces = False
+                
                 if option == "required_discovery_value":
                     v = self.config["reticulum"].as_int(option)
                     if v > 0: Reticulum.__required_discovery_value = v
                     else:     Reticulum.__required_discovery_value = None
+                
+                if option == "publish_blackhole":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v == True:  Reticulum.__publish_blackhole = True
+                    if v == False: Reticulum.__publish_blackhole = False
+                
+                if option == "blackhole_sources":
+                    v = self.config["reticulum"].as_list(option)
+                    for hexhash in v:
+                        dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
+                        if len(hexhash) != dest_len: raise ValueError(f"Identity hash length for blackhole source {hexhash} is invalid, must be {dest_len} hexadecimal characters ({dest_len//2} bytes).")
+                        try: source_identity_hash = bytes.fromhex(hexhash)
+                        except Exception as e: raise ValueError(f"Invalid identity hash for remote blackhole source: {hexhash}")
+                        if not source_identity_hash in Reticulum.__blackhole_sources: Reticulum.__blackhole_sources.append(source_identity_hash)
 
         if RNS.compiled: RNS.log("Reticulum running in compiled mode", RNS.LOG_DEBUG)
         else: RNS.log("Reticulum running in interpreted mode", RNS.LOG_DEBUG)
@@ -968,48 +985,34 @@ class Reticulum:
                 if "get" in call:
                     path = call["get"]
 
-                    if path == "interface_stats":
-                        rpc_connection.send(self.get_interface_stats())
-
                     if path == "path_table":
                         mh = call["max_hops"]
                         rpc_connection.send(self.get_path_table(max_hops=mh))
 
-                    if path == "rate_table":
-                        rpc_connection.send(self.get_rate_table())
-
-                    if path == "next_hop_if_name":
-                        rpc_connection.send(self.get_next_hop_if_name(call["destination_hash"]))
-
-                    if path == "next_hop":
-                        rpc_connection.send(self.get_next_hop(call["destination_hash"]))
-
-                    if path == "first_hop_timeout":
-                        rpc_connection.send(self.get_first_hop_timeout(call["destination_hash"]))
-
-                    if path == "link_count":
-                        rpc_connection.send(self.get_link_count())
-
-                    if path == "packet_rssi":
-                        rpc_connection.send(self.get_packet_rssi(call["packet_hash"]))
-
-                    if path == "packet_snr":
-                        rpc_connection.send(self.get_packet_snr(call["packet_hash"]))
-
-                    if path == "packet_q":
-                        rpc_connection.send(self.get_packet_q(call["packet_hash"]))
+                    if path == "interface_stats":       rpc_connection.send(self.get_interface_stats())
+                    if path == "rate_table":            rpc_connection.send(self.get_rate_table())
+                    if path == "next_hop_if_name":      rpc_connection.send(self.get_next_hop_if_name(call["destination_hash"]))
+                    if path == "next_hop":              rpc_connection.send(self.get_next_hop(call["destination_hash"]))
+                    if path == "first_hop_timeout":     rpc_connection.send(self.get_first_hop_timeout(call["destination_hash"]))
+                    if path == "link_count":            rpc_connection.send(self.get_link_count())
+                    if path == "packet_rssi":           rpc_connection.send(self.get_packet_rssi(call["packet_hash"]))
+                    if path == "packet_snr":            rpc_connection.send(self.get_packet_snr(call["packet_hash"]))
+                    if path == "packet_q":              rpc_connection.send(self.get_packet_q(call["packet_hash"]))
+                    if path == "blackholed_identities": rpc_connection.send(self.get_blackholed_identities())
 
                 if "drop" in call:
                     path = call["drop"]
+                    if path == "path":            rpc_connection.send(self.drop_path(call["destination_hash"]))
+                    if path == "all_via":         rpc_connection.send(self.drop_all_via(call["destination_hash"]))
+                    if path == "announce_queues": rpc_connection.send(self.drop_announce_queues())
 
-                    if path == "path":
-                        rpc_connection.send(self.drop_path(call["destination_hash"]))
+                if "blackhole_identity" in call:
+                    identity_hash = call["blackhole_identity"]
+                    rpc_connection.send(self.blackhole_identity(identity_hash))
 
-                    if path == "all_via":
-                        rpc_connection.send(self.drop_all_via(call["destination_hash"]))
-
-                    if path == "announce_queues":
-                        rpc_connection.send(self.drop_announce_queues())
+                if "unblackhole_identity" in call:
+                    identity_hash = call["unblackhole_identity"]
+                    rpc_connection.send(self.unblackhole_identity(identity_hash))
 
                 rpc_connection.close()
 
@@ -1376,6 +1379,37 @@ class Reticulum:
     def reload_interface(self, interface):
         pass
 
+    def get_blackholed_identities(self):
+        if self.is_connected_to_shared_instance:
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send({"get": "blackholed_identities"})
+                response = rpc_connection.recv()
+                return response
+            
+        else: return RNS.Transport.blackholed_identities
+
+    def blackhole_identity(self, identity_hash):
+        if len(identity_hash) != RNS.Reticulum.TRUNCATED_HASHLENGTH//8: return False
+        else:
+            if self.is_connected_to_shared_instance:
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send({"blackhole_identity": identity_hash})
+                response = rpc_connection.recv()
+                return response
+            
+            else: return RNS.Transport.blackhole_identity(identity_hash)
+
+    def unblackhole_identity(self, identity_hash):
+        if len(identity_hash) != RNS.Reticulum.TRUNCATED_HASHLENGTH//8: return False
+        else:
+            if self.is_connected_to_shared_instance:
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send({"unblackhole_identity": identity_hash})
+                response = rpc_connection.recv()
+                return response
+            
+            else: return RNS.Transport.unblackhole_identity(identity_hash)
+
     @staticmethod
     def should_use_implicit_proof():
         """
@@ -1433,12 +1467,32 @@ class Reticulum:
     @staticmethod
     def required_discovery_value():
         """
-        Returns the required stam value for a discovered interface
+        Returns the required stamp value for a discovered interface
         to be considered valid and remembered.
 
         :returns: The required stamp value as an integer.
         """
         return Reticulum.__required_discovery_value
+
+    @staticmethod
+    def publish_blackhole_enabled():
+        """
+        Returns whether blackhole list publishing is enabled for the
+        running instance.
+
+        :returns: True if blackhole list publishing is enabled, False if not.
+        """
+        return Reticulum.__publish_blackhole
+
+    @staticmethod
+    def blackhole_sources():
+        """
+        Returns the list of transport identity hashes from which
+        blackhole lists are sourced.
+
+        :returns: A list of identity hashes.
+        """
+        return Reticulum.__blackhole_sources
 
 # Default configuration file:
 __default_rns_config__ = '''# This is the default Reticulum config file.

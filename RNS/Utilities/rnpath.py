@@ -87,6 +87,14 @@ def connect_remote(destination_hash, auth_identity, timeout, no_output = False):
     link.set_link_established_callback(remote_link_established)
     link.set_link_closed_callback(remote_link_closed)
 
+def parse_hash(input_str):
+    dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
+    if len(input_str) != dest_len: raise ValueError("Hash length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+    try:
+        hash_bytes = bytes.fromhex(input_str)
+        return hash_bytes
+    except Exception as e: raise ValueError("Invalid hash entered. Check your input.")
+
 def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues,
                   drop_via, max_hops, remote=None, management_identity=None, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT,
                   blackholed=False, blackhole=False, unblackhole=False, no_output=False, json=False):
@@ -114,7 +122,64 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
 
         while remote_link == None: time.sleep(0.1)
 
-    if table:
+    if blackholed:
+        if remote_link:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("Listing blackholed identities on remote instances not yet implemented")
+            exit(255)
+
+        try:
+            blackholed = reticulum.get_blackholed_identities()
+            now = time.time()
+            for identity_hash in blackholed:
+                until = blackholed[identity_hash]["until"]
+                if until == None: until_str = "indefinitely"
+                else: until_str = f" for {RNS.prettytime(until-now)}"
+                print(f"{RNS.prettyhexrep(identity_hash)} blackholed {until_str}")
+            
+        
+        except Exception as e:
+            print(f"Could not get blackholed identities from RNS instance: {e}")
+            exit(20)
+
+    elif blackhole:
+        if remote_link:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("Blackholing identity on remote instances not yet implemented")
+            exit(255)
+
+        try:
+            identity_hash = parse_hash(destination_hexhash)
+            result = reticulum.blackhole_identity(identity_hash)
+            if result == True: print(f"Blackholed identity {destination_hexhash}")
+            elif result == None: print(f"Identity {destination_hexhash} already blackholed")
+            else: print(f"Could not blackhole identity {destination_hexhash}")
+        
+        except Exception as e:
+            print(f"Could not blackhole identity: {e}")
+            exit(20)
+    
+    elif unblackhole:
+        if remote_link:
+            if not no_output:
+                print("\r                                                          \r", end="")
+                print("Blackholing identity on remote instances not yet implemented")
+            exit(255)
+
+        try:
+            identity_hash = parse_hash(destination_hexhash)
+            result = reticulum.unblackhole_identity(identity_hash)
+            if result == True: print(f"Lifted blackhole for identity {destination_hexhash}")
+            elif result == None: print(f"Identity {destination_hexhash} not blackholed")
+            else: print(f"Could not unblackhole identity {destination_hexhash}")
+        
+        except Exception as e:
+            print(f"Could not unblackhole identity: {e}")
+            exit(20)
+    
+    elif table:
         destination_hash = None
         if destination_hexhash != None:
             try:
@@ -379,7 +444,7 @@ def main():
         if args.config: configarg = args.config
         else: configarg = None
 
-        if not args.drop_announces and not args.table and not args.rates and not args.destination and not args.drop_via:
+        if not args.drop_announces and not args.table and not args.rates and not args.destination and not args.drop_via and not args.blackholed:
             print("")
             parser.print_help()
             print("")

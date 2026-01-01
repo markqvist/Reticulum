@@ -196,6 +196,18 @@ instance_name = default
 # respond_to_probes = No
 
 
+# You can publish your local list of blackholed identities
+# for other transport instances to use for automatic,
+# network-wide blackhole management.
+
+# publish_blackhole = No
+
+# List of remote transport identities from which to auto-
+# matically source lists of blackholed identities.
+
+# blackhole_sources = 521c87a83afb8f29e4455e77930b973b
+
+
 [logging]
 # Valid log levels are 0 through 7:
 #   0: Log only critical information

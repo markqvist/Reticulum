@@ -430,6 +430,11 @@ class Identity:
                 announced_identity = Identity(create_keys=False)
                 announced_identity.load_public_key(public_key)
 
+                if len(RNS.Transport.blackholed_identities) > 0:
+                    if announced_identity.hash in RNS.Transport.blackholed_identities:
+                        RNS.log(f"Invalidated and dropped announce from blackholed identity {RNS.prettyhexrep(announced_identity.hash)}", RNS.LOG_EXTREME)
+                        return False
+
                 if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
                     if only_validate_signature:
                         del announced_identity

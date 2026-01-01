@@ -113,6 +113,7 @@ class Transport:
     announce_rate_table         = {}           # A table for keeping track of announce rates
     path_requests               = {}           # A table for storing path request timestamps
     path_states                 = {}           # A table for keeping track of path states
+    blackholed_identities       = {}           # A table for keeping track of blackholed identities
     
     discovery_path_requests     = {}           # A table for keeping track of path requests on behalf of other nodes
     discovery_pr_tags           = []           # A table for keeping track of tagged path requests
@@ -195,6 +196,8 @@ class Transport:
                 except Exception as e:
                     RNS.log("Could not load packet hashlist from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
+        Transport.reload_blackhole()
+
         # Create transport-specific destinations
         Transport.path_request_destination = RNS.Destination(None, RNS.Destination.IN, RNS.Destination.PLAIN, Transport.APP_NAME, "path", "request")
         Transport.path_request_destination.set_packet_callback(Transport.path_request_handler)
@@ -245,8 +248,14 @@ class Transport:
                             random_blobs = serialised_entry[5]
                             receiving_interface = Transport.find_interface_from_hash(serialised_entry[6])
                             announce_packet = Transport.get_cached_packet(serialised_entry[7], packet_type="announce")
+                            blackholed = False
 
-                            if announce_packet != None and receiving_interface != None:
+                            if len(Transport.blackholed_identities) > 0:
+                                path_identity = RNS.Identity.recall(destination_hash)
+                                if path_identity in Transport.blackholed_identities: blackholed = True
+                                del path_identity
+
+                            if announce_packet != None and receiving_interface != None and blackholed == False:
                                 announce_packet.unpack()
                                 # We increase the hops, since reading a packet
                                 # from cache is equivalent to receiving it again
@@ -261,6 +270,8 @@ class Transport:
                                     RNS.log("The announce packet could not be loaded from cache", RNS.LOG_DEBUG)
                                 if receiving_interface == None:
                                     RNS.log("The interface is no longer available", RNS.LOG_DEBUG)
+                                if blackholed:
+                                    RNS.log("The associated identity is blackholed", RNS.LOG_DEBUG)
 
                     if len(Transport.path_table) == 1:
                         specifier = "entry"
@@ -3039,6 +3050,112 @@ class Transport:
     def exit_handler():
         if not Transport.owner.is_connected_to_shared_instance:
             Transport.persist_data()
+
+    @staticmethod
+    def blackhole_identity(identity_hash):
+        try:
+            if not identity_hash in Transport.blackholed_identities:
+                entry = {"source": Transport.identity.hash, "until": None}
+                Transport.blackholed_identities[identity_hash] = entry
+                Transport.persist_blackhole()
+                Transport.remove_blackholed_paths()
+                RNS.log(f"Blackholed identity {RNS.prettyhexrep(identity_hash)}", RNS.LOG_INFO)
+                return True
+
+            else: return None
+        
+        except Exception as e:
+            RNS.log(f"Error while blackholing identity: {e}", RNS.LOG_ERROR)
+            return False
+
+    @staticmethod
+    def unblackhole_identity(identity_hash):
+        try:
+            if identity_hash in Transport.blackholed_identities:
+                Transport.blackholed_identities.pop(identity_hash)
+                Transport.persist_blackhole()
+                RNS.log(f"Lifted blackhole for identity {RNS.prettyhexrep(identity_hash)}", RNS.LOG_INFO)
+                return True
+
+            else: return None
+
+        except Exception as e:
+            RNS.log(f"Error while unblackholing identity: {e}", RNS.LOG_ERROR)
+            return False
+
+    @staticmethod
+    def reload_blackhole():
+        now = time.time()
+        source_count = 0
+        dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
+        for filename in os.listdir(RNS.Reticulum.blackholepath):
+            try:
+                if filename == "local": source_identity_hash = Transport.identity.hash
+                else:
+                    if len(filename) != dest_len: raise ValueError(f"Identity hash length for blackhole source {filename} is invalid")
+                    source_identity_hash = bytes.fromhex(filename)
+
+                sourcepath = os.path.join(RNS.Reticulum.blackholepath, filename)
+                with open(sourcepath, "rb") as f:
+                    packed = f.read()
+                    source_list = umsgpack.unpackb(packed)
+                    for identity_hash in source_list:
+                        if len(identity_hash) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8:
+                            if identity_hash in Transport.blackholed_identities:
+                                if Transport.blackholed_identities[identity_hash]["source"] == Transport.identity.hash:
+                                    continue
+                            
+                            until = source_list[identity_hash]["until"]
+                            entry = {"source": source_identity_hash, "until": until}
+                            if until == None or now < until:
+                                Transport.blackholed_identities[identity_hash] = entry
+
+                source_count += 1
+
+            except Exception as e:
+                RNS.log(f"Could not load blackholed identities from source file {filename}: {e}", RNS.LOG_ERROR)
+                RNS.trace_exception(e)
+
+        Transport.remove_blackholed_paths()
+
+    def remove_blackholed_paths():
+        drop_destinations = []
+        for destination_hash in Transport.path_table.copy():
+            try:
+                associated_identity = RNS.Identity.recall(destination_hash)
+                if associated_identity and associated_identity.hash in Transport.blackholed_identities:
+                    if not destination_hash in drop_destinations: drop_destinations.append(destination_hash)
+            except Exception as e:
+                RNS.log(f"Error while enumerating blackhole-associated destinations: {e}", RNS.LOG_ERROR)
+
+        for destination_hash in drop_destinations:
+            try:
+                if destination_hash in Transport.path_table: Transport.path_table.pop(destination_hash)
+            except Exception as e:
+                RNS.log(f"Error while dropping blackhole-associated destination from path table: {e}", RNS.LOG_ERROR)
+
+        if len(drop_destinations) > 0:
+            ms = "" if len(drop_destinations) == 1 else "s"
+            RNS.log(f"Removed {len(drop_destinations)} destination{ms} associated with blackholed identities from path table", RNS.LOG_INFO)
+
+    @staticmethod
+    def persist_blackhole():
+        try:
+            local_blackhole = {}
+            for identity_hash in Transport.blackholed_identities:
+                if Transport.blackholed_identities[identity_hash]["source"] == Transport.identity.hash:
+                    local_blackhole[identity_hash] = Transport.blackholed_identities[identity_hash]
+
+            packed = umsgpack.packb(local_blackhole)
+            localpath = os.path.join(RNS.Reticulum.blackholepath, "local")
+            tmppath = f"{localpath}.tmp"
+            with open(tmppath, "wb") as f: f.write(packed)
+            if os.path.isfile(localpath): os.unlink(localpath)
+            os.rename(tmppath, localpath)
+
+        except Exception as e:
+            RNS.log(f"Error while persisting blackhole list: {e}", RNS.LOG_ERROR)
+            RNS.trace_exception(e)
 
 
 # Table entry indices
