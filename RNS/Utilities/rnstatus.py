@@ -215,29 +215,33 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             location = f"{lat}, {lon}{height}"
                         else: location = "Unknown"
 
+                        transport_id = None
                         network = None
+                        if "transport_id" in i: transport_id = i["transport_id"]
                         if "transport_id" in i and "network_id" in i and i["transport_id"] != i["network_id"]:
                             network = i["network_id"]
 
-                        if idx > 0: print("\n"+"="*32+"\n")
-                        if network: print(f"Network ID  : {network}")
-                        print(f"Name        : {name}")
-                        print(f"Type        : {if_type}")
-                        print(f"Status      : {status_display}")
-                        print(f"Transport   : {transport_str}")
-                        print(f"Distance    : {i['hops']} hop{'' if i['hops'] == 1 else 's'}")
-                        print(f"Discovered  : {discovered_display}")
-                        print(f"Last Heard  : {last_heard_display}")
-                        print(f"Location    : {location}")
+                        if idx > 0:      print("\n"+"="*32+"\n")
+                        if network:      print(f"Network   ID : {network}")
+                        if transport_id: print(f"Transport ID : {transport_id}")
 
-                        if "frequency" in i:    print(f"Frequency   : {i['frequency']:,} Hz")
-                        if "bandwidth" in i:    print(f"Bandwidth   : {i['bandwidth']:,} Hz")
-                        if "sf" in i:           print(f"Sprd.Factor : {i['sf']}")
-                        if "cr" in i:           print(f"Coding Rate : {i['cr']}")
-                        if "modulation" in i:   print(f"Modulation  : {i['modulation']}")
-                        if "reachable_on" in i: print(f"Address     : {i['reachable_on']}:{i['port']}")
+                        print(f"Name         : {name}")
+                        print(f"Type         : {if_type}")
+                        print(f"Status       : {status_display}")
+                        print(f"Transport    : {transport_str}")
+                        print(f"Distance     : {i['hops']} hop{'' if i['hops'] == 1 else 's'}")
+                        print(f"Discovered   : {discovered_display}")
+                        print(f"Last Heard   : {last_heard_display}")
+                        print(f"Location     : {location}")
 
-                        print(f"Stamp Value : {i['value']}")
+                        if "frequency" in i:    print(f"Frequency    : {i['frequency']:,} Hz")
+                        if "bandwidth" in i:    print(f"Bandwidth    : {i['bandwidth']:,} Hz")
+                        if "sf" in i:           print(f"Sprd. Factor : {i['sf']}")
+                        if "cr" in i:           print(f"Coding Rate  : {i['cr']}")
+                        if "modulation" in i:   print(f"Modulation   : {i['modulation']}")
+                        if "reachable_on" in i: print(f"Address      : {i['reachable_on']}:{i['port']}")
+
+                        print(f"Stamp Value  : {i['value']}")
 
                         print(f"\nConfiguration Entry:")
                         config_lines = i["config_entry"].split('\n')

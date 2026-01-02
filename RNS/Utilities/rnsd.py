@@ -160,22 +160,6 @@ instance_name = default
 # remote_management_allowed = 9fb6d773498fb3feda407ed8ef2c3229, 2d882c5586e548d79b5af27bca1776dc
 
 
-# You can configure whether Reticulum should discover
-# available interfaces from other Transport Instances over
-# the network. If this option is enabled, Reticulum will
-# collect interface information discovered from the network.
-
-# discover_interfaces = No
-
-
-# To prevent interface discovery spamming, a valid crypto-
-# graphic stamp is required per announced interface. You
-# can configure the minimum required value to accept as
-# valid for discovered interfaces.
-
-# required_discovery_value = 14
-
-
 # For easier management, discovery and configuration of
 # networks with many individual transport instances,
 # you can specify a network identity to be used across
@@ -187,6 +171,42 @@ instance_name = default
 # transport nodes.
 
 # network_identity = ~/.reticulum/storage/identity/network
+
+
+# You can configure whether Reticulum should discover
+# available interfaces from other Transport Instances over
+# the network. If this option is enabled, Reticulum will
+# collect interface information discovered from the network.
+
+# discover_interfaces = No
+
+
+# If you only want to discover interfaces from specific
+# networks, you can provide a list of network identities
+# from which to discover interfaces. If this option is not
+# provided, interfaces will be discovered from all transport
+# instances on all connected networks.
+
+# interface_discovery_sources = 78616ff7c4b8d3886d67d494b440f333, cb127015e13aa6ea1e0a606cdc9123d0
+
+
+# It is possible to automatically bring up and connect new
+# interfaces discovered over the network. This option is
+# disabled by default, but allows you to specify a maximum
+# number of discovered interfaces to automatically connect.
+# Additionally, if this option is enabled, Reticulum will
+# also try to autoconnect available auto-discovered inter-
+# faces on startup, up to the maximum number specified.
+
+# autoconnect_discovered_interfaces = 0
+
+
+# To prevent interface discovery spamming, a valid crypto-
+# graphic stamp is required per announced interface. You
+# can configure the minimum required value to accept as
+# valid for discovered interfaces.
+
+# required_discovery_value = 14
 
 
 # You can configure Reticulum to panic and forcibly close

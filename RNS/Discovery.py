@@ -161,6 +161,11 @@ class InterfaceAnnounceHandler:
 
     def received_announce(self, destination_hash, announced_identity, app_data):
         try:
+            discovery_sources = RNS.Reticulum.interface_discovery_sources()
+            if discovery_sources and not announced_identity.hash in discovery_sources:
+                RNS.log(f"Interface discovered from non-authorized network identity {RNS.prettyhexrep(announced_identity.hash)}, ignoring", RNS.LOG_DEBUG)
+                return
+
             if app_data and len(app_data) > self.stamper.STAMP_SIZE+1:
                 flags     = app_data[0]
                 app_data  = app_data[1:]
@@ -314,12 +319,19 @@ class InterfaceDiscovery():
     def list_discovered_interfaces(self):
         now = time.time()
         discovered_interfaces = []
+        discovery_sources = RNS.Reticulum.interface_discovery_sources()
         for filename in os.listdir(self.storagepath):
             try:
                 filepath = os.path.join(self.storagepath, filename)
                 with open(filepath, "rb") as f: info = msgpack.unpackb(f.read())
+                should_remove = False
                 heard_delta = now-info["last_heard"]
-                if heard_delta > self.THRESHOLD_REMOVE:
+                
+                if heard_delta > self.THRESHOLD_REMOVE: should_remove = True
+                elif discovery_sources and not "network_id" in info: should_remove = True
+                elif discovery_sources and not bytes.fromhex(info["network_id"]) in discovery_sources: should_remove = True
+
+                if should_remove:
                     os.unlink(filepath)
                     continue
                 
@@ -333,6 +345,7 @@ class InterfaceDiscovery():
 
             except Exception as e:
                 RNS.log(f"Error while loading discovered interface data: {e}", RNS.LOG_ERROR)
+                RNS.log(f"The interface data file {os.path.join(self.storagepath, filename)} may be corrupt", RNS.LOG_ERROR)
                 RNS.trace_exception(e)
 
         discovered_interfaces.sort(key=lambda info: (info["status_code"], info["value"], info["last_heard"]), reverse=True)

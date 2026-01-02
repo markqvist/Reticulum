@@ -262,6 +262,7 @@ class Reticulum:
         Reticulum.__required_discovery_value = None
         Reticulum.__publish_blackhole = False
         Reticulum.__blackhole_sources = []
+        Reticulum.__interface_sources = []
 
         Reticulum.panic_on_interface_error = False
 
@@ -565,6 +566,15 @@ class Reticulum:
                         try: source_identity_hash = bytes.fromhex(hexhash)
                         except Exception as e: raise ValueError(f"Invalid identity hash for remote blackhole source: {hexhash}")
                         if not source_identity_hash in Reticulum.__blackhole_sources: Reticulum.__blackhole_sources.append(source_identity_hash)
+                
+                if option == "interface_discovery_sources":
+                    v = self.config["reticulum"].as_list(option)
+                    for hexhash in v:
+                        dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
+                        if len(hexhash) != dest_len: raise ValueError(f"Identity hash length for interface discovery source {hexhash} is invalid, must be {dest_len} hexadecimal characters ({dest_len//2} bytes).")
+                        try: source_identity_hash = bytes.fromhex(hexhash)
+                        except Exception as e: raise ValueError(f"Invalid identity hash for interface discovery source: {hexhash}")
+                        if not source_identity_hash in Reticulum.__interface_sources: Reticulum.__interface_sources.append(source_identity_hash)
 
         if RNS.compiled: RNS.log("Reticulum running in compiled mode", RNS.LOG_DEBUG)
         else: RNS.log("Reticulum running in interpreted mode", RNS.LOG_DEBUG)
@@ -1523,6 +1533,16 @@ class Reticulum:
         :returns: A list of identity hashes.
         """
         return Reticulum.__blackhole_sources
+
+    @staticmethod
+    def interface_discovery_sources():
+        """
+        Returns the list of network identity hashes from which
+        interfaces are discovered.
+
+        :returns: A list of identity hashes.
+        """
+        return Reticulum.__interface_sources
 
 # Default configuration file:
 __default_rns_config__ = '''# This is the default Reticulum config file.
