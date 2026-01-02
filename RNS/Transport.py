@@ -173,7 +173,8 @@ class Transport:
     speed_tx                    = 0
     traffic_captured            = None
 
-    identity = None
+    identity                    = None
+    network_identity            = None
 
     @staticmethod
     def start(reticulum_instance):
@@ -230,6 +231,14 @@ class Transport:
             Transport.mgmt_destinations.append(Transport.blackhole_destination)
             Transport.mgmt_hashes.append(Transport.blackhole_destination.hash)
             RNS.log(f"Enabled blackhole list publishing for transport identity {RNS.prettyhexrep(Transport.identity.hash)}", RNS.LOG_NOTICE)
+
+        if Transport.network_identity and not Transport.owner.is_connected_to_shared_instance:
+            Transport.instance_destination = RNS.Destination(Transport.network_identity, RNS.Destination.IN, RNS.Destination.SINGLE, Transport.APP_NAME, "network", "instance", RNS.hexrep(Transport.network_identity.hash, delimit=False))
+            Transport.network_destination  = RNS.Destination(Transport.network_identity, RNS.Destination.IN, RNS.Destination.SINGLE, Transport.APP_NAME, "network")
+            Transport.mgmt_destinations.append(Transport.instance_destination)
+            Transport.mgmt_destinations.append(Transport.network_destination)
+            Transport.mgmt_hashes.append(Transport.instance_destination)
+            Transport.mgmt_hashes.append(Transport.network_destination)
 
         # Defer cleaning packet cache for 60 seconds
         Transport.cache_last_cleaned = time.time() + 60
@@ -373,6 +382,16 @@ class Transport:
                 Transport.synthesize_tunnel(interface)
 
         gc.collect()
+
+    @staticmethod
+    def set_network_identity(identity):
+        if not Transport.network_identity:
+            Transport.network_identity = identity
+
+    @staticmethod
+    def has_network_identity():
+        if Transport.network_identity: return True
+        else:                          return False
 
     @staticmethod
     def prioritize_interfaces():
@@ -3172,7 +3191,7 @@ class Transport:
                     if len(filename) != dest_len: raise ValueError(f"Identity hash length for blackhole source {filename} is invalid")
                     source_identity_hash = bytes.fromhex(filename)
                     if not source_identity_hash in RNS.Reticulum.blackhole_sources():
-                        RNS.log(f"Skipping disabled blackhole source {RNS.prettyhexrep(source_identity_hash)}", RNS.LOG_INFO)
+                        RNS.log(f"Skipping disabled blackhole source {RNS.prettyhexrep(source_identity_hash)}", RNS.LOG_VERBOSE)
                         continue
 
                 sourcepath = os.path.join(RNS.Reticulum.blackholepath, filename)

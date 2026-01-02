@@ -251,6 +251,7 @@ class Reticulum:
         Reticulum.blackholepath = Reticulum.configdir+"/storage/blackhole"
         Reticulum.interfacepath = Reticulum.configdir+"/interfaces"
 
+        Reticulum.__network_identity = None
         Reticulum.__transport_enabled = False
         Reticulum.__link_mtu_discovery = Reticulum.LINK_MTU_DISCOVERY
         Reticulum.__remote_management_enabled = False
@@ -482,6 +483,29 @@ class Reticulum:
                     v = self.config["reticulum"].as_bool(option)
                     if v == True: Reticulum.__transport_enabled = True
                 
+                if option == "network_identity":
+                    if Reticulum.__network_identity == None:
+                        path = self.config["reticulum"][option]
+                        identitypath = os.path.expanduser(path)
+                        try:
+                            network_identity = None
+                            if not os.path.isfile(identitypath):
+                                network_identity = RNS.Identity()
+                                network_identity.to_file(identitypath)
+                                RNS.log(f"Network identity generated and persisted to {identitypath}", RNS.LOG_VERBOSE)
+                            
+                            else:
+                                network_identity = RNS.Identity.from_file(identitypath)
+                                RNS.log(f"Network identity loaded from {identitypath}", RNS.LOG_VERBOSE)
+
+                            if network_identity:
+                                Reticulum.__network_identity = network_identity
+                                RNS.Transport.set_network_identity(Reticulum.__network_identity)
+
+                            else: raise ValueError("Network identity initialisation failed")
+
+                        except Exception as e: raise ValueError(f"Could not set network identity from {path}: {e}")
+                
                 if option == "link_mtu_discovery":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True: Reticulum.__link_mtu_discovery = True
@@ -669,6 +693,7 @@ class Reticulum:
                         discovery_announce_interval = None
                         discovery_stamp_value = None
                         discovery_name = None
+                        discovery_sign = False
                         reachable_on = None
                         publish_ifac = False
                         latitude = None
@@ -688,6 +713,7 @@ class Reticulum:
                                 if discovery_announce_interval == None: discovery_announce_interval = 6*60*60
                                 if "discovery_stamp_value" in c: discovery_stamp_value = c.as_int("discovery_stamp_value")
                                 if "discovery_name" in c: discovery_name = c["discovery_name"]
+                                if "discovery_sign" in c: discovery_sign = c.as_bool("discovery_sign")
                                 if "reachable_on" in c: reachable_on = c["reachable_on"]
                                 if "publish_ifac" in c: publish_ifac = c.as_bool("publish_ifac")
                                 if "latitude" in c: latitude = c.as_float("latitude")
@@ -718,6 +744,7 @@ class Reticulum:
                                     interface.discovery_publish_ifac = publish_ifac
                                     interface.reachable_on = reachable_on
                                     interface.discovery_name = discovery_name
+                                    interface.discovery_sign = discovery_sign
                                     interface.discovery_stamp_value = discovery_stamp_value
                                     interface.discovery_latitude = latitude
                                     interface.discovery_longitude = longitude

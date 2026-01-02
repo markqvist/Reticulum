@@ -194,19 +194,19 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         name = i["name"]
                         if_type = i["type"]
                         status = i["status"]
-                      
+
                         if status == "available": status_display = "Available"
                         elif status == "unknown": status_display = "Unknown"
                         elif status == "stale":   status_display = "Stale"
                         else:                     status_display = status
-                      
+
                         now  = time.time()
                         dago = now-i["discovered"]
                         hago = now-i["last_heard"]
                         discovered_display = f"{RNS.prettytime(dago, compact=True)} ago"
                         last_heard_display = f"{RNS.prettytime(hago, compact=True)} ago"
                         transport_str = "Enabled" if i["transport"] else "Disabled"
-                      
+
                         if i["latitude"] is not None and i["longitude"] is not None:
                             lat = round(i["latitude"], 4)
                             lon = round(i["longitude"], 4)
@@ -215,8 +215,12 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             location = f"{lat}, {lon}{height}"
                         else: location = "Unknown"
 
+                        network = None
+                        if "transport_id" in i and "network_id" in i and i["transport_id"] != i["network_id"]:
+                            network = i["network_id"]
 
                         if idx > 0: print("\n"+"="*32+"\n")
+                        if network: print(f"Network ID  : {network}")
                         print(f"Name        : {name}")
                         print(f"Type        : {if_type}")
                         print(f"Status      : {status_display}")

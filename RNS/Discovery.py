@@ -5,6 +5,7 @@ import threading
 from .vendor import umsgpack as msgpack
 
 NAME            = 0xFF
+TRANSPORT_ID    = 0xFE
 INTERFACE_TYPE  = 0x00
 TRANSPORT       = 0x01
 REACHABLE_ON    = 0x02
@@ -45,7 +46,10 @@ class InterfaceAnnouncer():
         self.stamper      = LXStamper
         self.stamp_cache  = {}
 
-        self.discovery_destination = RNS.Destination(self.owner.identity, RNS.Destination.IN, RNS.Destination.SINGLE,
+        if self.owner.has_network_identity(): identity = self.owner.network_identity
+        else:                                 identity = self.owner.identity
+
+        self.discovery_destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE,
                                                      APP_NAME, "discovery", "interface")
 
     def start(self):
@@ -85,12 +89,14 @@ class InterfaceAnnouncer():
 
     def get_interface_announce_data(self, interface):
         interface_type = type(interface).__name__
-        stamp_value = interface.discovery_stamp_value if interface.discovery_stamp_value else self.DEFAULT_STAMP_VALUE
+        stamp_value    = interface.discovery_stamp_value if interface.discovery_stamp_value else self.DEFAULT_STAMP_VALUE
+
         if not interface_type in self.DISCOVERABLE_INTERFACE_TYPES: return None
         else:
             flags = bytes([0x00])
             info  = {INTERFACE_TYPE: interface_type,
                      TRANSPORT:      RNS.Reticulum.transport_enabled(),
+                     TRANSPORT_ID:   RNS.Transport.identity.hash,
                      NAME:           self.sanitize(interface.discovery_name),
                      LATITUDE:       interface.discovery_latitude,
                      LONGITUDE:      interface.discovery_longitude,
@@ -125,8 +131,8 @@ class InterfaceAnnouncer():
                 info[IFAC_NETNAME]    = self.sanitize(interface.ifac_netname)
                 info[IFAC_NETKEY]     = self.sanitize(interface.ifac_netkey)
 
-            packed   = msgpack.packb(info)
-            infohash = RNS.Identity.full_hash(packed)
+            packed    = msgpack.packb(info)
+            infohash  = RNS.Identity.full_hash(packed)
 
             if infohash in self.stamp_cache: return flags+packed+self.stamp_cache[infohash]
             else: stamp, v = self.stamper.generate_stamp(infohash, stamp_cost=stamp_value, expand_rounds=self.WORKBLOCK_EXPAND_ROUNDS)
@@ -137,6 +143,9 @@ class InterfaceAnnouncer():
                 return flags+packed+stamp
 
 class InterfaceAnnounceHandler:
+    FLAG_SIGNED       = 0b00000001
+    FLAG_ENCRYPTED    = 0b00000010
+
     def __init__(self, required_value=InterfaceAnnouncer.DEFAULT_STAMP_VALUE, callback=None):
         import importlib.util
         if importlib.util.find_spec('LXMF') != None: from LXMF import LXStamper
@@ -153,7 +162,11 @@ class InterfaceAnnounceHandler:
     def received_announce(self, destination_hash, announced_identity, app_data):
         try:
             if app_data and len(app_data) > self.stamper.STAMP_SIZE+1:
+                flags     = app_data[0]
                 app_data  = app_data[1:]
+                signed    = flags & self.FLAG_SIGNED
+                encrypted = flags & self.FLAG_ENCRYPTED
+
                 stamp     = app_data[-self.stamper.STAMP_SIZE:]
                 packed    = app_data[:-self.stamper.STAMP_SIZE]
                 infohash  = RNS.Identity.full_hash(packed)
@@ -170,18 +183,19 @@ class InterfaceAnnounceHandler:
                     info     = None
                     unpacked = msgpack.unpackb(packed)
                     if INTERFACE_TYPE in unpacked:
-                        interface_type     = unpacked[INTERFACE_TYPE]
-                        info = {"type":      interface_type,
-                                "transport": unpacked[TRANSPORT],
-                                "name":      unpacked[NAME] or f"Discovered {interface_type}",
-                                "received":  time.time(),
-                                "stamp":     stamp,
-                                "value":     value,
-                                "identity":  RNS.hexrep(announced_identity.hash, delimit=False),
-                                "hops":      RNS.Transport.hops_to(destination_hash),
-                                "latitude":  unpacked[LATITUDE],
-                                "longitude": unpacked[LONGITUDE],
-                                "height":    unpacked[HEIGHT]}
+                        interface_type        = unpacked[INTERFACE_TYPE]
+                        info = {"type":         interface_type,
+                                "transport":    unpacked[TRANSPORT],
+                                "name":         unpacked[NAME] or f"Discovered {interface_type}",
+                                "received":     time.time(),
+                                "stamp":        stamp,
+                                "value":        value,
+                                "transport_id": RNS.hexrep(unpacked[TRANSPORT_ID], delimit=False),
+                                "network_id":   RNS.hexrep(announced_identity.hash, delimit=False),
+                                "hops":         RNS.Transport.hops_to(destination_hash),
+                                "latitude":     unpacked[LATITUDE],
+                                "longitude":    unpacked[LONGITUDE],
+                                "height":       unpacked[HEIGHT]}
 
                         if IFAC_NETNAME in unpacked: info["ifac_netname"] = unpacked[IFAC_NETNAME]
                         if IFAC_NETKEY  in unpacked: info["ifac_netkey"]  = unpacked[IFAC_NETKEY]
@@ -195,7 +209,7 @@ class InterfaceAnnounceHandler:
                             cfg_name             = info["name"]
                             cfg_remote           = info["reachable_on"]
                             cfg_port             = info["port"]
-                            cfg_identity         = info["identity"]
+                            cfg_identity         = info["transport_id"]
                             cfg_netname          = info["ifac_netname"] if "ifac_netname" in info else None
                             cfg_netkey           = info["ifac_netkey"] if "ifac_netkey" in info else None
                             cfg_netname_str      = f"\n  network_name = {cfg_netname}" if cfg_netname else ""
@@ -207,7 +221,7 @@ class InterfaceAnnounceHandler:
                             info["reachable_on"] = unpacked[REACHABLE_ON]
                             cfg_name             = info["name"]
                             cfg_remote           = info["reachable_on"]
-                            cfg_identity         = info["identity"]
+                            cfg_identity         = info["transport_id"]
                             cfg_netname          = info["ifac_netname"] if "ifac_netname" in info else None
                             cfg_netkey           = info["ifac_netkey"] if "ifac_netkey" in info else None
                             cfg_netname_str      = f"\n  network_name = {cfg_netname}" if cfg_netname else ""
@@ -225,7 +239,7 @@ class InterfaceAnnounceHandler:
                             cfg_bandwidth        = info["bandwidth"]
                             cfg_sf               = info["sf"]
                             cfg_cr               = info["cr"]
-                            cfg_identity         = info["identity"]
+                            cfg_identity         = info["transport_id"]
                             cfg_netname          = info["ifac_netname"] if "ifac_netname" in info else None
                             cfg_netkey           = info["ifac_netkey"] if "ifac_netkey" in info else None
                             cfg_netname_str      = f"\n  network_name = {cfg_netname}" if cfg_netname else ""
@@ -239,7 +253,7 @@ class InterfaceAnnounceHandler:
                             info["channel"]      = unpacked[CHANNEL]
                             info["modulation"]   = unpacked[MODULATION]
                             cfg_name             = info["name"]
-                            cfg_identity         = info["identity"]
+                            cfg_identity         = info["transport_id"]
                             cfg_netname          = info["ifac_netname"] if "ifac_netname" in info else None
                             cfg_netkey           = info["ifac_netkey"] if "ifac_netkey" in info else None
                             cfg_netname_str      = f"\n  network_name = {cfg_netname}" if cfg_netname else ""
@@ -255,7 +269,7 @@ class InterfaceAnnounceHandler:
                             cfg_frequency        = info["frequency"]
                             cfg_bandwidth        = info["bandwidth"]
                             cfg_modulation       = info["modulation"]
-                            cfg_identity         = info["identity"]
+                            cfg_identity         = info["transport_id"]
                             cfg_netname          = info["ifac_netname"] if "ifac_netname" in info else None
                             cfg_netkey           = info["ifac_netkey"] if "ifac_netkey" in info else None
                             cfg_netname_str      = f"\n  network_name = {cfg_netname}" if cfg_netname else ""
@@ -263,7 +277,7 @@ class InterfaceAnnounceHandler:
                             cfg_identity_str     = f"\n  transport_identity = {cfg_identity}"
                             info["config_entry"] = f"[[{cfg_name}]]\n  type = KISSInterface\n  enabled = yes\n  port = \n  # Frequency: {cfg_frequency}\n  # Bandwidth: {cfg_bandwidth}\n  # Modulation: {cfg_modulation}{cfg_identity_str}{cfg_netname_str}{cfg_netkey_str}"
 
-                        discovery_hash_material = info["identity"]+info["name"]
+                        discovery_hash_material = info["transport_id"]+info["name"]
                         info["discovery_hash"] = RNS.Identity.full_hash(discovery_hash_material.encode("utf-8"))
 
                     RNS.log(f"Discovered interface with stamp value {value}: {info}", RNS.LOG_DEBUG)
@@ -280,7 +294,6 @@ class InterfaceDiscovery():
     STATUS_STALE      = 0
     STATUS_UNKNOWN    = 100
     STATUS_AVAILABLE  = 1000
-
     STATUS_CODE_MAP   = {"available": STATUS_AVAILABLE, "unknown": STATUS_UNKNOWN, "stale": STATUS_STALE}
 
     def __init__(self, required_value=InterfaceAnnouncer.DEFAULT_STAMP_VALUE, callback=None, discover_interfaces=True):

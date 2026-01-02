@@ -176,6 +176,19 @@ instance_name = default
 # required_discovery_value = 14
 
 
+# For easier management, discovery and configuration of
+# networks with many individual transport instances,
+# you can specify a network identity to be used across
+# a set of instances. If sending interface discovery
+# announces, these will all be signed by the specified
+# network identity, and other nodes discovering your
+# interfaces will be able to identify that they belong
+# to the same network, even though they exist on different
+# transport nodes.
+
+# network_identity = ~/.reticulum/storage/identity/network
+
+
 # You can configure Reticulum to panic and forcibly close
 # if an unrecoverable interface error occurs, such as the
 # hardware device for an interface disappearing. This is
