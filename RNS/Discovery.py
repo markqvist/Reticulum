@@ -379,7 +379,7 @@ class InterfaceDiscovery():
 class BlackholeUpdater():
     INITIAL_WAIT    = 20
     JOB_INTERVAL    = 60
-    UPDATE_INTERVAL = 3*60*60
+    UPDATE_INTERVAL = 1*60*60
     SOURCE_TIMEOUT  = 25
 
     def __init__(self):
