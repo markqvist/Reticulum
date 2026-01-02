@@ -322,6 +322,7 @@ class InterfaceDiscovery():
         if discover_interfaces:
             self.handler = InterfaceAnnounceHandler(callback=self.interface_discovered, required_value=self.required_value)
             RNS.Transport.register_announce_handler(self.handler)
+            threading.Thread(target=self.connect_discovered, daemon=True).start()
 
     def list_discovered_interfaces(self):
         now = time.time()
@@ -456,11 +457,24 @@ class InterfaceDiscovery():
                 except Exception as e:
                     RNS.log(f"Error while de-registering auto-connected interface from transport: {e}", RNS.LOG_ERROR)
 
+    def autoconnect_count(self):
+        return len([i for i in RNS.Transport.interfaces if hasattr(i, "autoconnect_hash")])
         
+    def connect_discovered(self):
+        if RNS.Reticulum.should_autoconnect_discovered_interfaces():
+            try:
+                discovered_interfaces = self.list_discovered_interfaces()
+                for info in discovered_interfaces:
+                    if self.autoconnect_count() >= RNS.Reticulum.max_autoconnected_interfaces(): break
+                    self.autoconnect(info)
+
+            except Exception as e:
+                RNS.log(f"Error while reconnecting discovered interfaces: {e}", RNS.LOG_ERROR)
+
     def autoconnect(self, info):
         try:
             if RNS.Reticulum.should_autoconnect_discovered_interfaces():
-                autoconnected_count = len([i for i in RNS.Transport.interfaces if hasattr(i, "autoconnect_hash")])
+                autoconnected_count = self.autoconnect_count()
                 if autoconnected_count < RNS.Reticulum.max_autoconnected_interfaces():
                     interface_type = info["type"]
                     if interface_type in self.AUTOCONNECT_TYPES:
