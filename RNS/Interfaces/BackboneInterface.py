@@ -408,7 +408,9 @@ class BackboneInterface(Interface):
                 if hasattr(listener_socket, "shutdown"):
                     if callable(listener_socket.shutdown):
                         try: listener_socket.shutdown(socket.SHUT_RDWR)
-                        except Exception as e: RNS.log("Error while shutting down socket for "+str(self)+": "+str(e), RNS.LOG_ERROR)
+                        except Exception as e:
+                            if str(e).endswith("Transport endpoint is not connected"): pass
+                            else: RNS.log("Error while shutting down socket for "+str(self)+": "+str(e), RNS.LOG_ERROR)
 
     def __str__(self):
         if ":" in self.bind_ip:
@@ -523,7 +525,9 @@ class BackboneClientInterface(Interface):
                     
                     try:
                         if self.socket != None: self.socket.shutdown(socket.SHUT_RDWR)
-                    except Exception as e: RNS.log("Error while shutting down socket for "+str(self)+": "+str(e), RNS.LOG_ERROR)
+                    except Exception as e:
+                        if str(e).endswith("Transport endpoint is not connected"): pass
+                        else: RNS.log("Error while shutting down socket for "+str(self)+": "+str(e), RNS.LOG_ERROR)
 
                     try:
                         if self.socket != None: self.socket.close()
@@ -580,7 +584,7 @@ class BackboneClientInterface(Interface):
             if not self.reconnecting:
                 self.reconnecting = True
                 attempts = 0
-                while not self.online:
+                while not self.online and not self.detached:
                     time.sleep(BackboneClientInterface.RECONNECT_WAIT)
                     attempts += 1
 
@@ -592,6 +596,8 @@ class BackboneClientInterface(Interface):
                     try: self.connect()
                     except Exception as e:
                         RNS.log("Connection attempt for "+str(self)+" failed: "+str(e), RNS.LOG_DEBUG)
+
+                if not self.online: return
 
                 if not self.never_connected:
                     RNS.log("Reconnected socket for "+str(self)+".", RNS.LOG_INFO)

@@ -435,6 +435,9 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
 
                         print(" {n}".format(n=ifstat["name"]))
 
+                        if "autoconnect_source" in ifstat and ifstat["autoconnect_source"] != None:
+                            print("    Source    : Auto-connect via <{ns}>".format(ns=ifstat["autoconnect_source"]))
+
                         if "ifac_netname" in ifstat and ifstat["ifac_netname"] != None:
                             print("    Network   : {nn}".format(nn=ifstat["ifac_netname"]))
 
@@ -573,6 +576,8 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
 
         if "transport_id" in stats and stats["transport_id"] != None:
             print("\n Transport Instance "+RNS.prettyhexrep(stats["transport_id"])+" running")
+            if "network_id" in stats and stats["network_id"] != None:
+                print(" Network Identity   "+RNS.prettyhexrep(stats["network_id"]))
             if "probe_responder" in stats and stats["probe_responder"] != None:
                 print(" Probe responder at "+RNS.prettyhexrep(stats["probe_responder"])+ " active")
             if "transport_uptime" in stats and stats["transport_uptime"] != None:

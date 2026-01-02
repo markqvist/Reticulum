@@ -285,7 +285,6 @@ class InterfaceAnnounceHandler:
                         discovery_hash_material = info["transport_id"]+info["name"]
                         info["discovery_hash"] = RNS.Identity.full_hash(discovery_hash_material.encode("utf-8"))
 
-                    RNS.log(f"Discovered interface with stamp value {value}: {info}", RNS.LOG_DEBUG)
                     if self.callback and callable(self.callback): self.callback(info)
 
         except Exception as e:
@@ -296,17 +295,25 @@ class InterfaceDiscovery():
     THRESHOLD_STALE   = 3*24*60*60
     THRESHOLD_REMOVE  = 7*24*60*60
 
+    MONITOR_INTERVAL  = 5
+    DETACH_THRESHOLD  = 12
+
     STATUS_STALE      = 0
     STATUS_UNKNOWN    = 100
     STATUS_AVAILABLE  = 1000
     STATUS_CODE_MAP   = {"available": STATUS_AVAILABLE, "unknown": STATUS_UNKNOWN, "stale": STATUS_STALE}
+    AUTOCONNECT_TYPES = ["BackboneInterface", "TCPServerInterface"]
 
     def __init__(self, required_value=InterfaceAnnouncer.DEFAULT_STAMP_VALUE, callback=None, discover_interfaces=True):
         if not required_value: required_value = InterfaceAnnouncer.DEFAULT_STAMP_VALUE
 
-        self.required_value     = required_value
-        self.discovery_callback = callback
-        self.rns_instance       = RNS.Reticulum.get_instance()
+        self.required_value          = required_value
+        self.discovery_callback      = callback
+        self.rns_instance            = RNS.Reticulum.get_instance()
+        self.monitored_interfaces    = []
+        self.monitoring_autoconnects = False
+        self.monitor_interval        = self.MONITOR_INTERVAL
+        self.detach_threshold        = self.DETACH_THRESHOLD
 
         if not self.rns_instance: raise SystemError("Attempt to start interface discovery listener without an active RNS instance")
         self.storagepath = os.path.join(RNS.Reticulum.storagepath, "discovery", "interfaces")
@@ -354,11 +361,13 @@ class InterfaceDiscovery():
     def interface_discovered(self, info):
         try:
             name = info["name"]
+            value = info["value"]
+            interface_type = info["type"]
             discovery_hash = info["discovery_hash"]
             hops = info["hops"]; ms = "" if hops == 1 else "s"
             filename = RNS.hexrep(discovery_hash, delimit=False)
             filepath = os.path.join(self.storagepath, filename)
-            RNS.log(f"Discovered interface {RNS.prettyhexrep(discovery_hash)} {hops} hop{ms} away: {name}", RNS.LOG_DEBUG)
+            RNS.log(f"Discovered {interface_type} {hops} hop{ms} away with stamp value {value}: {name}", RNS.LOG_DEBUG)
             if not os.path.isfile(filepath):
                 try:
                     with open(filepath, "wb") as f:
@@ -400,7 +409,117 @@ class InterfaceDiscovery():
             RNS.trace_exception(e)
             return
 
-        if self.discovery_callback and callable(self.discovery_callback): self.discovery_callback(info)
+        self.autoconnect(info)
+
+        try:
+            if self.discovery_callback and callable(self.discovery_callback): self.discovery_callback(info)
+        except Exception as e: RNS.log(f"Error while processing external interface discovery callback: {e}", RNS.LOG_ERROR)
+
+    def monitor_interface(self, interface):
+        if not interface in self.monitored_interfaces:
+            self.monitored_interfaces.append(interface)
+
+        if not self.monitoring_autoconnects:
+            self.monitoring_autoconnects = True
+            threading.Thread(target=self.__monitor_job, daemon=True).start()
+
+    def __monitor_job(self):
+        while self.monitoring_autoconnects:
+            time.sleep(self.monitor_interval)
+            detached_interfaces = []
+            for interface in self.monitored_interfaces:
+                try:
+                    if interface.online:
+                        if hasattr(interface, "autoconnect_down") and interface.autoconnect_down != None:
+                            RNS.log(f"Auto-discovered interface {interface} reconnected")
+                            interface.autoconnect_down = None
+
+                    else:
+                        if not hasattr(interface, "autoconnect_down") or interface.autoconnect_down == None:
+                            RNS.log(f"Auto-discovered interface {interface} disconnected", RNS.LOG_DEBUG)
+                            interface.autoconnect_down = time.time()
+
+                        else:
+                            down_for = time.time()-interface.autoconnect_down
+                            if down_for >= self.detach_threshold:
+                                RNS.log(f"Auto-discovered interface {interface} has been down for {RNS.prettytime(down_for)}, detaching", RNS.LOG_DEBUG)
+                                interface.detach()
+                                detached_interfaces.append(interface)
+
+                except Exception as e:
+                    RNS.log(f"Error while checking auto-connected interface state for {interface}: {e}", RNS.LOG_ERROR)
+
+            for interface in detached_interfaces:
+                try:
+                    self.monitored_interfaces.remove(interface)
+                    RNS.Transport.interfaces.remove(interface)
+                except Exception as e:
+                    RNS.log(f"Error while de-registering auto-connected interface from transport: {e}", RNS.LOG_ERROR)
+
+        
+    def autoconnect(self, info):
+        try:
+            if RNS.Reticulum.should_autoconnect_discovered_interfaces():
+                autoconnected_count = len([i for i in RNS.Transport.interfaces if hasattr(i, "autoconnect_hash")])
+                if autoconnected_count < RNS.Reticulum.max_autoconnected_interfaces():
+                    interface_type = info["type"]
+                    if interface_type in self.AUTOCONNECT_TYPES:
+                        endpoint_specifier = ""
+                        if "reachable_on" in info: endpoint_specifier += str(info["reachable_on"])
+                        if "port" in info:         endpoint_specifier += str(info["port"])
+                        endpoint_hash = RNS.Identity.full_hash(endpoint_specifier.encode("utf-8"))
+                        exists = False
+                        for interface in RNS.Transport.interfaces:
+                            if hasattr(interface, "autoconnect_hash") and interface.autoconnect_hash:
+                                exists = True
+                                break
+                            
+                            else:
+                                dest_match = "reachable_on" in info and hasattr(interface, "target_ip") and interface.target_ip == info["reachable_on"]
+                                port_match = not "port" in info or (hasattr(interface, "target_port") and "port" in info and interface.target_port == info["port"])
+                                b32d_match = "reachable_on" in info and hasattr(interface, "b32") and interface.b32 == info["reachable_on"]
+
+                                if (dest_match and port_match) or b32d_match:
+                                    exists = True
+                                    break
+
+                        if exists: RNS.log(f"Discovered {interface_type} already exists, not auto-connecting", RNS.LOG_DEBUG)
+                        else:
+                            if interface_type == "TCPClientInterface":
+                                RNS.log(f"Your operating system does not support the Backbone interface type, and must degrade to using TCPClientInterface instead", RNS.LOG_WARNING)
+                                RNS.log(f"Auto-connecting discovered TCPClient interfaces is not yet implemented, aborting auto-connect", RNS.LOG_WARNING)
+                                RNS.log(f"You can obtain the configuration entry and add this interface manually instead using rnstatus -D", RNS.LOG_WARNING)
+                                return
+
+                            if interface_type == "I2PInterface":
+                                RNS.log(f"Auto-connecting discovered I2P interfaces is not yet implemented, aborting auto-connect", RNS.LOG_WARNING)
+                                RNS.log(f"You can obtain the configuration entry and add this interface manually instead using rnstatus -D", RNS.LOG_WARNING)
+                                return
+
+                            RNS.log(f"Auto-connecting discovered {interface_type}")
+                            config_entry = info["config_entry"]
+                            interface_config = {}
+                            interface_name = info["name"]
+                            interface_config["name"] = f"{interface_name}"
+                            ifac_netname = info["ifac_netname"] if "ifac_netname" in info else None
+                            ifac_netkey  = info["ifac_netkey"]  if "ifac_netkey"  in info else None
+                            interface    = None
+
+                            if interface_type == "BackboneInterface":
+                                from RNS.Interfaces import BackboneInterface
+                                interface_config["target_host"] = info["reachable_on"]
+                                interface_config["target_port"] = info["port"]
+                                interface = BackboneInterface.BackboneClientInterface(RNS.Transport, interface_config)
+
+                            if interface:
+                                interface.autoconnect_hash = endpoint_hash
+                                interface.autoconnect_source = info["network_id"]
+                                RNS.Reticulum.get_instance()._add_interface(interface, ifac_netname=ifac_netname, ifac_netkey=ifac_netkey, configured_bitrate=5E6)
+                                self.monitor_interface(interface)
+
+        except Exception as e:
+            RNS.log(f"Error while auto-connecting discovered interface: {e}", RNS.LOG_ERROR)
+            RNS.trace_exception(e)
 
 class BlackholeUpdater():
     INITIAL_WAIT    = 20

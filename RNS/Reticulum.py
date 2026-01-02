@@ -259,6 +259,7 @@ class Reticulum:
         Reticulum.__allow_probes = False
         Reticulum.__discovery_enabled = False
         Reticulum.__discover_interfaces = False
+        Reticulum.__autoconnect_discovered_interfaces = False
         Reticulum.__required_discovery_value = None
         Reticulum.__publish_blackhole = False
         Reticulum.__blackhole_sources = []
@@ -575,6 +576,10 @@ class Reticulum:
                         try: source_identity_hash = bytes.fromhex(hexhash)
                         except Exception as e: raise ValueError(f"Invalid identity hash for interface discovery source: {hexhash}")
                         if not source_identity_hash in Reticulum.__interface_sources: Reticulum.__interface_sources.append(source_identity_hash)
+                
+                if option == "autoconnect_discovered_interfaces":
+                    v = self.config["reticulum"].as_int(option)
+                    if v > 0: Reticulum.__autoconnect_discovered_interfaces = v
 
         if RNS.compiled: RNS.log("Reticulum running in compiled mode", RNS.LOG_DEBUG)
         else: RNS.log("Reticulum running in interpreted mode", RNS.LOG_DEBUG)
@@ -1193,6 +1198,11 @@ class Reticulum:
                     ifstats["ifac_size"] = None
                     ifstats["ifac_netname"] = None
 
+                if hasattr(interface, "autoconnect_source"):
+                    ifstats["autoconnect_source"] = interface.autoconnect_source
+                else:
+                    ifstats["autoconnect_source"] = None
+
                 if hasattr(interface, "announce_queue"):
                     if interface.announce_queue != None:
                         ifstats["announce_queue"] = len(interface.announce_queue)
@@ -1221,6 +1231,7 @@ class Reticulum:
             stats["txs"] = RNS.Transport.speed_tx
             if Reticulum.transport_enabled():
                 stats["transport_id"] = RNS.Transport.identity.hash
+                stats["network_id"] = RNS.Transport.network_identity.hash if RNS.Transport.network_identity else None
                 stats["transport_uptime"] = time.time()-RNS.Transport.start_time
                 if Reticulum.probe_destination_enabled():
                     stats["probe_responder"] = RNS.Transport.probe_destination.hash
@@ -1543,6 +1554,14 @@ class Reticulum:
         :returns: A list of identity hashes.
         """
         return Reticulum.__interface_sources
+
+    @staticmethod
+    def should_autoconnect_discovered_interfaces():
+        return Reticulum.__autoconnect_discovered_interfaces > 0
+
+    @staticmethod
+    def max_autoconnected_interfaces():
+        return Reticulum.__autoconnect_discovered_interfaces
 
 # Default configuration file:
 __default_rns_config__ = '''# This is the default Reticulum config file.
