@@ -93,7 +93,7 @@ class InterfaceAnnouncer():
 
         if not interface_type in self.DISCOVERABLE_INTERFACE_TYPES: return None
         else:
-            flags = bytes([0x00])
+            flags = 0x00
             info  = {INTERFACE_TYPE: interface_type,
                      TRANSPORT:      RNS.Reticulum.transport_enabled(),
                      TRANSPORT_ID:   RNS.Transport.identity.hash,
@@ -134,13 +134,22 @@ class InterfaceAnnouncer():
             packed    = msgpack.packb(info)
             infohash  = RNS.Identity.full_hash(packed)
 
-            if infohash in self.stamp_cache: return flags+packed+self.stamp_cache[infohash]
+            if infohash in self.stamp_cache: stamp = self.stamp_cache[infohash]
             else: stamp, v = self.stamper.generate_stamp(infohash, stamp_cost=stamp_value, expand_rounds=self.WORKBLOCK_EXPAND_ROUNDS)
-
             if not stamp: return None
-            else:
-                self.stamp_cache[infohash] = stamp
-                return flags+packed+stamp
+            else: self.stamp_cache[infohash] = stamp
+
+            if interface.discovery_encrypt:
+                flags |= InterfaceAnnounceHandler.FLAG_ENCRYPTED
+                if not self.owner.has_network_identity():
+                    RNS.log(f"Discovery encryption requested for {interface}, but no network identity configured. Aborting discovery announce.", RNS.LOG_ERROR)
+                    return None
+                
+                else: payload = self.owner.network_identity.encrypt(packed+stamp)
+                    
+            else: payload = packed+stamp
+
+            return bytes([flags])+payload
 
 class InterfaceAnnounceHandler:
     FLAG_SIGNED       = 0b00000001
@@ -171,6 +180,11 @@ class InterfaceAnnounceHandler:
                 app_data  = app_data[1:]
                 signed    = flags & self.FLAG_SIGNED
                 encrypted = flags & self.FLAG_ENCRYPTED
+
+                if encrypted:
+                    if not RNS.Transport.has_network_identity(): return
+                    app_data = RNS.Transport.network_identity.decrypt(app_data)
+                    if not app_data: return
 
                 stamp     = app_data[-self.stamper.STAMP_SIZE:]
                 packed    = app_data[:-self.stamper.STAMP_SIZE]
