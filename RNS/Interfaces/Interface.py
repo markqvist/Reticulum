@@ -87,6 +87,7 @@ class Interface:
         self.supports_discovery = False
         self.discoverable = False
         self.last_discovery_announce = 0
+        self.bootstrap_only = False
         self.parent_interface = None
         self.spawned_interfaces = None
         self.tunnel_id = None

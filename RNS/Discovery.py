@@ -442,9 +442,11 @@ class InterfaceDiscovery():
         while self.monitoring_autoconnects:
             time.sleep(self.monitor_interval)
             detached_interfaces = []
+            online_interfaces = 0
             for interface in self.monitored_interfaces:
                 try:
                     if interface.online:
+                        online_interfaces += 1
                         if hasattr(interface, "autoconnect_down") and interface.autoconnect_down != None:
                             RNS.log(f"Auto-discovered interface {interface} reconnected")
                             interface.autoconnect_down = None
@@ -458,18 +460,31 @@ class InterfaceDiscovery():
                             down_for = time.time()-interface.autoconnect_down
                             if down_for >= self.detach_threshold:
                                 RNS.log(f"Auto-discovered interface {interface} has been down for {RNS.prettytime(down_for)}, detaching", RNS.LOG_DEBUG)
-                                interface.detach()
                                 detached_interfaces.append(interface)
 
                 except Exception as e:
                     RNS.log(f"Error while checking auto-connected interface state for {interface}: {e}", RNS.LOG_ERROR)
 
+            if online_interfaces >= RNS.Reticulum.max_autoconnected_interfaces():
+                for interface in RNS.Transport.interfaces:
+                    if hasattr(interface, "bootstrap_only") and interface.bootstrap_only == True:
+                        RNS.log(f"Tearing down bootstrap-only {interface} since target connected auto-discovered interface count has been reached", RNS.LOG_INFO)
+                        if not interface in detached_interfaces: detached_interfaces.append(interface)
+
+            if online_interfaces == 0:
+                RNS.log(f"No auto-discovered interfaces connected, re-enabling bootstrap interfaces", RNS.LOG_NOTICE)
+                # TODO: Implement
+                RNS.log(f"Available bootstrap configs:\n{RNS.Reticulum.get_instance().bootstrap_configs}", RNS.LOG_DEBUG)
+
             for interface in detached_interfaces:
-                try:
-                    self.monitored_interfaces.remove(interface)
-                    RNS.Transport.interfaces.remove(interface)
+                try: self.teardown_interface(interface)
                 except Exception as e:
                     RNS.log(f"Error while de-registering auto-connected interface from transport: {e}", RNS.LOG_ERROR)
+
+    def teardown_interface(self, interface):
+        interface.detach()
+        RNS.Transport.interfaces.remove(interface)
+        self.monitored_interfaces.remove(interface)
 
     def autoconnect_count(self):
         return len([i for i in RNS.Transport.interfaces if hasattr(i, "autoconnect_hash")])

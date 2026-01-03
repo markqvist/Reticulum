@@ -276,6 +276,7 @@ class Reticulum:
         self.rpc_key              = None
         self.rpc_type             = "AF_INET"
         self.use_af_unix          = False
+        self.bootstrap_configs    = []
 
         self.ifac_salt = Reticulum.IFAC_SALT
 
@@ -704,6 +705,9 @@ class Reticulum:
                             if c.as_float("announce_cap") > 0 and c.as_float("announce_cap") <= 100:
                                 announce_cap = c.as_float("announce_cap")/100.0
 
+                        bootstrap_only = False
+                        if "bootstrap_only" in c: bootstrap_only = c.as_bool("bootstrap_only")
+
                         ignore_config_warnings = False
                         if "ignore_config_warnings" in c: ignore_config_warnings = c.as_bool("ignore_config_warnings")
 
@@ -753,13 +757,12 @@ class Reticulum:
                         try:
                             def interface_post_init(interface):
                                 if interface != None:
-                                    if "outgoing" in c and c.as_bool("outgoing") == False:
-                                        interface.OUT = False
-                                    else:
-                                        interface.OUT = True
+                                    if "outgoing" in c and c.as_bool("outgoing") == False: interface.OUT = False
+                                    else:                                                  interface.OUT = True
 
                                     interface.mode = interface_mode
                                     interface.announce_cap = announce_cap
+                                    interface.bootstrap_only = bootstrap_only
                                     if configured_bitrate: interface.bitrate = configured_bitrate
                                     interface.optimise_mtu()
                                     
@@ -894,6 +897,8 @@ class Reticulum:
                                     interface = WeaveInterface.WeaveInterface(RNS.Transport, interface_config)
                                     interface_post_init(interface)
 
+                                if bootstrap_only: self.bootstrap_configs.append(interface_config)
+
                                 if interface == None:
                                     # Interface was not handled by any internal interface types,
                                     # attempt to load and initialise it from user-supplied modules
@@ -936,22 +941,20 @@ class Reticulum:
 
             RNS.log("System interfaces are ready", RNS.LOG_VERBOSE)
 
-    def _add_interface(self, interface, mode = None, configured_bitrate=None, ifac_size=None, ifac_netname=None, ifac_netkey=None, announce_cap=None, announce_rate_target=None, announce_rate_grace=None, announce_rate_penalty=None):
+    def _add_interface(self, interface, mode = None, configured_bitrate=None, ifac_size=None, ifac_netname=None, ifac_netkey=None,
+                       announce_cap=None, announce_rate_target=None, announce_rate_grace=None, announce_rate_penalty=None, bootstrap_only=False):
         if not self.is_connected_to_shared_instance:
             if interface != None and issubclass(type(interface), RNS.Interfaces.Interface.Interface):
                 
-                if mode == None:
-                    mode = Interface.Interface.MODE_FULL
+                if mode == None: mode = Interface.Interface.MODE_FULL
                 interface.mode = mode
 
-                if configured_bitrate:
-                    interface.bitrate = configured_bitrate
+                if configured_bitrate: interface.bitrate = configured_bitrate
+                if bootstrap_only == True: interface.bootstrap_only = True
                 interface.optimise_mtu()
 
-                if ifac_size != None:
-                    interface.ifac_size = ifac_size
-                else:
-                    interface.ifac_size = 8
+                if ifac_size != None: interface.ifac_size = ifac_size
+                else: interface.ifac_size = 8
 
                 interface.announce_cap = announce_cap if announce_cap != None else Reticulum.ANNOUNCE_CAP/100.0
                 interface.announce_rate_target = announce_rate_target
