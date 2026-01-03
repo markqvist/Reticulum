@@ -604,342 +604,347 @@ class Reticulum:
                 for name in self.config["interfaces"]:
                     if not name in interface_names:
                         c = self.config["interfaces"][name]
-                        interface_mode = Interface.Interface.MODE_FULL
-                        
-                        if "interface_mode" in c:
-                            c["interface_mode"] = str(c["interface_mode"]).lower()
-                            if c["interface_mode"] == "full":
-                                interface_mode = Interface.Interface.MODE_FULL
-                            elif c["interface_mode"] == "access_point" or c["interface_mode"] == "accesspoint" or c["interface_mode"] == "ap":
-                                interface_mode = Interface.Interface.MODE_ACCESS_POINT
-                            elif c["interface_mode"] == "pointtopoint" or c["interface_mode"] == "ptp":
-                                interface_mode = Interface.Interface.MODE_POINT_TO_POINT
-                            elif c["interface_mode"] == "roaming":
-                                interface_mode = Interface.Interface.MODE_ROAMING
-                            elif c["interface_mode"] == "boundary":
-                                interface_mode = Interface.Interface.MODE_BOUNDARY
-                            elif c["mode"] == "gateway" or c["mode"] == "gw":
-                                interface_mode = Interface.Interface.MODE_GATEWAY
+                        self._synthesize_interface(c, name, instance_init=True)
 
-                        elif "mode" in c:
-                            c["mode"] = str(c["mode"]).lower()
-                            if c["mode"] == "full":
-                                interface_mode = Interface.Interface.MODE_FULL
-                            elif c["mode"] == "access_point" or c["mode"] == "accesspoint" or c["mode"] == "ap":
-                                interface_mode = Interface.Interface.MODE_ACCESS_POINT
-                            elif c["mode"] == "pointtopoint" or c["mode"] == "ptp":
-                                interface_mode = Interface.Interface.MODE_POINT_TO_POINT
-                            elif c["mode"] == "roaming":
-                                interface_mode = Interface.Interface.MODE_ROAMING
-                            elif c["mode"] == "boundary":
-                                interface_mode = Interface.Interface.MODE_BOUNDARY
-                            elif c["mode"] == "gateway" or c["mode"] == "gw":
-                                interface_mode = Interface.Interface.MODE_GATEWAY
-
-                        ifac_size = None
-                        if "ifac_size" in c:
-                            if c.as_int("ifac_size") >= Reticulum.IFAC_MIN_SIZE*8:
-                                ifac_size = c.as_int("ifac_size")//8
-                                
-                        ifac_netname = None
-                        if "networkname" in c:
-                            if c["networkname"] != "":
-                                ifac_netname = c["networkname"]
-                        if "network_name" in c:
-                            if c["network_name"] != "":
-                                ifac_netname = c["network_name"]
-
-                        ifac_netkey = None
-                        if "passphrase" in c:
-                            if c["passphrase"] != "":
-                                ifac_netkey = c["passphrase"]
-                        if "pass_phrase" in c:
-                            if c["pass_phrase"] != "":
-                                ifac_netkey = c["pass_phrase"]
-                                
-                        ingress_control = True
-                        if "ingress_control" in c: ingress_control = c.as_bool("ingress_control")
-                        ic_max_held_announces = None
-                        if "ic_max_held_announces" in c: ic_max_held_announces = c.as_int("ic_max_held_announces")
-                        ic_burst_hold = None
-                        if "ic_burst_hold" in c: ic_burst_hold = c.as_float("ic_burst_hold")
-                        ic_burst_freq_new = None
-                        if "ic_burst_freq_new" in c: ic_burst_freq_new = c.as_float("ic_burst_freq_new")
-                        ic_burst_freq = None
-                        if "ic_burst_freq" in c: ic_burst_freq = c.as_float("ic_burst_freq")
-                        ic_new_time = None
-                        if "ic_new_time" in c: ic_new_time = c.as_float("ic_new_time")
-                        ic_burst_penalty = None
-                        if "ic_burst_penalty" in c: ic_burst_penalty = c.as_float("ic_burst_penalty")
-                        ic_held_release_interval = None
-                        if "ic_held_release_interval" in c: ic_held_release_interval = c.as_float("ic_held_release_interval")
-
-                        configured_bitrate = None
-                        if "bitrate" in c:
-                            if c.as_int("bitrate") >= Reticulum.MINIMUM_BITRATE:
-                                configured_bitrate = c.as_int("bitrate")
-
-                        announce_rate_target = None
-                        if "announce_rate_target" in c:
-                            if c.as_int("announce_rate_target") > 0:
-                                announce_rate_target = c.as_int("announce_rate_target")
-                                
-                        announce_rate_grace = None
-                        if "announce_rate_grace" in c:
-                            if c.as_int("announce_rate_grace") >= 0:
-                                announce_rate_grace = c.as_int("announce_rate_grace")
-                                
-                        announce_rate_penalty = None
-                        if "announce_rate_penalty" in c:
-                            if c.as_int("announce_rate_penalty") >= 0:
-                                announce_rate_penalty = c.as_int("announce_rate_penalty")
-
-                        if announce_rate_target != None and announce_rate_grace == None:
-                            announce_rate_grace = 0
-
-                        if announce_rate_target != None and announce_rate_penalty == None:
-                            announce_rate_penalty = 0
-
-                        announce_cap = Reticulum.ANNOUNCE_CAP/100.0
-                        if "announce_cap" in c:
-                            if c.as_float("announce_cap") > 0 and c.as_float("announce_cap") <= 100:
-                                announce_cap = c.as_float("announce_cap")/100.0
-
-                        bootstrap_only = False
-                        if "bootstrap_only" in c: bootstrap_only = c.as_bool("bootstrap_only")
-
-                        ignore_config_warnings = False
-                        if "ignore_config_warnings" in c: ignore_config_warnings = c.as_bool("ignore_config_warnings")
-
-                        discoverable = False
-                        discovery_announce_interval = None
-                        discovery_stamp_value = None
-                        discovery_name = None
-                        discovery_encrypt = False
-                        reachable_on = None
-                        publish_ifac = False
-                        latitude = None
-                        longitude = None
-                        height = None
-                        discovery_frequency = None
-                        discovery_bandwidth = None
-                        discovery_modulation = None
-                        if "discoverable" in c:
-                            discoverable = c.as_bool("discoverable")
-                            if discoverable:
-                                Reticulum.__discovery_enabled = True
-                                if "announce_interval" in c:
-                                    discovery_announce_interval = c.as_int("announce_interval")*60
-                                    if discovery_announce_interval < 5*60: discovery_announce_interval = 5*60
-
-                                if discovery_announce_interval == None: discovery_announce_interval = 6*60*60
-                                if "discovery_stamp_value" in c: discovery_stamp_value = c.as_int("discovery_stamp_value")
-                                if "discovery_name" in c: discovery_name = c["discovery_name"]
-                                if "discovery_encrypt" in c: discovery_encrypt = c.as_bool("discovery_encrypt")
-                                if "reachable_on" in c: reachable_on = c["reachable_on"]
-                                if "publish_ifac" in c: publish_ifac = c.as_bool("publish_ifac")
-                                if "latitude" in c: latitude = c.as_float("latitude")
-                                if "longitude" in c: longitude = c.as_float("longitude")
-                                if "height" in c: height = c.as_float("height")
-                                if "discovery_frequency" in c: discovery_frequency = c.as_int("discovery_frequency")
-                                if "discovery_bandwidth" in c: discovery_bandwidth = c.as_int("discovery_bandwidth")
-                                if "discovery_modulation" in c: discovery_modulation = c.as_int("discovery_modulation")
-
-                                if not interface_mode in [Interface.Interface.MODE_GATEWAY, Interface.Interface.MODE_ACCESS_POINT]:
-                                    if not ignore_config_warnings:
-                                        if c["type"] in ["RNodeInterface", "RNodeMultiInterface"]:
-                                            interface_mode = Interface.Interface.MODE_ACCESS_POINT
-                                            RNS.log(f"Discovery enabled on interface {name} without gateway or AP mode. Auto-configured to AP mode.", RNS.LOG_NOTICE)
-                                        else:
-                                            interface_mode = Interface.Interface.MODE_GATEWAY
-                                            RNS.log(f"Discovery enabled on interface {name} without gateway or AP mode. Auto-configured to gateway mode.", RNS.LOG_NOTICE)
-                                
-                        try:
-                            def interface_post_init(interface):
-                                if interface != None:
-                                    if "outgoing" in c and c.as_bool("outgoing") == False: interface.OUT = False
-                                    else:                                                  interface.OUT = True
-
-                                    interface.mode = interface_mode
-                                    interface.announce_cap = announce_cap
-                                    interface.bootstrap_only = bootstrap_only
-                                    if configured_bitrate: interface.bitrate = configured_bitrate
-                                    interface.optimise_mtu()
-                                    
-                                    if ifac_size != None: interface.ifac_size = ifac_size
-                                    else:                 interface.ifac_size = interface.DEFAULT_IFAC_SIZE
-
-                                    interface.discoverable = discoverable
-                                    interface.discovery_announce_interval = discovery_announce_interval
-                                    interface.discovery_publish_ifac = publish_ifac
-                                    interface.reachable_on = reachable_on
-                                    interface.discovery_name = discovery_name
-                                    interface.discovery_encrypt = discovery_encrypt
-                                    interface.discovery_stamp_value = discovery_stamp_value
-                                    interface.discovery_latitude = latitude
-                                    interface.discovery_longitude = longitude
-                                    interface.discovery_height = height
-                                    interface.discovery_frequency = discovery_frequency
-                                    interface.discovery_bandwidth = discovery_bandwidth
-                                    interface.discovery_modulation = discovery_modulation
-
-                                    interface.announce_rate_target = announce_rate_target
-                                    interface.announce_rate_grace = announce_rate_grace
-                                    interface.announce_rate_penalty = announce_rate_penalty
-                                    interface.ingress_control = ingress_control
-                                    if ic_max_held_announces != None: interface.ic_max_held_announces = ic_max_held_announces
-                                    if ic_burst_hold != None: interface.ic_burst_hold = ic_burst_hold
-                                    if ic_burst_freq_new != None: interface.ic_burst_freq_new = ic_burst_freq_new
-                                    if ic_burst_freq != None: interface.ic_burst_freq = ic_burst_freq
-                                    if ic_new_time != None: interface.ic_new_time = ic_new_time
-                                    if ic_burst_penalty != None: interface.ic_burst_penalty = ic_burst_penalty
-                                    if ic_held_release_interval != None: interface.ic_held_release_interval = ic_held_release_interval
-
-                                    interface.ifac_netname = ifac_netname
-                                    interface.ifac_netkey = ifac_netkey
-
-                                    if interface.ifac_netname != None or interface.ifac_netkey != None:
-                                        ifac_origin = b""
-
-                                        if interface.ifac_netname != None:
-                                            ifac_origin += RNS.Identity.full_hash(interface.ifac_netname.encode("utf-8"))
-
-                                        if interface.ifac_netkey != None:
-                                            ifac_origin += RNS.Identity.full_hash(interface.ifac_netkey.encode("utf-8"))
-
-                                        ifac_origin_hash = RNS.Identity.full_hash(ifac_origin)
-                                        interface.ifac_key = RNS.Cryptography.hkdf(
-                                            length=64,
-                                            derive_from=ifac_origin_hash,
-                                            salt=self.ifac_salt,
-                                            context=None
-                                        )
-
-                                        interface.ifac_identity = RNS.Identity.from_bytes(interface.ifac_key)
-                                        interface.ifac_signature = interface.ifac_identity.sign(RNS.Identity.full_hash(interface.ifac_key))
-
-                                    RNS.Transport.interfaces.append(interface)
-                                    interface.final_init()
-
-                            interface = None
-                            if (("interface_enabled" in c) and c.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
-                                interface_config = c
-                                interface_config["name"] = name
-                                interface_config["selected_interface_mode"] = interface_mode
-                                interface_config["configured_bitrate"] = configured_bitrate
-
-                                if c["type"] == "AutoInterface":
-                                    interface = AutoInterface.AutoInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if c["type"] == "BackboneInterface" or c["type"] == "BackboneClientInterface":
-                                    if "port" in c: c["listen_port"] = c["port"]
-                                    if "port" in c: c["target_port"] = c["port"]
-                                    if "remote" in c: c["target_host"] = c["remote"]
-                                    if "listen_on" in c: c["listen_ip"] = c["listen_on"]
-
-                                if c["type"] == "BackboneInterface":
-                                    if "target_host" in c: interface = BackboneInterface.BackboneClientInterface(RNS.Transport, interface_config)
-                                    else: interface = BackboneInterface.BackboneInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if c["type"] == "BackboneClientInterface":
-                                    interface = BackboneInterface.BackboneClientInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if c["type"] == "UDPInterface":
-                                    interface = UDPInterface.UDPInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if c["type"] == "TCPServerInterface":
-                                    interface = TCPInterface.TCPServerInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if c["type"] == "TCPClientInterface":
-                                    interface = TCPInterface.TCPClientInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if c["type"] == "I2PInterface":
-                                    interface_config["storagepath"] = Reticulum.storagepath
-                                    interface_config["ifac_netname"] = ifac_netname
-                                    interface_config["ifac_netkey"] = ifac_netkey
-                                    interface_config["ifac_size"] = ifac_size
-
-                                    interface = I2PInterface.I2PInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if c["type"] == "SerialInterface":
-                                    interface = SerialInterface.SerialInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if c["type"] == "PipeInterface":
-                                    interface = PipeInterface.PipeInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if c["type"] == "KISSInterface":
-                                    interface = KISSInterface.KISSInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if c["type"] == "AX25KISSInterface":
-                                    interface = AX25KISSInterface.AX25KISSInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if c["type"] == "RNodeInterface":
-                                    interface = RNodeInterface.RNodeInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if c["type"] == "RNodeMultiInterface":
-                                    interface = RNodeMultiInterface.RNodeMultiInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-                                    interface.start()
-
-                                if c["type"] == "WeaveInterface":
-                                    interface = WeaveInterface.WeaveInterface(RNS.Transport, interface_config)
-                                    interface_post_init(interface)
-
-                                if bootstrap_only: self.bootstrap_configs.append(interface_config)
-
-                                if interface == None:
-                                    # Interface was not handled by any internal interface types,
-                                    # attempt to load and initialise it from user-supplied modules
-                                    interface_type = c["type"]
-                                    interface_file = f"{interface_type}.py"
-                                    interface_path = os.path.join(self.interfacepath, interface_file)
-                                    if not os.path.isfile(interface_path):
-                                        RNS.log(f"Could not locate external interface module \"{interface_file}\" in \"{self.interfacepath}\"", RNS.LOG_ERROR)
-                                    
-                                    else:
-                                        try:
-                                            RNS.log(f"Loading external interface \"{interface_file}\" from \"{self.interfacepath}\"", RNS.LOG_NOTICE)
-                                            interface_globals = {}
-                                            interface_globals["Interface"] = Interface.Interface
-                                            interface_globals["RNS"] = RNS
-                                            with open(interface_path) as class_file:
-                                                interface_code = class_file.read()
-                                                exec(interface_code, interface_globals)
-                                                interface_class = interface_globals["interface_class"]
-                                                
-                                                if interface_class != None:
-                                                    interface = interface_class(RNS.Transport, interface_config)
-                                                    interface_post_init(interface)
-
-                                        except Exception as e:
-                                            RNS.log(f"External interface initialisation failed for {interface_type} / {name}", RNS.LOG_ERROR)
-                                            RNS.trace_exception(e)
-
-                            else:
-                                RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_DEBUG)
-
-                        except Exception as e:
-                            RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
-                            RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
-                            RNS.trace_exception(e)
-                            RNS.panic()
                     else:
                         RNS.log("The interface name \""+name+"\" was already used. Check your configuration file for errors!", RNS.LOG_ERROR)
                         RNS.panic()
 
             RNS.log("System interfaces are ready", RNS.LOG_VERBOSE)
+
+    def _synthesize_interface(self, config, name, instance_init=False):
+        c = config
+        interface_mode = Interface.Interface.MODE_FULL
+        
+        if "interface_mode" in c:
+            c["interface_mode"] = str(c["interface_mode"]).lower()
+            if c["interface_mode"] == "full":
+                interface_mode = Interface.Interface.MODE_FULL
+            elif c["interface_mode"] == "access_point" or c["interface_mode"] == "accesspoint" or c["interface_mode"] == "ap":
+                interface_mode = Interface.Interface.MODE_ACCESS_POINT
+            elif c["interface_mode"] == "pointtopoint" or c["interface_mode"] == "ptp":
+                interface_mode = Interface.Interface.MODE_POINT_TO_POINT
+            elif c["interface_mode"] == "roaming":
+                interface_mode = Interface.Interface.MODE_ROAMING
+            elif c["interface_mode"] == "boundary":
+                interface_mode = Interface.Interface.MODE_BOUNDARY
+            elif c["mode"] == "gateway" or c["mode"] == "gw":
+                interface_mode = Interface.Interface.MODE_GATEWAY
+
+        elif "mode" in c:
+            c["mode"] = str(c["mode"]).lower()
+            if c["mode"] == "full":
+                interface_mode = Interface.Interface.MODE_FULL
+            elif c["mode"] == "access_point" or c["mode"] == "accesspoint" or c["mode"] == "ap":
+                interface_mode = Interface.Interface.MODE_ACCESS_POINT
+            elif c["mode"] == "pointtopoint" or c["mode"] == "ptp":
+                interface_mode = Interface.Interface.MODE_POINT_TO_POINT
+            elif c["mode"] == "roaming":
+                interface_mode = Interface.Interface.MODE_ROAMING
+            elif c["mode"] == "boundary":
+                interface_mode = Interface.Interface.MODE_BOUNDARY
+            elif c["mode"] == "gateway" or c["mode"] == "gw":
+                interface_mode = Interface.Interface.MODE_GATEWAY
+
+        ifac_size = None
+        if "ifac_size" in c:
+            if c.as_int("ifac_size") >= Reticulum.IFAC_MIN_SIZE*8:
+                ifac_size = c.as_int("ifac_size")//8
+                
+        ifac_netname = None
+        if "networkname" in c:
+            if c["networkname"] != "":
+                ifac_netname = c["networkname"]
+        if "network_name" in c:
+            if c["network_name"] != "":
+                ifac_netname = c["network_name"]
+
+        ifac_netkey = None
+        if "passphrase" in c:
+            if c["passphrase"] != "":
+                ifac_netkey = c["passphrase"]
+        if "pass_phrase" in c:
+            if c["pass_phrase"] != "":
+                ifac_netkey = c["pass_phrase"]
+                
+        ingress_control = True
+        if "ingress_control" in c: ingress_control = c.as_bool("ingress_control")
+        ic_max_held_announces = None
+        if "ic_max_held_announces" in c: ic_max_held_announces = c.as_int("ic_max_held_announces")
+        ic_burst_hold = None
+        if "ic_burst_hold" in c: ic_burst_hold = c.as_float("ic_burst_hold")
+        ic_burst_freq_new = None
+        if "ic_burst_freq_new" in c: ic_burst_freq_new = c.as_float("ic_burst_freq_new")
+        ic_burst_freq = None
+        if "ic_burst_freq" in c: ic_burst_freq = c.as_float("ic_burst_freq")
+        ic_new_time = None
+        if "ic_new_time" in c: ic_new_time = c.as_float("ic_new_time")
+        ic_burst_penalty = None
+        if "ic_burst_penalty" in c: ic_burst_penalty = c.as_float("ic_burst_penalty")
+        ic_held_release_interval = None
+        if "ic_held_release_interval" in c: ic_held_release_interval = c.as_float("ic_held_release_interval")
+
+        configured_bitrate = None
+        if "bitrate" in c:
+            if c.as_int("bitrate") >= Reticulum.MINIMUM_BITRATE:
+                configured_bitrate = c.as_int("bitrate")
+
+        announce_rate_target = None
+        if "announce_rate_target" in c:
+            if c.as_int("announce_rate_target") > 0:
+                announce_rate_target = c.as_int("announce_rate_target")
+                
+        announce_rate_grace = None
+        if "announce_rate_grace" in c:
+            if c.as_int("announce_rate_grace") >= 0:
+                announce_rate_grace = c.as_int("announce_rate_grace")
+                
+        announce_rate_penalty = None
+        if "announce_rate_penalty" in c:
+            if c.as_int("announce_rate_penalty") >= 0:
+                announce_rate_penalty = c.as_int("announce_rate_penalty")
+
+        if announce_rate_target != None and announce_rate_grace == None:
+            announce_rate_grace = 0
+
+        if announce_rate_target != None and announce_rate_penalty == None:
+            announce_rate_penalty = 0
+
+        announce_cap = Reticulum.ANNOUNCE_CAP/100.0
+        if "announce_cap" in c:
+            if c.as_float("announce_cap") > 0 and c.as_float("announce_cap") <= 100:
+                announce_cap = c.as_float("announce_cap")/100.0
+
+        bootstrap_only = False
+        if "bootstrap_only" in c: bootstrap_only = c.as_bool("bootstrap_only")
+
+        ignore_config_warnings = False
+        if "ignore_config_warnings" in c: ignore_config_warnings = c.as_bool("ignore_config_warnings")
+
+        discoverable = False
+        discovery_announce_interval = None
+        discovery_stamp_value = None
+        discovery_name = None
+        discovery_encrypt = False
+        reachable_on = None
+        publish_ifac = False
+        latitude = None
+        longitude = None
+        height = None
+        discovery_frequency = None
+        discovery_bandwidth = None
+        discovery_modulation = None
+        if "discoverable" in c:
+            discoverable = c.as_bool("discoverable")
+            if discoverable:
+                Reticulum.__discovery_enabled = True
+                if "announce_interval" in c:
+                    discovery_announce_interval = c.as_int("announce_interval")*60
+                    if discovery_announce_interval < 5*60: discovery_announce_interval = 5*60
+
+                if discovery_announce_interval == None: discovery_announce_interval = 6*60*60
+                if "discovery_stamp_value" in c: discovery_stamp_value = c.as_int("discovery_stamp_value")
+                if "discovery_name" in c: discovery_name = c["discovery_name"]
+                if "discovery_encrypt" in c: discovery_encrypt = c.as_bool("discovery_encrypt")
+                if "reachable_on" in c: reachable_on = c["reachable_on"]
+                if "publish_ifac" in c: publish_ifac = c.as_bool("publish_ifac")
+                if "latitude" in c: latitude = c.as_float("latitude")
+                if "longitude" in c: longitude = c.as_float("longitude")
+                if "height" in c: height = c.as_float("height")
+                if "discovery_frequency" in c: discovery_frequency = c.as_int("discovery_frequency")
+                if "discovery_bandwidth" in c: discovery_bandwidth = c.as_int("discovery_bandwidth")
+                if "discovery_modulation" in c: discovery_modulation = c.as_int("discovery_modulation")
+
+                if not interface_mode in [Interface.Interface.MODE_GATEWAY, Interface.Interface.MODE_ACCESS_POINT]:
+                    if not ignore_config_warnings:
+                        if c["type"] in ["RNodeInterface", "RNodeMultiInterface"]:
+                            interface_mode = Interface.Interface.MODE_ACCESS_POINT
+                            RNS.log(f"Discovery enabled on interface {name} without gateway or AP mode. Auto-configured to AP mode.", RNS.LOG_NOTICE)
+                        else:
+                            interface_mode = Interface.Interface.MODE_GATEWAY
+                            RNS.log(f"Discovery enabled on interface {name} without gateway or AP mode. Auto-configured to gateway mode.", RNS.LOG_NOTICE)
+                
+        try:
+            def interface_post_init(interface):
+                if interface != None:
+                    if "outgoing" in c and c.as_bool("outgoing") == False: interface.OUT = False
+                    else:                                                  interface.OUT = True
+
+                    interface.mode = interface_mode
+                    interface.announce_cap = announce_cap
+                    interface.bootstrap_only = bootstrap_only
+                    if configured_bitrate: interface.bitrate = configured_bitrate
+                    interface.optimise_mtu()
+                    
+                    if ifac_size != None: interface.ifac_size = ifac_size
+                    else:                 interface.ifac_size = interface.DEFAULT_IFAC_SIZE
+
+                    interface.discoverable = discoverable
+                    interface.discovery_announce_interval = discovery_announce_interval
+                    interface.discovery_publish_ifac = publish_ifac
+                    interface.reachable_on = reachable_on
+                    interface.discovery_name = discovery_name
+                    interface.discovery_encrypt = discovery_encrypt
+                    interface.discovery_stamp_value = discovery_stamp_value
+                    interface.discovery_latitude = latitude
+                    interface.discovery_longitude = longitude
+                    interface.discovery_height = height
+                    interface.discovery_frequency = discovery_frequency
+                    interface.discovery_bandwidth = discovery_bandwidth
+                    interface.discovery_modulation = discovery_modulation
+
+                    interface.announce_rate_target = announce_rate_target
+                    interface.announce_rate_grace = announce_rate_grace
+                    interface.announce_rate_penalty = announce_rate_penalty
+                    interface.ingress_control = ingress_control
+                    if ic_max_held_announces != None: interface.ic_max_held_announces = ic_max_held_announces
+                    if ic_burst_hold != None: interface.ic_burst_hold = ic_burst_hold
+                    if ic_burst_freq_new != None: interface.ic_burst_freq_new = ic_burst_freq_new
+                    if ic_burst_freq != None: interface.ic_burst_freq = ic_burst_freq
+                    if ic_new_time != None: interface.ic_new_time = ic_new_time
+                    if ic_burst_penalty != None: interface.ic_burst_penalty = ic_burst_penalty
+                    if ic_held_release_interval != None: interface.ic_held_release_interval = ic_held_release_interval
+
+                    interface.ifac_netname = ifac_netname
+                    interface.ifac_netkey = ifac_netkey
+
+                    if interface.ifac_netname != None or interface.ifac_netkey != None:
+                        ifac_origin = b""
+
+                        if interface.ifac_netname != None:
+                            ifac_origin += RNS.Identity.full_hash(interface.ifac_netname.encode("utf-8"))
+
+                        if interface.ifac_netkey != None:
+                            ifac_origin += RNS.Identity.full_hash(interface.ifac_netkey.encode("utf-8"))
+
+                        ifac_origin_hash = RNS.Identity.full_hash(ifac_origin)
+                        interface.ifac_key = RNS.Cryptography.hkdf(
+                            length=64,
+                            derive_from=ifac_origin_hash,
+                            salt=self.ifac_salt,
+                            context=None
+                        )
+
+                        interface.ifac_identity = RNS.Identity.from_bytes(interface.ifac_key)
+                        interface.ifac_signature = interface.ifac_identity.sign(RNS.Identity.full_hash(interface.ifac_key))
+
+                    RNS.Transport.interfaces.append(interface)
+                    interface.final_init()
+
+            interface = None
+            if (("interface_enabled" in c) and c.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
+                interface_config = c
+                interface_config["name"] = name
+                interface_config["selected_interface_mode"] = interface_mode
+                interface_config["configured_bitrate"] = configured_bitrate
+
+                if c["type"] == "AutoInterface":
+                    interface = AutoInterface.AutoInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if c["type"] == "BackboneInterface" or c["type"] == "BackboneClientInterface":
+                    if "port" in c: c["listen_port"] = c["port"]
+                    if "port" in c: c["target_port"] = c["port"]
+                    if "remote" in c: c["target_host"] = c["remote"]
+                    if "listen_on" in c: c["listen_ip"] = c["listen_on"]
+
+                if c["type"] == "BackboneInterface":
+                    if "target_host" in c: interface = BackboneInterface.BackboneClientInterface(RNS.Transport, interface_config)
+                    else: interface = BackboneInterface.BackboneInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if c["type"] == "BackboneClientInterface":
+                    interface = BackboneInterface.BackboneClientInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if c["type"] == "UDPInterface":
+                    interface = UDPInterface.UDPInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if c["type"] == "TCPServerInterface":
+                    interface = TCPInterface.TCPServerInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if c["type"] == "TCPClientInterface":
+                    interface = TCPInterface.TCPClientInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if c["type"] == "I2PInterface":
+                    interface_config["storagepath"] = Reticulum.storagepath
+                    interface_config["ifac_netname"] = ifac_netname
+                    interface_config["ifac_netkey"] = ifac_netkey
+                    interface_config["ifac_size"] = ifac_size
+
+                    interface = I2PInterface.I2PInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if c["type"] == "SerialInterface":
+                    interface = SerialInterface.SerialInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if c["type"] == "PipeInterface":
+                    interface = PipeInterface.PipeInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if c["type"] == "KISSInterface":
+                    interface = KISSInterface.KISSInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if c["type"] == "AX25KISSInterface":
+                    interface = AX25KISSInterface.AX25KISSInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if c["type"] == "RNodeInterface":
+                    interface = RNodeInterface.RNodeInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if c["type"] == "RNodeMultiInterface":
+                    interface = RNodeMultiInterface.RNodeMultiInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+                    interface.start()
+
+                if c["type"] == "WeaveInterface":
+                    interface = WeaveInterface.WeaveInterface(RNS.Transport, interface_config)
+                    interface_post_init(interface)
+
+                if bootstrap_only and instance_init: self.bootstrap_configs.append(interface_config)
+
+                if interface == None:
+                    # Interface was not handled by any internal interface types,
+                    # attempt to load and initialise it from user-supplied modules
+                    interface_type = c["type"]
+                    interface_file = f"{interface_type}.py"
+                    interface_path = os.path.join(self.interfacepath, interface_file)
+                    if not os.path.isfile(interface_path):
+                        RNS.log(f"Could not locate external interface module \"{interface_file}\" in \"{self.interfacepath}\"", RNS.LOG_ERROR)
+                    
+                    else:
+                        try:
+                            RNS.log(f"Loading external interface \"{interface_file}\" from \"{self.interfacepath}\"", RNS.LOG_NOTICE)
+                            interface_globals = {}
+                            interface_globals["Interface"] = Interface.Interface
+                            interface_globals["RNS"] = RNS
+                            with open(interface_path) as class_file:
+                                interface_code = class_file.read()
+                                exec(interface_code, interface_globals)
+                                interface_class = interface_globals["interface_class"]
+                                
+                                if interface_class != None:
+                                    interface = interface_class(RNS.Transport, interface_config)
+                                    interface_post_init(interface)
+
+                        except Exception as e:
+                            RNS.log(f"External interface initialisation failed for {interface_type} / {name}", RNS.LOG_ERROR)
+                            RNS.trace_exception(e)
+
+            else:
+                RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_DEBUG)
+
+        except Exception as e:
+            RNS.log("The interface \""+name+"\" could not be created. Check your configuration file for errors!", RNS.LOG_ERROR)
+            RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.trace_exception(e)
+            RNS.panic()
 
     def _add_interface(self, interface, mode = None, configured_bitrate=None, ifac_size=None, ifac_netname=None, ifac_netkey=None,
                        announce_cap=None, announce_rate_target=None, announce_rate_grace=None, announce_rate_penalty=None, bootstrap_only=False):
@@ -948,6 +953,7 @@ class Reticulum:
                 
                 if mode == None: mode = Interface.Interface.MODE_FULL
                 interface.mode = mode
+                interface.OUT  = True
 
                 if configured_bitrate: interface.bitrate = configured_bitrate
                 if bootstrap_only == True: interface.bootstrap_only = True

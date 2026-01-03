@@ -472,9 +472,10 @@ class InterfaceDiscovery():
                         if not interface in detached_interfaces: detached_interfaces.append(interface)
 
             if online_interfaces == 0:
-                RNS.log(f"No auto-discovered interfaces connected, re-enabling bootstrap interfaces", RNS.LOG_NOTICE)
-                # TODO: Implement
-                RNS.log(f"Available bootstrap configs:\n{RNS.Reticulum.get_instance().bootstrap_configs}", RNS.LOG_DEBUG)
+                if self.bootstrap_interface_count() == 0:
+                    RNS.log(f"No auto-discovered interfaces connected, re-enabling bootstrap interfaces", RNS.LOG_NOTICE)
+                    for config in RNS.Reticulum.get_instance().bootstrap_configs:
+                        RNS.Reticulum.get_instance()._synthesize_interface(config, config["name"])
 
             for interface in detached_interfaces:
                 try: self.teardown_interface(interface)
@@ -483,11 +484,14 @@ class InterfaceDiscovery():
 
     def teardown_interface(self, interface):
         interface.detach()
-        RNS.Transport.interfaces.remove(interface)
-        self.monitored_interfaces.remove(interface)
+        if interface in RNS.Transport.interfaces:  RNS.Transport.interfaces.remove(interface)
+        if interface in self.monitored_interfaces: self.monitored_interfaces.remove(interface)
 
     def autoconnect_count(self):
         return len([i for i in RNS.Transport.interfaces if hasattr(i, "autoconnect_hash")])
+
+    def bootstrap_interface_count(self):
+        return len([i for i in RNS.Transport.interfaces if hasattr(i, "bootstrap_only") and i.bootstrap_only == True])
         
     def connect_discovered(self):
         if RNS.Reticulum.should_autoconnect_discovered_interfaces():
@@ -509,11 +513,11 @@ class InterfaceDiscovery():
                     if interface_type in self.AUTOCONNECT_TYPES:
                         endpoint_specifier = ""
                         if "reachable_on" in info: endpoint_specifier += str(info["reachable_on"])
-                        if "port" in info:         endpoint_specifier += str(info["port"])
+                        if "port" in info:         endpoint_specifier += ":"+str(info["port"])
                         endpoint_hash = RNS.Identity.full_hash(endpoint_specifier.encode("utf-8"))
                         exists = False
                         for interface in RNS.Transport.interfaces:
-                            if hasattr(interface, "autoconnect_hash") and interface.autoconnect_hash:
+                            if hasattr(interface, "autoconnect_hash") and interface.autoconnect_hash == endpoint_hash:
                                 exists = True
                                 break
                             
@@ -539,10 +543,10 @@ class InterfaceDiscovery():
                                 RNS.log(f"You can obtain the configuration entry and add this interface manually instead using rnstatus -D", RNS.LOG_WARNING)
                                 return
 
-                            RNS.log(f"Auto-connecting discovered {interface_type}")
+                            interface_name = info["name"]
+                            RNS.log(f"Auto-connecting discovered {interface_type} {interface_name}")
                             config_entry = info["config_entry"]
                             interface_config = {}
-                            interface_name = info["name"]
                             interface_config["name"] = f"{interface_name}"
                             ifac_netname = info["ifac_netname"] if "ifac_netname" in info else None
                             ifac_netkey  = info["ifac_netkey"]  if "ifac_netkey"  in info else None
