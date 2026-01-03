@@ -282,14 +282,9 @@ file:
     target_host = reticulum.betweentheborders.com
     target_port = 4242
 
-# Interface to Testnet I2P Hub
-  [[RNS Testnet I2P Hub]]
-    type = I2PInterface
-    enabled = yes
-    peers = g3br23bvx3lq5uddcsjii74xgmn6y5q325ovrkq2zw2wbzbqgbuq.b32.i2p
 ```
 
-The testnet also contains a number of [Nomad Network](https://github.com/markqvist/nomadnet) nodes, and LXMF propagation nodes.
+As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, the public Amsterdam Testnet entrypoint is slated for de-commisioning in the first quarter of 2026. If your own instances rely on this entrypoint for connectivity, it is high time to start configuring alternatives. Reticulum now includes a full on-network interface discovery and connectivity bootstrapping system. Read the [Bootstrapping Connectivity](https://reticulum.network/manual/gettingstartedfast.html#bootstrapping-connectivity) section of the manual for pointers.
 
 ## Support Reticulum
 You can help support the continued development of open, free and private communications systems by donating via one of the following channels:
