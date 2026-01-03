@@ -1078,7 +1078,7 @@ relevant regulation for your location, and to make decisions accordingly.</p>
 </section>
 <section id="discoverable-interfaces">
 <span id="interfaces-discoverable"></span><h2>Discoverable Interfaces<a class="headerlink" href="#discoverable-interfaces" title="Link to this heading">¶</a></h2>
-<p>Reticulum includes a powerful system for publishing your local interfaces to the wider network, allowing other peers to discover, validate, and automatically connect to them. This feature is particularly useful for creating decentralized networks where peers can dynamically find entrypoints, such as public Internet gateways or local radio access points, without relying on static configuration files or centralized directories.</p>
+<p>Reticulum includes a powerful system for publishing your local interfaces to the wider network, allowing other peers to <a class="reference internal" href="using.html#using-interface-discovery"><span class="std std-ref">discover, validate, and automatically connect to them</span></a>. This feature is particularly useful for creating decentralized networks where peers can dynamically find entrypoints, such as public Internet gateways or local radio access points, without relying on static configuration files or centralized directories.</p>
 <p>When an interface is made <strong>discoverable</strong>, your Reticulum instance will periodically broadcast an announce packet containing the connection details and parameters required for other peers to establish a connection. These announces are propagated over the network using the standard Reticulum announce mechanism using the <code class="docutils literal notranslate"><span class="pre">rnstransport.discovery.interface</span></code> destination type.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1133,8 +1133,8 @@ When using an executable script for <code class="docutils literal notranslate"><
 <dt><code class="docutils literal notranslate"><span class="pre">discovery_encrypt</span></code></dt><dd><p>If set to <code class="docutils literal notranslate"><span class="pre">yes</span></code>, the discovery announce payload will be encrypted. To decrypt the announce, remote peers must possess the <em>network identity</em> configured for your instance (see <code class="docutils literal notranslate"><span class="pre">network_identity</span></code> in the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code> section). This allows you to publish private interfaces that are only discoverable to specific trusted networks.</p>
 </dd>
 </dl>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
 <p>If you enable <code class="docutils literal notranslate"><span class="pre">discovery_encrypt</span></code> but do not configure a valid <code class="docutils literal notranslate"><span class="pre">network_identity</span></code> in the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code> section of your configuration, Reticulum will abort the interface discovery announce. Encryption requires a valid network identity key to function.</p>
 </div>
 <dl class="simple">

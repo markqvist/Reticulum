@@ -916,7 +916,7 @@ beaconing functionality described above.
 Discoverable Interfaces
 =======================
 
-Reticulum includes a powerful system for publishing your local interfaces to the wider network, allowing other peers to discover, validate, and automatically connect to them. This feature is particularly useful for creating decentralized networks where peers can dynamically find entrypoints, such as public Internet gateways or local radio access points, without relying on static configuration files or centralized directories.
+Reticulum includes a powerful system for publishing your local interfaces to the wider network, allowing other peers to :ref:`discover, validate, and automatically connect to them<using-interface_discovery>`. This feature is particularly useful for creating decentralized networks where peers can dynamically find entrypoints, such as public Internet gateways or local radio access points, without relying on static configuration files or centralized directories.
 
 When an interface is made **discoverable**, your Reticulum instance will periodically broadcast an announce packet containing the connection details and parameters required for other peers to establish a connection. These announces are propagated over the network using the standard Reticulum announce mechanism using the ``rnstransport.discovery.interface`` destination type.
 
@@ -979,7 +979,7 @@ When ``discoverable`` is enabled, a variety of additional options become availab
 ``discovery_encrypt``
   If set to ``yes``, the discovery announce payload will be encrypted. To decrypt the announce, remote peers must possess the *network identity* configured for your instance (see ``network_identity`` in the ``[reticulum]`` section). This allows you to publish private interfaces that are only discoverable to specific trusted networks.
 
-.. warning::
+.. important::
    If you enable ``discovery_encrypt`` but do not configure a valid ``network_identity`` in the ``[reticulum]`` section of your configuration, Reticulum will abort the interface discovery announce. Encryption requires a valid network identity key to function.
 
 ``publish_ifac``

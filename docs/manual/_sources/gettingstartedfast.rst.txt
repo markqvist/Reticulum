@@ -277,9 +277,9 @@ A common mistake in modern networking is the reliance on a few centralized, hard
 
 Reticulum encourages the approach of *organic growth*. Instead of relying on permanent static connections to distant servers, you can use temporary bootstrap connections to *discover* better, more relevant or local infrastructure. Once discovered, your system can automatically form stronger, more direct links to these peers, and discard the temporary bootstrap links. This results in a web of connections that are geographically relevant, resilient and efficient.
 
-It is possible to simply add a few public entrypoints to the ``[interfaces]`` section of your Reticulum configuration and be connected, but a better option is to enable :ref:`interface discovery<using-interface_discovery>` and either manually select relevant, local interfaces, or enable discovered interface auto-connection.
+It *is* possible to simply add a few public entrypoints to the ``[interfaces]`` section of your Reticulum configuration and be connected, but a better option is to enable :ref:`interface discovery<using-interface_discovery>` and either manually select relevant, local interfaces, or enable discovered interface auto-connection.
 
-A relevant option in this context is the :ref:`bootstrap only<interfaces-options>` interface option. This is an automated tool for better distributing connectivity. By marking an interface as ``bootstrap_only``, you tell Reticulum: *"Use this connection to find connectivity options, and prefer discovered interfaces once they are available"*. This helps create a network topology that favors locality and resilience over the simple centralization caused by using only a few static entrypoints.
+A relevant option in this context is the :ref:`bootstrap only<interfaces-options>` interface option. This is an automated tool for better distributing connectivity. By enabling interface discovery and auto-connection, and marking an interface as ``bootstrap_only``, you tell Reticulum to use that interface primarliy to find connectivity options, and then disconnect it once sufficient entrypoints have been discovered. This helps create a network topology that favors locality and resilience over the simple centralization caused by using only a few static entrypoints.
 
 A good place to find interface definitions for bootstrapping connectivity is `rmap.world <https://rmap.world/>`_.
 
@@ -296,7 +296,7 @@ We strongly encourage everyone, even home users, to think in terms of building *
 *   While you sleep, work, or cook, your node listens to the network. It discovers other local community members, validates their Network Identities, and automatically establishes direct links.
 *   Your personal devices now connect to your *local* node, which is integrated into a living, breathing local mesh. Your traffic flows through local paths provided by other real people in the community rather than bouncing off a distant server.
 
-**Don't wait for others to build the networks you want to see**. Every network is important, perhaps even most so those that support individual families and persons. Once enough of this personal, local infrastructure exist, connecting them directly to each other, without traversing the public Internet, becomes not just possible, but inevitable.
+**Don't wait for others to build the networks you want to see**. Every network is important, perhaps even most so those that support individual families and persons. Once enough of this personal, local infrastructure exist, connecting them directly to each other, without traversing the public Internet, becomes inevitable.
 
 
 Mixing Strategies
@@ -305,7 +305,7 @@ Mixing Strategies
 There is no requirement to commit to a single strategy. The most robust setups often mix static, dynamic, and discovered interfaces.
 
 *   **Static Interfaces:** You maintain a permanent interface to a trusted friend or organization using a static configuration.
-*   **Bootstrap Links:** You run a ``bootstrap_only`` TCP interface to a public gateway to scan for new connectable peers or to regain connectivity if your other interfaces fail.
+*   **Bootstrap Links:** You connect a ``bootstrap_only`` interface to a public gateway on the Internet to scan for new connectable peers or to regain connectivity if your other interfaces fail.
 *   **Local Wide-Area Connectivity:** You run a ``RNodeInterface`` on a shared frequency, giving you completely self-sovereign and private wide-area access to both your own network and other Reticulum peers globally, without any "service providers" being able to control or monitor how you interact with people.
 
 By combining these methods, you create a system that is secure against single points of failure, adaptable to changing network conditions, and better integrated into your physical and social reality.
@@ -316,7 +316,7 @@ Network Health & Responsibility
 
 As you participate in the wider networks you discover and build, you will inevitably encounter peers that are misconfigured, malicious, or simply broken. To protect your resources and those of your local peers, you can utilize the :ref:`Blackhole Management<using-blackhole_management>` system.
 
-Whether you manually block a spamming identity or subscribe to a blackhole list maintained by a trusted Network Identity, these tools help ensure that your transport capacity is used for legitimate communication. This keeps your local segment efficient and contributes to the health of the wider network.
+Whether you manually block a spamming identity or subscribe to a blackhole list maintained by a trusted Network Identity, these tools help ensure that *your* transport capacity is used for what *you* consider legitimate communication. This keeps your local segment efficient and contributes to the health of the wider network.
 
 
 Contributing to the Global Ret
