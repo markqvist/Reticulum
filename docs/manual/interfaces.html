@@ -1123,6 +1123,13 @@ relevant regulation for your location, and to make decisions accordingly.</p>
 <p><strong>Script Execution Requirements:</strong>
 When using an executable script for <code class="docutils literal notranslate"><span class="pre">reachable_on</span></code>, Reticulum expects the script to output only the IP address or hostname to <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, followed by a newline character. Any additional output or errors may cause the resolution to fail. Ensure the script has executable permissions and is robust against temporary network failures.</p>
 </div>
+<p>A minimal example of a script that resolves the externally available, public IP of an internet-connected system could look like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+curl<span class="w"> </span>-s<span class="w"> </span>ip.me
+<span class="nb">exit</span><span class="w"> </span><span class="nv">$?</span>
+</pre></div>
+</div>
+<p>On a real system, you should make the script robust enough to deal with intermittent Internet or service failures, such that the script <em>always</em> returns a sensible value, or if not possible at least exits with a non-zero exit return code, so Reticulum knows the output is invalid.</p>
 <p><strong>Security &amp; Cost</strong></p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">discovery_stamp_value</span></code></dt><dd><p>Defines the proof-of-work difficulty for the cryptographic stamp included in the announce. This value acts as a cost barrier to prevent network flooding. The default value is <code class="docutils literal notranslate"><span class="pre">14</span></code>. Increasing this value makes it computationally more expensive to generate an announce, which can be useful to prevent spam on very large networks, but it also increases CPU load on your system when generating announces. Stamps are cached, and only generated if interface information changes, or at instance restart. If you have the computational resources, it is generally advisable to use as high a stamp value as possible.</p>

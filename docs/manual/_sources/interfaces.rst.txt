@@ -969,6 +969,16 @@ When ``discoverable`` is enabled, a variety of additional options become availab
 .. note:: **Script Execution Requirements:**
   When using an executable script for ``reachable_on``, Reticulum expects the script to output only the IP address or hostname to ``stdout``, followed by a newline character. Any additional output or errors may cause the resolution to fail. Ensure the script has executable permissions and is robust against temporary network failures.
 
+A minimal example of a script that resolves the externally available, public IP of an internet-connected system could look like this:
+
+.. code:: bash
+
+  #!/bin/bash
+  curl -s ip.me
+  exit $?
+
+On a real system, you should make the script robust enough to deal with intermittent Internet or service failures, such that the script *always* returns a sensible value, or if not possible at least exits with a non-zero exit return code, so Reticulum knows the output is invalid.
+
 **Security & Cost**
 
 ``discovery_stamp_value``
