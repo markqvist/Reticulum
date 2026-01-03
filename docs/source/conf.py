@@ -24,6 +24,7 @@ release = RNS._version.__version__
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx_copybutton",
+    "sphinx_markdown_builder",
 ]
 
 autodoc_member_order = "bysource"

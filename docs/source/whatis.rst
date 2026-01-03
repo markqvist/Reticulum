@@ -188,6 +188,4 @@ Caveat Emptor
 Reticulum is an experimental networking stack, and should be considered as
 such. While it has been built with cryptography best-practices very foremost in
 mind, it has not yet been externally security audited, and there could very well be
-privacy-breaking bugs. To be considered secure, Reticulum needs a thorough
-security review by independent cryptographers and security researchers. If you
-want to help out with this, or can help sponsor an audit, please do get in touch.
+privacy-breaking bugs.

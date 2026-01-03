@@ -4,16 +4,46 @@
 Building Networks
 *****************
 
-This chapter will provide you with the knowledge needed to build networks with
-Reticulum, which can often be easier than using traditional stacks, since you
-don't have to worry about coordinating addresses, subnets and routing for an
+This chapter will provide you with the high-level knowledge needed to build networks with
+Reticulum. It will not, however tell you all you need to know to succesfully
+design and configure every kind of network you can imagine. For this, you will
+most likely need to read this manual in its entirity, invest significant time
+into experimenting with the stack, and learning functionality intuitively.
+
+Still, after reading this chapter, you should be well equipped to *start* that
+journey. While Reticulum is **fundamentally different** compared to other
+networking technologies, it can often be easier than using traditional stacks.
+If you've built networks before, you will probably have to forget, or at least
+temporarily ignore, a lot of things at this point. It will all makes sense in
+the end though. Hopefully.
+
+If you're used to protocols like IP, let's at least start with some relief:
+You don't have to worry about coordinating addresses, subnets and routing for an
 entire network that you might not know how will evolve in the future. With
 Reticulum, you can simply add more segments to your network when it becomes
 necessary, and Reticulum will handle the convergence of the entire network
-automatically.
+automatically. There's plenty more neat aspects like that to Reticulum, but
+we're getting ahead of ourselves. Let's cover the basics first.
 
 Concepts & Overview
 --------------------
+
+Before you start building your own networks, it's important to understand the
+fundamental principles that distinguish Reticulum networks from traditional
+networking approaches. These principles shape how you design your network,
+what trade-offs you encounter, and what capabilities you can rely on.
+
+Reticulum is not a single network you "join", it is a toolkit for *creating* networks.
+You decide what mediums to use, how nodes connect, what trust boundaries exist,
+and what the network's purpose is. Reticulum provides the cryptographic foundation,
+the transport mechanisms, and the convergence algorithms that make your design
+workable. You provide the intent and the structure.
+
+This approach offers tremendous flexibility, but it requires thinking in terms of
+different abstractions than those used in conventional networking.
+
+Introductory Considerations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There are important points that need to be kept in mind when building networks
 with Reticulum:
@@ -31,6 +61,11 @@ with Reticulum:
      interconnect with much larger and higher bandwidth networks without issue.
      Reticulum automatically manages the flow of information to and from various
      network segments, and when bandwidth is limited, local traffic is prioritised.
+     You will, however, need to configure your interfaces correctly. If you tell
+     Reticulum to pass all announce traffic from a gigabit link to a LoRa interfaces,
+     it will try as best as possible to comply with this, while still respecting
+     bandwidth limits, but you *will* waste a lot of precious bandwidth and airtime,
+     and your LoRa network will not work very well.
 
  * | Reticulum provides sender/initiator anonymity by default. There is no way
      to filter traffic or discriminate it based on the source of the traffic.
@@ -89,81 +124,227 @@ Any number of interfaces can be configured, and Reticulum will automatically
 decide which are suitable to use in any given situation, depending on where
 traffic needs to flow.
 
-Example Scenarios
------------------
+Destinations, Not Addresses
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This section illustrates a few example scenarios, and how they would, in general
-terms, be planned, implemented and configured.
+In traditional networking, addresses are allocated from a managed space. If you want to
+communicate with another node, you need to know its address, and that address
+must be unique within the network segment. This requires coordination, either
+through manual assignment, DHCP servers, or other allocation mechanisms.
 
-Interconnected LoRa Sites
-=========================
+Reticulum replaces addresses with **destinations**. A destination is identified by a 16-byte
+hash (128 bits) derived from a SHA-256 hash of the destination's identifying
+characteristics. This hash serves as the address on the network. On the network, it
+is represented in binary, but when displayed to human users, it will usually look something like
+this ``<13425ec15b621c1d928589718000d814>``.
 
-An organisation wants to provide communication and information services to it's
-members, which are located mainly in three separate areas. Three suitable hill-top
-locations are found, where the organisation can install equipment: Site A, B and C.
+The critical difference is that *any node can generate as many destinations as it
+needs, without coordination*. A destination's uniqueness is guaranteed by the
+collision resistance of SHA-256 and the inclusion of the node's public key in the
+hash calculation. Two nodes can both use the destination name
+``messenger.user.inbox``, but they will have different destination hashes because
+their public keys differ. Both can coexist on the same network without conflict.
 
-Since the amount of data that needs to be exchanged between users is mainly text-
-based, the bandwidth requirements are low, and LoRa radios are chosen to connect
-users to the network.
+This has profound implications for network design:
 
-Due to the hill-top locations found, there is radio line-of-sight between site A
-and B, and also between site B and C. Because of this, the organisation does not
-need to use the Internet to interconnect the sites, but purchases four Point-to-Point
-WiFi based radios for interconnecting the sites.
+* **No address allocation planning:** You never need to reserve address ranges,
+  plan subnets, or coordinate with other network operators. Nodes simply generate
+  destinations and announce them.
 
-At each site, a Raspberry Pi is installed to function as a gateway. A LoRa radio
-is connected to the Pi with a USB cable, and the WiFi radio is connected to the
-Ethernet port of the Pi. At site B, two WiFi radios are needed to be able to reach
-both site A and site C, so an extra Ethernet adapter is connected to the Pi in
-this location.
+* **Global portability:** A destination is not tied to a physical location or
+  network segment. A node can move its destinations across interfaces, mediums,
+  or even between entirely separate Reticulum networks simply by sending an
+  announce on the new medium.
 
-Once the hardware has been installed, Reticulum is installed on all the Pis, and at
-site A and C, one interface is added for the LoRa radio, as well as one for the WiFi
-radio. At site B, an interface for the LoRa radio, and one interface for each WiFi
-radio is added to the Reticulum configuration file. The transport node option is
-enabled in the configuration of all three gateways.
+* **Implicit authentication:** Because destinations are bound to public keys,
+  communication to a destination is inherently cryptographically authenticated.
+  Only the holder of the corresponding private key can decrypt and respond to
+  traffic addressed to that destination. This also makes application-level
+  authentication *much* simpler, since it can directly use the foundational
+  identity verification built into the core networking layer.
 
-The network is now operational, and ready to serve users across all three areas.
-The organisation prepares a LoRa radio that is supplied to the end users, along
-with a Reticulum configuration file, that contains the right parameters for
-communicating with the LoRa radios installed at the gateway sites.
+* **Identity abstraction:** A single Reticulum Identity can create multiple
+  destinations. This allows a single entity (a person, a device, a service) to
+  present multiple endpoints without needing multiple cryptographic keypairs.
 
-Once users connect to the network, anyone will be able to communicate with anyone
-else across all three sites.
 
-Bridging Over the Internet
-==========================
+Transport Nodes and Instances
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As the organisation grows, several new communities form in places too far away
-from the core network to be reachable over WiFi links. New gateways similar to those
-previously installed are set up for the new communities at the new sites D and E, but
-they are islanded from the core network, and only serve the local users.
+Reticulum distinguishes between two types of nodes: **Instances**
+and **Transport Nodes**. Every node running Reticulum is an Instance, but not
+every Instance is a Transport Node.
 
-After investigating the options, it is found that it is possible to install an
-Internet connection at site A, and an interface on the Internet connection is
-configured for Reticulum on the Raspberry Pi at site A.
+A **Reticulum Instance** is any system running the Reticulum stack. It can create
+destinations, send and receive packets, establish links, and communicate with
+other nodes. It can also host destinations that are connectable for *anyone* else
+in the network. This means you can easily host globally available services from
+any location, including your home or office. Network-wide, global connectivity
+for all destinations is guaranteed, as long as there is *some* physical way to
+actually transport the packets. Instances are the default state and are appropriate for most end-user devices,
+such as phones, laptops, sensors, or any device that primarily consumes network services.
 
-A member of the organisation at site D, named Dori, is willing to help by sharing
-the Internet connection she already has in her home, and is able to leave a Raspberry
-Pi running. A new Reticulum interface is configured on her Pi, connecting to the newly
-enabled Internet interface on the gateway at site A. Dori is now connected to both
-the nodes at her own local site (through the hill-top LoRa gateway), and all the
-combined users of sites A, B and C. She then enables transport on her node, and
-traffic from site D can now reach everyone at site A, B and C, and vice versa.
+A **Transport Node** is an Instance that has been explicitly configured to
+participate in network-wide transport. Transport nodes forward packets across
+hops, propagate announces, maintain path tables, and serve path requests on
+behalf of other nodes. When a destination sends an announce, Transport Nodes
+receive it, remember the path, and rebroadcast it to other interfaces. When a node
+needs to reach a destination it doesn't have a path for, Transport Nodes help
+resolve the path through the network.
 
-Growth and Convergence
-======================
+Even devices hosting services or serving content should probably just be configured
+as instances, and themselves connect to wider networks via a Transport Node.
+In some situations, this may not be practical though, and as an example, it is
+entirely viable to host a personal Transport Node on a Raspberry Pi, while it
+is at the same time running an LXMF propagation node, and hosting your personal
+site or files over Reticulum.
 
-As the organisation grows, more gateways are added to keep up with the growing user
-base. Some local gateways even add VHF radios and packet modems to reach outlying users
-and communities that are out of reach for the LoRa radios and WiFi backhauls.
+The distinction is important. **Not** every node should be a Transport Node:
 
-As more sites, gateways and users are connected, the amount of coordination required
-is kept to a minimum. If one community wants to add connectivity to the next one
-over, it can simply be done without having to involve everyone or coordinate address
-space or routing tables.
+* **Resource consumption:** Transport nodes maintain path tables, process
+  announces, and forward traffic. This requires memory and CPU resources that
+  may be limited on low-powered devices.
 
-With the added geographical coverage, the operators at site A one day find that
-the original internet bridged interfaces are no longer utilised. The network has
-converged to be completely self-connected, and the sites that were once poorly
-connected outliers are now an integral part of the network.
+* **Stability requirements:** Transport nodes contribute to network convergence.
+  If Transport Nodes frequently go offline, path tables become stale and
+  convergence suffers. Stable, always-on nodes make better Transport Nodes.
+
+* **Bandwidth considerations:** Transport nodes process and rebroadcast network
+  maintenance traffic. On very low-bandwidth mediums, having too many Transport
+  Nodes will consume capacity that should be used for actual data.
+
+In practice, a network typically has a relatively small number of Transport Nodes
+strategically placed to provide coverage and connectivity. End-user devices run
+as Instances, connecting through nearby Transport Nodes to reach the wider network.
+This pattern mirrors traditional networking where routers forward traffic while
+end hosts simply consume connectivity, but with the crucial difference that any
+node *can* become a router if needed, and the decision is yours to make based on
+your network's requirements.
+
+Transport nodes also function as distributed cryptographic keystores. When a
+destination announces itself, Transport Nodes cache the public key and destination
+information. Other nodes can request unknown public keys from the network, and
+Transport Nodes respond with the cached information. This eliminates the need for
+a central directory service while ensuring that public keys remain available
+throughout the network.
+
+Trustless Networking
+^^^^^^^^^^^^^^^^^^^^
+
+Traditional network security models assume high levels of trust at
+specific layers. You might trust your ISP to deliver packets without inspection,
+or trust your VPN provider to handle your traffic, or trust the network
+administrator to configure firewalls appropriately. These trust relationships
+create vulnerabilities and dependencies.
+
+Reticulum is designed to function in **open, trustless environments**. This
+means the protocol makes no assumptions about the trustworthiness of the network
+infrastructure, the other participants, or the transport mediums. Every aspect
+of communication is secured cryptographically:
+
+* **Traffic encryption:** All traffic to single destinations is encrypted using
+  ephemeral keys.
+
+* **Source anonymity:** Reticulum packets do not include source addresses.
+  An observer intercepting a packet cannot determine who sent it, only who it is
+  addressed to (unless IFAC is enabled, in which case nothing can be determined).
+  This provides initiator anonymity by default.
+
+* **Path verification:** The announce mechanism includes cryptographic signatures that
+  prove the authenticity of destination announcements.
+
+* **Unforgeable delivery confirmations:** When a destination proves receipt of a
+  packet, the proof is signed with the destination's identity key. This prevents
+  false acknowledgments and ensures reliable delivery verification.
+
+* **Interface authentication:** When using Interface Access Codes (IFAC), packets
+  on authenticated interfaces carry signatures derived from a shared secret. Only
+  nodes with the correct network name and passphrase can generate valid packets, allowing creation
+  of virtual private networks on shared mediums.
+
+The trustless design has important consequences for network design:
+
+* **Open-access networks are viable:** You can build networks that anyone can
+  join without pre-approval. Because traffic is encrypted and authenticated end-
+  to-end, participants cannot interfere with each other's private communication,
+  even if they share the same transport infrastructure.
+
+* **No traffic inspection or prioritization:** Because traffic contents and
+  sources are opaque to intermediate nodes, there is no mechanism for filtering,
+  prioritizing, or throttling traffic based on its type or origin. All traffic
+  is treated equally. From a neutrality perspective, this is a feature.
+
+* **Adversarial resilience:** The network can operate even if some nodes are
+  malicious or controlled by adversaries. While a malicious Transport Node could
+  refuse to forward certain traffic or drop packets, it cannot decrypt, modify,
+  or impersonate legitimate traffic. Redundant paths and multiple Transport Nodes
+  mitigate the impact of malicious nodes.
+
+Of course, you can also create closed networks. Interface Access
+Codes allow you to restrict participation on specific interfaces. Network
+Identities enable you to verify that discovered interfaces belong to trusted
+operators. Blackhole management lets you block malicious identities. Reticulum
+provides both the tools for open networks and the controls for closed ones. The
+choice is yours based on your requirements.
+
+
+Heterogeneous Connectivity
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In conventional networking, mixing different transport mediums typically requires
+gateways, translation layers, and careful configuration. A WiFi network doesn't
+natively interoperate with a packet radio network without additional infrastructure,
+and you can't just download a car over a serial port, or send an encrypted message
+in a QR code.
+
+Reticulum treats **heterogeneity as a core premise**. The protocol is designed
+to seamlessly mix mediums with vastly different characteristics:
+
+* **Bandwidth:** LoRa links operating at a few hundred bits per second can
+  interconnect with gigabit Ethernet backbones. Reticulum automatically manages
+  the flow of information, prioritizing local traffic on slow segments while
+  allowing global convergence.
+
+* **Latency:** Satellite links with multi-second latency can coexist with local
+  links measured in milliseconds. The transport system handles timing, asynchronous
+  delivery and retransmissions transparently.
+
+* **Topology:** Point-to-point microwave links, broadcast radio networks,
+  switched Ethernet fabrics, and virtual tunnels over the Internet can all be
+  part of the same Reticulum network.
+
+* **Reliability:** Intermittent connections that come and go (such as mobile
+  devices or opportunistic radio contacts) can participate alongside always-on
+  infrastructure. Reticulum gracefully handles link loss and reconnection.
+
+This heterogeneity is achieved through several design elements:
+
+* **Expandable, medium-agnostic interface system:** Reticulum communicates with the physical
+  world through interface modules. Adding support for a new medium is a matter
+  of implementing an interface class. The protocol itself remains unchanged.
+
+* **Interface modes:** Different modes (``full``, ``gateway``, ``access_point``,
+  ``roaming``, ``boundary``) allow you to configure how interfaces interact with
+  the wider network based on their characteristics and role.
+
+* **Announce propagation rules:** Announces are forwarded between interfaces
+  according to rules that account for bandwidth limitations and interface modes.
+  Slow segments are not overwhelmed by traffic from fast segments.
+
+* **Local traffic prioritization:** When bandwidth is constrained, Reticulum
+  prioritizes announces for nearby destinations. This ensures that local
+  connectivity remains functional even when global convergence is incomplete.
+
+For network designers, this means you are free to use whatever mediums are
+available, affordable, or appropriate for your situation. You might use LoRa for
+wide-area low-bandwidth coverage, WiFi for local high-capacity links, I2P for
+anonymous Internet connectivity, and Ethernet for infrastructure backhauls, all
+within the same network. Reticulum handles the translation and coordination
+automatically.
+
+The key design consideration is not whether different mediums can work together
+(they can), but **how** they should work together based on your goals. A node
+with multiple interfaces spanning heterogeneous mediums needs to be configured
+with appropriate interface modes so that traffic flows efficiently. A gateway
+connecting a slow LoRa segment to a fast Internet backbone should be configured
+differently than a mobile device roaming between radio cells.
