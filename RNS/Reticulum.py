@@ -704,6 +704,9 @@ class Reticulum:
                             if c.as_float("announce_cap") > 0 and c.as_float("announce_cap") <= 100:
                                 announce_cap = c.as_float("announce_cap")/100.0
 
+                        ignore_config_warnings = False
+                        if "ignore_config_warnings" in c: ignore_config_warnings = c.as_bool("ignore_config_warnings")
+
                         discoverable = False
                         discovery_announce_interval = None
                         discovery_stamp_value = None
@@ -737,6 +740,15 @@ class Reticulum:
                                 if "discovery_frequency" in c: discovery_frequency = c.as_int("discovery_frequency")
                                 if "discovery_bandwidth" in c: discovery_bandwidth = c.as_int("discovery_bandwidth")
                                 if "discovery_modulation" in c: discovery_modulation = c.as_int("discovery_modulation")
+
+                                if not interface_mode in [Interface.Interface.MODE_GATEWAY, Interface.Interface.MODE_ACCESS_POINT]:
+                                    if not ignore_config_warnings:
+                                        if c["type"] in ["RNodeInterface", "RNodeMultiInterface"]:
+                                            interface_mode = Interface.Interface.MODE_ACCESS_POINT
+                                            RNS.log(f"Discovery enabled on interface {name} without gateway or AP mode. Auto-configured to AP mode.", RNS.LOG_NOTICE)
+                                        else:
+                                            interface_mode = Interface.Interface.MODE_GATEWAY
+                                            RNS.log(f"Discovery enabled on interface {name} without gateway or AP mode. Auto-configured to gateway mode.", RNS.LOG_NOTICE)
                                 
                         try:
                             def interface_post_init(interface):
