@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>API Reference - Reticulum Network Stack 1.0.5 documentation</title>
+        <title>API Reference - Reticulum Network Stack 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.0.5 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.1.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.0.5 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.1.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -398,11 +398,47 @@ can remotely query and manage this instance.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Reticulum.required_discovery_value">
 <em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">required_discovery_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.required_discovery_value" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the required stam value for a discovered interface
+<dd><p>Returns the required stamp value for a discovered interface
 to be considered valid and remembered.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The required stamp value as an integer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Reticulum.publish_blackhole_enabled">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">publish_blackhole_enabled</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.publish_blackhole_enabled" title="Link to this definition">¶</a></dt>
+<dd><p>Returns whether blackhole list publishing is enabled for the
+running instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if blackhole list publishing is enabled, False if not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Reticulum.blackhole_sources">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">blackhole_sources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.blackhole_sources" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the list of transport identity hashes from which
+blackhole lists are sourced.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of identity hashes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Reticulum.interface_discovery_sources">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">interface_discovery_sources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum.interface_discovery_sources" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the list of network identity hashes from which
+interfaces are discovered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of identity hashes.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2138,6 +2174,25 @@ announces. See the <a class="reference internal" href="examples.html#example-ann
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="RNS.Transport.await_path">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">await_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_interface</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Transport.await_path" title="Link to this definition">¶</a></dt>
+<dd><p>Requests a path to the destination from the network and
+blocks until the path is available, or the timeout is reached.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>destination_hash</strong> – A destination hash as <em>bytes</em>.</p></li>
+<li><p><strong>timeout</strong> – An optional timeout in seconds.</p></li>
+<li><p><strong>on_interface</strong> – If specified, the path request will only be sent on this interface. In normal use, Reticulum handles this automatically, and this parameter should not be used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>True</em> if a path to the destination is found, otherwise <em>False</em>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Transport.request_path">
 <em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">request_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_interface</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Transport.request_path" title="Link to this definition">¶</a></dt>
 <dd><p>Requests a path to the destination from the network. If
@@ -2215,6 +2270,9 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Reticulum.link_mtu_discovery"><code class="docutils literal notranslate"><span class="pre">link_mtu_discovery()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Reticulum.remote_management_enabled"><code class="docutils literal notranslate"><span class="pre">remote_management_enabled()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Reticulum.required_discovery_value"><code class="docutils literal notranslate"><span class="pre">required_discovery_value()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Reticulum.publish_blackhole_enabled"><code class="docutils literal notranslate"><span class="pre">publish_blackhole_enabled()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Reticulum.blackhole_sources"><code class="docutils literal notranslate"><span class="pre">blackhole_sources()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Reticulum.interface_discovery_sources"><code class="docutils literal notranslate"><span class="pre">interface_discovery_sources()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#RNS.Identity"><code class="docutils literal notranslate"><span class="pre">Identity</span></code></a><ul>
@@ -2384,6 +2442,7 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Transport.hops_to"><code class="docutils literal notranslate"><span class="pre">hops_to()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Transport.next_hop"><code class="docutils literal notranslate"><span class="pre">next_hop()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Transport.next_hop_interface"><code class="docutils literal notranslate"><span class="pre">next_hop_interface()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Transport.await_path"><code class="docutils literal notranslate"><span class="pre">await_path()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Transport.request_path"><code class="docutils literal notranslate"><span class="pre">request_path()</span></code></a></li>
 </ul>
 </li>
@@ -2398,7 +2457,7 @@ will announce it.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=d55fa986"></script>
+</div><script src="_static/documentation_options.js?v=fc837d61"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

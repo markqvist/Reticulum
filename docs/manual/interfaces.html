@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>Configuring Interfaces - Reticulum Network Stack 1.0.5 documentation</title>
+        <title>Configuring Interfaces - Reticulum Network Stack 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.0.5 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.1.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.0.5 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.1.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1076,6 +1076,176 @@ relevant regulation for your location, and to make decisions accordingly.</p>
 </pre></div>
 </div>
 </section>
+<section id="discoverable-interfaces">
+<span id="interfaces-discoverable"></span><h2>Discoverable Interfaces<a class="headerlink" href="#discoverable-interfaces" title="Link to this heading">¶</a></h2>
+<p>Reticulum includes a powerful system for publishing your local interfaces to the wider network, allowing other peers to discover, validate, and automatically connect to them. This feature is particularly useful for creating decentralized networks where peers can dynamically find entrypoints, such as public Internet gateways or local radio access points, without relying on static configuration files or centralized directories.</p>
+<p>When an interface is made <strong>discoverable</strong>, your Reticulum instance will periodically broadcast an announce packet containing the connection details and parameters required for other peers to establish a connection. These announces are propagated over the network using the standard Reticulum announce mechanism using the <code class="docutils literal notranslate"><span class="pre">rnstransport.discovery.interface</span></code> destination type.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To use the interface discovery functionality, the <code class="docutils literal notranslate"><span class="pre">LXMF</span></code> module must be installed in your Python environment. You can install it using pip:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>lxmf
+</pre></div>
+</div>
+</div>
+<section id="enabling-discovery">
+<h3>Enabling Discovery<a class="headerlink" href="#enabling-discovery" title="Link to this heading">¶</a></h3>
+<p>Interface discovery is enabled on a per-interface basis. To make a specific interface discoverable, you must add the <code class="docutils literal notranslate"><span class="pre">discoverable</span></code> option to that interface’s configuration block and set it to <code class="docutils literal notranslate"><span class="pre">yes</span></code>.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[[My Public Gateway]]</span>
+<span class="w">  </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">BackboneInterface</span>
+<span class="w">  </span><span class="na">...</span>
+<span class="w">  </span><span class="na">discoverable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+</pre></div>
+</div>
+<p>Once enabled, Reticulum will automatically handle the generation, signing, stamping, and broadcasting of the discovery announces. It is not <em>required</em> to enable Transport to publish interface discovery information, but for most use cases where you want others to connect to you, you will likely want <code class="docutils literal notranslate"><span class="pre">enable_transport</span></code> set to <code class="docutils literal notranslate"><span class="pre">yes</span></code> in the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code> section of your configuration.</p>
+</section>
+<section id="discovery-parameters">
+<h3>Discovery Parameters<a class="headerlink" href="#discovery-parameters" title="Link to this heading">¶</a></h3>
+<p>When <code class="docutils literal notranslate"><span class="pre">discoverable</span></code> is enabled, a variety of additional options become available to control how the interface is presented to the network. These parameters allow you to fine-tune the metadata, security requirements, and visibility of your interface.</p>
+<p><strong>Basic Metadata</strong></p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">discovery_name</span></code></dt><dd><p>A human-readable name for the interface. This name will be displayed to users on remote systems when they list discovered interfaces. If not specified, the interface name (the section header) will be used.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">announce_interval</span></code></dt><dd><p>The interval in minutes between successive discovery announces for this interface. Default is 360 minutes (6 hours). For stable, long-running infrastructure, higher intervals (12 to 22 hours) are usually sufficient and reduce network load. Minimum allowed value is 5 minutes (but expect to have your announces throttled if using intervals below one hour).</p>
+</dd>
+</dl>
+<p><strong>Connectivity Specification</strong></p>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">reachable_on</span></code></dt><dd><p>Specifies the address that remote peers should use to connect to this interface.</p>
+<ul class="simple">
+<li><p>For TCP and Backbone interfaces, this is typically the public IP address or hostname. Do not include the port, this is fetched automatically from the interface.</p></li>
+<li><p>For I2P interfaces, this is usually the I2P <code class="docutils literal notranslate"><span class="pre">b32</span></code> address. This value is fetched automatically from the <code class="docutils literal notranslate"><span class="pre">I2PInterface</span></code> once it is up and connected to the I2P network, so you should not set this manually, unless you absolutely know what you’re doing.</p></li>
+</ul>
+<p><strong>Dynamic Resolution:</strong> This option also accepts a path to an external executable script or binary. If a path is provided, Reticulum will execute the script and use its <code class="docutils literal notranslate"><span class="pre">stdout</span></code> as the reachability address. This is useful for devices behind dynamic DNS, NATs, or complex cloud environments where the external IP is not known locally. The script must simply print the address to stdout and exit.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Script Execution Requirements:</strong>
+When using an executable script for <code class="docutils literal notranslate"><span class="pre">reachable_on</span></code>, Reticulum expects the script to output only the IP address or hostname to <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, followed by a newline character. Any additional output or errors may cause the resolution to fail. Ensure the script has executable permissions and is robust against temporary network failures.</p>
+</div>
+<p><strong>Security &amp; Cost</strong></p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">discovery_stamp_value</span></code></dt><dd><p>Defines the proof-of-work difficulty for the cryptographic stamp included in the announce. This value acts as a cost barrier to prevent network flooding. The default value is <code class="docutils literal notranslate"><span class="pre">14</span></code>. Increasing this value makes it computationally more expensive to generate an announce, which can be useful to prevent spam on very large networks, but it also increases CPU load on your system when generating announces. Stamps are cached, and only generated if interface information changes, or at instance restart. If you have the computational resources, it is generally advisable to use as high a stamp value as possible.</p>
+</dd>
+</dl>
+<p><strong>Privacy &amp; Encryption</strong></p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">discovery_encrypt</span></code></dt><dd><p>If set to <code class="docutils literal notranslate"><span class="pre">yes</span></code>, the discovery announce payload will be encrypted. To decrypt the announce, remote peers must possess the <em>network identity</em> configured for your instance (see <code class="docutils literal notranslate"><span class="pre">network_identity</span></code> in the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code> section). This allows you to publish private interfaces that are only discoverable to specific trusted networks.</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you enable <code class="docutils literal notranslate"><span class="pre">discovery_encrypt</span></code> but do not configure a valid <code class="docutils literal notranslate"><span class="pre">network_identity</span></code> in the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code> section of your configuration, Reticulum will abort the interface discovery announce. Encryption requires a valid network identity key to function.</p>
+</div>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">publish_ifac</span></code></dt><dd><p>If set to <code class="docutils literal notranslate"><span class="pre">yes</span></code>, the Interface Access Code (IFAC) name and passphrase for this interface will be included in the discovery announce. This allows peers to automatically configure the correct authentication parameters when connecting to the interface.</p>
+</dd>
+</dl>
+<p><strong>Physical Location</strong></p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">latitude</span></code>, <code class="docutils literal notranslate"><span class="pre">longitude</span></code>, <code class="docutils literal notranslate"><span class="pre">height</span></code></dt><dd><p>Optional physical coordinates for the interface. These are useful for mapping discovered interfaces geographically or for clients to automatically select the nearest access point. Coordinates should be in decimal degrees, height in meters.</p>
+</dd>
+</dl>
+<p><strong>Radio Parameters</strong></p>
+<p>For physical radio interfaces like <code class="docutils literal notranslate"><span class="pre">RNodeInterface</span></code> or <code class="docutils literal notranslate"><span class="pre">KISSInterface</span></code>, the following optional parameters allow you to broadcast the operating frequency and characteristics, allowing clients to verify compatibility before connecting:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">discovery_frequency</span></code></dt><dd><p>The operating frequency in Hz. Auto-configured on RNode interfaces. Necessary on KISS-based radio interfaces and <code class="docutils literal notranslate"><span class="pre">TCPClientInterfaces</span></code> connecting to radio modems.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">discovery_bandwidth</span></code></dt><dd><p>The signal bandwidth in Hz. Auto-configured on RNode interfaces. Useful on KISS-based radio interfaces and <code class="docutils literal notranslate"><span class="pre">TCPClientInterfaces</span></code> connecting to radio modems.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">discovery_modulation</span></code></dt><dd><p>The modulation type or scheme. Auto-configured on RNode interfaces, but highly advisable to include on other radio-based interfaces.</p>
+</dd>
+</dl>
+</section>
+<section id="interface-modes">
+<h3>Interface Modes<a class="headerlink" href="#interface-modes" title="Link to this heading">¶</a></h3>
+<p>When you enable discovery on an interface, Reticulum enforces certain interface modes to ensure the interface is actually useful for remote peers.</p>
+<p>If an interface is configured as <code class="docutils literal notranslate"><span class="pre">discoverable</span></code>, but its mode is not explicitly set to <code class="docutils literal notranslate"><span class="pre">gateway</span></code> (for server-style interfaces like <code class="docutils literal notranslate"><span class="pre">BackboneInterface</span></code> or <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code>) or <code class="docutils literal notranslate"><span class="pre">access_point</span></code> (for radio interfaces like <code class="docutils literal notranslate"><span class="pre">RNodeInterface</span></code>), Reticulum will automatically configure the appropriate mode and log a notice.</p>
+<p>For example, if you enable discovery on a <code class="docutils literal notranslate"><span class="pre">RNodeInterface</span></code> without specifying the mode, Reticulum will automatically set it to <code class="docutils literal notranslate"><span class="pre">access_point</span></code> mode.</p>
+</section>
+<section id="security-considerations">
+<h3>Security Considerations<a class="headerlink" href="#security-considerations" title="Link to this heading">¶</a></h3>
+<p>When making interfaces discoverable, you are effectively broadcasting an invitation to connect to your system. It is important to understand the security implications of the configuration options you choose.</p>
+<p><strong>Publishing Credentials</strong></p>
+<p>If you enable <code class="docutils literal notranslate"><span class="pre">publish_ifac</span> <span class="pre">=</span> <span class="pre">yes</span></code>, your interface’s authentication passphrase will be included in the announce. If you are operating a public network and want anyone to connect, this is acceptable. However, if you wish to restrict access to a specific group of users, you <strong>must</strong> enable <code class="docutils literal notranslate"><span class="pre">discovery_encrypt</span> <span class="pre">=</span> <span class="pre">yes</span></code>. This ensures that only peers possessing the correct <code class="docutils literal notranslate"><span class="pre">network_identity</span></code> can decode the passphrase.</p>
+<p><strong>Topology Exposure</strong></p>
+<p>A discoverable interface announces its presence, location (if configured), and capabilities to the network. Even if the connection details are encrypted, the <em>fact</em> that a connectable node exists within a certain network becomes public information. In high-security or scenarios requiring operational secrecy, consider the implications of advertising your infrastructure’s existence.</p>
+</section>
+<section id="example-configuration">
+<h3>Example Configuration<a class="headerlink" href="#example-configuration" title="Link to this heading">¶</a></h3>
+<p>Below is an example configuration for a public backbone gateway. This configuration publishes a high-value, publicly discoverable interface, that anyone can connect to.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[[My Public Gateway]]</span>
+<span class="w">  </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">BackboneInterface</span>
+<span class="w">  </span><span class="na">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gateway</span>
+<span class="w">  </span><span class="na">listen_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0.0.0</span>
+<span class="w">  </span><span class="na">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4242</span>
+
+<span class="w">  </span><span class="c1"># Enable Discovery</span>
+<span class="w">  </span><span class="na">discoverable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+
+<span class="w">  </span><span class="c1"># Interface Details</span>
+<span class="w">  </span><span class="na">discovery_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Region A Public Entrypoint</span>
+<span class="w">  </span><span class="na">announce_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">720</span>
+
+<span class="w">  </span><span class="c1"># Use external script to resolve dynamic IP</span>
+<span class="w">  </span><span class="na">reachable_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/usr/local/bin/get_external_ip.sh</span>
+
+<span class="w">  </span><span class="c1"># Generate high stamp value</span>
+<span class="w">  </span><span class="na">discovery_stamp_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">24</span>
+
+<span class="w">  </span><span class="c1"># Optional location data</span>
+<span class="w">  </span><span class="na">latitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">51.99714</span>
+<span class="w">  </span><span class="na">longitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-0.74195</span>
+<span class="w">  </span><span class="na">height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">15</span>
+</pre></div>
+</div>
+<p>The next example create an encrypted discovery-enabled interface, requiring a specific network identity to decode, and includes IFAC credentials for seamless authentication.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[[My Private Gateway]]</span>
+<span class="w">  </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">BackboneInterface</span>
+<span class="w">  </span><span class="na">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">gateway</span>
+<span class="w">  </span><span class="na">listen_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0.0.0</span>
+<span class="w">  </span><span class="na">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5858</span>
+<span class="w">  </span><span class="na">network_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">internal_1</span>
+<span class="w">  </span><span class="na">passphrase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Mevpekyafshak5Wr</span>
+
+<span class="w">  </span><span class="c1"># Enable Discovery</span>
+<span class="w">  </span><span class="na">discoverable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+
+<span class="w">  </span><span class="c1"># Interface Details</span>
+<span class="w">  </span><span class="na">discovery_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Region A Private Backbone</span>
+<span class="w">  </span><span class="na">announce_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">720</span>
+
+<span class="w">  </span><span class="c1"># Use external script to resolve dynamic IP</span>
+<span class="w">  </span><span class="na">reachable_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/usr/local/bin/get_external_ip.sh</span>
+
+<span class="w">  </span><span class="c1"># Target stamp value</span>
+<span class="w">  </span><span class="na">discovery_stamp_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">22</span>
+
+<span class="w">  </span><span class="c1"># Encrypt announces for our network only</span>
+<span class="w">  </span><span class="na">discovery_encrypt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+
+<span class="w">  </span><span class="c1"># Include credentials so trusted</span>
+<span class="w">  </span><span class="c1"># peers can connect automatically</span>
+<span class="w">  </span><span class="na">publish_ifac</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+
+<span class="w">  </span><span class="c1"># Optional location data</span>
+<span class="w">  </span><span class="na">latitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">34.06915</span>
+<span class="w">  </span><span class="na">longitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-118.44318</span>
+<span class="w">  </span><span class="na">height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">15</span>
+</pre></div>
+</div>
+<p>In the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code> section of your configuration, you would define the network identity used for encryption as follows:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[reticulum]</span>
+<span class="na">...</span>
+<span class="c1"># The identity used to sign/encrypt discovery announces</span>
+<span class="na">network_identity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">~/.reticulum/storage/identities/my_network_identity</span>
+<span class="na">...</span>
+</pre></div>
+</div>
+<p>With these configuration options applied, your Reticulum instance will actively participate in the network’s discovery ecosystem. Other peers running Reticulum with discovery enabled will be able to see your interface, validate its cryptographic stamp, and (depending on their configuration) automatically connect to it.</p>
+<p>For information on how to use these discovered interfaces and configure your system to auto-connect to them, refer to the <a class="reference internal" href="using.html#using-interface-discovery"><span class="std std-ref">Discovering Interfaces</span></a> chapter.</p>
+</section>
+</section>
 <section id="common-interface-options">
 <span id="interfaces-options"></span><h2>Common Interface Options<a class="headerlink" href="#common-interface-options" title="Link to this heading">¶</a></h2>
 <p>A number of general configuration options are available on most interfaces.
@@ -1169,11 +1339,22 @@ sufficient, but it can be configured by using the <code class="docutils literal 
 option, to set the interface speed in <em>bits per second</em>.</div>
 </div>
 </li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">bootstrap_only</span></code> option designates an interface as a temporary
+bridge for initial connectivity. If this option is enabled, the
+interface will be monitored and automatically detached once the
+number of auto-connected interfaces reaches the limit configured by
+<code class="docutils literal notranslate"><span class="pre">autoconnect_discovered_interfaces</span></code>. This is particularly useful
+for using a slow or expensive connection (such as a single LoRa
+link or a remote TCP tunnel) solely to discover better local
+infrastructure, which then supersedes the bootstrap interface.</div>
+</div>
+</li>
 </ul>
 </div></blockquote>
 </section>
-<section id="interface-modes">
-<span id="interfaces-modes"></span><h2>Interface Modes<a class="headerlink" href="#interface-modes" title="Link to this heading">¶</a></h2>
+<section id="interfaces-modes">
+<span id="id4"></span><h2>Interface Modes<a class="headerlink" href="#interfaces-modes" title="Link to this heading">¶</a></h2>
 <p>The optional <code class="docutils literal notranslate"><span class="pre">mode</span></code> setting is available on all interfaces, and allows
 selecting the high-level behaviour of the interface from a number of modes.
 These modes affect how Reticulum selects paths in the network, how announces
@@ -1471,8 +1652,16 @@ to <code class="docutils literal notranslate"><span class="pre">30</span></code>
 <li><a class="reference internal" href="#pipe-interface">Pipe Interface</a></li>
 <li><a class="reference internal" href="#kiss-interface">KISS Interface</a></li>
 <li><a class="reference internal" href="#ax-25-kiss-interface">AX.25 KISS Interface</a></li>
-<li><a class="reference internal" href="#common-interface-options">Common Interface Options</a></li>
+<li><a class="reference internal" href="#discoverable-interfaces">Discoverable Interfaces</a><ul>
+<li><a class="reference internal" href="#enabling-discovery">Enabling Discovery</a></li>
+<li><a class="reference internal" href="#discovery-parameters">Discovery Parameters</a></li>
 <li><a class="reference internal" href="#interface-modes">Interface Modes</a></li>
+<li><a class="reference internal" href="#security-considerations">Security Considerations</a></li>
+<li><a class="reference internal" href="#example-configuration">Example Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#common-interface-options">Common Interface Options</a></li>
+<li><a class="reference internal" href="#interfaces-modes">Interface Modes</a></li>
 <li><a class="reference internal" href="#announce-rate-control">Announce Rate Control</a></li>
 <li><a class="reference internal" href="#new-destination-rate-limiting">New Destination Rate Limiting</a></li>
 </ul>
@@ -1486,7 +1675,7 @@ to <code class="docutils literal notranslate"><span class="pre">30</span></code>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=d55fa986"></script>
+</div><script src="_static/documentation_options.js?v=fc837d61"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

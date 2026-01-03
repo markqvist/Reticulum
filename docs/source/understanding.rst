@@ -596,6 +596,82 @@ the transfer, integrity verification and reassembling the data on the other end.
 of codes to reliably transfer any amount of data. They can be used to transfer data stored in memory,
 or stream data directly from files.
 
+.. _understanding-network_identities:
+
+Network Identities
+==================
+
+In Reticulum, every peer and application utilizes a cryptographic **Identity** to verify authenticity and establish encrypted channels. While standard identities are typically used to represent a single user, device, or service, Reticulum introduces the concept of a **Network Identity** to represent a logical group of nodes or an entire community infrastructure.
+
+A Network Identity is, at its core, a standard Reticulum Identity keyset. However, its purpose and usage differ from a personal identity. Instead of identifying a single entity, a Network Identity acts as a shared credential that federates multiple independent Transport Instances under a single, verifiable administrative domain.
+
+
+Conceptual Overview
+-------------------
+
+You can think of a standard Reticulum Identity as a self-sovereign, privately created passport for a single person. A Network Identity, conversely, is akin to a cryptographic flag, or a charter that flies over a fleet of ships. It signifies that while the ships may operate independently and be physically distant, they belong to the same organization, follow the same protocols, and are expected to act in concert.
+
+When you configure a Network Identity on one or more of your nodes, you are effectively declaring that these nodes constitute a specific "network" within a broader Reticulum mesh. This allows other peers to recognize interfaces not just as "a node named Alice", but as "a gateway belonging to The Eastern Ret Of Freedom".
+
+
+Current Usage
+-------------
+
+At present, the primary function of a Network Identity is within the :ref:`Interface Discovery<using-interface_discovery>` system.
+
+When a Transport Instance broadcasts a discovery announce for an interface, it can optionally sign that announce with a Network Identity, instead of just its local transport identity. Remote peers receiving the announce can then verify the signature. This provides functionality for two important distinctions:
+
+1.  **Authenticity:** It proves that the interface was published by an operator who possesses the private key for that Network Identity.
+2.  **Trust Boundaries:** It allows users to configure their systems to only accept and connect to interfaces that belong to specific Network Identities, effectively creating "whitelisted" zones of trusted infrastructure.
+
+.. note::
+  If you enable encryption on your discovery announces, the Network Identity is used as the shared secret. Only peers who have been explicitly provided with the Network Identity's full keyset (and have it configured locally) will be able to decrypt and utilize the connection details.
+
+  This functionality will be expanded in the future, so that peers with delegated keys can be allowed to decrypt discovery announces without holding the root network key. Currently, the functionality is sufficient for sharing interface information privately where you control all nodes that must decrypt the discovered interfaces.
+
+
+Future Implications
+-------------------
+
+While the current implementation focuses on interface discovery, the concept of Network Identities serves as the foundational building block for future Reticulum features designed to support large-scale, organic mesh formation.
+
+As the ecosystem evolves, Network Identities will facilitate:
+
+*   **Distributed Name Resolution:** A system where networks can publish name-to-identity mappings, allowing human-readable names to resolve without centralized servers.
+*   **Service Publishing:** Networks will be able to announce specific capabilities, services, or information endpoints available publicly or to their members.
+*   **Inter-Network Federation:** Trust relationships between different networks, allowing for seamless but managed flow of traffic and information across distinct administrative boundaries.
+*   **Distributed Blackhole Management:** A reputation-based system for blackhole list distribution, where trusted Network Identities can sign and publish lists of blackholed identities. This allows communities to collaboratively enforce security standards and filter spam or malicious identities across the parts of the wider mesh that they are responsible for.
+
+By adopting the use of Network Identities now, you are preparing your infrastructure to be compatible with this future functionality.
+
+
+Creating and Using a Network Identity
+-------------------------------------
+
+Since a Network Identity is simply a standard Reticulum Identity, you create one using the built-in tools.
+
+1.  **Generate the Identity:**
+    Use the ``rnid`` utility to generate a new identity file that will serve as your Network Identity.
+
+    .. code:: sh
+
+      $ rnid -g ~/.reticulum/storage/identities/my_network
+
+2.  **Distribute the Public Key:**
+    The public key must be distributed to any Transport Instance that needs to verify your network's announces and discovery information. By default, if your node is set up to use a network identity, this happens automatically (using the standard announce mechanism).
+
+3.  **Configure Instances:**
+    In the ``[reticulum]`` section of the configuration file on every node within your network, point the ``network_identity`` option to the file you created.
+
+    .. code:: ini
+
+      [reticulum]
+      ...
+      network_identity = ~/.reticulum/storage/identities/my_network
+      ...
+
+Once configured, your instances will automatically utilize this identity for signing discovery announces (and potentially decrypting network-private information), presenting a unified front to the wider network.
+
 .. _understanding-referencesystem:
 
 Reference Setup

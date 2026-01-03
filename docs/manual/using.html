@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>Using Reticulum on Your System - Reticulum Network Stack 1.0.5 documentation</title>
+        <title>Using Reticulum on Your System - Reticulum Network Stack 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.0.5 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.1.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.0.5 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.1.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -554,8 +554,8 @@ Reticulum Transport Instance &lt;5245a8efe1788c6a1cd36144a270e13b&gt; running
 </div>
 <p><strong>All Command-Line Options</strong></p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnstatus [-h] [--config CONFIG] [--version] [-a] [-A]
-                [-l] [-s SORT] [-r] [-j] [-R hash] [-i path]
-                [-w seconds] [-v] [-m] [-mi seconds] [filter]
+                [-l] [-t] [-s SORT] [-r] [-j] [-R hash] [-i path]
+                [-w seconds] [-d] [-D] [-m] [-I seconds] [-v] [filter]
 
 Reticulum Network Stack Status
 
@@ -569,16 +569,20 @@ options:
   -a, --all             show all interfaces
   -A, --announce-stats  show announce stats
   -l, --link-stats      show link stats
-  -s SORT, --sort SORT  sort interfaces by [rate, traffic, rx, tx, announces, arx, atx, held]
+  -t, --totals          display traffic totals
+  -s, --sort SORT       sort interfaces by [rate, traffic, rx, tx, rxs, txs,
+                                            announces, arx, atx, held]
   -r, --reverse         reverse sorting
   -j, --json            output in JSON format
-  -R hash               transport identity hash of remote instance to get status from (requires -i)
+  -R hash               transport identity hash of remote instance to get status from
   -i path               path to identity used for remote management
   -w seconds            timeout before giving up on remote queries
-  -v, --verbose
+  -d, --discovered      list discovered interfaces
+  -D                    show details and config entries for discovered interfaces
   -m, --monitor         continuously monitor status
-  -I seconds, --monitor-interval seconds
+  -I, --monitor-interval seconds
                         refresh interval for monitor mode (default: 1)
+  -v, --verbose
 </pre></div>
 </div>
 <div class="admonition note">
@@ -670,7 +674,7 @@ options:
 </div>
 </section>
 <section id="the-rnpath-utility">
-<h3>The rnpath Utility<a class="headerlink" href="#the-rnpath-utility" title="Link to this heading">¶</a></h3>
+<span id="utility-rnpath"></span><h3>The rnpath Utility<a class="headerlink" href="#the-rnpath-utility" title="Link to this heading">¶</a></h3>
 <p>With the <code class="docutils literal notranslate"><span class="pre">rnpath</span></code> utility, you can look up and view paths for
 destinations on the Reticulum network.</p>
 <p><strong>Usage Examples</strong></p>
@@ -681,21 +685,23 @@ Path found, destination &lt;c89b4da064bf66d280f0e4d8abfd9806&gt; is 4 hops away 
 </pre></div>
 </div>
 <p><strong>All Command-Line Options</strong></p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-m hops]
-              [-r] [-d] [-D] [-x] [-w seconds] [-R hash] [-i path]
-              [-W seconds] [-j] [-v] [destination]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-m hops] [-r] [-d] [-D]
+              [-x] [-w seconds] [-R hash] [-i path] [-W seconds] [-b] [-B] [-U]
+              [--duration DURATION] [--reason REASON] [-p] [-j] [-v]
+              [destination] [list_filter]
 
-Reticulum Path Discovery Utility
+Reticulum Path Management Utility
 
 positional arguments:
   destination           hexadecimal hash of the destination
+  list_filter           filter for remote blackhole list view
 
 options:
   -h, --help            show this help message and exit
   --config CONFIG       path to alternative Reticulum config directory
   --version             show program&#39;s version number and exit
   -t, --table           show all known paths
-  -m hops, --max hops   maximum hops to filter path table by
+  -m, --max hops        maximum hops to filter path table by
   -r, --rates           show announce rate info
   -d, --drop            remove the path to a destination
   -D, --drop-announces  drop all queued announces
@@ -704,6 +710,13 @@ options:
   -R hash               transport identity hash of remote instance to manage
   -i path               path to identity used for remote management
   -W seconds            timeout before giving up on remote queries
+  -b, --blackholed      list blackholed identities
+  -B, --blackhole       blackhole identity
+  -U, --unblackhole     unblackhole identity
+  --duration DURATION   duration of blackhole enforcement in hours
+  --reason REASON       reason for blackholing identity
+  -p, --blackholed-list
+                        view published blackhole list for remote transport instance
   -j, --json            output in JSON format
   -v, --verbose
 </pre></div>
@@ -972,6 +985,87 @@ options:
 section of this manual.</p>
 </section>
 </section>
+<section id="discovering-interfaces">
+<span id="using-interface-discovery"></span><h2>Discovering Interfaces<a class="headerlink" href="#discovering-interfaces" title="Link to this heading">¶</a></h2>
+<p>Reticulum includes built-in functionality for discovering connectable interfaces over Reticulum itself. This is particularly useful in situations where you want to do one or more of the following:</p>
+<ul class="simple">
+<li><p>Discover connectable entrypoints available on the Internet</p></li>
+<li><p>Find connectable radio access points in the physical world</p></li>
+<li><p>Maintain connectivity to RNS instances with unknown or changing IP addresses</p></li>
+</ul>
+<p>Discovered interfaces can be <strong>auto-connected</strong> by Reticulum, which makes it possible to create setups where an arbitrary interface can act simply as a bootstrap connection, that can be torn down again once more suitable interfaces have been discovered and connected.</p>
+<p>The interface discovery mechanism uses announces sent over Reticulum itself, and supports both publicly readable interfaces and private, encrypted discovery, that can only be decoded by specified <em>network identities</em>. It is also possible to specify which network identities should be considered valid sources for discovered interfaces, so that interfaces published by unknown entities are ignored.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A <em>network identity</em> is a normal Reticulum identity keyset that can be used by
+one or more transport nodes to identify them as belonging to the same overall
+network. In the context of interface discovery, this makes it easy to manage
+connecting to only the particular networks you care about, even if those networks
+utilize many individual physical transport node.</p>
+<p>This also makes it convenient to auto-connect discovered interfaces only for networks you have some level of trust in.</p>
+</div>
+<p>For information on how to make your interfaces discoverable, see the <a class="reference internal" href="interfaces.html#interfaces-discoverable"><span class="std std-ref">Discoverable Interfaces</span></a> chapter of this manual. The current section will focus on how to actually <em>discover and connect to</em> interfaces available on the network.</p>
+<p>In its most basic form, enabling interface discovery is as simple as setting <code class="docutils literal notranslate"><span class="pre">discover_interfaces</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code> in your Reticulum config:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[reticulum]
+...
+discover_interfaces = yes
+...
+</pre></div>
+</div>
+<p>Once this option is enabled, your RNS instance will start listening for interface discovery announces, and store them for later use or inspection. You can list discovered interfaces with the <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> utility:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnstatus -d
+
+Name           Type      Status       Last Heard   Value  Location
+-------------------------------------------------------------------------
+Sideband Hub   Backbone  ✓ Available  1h  ago      16     46.2316, 6.0536
+RNS Amsterdam  Backbone  ✓ Available  32m ago      16     52.3865, 4.9037
+</pre></div>
+</div>
+<p>You can view more detailed information about discovered interfaces, including configuration snippets for pasting directly into your <code class="docutils literal notranslate"><span class="pre">[interfaces]</span></code> config, by using the <code class="docutils literal notranslate"><span class="pre">rnstatus</span> <span class="pre">-D</span></code> option:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnstatus -D sideband
+
+Transport ID : 521c87a83afb8f29e4455e77930b973b
+Name         : Sideband Hub
+Type         : BackboneInterface
+Status       : Available
+Transport    : Enabled
+Distance     : 2 hops
+Discovered   : 9h and 40m ago
+Last Heard   : 1h and 15m ago
+Location     : 46.2316, 6.0536
+Address      : sideband.connect.reticulum.network:7822
+Stamp Value  : 16
+
+Configuration Entry:
+  [[Sideband Hub]]
+    type = BackboneInterface
+    enabled = yes
+    remote = sideband.connect.reticulum.network
+    target_port = 7822
+    transport_identity = 521c87a83afb8f29e4455e77930b973b
+</pre></div>
+</div>
+<p>In addition to providing local interface discovery information and control, the <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> utility can export discovered interface data in machine-readable JSON format using the <code class="docutils literal notranslate"><span class="pre">rnstatus</span> <span class="pre">-d</span> <span class="pre">--json</span></code> option. This can be useful for exporting the data to external applications such as status pages, access point maps and similar.</p>
+<p>To control what sources are considered valid for discovered sources, additional
+configuration options can be specified for the interface discovery system.</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">interface_discovery_sources</span></code> option is a list of the network or transport identities from which interfaces will be accepted. If this option is set, all others will be ignored. If this option is not set, discovered interfaces will be accepted from any source, but are still subject to stamp value requirements.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">required_discovery_value</span></code> options specifies the minimum stamp value required for the interface announce to be considered valid. To make it computationally difficult to spam the network with a large number of defunct or malicious interfaces, each announced interface requires a valid cryptographical stamp, of configurable difficulty value.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">autoconnect_discovered_interfaces</span></code> value defaults to <code class="docutils literal notranslate"><span class="pre">0</span></code>, and specifies the maximum number of discovered interfaces that should be auto-connected at any given time. If set to a number greater than <code class="docutils literal notranslate"><span class="pre">0</span></code>, Reticulum automatically manages discovered interface connections, and will bring discovered interfaces up and down based on availability. You can at any time add discovered interfaces to your configuration manually, to persistently keep them available.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">network_identity</span></code> option specifies the <em>network identity</em> for this RNS instance. This identity is used both to sign (and potentially encrypt) <em>outgoing</em> interface discovery announces, and to decrypt incoming discovery information.</p></li>
+</ul>
+<p>The configuration snippet below contains an example of setting these additional configuration options:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[reticulum]
+...
+discover_interfaces = yes
+interface_discovery_sources = 521c87a83afb8f29e4455e77930b973b
+required_discovery_value = 16
+autoconnect_discovered_interfaces = 3
+network_identity = ~/.reticulum/storage/identities/my_network
+...
+</pre></div>
+</div>
+</section>
 <section id="remote-management">
 <h2>Remote Management<a class="headerlink" href="#remote-management" title="Link to this heading">¶</a></h2>
 <p>It is possible to allow remote management of Reticulum
@@ -992,6 +1086,98 @@ remote_management_allowed = 9fb6d773498fb3feda407ed8ef2c3229, 2d882c5586e548d79b
 </pre></div>
 </div>
 <p>For a complete example configuration, you can run <code class="docutils literal notranslate"><span class="pre">rnsd</span> <span class="pre">--exampleconfig</span></code>.</p>
+</section>
+<section id="blackhole-management">
+<span id="using-blackhole-management"></span><h2>Blackhole Management<a class="headerlink" href="#blackhole-management" title="Link to this heading">¶</a></h2>
+<p>Reticulum networks are fundamentally permissionless and open, allowing anyone with a compatible interface to participate. While this openness is essential for a resilient and decentralized network, it also exposes the network to potential abuse, such as peers flooding the network with excessive announce broadcasts or other forms of resource exhaustion.</p>
+<p>The <strong>Blackhole</strong> system provides tools to help manage this problem. It allows operators and individual users to block specific identities at the Transport layer, preventing them from propagating announces through your node, and for other nodes to reach them through your network.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is fundamentally <strong>no way</strong> to <em>globally</em> block or censor any identity or destination in Reticulum networks. The blackhole functionality will prevent announces from (and traffic to) all destinations associated with the blackholed identity <em>on your own network segments only</em>.</p>
+<p>This provides users and operators with control over what they want to allow <em>on their own network segments</em>, but there is no way to globally censor or remove an identity, as long as <em>someone</em> is willing to provide transport for it.</p>
+</div>
+<p>This functionality serves a dual purpose:</p>
+<ul class="simple">
+<li><p><strong>For Individual Users:</strong> It offers a simple way to maintain a quiet and efficient local network by manually blocking spammy or unwanted peers.</p></li>
+<li><p><strong>For Network Operators:</strong> It enables the creation of federated, community-wide security standards. By publishing and sharing blackhole lists, operators can protect large infrastructures and distribute spam filtering rules across the mesh without manual intervention.</p></li>
+</ul>
+<section id="local-blackhole-management">
+<h3>Local Blackhole Management<a class="headerlink" href="#local-blackhole-management" title="Link to this heading">¶</a></h3>
+<p>The most immediate way to manage unwanted identities is through manual configuration using the <code class="docutils literal notranslate"><span class="pre">rnpath</span></code> utility. This allows you to instantly block or unblock specific identities on your local Transport Instance.</p>
+<p><strong>Blackholing an Identity</strong></p>
+<p>To block an identity, use the <code class="docutils literal notranslate"><span class="pre">-B</span></code> (or <code class="docutils literal notranslate"><span class="pre">--blackhole</span></code>) flag followed by the identity hash. You can optionally specify a duration and a reason, which are useful for logging and future reference.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnpath -B 3a4f8b9c1d2e3f4g5h6i7j8k9l0m1n2o
+</pre></div>
+</div>
+<p>You can also add a duration (in hours) and a reason:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnpath -B 3a4f8b9c1d2e3f4g5h6i7j8k9l0m1n2o --duration 24 --reason &quot;Excessive announces&quot;
+</pre></div>
+</div>
+<p><strong>Lifting Blackholes</strong></p>
+<p>To remove an identity from the blackhole, use the <code class="docutils literal notranslate"><span class="pre">-U</span></code> (or <code class="docutils literal notranslate"><span class="pre">--unblackhole</span></code>) flag:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnpath -U 3a4f8b9c1d2e3f4g5h6i7j8k9l0m1n2o
+</pre></div>
+</div>
+<p><strong>Viewing the Blackhole List</strong></p>
+<p>To see all identities currently blackholed on your local instance, use the <code class="docutils literal notranslate"><span class="pre">-b</span></code> (or <code class="docutils literal notranslate"><span class="pre">--blackholed</span></code>) flag:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnpath -b
+
+&lt;3a4f8b9c1d2e3f4g5h6i7j8k9l0m1n2o&gt; blackholed for 23h, 56m (Excessive announces)
+&lt;399ea050ce0eed1816c300bcb0840938&gt; blackholed indefinitely (Announce spam)
+&lt;d56a4fa02c0a77b3575935aedd90bdb2&gt; blackholed indefinitely (Announce spam)
+&lt;2b9ec651326d9bc274119054c70fb75e&gt; blackholed indefinitely (Announce spam)
+&lt;1178a8f1fad405bf2ad153bf5036bdfd&gt; blackholed indefinitely (Announce spam)
+</pre></div>
+</div>
+</section>
+<section id="automated-list-sourcing">
+<h3>Automated List Sourcing<a class="headerlink" href="#automated-list-sourcing" title="Link to this heading">¶</a></h3>
+<p>Manually blocking identities is effective for immediate threats, but maintaining an up-to-date blocklist for a large network is impractical. Reticulum supports <strong>automated list sourcing</strong>, allowing your node to subscribe to blackhole lists maintained by trusted peers, or a central authority you manage yourself.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Verify Before Subscribing!</strong>
+Subscribing to a blackhole source is a powerful action that grants that source the ability to dictate who you can communicate with. Before adding a source to your configuration, verify that the maintainer aligns with your usage policy and values. Blindly subscribing to untrusted lists could inadvertently block legitimate peers or essential services.</p>
+</div>
+<p>When enabled, your Transport Instance will periodically (approximately once per hour) connect to configured sources, retrieve their latest blackhole lists, and automatically merge them into your local blocklist. This provides “set-and-forget” protection for both individual users and large networks.</p>
+<p><strong>Configuration</strong></p>
+<p>To enable automated sourcing, add the <code class="docutils literal notranslate"><span class="pre">blackhole_sources</span></code> option to the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code> section of your configuration file. This option accepts a comma-separated list of Transport Identity hashes that you trust to provide valid blackhole lists.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[reticulum]</span>
+<span class="na">...</span>
+<span class="c1"># Automatically fetch blackhole lists from these trusted sources</span>
+<span class="na">blackhole_sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">521c87a83afb8f29e4455e77930b973b, 68a4aa91ac350c4087564e8a69f84e86</span>
+<span class="na">...</span>
+</pre></div>
+</div>
+<p><strong>How It Works</strong></p>
+<ol class="arabic simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">BlackholeUpdater</span></code> service runs in the background.</p></li>
+<li><p>For every identity hash listed in <code class="docutils literal notranslate"><span class="pre">blackhole_sources</span></code>, it attempts to establish a temporary link to the destination <code class="docutils literal notranslate"><span class="pre">rnstransport.info.blackhole</span></code>.</p></li>
+<li><p>It requests the <code class="docutils literal notranslate"><span class="pre">/list</span></code> path, which returns a dictionary of blocked identities and their associated metadata.</p></li>
+<li><p>The received list is merged with your local <code class="docutils literal notranslate"><span class="pre">blackholed_identities</span></code> database.</p></li>
+<li><p>The lists are persisted to disk, ensuring they survive restarts.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can verify the external lists you are subscribed to, and their contents, without importing them by using <code class="docutils literal notranslate"><span class="pre">rnpath</span> <span class="pre">-p</span></code>. See the <a class="reference internal" href="#utility-rnpath"><span class="std std-ref">rnpath utility documentation</span></a> for details on querying remote blackhole lists.</p>
+</div>
+</section>
+<section id="publishing-blackhole-lists">
+<h3>Publishing Blackhole Lists<a class="headerlink" href="#publishing-blackhole-lists" title="Link to this heading">¶</a></h3>
+<p>If you are operating a public gateway, a community hub, or simply wish to share your blocklist with others, you can configure your instance to act as a blackhole list publisher. This allows other nodes to subscribe to <em>your</em> definitions of unwanted traffic.</p>
+<p><strong>Enabling Publishing</strong></p>
+<p>To publish your local blackhole list, enable the <code class="docutils literal notranslate"><span class="pre">publish_blackhole</span></code> option in the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code> section:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[reticulum]</span>
+<span class="na">...</span>
+<span class="na">publish_blackhole</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="na">...</span>
+</pre></div>
+</div>
+<p>When this is enabled, your Transport Instance will register a request handler at <code class="docutils literal notranslate"><span class="pre">rnstransport.info.blackhole</span></code>. Any peer that connects to this destination and requests <code class="docutils literal notranslate"><span class="pre">/list</span></code> will receive the complete set of identities currently present in your local blackhole database.</p>
+<p><strong>Federation and Trust</strong></p>
+<p>The blackhole system relies on the trust relationship between the subscriber and the publisher. By subscribing to a source, you are implicitly trusting that source to only block identities that are genuinely detrimental to the network.</p>
+<p>As the ecosystem matures, this system is designed to integrate with <strong>Network Identities</strong>. This allows communities to verify that a published blackhole list is actually provided by a specific network or organization with a certain level of reputation and trustworthiness, adding a layer of cryptographic trust to the federation process. This prevents malicious actors from publishing fake lists intended to censor legitimate traffic.</p>
+<p>For operators, this creates a scalable model where maintaining a single high-quality blocklist can protect thousands of downstream peers, drastically reducing the administrative overhead of network hygiene.</p>
+</section>
 </section>
 <section id="improving-system-configuration">
 <h2>Improving System Configuration<a class="headerlink" href="#improving-system-configuration" title="Link to this heading">¶</a></h2>
@@ -1179,7 +1365,14 @@ systemctl --user enable rnsd.service
 <li><a class="reference internal" href="#the-rnodeconf-utility">The rnodeconf Utility</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#discovering-interfaces">Discovering Interfaces</a></li>
 <li><a class="reference internal" href="#remote-management">Remote Management</a></li>
+<li><a class="reference internal" href="#blackhole-management">Blackhole Management</a><ul>
+<li><a class="reference internal" href="#local-blackhole-management">Local Blackhole Management</a></li>
+<li><a class="reference internal" href="#automated-list-sourcing">Automated List Sourcing</a></li>
+<li><a class="reference internal" href="#publishing-blackhole-lists">Publishing Blackhole Lists</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#improving-system-configuration">Improving System Configuration</a><ul>
 <li><a class="reference internal" href="#fixed-serial-port-names">Fixed Serial Port Names</a></li>
 <li><a class="reference internal" href="#reticulum-as-a-system-service">Reticulum as a System Service</a><ul>
@@ -1200,7 +1393,7 @@ systemctl --user enable rnsd.service
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=d55fa986"></script>
+</div><script src="_static/documentation_options.js?v=fc837d61"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

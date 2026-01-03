@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>Understanding Reticulum - Reticulum Network Stack 1.0.5 documentation</title>
+        <title>Understanding Reticulum - Reticulum Network Stack 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.0.5 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.1.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.0.5 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.1.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -873,6 +873,66 @@ of codes to reliably transfer any amount of data. They can be used to transfer d
 or stream data directly from files.</p>
 </section>
 </section>
+<section id="network-identities">
+<span id="understanding-network-identities"></span><h2>Network Identities<a class="headerlink" href="#network-identities" title="Link to this heading">¶</a></h2>
+<p>In Reticulum, every peer and application utilizes a cryptographic <strong>Identity</strong> to verify authenticity and establish encrypted channels. While standard identities are typically used to represent a single user, device, or service, Reticulum introduces the concept of a <strong>Network Identity</strong> to represent a logical group of nodes or an entire community infrastructure.</p>
+<p>A Network Identity is, at its core, a standard Reticulum Identity keyset. However, its purpose and usage differ from a personal identity. Instead of identifying a single entity, a Network Identity acts as a shared credential that federates multiple independent Transport Instances under a single, verifiable administrative domain.</p>
+<section id="conceptual-overview">
+<h3>Conceptual Overview<a class="headerlink" href="#conceptual-overview" title="Link to this heading">¶</a></h3>
+<p>You can think of a standard Reticulum Identity as a self-sovereign, privately created passport for a single person. A Network Identity, conversely, is akin to a cryptographic flag, or a charter that flies over a fleet of ships. It signifies that while the ships may operate independently and be physically distant, they belong to the same organization, follow the same protocols, and are expected to act in concert.</p>
+<p>When you configure a Network Identity on one or more of your nodes, you are effectively declaring that these nodes constitute a specific “network” within a broader Reticulum mesh. This allows other peers to recognize interfaces not just as “a node named Alice”, but as “a gateway belonging to The Eastern Ret Of Freedom”.</p>
+</section>
+<section id="current-usage">
+<h3>Current Usage<a class="headerlink" href="#current-usage" title="Link to this heading">¶</a></h3>
+<p>At present, the primary function of a Network Identity is within the <a class="reference internal" href="using.html#using-interface-discovery"><span class="std std-ref">Interface Discovery</span></a> system.</p>
+<p>When a Transport Instance broadcasts a discovery announce for an interface, it can optionally sign that announce with a Network Identity, instead of just its local transport identity. Remote peers receiving the announce can then verify the signature. This provides functionality for two important distinctions:</p>
+<ol class="arabic simple">
+<li><p><strong>Authenticity:</strong> It proves that the interface was published by an operator who possesses the private key for that Network Identity.</p></li>
+<li><p><strong>Trust Boundaries:</strong> It allows users to configure their systems to only accept and connect to interfaces that belong to specific Network Identities, effectively creating “whitelisted” zones of trusted infrastructure.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you enable encryption on your discovery announces, the Network Identity is used as the shared secret. Only peers who have been explicitly provided with the Network Identity’s full keyset (and have it configured locally) will be able to decrypt and utilize the connection details.</p>
+<p>This functionality will be expanded in the future, so that peers with delegated keys can be allowed to decrypt discovery announces without holding the root network key. Currently, the functionality is sufficient for sharing interface information privately where you control all nodes that must decrypt the discovered interfaces.</p>
+</div>
+</section>
+<section id="future-implications">
+<h3>Future Implications<a class="headerlink" href="#future-implications" title="Link to this heading">¶</a></h3>
+<p>While the current implementation focuses on interface discovery, the concept of Network Identities serves as the foundational building block for future Reticulum features designed to support large-scale, organic mesh formation.</p>
+<p>As the ecosystem evolves, Network Identities will facilitate:</p>
+<ul class="simple">
+<li><p><strong>Distributed Name Resolution:</strong> A system where networks can publish name-to-identity mappings, allowing human-readable names to resolve without centralized servers.</p></li>
+<li><p><strong>Service Publishing:</strong> Networks will be able to announce specific capabilities, services, or information endpoints available publicly or to their members.</p></li>
+<li><p><strong>Inter-Network Federation:</strong> Trust relationships between different networks, allowing for seamless but managed flow of traffic and information across distinct administrative boundaries.</p></li>
+<li><p><strong>Distributed Blackhole Management:</strong> A reputation-based system for blackhole list distribution, where trusted Network Identities can sign and publish lists of blackholed identities. This allows communities to collaboratively enforce security standards and filter spam or malicious identities across the parts of the wider mesh that they are responsible for.</p></li>
+</ul>
+<p>By adopting the use of Network Identities now, you are preparing your infrastructure to be compatible with this future functionality.</p>
+</section>
+<section id="creating-and-using-a-network-identity">
+<h3>Creating and Using a Network Identity<a class="headerlink" href="#creating-and-using-a-network-identity" title="Link to this heading">¶</a></h3>
+<p>Since a Network Identity is simply a standard Reticulum Identity, you create one using the built-in tools.</p>
+<ol class="arabic">
+<li><p><strong>Generate the Identity:</strong>
+Use the <code class="docutils literal notranslate"><span class="pre">rnid</span></code> utility to generate a new identity file that will serve as your Network Identity.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>rnid<span class="w"> </span>-g<span class="w"> </span>~/.reticulum/storage/identities/my_network
+</pre></div>
+</div>
+</li>
+<li><p><strong>Distribute the Public Key:</strong>
+The public key must be distributed to any Transport Instance that needs to verify your network’s announces and discovery information. By default, if your node is set up to use a network identity, this happens automatically (using the standard announce mechanism).</p></li>
+<li><p><strong>Configure Instances:</strong>
+In the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code> section of the configuration file on every node within your network, point the <code class="docutils literal notranslate"><span class="pre">network_identity</span></code> option to the file you created.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[reticulum]</span>
+<span class="na">...</span>
+<span class="na">network_identity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">~/.reticulum/storage/identities/my_network</span>
+<span class="na">...</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Once configured, your instances will automatically utilize this identity for signing discovery announces (and potentially decrypting network-private information), presenting a unified front to the wider network.</p>
+</section>
+</section>
 <section id="reference-setup">
 <span id="understanding-referencesystem"></span><h2>Reference Setup<a class="headerlink" href="#reference-setup" title="Link to this heading">¶</a></h2>
 <p>This section will detail a recommended <em>Reference Setup</em> for Reticulum. It is important to
@@ -1247,6 +1307,13 @@ those risks are acceptable to you.</p>
 <li><a class="reference internal" href="#resources">Resources</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#network-identities">Network Identities</a><ul>
+<li><a class="reference internal" href="#conceptual-overview">Conceptual Overview</a></li>
+<li><a class="reference internal" href="#current-usage">Current Usage</a></li>
+<li><a class="reference internal" href="#future-implications">Future Implications</a></li>
+<li><a class="reference internal" href="#creating-and-using-a-network-identity">Creating and Using a Network Identity</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#reference-setup">Reference Setup</a></li>
 <li><a class="reference internal" href="#protocol-specifics">Protocol Specifics</a><ul>
 <li><a class="reference internal" href="#packet-prioritisation">Packet Prioritisation</a></li>
@@ -1267,7 +1334,7 @@ those risks are acceptable to you.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=d55fa986"></script>
+</div><script src="_static/documentation_options.js?v=fc837d61"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

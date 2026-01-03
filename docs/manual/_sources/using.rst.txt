@@ -338,8 +338,8 @@ Filter output to only show some interfaces:
 .. code:: text
 
   usage: rnstatus [-h] [--config CONFIG] [--version] [-a] [-A]
-                  [-l] [-s SORT] [-r] [-j] [-R hash] [-i path]
-                  [-w seconds] [-v] [-m] [-mi seconds] [filter]
+                  [-l] [-t] [-s SORT] [-r] [-j] [-R hash] [-i path]
+                  [-w seconds] [-d] [-D] [-m] [-I seconds] [-v] [filter]
 
   Reticulum Network Stack Status
 
@@ -353,16 +353,20 @@ Filter output to only show some interfaces:
     -a, --all             show all interfaces
     -A, --announce-stats  show announce stats
     -l, --link-stats      show link stats
-    -s SORT, --sort SORT  sort interfaces by [rate, traffic, rx, tx, announces, arx, atx, held]
+    -t, --totals          display traffic totals
+    -s, --sort SORT       sort interfaces by [rate, traffic, rx, tx, rxs, txs,
+                                              announces, arx, atx, held]
     -r, --reverse         reverse sorting
     -j, --json            output in JSON format
-    -R hash               transport identity hash of remote instance to get status from (requires -i)
+    -R hash               transport identity hash of remote instance to get status from
     -i path               path to identity used for remote management
     -w seconds            timeout before giving up on remote queries
-    -v, --verbose
+    -d, --discovered      list discovered interfaces
+    -D                    show details and config entries for discovered interfaces
     -m, --monitor         continuously monitor status
-    -I seconds, --monitor-interval seconds
+    -I, --monitor-interval seconds
                           refresh interval for monitor mode (default: 1)
+    -v, --verbose
 
 
 .. note::
@@ -466,6 +470,7 @@ Decrypt a file using the Reticulum Identity it was encrypted for:
     -B, --base32          Use base32-encoded input and output
     --version             show program's version number and exit
 
+.. _utility-rnpath:
 
 The rnpath Utility
 ====================
@@ -487,21 +492,23 @@ Resolve path to a destination:
 
 .. code:: text
 
-  usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-m hops]
-                [-r] [-d] [-D] [-x] [-w seconds] [-R hash] [-i path]
-                [-W seconds] [-j] [-v] [destination]
+  usage: rnpath [-h] [--config CONFIG] [--version] [-t] [-m hops] [-r] [-d] [-D]
+                [-x] [-w seconds] [-R hash] [-i path] [-W seconds] [-b] [-B] [-U]
+                [--duration DURATION] [--reason REASON] [-p] [-j] [-v]
+                [destination] [list_filter]
 
-  Reticulum Path Discovery Utility
+  Reticulum Path Management Utility
 
   positional arguments:
     destination           hexadecimal hash of the destination
+    list_filter           filter for remote blackhole list view
 
   options:
     -h, --help            show this help message and exit
     --config CONFIG       path to alternative Reticulum config directory
     --version             show program's version number and exit
     -t, --table           show all known paths
-    -m hops, --max hops   maximum hops to filter path table by
+    -m, --max hops        maximum hops to filter path table by
     -r, --rates           show announce rate info
     -d, --drop            remove the path to a destination
     -D, --drop-announces  drop all queued announces
@@ -510,6 +517,13 @@ Resolve path to a destination:
     -R hash               transport identity hash of remote instance to manage
     -i path               path to identity used for remote management
     -W seconds            timeout before giving up on remote queries
+    -b, --blackholed      list blackholed identities
+    -B, --blackhole       blackhole identity
+    -U, --unblackhole     unblackhole identity
+    --duration DURATION   duration of blackhole enforcement in hours
+    --reason REASON       reason for blackholing identity
+    -p, --blackholed-list
+                          view published blackhole list for remote transport instance
     -j, --json            output in JSON format
     -v, --verbose
 
@@ -821,6 +835,104 @@ to create and provision new :ref:`RNodes<rnode-main>` from any supported hardwar
 For more information on how to create your own RNodes, please read the :ref:`Creating RNodes<rnode-creating>`
 section of this manual.
 
+.. _using-interface_discovery:
+Discovering Interfaces
+----------------------
+
+Reticulum includes built-in functionality for discovering connectable interfaces over Reticulum itself. This is particularly useful in situations where you want to do one or more of the following:
+
+* Discover connectable entrypoints available on the Internet
+* Find connectable radio access points in the physical world
+* Maintain connectivity to RNS instances with unknown or changing IP addresses
+
+Discovered interfaces can be **auto-connected** by Reticulum, which makes it possible to create setups where an arbitrary interface can act simply as a bootstrap connection, that can be torn down again once more suitable interfaces have been discovered and connected.
+
+The interface discovery mechanism uses announces sent over Reticulum itself, and supports both publicly readable interfaces and private, encrypted discovery, that can only be decoded by specified *network identities*. It is also possible to specify which network identities should be considered valid sources for discovered interfaces, so that interfaces published by unknown entities are ignored.
+
+.. note::
+  A *network identity* is a normal Reticulum identity keyset that can be used by
+  one or more transport nodes to identify them as belonging to the same overall
+  network. In the context of interface discovery, this makes it easy to manage
+  connecting to only the particular networks you care about, even if those networks
+  utilize many individual physical transport node.
+
+  This also makes it convenient to auto-connect discovered interfaces only for networks you have some level of trust in.
+
+For information on how to make your interfaces discoverable, see the :ref:`Discoverable Interfaces<interfaces-discoverable>` chapter of this manual. The current section will focus on how to actually *discover and connect to* interfaces available on the network.
+
+In its most basic form, enabling interface discovery is as simple as setting ``discover_interfaces`` to ``true`` in your Reticulum config:
+
+.. code:: text
+  
+  [reticulum]
+  ...
+  discover_interfaces = yes
+  ...
+
+Once this option is enabled, your RNS instance will start listening for interface discovery announces, and store them for later use or inspection. You can list discovered interfaces with the ``rnstatus`` utility:
+
+.. code:: text
+
+  $ rnstatus -d
+  
+  Name           Type      Status       Last Heard   Value  Location       
+  -------------------------------------------------------------------------
+  Sideband Hub   Backbone  ✓ Available  1h  ago      16     46.2316, 6.0536
+  RNS Amsterdam  Backbone  ✓ Available  32m ago      16     52.3865, 4.9037
+
+
+You can view more detailed information about discovered interfaces, including configuration snippets for pasting directly into your ``[interfaces]`` config, by using the ``rnstatus -D`` option:
+
+.. code:: text
+  
+  $ rnstatus -D sideband
+
+  Transport ID : 521c87a83afb8f29e4455e77930b973b
+  Name         : Sideband Hub
+  Type         : BackboneInterface
+  Status       : Available
+  Transport    : Enabled
+  Distance     : 2 hops
+  Discovered   : 9h and 40m ago
+  Last Heard   : 1h and 15m ago
+  Location     : 46.2316, 6.0536
+  Address      : sideband.connect.reticulum.network:7822
+  Stamp Value  : 16
+
+  Configuration Entry:
+    [[Sideband Hub]]
+      type = BackboneInterface
+      enabled = yes
+      remote = sideband.connect.reticulum.network
+      target_port = 7822
+      transport_identity = 521c87a83afb8f29e4455e77930b973b
+
+In addition to providing local interface discovery information and control, the ``rnstatus`` utility can export discovered interface data in machine-readable JSON format using the ``rnstatus -d --json`` option. This can be useful for exporting the data to external applications such as status pages, access point maps and similar.
+
+To control what sources are considered valid for discovered sources, additional
+configuration options can be specified for the interface discovery system.
+
+* The ``interface_discovery_sources`` option is a list of the network or transport identities from which interfaces will be accepted. If this option is set, all others will be ignored. If this option is not set, discovered interfaces will be accepted from any source, but are still subject to stamp value requirements.
+
+* The ``required_discovery_value`` options specifies the minimum stamp value required for the interface announce to be considered valid. To make it computationally difficult to spam the network with a large number of defunct or malicious interfaces, each announced interface requires a valid cryptographical stamp, of configurable difficulty value.
+
+* The ``autoconnect_discovered_interfaces`` value defaults to ``0``, and specifies the maximum number of discovered interfaces that should be auto-connected at any given time. If set to a number greater than ``0``, Reticulum automatically manages discovered interface connections, and will bring discovered interfaces up and down based on availability. You can at any time add discovered interfaces to your configuration manually, to persistently keep them available.
+
+* The ``network_identity`` option specifies the *network identity* for this RNS instance. This identity is used both to sign (and potentially encrypt) *outgoing* interface discovery announces, and to decrypt incoming discovery information.
+
+The configuration snippet below contains an example of setting these additional configuration options:
+
+.. code:: text
+  
+  [reticulum]
+  ...
+  discover_interfaces = yes
+  interface_discovery_sources = 521c87a83afb8f29e4455e77930b973b
+  required_discovery_value = 16
+  autoconnect_discovered_interfaces = 3
+  network_identity = ~/.reticulum/storage/identities/my_network
+  ...
+
 Remote Management
 -----------------
 
@@ -845,6 +957,130 @@ in the Reticulum configuration file:
   ...
 
 For a complete example configuration, you can run ``rnsd --exampleconfig``.
+
+.. _using-blackhole_management:
+
+Blackhole Management
+--------------------
+
+Reticulum networks are fundamentally permissionless and open, allowing anyone with a compatible interface to participate. While this openness is essential for a resilient and decentralized network, it also exposes the network to potential abuse, such as peers flooding the network with excessive announce broadcasts or other forms of resource exhaustion.
+
+The **Blackhole** system provides tools to help manage this problem. It allows operators and individual users to block specific identities at the Transport layer, preventing them from propagating announces through your node, and for other nodes to reach them through your network.
+
+.. note::
+  
+  There is fundamentally **no way** to *globally* block or censor any identity or destination in Reticulum networks. The blackhole functionality will prevent announces from (and traffic to) all destinations associated with the blackholed identity *on your own network segments only*.
+
+  This provides users and operators with control over what they want to allow *on their own network segments*, but there is no way to globally censor or remove an identity, as long as *someone* is willing to provide transport for it.
+
+This functionality serves a dual purpose:
+
+*   **For Individual Users:** It offers a simple way to maintain a quiet and efficient local network by manually blocking spammy or unwanted peers.
+*   **For Network Operators:** It enables the creation of federated, community-wide security standards. By publishing and sharing blackhole lists, operators can protect large infrastructures and distribute spam filtering rules across the mesh without manual intervention.
+
+
+Local Blackhole Management
+==========================
+
+The most immediate way to manage unwanted identities is through manual configuration using the ``rnpath`` utility. This allows you to instantly block or unblock specific identities on your local Transport Instance.
+
+**Blackholing an Identity**
+
+To block an identity, use the ``-B`` (or ``--blackhole``) flag followed by the identity hash. You can optionally specify a duration and a reason, which are useful for logging and future reference.
+
+.. code:: text
+
+  $ rnpath -B 3a4f8b9c1d2e3f4g5h6i7j8k9l0m1n2o
+
+You can also add a duration (in hours) and a reason:
+
+.. code:: text
+
+  $ rnpath -B 3a4f8b9c1d2e3f4g5h6i7j8k9l0m1n2o --duration 24 --reason "Excessive announces"
+
+**Lifting Blackholes**
+
+To remove an identity from the blackhole, use the ``-U`` (or ``--unblackhole``) flag:
+
+.. code:: text
+
+  $ rnpath -U 3a4f8b9c1d2e3f4g5h6i7j8k9l0m1n2o
+
+**Viewing the Blackhole List**
+
+To see all identities currently blackholed on your local instance, use the ``-b`` (or ``--blackholed``) flag:
+
+.. code:: text
+
+  $ rnpath -b
+
+  <3a4f8b9c1d2e3f4g5h6i7j8k9l0m1n2o> blackholed for 23h, 56m (Excessive announces)
+  <399ea050ce0eed1816c300bcb0840938> blackholed indefinitely (Announce spam)
+  <d56a4fa02c0a77b3575935aedd90bdb2> blackholed indefinitely (Announce spam)
+  <2b9ec651326d9bc274119054c70fb75e> blackholed indefinitely (Announce spam)
+  <1178a8f1fad405bf2ad153bf5036bdfd> blackholed indefinitely (Announce spam)
+
+
+
+Automated List Sourcing
+=======================
+
+Manually blocking identities is effective for immediate threats, but maintaining an up-to-date blocklist for a large network is impractical. Reticulum supports **automated list sourcing**, allowing your node to subscribe to blackhole lists maintained by trusted peers, or a central authority you manage yourself.
+
+.. warning:: **Verify Before Subscribing!**
+   Subscribing to a blackhole source is a powerful action that grants that source the ability to dictate who you can communicate with. Before adding a source to your configuration, verify that the maintainer aligns with your usage policy and values. Blindly subscribing to untrusted lists could inadvertently block legitimate peers or essential services.
+
+When enabled, your Transport Instance will periodically (approximately once per hour) connect to configured sources, retrieve their latest blackhole lists, and automatically merge them into your local blocklist. This provides "set-and-forget" protection for both individual users and large networks.
+
+**Configuration**
+
+To enable automated sourcing, add the ``blackhole_sources`` option to the ``[reticulum]`` section of your configuration file. This option accepts a comma-separated list of Transport Identity hashes that you trust to provide valid blackhole lists.
+
+.. code:: ini
+
+  [reticulum]
+  ...
+  # Automatically fetch blackhole lists from these trusted sources
+  blackhole_sources = 521c87a83afb8f29e4455e77930b973b, 68a4aa91ac350c4087564e8a69f84e86
+  ...
+
+**How It Works**
+
+1.  The ``BlackholeUpdater`` service runs in the background.
+2.  For every identity hash listed in ``blackhole_sources``, it attempts to establish a temporary link to the destination ``rnstransport.info.blackhole``.
+3.  It requests the ``/list`` path, which returns a dictionary of blocked identities and their associated metadata.
+4.  The received list is merged with your local ``blackholed_identities`` database.
+5.  The lists are persisted to disk, ensuring they survive restarts.
+
+.. note::
+  You can verify the external lists you are subscribed to, and their contents, without importing them by using ``rnpath -p``. See the :ref:`rnpath utility documentation<utility-rnpath>` for details on querying remote blackhole lists.
+
+
+Publishing Blackhole Lists
+==========================
+
+If you are operating a public gateway, a community hub, or simply wish to share your blocklist with others, you can configure your instance to act as a blackhole list publisher. This allows other nodes to subscribe to *your* definitions of unwanted traffic.
+
+**Enabling Publishing**
+
+To publish your local blackhole list, enable the ``publish_blackhole`` option in the ``[reticulum]`` section:
+
+.. code:: ini
+
+  [reticulum]
+  ...
+  publish_blackhole = yes
+  ...
+
+When this is enabled, your Transport Instance will register a request handler at ``rnstransport.info.blackhole``. Any peer that connects to this destination and requests ``/list`` will receive the complete set of identities currently present in your local blackhole database.
+
+**Federation and Trust**
+
+The blackhole system relies on the trust relationship between the subscriber and the publisher. By subscribing to a source, you are implicitly trusting that source to only block identities that are genuinely detrimental to the network.
+
+As the ecosystem matures, this system is designed to integrate with **Network Identities**. This allows communities to verify that a published blackhole list is actually provided by a specific network or organization with a certain level of reputation and trustworthiness, adding a layer of cryptographic trust to the federation process. This prevents malicious actors from publishing fake lists intended to censor legitimate traffic.
+
+For operators, this creates a scalable model where maintaining a single high-quality blocklist can protect thousands of downstream peers, drastically reducing the administrative overhead of network hygiene.
 
 Improving System Configuration
 ------------------------------

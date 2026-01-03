@@ -8,7 +8,7 @@ scenarios.
 
 
 Standalone Reticulum Installation
-=============================================
+=================================
 If you simply want to install Reticulum and related utilities on a system,
 the easiest way is via the ``pip`` package manager:
 
@@ -254,14 +254,90 @@ In general it is recommended to use an I2P node if you want to host a publicly a
 instance, while preserving anonymity. If you care more about performance, and a slightly
 easier setup, use TCP.
 
+.. _bootstrapping-connectivity:
+
+Bootstrapping Connectivity
+==========================
+
+Reticulum is not a service you subscribe to, nor is it a single global network you "join". It is a *networking stack*; a toolkit for building communications systems that align with your specific values, requirements, and operational environment. The way you choose to connect to other Reticulum peers is entirely your own choice.
+
+One of the most powerful aspects of Reticulum is that it provides a multitude of tools to establish, maintain, and optimize connectivity. You can use these tools in isolation or combine them in complex configurations to achieve a vast array of goals.
+
+Whether your aim is to create a completely private, air-gapped network for your family; to build a resilient community mesh that survives infrastructure collapse; to connect far and wide to as many nodes as possible; or simply to maintain a reliable, encrypted link to a specific organization you care about, Reticulum provides the mechanisms to make it happen.
+
+There is no "right" or "wrong" way to build a Reticulum network, and you don't need to be a network engineer just to get started. If the information flows in the way you intend, and your privacy and security requirements are met, your configuration is a success. Reticulum is designed to make the most challenging and difficult scenarios attainable, even when other networking technologies fail.
+
+
+Finding Your Way
+^^^^^^^^^^^^^^^^
+
+When you first start using Reticulum, you need a way to obtain connectivity with the peers you want to communicate with. This is the process of **bootstrapping**.
+
+A common mistake in modern networking is the reliance on a few centralized, hard-coded entrypoints. If every user simply connects to the same list of public IP addresses found on a website, the network becomes brittle, centralized, and ultimately fails to deliver on the promise of decentralization.
+
+Reticulum encourages the approach of *organic growth*. Instead of relying on permanent static connections to distant servers, you can use temporary bootstrap connections to *discover* better, more relevant or local infrastructure. Once discovered, your system can automatically form stronger, more direct links to these peers, and discard the temporary bootstrap links. This results in a web of connections that are geographically relevant, resilient and efficient.
+
+It is possible to simply add a few public entrypoints to the ``[interfaces]`` section of your Reticulum configuration and be connected, but a better option is to enable :ref:`interface discovery<using-interface_discovery>` and either manually select relevant, local interfaces, or enable discovered interface auto-connection.
+
+A relevant option in this context is the :ref:`bootstrap only<interfaces-options>` interface option. This is an automated tool for better distributing connectivity. By marking an interface as ``bootstrap_only``, you tell Reticulum: *"Use this connection to find connectivity options, and prefer discovered interfaces once they are available"*. This helps create a network topology that favors locality and resilience over the simple centralization caused by using only a few static entrypoints.
+
+A good place to find interface definitions for bootstrapping connectivity is `rmap.world <https://rmap.world/>`_.
+
+
+Building Personal Infrastructure
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You do not need a datacenter to be a meaningful part of the Reticulum ecosystem. In fact, the most important nodes in the network are often the smallest ones.
+
+We strongly encourage everyone, even home users, to think in terms of building **personal infrastructure**. Don't connect every phone, tablet, and computer in your house directly to a public internet gateway. Instead, repurpose an old computer, a Raspberry Pi, or a supported router to act as your own, personal **Transport Node**:
+
+*   Your local Transport Node sits in your home, connected to your WiFi and perhaps a radio interface (like an RNode).
+*   You configure this node with a ``bootstrap_only`` interface (perhaps a TCP tunnel to a wider network) and enable interface discovery.
+*   While you sleep, work, or cook, your node listens to the network. It discovers other local community members, validates their Network Identities, and automatically establishes direct links.
+*   Your personal devices now connect to your *local* node, which is integrated into a living, breathing local mesh. Your traffic flows through local paths provided by other real people in the community rather than bouncing off a distant server.
+
+**Don't wait for others to build the networks you want to see**. Every network is important, perhaps even most so those that support individual families and persons. Once enough of this personal, local infrastructure exist, connecting them directly to each other, without traversing the public Internet, becomes not just possible, but inevitable.
+
+
+Mixing Strategies
+^^^^^^^^^^^^^^^^^
+
+There is no requirement to commit to a single strategy. The most robust setups often mix static, dynamic, and discovered interfaces.
+
+*   **Static Interfaces:** You maintain a permanent interface to a trusted friend or organization using a static configuration.
+*   **Bootstrap Links:** You run a ``bootstrap_only`` TCP interface to a public gateway to scan for new connectable peers or to regain connectivity if your other interfaces fail.
+*   **Local Wide-Area Connectivity:** You run a ``RNodeInterface`` on a shared frequency, giving you completely self-sovereign and private wide-area access to both your own network and other Reticulum peers globally, without any "service providers" being able to control or monitor how you interact with people.
+
+By combining these methods, you create a system that is secure against single points of failure, adaptable to changing network conditions, and better integrated into your physical and social reality.
+
+
+Network Health & Responsibility
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As you participate in the wider networks you discover and build, you will inevitably encounter peers that are misconfigured, malicious, or simply broken. To protect your resources and those of your local peers, you can utilize the :ref:`Blackhole Management<using-blackhole_management>` system.
+
+Whether you manually block a spamming identity or subscribe to a blackhole list maintained by a trusted Network Identity, these tools help ensure that your transport capacity is used for legitimate communication. This keeps your local segment efficient and contributes to the health of the wider network.
+
+
+Contributing to the Global Ret
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you have the means to host a stable node with a public IP address, consider becoming a :ref:`Public Entrypoint<hosting-entrypoints>`. By :ref:`publishing your interface as discoverable<interfaces-discoverable>`, you provide a potential connection point for others, helping the network grow and reach new areas.
+
+For guidelines on how to properly configure and secure a public gateway, refer to the :ref:`Hosting Public Entrypoints<hosting-entrypoints>` section.
 
 Connect to the Public Testnet
-===========================================
+=============================
 
 An experimental public testnet has been made accessible by volunteers in the community. You
 can find interface definitions for adding to your ``.reticulum/config`` file on the
-`Reticulum Website <https://reticulum.network/connect.html>`_ or the
-`Community Wiki <https://github.com/markqvist/Reticulum/wiki/Community-Node-List>`_
+`Reticulum Website <https://reticulum.network/connect.html>`_, or the
+`Community Wiki <https://github.com/markqvist/Reticulum/wiki/Community-Node-List>`_.
+
+As development of Reticulum has transitioned away from the public Internet, and is now happening exclusively over Reticulum itself, the lists on the `Reticulum Website <https://reticulum.network/connect.html>`_ and the
+`Community Wiki <https://github.com/markqvist/Reticulum/wiki/Community-Node-List>`_ are no longer actively maintained, and any up-to-date connectivity information will have to be found elsewhere.
+
+For a while, these resources will likely still be a usable way to find bootstrap connections, that will allow you to discover other entrypoints to connect to, but it is highly recommended to also check community run projects like `rmap.world <https://rmap.world/>`_.
 
 You can connect your devices or instances to one or more of these to gain access to any
 Reticulum networks they are physically connected to. Simply add one or more interface
@@ -269,24 +345,18 @@ snippets to your config file in the ``[interface]`` section, like in the example
 
 .. code:: ini
 
-  # TCP/IP interface to the BetweenTheBorders Hub (community-provided)
-  [[RNS Testnet BetweenTheBorders]]
+  # TCP/IP interface to the RNS Amsterdam Hub
+  [[RNS Testnet Amsterdam]]
     type = TCPClientInterface
     enabled = yes
-    target_host = reticulum.betweentheborders.com
-    target_port = 4242
+    target_host = amsterdam.connect.reticulum.network
+    target_port = 4965
 
 
 .. tip::
-  Ideally, set up a Reticulum Transport Node that your own devices can reach locally, and then
-  connect that transport node to a couple of public entrypoints. This will provide efficient
-  connections and redundancy in case any of them go down.
+  Don't rely on a single connection to a testnet entrypoint for everyday use. The testnet is often used for development and failure testing scenarios. Instead, read the :ref:`Bootstrapping Connectivity<bootstrapping-connectivity>` section.
 
-Many other Reticulum instances are connecting to this testnet, and you can also join it
-via other entry points if you know them. There is absolutely no control over the network
-topography, usage or what types of instances connect. It will also occasionally be used
-to test various failure scenarios, and there are no availability or service guarantees.
-Expect weird things to happen on this network, as people experiment and try out things.
+As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, the public Amsterdam Testnet entrypoint is slated for de-commisioning in the first quarter of 2026. If your own instances rely on this entrypoint for connectivity, it is high time to start configuring alternatives. Read the :ref:`Bootstrapping Connectivity<bootstrapping-connectivity>` section for pointers.
 
 .. warning::
   It probably goes without saying, but *don't use the testnet entry-points as 
@@ -295,12 +365,15 @@ Expect weird things to happen on this network, as people experiment and try out 
   connectivity solutions, if needed and applicable, or in most cases, simply
   leave it up to the user which networks to connect to, and how.
 
+.. _hosting-entrypoints:
 
 Hosting Public Entrypoints
-===========================================
+==========================
 
 If you want to host a public (or private) entry-point to a Reticulum network over the
-Internet, this section offers some helpful pointers. You will need a machine, physical or
+Internet, this section offers some helpful pointers. Once you have set up your public entrypoint, it is a great idea to :ref:`make it discoverable over Reticulum<interfaces-discoverable>`.
+
+You will need a machine, physical or
 virtual with a public IP address, that can be reached by other devices on the Internet.
 
 The most efficient and performant way to host a connectable entry-point supporting many
@@ -348,7 +421,7 @@ If you are hosting an entry-point on an operating system that does not support
 not be as performant.
 
 Adding Radio Interfaces
-==============================================
+=======================
 Once you have Reticulum installed and working, you can add radio interfaces with
 any compatible hardware you have available. Reticulum supports a wide range of radio
 hardware, and if you already have any available, it is very likely that it will
@@ -377,7 +450,7 @@ and propose adding an interface for the hardware.
 
 
 Creating and Using Custom Interfaces
-===========================================
+====================================
 
 While Reticulum includes a flexible and broad range of built-in interfaces, these
 will not cover every conceivable type of communications hardware that Reticulum
@@ -404,53 +477,9 @@ ready to import and use RNS in your own programs. The next step will most
 likely be to look at some :ref:`Example Programs<examples-main>`.
 
 The entire Reticulum API is documented in the :ref:`API Reference<api-main>`
-chapter of this manual.
+chapter of this manual. Before diving in, it's probably a good idea to read
+this manual in full, but at least start with the :ref:`Understanding Reticulum<understanding-main>` chapter.
 
-
-Participate in Reticulum Development
-==============================================
-If you want to participate in the development of Reticulum and associated
-utilities, you'll want to get the latest source from GitHub. In that case,
-don't use pip, but try this recipe:
-
-.. code:: shell
-
-    # Install dependencies
-    pip install cryptography pyserial
-
-    # Clone repository
-    git clone https://github.com/markqvist/Reticulum.git
-
-    # Move into Reticulum folder and symlink library to examples folder
-    cd Reticulum
-    ln -s ../RNS ./Examples/
-
-    # Run an example
-    python Examples/Echo.py -s
-
-    # Unless you've manually created a config file, Reticulum will do so now,
-    # and immediately exit. Make any necessary changes to the file:
-    nano ~/.reticulum/config
-
-    # ... and launch the example again.
-    python Examples/Echo.py -s
-
-    # You can now repeat the process on another computer,
-    # and run the same example with -h to get command line options.
-    python Examples/Echo.py -h
-
-    # Run the example in client mode to "ping" the server.
-    # Replace the hash below with the actual destination hash of your server.
-    python Examples/Echo.py 174a64852a75682259ad8b921b8bf416
-
-    # Have a look at another example
-    python Examples/Filetransfer.py -h
-
-When you have experimented with the basic examples, it's time to go read the
-:ref:`Understanding Reticulum<understanding-main>` chapter. Before submitting
-your first pull request, it is probably a good idea to introduce yourself on
-the `disucssion forum on GitHub <https://github.com/markqvist/Reticulum/discussions>`_,
-or ask one of the developers or maintainers for a good place to start.
 
 .. _install-guides:
 

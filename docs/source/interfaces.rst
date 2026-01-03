@@ -911,6 +911,203 @@ beaconing functionality described above.
     # small internal packet buffer.
     flow_control = false
 
+.. _interfaces-discoverable:
+
+Discoverable Interfaces
+=======================
+
+Reticulum includes a powerful system for publishing your local interfaces to the wider network, allowing other peers to discover, validate, and automatically connect to them. This feature is particularly useful for creating decentralized networks where peers can dynamically find entrypoints, such as public Internet gateways or local radio access points, without relying on static configuration files or centralized directories.
+
+When an interface is made **discoverable**, your Reticulum instance will periodically broadcast an announce packet containing the connection details and parameters required for other peers to establish a connection. These announces are propagated over the network using the standard Reticulum announce mechanism using the ``rnstransport.discovery.interface`` destination type.
+
+.. note::
+   To use the interface discovery functionality, the ``LXMF`` module must be installed in your Python environment. You can install it using pip:
+
+   .. code:: sh
+
+     pip install lxmf
+
+
+Enabling Discovery
+------------------
+
+Interface discovery is enabled on a per-interface basis. To make a specific interface discoverable, you must add the ``discoverable`` option to that interface's configuration block and set it to ``yes``.
+
+.. code:: ini
+
+  [[My Public Gateway]]
+    type = BackboneInterface
+    ...
+    discoverable = yes
+
+Once enabled, Reticulum will automatically handle the generation, signing, stamping, and broadcasting of the discovery announces. It is not *required* to enable Transport to publish interface discovery information, but for most use cases where you want others to connect to you, you will likely want ``enable_transport`` set to ``yes`` in the ``[reticulum]`` section of your configuration.
+
+
+Discovery Parameters
+--------------------
+
+When ``discoverable`` is enabled, a variety of additional options become available to control how the interface is presented to the network. These parameters allow you to fine-tune the metadata, security requirements, and visibility of your interface.
+
+**Basic Metadata**
+
+``discovery_name``
+  A human-readable name for the interface. This name will be displayed to users on remote systems when they list discovered interfaces. If not specified, the interface name (the section header) will be used.
+
+``announce_interval``
+  The interval in minutes between successive discovery announces for this interface. Default is 360 minutes (6 hours). For stable, long-running infrastructure, higher intervals (12 to 22 hours) are usually sufficient and reduce network load. Minimum allowed value is 5 minutes (but expect to have your announces throttled if using intervals below one hour).
+
+**Connectivity Specification**
+
+``reachable_on``
+  Specifies the address that remote peers should use to connect to this interface. 
+  
+  *   For TCP and Backbone interfaces, this is typically the public IP address or hostname. Do not include the port, this is fetched automatically from the interface.
+  *   For I2P interfaces, this is usually the I2P ``b32`` address. This value is fetched automatically from the ``I2PInterface`` once it is up and connected to the I2P network, so you should not set this manually, unless you absolutely know what you're doing.
+  
+  **Dynamic Resolution:** This option also accepts a path to an external executable script or binary. If a path is provided, Reticulum will execute the script and use its ``stdout`` as the reachability address. This is useful for devices behind dynamic DNS, NATs, or complex cloud environments where the external IP is not known locally. The script must simply print the address to stdout and exit.
+
+.. note:: **Script Execution Requirements:**
+  When using an executable script for ``reachable_on``, Reticulum expects the script to output only the IP address or hostname to ``stdout``, followed by a newline character. Any additional output or errors may cause the resolution to fail. Ensure the script has executable permissions and is robust against temporary network failures.
+
+**Security & Cost**
+
+``discovery_stamp_value``
+  Defines the proof-of-work difficulty for the cryptographic stamp included in the announce. This value acts as a cost barrier to prevent network flooding. The default value is ``14``. Increasing this value makes it computationally more expensive to generate an announce, which can be useful to prevent spam on very large networks, but it also increases CPU load on your system when generating announces. Stamps are cached, and only generated if interface information changes, or at instance restart. If you have the computational resources, it is generally advisable to use as high a stamp value as possible.
+
+**Privacy & Encryption**
+
+``discovery_encrypt``
+  If set to ``yes``, the discovery announce payload will be encrypted. To decrypt the announce, remote peers must possess the *network identity* configured for your instance (see ``network_identity`` in the ``[reticulum]`` section). This allows you to publish private interfaces that are only discoverable to specific trusted networks.
+
+.. warning::
+   If you enable ``discovery_encrypt`` but do not configure a valid ``network_identity`` in the ``[reticulum]`` section of your configuration, Reticulum will abort the interface discovery announce. Encryption requires a valid network identity key to function.
+
+``publish_ifac``
+  If set to ``yes``, the Interface Access Code (IFAC) name and passphrase for this interface will be included in the discovery announce. This allows peers to automatically configure the correct authentication parameters when connecting to the interface.
+
+**Physical Location**
+
+``latitude``, ``longitude``, ``height``
+  Optional physical coordinates for the interface. These are useful for mapping discovered interfaces geographically or for clients to automatically select the nearest access point. Coordinates should be in decimal degrees, height in meters.
+
+**Radio Parameters**
+
+For physical radio interfaces like ``RNodeInterface`` or ``KISSInterface``, the following optional parameters allow you to broadcast the operating frequency and characteristics, allowing clients to verify compatibility before connecting:
+
+``discovery_frequency``
+  The operating frequency in Hz. Auto-configured on RNode interfaces. Necessary on KISS-based radio interfaces and ``TCPClientInterfaces`` connecting to radio modems.
+
+``discovery_bandwidth``
+  The signal bandwidth in Hz. Auto-configured on RNode interfaces. Useful on KISS-based radio interfaces and ``TCPClientInterfaces`` connecting to radio modems.
+
+``discovery_modulation``
+  The modulation type or scheme. Auto-configured on RNode interfaces, but highly advisable to include on other radio-based interfaces.
+
+
+Interface Modes
+---------------
+
+When you enable discovery on an interface, Reticulum enforces certain interface modes to ensure the interface is actually useful for remote peers. 
+
+If an interface is configured as ``discoverable``, but its mode is not explicitly set to ``gateway`` (for server-style interfaces like ``BackboneInterface`` or ``TCPServerInterface``) or ``access_point`` (for radio interfaces like ``RNodeInterface``), Reticulum will automatically configure the appropriate mode and log a notice. 
+
+For example, if you enable discovery on a ``RNodeInterface`` without specifying the mode, Reticulum will automatically set it to ``access_point`` mode.
+
+Security Considerations
+-----------------------
+
+When making interfaces discoverable, you are effectively broadcasting an invitation to connect to your system. It is important to understand the security implications of the configuration options you choose.
+
+**Publishing Credentials**
+
+If you enable ``publish_ifac = yes``, your interface's authentication passphrase will be included in the announce. If you are operating a public network and want anyone to connect, this is acceptable. However, if you wish to restrict access to a specific group of users, you **must** enable ``discovery_encrypt = yes``. This ensures that only peers possessing the correct ``network_identity`` can decode the passphrase.
+
+**Topology Exposure**
+
+A discoverable interface announces its presence, location (if configured), and capabilities to the network. Even if the connection details are encrypted, the *fact* that a connectable node exists within a certain network becomes public information. In high-security or scenarios requiring operational secrecy, consider the implications of advertising your infrastructure's existence.
+
+Example Configuration
+---------------------
+
+Below is an example configuration for a public backbone gateway. This configuration publishes a high-value, publicly discoverable interface, that anyone can connect to.
+
+.. code:: ini
+
+  [[My Public Gateway]]
+    type = BackboneInterface
+    mode = gateway
+    listen_on = 0.0.0.0
+    port = 4242
+
+    # Enable Discovery
+    discoverable = yes
+
+    # Interface Details
+    discovery_name = Region A Public Entrypoint
+    announce_interval = 720
+
+    # Use external script to resolve dynamic IP
+    reachable_on = /usr/local/bin/get_external_ip.sh
+
+    # Generate high stamp value
+    discovery_stamp_value = 24
+
+    # Optional location data
+    latitude = 51.99714
+    longitude = -0.74195
+    height = 15
+
+The next example create an encrypted discovery-enabled interface, requiring a specific network identity to decode, and includes IFAC credentials for seamless authentication.
+
+.. code:: ini
+
+  [[My Private Gateway]]
+    type = BackboneInterface
+    mode = gateway
+    listen_on = 0.0.0.0
+    port = 5858
+    network_name = internal_1
+    passphrase = Mevpekyafshak5Wr
+
+    # Enable Discovery
+    discoverable = yes
+
+    # Interface Details
+    discovery_name = Region A Private Backbone
+    announce_interval = 720
+
+    # Use external script to resolve dynamic IP
+    reachable_on = /usr/local/bin/get_external_ip.sh
+
+    # Target stamp value
+    discovery_stamp_value = 22
+
+    # Encrypt announces for our network only
+    discovery_encrypt = yes
+
+    # Include credentials so trusted
+    # peers can connect automatically
+    publish_ifac = yes
+
+    # Optional location data
+    latitude = 34.06915
+    longitude = -118.44318
+    height = 15
+
+In the ``[reticulum]`` section of your configuration, you would define the network identity used for encryption as follows:
+
+.. code:: ini
+
+  [reticulum]
+  ...
+  # The identity used to sign/encrypt discovery announces
+  network_identity = ~/.reticulum/storage/identities/my_network_identity
+  ...
+
+With these configuration options applied, your Reticulum instance will actively participate in the network's discovery ecosystem. Other peers running Reticulum with discovery enabled will be able to see your interface, validate its cryptographic stamp, and (depending on their configuration) automatically connect to it.
+
+For information on how to use these discovered interfaces and configure your system to auto-connect to them, refer to the :ref:`Discovering Interfaces<using-interface_discovery>` chapter.
+
 .. _interfaces-options:
 
 Common Interface Options
@@ -990,6 +1187,15 @@ These can be used to control various aspects of interface behaviour.
      sufficient, but it can be configured by using the ``bitrate``
      option, to set the interface speed in *bits per second*.
 
+
+ * | The ``bootstrap_only`` option designates an interface as a temporary
+     bridge for initial connectivity. If this option is enabled, the
+     interface will be monitored and automatically detached once the
+     number of auto-connected interfaces reaches the limit configured by
+     ``autoconnect_discovered_interfaces``. This is particularly useful
+     for using a slow or expensive connection (such as a single LoRa
+     link or a remote TCP tunnel) solely to discover better local
+     infrastructure, which then supersedes the bootstrap interface.
 
 .. _interfaces-modes:
 
