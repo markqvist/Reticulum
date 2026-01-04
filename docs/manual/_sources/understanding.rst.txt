@@ -13,9 +13,8 @@ reference implementation and API reference. That being said, this chapter is an 
 understanding how Reticulum works from a high-level perspective, along with the general principles of
 Reticulum, and how to apply them when creating your own networks or software.
 
-After reading this document, you should be well-equipped to understand how a Reticulum network
-operates, what it can achieve, and how you can use it yourself. If you want to help out with the
-development, this is also the place to start, since it will provide a pretty clear overview of the
+After reading this chapter, you should be well-equipped to understand how a Reticulum network
+operates, what it can achieve, and how you can use it yourself. This chapter also seeks to provide an overview of the
 sentiments and the philosophy behind Reticulum, what problems it seeks to solve, and how it
 approaches those solutions.
 

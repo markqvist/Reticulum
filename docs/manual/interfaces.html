@@ -1120,8 +1120,7 @@ relevant regulation for your location, and to make decisions accordingly.</p>
 </dl>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><strong>Script Execution Requirements:</strong>
-When using an executable script for <code class="docutils literal notranslate"><span class="pre">reachable_on</span></code>, Reticulum expects the script to output only the IP address or hostname to <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, followed by a newline character. Any additional output or errors may cause the resolution to fail. Ensure the script has executable permissions and is robust against temporary network failures.</p>
+<p>When using an executable script for <code class="docutils literal notranslate"><span class="pre">reachable_on</span></code>, Reticulum expects the script to output only the IP address or hostname to <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, followed by a newline character. Any additional output or errors may cause the resolution to fail. Ensure the script has executable permissions and is robust against temporary network failures.</p>
 </div>
 <p>A minimal example of a script that resolves the externally available, public IP of an internet-connected system could look like this:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>

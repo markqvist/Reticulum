@@ -33,15 +33,28 @@ organisation? Make them a reality quickly by sponsoring their implementation.
 
 Provide Feedback
 ================
-All feedback on the usage, functioning and potential dysfunctioning of any and
+Feedback on the usage, functioning and potential dysfunctioning of any and
 all components of the system is very valuable to the continued development and
-improvement of Reticulum.
+improvement of Reticulum. But...
+
+.. warning::
+  
+  **Think before you speak**. As time has shown, over 80% of the "feedback",
+  "bug reports" and "advice" the Reticulum project has received has been
+  irrelevant noise, stemming from erroneous assumptions, misunderstanding the
+  foundational functionality or philosophy behind the system, or simply
+  the malinformed (but overly opinionated) personal preferences of individual
+  drive-by architects. This wastes the time of everyone involved.
+
+  The Reticulum project is not a public teahouse for serving the attention
+  needs of random bypassers, but a highly complex system engineered and
+  refined over more than a decade, designed to provide communication and
+  connectivity guarantees in highly adversarial environments.
+
+  If you want to voice your opinion, it better be well-informed, and we
+  expect you to have a comprehensive and solid foundation for your points
+  of view. Everything else will be ignored.
 
 Absolutely no automated analytics, telemetry, error
 reporting or statistics is collected and reported by Reticulum under any
 circumstances, so we rely on old-fashioned human feedback.
-
-Contribute Code
-===============
-Join us on `the GitHub repository <https://github.com/markqvist/reticulum>`_ to
-report issues, suggest functionality and contribute code to Reticulum.

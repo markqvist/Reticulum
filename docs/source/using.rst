@@ -967,7 +967,7 @@ Reticulum networks are fundamentally permissionless and open, allowing anyone wi
 
 The **Blackhole** system provides tools to help manage this problem. It allows operators and individual users to block specific identities at the Transport layer, preventing them from propagating announces through your node, and for other nodes to reach them through your network.
 
-.. note::
+.. important::
   
   There is fundamentally **no way** to *globally* block or censor any identity or destination in Reticulum networks. The blackhole functionality will prevent announces from (and traffic to) all destinations associated with the blackholed identity *on your own network segments only*.
 
@@ -1027,8 +1027,8 @@ Automated List Sourcing
 
 Manually blocking identities is effective for immediate threats, but maintaining an up-to-date blocklist for a large network is impractical. Reticulum supports **automated list sourcing**, allowing your node to subscribe to blackhole lists maintained by trusted peers, or a central authority you manage yourself.
 
-.. warning:: **Verify Before Subscribing!**
-   Subscribing to a blackhole source is a powerful action that grants that source the ability to dictate who you can communicate with. Before adding a source to your configuration, verify that the maintainer aligns with your usage policy and values. Blindly subscribing to untrusted lists could inadvertently block legitimate peers or essential services.
+.. warning::
+   **Verify Before Subscribing!** Subscribing to a blackhole source is a powerful action that grants that source the ability to dictate who you can communicate with. Before adding a source to your configuration, verify that the maintainer aligns with your usage policy and values. Blindly subscribing to untrusted lists could inadvertently block legitimate peers or essential services.
 
 When enabled, your Transport Instance will periodically (approximately once per hour) connect to configured sources, retrieve their latest blackhole lists, and automatically merge them into your local blocklist. This provides "set-and-forget" protection for both individual users and large networks.
 
@@ -1046,9 +1046,9 @@ To enable automated sourcing, add the ``blackhole_sources`` option to the ``[ret
 
 **How It Works**
 
-1.  The ``BlackholeUpdater`` service runs in the background.
-2.  For every identity hash listed in ``blackhole_sources``, it attempts to establish a temporary link to the destination ``rnstransport.info.blackhole``.
-3.  It requests the ``/list`` path, which returns a dictionary of blocked identities and their associated metadata.
+1.  When enabled, the ``BlackholeUpdater`` service runs in the background.
+2.  For every identity hash listed in ``blackhole_sources``, it attempts to establish a temporary link to its associated``rnstransport.info.blackhole`` destination.
+3.  It requests the ``/list`` path, which returns a dictionary of blackholed identities and their associated metadata.
 4.  The received list is merged with your local ``blackholed_identities`` database.
 5.  The lists are persisted to disk, ensuring they survive restarts.
 
@@ -1059,7 +1059,7 @@ To enable automated sourcing, add the ``blackhole_sources`` option to the ``[ret
 Publishing Blackhole Lists
 ==========================
 
-If you are operating a public gateway, a community hub, or simply wish to share your blocklist with others, you can configure your instance to act as a blackhole list publisher. This allows other nodes to subscribe to *your* definitions of unwanted traffic.
+If you are operating a public gateway, a community hub, or simply wish to share your blackhole list with others, you can configure your instance to act as a blackhole list publisher. This allows other nodes to subscribe to *your* definitions of unwanted traffic.
 
 **Enabling Publishing**
 
@@ -1080,7 +1080,7 @@ The blackhole system relies on the trust relationship between the subscriber and
 
 As the ecosystem matures, this system is designed to integrate with **Network Identities**. This allows communities to verify that a published blackhole list is actually provided by a specific network or organization with a certain level of reputation and trustworthiness, adding a layer of cryptographic trust to the federation process. This prevents malicious actors from publishing fake lists intended to censor legitimate traffic.
 
-For operators, this creates a scalable model where maintaining a single high-quality blocklist can protect thousands of downstream peers, drastically reducing the administrative overhead of network hygiene.
+For operators, this creates a scalable model where maintaining a single high-quality blocklist can protect thousands of downstream peers, drastically reducing the administrative.
 
 Improving System Configuration
 ------------------------------

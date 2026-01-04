@@ -1091,8 +1091,8 @@ remote_management_allowed = 9fb6d773498fb3feda407ed8ef2c3229, 2d882c5586e548d79b
 <span id="using-blackhole-management"></span><h2>Blackhole Management<a class="headerlink" href="#blackhole-management" title="Link to this heading">¶</a></h2>
 <p>Reticulum networks are fundamentally permissionless and open, allowing anyone with a compatible interface to participate. While this openness is essential for a resilient and decentralized network, it also exposes the network to potential abuse, such as peers flooding the network with excessive announce broadcasts or other forms of resource exhaustion.</p>
 <p>The <strong>Blackhole</strong> system provides tools to help manage this problem. It allows operators and individual users to block specific identities at the Transport layer, preventing them from propagating announces through your node, and for other nodes to reach them through your network.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
 <p>There is fundamentally <strong>no way</strong> to <em>globally</em> block or censor any identity or destination in Reticulum networks. The blackhole functionality will prevent announces from (and traffic to) all destinations associated with the blackholed identity <em>on your own network segments only</em>.</p>
 <p>This provides users and operators with control over what they want to allow <em>on their own network segments</em>, but there is no way to globally censor or remove an identity, as long as <em>someone</em> is willing to provide transport for it.</p>
 </div>
@@ -1135,8 +1135,7 @@ remote_management_allowed = 9fb6d773498fb3feda407ed8ef2c3229, 2d882c5586e548d79b
 <p>Manually blocking identities is effective for immediate threats, but maintaining an up-to-date blocklist for a large network is impractical. Reticulum supports <strong>automated list sourcing</strong>, allowing your node to subscribe to blackhole lists maintained by trusted peers, or a central authority you manage yourself.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p><strong>Verify Before Subscribing!</strong>
-Subscribing to a blackhole source is a powerful action that grants that source the ability to dictate who you can communicate with. Before adding a source to your configuration, verify that the maintainer aligns with your usage policy and values. Blindly subscribing to untrusted lists could inadvertently block legitimate peers or essential services.</p>
+<p><strong>Verify Before Subscribing!</strong> Subscribing to a blackhole source is a powerful action that grants that source the ability to dictate who you can communicate with. Before adding a source to your configuration, verify that the maintainer aligns with your usage policy and values. Blindly subscribing to untrusted lists could inadvertently block legitimate peers or essential services.</p>
 </div>
 <p>When enabled, your Transport Instance will periodically (approximately once per hour) connect to configured sources, retrieve their latest blackhole lists, and automatically merge them into your local blocklist. This provides “set-and-forget” protection for both individual users and large networks.</p>
 <p><strong>Configuration</strong></p>
@@ -1150,9 +1149,9 @@ Subscribing to a blackhole source is a powerful action that grants that source t
 </div>
 <p><strong>How It Works</strong></p>
 <ol class="arabic simple">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">BlackholeUpdater</span></code> service runs in the background.</p></li>
-<li><p>For every identity hash listed in <code class="docutils literal notranslate"><span class="pre">blackhole_sources</span></code>, it attempts to establish a temporary link to the destination <code class="docutils literal notranslate"><span class="pre">rnstransport.info.blackhole</span></code>.</p></li>
-<li><p>It requests the <code class="docutils literal notranslate"><span class="pre">/list</span></code> path, which returns a dictionary of blocked identities and their associated metadata.</p></li>
+<li><p>When enabled, the <code class="docutils literal notranslate"><span class="pre">BlackholeUpdater</span></code> service runs in the background.</p></li>
+<li><p>For every identity hash listed in <code class="docutils literal notranslate"><span class="pre">blackhole_sources</span></code>, it attempts to establish a temporary link to its associated``rnstransport.info.blackhole`` destination.</p></li>
+<li><p>It requests the <code class="docutils literal notranslate"><span class="pre">/list</span></code> path, which returns a dictionary of blackholed identities and their associated metadata.</p></li>
 <li><p>The received list is merged with your local <code class="docutils literal notranslate"><span class="pre">blackholed_identities</span></code> database.</p></li>
 <li><p>The lists are persisted to disk, ensuring they survive restarts.</p></li>
 </ol>
@@ -1163,7 +1162,7 @@ Subscribing to a blackhole source is a powerful action that grants that source t
 </section>
 <section id="publishing-blackhole-lists">
 <h3>Publishing Blackhole Lists<a class="headerlink" href="#publishing-blackhole-lists" title="Link to this heading">¶</a></h3>
-<p>If you are operating a public gateway, a community hub, or simply wish to share your blocklist with others, you can configure your instance to act as a blackhole list publisher. This allows other nodes to subscribe to <em>your</em> definitions of unwanted traffic.</p>
+<p>If you are operating a public gateway, a community hub, or simply wish to share your blackhole list with others, you can configure your instance to act as a blackhole list publisher. This allows other nodes to subscribe to <em>your</em> definitions of unwanted traffic.</p>
 <p><strong>Enabling Publishing</strong></p>
 <p>To publish your local blackhole list, enable the <code class="docutils literal notranslate"><span class="pre">publish_blackhole</span></code> option in the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code> section:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[reticulum]</span>
@@ -1176,7 +1175,7 @@ Subscribing to a blackhole source is a powerful action that grants that source t
 <p><strong>Federation and Trust</strong></p>
 <p>The blackhole system relies on the trust relationship between the subscriber and the publisher. By subscribing to a source, you are implicitly trusting that source to only block identities that are genuinely detrimental to the network.</p>
 <p>As the ecosystem matures, this system is designed to integrate with <strong>Network Identities</strong>. This allows communities to verify that a published blackhole list is actually provided by a specific network or organization with a certain level of reputation and trustworthiness, adding a layer of cryptographic trust to the federation process. This prevents malicious actors from publishing fake lists intended to censor legitimate traffic.</p>
-<p>For operators, this creates a scalable model where maintaining a single high-quality blocklist can protect thousands of downstream peers, drastically reducing the administrative overhead of network hygiene.</p>
+<p>For operators, this creates a scalable model where maintaining a single high-quality blocklist can protect thousands of downstream peers, drastically reducing the administrative.</p>
 </section>
 </section>
 <section id="improving-system-configuration">
