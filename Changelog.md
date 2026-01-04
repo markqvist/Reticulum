@@ -1,3 +1,32 @@
+### 2025-11-19: RNS 1.1.0
+
+Enjoy.
+
+**Changes**
+- Added on-network global interface discovery. Hello world.
+- Added discovered interface auto-connection. Robotic.
+- Added external IP resolution for discovery-enabled interfaces. 
+- Added encrypted interface discovery announces. Welcome home.
+- Added bootstrap interface functionality. Decent.
+- Added blackhole handling and management. Thank the Chinese guy.
+- Added distributed blackhole list publishing and updating. Spammers go home.
+- Added foundational network identity implementation. All your base.
+- Added `await_path` method to API. Tick-tock.
+- Added reverse-unicast peer discovery packet mechanism to AutoInterface. Ping-pong.
+- Added custom identity support to `rncp`, thanks MikelCalvo!
+- Added monitor mode to `rnstatus`, thanks MikelCalvo!
+- Improved announce processing. Swoosh.
+- Updated documentation quite a bit. Looky.
+- Enabled per-peer ingress limiting on Weave and Auto interfaces. Hammertime.
+- Fixed **the** typo, yes it's the olny one I'm sure.
+- Fixed bugs. Squish.
+
+**Release Hashes**
+```
+? rns-1.1.0-py3-none-any.whl
+? rnspure-1.1.0-py3-none-any.whl
+```
+
 ### 2025-11-19: RNS 1.0.4
 
 This maintenance release adds improved handling for RNodes with a PA/LNA combo.
