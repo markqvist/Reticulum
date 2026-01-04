@@ -966,7 +966,7 @@ When ``discoverable`` is enabled, a variety of additional options become availab
   
   **Dynamic Resolution:** This option also accepts a path to an external executable script or binary. If a path is provided, Reticulum will execute the script and use its ``stdout`` as the reachability address. This is useful for devices behind dynamic DNS, NATs, or complex cloud environments where the external IP is not known locally. The script must simply print the address to stdout and exit.
 
-.. note:: **Script Execution Requirements:**
+.. note::
   When using an executable script for ``reachable_on``, Reticulum expects the script to output only the IP address or hostname to ``stdout``, followed by a newline character. Any additional output or errors may cause the resolution to fail. Ensure the script has executable permissions and is robust against temporary network failures.
 
 A minimal example of a script that resolves the externally available, public IP of an internet-connected system could look like this:
