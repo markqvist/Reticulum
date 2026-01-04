@@ -1,11 +1,11 @@
-### 2025-11-19: RNS 1.1.0
+### 2026-01-04: RNS 1.1.0
 
 Enjoy.
 
 **Changes**
 - Added on-network global interface discovery. Hello world.
 - Added discovered interface auto-connection. Robotic.
-- Added external IP resolution for discovery-enabled interfaces. 
+- Added external IP resolution for discovery-enabled interfaces. Snip-snip.
 - Added encrypted interface discovery announces. Welcome home.
 - Added bootstrap interface functionality. Decent.
 - Added blackhole handling and management. Thank the Chinese guy.
@@ -23,8 +23,8 @@ Enjoy.
 
 **Release Hashes**
 ```
-? rns-1.1.0-py3-none-any.whl
-? rnspure-1.1.0-py3-none-any.whl
+180b8baec2ec7d21abe2cec25ff763e70b2129c012fb02fc23c2fd654f94c1f5 dist/rns-1.1.0-py3-none-any.whl
+d9e32caf66a9c53199e901d2c173e1de1bf50f1f0c9d5250e5d1b3b07bedcd7c dist/rnspure-1.1.0-py3-none-any.whl
 ```
 
 ### 2025-11-19: RNS 1.0.4
