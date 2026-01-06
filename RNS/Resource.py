@@ -882,7 +882,7 @@ class Resource:
 
                 if self.received_count == self.total_parts and not self.assembly_lock:
                     self.assembly_lock = True
-                    self.assemble()
+                    threading.Thread(target=self.assemble, daemon=True).start()
                 elif self.outstanding_parts == 0:
                     # TODO: Figure out if there is a mathematically
                     # optimal way to adjust windows
