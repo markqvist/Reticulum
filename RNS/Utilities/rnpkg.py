@@ -36,7 +36,6 @@ import time
 
 from RNS._version import __version__
 
-
 def program_setup(configdir, verbosity = 0, quietness = 0, service = False):
     targetverbosity = verbosity-quietness
 
@@ -51,12 +50,11 @@ def program_setup(configdir, verbosity = 0, quietness = 0, service = False):
 
 def main():
     try:
-        parser = argparse.ArgumentParser(description="Reticulum Distributed Identity Resolver")
+        parser = argparse.ArgumentParser(description="Reticulum Meta Package Manager")
         parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
         parser.add_argument('-v', '--verbose', action='count', default=0)
         parser.add_argument('-q', '--quiet', action='count', default=0)
-        parser.add_argument("--exampleconfig", action='store_true', default=False, help="print verbose configuration example to stdout and exit")
-        parser.add_argument("--version", action="version", version="rnir {version}".format(version=__version__))
+        parser.add_argument("--version", action="version", version="rnpkg {version}".format(version=__version__))
         
         args = parser.parse_args()
 
@@ -64,10 +62,8 @@ def main():
             print(__example_rns_config__)
             exit()
 
-        if args.config:
-            configarg = args.config
-        else:
-            configarg = None
+        if args.config: configarg = args.config
+        else: configarg = None
 
         program_setup(configdir = configarg, verbosity=args.verbose, quietness=args.quiet)
 
@@ -75,8 +71,7 @@ def main():
         print("")
         exit()
 
-__example_rns_config__ = '''# This is an example Identity Resolver file.
+__example_rns_config__ = '''# This is an example package manager configuration file.
 '''
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__main__": main()

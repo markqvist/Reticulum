@@ -51,6 +51,7 @@ setuptools.setup(
             'rncp=RNS.Utilities.rncp:main',
             'rnx=RNS.Utilities.rnx:main',
             'rnir=RNS.Utilities.rnir:main',
+            'rnpkg=RNS.Utilities.rnpkg:main',
             'rnodeconf=RNS.Utilities.rnodeconf:main',
         ]
     },
