@@ -247,6 +247,8 @@ it is important that you read and understand the [Cryptographic
 Primitives](#cryptographic-primitives) section of this document.
 
 ## Public Testnet
+***Important!** As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, the public Amsterdam Testnet entrypoint is slated for de-commisioning in the first quarter of 2026. If your own instances rely on this entrypoint for connectivity, it is high time to start configuring alternatives. Reticulum now includes a full on-network interface discovery and connectivity bootstrapping system. Read the [Bootstrapping Connectivity](https://reticulum.network/manual/gettingstartedfast.html#bootstrapping-connectivity) section of the manual for pointers.*
+
 If you just want to get started experimenting without building any physical
 networks, you are welcome to join the RNS Development Testnet.
 
@@ -283,8 +285,6 @@ file:
     target_port = 4242
 
 ```
-
-As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, the public Amsterdam Testnet entrypoint is slated for de-commisioning in the first quarter of 2026. If your own instances rely on this entrypoint for connectivity, it is high time to start configuring alternatives. Reticulum now includes a full on-network interface discovery and connectivity bootstrapping system. Read the [Bootstrapping Connectivity](https://reticulum.network/manual/gettingstartedfast.html#bootstrapping-connectivity) section of the manual for pointers.
 
 ## Support Reticulum
 You can help support the continued development of open, free and private communications systems by donating via one of the following channels:
