@@ -75,8 +75,5 @@ def main():
         print("")
         exit()
 
-__example_rns_config__ = '''# This is an example Identity Resolver file.
-'''
-
 if __name__ == "__main__":
     main()

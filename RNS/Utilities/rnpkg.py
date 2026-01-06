@@ -54,12 +54,13 @@ def main():
         parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
         parser.add_argument('-v', '--verbose', action='count', default=0)
         parser.add_argument('-q', '--quiet', action='count', default=0)
+        parser.add_argument("--exampleconfig", action='store_true', default=False, help="print verbose configuration example to stdout and exit")
         parser.add_argument("--version", action="version", version="rnpkg {version}".format(version=__version__))
         
         args = parser.parse_args()
 
         if args.exampleconfig:
-            print(__example_rns_config__)
+            print(__example_rnpkg_config__)
             exit()
 
         if args.config: configarg = args.config
@@ -71,7 +72,7 @@ def main():
         print("")
         exit()
 
-__example_rns_config__ = '''# This is an example package manager configuration file.
+__example_rnpkg_config__ = '''# This is an example package manager configuration file.
 '''
 
 if __name__ == "__main__": main()
