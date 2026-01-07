@@ -20,6 +20,7 @@ to participate in the development of Reticulum itself.
 
    whatis
    gettingstartedfast
+   software
    using
    understanding
    hardware

@@ -66,106 +66,10 @@ compiled packages available.
 Try Using a Reticulum-based Program
 =============================================
 
-If you simply want to try using a program built with Reticulum, a few different
-programs exist that allow basic communication and a range of other useful functions,
+If you simply want to try using a program built with Reticulum, a :ref:`range of different
+programs <software-main>` exist that allow basic communication and a various other useful functions,
 even over extremely low-bandwidth Reticulum networks.
 
-These programs will let you get a feel for how Reticulum works. They have been designed
-to run well over networks based on LoRa or packet radio, but can also be used over fast
-links, such as local WiFi, wired Ethernet, the Internet, or any combination.
-
-As such, it is easy to get started experimenting, without having to set up any radio
-transceivers or infrastructure just to try it out. Launching the programs on separate
-devices connected to the same WiFi network is enough to get started, and physical
-radio interfaces can then be added later.
-
-Remote Shell
-^^^^^^^^^^^^
-
-The `rnsh <https://github.com/acehoss/rnsh>`_ program lets you establish fully interactive
-remote shell sessions over Reticulum. It also allows you to pipe any program to or from a
-remote system, and is similar to how ``ssh`` works. The ``rnsh`` is very efficient, and
-can facilitate fully interactive shell sessions, even over extremely low-bandwidth links,
-such as LoRa or packet radio.
-
-Nomad Network
-^^^^^^^^^^^^^
-
-The terminal-based program `Nomad Network <https://github.com/markqvist/nomadnet>`_
-provides a complete encrypted communications suite built with Reticulum. It features
-encrypted messaging (both direct and delayed-delivery for offline users), file sharing,
-and has a built-in text-browser and page server with support for dynamically rendered pages,
-user authentication and more.
-
-.. image:: screenshots/nomadnet_3.png
-    :target: _images/nomadnet_3.png
-
-`Nomad Network <https://github.com/markqvist/nomadnet>`_ is a user-facing client
-for the messaging and information-sharing protocol
-`LXMF <https://github.com/markqvist/lxmf>`_, another project built with Reticulum.
-
-You can install Nomad Network via pip:
-
-.. code::
-
-   # Install ...
-   pip install nomadnet
-
-   # ... and run
-   nomadnet
-
-.. note::
-   If this is the very first time you use ``pip`` to install a program
-   on your system, you might need to reboot your system for your program to become
-   available. If you get a "command not found" error or similar when running the
-   program, reboot your system and try again. In some cases, you may even need to
-   manually add the ``pip`` install path to your ``PATH`` environment variable.
-
-Sideband
-^^^^^^^^
-
-If you would rather use a program with a graphical user interface, you can take
-a look at `Sideband <https://unsigned.io/sideband>`_, which is available for Android,
-Linux, macOS and Windows.
-
-.. only:: html
-
-  .. image:: screenshots/sideband_devices.webp
-      :align: center
-      :target: _images/sideband_devices.webp
-
-.. only:: latex
-
-  .. image:: screenshots/sideband_devices.png
-      :align: center
-      :target: _images/sideband_devices.png
-
-Sideband allows you to communicate with other people or LXMF-compatible
-systems over Reticulum networks using LoRa, Packet Radio, WiFi, I2P, Encrypted QR
-Paper Messages, or anything else Reticulum supports. It also interoperates with
-the Nomad Network program.
-
-MeshChat
-^^^^^^^^
-
-The `Reticulum MeshChat <https://github.com/liamcottle/reticulum-meshchat>`_ application
-is a user-friendly LXMF client for Linux, macOS and Windows, that also includes a Nomad Network
-page browser and other interesting functionality.
-
-.. only:: html
-
-  .. image:: screenshots/meshchat_1.webp
-      :align: center
-      :target: _images/meshchat_1.webp
-
-.. only:: latex
-
-  .. image:: screenshots/meshchat_1.png
-      :align: center
-      :target: _images/meshchat_1.png
-
-Reticulum MeshChat is of course also compatible with Sideband and Nomad Network, or
-any other LXMF client.
 
 Using the Included Utilities
 =============================================
@@ -214,45 +118,11 @@ network just using the default (:ref:`AutoInterface<interfaces-auto>`) configura
 
 Possibly, the examples in the config file are enough to get you started. If
 you want more information, you can read the :ref:`Building Networks<networks-main>`
-and :ref:`Interfaces<interfaces-main>` chapters of this manual.
+and :ref:`Interfaces<interfaces-main>` chapters of this manual, but most importantly,
+start with reading the next section, :ref:`Bootstrapping Connectivity<bootstrapping-connectivity>`,
+as this provides the most essential understanding of how to ensure reliable
+connectivity with a minimum of maintenance.
 
-Connecting Reticulum Instances Over the Internet
-================================================
-Reticulum currently offers three interfaces suitable for connecting instances over the Internet: :ref:`Backbone<interfaces-backbone>`, :ref:`TCP<interfaces-tcps>`
-and :ref:`I2P<interfaces-i2p>`. Each interface offers a different set of features, and Reticulum
-users should carefully choose the interface which best suites their needs.
-
-The ``TCPServerInterface`` allows users to host an instance accessible over TCP/IP. This
-method is generally faster, lower latency, and more energy efficient than using ``I2PInterface``,
-however it also leaks more data about the server host.
-
-The ``BackboneInterface`` is a very fast and efficient interface type available on POSIX operating
-systems, designed to handle many hundreds of connections simultaneously with low memory, processing
-and I/O overhead. It is fully compatible with the TCP-based interface types.
-
-TCP connections reveal the IP address of both your instance and the server to anyone who can
-inspect the connection. Someone could use this information to determine your location or identity. Adversaries
-inspecting your packets may be able to record packet metadata like time of transmission and packet size.
-Even though Reticulum encrypts traffic, TCP does not, so an adversary may be able to use
-packet inspection to learn that a system is running Reticulum, and what other IP addresses connect to it.
-Hosting a publicly reachable instance over TCP also requires a publicly reachable IP address,
-which most Internet connections don't offer anymore.
-
-The ``I2PInterface`` routes messages through the `Invisible Internet Protocol
-(I2P) <https://geti2p.net/en/>`_. To use this interface, users must also run an I2P daemon in
-parallel to ``rnsd``. For always-on I2P nodes it is recommended to use `i2pd <https://i2pd.website/>`_.
-
-By default, I2P will encrypt and mix all traffic sent over the Internet, and
-hide both the sender and receiver Reticulum instance IP addresses. Running an I2P node
-will also relay other I2P user's encrypted packets, which will use extra
-bandwidth and compute power, but also makes timing attacks and other forms of
-deep-packet-inspection much more difficult.
-
-I2P also allows users to host globally available Reticulum instances from non-public IP's and behind firewalls and NAT.
-
-In general it is recommended to use an I2P node if you want to host a publicly accessible
-instance, while preserving anonymity. If you care more about performance, and a slightly
-easier setup, use TCP.
 
 .. _bootstrapping-connectivity:
 
@@ -271,17 +141,20 @@ There is no "right" or "wrong" way to build a Reticulum network, and you don't n
 Finding Your Way
 ^^^^^^^^^^^^^^^^
 
-When you first start using Reticulum, you need a way to obtain connectivity with the peers you want to communicate with. This is the process of **bootstrapping**.
+When you first start using Reticulum, you need a way to obtain connectivity with the peers you want to communicate with; the process of *bootstrapping connectivity*.
 
-A common mistake in modern networking is the reliance on a few centralized, hard-coded entrypoints. If every user simply connects to the same list of public IP addresses found on a website, the network becomes brittle, centralized, and ultimately fails to deliver on the promise of decentralization.
+.. important::
+  
+  A common mistake in modern networking is the reliance on a few centralized, hard-coded entrypoints. If every user simply connects to the same list of public IP addresses found on a website, the network becomes brittle, centralized, and ultimately fails to deliver on the promise of decentralization.
 
-Reticulum encourages the approach of *organic growth*. Instead of relying on permanent static connections to distant servers, you can use temporary bootstrap connections to *discover* better, more relevant or local infrastructure. Once discovered, your system can automatically form stronger, more direct links to these peers, and discard the temporary bootstrap links. This results in a web of connections that are geographically relevant, resilient and efficient.
+Reticulum encourages the approach of *organic growth*. Instead of relying on permanent static connections to distant servers, you can use temporary bootstrap connections to continously *discover* more relevant or local infrastructure. Once discovered, your system can automatically form stronger, more direct links to these peers, and discard the temporary bootstrap links. This results in a web of connections that are geographically relevant, resilient and efficient.
 
 It *is* possible to simply add a few public entrypoints to the ``[interfaces]`` section of your Reticulum configuration and be connected, but a better option is to enable :ref:`interface discovery<using-interface_discovery>` and either manually select relevant, local interfaces, or enable discovered interface auto-connection.
 
 A relevant option in this context is the :ref:`bootstrap only<interfaces-options>` interface option. This is an automated tool for better distributing connectivity. By enabling interface discovery and auto-connection, and marking an interface as ``bootstrap_only``, you tell Reticulum to use that interface primarliy to find connectivity options, and then disconnect it once sufficient entrypoints have been discovered. This helps create a network topology that favors locality and resilience over the simple centralization caused by using only a few static entrypoints.
 
-A good place to find interface definitions for bootstrapping connectivity is `rmap.world <https://rmap.world/>`_.
+Good places to find interface definitions for bootstrapping connectivity are websites like
+`directory.rns.recipes <https://directory.rns.recipes/>`_ and `rmap.world <https://rmap.world/>`_.
 
 
 Building Personal Infrastructure
@@ -326,55 +199,27 @@ If you have the means to host a stable node with a public IP address, consider b
 
 For guidelines on how to properly configure and secure a public gateway, refer to the :ref:`Hosting Public Entrypoints<hosting-entrypoints>` section.
 
-Connect to the Public Testnet
-=============================
+Connect to the Distributed Backbone
+===================================
 
-An experimental public testnet has been made accessible by volunteers in the community. You
-can find interface definitions for adding to your ``.reticulum/config`` file on the
-`Reticulum Website <https://reticulum.network/connect.html>`_, or the
-`Community Wiki <https://github.com/markqvist/Reticulum/wiki/Community-Node-List>`_.
+A global, distributed backbone of Reticulum Transport Nodes is being run by volunteers from around the world. This network constitutes a heterogenous collection of both public and private nodes that form an uncoordinated, voluntary inter-networking backbone that currently provides global transport and internetworking capabilities for Reticulum.
 
-As development of Reticulum has transitioned away from the public Internet, and is now happening exclusively over Reticulum itself, the lists on the `Reticulum Website <https://reticulum.network/connect.html>`_ and the
-`Community Wiki <https://github.com/markqvist/Reticulum/wiki/Community-Node-List>`_ are no longer actively maintained, and any up-to-date connectivity information will have to be found elsewhere.
-
-For a while, these resources will likely still be a usable way to find bootstrap connections, that will allow you to discover other entrypoints to connect to, but it is highly recommended to also check community run projects like `rmap.world <https://rmap.world/>`_.
-
-You can connect your devices or instances to one or more of these to gain access to any
-Reticulum networks they are physically connected to. Simply add one or more interface
-snippets to your config file in the ``[interface]`` section, like in the example below:
-
-.. code:: ini
-
-  # TCP/IP interface to the RNS Amsterdam Hub
-  [[RNS Testnet Amsterdam]]
-    type = TCPClientInterface
-    enabled = yes
-    target_host = amsterdam.connect.reticulum.network
-    target_port = 4965
-
+As a good starting point, you can find interface definitions for connecting your own networks to this backbone on websites such as `directory.rns.recipes <https://directory.rns.recipes/>`_ and `rmap.world <https://rmap.world/>`_.
 
 .. tip::
-  Don't rely on a single connection to a testnet entrypoint for everyday use. The testnet is often used for development and failure testing scenarios. Instead, read the :ref:`Bootstrapping Connectivity<bootstrapping-connectivity>` section.
+  Don't rely on just a single connection to a the distributed backbone for everyday use. It is much better to have several redundant connections configured, and enable the interface discovery options, so your nodes can continously discover peering opportunities as the network evolves. Refer to the :ref:`Bootstrapping Connectivity<bootstrapping-connectivity>` section to understand the options.
 
-As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, the public Amsterdam Testnet entrypoint is slated for de-commisioning in the first quarter of 2026. If your own instances rely on this entrypoint for connectivity, it is high time to start configuring alternatives. Read the :ref:`Bootstrapping Connectivity<bootstrapping-connectivity>` section for pointers.
 
-.. warning::
-  It probably goes without saying, but *don't use the testnet entry-points as 
-  hardcoded or default interfaces in any applications you ship to users*. When
-  shipping applications, the best practice is to provide your own default
-  connectivity solutions, if needed and applicable, or in most cases, simply
-  leave it up to the user which networks to connect to, and how.
 
 .. _hosting-entrypoints:
 
 Hosting Public Entrypoints
 ==========================
 
-If you want to host a public (or private) entry-point to a Reticulum network over the
-Internet, this section offers some helpful pointers. Once you have set up your public entrypoint, it is a great idea to :ref:`make it discoverable over Reticulum<interfaces-discoverable>`.
+If you want to help build a strong global interconnection backbone, you can host a public (or private) entry-point to a Reticulum network over the
+Internet. This section offers some helpful pointers. Once you have set up your public entrypoint, it is a great idea to :ref:`make it discoverable over Reticulum<interfaces-discoverable>`.
 
-You will need a machine, physical or
-virtual with a public IP address, that can be reached by other devices on the Internet.
+You will need a machine, physical or virtual with a public IP address, that can be reached by other devices on the Internet.
 
 The most efficient and performant way to host a connectable entry-point supporting many
 users is to use the ``BackboneInterface``. This interface type is fully compatible with
@@ -420,6 +265,45 @@ If you are hosting an entry-point on an operating system that does not support
 ``BackboneInterface``, you can use ``TCPServerInterface`` instead, although it will
 not be as performant.
 
+
+Connecting Reticulum Instances Over the Internet
+================================================
+Reticulum currently offers three interfaces suitable for connecting instances over the Internet: :ref:`Backbone<interfaces-backbone>`, :ref:`TCP<interfaces-tcps>`
+and :ref:`I2P<interfaces-i2p>`. Each interface offers a different set of features, and Reticulum
+users should carefully choose the interface which best suites their needs.
+
+The ``TCPServerInterface`` allows users to host an instance accessible over TCP/IP. This
+method is generally faster, lower latency, and more energy efficient than using ``I2PInterface``,
+however it also leaks more data about the server host.
+
+The ``BackboneInterface`` is a very fast and efficient interface type available on POSIX operating
+systems, designed to handle many hundreds of connections simultaneously with low memory, processing
+and I/O overhead. It is fully compatible with the TCP-based interface types.
+
+TCP connections reveal the IP address of both your instance and the server to anyone who can
+inspect the connection. Someone could use this information to determine your location or identity. Adversaries
+inspecting your packets may be able to record packet metadata like time of transmission and packet size.
+Even though Reticulum encrypts traffic, TCP does not, so an adversary may be able to use
+packet inspection to learn that a system is running Reticulum, and what other IP addresses connect to it.
+Hosting a publicly reachable instance over TCP also requires a publicly reachable IP address,
+which most Internet connections don't offer anymore.
+
+The ``I2PInterface`` routes messages through the `Invisible Internet Protocol
+(I2P) <https://geti2p.net/en/>`_. To use this interface, users must also run an I2P daemon in
+parallel to ``rnsd``. For always-on I2P nodes it is recommended to use `i2pd <https://i2pd.website/>`_.
+
+By default, I2P will encrypt and mix all traffic sent over the Internet, and
+hide both the sender and receiver Reticulum instance IP addresses. Running an I2P node
+will also relay other I2P user's encrypted packets, which will use extra
+bandwidth and compute power, but also makes timing attacks and other forms of
+deep-packet-inspection much more difficult.
+
+I2P also allows users to host globally available Reticulum instances from non-public IP's and behind firewalls and NAT.
+
+In general it is recommended to use an I2P node if you want to host a publicly accessible
+instance, while preserving anonymity. If you care more about performance, and a slightly
+easier setup, use TCP.
+
 Adding Radio Interfaces
 =======================
 Once you have Reticulum installed and working, you can add radio interfaces with
@@ -433,20 +317,18 @@ cheaply build an :ref:`RNode<rnode-main>`, which is a general-purpose long-range
 digital radio transceiver, that integrates easily with Reticulum.
 
 To build one yourself requires installing a custom firmware on a supported LoRa
-development board with an auto-install script. Please see the :ref:`Communications Hardware<hardware-main>`
-chapter for a guide. If you prefer purchasing a ready-made unit, you can refer to the
-:ref:`list of suppliers<rnode-suppliers>`. For more information on RNode, you can also
-refer to these additional external resources:
+development board with an auto-install script or web-based flasher.
+Please see the :ref:`Communications Hardware<hardware-main>` chapter for a guide.
+If you prefer purchasing a ready-made unit, you can refer to the
+:ref:`list of suppliers<rnode-suppliers>`. 
 
-* `How To Make Your Own RNodes <https://unsigned.io/how-to-make-your-own-rnodes/>`_
-* `Installing RNode Firmware on Compatible LoRa Devices <https://unsigned.io/installing-rnode-firmware-on-supported-devices/>`_
-* `Private, Secure and Uncensorable Messaging Over a LoRa Mesh <https://unsigned.io/private-messaging-over-lora/>`_
-* `RNode Firmware <https://github.com/markqvist/RNode_Firmware/>`_
+Other radio-based hardware interfaces are being developed and made available by
+the broader Reticulum community. You can find more information on such topics
+over Reticulum-based information sharing systems.
 
 If you have communications hardware that is not already supported by any of the
-:ref:`existing interface types<interfaces-main>`, but you think would be suitable for use with Reticulum,
-you are welcome to head over to the `GitHub discussion pages <https://github.com/markqvist/Reticulum/discussions>`_
-and propose adding an interface for the hardware.
+:ref:`existing interface types<interfaces-main>`, it is easy to write (and potentially
+publish) a :ref:`custom interface module<interfaces-custom>` that makes it compatible with Reticulum.
 
 
 Creating and Using Custom Interfaces
