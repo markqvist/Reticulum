@@ -141,11 +141,11 @@ There is no "right" or "wrong" way to build a Reticulum network, and you don't n
 Finding Your Way
 ^^^^^^^^^^^^^^^^
 
-When you first start using Reticulum, you need a way to obtain connectivity with the peers you want to communicate with; the process of *bootstrapping connectivity*.
+When you first start using Reticulum, you need a way to obtain connectivity with the peers you want to communicate with - the process of *bootstrapping connectivity*.
 
 .. important::
   
-  A common mistake in modern networking is the reliance on a few centralized, hard-coded entrypoints. If every user simply connects to the same list of public IP addresses found on a website, the network becomes brittle, centralized, and ultimately fails to deliver on the promise of decentralization.
+  A common mistake in modern networking is the reliance on a few centralized, hard-coded entrypoints. If every user simply connects to the same list of public IP addresses found on a website, the network becomes brittle, centralized, and ultimately fails to deliver on the promise of decentralization and resilience. You have a responsibility here.
 
 Reticulum encourages the approach of *organic growth*. Instead of relying on permanent static connections to distant servers, you can use temporary bootstrap connections to continously *discover* more relevant or local infrastructure. Once discovered, your system can automatically form stronger, more direct links to these peers, and discard the temporary bootstrap links. This results in a web of connections that are geographically relevant, resilient and efficient.
 
@@ -157,8 +157,8 @@ Good places to find interface definitions for bootstrapping connectivity are web
 `directory.rns.recipes <https://directory.rns.recipes/>`_ and `rmap.world <https://rmap.world/>`_.
 
 
-Building Personal Infrastructure
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Build Personal Infrastructure
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You do not need a datacenter to be a meaningful part of the Reticulum ecosystem. In fact, the most important nodes in the network are often the smallest ones.
 
@@ -197,7 +197,7 @@ Contributing to the Global Ret
 
 If you have the means to host a stable node with a public IP address, consider becoming a :ref:`Public Entrypoint<hosting-entrypoints>`. By :ref:`publishing your interface as discoverable<interfaces-discoverable>`, you provide a potential connection point for others, helping the network grow and reach new areas.
 
-For guidelines on how to properly configure and secure a public gateway, refer to the :ref:`Hosting Public Entrypoints<hosting-entrypoints>` section.
+For guidelines on how to properly configure a public entrypoint, refer to the :ref:`Hosting Public Entrypoints<hosting-entrypoints>` section.
 
 Connect to the Distributed Backbone
 ===================================
@@ -207,7 +207,7 @@ A global, distributed backbone of Reticulum Transport Nodes is being run by volu
 As a good starting point, you can find interface definitions for connecting your own networks to this backbone on websites such as `directory.rns.recipes <https://directory.rns.recipes/>`_ and `rmap.world <https://rmap.world/>`_.
 
 .. tip::
-  Don't rely on just a single connection to a the distributed backbone for everyday use. It is much better to have several redundant connections configured, and enable the interface discovery options, so your nodes can continously discover peering opportunities as the network evolves. Refer to the :ref:`Bootstrapping Connectivity<bootstrapping-connectivity>` section to understand the options.
+  Don't rely on just a single connection to the distributed backbone for everyday use. It is much better to have several redundant connections configured, and enable the interface discovery options, so your nodes can continously discover peering opportunities as the network evolves. Refer to the :ref:`Bootstrapping Connectivity<bootstrapping-connectivity>` section to understand the options.
 
 
 
@@ -277,7 +277,7 @@ method is generally faster, lower latency, and more energy efficient than using 
 however it also leaks more data about the server host.
 
 The ``BackboneInterface`` is a very fast and efficient interface type available on POSIX operating
-systems, designed to handle many hundreds of connections simultaneously with low memory, processing
+systems, designed to handle thousands of connections simultaneously with low memory, processing
 and I/O overhead. It is fully compatible with the TCP-based interface types.
 
 TCP connections reveal the IP address of both your instance and the server to anyone who can

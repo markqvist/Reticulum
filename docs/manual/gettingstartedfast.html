@@ -366,10 +366,10 @@ connectivity with a minimum of maintenance.</p>
 <p>There is no “right” or “wrong” way to build a Reticulum network, and you don’t need to be a network engineer just to get started. If the information flows in the way you intend, and your privacy and security requirements are met, your configuration is a success. Reticulum is designed to make the most challenging and difficult scenarios attainable, even when other networking technologies fail.</p>
 <section id="finding-your-way">
 <h3>Finding Your Way<a class="headerlink" href="#finding-your-way" title="Link to this heading">¶</a></h3>
-<p>When you first start using Reticulum, you need a way to obtain connectivity with the peers you want to communicate with; the process of <em>bootstrapping connectivity</em>.</p>
+<p>When you first start using Reticulum, you need a way to obtain connectivity with the peers you want to communicate with - the process of <em>bootstrapping connectivity</em>.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>A common mistake in modern networking is the reliance on a few centralized, hard-coded entrypoints. If every user simply connects to the same list of public IP addresses found on a website, the network becomes brittle, centralized, and ultimately fails to deliver on the promise of decentralization.</p>
+<p>A common mistake in modern networking is the reliance on a few centralized, hard-coded entrypoints. If every user simply connects to the same list of public IP addresses found on a website, the network becomes brittle, centralized, and ultimately fails to deliver on the promise of decentralization and resilience. You have a responsibility here.</p>
 </div>
 <p>Reticulum encourages the approach of <em>organic growth</em>. Instead of relying on permanent static connections to distant servers, you can use temporary bootstrap connections to continously <em>discover</em> more relevant or local infrastructure. Once discovered, your system can automatically form stronger, more direct links to these peers, and discard the temporary bootstrap links. This results in a web of connections that are geographically relevant, resilient and efficient.</p>
 <p>It <em>is</em> possible to simply add a few public entrypoints to the <code class="docutils literal notranslate"><span class="pre">[interfaces]</span></code> section of your Reticulum configuration and be connected, but a better option is to enable <a class="reference internal" href="using.html#using-interface-discovery"><span class="std std-ref">interface discovery</span></a> and either manually select relevant, local interfaces, or enable discovered interface auto-connection.</p>
@@ -377,8 +377,8 @@ connectivity with a minimum of maintenance.</p>
 <p>Good places to find interface definitions for bootstrapping connectivity are websites like
 <a class="reference external" href="https://directory.rns.recipes/">directory.rns.recipes</a> and <a class="reference external" href="https://rmap.world/">rmap.world</a>.</p>
 </section>
-<section id="building-personal-infrastructure">
-<h3>Building Personal Infrastructure<a class="headerlink" href="#building-personal-infrastructure" title="Link to this heading">¶</a></h3>
+<section id="build-personal-infrastructure">
+<h3>Build Personal Infrastructure<a class="headerlink" href="#build-personal-infrastructure" title="Link to this heading">¶</a></h3>
 <p>You do not need a datacenter to be a meaningful part of the Reticulum ecosystem. In fact, the most important nodes in the network are often the smallest ones.</p>
 <p>We strongly encourage everyone, even home users, to think in terms of building <strong>personal infrastructure</strong>. Don’t connect every phone, tablet, and computer in your house directly to a public internet gateway. Instead, repurpose an old computer, a Raspberry Pi, or a supported router to act as your own, personal <strong>Transport Node</strong>:</p>
 <ul class="simple">
@@ -407,7 +407,7 @@ connectivity with a minimum of maintenance.</p>
 <section id="contributing-to-the-global-ret">
 <h3>Contributing to the Global Ret<a class="headerlink" href="#contributing-to-the-global-ret" title="Link to this heading">¶</a></h3>
 <p>If you have the means to host a stable node with a public IP address, consider becoming a <a class="reference internal" href="#hosting-entrypoints"><span class="std std-ref">Public Entrypoint</span></a>. By <a class="reference internal" href="interfaces.html#interfaces-discoverable"><span class="std std-ref">publishing your interface as discoverable</span></a>, you provide a potential connection point for others, helping the network grow and reach new areas.</p>
-<p>For guidelines on how to properly configure and secure a public gateway, refer to the <a class="reference internal" href="#hosting-entrypoints"><span class="std std-ref">Hosting Public Entrypoints</span></a> section.</p>
+<p>For guidelines on how to properly configure a public entrypoint, refer to the <a class="reference internal" href="#hosting-entrypoints"><span class="std std-ref">Hosting Public Entrypoints</span></a> section.</p>
 </section>
 </section>
 <section id="connect-to-the-distributed-backbone">
@@ -416,7 +416,7 @@ connectivity with a minimum of maintenance.</p>
 <p>As a good starting point, you can find interface definitions for connecting your own networks to this backbone on websites such as <a class="reference external" href="https://directory.rns.recipes/">directory.rns.recipes</a> and <a class="reference external" href="https://rmap.world/">rmap.world</a>.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Don’t rely on just a single connection to a the distributed backbone for everyday use. It is much better to have several redundant connections configured, and enable the interface discovery options, so your nodes can continously discover peering opportunities as the network evolves. Refer to the <a class="reference internal" href="#bootstrapping-connectivity"><span class="std std-ref">Bootstrapping Connectivity</span></a> section to understand the options.</p>
+<p>Don’t rely on just a single connection to the distributed backbone for everyday use. It is much better to have several redundant connections configured, and enable the interface discovery options, so your nodes can continously discover peering opportunities as the network evolves. Refer to the <a class="reference internal" href="#bootstrapping-connectivity"><span class="std std-ref">Bootstrapping Connectivity</span></a> section to understand the options.</p>
 </div>
 </section>
 <section id="hosting-public-entrypoints">
@@ -472,7 +472,7 @@ users should carefully choose the interface which best suites their needs.</p>
 method is generally faster, lower latency, and more energy efficient than using <code class="docutils literal notranslate"><span class="pre">I2PInterface</span></code>,
 however it also leaks more data about the server host.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">BackboneInterface</span></code> is a very fast and efficient interface type available on POSIX operating
-systems, designed to handle many hundreds of connections simultaneously with low memory, processing
+systems, designed to handle thousands of connections simultaneously with low memory, processing
 and I/O overhead. It is fully compatible with the TCP-based interface types.</p>
 <p>TCP connections reveal the IP address of both your instance and the server to anyone who can
 inspect the connection. Someone could use this information to determine your location or identity. Adversaries
@@ -921,7 +921,7 @@ All other available modules will still be loaded when needed.</p>
 <li><a class="reference internal" href="#creating-a-network-with-reticulum">Creating a Network With Reticulum</a></li>
 <li><a class="reference internal" href="#bootstrapping-connectivity">Bootstrapping Connectivity</a><ul>
 <li><a class="reference internal" href="#finding-your-way">Finding Your Way</a></li>
-<li><a class="reference internal" href="#building-personal-infrastructure">Building Personal Infrastructure</a></li>
+<li><a class="reference internal" href="#build-personal-infrastructure">Build Personal Infrastructure</a></li>
 <li><a class="reference internal" href="#mixing-strategies">Mixing Strategies</a></li>
 <li><a class="reference internal" href="#network-health-responsibility">Network Health &amp; Responsibility</a></li>
 <li><a class="reference internal" href="#contributing-to-the-global-ret">Contributing to the Global Ret</a></li>
