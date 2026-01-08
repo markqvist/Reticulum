@@ -946,8 +946,7 @@ class Link:
             # is a file response, and we'll pass the open
             # file handle directly.
             if resource.has_metadata:
-                def job(): self.handle_response(resource.request_id, resource.data, resource.total_size, resource.size, metadata=resource.metadata)
-                threading.Thread(target=job, daemon=True).start()
+                self.handle_response(resource.request_id, resource.data, resource.total_size, resource.size, metadata=resource.metadata)
 
             # If not, we'll unpack the response data and
             # pass the unpacked structure to the handler
@@ -956,8 +955,7 @@ class Link:
                 unpacked_response = umsgpack.unpackb(packed_response)
                 request_id        = unpacked_response[0]
                 response_data     = unpacked_response[1]
-                def job(): self.handle_response(request_id, response_data, resource.total_size, resource.size)
-                threading.Thread(target=job, daemon=True).start()
+                self.handle_response(request_id, response_data, resource.total_size, resource.size)
 
         else:
             RNS.log("Incoming response resource failed with status: "+RNS.hexrep([resource.status]), RNS.LOG_DEBUG)
@@ -1183,7 +1181,8 @@ class Link:
                         resource_hash = packet.data[0:RNS.Identity.HASHLENGTH//8]
                         for resource in self.outgoing_resources:
                             if resource_hash == resource.hash:
-                                resource.validate_proof(packet.data)
+                                def job(): resource.validate_proof(packet.data)
+                                threading.Thread(target=job, daemon=True).start()
                                 self.__update_phy_stats(packet, query_shared=True)
 
         self.watchdog_lock = False

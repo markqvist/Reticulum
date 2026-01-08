@@ -1093,7 +1093,8 @@ class Resource:
                 if self.callback != None:
                     try:
                         self.link.resource_concluded(self)
-                        self.callback(self)
+                        def job(): self.callback(self)
+                        threading.Thread(target=job, daemon=True).start()
                     except Exception as e:
                         RNS.log("Error while executing callbacks on resource reject from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
