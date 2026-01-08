@@ -1428,20 +1428,21 @@ class RequestReceipt():
             now = time.time()
             if now > self.__resource_response_timeout:
                 self.request_timed_out(None)
+                break
 
             time.sleep(0.1)
 
 
     def request_timed_out(self, packet_receipt):
-        self.status = RequestReceipt.FAILED
-        self.concluded_at = time.time()
-        self.link.pending_requests.remove(self)
+        if self in self.link.pending_requests and self.status == RequestReceipt.DELIVERED:
+            self.status = RequestReceipt.FAILED
+            self.concluded_at = time.time()
+            self.link.pending_requests.remove(self)
 
-        if self.callbacks.failed != None:
-            try:
-                self.callbacks.failed(self)
-            except Exception as e:
-                RNS.log("Error while executing request timed out callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+            if self.callbacks.failed != None:
+                try: self.callbacks.failed(self)
+                except Exception as e:
+                    RNS.log("Error while executing request timed out callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
 
     def response_resource_progress(self, resource):
