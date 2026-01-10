@@ -155,7 +155,7 @@ We live in an era of digital tenancy. We lease our connectivity from ISPs. We re
 
 The Zen of Reticulum is the realization that you *can* own the house.
 
-### The Carrier-Grade Fallacy
+### A Carrier-Grade Fallacy
 
 For decades, we have been gaslit into believing that networking is really not just hard, but impossible. It is presented as a dark art reserved for telcos and billionaires, requiring millions of dollars of fiber optics, climate-controlled data centers, and armies of engineers. We are told that building reliable infrastructure is "too complex" for the individual or small organization.
 
