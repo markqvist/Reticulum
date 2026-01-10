@@ -5,6 +5,8 @@ Reticulum Network Stack <img align="right" src="https://static.pepy.tech/persona
 
 *This repository is [a public mirror](./MIRROR.md). All development is happening elsewhere.*
 
+To understand the foundational philosophy and goals of this system, read the [Zen of Reticulum](Zen of Reticulum.md).
+
 Reticulum is the cryptography-based networking stack for building local and wide-area
 networks with readily available hardware. It can operate even with very high latency
 and extremely low bandwidth. Reticulum allows you to build wide-area networks
