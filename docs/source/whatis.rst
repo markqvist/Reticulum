@@ -6,6 +6,9 @@ Reticulum is a cryptography-based networking stack for building both local and
 wide-area networks with readily available hardware, that can continue to operate
 under adverse conditions, such as extremely low bandwidth and very high latency.
 
+To understand the foundational philosophy and goals of this system, read the
+:ref:`Zen of Reticulum <zen>`.
+
 Reticulum allows you to build wide-area networks with off-the-shelf tools, and
 offers end-to-end encryption, forward secrecy, autoconfiguring cryptographically
 backed multi-hop transport, efficient addressing, unforgeable packet
@@ -38,6 +41,21 @@ Current Status
 All core protocol features are implemented and functioning, but additions will probably occur as
 real-world use is explored. The API and wire-format can be considered complete and stable, but
 could change if absolutely warranted.
+
+
+Reference Implementation
+========================
+The Python code, for which this documentation is written, is the Reference Implementation of
+Reticulum, and compatibility with the Reticulum protocol is defined as having
+full interoperability, and sufficient functional parity with this reference implementation.
+
+Any specific protocol implementation that achieves this is Reticulum. Any that does
+not is not Reticulum.
+
+The protocol design and reference implementation for Reticulum was carried out by Mark Qvist between 2014
+and 2022. It is licensed under the :ref:`Reticulum License <license>`.
+
+The Reticulum Protocol was dedicated to the public domain in 2016.
 
 
 What does Reticulum Offer?
@@ -182,10 +200,3 @@ Reticulum implements a range of generalised interface types that covers the comm
 
 For a full list and more details, see the :ref:`Supported Interfaces<interfaces-main>` chapter.
 
-
-Caveat Emptor
-==============
-Reticulum is an experimental networking stack, and should be considered as
-such. While it has been built with cryptography best-practices very foremost in
-mind, it has not yet been externally security audited, and there could very well be
-privacy-breaking bugs.

@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>What is Reticulum? - Reticulum Network Stack 1.1.2 documentation</title>
+        <title>What is Reticulum? - Reticulum Network Stack 1.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.1.2 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.1.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.1.2 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.1.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -215,6 +215,7 @@
   <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">What is Reticulum?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gettingstartedfast.html">Getting Started Fast</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen.html">Zen of Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="software.html">Programs Using Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="using.html">Using Reticulum on Your System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
@@ -223,6 +224,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Reticulum License</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a></li>
@@ -263,6 +265,8 @@
 <p>Reticulum is a cryptography-based networking stack for building both local and
 wide-area networks with readily available hardware, that can continue to operate
 under adverse conditions, such as extremely low bandwidth and very high latency.</p>
+<p>To understand the foundational philosophy and goals of this system, read the
+<a class="reference internal" href="zen.html#zen"><span class="std std-ref">Zen of Reticulum</span></a>.</p>
 <p>Reticulum allows you to build wide-area networks with off-the-shelf tools, and
 offers end-to-end encryption, forward secrecy, autoconfiguring cryptographically
 backed multi-hop transport, efficient addressing, unforgeable packet
@@ -289,6 +293,17 @@ runs well even on small single-board computers like the Pi Zero.</p>
 <p>All core protocol features are implemented and functioning, but additions will probably occur as
 real-world use is explored. The API and wire-format can be considered complete and stable, but
 could change if absolutely warranted.</p>
+</section>
+<section id="reference-implementation">
+<h2>Reference Implementation<a class="headerlink" href="#reference-implementation" title="Link to this heading">¶</a></h2>
+<p>The Python code, for which this documentation is written, is the Reference Implementation of
+Reticulum, and compatibility with the Reticulum protocol is defined as having
+full interoperability, and sufficient functional parity with this reference implementation.</p>
+<p>Any specific protocol implementation that achieves this is Reticulum. Any that does
+not is not Reticulum.</p>
+<p>The protocol design and reference implementation for Reticulum was carried out by Mark Qvist between 2014
+and 2022. It is licensed under the <a class="reference internal" href="license.html#license"><span class="std std-ref">Reticulum License</span></a>.</p>
+<p>The Reticulum Protocol was dedicated to the public domain in 2016.</p>
 </section>
 <section id="what-does-reticulum-offer">
 <h2>What does Reticulum Offer?<a class="headerlink" href="#what-does-reticulum-offer" title="Link to this heading">¶</a></h2>
@@ -414,13 +429,6 @@ network, and vice versa.</p>
 </ul>
 <p>For a full list and more details, see the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Supported Interfaces</span></a> chapter.</p>
 </section>
-<section id="caveat-emptor">
-<h2>Caveat Emptor<a class="headerlink" href="#caveat-emptor" title="Link to this heading">¶</a></h2>
-<p>Reticulum is an experimental networking stack, and should be considered as
-such. While it has been built with cryptography best-practices very foremost in
-mind, it has not yet been externally security audited, and there could very well be
-privacy-breaking bugs.</p>
-</section>
 </section>
 
         </article>
@@ -479,10 +487,10 @@ privacy-breaking bugs.</p>
             <ul>
 <li><a class="reference internal" href="#">What is Reticulum?</a><ul>
 <li><a class="reference internal" href="#current-status">Current Status</a></li>
+<li><a class="reference internal" href="#reference-implementation">Reference Implementation</a></li>
 <li><a class="reference internal" href="#what-does-reticulum-offer">What does Reticulum Offer?</a></li>
 <li><a class="reference internal" href="#where-can-reticulum-be-used">Where can Reticulum be Used?</a></li>
 <li><a class="reference internal" href="#interface-types-and-devices">Interface Types and Devices</a></li>
-<li><a class="reference internal" href="#caveat-emptor">Caveat Emptor</a></li>
 </ul>
 </li>
 </ul>
@@ -494,7 +502,7 @@ privacy-breaking bugs.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=6f037312"></script>
+</div><script src="_static/documentation_options.js?v=cb7bf70b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

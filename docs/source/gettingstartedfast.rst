@@ -25,7 +25,7 @@ and install them offline using ``pip``:
 
 .. code:: shell
 
-   pip install ./rns-1.0.2-py3-none-any.whl
+   pip install ./rns-1.1.2-py3-none-any.whl
 
 On platforms that limit user package installation via ``pip``, you may need to manually
 allow this using the ``--break-system-packages`` command line flag when installing. This

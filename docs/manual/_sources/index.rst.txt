@@ -20,6 +20,7 @@ to participate in the development of Reticulum itself.
 
    whatis
    gettingstartedfast
+   zen
    software
    using
    understanding
@@ -28,6 +29,7 @@ to participate in the development of Reticulum itself.
    networks
    support
    examples
+   license
 
 .. toctree::
    :maxdepth: 2
