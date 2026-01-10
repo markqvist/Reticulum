@@ -47,15 +47,16 @@ Reference Implementation
 ========================
 The Python code, for which this documentation is written, and known as the Reticulum Network Stack,
 is the Reference Implementation of Reticulum. The Reticulum Protocol is defined entirely
-and authoritatively by this reference implementation, and this manual. It is maintained by Mark Qvist.
+and authoritatively by this reference implementation, and this manual. It is maintained by Mark Qvist,
+identified by the Reticulum Identity ``<bc7291552be7a58f361522990465165c>``.
 
-Compatibility with the Reticulum protocol is defined as having full interoperability,
+Compatibility with the Reticulum Protocol is defined as having full interoperability,
 and sufficient functional parity with this reference implementation. Any specific protocol
 implementation that achieves this is Reticulum. Any that does not is not Reticulum.
 
 The reference implementation is licensed under the :ref:`Reticulum License <license>`.
 
-The Reticulum Protocol was dedicated to the public domain in 2016.
+The Reticulum Protocol was dedicated to the Public Domain in 2016.
 
 
 What does Reticulum Offer?
