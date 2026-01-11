@@ -1567,6 +1567,15 @@ class Reticulum:
         return Reticulum.__blackhole_sources
 
     @staticmethod
+    def discovered_interfaces():
+        """
+        Returns a list of interfaces discovered over the network.
+
+        :returns: A list of discovered interfaces.
+        """
+        return RNS.Discovery.InterfaceDiscovery(discover_interfaces=False).list_discovered_interfaces()
+
+    @staticmethod
     def interface_discovery_sources():
         """
         Returns the list of network identity hashes from which
