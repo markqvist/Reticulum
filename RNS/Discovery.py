@@ -106,30 +106,31 @@ class InterfaceAnnouncer():
                      LONGITUDE:      interface.discovery_longitude,
                      HEIGHT:         interface.discovery_height}
 
-            reachable_on = self.sanitize(interface.reachable_on)
-            if not RNS.vendor.platformutils.is_windows():
-                try:
-                    exec_path = os.path.expanduser(reachable_on)
-                    if os.path.isfile(exec_path) and os.access(exec_path, os.X_OK):
-                        RNS.log(f"Evaluating reachable_on from executable at {exec_path}", RNS.LOG_DEBUG)
-                        exec_result = subprocess.run([exec_path], stdout=subprocess.PIPE)
-                        exec_stdout = exec_result.stdout.decode("utf-8")
-                        if exec_result.returncode != 0: raise ValueError("Non-zero exit code from subprocess")
-                        reachable_on = self.sanitize(exec_stdout)
-                        if not (is_ip_address(reachable_on) or is_hostname(reachable_on)):
-                            raise ValueError(f"Valid IP address or hostname was not found in external script output \"{reachable_on}\"")
+            if interface_type in ["BackboneInterface", "TCPServerInterface"]:
+                reachable_on = self.sanitize(interface.reachable_on)
 
-                except Exception as e:
-                    RNS.log(f"Error while getting reachable_on from executable at {interface.reachable_on}: {e}", RNS.LOG_ERROR)
+                if not RNS.vendor.platformutils.is_windows():
+                    try:
+                        exec_path = os.path.expanduser(reachable_on)
+                        if os.path.isfile(exec_path) and os.access(exec_path, os.X_OK):
+                            RNS.log(f"Evaluating reachable_on from executable at {exec_path}", RNS.LOG_DEBUG)
+                            exec_result = subprocess.run([exec_path], stdout=subprocess.PIPE)
+                            exec_stdout = exec_result.stdout.decode("utf-8")
+                            if exec_result.returncode != 0: raise ValueError("Non-zero exit code from subprocess")
+                            reachable_on = self.sanitize(exec_stdout)
+                            if not (is_ip_address(reachable_on) or is_hostname(reachable_on)):
+                                raise ValueError(f"Valid IP address or hostname was not found in external script output \"{reachable_on}\"")
+
+                    except Exception as e:
+                        RNS.log(f"Error while getting reachable_on from executable at {interface.reachable_on}: {e}", RNS.LOG_ERROR)
+                        RNS.log(f"Aborting discovery announce", RNS.LOG_ERROR)
+                        return None
+
+                if not (is_ip_address(reachable_on) or is_hostname(reachable_on)):
+                    RNS.log(f"The configured reachable_on parameter \"{reachable_on}\" for {interface} is not a valid IP address or hostname", RNS.LOG_ERROR)
                     RNS.log(f"Aborting discovery announce", RNS.LOG_ERROR)
                     return None
 
-            if not (is_ip_address(reachable_on) or is_hostname(reachable_on)):
-                RNS.log(f"The configured reachable_on parameter \"{reachable_on}\" for {interface} is not a valid IP address or hostname", RNS.LOG_ERROR)
-                RNS.log(f"Aborting discovery announce", RNS.LOG_ERROR)
-                return None
-
-            if interface_type in ["BackboneInterface", "TCPServerInterface"]:
                 info[REACHABLE_ON]    = reachable_on
                 info[PORT]            = interface.bind_port
 
