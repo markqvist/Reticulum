@@ -1,3 +1,21 @@
+### 2026-03-12: RNS 1.1.4
+
+**Changes**
+- Fixed invalid application of IP/hostname validation for on non-relevant interfaces. Thanks @joakim!
+
+**Release Hashes**
+```
+b2a175abd64d1581dd058206832793dbf7053a304c819ff8bc143a79c49cb747 rns-1.1.4-py3-none-any.whl
+16c4ae6722bbd016e8db046e7bdd60eb24f9ec55966ec5723dc39301265d0186 rnspure-1.1.4-py3-none-any.whl
+```
+
+**Release Signatures**
+Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`:
+
+```sh
+rnid -i bc7291552be7a58f361522990465165c -V rns-1.1.4-py3-none-any.whl.rsg
+```
+
 ### 2026-01-17: RNS 1.1.3
 
 **Changes**
