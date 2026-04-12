@@ -119,6 +119,16 @@ class Transport:
     discovery_pr_tags           = []           # A table for keeping track of tagged path requests
     max_pr_tags                 = 32000        # Maximum amount of unique path request tags to remember
 
+    inbound_announce_lock       = Lock()
+    announce_table_lock         = Lock()
+    path_table_lock             = Lock()
+    reverse_table_lock          = Lock()
+    link_table_lock             = Lock()
+    tunnels_lock                = Lock()
+    discovery_pr_lock           = Lock()
+    path_states_lock            = Lock()
+    jobs_lock                   = Lock()
+
     # Transport control destinations are used
     # for control purposes like path requests
     control_destinations        = []
@@ -162,7 +172,6 @@ class Transport:
     mgmt_announce_interval      = 2*60*60
     blackhole_last_checked      = 0
     blackhole_check_interval    = 60
-    inbound_announce_lock       = Lock()
     interface_announcer         = None
     discovery_handler           = None
     blackhole_updater           = None
@@ -299,10 +308,8 @@ class Transport:
                                 if blackholed:
                                     RNS.log("The associated identity is blackholed", RNS.LOG_DEBUG)
 
-                    if len(Transport.path_table) == 1:
-                        specifier = "entry"
-                    else:
-                        specifier = "entries"
+                    if len(Transport.path_table) == 1: specifier = "entry"
+                    else:                              specifier = "entries"
 
                     RNS.log("Loaded "+str(len(Transport.path_table))+" path table "+specifier+" from storage", RNS.LOG_VERBOSE)
                     gc.collect()
@@ -351,7 +358,7 @@ class Transport:
                             Transport.tunnels[tunnel_id] = tunnel
 
                     if len(Transport.path_table) == 1: specifier = "entry"
-                    else: specifier = "entries"
+                    else:                              specifier = "entries"
 
                     RNS.log("Loaded "+str(len(Transport.tunnels))+" tunnel table "+specifier+" from storage", RNS.LOG_VERBOSE)
                     gc.collect()
@@ -898,13 +905,10 @@ class Transport:
                 ifac = interface.ifac_identity.sign(raw)[-interface.ifac_size:]
 
                 # Generate mask
-                mask = RNS.Cryptography.hkdf(
-                    length=len(raw)+interface.ifac_size,
-                    derive_from=ifac,
-                    salt=interface.ifac_key,
-                    context=None,
-                )
-
+                mask = RNS.Cryptography.hkdf(length=len(raw)+interface.ifac_size,
+                                             derive_from=ifac,
+                                             salt=interface.ifac_key,
+                                             context=None)
                 # Set IFAC flag
                 new_header = bytes([raw[0] | 0x80, raw[1]])
 
@@ -914,26 +918,24 @@ class Transport:
                 # Mask payload
                 i = 0; masked_raw = b""
                 for byte in new_raw:
-                    if i == 0:
-                        # Mask first header byte, but make sure the
-                        # IFAC flag is still set
-                        masked_raw += bytes([byte ^ mask[i] | 0x80])
-                    elif i == 1 or i > interface.ifac_size+1:
-                        # Mask second header byte and payload
-                        masked_raw += bytes([byte ^ mask[i]])
-                    else:
-                        # Don't mask the IFAC itself
-                        masked_raw += bytes([byte])
+                    # Mask first header byte, but make sure the
+                    # IFAC flag is still set
+                    if i == 0: masked_raw += bytes([byte ^ mask[i] | 0x80])
+                    
+                    # Mask second header byte and payload
+                    elif i == 1 or i > interface.ifac_size+1: masked_raw += bytes([byte ^ mask[i]])
+                    
+                    # Don't mask the IFAC itself
+                    else: masked_raw += bytes([byte])
+                    
                     i += 1
 
                 # Send it
                 interface.process_outgoing(masked_raw)
 
-            else:
-                interface.process_outgoing(raw)
+            else: interface.process_outgoing(raw)
 
-        except Exception as e:
-            RNS.log("Error while transmitting on "+str(interface)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+        except Exception as e: RNS.log("Error while transmitting on "+str(interface)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     @staticmethod
     def outbound(packet):
@@ -1250,23 +1252,19 @@ class Transport:
                         ifac = raw[2:2+interface.ifac_size]
 
                         # Generate mask
-                        mask = RNS.Cryptography.hkdf(
-                            length=len(raw),
-                            derive_from=ifac,
-                            salt=interface.ifac_key,
-                            context=None,
-                        )
-
+                        mask = RNS.Cryptography.hkdf(length=len(raw),
+                                                     derive_from=ifac,
+                                                     salt=interface.ifac_key,
+                                                     context=None)
                         # Unmask payload
                         i = 0; unmasked_raw = b""
                         for byte in raw:
-                            if i <= 1 or i > interface.ifac_size+1:
-                                # Unmask header bytes and payload
-                                unmasked_raw += bytes([byte ^ mask[i]])
-                            else:
-                                # Don't unmask IFAC itself
-                                unmasked_raw += bytes([byte])
+                            # Unmask header bytes and payload
+                            if i <= 1 or i > interface.ifac_size+1: unmasked_raw += bytes([byte ^ mask[i]])
+                            # Don't unmask IFAC itself
+                            else: unmasked_raw += bytes([byte])
                             i += 1
+                        
                         raw = unmasked_raw
 
                         # Unset IFAC flag
@@ -1279,34 +1277,26 @@ class Transport:
                         expected_ifac = interface.ifac_identity.sign(new_raw)[-interface.ifac_size:]
 
                         # Check it
-                        if ifac == expected_ifac:
-                            raw = new_raw
-                        else:
-                            return
+                        if ifac == expected_ifac: raw = new_raw
+                        else:                     return
 
-                    else:
-                        return
+                    else: return
 
-                else:
-                    # If the IFAC flag is not set, but should be,
-                    # drop the packet.
-                    return
+                # If the IFAC flag is not set, but should be,
+                # drop the packet.
+                else: return
 
             else:
                 # If the interface does not have IFAC enabled,
                 # check the received packet IFAC flag.
-                if raw[0] & 0x80 == 0x80:
-                    # If the flag is set, drop the packet
-                    return
+                # If the flag is set, drop the packet
+                if raw[0] & 0x80 == 0x80: return
 
-        else:
-            return
+        else: return
 
-        while (Transport.jobs_running):
-            sleep(0.0005)
+        while (Transport.jobs_running): sleep(0.0005)
 
-        if Transport.identity == None:
-            return
+        if Transport.identity == None: return
             
         Transport.jobs_locked = True
         
@@ -1341,11 +1331,9 @@ class Transport:
                         Transport.local_client_q_cache.pop(0)
 
         if len(Transport.local_client_interfaces) > 0:
-            if Transport.is_local_client_interface(interface):
-                packet.hops -= 1
+            if Transport.is_local_client_interface(interface): packet.hops -= 1
 
-        elif Transport.interface_to_shared_instance(interface):
-            packet.hops -= 1
+        elif Transport.interface_to_shared_instance(interface): packet.hops -= 1
 
         if Transport.packet_filter(packet):
             # By default, remember packet hashes to avoid routing
@@ -1359,14 +1347,12 @@ class Transport:
             # or terminates with this instance, but before it would
             # normally reach us. If the packet is appended to the
             # filter list at this point, link transport will break.
-            if packet.destination_hash in Transport.link_table:
-                remember_packet_hash = False
+            if packet.destination_hash in Transport.link_table: remember_packet_hash = False
 
             # If this is a link request proof, don't add it until
             # we are sure it's not actually somewhere else in the
             # routing chain.
-            if packet.packet_type == RNS.Packet.PROOF and packet.context == RNS.Packet.LRPROOF:
-                remember_packet_hash = False
+            if packet.packet_type == RNS.Packet.PROOF and packet.context == RNS.Packet.LRPROOF: remember_packet_hash = False
 
             if remember_packet_hash:
                 Transport.add_packet_hash(packet.packet_hash)
@@ -1488,7 +1474,7 @@ class Transport:
                                                 packet.hops,                    # 5: Taken hops
                                                 packet.destination_hash,        # 6: Original destination hash
                                                 False,                          # 7: Validated
-                                                proof_timeout]                  # 8: Proof timeout timestamp
+                                                proof_timeout ]                 # 8: Proof timeout timestamp
 
                                 Transport.link_table[RNS.Link.link_id_from_lr_packet(packet)] = link_entry
 
@@ -1496,7 +1482,7 @@ class Transport:
                                 # Entry format is
                                 reverse_entry = [   packet.receiving_interface, # 0: Received on interface
                                                     outbound_interface,         # 1: Outbound interface
-                                                    time.time()]                # 2: Timestamp
+                                                    time.time() ]               # 2: Timestamp
 
                                 Transport.reverse_table[packet.getTruncatedHash()] = reverse_entry
 

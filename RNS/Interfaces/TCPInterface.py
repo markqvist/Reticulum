@@ -579,6 +579,7 @@ class TCPServerInterface(Interface):
         spawned_interface = TCPClientInterface(self.owner, spawned_configuration, connected_socket=handler.request)
         spawned_interface.OUT = self.OUT
         spawned_interface.IN  = self.IN
+        spawned_interface.ingress_control = self.ingress_control
         spawned_interface.target_ip = handler.client_address[0]
         spawned_interface.target_port = str(handler.client_address[1])
         spawned_interface.parent_interface = self
