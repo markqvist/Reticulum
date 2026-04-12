@@ -421,8 +421,7 @@ class Destination:
             else:
                 if packet.packet_type == RNS.Packet.DATA:
                     if self.callbacks.packet != None:
-                        try:
-                            self.callbacks.packet(plaintext, packet)
+                        try: self.callbacks.packet(plaintext, packet)
                         except Exception as e:
                             RNS.log("Error while executing receive callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 

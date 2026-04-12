@@ -768,7 +768,7 @@ class TestLink(unittest.TestCase):
 
             data = bytearray()
             for rx in received:
-                data.extend(rx)
+                if rx: data.extend(rx)
             rx_message = data
 
             print(f"Received {len(received)} chunks, totalling {len(rx_message)} bytes")
