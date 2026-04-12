@@ -240,7 +240,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "cr" in i:           print(f"Coding Rate  : {i['cr']}")
                         if "modulation" in i:   print(f"Modulation   : {i['modulation']}")
                         if "reachable_on" in i: print(f"Address      : {i['reachable_on']}")
-                        if "reachable_on" in i: print(f"Port         : {i['port']}")
+                        if "port" in i:         print(f"Port         : {i['port']}")
 
                         print(f"Stamp Value  : {i['value']}")
 
