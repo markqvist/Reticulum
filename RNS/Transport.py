@@ -1480,9 +1480,9 @@ class Transport:
 
                             else:
                                 # Entry format is
-                                reverse_entry = [   packet.receiving_interface, # 0: Received on interface
-                                                    outbound_interface,         # 1: Outbound interface
-                                                    time.time() ]               # 2: Timestamp
+                                reverse_entry = [ packet.receiving_interface,   # 0: Received on interface
+                                                  outbound_interface,           # 1: Outbound interface
+                                                  time.time() ]                 # 2: Timestamp
 
                                 Transport.reverse_table[packet.getTruncatedHash()] = reverse_entry
 
