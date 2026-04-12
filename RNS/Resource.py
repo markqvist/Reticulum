@@ -1065,6 +1065,7 @@ class Resource:
         """
         Cancels transferring the resource.
         """
+        if self.next_segment: self.next_segment.cancel()
         if self.status < Resource.COMPLETE:
             self.status = Resource.FAILED
             if self.initiator:
