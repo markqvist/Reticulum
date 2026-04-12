@@ -856,8 +856,7 @@ class Transport:
                 if time.time() > Transport.interface_last_jobs + Transport.interface_jobs_interval:
                     Transport.prioritize_interfaces()
                     try:
-                        for interface in Transport.interfaces:
-                            interface.process_held_announces()
+                        for interface in Transport.interfaces: interface.process_held_announces()
                         Transport.interface_last_jobs = time.time()
                     except Exception as e:
                         RNS.log(f"Error while processing held per-interface announces: {e}", RNS.LOG_WARNING)

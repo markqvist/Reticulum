@@ -225,6 +225,7 @@ def prettysize(num, suffix='B'):
     return "%.2f%s%s" % (num, last_unit, suffix)
 
 def prettyfrequency(hz, suffix="Hz"):
+    if hz == 0: return "0 Hz"
     num = hz*1e6
     units = ["µ", "m", "", "K","M","G","T","P","E","Z"]
     last_unit = "Y"

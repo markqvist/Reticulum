@@ -942,6 +942,16 @@ class WeaveInterface(Interface):
             spawned_interface = WeaveInterfacePeer(self, endpoint_addr)
             spawned_interface.OUT = self.OUT
             spawned_interface.IN  = self.IN
+
+            spawned_interface.ingress_control = self.ingress_control
+            spawned_interface.ic_max_held_announces = self.ic_max_held_announces
+            spawned_interface.ic_burst_hold = self.ic_burst_hold
+            spawned_interface.ic_burst_freq = self.ic_burst_freq
+            spawned_interface.ic_burst_freq_new = self.ic_burst_freq_new
+            spawned_interface.ic_new_time = self.ic_new_time
+            spawned_interface.ic_burst_penalty = self.ic_burst_penalty
+            spawned_interface.ic_held_release_interval = self.ic_held_release_interval
+            
             spawned_interface.parent_interface = self
             spawned_interface.bitrate = self.bitrate
             
