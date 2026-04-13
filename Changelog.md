@@ -10,8 +10,8 @@
 
 **Release Hashes**
 ```
-
-
+28f39ad97ef307a1e270b91ef19db07d8e1a7bbc8628c478303725894c64deff rns-1.1.5-py3-none-any.whl
+1a90db16d2cff4ad909b44baf9b4fd0177da2ed545cdb9cfb2c51423707b49e9 rnspure-1.1.5-py3-none-any.whl
 ```
 
 **Release Signatures**
