@@ -125,7 +125,7 @@ A `Reticulum MeshChat fork from the future <https://git.quad4.io/RNS-Things/Mesh
       :target: https://git.quad4.io/RNS-Things/MeshChatX
 
 
-Features include full LXST support, custom voicemail, phonebook, contact sharing, and ringtone support, multi-identity handling, modern UI/UX, offline documentation, expanded tools, page archiving, integrated maps and improved application security.
+Features include full LXST support, custom voicemail, phonebook, contact sharing, and ringtone support, multi-identity handling, modern UI/UX, offline documentation, expanded tools, page archiving, integrated maps, telemetry and improved application security.
 
 .. raw:: latex
 
@@ -216,7 +216,7 @@ RetiBBS allows users to communicate through message boards in a secure manner.
 RBrowser
 ^^^^^^^^
 
-The `rBrowser <https://github.com/fr33n0w/rBrowser>`_ program is a cross-platoform, standalone, web-based browser for exploring NomadNetwork Nodes over Reticulum Network. It automatically discovers NomadNet nodes through network announces and provides a user-friendly interface for browsing distributed content with Micron markup support.
+The `rBrowser <https://github.com/fr33n0w/rBrowser>`_ program is a cross-platform, standalone, web-based browser for exploring NomadNetwork Nodes over Reticulum Network. It automatically discovers NomadNet nodes through network announces and provides a user-friendly interface for browsing distributed content with Micron markup support.
 
 .. only:: html
 

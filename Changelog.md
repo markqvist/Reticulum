@@ -1,3 +1,26 @@
+### 2026-04-13: RNS 1.1.5
+
+**Changes**
+- Initial refactoring work for free-threaded transport I/O.
+- Improved interface discovery validation.
+- Fixed invalid ingress control burst activation and subsequent path resolution failure due to incorrect announce frequency calculation.
+- Fixed missing configuration entry generation for discovered I2P interfaces.
+- Fixed resource transfer cancellation failing on in-flight split resource transfers.
+- Fixed ingress control configuration not inheriting down to spawned interfaces on some interface types.
+
+**Release Hashes**
+```
+
+
+```
+
+**Release Signatures**
+Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`:
+
+```sh
+rnid -i bc7291552be7a58f361522990465165c -V rns-1.1.5-py3-none-any.whl.rsg
+```
+
 ### 2026-03-12: RNS 1.1.4
 
 **Changes**
