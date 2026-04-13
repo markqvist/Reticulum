@@ -187,8 +187,7 @@ class Identity:
                     with open(RNS.Reticulum.storagepath+"/known_destinations","rb") as file:
                         storage_known_destinations = umsgpack.load(file)
  
-                except:
-                    pass
+                except: pass
 
             try:
                 for destination_hash in storage_known_destinations:
@@ -199,8 +198,7 @@ class Identity:
 
             RNS.log("Saving "+str(len(Identity.known_destinations))+" known destinations to storage...", RNS.LOG_DEBUG)
             with open(RNS.Reticulum.storagepath+"/known_destinations","wb") as file:
-                umsgpack.dump(Identity.known_destinations, file)
-            
+                umsgpack.dump(Identity.known_destinations.copy(), file)
 
             save_time = time.time() - save_start
             if save_time < 1:
