@@ -722,12 +722,9 @@ class Link:
             pass
 
     def link_closed(self):
-        for resource in self.incoming_resources:
-            resource.cancel()
-        for resource in self.outgoing_resources:
-            resource.cancel()
-        if self._channel:
-            self._channel._shutdown()
+        for resource in self.incoming_resources: resource.cancel()
+        for resource in self.outgoing_resources: resource.cancel()
+        if self._channel: self._channel._shutdown()
             
         self.prv = None
         self.pub = None
@@ -741,8 +738,7 @@ class Link:
                     self.destination.links.remove(self)
 
         if self.callbacks.link_closed != None:
-            try:
-                self.callbacks.link_closed(self)
+            try: self.callbacks.link_closed(self)
             except Exception as e:
                 RNS.log("Error while executing link closed callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 

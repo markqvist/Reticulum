@@ -295,33 +295,26 @@ class Destination:
                         app_data = returned_app_data
             
             signed_data = self.hash+self.identity.get_public_key()+self.name_hash+random_hash+ratchet
-            if app_data != None:
-                signed_data += app_data
+            if app_data != None: signed_data += app_data
 
             signature = self.identity.sign(signed_data)
             announce_data = self.identity.get_public_key()+self.name_hash+random_hash+ratchet+signature
 
-            if app_data != None:
-                announce_data += app_data
+            if app_data != None: announce_data += app_data
 
             self.path_responses[tag] = [time.time(), announce_data]
 
-        if path_response:
-            announce_context = RNS.Packet.PATH_RESPONSE
-        else:
-            announce_context = RNS.Packet.NONE
+        if path_response: announce_context = RNS.Packet.PATH_RESPONSE
+        else:             announce_context = RNS.Packet.NONE
 
-        if ratchet:
-            context_flag = RNS.Packet.FLAG_SET
-        else:
-            context_flag = RNS.Packet.FLAG_UNSET
+        if ratchet: context_flag = RNS.Packet.FLAG_SET
+        else:       context_flag = RNS.Packet.FLAG_UNSET
 
         announce_packet = RNS.Packet(self, announce_data, RNS.Packet.ANNOUNCE, context = announce_context,
                                      attached_interface = attached_interface, context_flag=context_flag)
-        if send:
-            announce_packet.send()
-        else:
-            return announce_packet
+        
+        if send: announce_packet.send()
+        else:    return announce_packet
 
     def accepts_links(self, accepts = None):
         """
@@ -330,13 +323,10 @@ class Destination:
         :param accepts: If ``True`` or ``False``, this method sets whether the destination accepts incoming link requests. If not provided or ``None``, the method returns whether the destination currently accepts link requests.
         :returns: ``True`` or ``False`` depending on whether the destination accepts incoming link requests, if the *accepts* parameter is not provided or ``None``.
         """
-        if accepts == None:
-            return self.accept_link_requests
+        if accepts == None: return self.accept_link_requests
 
-        if accepts:
-            self.accept_link_requests = True
-        else:
-            self.accept_link_requests = False
+        if accepts: self.accept_link_requests = True
+        else:       self.accept_link_requests = False
 
     def set_link_established_callback(self, callback):
         """
