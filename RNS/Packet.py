@@ -293,7 +293,7 @@ class Packet:
 
             if RNS.Transport.outbound(self): return self.receipt
             else:
-                RNS.log("No interfaces could process the outbound packet", RNS.LOG_ERROR)
+                RNS.log("No interfaces could process the outbound packet", RNS.LOG_WARNING)
                 self.sent = False
                 self.receipt = None
                 return False
@@ -315,7 +315,7 @@ class Packet:
             if RNS.Transport.outbound(self):
                 return self.receipt
             else:
-                RNS.log("No interfaces could process the outbound packet", RNS.LOG_ERROR)
+                RNS.log("Re-send failed. No interfaces could process the outbound packet", RNS.LOG_WARNING)
                 self.sent = False
                 self.receipt = None
                 return False
