@@ -228,10 +228,10 @@ class BackboneInterface(Interface):
         if interface.socket:
             fileno = interface.socket.fileno()
             if fileno in BackboneInterface.spawned_interface_filenos:
-                try:
-                    BackboneInterface.epoll.modify(interface.socket.fileno(), select.EPOLLOUT)
+                try: BackboneInterface.epoll.modify(fileno, select.EPOLLOUT)
                 except Exception as e:
-                    RNS.trace_exception(e)
+                    RNS.log(f"Error occurred on {interface} while modifying socket EPOLL state: {e}", RNS.LOG_WARNING)
+                    raise e
 
     @staticmethod
     def __job():
@@ -270,8 +270,7 @@ class BackboneInterface(Interface):
                                         spawned_interface.receive(received_bytes)
                                 
                                 elif client_socket and fileno == client_socket.fileno() and (event & select.EPOLLOUT):
-                                    try:
-                                        written = client_socket.send(spawned_interface.transmit_buffer)
+                                    try: written = client_socket.send(spawned_interface.transmit_buffer)
                                     except Exception as e:
                                         written = 0
                                         if not spawned_interface.detached: RNS.log(f"Error while writing to {spawned_interface}: {e}", RNS.LOG_DEBUG)
