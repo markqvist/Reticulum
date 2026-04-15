@@ -960,7 +960,7 @@ class Reticulum:
                 interface.optimise_mtu()
 
                 if ifac_size != None: interface.ifac_size = ifac_size
-                else: interface.ifac_size = 8
+                else:                 interface.ifac_size = interface.DEFAULT_IFAC_SIZE
 
                 interface.announce_cap = announce_cap if announce_cap != None else Reticulum.ANNOUNCE_CAP/100.0
                 interface.announce_rate_target = announce_rate_target
