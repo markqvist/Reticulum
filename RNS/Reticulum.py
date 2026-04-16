@@ -361,11 +361,11 @@ class Reticulum:
             now = time.time()
 
             if now > self.last_cache_clean+Reticulum.CLEAN_INTERVAL:
-                self.__clean_caches()
+                self.__clean_caches(background=True)
                 self.last_cache_clean = time.time()
 
             if now > self.last_data_persist+Reticulum.PERSIST_INTERVAL:
-                self.__persist_data()
+                self.__persist_data(background=True)
             
             time.sleep(Reticulum.JOB_INTERVAL)
 
@@ -993,16 +993,16 @@ class Reticulum:
                 RNS.Transport.interfaces.append(interface)
                 interface.final_init()
 
-    def _should_persist_data(self):
+    def _should_persist_data(self, background=False):
         if time.time() > self.last_data_persist+Reticulum.GRACIOUS_PERSIST_INTERVAL:
-            self.__persist_data()
+            self.__persist_data(background=background)
 
-    def __persist_data(self):
-        RNS.Transport.persist_data()
-        RNS.Identity.persist_data()
+    def __persist_data(self, background=False):
+        RNS.Transport.persist_data(background=background)
+        RNS.Identity.persist_data(background=background)
         self.last_data_persist = time.time()
 
-    def __clean_caches(self):
+    def __clean_caches(self, background=False):
         RNS.log("Cleaning resource and packet caches...", RNS.LOG_EXTREME)
         now = time.time()
 
@@ -1013,8 +1013,8 @@ class Reticulum:
                     filepath = self.resourcepath + "/" + filename
                     mtime = os.path.getmtime(filepath)
                     age = now - mtime
-                    if age > Reticulum.RESOURCE_CACHE:
-                        os.unlink(filepath)
+                    if age > Reticulum.RESOURCE_CACHE: os.unlink(filepath)
+                    if background: time.sleep(0.001)
 
             except Exception as e:
                 RNS.log("Error while cleaning resources cache, the contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -1026,8 +1026,8 @@ class Reticulum:
                     filepath = self.cachepath + "/" + filename
                     mtime = os.path.getmtime(filepath)
                     age = now - mtime
-                    if age > RNS.Transport.DESTINATION_TIMEOUT:
-                        os.unlink(filepath)
+                    if age > RNS.Transport.DESTINATION_TIMEOUT: os.unlink(filepath)
+                    if background: time.sleep(0.001)
             
             except Exception as e:
                 RNS.log("Error while cleaning resources cache, the contained exception was: "+str(e), RNS.LOG_ERROR)

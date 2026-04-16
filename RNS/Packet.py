@@ -293,7 +293,7 @@ class Packet:
 
             if RNS.Transport.outbound(self): return self.receipt
             else:
-                RNS.log("No interfaces could process the outbound packet", RNS.LOG_WARNING)
+                RNS.log("No interfaces could process the outbound packet", RNS.LOG_DEBUG)
                 self.sent = False
                 self.receipt = None
                 return False

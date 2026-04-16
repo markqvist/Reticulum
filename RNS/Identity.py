@@ -160,7 +160,7 @@ class Identity:
             return None
 
     @staticmethod
-    def save_known_destinations():
+    def save_known_destinations(background=False):
         # TODO: Improve the storage method so we don't have to
         # deserialize and serialize the entire table on every
         # save, but the only changes. It might be possible to
@@ -491,9 +491,9 @@ class Identity:
             return False
 
     @staticmethod
-    def persist_data():
+    def persist_data(background=False):
         if not RNS.Transport.owner.is_connected_to_shared_instance:
-            Identity.save_known_destinations()
+            Identity.save_known_destinations(background=background)
 
     @staticmethod
     def exit_handler():
