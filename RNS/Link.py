@@ -1177,7 +1177,7 @@ class Link:
                         resource_hash = packet.data[0:RNS.Identity.HASHLENGTH//8]
                         for resource in self.outgoing_resources:
                             if resource_hash == resource.hash:
-                                def job(): resource.validate_proof(packet.data)
+                                def job(resource=resource): resource.validate_proof(packet.data)
                                 threading.Thread(target=job, daemon=True).start()
                                 self.__update_phy_stats(packet, query_shared=True)
 

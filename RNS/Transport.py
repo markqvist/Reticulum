@@ -1944,14 +1944,14 @@ class Transport:
 
                                             if execute_callback:
                                                 if len(inspect.signature(handler.received_announce).parameters) == 3:
-                                                    def job():
+                                                    def job(handler=handler, packet=packet, announce_identity=announce_identity):
                                                         handler.received_announce(destination_hash=packet.destination_hash,
                                                                                   announced_identity=announce_identity,
                                                                                   app_data=RNS.Identity.recall_app_data(packet.destination_hash))
                                                     threading.Thread(target=job, daemon=True).start()
                                                 
                                                 elif len(inspect.signature(handler.received_announce).parameters) == 4:
-                                                    def job():
+                                                    def job(handler=handler, packet=packet, announce_identity=announce_identity):
                                                         handler.received_announce(destination_hash=packet.destination_hash,
                                                                                   announced_identity=announce_identity,
                                                                                   app_data=RNS.Identity.recall_app_data(packet.destination_hash),
@@ -1959,7 +1959,7 @@ class Transport:
                                                     threading.Thread(target=job, daemon=True).start()
                                                 
                                                 elif len(inspect.signature(handler.received_announce).parameters) == 5:
-                                                    def job():
+                                                    def job(handler=handler, packet=packet, announce_identity=announce_identity):
                                                         handler.received_announce(destination_hash=packet.destination_hash,
                                                                                   announced_identity=announce_identity,
                                                                                   app_data=RNS.Identity.recall_app_data(packet.destination_hash),
@@ -2976,7 +2976,7 @@ class Transport:
                 elif type(interface) == RNS.Interfaces.LocalInterface.LocalClientInterface:
                     local_interfaces.append(interface)
                 else:
-                    def detach_job():
+                    def detach_job(interface=interface):
                         RNS.log(f"Detaching {interface}", RNS.LOG_EXTREME)
                         interface.detach()
                     dt = threading.Thread(target=detach_job, daemon=False)
