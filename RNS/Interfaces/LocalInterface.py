@@ -328,7 +328,8 @@ class LocalClientInterface(Interface):
             if hasattr(self, "parent_interface") and self.parent_interface != None:
                 self.parent_interface.clients -= 1
                 if hasattr(RNS.Transport, "owner") and RNS.Transport.owner != None:
-                    RNS.Transport.owner._should_persist_data()
+                    background = not self.detached
+                    RNS.Transport.owner._should_persist_data(background=background)
 
         if nowarning == False:
             RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is being torn down. Restart Reticulum to attempt to open this interface again.", RNS.LOG_ERROR)

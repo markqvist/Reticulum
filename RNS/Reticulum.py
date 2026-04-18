@@ -47,6 +47,7 @@ else:
     from RNS.Interfaces import *
 
 from RNS.vendor.configobj import ConfigObj
+from threading import Lock
 import configparser
 import multiprocessing.connection
 import importlib.util
@@ -170,6 +171,8 @@ class Reticulum:
     storagepath      = ""
     cachepath        = ""
     interfacepath    = ""
+
+    gracious_persist_lock = Lock()
 
     __instance       = None
 
@@ -995,12 +998,15 @@ class Reticulum:
 
     def _should_persist_data(self, background=False):
         if time.time() > self.last_data_persist+Reticulum.GRACIOUS_PERSIST_INTERVAL:
-            self.__persist_data(background=background)
+            def job(): self.__persist_data(background=background)
+            threading.Thread(target=job, daemon=True).start()
 
     def __persist_data(self, background=False):
-        RNS.Transport.persist_data(background=background)
-        RNS.Identity.persist_data(background=background)
-        self.last_data_persist = time.time()
+        if Reticulum.gracious_persist_lock.locked(): return
+        with Reticulum.gracious_persist_lock:
+            RNS.Transport.persist_data(background=background)
+            RNS.Identity.persist_data(background=background)
+            self.last_data_persist = time.time()
 
     def __clean_caches(self, background=False):
         RNS.log("Cleaning resource and packet caches...", RNS.LOG_EXTREME)
