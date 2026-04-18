@@ -1,3 +1,28 @@
+### 2026-04-18: RNS 1.1.6
+
+**Changes**
+- Improved transport memory consumption.
+- Improved transport tunnel handling.
+- Improved gracious transport data persist handling.
+- Added ingress control bypass for pending path requests.
+- Added local destinations lookup map for better transport efficiency to local destinations.
+- Fixed disk I/O bound thread execution time starvation on cache management jobs.
+- Fixed invalid EPOLL modification error handler.
+- Fixed incorrect default IFAC size for autoconnected, discovered interfaces. Thanks @taprootmx!
+
+**Release Hashes**
+```
+? dist/rns-1.1.6-py3-none-any.whl
+? dist/rnspure-1.1.6-py3-none-any.wh
+```
+
+**Release Signatures**
+Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`:
+
+```sh
+rnid -i bc7291552be7a58f361522990465165c -V rns-1.1.6-py3-none-any.whl.rsg
+```
+
 ### 2026-04-13: RNS 1.1.5
 
 **Changes**
@@ -20,6 +45,8 @@ Release artifacts include `rsg` signature files that can be validated against th
 ```sh
 rnid -i bc7291552be7a58f361522990465165c -V rns-1.1.5-py3-none-any.whl.rsg
 ```
+
+#
 
 ### 2026-03-12: RNS 1.1.4
 
