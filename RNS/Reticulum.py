@@ -999,7 +999,8 @@ class Reticulum:
     def _should_persist_data(self, background=False):
         if time.time() > self.last_data_persist+Reticulum.GRACIOUS_PERSIST_INTERVAL:
             def job(): self.__persist_data(background=background)
-            threading.Thread(target=job, daemon=True).start()
+            if background: threading.Thread(target=job, daemon=True).start()
+            else:          job()
 
     def __persist_data(self, background=False):
         if Reticulum.gracious_persist_lock.locked(): return
