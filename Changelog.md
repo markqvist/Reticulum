@@ -9,6 +9,7 @@
 - Fixed disk I/O bound thread execution time starvation on cache management jobs.
 - Fixed invalid EPOLL modification error handler.
 - Fixed incorrect default IFAC size for autoconnected, discovered interfaces. Thanks @taprootmx!
+- Ensure loop-originating closures have variables captured at iteration-time. Thanks @taprootmx!
 
 **Release Hashes**
 ```
