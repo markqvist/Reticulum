@@ -13,8 +13,8 @@
 
 **Release Hashes**
 ```
-? dist/rns-1.1.6-py3-none-any.whl
-? dist/rnspure-1.1.6-py3-none-any.wh
+2ce4451668f8c464295cc269188c232e7805ddd618ec0135550a5e6809df5de0 rns-1.1.6-py3-none-any.whl
+ba3e541e69a2f4892177383c8ec4e7d172d298546317e08270928c0163865aa3 rnspure-1.1.6-py3-none-any.wh
 ```
 
 **Release Signatures**
