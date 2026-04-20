@@ -126,6 +126,7 @@ class Resource:
     PART_TIMEOUT_FACTOR           = 4
     PART_TIMEOUT_FACTOR_AFTER_RTT = 2
     PROOF_TIMEOUT_FACTOR          = 3
+    HMU_WAIT_FACTOR               = 3.5
     MAX_RETRIES                   = 16
     MAX_ADV_RETRIES               = 4
     SENDER_GRACE_TIME             = 10.0
@@ -594,15 +595,16 @@ class Resource:
                     extra_wait = retries_used * Resource.PER_RETRY_DELAY
 
                     self.update_eifr()
+                    expected_hmu_wait_remaining = (self.sdu*8*self.HMU_WAIT_FACTOR)/self.eifr if self.waiting_for_hmu or self.outstanding_parts == 0 else 0
                     expected_tof_remaining = (self.outstanding_parts*self.sdu*8)/self.eifr
 
                     if self.req_resp_rtt_rate != 0:
-                        sleep_time = self.last_activity + self.part_timeout_factor*expected_tof_remaining + Resource.RETRY_GRACE_TIME + extra_wait - time.time()
+                        sleep_time = self.last_activity + self.part_timeout_factor*expected_tof_remaining + expected_hmu_wait_remaining + Resource.RETRY_GRACE_TIME + extra_wait - time.time()
                     else:
                         sleep_time = self.last_activity + self.part_timeout_factor*((3*self.sdu)/self.eifr) + Resource.RETRY_GRACE_TIME + extra_wait - time.time()
                     
                     # TODO: Remove debug at some point
-                    # RNS.log(f"EIFR {RNS.prettyspeed(self.eifr)}, ETOF {RNS.prettyshorttime(expected_tof_remaining)} ", RNS.LOG_DEBUG, pt=True)
+                    # RNS.log(f"EIFR {RNS.prettyspeed(self.eifr)}, ETOF {RNS.prettyshorttime(expected_tof_remaining)}, EHWR {RNS.prettyshorttime(expected_hmu_wait_remaining)}", RNS.LOG_DEBUG, pt=True)
                     # RNS.log(f"Resource ST {RNS.prettyshorttime(sleep_time)}, RTT {RNS.prettyshorttime(self.rtt or self.link.rtt)}, {self.outstanding_parts} left", RNS.LOG_DEBUG, pt=True)
                     
                     if sleep_time < 0:
@@ -959,6 +961,7 @@ class Resource:
                     self.last_activity = time.time()
                     self.req_sent = self.last_activity
                     self.req_sent_bytes = len(request_packet.raw)
+                    self.rtt_rxd_bytes_at_part_req = self.rtt_rxd_bytes
                     self.req_resp = None
 
                 except Exception as e:
