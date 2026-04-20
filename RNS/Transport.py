@@ -297,7 +297,7 @@ class Transport:
                             blackholed = False
 
                             if len(Transport.blackholed_identities) > 0:
-                                path_identity = RNS.Identity.recall(destination_hash)
+                                path_identity = RNS.Identity.recall(destination_hash, _no_use=True)
                                 if path_identity in Transport.blackholed_identities: blackholed = True
                                 del path_identity
 
@@ -566,7 +566,7 @@ class Transport:
                                     announce_context = RNS.Packet.NONE
                                     if block_rebroadcasts: announce_context = RNS.Packet.PATH_RESPONSE
                                     announce_data = packet.data
-                                    announce_identity = RNS.Identity.recall(packet.destination_hash)
+                                    announce_identity = RNS.Identity.recall(packet.destination_hash, _no_use=True)
                                     announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
                                     announce_destination.hash = packet.destination_hash
                                     announce_destination.hexhash = announce_destination.hash.hex()
@@ -1824,7 +1824,7 @@ class Transport:
                                 # If we have any local clients connected, we re-
                                 # transmit the announce to them immediately
                                 if (len(Transport.local_client_interfaces)):
-                                    announce_identity = RNS.Identity.recall(packet.destination_hash)
+                                    announce_identity = RNS.Identity.recall(packet.destination_hash, _no_use=True)
                                     announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
                                     announce_destination.hash = packet.destination_hash
                                     announce_destination.hexhash = announce_destination.hash.hex()
@@ -1878,7 +1878,7 @@ class Transport:
                                     interface_str = " on "+str(attached_interface)
 
                                     RNS.log("Got matching announce, answering waiting discovery path request for "+RNS.prettyhexrep(packet.destination_hash)+interface_str, RNS.LOG_DEBUG)
-                                    announce_identity = RNS.Identity.recall(packet.destination_hash)
+                                    announce_identity = RNS.Identity.recall(packet.destination_hash, _no_use=False)
                                     announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
                                     announce_destination.hash = packet.destination_hash
                                     announce_destination.hexhash = announce_destination.hash.hex()
@@ -1927,7 +1927,7 @@ class Transport:
                                             # Check that the announced destination matches
                                             # the handlers aspect filter
                                             execute_callback = False
-                                            announce_identity = RNS.Identity.recall(packet.destination_hash)
+                                            announce_identity = RNS.Identity.recall(packet.destination_hash, _no_use=True)
                                             if handler.aspect_filter == None:
                                                 # If the handlers aspect filter is set to
                                                 # None, we execute the callback in all cases
@@ -1947,14 +1947,14 @@ class Transport:
                                                     def job(handler=handler, packet=packet, announce_identity=announce_identity):
                                                         handler.received_announce(destination_hash=packet.destination_hash,
                                                                                   announced_identity=announce_identity,
-                                                                                  app_data=RNS.Identity.recall_app_data(packet.destination_hash))
+                                                                                  app_data=RNS.Identity.recall_app_data(packet.destination_hash, _no_use=True))
                                                     threading.Thread(target=job, daemon=True).start()
                                                 
                                                 elif len(inspect.signature(handler.received_announce).parameters) == 4:
                                                     def job(handler=handler, packet=packet, announce_identity=announce_identity):
                                                         handler.received_announce(destination_hash=packet.destination_hash,
                                                                                   announced_identity=announce_identity,
-                                                                                  app_data=RNS.Identity.recall_app_data(packet.destination_hash),
+                                                                                  app_data=RNS.Identity.recall_app_data(packet.destination_hash, _no_use=True),
                                                                                   announce_packet_hash = packet.packet_hash)
                                                     threading.Thread(target=job, daemon=True).start()
                                                 
@@ -1962,7 +1962,7 @@ class Transport:
                                                     def job(handler=handler, packet=packet, announce_identity=announce_identity):
                                                         handler.received_announce(destination_hash=packet.destination_hash,
                                                                                   announced_identity=announce_identity,
-                                                                                  app_data=RNS.Identity.recall_app_data(packet.destination_hash),
+                                                                                  app_data=RNS.Identity.recall_app_data(packet.destination_hash, _no_use=True),
                                                                                   announce_packet_hash = packet.packet_hash,
                                                                                   is_path_response = packet.context == RNS.Packet.PATH_RESPONSE)
                                                     threading.Thread(target=job, daemon=True).start()
@@ -2070,7 +2070,7 @@ class Transport:
                                             signalling_bytes = RNS.Link.signalling_bytes(RNS.Link.mtu_from_lp_packet(packet), RNS.Link.mode_from_lp_packet(packet))
 
                                         peer_pub_bytes = packet.data[RNS.Identity.SIGLENGTH//8:RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2]
-                                        peer_identity = RNS.Identity.recall(link_entry[IDX_LT_DSTHASH])
+                                        peer_identity = RNS.Identity.recall(link_entry[IDX_LT_DSTHASH], _no_use=True)
                                         peer_sig_pub_bytes = peer_identity.get_public_key()[RNS.Link.ECPUBSIZE//2:RNS.Link.ECPUBSIZE]
 
                                         signed_data = packet.destination_hash+peer_pub_bytes+peer_sig_pub_bytes+signalling_bytes
@@ -2083,6 +2083,8 @@ class Transport:
                                             new_raw += packet.raw[2:]
                                             Transport.link_table[packet.destination_hash][IDX_LT_VALIDATED] = True
                                             Transport.transmit(link_entry[IDX_LT_RCVD_IF], new_raw)
+                                            if not Transport.owner.is_connected_to_shared_instance:
+                                                RNS.Identity._used_destination_data(link_entry[IDX_LT_DSTHASH])
 
                                         else:
                                             RNS.log("Invalid link request proof in transport for link "+RNS.prettyhexrep(packet.destination_hash)+", dropping proof.", RNS.LOG_DEBUG)
@@ -2884,6 +2886,8 @@ class Transport:
                     with Transport.announce_table_lock:
                         Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, announce_hops, packet, local_rebroadcasts, block_rebroadcasts, attached_interface]
 
+                    if not Transport.owner.is_connected_to_shared_instance: RNS.Identity._used_destination_data(packet.destination_hash)
+
         elif is_from_local_client:
             # Forward path request on all interfaces
             # except the local client
@@ -3326,7 +3330,7 @@ class Transport:
         drop_destinations = []
         for destination_hash in Transport.path_table.copy():
             try:
-                associated_identity = RNS.Identity.recall(destination_hash)
+                associated_identity = RNS.Identity.recall(destination_hash, _no_use=True)
                 if associated_identity and associated_identity.hash in Transport.blackholed_identities:
                     if not destination_hash in drop_destinations: drop_destinations.append(destination_hash)
             except Exception as e:

@@ -1087,12 +1087,46 @@ class Reticulum:
                     identity_hash = call["unblackhole_identity"]
                     rpc_connection.send(self.unblackhole_identity(identity_hash))
 
+                if "destination_data" in call:
+                    operation = call["destination_data"]
+                    destination_hash = call["destination_hash"]
+                    if   operation == "used":     rpc_connection.send(self._used_destination_data(destination_hash))
+                    elif operation == "retain":   rpc_connection.send(self._retain_destination_data(destination_hash))
+                    elif operation == "unretain": rpc_connection.send(self._unretain_destination_data(destination_hash))
+
                 rpc_connection.close()
 
             except Exception as e:
                 RNS.log("An error ocurred while handling RPC call from local client: "+str(e), RNS.LOG_ERROR)
 
     def get_rpc_client(self): return multiprocessing.connection.Client(self.rpc_addr, family=self.rpc_type, authkey=self.rpc_key)
+
+    def _used_destination_data(self, destination_hash):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = self.get_rpc_client()
+            rpc_connection.send({"destination_data": "used", "destination_hash": destination_hash})
+            response = rpc_connection.recv()
+            return response
+        
+        else: return RNS.Identity._used_destination_data(destination_hash)
+
+    def _retain_destination_data(self, destination_hash):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = self.get_rpc_client()
+            rpc_connection.send({"destination_data": "retain", "destination_hash": destination_hash})
+            response = rpc_connection.recv()
+            return response
+        
+        else: return RNS.Identity._retain_destination_data(destination_hash)
+
+    def _unretain_destination_data(self, destination_hash):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = self.get_rpc_client()
+            rpc_connection.send({"destination_data": "unretain", "destination_hash": destination_hash})
+            response = rpc_connection.recv()
+            return response
+        
+        else: return RNS.Identity._unretain_destination_data(destination_hash)
 
     def get_interface_stats(self):
         if self.is_connected_to_shared_instance:

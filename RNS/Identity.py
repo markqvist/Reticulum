@@ -94,17 +94,19 @@ class Identity:
     known_ratchets = {}
 
     ratchet_persist_lock = threading.Lock()
+    known_destinations_lock = threading.Lock()
 
     @staticmethod
     def remember(packet_hash, destination_hash, public_key, app_data = None):
         if len(public_key) != Identity.KEYSIZE//8:
             raise TypeError("Can't remember "+RNS.prettyhexrep(destination_hash)+", the public key size of "+str(len(public_key))+" is not valid.", RNS.LOG_ERROR)
         else:
-            Identity.known_destinations[destination_hash] = [time.time(), packet_hash, public_key, app_data]
+            with Identity.known_destinations_lock:
+                Identity.known_destinations[destination_hash] = [time.time(), packet_hash, public_key, app_data, 0]
 
 
     @staticmethod
-    def recall(target_hash, from_identity_hash=False):
+    def recall(target_hash, from_identity_hash=False, _no_use=False):
         """
         Recall identity for a destination or identity hash. By default, this function
         will return the identity associated with a given *destination* hash. As an
@@ -120,6 +122,7 @@ class Identity:
         if from_identity_hash:
             for destination_hash in Identity.known_destinations:
                 if target_hash == Identity.truncated_hash(Identity.known_destinations[destination_hash][2]):
+                    if not _no_use: RNS.Reticulum.get_instance()._used_destination_data(destination_hash)
                     identity_data = Identity.known_destinations[destination_hash]
                     identity = Identity(create_keys=False)
                     identity.load_public_key(identity_data[2])
@@ -130,6 +133,7 @@ class Identity:
 
         else:
             if target_hash in Identity.known_destinations:
+                if not _no_use: RNS.Reticulum.get_instance()._used_destination_data(target_hash)
                 identity_data = Identity.known_destinations[target_hash]
                 identity = Identity(create_keys=False)
                 identity.load_public_key(identity_data[2])
@@ -146,7 +150,7 @@ class Identity:
                 return None
 
     @staticmethod
-    def recall_app_data(destination_hash):
+    def recall_app_data(destination_hash, _no_use=False):
         """
         Recall last heard app_data for a destination hash.
 
@@ -154,10 +158,11 @@ class Identity:
         :returns: *Bytes* containing app_data, or *None* if the destination is unknown.
         """
         if destination_hash in Identity.known_destinations:
+            if not _no_use: RNS.Reticulum.get_instance()._used_destination_data(destination_hash)
             app_data = Identity.known_destinations[destination_hash][3]
             return app_data
-        else:
-            return None
+        
+        else: return None
 
     @staticmethod
     def save_known_destinations(background=False):
@@ -192,7 +197,9 @@ class Identity:
             try:
                 for destination_hash in storage_known_destinations:
                     if not destination_hash in Identity.known_destinations:
-                        Identity.known_destinations[destination_hash] = storage_known_destinations[destination_hash]
+                        with Identity.known_destinations_lock:
+                            Identity.known_destinations[destination_hash] = storage_known_destinations[destination_hash]
+            
             except Exception as e:
                 RNS.log("Skipped recombining known destinations from disk, since an error occurred: "+str(e), RNS.LOG_WARNING)
 
@@ -201,10 +208,8 @@ class Identity:
                 umsgpack.dump(Identity.known_destinations.copy(), file)
 
             save_time = time.time() - save_start
-            if save_time < 1:
-                time_str = str(round(save_time*1000,2))+"ms"
-            else:
-                time_str = str(round(save_time,2))+"s"
+            if save_time < 1: time_str = str(round(save_time*1000,2))+"ms"
+            else:             time_str = str(round(save_time,2))+"s"
 
             RNS.log("Saved known destinations to storage in "+time_str, RNS.LOG_DEBUG)
 
@@ -217,6 +222,7 @@ class Identity:
     @staticmethod
     def load_known_destinations():
         if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
+            st = time.time()
             try:
                 with open(RNS.Reticulum.storagepath+"/known_destinations","rb") as file:
                     loaded_known_destinations = umsgpack.load(file)
@@ -224,14 +230,65 @@ class Identity:
                 Identity.known_destinations = {}
                 for known_destination in loaded_known_destinations:
                     if len(known_destination) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8:
-                        Identity.known_destinations[known_destination] = loaded_known_destinations[known_destination]
+                        if len(loaded_known_destinations[known_destination]) < 5:
+                            e = loaded_known_destinations[known_destination]
+                            loaded_known_destinations[known_destination] = [e[0], e[1], e[2], e[3], 0]
 
-                RNS.log("Loaded "+str(len(Identity.known_destinations))+" known destination from storage", RNS.LOG_VERBOSE)
+                        with Identity.known_destinations_lock:
+                            Identity.known_destinations[known_destination] = loaded_known_destinations[known_destination]
+
+                RNS.log(f"Loaded {len(Identity.known_destinations)} known destination from storage in {RNS.prettyshorttime(time.time()-st)}", RNS.LOG_VERBOSE)
 
             except Exception as e:
                 RNS.log("Error loading known destinations from disk, file will be recreated on exit", RNS.LOG_ERROR)
+                RNS.trace_exception(e)
         else:
             RNS.log("Destinations file does not exist, no known destinations loaded", RNS.LOG_VERBOSE)
+
+    @staticmethod
+    def _used_destination_data(destination_hash):
+        with Identity.known_destinations_lock:
+            if destination_hash in Identity.known_destinations:
+                if not Identity.known_destinations[destination_hash][4] < 0:
+                    Identity.known_destinations[destination_hash][4] = time.time()
+                    return True
+
+        return False
+
+    @staticmethod
+    def _retain_destination_data(destination_hash):
+        with Identity.known_destinations_lock:
+            if destination_hash in Identity.known_destinations:
+                Identity.known_destinations[destination_hash][4] = -1
+                return True
+
+        return False
+
+    @staticmethod
+    def _unretain_destination_data(destination_hash):
+        with Identity.known_destinations_lock:
+            if destination_hash in Identity.known_destinations:
+                Identity.known_destinations[destination_hash][4] = time.time()
+                return True
+
+        return False
+    
+    @staticmethod
+    def clean_known_destinations():
+        st         = time.time()
+        total      = len(Identity.known_destinations)
+        no_path    = 0
+        retained   = 0
+        never_used = 0
+        for destination_hash in Identity.known_destinations:
+            try:
+                if not RNS.Transport.has_path(destination_hash):             no_path    += 1
+                if Identity.known_destinations[destination_hash][4] == 0:    never_used += 1
+                elif Identity.known_destinations[destination_hash][4] == -1: retained   += 1
+
+            except Exception as e: RNS.log(f"Faulty entry for {RNS.prettyhexrep(destination_hash)}")
+
+        RNS.log(f"Total destinations: {total}, no path: {no_path}, never used: {never_used}, with path: {total-no_path}, used: {total-never_used}, retained: {retained}. Completed in {RNS.prettyshorttime(time.time()-st)}")
 
     @staticmethod
     def full_hash(data):
