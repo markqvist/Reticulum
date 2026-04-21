@@ -1,3 +1,24 @@
+### 2026-04-21: RNS 1.1.7
+
+**Changes**
+- Added periodic known destination data cleaning based on local relevance.
+- Improved resource transfer sequencing timing calculations and reliability.
+- Improved BackboneInterface error handling on EPOLL errors.
+- Ensured non-background data persist runs synchronously.
+
+**Release Hashes**
+```
+4d9702c5d9bb8a3c8b94766cb51cccad5afd78d615af9a6b146730347044e6f0 rns-1.1.7-py3-none-any.whl
+172dede7656b41b85e4319354ed04649b518e58c54586da7e443579c620a0a5b rnspure-1.1.7-py3-none-any.whl
+```
+
+**Release Signatures**
+Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`:
+
+```sh
+rnid -i bc7291552be7a58f361522990465165c -V rns-1.1.7-py3-none-any.whl.rsg
+```
+
 ### 2026-04-18: RNS 1.1.6
 
 **Changes**
