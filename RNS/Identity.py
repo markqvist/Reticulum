@@ -315,9 +315,11 @@ class Identity:
                             is_retained = True
                             retained += 1
 
+                        unused_for = time.time() - Identity.known_destinations[destination_hash][4]
+
                         if not is_retained and not has_path:
-                            if never_used and now - last_announce > RNS.Transport.UNUSED_DESTINATION_LINGER: stale.append(destination_hash)
-                            elif now - last_use > RNS.Transport.DESTINATION_TIMEOUT*1.25:                    stale.append(destination_hash)
+                            if not was_used and now - last_announce > RNS.Transport.UNUSED_DESTINATION_LINGER: stale.append(destination_hash)
+                            elif unused_for > RNS.Transport.DESTINATION_TIMEOUT*1.25:                          stale.append(destination_hash)
 
             except Exception as e: RNS.log(f"Faulty entry for {RNS.prettyhexrep(destination_hash)} while cleaning known destinations: {e}", RNS.LOG_DEBUG)
 

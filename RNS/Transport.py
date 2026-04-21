@@ -76,6 +76,7 @@ class Transport:
     LOCAL_REBROADCASTS_MAX      = 2            # How many local rebroadcasts of an announce is allowed
 
     PATH_REQUEST_TIMEOUT        = 15           # Default timeout for client path requests in seconds
+    PATH_REQUEST_GATE_TIMEOUT   = 120          # Default timeout for client path request gate control in seconds
     PATH_REQUEST_GRACE          = 0.4          # Grace time before a path announcement is made, allows directly reachable peers to respond first
     PATH_REQUEST_RG             = 1.5          # Extra grace time for roaming-mode interfaces to allow more suitable peers to respond first
     PATH_REQUEST_MI             = 20           # Minimum interval in seconds for automated path requests
@@ -762,6 +763,14 @@ class Transport:
                                 should_collect = True
                                 RNS.log("Path to "+RNS.prettyhexrep(destination_hash)+" was removed since the attached interface no longer exists", RNS.LOG_DEBUG)
 
+                    # Cull the pending path requests table
+                    stale_path_requests = []
+                    with Transport.path_requests_lock:
+                        for destination_hash in Transport.path_requests:
+                            if time.time() > Transport.path_requests[destination_hash] + Transport.PATH_REQUEST_GATE_TIMEOUT:
+                                stale_path_requests.append(destination_hash)
+                                RNS.log("Path request entry for "+RNS.prettyhexrep(destination_hash)+" timed out and was removed", RNS.LOG_EXTREME)
+
                     # Cull the pending discovery path requests table
                     stale_discovery_path_requests = []
                     with Transport.discovery_pr_lock:
@@ -854,6 +863,16 @@ class Transport:
                     if i > 0:
                         if i == 1: RNS.log("Removed "+str(i)+" path", RNS.LOG_EXTREME)
                         else: RNS.log("Removed "+str(i)+" paths", RNS.LOG_EXTREME)
+
+                    i = 0
+                    with Transport.path_requests_lock:
+                        for destination_hash in stale_path_requests:
+                            Transport.path_requests.pop(destination_hash)
+                            i += 1
+
+                    if i > 0:
+                        if i == 1: RNS.log("Removed "+str(i)+" path request entry", RNS.LOG_EXTREME)
+                        else: RNS.log("Removed "+str(i)+" path request entries", RNS.LOG_EXTREME)
 
                     i = 0
                     with Transport.discovery_pr_lock:
@@ -1916,6 +1935,8 @@ class Transport:
                                 path_table_entry = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet.packet_hash]
                                 with Transport.path_table_lock: Transport.path_table[packet.destination_hash] = path_table_entry
                                 RNS.log("Destination "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_DEBUG)
+                                if packet.destination_hash in Transport.path_requests:
+                                    RNS.Reticulum.get_instance()._used_destination_data(packet.destination_hash)
 
                                 # If the receiving interface is a tunnel, we add the
                                 # announce to the tunnels table
@@ -2828,6 +2849,7 @@ class Transport:
                     destination_exists_on_local_client = True
                     with Transport.pending_local_prs_lock:
                         Transport.pending_local_path_requests[destination_hash] = attached_interface
+                        RNS.Reticulum.get_instance()._used_destination_data(destination_hash)
 
         local_destination = None
         with Transport.destinations_map_lock:
