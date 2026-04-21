@@ -61,9 +61,18 @@ release: test remove_symlinks build_sdist build_wheel build_pure_wheel documenta
 
 debug: remove_symlinks build_wheel build_pure_wheel create_symlinks
 
-upload:
-	@echo Ready to publish release, hit enter to continue
+upload: upload-rns upload-rnspure
+
+upload-rns:
+	@echo Ready to publish rns release, hit enter to continue
 	@read VOID
 	@echo Uploading to PyPi...
-	twine upload dist/*
+	twine upload dist/rns-*.whl dist/rns-*.tar.gz
+	@echo Release published
+
+upload-rnspure:
+	@echo Ready to publish rnspure release, hit enter to continue
+	@read VOID
+	@echo Uploading to PyPi...
+	twine upload dist/rnspure-*.whl
 	@echo Release published
