@@ -15,7 +15,7 @@ This maintenance release fixes a critical bug in path state management, that cou
 Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`:
 
 ```sh
-rnid -i bc7291552be7a58f361522990465165c -V rns-1.1.7-py3-none-any.whl.rsg
+rnid -i bc7291552be7a58f361522990465165c -V rns-1.1.8-py3-none-any.whl.rsg
 ```
 
 ### 2026-04-21: RNS 1.1.7
