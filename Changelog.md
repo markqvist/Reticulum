@@ -1,3 +1,23 @@
+### 2026-04-21: RNS 1.1.8
+
+This maintenance release fixes a critical bug in path state management, that could result in significant path convergence degradation under certain conditions.
+
+**Changes**
+- Fixed path state potentially being applied before path table entry exists, causing worse paths to be selected.
+
+**Release Hashes**
+```
+9cf728e9e9a9fe113e4ac14e6b833f7ee65feedf8468e6ab94a261bf205f2632 rns-1.1.8-py3-none-any.whl
+407dc3975335e9eabaaddb7ed1dc75fc3a1b8d24a7207e740797440c2ad0b3e5 rnspure-1.1.8-py3-none-any.wh
+```
+
+**Release Signatures**
+Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`:
+
+```sh
+rnid -i bc7291552be7a58f361522990465165c -V rns-1.1.7-py3-none-any.whl.rsg
+```
+
 ### 2026-04-21: RNS 1.1.7
 
 **Changes**
