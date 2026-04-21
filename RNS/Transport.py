@@ -1750,6 +1750,7 @@ class Transport:
                             else:
                                 # If this destination is unknown in our table
                                 # we should add it
+                                Transport.mark_path_unknown_state(packet.destination_hash)
                                 should_add = True
 
                             if should_add:
@@ -1934,6 +1935,7 @@ class Transport:
                                 if not Transport.owner.is_connected_to_shared_instance: Transport.cache(packet, force_cache=True, packet_type="announce")
                                 path_table_entry = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet.packet_hash]
                                 with Transport.path_table_lock: Transport.path_table[packet.destination_hash] = path_table_entry
+                                Transport.mark_path_unknown_state(packet.destination_hash)
                                 RNS.log("Destination "+RNS.prettyhexrep(packet.destination_hash)+" is now "+str(announce_hops)+" hops away via "+RNS.prettyhexrep(received_from)+" on "+str(packet.receiving_interface), RNS.LOG_DEBUG)
                                 if packet.destination_hash in Transport.path_requests:
                                     RNS.Reticulum.get_instance()._used_destination_data(packet.destination_hash)
