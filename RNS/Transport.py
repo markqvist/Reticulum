@@ -87,6 +87,7 @@ class Transport:
     LINK_TIMEOUT                = RNS.Link.STALE_TIME * 1.25
     REVERSE_TIMEOUT             = 8*60         # Reverse table entries are removed after 8 minutes
     DESTINATION_TIMEOUT         = 60*60*24*7   # Destination table entries are removed if unused for one week
+    UNUSED_DESTINATION_LINGER   = 6*60         # Linger time for pathless and never used destinations
     TUNNEL_TIMEOUT              = 60*60*8      # Tunnel table entries are removed if unused for eight hours
     TUNNEL_PATH_TIMEOUT         = 60*60*8      # Tunnel path table entries are removed if unused for eight hours
     MAX_RECEIPTS                = 1024         # Maximum number of receipts to keep track of
@@ -177,6 +178,8 @@ class Transport:
     pending_prs_check_interval  = 30.0
     cache_last_cleaned          = 0.0
     cache_clean_interval        = 5*60
+    destinations_last_cleaned   = 0.0
+    known_destinations_interval = 5*60
     tables_last_culled          = 0.0
     tables_cull_interval        = 5.0
     interface_last_jobs         = 0.0
@@ -263,6 +266,9 @@ class Transport:
 
         # Defer cleaning packet cache for 60 seconds
         Transport.cache_last_cleaned = time.time() + 60
+        
+        # Defer cleaning known destinations
+        Transport.destinations_last_cleaned = time.time()
 
         # Defer sending management announces for 15 seconds
         Transport.last_mgmt_announce = time.time() - Transport.mgmt_announce_interval + 15
@@ -895,6 +901,12 @@ class Transport:
                 if time.time() > Transport.cache_last_cleaned+Transport.cache_clean_interval:
                     Transport.cache_last_cleaned = time.time()
                     def job(): Transport.clean_cache()
+                    threading.Thread(target=job, daemon=True).start()
+
+                # Clean known destinations
+                if time.time() > Transport.destinations_last_cleaned+Transport.known_destinations_interval:
+                    Transport.destinations_last_cleaned = time.time()
+                    def job(): RNS.Identity.clean_known_destinations()
                     threading.Thread(target=job, daemon=True).start()
 
                 # Send announces for management destinations
