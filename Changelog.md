@@ -1,3 +1,25 @@
+### 2026-04-22: RNS 1.1.9
+
+This maintenance release fixes a critical security issue, that would allow an attacker to craft a BZ2 decompression bomb via Resource transfers or Buffer StreamDataMessage, causing an out-of-memory condition and crashing the receiving process via OOM killer.
+
+Big thanks to @defidude for discovering and reporting this vulnerability!
+
+**Changes**
+- Fixed bz2 decompression bomb vulnerability in Resource transfer assembly and Buffer StreamDataMessage unpacking.
+
+**Release Hashes**
+```
+39a131aeb5d76fd73bfc67f68135f49ab0cf8628af154e04096a05c208ce77b6 rns-1.1.9-py3-none-any.whl
+aab7bfc8c65514c9bdf4c22f00d288faf6c9e1777fc002dbe3eb29c286e67128 rnspure-1.1.9-py3-none-any.whl
+```
+
+**Release Signatures**
+Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`:
+
+```sh
+rnid -i bc7291552be7a58f361522990465165c -V rns-1.1.9-py3-none-any.whl.rsg
+```
+
 ### 2026-04-21: RNS 1.1.8
 
 This maintenance release fixes a critical bug in path state management, that could result in significant path convergence degradation under certain conditions.
