@@ -2,7 +2,7 @@
 
 This maintenance release fixes a critical security issue, that would allow an attacker to craft a BZ2 decompression bomb via Resource transfers or Buffer StreamDataMessage, causing an out-of-memory condition and crashing the receiving process via OOM killer.
 
-Big thanks to @defidude for discovering and reporting this vulnerability!
+Big thanks to @defidude (github.com/ratspeak) for discovering and reporting this vulnerability!
 
 **Changes**
 - Fixed bz2 decompression bomb vulnerability in Resource transfer assembly and Buffer StreamDataMessage unpacking.
