@@ -194,6 +194,7 @@ class Resource:
             resource.window_flexibility   = Resource.WINDOW_FLEXIBILITY
             resource.last_activity        = time.time()
             resource.started_transferring = resource.last_activity
+            resource.advertisement_packet = advertisement_packet
 
             resource.storagepath          = RNS.Reticulum.resourcepath+"/"+resource.original_hash.hex()
             resource.meta_storagepath     = resource.storagepath+".meta"
@@ -360,6 +361,7 @@ class Resource:
         self.request_id = request_id
         self.started_transferring = None
         self.is_response = is_response
+        self.max_decompressed_size = Resource.AUTO_COMPRESS_MAX_SIZE
         self.auto_compress_limit = Resource.AUTO_COMPRESS_MAX_SIZE
         self.auto_compress_option = auto_compress
 
@@ -678,6 +680,16 @@ class Resource:
 
                 # Strip off random hash
                 data = data[Resource.RANDOM_HASH_SIZE:]
+
+                if not self.compressed: self.data = data
+                else:
+                    decompressor = bz2.BZ2Decompressor()
+                    self.data = decompressor.decompress(data, max_length=self.max_decompressed_size)
+                    if not decompressor.eof:
+                        self.status = Resource.CORRUPT
+                        self.cancel()
+                        RNS.log(f"Decompressed resource exceeded maximum decompressed size. The resource was rejected.", RNS.LOG_ERROR)
+                        return
 
                 if self.compressed: self.data = bz2.decompress(data)
                 else: self.data = data
@@ -1069,7 +1081,13 @@ class Resource:
         Cancels transferring the resource.
         """
         if self.next_segment: self.next_segment.cancel()
-        if self.status < Resource.COMPLETE:
+
+        if self.status == Resource.CORRUPT:
+            self.link.cancel_incoming_resource(self)
+            self.reject(self.advertisement_packet)
+            self.link.teardown()
+
+        elif self.status < Resource.COMPLETE:
             self.status = Resource.FAILED
             if self.initiator:
                 if self.link.status == RNS.Link.ACTIVE:

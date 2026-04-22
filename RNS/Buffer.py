@@ -92,7 +92,9 @@ class StreamDataMessage(MessageBase):
         self.data = raw[2:]
 
         if self.compressed:
-            self.data = bz2.decompress(self.data)
+            decompressor = bz2.BZ2Decompressor()
+            self.data = decompressor.decompress(self.data, max_length=RawChannelWriter.MAX_CHUNK_LEN)
+            if not decompressor.eof: raise IOError("Decompressed buffer chunk exceeds maximum legitimate size")
 
 
 class RawChannelReader(RawIOBase, AbstractContextManager):
