@@ -62,6 +62,7 @@ class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 class LocalClientInterface(Interface):
     RECONNECT_WAIT = 8
     AUTOCONFIGURE_MTU = True
+    CLIENT_SLEEP_PAUSE_TIMEOUT = 12
 
     def __init__(self, owner, name, target_port = None, connected_socket=None, socket_path=None):
         super().__init__()
@@ -85,8 +86,9 @@ class LocalClientInterface(Interface):
         self.frame_buffer     = b""
         self.transmit_buffer  = b""
 
-        if RNS.vendor.platformutils.use_epoll():
-            self.epoll_backend = True
+        if RNS.vendor.platformutils.use_epoll(): self.epoll_backend = True
+
+        self.pause_on_client_sleep = False
 
         if connected_socket != None:
             self.receives    = True
@@ -98,6 +100,10 @@ class LocalClientInterface(Interface):
                 self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
             self.is_connected_to_shared_instance = False
+
+            if RNS.vendor.platformutils.is_android():
+                self.pause_on_client_sleep = True
+                self.pause_timeout = time.time() + self.CLIENT_SLEEP_PAUSE_TIMEOUT
 
         elif self.socket_path != None:
             self.receives    = True
@@ -145,6 +151,7 @@ class LocalClientInterface(Interface):
         self.is_connected_to_shared_instance = True
         self.never_connected = False
 
+        if RNS.vendor.platformutils.is_android(): self.phy_keepalive = True
         if self.epoll_backend: BackboneInterface.add_client_socket(self.socket, self)
 
         return True
@@ -185,17 +192,36 @@ class LocalClientInterface(Interface):
             raise IOError("Attempt to reconnect on a non-initiator local interface")
 
 
+    def send_keepalive(self):
+        if self.online:
+            RNS.log(f"Sending keepalive on {self}", RNS.LOG_DEBUG) # TODO: Remove
+            try:
+                if self.epoll_backend:
+                    self.transmit_buffer += bytes([HDLC.FLAG])+bytes([HDLC.FLAG])
+                    BackboneInterface.tx_ready(self)
+
+                else:
+                    self.writing = True
+                    data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
+                    self.socket.sendall(data)
+                    self.writing = False
+
+            except Exception as e: RNS.log(f"Exception occurred while sending keepalive on {self}: {e}", RNS.LOG_ERROR)
+
     def process_incoming(self, data):
         self.rxb += len(data)
         if self.parent_interface != None: self.parent_interface.rxb += len(data)
         
-        try:
-            self.owner.inbound(data, self)
+        try: self.owner.inbound(data, self)
         except Exception as e:
-            RNS.log(f"An error in the processing of an incoming frame for {self}: {e}", RNS.LOG_ERROR)
+            RNS.log(f"An error occurred in the processing of an incoming frame for {self}: {e}", RNS.LOG_ERROR)
             RNS.trace_exception(e)
 
     def process_outgoing(self, data):
+        if self.pause_on_client_sleep and time.time() > self.pause_timeout:
+            RNS.log(f"TX paused for LocalInterface client, dropping outbound packet", RNS.LOG_DEBUG) # TODO: Remove
+            return
+
         if self.online:
             try:
                 if self.epoll_backend:
@@ -238,13 +264,12 @@ class LocalClientInterface(Interface):
                     frame = self.frame_buffer[frame_start+1:frame_end]
                     frame = frame.replace(bytes([HDLC.ESC, HDLC.FLAG ^ HDLC.ESC_MASK]), bytes([HDLC.FLAG]))
                     frame = frame.replace(bytes([HDLC.ESC, HDLC.ESC  ^ HDLC.ESC_MASK]), bytes([HDLC.ESC]))
-                    if len(frame) > RNS.Reticulum.HEADER_MINSIZE:
-                        self.process_incoming(frame)
+                    if len(frame) > RNS.Reticulum.HEADER_MINSIZE: self.process_incoming(frame)
                     self.frame_buffer = self.frame_buffer[frame_end:]
-                else:
-                    flags_remaining = False
-            else:
-                flags_remaining = False
+                
+                else: flags_remaining = False
+            
+            else: flags_remaining = False
 
     def receive(self, data_in):
         try:
@@ -266,6 +291,8 @@ class LocalClientInterface(Interface):
             RNS.log("An interface error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
             RNS.log("Tearing down "+str(self), RNS.LOG_ERROR)
             self.teardown()
+
+        if self.pause_on_client_sleep: self.pause_timeout = time.time() + self.CLIENT_SLEEP_PAUSE_TIMEOUT
 
     def read_loop(self):
         try:
