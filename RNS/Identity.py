@@ -431,33 +431,39 @@ class Identity:
     def _clean_ratchets():
         RNS.log("Cleaning ratchets...", RNS.LOG_DEBUG)
         try:
+            count = 0
+            removed = 0
+            not_known = 0
             now = time.time()
             ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
             if os.path.isdir(ratchetdir):
                 for filename in os.listdir(ratchetdir):
+                    count += 1
                     try:
                         expired = False
                         corrupted = False
                         with open(f"{ratchetdir}/{filename}", "rb") as rf:
-                            # TODO: Remove individual ratchet file if corrupt
                             try:
                                 ratchet_data = umsgpack.unpackb(rf.read())
-                                if now > ratchet_data["received"]+Identity.RATCHET_EXPIRY:
-                                    expired = True
+                                if now > ratchet_data["received"]+Identity.RATCHET_EXPIRY: expired = True
 
                             except Exception as e:
                                 RNS.log(f"Corrupted ratchet data while reading {ratchetdir}/{filename}, removing file", RNS.LOG_ERROR)
                                 corrupted = True
 
+                        destination_hash = bytes.fromhex(filename)
+                        if not destination_hash in RNS.Identity.known_destinations: unknown = True; not_known += 1
+                        else:                                                       unknown = False
+
                         if expired or corrupted:
                             os.unlink(f"{ratchetdir}/{filename}")
+                            removed += 1
 
                     except Exception as e:
                         RNS.log(f"An error occurred while cleaning ratchets, in the processing of {ratchetdir}/{filename}.", RNS.LOG_ERROR)
                         RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
 
-        except Exception as e:
-            RNS.log(f"An error occurred while cleaning ratchets. The contained exception was: {e}", RNS.LOG_ERROR)
+        except Exception as e: RNS.log(f"An error occurred while cleaning ratchets. The contained exception was: {e}", RNS.LOG_ERROR)
 
     @staticmethod
     def get_ratchet(destination_hash):

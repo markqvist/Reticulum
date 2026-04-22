@@ -325,6 +325,7 @@ class Reticulum:
         RNS.log(f"Configuration loaded from {self.configpath}", RNS.LOG_VERBOSE)
 
         RNS.Identity.load_known_destinations()
+        if not self.is_connected_to_shared_instance: RNS.Identity._clean_ratchets()
         RNS.Transport.start(self)
 
         if self.use_af_unix:
@@ -354,7 +355,6 @@ class Reticulum:
 
     def __start_jobs(self):
         if self.jobs_thread == None:
-            RNS.Identity._clean_ratchets()
             self.jobs_thread = threading.Thread(target=self.__jobs)
             self.jobs_thread.daemon = True
             self.jobs_thread.start()

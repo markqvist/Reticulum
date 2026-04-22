@@ -95,6 +95,7 @@ class Transport:
     MAX_RATE_TIMESTAMPS         = 16           # Maximum number of announce timestamps to keep per destination
     PERSIST_RANDOM_BLOBS        = 32           # Maximum number of random blobs per destination to persist to disk
     MAX_RANDOM_BLOBS            = 64           # Maximum number of random blobs per destination to keep in memory
+    READY_WAIT                  = 60           # Maximum wait time for inbound packets received before transport core was ready
 
     interfaces                  = []           # All active interfaces
     destinations                = []           # All active destinations
@@ -166,6 +167,7 @@ class Transport:
 
     pending_local_path_requests = {}
 
+    ready                       = False
     start_time                  = None
     hashlist_maxsize            = 1000000
     job_interval                = 0.250
@@ -400,6 +402,7 @@ class Transport:
 
         # Sort interfaces according to bitrate
         Transport.prioritize_interfaces()
+        Transport.ready = True
 
         # Synthesize tunnels for any interfaces wanting it
         for interface in Transport.interfaces:
@@ -910,7 +913,9 @@ class Transport:
                 if time.time() > Transport.interface_last_jobs + Transport.interface_jobs_interval:
                     Transport.prioritize_interfaces()
                     try:
-                        for interface in Transport.interfaces: interface.process_held_announces()
+                        for interface in Transport.interfaces:
+                            interface.process_held_announces()
+                            if interface.phy_keepalive: interface.send_keepalive()
                         Transport.interface_last_jobs = time.time()
                     except Exception as e:
                         RNS.log(f"Error while processing held per-interface announces: {e}", RNS.LOG_WARNING)
@@ -1320,6 +1325,14 @@ class Transport:
 
     @staticmethod
     def inbound(raw, interface=None):
+        if not Transport.ready:
+            wait_start = time.time()
+            while not Transport.ready:
+                time.sleep(0.25)
+                if time.time() > wait_start + Transport.READY_WAIT:
+                    RNS.log("Inbound packet timed out waiting for transport startup, dropping", RNS.LOG_WARNING)
+                    return
+
         # If interface access codes are enabled,
         # we must authenticate each packet.
         if len(raw) > 2:
