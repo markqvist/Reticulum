@@ -222,7 +222,7 @@ def link_established(link):
 
     # Inform the user that the server is
     # connected
-    RNS.log("Link established with server, hit enter to sand a resource, or type in \"quit\" to quit")
+    RNS.log("Link established with server, hit enter to send a resource, or type in \"quit\" to quit")
 
 # When a link is closed, we'll inform the
 # user, and exit the program
