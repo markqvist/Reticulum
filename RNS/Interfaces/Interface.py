@@ -93,6 +93,7 @@ class Interface:
         self.spawned_interfaces = None
         self.tunnel_id = None
         self.ingress_control = True
+        self.phy_keepalive = False
         self.ic_max_held_announces = Interface.MAX_HELD_ANNOUNCES
         self.ic_burst_hold = Interface.IC_BURST_HOLD
         self.ic_burst_active = False
