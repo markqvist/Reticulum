@@ -455,7 +455,7 @@ class Identity:
                         if not destination_hash in RNS.Identity.known_destinations: unknown = True; not_known += 1
                         else:                                                       unknown = False
 
-                        if expired or corrupted:
+                        if expired or corrupted or unknown:
                             os.unlink(f"{ratchetdir}/{filename}")
                             removed += 1
 
@@ -464,6 +464,7 @@ class Identity:
                         RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
 
         except Exception as e: RNS.log(f"An error occurred while cleaning ratchets. The contained exception was: {e}", RNS.LOG_ERROR)
+        RNS.log(f"Processed {count} ratchets in {RNS.prettytime(time.time()-now)}, not in use {not_known}, removed {removed}", RNS.LOG_DEBUG)
 
     @staticmethod
     def get_ratchet(destination_hash):
