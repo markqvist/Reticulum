@@ -65,7 +65,7 @@ class AutoInterface(Interface):
 
     ALL_IGNORE_IFS     = ["lo0"]
     DARWIN_IGNORE_IFS  = ["awdl0", "llw0", "lo0", "en5"]
-    ANDROID_IGNORE_IFS = ["dummy0", "lo", "tun0"]
+    ANDROID_IGNORE_IFS = ["dummy0", "lo", "tun0", "rmnet0", "rmnet1", "rmnet2", "rmnet3", "rmnet4", "rmnet5", "rmnet6", "rmnet7"]
 
     BITRATE_GUESS      = 10*1000*1000
 
