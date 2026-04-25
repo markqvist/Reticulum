@@ -186,6 +186,7 @@ section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/)
 - The identity management and encryption utility `rnid` let's you manage Identities and encrypt/decrypt files
 - The remote command execution program `rnx` let's you run commands and programs and retrieve output from remote systems
 - The `rngit` program provides a full multi-repository Git node for serving repositories over Reticulum
+- Once RNS is installed on your system, you can interact transparently with Reticulum-hosted Git repositories
 - The included `git-remote-rns` allows you to interact with Git repositories over Reticulum
 
 All tools, including `rnx` and `rncp`, work reliably and well even over very
