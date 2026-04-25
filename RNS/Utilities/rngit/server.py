@@ -69,7 +69,7 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
 
 def main():
     try:
-        parser = argparse.ArgumentParser(description="Reticulum Git Repository Server")
+        parser = argparse.ArgumentParser(description="Reticulum Git Repository Node")
         parser.add_argument("--config", action="store", default=None, help="path to alternative config directory", type=str)
         parser.add_argument("--rnsconfig", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
         parser.add_argument('-s', '--service', action='store_true', default=False, help="rngit is running as a service and should log to file")
