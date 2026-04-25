@@ -636,7 +636,7 @@ showcase = /another/path/to/directory/with/git/repositories
 # different repository collections like this:
 
 public = r:all, w:9710b86ba12c42d1d8f30f74fe509286
-internal = rw:9710b86ba12c42d1d8f30f74fe509286, r:all
+internal = rw:9710b86ba12c42d1d8f30f74fe509286
 
 # By default, all repositories sourced from the con-
 # figured repository collection paths have no permissions
@@ -645,7 +645,7 @@ internal = rw:9710b86ba12c42d1d8f30f74fe509286, r:all
 # To configure permissions per repository, you must create
 # an ".allowed" file matching the repository name. If the
 # repository is in a folder called "my_project.git", create
-# a "my_project.git.allowed" file next to it. This file must
+# a "my_project.allowed" file next to it. This file must
 # contain a permission statement on each line in the form of
 # "r=IDENTITY_HASH", "w=IDENTITY_HASH" or "rw=IDENTITY_HASH".
 # Instead of IDENTITY_HASH, you can also use "all" or "none".
