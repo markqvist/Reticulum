@@ -120,6 +120,7 @@ class ReticulumGitClient():
         self.response_metadata   = None
 
         self.ref_batch_size      = self.REF_BATCH_SIZE
+        self.remote_refs         = {}
 
         # Response progress tracking
         self.response_progress      = 0
@@ -391,7 +392,19 @@ class ReticulumGitClient():
 
         if status_byte != 0: self.abort(f"Server refused list: {payload.decode('utf-8', errors='ignore')}")
 
-        git_stdout.write(payload.decode("utf-8"))
+        response_text = payload.decode("utf-8")
+
+        if for_push:
+            self.remote_refs = {}
+            for line in response_text.split('\n'):
+                line = line.strip()
+                if not line: continue
+                parts = line.split(' ', 1)
+                if len(parts) == 2:
+                    sha, ref_name = parts
+                    self.remote_refs[ref_name] = sha
+
+        git_stdout.write(response_text)
         git_stdout.write("\n") # Required to terminate list
         git_stdout.flush()
 
@@ -500,6 +513,8 @@ class ReticulumGitClient():
                 bundle_path = tmpdir + "/push.bundle"
 
                 create_cmd = ["git", "bundle", "create", bundle_path, local_ref]
+                if remote_ref in self.remote_refs: create_cmd.append(f"^{self.remote_refs[remote_ref]}")
+
                 if progress_enabled: create_cmd.insert(3, "--progress")
 
                 create_result = subprocess.run(create_cmd, stderr=stderr_arg, stdout=subprocess.DEVNULL)
