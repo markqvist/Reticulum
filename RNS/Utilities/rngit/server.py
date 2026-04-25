@@ -294,6 +294,7 @@ class ReticulumGitNode():
         return False
 
     def load_repository_group(self, group_name, group_path):
+        # TODO: Implement group.allowed file
         if not group_name in self.groups: self.groups[group_name] = { "path": group_path, "repositories": {}, "read": [], "write": [] }
         if group_name in self.groups and self.groups[group_name]["path"] != group_path:
             RNS.log(f"Repository group path did not match existing entry while loading {group_name}, aborting load", RNS.LOG_ERROR)
