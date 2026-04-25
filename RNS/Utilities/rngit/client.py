@@ -216,10 +216,16 @@ class ReticulumGitClient():
         RNS.log(f"Link was closed", RNS.LOG_DEBUG)
         if not self.link_ready: self.link_failed = True
 
-    def _on_progress(self, request_receipt):
-        self.response_progress      = request_receipt.progress
-        self.response_size          = request_receipt.response_size
-        self.response_transfer_size = request_receipt.response_transfer_size
+    def _on_progress(self, transfer_instance):
+        if hasattr(transfer_instance, "progress"):
+            self.response_progress      = transfer_instance.progress
+            self.response_size          = transfer_instance.response_size
+            self.response_transfer_size = transfer_instance.response_transfer_size
+        
+        elif hasattr(transfer_instance, "get_progress") and callable(transfer_instance.get_progress):
+            self.response_progress      = transfer_instance.get_progress()
+            self.response_size          = transfer_instance.total_size
+            self.response_transfer_size = transfer_instance.size
         
         now = time.time()
         if self.progress_updated_at == None: self.progress_updated_at = now
@@ -270,7 +276,8 @@ class ReticulumGitClient():
         self.response_metadata = None
         
         RNS.log(f"Sending request: {path}", RNS.LOG_DEBUG)
-        self.link.request(path, data, progress_callback=self._on_progress, response_callback=self._response_ready, failed_callback=self._response_failed, timeout=timeout)
+        request_receipt = self.link.request(path, data, progress_callback=self._on_progress, response_callback=self._response_ready, failed_callback=self._response_failed, timeout=timeout)
+        if request_receipt.resource: request_receipt.resource.progress_callback(self._on_progress)
         self.request_event.wait(timeout=timeout)
         
         if self.request_response is None: self.abort("Request failed or timed out")
