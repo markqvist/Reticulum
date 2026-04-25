@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>Using Reticulum on Your System - Reticulum Network Stack 1.1.9 documentation</title>
+        <title>Using Reticulum on Your System - Reticulum Network Stack 1.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.1.9 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.2.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.1.9 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.2.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -850,6 +850,81 @@ options:
 </pre></div>
 </div>
 </section>
+<section id="the-rngit-utility">
+<h3>The rngit Utility<a class="headerlink" href="#the-rngit-utility" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">rngit</span></code> utility provides full Git repository hosting and interaction over Reticulum. It allows you to host Git repositories on Reticulum nodes, and to interact with remote repositories using standard Git commands through the <code class="docutils literal notranslate"><span class="pre">rns://</span></code> URL scheme.</p>
+<p>The system consists of two parts: The <code class="docutils literal notranslate"><span class="pre">rngit</span></code> node that hosts repositories, and the <code class="docutils literal notranslate"><span class="pre">git-remote-rns</span></code> helper that enables Git to communicate with rngit nodes. As soon as you have RNS installed on your system, you can transparently use Git with Reticulum-hosted repositories just like any other type of remote. Git over Reticulum uses URLs in the following format: <code class="docutils literal notranslate"><span class="pre">rns://DESTINATION_HASH/group/repo</span></code>.</p>
+<p>If you set a branch to track a Reticulum remote as the default upstream, you can simply use <cite>git</cite> as you normally would; all commands work transparently and as expected.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>The rngit program is a new addition to RNS!</strong> This functionality was introduced in RNS 1.2.0. While great care has been taken to design a secure, but highly configurable and flexible permission system for allowing many users to interact with many different repositories on a single node, <code class="docutils literal notranslate"><span class="pre">rngit</span></code> has not been tested extensively in the wild! Be careful when hosting repositories, especially if they are public or semi-public.</p>
+</div>
+<p><strong>Usage Examples</strong></p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">rngit</span></code> to start a repository node:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit
+
+[Notice] Starting Reticulum Git Node...
+[Notice] Reticulum Git Node listening on &lt;4a5c8d9e1f2a3b4c5d6e7f8a9b0c1d2e&gt;
+</pre></div>
+</div>
+<p>On the first run, <code class="docutils literal notranslate"><span class="pre">rngit</span></code> will create a default configuration file. You will then need to edit this, to point to your repository locations, configure access permissions, and perform any other necessary configuration.</p>
+<p>You can run <code class="docutils literal notranslate"><span class="pre">rngit</span></code> in service mode with logging to file:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit -s
+</pre></div>
+</div>
+<p>Clone a repository from a remote <code class="docutils literal notranslate"><span class="pre">rngit</span></code> node:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git clone rns://4a5c8d9e1f2a3b4c5d6e7f8a9b0c1d2e/public/myrepo
+</pre></div>
+</div>
+<p>Add a Reticulum remote to an existing repository:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git remote add some_remote rns://4a5c8d9e1f2a3b4c5d6e7f8a9b0c1d2e/public/myrepo
+</pre></div>
+</div>
+<p>Push changes to the Reticulum remote:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git push some_remote master
+</pre></div>
+</div>
+<p>Fetch changes from a remote repository:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git fetch rns_remote
+</pre></div>
+</div>
+<p><strong>Repository Structure</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">rngit</span></code> node organizes repositories into groups. Each group is a directory containing bare Git repositories. The repository path format is <code class="docutils literal notranslate"><span class="pre">group_name/repo_name</span></code>. For example, a repository at <code class="docutils literal notranslate"><span class="pre">/var/git/public/myrepo</span></code> would be accessible as <code class="docutils literal notranslate"><span class="pre">public/myrepo</span></code> via the URL <code class="docutils literal notranslate"><span class="pre">rns://DESTINATION_HASH/public/myrepo</span></code>.</p>
+<p><strong>Configuration</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">rngit</span></code> node configuration file is located at <code class="docutils literal notranslate"><span class="pre">~/.rngit/config</span></code> (or <code class="docutils literal notranslate"><span class="pre">/etc/rngit/config</span></code> for system-wide installations). The default configuration includes:</p>
+<ul class="simple">
+<li><p>Repository group paths defining where to find bare repositories</p></li>
+<li><p>Access permissions for groups and individual repositories</p></li>
+<li><p>Announce intervals for network visibility</p></li>
+</ul>
+<p>Access permissions can be configured at the group level in the config file, or per-repository using <code class="docutils literal notranslate"><span class="pre">.allowed</span></code> files. Permissions use the format <code class="docutils literal notranslate"><span class="pre">permission:target</span></code> where permission is <code class="docutils literal notranslate"><span class="pre">r</span></code> (read), <code class="docutils literal notranslate"><span class="pre">w</span></code> (write), or <code class="docutils literal notranslate"><span class="pre">rw</span></code> (read/write), and target is <code class="docutils literal notranslate"><span class="pre">all</span></code>, <code class="docutils literal notranslate"><span class="pre">none</span></code>, or a specific identity hash.</p>
+<p>Repository-specific <code class="docutils literal notranslate"><span class="pre">.allowed</span></code> files can be static text files or executable scripts that output permission rules to stdout. A <code class="docutils literal notranslate"><span class="pre">group.allowed</span></code> file in a repository group directory applies to all repositories within that group.</p>
+<p><strong>All Command-Line Options (rngit)</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rngit.py [-h] [--config CONFIG] [--rnsconfig RNSCONFIG] [-s] [-i] [-v]
+                [-q] [--version]
+
+Reticulum Git Repository Node
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG       path to alternative config directory
+  --rnsconfig RNSCONFIG
+                        path to alternative Reticulum config directory
+  -s, --service         rngit is running as a service and should log to file
+  -i, --interactive     drop into interactive shell after initialisation
+  -v, --verbose         increase verbosity
+  -q, --quiet           decrease verbosity
+  --version             show program&#39;s version number and exit
+</pre></div>
+</div>
+<p><strong>All Command-Line Options (git-remote-rns)</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">git-remote-rns</span></code> helper is automatically invoked by Git when interacting with <code class="docutils literal notranslate"><span class="pre">rns://</span></code> URLs. It is not typically run directly by users, but accepts the following environment variables for configuration:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RNGIT_CONFIG</span></code> - Path to alternative client configuration directory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RNS_CONFIG</span></code> - Path to alternative Reticulum configuration directory</p></li>
+</ul>
+<p>The client configuration file is located at <code class="docutils literal notranslate"><span class="pre">~/.rngit/client_config</span></code> and allows adjusting parameters such as the reference batch size for transfers.</p>
+</section>
 <section id="the-rnx-utility">
 <h3>The rnx Utility<a class="headerlink" href="#the-rnx-utility" title="Link to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">rnx</span></code> utility is a basic remote command execution program. It allows you to
@@ -1363,6 +1438,7 @@ systemctl --user enable rnsd.service
 <li><a class="reference internal" href="#the-rnpath-utility">The rnpath Utility</a></li>
 <li><a class="reference internal" href="#the-rnprobe-utility">The rnprobe Utility</a></li>
 <li><a class="reference internal" href="#the-rncp-utility">The rncp Utility</a></li>
+<li><a class="reference internal" href="#the-rngit-utility">The rngit Utility</a></li>
 <li><a class="reference internal" href="#the-rnx-utility">The rnx Utility</a></li>
 <li><a class="reference internal" href="#the-rnodeconf-utility">The rnodeconf Utility</a></li>
 </ul>
@@ -1395,7 +1471,7 @@ systemctl --user enable rnsd.service
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=7b68ca77"></script>
+</div><script src="_static/documentation_options.js?v=6efca38a"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

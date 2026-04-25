@@ -680,6 +680,107 @@ another one, which will be created if it does not already exist
     --version             show program's version number and exit
 
 
+The rngit Utility
+=================
+
+The ``rngit`` utility provides full Git repository hosting and interaction over Reticulum. It allows you to host Git repositories on Reticulum nodes, and to interact with remote repositories using standard Git commands through the ``rns://`` URL scheme.
+
+The system consists of two parts: The ``rngit`` node that hosts repositories, and the ``git-remote-rns`` helper that enables Git to communicate with rngit nodes. As soon as you have RNS installed on your system, you can transparently use Git with Reticulum-hosted repositories just like any other type of remote. Git over Reticulum uses URLs in the following format: ``rns://DESTINATION_HASH/group/repo``.
+
+If you set a branch to track a Reticulum remote as the default upstream, you can simply use `git` as you normally would; all commands work transparently and as expected.
+
+.. warning::
+   **The rngit program is a new addition to RNS!** This functionality was introduced in RNS 1.2.0. While great care has been taken to design a secure, but highly configurable and flexible permission system for allowing many users to interact with many different repositories on a single node, ``rngit`` has not been tested extensively in the wild! Be careful when hosting repositories, especially if they are public or semi-public.
+
+**Usage Examples**
+
+Run ``rngit`` to start a repository node:
+
+.. code:: text
+
+  $ rngit
+
+  [Notice] Starting Reticulum Git Node...
+  [Notice] Reticulum Git Node listening on <4a5c8d9e1f2a3b4c5d6e7f8a9b0c1d2e>
+
+On the first run, ``rngit`` will create a default configuration file. You will then need to edit this, to point to your repository locations, configure access permissions, and perform any other necessary configuration.
+
+You can run ``rngit`` in service mode with logging to file:
+
+.. code:: text
+
+  $ rngit -s
+
+Clone a repository from a remote ``rngit`` node:
+
+.. code:: text
+
+  $ git clone rns://4a5c8d9e1f2a3b4c5d6e7f8a9b0c1d2e/public/myrepo
+
+Add a Reticulum remote to an existing repository:
+
+.. code:: text
+
+  $ git remote add some_remote rns://4a5c8d9e1f2a3b4c5d6e7f8a9b0c1d2e/public/myrepo
+
+Push changes to the Reticulum remote:
+
+.. code:: text
+
+  $ git push some_remote master
+
+Fetch changes from a remote repository:
+
+.. code:: text
+
+  $ git fetch rns_remote
+
+**Repository Structure**
+
+The ``rngit`` node organizes repositories into groups. Each group is a directory containing bare Git repositories. The repository path format is ``group_name/repo_name``. For example, a repository at ``/var/git/public/myrepo`` would be accessible as ``public/myrepo`` via the URL ``rns://DESTINATION_HASH/public/myrepo``.
+
+**Configuration**
+
+The ``rngit`` node configuration file is located at ``~/.rngit/config`` (or ``/etc/rngit/config`` for system-wide installations). The default configuration includes:
+
+- Repository group paths defining where to find bare repositories
+- Access permissions for groups and individual repositories
+- Announce intervals for network visibility
+
+Access permissions can be configured at the group level in the config file, or per-repository using ``.allowed`` files. Permissions use the format ``permission:target`` where permission is ``r`` (read), ``w`` (write), or ``rw`` (read/write), and target is ``all``, ``none``, or a specific identity hash.
+
+Repository-specific ``.allowed`` files can be static text files or executable scripts that output permission rules to stdout. A ``group.allowed`` file in a repository group directory applies to all repositories within that group.
+
+**All Command-Line Options (rngit)**
+
+.. code:: text
+
+  usage: rngit.py [-h] [--config CONFIG] [--rnsconfig RNSCONFIG] [-s] [-i] [-v]
+                  [-q] [--version]
+
+  Reticulum Git Repository Node
+
+  options:
+    -h, --help            show this help message and exit
+    --config CONFIG       path to alternative config directory
+    --rnsconfig RNSCONFIG
+                          path to alternative Reticulum config directory
+    -s, --service         rngit is running as a service and should log to file
+    -i, --interactive     drop into interactive shell after initialisation
+    -v, --verbose         increase verbosity
+    -q, --quiet           decrease verbosity
+    --version             show program's version number and exit
+
+**All Command-Line Options (git-remote-rns)**
+
+The ``git-remote-rns`` helper is automatically invoked by Git when interacting with ``rns://`` URLs. It is not typically run directly by users, but accepts the following environment variables for configuration:
+
+- ``RNGIT_CONFIG`` - Path to alternative client configuration directory
+- ``RNS_CONFIG`` - Path to alternative Reticulum configuration directory
+
+The client configuration file is located at ``~/.rngit/client_config`` and allows adjusting parameters such as the reference batch size for transfers.
+
+
 The rnx Utility
 ================
 
