@@ -520,7 +520,12 @@ class ReticulumGitNode():
                 RNS.log(f"Created {tmp_path} for {link}", RNS.LOG_DEBUG)
                 
                 bundle_path = os.path.join(tmp_path, "fetch.bundle")
-                execv = ["git", "bundle", "create", "--no-progress", bundle_path] + ref_names
+                execv = ["git", "bundle", "create", "--no-progress", bundle_path]
+
+                for r in refs:
+                    execv.append(r["ref"])
+                    if "have" in r and r["have"]: execv.append(f"^{r['have']}")
+
                 result = subprocess.run(execv, cwd=repository_path, capture_output=True, check=False)
                 if result.returncode != 0: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + result.stderr
                 

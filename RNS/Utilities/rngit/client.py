@@ -433,7 +433,21 @@ class ReticulumGitClient():
             batch = fetch_queue[:ref_batch_size]
             fetch_queue = fetch_queue[ref_batch_size:]
 
-            refs_list = [{"sha": sha, "ref": ref} for sha, ref in batch]
+            refs_list = []
+            for sha, ref in batch:
+                ref_entry = {"sha": sha, "ref": ref}
+                try:
+                    # Attempt to get local ref SHA for incremental bundle generation on remote
+                    result = subprocess.run(["git", "rev-parse", ref], capture_output=True, text=True, check=False)
+                    if result.returncode == 0:
+                        local_sha = result.stdout.strip()
+                        if local_sha != sha: ref_entry["have"] = local_sha
+
+                except Exception as e:
+                    RNS.log(f"Could not resolve local SHA for {ref} during fetch enumeration, getting full history for this ref: {e}", RNS.LOG_WARNING)
+
+                refs_list.append(ref_entry)
+
             ref_names = [ref for _, ref in batch]
             RNS.log(f"Fetching batch of {len(refs_list)} refs: {ref_names}", RNS.LOG_DEBUG)
 
