@@ -361,15 +361,16 @@ class ReticulumGitNode():
                 if self.announce_interval and time.time() > self.last_announce + self.announce_interval: self.announce()
                 if time.time() > self.last_link_clean + self.link_clean_interval:
                     stale_links = []
-                    for link_id in self.active_links:
-                        link = self.active_links[link_id]
-                        if not link.status == RNS.Link.ACTIVE: stale_links.append(link_id)
+                    with self.active_links_lock:
+                        for link_id in self.active_links:
+                            link = self.active_links[link_id]
+                            if not link.status == RNS.Link.ACTIVE: stale_links.append(link_id)
 
                     cleaned_links = 0
                     for link_id in stale_links:
                         link = None
                         with self.active_links_lock:
-                            if link_id in stale_links:
+                            if link_id in self.active_links:
                                 link = self.active_links.pop(link_id)
                                 cleaned_links += 1
 
@@ -413,10 +414,10 @@ class ReticulumGitNode():
 
     def register_request_handlers(self):
         ga_list = self.global_allowed_list if self.global_allow == RNS.Destination.ALLOW_LIST else None
-        self.destination.register_request_handler(self.PATH_LIST,   self.handle_list,  allow=self.global_allow, allowed_list=ga_list)
-        self.destination.register_request_handler(self.PATH_FETCH,  self.handle_fetch, allow=self.global_allow, allowed_list=ga_list)
-        self.destination.register_request_handler(self.PATH_PUSH,   self.handle_push,  allow=self.global_allow, allowed_list=ga_list)
-        self.destination.register_request_handler(self.PATH_DELETE, self.handle_list,  allow=self.global_allow, allowed_list=ga_list)
+        self.destination.register_request_handler(self.PATH_LIST,   self.handle_list,   allow=self.global_allow, allowed_list=ga_list)
+        self.destination.register_request_handler(self.PATH_FETCH,  self.handle_fetch,  allow=self.global_allow, allowed_list=ga_list)
+        self.destination.register_request_handler(self.PATH_PUSH,   self.handle_push,   allow=self.global_allow, allowed_list=ga_list)
+        self.destination.register_request_handler(self.PATH_DELETE, self.handle_delete, allow=self.global_allow, allowed_list=ga_list)
 
     def remote_connected(self, link):
         RNS.log(f"Peer connected to {self.destination}", RNS.LOG_DEBUG)
