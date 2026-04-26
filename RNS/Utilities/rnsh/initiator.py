@@ -39,18 +39,18 @@ import time
 import tty
 from typing import Callable, TypeVar
 import RNS
-import rnsh.exception as exception
-import rnsh.process as process
-import rnsh.retry as retry
-import rnsh.session as session
+import RNS.Utilities.rnsh.exception as exception
+import RNS.Utilities.rnsh.process as process
+import RNS.Utilities.rnsh.retry as retry
+import RNS.Utilities.rnsh.session as session
 import re
 import contextlib
-import rnsh.args
+
 import pwd
 import bz2
-import rnsh.protocol as protocol
-import rnsh.helpers as helpers
-import rnsh.rnsh
+import RNS.Utilities.rnsh.protocol as protocol
+import RNS.Utilities.rnsh.helpers as helpers
+import RNS.Utilities.rnsh.rnsh as rnsh
 
 _identity = None
 _reticulum = None
@@ -154,7 +154,7 @@ async def _initiate_link(configdir, rnsconfigdir, identitypath=None, verbosity=0
         _reticulum = RNS.Reticulum(configdir=rnsconfigdir, loglevel=targetloglevel, logdest=RNS.LOG_FILE)
 
     if _identity is None:
-        _identity = rnsh.rnsh.prepare_identity(identitypath)
+        _identity = rnsh.prepare_identity(identitypath)
 
     if not RNS.Transport.has_path(destination_hash):
         RNS.Transport.request_path(destination_hash)
@@ -169,7 +169,7 @@ async def _initiate_link(configdir, rnsconfigdir, identitypath=None, verbosity=0
             listener_identity,
             RNS.Destination.OUT,
             RNS.Destination.SINGLE,
-            rnsh.rnsh.APP_NAME
+            rnsh.APP_NAME
         )
 
     if _link is None or _link.status == RNS.Link.PENDING:

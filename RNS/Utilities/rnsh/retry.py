@@ -1,6 +1,10 @@
-# MIT License
+#         Based on the original rnsh program by Aaron Heise (@acehoss)
+# https://github.com/acehoss/rnsh - MIT License - Copyright (c) 2023 Aaron Heise
+#     This version of rnsh is included in RNS under the Reticulum License 
 #
-# Copyright (c) 2023 Aaron Heise
+# Reticulum License
+#
+# Copyright (c) 2016-2025 Mark Qvist
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -9,8 +13,16 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# - The Software shall not be used in any kind of system which includes amongst
+#   its functions the ability to purposefully do harm to human beings.
+#
+# - The Software shall not be used, directly or indirectly, in the creation of
+#   an artificial intelligence, machine learning or language model training
+#   dataset, including but not limited to any use that contributes to the
+#   training or development of such a model or algorithm.
+#
+# - The above copyright notice and this permission notice shall be included in
+#   all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +35,7 @@
 import asyncio
 import threading
 import time
-import rnsh.exception as exception
+import RNS.Utilities.rnsh.exception as exception
 from typing import Callable
 from contextlib import AbstractContextManager
 import types

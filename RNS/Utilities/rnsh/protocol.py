@@ -3,7 +3,7 @@ from __future__ import annotations
 import RNS
 from RNS.vendor import umsgpack
 from RNS.Buffer import StreamDataMessage as RNSStreamDataMessage
-import rnsh.retry
+import RNS.Utilities.rnsh.retry
 import abc
 import contextlib
 import struct
@@ -77,7 +77,7 @@ class VersionInfoMessage(RNS.MessageBase):
 
     def __init__(self, sw_version: str = None):
         super().__init__()
-        self.sw_version = sw_version or rnsh.__version__
+        self.sw_version = sw_version or RNS.Utilities.rnsh.__version__
         self.protocol_version = PROTOCOL_VERSION
 
     def pack(self) -> bytes: return umsgpack.packb((self.sw_version, self.protocol_version))

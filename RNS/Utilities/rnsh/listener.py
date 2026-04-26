@@ -36,17 +36,17 @@ import time
 import tty
 from typing import Callable, TypeVar
 import RNS
-import rnsh.exception as exception
-import rnsh.process as process
-import rnsh.retry as retry
-import rnsh.session as session
+import RNS.Utilities.rnsh.exception as exception
+import RNS.Utilities.rnsh.process as process
+import RNS.Utilities.rnsh.retry as retry
+import RNS.Utilities.rnsh.session as session
 import re
 import contextlib
-import rnsh.args
+
 import pwd
-import rnsh.protocol as protocol
-import rnsh.helpers as helpers
-import rnsh.rnsh
+import RNS.Utilities.rnsh.protocol as protocol
+import RNS.Utilities.rnsh.helpers as helpers
+import RNS.Utilities.rnsh.rnsh as rnsh
 
 
 _identity = None
@@ -123,8 +123,8 @@ async def listen(configdir, rnsconfigdir, command, identitypath=None, service_na
     # More -v should increase verbosity (higher RNS.loglevel); -q should decrease it
     targetloglevel = compute_target_rns_loglevel(verbosity, quietness, RNS.LOG_INFO)
     _reticulum = RNS.Reticulum(configdir=rnsconfigdir, loglevel=targetloglevel)
-    _identity = rnsh.rnsh.prepare_identity(identitypath, service_name)
-    _destination = RNS.Destination(_identity, RNS.Destination.IN, RNS.Destination.SINGLE, rnsh.rnsh.APP_NAME)
+    _identity = rnsh.prepare_identity(identitypath, service_name)
+    _destination = RNS.Destination(_identity, RNS.Destination.IN, RNS.Destination.SINGLE, rnsh.APP_NAME)
     
     RNS.log(f"rnsh listening for commands on {RNS.prettyhexrep(_destination.hash)}", RNS.LOG_NOTICE)
     

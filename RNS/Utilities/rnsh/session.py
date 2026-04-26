@@ -1,11 +1,11 @@
 from __future__ import annotations
 import contextlib
 import functools
-import rnsh.exception as exception
 import asyncio
-import rnsh.process as process
-import rnsh.helpers as helpers
-import rnsh.protocol as protocol
+import RNS.Utilities.rnsh.exception as exception
+import RNS.Utilities.rnsh.process as process
+import RNS.Utilities.rnsh.helpers as helpers
+import RNS.Utilities.rnsh.protocol as protocol
 import enum
 from typing import TypeVar, Generic, Callable, List
 from abc import abstractmethod, ABC

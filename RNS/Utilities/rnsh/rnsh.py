@@ -32,12 +32,13 @@ import os
 import sys
 
 import RNS
-import rnsh.process as process
-import rnsh.session as session
-import rnsh.args
-import rnsh.loop
-import rnsh.listener as listener
-import rnsh.initiator as initiator
+import RNS.Utilities.rnsh.process as process
+import RNS.Utilities.rnsh.session as session
+import RNS.Utilities.rnsh.args
+import RNS.Utilities.rnsh.loop
+import RNS.Utilities.rnsh.listener as listener
+import RNS.Utilities.rnsh.initiator as initiator
+from RNS.Utilities.rnsh.args import parse_arguments
 
 APP_NAME = "rnsh"
 loop: asyncio.AbstractEventLoop | None = None
@@ -91,13 +92,13 @@ def ensure_config_directory():
 
 async def _rnsh_cli_main():
     global verbose_set
-    args = rnsh.args.Args(sys.argv)
+    args, parser = parse_arguments()
     verbose_set = args.verbose > 0
 
     configdir = ensure_config_directory()
 
     if args.print_identity:
-        print_identity(args.config, args.identity, args.service_name, args.listen)
+        print_identity(args.config, args.identity, args.service, args.listen)
         return 0
 
     if args.listen:
@@ -110,17 +111,17 @@ async def _rnsh_cli_main():
 
         await listener.listen(configdir=configdir,
                               rnsconfigdir=args.config,
-                              command=args.command_line,
+                              command=args.command,
                               identitypath=args.identity,
-                              service_name=args.service_name,
+                              service_name=args.service,
                               verbosity=args.verbose,
                               quietness=args.quiet,
-                              allowed=args.allowed,
+                              allowed=args.allowed or [],
                               allowed_file=allowed_file,
                               disable_auth=args.no_auth,
                               announce_period=args.announce,
-                              no_remote_command=args.no_remote_cmd,
-                              remote_cmd_as_args=args.remote_cmd_as_args)
+                              no_remote_command=args.no_remote_command,
+                              remote_cmd_as_args=args.remote_command_as_args)
         return 0
 
     if args.destination is not None:
@@ -132,12 +133,12 @@ async def _rnsh_cli_main():
                                                noid=args.no_id,
                                                destination=args.destination,
                                                timeout=args.timeout,
-                                               command=args.command_line
+                                               command=args.command
         )
         return return_code if args.mirror else 0
     else:
         print("")
-        print(rnsh.args.usage)
+        parser.print_help()
         print("")
         return 1
 

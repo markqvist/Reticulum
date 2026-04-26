@@ -40,7 +40,7 @@ import types
 import typing
 import RNS
 
-import rnsh.exception as exception
+import RNS.Utilities.rnsh.exception as exception
 
 CTRL_C = "\x03".encode("utf-8")
 CTRL_D = "\x04".encode("utf-8")
