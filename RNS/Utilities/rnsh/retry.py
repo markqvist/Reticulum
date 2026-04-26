@@ -1,10 +1,10 @@
 #         Based on the original rnsh program by Aaron Heise (@acehoss)
 # https://github.com/acehoss/rnsh - MIT License - Copyright (c) 2023 Aaron Heise
-#     This version of rnsh is included in RNS under the Reticulum License 
+#     This version of rnsh is included in RNS under the Reticulum License
 #
 # Reticulum License
 #
-# Copyright (c) 2016-2025 Mark Qvist
+# Copyright (c) 2016-2026 Mark Qvist
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
