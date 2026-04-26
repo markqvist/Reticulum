@@ -472,7 +472,6 @@ class ReticulumGitClient():
                     self.abort(f"Fetch failed for batch: {error_msg}")
 
             else:
-                RNS.log(f"metadata: {metadata}", RNS.LOG_WARNING)
                 if not self.IDX_RESULT_CODE in metadata: self.abort(f"No result metadata on bundle response")
                 status_byte = metadata[self.IDX_RESULT_CODE]
                 if status_byte == 0: bundle_path = response.name
