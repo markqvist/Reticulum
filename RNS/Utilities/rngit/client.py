@@ -49,7 +49,7 @@ def program_setup(configdir, rnsconfigdir, destination_hexhash, group_name, repo
                                     group_name=group_name, repo_name=repo_name)
 
     if not git_client.ready: sys.exit(1)
-    else: git_client.run()
+    else:                    git_client.run()
 
 def main():
     if len(sys.argv) < 3:
@@ -69,7 +69,7 @@ def main():
     
     except IndexError: print("Invalid URL format. Use rns://<hash>/<group>/<repo>", file=sys.stderr); sys.exit(1)
 
-    configdir = os.environ.get("RNGIT_CONFIG", None)
+    configdir    = os.environ.get("RNGIT_CONFIG", None)
     rnsconfigdir = os.environ.get("RNS_CONFIG", None)
 
     program_setup(configdir, rnsconfigdir, destination_hexhash, group_name, repo_name)
@@ -77,10 +77,10 @@ def main():
 
 
 class ReticulumGitClient():
-    PATH_LIST = "/git/list"
-    PATH_FETCH = "/git/fetch"
-    PATH_PUSH = "/git/push"
-    PATH_DELETE = "/git/delete"
+    PATH_LIST       = "/git/list"
+    PATH_FETCH      = "/git/fetch"
+    PATH_PUSH       = "/git/push"
+    PATH_DELETE     = "/git/delete"
 
     RES_DISALLOWED  = 0x01
     RES_INVALID_REQ = 0x02
@@ -197,12 +197,19 @@ class ReticulumGitClient():
         except Exception as e: self.abort(f"Invalid destination hash: {e}")
 
         RNS.log(f"Requesting path to {RNS.prettyhexrep(destination_hash)}", RNS.LOG_DEBUG)
-        if not RNS.Transport.await_path(destination_hash, timeout=self.path_timeout): self.abort(f"Could not resolve path to {RNS.prettyhexrep(destination_hash)}")
-        else: RNS.log(f"Path to {RNS.prettyhexrep(destination_hash)} resolved", RNS.LOG_DEBUG)
+        sys.stderr.write(f"Requesting path..."); sys.stderr.flush()
+        if not RNS.Transport.await_path(destination_hash, timeout=self.path_timeout):
+            sys.stderr.write(f"\n"); sys.stderr.flush()
+            self.abort(f"Could not resolve path to {RNS.prettyhexrep(destination_hash)}")
+        
+        else:
+            RNS.log(f"Path to {RNS.prettyhexrep(destination_hash)} resolved", RNS.LOG_DEBUG);
+            sys.stderr.write(f"\rPath resolved     "); sys.stderr.flush()
 
         self.remote_identity = RNS.Identity.recall(destination_hash)
         if not self.remote_identity: self.abort("Could not recall remote identity. Is the server announcing?")
 
+        sys.stderr.write(f"\rEstablishing link..."); sys.stderr.flush()
         self.destination = RNS.Destination(self.remote_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, APP_NAME, "repositories")
         self.link = RNS.Link(self.destination)
         self.link.set_link_established_callback(self.link_established)
@@ -210,6 +217,7 @@ class ReticulumGitClient():
 
     def link_established(self, link):
         RNS.log(f"Link established, identifying...", RNS.LOG_DEBUG)
+        sys.stderr.write(f"\rLink established with remote\n"); sys.stderr.flush()
         link.identify(self.identity)
         self.link_ready = True
 
@@ -273,7 +281,7 @@ class ReticulumGitClient():
         if not self.link_ready: self.abort("Link not ready for request")
         
         self.request_event.clear()
-        self.request_response = None
+        self.request_response  = None
         self.response_metadata = None
         
         RNS.log(f"Sending request: {path}", RNS.LOG_DEBUG)
@@ -396,10 +404,10 @@ class ReticulumGitClient():
 
         if for_push:
             self.remote_refs = {}
-            for line in response_text.split('\n'):
+            for line in response_text.split("\n"):
                 line = line.strip()
                 if not line: continue
-                parts = line.split(' ', 1)
+                parts = line.split(" ", 1)
                 if len(parts) == 2:
                     sha, ref_name = parts
                     self.remote_refs[ref_name] = sha
@@ -509,7 +517,7 @@ class ReticulumGitClient():
 
                 status_byte = response[0]
                 if status_byte != 0:
-                    error_msg = response[1:].decode('utf-8', errors='ignore')
+                    error_msg = response[1:].decode("utf-8", errors="ignore")
                     git_stdout.write(f"error {remote_ref} {self.escape_for_stdout(error_msg)}\n")
                     git_stdout.flush()
                     continue
