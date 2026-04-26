@@ -2998,25 +2998,31 @@ class Transport:
 
     @staticmethod
     def detach_interfaces():
+        with Transport.active_links_lock:
+            for link in Transport.active_links:
+                try: link.teardown()
+                except Exception as e: RNS.log(f"Could not tear down active link before interface detach: {e}", RNS.LOG_WARNING)
+
+        with Transport.pending_links_lock:
+            for link in Transport.pending_links:
+                try: link.teardown()
+                except Exception as e: RNS.log(f"Could not tear down pending link before interface detach: {e}", RNS.LOG_WARNING)
+
         detachable_interfaces = []
 
         for interface in Transport.interfaces:
             # Currently no rules are being applied
             # here, and all interfaces will be sent
             # the detach call on RNS teardown.
-            if not interface.detached:
-                detachable_interfaces.append(interface)
-            else:
-                pass
+            if not interface.detached: detachable_interfaces.append(interface)
+            else: pass
         
         for interface in Transport.local_client_interfaces:
             # Currently no rules are being applied
             # here, and all interfaces will be sent
             # the detach call on RNS teardown.
-            if not interface.detached:
-                detachable_interfaces.append(interface)
-            else:
-                pass
+            if not interface.detached: detachable_interfaces.append(interface)
+            else: pass
 
         shared_instance_master = None
         local_interfaces = []

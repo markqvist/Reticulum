@@ -1319,11 +1319,11 @@ class Link:
 
     def cancel_outgoing_resource(self, resource):
         if resource in self.outgoing_resources: self.outgoing_resources.remove(resource)
-        else: RNS.log("Attempt to cancel a non-existing outgoing resource", RNS.LOG_ERROR)
+        else: RNS.log("Attempt to cancel a non-existing outgoing resource", RNS.LOG_WARNING)
 
     def cancel_incoming_resource(self, resource):
         if resource in self.incoming_resources: self.incoming_resources.remove(resource)
-        else: RNS.log("Attempt to cancel a non-existing incoming resource", RNS.LOG_ERROR)
+        else: RNS.log("Attempt to cancel a non-existing incoming resource", RNS.LOG_WARNING)
 
     def ready_for_new_resource(self):
         if len(self.outgoing_resources) > 0: return False
