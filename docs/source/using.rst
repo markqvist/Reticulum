@@ -853,6 +853,282 @@ another one, which will be created if it does not already exist
     --version             show program's version number and exit
 
 
+The rnsh Utility
+================
+
+The ``rnsh`` utility provides a fully interactive remote shell over Reticulum.
+It allows you to establish encrypted, authenticated shell sessions on remote
+systems, complete with terminal emulation, pipe support, and window resizing.
+
+While the ``rnx`` utility is useful for simple remote command execution and
+retrieving output, ``rnsh`` provides a complete interactive terminal experience,
+making it ideal for remote administration and management tasks that require
+real-time interaction, just like SSH does for IP networks.
+
+``rnsh`` operates in two modes: a *listener* mode that accepts incoming
+connections, and an *initiator* mode that connects to a remote listener. Both
+sides authenticate using Reticulum Identities, ensuring that only authorised
+peers can establish sessions.
+
+.. note::
+   ``rnsh`` provides a genuine interactive terminal over Reticulum. It supports
+   full terminal emulation including escape sequences, window resizing, signal
+   forwarding, and piping of standard input, output and error streams. This
+   makes it suitable for running text editors, terminal multiplexers, and any
+   other interactive programs on remote systems.
+
+**Usage Examples**
+
+Start ``rnsh`` in listener mode, accepting connections from specific identities:
+
+.. code:: text
+
+  $ rnsh -l -a 941bed5e228775e5a8079fc38b1ccf3f -a 1b03013c25f1c2ca068a4f080b844a10
+
+You can also specify allowed identity hashes (one per line) in the file
+``~/.rnsh/allowed_identities`` or ``~/.config/rnsh/allowed_identities``, and
+simply run the program in listener mode:
+
+.. code:: text
+
+  $ rnsh -l
+
+Connect to a remote listener from another system:
+
+.. code:: text
+
+  $ rnsh 7a55144adf826958a9529a3bcf08b149
+
+Specify a command to run on the remote system, separating ``rnsh`` options from
+the remote command with ``--``:
+
+.. code:: text
+
+  $ rnsh 7a55144adf826958a9529a3bcf08b149 -- top
+
+Set a default command for the listener, in case the initiator does not supply
+one, or when remote command execution is disabled:
+
+.. code:: text
+
+  $ rnsh -l -- /bin/bash --login
+
+Use the ``-m`` flag to mirror the exit code of the remote process:
+
+.. code:: text
+
+  $ rnsh -m 7a55144adf826958a9529a3bcf08b149 -- /usr/local/bin/check-status
+
+Use the ``-p`` flag to display the identity and destination hash for a listener:
+
+.. code:: text
+
+  $ rnsh -l -p
+
+  Identity     : <984b74a3f768bef236af4371e6f248cd>
+  Listening on : 7a55144adf826958a9529a3bcf08b149
+
+Use a specific identity file rather than the default:
+
+.. code:: text
+
+  $ rnsh -l -i /path/to/identity
+
+Announce the listener destination on startup, and periodically:
+
+.. code:: text
+
+  $ rnsh -l -b 900
+
+The ``-b`` option specifies the announce period in seconds. Use ``0`` to
+announce only once at startup.
+
+**Authentication & Authorisation**
+
+By default, ``rnsh`` requires that connecting initiators identify themselves
+with a Reticulum Identity whose hash is present in the list of allowed
+identities. Allowed identities can be specified on the command line with the
+``-a`` option, and can be used multiple times:
+
+.. code:: text
+
+  $ rnsh -l -a 941bed5e228775e5a8079fc38b1ccf3f -a 1b03013c25f1c2ca068a4f080b844a10
+
+You can also maintain a list of allowed identity hashes in the file
+``~/.rnsh/allowed_identities`` or ``~/.config/rnsh/allowed_identities``,
+with one hex hash per line. This file is reloaded every time a new connection
+is received, so changes take effect immediately without restarting ``rnsh``.
+
+If you want to accept connections from any identity (for testing or in fully
+trusted environments), you can disable authentication with the ``-n`` option:
+
+.. code:: text
+
+  $ rnsh -l -n
+
+.. warning::
+   Disabling authentication with ``-n`` means that **any** Reticulum peer that
+   can reach your listener will be able to execute commands on your system. Only
+   use this option if you *really* know what you're doing.
+
+**Remote Command Control**
+
+When running in listener mode, ``rnsh`` allows you to control how remote
+commands are handled:
+
+- By default, the listener accepts the command sent by the initiator. If the
+  initiator does not supply a command, the listener's default shell is used.
+
+- Use ``-C`` (``--no-remote-command``) to disable execution of commands received
+  from the initiator. Only the listener's default command (or the command
+  specified after ``--``) will be executed:
+
+.. code:: text
+
+  $ rnsh -l -C -- /usr/local/bin/safe-script
+
+- Use ``-A`` (``--remote-command-as-args``) to append the initiator's command
+  to the listener's default command instead of replacing it. This can be useful
+  for restricting the remote to a specific program while still allowing the
+  initiator to pass arguments:
+
+.. code:: text
+
+  $ rnsh -l -A -- /usr/bin/top
+
+**Service Names**
+
+When running in listener mode, ``rnsh`` uses a service name to differentiate
+between multiple listener instances that may share the same identity. By
+default, the service name is ``default``. You can specify a different service
+name with the ``-s`` option:
+
+.. code:: text
+
+  $ rnsh -l -s monitoring
+
+This allows you to run multiple listeners on the same node, each with a
+different service name and purpose.
+
+**Initiator Options**
+
+When connecting to a remote listener, several options are available:
+
+- Use ``-N`` (``--no-id``) to disable sending your identity to the remote
+  listener. Note that the listener must have authentication disabled (``-n``)
+  for the connection to succeed in this case.
+
+- Use ``-m`` (``--mirror``) to make the initiator return with the exit code of
+  the remote process, rather than always returning ``0``.
+
+- Use ``-w`` (``--timeout``) to specify the connection and request timeout in
+  seconds. By default, the timeout matches the Reticulum path request timeout.
+
+**Identity & Destination**
+
+The default identity file for ``rnsh`` is stored at
+``~/.reticulum/identities/rnsh``, but you can specify a different one with the
+``-i`` option, which will be created if it does not already exist:
+
+.. code:: text
+
+  $ rnsh -l -i /path/to/identity
+
+To display the identity and destination information for a listener, use the
+``-p`` option. When combined with ``-l``, both the identity and the listening
+destination hash are displayed:
+
+.. code:: text
+
+  $ rnsh -p
+
+  Identity     : <984b74a3f768bef236af4371e6f248cd>
+
+  $ rnsh -l -p
+
+  Identity     : <984b74a3f768bef236af4371e6f248cd>
+  Listening on : 7a55144adf826958a9529a3bcf08b149
+
+**Verbosity**
+
+Like other Reticulum utilities, ``rnsh`` supports the ``-v`` and ``-q`` flags
+to increase or decrease logging verbosity. Multiple flags can be specified to
+further adjust the log level. The default log level is ``INFO`` for listeners
+and ``ERROR`` for initiators.
+
+.. code:: text
+
+  $ rnsh -l -vv       # Listener with debug-level output
+  $ rnsh -q 7a55144adf826958a9529a3bcf08b149   # Quiet initiator
+
+By default, all log output is routed to ``~/.rnsh/logfile`` for initiators.
+
+**Escape Sequences**
+
+During an active ``rnsh`` session, the following escape sequences are
+available. These are only recognised immediately after a newline character:
+
+- ``~~`` - Send a literal tilde character
+- ``~.`` - Terminate the session and exit immediately
+- ``~L`` - Toggle line-interactive mode
+- ``~?`` - Display the escape sequence quick reference
+
+**All Command-Line Options**
+
+.. code:: text
+
+  usage: rnsh [-h] [--config CONFIG] [--identity IDENTITY] [-v] [-q] [-p]
+              [--version] [-l] [-s SERVICE] [-b PERIOD] [-a HASH] [-n] [-A] [-C]
+              [-N] [-m] [-w SECONDS]
+              [destination]
+
+  Reticulum Remote Shell Utility
+
+  positional arguments:
+    destination           hexadecimal hash of the destination to connect to
+
+  options:
+    -h, --help            show this help message and exit
+    --config, -c CONFIG   path to alternative Reticulum config directory
+    --identity, -i IDENTITY
+                          path to identity file to use
+    -v, --verbose         increase verbosity
+    -q, --quiet           decrease verbosity
+    -p, --print-identity  print identity and destination info and exit
+    --version             show program's version number and exit
+    -l, --listen          listen (server) mode; any command specified after --
+                          will be used as the default command when the initiator
+                          does not provide one or when remote command execution
+                          is disabled; if no command is specified, the default
+                          shell of the user running rnsh will be used
+    -s, --service SERVICE
+                          service name for identity file if not the default
+    -b, --announce PERIOD
+                          announce on startup and every PERIOD seconds; specify
+                          0 to announce on startup only
+    -a, --allowed HASH    allow this identity to connect (may be specified
+                          multiple times); allowed identities can also be
+                          specified in ~/.rnsh/allowed_identities or
+                          ~/.config/rnsh/allowed_identities, one hash per line
+    -n, --no-auth         disable authentication (allow any identity to connect)
+    -A, --remote-command-as-args
+                          concatenate remote command to the argument list of the
+                          default program or shell
+    -C, --no-remote-command
+                          disable executing command lines received from the
+                          remote initiator
+    -N, --no-id           disable identity announcement on connect
+    -m, --mirror          return with the exit code of the remote process
+    -w, --timeout SECONDS
+                          connect and request timeout in seconds
+
+  When specifying a command to execute, separate rnsh options from the command
+  and its arguments with --. For example:
+
+    rnsh -l -- /bin/bash --login
+    rnsh <destination> -- ls -la /tmp
+
+
 The rnodeconf Utility
 =====================
 

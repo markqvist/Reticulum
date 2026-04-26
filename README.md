@@ -98,12 +98,12 @@ If you want to quickly get an idea of what Reticulum can do, take a look at the
 [Programs Using Reticulum](https://reticulum.network/manual/software.html)
 section of the manual, or the following resources:
 
-- You can use the [rnsh](https://github.com/acehoss/rnsh) program to establish remote shell sessions over Reticulum.
 - [LXMF](https://github.com/markqvist/lxmf) is a distributed, delay and disruption tolerant message transfer protocol built on Reticulum
 - The [LXST](https://github.com/markqvist/lxst) protocol and framework provides real-time audio and signals transport over Reticulum. It includes primitives and utilities for building voice-based applications and hardware devices, such as the `rnphone` program, that can be used to build hardware telephones.
 - For an off-grid, encrypted and resilient mesh communications platform, see [Nomad Network](https://github.com/markqvist/NomadNet)
 - The Android, Linux, macOS and Windows app [Sideband](https://github.com/markqvist/Sideband) has a graphical interface and many advanced features, such as file transfers, image and voice messages, real-time voice calls, a distributed telemetry system, mapping capabilities and full plugin extensibility.
 - [MeshChatX](https://git.quad4.io/RNS-Things/MeshChatX) is a full-featured LXMF client with many built-in tools and functionalities, that also supports image and voice messages, file transfers and voice calls. It also includes a built-in page browser for browsing Nomad Network nodes.
+- You can use the included [rnsh](https://reticulum.network/manual/using.html#the-rnsh-utility) program to establish remote shell sessions over Reticulum.
 
 ## Where can Reticulum be used?
 Over practically any medium that can support at least a half-duplex channel
@@ -184,7 +184,8 @@ section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/)
 - A diagnostics tool called `rnprobe` for checking connectivity to destinations
 - A simple file transfer program called `rncp` making it easy to transfer files between systems
 - The identity management and encryption utility `rnid` let's you manage Identities and encrypt/decrypt files
-- The remote command execution program `rnx` let's you run commands and programs and retrieve output from remote systems
+- The `rnsh` program allows you to establish fully interactive shell session with remote systems
+- The remote command execution program `rnx` let's you run simple commands and programs and retrieve output from remote systems
 - The `rngit` program provides a full multi-repository Git node for serving repositories over Reticulum
 - The included `git-remote-rns` helper allows you to interact with Git repositories over Reticulum
 
@@ -276,7 +277,7 @@ to find interface definitions for initial connectivity to the global distributed
 ***Important!** Historically, a developer-targeted testnet was made available by the Reticulum project itself. As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, this public testnet, including the Amsterdam Testnet entrypoint, has now been decommissioned. If your still have instances that relied on this entrypoint for connectivity, transition to using the distributed backbone instead. Reticulum now includes a full on-network interface discovery and connectivity bootstrapping system. Read the [Bootstrapping Connectivity](https://reticulum.network/manual/gettingstartedfast.html#bootstrapping-connectivity) section of the manual for pointers.*
 
 ## Support Reticulum
-You can help support the continued development of open, free and private communications systems by donating via one of the following channels:
+For this to be possible, I need your help. Please support the continued development of open, free and private communications systems by donating via one of the following channels:
 
 - Monero:
   ```
