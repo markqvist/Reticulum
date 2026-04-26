@@ -186,13 +186,11 @@ class Reticulum:
         # out cleanup operations.
         if not Reticulum.__exit_handler_ran:
             Reticulum.__exit_handler_ran = True
-            if not Reticulum.__interface_detach_ran:
-                RNS.Transport.detach_interfaces()
+            if not Reticulum.__interface_detach_ran: RNS.Transport.detach_interfaces()
             RNS.Transport.exit_handler()
             RNS.Identity.exit_handler()
 
-            if RNS.Profiler.ran():
-                RNS.Profiler.results()
+            if RNS.Profiler.ran(): RNS.Profiler.results()
 
             RNS.loglevel = -1
 

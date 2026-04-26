@@ -2998,15 +2998,18 @@ class Transport:
 
     @staticmethod
     def detach_interfaces():
-        with Transport.active_links_lock:
-            for link in Transport.active_links:
-                try: link.teardown()
-                except Exception as e: RNS.log(f"Could not tear down active link before interface detach: {e}", RNS.LOG_WARNING)
+        closed_links = 0
+        for link in Transport.active_links.copy():
+            try: link.teardown(); closed_links += 1
+            except Exception as e: RNS.log(f"Could not tear down active link before interface detach: {e}", RNS.LOG_WARNING)
 
-        with Transport.pending_links_lock:
-            for link in Transport.pending_links:
-                try: link.teardown()
-                except Exception as e: RNS.log(f"Could not tear down pending link before interface detach: {e}", RNS.LOG_WARNING)
+        for link in Transport.pending_links.copy():
+            try: link.teardown(); closed_links += 1
+            except Exception as e: RNS.log(f"Could not tear down pending link before interface detach: {e}", RNS.LOG_WARNING)
+
+        # Provide a 150ms window to allow link teardown
+        # packets to leave local transport
+        if closed_links: time.sleep(0.15)
 
         detachable_interfaces = []
 
