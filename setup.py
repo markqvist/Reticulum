@@ -52,6 +52,7 @@ setuptools.setup(
             'rnx=RNS.Utilities.rnx:main',
             'rnir=RNS.Utilities.rnir:main',
             'rnpkg=RNS.Utilities.rnpkg:main',
+            'rnsh=RNS.Utilities.rnsh.rnsh:main',
             'rngit=RNS.Utilities.rngit.server:main',
             'git-remote-rns=RNS.Utilities.rngit.client:main',
             'rnodeconf=RNS.Utilities.rnodeconf:main',
