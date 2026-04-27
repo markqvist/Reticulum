@@ -42,7 +42,7 @@ from RNS._version import __version__
 from RNS.Utilities.rngit import APP_NAME
 from RNS.vendor.configobj import ConfigObj
 
-def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, service=False, interactive=False):
+def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, service=False, interactive=False, print_identity=False):
     targetverbosity = verbosity-quietness
 
     if service:
@@ -50,6 +50,8 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
         targetverbosity = None
     else:
         targetlogdest  = RNS.LOG_STDOUT
+
+    if print_identity: git_node = ReticulumGitNode(configdir=configdir, print_identity=True)
 
     reticulum  = RNS.Reticulum(configdir=rnsconfigdir, verbosity=targetverbosity, logdest=targetlogdest)
 
@@ -72,6 +74,7 @@ def main():
         parser = argparse.ArgumentParser(description="Reticulum Git Repository Node")
         parser.add_argument("--config", action="store", default=None, help="path to alternative config directory", type=str)
         parser.add_argument("--rnsconfig", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
+        parser.add_argument('-p', '--print-identity', action='store_true', default=False, help="print identity and destination info and exit")
         parser.add_argument('-s', '--service', action='store_true', default=False, help="rngit is running as a service and should log to file")
         parser.add_argument('-i', '--interactive', action='store_true', default=False, help="drop into interactive shell after initialisation")
         parser.add_argument('-v', '--verbose', action='count', default=0)
@@ -87,7 +90,7 @@ def main():
         else:              rnsconfigarg = None
 
         program_setup(configdir = configarg, rnsconfigdir=rnsconfigarg, service=args.service, verbosity=args.verbose,
-                      quietness=args.quiet, interactive=args.interactive)
+                      quietness=args.quiet, interactive=args.interactive, print_identity=args.print_identity)
 
     except KeyboardInterrupt:
         print("")
@@ -122,7 +125,7 @@ class ReticulumGitNode():
     IDX_REPOSITORY  = 0x00
     IDX_RESULT_CODE = 0x01
 
-    def __init__(self, configdir=None, verbosity=None):
+    def __init__(self, configdir=None, verbosity=None, print_identity=False):
         self.identity            = None
         self.userdir             = os.path.expanduser("~")
         self.global_allow        = RNS.Destination.ALLOW_ALL
@@ -166,9 +169,24 @@ class ReticulumGitNode():
                 self.__create_default_config()
                 RNS.log("Default config file created. Make any necessary changes in "+self.configdir+"/config and restart rngit.")
                 RNS.log("Exiting now")
-                return
+                exit(1)
 
             self.__apply_config()
+
+            if print_identity:
+                client_identity_path = self.configdir+"/client_identity"
+                if not os.path.isfile(client_identity_path):
+                    client_identity = RNS.Identity()
+                    client_identity.to_file(client_identity_path)
+                    RNS.log(f"Client identity generated and persisted to {client_identity_path}", RNS.LOG_VERBOSE)
+                
+                else: client_identity = RNS.Identity.from_file(client_identity_path)
+
+                destination_hash = RNS.Destination.hash_from_name_and_identity(f"{APP_NAME}.repositories", self.identity)
+                print(f"Git Peer Identity        : {RNS.prettyhexrep(client_identity.hash)}")
+                print(f"Repository Node Identity : {RNS.prettyhexrep(self.identity.hash)}")
+                print(f"Repositories Destination : {RNS.prettyhexrep(destination_hash)}")
+                exit(0)
 
             self.destination = RNS.Destination(self.identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "repositories")
             self.destination.set_link_established_callback(self.remote_connected)

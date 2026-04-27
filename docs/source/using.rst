@@ -701,9 +701,19 @@ Run ``rngit`` to start a repository node:
   $ rngit
 
   [Notice] Starting Reticulum Git Node...
-  [Notice] Reticulum Git Node listening on <4a5c8d9e1f2a3b4c5d6e7f8a9b0c1d2e>
+  [Notice] Reticulum Git Node listening on <0d7334d411d00120cbad24edf355fdd2>
 
 On the first run, ``rngit`` will create a default configuration file. You will then need to edit this, to point to your repository locations, configure access permissions, and perform any other necessary configuration.
+
+View your identity and destination hashes:
+
+.. code:: text
+
+  $ rngit --print-identity
+
+  Git Peer Identity        : <959e10e5efc1bd9d97a4083babe51dea>
+  Repository Node Identity : <153cb870b4665b8c1c348896292b0bad>
+  Repositories Destination : <0d7334d411d00120cbad24edf355fdd2>
 
 You can run ``rngit`` in service mode with logging to file:
 
@@ -715,13 +725,13 @@ Clone a repository from a remote ``rngit`` node:
 
 .. code:: text
 
-  $ git clone rns://4a5c8d9e1f2a3b4c5d6e7f8a9b0c1d2e/public/myrepo
+  $ git clone rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo
 
 Add a Reticulum remote to an existing repository:
 
 .. code:: text
 
-  $ git remote add some_remote rns://4a5c8d9e1f2a3b4c5d6e7f8a9b0c1d2e/public/myrepo
+  $ git remote add some_remote rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo
 
 Push changes to the Reticulum remote:
 
@@ -729,11 +739,11 @@ Push changes to the Reticulum remote:
 
   $ git push some_remote master
 
-Fetch changes from a remote repository:
+Get changes from a remote repository:
 
 .. code:: text
 
-  $ git fetch rns_remote
+  $ git pull rns_remote master
 
 **Repository Structure**
 
@@ -765,6 +775,7 @@ Repository-specific ``.allowed`` files can be static text files or executable sc
     --config CONFIG       path to alternative config directory
     --rnsconfig RNSCONFIG
                           path to alternative Reticulum config directory
+    -p, --print-identity  print identity and destination info and exit
     -s, --service         rngit is running as a service and should log to file
     -i, --interactive     drop into interactive shell after initialisation
     -v, --verbose         increase verbosity

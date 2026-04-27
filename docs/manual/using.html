@@ -864,28 +864,36 @@ options:
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit
 
 [Notice] Starting Reticulum Git Node...
-[Notice] Reticulum Git Node listening on &lt;4a5c8d9e1f2a3b4c5d6e7f8a9b0c1d2e&gt;
+[Notice] Reticulum Git Node listening on &lt;0d7334d411d00120cbad24edf355fdd2&gt;
 </pre></div>
 </div>
 <p>On the first run, <code class="docutils literal notranslate"><span class="pre">rngit</span></code> will create a default configuration file. You will then need to edit this, to point to your repository locations, configure access permissions, and perform any other necessary configuration.</p>
+<p>View your identity and destination hashes:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit --print-identity
+
+Git Peer Identity        : &lt;959e10e5efc1bd9d97a4083babe51dea&gt;
+Repository Node Identity : &lt;153cb870b4665b8c1c348896292b0bad&gt;
+Repositories Destination : &lt;0d7334d411d00120cbad24edf355fdd2&gt;
+</pre></div>
+</div>
 <p>You can run <code class="docutils literal notranslate"><span class="pre">rngit</span></code> in service mode with logging to file:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit -s
 </pre></div>
 </div>
 <p>Clone a repository from a remote <code class="docutils literal notranslate"><span class="pre">rngit</span></code> node:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git clone rns://4a5c8d9e1f2a3b4c5d6e7f8a9b0c1d2e/public/myrepo
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git clone rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo
 </pre></div>
 </div>
 <p>Add a Reticulum remote to an existing repository:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git remote add some_remote rns://4a5c8d9e1f2a3b4c5d6e7f8a9b0c1d2e/public/myrepo
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git remote add some_remote rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo
 </pre></div>
 </div>
 <p>Push changes to the Reticulum remote:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git push some_remote master
 </pre></div>
 </div>
-<p>Fetch changes from a remote repository:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git fetch rns_remote
+<p>Get changes from a remote repository:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git pull rns_remote master
 </pre></div>
 </div>
 <p><strong>Repository Structure</strong></p>
@@ -910,6 +918,7 @@ options:
   --config CONFIG       path to alternative config directory
   --rnsconfig RNSCONFIG
                         path to alternative Reticulum config directory
+  -p, --print-identity  print identity and destination info and exit
   -s, --service         rngit is running as a service and should log to file
   -i, --interactive     drop into interactive shell after initialisation
   -v, --verbose         increase verbosity
