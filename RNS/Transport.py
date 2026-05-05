@@ -40,6 +40,7 @@ from time import sleep
 from threading import Lock
 from .vendor import umsgpack as umsgpack
 from RNS.Interfaces.BackboneInterface import BackboneInterface
+from RNS import should_log as sl
 
 class Transport:
     """
@@ -146,6 +147,7 @@ class Transport:
     path_states_lock            = Lock()
     jobs_lock                   = Lock()
     cache_clean_lock            = Lock()
+    persist_lock                = Lock()
 
     # Transport control destinations are used
     # for control purposes like path requests
@@ -203,6 +205,8 @@ class Transport:
 
     identity                    = None
     network_identity            = None
+
+    _should_run                 = True
 
     @staticmethod
     def start(reticulum_instance):
@@ -481,7 +485,7 @@ class Transport:
 
     @staticmethod
     def jobloop():
-        while (True):
+        while (Transport._should_run):
             Transport.jobs()
             sleep(Transport.job_interval)
 
@@ -3175,10 +3179,11 @@ class Transport:
                 RNS.log("Saving path table to storage...", RNS.LOG_DEBUG)
 
                 serialised_destinations = []
-                for destination_hash in Transport.path_table.copy():
+                path_table = Transport.path_table.copy()
+                for destination_hash in path_table:
                     try:
                         # Get the destination entry from the destination table
-                        de = Transport.path_table[destination_hash]
+                        de = path_table[destination_hash]
                         interface_hash = de[IDX_PT_RVCD_IF].get_hash()
 
                         # Only store destination table entry if the associated
@@ -3186,7 +3191,10 @@ class Transport:
                         interface = Transport.find_interface_from_hash(interface_hash)
                         if interface != None:
                             # Get the destination entry from the destination table
-                            de = Transport.path_table[destination_hash]
+                            if not destination_hash in path_table:
+                                RNS.log(f"Skipping persist for path table entry {RNS.prettyhexrep(destination_hash)}, no longer in table", RNS.LOG_DEBUG)
+
+                            de = path_table[destination_hash]
                             timestamp = de[IDX_PT_TIMESTAMP]
                             received_from = de[IDX_PT_NEXT_HOP]
                             hops = de[IDX_PT_HOPS]
@@ -3306,12 +3314,23 @@ class Transport:
 
     @staticmethod
     def persist_data(background=False):
-        Transport.save_packet_hashlist(background=background)
-        Transport.save_path_table(background=background)
-        Transport.save_tunnel_table(background=background)
+        if Transport.persist_lock.locked(): return
+        with Transport.persist_lock:
+            Transport.save_packet_hashlist(background=background)
+            Transport.save_path_table(background=background)
+            Transport.save_tunnel_table(background=background)
+            gc.collect()
+
+    @staticmethod
+    def void_queues():
+        Transport.held_announces = {}
+        Transport.receipts = []
+        Transport.reverse_table = {}
 
     @staticmethod
     def exit_handler():
+        Transport._should_run = False
+        Transport.void_queues()
         if not Transport.owner.is_connected_to_shared_instance:
             Transport.persist_data()
 

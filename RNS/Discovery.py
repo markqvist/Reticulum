@@ -489,7 +489,7 @@ class InterfaceDiscovery():
             threading.Thread(target=self.__monitor_job, daemon=True).start()
 
     def __monitor_job(self):
-        while self.monitoring_autoconnects:
+        while self.monitoring_autoconnects and RNS.Transport._should_run:
             time.sleep(self.monitor_interval)
             detached_interfaces = []
             online_interfaces = 0
