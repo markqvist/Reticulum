@@ -1349,12 +1349,12 @@ class NomadNetworkNode():
                         comment_count = len([f for f in os.listdir(doc_dir) if f.isdigit() and os.path.isfile(os.path.join(doc_dir, f))])
 
                         docs.append({ "id": doc_id, "title": meta.get("title", "Untitled"),
-                                      "created": meta.get("created", 0), "author": meta.get("author", b""),
-                                      "comments": comment_count })
+                                      "created": meta.get("created", 0), "edited": meta.get("edited", 0),
+                                      "author": meta.get("author", b""), "comments": comment_count })
 
                     except: continue
 
-            docs.sort(key=lambda x: x["created"], reverse=True)
+            docs.sort(key=lambda x: max(x["created"], x["edited"]), reverse=True)
 
             if not docs:
                 content_parts.append(self.m_heading(f"{s.capitalize()} ({len(docs)})", 2)+f"\n`*No {s} work documents`*\n")
