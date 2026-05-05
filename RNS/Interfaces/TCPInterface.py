@@ -403,7 +403,7 @@ class TCPClientInterface(Interface):
                         RNS.log("The socket for "+str(self)+" was closed, attempting to reconnect...", RNS.LOG_WARNING)
                         self.reconnect()
                     else:
-                        RNS.log("The socket for remote client "+str(self)+" was closed.", RNS.LOG_VERBOSE)
+                        RNS.log("The socket for remote client "+str(self)+" was closed.", RNS.LOG_DEBUG)
                         self.teardown()
 
                     break

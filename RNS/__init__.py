@@ -127,9 +127,7 @@ def timestamp_str(time_s):
 def precise_timestamp_str(time_s):
     return datetime.datetime.now().strftime(logtimefmt_p)[:-3]
 
-def should_log(level=3):
-    return loglevel >= level
-
+def sl(level=3): return loglevel >= level
 def log(msg, level=3, _override_destination = False, pt=False):
     if loglevel == LOG_NONE: return
     global _always_override_destination, compact_log_fmt

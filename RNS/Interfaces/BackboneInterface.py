@@ -669,7 +669,7 @@ class BackboneClientInterface(Interface):
                     def job(): self.reconnect()
                     threading.Thread(target=job, daemon=True).start()
                 else:
-                    RNS.log("The socket for remote client "+str(self)+" was closed.", RNS.LOG_VERBOSE)
+                    RNS.log("The socket for remote client "+str(self)+" was closed.", RNS.LOG_DEBUG)
                     self.teardown()
                 
         except Exception as e:

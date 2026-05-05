@@ -267,7 +267,7 @@ class Packet:
             return True
 
         except Exception as e:
-            RNS.log("Received malformed packet, dropping it. The contained exception was: "+str(e), RNS.LOG_EXTREME)
+            RNS.log("Received malformed packet, dropping it. The contained exception was: "+str(e), RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
             return False
 
     def send(self):
@@ -279,7 +279,7 @@ class Packet:
         if not self.sent:
             if self.destination.type == RNS.Destination.LINK:
                 if self.destination.status == RNS.Link.CLOSED:
-                    RNS.log("Attempt to transmit over a closed link, dropping packet", RNS.LOG_DEBUG)
+                    RNS.log("Attempt to transmit over a closed link, dropping packet", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                     self.sent = False
                     self.receipt = None
                     return False
@@ -293,7 +293,7 @@ class Packet:
 
             if RNS.Transport.outbound(self): return self.receipt
             else:
-                RNS.log("No interfaces could process the outbound packet", RNS.LOG_DEBUG)
+                RNS.log("No interfaces could process the outbound packet", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                 self.sent = False
                 self.receipt = None
                 return False

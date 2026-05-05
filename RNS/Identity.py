@@ -321,7 +321,7 @@ class Identity:
                             if not was_used and now - last_announce > RNS.Transport.UNUSED_DESTINATION_LINGER: stale.append(destination_hash)
                             elif unused_for > RNS.Transport.DESTINATION_TIMEOUT*1.25:                          stale.append(destination_hash)
 
-            except Exception as e: RNS.log(f"Faulty entry for {RNS.prettyhexrep(destination_hash)} while cleaning known destinations: {e}", RNS.LOG_DEBUG)
+            except Exception as e: RNS.log(f"Faulty entry for {RNS.prettyhexrep(destination_hash)} while cleaning known destinations: {e}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
         removed = 0
         for destination_hash in stale:
@@ -400,7 +400,7 @@ class Identity:
                 ratchet_exists = False
 
             if not ratchet_exists:
-                RNS.log(f"Remembering ratchet {RNS.prettyhexrep(Identity._get_ratchet_id(ratchet))} for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_EXTREME)
+                RNS.log(f"Remembering ratchet {RNS.prettyhexrep(Identity._get_ratchet_id(ratchet))} for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                 Identity.known_ratchets[destination_hash] = ratchet
                 if not RNS.Transport.owner.is_connected_to_shared_instance:
                     def persist_job():
@@ -429,7 +429,7 @@ class Identity:
 
     @staticmethod
     def _clean_ratchets():
-        RNS.log("Cleaning ratchets...", RNS.LOG_DEBUG)
+        RNS.log("Cleaning ratchets...", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
         try:
             count = 0
             removed = 0
@@ -464,7 +464,7 @@ class Identity:
                         RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
 
         except Exception as e: RNS.log(f"An error occurred while cleaning ratchets. The contained exception was: {e}", RNS.LOG_ERROR)
-        RNS.log(f"Processed {count} ratchets in {RNS.prettytime(time.time()-now)}, not in use {not_known}, removed {removed}", RNS.LOG_DEBUG)
+        RNS.log(f"Processed {count} ratchets in {RNS.prettytime(time.time()-now)}, not in use {not_known}, removed {removed}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
     @staticmethod
     def get_ratchet(destination_hash):
@@ -489,7 +489,7 @@ class Identity:
         if destination_hash in Identity.known_ratchets:
             return Identity.known_ratchets[destination_hash]
         else:
-            RNS.log(f"Could not load ratchet for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_DEBUG)
+            RNS.log(f"Could not load ratchet for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
             return None
 
     @staticmethod
@@ -537,7 +537,7 @@ class Identity:
 
                 if len(RNS.Transport.blackholed_identities) > 0:
                     if announced_identity.hash in RNS.Transport.blackholed_identities:
-                        RNS.log(f"Invalidated and dropped announce from blackholed identity {RNS.prettyhexrep(announced_identity.hash)}", RNS.LOG_EXTREME)
+                        RNS.log(f"Invalidated and dropped announce from blackholed identity {RNS.prettyhexrep(announced_identity.hash)}", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                         return False
 
                 if announced_identity.pub != None and announced_identity.validate(signature, signed_data):
@@ -575,9 +575,9 @@ class Identity:
                             signal_str = ""
 
                         if hasattr(packet, "transport_id") and packet.transport_id != None:
-                            RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received via "+RNS.prettyhexrep(packet.transport_id)+" on "+str(packet.receiving_interface)+signal_str, RNS.LOG_EXTREME)
+                            RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received via "+RNS.prettyhexrep(packet.transport_id)+" on "+str(packet.receiving_interface)+signal_str, RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                         else:
-                            RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received on "+str(packet.receiving_interface)+signal_str, RNS.LOG_EXTREME)
+                            RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received on "+str(packet.receiving_interface)+signal_str, RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
 
                         if ratchet:
                             Identity._remember_ratchet(destination_hash, ratchet)
@@ -585,11 +585,11 @@ class Identity:
                         return True
 
                     else:
-                        RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash)+": Destination mismatch.", RNS.LOG_DEBUG)
+                        RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash)+": Destination mismatch.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                         return False
 
                 else:
-                    RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash)+": Invalid signature.", RNS.LOG_DEBUG)
+                    RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash)+": Invalid signature.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                     del announced_identity
                     return False
         
@@ -848,7 +848,7 @@ class Identity:
                                 pass
 
                     if enforce_ratchets and plaintext == None:
-                        RNS.log("Decryption with ratchet enforcement by "+RNS.prettyhexrep(self.hash)+" failed. Dropping packet.", RNS.LOG_DEBUG)
+                        RNS.log("Decryption with ratchet enforcement by "+RNS.prettyhexrep(self.hash)+" failed. Dropping packet.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                         if ratchet_id_receiver:
                             ratchet_id_receiver.latest_ratchet_id = None
                         return None
@@ -861,14 +861,14 @@ class Identity:
                             ratchet_id_receiver.latest_ratchet_id = None
 
                 except Exception as e:
-                    RNS.log("Decryption by "+RNS.prettyhexrep(self.hash)+" failed: "+str(e), RNS.LOG_DEBUG)
+                    RNS.log("Decryption by "+RNS.prettyhexrep(self.hash)+" failed: "+str(e), RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                     if ratchet_id_receiver:
                         ratchet_id_receiver.latest_ratchet_id = None
                     
                 return plaintext
             
             else:
-                RNS.log("Decryption failed because the token size was invalid.", RNS.LOG_DEBUG)
+                RNS.log("Decryption failed because the token size was invalid.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                 return None
         else:
             raise KeyError("Decryption failed because identity does not hold a private key")

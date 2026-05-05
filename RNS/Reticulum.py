@@ -1047,7 +1047,7 @@ class Reticulum:
         self.config.write()
 
     def rpc_loop(self):
-        while True:
+        while RNS.Transport._should_run:
             try:
                 rpc_connection = self.rpc_listener.accept()
                 call = rpc_connection.recv()
