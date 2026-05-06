@@ -222,8 +222,6 @@ class MicronFormatter:
         for ttype, value in tokensource:
             is_dot = (str(ttype) == "Token.Operator" and value == ".")
             ends_with_break = value.endswith("\n")
-
-            # RNS.log(f" <{value}!")
             
             # If previous token was a dot and this is a Name, treat as attribute/function call
             # TODO: Improve this if we can check next token as parantheses or something.
@@ -248,7 +246,6 @@ class MicronFormatter:
 
                     if len(escaped): output = f"{ilb}`FT{color}{escaped}`f{tlb}"
                     else:            output = f"{ilb}{tlb}"
-                    # RNS.log(f"c>{ilb}{escaped}{tlb}!")
 
                     output_parts.append(output)
                 
@@ -272,18 +269,12 @@ class MicronFormatter:
                         elif escaped.startswith(">"): escaped = f"\\{escaped}"
                         elif escaped.startswith("<"): escaped = f"\\{escaped}"
                     
-                    # RNS.log(f"p>{escaped}!")
                     output_parts.append(escaped)
             
             prev_was_dot = is_dot
             last_ended_with_break = ends_with_break
         
         output = "".join(output_parts)
-        # final_output = ""
-        # for line in output.splitlines():
-        #     if line.startswith(">"): line = f"`>{line}"
-        #     final_output += f"{line}\n"
-
         outfile.write(output)
     
     def _get_color_key_for_token(self, ttype):
