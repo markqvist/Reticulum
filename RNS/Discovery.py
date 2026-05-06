@@ -636,6 +636,10 @@ class InterfaceDiscovery():
                                 RNS.log(f"You can obtain the configuration entry and add this interface manually instead using rnstatus -D", RNS.LOG_WARNING)
                                 return
 
+                            if is_ygg_ipv6(info["reachable_on"]):
+                                # TODO: Somehow detect if yggdrasil is enabled on the system
+                                return
+
                             interface_name = info["name"]
                             config_entry = info["config_entry"]
                             interface_config = {}
@@ -755,6 +759,10 @@ def is_ip_address(address_string):
     try:
         ipaddress.ip_address(address_string)
         return True
+    except: return False
+
+def is_ygg_ipv6(address_string):
+    try: return ipaddress.ip_address(address_string) in ipaddress.IPv6Network("200::/7")
     except: return False
 
 def is_hostname(hostname):
