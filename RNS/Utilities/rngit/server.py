@@ -91,14 +91,15 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
             doc_id = task.get("doc_id")
             title = task.get("title")
             
-            if   operation == "list":     git_client.list_work(remote=task["remote"], scope=scope)
-            elif operation == "view":     git_client.view_work(remote=task["remote"], doc_id=doc_id, scope=scope)
-            elif operation == "create":   git_client.create_work(remote=task["remote"], title=title)
-            elif operation == "edit":     git_client.edit_work(remote=task["remote"], doc_id=doc_id, scope=scope)
-            elif operation == "delete":   git_client.delete_work(remote=task["remote"], doc_id=doc_id, scope=scope)
-            elif operation == "update":   git_client.comment_work(remote=task["remote"], doc_id=doc_id, scope=scope)
-            elif operation == "complete": git_client.complete_work(remote=task["remote"], doc_id=doc_id)
-            elif operation == "activate": git_client.activate_work(remote=task["remote"], doc_id=doc_id)
+            if   operation == "list":     git_client.work_list(remote=task["remote"], scope=scope)
+            elif operation == "view":     git_client.work_view(remote=task["remote"], doc_id=doc_id, scope=scope)
+            elif operation == "create":   git_client.work_create(remote=task["remote"], title=title)
+            elif operation == "edit":     git_client.work_edit(remote=task["remote"], doc_id=doc_id, scope=scope)
+            elif operation == "delete":   git_client.work_delete(remote=task["remote"], doc_id=doc_id, scope=scope)
+            elif operation == "update":   git_client.work_comment(remote=task["remote"], doc_id=doc_id, scope=scope)
+            elif operation == "complete": git_client.work_complete(remote=task["remote"], doc_id=doc_id)
+            elif operation == "activate": git_client.work_activate(remote=task["remote"], doc_id=doc_id)
+            elif operation == "perms":    git_client.work_permissions(remote=task["remote"], doc_id=doc_id)
             else:                         print("Invalid operation"); exit(1)
 
         else: print("Invalid command"); exit(1)
@@ -138,7 +139,7 @@ def main():
             parser.add_argument("-t", "--title", action="store", default=None, help="document title for create", type=str)
             parser.add_argument("-d", "--id", action="store", default=None, help="document ID", type=int)
             parser.add_argument("repository", nargs="?", default=None, help="URL of remote repository", type=str)
-            parser.add_argument("operation", nargs="?", default=None, help="list, view, create, edit, delete, update or complete", type=str)
+            parser.add_argument("operation", nargs="?", default=None, help="list, view, create, edit, delete, update, complete, activate or perms", type=str)
         
         parser.add_argument('-v', '--verbose', action='count', default=0)
         parser.add_argument('-q', '--quiet', action='count', default=0)
@@ -639,7 +640,7 @@ class ReticulumGitClient():
     # Work Docs Management #
     ########################
 
-    def list_work(self, remote=None, scope="active"):
+    def work_list(self, remote=None, scope="active"):
         if not remote: print(f"No remote specified"); exit(1)
         self.connect_remote(remote)
         
@@ -696,7 +697,7 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
-    def view_work(self, remote=None, doc_id=None, scope="active"):
+    def work_view(self, remote=None, doc_id=None, scope="active"):
         if not remote: print(f"No remote specified"); exit(1)
         if doc_id is None: print(f"No document ID specified"); exit(1)
         self.connect_remote(remote)
@@ -755,7 +756,7 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
-    def create_work(self, remote=None, title=None):
+    def work_create(self, remote=None, title=None):
         if not remote: print(f"No remote specified"); exit(1)
         if not title: print(f"No title specified"); exit(1)
         self.connect_remote(remote)
@@ -796,7 +797,7 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
-    def edit_work(self, remote=None, doc_id=None, scope="active"):
+    def work_edit(self, remote=None, doc_id=None, scope="active"):
         if not remote: print(f"No remote specified"); exit(1)
         if doc_id is None: print(f"No document ID specified"); exit(1)
         self.connect_remote(remote)
@@ -847,7 +848,7 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
-    def delete_work(self, remote=None, doc_id=None, scope="active"):
+    def work_delete(self, remote=None, doc_id=None, scope="active"):
         if not remote: print(f"No remote specified"); exit(1)
         if doc_id is None: print(f"No document ID specified"); exit(1)
         self.connect_remote(remote)
@@ -887,7 +888,7 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
-    def comment_work(self, remote=None, doc_id=None, scope="active"):
+    def work_comment(self, remote=None, doc_id=None, scope="active"):
         if not remote: print(f"No remote specified"); exit(1)
         if doc_id is None: print(f"No document ID specified"); exit(1)
         self.connect_remote(remote)
@@ -930,7 +931,7 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
-    def complete_work(self, remote=None, doc_id=None):
+    def work_complete(self, remote=None, doc_id=None):
         if not remote:     print(f"No remote specified"); exit(1)
         if doc_id is None: print(f"No document ID specified"); exit(1)
         self.connect_remote(remote)
@@ -969,7 +970,7 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
-    def activate_work(self, remote=None, doc_id=None):
+    def work_activate(self, remote=None, doc_id=None):
         if not remote:     print(f"No remote specified"); exit(1)
         if doc_id is None: print(f"No document ID specified"); exit(1)
         self.connect_remote(remote)
@@ -2848,5 +2849,6 @@ RELEASE_NOTES_TEMPLATE = """# Enter release notes for {TAG}.
 
 COMMENT_TEMPLATE = "# Remove this line and enter your update. Save and exit when done, or save an empty document to abort abort."
 CREATE_DOC_TEMPLATE = "# Remove this line and enter your document content. Save and exit when done, or save an empty document to abort abort."
+DOC_PERMISSIONS_TEMPLATE ="# No permissions are currently defined for this workdoc. Add them below, and save and exit when you are done."
 
 if __name__ == "__main__": main()
