@@ -18,8 +18,6 @@ The full documentation for Reticulum is available on `!`[this node`:/page/blob.m
 
 You can also download the `!`[Reticulum manual as a PDF`:/file/download`g=reticulum|r=reticulum|ref=HEAD|path=docs%2FReticulum+Manual.pdf]`! or `!`[as an e-book in EPUB format`:/file/download`g=reticulum|r=reticulum|ref=HEAD|path=docs%2FReticulum+Manual.pdf]`!.
 
-For more info, see [reticulum.network](https://reticulum.network/) and [the FAQ section of the wiki](https://github.com/markqvist/Reticulum/wiki/Frequently-Asked-Questions).
-
 >> Notable Features
 
 • Coordination-less globally unique addressing and identification
