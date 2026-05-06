@@ -315,7 +315,7 @@ class NomadNetworkNode():
 
         accessible_groups = self.get_accessible_groups(remote_identity)
 
-        breadcrumb = f">>\n{self.m_link("Node", self.PATH_INDEX)} /"
+        breadcrumb = f">>\n{self.m_link('Node', self.PATH_INDEX)} /"
         nav_parts.append(breadcrumb + "\n")
 
         if not accessible_groups: content_parts.append("No repository groups available.\n")
@@ -353,7 +353,7 @@ class NomadNetworkNode():
         content_parts = []
         nav_parts     = []
         
-        breadcrumb = f">>\n{self.m_link("Node", self.PATH_INDEX)} / {group_name}"
+        breadcrumb = f">>\n{self.m_link('Node', self.PATH_INDEX)} / {group_name}"
         nav_parts.append(breadcrumb + "\n")
 
         if not accessible_repos: content_parts.append("No repositories available.\n")
@@ -395,7 +395,7 @@ class NomadNetworkNode():
         
         # Breadcrumb navigation
         repo_url = f"{self.CLR_DIM}rns://{RNS.hexrep(self.owner.destination.hash, delimit=False)}/{group_name}/{repo_name}`f"
-        breadcrumb = f">>\n{self.m_link("Node", self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {repo_name} {repo_url}"
+        breadcrumb = f">>\n{self.m_link('Node', self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {repo_name} {repo_url}"
         nav_parts.append(breadcrumb + "\n")
 
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
@@ -431,15 +431,15 @@ class NomadNetworkNode():
         if releases: releases_count = len([r for r in releases if r.get("status") == "published"])
 
         sep = self.icon("sep")
-        content_parts.append(f"{self.m_link_r(self.icon("folder")+" Files", self.PATH_TREE, g=group_name, r=repo_name, ref='HEAD')} {sep} ")
-        if releases_count: content_parts.append(f"{self.m_link_r(self.icon("package")+f" Releases ({releases_count})", self.PATH_RELEASES, g=group_name, r=repo_name)} {sep} ")
-        content_parts.append(f"{self.m_link_r(self.icon("work")+f" Work ({work_count})", self.PATH_WORK, g=group_name, r=repo_name)} {sep} ")
-        content_parts.append(f"{self.m_link_r(self.icon("commits")+f" Commits ({commits_count})", self.PATH_COMMITS, g=group_name, r=repo_name, ref='HEAD')} {sep} ")
-        content_parts.append(f"{self.m_link_r(self.icon("branch")+f" Branches ({branch_count})", self.PATH_REFS, g=group_name, r=repo_name, type="heads")} {sep} ")
-        content_parts.append(f"{self.m_link_r(self.icon("tag")+f" Tags ({tag_count})", self.PATH_REFS, g=group_name, r=repo_name, type="tags")} {sep} ")
-        content_parts.append(f"{self.m_link_r(self.icon("heart")+f" Thanks ({thanks_count})", self.PATH_REPO, g=group_name, r=repo_name, thanks="y")}")
+        content_parts.append(f"{self.m_link_r(self.icon('folder')+' Files', self.PATH_TREE, g=group_name, r=repo_name, ref='HEAD')} {sep} ")
+        if releases_count: content_parts.append(f"{self.m_link_r(self.icon('package')+f' Releases ({releases_count})', self.PATH_RELEASES, g=group_name, r=repo_name)} {sep} ")
+        content_parts.append(f"{self.m_link_r(self.icon('work')+f' Work ({work_count})', self.PATH_WORK, g=group_name, r=repo_name)} {sep} ")
+        content_parts.append(f"{self.m_link_r(self.icon('commits')+f' Commits ({commits_count})', self.PATH_COMMITS, g=group_name, r=repo_name, ref='HEAD')} {sep} ")
+        content_parts.append(f"{self.m_link_r(self.icon('branch')+f' Branches ({branch_count})', self.PATH_REFS, g=group_name, r=repo_name, type='heads')} {sep} ")
+        content_parts.append(f"{self.m_link_r(self.icon('tag')+f' Tags ({tag_count})', self.PATH_REFS, g=group_name, r=repo_name, type='tags')} {sep} ")
+        content_parts.append(f"{self.m_link_r(self.icon('heart')+f' Thanks ({thanks_count})', self.PATH_REPO, g=group_name, r=repo_name, thanks='y')}")
         if self.resolve_permission(remote_identity, group_name, repo_name, self.owner.PERM_STATS):
-            content_parts.append(f" {sep} {self.m_link_r(self.icon("stats")+f" Stats", self.PATH_STATS, g=group_name, r=repo_name)}")
+            content_parts.append(f" {sep} {self.m_link_r(self.icon('stats')+f' Stats', self.PATH_STATS, g=group_name, r=repo_name)}")
         content_parts.append("\n\n<")
 
         # Readme content
@@ -843,7 +843,7 @@ class NomadNetworkNode():
 
         # Breadcrumb navigation
         nav_parts = []
-        breadcrumb = f"{self.m_link("Node", self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / {resolved_hash[:7]}"
+        breadcrumb = f"{self.m_link('Node', self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / {resolved_hash[:7]}"
         nav_parts.append(">>\n" + breadcrumb + "\n")
         nav_content = "".join(nav_parts)
 
@@ -957,7 +957,7 @@ class NomadNetworkNode():
         nav_parts = []
 
         # Breadcrumb navigation
-        breadcrumb = f"{self.m_link("Node", self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / refs"
+        breadcrumb = f"{self.m_link('Node', self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / refs"
         nav_parts.append(">>\n" + breadcrumb + "\n")
         nav_content = "".join(nav_parts)
 
@@ -1064,7 +1064,7 @@ class NomadNetworkNode():
         
         # Breadcrumb navigation
         repo_link = self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)
-        breadcrumb = f">>\n{self.m_link("Node", self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {repo_link}"
+        breadcrumb = f">>\n{self.m_link('Node', self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {repo_link}"
         nav_parts.append(breadcrumb + "\n")
 
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
@@ -1152,7 +1152,7 @@ class NomadNetworkNode():
         nav_parts = []
 
         # Breadcrumb navigation
-        breadcrumb = f">>\n{self.m_link("Node", self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / releases"
+        breadcrumb = f">>\n{self.m_link('Node', self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / releases"
         nav_parts.append(breadcrumb + "\n")
         nav_content = "".join(nav_parts)
 
@@ -1221,7 +1221,7 @@ class NomadNetworkNode():
         nav_parts = []
 
         # Breadcrumb navigation
-        breadcrumb = f">>\n{self.m_link("Node", self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / {self.m_link('releases', self.PATH_RELEASES, g=group_name, r=repo_name)} / {tag}"
+        breadcrumb = f">>\n{self.m_link('Node', self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / {self.m_link('releases', self.PATH_RELEASES, g=group_name, r=repo_name)} / {tag}"
         nav_parts.append(breadcrumb + "\n")
         nav_content = "".join(nav_parts)
 
@@ -1281,7 +1281,7 @@ class NomadNetworkNode():
 
         thanks = True if data.get("var_thanks", "") else False
         thanks_count = self.release_thanks(release_dir, add=thanks, link_id=link_id)
-        content_parts.append(f"{self.m_link_r(self.icon("heart")+f" Thanks ({thanks_count})", self.PATH_RELEASE, g=group_name, r=repo_name, t=tag, thanks="y")}\n")
+        content_parts.append(f"{self.m_link_r(self.icon('heart')+f' Thanks ({thanks_count})', self.PATH_RELEASE, g=group_name, r=repo_name, t=tag, thanks='y')}\n")
 
         self.owner.view_succeeded(group_name, repo_name, remote_identity)
         page_content = "".join(content_parts)
@@ -1310,7 +1310,7 @@ class NomadNetworkNode():
         nav_parts = []
 
         # Breadcrumb navigation
-        breadcrumb = f">>\n{self.m_link("Node", self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / work"
+        breadcrumb = f">>\n{self.m_link('Node', self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / work"
         nav_parts.append(breadcrumb + "\n")
         nav_content = "".join(nav_parts)
 
@@ -1423,7 +1423,7 @@ class NomadNetworkNode():
         nav_parts = []
 
         # Breadcrumb navigation
-        breadcrumb = f">>\n{self.m_link("Node", self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / {self.m_link('work', self.PATH_WORK, g=group_name, r=repo_name)} / #{doc_id}"
+        breadcrumb = f">>\n{self.m_link('Node', self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / {self.m_link('work', self.PATH_WORK, g=group_name, r=repo_name)} / #{doc_id}"
         nav_parts.append(breadcrumb + "\n")
         nav_content = "".join(nav_parts)
 
