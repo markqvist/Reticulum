@@ -2726,13 +2726,6 @@ class ReticulumGitNode():
         admin_access    = self.resolve_doc_permission(remote_identity, group_name, repository_name, doc_id, self.PERM_ADMIN)
         manage_access   = interact_access and write_access
 
-        RNS.log(f"author   : {is_author}")
-        RNS.log(f"read     : {read_access}")
-        RNS.log(f"wite     : {write_access}")
-        RNS.log(f"interact : {interact_access}")
-        RNS.log(f"admin    : {admin_access}")
-        RNS.log(f"manage   : {manage_access}")
-        
         if not ((is_author and manage_access) or admin_access): return self.RES_DISALLOWED.to_bytes(1, "big") + b"Not allowed"
         
         valid = True
