@@ -218,8 +218,12 @@ class MicronFormatter:
         output_parts = []
         prev_was_dot = False
         
+        last_ended_with_break = True
         for ttype, value in tokensource:
             is_dot = (str(ttype) == "Token.Operator" and value == ".")
+            ends_with_break = value.endswith("\n")
+
+            # RNS.log(f" <{value}!")
             
             # If previous token was a dot and this is a Name, treat as attribute/function call
             # TODO: Improve this if we can check next token as parantheses or something.
@@ -241,19 +245,46 @@ class MicronFormatter:
                     else:                        ilb = ""
                     if escaped.endswith("\n"):   tlb = "\n"; escaped = escaped[:-1]
                     else:                        tlb = ""
-                    output_parts.append(f"{ilb}`FT{color}{escaped}`f{tlb}")
+
+                    if len(escaped): output = f"{ilb}`FT{color}{escaped}`f{tlb}"
+                    else:            output = f"{ilb}{tlb}"
+                    # RNS.log(f"c>{ilb}{escaped}{tlb}!")
+
+                    output_parts.append(output)
                 
-                else: output_parts.append(self._escape_value(value))
+                else:
+                    escaped = self._escape_value(value)
+                    if "\n" in escaped:
+                        parts = []
+                        splitl = escaped.splitlines()
+                        if len(splitl) > 1:
+                            for line in splitl:
+                                if   line.startswith("-"): l = f"\\{line}"
+                                elif line.startswith(">"): l = f"\\{line}"
+                                elif line.startswith("<"): l = f"\\{line}"
+                                else:                      l = line
+                                parts.append(l)
+                            trmpart = "\n" if escaped.endswith("\n") else ""
+                            escaped = "\n".join(parts)+trmpart
+
+                    elif last_ended_with_break:
+                        if   escaped.startswith("-"): escaped = f"\\{escaped}"
+                        elif escaped.startswith(">"): escaped = f"\\{escaped}"
+                        elif escaped.startswith("<"): escaped = f"\\{escaped}"
+                    
+                    # RNS.log(f"p>{escaped}!")
+                    output_parts.append(escaped)
             
             prev_was_dot = is_dot
+            last_ended_with_break = ends_with_break
         
         output = "".join(output_parts)
-        final_output = ""
-        for line in output.splitlines():
-            if line.startswith(">"): line = f"`>{line}"
-            final_output += f"{line}\n"
+        # final_output = ""
+        # for line in output.splitlines():
+        #     if line.startswith(">"): line = f"`>{line}"
+        #     final_output += f"{line}\n"
 
-        outfile.write(final_output)
+        outfile.write(output)
     
     def _get_color_key_for_token(self, ttype):
         token_parts = []

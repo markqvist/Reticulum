@@ -177,6 +177,10 @@ class MarkdownToMicron:
         
         for line in lines:
             is_fence, lang_hint = self._detect_code_fence(line)
+
+            if line.startswith("-") and not line.startswith("---") and not line.startswith("- "): line = f"\\{line}"
+            if line.startswith(">"): line = f"\\{line}"
+            if line.startswith("<"): line = f"\\{line}"
             
             if is_fence:
                 # Flush any pending structures before code fence
