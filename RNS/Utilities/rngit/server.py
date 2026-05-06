@@ -157,11 +157,13 @@ def main():
                           quietness=args.quiet, interactive=args.interactive, print_identity=args.print_identity)
 
         elif subcommand == "release":
+            if not args.operation: parser.print_help()
             task = {"command": subcommand, "operation": args.operation, "remote": args.repository, "target": args.target}
             program_setup(configdir = configarg, rnsconfigdir=rnsconfigarg, service=False, verbosity=args.verbose,
                           quietness=args.quiet, interactive=False, print_identity=False, task=task, identity=args.identity)
 
         elif subcommand == "work":
+            if not args.operation: parser.print_help()
             task = {"command": subcommand, "operation": args.operation, "remote": args.repository, 
                     "scope": args.scope, "doc_id": args.id, "title": args.title}
             program_setup(configdir = configarg, rnsconfigdir=rnsconfigarg, service=False, verbosity=args.verbose,
