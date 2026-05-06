@@ -266,6 +266,9 @@ class Reticulum:
         Reticulum.__publish_blackhole = False
         Reticulum.__blackhole_sources = []
         Reticulum.__interface_sources = []
+        Reticulum.__default_ar_target  = None
+        Reticulum.__default_ar_penalty = None
+        Reticulum.__default_ar_grace   = None
 
         Reticulum.panic_on_interface_error = False
 
@@ -583,6 +586,19 @@ class Reticulum:
                 if option == "autoconnect_discovered_interfaces":
                     v = self.config["reticulum"].as_int(option)
                     if v > 0: Reticulum.__autoconnect_discovered_interfaces = v
+                
+                if option == "default_ar_target":
+                    v = self.config["reticulum"].as_int(option)
+                    if   v == 0: Reticulum.__default_ar_target = None
+                    elif v >  0: Reticulum.__default_ar_target = v
+                
+                if option == "default_ar_penalty":
+                    v = self.config["reticulum"].as_int(option)
+                    if v >= 0: Reticulum.__default_ar_penalty = v
+                
+                if option == "default_ar_grace":
+                    v = self.config["reticulum"].as_int(option)
+                    if v >= 0: Reticulum.__default_ar_grace = v
 
         if RNS.compiled: RNS.log("Reticulum running in compiled mode", RNS.LOG_DEBUG)
         else: RNS.log("Reticulum running in interpreted mode", RNS.LOG_DEBUG)
@@ -722,6 +738,11 @@ class Reticulum:
 
         ignore_config_warnings = False
         if "ignore_config_warnings" in c: ignore_config_warnings = c.as_bool("ignore_config_warnings")
+
+        if Reticulum.transport_enabled():
+            if announce_rate_target  == None: announce_rate_target  = self._default_ar_target()
+            if announce_rate_penalty == None: announce_rate_penalty = self._default_ar_penalty()
+            if announce_rate_grace   == None: announce_rate_grace   = self._default_ar_grace()
 
         discoverable = False
         discovery_announce_interval = None
@@ -994,6 +1015,15 @@ class Reticulum:
 
                 RNS.Transport.interfaces.append(interface)
                 interface.final_init()
+
+    def _default_ar_target(self):
+        return self.__default_ar_target or RNS.Interfaces.Interface.Interface.DEFAULT_AR_TARGET
+
+    def _default_ar_penalty(self):
+        return self.__default_ar_penalty or RNS.Interfaces.Interface.Interface.DEFAULT_AR_PENALTY
+
+    def _default_ar_grace(self):
+        return self.__default_ar_grace or RNS.Interfaces.Interface.Interface.DEFAULT_AR_GRACE
 
     def _should_persist_data(self, background=False):
         if time.time() > self.last_data_persist+Reticulum.GRACIOUS_PERSIST_INTERVAL:
@@ -1278,6 +1308,9 @@ class Reticulum:
                 ifstats["txb"] = interface.txb
                 ifstats["incoming_announce_frequency"] = interface.incoming_announce_frequency()
                 ifstats["outgoing_announce_frequency"] = interface.outgoing_announce_frequency()
+                ifstats["announce_rate_target"] = interface.announce_rate_target
+                ifstats["announce_rate_penalty"] = interface.announce_rate_penalty
+                ifstats["announce_rate_grace"] = interface.announce_rate_grace
                 ifstats["held_announces"] = len(interface.held_announces)
                 ifstats["status"] = interface.online
                 ifstats["mode"] = interface.mode

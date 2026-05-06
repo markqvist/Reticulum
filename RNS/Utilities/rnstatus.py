@@ -533,18 +533,33 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                                 print("    Held      : {np} announce".format(np=aqn))
                             else:
                                 print("    Held      : {np} announces".format(np=aqn))
-                      
-                        if astats and "incoming_announce_frequency" in ifstat and ifstat["incoming_announce_frequency"] != None:
-                            print("    Announces : {iaf}↑".format(iaf=RNS.prettyfrequency(ifstat["outgoing_announce_frequency"])))
-                            print("                {iaf}↓".format(iaf=RNS.prettyfrequency(ifstat["incoming_announce_frequency"])))
 
+                        art = None; arp = None; arg = None
+                        if astats and "announce_rate_target" in ifstat: art = ifstat["announce_rate_target"]
+                        if astats and "announce_rate_penalty" in ifstat: arp = ifstat["announce_rate_penalty"]
+                        if astats and "announce_rate_grace" in ifstat: arg = ifstat["announce_rate_grace"]
+                        if art and arp != None and arg: art_str = f"(t:{RNS.prettytime(art)}/p:{RNS.prettytime(arp)}/g:{arg})"
+                        elif art and arp != None:       art_str = f"(t:{RNS.prettytime(art)}/p:{RNS.prettytime(arp)})"
+                        elif art:                       art_str = f"(t:{RNS.prettytime(art)})"
+                        else:                           art_str = ""
+                      
                         rxb_str = "↓"+RNS.prettysize(ifstat["rxb"])
                         txb_str = "↑"+RNS.prettysize(ifstat["txb"])
                         strdiff = len(rxb_str)-len(txb_str)
-                        if strdiff > 0:
-                            txb_str += " "*strdiff
-                        elif strdiff < 0:
-                            rxb_str += " "*-strdiff
+                        if strdiff > 0: txb_str += " "*strdiff
+                        elif strdiff < 0: rxb_str += " "*-strdiff
+
+                        if astats and "incoming_announce_frequency" in ifstat and ifstat["incoming_announce_frequency"] != None:
+                            oaf = RNS.prettyfrequency(ifstat["outgoing_announce_frequency"])+"↑"
+                            iaf = RNS.prettyfrequency(ifstat["incoming_announce_frequency"])+"↓"
+                            strdiff = len(oaf)-len(iaf)
+                            if   strdiff > 0: iaf += " "*strdiff
+                            elif strdiff < 0: oaf += " "*-strdiff
+                            strdiff = len(rxb_str)-len(oaf)
+                            if   strdiff > 0: oaf     += " "*strdiff
+                            elif strdiff < 0: txb_str += " "*-strdiff; rxb_str += " "*-strdiff
+                            print(f"    Announces : {oaf}")
+                            print(f"                {iaf} {art_str}")
 
                         rxstat = rxb_str
                         txstat = txb_str

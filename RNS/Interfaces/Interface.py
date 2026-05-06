@@ -73,6 +73,11 @@ class Interface:
     IC_HELD_RELEASE_INTERVAL = 2
     IC_DEQUE_MIN_SAMPLE      = 32
 
+    # Default announce rate targets
+    DEFAULT_AR_TARGET        = 3600
+    DEFAULT_AR_PENALTY       = 0
+    DEFAULT_AR_GRACE         = 5
+
     AUTOCONFIGURE_MTU = False
     FIXED_MTU         = False
 
