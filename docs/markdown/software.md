@@ -1,5 +1,3 @@
-<a id="software-main"></a>
-
 # Programs Using Reticulum
 
 This chapter provides a non-exhaustive list of notable programs, systems and application-layer
@@ -36,8 +34,6 @@ In addition to the default, fully interactive terminal mode,
 for extremely limited links, `rnsh` offers line-interactive mode, allowing you to interact
 with remote systems, even when link throughput is counted in a few hundreds of bits per second.
 
-\\newpage
-
 ### Nomad Network
 
 The terminal-based program [Nomad Network](https://github.com/markqvist/nomadnet)
@@ -59,8 +55,6 @@ for the messaging and information-sharing protocol LXMF.
 
 You can host the entirity of Wikipedia (or any `.zim`) file to other Nomad Network clients using [Retipedia](https://github.com/RFnexus/Retipedia).
 
-\\newpage
-
 ### Sideband
 
 If you would rather use an LXMF client with a graphical user interface, you can take
@@ -76,15 +70,11 @@ It also interoperates with all other LXMF clients, and provides advanced feature
 real-time voice calls, file attachments, private telemetry sharing, and a full
 plugin system for expandability.
 
-\\newpage
-
 ### MeshChatX
 
 A [Reticulum MeshChat fork from the future](https://git.quad4.io/RNS-Things/MeshChatX), with the goal of providing everything you need for Reticulum, LXMF, and LXST in one beautiful and feature-rich application. This project is separate from the original Reticulum MeshChat project, and is not affiliated with the original project.
 
 Features include full LXST support, custom voicemail, phonebook, contact sharing, and ringtone support, multi-identity handling, modern UI/UX, offline documentation, expanded tools, page archiving, integrated maps, telemetry and improved application security.
-
-\\newpage
 
 ### MeshChat
 
@@ -104,8 +94,6 @@ While still in early and very active development, it is of course also compatibl
 with all other LXMF clients, and allows you to message seamlessly with anyone else
 using LXMF.
 
-\\newpage
-
 ### Reticulum Relay Chat
 
 [Reticulum Relay Chat](https://rrc.kc1awv.net/) is a live chat system built on top of the Reticulum Network Stack. It exists to let people talk to each other in real time over Reticulum without dragging in message databases, synchronization engines, or architectural commitments they did not ask for.
@@ -120,15 +108,11 @@ RRC is closer in spirit to IRC than to modern “everything platforms.” You co
 
 RetiBBS allows users to communicate through message boards in a secure manner.
 
-\\newpage
-
 ### RBrowser
 
 The [rBrowser](https://github.com/fr33n0w/rBrowser) program is a cross-platform, standalone, web-based browser for exploring NomadNetwork Nodes over Reticulum Network. It automatically discovers NomadNet nodes through network announces and provides a user-friendly interface for browsing distributed content with Micron markup support.
 
 Includes useful features like automatic listening for announce, adding nodes to favorites, browsing and rendering any kind of NomadNet links, downloading files from remote nodes, a unique local NomadNet Search Engine and more.
-
-\\newpage
 
 ### Reticulum Network Telephone
 
@@ -136,15 +120,11 @@ The `rnphone` program, included as part of the [LXST](https://github.com/markqvi
 
 It supports interfacing directly with hardware peripherals such as GPIO keypads and LCD displays, providing a modular system for building secure hardware telephones.
 
-\\newpage
-
 ### LXST Phone
 
 The [LXST Phone](https://github.com/kc1awv/lxst_phone) program is a cross-platform desktop application for performing LXST voice calls over Reticulum.
 
 It supports various advanced features such as SAS verification, peer blocking, rate limiting, encrypted call history storage and contact management.
-
-\\newpage
 
 ### LXMFy
 
@@ -165,8 +145,6 @@ The [RNS FileSync](https://git.quad4.io/RNS-Things/RNS-Filesync) program enables
 ### RNMon
 
 [RNMon](https://github.com/lbatalha/rnmon) is a monitoring daemon designed to monitor the status of multiple RNS applications and push the metrics to an InfluxDB instance over the influx line protocol.
-
-\\newpage
 
 ## Protocols
 

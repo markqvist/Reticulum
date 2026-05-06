@@ -1,5 +1,3 @@
-<a id="git-main"></a>
-
 # Git Over Reticulum
 
 A set of utilities for distributed collaborative software development and publishing is included in RNS.

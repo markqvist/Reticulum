@@ -1,5 +1,3 @@
-<a id="interfaces-main"></a>
-
 # Configuring Interfaces
 
 Reticulum supports using many kinds of devices as networking interfaces, and
@@ -15,16 +13,12 @@ For a high-level overview of how networks can be formed over different interface
 types, have a look at the [Building Networks](networks.md#networks-main) chapter of this
 manual.
 
-<a id="interfaces-custom"></a>
-
 ## Custom Interfaces
 
 In addition to the built-in interface types, Reticulum is **fully extensible** with
 custom, user- or community-supplied interfaces, and creating custom interface
 modules is straightforward. Please see the [custom interface](examples.md#example-custominterface)
 example for basic interface code to build upon.
-
-<a id="interfaces-auto"></a>
 
 ## Auto Interface
 
@@ -112,8 +106,6 @@ the discovery scope by setting it to one of `link`, `admin`, `site`,
   discovery_port = 48555
   data_port = 49555
 ```
-
-<a id="interfaces-backbone"></a>
 
 ## Backbone Interface
 
@@ -220,8 +212,6 @@ specify the target Yggdrasil IPv6 address and port, like so:
     target_port = 4343
 ```
 
-<a id="interfaces-tcps"></a>
-
 ## TCP Server Interface
 
 The TCP Server interface is suitable for allowing other peers to connect over
@@ -296,8 +286,6 @@ you must use the i2p_tunneled option:
 In almost all cases, it is easier to use the dedicated `I2PInterface`, but for complete
 control, and using I2P routers running on external systems, this option also exists.
 
-<a id="interfaces-tcpc"></a>
-
 ## TCP Client Interface
 
 To connect to a TCP server interface, you can use the TCP client
@@ -369,8 +357,6 @@ you must use the i2p_tunneled option:
     i2p_tunneled = yes
 ```
 
-<a id="interfaces-udp"></a>
-
 ## UDP Interface
 
 A UDP interface can be useful for communicating over IP networks, both
@@ -428,8 +414,6 @@ easier to use.
   # forward_ip = 10.55.0.16
   # forward_port = 4242
 ```
-
-<a id="interfaces-i2p"></a>
 
 ## I2P Interface
 
@@ -494,8 +478,6 @@ You can use the I2PInterface to connect to a TCPServerInterface that
 was manually tunneled over I2P, for example. This offers a high degree
 of flexibility in network setup, while retaining ease of use in simpler
 use-cases.
-
-<a id="interfaces-rnode"></a>
 
 ## RNode LoRa Interface
 
@@ -593,8 +575,6 @@ relevant regulation for your location, and to make decisions accordingly.
   # airtime_limit_long = 1.5
   # airtime_limit_short = 33
 ```
-
-<a id="interfaces-rnode-multi"></a>
 
 ## RNode Multi Interface
 
@@ -713,8 +693,6 @@ port = /dev/ttyACM0
     # airtime_limit_short = 100
 ```
 
-<a id="interfaces-serial"></a>
-
 ## Serial Interface
 
 Reticulum can be used over serial ports directly, or over any device with a
@@ -737,8 +715,6 @@ directly over a wire-pair, or for using devices such as data radios and lasers.
   stopbits = 1
 ```
 
-<a id="interfaces-pipe"></a>
-
 ## Pipe Interface
 
 Using this interface, Reticulum can use any program as an interface via stdin and
@@ -760,8 +736,6 @@ custom hardware or other systems.
 Reticulum will write all packets to stdin of the `command` option, and will
 continuously read and scan its stdout for Reticulum packets. If `EOF` is reached,
 Reticulum will try to respawn the program after waiting for `respawn_interval` seconds.
-
-<a id="interfaces-kiss"></a>
 
 ## KISS Interface
 
@@ -820,8 +794,6 @@ relevant regulation for your location, and to make decisions accordingly.
   # support packet flow control instead.
   flow_control = false
 ```
-
-<a id="interfaces-ax25"></a>
 
 ## AX.25 KISS Interface
 
@@ -886,8 +858,6 @@ relevant regulation for your location, and to make decisions accordingly.
   # small internal packet buffer.
   flow_control = false
 ```
-
-<a id="interfaces-discoverable"></a>
 
 ## Discoverable Interfaces
 
@@ -1085,8 +1055,6 @@ With these configuration options applied, your Reticulum instance will actively 
 
 For information on how to use these discovered interfaces and configure your system to auto-connect to them, refer to the [Discovering Interfaces](using.md#using-interface-discovery) chapter.
 
-<a id="interfaces-options"></a>
-
 ## Common Interface Options
 
 A number of general configuration options are available on most interfaces.
@@ -1169,8 +1137,6 @@ These can be used to control various aspects of interface behaviour.
 >   infrastructure, which then supersedes the bootstrap interface.
 >   <br/>
 
-<a id="interfaces-modes"></a>
-
 ## Interface Modes
 
 The optional `mode` setting is available on all interfaces, and allows
@@ -1249,8 +1215,6 @@ the default mode.
 For a table describing the impact of all modes on announce propagation,
 please see the [Announce Propagation Rules](understanding.md#understanding-announcepropagation) section.
 
-<a id="interfaces-announcerates"></a>
-
 ## Announce Rate Control
 
 The built-in announce control mechanisms and the default `announce_cap`
@@ -1312,8 +1276,6 @@ Slower networks will naturally tend towards using less frequent announces to
 conserve bandwidth, while very fast networks can support applications that
 need more frequent announces. Reticulum implements these mechanisms to ensure
 that a large span of network types can seamlessly *co-exist* and interconnect.
-
-<a id="interfaces-ingress-control"></a>
 
 ## New Destination Rate Limiting
 

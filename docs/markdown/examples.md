@@ -1,11 +1,7 @@
-<a id="examples-main"></a>
-
 # Code Examples
 
 A number of examples are included in the source distribution of Reticulum.
 You can use these examples to learn how to write your own programs.
-
-<a id="example-minimal"></a>
 
 ## Minimal
 
@@ -120,8 +116,6 @@ if __name__ == "__main__":
 ```
 
 This example can also be found at [https://github.com/markqvist/Reticulum/blob/master/Examples/Minimal.py](https://github.com/markqvist/Reticulum/blob/master/Examples/Minimal.py).
-
-<a id="example-announce"></a>
 
 ## Announce
 
@@ -306,8 +300,6 @@ if __name__ == "__main__":
 
 This example can also be found at [https://github.com/markqvist/Reticulum/blob/master/Examples/Announce.py](https://github.com/markqvist/Reticulum/blob/master/Examples/Announce.py).
 
-<a id="example-broadcast"></a>
-
 ## Broadcast
 
 The *Broadcast* example explores how to transmit plaintext broadcast messages
@@ -438,8 +430,6 @@ if __name__ == "__main__":
 ```
 
 This example can also be found at [https://github.com/markqvist/Reticulum/blob/master/Examples/Broadcast.py](https://github.com/markqvist/Reticulum/blob/master/Examples/Broadcast.py).
-
-<a id="example-echo"></a>
 
 ## Echo
 
@@ -783,8 +773,6 @@ if __name__ == "__main__":
 
 This example can also be found at [https://github.com/markqvist/Reticulum/blob/master/Examples/Echo.py](https://github.com/markqvist/Reticulum/blob/master/Examples/Echo.py).
 
-<a id="example-link"></a>
-
 ## Link
 
 The *Link* example explores establishing an encrypted link to a remote
@@ -1084,8 +1072,6 @@ if __name__ == "__main__":
 ```
 
 This example can also be found at [https://github.com/markqvist/Reticulum/blob/master/Examples/Link.py](https://github.com/markqvist/Reticulum/blob/master/Examples/Link.py).
-
-<a id="example-identify"></a>
 
 ## Identification
 
@@ -1410,8 +1396,6 @@ if __name__ == "__main__":
 
 This example can also be found at [https://github.com/markqvist/Reticulum/blob/master/Examples/Identify.py](https://github.com/markqvist/Reticulum/blob/master/Examples/Identify.py).
 
-<a id="example-request"></a>
-
 ## Requests & Responses
 
 The *Request* example explores sending requests and receiving responses.
@@ -1706,8 +1690,6 @@ if __name__ == "__main__":
 ```
 
 This example can also be found at [https://github.com/markqvist/Reticulum/blob/master/Examples/Request.py](https://github.com/markqvist/Reticulum/blob/master/Examples/Request.py).
-
-<a id="example-channel"></a>
 
 ## Channel
 
@@ -2440,8 +2422,6 @@ if __name__ == "__main__":
 
 This example can also be found at [https://github.com/markqvist/Reticulum/blob/master/Examples/Buffer.py](https://github.com/markqvist/Reticulum/blob/master/Examples/Buffer.py).
 
-<a id="example-filetransfer"></a>
-
 ## Filetransfer
 
 The *Filetransfer* example implements a basic file-server program that
@@ -3055,8 +3035,6 @@ if __name__ == "__main__":
 ```
 
 This example can also be found at [https://github.com/markqvist/Reticulum/blob/master/Examples/Filetransfer.py](https://github.com/markqvist/Reticulum/blob/master/Examples/Filetransfer.py).
-
-<a id="example-custominterface"></a>
 
 ## Custom Interfaces
 

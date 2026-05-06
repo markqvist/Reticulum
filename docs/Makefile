@@ -39,5 +39,6 @@ help:
 	@if [ $@ = "markdown" ]; then \
 		rm -rf markdown; \
 		cp -r build/markdown ./; \
+		./clean_md.py ./markdown \
 		echo "Markdown Manual Generated"; \
 	fi

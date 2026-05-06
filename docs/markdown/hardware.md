@@ -1,5 +1,3 @@
-<a id="hardware-main"></a>
-
 # Communications Hardware
 
 One of the truly valuable aspects of Reticulum is the ability to use it over
@@ -38,8 +36,6 @@ links based on WiFi or millimeter-wave radios (with high-gain directional antenn
 for the network backbone, and using LoRa-based RNodes for covering large areas with
 connectivity for client devices.
 
-<a id="rnode-main"></a>
-
 ## RNode
 
 Reliable and general-purpose long-range digital radio transceiver systems are
@@ -62,8 +58,6 @@ used for centrally controlled IoT devices. RNodes use *raw LoRa modulation*, wit
 any additional protocol overhead. All high-level protocol functionality is handled
 directly by Reticulum.
 
-<a id="rnode-creating"></a>
-
 ### Creating RNodes
 
 RNode has been designed as a system that is easy to replicate across time and
@@ -80,8 +74,6 @@ Once the firmware has been installed and provisioned by the install script, it
 is ready to use with any software that supports RNodes, including Reticulum.
 The device can be used with Reticulum by adding an [RNodeInterface](interfaces.md#interfaces-rnode)
 to the configuration.
-
-<a id="rnode-supported"></a>
 
 ### Supported Boards and Devices
 
@@ -226,8 +218,6 @@ by the auto-installer.
 
 ---
 
-<a id="rnode-installation"></a>
-
 ### Installation
 
 Once you have obtained compatible boards, you can install the [RNode Firmware](https://github.com/markqvist/RNode_Firmware)
@@ -250,8 +240,6 @@ rnodeconf --autoinstall
 The utility will guide you through the installation process by asking a series of
 questions about your hardware. Simply follow the guide, and the utility will
 auto-install and configure your devices.
-
-<a id="rnode-usage"></a>
 
 ### Usage with Reticulum
 

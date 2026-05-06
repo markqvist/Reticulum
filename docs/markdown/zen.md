@@ -1,5 +1,3 @@
-<a id="zen"></a>
-
 # Zen of Reticulum
 
 ## The Illusion Of The Center

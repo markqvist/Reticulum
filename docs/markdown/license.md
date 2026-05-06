@@ -1,5 +1,3 @@
-<a id="license"></a>
-
 # Reticulum License
 
 ```text

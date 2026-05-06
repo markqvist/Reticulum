@@ -1,5 +1,3 @@
-<a id="networks-main"></a>
-
 # Building Networks
 
 This chapter will provide you with the high-level knowledge needed to build networks with

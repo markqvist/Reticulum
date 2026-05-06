@@ -1,11 +1,7 @@
-<a id="api-main"></a>
-
 # API Reference
 
 Communication over Reticulum networks is achieved by using a simple set of classes exposed by the RNS API.
 This chapter lists and explains all classes exposed by the Reticulum Network Stack API, along with their method signatures and usage. It can be used as a reference while writing applications that utilise Reticulum, or it can be read in entirity to gain an understanding of the complete functionality of RNS from a developers perspective.
-
-<a id="api-reticulum"></a>
 
 ### *class* RNS.Reticulum(configdir=None, loglevel=None, logdest=None, verbosity=None, require_shared_instance=False, shared_instance_type=None)
 
@@ -161,8 +157,6 @@ interfaces are discovered.
 
 * **Returns:**
   A list of identity hashes.
-
-<a id="api-identity"></a>
 
 ### *class* RNS.Identity(create_keys=True)
 
@@ -359,8 +353,6 @@ Validates the signature of a signed message.
   True if the signature is valid, otherwise False.
 * **Raises:**
   *KeyError* if the instance does not hold a public key.
-
-<a id="api-destination"></a>
 
 ### *class* RNS.Destination(identity, direction, type, app_name, \*aspects)
 
@@ -584,8 +576,6 @@ unless other app_data is specified in the *announce* method.
 
 Clears default app_data previously set for the destination.
 
-<a id="api-packet"></a>
-
 ### *class* RNS.Packet(destination, data, create_receipt=True)
 
 The Packet class is used to create packet instances that can be sent
@@ -645,8 +635,6 @@ Re-sends the packet.
 * **Returns:**
   The physical layer *Link Quality* if available, otherwise `None`.
 
-<a id="api-packetreceipt"></a>
-
 ### *class* RNS.PacketReceipt
 
 The PacketReceipt class is used to receive notifications about
@@ -684,8 +672,6 @@ Sets a function that gets called if the delivery times out.
 
 * **Parameters:**
   **callback** – A *callable* with the signature *callback(packet_receipt)*
-
-<a id="api-link"></a>
 
 ### *class* RNS.Link(destination, established_callback=None, closed_callback=None)
 
@@ -900,8 +886,6 @@ Sets the resource strategy for the link.
 * **Raises:**
   *TypeError* if the resource strategy is unsupported.
 
-<a id="api-requestreceipt"></a>
-
 ### *class* RNS.RequestReceipt
 
 An instance of this class is returned by the `request` method of `RNS.Link`
@@ -937,8 +921,6 @@ check status, response time and response data when the request concludes.
 
 * **Returns:**
   True if the associated request has concluded (successfully or with a failure), otherwise False.
-
-<a id="api-resource"></a>
 
 ### *class* RNS.Resource(data, link, advertise=True, auto_compress=True, callback=None, progress_callback=None, timeout=None)
 
@@ -997,8 +979,6 @@ Cancels transferring the resource.
 
 * **Returns:**
   Whether the resource is compressed.
-
-<a id="api-channel"></a>
 
 ### *class* RNS.Channel.Channel
 
@@ -1084,8 +1064,6 @@ message header information.
 * **Returns:**
   number of bytes available
 
-<a id="api-messsagebase"></a>
-
 ### *class* RNS.MessageBase
 
 Base type for any messages sent or received on a Channel.
@@ -1112,8 +1090,6 @@ Populate message from binary representation
 
 * **Parameters:**
   **raw** – binary representation
-
-<a id="api-buffer"></a>
 
 ### *class* RNS.Buffer
 
@@ -1178,8 +1154,6 @@ of this object, see the Python documentation for
 * **Returns:**
   a BufferedRWPair object
 
-<a id="api-rawchannelreader"></a>
-
 ### *class* RNS.RawChannelReader(stream_id: int, channel: [Channel](#RNS.Channel.Channel))
 
 An implementation of RawIOBase that receives
@@ -1218,8 +1192,6 @@ Remove a function added with [`RNS.RawChannelReader.add_ready_callback()`](#RNS.
 * **Parameters:**
   **cb** – function to remove
 
-<a id="api-rawchannelwriter"></a>
-
 ### *class* RNS.RawChannelWriter(stream_id: int, channel: [Channel](#RNS.Channel.Channel))
 
 An implementation of RawIOBase that receives
@@ -1242,8 +1214,6 @@ Create a raw channel writer.
 * **Parameters:**
   * **stream_id** – remote stream id to sent do
   * **channel** – `Channel` object to send on
-
-<a id="api-transport"></a>
 
 ### *class* RNS.Transport
 

@@ -1,5 +1,3 @@
-<a id="support-main"></a>
-
 # Support Reticulum
 
 You can help support the continued development of open, free and private communications

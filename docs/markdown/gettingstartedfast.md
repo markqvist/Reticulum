@@ -117,8 +117,6 @@ start with reading the next section, [Bootstrapping Connectivity](#bootstrapping
 as this provides the most essential understanding of how to ensure reliable
 connectivity with a minimum of maintenance.
 
-<a id="bootstrapping-connectivity"></a>
-
 ## Bootstrapping Connectivity
 
 Reticulum is not a service you subscribe to, nor is it a single global network you “join”. It is a *networking stack*; a toolkit for building communications systems that align with your specific values, requirements, and operational environment. The way you choose to connect to other Reticulum peers is entirely your own choice.
@@ -185,8 +183,6 @@ For guidelines on how to properly configure a public entrypoint, refer to the [H
 A global, distributed backbone of Reticulum Transport Nodes is being run by volunteers from around the world. This network constitutes a heterogenous collection of both public and private nodes that form an uncoordinated, voluntary inter-networking backbone that currently provides global transport and internetworking capabilities for Reticulum.
 
 As a good starting point, you can find interface definitions for connecting your own networks to this backbone on websites such as [directory.rns.recipes](https://directory.rns.recipes/) and [rmap.world](https://rmap.world/).
-
-<a id="hosting-entrypoints"></a>
 
 ## Hosting Public Entrypoints
 
@@ -338,8 +334,6 @@ likely be to look at some [Example Programs](examples.md#examples-main).
 The entire Reticulum API is documented in the [API Reference](reference.md#api-main)
 chapter of this manual. Before diving in, it’s probably a good idea to read
 this manual in full, but at least start with the [Understanding Reticulum](understanding.md#understanding-main) chapter.
-
-<a id="install-guides"></a>
 
 ## Platform-Specific Install Notes
 

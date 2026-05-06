@@ -1,5 +1,3 @@
-<a id="using-main"></a>
-
 # Using Reticulum on Your System
 
 Reticulum is not installed as a driver or kernel module, as one might expect
@@ -461,8 +459,6 @@ options:
   -B, --base32          Use base32-encoded input and output
   --version             show program's version number and exit
 ```
-
-<a id="utility-rnpath"></a>
 
 ### The rnpath Utility
 
@@ -1101,8 +1097,6 @@ options:
 For more information on how to create your own RNodes, please read the [Creating RNodes](hardware.md#rnode-creating)
 section of this manual.
 
-<a id="using-interface-discovery"></a>
-
 ## Discovering Interfaces
 
 Reticulum includes built-in functionality for discovering connectable interfaces over Reticulum itself. This is particularly useful in situations where you want to do one or more of the following:
@@ -1218,8 +1212,6 @@ remote_management_allowed = 9fb6d773498fb3feda407ed8ef2c3229, 2d882c5586e548d79b
 ```
 
 For a complete example configuration, you can run `rnsd --exampleconfig`.
-
-<a id="using-blackhole-management"></a>
 
 ## Blackhole Management
 
@@ -1370,8 +1362,6 @@ Here is an example of a packet radio TNC configured as such:
 Using this methodology avoids potential naming mix-ups where physical devices
 might be plugged and unplugged in different orders, or when device name
 assignment varies from one boot to another.
-
-<a id="using-systemd"></a>
 
 ### Reticulum as a System Service
 
