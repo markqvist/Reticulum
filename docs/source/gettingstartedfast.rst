@@ -244,12 +244,12 @@ to your entry-point.
     listen_on = 0.0.0.0
     port = 4242
 
-    # On publicly available interfaces, it can be
-    # a good idea to configure sensible announce
+    # On publicly available interfaces, it is
+    # essential to configure sensible announce
     # rate targets.
     announce_rate_target = 3600
     announce_rate_penalty = 3600
-    announce_rate_grace = 12
+    announce_rate_grace = 6
 
 If instead you want to make a private entry-point from the Internet, you can use the
 :ref:`IFAC name and passphrase options<interfaces-options>` to secure your interface with a network name and passphrase.

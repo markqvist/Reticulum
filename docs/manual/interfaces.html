@@ -1458,11 +1458,13 @@ please see the <a class="reference internal" href="understanding.html#understand
 <section id="announce-rate-control">
 <span id="interfaces-announcerates"></span><h2>Announce Rate Control<a class="headerlink" href="#announce-rate-control" title="Link to this heading">¶</a></h2>
 <p>The built-in announce control mechanisms and the default <code class="docutils literal notranslate"><span class="pre">announce_cap</span></code>
-option described above are sufficient most of the time, but in some cases, especially on fast
-interfaces, it may be useful to control the target announce rate. Using the
-<code class="docutils literal notranslate"><span class="pre">announce_rate_target</span></code>, <code class="docutils literal notranslate"><span class="pre">announce_rate_grace</span></code> and <code class="docutils literal notranslate"><span class="pre">announce_rate_penalty</span></code>
-options, this can be done on a per-interface basis, and moderates the <em>rate at
-which received announces are re-broadcasted to other interfaces</em>.</p>
+option described above are sufficient most of the time, but in some cases,
+especially on fast interfaces, or when connecting to large public networks,
+it may be useful to control the target announce rate.</p>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">announce_rate_target</span></code>, <code class="docutils literal notranslate"><span class="pre">announce_rate_grace</span></code> and <code class="docutils literal notranslate"><span class="pre">announce_rate_penalty</span></code>
+options, this can be done on a per-interface basis, or by setting instance-wide defaults.
+When configured, this moderates the <em>rate at which received announces are
+re-broadcasted to other interfaces</em>.</p>
 <blockquote>
 <div><ul>
 <li><div class="line-block">
@@ -1489,18 +1491,26 @@ destination in question will only have its announces propagated every
 </li>
 </ul>
 </div></blockquote>
+<p>You can also configure default announce rate parameters for all interfaces that
+do not have these parameters set explicitly by setting the <code class="docutils literal notranslate"><span class="pre">default_ar_target</span></code>
+<code class="docutils literal notranslate"><span class="pre">default_ar_penalty</span></code> and <code class="docutils literal notranslate"><span class="pre">default_ar_grace</span></code> options in the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code>
+section of the configuration file. If any of these options are set, they will
+automatically be applied to any interface if transport is enabled, and the
+interface does not have the parameters set explicitly.</p>
+<p>For auto-connected interfaces, sensible default announce rate control parameters
+will <strong>always</strong> be set, even if the defaults are not configured explicitly, but
+if you set the defaults, auto-connected interfaces will adhere to these as well.</p>
 <p>These mechanisms, in conjunction with the <code class="docutils literal notranslate"><span class="pre">annouce_cap</span></code> mechanisms mentioned
 above means that it is essential to select a balanced announce strategy for
 your destinations. The more balanced you can make this decision, the easier
-it will be for your destinations to make it into slower networks that many hops
-away. Or you can prioritise only reaching high-capacity networks with more frequent
-announces.</p>
-<p>Current statistics and information about announce rates can be viewed using the
-<code class="docutils literal notranslate"><span class="pre">rnpath</span> <span class="pre">-r</span></code> command.</p>
+it will be for your destinations to make it into slower networks, or networks that
+are many hops away.</p>
+<p>Statistics and information about announce rates can be viewed using the
+<code class="docutils literal notranslate"><span class="pre">rnpath</span> <span class="pre">-r</span></code> and <code class="docutils literal notranslate"><span class="pre">rnstatus</span> <span class="pre">-A</span></code> commands.</p>
 <p>It is important to note that there is no one right or wrong way to set up announce
 rates. Slower networks will naturally tend towards using less frequent announces to
 conserve bandwidth, while very fast networks can support applications that
-need very frequent announces. Reticulum implements these mechanisms to ensure
+need more frequent announces. Reticulum implements these mechanisms to ensure
 that a large span of network types can seamlessly <em>co-exist</em> and interconnect.</p>
 </section>
 <section id="new-destination-rate-limiting">

@@ -1293,11 +1293,14 @@ Announce Rate Control
 =====================
 
 The built-in announce control mechanisms and the default ``announce_cap``
-option described above are sufficient most of the time, but in some cases, especially on fast
-interfaces, it may be useful to control the target announce rate. Using the
-``announce_rate_target``, ``announce_rate_grace`` and ``announce_rate_penalty``
-options, this can be done on a per-interface basis, and moderates the *rate at
-which received announces are re-broadcasted to other interfaces*.
+option described above are sufficient most of the time, but in some cases,
+especially on fast interfaces, or when connecting to large public networks,
+it may be useful to control the target announce rate.
+
+Using the ``announce_rate_target``, ``announce_rate_grace`` and ``announce_rate_penalty``
+options, this can be done on a per-interface basis, or by setting instance-wide defaults.
+When configured, this moderates the *rate at which received announces are
+re-broadcasted to other interfaces*.
 
  * | The ``announce_rate_target`` option sets the minimum amount of time,
      in seconds, that should pass between received announces, for any one
@@ -1315,20 +1318,30 @@ which received announces are re-broadcasted to other interfaces*.
      destination in question will only have its announces propagated every
      3 hours, until it lowers its actual announce rate to within the target.
 
+You can also configure default announce rate parameters for all interfaces that
+do not have these parameters set explicitly by setting the ``default_ar_target``
+``default_ar_penalty`` and ``default_ar_grace`` options in the ``[reticulum]``
+section of the configuration file. If any of these options are set, they will
+automatically be applied to any interface if transport is enabled, and the
+interface does not have the parameters set explicitly.
+
+For auto-connected interfaces, sensible default announce rate control parameters
+will **always** be set, even if the defaults are not configured explicitly, but
+if you set the defaults, auto-connected interfaces will adhere to these as well.
+
 These mechanisms, in conjunction with the ``annouce_cap`` mechanisms mentioned
 above means that it is essential to select a balanced announce strategy for
 your destinations. The more balanced you can make this decision, the easier
-it will be for your destinations to make it into slower networks that many hops
-away. Or you can prioritise only reaching high-capacity networks with more frequent
-announces.
+it will be for your destinations to make it into slower networks, or networks that
+are many hops away.
 
-Current statistics and information about announce rates can be viewed using the
-``rnpath -r`` command.
+Statistics and information about announce rates can be viewed using the
+``rnpath -r`` and ``rnstatus -A`` commands.
 
 It is important to note that there is no one right or wrong way to set up announce
 rates. Slower networks will naturally tend towards using less frequent announces to
 conserve bandwidth, while very fast networks can support applications that
-need very frequent announces. Reticulum implements these mechanisms to ensure
+need more frequent announces. Reticulum implements these mechanisms to ensure
 that a large span of network types can seamlessly *co-exist* and interconnect.
 
 .. _interfaces-ingress-control:
