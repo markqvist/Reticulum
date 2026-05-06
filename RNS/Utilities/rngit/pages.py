@@ -318,7 +318,7 @@ class NomadNetworkNode():
         breadcrumb = f">>\n{self.m_link('Node', self.PATH_INDEX)} /"
         nav_parts.append(breadcrumb + "\n")
 
-        if not accessible_groups: content_parts.append("No repository groups available.\n")
+        if not accessible_groups: content_parts.append(">>\nNo groups available\n")
         else:
             for group_name in sorted(accessible_groups.keys()):
                 group = accessible_groups[group_name]
@@ -344,21 +344,22 @@ class NomadNetworkNode():
             content = self.m_heading("Error", 2) + "\nInvalid request\n"
             return self.render_template(content, st=st)
 
-        accessible_repos = self.get_accessible_repositories(remote_identity, group_name)
-        
-        if not group_name or group_name not in self.owner.groups or not accessible_repos:
-            content = self.m_heading("Group Not Found", 1) + "\nThe requested group was not found.\n"
-            return self.render_template(content, st=st)
-
         content_parts = []
         nav_parts     = []
         
         breadcrumb = f">>\n{self.m_link('Node', self.PATH_INDEX)} / {group_name}"
         nav_parts.append(breadcrumb + "\n")
+        nav_content = "".join(nav_parts)
 
-        if not accessible_repos: content_parts.append("No repositories available.\n")
+        accessible_repos = self.get_accessible_repositories(remote_identity, group_name)
+        
+        if not group_name or group_name not in self.owner.groups or not accessible_repos:
+            content = self.m_heading("Group Not Found", 2) + "\nThe requested group was not found\n"
+            return self.render_template(content, nav_content=nav_content, st=st)
+
+        if not accessible_repos: content_parts.append("No repositories available\n")
         else:
-            content_parts.append(self.m_heading("Repositories", 1))
+            content_parts.append(self.m_heading(" Repositories", 1))
             content_parts.append("\n")
 
             for repo_name in sorted(accessible_repos.keys()):
@@ -373,7 +374,6 @@ class NomadNetworkNode():
 
         self.owner.view_succeeded(group_name, None, remote_identity)
         page_content = "".join(content_parts)
-        nav_content = "".join(nav_parts)
         return self.render_template(page_content, nav_content=nav_content, template="group", st=st)
 
     def serve_repo_page(self, path, data, request_id, link_id, remote_identity, requested_at):
@@ -2303,7 +2303,7 @@ class NomadNetworkNode():
 
 # Global base template
 DEFAULT_BASE_TEMPLATE = """#!c=0
->{NODE_NAME}
+> {NODE_NAME}
 
 {NAVIGATION}
 {PAGE_CONTENT}
@@ -2312,7 +2312,7 @@ DEFAULT_BASE_TEMPLATE = """#!c=0
 `a`F666`[Served by rngit {VERSION}`:/page/index.mu] - {GEN_TIME}`f"""
 
 # Front page template
-DEFAULT_FRONT_TEMPLATE = """>Groups
+DEFAULT_FRONT_TEMPLATE = """> Groups
 
 {PAGE_CONTENT}"""
 
