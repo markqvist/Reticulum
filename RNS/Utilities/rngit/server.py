@@ -2288,12 +2288,6 @@ class ReticulumGitNode():
 
         comment_access = interact_access and (read_access or write_access)
         manage_access  = interact_access and write_access
-
-        RNS.log(f"hash     : {RNS.prettyhexrep(remote_identity.hash)}")
-        RNS.log(f"read     : {read_access}")
-        RNS.log(f"wite     : {write_access}")
-        RNS.log(f"interact : {interact_access}")
-        RNS.log(f"manage   : {manage_access}")
         
         if   operation in ["list", "view"]             and read_access:    access = True
         elif operation in ["comment"]                  and comment_access: access = True
