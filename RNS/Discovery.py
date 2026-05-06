@@ -637,7 +637,6 @@ class InterfaceDiscovery():
                                 return
 
                             interface_name = info["name"]
-                            RNS.log(f"Auto-connecting discovered {interface_type} {interface_name}")
                             config_entry = info["config_entry"]
                             interface_config = {}
                             interface_config["name"] = f"{interface_name}"
@@ -652,6 +651,7 @@ class InterfaceDiscovery():
                                 interface = BackboneInterface.BackboneClientInterface(RNS.Transport, interface_config)
 
                             if interface:
+                                RNS.log(f"Auto-connecting discovered {interface_type} {interface_name}")
                                 interface.autoconnect_hash = endpoint_hash
                                 interface.autoconnect_source = info["network_id"]
                                 ar_target  = RNS.Reticulum.get_instance()._default_ar_target() if RNS.Reticulum.transport_enabled() else None
