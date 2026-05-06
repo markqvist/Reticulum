@@ -1370,6 +1370,112 @@ class ReticulumGitNode():
 
         return False
 
+    def resolve_doc_permission(self, remote_identity, group_name, repository_name, doc_id, permission):
+        remote_hash = remote_identity.hash
+        RNS.log(f"Resolving {group_name}/{repository_name}/{doc_id} document permission {permission} for {RNS.prettyhexrep(remote_hash)}", RNS.LOG_DEBUG) # TODO: Remove
+        if not group_name in self.groups: return False
+        if not repository_name in self.groups[group_name]["repositories"]: return False
+
+        work_path = self.groups[group_name]["repositories"][repository_name]["path"]+".work"
+        doc_allowed_path = work_path+"/"+str(int(doc_id))+".allowed"
+
+        allowed_input = None
+        if os.path.isdir(work_path) and os.path.isfile(doc_allowed_path):
+            try:
+                with open(doc_allowed_path, "r") as fh: allowed_input = f.read()
+            except Exception as e: RNS.log(f"Error while resolving document permission for {group_name}/{repository_name}/{doc_id}: {e}", RNS.LOG_ERROR)
+
+        doc_allowed_permissions = permissions_from_allowed_input(allowed_input)
+        
+        if permission == self.PERM_READ:
+            repository_permissions = self.groups[group_name]["repositories"][repository_name]["read"]
+            group_permissions      = self.groups[group_name]["read"]
+            doc_permissions        = doc_allowed_permissions["read"]
+
+        elif permission == self.PERM_WRITE:
+            repository_permissions = self.groups[group_name]["repositories"][repository_name]["write"]
+            group_permissions      = self.groups[group_name]["write"]
+            doc_permissions        = doc_allowed_permissions["write"]
+
+        elif permission == self.PERM_CREATE:
+            repository_permissions = self.groups[group_name]["repositories"][repository_name]["create"]
+            group_permissions      = self.groups[group_name]["create"]
+            doc_permissions        = doc_allowed_permissions["create"]
+
+        elif permission == self.PERM_INTERACT:
+            repository_permissions = self.groups[group_name]["repositories"][repository_name]["interact"]
+            group_permissions      = self.groups[group_name]["interact"]
+            doc_permissions        = doc_allowed_permissions["interact"]
+
+        elif permission == self.PERM_ADMIN:
+            repository_permissions = self.groups[group_name]["repositories"][repository_name]["admin"]
+            group_permissions      = self.groups[group_name]["admin"]
+            doc_permissions        = doc_allowed_permissions["admin"]
+
+        else: return False
+
+        repository_admins = self.groups[group_name]["repositories"][repository_name]["admin"]
+        group_admins      = self.groups[group_name]["admin"]
+        doc_admins        = doc_allowed_permissions["admin"]
+
+        if   self.TGT_NONE in repository_permissions: return False
+        elif self.TGT_ALL  in repository_permissions: return True
+        elif remote_hash   in repository_permissions: return True
+        elif remote_hash   in repository_admins:      return True
+        else:
+            if len(repository_permissions) > 0:       return False
+            elif self.TGT_NONE in group_permissions:  return False
+            elif self.TGT_ALL  in group_permissions:  return True
+            elif remote_hash   in group_permissions:  return True
+            elif remote_hash   in group_admins:       return True
+            else:
+                if  self.TGT_NONE in doc_permissions: return False
+                elif self.TGT_ALL in doc_permissions: return True
+                elif remote_hash  in doc_permissions: return True
+                elif remote_hash  in doc_admins:      return True
+                else:                                 return False
+
+        return False
+
+    def permissions_from_allowed_input(self, allowed_input):
+        read_allowed     = []
+        write_allowed    = []
+        create_allowed   = []
+        stats_allowed    = []
+        release_allowed  = []
+        interact_allowed = []
+        admin_allowed    = []
+
+        if allowed_input and type(allowed_input) == str:
+            for entry in allowed_input.splitlines():
+                perm_input = entry.strip()
+                if not perm_input.startswith("#"):
+                    perm, target = self.parse_permission(perm_input)
+                    if not perm or not target: continue
+                    else:
+                        read = False; write = False; create = False
+                        stats = False; release = False; interact = False; admin = False
+                        if perm == self.PERM_READ  or perm == self.PERM_READWRITE: read     = True
+                        if perm == self.PERM_WRITE or perm == self.PERM_READWRITE: write    = True
+                        if perm == self.PERM_CREATE:                               create   = True
+                        if perm == self.PERM_STATS:                                stats    = True
+                        if perm == self.PERM_RELEASE:                              release  = True
+                        if perm == self.PERM_INTERACT:                             interact = True
+                        if perm == self.PERM_ADMIN:                                admin    = True
+
+                        if read     and not target in read_allowed:     read_allowed.append(target)
+                        if write    and not target in write_allowed:    write_allowed.append(target)
+                        if create   and not target in create_allowed:   create_allowed.append(target)
+                        if stats    and not target in stats_allowed:    stats_allowed.append(target)
+                        if release  and not target in release_allowed:  release_allowed.append(target)
+                        if interact and not target in interact_allowed: interact_allowed.append(target)
+                        if admin    and not target in admin_allowed:    admin_allowed.append(target)
+
+        permissions = {"read": read_allowed, "write": write_allowed, "create": create_allowed, "stats": stats_allowed,
+                       "release": release_allowed, "interact": interact_allowed, "admin": admin_allowed }
+
+        return permissions
+
     def load_repository_group(self, group_name, group_path):
         # TODO: Implement group.allowed file
         if not group_name in self.groups: self.groups[group_name] = { "path": group_path, "repositories": {}, "read": [], "write": [], "create": [],
@@ -1393,14 +1499,7 @@ class ReticulumGitNode():
                     else:
                         repository_name  = os.path.basename(path)
                         allowed_path     = f"{path}.allowed"
-                        read_allowed     = []
-                        write_allowed    = []
-                        create_allowed   = []
-                        stats_allowed    = []
-                        release_allowed  = []
-                        interact_allowed = []
-                        admin_allowed    = []
-
+                        allowed_input = ""
                         if os.path.isfile(allowed_path):
                             if os.access(allowed_path, os.X_OK):
                                 allowed_result = subprocess.run([allowed_path], stdout=subprocess.PIPE)
@@ -1411,33 +1510,11 @@ class ReticulumGitNode():
                                 allowed_input = fh.read().decode("utf-8")
                                 fh.close()
 
-                            for entry in allowed_input.splitlines():
-                                perm_input = entry.strip()
-                                if not perm_input.startswith("#"):
-                                    perm, target = self.parse_permission(perm_input)
-                                    if not perm or not target: continue
-                                    else:
-                                        read = False; write = False; create = False
-                                        stats = False; release = False; interact = False; admin = False
-                                        if perm == self.PERM_READ  or perm == self.PERM_READWRITE: read     = True
-                                        if perm == self.PERM_WRITE or perm == self.PERM_READWRITE: write    = True
-                                        if perm == self.PERM_CREATE:                               create   = True
-                                        if perm == self.PERM_STATS:                                stats    = True
-                                        if perm == self.PERM_RELEASE:                              release  = True
-                                        if perm == self.PERM_INTERACT:                             interact = True
-                                        if perm == self.PERM_ADMIN:                                admin    = True
-
-                                        if read     and not target in read_allowed:     read_allowed.append(target)
-                                        if write    and not target in write_allowed:    write_allowed.append(target)
-                                        if create   and not target in create_allowed:   create_allowed.append(target)
-                                        if stats    and not target in stats_allowed:    stats_allowed.append(target)
-                                        if release  and not target in release_allowed:  release_allowed.append(target)
-                                        if interact and not target in interact_allowed: interact_allowed.append(target)
-                                        if admin    and not target in admin_allowed:    admin_allowed.append(target)
-
+                        p = self.permissions_from_allowed_input(allowed_input)
                         group["repositories"][repository_name] = {"name": repository_name, "group": group_name, "path": path,
-                                                                  "read": read_allowed, "write": write_allowed, "create": create_allowed, "stats": stats_allowed ,
-                                                                  "release": release_allowed, "interact": interact_allowed, "admin": admin_allowed }
+                                                                  "read": p["read"], "write": p["write"], "create": p["create"],
+                                                                  "stats": p["stats"], "release": p["release"], "interact": p["interact"],
+                                                                  "admin": p["admin"] }
                         loaded += 1
 
         ms = "y" if loaded == 1 else "ies"
