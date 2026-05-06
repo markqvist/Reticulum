@@ -82,8 +82,10 @@ class MarkdownToMicron:
     
     TABLE_MIN_COL_WIDTH = 3
 
-    def __init__(self, max_width=100, syntax_highlighter=None):
+    def __init__(self, max_width=100, syntax_highlighter=None, url_scope=None):
         self.max_width = max_width
+        self.local_url_scope = url_scope or ":/page/"
+        self.__local_url_scope = self.local_url_scope
         self.syntax_highlighter = syntax_highlighter
         self.wcwidth = None
         
@@ -93,6 +95,9 @@ class MarkdownToMicron:
 
         except: RNS.log(f"The wcwidth module is unavailable, display width calculations for some glyphs will be incorrect", RNS.LOG_WARNING)
 
+    def set_url_scope(self, url_scope): self.local_url_scope = url_scope
+    def restore_url_scope(self, url_scope): self.local_url_scope = self.__local_url_scope
+
     def display_width(self, text):
         if not self.wcwidth: return len(text)
         else:
@@ -101,7 +106,7 @@ class MarkdownToMicron:
             w = self.wcwidth.wcswidth(text)
             return w if w is not None and w >= 0 else len(text)
     
-    def format_block(self, text):
+    def format_block(self, text, url_scope=None):
         lines = text.split('\n')
         result_lines = []
         in_code_block = False
@@ -282,6 +287,15 @@ class MarkdownToMicron:
         def restore_link(match):
             idx = int(match.group(1))
             text, url = links[idx]
+            
+            anchor_components = url.split("#")
+            url = anchor_components[0]
+            anchor = anchor_components[1] if len(anchor_components) > 1 else ""
+
+            if not ":/" in url:
+                url = f"{self.local_url_scope}{url}"
+                if anchor: url = f"{url}|anchor={anchor}"
+
             text = text.replace('`', '')
             return f"`!`[{text}`{url}]`!"
         

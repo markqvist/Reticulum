@@ -710,8 +710,14 @@ class NomadNetworkNode():
                 if content is not None:
                     if renderable and render:
                         if   file_ext == ".mu": content_parts.append(f"{content.rstrip()}\n")
-                        elif file_ext == ".md": content_parts.append(f"{self.mdc.format_block(content).rstrip()}\n")
-                        else                  : content_parts.append(f"`=\n{content}\n`=")
+                        elif file_ext == ".md":
+                            path_components = file_path.strip("/").split("/")
+                            path = "/".join(path_components[:-1])+"/" if len(path_components) > 1 else ""
+                            url_scope = f":/page/blob.mu`g={group_name}|r={repo_name}|ref={ref}|path={path}"
+                            mdc = MarkdownToMicron(max_width=self.MAX_RENDER_WIDTH, syntax_highlighter=self.highlighter, url_scope=url_scope)
+                            content_parts.append(f"{mdc.format_block(content).rstrip()}\n")
+
+                        else: content_parts.append(f"`=\n{content}\n`=")
 
                     else:
                         if self.highlight_syntax:
