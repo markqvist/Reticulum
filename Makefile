@@ -27,6 +27,7 @@ clean:
 purge_docs:
 	@echo Purging documentation build...
 	@-rm -rf ./docs/manual
+	@-rm -rf ./docs/markdown
 	@-rm -rf ./docs/*.pdf
 	@-rm -rf ./docs/*.epub
 
@@ -50,7 +51,7 @@ build_pure_wheel:
 	python3 setup.py bdist_wheel --pure
 
 documentation:
-	make -C docs html
+	make -C docs html markdown
 
 manual:
 	make -C docs latexpdf epub
