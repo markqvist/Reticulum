@@ -14,7 +14,7 @@ No kernel modules or drivers are required. Reticulum runs completely in userland
 
 >> Read The Manual
 
-The full documentation for Reticulum is available at [markqvist.github.io/Reticulum/manual/](https://markqvist.github.io/Reticulum/manual/).
+The full documentation for Reticulum is available on `!`[this node`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/index.md]`!.
 
 You can also download the `!`[Reticulum manual as a PDF`:/file/download`g=reticulum|r=reticulum|ref=HEAD|path=docs%2FReticulum+Manual.pdf]`! or `!`[as an e-book in EPUB format`:/file/download`g=reticulum|r=reticulum|ref=HEAD|path=docs%2FReticulum+Manual.pdf]`!.
 
