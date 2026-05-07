@@ -1,3 +1,19 @@
+### 2026-05-07: RNS 1.2.4
+
+This release
+
+**Changes**
+- 
+
+**Release Signatures**
+Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`. To verify files, download the `rsg` signatures, make sure they are in the same folder as the release artifact, and run `rnid` signature verification with the release identity as the required signer:
+
+```sh
+rnid -i bc7291552be7a58f361522990465165c -V rns-1.2.4-py3-none-any.whl
+```
+
+The `rnid` utility will then verify the signatures, and display whether it is valid. If not, the file has been tampered with and should not be trusted.
+
 ### 2026-05-05: RNS 1.2.3
 
 This release adds Work Document and update/commenting support to `rngit`. 
@@ -20,7 +36,7 @@ This release adds Work Document and update/commenting support to `rngit`.
 Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`:
 
 ```sh
-rnid -i bc7291552be7a58f361522990465165c -V rns-1.2.2-py3-none-any.whl.rsg
+rnid -i bc7291552be7a58f361522990465165c -V rns-1.2.3-py3-none-any.whl.rsg
 ```
 
 ### 2026-05-05: RNS 1.2.2

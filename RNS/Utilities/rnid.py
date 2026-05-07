@@ -410,7 +410,7 @@ def validate_rsg(rsg, message=None, required_signer=None):
     if not message: raise ValueError(f"No message specified for rsg validation")
     if not type(required_signer) in [RNS.Identity, bytes, type(None)]: raise TypeError(f"Invalid required signer type {type(required_signer)}")
     
-    if   type(required_signer) == RNS.Identity: required_signer_hash = identity.hash
+    if   type(required_signer) == RNS.Identity: required_signer_hash = required_signer.hash
     elif type(required_signer) == bytes:        required_signer_hash = required_signer
     else:                                       required_signer_hash = None
 
