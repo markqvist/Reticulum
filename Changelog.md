@@ -1,9 +1,39 @@
 ### 2026-05-07: RNS 1.2.4
 
-This release
+This release brings a complete rewrite and update to the `rnid` utility, which is now a lot more useful, and better at finding and saving identities. It also includes a bunch of other improvements, such as expanded `rngit` functionality, better transport performance and a few bugfixes. Enjoy!
+
+Unless something really crazy happens, this will probably be the last release that is also published to GitHub, since everything can now run over Reticulum itself. Updates to `pip` will continue at least until `rnpkg` is complete, and RNS is completely self-hosting.
 
 **Changes**
-- 
+- Completely rewrote the `rnid` utility, **much** better now
+- Added ability to query network for raw identities to `rnid`
+- Added new, much more useful `rsg` file signature format
+- Added auto-retain functionality for used identities to `rnid`
+- Added outbound announce frequency per-client display to `rnstatus`
+- Added announce rate control settings display to `rnstatus`
+- Added announce rate control defaults configuration options
+- Added saner default announce rate settings for transport nodes
+- Added detection of Yggdrasil addresses to auto-connect handler
+- Added work document permissions resolver to `rngit`
+- Added ability to create updates and comments on `rngit` work documents
+- Added work document permissions control logic and CLI interaction to `rngit`
+- Added support for node-local URL-scoping in `rngit` markdown converter
+- Added API functionality for retaining identity data
+- Added the manual in markdown format
+- Improved `rngit` releases page rendering
+- Improved auto-connect logging
+- Improved transport performance
+- Improved logging performance
+- Improved shutdown handling
+- Improved workdoc sorting
+- Fixed time formatting being unintuitive sometimes
+- Fixed markdown-to-micron formatting and syntax highlighting being weird sometimes
+
+**Release Hashes**
+```
+e821a0b6a18d6b3263bbcdde880d0388fb4dd0c07c7eb2f83cb0dbc30eda5965 rns-1.2.4-py3-none-any.whl
+618e823cec0bd368f2f211431dfb78efef75e59132bad93d3101dacbe7deb7a6 rnspure-1.2.4-py3-none-any.whl
+```
 
 **Release Signatures**
 Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`. To verify files, download the `rsg` signatures, make sure they are in the same folder as the release artifact, and run `rnid` signature verification with the release identity as the required signer:
@@ -13,6 +43,8 @@ rnid -i bc7291552be7a58f361522990465165c -V rns-1.2.4-py3-none-any.whl
 ```
 
 The `rnid` utility will then verify the signatures, and display whether it is valid. If not, the file has been tampered with and should not be trusted.
+
+This is the first release using the new `rsg` signature format, and you will need this latest version of RNS to verify them. Ironic, I know, but that's how it is. Since release file hashes are now embbeded in the `rsg` signatures, this is the last release that will explicitly post the raw release hashes. Verifying with `rnid` is much more effective, since it ensures all data was signed by the release identity.
 
 ### 2026-05-05: RNS 1.2.3
 

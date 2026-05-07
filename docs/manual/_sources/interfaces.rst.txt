@@ -1338,8 +1338,15 @@ are many hops away.
 Statistics and information about announce rates can be viewed using the
 ``rnpath -r`` and ``rnstatus -A`` commands.
 
-It is important to note that there is no one right or wrong way to set up announce
-rates. Slower networks will naturally tend towards using less frequent announces to
+It is important to note, that while there is no one right or wrong way to set up announce
+rates, it should generally not be necessary to announce any kind of destination.
+more often than once every few hours. Most applications can announce simply when
+the application starts, and then only once every 6 hours or so.
+
+If you're designing an application where you think you need to annonuce more
+often than once an hour, you're most likely doing something wrong.
+
+Slower networks will naturally tend towards using less frequent announces to
 conserve bandwidth, while very fast networks can support applications that
 need more frequent announces. Reticulum implements these mechanisms to ensure
 that a large span of network types can seamlessly *co-exist* and interconnect.

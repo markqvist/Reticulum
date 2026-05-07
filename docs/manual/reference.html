@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>API Reference - Reticulum Network Stack 1.2.3 documentation</title>
+        <title>API Reference - Reticulum Network Stack 1.2.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.2.3 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.2.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.2.3 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.2.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -304,12 +304,8 @@ the default value.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="RNS.Reticulum.LINK_MTU_DISCOVERY">
 <span class="sig-name descname"><span class="pre">LINK_MTU_DISCOVERY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#RNS.Reticulum.LINK_MTU_DISCOVERY" title="Link to this definition">¶</a></dt>
-<dd><p>Whether automatic link MTU discovery is enabled by default in this
-release. Link MTU discovery significantly increases throughput over
-fast links, but requires all intermediary hops to also support it.
-Support for this feature was added in RNS version 0.9.0. This option
-will become enabled by default in the near future. Please update your
-RNS instances.</p>
+<dd><p>Whether automatic link MTU discovery is enabled by default. Link MTU
+discovery significantly increases throughput over fast links.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -633,6 +629,20 @@ Can be used to load previously created and saved identities into Reticulum.</p>
 <dd><p>Saves the identity to a file. This will write the private key to disk,
 and anyone with access to this file will be able to decrypt all
 communication for the identity. Be very careful with this method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> – The full path specifying where to save the identity.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the file was saved, otherwise False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.pub_to_file">
+<span class="sig-name descname"><span class="pre">pub_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.pub_to_file" title="Link to this definition">¶</a></dt>
+<dd><p>Saves the public identity to a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> – The full path specifying where to save the identity.</p>
@@ -2306,6 +2316,7 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Identity.from_bytes"><code class="docutils literal notranslate"><span class="pre">from_bytes()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.from_file"><code class="docutils literal notranslate"><span class="pre">from_file()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.to_file"><code class="docutils literal notranslate"><span class="pre">to_file()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.pub_to_file"><code class="docutils literal notranslate"><span class="pre">pub_to_file()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.get_private_key"><code class="docutils literal notranslate"><span class="pre">get_private_key()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.get_public_key"><code class="docutils literal notranslate"><span class="pre">get_public_key()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.load_private_key"><code class="docutils literal notranslate"><span class="pre">load_private_key()</span></code></a></li>
@@ -2473,7 +2484,7 @@ will announce it.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=590429e0"></script>
+</div><script src="_static/documentation_options.js?v=928db92d"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>Configuring Interfaces - Reticulum Network Stack 1.2.3 documentation</title>
+        <title>Configuring Interfaces - Reticulum Network Stack 1.2.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.2.3 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.2.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.2.3 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.2.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1507,8 +1507,13 @@ it will be for your destinations to make it into slower networks, or networks th
 are many hops away.</p>
 <p>Statistics and information about announce rates can be viewed using the
 <code class="docutils literal notranslate"><span class="pre">rnpath</span> <span class="pre">-r</span></code> and <code class="docutils literal notranslate"><span class="pre">rnstatus</span> <span class="pre">-A</span></code> commands.</p>
-<p>It is important to note that there is no one right or wrong way to set up announce
-rates. Slower networks will naturally tend towards using less frequent announces to
+<p>It is important to note, that while there is no one right or wrong way to set up announce
+rates, it should generally not be necessary to announce any kind of destination.
+more often than once every few hours. Most applications can announce simply when
+the application starts, and then only once every 6 hours or so.</p>
+<p>If you’re designing an application where you think you need to annonuce more
+often than once an hour, you’re most likely doing something wrong.</p>
+<p>Slower networks will naturally tend towards using less frequent announces to
 conserve bandwidth, while very fast networks can support applications that
 need more frequent announces. Reticulum implements these mechanisms to ensure
 that a large span of network types can seamlessly <em>co-exist</em> and interconnect.</p>
@@ -1695,7 +1700,7 @@ to <code class="docutils literal notranslate"><span class="pre">30</span></code>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=590429e0"></script>
+</div><script src="_static/documentation_options.js?v=928db92d"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

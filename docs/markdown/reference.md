@@ -277,6 +277,15 @@ communication for the identity. Be very careful with this method.
 * **Returns:**
   True if the file was saved, otherwise False.
 
+#### `pub_to_file(path)`
+
+Saves the public identity to a file.
+
+* **Parameters:**
+  **path** – The full path specifying where to save the identity.
+* **Returns:**
+  True if the file was saved, otherwise False.
+
 #### `get_private_key()`
 
 * **Returns:**
