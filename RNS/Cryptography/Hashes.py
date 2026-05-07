@@ -62,3 +62,7 @@ def sha512(data):
     digest.update(data)
 
     return digest.digest()
+
+def file_sha256(file):
+    if not hashlib: raise SystemError("The hashlib module is not available on this system")
+    else: return hashlib.file_digest(file, "sha256").digest()

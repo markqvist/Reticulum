@@ -656,6 +656,22 @@ class Identity:
             RNS.log("Error while saving identity to "+str(path), RNS.LOG_ERROR)
             RNS.log("The contained exception was: "+str(e))
 
+    def pub_to_file(self, path):
+        """
+        Saves the public identity to a file.
+
+        :param path: The full path specifying where to save the identity.
+        :returns: True if the file was saved, otherwise False.
+        """
+        try:
+            with open(path, "wb") as key_file:
+                key_file.write(self.get_public_key())
+                return True
+            return False
+        except Exception as e:
+            RNS.log("Error while saving identity to "+str(path), RNS.LOG_ERROR)
+            RNS.log("The contained exception was: "+str(e))
+
     def __init__(self,create_keys=True):
         # Initialize keys to none
         self.prv           = None
@@ -695,13 +711,15 @@ class Identity:
         """
         :returns: The private key as *bytes*
         """
-        return self.prv_bytes+self.sig_prv_bytes
+        if self.prv_bytes and self.sig_prv_bytes: return self.prv_bytes+self.sig_prv_bytes
+        else:                                     return None
 
     def get_public_key(self):
         """
         :returns: The public key as *bytes*
         """
-        return self.pub_bytes+self.sig_pub_bytes
+        if self.pub_bytes and self.sig_pub_bytes: return self.pub_bytes+self.sig_pub_bytes
+        else:                                     return None
 
     def load_private_key(self, prv_bytes):
         """

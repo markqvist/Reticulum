@@ -35,7 +35,6 @@ class Ed25519PrivateKey:
     def __init__(self, seed):
         self.seed = seed
         self.sk = ed25519.SigningKey(self.seed)
-        #self.vk = self.sk.get_verifying_key()
 
     @classmethod
     def generate(cls):
