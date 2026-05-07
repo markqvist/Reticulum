@@ -66,11 +66,11 @@ class Interface:
     # considered to be newly created. Two
     # hours by default.
     IC_NEW_TIME              = 2*60*60
-    IC_BURST_FREQ_NEW        = 6
-    IC_BURST_FREQ            = 35
-    IC_BURST_HOLD            = 1*60
+    IC_BURST_FREQ_NEW        = 3
+    IC_BURST_FREQ            = 10
+    IC_BURST_HOLD            = 15
     IC_BURST_PENALTY         = 15
-    IC_HELD_RELEASE_INTERVAL = 2
+    IC_HELD_RELEASE_INTERVAL = 5
     IC_DEQUE_MIN_SAMPLE      = 32
 
     # Default announce rate targets

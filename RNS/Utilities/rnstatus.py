@@ -542,26 +542,33 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         elif art and arp != None:       art_str = f"(t:{RNS.prettytime(art)}/p:{RNS.prettytime(arp)})"
                         elif art:                       art_str = f"(t:{RNS.prettytime(art)})"
                         else:                           art_str = ""
+
+                        burst_str = ""
+                        if "burst_active" in ifstat and ifstat["burst_active"]:
+                            for_str = RNS.prettytime(time.time()-ifstat["burst_activated"])
+                            burst_str = f" burst for {for_str}"
                       
                         rxb_str = "↓"+RNS.prettysize(ifstat["rxb"])
                         txb_str = "↑"+RNS.prettysize(ifstat["txb"])
-                        strdiff = len(rxb_str)-len(txb_str)
-                        if strdiff > 0: txb_str += " "*strdiff
-                        elif strdiff < 0: rxb_str += " "*-strdiff
-
+                        
+                        asr = False
                         if astats and "incoming_announce_frequency" in ifstat and ifstat["incoming_announce_frequency"] != None:
                             oaf = RNS.prettyfrequency(ifstat["outgoing_announce_frequency"])+"↑"
                             iaf = RNS.prettyfrequency(ifstat["incoming_announce_frequency"])+"↓"
                             if clients != None and clients > 0: pc_str = f"{RNS.prettyfrequency(ifstat['outgoing_announce_frequency']/clients)}/c"
                             else:                               pc_str = ""
-                            strdiff = len(oaf)-len(iaf)
-                            if   strdiff > 0: iaf += " "*strdiff
-                            elif strdiff < 0: oaf += " "*-strdiff
-                            strdiff = len(rxb_str)-len(oaf)
-                            if   strdiff > 0: oaf     += " "*strdiff
-                            elif strdiff < 0: txb_str += " "*-strdiff; rxb_str += " "*-strdiff
+                            asr = True
+
+                        if not asr: iaf = ""; oaf = ""
+                        mlen     = max(len(iaf), len(oaf), len(rxb_str), len(txb_str))
+                        iaf     += (mlen-len(iaf))*" "
+                        oaf     += (mlen-len(oaf))*" "
+                        rxb_str += (mlen-len(rxb_str))*" "
+                        txb_str += (mlen-len(txb_str))*" "
+
+                        if asr:
                             print(f"    Announces : {oaf}  {pc_str}")
-                            print(f"                {iaf} {art_str}")
+                            print(f"                {iaf} {art_str}{burst_str}")
 
                         rxstat = rxb_str
                         txstat = txb_str

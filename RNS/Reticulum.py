@@ -1382,6 +1382,8 @@ class Reticulum:
                 ifstats["announce_rate_penalty"] = interface.announce_rate_penalty
                 ifstats["announce_rate_grace"] = interface.announce_rate_grace
                 ifstats["held_announces"] = len(interface.held_announces)
+                ifstats["burst_active"] = interface.ic_burst_active
+                ifstats["burst_activated"] = interface.ic_burst_activated
                 ifstats["status"] = interface.online
                 ifstats["mode"] = interface.mode
 
