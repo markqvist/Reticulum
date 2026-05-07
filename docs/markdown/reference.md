@@ -40,7 +40,7 @@ MTU is a prerequisite for peers to communicate in the same network.
 Unless you really know what you are doing, the MTU should be left at
 the default value.
 
-#### `LINK_MTU_DISCOVERY` *= True*
+#### `LINK_MTU_DISCOVERY = True`
 
 Whether automatic link MTU discovery is enabled by default in this
 release. Link MTU discovery significantly increases throughput over
