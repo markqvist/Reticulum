@@ -1119,6 +1119,11 @@ class Reticulum:
                     elif operation == "retain":   rpc_connection.send(self._retain_destination_data(destination_hash))
                     elif operation == "unretain": rpc_connection.send(self._unretain_destination_data(destination_hash))
 
+                if "identity_data" in call:
+                    operation = call["identity_data"]
+                    identity_hash = call["identity_hash"]
+                    if operation == "retain": rpc_connection.send(self._retain_identity(identity_hash))
+
                 rpc_connection.close()
 
             except Exception as e:
@@ -1152,6 +1157,18 @@ class Reticulum:
             return response
         
         else: return RNS.Identity._unretain_destination_data(destination_hash)
+
+    def _retain_identity(self, identity_hash):
+        if type(identity_hash) != bytes or len(identity_hash) != RNS.Reticulum.TRUNCATED_HASHLENGTH//8:
+            raise TypeError("Cannot retain identity, not a valid identity hash")
+
+        if self.is_connected_to_shared_instance:
+            rpc_connection = self.get_rpc_client()
+            rpc_connection.send({"identity_data": "retain", "identity_hash": identity_hash})
+            response = rpc_connection.recv()
+            return response
+        
+        else: return RNS.Identity._retain_identity(identity_hash)
 
     def get_interface_stats(self):
         if self.is_connected_to_shared_instance:

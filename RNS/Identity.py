@@ -280,6 +280,18 @@ class Identity:
                 return True
 
         return False
+
+    @staticmethod
+    def _retain_identity(identity_hash):
+        try:
+            retained = False
+            for destination_hash in Identity.known_destinations:
+                if identity_hash == Identity.truncated_hash(Identity.known_destinations[destination_hash][2]):
+                    if Identity._retain_destination_data(destination_hash): retained = True
+
+            return retained
+
+        except Exception as e: RNS.log(f"Error while retaining identity {RNS.prettyhexrep(identity_hash)}: {e}", RNS.LOG_ERROR)
     
     @staticmethod
     def clean_known_destinations():
