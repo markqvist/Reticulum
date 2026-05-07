@@ -7,7 +7,7 @@ from pathlib import Path
 
 LINE_START_PATTERNS = [
     r'<a\s+',           # HTML anchor tags: <a id="..."></a>
-    r'\\\\newpage',       # LaTeX newpage commands
+    r'\\\\newpage',     # LaTeX newpage commands
 ]
 
 LINE_ANY_PATTERNS = [
@@ -16,22 +16,18 @@ LINE_ANY_PATTERNS = [
 ]
 
 def compile_patterns():
-    """Compile regex patterns for matching lines to remove."""
     start_patterns = [re.compile(p) for p in LINE_START_PATTERNS]
     any_patterns = [re.compile(p) for p in LINE_ANY_PATTERNS]
     return start_patterns, any_patterns
 
 
 def should_remove_line(line, start_patterns, any_patterns):
-    """Check if a line should be removed based on configured patterns."""
     stripped = line.strip()
     
-    # Check start-of-line patterns
     for pattern in start_patterns:
         if pattern.match(stripped):
             return True
     
-    # Check anywhere-in-line patterns
     for pattern in any_patterns:
         if pattern.search(stripped):
             return True
@@ -39,31 +35,27 @@ def should_remove_line(line, start_patterns, any_patterns):
     return False
 
 
-def clean_markdown_content(content, start_patterns, any_patterns):
-    """
-    Remove matching lines and collapse trailing empty lines.
-    
-    When a line is removed, any immediately following empty lines
-    are also removed to avoid leaving gaps in the document.
-    """
+def clean_markdown_content(content, start_patterns, any_patterns, api_ref=False):
     lines = content.split('\n')
     result = []
     skip_next_empty = False
     
     for i, line in enumerate(lines):
         if should_remove_line(line, start_patterns, any_patterns):
-            # Mark that we should skip trailing empty lines
             skip_next_empty = True
             continue
         
         if skip_next_empty:
-            if line.strip() == '':
-                # Skip this empty line (trailing from removed line)
-                continue
-            else:
-                # Non-empty line, resume normal processing
-                skip_next_empty = False
+            if line.strip() == '': continue
+            else: skip_next_empty = False
         
+        if api_ref:
+            if line.startswith("### ") or line.startswith("#### "):
+                line = line.replace("*", "")
+                line = line.replace("#### ", "#### `")
+                line = line.replace("### ", "### `")
+                line = f"{line}`"
+
         result.append(line)
     
     # Remove trailing empty lines from end of file
@@ -74,16 +66,13 @@ def clean_markdown_content(content, start_patterns, any_patterns):
 
 
 def process_file(filepath, start_patterns, any_patterns):
-    """Process a single markdown file."""
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             original_content = f.read()
         
-        cleaned_content = clean_markdown_content(
-            original_content, start_patterns, any_patterns
-        )
-        
-        # Only write if changes were made
+        api_ref = str(filepath) == "markdown/reference.md"
+        cleaned_content = clean_markdown_content(original_content, start_patterns, any_patterns, api_ref=api_ref)
+
         if cleaned_content != original_content:
             with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(cleaned_content)
@@ -96,12 +85,11 @@ def process_file(filepath, start_patterns, any_patterns):
 
 
 def find_markdown_files(directory):
-    """Recursively find all .md files in directory."""
     md_files = []
     for root, _, files in os.walk(directory):
         for filename in files:
-            if filename.endswith('.md'):
-                md_files.append(Path(root) / filename)
+            if filename.endswith('.md'): md_files.append(Path(root) / filename)
+    
     return md_files
 
 
