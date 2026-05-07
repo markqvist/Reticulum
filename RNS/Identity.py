@@ -76,6 +76,7 @@ class Identity:
     # Non-configurable constants
     TOKEN_OVERHEAD            = RNS.Cryptography.Token.TOKEN_OVERHEAD
     AES128_BLOCKSIZE          = 16          # In bytes
+    AES256_BLOCKSIZE          = 16          # In bytes
     HASHLENGTH                = 256         # In bits
     SIGLENGTH                 = KEYSIZE     # In bits
 
