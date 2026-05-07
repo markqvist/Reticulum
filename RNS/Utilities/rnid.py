@@ -152,7 +152,7 @@ def main():
         if args.export_prv: export_prv_identity(args, identity); op = True
         if args.hash: print_hash_information(args, identity or args.identity); op = True
         if args.announce: announce(args, identity); op = True
-        if args.validate: validate(args, identity); op = True
+        if args.validate: validate(args, identity or args.identity); op = True
         if args.sign: sign(args, identity); op = True
         if args.encrypt: encrypt(args, identity); op = True
         if args.decrypt: decrypt(args, identity); op = True
@@ -408,7 +408,11 @@ def rsg_is_legacy_format(rsg):
 
 def validate_rsg(rsg, message=None, required_signer=None):
     if not message: raise ValueError(f"No message specified for rsg validation")
-    if not type(required_signer) in [RNS.Identity, type(None)]: raise TypeError(f"Invalid required signer type {type(required_signer)}")
+    if not type(required_signer) in [RNS.Identity, bytes, type(None)]: raise TypeError(f"Invalid required signer type {type(required_signer)}")
+    
+    if   type(required_signer) == RNS.Identity: required_signer_hash = identity.hash
+    elif type(required_signer) == bytes:        required_signer_hash = required_signer
+    else:                                       required_signer_hash = None
 
     siglen = RNS.Identity.SIGLENGTH//8
     rsg_data = get_rsg_data(rsg)
@@ -435,16 +439,19 @@ def validate_rsg(rsg, message=None, required_signer=None):
             if not "note" in signed_data["meta"]:                          return False, None, None
 
             try:
-                if required_signer:
+                if type(required_signer) == RNS.Identity:
                     signing_identity = required_signer
                 
                 else:
                     signing_identity = RNS.Identity(create_keys=False)
                     signing_identity.load_public_key(signed_data["meta"]["pubkey"])
-            
+
             except: return False, None, None
-    
+
+            if required_signer_hash == None: required_signer_hash = signing_identity.hash
+
             if not signing_identity:                                       return False, None, None
+            if not signing_identity.hash == required_signer_hash:          return False, None, signing_identity
             if signed_data["hash"] != rsg_hash:                            return False, None, signing_identity
             else:
                 if not signing_identity.validate(signature, envelope):     return False, signed_data, signing_identity
@@ -492,11 +499,17 @@ def validate(args, identity):
             with open(signature_path, "rb") as fh: rsg = fh.read()
         except Exception as e: print(f"Could not read rsg: {e}"); exit(R_READ_ERROR)
 
+        if type(identity) == str:
+            if not len(identity) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8*2: print("Invalid identity hash length"); exit(R_INVALID_IDENTITY)
+            try: identity = bytes.fromhex(identity)
+            except Exception as e: print(f"Invalid identity hash: {e}"); exit(R_INVALID_IDENTITY)
+
         try:
             with open(file_path, "rb") as fh:
                 try:
                     valid, signed_data, signing_identity = validate_rsg(rsg, message=fh, required_signer=identity)
-                    signer_description = f"\nThis file was NOT signed by {identity or signing_identity}"
+                    identity_str = RNS.prettyhexrep(identity) if type(identity) == bytes else f"{identity}"
+                    signer_description = f"\nThis file was NOT signed by {identity_str or signing_identity}" if identity else ""
                     if not valid: print(f"Invalid signature {signature_path} for file {file_path}{signer_description}"); exit(R_INVALID_SIGNATURE)
                     else:         print(f"Signature is valid, the file {file_path} was signed by {signing_identity}"); exit(R_OK)
 
@@ -505,7 +518,7 @@ def validate(args, identity):
         except Exception as e: print(f"Could not read {file_path}: {e}"); exit(R_READ_ERROR)
 
     else:
-        if identity == None: print(f"Cannot validate legacy rsg signatures without an explicit required identity"); exit(R_NO_IDENTITY)
+        if type(identity) != RNS.Identity: print(f"Cannot validate legacy rsg signatures without an explicit required identity"); exit(R_NO_IDENTITY)
         try:
             with open(signature_path, "rb") as fh: signature = fh.read()
         except Exception as e: print(f"Could not read signature: {e}"); exit(R_READ_ERROR)
