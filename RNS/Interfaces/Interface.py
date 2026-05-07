@@ -112,16 +112,6 @@ class Interface:
         self.ic_held_release_interval = RNS.Reticulum.get_instance()._default_ic_held_release_interval()
         self.held_announces           = {}
 
-        # RNS.log(f"=========== init ===========")
-        # RNS.log(f"self.ic_max_held_announces    : {self.ic_max_held_announces}", RNS.LOG_CRITICAL)
-        # RNS.log(f"self.ic_burst_hold            : {self.ic_burst_hold}", RNS.LOG_CRITICAL)
-        # RNS.log(f"self.ic_burst_freq_new        : {self.ic_burst_freq_new}", RNS.LOG_CRITICAL)
-        # RNS.log(f"self.ic_burst_freq            : {self.ic_burst_freq}", RNS.LOG_CRITICAL)
-        # RNS.log(f"self.ic_new_time              : {self.ic_new_time}", RNS.LOG_CRITICAL)
-        # RNS.log(f"self.ic_burst_penalty         : {self.ic_burst_penalty}", RNS.LOG_CRITICAL)
-        # RNS.log(f"self.ic_held_release_interval : {self.ic_held_release_interval}", RNS.LOG_CRITICAL)
-        # RNS.log(f"=========== init ===========\n")
-
         self.ia_freq_deque = deque(maxlen=Interface.IA_FREQ_SAMPLES)
         self.oa_freq_deque = deque(maxlen=Interface.OA_FREQ_SAMPLES)
 
