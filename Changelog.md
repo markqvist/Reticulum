@@ -42,7 +42,7 @@ Release artifacts include `rsg` signature files that can be validated against th
 rnid -i bc7291552be7a58f361522990465165c -V rns-1.2.4-py3-none-any.whl
 ```
 
-The `rnid` utility will then verify the signatures, and display whether it is valid. If not, the file has been tampered with and should not be trusted.
+The `rnid` utility will then verify the signatures, and display whether it is valid. If the signature cannot be verified, the file has been tampered with and should be thrown very far away in a jiffy.
 
 This is the first release using the new `rsg` signature format, and you will need this latest version of RNS to verify them. Ironic, I know, but that's how it is. Since release file hashes are now embbeded in the `rsg` signatures, this is the last release that will explicitly post the raw release hashes. Verifying with `rnid` is much more effective, since it ensures all data was signed by the release identity.
 
