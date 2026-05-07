@@ -256,6 +256,7 @@ def get_operating_identity(args, allow_none=False, no_cache=False):
                     if ident_str == hash_str: print(f"Recalled Identity {ident_str}")
                     else:                     print(f"Recalled Identity {ident_str} for destination {hash_str}")
 
+                if identity and identity.hash: reticulum._retain_identity(identity.hash)
 
             except Exception as e: print(f"Invalid hexadecimal hash provided: {e}"); exit(R_INVALID_IDENTITY)
 
