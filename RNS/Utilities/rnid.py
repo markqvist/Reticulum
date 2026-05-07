@@ -144,18 +144,20 @@ def main():
         op_requires_identity = (args.sign or args.encrypt or args.decrypt or args.hash or args.announce or args.write
                                 or args.print_identity or args.print_identity or args.export_pub or args.export_prv)
 
-        identity = get_operating_identity(args)
+        identity = get_operating_identity(args); op = False
         if not identity and op_requires_identity: print("Could not get working identity"); exit(R_NO_IDENTITY)
-        if args.print_identity: print_identity_information(args, identity)
-        if args.export_pub: export_pub_identity(args, identity)
-        if args.export_prv: export_prv_identity(args, identity)
-        if args.hash: print_hash_information(args, identity)
-        if args.announce: announce(args, identity)
-        if args.validate: validate(args, identity)
-        if args.sign: sign(args, identity)
-        if args.encrypt: encrypt(args, identity)
-        if args.decrypt: decrypt(args, identity)
-        if args.write: write_identity(args, identity)
+        if args.print_identity: print_identity_information(args, identity); op = True
+        if args.export_pub: export_pub_identity(args, identity); op = True
+        if args.export_prv: export_prv_identity(args, identity); op = True
+        if args.hash: print_hash_information(args, identity); op = True
+        if args.announce: announce(args, identity); op = True
+        if args.validate: validate(args, identity); op = True
+        if args.sign: sign(args, identity); op = True
+        if args.encrypt: encrypt(args, identity); op = True
+        if args.decrypt: decrypt(args, identity); op = True
+        if args.write: write_identity(args, identity); op = True
+
+        if not op: parser.print_help()
 
         exit(0)
 
