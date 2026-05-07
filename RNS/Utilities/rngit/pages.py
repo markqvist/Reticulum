@@ -1196,7 +1196,7 @@ class NomadNetworkNode():
             content_parts.append("\n")
 
         self.owner.view_succeeded(group_name, repo_name, remote_identity)
-        page_content = "".join(content_parts)
+        page_content = "".join(content_parts).rstrip()+"\n"
         return self.render_template(page_content, nav_content=nav_content, template="releases", st=st)
 
     def serve_release_page(self, path, data, request_id, link_id, remote_identity, requested_at):
