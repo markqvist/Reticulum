@@ -423,7 +423,7 @@ def validate_rsg(rsg, message=None, required_signer=None):
             except: return False, None, None
 
             if not "hashtype" in signed_data or not "hash" in signed_data: return False, None, None
-            if not signed_data["hash"] in RSG_HASHTYPES:                   return False, None, None
+            if not signed_data["hashtype"] in RSG_HASHTYPES:               return False, None, None
             if not "meta" in signed_data:                                  return False, None, None
             if not "signer" in signed_data["meta"]:                        return False, None, None
             if not "pubkey" in signed_data["meta"]:                        return False, None, None
@@ -491,8 +491,8 @@ def validate(args, identity):
             with open(file_path, "rb") as fh:
                 try:
                     valid, signed_data, signing_identity = validate_rsg(rsg, message=fh, required_signer=identity)
-                    if not valid: print(f"Invalid signature {signature_path} for file {file_path}"); exit(R_INVALID_SIGNATURE)
-                    else:         print(f"Signature is valid, the file {file_path} was signed by {signing_identity}."); exit(R_OK)
+                    if not valid: print(f"Invalid signature {signature_path} for file {file_path}\nThis file was NOT signed by {identity}"); exit(R_INVALID_SIGNATURE)
+                    else:         print(f"Signature is valid, the file {file_path} was signed by {signing_identity}"); exit(R_OK)
 
                 except Exception as e: print(f"Error while validating {signature_path}: {e}"); exit(R_UNKNOWN_ERROR)
 
@@ -506,8 +506,8 @@ def validate(args, identity):
 
         try:
             with open(file_path, "rb") as fh: valid = identity.validate(signature, fh.read())
-            if not valid: print(f"Invalid signature {signature_path} for file {file_path}"); exit(R_INVALID_SIGNATURE)
-            else:         print(f"Signature is valid, the file {file_path} was signed by {identity}."); exit(R_OK)
+            if not valid: print(f"Invalid signature {signature_path} for file {file_path}\nThis file was NOT signed by {identity}"); exit(R_INVALID_SIGNATURE)
+            else:         print(f"Signature is valid, the file {file_path} was signed by {identity}"); exit(R_OK)
         
         except Exception as e: print(f"Could not validate signature: {e}"); exit(R_READ_ERROR)
 
