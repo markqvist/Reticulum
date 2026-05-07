@@ -52,8 +52,9 @@ def clean_markdown_content(content, start_patterns, any_patterns, api_ref=False)
         if api_ref:
             if line.startswith("### ") or line.startswith("#### "):
                 line = line.replace("*", "")
-                line = line.replace("#### ", "#### `")
-                line = line.replace("### ", "### `")
+                line = line.replace("\\_", "_")
+                if line.startswith("### "): line = line.replace("### ", "### `")
+                if line.startswith("#### "): line = line.replace("#### ", "#### `")
                 line = f"{line}`"
 
         result.append(line)
