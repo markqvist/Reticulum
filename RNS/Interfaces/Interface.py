@@ -90,26 +90,40 @@ class Interface:
         self.bitrate  = 62500
         self.HW_MTU   = None
 
-        self.supports_discovery = False
-        self.discoverable = False
-        self.last_discovery_announce = 0
-        self.bootstrap_only = False
-        self.parent_interface = None
-        self.spawned_interfaces = None
-        self.tunnel_id = None
-        self.ingress_control = True
-        self.phy_keepalive = False
-        self.ic_max_held_announces = Interface.MAX_HELD_ANNOUNCES
-        self.ic_burst_hold = Interface.IC_BURST_HOLD
-        self.ic_burst_active = False
-        self.ic_burst_activated = 0
-        self.ic_held_release = 0
-        self.ic_burst_freq_new = Interface.IC_BURST_FREQ_NEW
-        self.ic_burst_freq = Interface.IC_BURST_FREQ
-        self.ic_new_time = Interface.IC_NEW_TIME
-        self.ic_burst_penalty = Interface.IC_BURST_PENALTY
-        self.ic_held_release_interval = Interface.IC_HELD_RELEASE_INTERVAL
-        self.held_announces = {}
+        self.supports_discovery       = False
+        self.discoverable             = False
+        self.last_discovery_announce  = 0
+        self.bootstrap_only           = False
+        self.parent_interface         = None
+        self.spawned_interfaces       = None
+        self.tunnel_id                = None
+        self.ingress_control          = True
+        self.phy_keepalive            = False
+        
+        self.ic_max_held_announces    = RNS.Reticulum.get_instance()._default_ic_max_held_announces()
+        self.ic_burst_hold            = RNS.Reticulum.get_instance()._default_ic_burst_hold()
+        self.ic_burst_active          = False
+        self.ic_burst_activated       = 0
+        self.ic_held_release          = 0
+        self.ic_burst_freq_new        = RNS.Reticulum.get_instance()._default_ic_burst_freq_new()
+        self.ic_burst_freq            = RNS.Reticulum.get_instance()._default_ic_burst_freq()
+        self.ic_new_time              = RNS.Reticulum.get_instance()._default_ic_new_time()
+        self.ic_burst_penalty         = RNS.Reticulum.get_instance()._default_ic_burst_penalty()
+        self.ic_held_release_interval = RNS.Reticulum.get_instance()._default_ic_held_release_interval()
+        self.held_announces           = {}
+
+        RNS.log(f"=========== {self} ===========")
+        RNS.log(f"self.ic_max_held_announces    : {self.ic_max_held_announces}", RNS.LOG_CRITICAL)
+        RNS.log(f"self.ic_burst_hold            : {self.ic_burst_hold}", RNS.LOG_CRITICAL)
+        RNS.log(f"self.ic_burst_active          : {self.ic_burst_active}", RNS.LOG_CRITICAL)
+        RNS.log(f"self.ic_burst_activated       : {self.ic_burst_activated}", RNS.LOG_CRITICAL)
+        RNS.log(f"self.ic_held_release          : {self.ic_held_release}", RNS.LOG_CRITICAL)
+        RNS.log(f"self.ic_burst_freq_new        : {self.ic_burst_freq_new}", RNS.LOG_CRITICAL)
+        RNS.log(f"self.ic_burst_freq            : {self.ic_burst_freq}", RNS.LOG_CRITICAL)
+        RNS.log(f"self.ic_new_time              : {self.ic_new_time}", RNS.LOG_CRITICAL)
+        RNS.log(f"self.ic_burst_penalty         : {self.ic_burst_penalty}", RNS.LOG_CRITICAL)
+        RNS.log(f"self.ic_held_release_interval : {self.ic_held_release_interval}", RNS.LOG_CRITICAL)
+        RNS.log(f"=========== {self} ===========\n")
 
         self.ia_freq_deque = deque(maxlen=Interface.IA_FREQ_SAMPLES)
         self.oa_freq_deque = deque(maxlen=Interface.OA_FREQ_SAMPLES)

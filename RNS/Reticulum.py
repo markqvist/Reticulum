@@ -249,22 +249,29 @@ class Reticulum:
         Reticulum.blackholepath = Reticulum.configdir+"/storage/blackhole"
         Reticulum.interfacepath = Reticulum.configdir+"/interfaces"
 
-        Reticulum.__network_identity = None
-        Reticulum.__transport_enabled = False
-        Reticulum.__link_mtu_discovery = Reticulum.LINK_MTU_DISCOVERY
-        Reticulum.__remote_management_enabled = False
-        Reticulum.__use_implicit_proof = True
-        Reticulum.__allow_probes = False
-        Reticulum.__discovery_enabled = False
-        Reticulum.__discover_interfaces = False
+        Reticulum.__network_identity                  = None
+        Reticulum.__transport_enabled                 = False
+        Reticulum.__link_mtu_discovery                = Reticulum.LINK_MTU_DISCOVERY
+        Reticulum.__remote_management_enabled         = False
+        Reticulum.__use_implicit_proof                = True
+        Reticulum.__allow_probes                      = False
+        Reticulum.__discovery_enabled                 = False
+        Reticulum.__discover_interfaces               = False
         Reticulum.__autoconnect_discovered_interfaces = False
-        Reticulum.__required_discovery_value = None
-        Reticulum.__publish_blackhole = False
-        Reticulum.__blackhole_sources = []
-        Reticulum.__interface_sources = []
-        Reticulum.__default_ar_target  = None
-        Reticulum.__default_ar_penalty = None
-        Reticulum.__default_ar_grace   = None
+        Reticulum.__required_discovery_value          = None
+        Reticulum.__publish_blackhole                 = False
+        Reticulum.__blackhole_sources                 = []
+        Reticulum.__interface_sources                 = []
+        Reticulum.__default_ar_target                 = None
+        Reticulum.__default_ar_penalty                = None
+        Reticulum.__default_ar_grace                  = None
+        Reticulum.__ic_max_held_announces             = None
+        Reticulum.__ic_burst_hold                     = None
+        Reticulum.__ic_burst_freq_new                 = None
+        Reticulum.__ic_burst_freq                     = None
+        Reticulum.__ic_new_time                       = None
+        Reticulum.__ic_burst_penalty                  = None
+        Reticulum.__ic_held_release_interval          = None
 
         Reticulum.panic_on_interface_error = False
 
@@ -595,6 +602,35 @@ class Reticulum:
                 if option == "default_ar_grace":
                     v = self.config["reticulum"].as_int(option)
                     if v >= 0: Reticulum.__default_ar_grace = v
+
+                if option == "ic_max_held_announces":
+                    v = self.config["reticulum"].as_int(option)
+                    if v >= 0: Reticulum.__ic_max_held_announces = v
+                
+                if option == "ic_burst_hold":
+                    v = self.config["reticulum"].as_float(option)
+                    if v >= 0: Reticulum.__ic_burst_hold = v
+                
+                if option == "ic_burst_freq_new":
+                    v = self.config["reticulum"].as_float(option)
+                    if v >= 0: Reticulum.__ic_burst_freq_new = v
+                
+                if option == "ic_burst_freq":
+                    v = self.config["reticulum"].as_float(option)
+                    if v >= 0: Reticulum.__ic_burst_freq = v
+                
+                if option == "ic_new_time":
+                    v = self.config["reticulum"].as_float(option)
+                    if v >= 0: Reticulum.__ic_new_time = v
+                
+                if option == "ic_burst_penalty":
+                    v = self.config["reticulum"].as_float(option)
+                    if v >= 0: Reticulum.__ic_burst_penalty = v
+                
+                if option == "ic_held_release_interval":
+                    v = self.config["reticulum"].as_float(option)
+                    if v >= 0: Reticulum.__ic_held_release_interval = v
+
 
         if RNS.compiled: RNS.log("Reticulum running in compiled mode", RNS.LOG_DEBUG)
         else: RNS.log("Reticulum running in interpreted mode", RNS.LOG_DEBUG)
@@ -1020,6 +1056,27 @@ class Reticulum:
 
     def _default_ar_grace(self):
         return self.__default_ar_grace or RNS.Interfaces.Interface.Interface.DEFAULT_AR_GRACE
+
+    def _default_ic_max_held_announces(self):
+        return self.__ic_max_held_announces or RNS.Interfaces.Interface.Interface.MAX_HELD_ANNOUNCES
+
+    def _default_ic_burst_hold(self):
+        return self.__ic_burst_hold or RNS.Interfaces.Interface.Interface.IC_BURST_HOLD
+
+    def _default_ic_burst_freq_new(self):
+        return self.__ic_burst_freq_new or RNS.Interfaces.Interface.Interface.IC_BURST_FREQ_NEW
+
+    def _default_ic_burst_freq(self):
+        return self.__ic_burst_freq or RNS.Interfaces.Interface.Interface.IC_BURST_FREQ
+
+    def _default_ic_new_time(self):
+        return self.__ic_new_time or RNS.Interfaces.Interface.Interface.IC_NEW_TIME
+
+    def _default_ic_burst_penalty(self):
+        return self.__ic_burst_penalty or RNS.Interfaces.Interface.Interface.IC_BURST_PENALTY
+
+    def _default_ic_held_release_interval(self):
+        return self.__ic_held_release_interval or RNS.Interfaces.Interface.Interface.IC_HELD_RELEASE_INTERVAL
 
     def _should_persist_data(self, background=False):
         if time.time() > self.last_data_persist+Reticulum.GRACIOUS_PERSIST_INTERVAL:
