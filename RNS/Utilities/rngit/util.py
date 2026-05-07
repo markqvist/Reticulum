@@ -279,8 +279,8 @@ class MarkdownToMicron:
             links.append((match.group(1), match.group(2)))
             return f"\x00LINK{len(links)-1}\x00"
         
-        text = self.INLINE_CODE_RE.sub(extract_code, text)
         text = self.LINK_RE.sub(extract_link, text)
+        text = self.INLINE_CODE_RE.sub(extract_code, text)
         text = self.BOLD_RE.sub(self._bold_sub, text)
         text = self.ITALIC_RE.sub(self._italic_sub, text)
         
@@ -304,12 +304,6 @@ class MarkdownToMicron:
         def restore_code(match):
             idx = int(match.group(1))
             content = code_blocks[idx]
-            
-            # Disabled for now
-            # highlighted = self._highlight_inline_code(content)
-            # if highlighted: return highlighted
-            
-            # Use plain inline code formatting
             content = content.replace('`', '\\`')
             return f"{self.CODE_BG_INLINE}{self.CODE_FG}{content}{self.CODE_RESET}"
         
