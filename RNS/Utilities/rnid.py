@@ -138,14 +138,11 @@ def main():
         args = parser.parse_args()
         validate_args(args)
 
-        if not args.read:
-            if args.encrypt:  args.read = args.encrypt
-            if args.decrypt:  args.read = args.decrypt
-            if args.sign:     args.read = args.sign
-            if args.validate: args.read = args.validate
+        op_requires_identity = (args.sign or args.encrypt or args.decrypt or args.hash or args.announce or args.write
+                                or args.print_identity or args.print_identity or args.export_pub or args.export_prv)
 
         identity = get_operating_identity(args)
-        if not identity: print("Could not get working identity"); exit(9)
+        if not identity and op_requires_identity: print("Could not get working identity"); exit(R_NO_IDENTITY)
         if args.print_identity: print_identity_information(args, identity)
         if args.export_pub: export_pub_identity(args, identity)
         if args.export_prv: export_prv_identity(args, identity)
@@ -428,19 +425,19 @@ def validate_rsg(rsg, message=None, required_signer=None):
             if not "signer" in signed_data["meta"]:                        return False, None, None
             if not "pubkey" in signed_data["meta"]:                        return False, None, None
             if not "note" in signed_data["meta"]:                          return False, None, None
-            if signed_data["hash"] != rsg_hash:                            return False, None, None
 
             try:
                 if required_signer:
                     signing_identity = required_signer
                 
                 else:
-                    signing_identity = RNS.Identity(create_keys=false)
+                    signing_identity = RNS.Identity(create_keys=False)
                     signing_identity.load_public_key(signed_data["meta"]["pubkey"])
             
             except: return False, None, None
     
             if not signing_identity:                                       return False, None, None
+            if signed_data["hash"] != rsg_hash:                            return False, None, signing_identity
             else:
                 if not signing_identity.validate(signature, envelope):     return False, signed_data, signing_identity
                 else:                                                      return True,  signed_data, signing_identity
@@ -491,7 +488,8 @@ def validate(args, identity):
             with open(file_path, "rb") as fh:
                 try:
                     valid, signed_data, signing_identity = validate_rsg(rsg, message=fh, required_signer=identity)
-                    if not valid: print(f"Invalid signature {signature_path} for file {file_path}\nThis file was NOT signed by {identity}"); exit(R_INVALID_SIGNATURE)
+                    signer_description = f"\nThis file was NOT signed by {identity or signing_identity}"
+                    if not valid: print(f"Invalid signature {signature_path} for file {file_path}{signer_description}"); exit(R_INVALID_SIGNATURE)
                     else:         print(f"Signature is valid, the file {file_path} was signed by {signing_identity}"); exit(R_OK)
 
                 except Exception as e: print(f"Error while validating {signature_path}: {e}"); exit(R_UNKNOWN_ERROR)
