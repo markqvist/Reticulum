@@ -1581,7 +1581,7 @@ class ReticulumGitNode():
         group  = self.groups[group_name]
         for entry in os.listdir(group_path):
             path = f"{group_path}/{entry}"
-            if os.path.isdir(path):
+            if os.path.isdir(path) and not path.endswith(".work") and not path.endswith(".releases"):
                 if not self.__is_git_repository(path): RNS.log(f"The directory \"{path}\" is not a git repository, skipping", RNS.LOG_WARNING)
                 else:
                     if not self.__is_bare_repository(path):
@@ -2006,19 +2006,28 @@ class ReticulumGitNode():
                                      "created_by": meta.get("created_by", "") }
 
                     notes_preview = ""
-                    for notes_file in ["RELEASE.md", "RELEASE.mu"]:
+                    notes_format = "markdown"
+                    for notes_file in ["RELEASE.md", "RELEASE.mu", "RELEASE.txt"]:
                         notes_path = os.path.join(release_dir, notes_file)
                         if os.path.isfile(notes_path):
                             try:
                                 with open(notes_path, "r", encoding="utf-8") as f:
-                                    first_line = f.readline().strip()
-                                    if first_line.startswith("#"): first_line = first_line.lstrip("#").strip()
-                                    notes_preview = first_line[:256]
+                                    notes_full = f.read()
+                                    notes_preview = ""
+                                    for line in notes_full.splitlines():
+                                        if not line.startswith("#") and not line.startswith(">"):
+                                            notes_preview += f"{line}\n"
+
+                                    notes_preview = notes_preview.strip()
+
+                                    if   notes_path.endswith(".mu"): notes_format = "micron"
+                                    elif notes_path.endswith(".txt"): notes_format = "text"
                             
                             except Exception: pass
                             break
 
                     release_info["preview"] = notes_preview
+                    release_info["format"]  = notes_format
 
                     artifacts_dir = os.path.join(release_dir, "artifacts")
                     if os.path.isdir(artifacts_dir):

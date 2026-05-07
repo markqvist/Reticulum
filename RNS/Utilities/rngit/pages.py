@@ -1180,15 +1180,19 @@ class NomadNetworkNode():
             created_ts = rel.get("created", 0)
             date_str = time.strftime("%Y-%m-%d", time.localtime(created_ts)) if created_ts else "unknown"
             artifacts = rel.get("artifacts", 0)
-            preview = rel.get("preview", "")[:256]
-            if len(rel.get("preview", "")) > len(preview): preview += "…"
+            rel_format = rel.get("format", "markdown")
+            preview = rel.get("preview", "").splitlines()[0][:2048]
+            if len(rel.get("preview", "").splitlines()[0]) > len(preview): preview += "…"
             
             link = self.m_link(tag, self.PATH_RELEASE, g=group_name, r=repo_name, t=tag)
             
             sep = self.icon("sep")
             artifacts_str = f"`*{artifacts} artifact{'s' if artifacts != 1 else ''}`*"
             content_parts.append(f"{link} {self.CLR_DIM}{date_str} {sep} {artifacts_str}`f\n")
-            if preview: content_parts.append(f"{self.m_escape(preview)}\n")
+            if preview:
+                if   rel_format == "markdown": content_parts.append(f"{self.mdc.format_block(preview)}\n")
+                elif rel_format == "micron":   content_parts.append(f"{preview}\n")
+                else: content_parts.append(f"{self.m_escape(preview)}\n")
             content_parts.append("\n")
 
         self.owner.view_succeeded(group_name, repo_name, remote_identity)
