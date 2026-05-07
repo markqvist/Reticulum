@@ -196,8 +196,8 @@ def get_operating_identity(args):
         try: load_path = os.path.expanduser(args.identity)
         except: pass
 
+        # Attempt to load Identity from .rid file
         if load_path and os.path.isfile(load_path):
-            # Attempt to load Identity from .rid file
             try:
                 identity = RNS.Identity.from_file(load_path)
                 print(f"Loaded Identity {identity} from {load_path}")
@@ -208,10 +208,11 @@ def get_operating_identity(args):
                 print(f"Could not load Identity from specified file: {e}")
                 exit(9)
 
-        elif len(identity_str) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8*2:
-            # Attempt to recall Identity from hex-encoded hash
+        # Attempt to recall Identity from hex-encoded hash
+        elif len(args.identity) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8*2:
             try:
-                ident_hash = bytes.fromhex(identity_str)
+                ensure_reticulum(args)
+                ident_hash = bytes.fromhex(args.identity)
                 identity = RNS.Identity.recall(ident_hash) or RNS.Identity.recall(ident_hash, from_identity_hash=True)
 
                 if identity == None:
@@ -221,7 +222,6 @@ def get_operating_identity(args):
                         exit(5)
                     
                     else:
-                        ensure_reticulum(args)
                         RNS.Transport.request_path(ident_hash)
                         def spincheck(): return RNS.Identity.recall(ident_hash) != None
                         spin(spincheck, "Requesting unknown Identity for "+RNS.prettyhexrep(ident_hash), args.t)
