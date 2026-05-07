@@ -157,6 +157,7 @@ def main():
         if args.encrypt: encrypt(args, identity); op = True
         if args.decrypt: decrypt(args, identity); op = True
         if args.write: write_identity(args, identity); op = True
+        if args.generate: op = True
 
         if not op: parser.print_help()
 
@@ -231,10 +232,13 @@ def get_operating_identity(args, allow_none=False, no_cache=False):
                         exit(R_NO_IDENTITY)
                     
                     else:
-                        id_destination_hash = RNS.Destination.hash_from_name_and_identity(DEFAULT_ASPECTS, identity)
+                        id_destination_hash = RNS.Destination.hash_from_name_and_identity(DEFAULT_ASPECTS, requested_hash)
                         RNS.Transport.request_path(requested_hash)      # Acquire if this was a destination hash
                         RNS.Transport.request_path(id_destination_hash) # Acquire if this was an identity hash
-                        def spincheck(): return RNS.Identity.recall(requested_hash) != None
+                        
+                        def spincheck():
+                            received = RNS.Identity.recall(requested_hash) or RNS.Identity.recall(requested_hash, from_identity_hash=True)
+                            return received != None
                         spin(spincheck, "Requesting unknown Identity for "+RNS.prettyhexrep(requested_hash), args.t)
 
                         if not spincheck():
@@ -243,7 +247,7 @@ def get_operating_identity(args, allow_none=False, no_cache=False):
                             else: return None
                         
                         else:
-                            identity = RNS.Identity.recall(requested_hash)
+                            identity = RNS.Identity.recall(requested_hash) or RNS.Identity.recall(requested_hash, from_identity_hash=True)
                             print("Received Identity "+str(identity)+" for destination "+RNS.prettyhexrep(requested_hash)+" from the network")
 
                 else:
@@ -364,7 +368,7 @@ def announce(args, identity):
             if not identity.get_private_key(): print("Cannot announce this destination, since the private key is not held"); exit(R_NO_PRVKEY)
             else:
                 destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, app_name, *aspects)
-                print(f"Announcing {args.announce} destination {RNS.prettyhexrep(destination.hash)} for  identity {identity}")
+                print(f"Announcing {args.announce} destination {RNS.prettyhexrep(destination.hash)} for identity {identity}")
                 destination.announce(); time.sleep(0.25)
 
     except Exception as e: print(f"An error ocurred while attempting to send the announce: {e}"); exit(R_UNKNOWN_ERROR)
