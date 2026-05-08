@@ -222,12 +222,12 @@ class BackboneInterface(Interface):
     @staticmethod
     def register_in(fileno):
         if fileno < 0:
-            RNS.log(f"Attempt to register invalid file descriptor {fileno}", RNS.LOG_ERROR)
+            RNS.log(f"Attempt to register invalid file descriptor {fileno}", RNS.LOG_WARNING)
             return
 
         try: BackboneInterface.epoll.register(fileno, select.EPOLLIN)
         except Exception as e:
-            RNS.log(f"An error occurred while registering EPOLL_IN for file descriptor {fileno}: {e}", RNS.LOG_ERROR)
+            RNS.log(f"An error occurred while registering EPOLL_IN for file descriptor {fileno}: {e}", RNS.LOG_WARNING)
 
     @staticmethod
     def deregister_fileno(fileno):
@@ -237,7 +237,7 @@ class BackboneInterface(Interface):
 
         try: BackboneInterface.epoll.unregister(fileno)
         except Exception as e:
-            RNS.log(f"An error occurred while deregistering file descriptor {fileno}: {e}", RNS.LOG_DEBUG)
+            RNS.log(f"An error occurred while deregistering file descriptor {fileno}: {e}", RNS.LOG_WARNING)
 
     @staticmethod
     def deregister_listeners():
@@ -314,7 +314,7 @@ class BackboneInterface(Interface):
                                         except Exception as e: RNS.log(f"Error while removing spawned interface from {pif}: {e}", RNS.LOG_ERROR)
 
                                         try: client_socket.close()
-                                        except Exception as e: RNS.log(f"Error while closing socket for {spawned_interface}: {e}", RNS.LOG_ERROR)
+                                        except Exception as e: RNS.log(f"Error while closing socket for {spawned_interface}: {e}", RNS.LOG_WARNING)
                                         spawned_interface.receive(b"")
 
                                     spawned_interface.transmit_buffer = spawned_interface.transmit_buffer[written:]
@@ -351,7 +351,7 @@ class BackboneInterface(Interface):
                                         client_socket.setblocking(0)
                                         if not owner_interface.incoming_connection(client_socket):
                                             try: client_socket.close()
-                                            except Exception as e: RNS.log(f"Error while closing socket for failed incoming connection: {e}", RNS.LOG_ERROR)
+                                            except Exception as e: RNS.log(f"Error while closing socket for failed incoming connection: {e}", RNS.LOG_WARNING)
 
                                     except:
                                         RNS.log(f"Accepting socket failed for incoming connection: {e}", RNS.LOG_WARNING)
@@ -363,7 +363,7 @@ class BackboneInterface(Interface):
                                     except Exception as e: RNS.log(f"Error while deregistering listener file descriptor {fileno}: {e}", RNS.LOG_ERROR)
 
                                     try: server_socket.close()
-                                    except Exception as e: RNS.log(f"Error while closing listener socket for {server_socket}: {e}", RNS.LOG_ERROR)
+                                    except Exception as e: RNS.log(f"Error while closing listener socket for {server_socket}: {e}", RNS.LOG_WARNING)
 
                 except Exception as e:
                     RNS.log(f"BackboneInterface error: {e}", RNS.LOG_ERROR)
@@ -616,8 +616,8 @@ class BackboneClientInterface(Interface):
         
         except Exception as e:
             if initial:
-                RNS.log("Initial connection for "+str(self)+" could not be established: "+str(e), RNS.LOG_ERROR)
-                RNS.log("Leaving unconnected and retrying connection in "+str(BackboneClientInterface.RECONNECT_WAIT)+" seconds.", RNS.LOG_ERROR)
+                RNS.log("Initial connection for "+str(self)+" could not be established: "+str(e), RNS.LOG_WARNING)
+                RNS.log("Leaving unconnected and retrying connection in "+str(BackboneClientInterface.RECONNECT_WAIT)+" seconds.", RNS.LOG_WARNING)
                 return False
             
             else:
@@ -640,7 +640,7 @@ class BackboneClientInterface(Interface):
                     attempts += 1
 
                     if self.max_reconnect_tries != None and attempts > self.max_reconnect_tries:
-                        RNS.log("Max reconnection attempts reached for "+str(self), RNS.LOG_ERROR)
+                        RNS.log("Max reconnection attempts reached for "+str(self), RNS.LOG_WARNING)
                         self.teardown()
                         break
 
