@@ -1294,7 +1294,9 @@ class ReticulumGitNode():
     def __persist_stats(self):
         with self.stats_lock:
             try:
-                with open(self.statspath, "wb") as fh: fh.write(mp.packb(self.stats))
+                tmp_path = self.statspath+".tmp"
+                with open(tmp_path, "wb") as fh: fh.write(mp.packb(self.stats))
+                os.rename(tmp_path, self.statspath)
             except Exception as e: RNS.log(f"Could not write stats file to {self.statspath}: {e}", RNS.LOG_ERROR)
 
     def __apply_config(self):
