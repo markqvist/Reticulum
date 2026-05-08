@@ -117,7 +117,7 @@ class Packet:
     __slots__  = "hops", "header", "header_type", "packet_type", "transport_type", "context", "context_flag", "destination"
     __slots__ += "transport_id", "data", "flags", "raw", "packed", "sent", "create_receipt", "receipt", "fromPacked", "MTU"
     __slots__ += "sent_at", "packet_hash", "ratchet_id", "attached_interface", "receiving_interface", "rssi", "snr", "q"
-    __slots__ += "ciphertext", "plaintext", "destination_hash", "destination_type", "link", "map_hash"
+    __slots__ += "ciphertext", "plaintext", "destination_hash", "destination_type", "link", "map_hash", "is_outbound_pr"
 
     def __init__(self, destination, data, packet_type = DATA, context = NONE, transport_type = RNS.Transport.BROADCAST,
                  header_type = HEADER_1, transport_id = None, attached_interface = None, create_receipt = True, context_flag=FLAG_UNSET):
@@ -161,6 +161,7 @@ class Packet:
 
         self.attached_interface = attached_interface
         self.receiving_interface = None
+        self.is_outbound_pr = False
         self.rssi = None
         self.snr = None
         self.q = None

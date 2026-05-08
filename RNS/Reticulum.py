@@ -269,9 +269,13 @@ class Reticulum:
         Reticulum.__ic_burst_hold                     = None
         Reticulum.__ic_burst_freq_new                 = None
         Reticulum.__ic_burst_freq                     = None
+        Reticulum.__ic_pr_burst_freq_new              = None
+        Reticulum.__ic_pr_burst_freq                  = None
         Reticulum.__ic_new_time                       = None
         Reticulum.__ic_burst_penalty                  = None
         Reticulum.__ic_held_release_interval          = None
+        Reticulum.__ec_pr_freq                        = None
+        Reticulum.__egress_control                    = None
 
         Reticulum.panic_on_interface_error = False
 
@@ -619,6 +623,22 @@ class Reticulum:
                     v = self.config["reticulum"].as_float(option)
                     if v >= 0: Reticulum.__ic_burst_freq = v
                 
+                if option == "ic_pr_burst_freq_new":
+                    v = self.config["reticulum"].as_float(option)
+                    if v >= 0: Reticulum.__ic_pr_burst_freq_new = v
+                
+                if option == "ic_pr_burst_freq":
+                    v = self.config["reticulum"].as_float(option)
+                    if v >= 0: Reticulum.__ic_pr_burst_freq = v
+
+                if option == "ec_pr_freq":
+                    v = self.config["reticulum"].as_float(option)
+                    if v >= 0: Reticulum.__ec_pr_freq = v
+
+                if option == "egress_control":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v >= 0: Reticulum.__egress_control = v
+                
                 if option == "ic_new_time":
                     v = self.config["reticulum"].as_float(option)
                     if v >= 0: Reticulum.__ic_new_time = v
@@ -719,6 +739,8 @@ class Reticulum:
                 
         ingress_control = True
         if "ingress_control" in c: ingress_control = c.as_bool("ingress_control")
+        egress_control = None
+        if "egress_control" in c: egress_control = c.as_bool("egress_control")
         ic_max_held_announces = None
         if "ic_max_held_announces" in c: ic_max_held_announces = c.as_int("ic_max_held_announces")
         ic_burst_hold = None
@@ -727,6 +749,12 @@ class Reticulum:
         if "ic_burst_freq_new" in c: ic_burst_freq_new = c.as_float("ic_burst_freq_new")
         ic_burst_freq = None
         if "ic_burst_freq" in c: ic_burst_freq = c.as_float("ic_burst_freq")
+        ic_pr_burst_freq_new = None
+        if "ic_pr_burst_freq_new" in c: ic_pr_burst_freq_new = c.as_float("ic_pr_burst_freq_new")
+        ic_pr_burst_freq = None
+        if "ic_pr_burst_freq" in c: ic_pr_burst_freq = c.as_float("ic_pr_burst_freq")
+        ec_pr_freq = None
+        if "ec_pr_freq" in c: ec_pr_freq = c.as_float("ec_pr_freq")
         ic_new_time = None
         if "ic_new_time" in c: ic_new_time = c.as_float("ic_new_time")
         ic_burst_penalty = None
@@ -852,10 +880,14 @@ class Reticulum:
                     interface.announce_rate_grace = announce_rate_grace
                     interface.announce_rate_penalty = announce_rate_penalty
                     interface.ingress_control = ingress_control
+                    if egress_control != None: interface.egress_control = egress_control
                     if ic_max_held_announces != None: interface.ic_max_held_announces = ic_max_held_announces
                     if ic_burst_hold != None: interface.ic_burst_hold = ic_burst_hold
                     if ic_burst_freq_new != None: interface.ic_burst_freq_new = ic_burst_freq_new
                     if ic_burst_freq != None: interface.ic_burst_freq = ic_burst_freq
+                    if ic_pr_burst_freq_new != None: interface.ic_pr_burst_freq_new = ic_pr_burst_freq_new
+                    if ic_pr_burst_freq != None: interface.ic_pr_burst_freq = ic_pr_burst_freq
+                    if ec_pr_freq != None: interface.ec_pr_freq = ec_pr_freq
                     if ic_new_time != None: interface.ic_new_time = ic_new_time
                     if ic_burst_penalty != None: interface.ic_burst_penalty = ic_burst_penalty
                     if ic_held_release_interval != None: interface.ic_held_release_interval = ic_held_release_interval
@@ -1068,6 +1100,18 @@ class Reticulum:
 
     def _default_ic_burst_freq(self):
         return self.__ic_burst_freq or RNS.Interfaces.Interface.Interface.IC_BURST_FREQ
+
+    def _default_ic_pr_burst_freq_new(self):
+        return self.__ic_pr_burst_freq_new or RNS.Interfaces.Interface.Interface.IC_PR_BURST_FREQ_NEW
+
+    def _default_ic_pr_burst_freq(self):
+        return self.__ic_pr_burst_freq or RNS.Interfaces.Interface.Interface.IC_PR_BURST_FREQ
+
+    def _default_ec_pr_freq(self):
+        return self.__ec_pr_freq or RNS.Interfaces.Interface.Interface.EC_PR_FREQ
+
+    def _default_egress_control(self):
+        return self.__egress_control or RNS.Interfaces.Interface.Interface.EGRESS_CONTROL
 
     def _default_ic_new_time(self):
         return self.__ic_new_time or RNS.Interfaces.Interface.Interface.IC_NEW_TIME
@@ -1378,12 +1422,16 @@ class Reticulum:
                 ifstats["txb"] = interface.txb
                 ifstats["incoming_announce_frequency"] = interface.incoming_announce_frequency()
                 ifstats["outgoing_announce_frequency"] = interface.outgoing_announce_frequency()
+                ifstats["incoming_pr_frequency"] = interface.incoming_pr_frequency()
+                ifstats["outgoing_pr_frequency"] = interface.outgoing_pr_frequency()
                 ifstats["announce_rate_target"] = interface.announce_rate_target
                 ifstats["announce_rate_penalty"] = interface.announce_rate_penalty
                 ifstats["announce_rate_grace"] = interface.announce_rate_grace
                 ifstats["held_announces"] = len(interface.held_announces)
                 ifstats["burst_active"] = interface.ic_burst_active
                 ifstats["burst_activated"] = interface.ic_burst_activated
+                ifstats["pr_burst_active"] = interface.ic_pr_burst_active
+                ifstats["pr_burst_activated"] = interface.ic_pr_burst_activated
                 ifstats["status"] = interface.online
                 ifstats["mode"] = interface.mode
 

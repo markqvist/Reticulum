@@ -38,6 +38,7 @@ import inspect
 import threading
 from time import sleep
 from threading import Lock
+from collections import deque
 from .vendor import umsgpack as umsgpack
 from RNS.Interfaces.BackboneInterface import BackboneInterface
 
@@ -124,6 +125,7 @@ class Transport:
     discovery_path_requests     = {}           # A table for keeping track of path requests on behalf of other nodes
     discovery_pr_tags           = []           # A table for keeping track of tagged path requests
     max_pr_tags                 = 32000        # Maximum amount of unique path request tags to remember
+    max_queued_discovery_prs    = 32           # Maximum amount of queued discovery path requests
 
     interfaces_lock             = Lock()
     destinations_lock           = Lock()
@@ -917,6 +919,7 @@ class Transport:
                     Transport.prioritize_interfaces()
                     try:
                         for interface in Transport.interfaces:
+                            interface.should_ingress_limit()
                             interface.process_held_announces()
                             if interface.phy_keepalive: interface.send_keepalive()
                         Transport.interface_last_jobs = time.time()
@@ -980,15 +983,50 @@ class Transport:
             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
             RNS.trace_exception(e) # TODO: Remove
 
-        for packet in outgoing: packet.send()
+        if outgoing:
+            def job(): Transport.handle_outgoing_announces(outgoing)
+            threading.Thread(target=job).start()
 
-        for destination_hash in path_requests:
-            blocked_if = path_requests[destination_hash]
-            if blocked_if == None: Transport.request_path(destination_hash)
-            else:
-                for interface in Transport.interfaces:
-                    if interface != blocked_if: Transport.request_path(destination_hash, on_interface=interface)
-                    else: pass
+        if path_requests:
+            with Transport.discovery_pr_tx_lock:
+                for destination_hash in path_requests:
+                    if not destination_hash in Transport.pending_discovery_prs:
+                        if not len(Transport.pending_discovery_prs) >= Transport.max_queued_discovery_prs:
+                            Transport.pending_discovery_prs.append([destination_hash, path_requests[destination_hash]])
+
+        if len(Transport.pending_discovery_prs):
+            def job(): Transport.handle_disovery_path_requests()
+            threading.Thread(target=job).start()
+
+
+    discovery_pr_tx_throttle = 0.5
+    discovery_pr_tx_lock     = Lock()
+    discovery_pr_handle_lock = Lock()
+    pending_discovery_prs    = deque(maxlen=max_queued_discovery_prs)
+    @staticmethod
+    def handle_disovery_path_requests():
+        if Transport.discovery_pr_handle_lock.locked(): return
+        with Transport.discovery_pr_handle_lock:
+            while len(Transport.pending_discovery_prs):
+                time.sleep(Transport.discovery_pr_tx_throttle)
+                destination_hash = None
+                blocked_if = None
+                with Transport.discovery_pr_tx_lock:
+                    entry = Transport.pending_discovery_prs.popleft()
+                    destination_hash = entry[0]
+                    blocked_if = entry[1]
+
+                if destination_hash:
+                    if blocked_if == None: Transport.request_path(destination_hash)
+                    else:
+                        for interface in Transport.interfaces:
+                            if interface != blocked_if: Transport.request_path(destination_hash, on_interface=interface)
+                            else: pass
+
+
+    @staticmethod
+    def handle_outgoing_announces(outgoing):
+        for packet in sorted(outgoing, key=lambda p: p.hops): packet.send()
 
     @staticmethod
     def transmit(interface, raw):
@@ -1263,6 +1301,7 @@ class Transport:
 
                         Transport.transmit(interface, packet.raw)
                         if packet.packet_type == RNS.Packet.ANNOUNCE: interface.sent_announce()
+                        if packet.destination.type == RNS.Destination.PLAIN and packet.is_outbound_pr: interface.sent_path_request()
                         packet_sent(packet)
                         sent = True
 
@@ -1629,10 +1668,12 @@ class Transport:
             # announces, queueing rebroadcasts of these, and removal
             # of queued announce rebroadcasts once handed to the next node.
             if packet.packet_type == RNS.Packet.ANNOUNCE:
-                if interface != None and RNS.Identity.validate_announce(packet, only_validate_signature=True):
-                    interface.received_announce()
+                announce_signature_valid = RNS.Identity.validate_announce(packet, only_validate_signature=True)
+                if not announce_signature_valid: return
+                elif interface != None: interface.received_announce()
+                announced_destination_known = packet.destination_hash in Transport.path_table
 
-                if not packet.destination_hash in Transport.path_table:
+                if not announced_destination_known:
                     # This is an unknown destination, and we'll apply
                     # potential ingress limiting. Already known
                     # destinations will have re-announces controlled
@@ -1694,7 +1735,7 @@ class Transport:
                         random_blob = packet.data[RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8:RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8+10]
                         random_blobs = []
                         with Transport.inbound_announce_lock:
-                            if packet.destination_hash in Transport.path_table:
+                            if announced_destination_known:
                                 random_blobs = Transport.path_table[packet.destination_hash][IDX_PT_RANDBLOBS]
 
                                 # If we already have a path to the announced
@@ -2747,8 +2788,10 @@ class Transport:
                     wait_time = (tx_time / on_interface.announce_cap)
                     on_interface.announce_allowed_at = now + wait_time
 
+        packet.is_outbound_pr = True
         packet.send()
-        Transport.path_requests[destination_hash] = time.time()
+
+        with Transport.path_requests_lock: Transport.path_requests[destination_hash] = time.time()
 
     @staticmethod
     def remote_status_handler(path, data, request_id, link_id, remote_identity, requested_at):
@@ -2832,6 +2875,7 @@ class Transport:
 
                     unique_tag = destination_hash+tag_bytes
 
+                    if packet.receiving_interface: packet.receiving_interface.received_path_request()
                     with Transport.discovery_pr_tags_lock:
                         if not unique_tag in Transport.discovery_pr_tags:
                             Transport.discovery_pr_tags.append(unique_tag)
@@ -2964,9 +3008,12 @@ class Transport:
 
                 for interface in Transport.interfaces:
                     if not interface == attached_interface:
-                        # Use the previously extracted tag from this path request
-                        # on the new path requests as well, to avoid potential loops
-                        Transport.request_path(destination_hash, on_interface=interface, tag=tag, recursive=True)
+                        if interface.should_egress_limit_pr():
+                            RNS.log(f"Not sending recursive path request on {interface} due to active egress limiting", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                        else:
+                            # Use the previously extracted tag from this path request
+                            # on the new path requests as well, to avoid potential loops
+                            Transport.request_path(destination_hash, on_interface=interface, tag=tag, recursive=True)
 
         elif not is_from_local_client and len(Transport.local_client_interfaces) > 0:
             # Forward the path request on all local
