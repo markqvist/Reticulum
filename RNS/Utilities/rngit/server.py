@@ -1731,7 +1731,7 @@ class ReticulumGitNode():
                 RNS.log(f"Listing refs for {group_name}/{repository_name}", RNS.LOG_DEBUG)
                 
                 # Get HEAD symref
-                head_path = os.path.join(repository_path, "HEAD")                
+                head_path = os.path.join(repository_path, "HEAD")
                 head_ref = "master"  # Use "master" as default
                 if os.path.exists(head_path):
                     with open(head_path, "rb") as fh:
@@ -2721,7 +2721,7 @@ class ReticulumGitNode():
         
         except Exception as e:
             RNS.log(f"Error getting document permissions: {e}", RNS.LOG_ERROR)
-            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + f"Error getting permissions: {e}".encode("utf-8")
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error getting permissions"
 
     def _work_set_permissions(self, work_path, data, remote_identity, group_name, repository_name):
         doc_id = data.get("doc_id")
@@ -2781,7 +2781,7 @@ class ReticulumGitNode():
         
         except Exception as e:
             RNS.log(f"Error setting permissions: {e}", RNS.LOG_ERROR)
-            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + f"Error setting permissions: {e}".encode("utf-8")
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error setting permissions"
 
     def repository_stats(self, remote_identity, group_name, repository_name, lookback_days=14):
         if not self.resolve_permission(remote_identity, group_name, repository_name, self.PERM_STATS): return None
