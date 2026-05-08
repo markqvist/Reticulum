@@ -1003,6 +1003,12 @@ class I2PInterface(Interface):
     def sent_announce(self, from_spawned=False):
         if from_spawned: self.oa_freq_deque.append(time.time())
 
+    def received_path_request(self, from_spawned=False):
+        if from_spawned: self.ip_freq_deque.append(time.time())
+
+    def sent_path_request(self, from_spawned=False):
+        if from_spawned: self.op_freq_deque.append(time.time())
+
     def detach(self):
         RNS.log("Detaching "+str(self), RNS.LOG_DEBUG)
         self.i2p.stop()

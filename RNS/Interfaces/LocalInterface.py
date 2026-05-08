@@ -488,6 +488,12 @@ class LocalServerInterface(Interface):
     def sent_announce(self, from_spawned=False):
         if from_spawned: self.oa_freq_deque.append(time.time())
 
+    def received_path_request(self, from_spawned=False):
+        if from_spawned: self.ip_freq_deque.append(time.time())
+
+    def sent_path_request(self, from_spawned=False):
+        if from_spawned: self.op_freq_deque.append(time.time())
+
     def __str__(self):
         if self.socket_path: return "Shared Instance["+str(self.socket_path.replace("\0", ""))+"]"
         else: return "Shared Instance["+str(self.bind_port)+"]"

@@ -55,8 +55,15 @@ class Interface:
 
     # How many samples to use for announce
     # frequency calculations
-    IA_FREQ_SAMPLES     = 128
-    OA_FREQ_SAMPLES     = 128
+    IA_FREQ_SAMPLES     = 48
+    OA_FREQ_SAMPLES     = 48
+    IP_FREQ_SAMPLES     = 48
+    OP_FREQ_SAMPLES     = 48
+
+    AR_MINFREQ_HZ       = 0.1
+    PR_MINFREQ_HZ       = 0.1
+    AR_FREQ_DECAY       = 1/AR_MINFREQ_HZ
+    PR_FREQ_DECAY       = 1/PR_MINFREQ_HZ
 
     # Maximum amount of ingress limited announces
     # to hold at any given time.
@@ -68,10 +75,15 @@ class Interface:
     IC_NEW_TIME              = 2*60*60
     IC_BURST_FREQ_NEW        = 3
     IC_BURST_FREQ            = 10
+    IC_PR_BURST_FREQ_NEW     = 3
+    IC_PR_BURST_FREQ         = 10
     IC_BURST_HOLD            = 15
     IC_BURST_PENALTY         = 15
     IC_HELD_RELEASE_INTERVAL = 5
-    IC_DEQUE_MIN_SAMPLE      = 32
+    IC_DEQUE_MIN_SAMPLE      = 2
+    IC_BURST_MIN_SAMPLES     = 8
+    EC_PR_FREQ               = 5
+    EGRESS_CONTROL           = False
 
     # Default announce rate targets
     DEFAULT_AR_TARGET        = 3600
@@ -102,18 +114,26 @@ class Interface:
         
         self.ic_burst_active          = False
         self.ic_burst_activated       = 0
+        self.ic_pr_burst_active       = False
+        self.ic_pr_burst_activated    = 0
         self.ic_held_release          = 0
         self.ic_max_held_announces    = RNS.Reticulum.get_instance()._default_ic_max_held_announces()
         self.ic_burst_hold            = RNS.Reticulum.get_instance()._default_ic_burst_hold()
         self.ic_burst_freq_new        = RNS.Reticulum.get_instance()._default_ic_burst_freq_new()
         self.ic_burst_freq            = RNS.Reticulum.get_instance()._default_ic_burst_freq()
+        self.ic_pr_burst_freq_new     = RNS.Reticulum.get_instance()._default_ic_pr_burst_freq_new()
+        self.ic_pr_burst_freq         = RNS.Reticulum.get_instance()._default_ic_pr_burst_freq()
         self.ic_new_time              = RNS.Reticulum.get_instance()._default_ic_new_time()
         self.ic_burst_penalty         = RNS.Reticulum.get_instance()._default_ic_burst_penalty()
         self.ic_held_release_interval = RNS.Reticulum.get_instance()._default_ic_held_release_interval()
+        self.ec_pr_freq               = RNS.Reticulum.get_instance()._default_ec_pr_freq()
+        self.egress_control           = RNS.Reticulum.get_instance()._default_egress_control()
         self.held_announces           = {}
 
         self.ia_freq_deque = deque(maxlen=Interface.IA_FREQ_SAMPLES)
         self.oa_freq_deque = deque(maxlen=Interface.OA_FREQ_SAMPLES)
+        self.ip_freq_deque = deque(maxlen=Interface.IA_FREQ_SAMPLES)
+        self.op_freq_deque = deque(maxlen=Interface.OA_FREQ_SAMPLES)
 
     def get_hash(self):
         return RNS.Identity.full_hash(str(self).encode("utf-8"))
@@ -129,7 +149,7 @@ class Interface:
 
             if self.ic_burst_active:
                 if ia_freq < freq_threshold and time.time() > self.ic_burst_activated+self.ic_burst_hold:
-                    self.ic_burst_active = False
+                    if len(self.ia_freq_deque) >= self.IC_BURST_MIN_SAMPLES: self.ic_burst_active = False
 
                 return True
 
@@ -143,6 +163,37 @@ class Interface:
                 else: return False
 
         else: return False
+
+    def should_ingress_limit_pr(self):
+        if self.ingress_control:
+            freq_threshold = self.ic_pr_burst_freq_new if self.age() < self.ic_new_time else self.ic_pr_burst_freq
+            ip_freq = self.incoming_pr_frequency()
+
+            if self.ic_pr_burst_active:
+                if ip_freq < freq_threshold and time.time() > self.ic_pr_burst_activated+self.ic_burst_hold:
+                    self.ic_pr_burst_active = False
+
+                return True
+
+            else:
+                if ip_freq > freq_threshold:
+                    self.ic_pr_burst_active = True
+                    self.ic_pr_burst_activated = time.time()
+                    return True
+
+                else: return False
+
+        else: return False
+
+    def should_egress_limit_pr(self):
+        if self.egress_control:
+            freq_threshold = self.ec_pr_freq
+            op_freq = self.outgoing_pr_frequency()
+
+            if op_freq > freq_threshold:
+                if len(self.op_freq_deque) >= self.IC_BURST_MIN_SAMPLES: return True
+            
+        return False
 
     def optimise_mtu(self):
         if self.AUTOCONFIGURE_MTU:
@@ -169,7 +220,7 @@ class Interface:
             else:
                 self.HW_MTU = None
 
-        RNS.log(f"{self} hardware MTU set to {self.HW_MTU}", RNS.LOG_DEBUG) # TODO: Remove debug
+        RNS.log(f"{self} hardware MTU set to {self.HW_MTU}", RNS.LOG_DEBUG)
 
     def age(self):
         return time.time()-self.created
@@ -215,12 +266,23 @@ class Interface:
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.sent_announce(from_spawned=True)
 
+    def received_path_request(self, from_spawned=False):
+        self.ip_freq_deque.append(time.time())
+        if hasattr(self, "parent_interface") and self.parent_interface != None:
+            self.parent_interface.received_path_request(from_spawned=True)
+
+    def sent_path_request(self, from_spawned=False):
+        self.op_freq_deque.append(time.time())
+        if hasattr(self, "parent_interface") and self.parent_interface != None:
+            self.parent_interface.sent_path_request(from_spawned=True)
+
     def incoming_announce_frequency(self):
         n = len(self.ia_freq_deque)
         if not n > self.IC_DEQUE_MIN_SAMPLE: return 0
         else:
             oldest = self.ia_freq_deque[0]
             span = time.time() - oldest
+            if span > self.AR_FREQ_DECAY: self.ia_freq_deque.popleft()
             if span <= 0: return 0
             hz = n / span
             return hz
@@ -231,6 +293,29 @@ class Interface:
         else:
             oldest = self.oa_freq_deque[0]
             span   = time.time() - oldest
+            if span > self.AR_FREQ_DECAY: self.oa_freq_deque.popleft()
+            if span <= 0: return 0
+            hz = n / span
+            return hz
+
+    def incoming_pr_frequency(self):
+        n = len(self.ip_freq_deque)
+        if not n > self.IC_DEQUE_MIN_SAMPLE: return 0
+        else:
+            oldest = self.ip_freq_deque[0]
+            span = time.time() - oldest
+            if span > self.PR_FREQ_DECAY: self.ip_freq_deque.popleft()
+            if span <= 0: return 0
+            hz = n / span
+            return hz
+
+    def outgoing_pr_frequency(self):
+        n = len(self.op_freq_deque)
+        if not len(self.op_freq_deque) > 1: return 0
+        else:
+            oldest = self.op_freq_deque[0]
+            span   = time.time() - oldest
+            if span > self.PR_FREQ_DECAY: self.op_freq_deque.popleft()
             if span <= 0: return 0
             hz = n / span
             return hz

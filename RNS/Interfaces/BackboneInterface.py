@@ -156,6 +156,32 @@ class BackboneInterface(Interface):
         else:
             raise SystemError("Insufficient parameters to create listener")
 
+
+    __last_ic_burst_check = 0
+    __last_ic_burst_state = False
+    @property
+    def ic_burst_active(self):
+        if time.time() > self.__last_ic_burst_check + 2:
+            self.__last_ic_burst_state = any(i.ic_burst_active for i in self.spawned_interfaces)
+
+        return self.__last_ic_burst_state
+
+    @ic_burst_active.setter
+    def ic_burst_active(self, value): pass
+    
+    __ic_burst_activated_check = 0
+    __ic_burst_activated       = 0
+    @property
+    def ic_burst_activated(self):
+        if time.time() > self.__ic_burst_activated_check + 2:
+            activated = [i.ic_burst_activated for i in self.spawned_interfaces if i.ic_burst_active]
+            if activated: self.__ic_burst_activated = min(activated)
+
+        return self.__ic_burst_activated
+
+    @ic_burst_activated.setter
+    def ic_burst_activated(self, value): pass
+
     @staticmethod
     def start():
         if not BackboneInterface._job_active: threading.Thread(target=BackboneInterface.__job, daemon=True).start()
@@ -206,7 +232,7 @@ class BackboneInterface(Interface):
     @staticmethod
     def deregister_fileno(fileno):
         if fileno < 0:
-            RNS.log(f"Attempt to deregister invalid file descriptor {fileno}", RNS.LOG_ERROR)
+            RNS.log(f"Attempt to deregister invalid file descriptor {fileno}", RNS.LOG_WARNING)
             return
 
         try: BackboneInterface.epoll.unregister(fileno)
@@ -320,11 +346,17 @@ class BackboneInterface(Interface):
                             elif fileno in BackboneInterface.listener_filenos:
                                 owner_interface, server_socket = BackboneInterface.listener_filenos[fileno]
                                 if fileno == server_socket.fileno() and (event & select.EPOLLIN):
-                                    client_socket, address = server_socket.accept()
-                                    client_socket.setblocking(0)
-                                    if not owner_interface.incoming_connection(client_socket):
+                                    try:
+                                        client_socket, address = server_socket.accept()
+                                        client_socket.setblocking(0)
+                                        if not owner_interface.incoming_connection(client_socket):
+                                            try: client_socket.close()
+                                            except Exception as e: RNS.log(f"Error while closing socket for failed incoming connection: {e}", RNS.LOG_ERROR)
+
+                                    except:
+                                        RNS.log(f"Accepting socket failed for incoming connection: {e}", RNS.LOG_WARNING)
                                         try: client_socket.close()
-                                        except Exception as e: RNS.log(f"Error while closing socket for failed incoming connection: {e}", RNS.LOG_ERROR)
+                                        except Exception as e: RNS.log(f"Error while closing socket for failed incoming socket accept: {e}", RNS.LOG_WARNING)
                                 
                                 elif fileno == server_socket.fileno() and (event & select.EPOLLHUP):
                                     try: BackboneInterface.deregister_fileno(fileno)
@@ -407,6 +439,12 @@ class BackboneInterface(Interface):
 
     def sent_announce(self, from_spawned=False):
         if from_spawned: self.oa_freq_deque.append(time.time())
+
+    def received_path_request(self, from_spawned=False):
+        if from_spawned: self.ip_freq_deque.append(time.time())
+
+    def sent_path_request(self, from_spawned=False):
+        if from_spawned: self.op_freq_deque.append(time.time())
 
     def process_outgoing(self, data):
         pass
