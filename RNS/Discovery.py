@@ -470,10 +470,13 @@ class InterfaceDiscovery():
                 discovered  = None
                 heard_count = None
                 try:
-                    with open(filepath, "rb") as f:
-                        last_info   = msgpack.unpackb(f.read())
-                        discovered  = last_info["discovered"]
-                        heard_count = last_info["heard_count"]
+                    try:
+                        with open(filepath, "rb") as f:
+                            last_info   = msgpack.unpackb(f.read())
+                            discovered  = last_info["discovered"]
+                            heard_count = last_info["heard_count"]
+
+                    except Exception as e: RNS.log(f"Error while reading existing data for discovered interface, re-creating data", RNS.LOG_ERROR)
 
                     if discovered  == None: discovered  = info["discovered"]
                     if heard_count == None: heard_count = 0
