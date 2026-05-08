@@ -2883,7 +2883,6 @@ class ReticulumGitNode():
             if group_name and repository_name: self.record_fetch(group_name, repository_name)
 
     def push_succeeded(self, group_name, repository_name, remote_identity):
-        if remote_identity and remote_identity.hash in self.stats_ignored: return
         if self.stats_enabled:
             if group_name and repository_name: self.record_push(group_name, repository_name)
 
