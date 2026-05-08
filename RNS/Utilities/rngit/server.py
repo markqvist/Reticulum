@@ -1766,7 +1766,7 @@ class ReticulumGitNode():
 
             except Exception as e:
                 RNS.log(f"Error while handling list request for {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
-                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def handle_fetch(self, path, data, request_id, link_id, remote_identity, requested_at):
         RNS.log(f"Fetch request from remote {remote_identity}", RNS.LOG_DEBUG)
@@ -1838,7 +1838,7 @@ class ReticulumGitNode():
 
             except Exception as e:
                 RNS.log(f"Error while handling fetch request for {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
-                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def handle_push(self, path, data, request_id, remote_identity, requested_at):
         RNS.log(f"Push request from remote {remote_identity}", RNS.LOG_DEBUG)
@@ -1886,7 +1886,7 @@ class ReticulumGitNode():
 
                 except Exception as e:
                     RNS.log(f"Error while handling push request for {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
-                    return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+                    return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
             elif operations:
                 if not type(operations) == list: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid data for operations"
@@ -1925,7 +1925,7 @@ class ReticulumGitNode():
 
                 except Exception as e:
                     RNS.log(f"Error while handling push operations for {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
-                    return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+                    return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
             else: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request data"
 
@@ -1956,7 +1956,7 @@ class ReticulumGitNode():
 
             except Exception as e:
                 RNS.log(f"Error while handling delete request for {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
-                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def handle_release(self, path, data, request_id, remote_identity, requested_at):
         RNS.log(f"Release request from remote {remote_identity}", RNS.LOG_DEBUG)
@@ -1992,7 +1992,7 @@ class ReticulumGitNode():
 
             except Exception as e:
                 RNS.log(f"Error while handling release request for {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
-                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def releases_list_data(self, releases_path):
         try:
@@ -2191,7 +2191,7 @@ class ReticulumGitNode():
         
         except Exception as e:
             RNS.log(f"Error creating release: {e}", RNS.LOG_ERROR)
-            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _release_create_artifact(self, releases_path, data):
         tag = san_ref(data.get("tag"))
@@ -2227,7 +2227,7 @@ class ReticulumGitNode():
         
         except Exception as e:
             RNS.log(f"Error adding artifact: {e}", RNS.LOG_ERROR)
-            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _release_create_finalize(self, releases_path, data):
         tag = san_ref(data.get("tag"))
@@ -2255,7 +2255,7 @@ class ReticulumGitNode():
         
         except Exception as e:
             RNS.log(f"Error finalizing release: {e}", RNS.LOG_ERROR)
-            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _release_delete(self, releases_path, data):
         tag = san_ref(data.get("tag"))
@@ -2274,7 +2274,7 @@ class ReticulumGitNode():
         
         except Exception as e:
             RNS.log(f"Error deleting release: {e}", RNS.LOG_ERROR)
-            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     #########################
     # Work Document Methods #
@@ -2332,7 +2332,7 @@ class ReticulumGitNode():
 
             except Exception as e:
                 RNS.log(f"Error while handling work request for {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
-                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _work_get_next_id(self, base_path):
         if not os.path.isdir(base_path): return 1
@@ -2472,7 +2472,7 @@ class ReticulumGitNode():
         
         except Exception as e:
             RNS.log(f"Error creating work document: {e}", RNS.LOG_ERROR)
-            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _work_edit(self, work_path, data, remote_identity):
         doc_id    = data.get("doc_id")
@@ -2518,7 +2518,7 @@ class ReticulumGitNode():
         
         except Exception as e:
             RNS.log(f"Error editing work document: {e}", RNS.LOG_ERROR)
-            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _work_delete(self, work_path, data, remote_identity):
         doc_id = data.get("doc_id")
@@ -2547,7 +2547,7 @@ class ReticulumGitNode():
         
         except Exception as e:
             RNS.log(f"Error deleting work document: {e}", RNS.LOG_ERROR)
-            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _work_comment(self, work_path, data, remote_identity):
         doc_id      = data.get("doc_id")
@@ -2589,7 +2589,7 @@ class ReticulumGitNode():
         
         except Exception as e:
             RNS.log(f"Error adding comment: {e}", RNS.LOG_ERROR)
-            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _work_complete(self, work_path, data, remote_identity):
         doc_id = data.get("doc_id")
@@ -2618,7 +2618,7 @@ class ReticulumGitNode():
         
         except Exception as e:
             RNS.log(f"Error completing work document: {e}", RNS.LOG_ERROR)
-            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _work_activate(self, work_path, data, remote_identity):
         doc_id = data.get("doc_id")
@@ -2647,7 +2647,7 @@ class ReticulumGitNode():
         
         except Exception as e:
             RNS.log(f"Error activating work document: {e}", RNS.LOG_ERROR)
-            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + str(e).encode("utf-8")
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _work_perms(self, work_path, data, remote_identity):
         step = data.get("step")
