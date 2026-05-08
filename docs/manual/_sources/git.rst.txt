@@ -402,6 +402,9 @@ Only releases with ``published`` status are visible through the Nomad Network in
     -q, --quiet
     --version             show program's version number and exit
 
+.. raw:: latex
+
+    \newpage
 
 Work Documents
 ==============

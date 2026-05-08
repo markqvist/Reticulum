@@ -110,7 +110,7 @@ plugin system for expandability.
 MeshChatX
 ^^^^^^^^
 
-A `Reticulum MeshChat fork from the future <https://git.quad4.io/RNS-Things/MeshChatX>`_, with the goal of providing everything you need for Reticulum, LXMF, and LXST in one beautiful and feature-rich application. This project is separate from the original Reticulum MeshChat project, and is not affiliated with the original project.
+A `Reticulum MeshChat fork from the future <https://git.quad4.io/RNS-Things/MeshChatX>`_, with the goal of providing everything you need for Reticulum, LXMF, and LXST in one beautiful and feature-rich application. This project is separate from the original `Reticulum MeshChat <https://github.com/liamcottle/reticulum-meshchat>`_ project, and is not affiliated with the original project, but is a much more up-to-date, comprehensive and well-maintained fork.
 
 .. only:: html
 
@@ -126,32 +126,6 @@ A `Reticulum MeshChat fork from the future <https://git.quad4.io/RNS-Things/Mesh
 
 
 Features include full LXST support, custom voicemail, phonebook, contact sharing, and ringtone support, multi-identity handling, modern UI/UX, offline documentation, expanded tools, page archiving, integrated maps, telemetry and improved application security.
-
-.. raw:: latex
-
-    \newpage
-
-MeshChat
-^^^^^^^^
-
-The `Reticulum MeshChat <https://github.com/liamcottle/reticulum-meshchat>`_ application
-is a user-friendly LXMF client for Linux, macOS and Windows, that also includes a Nomad Network
-page browser and other interesting functionality.
-
-.. only:: html
-
-  .. image:: screenshots/meshchat_1.webp
-      :align: center
-      :target: https://github.com/liamcottle/reticulum-meshchat
-
-.. only:: latex
-
-  .. image:: screenshots/meshchat_1.png
-      :align: center
-      :target: https://github.com/liamcottle/reticulum-meshchat
-
-Reticulum MeshChat is of course also compatible with Sideband and Nomad Network, or
-any other LXMF client.
 
 .. raw:: latex
 

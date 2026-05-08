@@ -82,7 +82,6 @@ to participate in the development of Reticulum itself.
     * [Retipedia](software.md#retipedia)
     * [Sideband](software.md#sideband)
     * [MeshChatX](software.md#meshchatx)
-    * [MeshChat](software.md#meshchat)
     * [Reticulum Relay Chat](software.md#reticulum-relay-chat)
     * [RetiBBS](software.md#retibbs)
     * [RBrowser](software.md#rbrowser)

@@ -31,6 +31,10 @@ Donations are gratefully accepted via the following channels:
 Are certain features in the development roadmap are important to you or your
 organisation? Make them a reality quickly by sponsoring their implementation.
 
+.. raw:: latex
+
+    \newpage
+
 Provide Feedback
 ================
 Feedback on the usage, functioning and potential dysfunctioning of any and
