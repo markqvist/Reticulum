@@ -376,6 +376,10 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 interfaces.sort(key=lambda i: i["incoming_announce_frequency"], reverse=not sort_reverse)
             if sorting == "atx":
                 interfaces.sort(key=lambda i: i["outgoing_announce_frequency"], reverse=not sort_reverse)
+            if sorting == "prx":
+                interfaces.sort(key=lambda i: i["incoming_pr_frequency"], reverse=not sort_reverse)
+            if sorting == "ptx":
+                interfaces.sort(key=lambda i: i["outgoing_pr_frequency"], reverse=not sort_reverse)
             if sorting == "held":
                 interfaces.sort(key=lambda i: i["held_announces"], reverse=not sort_reverse)
 
@@ -673,7 +677,7 @@ def main(must_exit=True, rns_instance=None):
         parser.add_argument("-P", "--pr-stats", action="store_true", help="show path request stats", default=False)
         parser.add_argument("-l", "--link-stats", action="store_true", help="show link stats", default=False)
         parser.add_argument("-t", "--totals", action="store_true", help="display traffic totals", default=False)
-        parser.add_argument("-s", "--sort", action="store", help="sort interfaces by [rate, traffic, rx, tx, rxs, txs, announces, arx, atx, held]", default=None, type=str)
+        parser.add_argument("-s", "--sort", action="store", help="sort interfaces by [rate, traffic, rx, tx, rxs, txs, announces, arx, atx, prx, ptx, held]", default=None, type=str)
         parser.add_argument("-r", "--reverse", action="store_true", help="reverse sorting", default=False)
         parser.add_argument("-j", "--json", action="store_true", help="output in JSON format", default=False)
         parser.add_argument("-R", action="store", metavar="hash", help="transport identity hash of remote instance to get status from", default=None, type=str)
