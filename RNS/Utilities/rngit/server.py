@@ -1185,7 +1185,7 @@ class ReticulumGitNode():
     IDX_REPOSITORY  = 0x00
     IDX_RESULT_CODE = 0x01
 
-    WORK_DOC_LIMIT  = 256*1024*1024
+    WORK_DOC_LIMIT  = 256*1024
 
     def __init__(self, configdir=None, verbosity=None, print_identity=False):
         self.identity            = None
