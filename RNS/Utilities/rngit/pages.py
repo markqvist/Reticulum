@@ -254,7 +254,6 @@ class NomadNetworkNode():
             page_content = template.replace("{PAGE_CONTENT}", page_content)
 
         base_template = self.get_template("base") or self.templates["base"]
-        base_template = base_template.replace("{PAGE_CONTENT}", page_content)
         base_template = base_template.replace("{NODE_NAME}", self.node_name)
         base_template = base_template.replace("{VERSION}", __version__)
         
@@ -263,6 +262,7 @@ class NomadNetworkNode():
 
         gt = f"Generated in {RNS.prettytime(time.time()-st)}" if st else "Unknown generation time"
         base_template = base_template.replace("{GEN_TIME}", gt)
+        base_template = base_template.replace("{PAGE_CONTENT}", page_content)
         return base_template.encode("utf-8")
 
     #############################
