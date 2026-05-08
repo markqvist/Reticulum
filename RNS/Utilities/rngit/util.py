@@ -34,7 +34,6 @@ import RNS
 # Validate ref names according to https://git-scm.com/docs/git-check-ref-format
 # This may be a bit overkill, since git validates names as well, but why not.
 def san_ref(ref):
-    RNS.log(f"SAN REF: {ref}")
     if ref.startswith("-"):                return None
     if ref.startswith("/"):                return None
     if ref.endswith("/"):                  return None
