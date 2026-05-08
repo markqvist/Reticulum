@@ -1739,7 +1739,9 @@ class ReticulumGitNode():
                 execv = ["git", "for-each-ref", "--format", "%(objectname) %(refname)"]
                 result = subprocess.run(execv, cwd=repository_path, capture_output=True, check=False, text=True)
                 
-                if result.returncode != 0: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + result.stderr.encode("utf-8")
+                if result.returncode != 0:
+                    RNS.log(f"Error while listing refs for {group_name}/{repository_name}: {result.stderr}", RNS.LOG_ERROR)
+                    return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not list refs"
                 
                 # Build response in format: refs + @<ref> HEAD
                 response_lines = result.stdout.strip()
@@ -1832,7 +1834,9 @@ class ReticulumGitNode():
                         RNS.log(f"Empty bundle for {ref_names}, all objects already on client", RNS.LOG_DEBUG)
                         return b"\x00"
                     
-                    else: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + result.stderr.encode("utf-8")
+                    else:
+                        RNS.log(f"Error while fetching refs {ref_names} for {group_name}/{repository_name}: {result.stderr}", RNS.LOG_ERROR)
+                        return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not fetch refs"
                 
                 return open(bundle_path, "rb"), {self.IDX_RESULT_CODE: self.RES_OK}
 
@@ -1873,14 +1877,18 @@ class ReticulumGitNode():
                         execv = ["git", "bundle", "verify", bundle_path]
                         result = subprocess.run(execv, cwd=repository_path, capture_output=True, check=False)
 
-                        if result.returncode != 0: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + result.stderr
+                        if result.returncode != 0:
+                            RNS.log(f"Bundle verification failed for push {local_ref}:{remote_ref} to {group_name}/{repository_name}: {result.stderr}", RNS.LOG_ERROR)
+                            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not verify bundle"
 
                         execv = ["git", "fetch", bundle_path, f"{local_ref}:{remote_ref}"]
                         if force: execv.append("--force")
 
                         result = subprocess.run(execv, cwd=repository_path, capture_output=True, check=False)
 
-                        if result.returncode != 0: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + result.stderr
+                        if result.returncode != 0:
+                            RNS.log(f"Bundle verification failed for push {local_ref}:{remote_ref} to {group_name}/{repository_name}: {result.stderr}", RNS.LOG_ERROR)
+                            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not verify bundle"
 
                         return b"\x00"
 
@@ -1919,7 +1927,9 @@ class ReticulumGitNode():
                         execv = ["git", "update-ref", ref, sha]
                         result = subprocess.run(execv, cwd=repository_path, capture_output=True, check=False)
 
-                        if result.returncode != 0: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + result.stderr
+                        if result.returncode != 0:
+                            RNS.log(f"Error while updating ref {ref} to {sha} for {group_name}/{repository_name}: {result.stderr}", RNS.LOG_ERROR)
+                            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not update refs"
 
                     return b"\x00"
 
@@ -1950,9 +1960,12 @@ class ReticulumGitNode():
                 RNS.log(f"Deleting ref {ref_to_delete} in {group_name}/{repository_name}", RNS.LOG_DEBUG)
                 execv = ["git", "update-ref", "-d", ref_to_delete]
                 result = subprocess.run(execv, cwd=repository_path, capture_output=True, check=False)
+
+                if result.returncode != 0:
+                    RNS.log(f"Error while deleting ref {ref_to_delete} for {group_name}/{repository_name}: {result.stderr}", RNS.LOG_ERROR)
+                    return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not delete ref"
                 
-                if result.returncode != 0: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + result.stderr
-                else:                      return b"\x00"
+                else: return b"\x00"
 
             except Exception as e:
                 RNS.log(f"Error while handling delete request for {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
