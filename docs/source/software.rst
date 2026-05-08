@@ -153,30 +153,6 @@ page browser and other interesting functionality.
 Reticulum MeshChat is of course also compatible with Sideband and Nomad Network, or
 any other LXMF client.
 
-Columba
-^^^^^^^
-
-`Columba <https://github.com/torlando-tech/columba/>`_ is a simple and familiar LXMF
-messaging app Android, built with a native Android interface and Material Design 3.
-
-.. only:: html
-
-  .. image:: screenshots/columba.webp
-      :align: center
-      :width: 25%
-      :target: https://github.com/torlando-tech/columba/
-
-.. only:: latex
-
-  .. image:: screenshots/columba.png
-      :align: center
-      :width: 25%
-      :target: https://github.com/torlando-tech/columba/
-
-While still in early and very active development, it is of course also compatible
-with all other LXMF clients, and allows you to message seamlessly with anyone else
-using LXMF.
-
 .. raw:: latex
 
     \newpage

@@ -85,15 +85,6 @@ page browser and other interesting functionality.
 Reticulum MeshChat is of course also compatible with Sideband and Nomad Network, or
 any other LXMF client.
 
-### Columba
-
-[Columba](https://github.com/torlando-tech/columba/) is a simple and familiar LXMF
-messaging app Android, built with a native Android interface and Material Design 3.
-
-While still in early and very active development, it is of course also compatible
-with all other LXMF clients, and allows you to message seamlessly with anyone else
-using LXMF.
-
 ### Reticulum Relay Chat
 
 [Reticulum Relay Chat](https://rrc.kc1awv.net/) is a live chat system built on top of the Reticulum Network Stack. It exists to let people talk to each other in real time over Reticulum without dragging in message databases, synchronization engines, or architectural commitments they did not ask for.

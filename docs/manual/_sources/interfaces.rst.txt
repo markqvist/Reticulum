@@ -1393,11 +1393,11 @@ but all the parameters are exposed for configuration if needed.
      sub-interfaces when a new client connects. 
 
  * | The ``ic_burst_freq_new`` option sets the maximum announce ingress
-     frequency for newly spawned interfaces. Defaults to ``3.0``
+     frequency for newly spawned interfaces. Defaults to ``3.5``
      announces per second.
 
  * | The ``ic_burst_freq`` option sets the maximum announce ingress
-     frequency for other interfaces. Defaults to ``10.0`` announces
+     frequency for other interfaces. Defaults to ``12`` announces
      per second.
 
      *If an interface exceeds its burst frequency, incoming announces
@@ -1410,17 +1410,15 @@ but all the parameters are exposed for configuration if needed.
 
  * | The ``ic_burst_hold`` option sets how much time (in seconds) must
      pass after the burst frequency drops below its threshold, for the
-     announce burst to be considered cleared. Defaults to ``15.0``
+     announce burst to be considered cleared. Defaults to ``60``
      seconds.
 
  * | The ``ic_burst_penalty`` option sets how much time (in seconds) must
      pass after the burst is considered cleared, before held announces can
-     start being released from the queue. Defaults to ``15.0`` seconds.
+     start being released from the queue. Defaults to ``5*60``
+     seconds.
 
  * | The ``ic_held_release_interval`` option sets how much time (in seconds)
      must pass between releasing each held announce from the queue. Defaults
-     to ``5.0`` seconds.
+     to ``30`` seconds.
 
-All the ingress control parameters can be set as defaults in the ``[reticulum]``
-section of the configuration file. Interface-specific configuration will
-override the defaults.
