@@ -556,7 +556,9 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if astats and "incoming_announce_frequency" in ifstat and ifstat["incoming_announce_frequency"] != None:
                             oaf = RNS.prettyfrequency(ifstat["outgoing_announce_frequency"])+"↑"
                             iaf = RNS.prettyfrequency(ifstat["incoming_announce_frequency"])+"↓"
-                            if clients != None and clients > 0: pc_str = f"{RNS.prettyfrequency(ifstat['outgoing_announce_frequency']/clients)}/c"
+                            cspec = "c"
+                            if clients == None and "peers" in ifstat and ifstat["peers"]: clients = ifstat["peers"]; cspec = "p"
+                            if clients != None and clients > 0: pc_str = f"{RNS.prettyfrequency(ifstat['outgoing_announce_frequency']/clients)}/{cspec}"
                             else:                               pc_str = ""
                             asr = True
 
