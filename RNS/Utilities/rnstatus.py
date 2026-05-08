@@ -81,7 +81,8 @@ def get_remote_status(destination_hash, include_lstats, identity, no_output=Fals
     remote_identity = RNS.Identity.recall(destination_hash)
 
     def remote_link_closed(link):
-        if link.teardown_reason == RNS.Link.TIMEOUT:
+        if link.teardown_reason == RNS.Link.INITIATOR_CLOSED: return
+        elif link.teardown_reason == RNS.Link.TIMEOUT:
             if not no_output:
                 print("\r                                                          \r", end="")
                 print("The link timed out, exiting now")

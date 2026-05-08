@@ -59,7 +59,8 @@ def connect_remote(destination_hash, auth_identity, timeout, no_output = False, 
     remote_identity = RNS.Identity.recall(destination_hash)
 
     def remote_link_closed(link):
-        if link.teardown_reason == RNS.Link.TIMEOUT:
+        if link.teardown_reason == RNS.Link.INITIATOR_CLOSED: return
+        elif link.teardown_reason == RNS.Link.TIMEOUT:
             if not no_output:
                 print(output_rst_str, end="")
                 print("The link timed out, exiting now")
