@@ -355,8 +355,7 @@ class ReticulumGitClient():
                     subprocess.run(["which", fallback], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                     editor = fallback
                     break
-                except subprocess.CalledProcessError:
-                    continue
+                except subprocess.CalledProcessError: continue
         
         if not editor:
             print("No editor found. Please set $EDITOR environment variable.")
@@ -1810,7 +1809,8 @@ class ReticulumGitNode():
                         # Per-ref have: The client already has this ancestor,
                         # so the server can exclude objects reachable from it.
                         if "have" in r and r["have"]:
-                            have_sha = r["have"]
+                            have_sha = san_sha(r["have"])
+                            if not have_sha: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid SHA"
                             cat_result = subprocess.run(["git", "cat-file", "-t", have_sha], cwd=repository_path, capture_output=True, check=False)
                             if cat_result.returncode == 0: execv.append(f"^{have_sha}")
                             else: RNS.log(f"Client have-sha {have_sha} not found in repository, skipping", RNS.LOG_WARNING)
@@ -1819,6 +1819,7 @@ class ReticulumGitNode():
                 # Exclude objects reachable from these to produce thin bundles.
                 have_shas = data.get("have", [])
                 for sha in have_shas:
+                    if not san_sha(sha): return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid SHA"
                     cat_result = subprocess.run(["git", "cat-file", "-t", sha], cwd=repository_path, capture_output=True, check=False)
                     if cat_result.returncode == 0: execv.append(f"^{sha}")
                     else: RNS.log(f"Client have-sha {sha} not found in repository, skipping", RNS.LOG_WARNING)
@@ -1894,15 +1895,13 @@ class ReticulumGitNode():
                     for op in operations:
                         action = op.get("action", "")
                         ref    = san_ref(op.get("ref", ""))
-                        sha    = op.get("sha", "")
+                        sha    = san_sha(op.get("sha", ""))
                         op_force = op.get("force", False)
 
                         if action != "update_ref": return self.RES_INVALID_REQ.to_bytes(1, "big") + f"Unknown operation: {action}".encode("utf-8")
                         if not ref: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
                         if not ref.startswith("refs/"): return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
-                        if not sha or len(sha) < 40: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid SHA"
-                        try: bytes.fromhex(sha)
-                        except: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid SHA"
+                        if not sha: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid SHA"
 
                         # Verify the target object exists in the repository
                         cat_result = subprocess.run(["git", "cat-file", "-t", sha], cwd=repository_path, capture_output=True, check=False)
@@ -3126,5 +3125,12 @@ def san_refs(refs):
         if not san_ref(ref): return None
 
     return refs
+
+# Git SHA format validation
+def san_sha(sha):
+    if len(sha) < 40: return None
+    try: bytes.fromhex(sha)
+    except: return None
+    return sha
 
 if __name__ == "__main__": main()
