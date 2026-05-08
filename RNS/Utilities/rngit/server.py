@@ -3089,8 +3089,6 @@ DOC_PERMISSIONS_TEMPLATE ="# No permissions are currently defined for this workd
 # Validate ref names according to https://git-scm.com/docs/git-check-ref-format
 # This may be a bit overkill, since git validates names as well, but why not.
 def san_ref(ref):
-    print(ref)
-
     if ref.startswith("-"):                return None
     if ref.startswith("/"):                return None
     if ref.endswith("/"):                  return None
