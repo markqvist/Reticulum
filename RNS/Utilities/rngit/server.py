@@ -44,6 +44,7 @@ from tempfile import NamedTemporaryFile
 from RNS._version import __version__
 from RNS.Utilities.rngit import APP_NAME
 from RNS.Utilities.rngit.pages import NomadNetworkNode
+from RNS.Utilities.rngit.util import san_ref, san_sha
 from RNS.vendor.configobj import ConfigObj
 from RNS.vendor import umsgpack as mp
 
@@ -3100,50 +3101,5 @@ RELEASE_NOTES_TEMPLATE = """# Enter release notes for {TAG}.
 COMMENT_TEMPLATE = "# Remove this line and enter your update. Save and exit when done, or save an empty document to abort abort."
 CREATE_DOC_TEMPLATE = "# Remove this line and enter your document content. Save and exit when done, or save an empty document to abort abort."
 DOC_PERMISSIONS_TEMPLATE ="# No permissions are currently defined for this workdoc. Add them below, and save and exit when you are done."
-
-# Validate ref names according to https://git-scm.com/docs/git-check-ref-format
-# This may be a bit overkill, since git validates names as well, but why not.
-def san_ref(ref):
-    if ref.startswith("-"):                return None
-    if ref.startswith("/"):                return None
-    if ref.endswith("/"):                  return None
-    if ref.endswith("."):                  return None
-
-    if " "     in ref:                     return None
-    if not "/" in ref:                     return None
-    if ".."    in ref:                     return None
-    if "/."    in ref:                     return None
-    if "//"    in ref:                     return None
-    if "\\"    in ref:                     return None
-
-    for comp in ref.split("/"):
-        if comp.endswith(".lock"):         return None
-
-    if not all(ord(c) >= 40 for c in ref): return None # Any control character
-    if "\x7f" in ref:                      return None # ASCII DEL (177)
-    if "~"    in ref:                      return None
-    if "^"    in ref:                      return None
-    if ":"    in ref:                      return None
-    if "?"    in ref:                      return None
-    if "*"    in ref:                      return None
-    if "["    in ref:                      return None
-    if "@{"   in ref:                      return None
-    if "@"    == ref:                      return None
-
-    return ref
-
-def san_refs(refs):
-    if not type(refs) == list: return None
-    for ref in refs:
-        if not san_ref(ref): return None
-
-    return refs
-
-# Git SHA format validation
-def san_sha(sha):
-    if len(sha) < 40: return None
-    try: bytes.fromhex(sha)
-    except: return None
-    return sha
 
 if __name__ == "__main__": main()

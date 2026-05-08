@@ -31,6 +31,52 @@
 import re
 import RNS
 
+# Validate ref names according to https://git-scm.com/docs/git-check-ref-format
+# This may be a bit overkill, since git validates names as well, but why not.
+def san_ref(ref):
+    RNS.log(f"SAN REF: {ref}")
+    if ref.startswith("-"):                return None
+    if ref.startswith("/"):                return None
+    if ref.endswith("/"):                  return None
+    if ref.endswith("."):                  return None
+
+    if " "     in ref:                     return None
+    if not "/" in ref:                     return None
+    if ".."    in ref:                     return None
+    if "/."    in ref:                     return None
+    if "//"    in ref:                     return None
+    if "\\"    in ref:                     return None
+
+    for comp in ref.split("/"):
+        if comp.endswith(".lock"):         return None
+
+    if not all(ord(c) >= 40 for c in ref): return None # Any control character
+    if "\x7f" in ref:                      return None # ASCII DEL (177)
+    if "~"    in ref:                      return None
+    if "^"    in ref:                      return None
+    if ":"    in ref:                      return None
+    if "?"    in ref:                      return None
+    if "*"    in ref:                      return None
+    if "["    in ref:                      return None
+    if "@{"   in ref:                      return None
+    if "@"    == ref:                      return None
+
+    return ref
+
+def san_refs(refs):
+    if not type(refs) == list: return None
+    for ref in refs:
+        if not san_ref(ref): return None
+
+    return refs
+
+# Git SHA format validation
+def san_sha(sha):
+    if len(sha) < 40: return None
+    try: bytes.fromhex(sha)
+    except: return None
+    return sha
+
 class MarkdownToMicron:    
     BOLD = "`!"
     BOLD_END = "`!"

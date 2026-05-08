@@ -37,7 +37,7 @@ import RNS
 from collections import deque
 from datetime import datetime
 from RNS.Utilities.rngit import APP_NAME
-from RNS.Utilities.rngit.util import MarkdownToMicron
+from RNS.Utilities.rngit.util import MarkdownToMicron, san_sha
 from RNS.Utilities.rngit.highlight import SyntaxHighlighter
 from RNS.vendor.configobj import ConfigObj
 from RNS.vendor import umsgpack as mp
@@ -519,7 +519,7 @@ class NomadNetworkNode():
                 if i == len(path_components) - 1: breadcrumb_parts.append(component) # Last component not a link
                 else: breadcrumb_parts.append(self.m_link(component, self.PATH_TREE, g=group_name, r=repo_name, ref=ref, path=current_path))
         
-        else: breadcrumb_parts.append("") # Could be "root" or something, but a bit confusing
+        else: breadcrumb_parts.append("")
 
         breadcrumb = " / ".join(breadcrumb_parts)
         nav_parts.append(">>\n" + breadcrumb + "\n")
@@ -1658,8 +1658,7 @@ class NomadNetworkNode():
 
             if result.returncode == 0:
                 hash_val = result.stdout.strip()
-                # Validate it's a 40-char hex string
-                if len(hash_val) == 40 and all(c in "0123456789abcdef" for c in hash_val.lower()): return hash_val.lower()
+                return san_sha(hash_val.lower())
         
         except subprocess.TimeoutExpired: RNS.log(f"Timeout resolving ref '{ref}'", RNS.LOG_WARNING)
         except Exception as e:            RNS.log(f"Error resolving ref: {e}", RNS.LOG_WARNING)
