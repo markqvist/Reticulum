@@ -2138,8 +2138,9 @@ class ReticulumGitNode():
             return None
         
     def _release_view(self, releases_path, data):
-        tag = san_ref(data.get("tag"))
-        if not tag: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
+        tag = data.get("tag", "")
+        if "/" in tag: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
+        if not tag:    return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
 
         tag = os.path.basename(tag)
         release_dir = os.path.join(releases_path, tag)
@@ -2161,12 +2162,13 @@ class ReticulumGitNode():
         else:                    return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
 
     def _release_create_init(self, releases_path, repository_path, data, remote_identity):
-        tag = san_ref(data.get("tag"))
+        tag = data.get("tag", "")
         commit_hash = data.get("hash")
         notes = data.get("notes", "")
         notes_format = data.get("notes_format", "markdown")  # "markdown" or "micron"
         
-        if not tag: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
+        if not tag:    return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
+        if "/" in tag: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
 
         tag = os.path.basename(tag)
         if not tag or tag in [".", ".."]: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag name"
@@ -2210,11 +2212,12 @@ class ReticulumGitNode():
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _release_create_artifact(self, releases_path, data):
-        tag = san_ref(data.get("tag"))
+        tag = data.get("tag", "")
         artifact_name = data.get("artifact_name")
         artifact_data = data.get("artifact_data")
         
         if not tag or not artifact_name: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Missing tag or artifact name"
+        if "/" in tag:                   return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
         if artifact_data is None:        return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No artifact data"
 
         tag = os.path.basename(tag)
@@ -2246,9 +2249,9 @@ class ReticulumGitNode():
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _release_create_finalize(self, releases_path, data):
-        tag = san_ref(data.get("tag"))
-        
-        if not tag: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No tag specified"
+        tag = data.get("tag", "")
+        if not tag:    return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No tag specified"
+        if "/" in tag: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
         
         tag = os.path.basename(tag)
         
@@ -2274,9 +2277,10 @@ class ReticulumGitNode():
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _release_delete(self, releases_path, data):
-        tag = san_ref(data.get("tag"))
+        tag = data.get("tag", "")
         
         if not tag: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No tag specified"
+        if "/" in tag: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
         
         tag = os.path.basename(tag)
         release_dir = os.path.join(releases_path, tag)
