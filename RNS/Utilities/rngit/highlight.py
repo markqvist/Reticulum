@@ -165,15 +165,15 @@ class SyntaxHighlighter:
             
             except Exception as e:
                 RNS.log(f"Pygments highlighting failed, falling back: {e}", RNS.LOG_WARNING)
-                return self._plain_text(content)
+                return self._plain_text(content).replace("\\", "\\\\")
         
         # TODO: Implement Python tokenize fallback for .py files.
         # For now, route to plain text
         if filename and filename.endswith(".py"):
-            return self._plain_text(content)
+            return self._plain_text(content).replace("\\", "\\\\")
         
         # Universal fallback
-        return self._plain_text(content)
+        return self._plain_text(content).replace("\\", "\\\\")
     
     def _highlight_pygments(self, content, filename=None, language=None):
         from pygments.lexers import get_lexer_for_filename, guess_lexer, get_lexer_by_name
@@ -301,7 +301,8 @@ class MicronFormatter:
         return None
     
     @staticmethod
-    def _escape_value(value: str) -> str: return value.replace("`", "\\`")
+    def _escape_value(value):
+        return value.replace("\\", "\\\\").replace("`", "\\`")
     
     # Required by Pygments formatter API, returns None for Micron
     def get_style_defs(self, arg=None): return None

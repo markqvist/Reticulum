@@ -152,6 +152,7 @@ class MarkdownToMicron:
             return w if w is not None and w >= 0 else len(text)
     
     def format_block(self, text, url_scope=None):
+        # text = text.replace("\\", "\\\\") # Now handled in format_line instead
         lines = text.split('\n')
         result_lines = []
         in_code_block = False
@@ -228,10 +229,6 @@ class MarkdownToMicron:
         for line in lines:
             is_fence, lang_hint = self._detect_code_fence(line)
 
-            if line.startswith("-") and not line.startswith("---") and not line.startswith("- "): line = f"\\{line}"
-            if line.startswith(">"): line = f"\\{line}"
-            if line.startswith("<"): line = f"\\{line}"
-            
             if is_fence:
                 # Flush any pending structures before code fence
                 flush_quote_buffer()
@@ -300,6 +297,11 @@ class MarkdownToMicron:
     
     def format_line(self, line, mode="normal"):
         if mode == "codeblock": return self._escape_literals(line)
+        line = line.replace("\\", "\\\\")
+
+        if line.startswith("-") and not line.startswith("---") and not line.startswith("- "): line = f"\\{line}"
+        if line.startswith("<"): line = f"\\{line}"
+        # if line.startswith(">"): line = f"\\{line}" # Now handled by blockquotes
         
         if self.HORIZONTAL_RULE_RE.match(line): return self._format_horizontal_rule()
         

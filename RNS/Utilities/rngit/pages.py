@@ -2095,8 +2095,8 @@ class NomadNetworkNode():
         if text == None: return None
         else: return text.replace("\t", self.TAB_WIDTH)
 
-    def format_diff(self, diff_text: str) -> str:
-        lines = diff_text.split("\n")
+    def format_diff(self, diff_text):
+        lines = diff_text.replace("\\", "\\\\").split("\n")
         formatted_lines = []
         
         for line in lines:

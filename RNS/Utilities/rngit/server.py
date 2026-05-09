@@ -44,7 +44,7 @@ from tempfile import NamedTemporaryFile
 from RNS._version import __version__
 from RNS.Utilities.rngit import APP_NAME
 from RNS.Utilities.rngit.pages import NomadNetworkNode
-from RNS.Utilities.rngit.util import san_ref, san_sha
+from RNS.Utilities.rngit.util import san_ref, san_refs, san_sha
 from RNS.vendor.configobj import ConfigObj
 from RNS.vendor import umsgpack as mp
 
