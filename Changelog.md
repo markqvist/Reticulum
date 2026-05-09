@@ -1,3 +1,40 @@
+### 2026-05-09: RNS 1.2.5
+
+This release brings substantial improvements to path request handling, and should significantly reduce overall network and local transport node processing loads. Path requests are now automatically ingress and egress limited per interface and sub-interface. Although the defaults are effective and sane, and should work right out of the box bring an end to practically all the PR and announce spam going on lately, the backend is fully configurable for both defaults and per interface, if you want to fiddle with the settings.
+
+People who have written (ahem... *prompted into existence*) strange applications, that believed sending 25 random path requests every 10 seconds to try and punch holes through announce limiting, will now most likely find any potential users of such applications complaining that they are losing the ability to resolve paths alltogether, which is (entirely) by design, of course. Seriously, don't do crap like that.
+
+You can read more about how the new ingress and egress controls work in the updated manual sections, in the Interfaces chapter.
+
+For all node ops out there, I'd recomment updating to this at some sort of semi-expedient, but of course not un-leisurely pace, so peace and order on the networks can be restored.
+
+**Changes**
+- Added path request ingress and egress control with sane defaults for transport nodes
+- Added full configurability of ingress and egress controls per interface and for instance-wide defaults
+- Significantly improved transport logic for path request and announce handling
+- Added path request frequency display to `rnstatus`
+- Added AutoInterface per-peer announe rate display to `rnstatus`
+- Added abilit to filter interfaces by burst state to `rnstatus`
+- Added hex/base32/base64 ASCII-wrapped output to `rnid` signature generator
+- Tuned default ingress control parameters
+- Fixed regression in link close handling in `rnstatus` and `rnpath` remote management handling
+- Fixed invalid handling of corrupted interface discovery files
+- Fixed announce processing edge case handling if path was cleaned while waiting for rebroadcast
+- Improved `rngit` error logging
+- Improved transport background jobs error handling
+- Fixed various edge-cases and inconsistencies in markdown rendering in `rngit`
+- Ensured canonical validation functions in `rngit`
+- Lots of other small fixes and stability improvements to `rngit`
+
+**Release Signatures**
+Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`. To verify files, download the `rsg` signatures, make sure they are in the same folder as the release artifact, and run `rnid` signature verification with the release identity as the required signer:
+
+```sh
+rnid -i bc7291552be7a58f361522990465165c -V rns-1.2.5-py3-none-any.whl
+```
+
+The `rnid` utility will then verify the signatures, and display whether it is valid. If the signature cannot be verified, the file has been tampered with and should be thrown very far away in a jiffy.
+
 ### 2026-05-07: RNS 1.2.4
 
 This release brings a complete rewrite and update to the `rnid` utility, which is now a lot more useful, and better at finding and saving identities. It also includes a bunch of other improvements, such as expanded `rngit` functionality, better transport performance and a few bugfixes. Enjoy!

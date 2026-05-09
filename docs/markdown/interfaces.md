@@ -1381,10 +1381,10 @@ but all the parameters are exposed for configuration if needed.
 >   <br/>
 > * The `ic_pr_burst_freq_new` option sets the maximum path request
 >   ingress frequency for newly spawned interfaces. Defaults to `3`
->   announces per second.
+>   path requests per second.
 >   <br/>
 > * The `ic_pr_burst_freq` option sets the maximum path request
->   ingress frequency for other interfaces. Defaults to `10` announces
+>   ingress frequency for other interfaces. Defaults to `8` path requests
 >   per second.
 >   <br/>
 >   > *If an interface exceeds its burst frequency, incoming path requests
