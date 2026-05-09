@@ -1260,6 +1260,11 @@ class NomadNetworkNode():
 
         sep = self.icon("sep")
         heart = self.icon("heart")
+
+        thanks = True if data.get("var_thanks", "") else False
+        thanks_count = self.release_thanks(release_dir, add=thanks, link_id=link_id)
+        content_parts.append(f"{self.m_link_r(self.icon('heart')+f' Thanks ({thanks_count})', self.PATH_RELEASE, g=group_name, r=repo_name, t=tag, thanks='y')}\n\n")
+
         created_ts = release_info.get("created", 0)
         ts_str = f" {sep} {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(created_ts))}" if created_ts else ""
         content_parts.append(self.m_heading(f"Release {tag}{ts_str}", 2))
@@ -1279,7 +1284,7 @@ class NomadNetworkNode():
         if artifacts:
             content_parts.append(self.m_heading(f"Artifacts ({len(artifacts)})", 2))
             content_parts.append("\n")
-            for art in artifacts:
+            for art in sorted(artifacts, key=lambda e: e["name"]):
                 name = art.get("name", "unknown")
                 size = art.get("size", 0)
                 size_str = RNS.prettysize(size) if size else "0 B"
@@ -1290,15 +1295,10 @@ class NomadNetworkNode():
                 link_1  = self.m_link_r(lstr_1, self.PATH_ARTIFACT, g=group_name, r=repo_name, t=tag, a=name)
                 link_2  = self.m_link_r(lstr_2, self.PATH_ARTIFACT, g=group_name, r=repo_name, t=tag, a=name)
                 content_parts.append(f"{link_1} {self.CLR_DIM}{link_2}`f\n")
-            content_parts.append("\n")
 
         else:
             content_parts.append(self.m_heading("Artifacts", 2))
-            content_parts.append("\nNo artifacts for this release.\n\n")
-
-        thanks = True if data.get("var_thanks", "") else False
-        thanks_count = self.release_thanks(release_dir, add=thanks, link_id=link_id)
-        content_parts.append(f"{self.m_link_r(self.icon('heart')+f' Thanks ({thanks_count})', self.PATH_RELEASE, g=group_name, r=repo_name, t=tag, thanks='y')}\n")
+            content_parts.append("\n`*No artifacts for this release`*\n")
 
         self.owner.view_succeeded(group_name, repo_name, remote_identity)
         page_content = "".join(content_parts)
