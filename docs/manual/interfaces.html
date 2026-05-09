@@ -1533,11 +1533,14 @@ also means, that should a node decide to connect to a public interface, announce
 a large amount of bogus destinations, and then disconnect, these destination will
 never make it into path tables and waste network bandwidth on retransmitted
 announces.</p>
-<p><strong>It’s important to note</strong> that the ingress control works at the level of <em>individual
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It’s important to remember that the ingress control works at the level of <em>individual
 sub-interfaces</em>. As an example, this means that one client on a <a class="reference internal" href="#interfaces-tcps"><span class="std std-ref">TCP Server Interface</span></a>
 cannot disrupt processing of incoming announces for other connected clients on the same
-<a class="reference internal" href="#interfaces-tcps"><span class="std std-ref">TCP Server Interface</span></a>. All other clients on the same interface will still have new announces
-processed without interruption.</p>
+<a class="reference internal" href="#interfaces-tcps"><span class="std std-ref">TCP Server Interface</span></a>. All other clients on the same interface
+will still have new announces processed without interruption.</p>
+</div>
 <p>By default, Reticulum will handle this automatically, and ingress announce
 control will be enabled on interface where it is sensible to do so. It should
 generally not be neccessary to modify the ingress control configuration,
@@ -1546,8 +1549,7 @@ but all the parameters are exposed for configuration if needed.</p>
 <div><ul>
 <li><div class="line-block">
 <div class="line">The <code class="docutils literal notranslate"><span class="pre">ingress_control</span></code> option tells Reticulum whether or not
-to enable announce ingress control on the interface. Defaults to
-<code class="docutils literal notranslate"><span class="pre">True</span></code>.</div>
+to enable ingress control on the interface. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</div>
 </div>
 </li>
 <li><div class="line-block">
@@ -1602,6 +1604,76 @@ to <code class="docutils literal notranslate"><span class="pre">30</span></code>
 </li>
 </ul>
 </div></blockquote>
+<p>All of the above settings can be configured both as instance-wide defaults
+under the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code> section of the configuration file, or on a per-
+interface basis under the relevant interface configuration section.</p>
+</section>
+<section id="path-request-burst-control">
+<h2>Path Request Burst Control<a class="headerlink" href="#path-request-burst-control" title="Link to this heading">¶</a></h2>
+<p>In addition the announce controls for newly created destination, Reticulum will also
+monitor incoming path request activity, and enforce burst controls if per-client rates
+exceed configured limits. Once path request burst control is activated on an
+interface, path requests will no longer be propagated further on the network.
+As with announce burst control, this happens on a per sub-interface basis. One
+client connecting to a public gateway will not be able to disrupt path request
+processing for other clients.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Applications that send large amounts of unnecessary path requests will very
+quickly get rate limited by transport nodes, and the entire system they are
+running on will not be able to resolve any paths on the network, until the
+burst subsides and hold period expires. <strong>Do not</strong> write applications like
+this. Only request paths for destinations you need to communicate with.</p>
+</div>
+<p>By default, Reticulum will handle this automatically, and ingress path request
+control will be enabled on interface where it is sensible to do so. It should
+generally not be neccessary to modify the ingress control configuration,
+but all the parameters are exposed for configuration if needed.</p>
+<blockquote>
+<div><ul>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ingress_control</span></code> option tells Reticulum whether or not
+to enable ingress control on the interface. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_new_time</span></code> option configures how long (in seconds) an
+interface is considered newly spawned. Defaults to <code class="docutils literal notranslate"><span class="pre">2*60*60</span></code> seconds. This
+option is useful on publicly accessible interfaces that spawn new
+sub-interfaces when a new client connects.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_pr_burst_freq_new</span></code> option sets the maximum path request
+ingress frequency for newly spawned interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">3</span></code>
+announces per second.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_pr_burst_freq</span></code> option sets the maximum path request
+ingress frequency for other interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">10</span></code> announces
+per second.</div>
+</div>
+<blockquote>
+<div><p><em>If an interface exceeds its burst frequency, incoming path requests
+from that system will not traverse the network further.</em></p>
+</div></blockquote>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">egress_control</span></code> option enables hard-limiting path request egress
+control per-interface. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">ec_pr_freq</span></code> option sets the hard limit for outbound path requests
+per second on a given interface.</div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+<p>All of the above settings can be configured both as instance-wide defaults
+under the <code class="docutils literal notranslate"><span class="pre">[reticulum]</span></code> section of the configuration file, or on a per-
+interface basis under the relevant interface configuration section.</p>
 </section>
 </section>
 
@@ -1689,6 +1761,7 @@ to <code class="docutils literal notranslate"><span class="pre">30</span></code>
 <li><a class="reference internal" href="#interfaces-modes">Interface Modes</a></li>
 <li><a class="reference internal" href="#announce-rate-control">Announce Rate Control</a></li>
 <li><a class="reference internal" href="#new-destination-rate-limiting">New Destination Rate Limiting</a></li>
+<li><a class="reference internal" href="#path-request-burst-control">Path Request Burst Control</a></li>
 </ul>
 </li>
 </ul>

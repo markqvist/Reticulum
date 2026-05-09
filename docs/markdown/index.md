@@ -181,6 +181,7 @@ to participate in the development of Reticulum itself.
   * [Interface Modes](interfaces.md#interfaces-modes)
   * [Announce Rate Control](interfaces.md#announce-rate-control)
   * [New Destination Rate Limiting](interfaces.md#new-destination-rate-limiting)
+  * [Path Request Burst Control](interfaces.md#path-request-burst-control)
 * [Building Networks](networks.md)
   * [Concepts & Overview](networks.md#concepts-overview)
     * [Introductory Considerations](networks.md#introductory-considerations)

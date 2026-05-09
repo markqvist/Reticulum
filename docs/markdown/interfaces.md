@@ -1295,11 +1295,12 @@ a large amount of bogus destinations, and then disconnect, these destination wil
 never make it into path tables and waste network bandwidth on retransmitted
 announces.
 
-**It’s important to note** that the ingress control works at the level of *individual
+#### NOTE
+It’s important to remember that the ingress control works at the level of *individual
 sub-interfaces*. As an example, this means that one client on a [TCP Server Interface](#interfaces-tcps)
 cannot disrupt processing of incoming announces for other connected clients on the same
-[TCP Server Interface](#interfaces-tcps). All other clients on the same interface will still have new announces
-processed without interruption.
+[TCP Server Interface](#interfaces-tcps). All other clients on the same interface
+will still have new announces processed without interruption.
 
 By default, Reticulum will handle this automatically, and ingress announce
 control will be enabled on interface where it is sensible to do so. It should
@@ -1307,8 +1308,7 @@ generally not be neccessary to modify the ingress control configuration,
 but all the parameters are exposed for configuration if needed.
 
 > * The `ingress_control` option tells Reticulum whether or not
->   to enable announce ingress control on the interface. Defaults to
->   `True`.
+>   to enable ingress control on the interface. Defaults to `True`.
 >   <br/>
 > * The `ic_new_time` option configures how long (in seconds) an
 >   interface is considered newly spawned. Defaults to `2*60*60` seconds. This
@@ -1344,3 +1344,58 @@ but all the parameters are exposed for configuration if needed.
 >   must pass between releasing each held announce from the queue. Defaults
 >   to `30` seconds.
 >   <br/>
+
+All of the above settings can be configured both as instance-wide defaults
+under the `[reticulum]` section of the configuration file, or on a per-
+interface basis under the relevant interface configuration section.
+
+## Path Request Burst Control
+
+In addition the announce controls for newly created destination, Reticulum will also
+monitor incoming path request activity, and enforce burst controls if per-client rates
+exceed configured limits. Once path request burst control is activated on an
+interface, path requests will no longer be propagated further on the network.
+As with announce burst control, this happens on a per sub-interface basis. One
+client connecting to a public gateway will not be able to disrupt path request
+processing for other clients.
+
+#### WARNING
+Applications that send large amounts of unnecessary path requests will very
+quickly get rate limited by transport nodes, and the entire system they are
+running on will not be able to resolve any paths on the network, until the
+burst subsides and hold period expires. **Do not** write applications like
+this. Only request paths for destinations you need to communicate with.
+
+By default, Reticulum will handle this automatically, and ingress path request
+control will be enabled on interface where it is sensible to do so. It should
+generally not be neccessary to modify the ingress control configuration,
+but all the parameters are exposed for configuration if needed.
+
+> * The `ingress_control` option tells Reticulum whether or not
+>   to enable ingress control on the interface. Defaults to `True`.
+>   <br/>
+> * The `ic_new_time` option configures how long (in seconds) an
+>   interface is considered newly spawned. Defaults to `2*60*60` seconds. This
+>   option is useful on publicly accessible interfaces that spawn new
+>   sub-interfaces when a new client connects.
+>   <br/>
+> * The `ic_pr_burst_freq_new` option sets the maximum path request
+>   ingress frequency for newly spawned interfaces. Defaults to `3`
+>   announces per second.
+>   <br/>
+> * The `ic_pr_burst_freq` option sets the maximum path request
+>   ingress frequency for other interfaces. Defaults to `10` announces
+>   per second.
+>   <br/>
+>   > *If an interface exceeds its burst frequency, incoming path requests
+>   > from that system will not traverse the network further.*
+> * The `egress_control` option enables hard-limiting path request egress
+>   control per-interface. Defaults to `False`
+>   <br/>
+> * The `ec_pr_freq` option sets the hard limit for outbound path requests
+>   per second on a given interface.
+>   <br/>
+
+All of the above settings can be configured both as instance-wide defaults
+under the `[reticulum]` section of the configuration file, or on a per-
+interface basis under the relevant interface configuration section.
