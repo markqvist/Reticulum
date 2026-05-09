@@ -2931,7 +2931,7 @@ class Transport:
             received_from = Transport.path_table[destination_hash][IDX_PT_RVCD_IF]
 
             if packet == None:
-                RNS.log("Could not retrieve announce packet from cache while answering path request for "+RNS.prettyhexrep(destination_hash), RNS.LOG_ERROR)
+                RNS.log("Could not retrieve announce packet from cache while answering path request for "+RNS.prettyhexrep(destination_hash), RNS.LOG_WARNING)
 
             elif attached_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING and attached_interface == received_from:
                 RNS.log("Not answering path request on roaming-mode interface, since next hop is on same roaming-mode interface", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
