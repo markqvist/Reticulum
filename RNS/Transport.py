@@ -920,6 +920,7 @@ class Transport:
                     try:
                         for interface in Transport.interfaces:
                             interface.should_ingress_limit()
+                            interface.should_ingress_limit_pr()
                             interface.process_held_announces()
                             if interface.phy_keepalive: interface.send_keepalive()
                         Transport.interface_last_jobs = time.time()
@@ -2182,8 +2183,7 @@ class Transport:
                                             RNS.log("Invalid link request proof in transport for link "+RNS.prettyhexrep(packet.destination_hash)+", dropping proof.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
                                 except Exception as e:
-                                    RNS.log("Error while transporting link request proof. The contained exception was: "+str(e), RNS.LOG_ERROR)
-
+                                    RNS.log("Could not transport link request proof. The contained exception was: "+str(e), RNS.LOG_WARNING)
                             else:
                                 RNS.log("Link request proof received on wrong interface, not transporting it.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                         else:
@@ -2895,15 +2895,16 @@ class Transport:
     @staticmethod
     def path_request(destination_hash, is_from_local_client, attached_interface, requestor_transport_id=None, tag=None):
         should_search_for_unknown = False
+        should_ingress_limit = False
 
         if attached_interface != None:
-            if RNS.Reticulum.transport_enabled() and attached_interface.mode in RNS.Interfaces.Interface.Interface.DISCOVER_PATHS_FOR:
-                should_search_for_unknown = True
-            interface_str = " on "+str(attached_interface)
-        
-        else: interface_str = ""
+            should_ingress_limit = attached_interface.should_ingress_limit_pr()
+            if RNS.Reticulum.transport_enabled():
+                if attached_interface.mode in RNS.Interfaces.Interface.Interface.DISCOVER_PATHS_FOR: should_search_for_unknown = True
 
-        RNS.log("Path request for "+RNS.prettyhexrep(destination_hash)+interface_str, RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+        if RNS.sl(RNS.LOG_DEBUG):
+            interface_str = f" on {attached_interface}"
+            RNS.log(f"Path request for {RNS.prettyhexrep(destination_hash)}{interface_str}", RNS.LOG_DEBUG)
 
         destination_exists_on_local_client = False
         if len(Transport.local_client_interfaces) > 0:
@@ -3000,6 +3001,15 @@ class Transport:
             if destination_hash in Transport.discovery_path_requests:
                 RNS.log("There is already a waiting path request for "+RNS.prettyhexrep(destination_hash)+" on behalf of path request"+interface_str, RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
             else:
+                # Abort recursive path request if receiving
+                # interface has PR burst active, or should
+                # otherwise ingress limit path requests.
+                if should_ingress_limit:
+                    if RNS.sl(RNS.LOG_DEBUG):
+                        interface_str = f" for {attached_interface}" if attached_interface else ""
+                        RNS.log(f"Not sending recursive path request{interface_str} due to active ingress limiting", RNS.LOG_DEBUG)
+                    return
+
                 # Forward path request on all interfaces
                 # except the requestor interface
                 RNS.log("Attempting to discover unknown path to "+RNS.prettyhexrep(destination_hash)+" on behalf of path request"+interface_str, RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
@@ -3009,7 +3019,7 @@ class Transport:
                 for interface in Transport.interfaces:
                     if not interface == attached_interface:
                         if interface.should_egress_limit_pr():
-                            RNS.log(f"Not sending recursive path request on {interface} due to active egress limiting", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                            RNS.log(f"Not sending recursive path request on {interface} due to active egress limiting", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                         else:
                             # Use the previously extracted tag from this path request
                             # on the new path requests as well, to avoid potential loops

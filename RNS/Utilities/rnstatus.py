@@ -556,7 +556,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         pburst_str = ""
                         if "pr_burst_active" in ifstat and ifstat["pr_burst_active"]:
                             for_str = RNS.prettytime(time.time()-ifstat["pr_burst_activated"])
-                            pburst_str = f" burst for {for_str}"
+                            pburst_str = f"burst for {for_str}"
                       
                         rxb_str = "↓"+RNS.prettysize(ifstat["rxb"])
                         txb_str = "↑"+RNS.prettysize(ifstat["txb"])

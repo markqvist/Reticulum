@@ -661,10 +661,11 @@ class InterfaceDiscovery():
                                 RNS.log(f"Auto-connecting discovered {interface_type} {interface_name}")
                                 interface.autoconnect_hash = endpoint_hash
                                 interface.autoconnect_source = info["network_id"]
+                                mode = RNS.Interfaces.Interface.Interface.MODE_GATEWAY if RNS.Reticulum.transport_enabled() else None
                                 ar_target  = RNS.Reticulum.get_instance()._default_ar_target() if RNS.Reticulum.transport_enabled() else None
                                 ar_penalty = RNS.Reticulum.get_instance()._default_ar_penalty() if RNS.Reticulum.transport_enabled() else None
                                 ar_grace   = RNS.Reticulum.get_instance()._default_ar_grace() if RNS.Reticulum.transport_enabled() else None
-                                RNS.Reticulum.get_instance()._add_interface(interface, ifac_netname=ifac_netname, ifac_netkey=ifac_netkey, configured_bitrate=5E6,
+                                RNS.Reticulum.get_instance()._add_interface(interface, mode=mode, ifac_netname=ifac_netname, ifac_netkey=ifac_netkey, configured_bitrate=5E6,
                                                                             announce_rate_target=ar_target, announce_rate_grace=ar_grace, announce_rate_penalty=ar_penalty)
                                 self.monitor_interface(interface)
 

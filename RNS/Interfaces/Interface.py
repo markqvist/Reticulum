@@ -76,12 +76,12 @@ class Interface:
     IC_BURST_FREQ_NEW        = 3
     IC_BURST_FREQ            = 10
     IC_PR_BURST_FREQ_NEW     = 3
-    IC_PR_BURST_FREQ         = 10
+    IC_PR_BURST_FREQ         = 8
     IC_BURST_HOLD            = 15
     IC_BURST_PENALTY         = 15
     IC_HELD_RELEASE_INTERVAL = 5
     IC_DEQUE_MIN_SAMPLE      = 2
-    IC_BURST_MIN_SAMPLES     = 8
+    IC_BURST_MIN_SAMPLES     = 6
     EC_PR_FREQ               = 5
     EGRESS_CONTROL           = False
 

@@ -263,7 +263,7 @@ class BackboneInterface(Interface):
 
         try: BackboneInterface.epoll.unregister(fileno)
         except Exception as e:
-            RNS.log(f"An error occurred while deregistering file descriptor {fileno}: {e}", RNS.LOG_WARNING)
+            RNS.log(f"An error occurred while deregistering file descriptor {fileno}: {e}", RNS.LOG_DEBUG)
 
     @staticmethod
     def deregister_listeners():
