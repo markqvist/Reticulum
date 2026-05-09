@@ -582,40 +582,41 @@ class Transport:
                                     if block_rebroadcasts: announce_context = RNS.Packet.PATH_RESPONSE
                                     announce_data = packet.data
                                     announce_identity = RNS.Identity.recall(packet.destination_hash, _no_use=True)
-                                    announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
-                                    announce_destination.hash = packet.destination_hash
-                                    announce_destination.hexhash = announce_destination.hash.hex()
-                                    
-                                    new_packet = RNS.Packet(
-                                        announce_destination,
-                                        announce_data,
-                                        RNS.Packet.ANNOUNCE,
-                                        context = announce_context,
-                                        header_type = RNS.Packet.HEADER_2,
-                                        transport_type = Transport.TRANSPORT,
-                                        transport_id = Transport.identity.hash,
-                                        attached_interface = attached_interface,
-                                        context_flag = packet.context_flag,
-                                    )
+                                    if not announce_identity:
+                                        RNS.log("Completed announce processing for "+RNS.prettyhexrep(destination_hash)+", the path was cleaned while waiting for announce rebroadcast", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                                        completed_announces.append(destination_hash)
 
-                                    new_packet.hops = announce_entry[4]
-                                    if block_rebroadcasts:
-                                        RNS.log("Rebroadcasting announce as path response for "+RNS.prettyhexrep(announce_destination.hash)+" with hop count "+str(new_packet.hops), RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                                     else:
-                                        RNS.log("Rebroadcasting announce for "+RNS.prettyhexrep(announce_destination.hash)+" with hop count "+str(new_packet.hops), RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-                                    
-                                    outgoing.append(new_packet)
+                                        announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
+                                        announce_destination.hash = packet.destination_hash
+                                        announce_destination.hexhash = announce_destination.hash.hex()
+                                        
+                                        new_packet = RNS.Packet(announce_destination,
+                                                                announce_data,
+                                                                RNS.Packet.ANNOUNCE,
+                                                                context = announce_context,
+                                                                header_type = RNS.Packet.HEADER_2,
+                                                                transport_type = Transport.TRANSPORT,
+                                                                transport_id = Transport.identity.hash,
+                                                                attached_interface = attached_interface,
+                                                                context_flag = packet.context_flag)
 
-                                    # This handles an edge case where a peer sends a past
-                                    # request for a destination just after an announce for
-                                    # said destination has arrived, but before it has been
-                                    # rebroadcast locally. In such a case the actual announce
-                                    # is temporarily held, and then reinserted when the path
-                                    # request has been served to the peer.
-                                    if destination_hash in Transport.held_announces:
-                                        held_entry = Transport.held_announces.pop(destination_hash)
-                                        Transport.announce_table[destination_hash] = held_entry
-                                        RNS.log("Reinserting held announce into table", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                                        new_packet.hops = announce_entry[4]
+                                        if block_rebroadcasts: RNS.log("Rebroadcasting announce as path response for "+RNS.prettyhexrep(announce_destination.hash)+" with hop count "+str(new_packet.hops), RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                                        else: RNS.log("Rebroadcasting announce for "+RNS.prettyhexrep(announce_destination.hash)+" with hop count "+str(new_packet.hops), RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                                        
+                                        outgoing.append(new_packet)
+
+                                        # This handles an edge case where a peer sends a past
+                                        # request for a destination just after an announce for
+                                        # said destination has arrived, but before it has been
+                                        # rebroadcast locally. In such a case the actual announce
+                                        # is temporarily held, and then reinserted when the path
+                                        # request has been served to the peer.
+                                        if destination_hash in Transport.held_announces:
+                                            held_entry = Transport.held_announces.pop(destination_hash)
+                                            Transport.announce_table[destination_hash] = held_entry
+                                            RNS.log("Reinserting held announce into table", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
                         for destination_hash in completed_announces:
                             if destination_hash in Transport.announce_table: Transport.announce_table.pop(destination_hash)
