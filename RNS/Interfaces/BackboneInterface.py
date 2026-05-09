@@ -182,6 +182,32 @@ class BackboneInterface(Interface):
     @ic_burst_activated.setter
     def ic_burst_activated(self, value): pass
 
+
+    __last_ic_pr_burst_check = 0
+    __last_ic_pr_burst_state = False
+    @property
+    def ic_pr_burst_active(self):
+        if time.time() > self.__last_ic_pr_burst_check + 2:
+            self.__last_ic_pr_burst_state = any(i.ic_pr_burst_active for i in self.spawned_interfaces)
+
+        return self.__last_ic_pr_burst_state
+
+    @ic_pr_burst_active.setter
+    def ic_pr_burst_active(self, value): pass
+    
+    __ic_pr_burst_activated_check = 0
+    __ic_pr_burst_activated       = 0
+    @property
+    def ic_pr_burst_activated(self):
+        if time.time() > self.__ic_pr_burst_activated_check + 2:
+            activated = [i.ic_pr_burst_activated for i in self.spawned_interfaces if i.ic_pr_burst_active]
+            if activated: self.__ic_pr_burst_activated = min(activated)
+
+        return self.__ic_pr_burst_activated
+
+    @ic_pr_burst_activated.setter
+    def ic_pr_burst_activated(self, value): pass
+
     @staticmethod
     def start():
         if not BackboneInterface._job_active: threading.Thread(target=BackboneInterface.__job, daemon=True).start()
@@ -388,6 +414,11 @@ class BackboneInterface(Interface):
             spawned_interface.ic_new_time = self.ic_new_time
             spawned_interface.ic_burst_penalty = self.ic_burst_penalty
             spawned_interface.ic_held_release_interval = self.ic_held_release_interval
+
+            spawned_interface.egress_control = self.egress_control
+            spawned_interface.ec_pr_freq = self.ec_pr_freq
+            spawned_interface.ic_pr_burst_freq_new = self.ic_pr_burst_freq_new
+            spawned_interface.ic_pr_burst_freq = self.ic_pr_burst_freq
             
             spawned_interface.socket = socket
             spawned_interface.target_ip = socket.getpeername()[0]
