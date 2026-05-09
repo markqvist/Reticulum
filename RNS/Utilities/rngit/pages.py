@@ -98,6 +98,10 @@ class NomadNetworkNode():
     CLR_DIM         = "`F666"
     CLR_DIM_H       = "`F444"
 
+    # Yes, I'm being intentionally weird here. If you
+    # want to use tabs, three spaces is all you get.
+    TAB_WIDTH       = "   "
+
     RENDERABLE_EXTS = [".md", ".mu"]
     RENDER_DEFAULT  = [".md", ".mu"]
 
@@ -244,6 +248,7 @@ class NomadNetworkNode():
                     return None
 
     def render_template(self, page_content, nav_content=None, template=None, st=None):
+        page_content = self.format_tabs(page_content)
         custom_template = self.get_template(template) if template else None
         if custom_template:
             template = custom_template
@@ -2085,6 +2090,10 @@ class NomadNetworkNode():
         else:
             years = int(diff / 31536000)
             return f"{years} year{'s' if years != 1 else ''} ago"
+
+    def format_tabs(self, text):
+        if text == None: return None
+        else: return text.replace("\t", self.TAB_WIDTH)
 
     def format_diff(self, diff_text: str) -> str:
         lines = diff_text.split("\n")
