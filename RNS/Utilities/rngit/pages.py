@@ -673,11 +673,11 @@ class NomadNetworkNode():
 
         breadcrumb = " / ".join(breadcrumb_parts)
         nav_parts.append(">>\n" + breadcrumb + "\n")
+        sep = self.icon("sep")
 
         dl_link  = self.m_link("Download", self.PATH_DOWNLOAD, g=group_name, r=repo_name, ref=ref, path=file_path)
-        if not renderable: nav_parts.append(f"\n{dl_link}\n")
+        if not renderable: nav_parts.append(f"\nDisplaying Raw {sep} {dl_link}\n")
         else:
-            sep = self.icon("sep")
             rnd_link = self.m_link("View rendered", self.PATH_BLOB, g=group_name, r=repo_name, ref=ref, path=file_path, render="y")
             raw_link = self.m_link("View raw", self.PATH_BLOB, g=group_name, r=repo_name, ref=ref, path=file_path, raw="y")
             if render: render_controls = f"Displaying Rendered {sep} {raw_link}"
