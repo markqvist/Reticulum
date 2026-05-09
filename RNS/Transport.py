@@ -775,10 +775,14 @@ class Transport:
                     # Cull the pending path requests table
                     stale_path_requests = []
                     with Transport.path_requests_lock:
-                        for destination_hash in Transport.path_requests:
-                            if time.time() > Transport.path_requests[destination_hash] + Transport.PATH_REQUEST_GATE_TIMEOUT:
-                                stale_path_requests.append(destination_hash)
-                                RNS.log("Path request entry for "+RNS.prettyhexrep(destination_hash)+" timed out and was removed", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                        try:
+                            for destination_hash in Transport.path_requests:
+                                if time.time() > Transport.path_requests[destination_hash] + Transport.PATH_REQUEST_GATE_TIMEOUT:
+                                    stale_path_requests.append(destination_hash)
+                                    RNS.log("Path request entry for "+RNS.prettyhexrep(destination_hash)+" timed out and was removed", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+
+                        except Exception as e:
+                            RNS.log(f"Could not complete stale path request enumeration in this job round, retrying later: {e}", RNS.LOG_WARNING)
 
                     # Cull the pending discovery path requests table
                     stale_discovery_path_requests = []
