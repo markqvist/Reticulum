@@ -478,7 +478,7 @@ class InterfaceDiscovery():
 
                     except Exception as e: RNS.log(f"Error while reading existing data for discovered interface, re-creating data", RNS.LOG_ERROR)
 
-                    if discovered  == None: discovered  = info["discovered"]
+                    if discovered  == None: discovered  = info["received"]
                     if heard_count == None: heard_count = 0
 
                     with open(filepath, "wb") as f:
