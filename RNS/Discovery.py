@@ -6,6 +6,7 @@ import random
 import threading
 import ipaddress
 import subprocess
+from threading import Lock
 from .vendor import umsgpack as msgpack
 
 NAME            = 0xFF
@@ -374,6 +375,8 @@ class InterfaceDiscovery():
     AUTOCONNECT_TYPES  = ["BackboneInterface", "TCPServerInterface"]
     DISCOVERABLE_TYPES = ["BackboneInterface", "TCPServerInterface", "I2PInterface", "RNodeInterface", "WeaveInterface", "KISSInterface"]
 
+    discovery_lock     = Lock()
+
     def __init__(self, required_value=InterfaceAnnouncer.DEFAULT_STAMP_VALUE, callback=None, discover_interfaces=True):
         if not required_value: required_value = InterfaceAnnouncer.DEFAULT_STAMP_VALUE
 
@@ -401,8 +404,10 @@ class InterfaceDiscovery():
         discovery_sources = RNS.Reticulum.interface_discovery_sources()
         for filename in os.listdir(self.storagepath):
             try:
-                filepath = os.path.join(self.storagepath, filename)
-                with open(filepath, "rb") as f: info = msgpack.unpackb(f.read())
+                with self.discovery_lock:
+                    filepath = os.path.join(self.storagepath, filename)
+                    with open(filepath, "rb") as f: info = msgpack.unpackb(f.read())
+
                 should_remove = False
                 heard_delta = now-info["last_heard"]
                 info["name"] = InterfaceAnnounceHandler.sanitize_name(info["name"])
@@ -434,8 +439,8 @@ class InterfaceDiscovery():
                         if should_append: discovered_interfaces.append(info)
 
             except Exception as e:
-                RNS.log(f"Error while loading discovered interface data: {e}", RNS.LOG_ERROR)
-                RNS.log(f"The interface data file {os.path.join(self.storagepath, filename)} may be corrupt", RNS.LOG_ERROR)
+                RNS.log(f"Error while loading discovered interface data: {e}", RNS.LOG_WARNING)
+                RNS.log(f"The interface data file {os.path.join(self.storagepath, filename)} may be corrupt", RNS.LOG_WARNING)
                 RNS.trace_exception(e)
 
         discovered_interfaces.sort(key=lambda info: (info["status_code"], info["value"], info["last_heard"]), reverse=True)
@@ -453,44 +458,45 @@ class InterfaceDiscovery():
             filename = RNS.hexrep(discovery_hash, delimit=False)
             filepath = os.path.join(self.storagepath, filename)
             RNS.log(f"Discovered {interface_type} {hops} hop{ms} away with stamp value {value}: {name}", RNS.LOG_DEBUG)
-            if not os.path.isfile(filepath):
-                try:
-                    with open(filepath, "wb") as f:
-                        info["discovered"]  = info["received"]
-                        info["last_heard"]  = info["received"]
-                        info["heard_count"] = 0
-                        f.write(msgpack.packb(info))
-                
-                except Exception as e:
-                    RNS.log(f"Error while persisting discovered interface data: {e}", RNS.LOG_ERROR)
-                    RNS.trace_exception(e)
-                    return
-
-            else:
-                discovered  = None
-                heard_count = None
-                try:
+            with self.discovery_lock:
+                if not os.path.isfile(filepath):
                     try:
-                        with open(filepath, "rb") as f:
-                            last_info   = msgpack.unpackb(f.read())
-                            discovered  = last_info["discovered"]
-                            heard_count = last_info["heard_count"]
+                        with open(filepath, "wb") as f:
+                            info["discovered"]  = info["received"]
+                            info["last_heard"]  = info["received"]
+                            info["heard_count"] = 0
+                            f.write(msgpack.packb(info))
+                    
+                    except Exception as e:
+                        RNS.log(f"Error while persisting discovered interface data: {e}", RNS.LOG_ERROR)
+                        RNS.trace_exception(e)
+                        return
 
-                    except Exception as e: RNS.log(f"Error while reading existing data for discovered interface, re-creating data", RNS.LOG_ERROR)
+                else:
+                    discovered  = None
+                    heard_count = None
+                    try:
+                        try:
+                            with open(filepath, "rb") as f:
+                                last_info   = msgpack.unpackb(f.read())
+                                discovered  = last_info["discovered"]
+                                heard_count = last_info["heard_count"]
 
-                    if discovered  == None: discovered  = info["received"]
-                    if heard_count == None: heard_count = 0
+                        except Exception as e: RNS.log(f"Error while reading existing data for discovered interface, re-creating data", RNS.LOG_ERROR)
 
-                    with open(filepath, "wb") as f:
-                        info["discovered"] = discovered
-                        info["last_heard"] = info["received"]
-                        info["heard_count"] = heard_count+1
-                        f.write(msgpack.packb(info))
+                        if discovered  == None: discovered  = info["received"]
+                        if heard_count == None: heard_count = 0
 
-                except Exception as e:
-                    RNS.log(f"Error while persisting discovered interface data: {e}", RNS.LOG_ERROR)
-                    RNS.trace_exception(e)
-                    return
+                        with open(filepath, "wb") as f:
+                            info["discovered"] = discovered
+                            info["last_heard"] = info["received"]
+                            info["heard_count"] = heard_count+1
+                            f.write(msgpack.packb(info))
+
+                    except Exception as e:
+                        RNS.log(f"Error while persisting discovered interface data: {e}", RNS.LOG_ERROR)
+                        RNS.trace_exception(e)
+                        return
 
         except Exception as e:
             RNS.log(f"Error processing discovered interface data: {e}", RNS.LOG_ERROR)
