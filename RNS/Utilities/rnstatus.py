@@ -145,7 +145,7 @@ def get_remote_status(destination_hash, include_lstats, identity, no_output=Fals
 
 def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False, pstats=False, lstats=False, sorting=None,
                   sort_reverse=False, remote=None, management_identity=None, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT, must_exit=True,
-                  rns_instance=None, traffic_totals=False, discovered_interfaces=False, config_entries=False):
+                  rns_instance=None, traffic_totals=False, discovered_interfaces=False, config_entries=False, burst_filter=False):
   
     if remote: require_shared = False
     else: require_shared = True
@@ -398,7 +398,18 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 ):
 
                 if not (name.startswith("I2PInterface[") and ("i2p_connectable" in ifstat and ifstat["i2p_connectable"] == False)):
-                    if name_filter == None or name_filter.lower() in name.lower():
+                    if name_filter == None and burst_filter == None: show_if = True
+                    elif not burst_filter:
+                        if not name_filter or name_filter.lower() in name.lower(): show_if = True
+                        else:                                                      show_if = False
+                    elif burst_filter:
+                        burst_act = True if ("burst_active" in ifstat and "pr_burst_active" in ifstat) and (ifstat["burst_active"] or ifstat["pr_burst_active"]) else False
+                        nfilt = name_filter.lower() in name.lower() if name_filter else False
+                        if burst_act or nfilt: show_if = True
+                        else: show_if = False
+                    else: show_if = True
+
+                    if show_if:
                         print("")
 
                         if ifstat["status"]: ss = "Up"
@@ -676,6 +687,7 @@ def main(must_exit=True, rns_instance=None):
         parser.add_argument("-A", "--announce-stats", action="store_true", help="show announce stats", default=False)
         parser.add_argument("-P", "--pr-stats", action="store_true", help="show path request stats", default=False)
         parser.add_argument("-l", "--link-stats", action="store_true", help="show link stats", default=False)
+        parser.add_argument("-B", "--burst", action="store_true", help="only show interfaces with active bursts", default=False)
         parser.add_argument("-t", "--totals", action="store_true", help="display traffic totals", default=False)
         parser.add_argument("-s", "--sort", action="store", help="sort interfaces by [rate, traffic, rx, tx, rxs, txs, announces, arx, atx, prx, ptx, held]", default=None, type=str)
         parser.add_argument("-r", "--reverse", action="store_true", help="reverse sorting", default=False)
@@ -713,7 +725,7 @@ def main(must_exit=True, rns_instance=None):
                     program_setup(configdir = configarg, dispall = args.all, verbosity=args.verbose, name_filter=args.filter, json=args.json,
                                   astats=args.announce_stats, pstats=args.pr_stats, lstats=args.link_stats, sorting=args.sort, sort_reverse=args.reverse,
                                   remote=args.R, management_identity=args.i, remote_timeout=args.w, must_exit=False, rns_instance=reticulum,
-                                  traffic_totals=args.totals, discovered_interfaces=args.discovered, config_entries=args.D)
+                                  traffic_totals=args.totals, discovered_interfaces=args.discovered, config_entries=args.D, burst_filter=args.burst)
               
                 finally:
                     sys.stdout = old_stdout
@@ -728,7 +740,7 @@ def main(must_exit=True, rns_instance=None):
             program_setup(configdir = configarg, dispall = args.all, verbosity=args.verbose, name_filter=args.filter, json=args.json,
                           astats=args.announce_stats, pstats=args.pr_stats, lstats=args.link_stats, sorting=args.sort, sort_reverse=args.reverse,
                           remote=args.R, management_identity=args.i, remote_timeout=args.w, must_exit=must_exit, rns_instance=rns_instance,
-                          traffic_totals=args.totals, discovered_interfaces=args.discovered, config_entries=args.D)
+                          traffic_totals=args.totals, discovered_interfaces=args.discovered, config_entries=args.D, burst_filter=args.burst)
 
     except KeyboardInterrupt:
         print("")
