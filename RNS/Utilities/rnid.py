@@ -88,9 +88,9 @@ def validate_args(args):
     if g > 1: print("The -i, -g, -m and -M args are mutually exclusive"); exit(1)
 
     g = 0;
-    for a in [args.base64, args.base32]:
+    for a in [args.base64, args.base32, args.hex]:
         if a: g += 1
-    if g > 1: print("The -b and -B args are mutually exclusive"); exit(1)
+    if g > 1: print("The -b, -B and --hex args are mutually exclusive"); exit(1)
 
     return True
 
@@ -136,6 +136,7 @@ def main():
         # Formatting Control
         parser.add_argument("-b", "--base64", action="store_true", default=False, help="Use base64-encoded input and output")
         parser.add_argument("-B", "--base32", action="store_true", default=False, help="Use base32-encoded input and output")
+        parser.add_argument("--hex", action="store_true", default=False, help="Use hex-encoded input and output")
 
         parser.add_argument("--version", action="version", version="rnid {version}".format(version=__version__))
         
@@ -375,9 +376,9 @@ def announce(args, identity):
     except Exception as e: print(f"An error ocurred while attempting to send the announce: {e}"); exit(R_UNKNOWN_ERROR)
 
 
-###################################
-# Signing & Validation Operations #
-###################################
+########################################
+# Canonical RSG Manipulation Functions #
+########################################
 
 def get_rsg_data(rsg):
     rsg_data = None
@@ -386,7 +387,9 @@ def get_rsg_data(rsg):
     elif type(rsg) == str:
         try:                             rsg_data = base64.urlsafe_b64decode(rsg)
         except:                          pass
-        try:                             rsg_data = base64.b32decode(rsg)
+        try:                             rsg_data = base64.b32decode(rsg.strip(RSG_PADDING))
+        except:                          pass
+        try:                             rsg_data = bytes.fromhex(rsg.strip(RSG_PADDING))
         except:                          pass
 
     return rsg_data
@@ -475,8 +478,52 @@ def create_rsg(signer_identity, message, note=None, meta=None, output="bin"):
 
     envelope  = mp.packb(signed_data)
     signature = signer_identity.sign(envelope)
+    rsg_data  = signature+envelope
 
-    return signature+envelope
+    if   output == "bin":    rsg = rsg_data
+    elif output == "hex":    rsg = RNS.hexrep(rsg_data, delimit=False).encode("ascii")
+    elif output == "base32": rsg = base64.b32encode(rsg_data)
+    elif output == "base64": rsg = base64.urlsafe_b64encode(rsg_data)
+    else:                    return None
+
+    return rsg
+
+RSG_ASCII_HEADER = b"#### Start of rsg data "
+RSG_ASCII_FOOTER = b" End of rsg data ####"
+RSG_ASCII_ROW_WIDTH = 64
+RSG_PADDING = b"="
+def wrap_rsg(rsg):
+    def pad(chunk): return chunk+(RSG_ASCII_ROW_WIDTH-len(chunk))*RSG_PADDING
+    header = RSG_ASCII_HEADER+b"#"*(RSG_ASCII_ROW_WIDTH-len(RSG_ASCII_HEADER))
+    footer = b"#"*(RSG_ASCII_ROW_WIDTH-len(RSG_ASCII_FOOTER))+RSG_ASCII_FOOTER
+    wrapped = header+b"\n"
+    read = 0
+    while len(rsg):
+        chunk = rsg[:RSG_ASCII_ROW_WIDTH]
+        if len(chunk) < RSG_ASCII_ROW_WIDTH: chunk = pad(chunk)
+        wrapped += chunk+b"\n"; read += len(chunk)
+        rsg = rsg[len(chunk):]
+
+    wrapped += footer
+    return wrapped.decode("ascii")
+
+def unwrap_rsg(wrapped_rsg):
+    unwrapped = ""
+    if type(wrapped_rsg) == bytes: wrapped_rsg = wrapped_rsg.decode("ascii")
+    elif type(wrapped_rsg) == str: pass
+    else: return None
+
+    for line in wrapped_rsg.splitlines():
+        if not line.strip():     continue
+        if line.startswith("#"): continue
+        unwrapped += line
+
+    return unwrapped if unwrapped else None
+
+
+###################################
+# Signing & Validation Operations #
+###################################
 
 def validate(args, identity):
     sig_ext                            = f".{SIG_EXT}"
@@ -537,9 +584,14 @@ def sign(args, identity):
     file_exists      = os.path.isfile(sign_path)
     signature_exists = os.path.isfile(rsg_path)
 
+    if   args.base32: output = "base32"
+    elif args.base64: output = "base64"
+    elif args.hex:    output = "hex"
+    else:             output = "bin"
+
     if not identity.get_private_key(): print(f"Cannot sign \"{sign_path}\", the identity does not hold a private key"); exit(R_NO_PRVKEY)
     if not file_exists: print(f"The file \"{sign_path}\" does not exist"); exit(R_NO_FILE)
-    if signature_exists and not args.force:
+    if output == "bin" and signature_exists and not args.force:
         print(f"The signature file \"{rsg_path}\" already exists, not overwriting"); exit(R_FILE_EXISTS)
 
     try:
@@ -548,10 +600,14 @@ def sign(args, identity):
             with open(rsg_path, "wb") as fh: fh.write(identity.sign(data))
 
         else:
-            with open(sign_path, "rb") as in_file:
-                rsg = create_rsg(identity, in_file)
-                if not rsg: print(f"No signature created, not writing"); exit(R_UNKNOWN_ERROR)
+            with open(sign_path, "rb") as in_file: rsg = create_rsg(identity, in_file, output=output)
+            if not rsg: print(f"No signature created, not writing"); exit(R_UNKNOWN_ERROR)
+
+            if output == "bin":
                 with open(rsg_path, "wb") as out_file: out_file.write(rsg)
+
+            elif output == "base32" or output == "base64" or output == "hex": print(f"\n{wrap_rsg(rsg)}\n")
+            else: print("No valid output format specified")
 
         print(f"Signed file {sign_path} with {identity}"); exit(R_OK)
 
