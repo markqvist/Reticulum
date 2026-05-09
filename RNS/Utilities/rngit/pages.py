@@ -67,7 +67,7 @@ class NomadNetworkNode():
     TREE_ENTRIES_PER_PAGE = 1000
     COMMITS_PER_PAGE      = 100
     SHOW_DIFF_BY_DEFAULT  = True
-    GIT_COMMAND_TIMEOUT   = 5
+    GIT_COMMAND_TIMEOUT   = 8
     MAX_RENDER_WIDTH      = 100
     USE_NERDFONTS         = True
 
@@ -863,6 +863,7 @@ class NomadNetworkNode():
                 content = self.m_heading("Error", 2) + f"\nThe hash {commit_hash} does not refer to a commit.\n"
                 return self.render_template(content, st=st)
         
+        except subprocess.TimeoutExpired: RNS.log(f"Git command execution timed out", RNS.LOG_WARNING)
         except Exception:
             content = self.m_heading("Error", 2) + "\nCould not verify commit object.\n"
             return self.render_template(content, st=st)
@@ -995,6 +996,7 @@ class NomadNetworkNode():
 
             if head_result.returncode == 0: default_branch = head_result.stdout.strip().replace("refs/heads/", "")
         
+        except subprocess.TimeoutExpired: RNS.log(f"Git command execution timed out", RNS.LOG_WARNING)
         except Exception: pass
 
         show_heads = not ref_type or ref_type == "heads"
