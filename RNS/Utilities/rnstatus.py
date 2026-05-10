@@ -60,8 +60,11 @@ def size_str(num, suffix='B'):
 
 request_result = None
 request_concluded = False
+first_remote_req = True
+remote_destination = None
+remote_link = None
 def get_remote_status(destination_hash, include_lstats, identity, no_output=False, timeout=RNS.Transport.PATH_REQUEST_TIMEOUT):
-    global request_result, request_concluded
+    global request_result, request_concluded, first_remote_req, remote_destination, remote_link
     link_count = None
 
     if not RNS.Transport.has_path(destination_hash):
@@ -108,35 +111,41 @@ def get_remote_status(destination_hash, include_lstats, identity, no_output=Fals
         response = request_receipt.response
         if isinstance(response, list):
             status = response[0]
-            if len(response) > 1:
-                link_count = response[1]
-            else:
-                link_count = None
+            if len(response) > 1: link_count = response[1]
+            else:                 link_count = None
 
             request_result = (status, link_count)
 
         request_concluded = True
 
     def remote_link_established(link):
-        if not no_output:
+        global first_remote_req
+        if not no_output and first_remote_req:
             print("\r                                                          \r", end="")
             print("Sending request...", end=" ")
             sys.stdout.flush()
         link.identify(identity)
         link.request("/status", data = [include_lstats], response_callback = got_response, failed_callback = request_failed)
+        first_remote_req = False
 
-    if not no_output:
+    if not remote_link and not no_output:
         print("\r                                                          \r", end="")
         print("Establishing link with remote transport instance...", end=" ")
         sys.stdout.flush()
 
-    remote_destination = RNS.Destination(remote_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "rnstransport", "remote", "management")
-    link = RNS.Link(remote_destination)
-    link.set_link_established_callback(remote_link_established)
-    link.set_link_closed_callback(remote_link_closed)
+    if not remote_destination:
+        remote_destination = RNS.Destination(remote_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "rnstransport", "remote", "management")
+    
+    if remote_link and remote_link.status == RNS.Link.ACTIVE:
+        request_concluded = False
+        remote_link.request("/status", data = [include_lstats], response_callback = got_response, failed_callback = request_failed)
 
-    while not request_concluded:
-        time.sleep(0.1)
+    else:
+        remote_link = RNS.Link(remote_destination)
+        remote_link.set_link_established_callback(remote_link_established)
+        remote_link.set_link_closed_callback(remote_link_closed)
+
+    while not request_concluded: time.sleep(0.1)
 
     if request_result != None:
         print("\r                                                          \r", end="")
@@ -301,28 +310,22 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
 
     if remote:
         try:
-            if management_identity is None:
-                raise ValueError("Remote management requires an identity file. Use -i to specify the path to a management identity.")
+            if management_identity is None: raise ValueError("Remote management requires an identity file. Use -i to specify the path to a management identity.")
 
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
-            if len(remote) != dest_len:
-                raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
+            if len(remote) != dest_len: raise ValueError("Destination length is invalid, must be {hex} hexadecimal characters ({byte} bytes).".format(hex=dest_len, byte=dest_len//2))
             try:
                 identity_hash = bytes.fromhex(remote)
                 destination_hash = RNS.Destination.hash_from_name_and_identity("rnstransport.remote.management", identity_hash)
-            except Exception as e:
-                raise ValueError("Invalid destination entered. Check your input.")
+            except Exception as e: raise ValueError("Invalid destination entered. Check your input.")
 
             identity = RNS.Identity.from_file(os.path.expanduser(management_identity))
-            if identity == None:
-                raise ValueError("Could not load management identity from "+str(management_identity))
+            if identity == None: raise ValueError("Could not load management identity from "+str(management_identity))
 
             try:
                 remote_status = get_remote_status(destination_hash, lstats, identity, no_output=json, timeout=remote_timeout)
-                if remote_status != None:
-                    stats, link_count = remote_status
-            except Exception as e:
-                raise e
+                if remote_status != None: stats, link_count = remote_status
+            except Exception as e: raise e
                   
         except Exception as e:
             print(str(e))
@@ -717,6 +720,7 @@ def main(must_exit=True, rns_instance=None):
                 exit(1)
 
             while True:
+                st = time.time()
                 buffer = io.StringIO()
                 old_stdout = sys.stdout
                 sys.stdout = buffer
@@ -733,8 +737,10 @@ def main(must_exit=True, rns_instance=None):
                 output = buffer.getvalue()
                 print("\033[H\033[2J", end="")
                 print(output, end="", flush=True)
-              
-                time.sleep(args.monitor_interval)
+
+                td = time.time()-st
+                sleeptime = max(args.monitor_interval-td, 0.2)
+                time.sleep(sleeptime)
 
         else:
             program_setup(configdir = configarg, dispall = args.all, verbosity=args.verbose, name_filter=args.filter, json=args.json,
