@@ -198,11 +198,6 @@ def prettyhexrep(data):
     hexrep = "<"+delimiter.join("{:02x}".format(c) for c in data)+">"
     return hexrep
 
-def prettyb256rep(data):
-    delimiter = ""
-    b256rep = "<"+delimiter.join(b256_rep(c) for c in data)+">"
-    return b256rep
-
 def prettyspeed(num, suffix="b"):
     return prettysize(num/8, suffix=suffix)+"ps"
 
@@ -555,6 +550,8 @@ class Profiler:
 
 profile = Profiler.get_profiler
 
+# The base-256 table is likely to change. Currently, it is just
+# experimental, so don't count on it too much just yet.
 b256 = [
 # 0   1   2   3   4   5   6   7   8   9   A   B   C   D   F   F
  "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p",  # 0x0 Latin & numerals
@@ -575,4 +572,27 @@ b256 = [
  "𐌳","𐌸","𐌾","𐐀","𐐁","𐐂","𐐆","𐐇","𐐈","𐐉","𐐊","𐐋","𐐌","𐐍","𐐎","𐐏", # 0xF Gothic & Deseret
 ]
 
-def b256_rep(input_byte): return b256[int(input_byte)]
+def b256rep(data):       return "".join(bytes_to_b256(data))
+def prettyb256rep(data): return f"<{b256rep(data)}>"
+
+def b256_to_byte(point):
+    if not type(point) == str or not len(point) == 1: raise TypeError("Invalid input data for base256 byte decode")
+    try: return b256.index(point)
+    except Exception as e: raise ValueError(f"Could not decode base256 byte: {e}")
+
+def b256_to_bytes(b256rep):
+    if not type(b256rep) == str: raise TypeError("Invalid input data for base256 decode")
+    try: return bytes([b256.index(c) for c in b256rep])
+    except Exception as e: raise ValueError(f"Could not decode base256: {e}")
+
+def byte_to_b256(input_byte):
+    if type(input_byte) == bytes and not len(input_byte) == 1: TypeError("Invalid input data for base256 byte encode")
+    if type(input_byte) == bytes and len(input_byte) == 1: input_byte = ord(input_byte)
+    if not type(input_byte) == int: raise TypeError("Invalid input data for base256 byte encode")
+    try: return b256[int(input_byte)]
+    except Exception as e: raise TypeError(f"Could not encode byte to base256: {e}")
+
+def bytes_to_b256(data):
+    if not type(data) == bytes: raise TypeError("Invalid input data for base256 encode")
+    try: return [byte_to_b256(c) for c in data]
+    except Exception as e: raise TypeError(f"Could not encode to base256: {e}")

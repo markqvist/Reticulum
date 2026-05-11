@@ -90,7 +90,7 @@ def validate_args(args):
     g = 0;
     for a in [args.base64, args.base32, args.hex]:
         if a: g += 1
-    if g > 1: print("The -b, -B and --hex args are mutually exclusive"); exit(1)
+    if g > 1: print("The -b, -B, --hex and --base256 args are mutually exclusive"); exit(1)
 
     return True
 
@@ -137,6 +137,7 @@ def main():
         parser.add_argument("-b", "--base64", action="store_true", default=False, help="Use base64-encoded input and output")
         parser.add_argument("-B", "--base32", action="store_true", default=False, help="Use base32-encoded input and output")
         parser.add_argument("--hex", action="store_true", default=False, help="Use hex-encoded input and output")
+        parser.add_argument("--base256", action="store_true", default=False, help="Use base256-encoded input and output")
 
         parser.add_argument("--version", action="version", version="rnid {version}".format(version=__version__))
         
@@ -391,6 +392,8 @@ def get_rsg_data(rsg):
         except:                          pass
         try:                             rsg_data = bytes.fromhex(rsg.strip(RSG_PADDING))
         except:                          pass
+        try:                             rsg_data = RNS.b256_to_bytes(rsg.strip(RSG_PADDING.decode("utf-8")))
+        except:                          pass
 
     return rsg_data
 
@@ -463,9 +466,9 @@ def validate_rsg(rsg, message=None, required_signer=None):
             return False, signed_data, signing_identity
 
 def create_rsg(signer_identity, message, note=None, meta=None, output="bin"):
-    if not output in ["bin", "hex", "base32", "base64"]:   raise TypeError(f"Invalid output format for rsg creation")
-    if not type(signer_identity) == RNS.Identity:          raise TypeError(f"{signer_identity} is not a Reticulum Identity")
-    if not signer_identity.get_private_key():              raise ValueError(f"{signer_identity} does not hold a private key")
+    if not output in ["bin", "hex", "base32", "base256", "base64"]: raise TypeError(f"Invalid output format for rsg creation")
+    if not type(signer_identity) == RNS.Identity:                   raise TypeError(f"{signer_identity} is not a Reticulum Identity")
+    if not signer_identity.get_private_key():                       raise ValueError(f"{signer_identity} does not hold a private key")
 
     signed_data = { "hashtype": "sha256", "hash": get_rsg_hash(message),
                     "meta": { "signer": signer_identity.hash,
@@ -480,11 +483,12 @@ def create_rsg(signer_identity, message, note=None, meta=None, output="bin"):
     signature = signer_identity.sign(envelope)
     rsg_data  = signature+envelope
 
-    if   output == "bin":    rsg = rsg_data
-    elif output == "hex":    rsg = RNS.hexrep(rsg_data, delimit=False).encode("ascii")
-    elif output == "base32": rsg = base64.b32encode(rsg_data)
-    elif output == "base64": rsg = base64.urlsafe_b64encode(rsg_data)
-    else:                    return None
+    if   output == "bin":     rsg = rsg_data
+    elif output == "hex":     rsg = RNS.hexrep(rsg_data, delimit=False).encode("ascii")
+    elif output == "base32":  rsg = base64.b32encode(rsg_data)
+    elif output == "base64":  rsg = base64.urlsafe_b64encode(rsg_data)
+    elif output == "base256": rsg = RNS.b256rep(rsg_data)
+    else:                     return None
 
     return rsg
 
@@ -493,6 +497,7 @@ RSG_ASCII_FOOTER = b" End of rsg data ####"
 RSG_ASCII_ROW_WIDTH = 64
 RSG_PADDING = b"="
 def wrap_rsg(rsg):
+    if type(rsg) == str: return wrap_rsg_str(rsg)
     def pad(chunk): return chunk+(RSG_ASCII_ROW_WIDTH-len(chunk))*RSG_PADDING
     header = RSG_ASCII_HEADER+b"#"*(RSG_ASCII_ROW_WIDTH-len(RSG_ASCII_HEADER))
     footer = b"#"*(RSG_ASCII_ROW_WIDTH-len(RSG_ASCII_FOOTER))+RSG_ASCII_FOOTER
@@ -506,6 +511,21 @@ def wrap_rsg(rsg):
 
     wrapped += footer
     return wrapped.decode("ascii")
+
+def wrap_rsg_str(rsg):
+    def pad(chunk): return chunk+(RSG_ASCII_ROW_WIDTH-len(chunk))*RSG_PADDING.decode("utf-8")
+    header = RSG_ASCII_HEADER.decode("utf-8")+"#"*(RSG_ASCII_ROW_WIDTH-len(RSG_ASCII_HEADER.decode("utf-8")))
+    footer = "#"*(RSG_ASCII_ROW_WIDTH-len(RSG_ASCII_FOOTER.decode("utf-8")))+RSG_ASCII_FOOTER.decode("utf-8")
+    wrapped = header+"\n"
+    read = 0
+    while len(rsg):
+        chunk = rsg[:RSG_ASCII_ROW_WIDTH]
+        if len(chunk) < RSG_ASCII_ROW_WIDTH: chunk = pad(chunk)
+        wrapped += chunk+"\n"; read += len(chunk)
+        rsg = rsg[len(chunk):]
+
+    wrapped += footer
+    return wrapped
 
 def unwrap_rsg(wrapped_rsg):
     unwrapped = ""
@@ -584,10 +604,11 @@ def sign(args, identity):
     file_exists      = os.path.isfile(sign_path)
     signature_exists = os.path.isfile(rsg_path)
 
-    if   args.base32: output = "base32"
-    elif args.base64: output = "base64"
-    elif args.hex:    output = "hex"
-    else:             output = "bin"
+    if   args.base32:  output = "base32"
+    elif args.base64:  output = "base64"
+    elif args.base256: output = "base256"
+    elif args.hex:     output = "hex"
+    else:              output = "bin"
 
     if not identity.get_private_key(): print(f"Cannot sign \"{sign_path}\", the identity does not hold a private key"); exit(R_NO_PRVKEY)
     if not file_exists: print(f"The file \"{sign_path}\" does not exist"); exit(R_NO_FILE)
@@ -606,7 +627,7 @@ def sign(args, identity):
             if output == "bin":
                 with open(rsg_path, "wb") as out_file: out_file.write(rsg)
 
-            elif output == "base32" or output == "base64" or output == "hex": print(f"\n{wrap_rsg(rsg)}\n")
+            elif output in ["base32", "base64", "base256", "hex"]: print(f"\n{wrap_rsg(rsg)}\n")
             else: print("No valid output format specified")
 
         print(f"Signed file {sign_path} with {identity}"); exit(R_OK)
