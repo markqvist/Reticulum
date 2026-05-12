@@ -138,12 +138,6 @@ class ReticulumGitClient():
         self.configpath = self.configdir+"/client_config"
         self.identitypath = self.configdir+"/client_identity"
 
-        RNS.logfile = self.logfile
-        try: self.reticulum = RNS.Reticulum(configdir=rnsconfigdir, logdest=RNS.LOG_FILE)
-        except Exception as e:
-            print(f"Failed to initialize Reticulum: {e}", file=sys.stderr)
-            return
-
         if os.path.isfile(self.configpath):
             try: self.config = ConfigObj(self.configpath)
             except Exception as e:
@@ -151,6 +145,12 @@ class ReticulumGitClient():
                 return
         
         else: self.__create_default_config()
+
+        RNS.logfile = self.logfile
+        try: self.reticulum = RNS.Reticulum(configdir=rnsconfigdir, logdest=RNS.LOG_FILE)
+        except Exception as e:
+            print(f"Failed to initialize Reticulum: {e}", file=sys.stderr)
+            return
 
         self.__apply_config()
         self.ready = True
