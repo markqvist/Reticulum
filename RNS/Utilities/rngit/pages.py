@@ -60,8 +60,9 @@ class NomadNetworkNode():
     PATH_RELEASE          = "/page/release.mu"
     PATH_WORK             = "/page/work.mu"
     PATH_WORK_DOC         = "/page/work_doc.mu"
-    PATH_ARTIFACT         = "/file/artifact"
-    PATH_DOWNLOAD         = "/file/download"
+    FILE_ARTIFACT         = "/file/artifact"
+    FILE_DOWNLOAD         = "/file/download"
+    FILE_WORKDOC          = "/file/workdoc"
 
     BLOB_SIZE_LIMIT       = 256 * 1024
     TREE_ENTRIES_PER_PAGE = 1000
@@ -221,8 +222,9 @@ class NomadNetworkNode():
         self.destination.register_request_handler(self.PATH_RELEASE,  response_generator=self.serve_release_page,  allow=RNS.Destination.ALLOW_ALL)
         self.destination.register_request_handler(self.PATH_WORK,     response_generator=self.serve_work_page,     allow=RNS.Destination.ALLOW_ALL)
         self.destination.register_request_handler(self.PATH_WORK_DOC, response_generator=self.serve_work_doc_page, allow=RNS.Destination.ALLOW_ALL)
-        self.destination.register_request_handler(self.PATH_ARTIFACT, response_generator=self.serve_artifact,      allow=RNS.Destination.ALLOW_ALL)
-        self.destination.register_request_handler(self.PATH_DOWNLOAD, response_generator=self.serve_download,      allow=RNS.Destination.ALLOW_ALL)
+        self.destination.register_request_handler(self.FILE_ARTIFACT, response_generator=self.serve_artifact,      allow=RNS.Destination.ALLOW_ALL)
+        self.destination.register_request_handler(self.FILE_DOWNLOAD, response_generator=self.serve_download,      allow=RNS.Destination.ALLOW_ALL)
+        self.destination.register_request_handler(self.FILE_WORKDOC,  response_generator=self.serve_wd_download,   allow=RNS.Destination.ALLOW_ALL)
 
     def get_template(self, template):
         filename = f"{template}.mu"
@@ -342,7 +344,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"Group page request from {remote_identity}", RNS.LOG_DEBUG)
 
-        if not data: data = {}
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "") if data else ""
 
         if not group_name:
@@ -385,7 +387,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"Repository page request from {remote_identity}", RNS.LOG_DEBUG)
 
-        if not data: data = {}
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "") if data else ""
         repo_name = data.get("var_r", "") if data else ""
         ref = data.get("var_ref", "HEAD") if data else "HEAD"
@@ -478,7 +480,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"Tree page request from {remote_identity}", RNS.LOG_DEBUG)
 
-        if not data: data = {}
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "")   if data else ""
         repo_name = data.get("var_r", "")    if data else ""
         ref = data.get("var_ref", "HEAD")    if data else "HEAD"
@@ -675,7 +677,7 @@ class NomadNetworkNode():
         nav_parts.append(">>\n" + breadcrumb + "\n")
         sep = self.icon("sep")
 
-        dl_link  = self.m_link("Download", self.PATH_DOWNLOAD, g=group_name, r=repo_name, ref=ref, path=file_path)
+        dl_link  = self.m_link("Download", self.FILE_DOWNLOAD, g=group_name, r=repo_name, ref=ref, path=file_path)
         if not renderable: nav_parts.append(f"\nDisplaying Raw {sep} {dl_link}\n")
         else:
             rnd_link = self.m_link("View rendered", self.PATH_BLOB, g=group_name, r=repo_name, ref=ref, path=file_path, render="y")
@@ -742,7 +744,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"Commits page request from {remote_identity}", RNS.LOG_DEBUG)
 
-        if not data: data = {}
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "")   if data else ""
         repo_name = data.get("var_r", "")    if data else ""
         ref = data.get("var_ref", "HEAD")    if data else "HEAD"
@@ -825,7 +827,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"Commit page request from {remote_identity}", RNS.LOG_DEBUG)
 
-        if not data: data = {}
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "")  if data else ""
         repo_name = data.get("var_r", "")   if data else ""
         commit_hash = data.get("var_h", "") if data else ""
@@ -960,7 +962,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"Refs page request from {remote_identity}", RNS.LOG_DEBUG)
 
-        if not data: data = {}
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "") if data else ""
         repo_name = data.get("var_r", "") if data else ""
         ref_type = data.get("var_type", "") if data else ""  # "heads", "tags", or empty for both
@@ -1064,7 +1066,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"Statistics page request from {remote_identity}", RNS.LOG_DEBUG)
 
-        if not data: data = {}
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "") if data else ""
         repo_name = data.get("var_r", "") if data else ""
 
@@ -1148,7 +1150,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"Releases page request from {remote_identity}", RNS.LOG_DEBUG)
 
-        if not data: data = {}
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "") if data else ""
         repo_name  = data.get("var_r", "") if data else ""
 
@@ -1210,7 +1212,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"Release page request from {remote_identity}", RNS.LOG_DEBUG)
 
-        if not data: data = {}
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "") if data else ""
         repo_name = data.get("var_r", "") if data else ""
         tag = data.get("var_t", "") if data else ""
@@ -1292,8 +1294,8 @@ class NomadNetworkNode():
 
                 lstr_1 = f"{self.icon('file')} {self.m_escape(name)}"
                 lstr_2 = f"({size_str})"
-                link_1  = self.m_link_r(lstr_1, self.PATH_ARTIFACT, g=group_name, r=repo_name, t=tag, a=name)
-                link_2  = self.m_link_r(lstr_2, self.PATH_ARTIFACT, g=group_name, r=repo_name, t=tag, a=name)
+                link_1  = self.m_link_r(lstr_1, self.FILE_ARTIFACT, g=group_name, r=repo_name, t=tag, a=name)
+                link_2  = self.m_link_r(lstr_2, self.FILE_ARTIFACT, g=group_name, r=repo_name, t=tag, a=name)
                 content_parts.append(f"{link_1} {self.CLR_DIM}{link_2}`f\n")
 
         else:
@@ -1308,7 +1310,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"Work page request from {remote_identity}", RNS.LOG_DEBUG)
 
-        if not data: data = {}
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "") if data else ""
         repo_name  = data.get("var_r", "") if data else ""
         scope      = data.get("var_scope", "active") if data else "active"
@@ -1402,7 +1404,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"Work document page request from {remote_identity}", RNS.LOG_DEBUG)
 
-        if not data: data = {}
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "") if data else ""
         repo_name  = data.get("var_r", "") if data else ""
         doc_id     = data.get("var_id", "") if data else ""
@@ -1452,11 +1454,13 @@ class NomadNetworkNode():
         nav_parts = []
 
         # Breadcrumb navigation
+        dl_link    = self.m_link("Download", self.FILE_WORKDOC, g=group_name, r=repo_name, id=doc_id)
         breadcrumb = f">>\n{self.m_link('Node', self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / {self.m_link('work', self.PATH_WORK, g=group_name, r=repo_name)} / #{doc_id}"
         nav_parts.append(breadcrumb + "\n")
+        nav_parts.append(f"\n{dl_link}\n")
         nav_content = "".join(nav_parts)
 
-        doc_title = doc['meta'].get('title', 'Untitled')[:64]
+        doc_title = doc['meta'].get('title', 'Untitled')[:256]
         if len(doc_title) < len(doc['meta'].get('title', 'Untitled')): doc_title += "…"
         meta = doc.get("meta", {})
         author = meta.get("author", b"")
@@ -1615,6 +1619,68 @@ class NomadNetworkNode():
                 RNS.log(f"Could not resolve blob stream for download request {group_name}/{repo_name}/{ref}/{file_path}", RNS.LOG_WARNING)
                 return None
 
+        return None
+
+    def serve_wd_download(self, path, data, request_id, link_id, remote_identity, requested_at):
+        st = time.time()
+        RNS.log(f"Workdoc download request from {remote_identity}", RNS.LOG_DEBUG)
+
+        if not data or not type(data) == dict: data = {}
+        group_name = data.get("var_g", "") if data else ""
+        repo_name  = data.get("var_r", "") if data else ""
+        doc_id     = data.get("var_id", "") if data else ""
+        scope      = data.get("var_scope", "all") if data else "all"
+        if scope not in ["active", "completed", "all"]: scope = "active"
+
+        if not group_name or not repo_name or not doc_id:
+            RNS.log(f"Invalid workdoc download request for {group_name[:128]}/{repo_name[:128]}/{doc_id[:128]}", RNS.LOG_WARNING)
+            return None
+
+        try: doc_id = int(doc_id)
+        except:
+            RNS.log(f"Could not parse document ID for workdoc download request {group_name[:128]}/{repo_name[:128]}/{doc_id[:128]}", RNS.LOG_WARNING)
+            return None
+
+        repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
+        if not repo:
+            RNS.log(f"Repository not found or no access for workdoc download request {group_name[:128]}/{repo_name[:128]}/{doc_id[:128]}", RNS.LOG_WARNING)
+            return None
+
+        work_path = f"{repo['path']}.work"
+        active_dir = os.path.join(work_path, "active", str(doc_id))
+        completed_dir = os.path.join(work_path, "completed", str(doc_id))
+        if   scope == "active":    doc_dir = active_dir
+        elif scope == "completed": doc_dir = completed_dir
+        elif scope == "all":
+            if os.path.isdir(active_dir):
+                doc_dir = active_dir
+                scope = "active"
+
+            else:
+                doc_dir = completed_dir
+                scope = "completed"
+
+        root_path = os.path.join(doc_dir, "root")
+
+        if not os.path.isfile(root_path):
+            RNS.log(f"Document not found for workdoc download request {group_name[:128]}/{repo_name[:128]}/{doc_id[:128]}", RNS.LOG_WARNING)
+            return None
+
+        doc = self.owner._work_load_document(root_path)
+        if not doc:
+            RNS.log(f"Could not load document for workdoc download request {group_name[:128]}/{repo_name[:128]}/{doc_id[:128]}", RNS.LOG_WARNING)
+            return None
+
+        meta    = doc.get("meta", {})
+        fmt     = meta.get("format", "markdown")
+        title   = meta.get('title', 'Untitled')[:256]
+        content = doc.get("content", "").strip()
+
+        if content:
+            if fmt == "micron": file_name = f"{title}.mu"
+            else:               file_name = f"{title}.md"
+            return [file_name, content.encode("utf-8")]
+            
         return None
 
     #######################
