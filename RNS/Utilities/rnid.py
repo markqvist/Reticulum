@@ -118,7 +118,7 @@ def main():
         parser.add_argument("-d", "--decrypt", metavar="file", action="store", default=None, help="decrypt file")
         parser.add_argument("-e", "--encrypt", metavar="file", action="store", default=None, help="encrypt file")
         parser.add_argument("-V", "--validate", metavar="path", action="store", nargs="*", default=None, help="validate signature")
-        parser.add_argument("-s", "--sign", metavar="path", action="store", default=None, help="sign file")
+        parser.add_argument("-s", "--sign", metavar="path", action="store", nargs="*", default=None, help="sign file")
         parser.add_argument("--raw", action="store_true", default=False, help="sign raw input data instead of hashing first")
 
         # I/O Control
@@ -610,7 +610,19 @@ def validate(args, identity, __recursive=False):
         
         except Exception as e: print(f"Could not validate signature: {e}"); exit(R_READ_ERROR)
 
-def sign(args, identity):
+def sign(args, identity, __recursive=False):
+    if type(args.sign) == list:
+        paths  = args.sign.copy()
+        signed = 0
+        for path in paths:
+            args.sign = path
+            code = sign(args, identity, __recursive=True)
+            if code != 0: print(f"Sequence error on recursive signature creation"); exit(R_SEQUENCE_ERROR)
+            else:         signed += 1
+
+        if len(paths) != signed: print(f"Sequence error on recursive signature creation"); exit(R_SEQUENCE_ERROR)
+        else:                    exit(R_OK)
+
     sig_ext          = f".{SIG_EXT}"
     sign_path        = os.path.expanduser(args.sign)
     rsg_path         = f"{sign_path}{sig_ext}"
@@ -643,7 +655,7 @@ def sign(args, identity):
             elif output in ["base32", "base64", "base256", "hex"]: print(f"\n{wrap_rsg(rsg)}\n")
             else: print("No valid output format specified")
 
-        print(f"Signed file {sign_path} with {identity}"); exit(R_OK)
+        print(f"Signed file {sign_path} with {identity}"); return exit(R_OK) if not __recursive else R_OK
 
     except Exception as e: print(f"Could not sign {sign_path}: {e}"); exit(R_UNKNOWN_ERROR)
 
