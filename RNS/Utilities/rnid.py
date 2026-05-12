@@ -115,7 +115,7 @@ def main():
         # Operations
         parser.add_argument("-a", "--announce", metavar="aspects", action="store", nargs="?", const=DEFAULT_ASPECTS, default=None, help="announce a destination based on this Identity")
         parser.add_argument("-H", "--hash", metavar="aspects", action="store", default=None, help="show destination hashes for other aspects for this Identity")
-        parser.add_argument("-d", "--decrypt", metavar="file", action="store", default=None, help="decrypt file")
+        parser.add_argument("-d", "--decrypt", metavar="file", action="store", nargs="*", default=None, help="decrypt file")
         parser.add_argument("-e", "--encrypt", metavar="file", action="store", nargs="*", default=None, help="encrypt file")
         parser.add_argument("-V", "--validate", metavar="path", action="store", nargs="*", default=None, help="validate signature")
         parser.add_argument("-s", "--sign", metavar="path", action="store", nargs="*", default=None, help="sign file")
@@ -707,7 +707,19 @@ def encrypt(args, identity, __recursive=False):
 
     print(f"\nFile {encrypt_path} encrypted for {identity} to {rfe_path}"); return exit(R_OK) if not __recursive else R_OK
 
-def decrypt(args, identity):
+def decrypt(args, identity, __recursive=False):
+    if type(args.decrypt) == list:
+        paths     = args.decrypt.copy()
+        decrypted = 0
+        for path in paths:
+            args.decrypt = path
+            code = decrypt(args, identity, __recursive=True)
+            if code != 0: print(f"Sequence error on recursive file decryption"); exit(R_SEQUENCE_ERROR)
+            else:         decrypted += 1
+
+        if len(paths) != decrypted: print(f"Sequence error on recursive file decryption"); exit(R_SEQUENCE_ERROR)
+        else:                       exit(R_OK)
+
     enc_ext      = f".{ENCRYPT_EXT}"
     rfe_path     = os.path.expanduser(args.decrypt)
     if not rfe_path.endswith(enc_ext): print(f"The file {rfe_path} does not appear to be a Reticulum encrypted file"); exit(R_INVALID_FILE)
@@ -744,7 +756,7 @@ def decrypt(args, identity):
             except Exception as e: print(f"\nError writing decrypted output to {decrypt_path}: {e}"); exit(R_WRITE_ERROR)
     except Exception as e: print(f"\nError reading {rfe_path} for decryption: {e}"); exit(R_WRITE_ERROR)
 
-    print(f"\nFile {rfe_path} decrypted to {decrypt_path}"); exit(R_OK)
+    print(f"\nFile {rfe_path} decrypted to {decrypt_path}"); return exit(R_OK) if not __recursive else R_OK
 
 
 ################
