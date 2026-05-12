@@ -317,8 +317,7 @@ class ReticulumGitClient():
             self.response_speed = (bd/td)*8 if td > 0 else 0
             self.previous_progress = self.response_progress
             self.progress_updated_at = now
-            
-            # Report progress to git via stderr
+
             if self.progress_enabled and self.response_size:
                 percent = round(self.response_progress * 100, 1)
                 size = self.response_size
