@@ -95,7 +95,7 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
             if   operation == "list":     git_client.work_list(remote=task["remote"], scope=scope)
             elif operation == "view":     git_client.work_view(remote=task["remote"], doc_id=doc_id, scope=scope)
             elif operation == "create":   git_client.work_create(remote=task["remote"], title=title)
-            elif operation == "edit":     git_client.work_edit(remote=task["remote"], doc_id=doc_id, scope=scope)
+            elif operation == "edit":     git_client.work_edit(remote=task["remote"], title=title, doc_id=doc_id, scope=scope)
             elif operation == "delete":   git_client.work_delete(remote=task["remote"], doc_id=doc_id, scope=scope)
             elif operation == "update":   git_client.work_comment(remote=task["remote"], doc_id=doc_id, scope=scope)
             elif operation == "complete": git_client.work_complete(remote=task["remote"], doc_id=doc_id)
@@ -797,7 +797,7 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
-    def work_edit(self, remote=None, doc_id=None, scope="active"):
+    def work_edit(self, remote=None, doc_id=None, title=None, scope="active"):
         if not remote: print(f"No remote specified"); exit(1)
         if doc_id is None: print(f"No document ID specified"); exit(1)
         self.connect_remote(remote)
@@ -830,9 +830,9 @@ class ReticulumGitClient():
             content = self._edit_work_content(title=current_title, content=current_content)
             if content is None: print("Edit cancelled"); return
 
-            title = current_title
+            title = title or current_title
             request_data = { self.IDX_REPOSITORY: repo_path,
-                             "operation": "edit", "doc_id": doc_id, "scope": scope, "content": content }
+                             "operation": "edit", "doc_id": doc_id, "scope": scope, "content": content, "title": title }
             
             response, metadata = self.send_request(self.PATH_WORK, request_data, timeout=30)
             if not response or not isinstance(response, bytes): self.abort("No response from remote")
