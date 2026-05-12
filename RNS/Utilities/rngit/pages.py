@@ -1406,7 +1406,7 @@ class NomadNetworkNode():
         group_name = data.get("var_g", "") if data else ""
         repo_name  = data.get("var_r", "") if data else ""
         doc_id     = data.get("var_id", "") if data else ""
-        scope      = data.get("var_scope", "active") if data else "active"
+        scope      = data.get("var_scope", "all") if data else "all"
         if scope not in ["active", "completed", "all"]: scope = "active"
 
         if not group_name or not repo_name or not doc_id:
@@ -1424,7 +1424,19 @@ class NomadNetworkNode():
             return self.render_template(content, st=st)
 
         work_path = f"{repo['path']}.work"
-        doc_dir = os.path.join(work_path, scope, str(doc_id))
+        active_dir = os.path.join(work_path, "active", str(doc_id))
+        completed_dir = os.path.join(work_path, "completed", str(doc_id))
+        if   scope == "active":    doc_dir = active_dir
+        elif scope == "completed": doc_dir = completed_dir
+        elif scope == "all":
+            if os.path.isdir(active_dir):
+                doc_dir = active_dir
+                scope = "active"
+
+            else:
+                doc_dir = completed_dir
+                scope = "completed"
+
         root_path = os.path.join(doc_dir, "root")
 
         if not os.path.isfile(root_path):
@@ -1511,7 +1523,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"Artifact file request from {remote_identity}", RNS.LOG_DEBUG)
 
-        if not data: data = {}
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "") if data else ""
         repo_name = data.get("var_r", "") if data else ""
         tag = data.get("var_t", "") if data else ""
@@ -1567,6 +1579,7 @@ class NomadNetworkNode():
         st = time.time()
         RNS.log(f"File download request from {remote_identity}", RNS.LOG_DEBUG)
 
+        if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "")   if data else ""
         repo_name = data.get("var_r", "")    if data else ""
         ref = data.get("var_ref", "HEAD")    if data else "HEAD"
