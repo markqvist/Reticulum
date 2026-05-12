@@ -116,7 +116,7 @@ def main():
         parser.add_argument("-a", "--announce", metavar="aspects", action="store", nargs="?", const=DEFAULT_ASPECTS, default=None, help="announce a destination based on this Identity")
         parser.add_argument("-H", "--hash", metavar="aspects", action="store", default=None, help="show destination hashes for other aspects for this Identity")
         parser.add_argument("-d", "--decrypt", metavar="file", action="store", default=None, help="decrypt file")
-        parser.add_argument("-e", "--encrypt", metavar="file", action="store", default=None, help="encrypt file")
+        parser.add_argument("-e", "--encrypt", metavar="file", action="store", nargs="*", default=None, help="encrypt file")
         parser.add_argument("-V", "--validate", metavar="path", action="store", nargs="*", default=None, help="validate signature")
         parser.add_argument("-s", "--sign", metavar="path", action="store", nargs="*", default=None, help="sign file")
         parser.add_argument("--raw", action="store_true", default=False, help="sign raw input data instead of hashing first")
@@ -664,7 +664,19 @@ def sign(args, identity, __recursive=False):
 # Encryption & Decryption Operations #
 ######################################
 
-def encrypt(args, identity):
+def encrypt(args, identity, __recursive=False):
+    if type(args.encrypt) == list:
+        paths     = args.encrypt.copy()
+        encrypted = 0
+        for path in paths:
+            args.encrypt = path
+            code = encrypt(args, identity, __recursive=True)
+            if code != 0: print(f"Sequence error on recursive file encryption"); exit(R_SEQUENCE_ERROR)
+            else:         encrypted += 1
+
+        if len(paths) != encrypted: print(f"Sequence error on recursive file encryption"); exit(R_SEQUENCE_ERROR)
+        else:                       exit(R_OK)
+
     enc_ext      = f".{ENCRYPT_EXT}"
     encrypt_path = os.path.expanduser(args.encrypt)
     rfe_path     = args.write if args.write else f"{encrypt_path}{enc_ext}"
@@ -693,7 +705,7 @@ def encrypt(args, identity):
             except Exception as e: print(f"\nError writing encrypted output to {rfe_path}: {e}"); exit(R_WRITE_ERROR)
     except Exception as e: print(f"\nError reading {encrypt_path} for encryption: {e}"); exit(R_WRITE_ERROR)
 
-    print(f"\nFile {encrypt_path} encrypted for {identity} to {rfe_path}"); exit(R_OK)
+    print(f"\nFile {encrypt_path} encrypted for {identity} to {rfe_path}"); return exit(R_OK) if not __recursive else R_OK
 
 def decrypt(args, identity):
     enc_ext      = f".{ENCRYPT_EXT}"
