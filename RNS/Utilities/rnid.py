@@ -69,6 +69,7 @@ R_INVALID_ASPECTS   = 9
 R_INVALID_SIGNATURE = 10
 R_FILE_EXISTS       = 11
 R_DECRYPT_FAILED    = 12
+R_SEQUENCE_ERROR    = 251
 R_READ_ERROR        = 252
 R_WRITE_ERROR       = 253
 R_UNKNOWN_ERROR     = 254
@@ -116,7 +117,7 @@ def main():
         parser.add_argument("-H", "--hash", metavar="aspects", action="store", default=None, help="show destination hashes for other aspects for this Identity")
         parser.add_argument("-d", "--decrypt", metavar="file", action="store", default=None, help="decrypt file")
         parser.add_argument("-e", "--encrypt", metavar="file", action="store", default=None, help="encrypt file")
-        parser.add_argument("-V", "--validate", metavar="path", action="store", default=None, help="validate signature")
+        parser.add_argument("-V", "--validate", metavar="path", action="store", nargs="*", default=None, help="validate signature")
         parser.add_argument("-s", "--sign", metavar="path", action="store", default=None, help="sign file")
         parser.add_argument("--raw", action="store_true", default=False, help="sign raw input data instead of hashing first")
 
@@ -545,7 +546,19 @@ def unwrap_rsg(wrapped_rsg):
 # Signing & Validation Operations #
 ###################################
 
-def validate(args, identity):
+def validate(args, identity, __recursive=False):
+    if type(args.validate) == list:
+        paths     = args.validate.copy()
+        validated = 0
+        for path in paths:
+            args.validate = path
+            code = validate(args, identity, __recursive=True)
+            if code != 0: print(f"Sequence error on recursive signature validation"); exit(R_SEQUENCE_ERROR)
+            else:         validated += 1
+
+        if len(paths) != validated: print(f"Sequence error on recursive signature validation"); exit(R_SEQUENCE_ERROR)
+        else:                       exit(R_OK)
+
     sig_ext                            = f".{SIG_EXT}"
     validate_path                      = os.path.expanduser(args.validate)
     path_is_sigfile                    = validate_path.lower().endswith(sig_ext)
@@ -578,7 +591,7 @@ def validate(args, identity):
                     identity_str = RNS.prettyhexrep(identity) if type(identity) == bytes else f"{identity}"
                     signer_description = f"\nThis file was NOT signed by {identity_str or signing_identity}" if identity else ""
                     if not valid: print(f"Invalid signature {signature_path} for file {file_path}{signer_description}"); exit(R_INVALID_SIGNATURE)
-                    else:         print(f"Signature is valid, the file {file_path} was signed by {signing_identity}"); exit(R_OK)
+                    else:         print(f"Signature is valid, the file {file_path} was signed by {signing_identity}"); return exit(R_OK) if not __recursive else R_OK
 
                 except Exception as e: print(f"Error while validating {signature_path}: {e}"); exit(R_UNKNOWN_ERROR)
 
