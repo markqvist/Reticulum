@@ -726,16 +726,32 @@ class ReticulumGitClient():
             if len(response) <= 1: self.abort("Empty response from remote")
             
             doc = mp.unpackb(response[1:])
+
+            author_str = f"{doc['meta']['author']} (not locally validated)"
+            signature_str = "Document not signed"
+            signature = doc["meta"].get("signature", None)
+            pubkey = doc["meta"].get("identity", None)
+            content = doc.get("content", "")
+            if signature and type(signature) == bytes and len(signature) == RNS.Identity.SIGLENGTH//8:
+                if pubkey and type(pubkey) == bytes and len(pubkey) == RNS.Identity.KEYSIZE//8:
+                    signature_str = "Not valid"
+                    identity = RNS.Identity(create_keys=False)
+                    identity.load_public_key(pubkey)
+                    signature_validated = identity.validate(signature, content.encode("utf-8"))
+                    if signature_validated:
+                        signature_str = "Valid"
+                        author_str = RNS.prettyhexrep(identity.hash)
             
             dt = f"{doc['meta']['title']} (#{doc['id']})"
             print(f"{dt}")
             print("="*len(dt))
-            print(f"Author   : {doc['meta']['author']}")
-            print(f"Status   : {scope}")
-            print(f"Created  : {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(doc['meta']['created']))}")
-            print(f"Edited   : {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(doc['meta']['edited']))}")
-            print(f"Format   : {doc['meta']['format']}")
-            print(f"Updates  : {len(doc.get('comments', []))}")
+            print(f"Author    : {author_str}")
+            print(f"Signature : {signature_str}")
+            print(f"Status    : {scope.capitalize()}")
+            print(f"Created   : {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(doc['meta']['created']))}")
+            print(f"Edited    : {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(doc['meta']['edited']))}")
+            print(f"Format    : {doc['meta']['format']}")
+            print(f"Updates   : {len(doc.get('comments', []))}")
             print()
             print(doc['content'])
             
@@ -774,9 +790,13 @@ class ReticulumGitClient():
 
             content = self._edit_work_content(title=title)
             if content is None: print("Creation cancelled"); return
+
+            signature = self.identity.sign(content.encode("utf-8"))
+            if not signature: self.abort("Could not sign work document")
             
-            request_data = { self.IDX_REPOSITORY: repo_path,
-                             "operation": "create", "title": title, "content": content, "format": "markdown" }
+            request_data = { self.IDX_REPOSITORY: repo_path, "operation": "create",
+                             "title": title, "content": content, "format": "markdown",
+                             "signature": signature }
             
             response, metadata = self.send_request(self.PATH_WORK, request_data, timeout=30)
             if not response or not isinstance(response, bytes): self.abort("No response from remote")
@@ -829,9 +849,12 @@ class ReticulumGitClient():
             content = self._edit_work_content(title=current_title, content=current_content)
             if content is None: print("Edit cancelled"); return
 
+            signature = self.identity.sign(content.encode("utf-8"))
+            if not signature: self.abort("Could not sign work document")
+
             title = title or current_title
-            request_data = { self.IDX_REPOSITORY: repo_path,
-                             "operation": "edit", "doc_id": doc_id, "scope": scope, "content": content, "title": title }
+            request_data = { self.IDX_REPOSITORY: repo_path, "operation": "edit", "doc_id": doc_id,
+                             "scope": scope, "content": content, "title": title, "signature": signature }
             
             response, metadata = self.send_request(self.PATH_WORK, request_data, timeout=30)
             if not response or not isinstance(response, bytes): self.abort("No response from remote")
@@ -2414,12 +2437,21 @@ class ReticulumGitNode():
 
     def _work_view(self, work_path, data, remote_identity):
         doc_id = data.get("doc_id")
-        scope  = data.get("scope", "active")
+        scope  = data.get("scope", "all")
         if not scope in ["active", "completed", "all"]: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
 
         if doc_id is None: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No document ID specified"
         try: doc_id = int(doc_id)
         except: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid document ID"
+
+        scope = None
+        doc_dir = None
+        for s in ["active", "completed"]:
+            d = os.path.join(work_path, s, str(doc_id))
+            if os.path.isdir(d):
+                scope = s
+                doc_dir = d
+                break
 
         doc_dir = os.path.join(work_path, scope, str(doc_id))
         root_path = os.path.join(doc_dir, "root")
@@ -2448,13 +2480,16 @@ class ReticulumGitNode():
         
         comments.sort(key=lambda x: x["id"])
         
+        meta   = doc.get("meta", {})
         result = { "id": doc_id, "scope": scope,
                    "content": doc.get("content", ""), "comments": comments,
-                   "meta": { "title": doc.get("meta", {}).get("title", "Untitled"),
-                             "created": doc.get("meta", {}).get("created", 0),
-                             "edited": doc.get("meta", {}).get("edited", 0),
-                             "author": RNS.hexrep(doc.get("meta", {}).get("author", b""), delimit=False) if doc.get("meta", {}).get("author") else "",
-                             "format": doc.get("meta", {}).get("format", "markdown") } }
+                   "meta": { "title": meta.get("title", "Untitled"),
+                             "created": meta.get("created", 0),
+                             "edited": meta.get("edited", 0),
+                             "author": RNS.hexrep(meta.get("author", b""), delimit=False) if meta.get("author") else "",
+                             "identity": meta.get("identity", None),
+                             "signature": meta.get("signature", None),
+                             "format": meta.get("format", "markdown") } }
         
         return b"\x00" + mp.packb(result)
 
@@ -2463,9 +2498,13 @@ class ReticulumGitNode():
         content     = data.get("content", "").strip()
         format_type = data.get("format", "markdown")
         signature   = data.get("signature", None)
+        signed_data = content.encode("utf-8")
+        sig_length  = RNS.Identity.SIGLENGTH//8
         limit       = self.WORK_DOC_LIMIT
 
-        if signature and not len(signature) == RNS.Identity.SIGLENGTH: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature"
+        if not signature:                                              return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No signature provided"
+        if signature and not len(signature) == sig_length:             return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature length"
+        if not remote_identity.validate(signature, signed_data):       return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature"
         if len(title)+len(content)+len(format_type) > limit:           return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Content limit exceeded"
         if not title:                                                  return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Title is required"
         if not content:                                                return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Content is required"
@@ -2479,8 +2518,8 @@ class ReticulumGitNode():
             now = time.time()
             document = { "content": content,
                          "meta": { "format": format_type if format_type in ["markdown", "micron"] else "markdown",
-                                   "title": title, "created": now, "edited": now,
-                                   "signature": signature, "author": remote_identity.hash } }
+                                   "title": title, "created": now, "edited": now, "author": remote_identity.hash,
+                                   "signature": signature, "identity": remote_identity.get_public_key() } }
             
             root_path = os.path.join(doc_dir, "root")
             if not self._work_save_document(root_path, document):
@@ -2494,28 +2533,42 @@ class ReticulumGitNode():
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _work_edit(self, work_path, data, remote_identity):
-        doc_id    = data.get("doc_id")
-        scope     = data.get("scope", "active")
-        content   = data.get("content")
-        title     = data.get("title")
-        signature = data.get("signature", None)
-        limit     = self.WORK_DOC_LIMIT
+        doc_id      = data.get("doc_id")
+        scope       = data.get("scope", "active")
+        content     = data.get("content", "")
+        title       = data.get("title", "")
+        signature   = data.get("signature", None)
+        signed_data = content.encode("utf-8")
+        sig_length  = RNS.Identity.SIGLENGTH//8
+        limit       = self.WORK_DOC_LIMIT
         
         size = 0
         if title:   size += len(title)
         if content: size += len(content)
 
         if not scope in ["active", "completed", "all"]:                return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
-        if signature and not len(signature) == RNS.Identity.SIGLENGTH: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature"
+        if not signature:                                              return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No signature provided"
+        if signature and not len(signature) == sig_length:             return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature length"
+        if not remote_identity.validate(signature, signed_data):       return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature"
         if size > limit:                                               return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Content limit exceeded"
-        if content is None and title is None:                          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No changes specified"
-        if doc_id is None:                                             return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No document ID specified"
+        if not content and not title:                                  return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No changes specified"
+        if not doc_id:                                                 return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No document ID specified"
 
         try: doc_id = int(doc_id)
         except: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid document ID"
+
+        scope = None
+        doc_dir = None
+        for s in ["active", "completed"]:
+            d = os.path.join(work_path, s, str(doc_id))
+            if os.path.isdir(d):
+                scope = s
+                doc_dir = d
+                break
         
         doc_dir = os.path.join(work_path, scope, str(doc_id))
         root_path = os.path.join(doc_dir, "root")
+        RNS.log(f"PATH: {root_path}")
         
         if not os.path.isfile(root_path): return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Document not found"
         
@@ -2525,10 +2578,11 @@ class ReticulumGitNode():
         if doc.get("meta", {}).get("author") != remote_identity.hash: return self.RES_DISALLOWED.to_bytes(1, "big") + b"No access, not author"
         
         try:
-            if title is not None: doc["meta"]["title"] = title.strip()
-            if content is not None: doc["content"] = content.strip()
+            if title:   doc["meta"]["title"] = title.strip()
+            if content: doc["content"] = content.strip()
             doc["meta"]["edited"] = time.time()
             doc["meta"]["signature"] = signature
+            doc["meta"]["identity"] = remote_identity.get_public_key()
             
             if not self._work_save_document(root_path, doc): return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error saving document"
             
@@ -2548,6 +2602,15 @@ class ReticulumGitNode():
         
         try: doc_id = int(doc_id)
         except: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid document ID"
+
+        scope = None
+        doc_dir = None
+        for s in ["active", "completed"]:
+            d = os.path.join(work_path, s, str(doc_id))
+            if os.path.isdir(d):
+                scope = s
+                doc_dir = d
+                break
         
         doc_dir = os.path.join(work_path, scope, str(doc_id))
         root_path = os.path.join(doc_dir, "root")
@@ -2585,6 +2648,15 @@ class ReticulumGitNode():
         except: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid document ID"
         
         if not content: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Content is required"
+
+        scope = None
+        doc_dir = None
+        for s in ["active", "completed"]:
+            d = os.path.join(work_path, s, str(doc_id))
+            if os.path.isdir(d):
+                scope = s
+                doc_dir = d
+                break
         
         doc_dir = os.path.join(work_path, scope, str(doc_id))
         root_path = os.path.join(doc_dir, "root")

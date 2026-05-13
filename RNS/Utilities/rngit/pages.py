@@ -1463,20 +1463,34 @@ class NomadNetworkNode():
         meta = doc.get("meta", {})
         author = meta.get("author", b"")
         author_str = RNS.prettyhexrep(author) if author else "Unknown"
+        signature = meta.get("signature", None)
+        pubkey = meta.get("identity", None)
         created = meta.get("created", 0)
         edited = meta.get("edited", 0)
         fmt = meta.get("format", "markdown")
+        content = doc.get("content", "")
+
+        signature_validated = False
+        signature_str = "Document not signed"
+        if signature and type(signature) == bytes and len(signature) == RNS.Identity.SIGLENGTH//8:
+            if pubkey and type(pubkey) == bytes and len(pubkey) == RNS.Identity.KEYSIZE//8:
+                signature_str = "Not valid"
+                identity = RNS.Identity(create_keys=False)
+                identity.load_public_key(pubkey)
+                signature_validated = identity.validate(signature, content.encode("utf-8"))
+                if signature_validated: signature_str = "Valid"
 
         # Document header
         content_parts.append(self.m_heading(f"{doc_title}", 2))
-        content_parts.append(f"\n{self.CLR_DIM}Author  : {author_str}`f\n")
-        content_parts.append(f"{self.CLR_DIM}Created : {time.strftime('%Y-%m-%d %H:%M', time.localtime(created)) if created else 'unknown'}`f\n")
+        content_parts.append(f"\n{self.CLR_DIM}Author    : {author_str}`f\n")
+        content_parts.append(f"{self.CLR_DIM}Signature : {signature_str}`f\n")
+        content_parts.append(f"{self.CLR_DIM}Created   : {time.strftime('%Y-%m-%d %H:%M', time.localtime(created)) if created else 'unknown'}`f\n")
         if edited and edited != created:
-            content_parts.append(f"{self.CLR_DIM}Edited  : {time.strftime('%Y-%m-%d %H:%M', time.localtime(edited))}`f\n")
-        content_parts.append(f"{self.CLR_DIM}Status  : {scope.capitalize()}`f\n\n")
+            content_parts.append(f"{self.CLR_DIM}Edited    : {time.strftime('%Y-%m-%d %H:%M', time.localtime(edited))}`f\n")
+        content_parts.append(f"{self.CLR_DIM}Status    : {scope.capitalize()}`f\n\n")
 
         # Document content
-        content = doc.get("content", "").strip()
+        content = content.strip()
         if content:
             if fmt == "micron": content_parts.append(content)
             else: content_parts.append(self.mdc.format_block(content))
