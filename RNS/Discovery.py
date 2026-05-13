@@ -87,6 +87,7 @@ class InterfaceAnnouncer():
                 RNS.trace_exception(e)
 
     def sanitize(self, in_str):
+        if in_str == None: return None
         sanitized = in_str.replace("\n", "")
         sanitized = sanitized.replace("\r", "")
         sanitized = sanitized.strip()
