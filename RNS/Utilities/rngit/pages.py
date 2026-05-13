@@ -2220,7 +2220,7 @@ class NomadNetworkNode():
                 with open(thanks_path, "wb") as fh: fh.write(mp.packb({"count": thanks_count}))
                 return thanks_count
 
-        except Exception as e: RNS.log(f"Error while processing repository thanks for {group_name}/{repo_name}: {e}", RNS.LOG_ERROR)
+        except Exception as e: RNS.log(f"Error while processing repository thanks for {repo_path}: {e}", RNS.LOG_ERROR)
         return 0
 
     def release_thanks(self, release_path, add=False, link_id=None):
@@ -2245,7 +2245,7 @@ class NomadNetworkNode():
                 with open(thanks_path, "wb") as fh: fh.write(mp.packb({"count": thanks_count}))
                 return thanks_count
 
-        except Exception as e: RNS.log(f"Error while processing release thanks for {group_name}/{repo_name}: {e}", RNS.LOG_ERROR)
+        except Exception as e: RNS.log(f"Error while processing release thanks for {release_path}: {e}", RNS.LOG_ERROR)
         return 0
 
     ###################
