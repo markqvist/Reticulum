@@ -456,20 +456,20 @@ class NomadNetworkNode():
                 content_parts.append(self.m_divider())
             
             if readme_is_markdown:
-                converted = self.mdc.format_block(readme_content)
+                url_scope = f":/page/blob.mu`g={group_name}|r={repo_name}|ref={ref}|path="
+                mdc = MarkdownToMicron(max_width=self.MAX_RENDER_WIDTH, syntax_highlighter=self.highlighter, url_scope=url_scope)
+                converted = mdc.format_block(readme_content)
                 content_parts.append(converted)
             
             else: content_parts.append(f"\n{readme_content}\n")
             
             content_parts.append("\n")
-            content_parts.append(self.m_divider())
         
         else:
             content_parts.append(self.m_divider())
             content_parts.append("\n")
             content_parts.append(self.m_italic("No README file found in this repository."))
-
-        content_parts.append("\n")
+            content_parts.append("\n")
 
         self.owner.view_succeeded(group_name, repo_name, remote_identity)
         page_content = "".join(content_parts)
@@ -1140,7 +1140,7 @@ class NomadNetworkNode():
             content_parts.append("\n")
             content_parts.append(self.render_combined_chart(stats["views"]["daily"], stats["fetches"]["daily"], stats["pushes"]["daily"], stats["timeline_labels"]))
         
-        else: content_parts.append(self.m_italic("\nNo activity recorded for this repository in the selected time period.\n\n"))
+        else: content_parts.append(self.m_italic("\nNo development activity recorded for this repository in the selected time period.\n\n"))
         
         page_content = "".join(content_parts)
         nav_content  = "".join(nav_parts)
