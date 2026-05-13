@@ -1,3 +1,32 @@
+### 2026-05-14: RNS 1.2.6
+
+This release adds further improvements to the `rnid` and `rngit` utilities, and includes several bugfixes and other improvements.
+
+**Changes**
+- Added local URL resolution to repo frontpage markdown readme renderer
+- Added embedded message signing, validation and viewing to `rnid`
+- Added file encryption for multiple file path inputs and shell expansions to `rnid`
+- Added file decryption for multiple file path inputs and shell expansions to `rnid`
+- Added signature creation for multiple file path inputs and shell expansions to `rnid`
+- Added signature validation of multiple file path inputs and shell expansions to `rnid`
+- Added ability to edit workdoc titles to `rngit`
+- Added ability to download workdocs via the `nomadnet` interface
+- Improved `rnstatus` remote monitor loop
+- Improved `rngit` workdoc page handling
+- Improved `rngit` release page rendering
+- Fixed missing none check in interface discovery sanitizer thanks to PAzter1101
+- Fixed potential race condition in interface discovery
+- Fixed `rngit` remote helper hanging on startup if no client config had been created previously, and RNS loglevel was configured at debug or higher
+
+**Release Signatures**
+Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`. To verify files, download the `rsg` signatures, make sure they are in the same folder as the release artifact, and run `rnid` signature verification with the release identity as the required signer:
+
+```sh
+rnid -i bc7291552be7a58f361522990465165c -V rns*.whl
+```
+
+The `rnid` utility will then verify the signatures, and display whether it is valid. If the signature cannot be verified, the file has been tampered with and should be thrown very far away in a jiffy.
+
 ### 2026-05-09: RNS 1.2.5
 
 This release brings substantial improvements to path request handling, and should significantly reduce overall network and local transport node processing loads. Path requests are now automatically ingress and egress limited per interface and sub-interface. Although the defaults are effective and sane, and should work right out of the box bring an end to practically all the PR and announce spam going on lately, the backend is fully configurable for both defaults and per interface, if you want to fiddle with the settings.
