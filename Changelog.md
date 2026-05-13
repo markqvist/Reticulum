@@ -3,14 +3,15 @@
 This release adds further improvements to the `rnid` and `rngit` utilities, and includes several bugfixes and other improvements.
 
 **Changes**
-- Added local URL resolution to repo frontpage markdown readme renderer
 - Added embedded message signing, validation and viewing to `rnid`
 - Added file encryption for multiple file path inputs and shell expansions to `rnid`
 - Added file decryption for multiple file path inputs and shell expansions to `rnid`
 - Added signature creation for multiple file path inputs and shell expansions to `rnid`
 - Added signature validation of multiple file path inputs and shell expansions to `rnid`
+- Added workdoc signing and validation to `rngit`
 - Added ability to edit workdoc titles to `rngit`
-- Added ability to download workdocs via the `nomadnet` interface
+- Added ability to download workdocs via the `nomadnet` interface to `rngit`
+- Added local URL resolution to the `rngit` repository frontpage markdown readme renderer
 - Improved `rnstatus` remote monitor loop
 - Improved `rngit` workdoc page handling
 - Improved `rngit` release page rendering
