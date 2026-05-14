@@ -195,24 +195,26 @@ If you already have a general idea of how this works, you can use community-run 
 
 >> Public Testnet
 
-***Important!** Historically, a developer-targeted testnet was made available by the Reticulum project itself. As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, this public testnet, including the Amsterdam Testnet entrypoint, has now been decommissioned. If your still have instances that relied on this entrypoint for connectivity, transition to using the distributed backbone instead. Reticulum now includes a full on-network interface discovery and connectivity bootstrapping system. Read the `_`!`[Bootstrapping Connectivity`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/gettingstartedfast.md|anchor=bootstrapping-connectivity]`!`_ section of the manual for pointers.*
+`!`*Important!`! Historically, a developer-targeted testnet was made available by the Reticulum project itself. As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, this public testnet, including the Amsterdam Testnet entrypoint, has now been decommissioned. If your still have instances that relied on this entrypoint for connectivity, transition to using the distributed backbone instead. Reticulum now includes a full on-network interface discovery and connectivity bootstrapping system. Read the `_`[Bootstrapping Connectivity`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/gettingstartedfast.md|anchor=bootstrapping-connectivity]`_ section of the manual for pointers.`*
 
 >> Support Reticulum
 
 For this to be possible, I need your help. Please support the continued development of open, free and private communications systems by donating via one of the following channels:
 
-• Monero:
+• `!Monero`!
   84FpY1QbxHcgdseePYNmhTHcrgMX4nFfBYtz2GKYToqHVVhJp8Eaw1Z1EedRnKD19b3B8NiLCGVxzKV17UMmmeEsCrPyA5w
 
-• Bitcoin
+• `!Bitcoin`!
   bc1pgqgu8h8xvj4jtafslq396v7ju7hkgymyrzyqft4llfslz5vp99psqfk3a6
 
-• Ethereum
+• `!Ethereum`!
   0x91C421DdfB8a30a49A71d63447ddb54cEBe3465E
 
-• Liberapay: https://liberapay.com/Reticulum/
+• `!Liberapay`!
+  `[https://liberapay.com/Reticulum/]
 
-• Ko-Fi: https://ko-fi.com/markqvist
+• `!Ko-Fi`!
+  `[https://ko-fi.com/markqvist]
 
 >> Cryptographic Primitives
 
