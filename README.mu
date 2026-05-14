@@ -85,8 +85,7 @@ If you want to quickly get an idea of what Reticulum can do, take a look at the 
   and functionalities, that also supports image and voice messages, file transfers and voice calls. It also
   includes a built-in page browser for browsing Nomad Network nodes.
 
-• You can use the included `_`!`[rnsh`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/using.md|anchor=the-rnsh-utility]`!`_ program to
-  establish remote shell sessions over Reticulum.
+• You can use the included `_`!`[rnsh`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/using.md|anchor=the-rnsh-utility]`!`_ program to establish remote shell sessions over Reticulum.
 
 >> Where can Reticulum be used?
 
@@ -100,9 +99,9 @@ As an example, it's possible to set up a Raspberry Pi connected to both a LoRa r
 
 >> How do I get started?
 
-The best way to get started with the Reticulum Network Stack depends on what you want to do. For full details and examples, have a look at the  [Getting Started Fast](https://markqvist.github.io/Reticulum/manual/gettingstartedfast.html)  section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
+The best way to get started with the Reticulum Network Stack depends on what you want to do. For full details and examples, have a look at the `_`!`[Getting Started Fast`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/gettingstartedfast.md]`!`_ section of the `_`!`[Reticulum Manual`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/index.md]`!`_.
 
-To simply install Reticulum and related utilities on your system, the easiest way is via `B333pip`b. You can then start any program that uses Reticulum, or start Reticulum as a system service with [the rnsd utility](https://markqvist.github.io/Reticulum/manual/using.html#the-rnsd-utility).
+To simply install Reticulum and related utilities on your system, the easiest way is via `B333pip`b. You can then start any program that uses Reticulum, or start Reticulum as a system service with `_`!`[the rnsd utility`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/using.md|anchor=the-rnsd-utility]`!`_.
 
 `B333
 `=
@@ -131,10 +130,10 @@ When first started, Reticulum will create a default configuration file, providin
 
 If you have an old version of `B333pip`b on your system, you may need to upgrade it first with `B333pip install pip --upgrade`b. If you no not already have `B333pip`b installed, you can install it using the package manager of your system with `B333sudo apt install python3-pip`b or similar.
 
-For more detailed examples on how to expand communication over many mediums such as packet radio or LoRa, serial ports, or over fast IP links and the Internet using the UDP and TCP interfaces, take a look at the [Supported Interfaces](https://markqvist.github.io/Reticulum/manual/interfaces.html) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
+For more detailed examples on how to expand communication over many mediums such as packet radio or LoRa, serial ports, or over fast IP links and the Internet using the UDP and TCP interfaces, take a look at the `_`!`[Supported Interfaces`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/interfaces.md]`!`_ section of the `_`!`[Reticulum Manual`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/index.md]`!`_.
 
 >> Included Utilities
-Reticulum includes a range of useful utilities for managing your networks, viewing status and information, and other tasks. You can read more about these programs in the [Included Utility Programs](https://markqvist.github.io/Reticulum/manual/using.html#included-utility-programs) section of the [Reticulum Manual](https://markqvist.github.io/Reticulum/manual/).
+Reticulum includes a range of useful utilities for managing your networks, viewing status and information, and other tasks. You can read more about these programs in the `_`!`[Included Utility Programs`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/using.md|anchor=included-utility-programs]`!`_ section of the `_`!`[Reticulum Manual`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/index.md]`!`_.
 
 • The system daemon `B333rnsd`b for running Reticulum as an always-available service
 • An interface status utility called `B333rnstatus`b, that displays information about interfaces
@@ -147,11 +146,9 @@ Reticulum includes a range of useful utilities for managing your networks, viewi
 • The `B333rngit`b program provides a full multi-repository Git node for serving repositories over Reticulum
 • The included `B333git-remote-rns`b helper allows you to interact with Git repositories over Reticulum
 
-All tools, including `B333rnx`b and `B333rncp`b, work reliably and well even over very low-bandwidth links like LoRa or Packet Radio. For full-featured remote shells over Reticulum, also have a look at the [rnsh](https://github.com/acehoss/rnsh) program.
-
 >> Supported interface types and devices
 
-Reticulum implements a range of generalised interface types that covers most of the communications hardware that Reticulum can run over. If your hardware is not supported, it's [simple to implement a custom interface module](https://markqvist.github.io/Reticulum/manual/interfaces.html#custom-interfaces).
+Reticulum implements a range of generalised interface types that covers most of the communications hardware that Reticulum can run over. If your hardware is not supported, it's `_`!`[simple to implement a custom interface module`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/interfaces.md|anchor=custom-interfaces]`!`_.
 
 Currently, the following built-in interfaces are supported:
 
