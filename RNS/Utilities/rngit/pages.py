@@ -461,7 +461,7 @@ class NomadNetworkNode():
                 converted = mdc.format_block(readme_content)
                 content_parts.append(converted)
             
-            else: content_parts.append(f"\n{readme_content}\n")
+            else: content_parts.append(f"\n{readme_content.rstrip()}\n")
         
         else:
             content_parts.append(self.m_divider())

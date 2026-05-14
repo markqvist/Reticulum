@@ -147,7 +147,6 @@ Reticulum includes a range of useful utilities for managing your networks, viewi
 • The `B333rngit`b program provides a full multi-repository Git node for serving repositories over Reticulum
 • The included `B333git-remote-rns`b helper allows you to interact with Git repositories over Reticulum
 
-
 >> Supported interface types and devices
 
 Reticulum implements a range of generalised interface types that covers most of the communications hardware that Reticulum can run over. If your hardware is not supported, it's `_`!`[simple to implement a custom interface module`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/interfaces.md|anchor=custom-interfaces]`!`_.
@@ -163,7 +162,6 @@ Currently, the following built-in interfaces are supported:
 • UDP over IP networks
 • External programs via stdio or pipes
 • Custom hardware via stdio or pipes
-
 
 >> Performance
 
