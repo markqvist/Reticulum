@@ -133,6 +133,7 @@ If you have an old version of `B333pip`b on your system, you may need to upgrade
 For more detailed examples on how to expand communication over many mediums such as packet radio or LoRa, serial ports, or over fast IP links and the Internet using the UDP and TCP interfaces, take a look at the `_`!`[Supported Interfaces`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/interfaces.md]`!`_ section of the `_`!`[Reticulum Manual`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/index.md]`!`_.
 
 >> Included Utilities
+
 Reticulum includes a range of useful utilities for managing your networks, viewing status and information, and other tasks. You can read more about these programs in the `_`!`[Included Utility Programs`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/using.md|anchor=included-utility-programs]`!`_ section of the `_`!`[Reticulum Manual`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/index.md]`!`_.
 
 • The system daemon `B333rnsd`b for running Reticulum as an always-available service
@@ -153,7 +154,7 @@ Reticulum implements a range of generalised interface types that covers most of 
 Currently, the following built-in interfaces are supported:
 
 • Any Ethernet device
-• LoRa using [RNode](https://unsigned.io/rnode/)
+• LoRa using `_`!`[RNode`a8d24177d946de4f1f0a0fe1af9a1338:/page/repo.mu`g=reticulum|r=rnode_firmware]`!`_
 • Packet Radio TNCs (with or without AX.25)
 • KISS-compatible hardware and software modems
 • Any device with a serial port
@@ -163,24 +164,27 @@ Currently, the following built-in interfaces are supported:
 • Custom hardware via stdio or pipes
 
 >> Performance
+
 Reticulum targets a *very* wide usable performance envelope, but prioritises functionality and performance on low-bandwidth mediums. The goal is to provide a dynamic performance envelope from 250 bits per second, to 1 gigabit per second on normal hardware.
 
 Currently, the usable performance envelope is approximately 150 bits per second to 500 megabits per second, with physical mediums faster than that not being saturated. Performance beyond the current level is intended for future upgrades, but not highly prioritised at this point in time.
 
 >> Current Status
+
 All core protocol features are implemented and functioning, but additions will probably occur as real-world use is explored and understood. The API and wire-format can be considered stable.
 
 >> Dependencies
+
 The installation of the default `B333rns`b package requires only two external dependencies, listed below. Almost all systems and distributions have readily available packages for these dependencies, and when the `B333rns`b package is installed with `B333pip`b, they will be downloaded and installed as well.
 
-• [PyCA/cryptography](https://github.com/pyca/cryptography)
-• [pyserial](https://github.com/pyserial/pyserial)
+• PyCA/cryptography
+• pyserial
 
 On more unusual systems, and in some rare cases, it might not be possible to install or even compile one or more of the above modules. In such situations, you can use the `B333rnspure`b package instead, which require no external dependencies for installation. Please note that the contents of the `B333rns`b and `B333rnspure`b packages are *identical*. The only difference is that the `B333rnspure`b package lists no dependencies required for installation.
 
-No matter how Reticulum is installed and started, it will load external dependencies only if they are *needed* and *available*. If for example you want to use Reticulum on a system that cannot support [pyserial](https://github.com/pyserial/pyserial), it is perfectly possible to do so using the `B333rnspure`b package, but Reticulum will not be able to use serial-based interfaces. All other available modules will still be loaded when needed.
+No matter how Reticulum is installed and started, it will load external dependencies only if they are *needed* and *available*. If for example you want to use Reticulum on a system that cannot support `B333pyserial`b, it is perfectly possible to do so using the `B333rnspure`b package, but Reticulum will not be able to use serial-based interfaces. All other available modules will still be loaded when needed.
 
-**Please Note!** If you use the `B333rnspure`b package to run Reticulum on systems that do not support [PyCA/cryptography](https://github.com/pyca/cryptography), it is important that you read and understand the [Cryptographic Primitives](#cryptographic-primitives) section of this document.
+**Please Note!** If you use the `B333rnspure`b package to run Reticulum on systems that do not support PyCA/cryptography, it is important that you read and understand the `!Cryptographic Primitives`! section of this document.
 
 >> Bootstrapping Connectivity
 
@@ -188,10 +192,10 @@ Reticulum is not a service you subscribe to, nor is it a single global network y
 
 To learn how to establish initial connectivity over Reticulum, read the [Bootstrapping Connectivity](https://reticulum.network/manual/gettingstartedfast.html#bootstrapping-connectivity) section of the manual.
 
-If you already have a general idea of how this works, you can use community-run sites such as [directory.rns.recipes](https://directory.rns.recipes/) and [rmap.world](https://rmap.world) to find interface definitions for initial connectivity to the global distributed Reticulum backbone.
+If you already have a general idea of how this works, you can use community-run sites such as `_`!`[rns.recipes`9ce92808be498e9e05590ff27cbfdfe4]`!`_ and `_`!`[rmap.world`a4a5e861626ce97c9aa544d9ecdf6d22]`!`_ to find interface definitions for initial connectivity to the global distributed Reticulum backbone.
 
 >> Public Testnet
-***Important!** Historically, a developer-targeted testnet was made available by the Reticulum project itself. As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, this public testnet, including the Amsterdam Testnet entrypoint, has now been decommissioned. If your still have instances that relied on this entrypoint for connectivity, transition to using the distributed backbone instead. Reticulum now includes a full on-network interface discovery and connectivity bootstrapping system. Read the [Bootstrapping Connectivity](https://reticulum.network/manual/gettingstartedfast.html#bootstrapping-connectivity) section of the manual for pointers.*
+***Important!** Historically, a developer-targeted testnet was made available by the Reticulum project itself. As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, this public testnet, including the Amsterdam Testnet entrypoint, has now been decommissioned. If your still have instances that relied on this entrypoint for connectivity, transition to using the distributed backbone instead. Reticulum now includes a full on-network interface discovery and connectivity bootstrapping system. Read the `_`!`[Bootstrapping Connectivity`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/gettingstartedfast.md|anchor=bootstrapping-connectivity]`!`_ section of the manual for pointers.*
 
 >> Support Reticulum
 For this to be possible, I need your help. Please support the continued development of open, free and private communications systems by donating via one of the following channels:
@@ -229,9 +233,9 @@ The primitives listed here **are authoritative**. Anything claiming to be Reticu
 • SHA-256
 • SHA-512
 
-In the default installation configuration, the `B333X25519`b, `B333Ed25519`b, and `B333AES-256-CBC`b primitives are provided by [OpenSSL](https://www.openssl.org/) (via the [PyCA/cryptography](https://github.com/pyca/cryptography) package). The hashing functions `B333SHA-256`b and `B333SHA-512`b are provided by the standard Python [hashlib](https://docs.python.org/3/library/hashlib.html). The `B333HKDF`b, `B333HMAC`b, `B333Token`b primitives, and the `B333PKCS7`b padding function are always provided by the following internal implementations:
+In the default installation configuration, the `B333X25519`b, `B333Ed25519`b, and `B333AES-256-CBC`b primitives are provided by `!OpenSSL`! (via the `!PyCA/cryptography`! package). The hashing functions `B333SHA-256`b and `B333SHA-512`b are provided by the standard Python [hashlib](https://docs.python.org/3/library/hashlib.html). The `B333HKDF`b, `B333HMAC`b, `B333Token`b primitives, and the `B333PKCS7`b padding function are always provided by the following internal implementations:
 
-• [HKDF.py](RNS/Cryptography/HKDF.py)
+• `_`!`[HKDF.py`RNS/Cryptography/HKDF.py]`!`_
 • [HMAC.py](RNS/Cryptography/HMAC.py)
 • [Token.py](RNS/Cryptography/Token.py)
 • [PKCS7.py](RNS/Cryptography/PKCS7.py)
