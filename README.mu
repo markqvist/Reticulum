@@ -1,6 +1,6 @@
 >> Reticulum Network Stack
 
-To understand the foundational philosophy and goals of this system, read the `!`[Zen of Reticulum`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=Zen+of+Reticulum.md]`!.
+To understand the foundational philosophy and goals of this system, read the `_`!`[Zen of Reticulum`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=Zen+of+Reticulum.md]`!`_.
 
 Reticulum is the cryptography-based networking stack for building local and wide-area networks with readily available hardware. It can operate even with very high latency and extremely low bandwidth. Reticulum allows you to build wide-area networks with off-the-shelf tools, and offers end-to-end encryption and connectivity, initiator anonymity, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable delivery acknowledgements and more.
 
@@ -10,13 +10,13 @@ Reticulum is a complete networking stack, and does not rely on IP or higher laye
 
 Having no dependencies on traditional networking stacks frees up overhead that has been used to implement a networking stack built directly on cryptographic principles, allowing resilience and stable functionality, even in open and trustless networks.
 
-No kernel modules or drivers are required. Reticulum runs completely in userland, and can run on practically any system that runs Python 3.
+No kernel modules or drivers are required. Reticulum runs completely in userland, and can run on practically any system that runs Python.
 
 >> Read The Manual
 
-The full documentation for Reticulum is available on `!`[this node`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/index.md]`!.
+The full documentation for Reticulum is available on `_`!`[this node`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/index.md]`!`_.
 
-You can also download the `!`[Reticulum manual as a PDF`:/file/download`g=reticulum|r=reticulum|ref=HEAD|path=docs%2FReticulum+Manual.pdf]`! or `!`[as an e-book in EPUB format`:/file/download`g=reticulum|r=reticulum|ref=HEAD|path=docs%2FReticulum+Manual.pdf]`!.
+You can also download the `_`!`[Reticulum manual as a PDF`:/file/download`g=reticulum|r=reticulum|ref=HEAD|path=docs%2FReticulum+Manual.pdf]`!`_ or `_`!`[as an e-book in EPUB format`:/file/download`g=reticulum|r=reticulum|ref=HEAD|path=docs%2FReticulum+Manual.pdf]`!`_.
 
 >> Notable Features
 
@@ -68,7 +68,7 @@ The Reticulum Protocol was dedicated to the Public Domain in 2016.
 
 If you want to quickly get an idea of what Reticulum can do, take a look at the [Programs Using Reticulum](https://reticulum.network/manual/software.html) section of the manual, or the following resources:
 
-• [LXMF](https://github.com/markqvist/lxmf) is a distributed, delay and disruption tolerant message transfer
+• `_`!`[LXMF`a8d24177d946de4f1f0a0fe1af9a1338:/page/repo.mu`g=reticulum|r=lxmf]`!`_ is a distributed, delay and disruption tolerant message transfer
   protocol built on Reticulum
 
 • The [LXST](https://github.com/markqvist/lxst) protocol and framework provides real-time audio and signals
