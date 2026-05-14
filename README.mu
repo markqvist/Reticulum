@@ -236,9 +236,9 @@ The primitives listed here **are authoritative**. Anything claiming to be Reticu
 In the default installation configuration, the `B333X25519`b, `B333Ed25519`b, and `B333AES-256-CBC`b primitives are provided by `!OpenSSL`! (via the `!PyCA/cryptography`! package). The hashing functions `B333SHA-256`b and `B333SHA-512`b are provided by the standard Python [hashlib](https://docs.python.org/3/library/hashlib.html). The `B333HKDF`b, `B333HMAC`b, `B333Token`b primitives, and the `B333PKCS7`b padding function are always provided by the following internal implementations:
 
 • `_`!`[HKDF.py`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=RNS/Cryptography/HKDF.py]`!`_
-• [HMAC.py](RNS/Cryptography/HMAC.py)
-• [Token.py](RNS/Cryptography/Token.py)
-• [PKCS7.py](RNS/Cryptography/PKCS7.py)
+• `_`!`[HMAC.py`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=RNS/Cryptography/HMAC.py]`!`_
+• `_`!`[Token.py`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=RNS/Cryptography/Token.py]`!`_
+• `_`!`[PKCS7.py`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=RNS/Cryptography/PKCS7.py]`!`_
 
 Reticulum also includes a complete implementation of all necessary primitives in pure Python. If OpenSSL and PyCA are not available on the system when Reticulum is started, Reticulum will instead use the internal pure-python primitives. A trivial consequence of this is performance, with the OpenSSL backend being *much* faster. The most important consequence however, is the potential loss of security by using primitives that has not seen the same amount of scrutiny, testing and review as those from OpenSSL.
 
@@ -253,7 +253,7 @@ Reticulum can only exist because of the mountain of Open Source work it was buil
 
 A number of other modules and projects are either part of, or used by Reticulum. Sincere thanks to the authors and contributors of the following projects:
 
-• [PyCA/cryptography](https://github.com/pyca/cryptography), *BSD License*
+• `_`!`[PyCA/cryptography`https://github.com/pyca/cryptography]`!`_, *BSD License*
 • [Pure-25519](https://github.com/warner/python-pure25519) by [Brian Warner](https://github.com/warner), *MIT License*
 • [Pysha2](https://github.com/thomdixon/pysha2) by [Thom Dixon](https://github.com/thomdixon), *MIT License*
 • [Python AES-128](https://github.com/orgurar/python-aes) by [Or Gur Arie](https://github.com/orgurar), *MIT License*
