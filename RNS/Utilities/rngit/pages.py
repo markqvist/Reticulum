@@ -689,6 +689,10 @@ class NomadNetworkNode():
 
         if blob_info is None: content_parts.append("File not found at this ref.\n")
         else:
+            # Redirect to tree page if this is a tree
+            if blob_info.get("is_tree", None) == True:
+                return self.serve_tree_page(path, data, request_id, link_id, remote_identity, requested_at)
+
             size = blob_info.get("size", 0)
             is_binary = blob_info.get("is_binary", False)
             is_symlink = blob_info.get("is_symlink", False)
@@ -1846,6 +1850,15 @@ class NomadNetworkNode():
 
             size = int(result.stdout.strip())
 
+            # Check if it's a tree via ls-tree
+            check_tree_path = f"{ref}:{file_path}" if file_path else ref
+            result = subprocess.run(["git", "ls-tree", check_tree_path],
+                                    cwd=repo_path, capture_output=True, text=True,
+                                    timeout=self.GIT_COMMAND_TIMEOUT, check=False)
+
+            if result.returncode == 0: is_tree = True
+            else:                      is_tree = False
+
             # Check if it's a symlink via ls-tree
             parent_dir = "/".join(file_path.split("/")[:-1])
             filename = file_path.split("/")[-1]
@@ -1894,6 +1907,7 @@ class NomadNetworkNode():
                             if first_line.startswith("-"): is_binary = True
 
             return { "size": size,
+                     "is_tree": is_tree,
                      "is_binary": is_binary,
                      "is_symlink": is_symlink,
                      "symlink_target": symlink_target }
