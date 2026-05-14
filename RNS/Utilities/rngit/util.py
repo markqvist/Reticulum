@@ -133,6 +133,10 @@ class MarkdownToMicron:
         self.__local_url_scope = self.local_url_scope
         self.syntax_highlighter = syntax_highlighter
         self.wcwidth = None
+
+        self.bold_links = True
+        self.underline_links = True
+        self.link_color = None
         
         try:
             import wcwidth
@@ -343,8 +347,15 @@ class MarkdownToMicron:
                 url = f"{self.local_url_scope}{url}"
                 if anchor: url = f"{url}|anchor={anchor}"
 
+            undl = "`_" if self.underline_links else ""
+            bold = "`!" if self.bold_links else ""
             text = text.replace('`', '')
-            return f"`!`[{text}`{url}]`!"
+            link = f"{undl}{bold}`[{text}`{url}]{bold}{undl}"
+
+            if self.link_color and len(self.link_color) == 3: link = f"`F{self.link_color}{link}`f"
+            if self.link_color and len(self.link_color) == 6: link = f"`FT{self.link_color}{link}`f"
+
+            return link
         
         text = re.sub(r'\x00LINK(\d+)\x00', restore_link, text)
         

@@ -249,20 +249,21 @@ If you want to use the internal pure-python primitives, it is **highly advisable
 Reticulum is relatively young software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy or security breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
 
 >> Acknowledgements & Credits
+
 Reticulum can only exist because of the mountain of Open Source work it was built on top of, the contributions of everyone involved, and everyone that has supported the project through the years. To everyone who has helped, thank you so much.
 
 A number of other modules and projects are either part of, or used by Reticulum. Sincere thanks to the authors and contributors of the following projects:
 
 • `_`!`[PyCA/cryptography`https://github.com/pyca/cryptography]`!`_, *BSD License*
-• [Pure-25519](https://github.com/warner/python-pure25519) by [Brian Warner](https://github.com/warner), *MIT License*
-• [Pysha2](https://github.com/thomdixon/pysha2) by [Thom Dixon](https://github.com/thomdixon), *MIT License*
-• [Python AES-128](https://github.com/orgurar/python-aes) by [Or Gur Arie](https://github.com/orgurar), *MIT License*
-• [Python AES-256](https://github.com/boppreh/aes) by [BoppreH](https://github.com/boppreh), *MIT License*
-• [Curve25519.py](https://gist.github.com/nickovs/cc3c22d15f239a2640c185035c06f8a3#file-curve25519-py) by [Nicko van Someren](https://gist.github.com/nickovs), *Public Domain*
-• [I2Plib](https://github.com/l-n-s/i2plib) by [Viktor Villainov](https://github.com/l-n-s)
-• [PySerial](https://github.com/pyserial/pyserial) by Chris Liechti, *BSD License*
-• [Configobj](https://github.com/DiffSK/configobj) by Michael Foord, Nicola Larosa, Rob Dennis & Eli Courtwright, *BSD License*
-• [ifaddr](https://github.com/pydron/ifaddr) by Stefan C. Mueller, *MIT License*
-• [Umsgpack.py](https://github.com/vsergeev/u-msgpack-python) by [Ivan A. Sergeev](https://github.com/vsergeev)
-• [rnsh](https://github.com/acehoss/rnsh) by [Aaron Heise](https://github.com/acehoss)
-• [Python](https://www.python.org)
+• `_`!`[Pure-25519`https://github.com/warner/python-pure25519]`!`_, by [Brian Warner](https://github.com/warner), *MIT License*
+• `_`!`[Pysha2`https://github.com/thomdixon/pysha2]`!`_ by `_`!`[Thom Dixon`https://github.com/thomdixon]`!`_, `*MIT License`*
+• `_`!`[Python AES-128`https://github.com/orgurar/python-aes]`!`_ by `_`!`[Or Gur Arie`https://github.com/orgurar]`!`_, `*MIT License`*
+• `_`!`[Python AES-256`https://github.com/boppreh/aes]`!`_ by `_`!`[BoppreH`https://github.com/boppreh]`!`_, `*MIT License`*
+• `_`!`[Curve25519.py`https://gist.github.com/nickovs/cc3c22d15f239a2640c185035c06f8a3]`!`_ by `_`!`[Nicko van Someren`https://gist.github.com/nickovs]`!`_, `*Public Domain`*
+• `_`!`[I2Plib`https://github.com/l-n-s/i2plib]`!`_ by `_`!`[Viktor Villainov`https://github.com/l-n-s]`!`_
+• `_`!`[PySerial`https://github.com/pyserial/pyserial]`!`_ by Chris Liechti, `*BSD License`*
+• `_`!`[Configobj`https://github.com/DiffSK/configobj]`!`_ by Michael Foord, Nicola Larosa, Rob Dennis & Eli Courtwright, `*BSD License`*
+• `_`!`[ifaddr`https://github.com/pydron/ifaddr]`!`_ by Stefan C. Mueller, `*MIT License`*
+• `_`!`[Umsgpack.py`https://github.com/vsergeev/u-msgpack-python]`!`_ by `_`!`[Ivan A. Sergeev`https://github.com/vsergeev]`!`_
+• `_`!`[rnsh`https://github.com/acehoss/rnsh]`!`_ by `_`!`[Aaron Heise`https://github.com/acehoss]`!`_
+• `_`!`[Python`https://www.python.org]`!`_
