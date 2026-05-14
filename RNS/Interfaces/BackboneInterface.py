@@ -258,7 +258,7 @@ class BackboneInterface(Interface):
     @staticmethod
     def deregister_fileno(fileno):
         if fileno < 0:
-            RNS.log(f"Attempt to deregister invalid file descriptor {fileno}", RNS.LOG_WARNING)
+            RNS.log(f"Attempt to deregister invalid file descriptor {fileno}", RNS.LOG_DEBUG)
             return
 
         try: BackboneInterface.epoll.unregister(fileno)
