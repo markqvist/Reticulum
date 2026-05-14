@@ -2187,12 +2187,9 @@ class Transport:
                                         else:
                                             RNS.log("Invalid link request proof in transport for link "+RNS.prettyhexrep(packet.destination_hash)+", dropping proof.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
-                                except Exception as e:
-                                    RNS.log("Could not transport link request proof. The contained exception was: "+str(e), RNS.LOG_WARNING)
-                            else:
-                                RNS.log("Link request proof received on wrong interface, not transporting it.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-                        else:
-                            RNS.log("Received link request proof with hop mismatch, not transporting it", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                                except Exception as e: RNS.log("Could not transport link request proof. The contained exception was: "+str(e), RNS.LOG_DEBUG) if RNS.sl(LOG_DEBUG) else None
+                            else: RNS.log("Link request proof received on wrong interface, not transporting it.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                        else: RNS.log("Received link request proof with hop mismatch, not transporting it", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                     
                     else:
                         # Check if we can deliver it to a local
