@@ -235,7 +235,7 @@ The primitives listed here **are authoritative**. Anything claiming to be Reticu
 
 In the default installation configuration, the `B333X25519`b, `B333Ed25519`b, and `B333AES-256-CBC`b primitives are provided by `!OpenSSL`! (via the `!PyCA/cryptography`! package). The hashing functions `B333SHA-256`b and `B333SHA-512`b are provided by the standard Python [hashlib](https://docs.python.org/3/library/hashlib.html). The `B333HKDF`b, `B333HMAC`b, `B333Token`b primitives, and the `B333PKCS7`b padding function are always provided by the following internal implementations:
 
-• `_`!`[HKDF.py`RNS/Cryptography/HKDF.py]`!`_
+• `_`!`[HKDF.py`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=RNS/Cryptography/HKDF.py]`!`_
 • [HMAC.py](RNS/Cryptography/HMAC.py)
 • [Token.py](RNS/Cryptography/Token.py)
 • [PKCS7.py](RNS/Cryptography/PKCS7.py)
