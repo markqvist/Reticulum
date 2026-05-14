@@ -21,37 +21,51 @@ You can also download the `_`!`[Reticulum manual as a PDF`:/file/download`g=reti
 >> Notable Features
 
 • Coordination-less globally unique addressing and identification
+
 • Fully self-configuring multi-hop routing over heterogeneous carriers
+
 • Flexible scalability over heterogeneous topologies
   • Reticulum can carry data over any mixture of physical mediums and topologies
   • Low-bandwidth networks can co-exist and interoperate with large, high-bandwidth networks
+
 • Initiator anonymity, communicate without revealing your identity
   • Reticulum does not include source addresses on any packets
+
 • Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
   • The foundational Reticulum Identity Keys are 512-bit Elliptic Curve keysets
+
 • Forward Secrecy is available for all communication types, both for single packets and over links
+
 • Reticulum uses the following format for encrypted tokens:
   • Ephemeral per-packet and link keys and derived from an ECDH key exchange on Curve25519
   • AES-256 in CBC mode with PKCS7 padding
   • HMAC using SHA256 for authentication
   • IVs are generated through os.urandom()
+
 • Unforgeable packet delivery confirmations
+
 • Flexible and extensible interface system
   • Reticulum includes a large variety of built-in interface types
   • Ability to load and utilise custom user- or community-supplied interface types
   • Easily create your own custom interfaces for communicating over anything
+
 • Authentication and virtual network segmentation on all supported interface types
+
 • An intuitive and easy-to-use API
   • Simpler and easier to use than sockets APIs, but more powerful
   • Makes building distributed and decentralised applications much simpler
+
 • Reliable and efficient transfer of arbitrary amounts of data
   • Reticulum can handle a few bytes of data or files of many gigabytes
   • Sequencing, compression, transfer coordination and checksumming are automatic
   • The API is very easy to use, and provides transfer progress
+
 • Lightweight, flexible and expandable Request/Response mechanism
+
 • Efficient link establishment
   • Total cost of setting up an encrypted and verified link is only 3 packets, totalling 297 bytes
   • Low cost of keeping links open at only 0.44 bits per second
+
 • Reliable sequential delivery with Channel and Buffer mechanisms
 
 >> Reference Implementation
@@ -66,7 +80,7 @@ The Reticulum Protocol was dedicated to the Public Domain in 2016.
 
 >> Examples of Reticulum Applications
 
-If you want to quickly get an idea of what Reticulum can do, take a look at the [Programs Using Reticulum](https://reticulum.network/manual/software.html) section of the manual, or the following resources:
+If you want to quickly get an idea of what Reticulum can do, take a look at the `_`!`[Programs Using Reticulum`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/software.md]`!`_ section of the manual, or the following resources:
 
 • `_`!`[LXMF`a8d24177d946de4f1f0a0fe1af9a1338:/page/repo.mu`g=reticulum|r=lxmf]`!`_ is a distributed, delay and disruption tolerant message transfer
   protocol built on Reticulum
@@ -91,7 +105,7 @@ If you want to quickly get an idea of what Reticulum can do, take a look at the 
 
 Over practically any medium that can support at least a half-duplex channel with greater throughput than 5 bits per second, and an MTU of 500 bytes. Data radios, modems, LoRa radios, serial lines, AX.25 TNCs, amateur radio digital modes, WiFi and Ethernet devices, free-space optical links, and similar systems are all examples of the types of physical devices Reticulum can use.
 
-An open-source LoRa-based interface called [RNode](https://markqvist.github.io/Reticulum/manual/hardware.html#rnode) has been designed specifically for use with Reticulum. It is possible to build yourself, or it can be purchased as a complete transceiver that just needs a USB connection to the host.
+An open-source LoRa-based interface called `_`!`[RNode`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/hardware.md|anchor=rnode]`!`_ has been designed specifically for use with Reticulum. It is possible to build yourself, or it can be purchased as a complete transceiver that just needs a USB connection to the host.
 
 Reticulum can also be encapsulated over existing IP networks, so there's nothing stopping you from using it over wired Ethernet, your local WiFi network or the Internet, where it'll work just as well. In fact, one of the strengths of Reticulum is how easily it allows you to connect different mediums into a self-configuring, resilient and encrypted mesh, using any available mixture of available infrastructure.
 
@@ -190,11 +204,12 @@ No matter how Reticulum is installed and started, it will load external dependen
 
 Reticulum is not a service you subscribe to, nor is it a single global network you "join". Reticulum provides functionality for discovering available public interfaces over the network itself, and the broader community has provided various directories of publicly available entrypoints to bootstrap connectivity.
 
-To learn how to establish initial connectivity over Reticulum, read the [Bootstrapping Connectivity](https://reticulum.network/manual/gettingstartedfast.html#bootstrapping-connectivity) section of the manual.
+To learn how to establish initial connectivity over Reticulum, read the `_`!`[Bootstrapping Connectivity`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/gettingstartedfast.md|anchor=bootstrapping-connectivity]`!`_ section of the manual.
 
 If you already have a general idea of how this works, you can use community-run sites such as `_`!`[rns.recipes`9ce92808be498e9e05590ff27cbfdfe4]`!`_ and `_`!`[rmap.world`a4a5e861626ce97c9aa544d9ecdf6d22]`!`_ to find interface definitions for initial connectivity to the global distributed Reticulum backbone.
 
 >> Public Testnet
+
 ***Important!** Historically, a developer-targeted testnet was made available by the Reticulum project itself. As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, this public testnet, including the Amsterdam Testnet entrypoint, has now been decommissioned. If your still have instances that relied on this entrypoint for connectivity, transition to using the distributed backbone instead. Reticulum now includes a full on-network interface discovery and connectivity bootstrapping system. Read the `_`!`[Bootstrapping Connectivity`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/gettingstartedfast.md|anchor=bootstrapping-connectivity]`!`_ section of the manual for pointers.*
 
 >> Support Reticulum
@@ -224,7 +239,7 @@ The primitives listed here **are authoritative**. Anything claiming to be Reticu
   • A 256-bit Ed25519 key for signatures
   • A 256-bit X22519 key for ECDH key exchanges
 • HKDF for key derivation
-• Encrypted tokens are based on the [Fernet spec](https://github.com/fernet/spec/)
+• Encrypted tokens are based on the `_`!`[Fernet spec`https://github.com/fernet/spec/]`!`_
   • Ephemeral keys derived from an ECDH key exchange on Curve25519
   • HMAC using SHA256 for message authentication
   • IVs must be generated through `B333os.urandom()`b or better
@@ -233,7 +248,7 @@ The primitives listed here **are authoritative**. Anything claiming to be Reticu
 • SHA-256
 • SHA-512
 
-In the default installation configuration, the `B333X25519`b, `B333Ed25519`b, and `B333AES-256-CBC`b primitives are provided by `!OpenSSL`! (via the `!PyCA/cryptography`! package). The hashing functions `B333SHA-256`b and `B333SHA-512`b are provided by the standard Python [hashlib](https://docs.python.org/3/library/hashlib.html). The `B333HKDF`b, `B333HMAC`b, `B333Token`b primitives, and the `B333PKCS7`b padding function are always provided by the following internal implementations:
+In the default installation configuration, the `B333X25519`b, `B333Ed25519`b, and `B333AES-256-CBC`b primitives are provided by `_`!`[OpenSSL`https://www.openssl.org/]`!`_ (via the `_`!`[PyCA/cryptography`https://github.com/pyca/cryptography]`!`_ package). The hashing functions `B333SHA-256`b and `B333SHA-512`b are provided by the standard Python `_`!`[hashlib`https://docs.python.org/3/library/hashlib.html]`!`_. The `B333HKDF`b, `B333HMAC`b, `B333Token`b primitives, and the `B333PKCS7`b padding function are always provided by the following internal implementations:
 
 • `_`!`[HKDF.py`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=RNS/Cryptography/HKDF.py]`!`_
 • `_`!`[HMAC.py`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=RNS/Cryptography/HMAC.py]`!`_
@@ -255,7 +270,7 @@ Reticulum can only exist because of the mountain of Open Source work it was buil
 A number of other modules and projects are either part of, or used by Reticulum. Sincere thanks to the authors and contributors of the following projects:
 
 • `_`!`[PyCA/cryptography`https://github.com/pyca/cryptography]`!`_, *BSD License*
-• `_`!`[Pure-25519`https://github.com/warner/python-pure25519]`!`_, by [Brian Warner](https://github.com/warner), *MIT License*
+• `_`!`[Pure-25519`https://github.com/warner/python-pure25519]`!`_, by `_`!`[Brian Warner`https://github.com/warner]`!`_, `*MIT License`*
 • `_`!`[Pysha2`https://github.com/thomdixon/pysha2]`!`_ by `_`!`[Thom Dixon`https://github.com/thomdixon]`!`_, `*MIT License`*
 • `_`!`[Python AES-128`https://github.com/orgurar/python-aes]`!`_ by `_`!`[Or Gur Arie`https://github.com/orgurar]`!`_, `*MIT License`*
 • `_`!`[Python AES-256`https://github.com/boppreh/aes]`!`_ by `_`!`[BoppreH`https://github.com/boppreh]`!`_, `*MIT License`*
