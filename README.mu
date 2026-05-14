@@ -68,22 +68,16 @@ The Reticulum Protocol was dedicated to the Public Domain in 2016.
 
 If you want to quickly get an idea of what Reticulum can do, take a look at the `_`!`[Programs Using Reticulum`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/software.md]`!`_ section of the manual, or the following resources:
 
-• `_`!`[LXMF`a8d24177d946de4f1f0a0fe1af9a1338:/page/repo.mu`g=reticulum|r=lxmf]`!`_ is a distributed, delay and disruption tolerant message transfer
-  protocol built on Reticulum
+• `_`!`[LXMF`a8d24177d946de4f1f0a0fe1af9a1338:/page/repo.mu`g=reticulum|r=lxmf]`!`_ is a distributed, delay and disruption tolerant message transfer protocol built on Reticulum
 
-• The `_`!`[LXST`a8d24177d946de4f1f0a0fe1af9a1338:/page/repo.mu`g=reticulum|r=lxst]`!`_ protocol and framework provides real-time audio and signals
-  transport over Reticulum. It includes primitives and utilities for building voice-based applications and
-  hardware devices, such as the `B333rnphone`b program, that can be used to build hardware telephones.
+• The `_`!`[LXST`a8d24177d946de4f1f0a0fe1af9a1338:/page/repo.mu`g=reticulum|r=lxst]`!`_ protocol and framework provides real-time audio and signals transport over Reticulum.
+  It includes primitives and utilities for building voice-based applications and hardware devices, such as the `B333rnphone`b program, that can be used to build hardware telephones.
 
 • For an off-grid, encrypted and resilient mesh communications platform, see `_`!`[Nomad Network`a8d24177d946de4f1f0a0fe1af9a1338:/page/repo.mu`g=reticulum|r=nomadnet]`!`_.
 
-• The Android, Linux, macOS and Windows app `_`!`[Sideband`a8d24177d946de4f1f0a0fe1af9a1338:/page/repo.mu`g=reticulum|r=sideband]`!`_ has a graphical
-  interface and many advanced features, such as file transfers, image and voice messages, real-time voice calls,
-  a distributed telemetry system, mapping capabilities and full plugin extensibility.
+• The Android, Linux, macOS and Windows app `_`!`[Sideband`a8d24177d946de4f1f0a0fe1af9a1338:/page/repo.mu`g=reticulum|r=sideband]`!`_ has a graphical interface and many advanced features, such as file transfers, image and voice messages, real-time voice calls, a distributed telemetry system, mapping capabilities and full plugin extensibility.
 
-• `_`!`[MeshChatX`c10d80b1a42fa958c37a6cc30dc04f53]`!`_ (`_`!`[source`5399f5a0212477618821e91e88ce053b:/page/repo.mu`g=quad4|r=MeshChatX]`_`!) is a full-featured LXMF client with many built-in tools
-  and functionalities, that also supports image and voice messages, file transfers and voice calls. It also
-  includes a built-in page browser for browsing Nomad Network nodes.
+• `_`!`[MeshChatX`c10d80b1a42fa958c37a6cc30dc04f53]`!`_ (`_`!`[source`5399f5a0212477618821e91e88ce053b:/page/repo.mu`g=quad4|r=MeshChatX]`_`!) is a full-featured LXMF client with many built-in tools and functionalities, that also supports image and voice messages, file transfers and voice calls. It also includes a built-in page browser for browsing Nomad Network nodes.
 
 • You can use the included `_`!`[rnsh`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/using.md|anchor=the-rnsh-utility]`!`_ program to establish remote shell sessions over Reticulum.
 
