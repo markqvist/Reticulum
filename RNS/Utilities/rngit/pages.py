@@ -98,6 +98,10 @@ class NomadNetworkNode():
     CLR_FILE        = "`F66d"
     CLR_DIM         = "`F666"
     CLR_DIM_H       = "`F444"
+    CLR_OK_DIM      = "`FT537855"
+    CLR_DIFF_A      = "`F0a0"
+    CLR_DIFF_R      = "`F900"
+    CLR_DIFF_P      = "`F0aa"
 
     # Yes, I'm being intentionally weird here. If you
     # want to use tabs, three spaces is all you get.
@@ -434,7 +438,7 @@ class NomadNetworkNode():
         # Get releases count
         releases_path = f"{repo['path']}.releases"
         releases_count = 0
-        releases = self.owner.releases_list_data(releases_path)
+        releases, latest_release = self.owner.releases_list_data(releases_path)
         if releases: releases_count = len([r for r in releases if r.get("status") == "published"])
 
         sep = self.icon("sep")
@@ -1174,7 +1178,7 @@ class NomadNetworkNode():
         nav_content = "".join(nav_parts)
 
         releases_path = f"{repo['path']}.releases"
-        releases = self.owner.releases_list_data(releases_path)
+        releases, latest_release = self.owner.releases_list_data(releases_path)
         if not releases:
             content_parts.append(self.m_heading("Releases", 2))
             content_parts.append("\nNo releases available for this repository.\n")
@@ -1198,8 +1202,9 @@ class NomadNetworkNode():
             link = self.m_link(tag, self.PATH_RELEASE, g=group_name, r=repo_name, t=tag)
             
             sep = self.icon("sep")
+            latest_str = f" {sep} {self.CLR_OK_DIM}`*Latest`*`f" if tag == latest_release else ""
             artifacts_str = f"`*{artifacts} artifact{'s' if artifacts != 1 else ''}`*"
-            content_parts.append(f"{link} {self.CLR_DIM}{date_str} {sep} {artifacts_str}`f\n")
+            content_parts.append(f"{link} {self.CLR_DIM}{date_str} {sep} {artifacts_str}{latest_str}`f\n")
             if preview:
                 if   rel_format == "markdown": content_parts.append(f"{self.mdc.format_block(preview)}\n")
                 elif rel_format == "micron":   content_parts.append(f"{preview}\n")
@@ -1230,13 +1235,16 @@ class NomadNetworkNode():
 
         releases_path = f"{repo['path']}.releases"
         if tag == "latest":
-            releases = self.owner.releases_list_data(releases_path)
+            releases, latest_release = self.owner.releases_list_data(releases_path)
             if not releases:
-                content = self.m_heading("Release Not Found", 2) + f"\nNo latest release exist.\n"
+                content = self.m_heading("Release Not Found", 2) + f"\nNo releases exist.\n"
                 return self.render_template(content, nav_content=nav_content, st=st)
 
-            recent_releases = sorted(releases, key=lambda x: x['created'], reverse=True)
-            tag = recent_releases[0]["tag"]
+            if not latest_release:
+                recent_releases = sorted(releases, key=lambda x: x['created'], reverse=True)
+                tag = recent_releases[0]["tag"]
+
+            else: tag = latest_release
 
         content_parts = []
         nav_parts = []
@@ -1561,10 +1569,13 @@ class NomadNetworkNode():
         releases_path = f"{repo['path']}.releases"
 
         if tag == "latest":
-            releases = self.owner.releases_list_data(releases_path)
+            releases, latest_release = self.owner.releases_list_data(releases_path)
             if not releases: return None
-            recent_releases = sorted(releases, key=lambda x: x['created'], reverse=True)
-            tag = recent_releases[0]["tag"]
+            if not latest_release:
+                recent_releases = sorted(releases, key=lambda x: x['created'], reverse=True)
+                tag = recent_releases[0]["tag"]
+
+            else: tag = latest_release
 
         release_dir = os.path.join(releases_path, tag)
         artifacts_dir = os.path.join(release_dir, "artifacts")
@@ -2207,17 +2218,17 @@ class NomadNetworkNode():
         for line in lines:
             if line.startswith("+"):
                 if line.startswith("+++"): formatted_lines.append(self.m_escape(line))
-                else:                      formatted_lines.append(f"`F0a0{self.m_escape(line)}`f")
+                else:                      formatted_lines.append(f"{self.CLR_DIFF_A}{self.m_escape(line)}`f")
             
             elif line.startswith("-"):
                 if line.startswith("---"): formatted_lines.append(self.m_escape(f"\\{line}"))
-                else:                      formatted_lines.append(f"`F900{self.m_escape(line)}`f")
+                else:                      formatted_lines.append(f"{self.CLR_DIFF_R}{self.m_escape(line)}`f")
             elif line.startswith("@@"):
-                formatted_lines.append(f"`F0aa{self.m_escape(line)}`f")
+                formatted_lines.append(f"{self.CLR_DIFF_P}{self.m_escape(line)}`f")
 
             elif line.startswith("diff ") or line.startswith("index ") or line.startswith("new file") or line.startswith("deleted file"):
                 if line.startswith("diff --git a"): formatted_lines.append("")
-                formatted_lines.append(f"`F666{self.m_escape(line)}`f")
+                formatted_lines.append(f"{self.CLR_DIM}{self.m_escape(line)}`f")
 
             else: formatted_lines.append(self.m_escape(line))
         
@@ -2311,9 +2322,9 @@ class NomadNetworkNode():
         final_label = f"{labels[-1][:12]:>12}"
         middle_space = chart_width-len(first_label)-len(final_label)
 
-        label_line = f"{indent}`F666{first_label}`f"
+        label_line = f"{indent}{self.CLR_DIM}{first_label}`f"
         label_line += " " * middle_space
-        label_line += f"`F666{final_label}`f\n"
+        label_line += f"{self.CLR_DIM}{final_label}`f\n"
         chart_lines.append(label_line)
         
         return "".join(chart_lines)
@@ -2363,9 +2374,9 @@ class NomadNetworkNode():
         final_label = f"{labels[-1][:12]:>12}"
         middle_space = chart_width-len(first_label)-len(final_label)
 
-        label_line = f"{indent}`F666{first_label}`f"
+        label_line = f"{indent}{self.CLR_DIM}{first_label}`f"
         label_line += " " * middle_space
-        label_line += f"`F666{final_label}`f\n"
+        label_line += f"{self.CLR_DIM}{final_label}`f\n"
         lines.append(label_line)
         
         return "".join(lines)

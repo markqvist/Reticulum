@@ -84,6 +84,7 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
             elif operation == "view":   git_client.view_release(remote=task["remote"], target=task["target"])
             elif operation == "create": git_client.create_release(remote=task["remote"], target=task["target"])
             elif operation == "delete": git_client.delete_release(remote=task["remote"], target=task["target"])
+            elif operation == "latest": git_client.latest_release(remote=task["remote"], target=task["target"])
             else:                       print("Invalid operation"); exit(1)
 
         elif command == "work":
@@ -414,8 +415,18 @@ class ReticulumGitClient():
                 error_msg = response[1:].decode("utf-8", errors="ignore")
                 self.abort(f"Server error: {error_msg}")
             
-            if len(response) > 1: releases = mp.unpackb(response[1:])
-            else:                 releases = []
+            if len(response) > 1: unpacked = mp.unpackb(response[1:])
+            else:                 unpacked = []
+
+            if type(unpacked) == list:
+                releases = unpacked
+                latest_release = None
+
+            elif type(unpacked) == dict:
+                releases = unpacked["releases"]
+                latest_release = unpacked["latest"]
+
+            else: self.abort("Invalid release data format from remote")
             
             if not releases: print("No releases for this repository")
             else:
@@ -429,7 +440,8 @@ class ReticulumGitClient():
                     artifacts = str(rel.get("artifacts", 0))
                     preview = rel.get("preview", "")[:34]
                     print(f"{tag:<10} {status:<10} {created:<17} {artifacts:<5} {preview}")
-                print()
+
+                if latest_release: print(f"\nThe latest release is: {latest_release}")
         
         except Exception as e: self.abort(f"Error listing releases: {e}")
         finally:
@@ -632,6 +644,49 @@ class ReticulumGitClient():
             print(f"Release {target} deleted")
         
         except Exception as e: self.abort(f"Error deleting release: {e}")
+        finally:
+            if self.link: self.link.teardown()
+
+    def latest_release(self, remote=None, target=None):
+        if not remote: print(f"No remote specified"); exit(1)
+        if not target: print(f"No target specified"); exit(1)
+        self.connect_remote(remote)
+        
+        timeout = self.link_timeout
+        while not self.link_ready and not self.link_failed and timeout > 0:
+            time.sleep(0.5)
+            timeout -= 1
+        
+        if not self.link_ready: self.abort("Failed to establish link")
+        print("\r                       \r", end="")
+        
+        try:
+            destination_hash, group, repo = self.parse_remote_url(remote)
+            repo_path = f"{group}/{repo}"
+            
+            print(f"Are you sure you want to set {target} as the latest release? [y/N]: ", end="")
+            try: confirm = input().strip().lower()
+            except EOFError: confirm = "n"
+            
+            if confirm != "y":
+                print("Update cancelled")
+                return
+            
+            request_data = { self.IDX_REPOSITORY: repo_path,
+                             "operation": "latest", "tag": target }
+            
+            response, metadata = self.send_request(self.PATH_RELEASE, request_data, timeout=30)
+            
+            if not response or not isinstance(response, bytes): self.abort("No response from remote")
+            
+            status_byte = response[0]
+            if status_byte != 0:
+                error_msg = response[1:].decode("utf-8", errors="ignore")
+                self.abort(f"Remote error: {error_msg}")
+            
+            print(f"Release {target} set as latest")
+        
+        except Exception as e: self.abort(f"Error setting latest release: {e}")
         finally:
             if self.link: self.link.teardown()
 
@@ -2012,9 +2067,9 @@ class ReticulumGitNode():
 
         if not read_access: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
         
-        if   operation in ["create", "delete"] and release_access and read_access: access = True
-        elif operation in ["list", "view"] and read_access:                        access = True
-        else:                                                                      access = False
+        if   operation in ["create", "delete", "latest"] and release_access and read_access: access = True
+        elif operation in ["list", "view"] and read_access:                                  access = True
+        else:                                                                                access = False
         
         if not access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"Not allowed"
         else:
@@ -2026,6 +2081,7 @@ class ReticulumGitNode():
                 elif operation == "view" and read_access:      return self._release_view(releases_path, data)
                 elif operation == "create" and release_access: return self._release_create(releases_path, repository_path, data, remote_identity)
                 elif operation == "delete" and release_access: return self._release_delete(releases_path, data)
+                elif operation == "latest" and release_access: return self._release_latest(releases_path, data)
                 else: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
 
             except Exception as e:
@@ -2034,8 +2090,10 @@ class ReticulumGitNode():
 
     def releases_list_data(self, releases_path):
         try:
+            tags = {}
             releases = []
-            if not os.path.isdir(releases_path): return releases
+            latest_release = None
+            if not os.path.isdir(releases_path): return releases, None
             for entry in os.listdir(releases_path):
                 release_dir = os.path.join(releases_path, entry)
                 if not os.path.isdir(release_dir): continue
@@ -2045,14 +2103,16 @@ class ReticulumGitNode():
                 
                 try:
                     meta = ConfigObj(meta_path)
-                    release_info = { "tag": meta.get("tag", entry),
+                    release_tag = meta.get("tag", entry)
+                    release_status = meta.get("status", "unknown")
+                    release_info = { "tag": release_tag,
                                      "hash": meta.get("hash", ""),
                                      "created": meta.as_int("created") if "created" in meta else 0,
-                                     "status": meta.get("status", "unknown"),
+                                     "status": release_status,
                                      "created_by": meta.get("created_by", "") }
 
                     notes_preview = ""
-                    notes_format = "markdown"
+                    notes_format  = "markdown"
                     for notes_file in ["RELEASE.md", "RELEASE.mu", "RELEASE.txt"]:
                         notes_path = os.path.join(release_dir, notes_file)
                         if os.path.isfile(notes_path):
@@ -2082,25 +2142,37 @@ class ReticulumGitNode():
                     else: release_info["artifacts"] = 0
                     
                     releases.append(release_info)
+                    tags[release_tag] = True if release_status == "published" else False
                 
                 except Exception as e:
                     RNS.log(f"Error reading release metadata for {entry}: {e}", RNS.LOG_DEBUG)
                     continue
 
+
+            try:
+                latest_path = os.path.join(releases_path, "latest")
+                if os.path.isfile(latest_path):
+                    with open(latest_path, "r") as fh: latest_tag = fh.read().strip()
+                    if latest_tag in tags and tags[latest_tag] == True: latest_release = latest_tag
+
+            except Exception as e: RNS.log(f"Could not determine latest release for {releases_path}: {e}", RNS.LOG_ERROR)
+
             releases.sort(key=lambda x: x.get("created", 0), reverse=True)
-            return releases
+            return releases, latest_release
 
         except Exception as e:
             RNS.log(f"Error listing releases for {releases_path}: {e}", RNS.LOG_ERROR)
-            return None
+            return None, None
 
     def _release_list(self, releases_path):
         if not os.path.isdir(releases_path): return b"\x00" + mp.packb([])
 
-        releases = self.releases_list_data(releases_path)
+        releases, latest_release = self.releases_list_data(releases_path)
         if releases == None: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error listing releases"
+
+        release_data = {"releases": releases, "latest": latest_release}
         
-        return b"\x00" + mp.packb(releases)
+        return b"\x00" + mp.packb(release_data)
 
     def release_data(self, release_dir, tag):
         try:
@@ -2165,8 +2237,21 @@ class ReticulumGitNode():
         if not tag:    return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
 
         tag = os.path.basename(tag)
-        release_dir = os.path.join(releases_path, tag)
 
+        latest_release = None
+        if tag == "latest":
+            try:
+                latest_path = os.path.join(releases_path, "latest")
+                if os.path.isfile(latest_path):
+                    with open(latest_path, "r") as fh: latest_tag = fh.read().strip()
+                    latest_release = latest_tag
+
+            except Exception as e: RNS.log(f"Could not determine latest release for {releases_path}: {e}", RNS.LOG_ERROR)
+
+            if not latest_release: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"No latest release found"
+            else: tag = latest_release
+
+        release_dir = os.path.join(releases_path, tag)
         if not os.path.isdir(release_dir): return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Release not found"
 
         release_info = self.release_data(release_dir, tag)
@@ -2311,11 +2396,34 @@ class ReticulumGitNode():
         
         try:
             shutil.rmtree(release_dir)
-            RNS.log(f"Deleted release {tag}", RNS.LOG_DEBUG)
+            RNS.log(f"Deleted release {tag} from {releases_path}", RNS.LOG_DEBUG)
             return b"\x00"
         
         except Exception as e:
-            RNS.log(f"Error deleting release: {e}", RNS.LOG_ERROR)
+            RNS.log(f"Error deleting release from {releases_path}: {e}", RNS.LOG_ERROR)
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
+
+    def _release_latest(self, releases_path, data):
+        tag = data.get("tag", "")
+        
+        if not tag: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No tag specified"
+        if "/" in tag: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
+        
+        tag = os.path.basename(tag)
+        release_dir = os.path.join(releases_path, tag)
+        
+        if not os.path.isdir(release_dir): return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Release not found"
+        
+        try:
+            latest_path = os.path.join(releases_path, "latest")
+            tmp_path = latest_path+".tmp"
+            with open(tmp_path, "w") as fh: fh.write(tag)
+            os.rename(tmp_path, latest_path)
+            RNS.log(f"Set {tag} as latest release for {releases_path}", RNS.LOG_DEBUG)
+            return b"\x00"
+        
+        except Exception as e:
+            RNS.log(f"Error setting latest release for {releases_path}: {e}", RNS.LOG_ERROR)
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     #########################
