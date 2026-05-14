@@ -129,7 +129,7 @@ def main():
             parser.add_argument("--rnsconfig", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
             parser.add_argument("-i", "--identity", action="store", metavar="PATH", default=None, help="path to release identity", type=str)
             parser.add_argument("repository", nargs="?", default=None, help="URL of remote repository", type=str)
-            parser.add_argument("operation", nargs="?", default=None, help="list, view, create or delete", type=str)
+            parser.add_argument("operation", nargs="?", default=None, help="list, view, create, latest or delete", type=str)
             parser.add_argument("target", nargs="?", default=None, help="tag and path to release artifacts directory", type=str)
 
         elif subcommand == "work":
@@ -2375,8 +2375,17 @@ class ReticulumGitNode():
             meta["status"] = "published"
             meta["published_at"] = int(time.time())
             meta.write()
+
+            try:
+                latest_path = os.path.join(releases_path, "latest")
+                tmp_path = latest_path+".tmp"
+                with open(tmp_path, "w") as fh: fh.write(tag)
+                os.rename(tmp_path, latest_path)
+                RNS.log(f"Set {tag} as latest release for {releases_path}", RNS.LOG_DEBUG)
+
+            except Exception as e: RNS.log(f"Error setting latest release for {releases_path}: {e}", RNS.LOG_ERROR)
             
-            RNS.log(f"Finalized release {tag}", RNS.LOG_DEBUG)
+            RNS.log(f"Finalized release {tag} for {releases_path}", RNS.LOG_DEBUG)
             return b"\x00"
         
         except Exception as e:
