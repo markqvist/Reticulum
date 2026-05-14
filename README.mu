@@ -4,7 +4,7 @@ To understand the foundational philosophy and goals of this system, read the `_`
 
 Reticulum is the cryptography-based networking stack for building local and wide-area networks with readily available hardware. It can operate even with very high latency and extremely low bandwidth. Reticulum allows you to build wide-area networks with off-the-shelf tools, and offers end-to-end encryption and connectivity, initiator anonymity, autoconfiguring cryptographically backed multi-hop transport, efficient addressing, unforgeable delivery acknowledgements and more.
 
-The vision of Reticulum is to allow anyone to be their own network operator, and to make it cheap and easy to cover vast areas with a myriad of independent, inter-connectable and autonomous networks. Reticulum **is not** *one* network. It is **a tool** for building *thousands of networks*. Networks without kill-switches, surveillance, censorship and control. Networks that can freely interoperate, associate and disassociate with each other, and require no central oversight. Networks for human beings. *Networks for the people*.
+The vision of Reticulum is to allow anyone to be their own network operator, and to make it cheap and easy to cover vast areas with a myriad of independent, inter-connectable and autonomous networks. Reticulum `!is not`! `*one`* network. It is `!a tool`! for building `*thousands of networks`*. Networks without kill-switches, surveillance, censorship and control. Networks that can freely interoperate, associate and disassociate with each other, and require no central oversight. Networks for human beings. `*Networks for the people`*.
 
 Reticulum is a complete networking stack, and does not rely on IP or higher layers, but it is possible to use IP as the underlying carrier for Reticulum. It is therefore trivial to tunnel Reticulum over the Internet or private IP networks.
 
@@ -164,7 +164,7 @@ Currently, the following built-in interfaces are supported:
 
 >> Performance
 
-Reticulum targets a *very* wide usable performance envelope, but prioritises functionality and performance on low-bandwidth mediums. The goal is to provide a dynamic performance envelope from 250 bits per second, to 1 gigabit per second on normal hardware.
+Reticulum targets a `*very`* wide usable performance envelope, but prioritises functionality and performance on low-bandwidth mediums. The goal is to provide a dynamic performance envelope from 250 bits per second, to 1 gigabit per second on normal hardware.
 
 Currently, the usable performance envelope is approximately 150 bits per second to 500 megabits per second, with physical mediums faster than that not being saturated. Performance beyond the current level is intended for future upgrades, but not highly prioritised at this point in time.
 
@@ -179,11 +179,11 @@ The installation of the default `B333rns`b package requires only two external de
 • PyCA/cryptography
 • pyserial
 
-On more unusual systems, and in some rare cases, it might not be possible to install or even compile one or more of the above modules. In such situations, you can use the `B333rnspure`b package instead, which require no external dependencies for installation. Please note that the contents of the `B333rns`b and `B333rnspure`b packages are *identical*. The only difference is that the `B333rnspure`b package lists no dependencies required for installation.
+On more unusual systems, and in some rare cases, it might not be possible to install or even compile one or more of the above modules. In such situations, you can use the `B333rnspure`b package instead, which require no external dependencies for installation. Please note that the contents of the `B333rns`b and `B333rnspure`b packages are `*identical`*. The only difference is that the `B333rnspure`b package lists no dependencies required for installation.
 
-No matter how Reticulum is installed and started, it will load external dependencies only if they are *needed* and *available*. If for example you want to use Reticulum on a system that cannot support `B333pyserial`b, it is perfectly possible to do so using the `B333rnspure`b package, but Reticulum will not be able to use serial-based interfaces. All other available modules will still be loaded when needed.
+No matter how Reticulum is installed and started, it will load external dependencies only if they are `*needed`* and `*available`*. If for example you want to use Reticulum on a system that cannot support `B333pyserial`b, it is perfectly possible to do so using the `B333rnspure`b package, but Reticulum will not be able to use serial-based interfaces. All other available modules will still be loaded when needed.
 
-**Please Note!** If you use the `B333rnspure`b package to run Reticulum on systems that do not support PyCA/cryptography, it is important that you read and understand the `!Cryptographic Primitives`! section of this document.
+`!Please Note!`! If you use the `B333rnspure`b package to run Reticulum on systems that do not support PyCA/cryptography, it is important that you read and understand the `!Cryptographic Primitives`! section of this document.
 
 >> Bootstrapping Connectivity
 
@@ -195,7 +195,7 @@ If you already have a general idea of how this works, you can use community-run 
 
 >> Public Testnet
 
-`!`*Important!`! Historically, a developer-targeted testnet was made available by the Reticulum project itself. As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, this public testnet, including the Amsterdam Testnet entrypoint, has now been decommissioned. If your still have instances that relied on this entrypoint for connectivity, transition to using the distributed backbone instead. Reticulum now includes a full on-network interface discovery and connectivity bootstrapping system. Read the `_`[Bootstrapping Connectivity`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/gettingstartedfast.md|anchor=bootstrapping-connectivity]`_ section of the manual for pointers.`*
+`!`*Important!`! Historically, a developer-targeted testnet was made available by the Reticulum project itself. As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, this public testnet, including the Amsterdam Testnet entrypoint, has now been decommissioned. If you still have instances that relied on this entrypoint for connectivity, transition to using the distributed backbone instead. Reticulum now includes a full on-network interface discovery and connectivity bootstrapping system. Read the `_`[Bootstrapping Connectivity`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/gettingstartedfast.md|anchor=bootstrapping-connectivity]`_ section of the manual for pointers.`*
 
 >> Support Reticulum
 
@@ -220,9 +220,9 @@ For this to be possible, I need your help. Please support the continued developm
 
 Reticulum uses a simple suite of efficient, strong and well-tested cryptographic primitives, with widely available implementations that can be used both on general-purpose CPUs and on microcontrollers.
 
-One of the primary considerations for choosing this particular set of primitives is that they can be implemented *safely* with relatively few pitfalls, on practically all current computing platforms.
+One of the primary considerations for choosing this particular set of primitives is that they can be implemented `*safely`* with relatively few pitfalls, on practically all current computing platforms.
 
-The primitives listed here **are authoritative**. Anything claiming to be Reticulum, but not using these exact primitives **is not** Reticulum, and possibly an intentionally compromised or weakened clone. The utilised primitives are:
+The primitives listed here `!are authoritative`!. Anything `*claiming`* to be Reticulum, but not using these exact primitives `FTA35050`!is not`!`f Reticulum, and possibly an intentionally compromised or weakened clone. The utilised primitives are:
 
 • Reticulum Identity Keys are 512-bit Curve25519 keysets
   • A 256-bit Ed25519 key for signatures
@@ -244,11 +244,11 @@ In the default installation configuration, the `B333X25519`b, `B333Ed25519`b, an
 • `_`!`[Token.py`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=RNS/Cryptography/Token.py]`!`_
 • `_`!`[PKCS7.py`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=RNS/Cryptography/PKCS7.py]`!`_
 
-Reticulum also includes a complete implementation of all necessary primitives in pure Python. If OpenSSL and PyCA are not available on the system when Reticulum is started, Reticulum will instead use the internal pure-python primitives. A trivial consequence of this is performance, with the OpenSSL backend being *much* faster. The most important consequence however, is the potential loss of security by using primitives that has not seen the same amount of scrutiny, testing and review as those from OpenSSL.
+Reticulum also includes a complete implementation of all necessary primitives in pure Python. If OpenSSL and PyCA are not available on the system when Reticulum is started, Reticulum will instead use the internal pure-python primitives. A trivial consequence of this is performance, with the OpenSSL backend being `*much`* faster. The most important consequence however, is the potential loss of security by using primitives that has not seen the same amount of scrutiny, testing and review as those from OpenSSL.
 
-Please note that by default, installing Reticulum will **require** OpenSSL and PyCA to also be automatically installed if not already available. It is only possible to use the pure-python primitives if this requirement is specifically overridden by the user, for example by installing the `B333rnspure`b package instead of the normal `B333rns`b package, or by running directly from local source-code.
+Please note that by default, installing Reticulum will `!require`! OpenSSL and PyCA to also be automatically installed if not already available. It is only possible to use the pure-python primitives if this requirement is specifically overridden by the user, for example by installing the `B333rnspure`b package instead of the normal `B333rns`b package, or by running directly from local source-code.
 
-If you want to use the internal pure-python primitives, it is **highly advisable** that you have a good understanding of the risks that this pose, and make an informed decision on whether those risks are acceptable to you.
+If you want to use the internal pure-python primitives, it is `!highly advisable`! that you have a good understanding of the risks that this pose, and make an informed decision on whether those risks are acceptable to you.
 
 Reticulum is relatively young software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy or security breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
 
@@ -258,7 +258,7 @@ Reticulum can only exist because of the mountain of Open Source work it was buil
 
 A number of other modules and projects are either part of, or used by Reticulum. Sincere thanks to the authors and contributors of the following projects:
 
-• `_`!`[PyCA/cryptography`https://github.com/pyca/cryptography]`!`_, *BSD License*
+• `_`!`[PyCA/cryptography`https://github.com/pyca/cryptography]`!`_, `*BSD License`*
 • `_`!`[Pure-25519`https://github.com/warner/python-pure25519]`!`_, by `_`!`[Brian Warner`https://github.com/warner]`!`_, `*MIT License`*
 • `_`!`[Pysha2`https://github.com/thomdixon/pysha2]`!`_ by `_`!`[Thom Dixon`https://github.com/thomdixon]`!`_, `*MIT License`*
 • `_`!`[Python AES-128`https://github.com/orgurar/python-aes]`!`_ by `_`!`[Or Gur Arie`https://github.com/orgurar]`!`_, `*MIT License`*
