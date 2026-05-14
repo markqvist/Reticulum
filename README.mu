@@ -21,51 +21,37 @@ You can also download the `_`!`[Reticulum manual as a PDF`:/file/download`g=reti
 >> Notable Features
 
 • Coordination-less globally unique addressing and identification
-
 • Fully self-configuring multi-hop routing over heterogeneous carriers
-
 • Flexible scalability over heterogeneous topologies
   • Reticulum can carry data over any mixture of physical mediums and topologies
   • Low-bandwidth networks can co-exist and interoperate with large, high-bandwidth networks
-
 • Initiator anonymity, communicate without revealing your identity
   • Reticulum does not include source addresses on any packets
-
 • Asymmetric X25519 encryption and Ed25519 signatures as a basis for all communication
   • The foundational Reticulum Identity Keys are 512-bit Elliptic Curve keysets
-
 • Forward Secrecy is available for all communication types, both for single packets and over links
-
 • Reticulum uses the following format for encrypted tokens:
   • Ephemeral per-packet and link keys and derived from an ECDH key exchange on Curve25519
   • AES-256 in CBC mode with PKCS7 padding
   • HMAC using SHA256 for authentication
   • IVs are generated through os.urandom()
-
 • Unforgeable packet delivery confirmations
-
 • Flexible and extensible interface system
   • Reticulum includes a large variety of built-in interface types
   • Ability to load and utilise custom user- or community-supplied interface types
   • Easily create your own custom interfaces for communicating over anything
-
 • Authentication and virtual network segmentation on all supported interface types
-
 • An intuitive and easy-to-use API
   • Simpler and easier to use than sockets APIs, but more powerful
   • Makes building distributed and decentralised applications much simpler
-
 • Reliable and efficient transfer of arbitrary amounts of data
   • Reticulum can handle a few bytes of data or files of many gigabytes
   • Sequencing, compression, transfer coordination and checksumming are automatic
   • The API is very easy to use, and provides transfer progress
-
 • Lightweight, flexible and expandable Request/Response mechanism
-
 • Efficient link establishment
   • Total cost of setting up an encrypted and verified link is only 3 packets, totalling 297 bytes
   • Low cost of keeping links open at only 0.44 bits per second
-
 • Reliable sequential delivery with Channel and Buffer mechanisms
 
 >> Reference Implementation
@@ -161,6 +147,7 @@ Reticulum includes a range of useful utilities for managing your networks, viewi
 • The `B333rngit`b program provides a full multi-repository Git node for serving repositories over Reticulum
 • The included `B333git-remote-rns`b helper allows you to interact with Git repositories over Reticulum
 
+
 >> Supported interface types and devices
 
 Reticulum implements a range of generalised interface types that covers most of the communications hardware that Reticulum can run over. If your hardware is not supported, it's `_`!`[simple to implement a custom interface module`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/interfaces.md|anchor=custom-interfaces]`!`_.
@@ -176,6 +163,7 @@ Currently, the following built-in interfaces are supported:
 • UDP over IP networks
 • External programs via stdio or pipes
 • Custom hardware via stdio or pipes
+
 
 >> Performance
 
@@ -213,6 +201,7 @@ If you already have a general idea of how this works, you can use community-run 
 ***Important!** Historically, a developer-targeted testnet was made available by the Reticulum project itself. As the amount of global Reticulum nodes and entrypoints have grown to a substantial quantity, this public testnet, including the Amsterdam Testnet entrypoint, has now been decommissioned. If your still have instances that relied on this entrypoint for connectivity, transition to using the distributed backbone instead. Reticulum now includes a full on-network interface discovery and connectivity bootstrapping system. Read the `_`!`[Bootstrapping Connectivity`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=docs/markdown/gettingstartedfast.md|anchor=bootstrapping-connectivity]`!`_ section of the manual for pointers.*
 
 >> Support Reticulum
+
 For this to be possible, I need your help. Please support the continued development of open, free and private communications systems by donating via one of the following channels:
 
 • Monero:
@@ -229,6 +218,7 @@ For this to be possible, I need your help. Please support the continued developm
 • Ko-Fi: https://ko-fi.com/markqvist
 
 >> Cryptographic Primitives
+
 Reticulum uses a simple suite of efficient, strong and well-tested cryptographic primitives, with widely available implementations that can be used both on general-purpose CPUs and on microcontrollers.
 
 One of the primary considerations for choosing this particular set of primitives is that they can be implemented *safely* with relatively few pitfalls, on practically all current computing platforms.
