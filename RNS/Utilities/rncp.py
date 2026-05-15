@@ -163,11 +163,11 @@ def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed
                     except Exception as e:
                         raise ValueError("Invalid destination entered. Check your input.")
                 except Exception as e:
-                    print(str(e))
+                    RNS.log(f"Could not apply allowed identity: {e}", RNS.LOG_ERROR)
                     RNS.exit(1)
 
     if len(allowed_identity_hashes) < 1 and not disable_auth:
-        print("Warning: No allowed identities configured, rncp will not accept any files!")
+        RNS.log("No allowed identities configured, rncp will not accept any files!", RNS.LOG_WARNING)
 
     def fetch_request(path, data, request_id, link_id, remote_identity, requested_at):
         global allow_fetch, fetch_jail, fetch_auto_compress
@@ -217,7 +217,7 @@ def listen(configdir, identitypath = None, verbosity = 0, quietness = 0, allowed
         else:
             destination.register_request_handler("fetch_file", response_generator=fetch_request, allow=RNS.Destination.ALLOW_LIST, allowed_list=allowed_identity_hashes)
 
-    print("rncp listening on "+RNS.prettyhexrep(destination.hash))
+    RNS.log("rncp listening on "+RNS.prettyhexrep(destination.hash), RNS.LOG_INFO)
 
     if announce >= 0:
         def job():
@@ -271,15 +271,15 @@ def receive_resource_started(resource):
     else:
         id_str = ""
 
-    print("Starting resource transfer "+RNS.prettyhexrep(resource.hash)+id_str)
+    RNS.log("Starting resource transfer "+RNS.prettyhexrep(resource.hash)+id_str, RNS.LOG_INFO)
 
 def receive_resource_concluded(resource):
     global save_path, allow_overwrite_on_receive
     if resource.status == RNS.Resource.COMPLETE:
-        print(str(resource)+" completed")
+        RNS.log(f"Incoming resource {resource} completed", RNS.LOG_INFO)
 
         if resource.metadata == None:
-            print("Invalid data received, ignoring resource")
+            RNS.log("Invalid data received, ignoring resource", RNS.LOG_WARNING)
             return
 
         else:
@@ -306,14 +306,14 @@ def receive_resource_concluded(resource):
                     full_save_path = saved_filename+"."+str(counter)
 
                 shutil.move(resource.data.name, full_save_path)
-                print("Saved received file to "+full_save_path)
+                RNS.log("Saved received file to "+full_save_path, RNS.LOG_INFO)
 
             except Exception as e:
                 RNS.log(f"An error occurred while saving received resource: {e}", RNS.LOG_ERROR)
                 return
 
     else:
-        print("Resource failed")
+        RNS.log("Resource failed", RNS.LOG_INFO)
 
 resource_done = False
 current_resource = None
