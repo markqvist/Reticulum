@@ -103,6 +103,15 @@ class NomadNetworkNode():
     CLR_DIFF_R      = "`F900"
     CLR_DIFF_P      = "`F0aa"
 
+    RCLR_PUSH       = "B9A810"
+    RCLR_PUSH_G     = "791212"
+    RCLR_FETCH      = "10b981"
+    RCLR_FETCH_G    = "1c5e71"
+    RCLR_VIEW       = "3b82f6"
+    RCLR_VIEW_G     = "13428A"
+    RCLR_DOWNLOAD   = "7831E0"
+    RCLR_DOWNLOAD_G = "c5754d"
+
     # Yes, I'm being intentionally weird here. If you
     # want to use tabs, three spaces is all you get.
     TAB_WIDTH       = "   "
@@ -1111,48 +1120,56 @@ class NomadNetworkNode():
         content_parts.append(self.m_heading(f"Stats for {repo_name}", 2))
 
         v_total = stats["views"]["total"]
-        v_peak = stats["views"]["peak"]
+        v_peak  = stats["views"]["peak"]
+        v_tday  = stats["views"]["daily"][-1] if len(stats["views"]["daily"]) else 0
+        
         f_total = stats["fetches"]["total"]
-        f_peak = stats["fetches"]["peak"]
-        p_total = stats["pushes"]["total"]
-        p_peak = stats["pushes"]["peak"]
-        d_total = stats["downloads_combined"]["total"]
-        d_peak = stats["downloads_combined"]["peak"]
+        f_peak  = stats["fetches"]["peak"]
+        f_tday  = stats["fetches"]["daily"][-1] if len(stats["fetches"]["daily"]) else 0
 
-        content_parts.append(f"\n`F66dViews`f    : {v_total:>5}  total {self.CLR_DIM}(peak: {v_peak:>3})`f\n")
-        content_parts.append(f"`F0a0Fetches`f  : {f_total:>5}  total {self.CLR_DIM}(peak: {f_peak:>3})\n`f")
-        content_parts.append(f"`Faa0Pushes`f   : {p_total:>5}  total {self.CLR_DIM}(peak: {p_peak:>3})\n`f")
-        content_parts.append(f"`F0aaActivity`f : {stats['activity_score']:>5} points\n\n")
+        p_total = stats["pushes"]["total"]
+        p_peak  = stats["pushes"]["peak"]
+        p_tday  = stats["pushes"]["daily"][-1] if len(stats["pushes"]["daily"]) else 0
+
+        d_total = stats["downloads_combined"]["total"]
+        d_peak  = stats["downloads_combined"]["peak"]
+        d_tday  = stats["downloads_combined"]["daily"][-1] if len(stats["downloads_combined"]["daily"]) else 0
+
+        content_parts.append( f"\n`FT{self.RCLR_FETCH}Fetches`f   : {f_total:>5}  total {self.CLR_DIM}  today: {f_tday:>3}  peak: {f_peak:>3} \n`f")
+        content_parts.append(    f"`FT{self.RCLR_PUSH}Pushes`f    : {p_total:>5}  total {self.CLR_DIM}  today: {p_tday:>3}  peak: {p_peak:>3} \n`f")
+        content_parts.append(    f"`FT{self.RCLR_VIEW}Views`f     : {v_total:>5}  total {self.CLR_DIM}  today: {v_tday:>3}  peak: {v_peak:>3} `f\n")
+        content_parts.append(f"`FT{self.RCLR_DOWNLOAD}Downloads`f : {d_total:>5}  total {self.CLR_DIM}  today: {d_tday:>3}  peak: {d_peak:>3} `f\n")
+        content_parts.append(                  f"`F0aaActivity`f  : {stats['activity_score']:>5} points\n\n")
         content_parts.append(f"{act_color}{act_label}`f over the last {stats['actual_days']} days ({stats['date_range']})\n\n")
-        
-        if v_total > 0:
-            content_parts.append(self.m_heading(f"Views", 2))
-            content_parts.append("\n")
-            content_parts.append(self.render_chart(stats["views"]["daily"], stats["timeline_labels"], color="66d"))
-            content_parts.append("\n")
-        
+
         if f_total > 0:
             content_parts.append(self.m_heading(f"Fetches", 2))
             content_parts.append("\n")
-            content_parts.append(self.render_chart(stats["fetches"]["daily"], stats["timeline_labels"], color="0a0"))
+            content_parts.append(self.render_chart(stats["fetches"]["daily"], stats["timeline_labels"], color=self.RCLR_FETCH, secondary_color=self.RCLR_FETCH_G))
             content_parts.append("\n")
         
         if p_total > 0:
             content_parts.append(self.m_heading(f"Pushes", 2))
             content_parts.append("\n")
-            content_parts.append(self.render_chart(stats["pushes"]["daily"], stats["timeline_labels"], color="aa0"))
+            content_parts.append(self.render_chart(stats["pushes"]["daily"], stats["timeline_labels"], color=self.RCLR_PUSH, secondary_color=self.RCLR_PUSH_G))
+            content_parts.append("\n")
+
+        if v_total > 0:
+            content_parts.append(self.m_heading(f"Views", 2))
+            content_parts.append("\n")
+            content_parts.append(self.render_chart(stats["views"]["daily"], stats["timeline_labels"], color=self.RCLR_VIEW, secondary_color=self.RCLR_VIEW_G))
             content_parts.append("\n")
         
         if d_total > 0:
             content_parts.append(self.m_heading(f"Downloads", 2))
             content_parts.append("\n")
-            content_parts.append(self.render_chart(stats["downloads_combined"]["daily"], stats["timeline_labels"], color="a22"))
+            content_parts.append(self.render_chart(stats["downloads_combined"]["daily"], stats["timeline_labels"], color=self.RCLR_DOWNLOAD, secondary_color=self.RCLR_DOWNLOAD_G, gradient_factor=1.7))
             content_parts.append("\n")
 
         if stats["activity_score"] > 0:
             content_parts.append(self.m_heading("Combined Activity", 2))
             content_parts.append("\n")
-            content_parts.append(self.render_combined_chart(stats["views"]["daily"], stats["fetches"]["daily"], stats["pushes"]["daily"], stats["timeline_labels"]))
+            content_parts.append(self.render_combined_chart(stats["views"]["daily"], stats["fetches"]["daily"], stats["pushes"]["daily"], stats["downloads_combined"]["daily"], stats["timeline_labels"]))
         
         else: content_parts.append(self.m_italic("\nNo development activity recorded for this repository in the selected time period.\n\n"))
         
@@ -2302,8 +2319,8 @@ class NomadNetworkNode():
     # Stats Renderers #
     ###################
 
-    def render_chart(self, data, labels, color="666", height=10):
-        return self.render_chart_halfblock(data, labels, color=color, height=height)
+    def render_chart(self, data, labels, color="666", height=10, secondary_color=None, gradient_factor=None):
+        return self.render_chart_halfblock(data, labels, color=color, height=height, secondary_color=secondary_color, gradient_factor=gradient_factor)
 
     def render_chart_full_block(self, data, labels, color="666", height=10):
         if not data or all(d == 0 for d in data): return "No data available\n"        
@@ -2345,7 +2362,8 @@ class NomadNetworkNode():
         
         return "".join(lines)
 
-    def render_chart_halfblock(self, data, labels, color="666", height=10, secondary_color=None, gradient_factor=1.3):
+    def render_chart_halfblock(self, data, labels, color="666", height=10, secondary_color=None, gradient_factor=None):
+        if not gradient_factor: gradient_factor = 1.3
         if not data or all(d == 0 for d in data): return "No data available\n"
         max_val    = max(data) if max(data) > 0 else 1
         num_points = len(data)
@@ -2401,56 +2419,92 @@ class NomadNetworkNode():
         
         return "".join(lines)
 
-    def render_combined_chart(self, views, fetches, pushes, labels, height=4):
-        if not views or not labels: return "No data available\n"
+    def render_combined_chart(self, views, fetches, pushes, downloads, labels, height=6, colors=None, dim=0.87):
+        if not views or not all([views, fetches, pushes, downloads]): return "No data available\n"
         
-        all_data = [v + f + p for v, f, p in zip(views, fetches, pushes)]
-        max_val = max(all_data) if all(all_data) > 0 else 1
+        if colors is None:
+            colors = { 'views':     self.RCLR_VIEW,
+                       'fetches':   self.RCLR_FETCH,
+                       'pushes':    self.RCLR_PUSH,
+                       'downloads': self.RCLR_DOWNLOAD }
+
+        def expand(c): return ''.join(ch*2 for ch in c) if len(c) == 3 else c[:6]
+        def hex_to_rgb(h):     return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+        def gradient_color(c, g, t, f=1.0): c = hex_to_rgb(c); g = hex_to_rgb(g); return ''.join(f"{int(g[i] + (c[i] - g[i]) * min(1, t*f)):02x}" for i in range(3))
+        cat_colors = {'views':     gradient_color(expand(colors.get('views',     self.RCLR_VIEW)), "000000", dim),
+                      'fetches':   gradient_color(expand(colors.get('fetches',   self.RCLR_FETCH)), "000000", dim),
+                      'pushes':    gradient_color(expand(colors.get('pushes',    self.RCLR_PUSH)), "000000", dim),
+                      'downloads': gradient_color(expand(colors.get('downloads', self.RCLR_DOWNLOAD)), "000000", dim) }
+        
+        # Stack order
+        categories = ['pushes', 'fetches', 'views', 'downloads']
+        cat_data = [pushes, fetches, views, downloads]
+        
         num_points = len(views)
+        legend = "  ".join(f"`FT{cat_colors[cat]}`BT{cat_colors[cat]}██`f`b {cat.capitalize()}" for cat in categories)
+        lines = [f"{legend}\n\n"]
         
-        hsep = ""
-        indent = ""
-        bar_width = 1
-
-        lines = []
-        lines.append(f"{indent}`F66d██`f Views  `F0a0██`f Fetches  `Faa0██`f Pushes\n\n")
         for row in range(height, 0, -1):
-            threshold = (row - 1) / height * max_val
-            row_line = f"{indent}│"
+            lower_min = (row - 1) / height
+            lower_max = (row - 0.5) / height
+            upper_min = (row - 0.5) / height
+            upper_max = row / height
+            
+            line = "│"
+            
             for i in range(num_points):
-                v, f, p = views[i], fetches[i], pushes[i]
-                total = v + f + p
+                total = sum(d[i] for d in cat_data)
+                if total == 0:
+                    line += " "
+                    continue
                 
-                if total > threshold:
-                    # Determine which "layer" this row represents
-                    # Priority: Pushes > fetches > views for display
-                    if p > 0 and threshold < (v + f + p) and threshold >= (v + f): row_line += f"`Faa0{'█'*bar_width}`f{hsep}"
-                    elif f > 0 and threshold < (v + f) and threshold >= v:         row_line += f"`F0a0{'▓'*bar_width}`f{hsep}"
-                    elif v > 0 and threshold < v:                                  row_line += f"`F66d{'░'*bar_width}`f{hsep}"
-                    else:
-                        # Mixed or partial, show dominant
-                        if p >= f and p >= v: row_line += f"`Faa0{'▒'*bar_width}`f{hsep}"
-                        elif f >= v:          row_line += f"`F0a0{'▒'*bar_width}`f{hsep}"
-                        else:                 row_line += f"`F66d{'▒'*bar_width}`f{hsep}"
-                else:                         row_line += f"{' '*bar_width}{hsep}"
-            row_line += "\n"
-            lines.append(row_line)
+                cumsum = 0
+                cat_ranges = {}
+                for cat, data in zip(categories, cat_data):
+                    start = cumsum / total
+                    cumsum += data[i]
+                    end = cumsum / total
+                    cat_ranges[cat] = (start, end)
+                
+                def pixel_to_cat(pmin, pmax):
+                    for cat in categories:
+                        cstart, cend = cat_ranges[cat]
+                        # Check if pixel overlaps this category
+                        # Return the category (they're mutually exclusive in stacked chart)
+                        if pmin < cend and pmax > cstart: return cat
+                    return None
+                
+                upper_cat = pixel_to_cat(upper_min, upper_max)
+                lower_cat = pixel_to_cat(lower_min, lower_max)
+                
+                if upper_cat is None and lower_cat is None: line += " "
+                elif upper_cat == lower_cat and upper_cat is not None:
+                    col = cat_colors[upper_cat]
+                    line += f"`FT{col}`BT{col}█`f`b"
+                elif upper_cat is not None and lower_cat is not None:
+                    upper_col = cat_colors[upper_cat]
+                    lower_col = cat_colors[lower_cat]
+                    line += f"`FT{upper_col}`BT{lower_col}▀`f`b"
+                elif upper_cat is not None:
+                    col = cat_colors[upper_cat]
+                    line += f"`FT{col}▀`f"
+                else:
+                    col = cat_colors[lower_cat]
+                    line += f"`FT{col}▄`f"
+            
+            lines.append(line + "\n")
         
-        hsj = "┴"*len(hsep)
-        bottom_border = "└" + hsj.join(["─" * bar_width] * num_points) + "┘"
-        lines.append(indent + bottom_border + "\n")
-
-        chart_width = len(bottom_border)
-        first_label = f"{labels[0][:12]:<12}"
-        final_label = f"{labels[-1][:12]:>12}"
-        middle_space = chart_width-len(first_label)-len(final_label)
-
-        label_line = f"{indent}{self.CLR_DIM}{first_label}`f"
-        label_line += " " * middle_space
-        label_line += f"{self.CLR_DIM}{final_label}`f\n"
-        lines.append(label_line)
+        bottom = "└" + "─" * num_points + "┘"
+        lines.append(bottom + "\n")
+        
+        if labels:
+            first = str(labels[0])[:12]
+            last  = str(labels[-1])[:12]
+            mid_space = len(bottom) - len(first) - len(last)
+            lines.append(f"{self.CLR_DIM}{first}{" " * mid_space}{last}`f\n")
         
         return "".join(lines)
+
 
     #######################
     # Connection Handlers #
