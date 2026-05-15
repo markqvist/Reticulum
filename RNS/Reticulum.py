@@ -402,7 +402,7 @@ class Reticulum:
                     RNS.log("Existing shared instance required, but this instance started as shared instance. Aborting startup.", RNS.LOG_VERBOSE)
 
                 else:
-                    RNS.Transport.interfaces.append(interface)
+                    RNS.Transport.add_interface(interface)
                     self.shared_instance_interface = interface
                     self.is_shared_instance = True
                     RNS.log("Started shared instance interface: "+str(interface), RNS.LOG_DEBUG)
@@ -422,7 +422,7 @@ class Reticulum:
                         interface._force_bitrate = True
                         RNS.log(f"Forcing shared instance bitrate of {RNS.prettyspeed(interface.bitrate)}", RNS.LOG_WARNING)
                         interface.optimise_mtu()
-                    RNS.Transport.interfaces.append(interface)
+                    RNS.Transport.add_interface(interface)
                     self.is_shared_instance = False
                     self.is_standalone_instance = False
                     self.is_connected_to_shared_instance = True
@@ -915,7 +915,7 @@ class Reticulum:
                         interface.ifac_identity = RNS.Identity.from_bytes(interface.ifac_key)
                         interface.ifac_signature = interface.ifac_identity.sign(RNS.Identity.full_hash(interface.ifac_key))
 
-                    RNS.Transport.interfaces.append(interface)
+                    RNS.Transport.add_interface(interface)
                     interface.final_init()
 
             interface = None
@@ -1077,7 +1077,7 @@ class Reticulum:
                     interface.ifac_identity = RNS.Identity.from_bytes(interface.ifac_key)
                     interface.ifac_signature = interface.ifac_identity.sign(RNS.Identity.full_hash(interface.ifac_key))
 
-                RNS.Transport.interfaces.append(interface)
+                RNS.Transport.add_interface(interface)
                 interface.final_init()
 
     def _default_ar_target(self):

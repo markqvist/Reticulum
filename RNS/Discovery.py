@@ -576,7 +576,7 @@ class InterfaceDiscovery():
 
     def teardown_interface(self, interface):
         interface.detach()
-        if interface in RNS.Transport.interfaces:  RNS.Transport.interfaces.remove(interface)
+        RNS.Transport.remove_interface(interface)
         if interface in self.monitored_interfaces: self.monitored_interfaces.remove(interface)
 
     def autoconnect_count(self):

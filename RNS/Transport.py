@@ -418,6 +418,18 @@ class Transport:
         gc.collect()
 
     @staticmethod
+    def add_interface(interface):
+        with Transport.interfaces_lock:
+            if not interface in Transport.interfaces:
+                Transport.interfaces.append(interface)
+
+    @staticmethod
+    def remove_interface(interface):
+        with Transport.interfaces_lock:
+            if interface in Transport.interfaces:
+                Transport.interfaces.remove(interface)
+
+    @staticmethod
     def set_network_identity(identity):
         if not Transport.network_identity:
             Transport.network_identity = identity
@@ -1594,7 +1606,7 @@ class Transport:
                                                 RNS.log(f"Clamping link MTU to {RNS.prettysize(path_mtu)}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                                                 new_raw  = new_raw[:-RNS.Link.LINK_MTU_SIZE]+clamped_mtu
                                             except Exception as e:
-                                                RNS.log(f"Dropping link request packet. The contained exception was: {e}", RNS.LOG_WARNING)
+                                                RNS.log(f"Dropping link request packet. The contained exception was: {e}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                                                 return
 
                                 # Entry format is
@@ -2518,16 +2530,17 @@ class Transport:
     def clean_announce_cache():
         st = time.time()
         target_path = os.path.join(RNS.Reticulum.cachepath, "announces")
-        with Transport.path_table_lock: active_paths = [Transport.path_table[dst_hash][6] for dst_hash in Transport.path_table]
-        with Transport.tunnels_lock:    tunnel_paths = list(set([path_dict[dst_hash][6] for path_dict in [Transport.tunnels[tunnel_id][2] for tunnel_id in Transport.tunnels] for dst_hash in path_dict]))
+        cached_announce_hashes = os.listdir(target_path)
+        with Transport.path_table_lock: active_path_hashes = list(set([Transport.path_table[dst_hash][IDX_PT_PACKET] for dst_hash in Transport.path_table]))
+        with Transport.tunnels_lock:    tunnel_path_hashes = list(set([path_dict[dst_hash][IDX_PT_PACKET] for path_dict in [Transport.tunnels[tunnel_id][IDX_TT_PATHS] for tunnel_id in Transport.tunnels] for dst_hash in path_dict]))
         removed = 0; total = 0
-        for packet_hash in os.listdir(target_path):
+        for packet_hash in cached_announce_hashes:
             remove = False
             full_path = os.path.join(target_path, packet_hash)
             if os.path.isfile(full_path):
                 try: target_hash = bytes.fromhex(packet_hash)
                 except: remove = True
-                if (not target_hash in active_paths) and (not target_hash in tunnel_paths): remove = True
+                if (not target_hash in active_path_hashes) and (not target_hash in tunnel_path_hashes): remove = True
                 if remove: os.unlink(full_path); removed += 1
                 total += 1
 
@@ -2889,10 +2902,8 @@ class Transport:
                                                    tag=tag_bytes)
 
                         else: RNS.log("Ignoring duplicate path request for "+RNS.prettyhexrep(destination_hash)+" with tag "+RNS.prettyhexrep(unique_tag), RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
-
                 else: RNS.log("Ignoring tagless path request for "+RNS.prettyhexrep(destination_hash), RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-
-        except Exception as e: RNS.log("Error while handling path request. The contained exception was: "+str(e), RNS.LOG_ERROR)
+        except Exception as e: RNS.log(f"Error while handling path request. The contained exception was: {e}", RNS.LOG_ERROR)
 
     @staticmethod
     def path_request(destination_hash, is_from_local_client, attached_interface, requestor_transport_id=None, tag=None):
@@ -2933,7 +2944,7 @@ class Transport:
             received_from = Transport.path_table[destination_hash][IDX_PT_RVCD_IF]
 
             if packet == None:
-                RNS.log("Could not retrieve announce packet from cache while answering path request for "+RNS.prettyhexrep(destination_hash), RNS.LOG_WARNING)
+                RNS.log(f"Could not retrieve announce packet from cache while answering path request for {RNS.prettyhexrep(destination_hash)}, ignoring path request", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
             elif attached_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING and attached_interface == received_from:
                 RNS.log("Not answering path request on roaming-mode interface, since next hop is on same roaming-mode interface", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None

@@ -574,7 +574,7 @@ class AutoInterface(Interface):
                 spawned_interface.mode = self.mode
                 spawned_interface.HW_MTU = self.HW_MTU
                 spawned_interface.online = True
-                RNS.Transport.interfaces.append(spawned_interface)
+                RNS.Transport.add_interface(spawned_interface)
                 if addr in self.spawned_interfaces:
                     self.spawned_interfaces[addr].detach()
                     self.spawned_interfaces[addr].teardown()
@@ -666,7 +666,7 @@ class AutoInterfacePeer(Interface):
             except Exception as e:
                 RNS.log(f"Could not remove {self} from parent interface on detach. The contained exception was: {e}", RNS.LOG_ERROR)
 
-        if self in RNS.Transport.interfaces: RNS.Transport.interfaces.remove(self)
+        RNS.Transport.remove_interface(self)
 
 class AutoInterfaceHandler(socketserver.BaseRequestHandler):
     def __init__(self, callback, *args, **keys):

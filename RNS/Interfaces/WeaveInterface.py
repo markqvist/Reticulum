@@ -981,7 +981,7 @@ class WeaveInterface(Interface):
             spawned_interface.mode = self.mode
             spawned_interface.HW_MTU = self.HW_MTU
             spawned_interface._online = True
-            RNS.Transport.interfaces.append(spawned_interface)
+            RNS.Transport.add_interface(spawned_interface)
             if endpoint_addr in self.spawned_interfaces:
                 self.spawned_interfaces[endpoint_addr].detach()
                 self.spawned_interfaces[endpoint_addr].teardown()
@@ -1097,5 +1097,4 @@ class WeaveInterfacePeer(Interface):
             except Exception as e:
                 RNS.log(f"Could not remove {self} from parent interface on detach. The contained exception was: {e}", RNS.LOG_ERROR)
 
-        if self in RNS.Transport.interfaces:
-            RNS.Transport.interfaces.remove(self)
+        RNS.Transport.remove_interface(self)

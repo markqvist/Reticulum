@@ -826,9 +826,8 @@ class I2PInterfacePeer(Interface):
             while self in self.parent_interface.spawned_interfaces:
                 self.parent_interface.spawned_interfaces.remove(self)
 
-        if self in RNS.Transport.interfaces:
-            if not self.initiator:
-                RNS.Transport.interfaces.remove(self)
+        if not self.initiator:
+            RNS.Transport.remove_interface(self)
 
 
     def __str__(self):
@@ -940,7 +939,7 @@ class I2PInterface(Interface):
                 peer_interface.IN  = True
                 peer_interface.parent_interface = self
                 peer_interface.parent_count = False
-                RNS.Transport.interfaces.append(peer_interface)
+                RNS.Transport.add_interface(peer_interface)
 
     def incoming_connection(self, handler):
         RNS.log("Accepting incoming I2P connection", RNS.LOG_VERBOSE)
@@ -993,7 +992,7 @@ class I2PInterface(Interface):
         spawned_interface.mode = self.mode
         spawned_interface.HW_MTU = self.HW_MTU
         RNS.log("Spawned new I2PInterface Peer: "+str(spawned_interface), RNS.LOG_VERBOSE)
-        RNS.Transport.interfaces.append(spawned_interface)
+        RNS.Transport.add_interface(spawned_interface)
         while spawned_interface in self.spawned_interfaces:
             self.spawned_interfaces.remove(spawned_interface)
         self.spawned_interfaces.append(spawned_interface)
