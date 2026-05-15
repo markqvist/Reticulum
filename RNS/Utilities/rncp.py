@@ -306,6 +306,7 @@ def receive_resource_concluded(resource):
                     full_save_path = saved_filename+"."+str(counter)
 
                 shutil.move(resource.data.name, full_save_path)
+                print("Saved received file to "+full_save_path)
 
             except Exception as e:
                 RNS.log(f"An error occurred while saving received resource: {e}", RNS.LOG_ERROR)
@@ -514,6 +515,7 @@ def fetch(configdir, identitypath = None, verbosity = 0, quietness = 0, destinat
                         full_save_path = saved_filename+"."+str(counter)
 
                     shutil.move(resource.data.name, full_save_path)
+                    print("Saved received file to "+full_save_path)
 
                 except Exception as e:
                     print(f"An error occurred while saving received resource: {e}")
