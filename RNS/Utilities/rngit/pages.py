@@ -2314,8 +2314,8 @@ class NomadNetworkNode():
         indent = ""
         bar_width = 1
 
-        chart_lines = []
-        chart_lines.append(f"{indent}`F{color}Peak: {max_val}`f\n")
+        lines = []
+        lines.append(f"{indent}`F{color}Peak: {max_val}`f\n")
         for row in range(height, 0, -1):
             threshold = (row - 1) / height * max_val
             row_line = f"{indent}│"
@@ -2327,11 +2327,11 @@ class NomadNetworkNode():
                     else:                       row_line += f"`F{color}{'░'*bar_width}`f{hsep}"
                 else:                           row_line += f"{' '*bar_width}{hsep}"
             row_line += "\n"
-            chart_lines.append(row_line)
+            lines.append(row_line)
         
         hsj = "┴"*len(hsep)
         bottom_border = "└" + hsj.join(["─" * bar_width] * num_points) + "┘"
-        chart_lines.append(indent + bottom_border + "\n")
+        lines.append(indent + bottom_border + "\n")
 
         chart_width = len(bottom_border)
         first_label = f"{labels[0][:12]:<12}"
@@ -2341,9 +2341,9 @@ class NomadNetworkNode():
         label_line = f"{indent}{self.CLR_DIM}{first_label}`f"
         label_line += " " * middle_space
         label_line += f"{self.CLR_DIM}{final_label}`f\n"
-        chart_lines.append(label_line)
+        lines.append(label_line)
         
-        return "".join(chart_lines)
+        return "".join(lines)
 
     def render_chart_halfblock(self, data, labels, color="666", height=10, secondary_color=None, gradient_factor=1.3):
         if not data or all(d == 0 for d in data): return "No data available\n"
@@ -2361,7 +2361,7 @@ class NomadNetworkNode():
         primary_rgb   = hex_to_rgb(primary)
         secondary_rgb = hex_to_rgb(secondary)
         
-        lines = [f"`FT{primary}Peak: {max_val} | {num_points} pts`f\n"]
+        lines = [f"`FT{primary}Peak: {max_val}`f\n"]
         for row in range(height, 0, -1):
             row_top = (row / height) * max_val
             row_bottom = ((row - 1) / height) * max_val
