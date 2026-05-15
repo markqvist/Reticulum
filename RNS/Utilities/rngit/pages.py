@@ -2303,6 +2303,9 @@ class NomadNetworkNode():
     ###################
 
     def render_chart(self, data, labels, color="666", height=10):
+        return self.render_chart_halfblock(data, labels, color=color, height=height)
+
+    def render_chart_full_block(self, data, labels, color="666", height=10):
         if not data or all(d == 0 for d in data): return "No data available\n"        
         max_val = max(data) if max(data) > 0 else 1
         num_points = len(data)
@@ -2342,7 +2345,62 @@ class NomadNetworkNode():
         
         return "".join(chart_lines)
 
-    # TODO: This is a weird idea, really. Probably redo it to something else.
+    def render_chart_halfblock(self, data, labels, color="666", height=10, secondary_color=None, gradient_factor=1.3):
+        if not data or all(d == 0 for d in data): return "No data available\n"
+        max_val    = max(data) if max(data) > 0 else 1
+        num_points = len(data)
+
+        def hex_to_rgb(h):     return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+        def expand_color(c):   return ''.join(ch * 2 for ch in c) if len(c) == 3 else c[:6]
+        def gradient_color(t): return ''.join(f"{int(secondary_rgb[i] + (primary_rgb[i] - secondary_rgb[i]) * min(1, t*gradient_factor)):02x}" for i in range(3))
+
+        primary = expand_color(color)
+        if secondary_color: secondary = expand_color(secondary_color)
+        else: secondary = ''.join(f"{int(int(primary[i:i+2], 16) * 0.42):02x}" for i in (0, 2, 4))
+        
+        primary_rgb   = hex_to_rgb(primary)
+        secondary_rgb = hex_to_rgb(secondary)
+        
+        lines = [f"`FT{primary}Peak: {max_val} | {num_points} pts`f\n"]
+        for row in range(height, 0, -1):
+            row_top = (row / height) * max_val
+            row_bottom = ((row - 1) / height) * max_val
+            row_mid = (row_top + row_bottom) / 2
+
+            grad_top = row / height
+            grad_mid = (row - 0.5) / height
+            
+            line = "│"
+            for val in data:
+                upper_filled = val >= row_top
+                lower_filled = val >= row_mid
+
+                if not upper_filled and not lower_filled: line += " "
+                elif upper_filled: line += f"`FT{gradient_color(grad_top)}`BT{gradient_color(grad_mid)}▀`f`b"
+                else:              line += f"`FT{gradient_color(grad_mid)}▄`f"
+
+            lines.append(line + "\n")
+
+        hsep = ""
+        indent = ""
+        bar_width = 1
+
+        hsj = "┴"*len(hsep)
+        bottom_border = "└" + hsj.join(["─" * bar_width] * num_points) + "┘"
+        lines.append(indent + bottom_border + "\n")
+
+        chart_width = len(bottom_border)
+        first_label = f"{labels[0][:12]:<12}"
+        final_label = f"{labels[-1][:12]:>12}"
+        middle_space = chart_width-len(first_label)-len(final_label)
+
+        label_line = f"{indent}{self.CLR_DIM}{first_label}`f"
+        label_line += " " * middle_space
+        label_line += f"{self.CLR_DIM}{final_label}`f\n"
+        lines.append(label_line)
+        
+        return "".join(lines)
+
     def render_combined_chart(self, views, fetches, pushes, labels, height=4):
         if not views or not labels: return "No data available\n"
         
