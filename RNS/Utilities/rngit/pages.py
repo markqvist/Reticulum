@@ -1116,6 +1116,8 @@ class NomadNetworkNode():
         f_peak = stats["fetches"]["peak"]
         p_total = stats["pushes"]["total"]
         p_peak = stats["pushes"]["peak"]
+        d_total = stats["downloads_combined"]["total"]
+        d_peak = stats["downloads_combined"]["peak"]
 
         content_parts.append(f"\n`F66dViews`f    : {v_total:>5}  total {self.CLR_DIM}(peak: {v_peak:>3})`f\n")
         content_parts.append(f"`F0a0Fetches`f  : {f_total:>5}  total {self.CLR_DIM}(peak: {f_peak:>3})\n`f")
@@ -1139,6 +1141,12 @@ class NomadNetworkNode():
             content_parts.append(self.m_heading(f"Pushes", 2))
             content_parts.append("\n")
             content_parts.append(self.render_chart(stats["pushes"]["daily"], stats["timeline_labels"], color="aa0"))
+            content_parts.append("\n")
+        
+        if d_total > 0:
+            content_parts.append(self.m_heading(f"Downloads", 2))
+            content_parts.append("\n")
+            content_parts.append(self.render_chart(stats["downloads_combined"]["daily"], stats["timeline_labels"], color="a22"))
             content_parts.append("\n")
 
         if stats["activity_score"] > 0:
@@ -1604,6 +1612,7 @@ class NomadNetworkNode():
 
         RNS.log(f"Artifact file resolved for artifact request {group_name}/{repo_name}/{tag}/{artifact}", RNS.LOG_DEBUG)
 
+        self.owner.release_download_succeeded(group_name, repo_name, remote_identity)
         return [open(artifact_path, "rb"), {"name": artifact.encode("utf-8")}]
 
     def serve_download(self, path, data, request_id, link_id, remote_identity, requested_at):
@@ -1641,7 +1650,10 @@ class NomadNetworkNode():
         
         else:
             stream = self.get_blob_stream(repo_path, resolved_ref, file_path)
-            if stream is not None: return [stream, {"name": file_name.encode("utf-8")}]
+            if stream is not None:
+                self.owner.download_succeeded(group_name, repo_name, remote_identity)
+                return [stream, {"name": file_name.encode("utf-8")}]
+            
             else:
                 RNS.log(f"Could not resolve blob stream for download request {group_name}/{repo_name}/{ref}/{file_path}", RNS.LOG_WARNING)
                 return None
@@ -1706,6 +1718,7 @@ class NomadNetworkNode():
         if content:
             if fmt == "micron": file_name = f"{title}.mu"
             else:               file_name = f"{title}.md"
+            self.owner.download_succeeded(group_name, repo_name, remote_identity)
             return [file_name, content.encode("utf-8")]
             
         return None

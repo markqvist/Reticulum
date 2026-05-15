@@ -2976,6 +2976,13 @@ class ReticulumGitNode():
             RNS.log(f"Error setting permissions: {e}", RNS.LOG_ERROR)
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error setting permissions"
 
+    ###################
+    # Node Statistics #
+    ###################
+
+    STATS_INIT_REPO  = {"view": {}, "fetch": {}, "push": {}, "download": {}, "release_download": {}}
+    STATS_INIT_GROUP = {"view": {}, "repositories": {}}
+
     def repository_stats(self, remote_identity, group_name, repository_name, lookback_days=14):
         if not self.resolve_permission(remote_identity, group_name, repository_name, self.PERM_STATS): return None
         else:
@@ -2995,9 +3002,12 @@ class ReticulumGitNode():
                 repo_stats = { "group": group_name, "repository": repository_name,
                                "lookback_days": lookback_days, "date_range": f"{day_labels[0]} - {day_labels[-1]}",
                                "days": days, "day_labels": day_labels, "timeline_labels": timeline_labels,
-                               "views": {"daily": [], "total": 0, "peak": 0, "peak_day": None},
-                               "fetches": {"daily": [], "total": 0, "peak": 0, "peak_day": None},
-                               "pushes": {"daily": [], "total": 0, "peak": 0, "peak_day": None} }
+                               "views":              {"daily": [], "total": 0, "peak": 0, "peak_day": None},
+                               "fetches":            {"daily": [], "total": 0, "peak": 0, "peak_day": None},
+                               "pushes":             {"daily": [], "total": 0, "peak": 0, "peak_day": None},
+                               "downloads":          {"daily": [], "total": 0, "peak": 0, "peak_day": None},
+                               "release_downloads":  {"daily": [], "total": 0, "peak": 0, "peak_day": None},
+                               "downloads_combined": {"daily": [], "total": 0, "peak": 0, "peak_day": None} }
                 
                 group_stats = self.stats.get("groups", {}).get(group_name, {})
                 repo_data = group_stats.get("repositories", {}).get(repository_name, {})
@@ -3029,9 +3039,38 @@ class ReticulumGitNode():
                         repo_stats["pushes"]["peak"] = count
                         repo_stats["pushes"]["peak_day"] = day
                 
-                total_score = ( repo_stats["views"]["total"] * 0.2 +
-                                repo_stats["fetches"]["total"] * 2 +
-                                repo_stats["pushes"]["total"] * 5 )
+                download_stats = repo_data.get("download", {})
+                for day in days:
+                    count = download_stats.get(day, 0)
+                    repo_stats["downloads"]["daily"].append(count)
+                    repo_stats["downloads"]["total"] += count
+                    if count > repo_stats["downloads"]["peak"]:
+                        repo_stats["downloads"]["peak"] = count
+                        repo_stats["downloads"]["peak_day"] = day
+                
+                release_download_stats = repo_data.get("release_download", {})
+                for day in days:
+                    count = release_download_stats.get(day, 0)
+                    repo_stats["release_downloads"]["daily"].append(count)
+                    repo_stats["release_downloads"]["total"] += count
+                    if count > repo_stats["release_downloads"]["peak"]:
+                        repo_stats["release_downloads"]["peak"] = count
+                        repo_stats["release_downloads"]["peak_day"] = day
+
+                for day in days:
+                    count = download_stats.get(day, 0) + release_download_stats.get(day, 0)
+                    repo_stats["downloads_combined"]["daily"].append(count)
+                    repo_stats["downloads_combined"]["total"] += count
+                    if count > repo_stats["downloads_combined"]["peak"]:
+                        repo_stats["downloads_combined"]["peak"] = count
+                        repo_stats["downloads_combined"]["peak_day"] = day
+                
+                view_total  = repo_stats["views"]["total"] + repo_stats["downloads"]["total"] + repo_stats["release_downloads"]["total"]
+                fetch_total = repo_stats["fetches"]["total"]
+                push_total  = repo_stats["pushes"]["total"]
+                total_score = ( view_total  * 0.2 +
+                                fetch_total * 2.0 +
+                                push_total  * 5 )
 
                 repo_stats["activity_score"] = int(total_score)
 
@@ -3078,6 +3117,16 @@ class ReticulumGitNode():
         if self.stats_enabled:
             if group_name and repository_name: self.record_push(group_name, repository_name)
 
+    def download_succeeded(self, group_name, repository_name, remote_identity):
+        if remote_identity and remote_identity.hash in self.stats_ignored: return
+        if self.stats_enabled:
+            if group_name and repository_name: self.record_download(group_name, repository_name)
+
+    def release_download_succeeded(self, group_name, repository_name, remote_identity):
+        if remote_identity and remote_identity.hash in self.stats_ignored: return
+        if self.stats_enabled:
+            if group_name and repository_name: self.record_release_download(group_name, repository_name)
+
     def _get_day(self):
         timefmt = "%Y-%m-%d"
         timestamp = time.localtime(time.time())
@@ -3100,7 +3149,8 @@ class ReticulumGitNode():
             try:
                 with self.stats_lock:
                     day = self._get_day()
-                    if not group_name in self.stats["groups"]: self.stats["groups"][group_name] = {"view": {}, "repositories": {}}
+                    if not group_name in self.stats["groups"]: self.stats["groups"][group_name] = self.STATS_INIT_GROUP
+                    if not "view" in self.stats["groups"][group_name]: self.stats["groups"][group_name]["view"] = {}
                     
                     stats = self.stats["groups"][group_name]["view"]
                     if not day in stats: stats[day] = 0
@@ -3115,9 +3165,10 @@ class ReticulumGitNode():
             try:
                 with self.stats_lock:
                     day = self._get_day()
-                    if not group_name in self.stats["groups"]: self.stats["groups"][group_name] = {"view": {}, "repositories": {}}
+                    if not group_name in self.stats["groups"]: self.stats["groups"][group_name] = self.STATS_INIT_GROUP
                     repos = self.stats["groups"][group_name]["repositories"]
-                    if not repository_name in repos: repos[repository_name] = {"view": {}, "fetch": {}, "push": {}}
+                    if not repository_name in repos: repos[repository_name] = self.STATS_INIT_REPO
+                    if not "view" in repos[repository_name]: repos[repository_name]["view"] = {}
                     
                     stats = repos[repository_name]["view"]
                     if not day in stats: stats[day] = 0
@@ -3132,9 +3183,10 @@ class ReticulumGitNode():
             try:
                 with self.stats_lock:
                     day = self._get_day()
-                    if not group_name in self.stats["groups"]: self.stats["groups"][group_name] = {"view": {}, "repositories": {}}
+                    if not group_name in self.stats["groups"]: self.stats["groups"][group_name] = self.STATS_INIT_GROUP
                     repos = self.stats["groups"][group_name]["repositories"]
-                    if not repository_name in repos: repos[repository_name] = {"view": {}, "fetch": {}, "push": {}}
+                    if not repository_name in repos: repos[repository_name] = self.STATS_INIT_REPO
+                    if not "fetch" in repos[repository_name]: repos[repository_name]["fetch"] = {}
 
                     stats = repos[repository_name]["fetch"]
                     if not day in stats: stats[day] = 0
@@ -3149,15 +3201,52 @@ class ReticulumGitNode():
             try:
                 with self.stats_lock:
                     day = self._get_day()
-                    if not group_name in self.stats["groups"]: self.stats["groups"][group_name] = {"view": {}, "repositories": {}}
+                    if not group_name in self.stats["groups"]: self.stats["groups"][group_name] = self.STATS_INIT_GROUP
                     repos = self.stats["groups"][group_name]["repositories"]
-                    if not repository_name in repos: repos[repository_name] = {"view": {}, "fetch": {}, "push": {}}
+                    if not repository_name in repos: repos[repository_name] = self.STATS_INIT_REPO
+                    if not "push" in repos[repository_name]: repos[repository_name]["push"] = {}
 
                     stats = repos[repository_name]["push"]
                     if not day in stats: stats[day] = 0
                     stats[day] += 1
 
             except Exception as e: RNS.log(f"Error while recording push stats: {e}", RNS.LOG_ERROR)
+
+        threading.Thread(target=job, daemon=True).start()
+
+    def record_download(self, group_name, repository_name):
+        def job():
+            try:
+                with self.stats_lock:
+                    day = self._get_day()
+                    if not group_name in self.stats["groups"]: self.stats["groups"][group_name] = self.STATS_INIT_GROUP
+                    repos = self.stats["groups"][group_name]["repositories"]
+                    if not repository_name in repos: repos[repository_name] = self.STATS_INIT_REPO
+                    if not "download" in repos[repository_name]: repos[repository_name]["download"] = {}
+
+                    stats = repos[repository_name]["download"]
+                    if not day in stats: stats[day] = 0
+                    stats[day] += 1
+
+            except Exception as e: RNS.log(f"Error while recording download stats: {e}", RNS.LOG_ERROR)
+
+        threading.Thread(target=job, daemon=True).start()
+
+    def record_release_download(self, group_name, repository_name):
+        def job():
+            try:
+                with self.stats_lock:
+                    day = self._get_day()
+                    if not group_name in self.stats["groups"]: self.stats["groups"][group_name] = self.STATS_INIT_GROUP
+                    repos = self.stats["groups"][group_name]["repositories"]
+                    if not repository_name in repos: repos[repository_name] = self.STATS_INIT_REPO
+                    if not "release_download" in repos[repository_name]: repos[repository_name]["release_download"] = {}
+
+                    stats = repos[repository_name]["release_download"]
+                    if not day in stats: stats[day] = 0
+                    stats[day] += 1
+
+            except Exception as e: RNS.log(f"Error while recording release download stats: {e}", RNS.LOG_ERROR)
 
         threading.Thread(target=job, daemon=True).start()
 
