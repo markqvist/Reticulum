@@ -1732,7 +1732,7 @@ class ReticulumGitNode():
             section = self.config["rngit"]
             if "node_name" in section: self.node_name = section["node_name"]
             if "announce_interval" in section: self.announce_interval = section.as_int("announce_interval")*60
-            if "mirror_interval" in section: self.mirror_interval = section.as_int("mirror_interval")*60*60
+            if "mirror_interval" in section: self.mirror_interval = max(section.as_int("mirror_interval")*60*60, 0)
             if "record_stats" in section: self.stats_enabled = section.as_bool("record_stats")
             if "stats_ignore_identities" in section:
                 ignored = section.as_list("stats_ignore_identities")
@@ -2135,7 +2135,7 @@ class ReticulumGitNode():
                     self.__persist_stats()
                     self.last_stats_job = time.time()
 
-                if time.time() > self.last_sync_check + self.sync_check_interval:
+                if self.mirror_interval > 0 and time.time() > self.last_sync_check + self.sync_check_interval:
                     self.__sync_mirrors()
                     self.last_sync_check = time.time()
 
