@@ -1663,13 +1663,54 @@ class ReticulumGitNode():
 
     def __sync_mirror(self, group_name, repository_name):
         RNS.log(f"Syncing mirror {group_name}/{repository_name}", RNS.LOG_INFO)
-        # TODO: Implement
-        pass
+        try:
+            repo = self.groups[group_name]["repositories"][repository_name]
+            repository_path = repo["path"]
+            source_url = repo.get("mirror", False)
+
+            if not source_url or type(source_url) != str:
+                RNS.log(f"Could not determine upstream source for mirror {group_name}/{repository_name}", RNS.LOG_ERROR)
+                return False
+
+            result = subprocess.run(["git", "fetch", source_url, "+refs/*:refs/*"], cwd=repository_path, capture_output=True, text=True, check=False)
+            if result.returncode != 0:
+                RNS.log(f"Failed to sync mirror {group_name}/{repository_name} from {source_url}: {result.stderr}", RNS.LOG_ERROR)
+                return False
+
+            if self.__set_mirror_synced(repository_path):
+                RNS.log(f"Mirror {group_name}/{repository_name} synced successfully from {source_url}", RNS.LOG_DEBUG)
+                return True
+            
+            else:
+                RNS.log(f"Mirror synced but could not update sync timestamp for {group_name}/{repository_name}", RNS.LOG_WARNING)
+                return True
+
+        except Exception as e:
+            RNS.log(f"Error syncing mirror {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
+            return False
 
     def __sync_fork(self, group_name, repository_name):
         RNS.log(f"Syncing fork {group_name}/{repository_name} with upstream", RNS.LOG_INFO)
-        # TODO: Implement
-        pass
+        try:
+            repo = self.groups[group_name]["repositories"][repository_name]
+            repository_path = repo["path"]
+            source_url = repo.get("fork", False)
+
+            if not source_url or source_url == True:
+                RNS.log(f"Could not determine upstream source for fork {group_name}/{repository_name}", RNS.LOG_ERROR)
+                return False
+
+            result = subprocess.run(["git", "fetch", source_url, "+refs/*:refs/*"], cwd=repository_path, capture_output=True, text=True, check=False)
+            if result.returncode != 0:
+                RNS.log(f"Failed to sync fork {group_name}/{repository_name} from {source_url}: {result.stderr}", RNS.LOG_ERROR)
+                return False
+
+            RNS.log(f"Fork {group_name}/{repository_name} synced successfully from {source_url}", RNS.LOG_DEBUG)
+            return True
+
+        except Exception as e:
+            RNS.log(f"Error syncing fork {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
+            return False
 
     def __apply_config(self):
         if not os.path.isfile(self.identitypath):
@@ -2689,10 +2730,21 @@ class ReticulumGitNode():
         else:
             repo = self.groups[group_name]["repositories"][repository_name]
             repository_path = repo["path"]
-            if not repo["mirror"] and not repo["fork"]: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Repository is neither fork nor mirror"
-            # TODO: Implement
 
-            return b"\x00"
+            try:
+                if repo["mirror"]:
+                    if self.__sync_mirror(group_name, repository_name): return b"\x00"
+                    else: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Mirror sync failed"
+
+                elif repo["fork"]:
+                    if self.__sync_fork(group_name, repository_name): return b"\x00"
+                    else: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Fork sync failed"
+
+                else: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Repository is neither fork nor mirror"
+
+            except Exception as e:
+                RNS.log(f"Error while handling sync request for {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def handle_release(self, path, data, request_id, remote_identity, requested_at):
         RNS.log(f"Release request from remote {remote_identity}", RNS.LOG_DEBUG)
