@@ -113,6 +113,10 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
             git_client = ReticulumGitClient(configdir=configdir, verbosity=targetverbosity, identitypath=identity)
             git_client.fork_repository(source=task["source"], target=task["target"])
 
+        elif command == "sync":
+            git_client = ReticulumGitClient(configdir=configdir, verbosity=targetverbosity, identitypath=identity)
+            git_client.sync_repository(remote=task["remote"])
+
         elif command == "mirror":
             git_client = ReticulumGitClient(configdir=configdir, verbosity=targetverbosity, identitypath=identity)
             git_client.mirror_repository(source=task["source"], target=task["target"])
@@ -122,7 +126,7 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
     exit(0)
 
 def main():
-    subcommands = ["node", "release", "work", "create", "fork", "mirror"]
+    subcommands = ["node", "release", "work", "create", "fork", "sync", "mirror"]
     try:
         if len(sys.argv) < 2 or sys.argv[1] not in subcommands: subcommand = "node"
         else:                                      subcommand = sys.argv[1]; sys.argv.pop(1)
@@ -170,6 +174,13 @@ def main():
             parser.add_argument("-i", "--identity", action="store", metavar="PATH", default=None, help="path to identity", type=str)
             parser.add_argument("source", default=None, help="URL of source repository", type=str)
             parser.add_argument("target", default=None, help="URL of target repository", type=str)
+
+        elif subcommand == "sync":
+            parser = argparse.ArgumentParser(description="Reticulum Git Repository Syncer")
+            parser.add_argument("--config", action="store", default=None, help="path to alternative config directory", type=str)
+            parser.add_argument("--rnsconfig", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
+            parser.add_argument("-i", "--identity", action="store", metavar="PATH", default=None, help="path to identity", type=str)
+            parser.add_argument("repository", default=None, help="URL of repository", type=str)
 
         elif subcommand == "mirror":
             parser = argparse.ArgumentParser(description="Reticulum Git Mirror Management")
@@ -219,6 +230,11 @@ def main():
             program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, verbosity=args.verbose, quietness=args.quiet,
                           task=task, identity=args.identity)
 
+        elif subcommand == "sync":
+            task = {"command": subcommand, "operation": "sync", "remote": args.repository}
+            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, verbosity=args.verbose, quietness=args.quiet,
+                          task=task, identity=args.identity)
+
         elif subcommand == "mirror":
             task = {"command": subcommand, "operation": "fork", "source": args.source, "target": args.target}
             program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, verbosity=args.verbose, quietness=args.quiet,
@@ -237,6 +253,7 @@ class ReticulumGitClient():
     PATH_DELETE     = "/git/delete"
     PATH_CREATE     = "/git/create"
     PATH_FORK       = "/git/fork"
+    PATH_SYNC       = "/git/sync"
     PATH_MIRROR     = "/git/mirror"
     PATH_RELEASE    = "/mgmt/release"
     PATH_WORK       = "/mgmt/work"
@@ -252,6 +269,7 @@ class ReticulumGitClient():
 
     PATH_TIMEOUT    = 15
     LINK_TIMEOUT    = 15
+    WAIT_SLEEP      = 0.2
 
     def __init__(self, configdir=None, verbosity=None, identitypath=None):
         self.identity            = None
@@ -260,6 +278,7 @@ class ReticulumGitClient():
         self.verbosity           = verbosity or 0
         self.path_timeout        = self.PATH_TIMEOUT
         self.link_timeout        = self.LINK_TIMEOUT
+        self.wait_sleep          = self.WAIT_SLEEP
         self._should_run         = True
 
         self.link_ready          = False
@@ -408,8 +427,8 @@ class ReticulumGitClient():
 
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.1)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
 
         if not self.link_ready: self.abort("Link establishment failed")
         print("\r                       \r", end="")
@@ -458,8 +477,8 @@ class ReticulumGitClient():
 
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.1)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
 
         if not self.link_ready: self.abort("Link establishment failed")
         print("\r                       \r", end="")
@@ -493,6 +512,50 @@ class ReticulumGitClient():
                 self.abort(f"Server error: {error_msg}")
 
         except Exception as e: self.abort(f"Error {operation_name}ing repository: {e}")
+        finally:
+            if self.link: self.link.teardown()
+
+    def sync_repository(self, remote=None):
+        if not remote: print(f"No remote specified"); exit(1)
+        self.connect_remote(remote)
+
+        timeout = self.link_timeout
+        while not self.link_ready and not self.link_failed and timeout > 0:
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
+
+        if not self.link_ready: self.abort("Link establishment failed")
+        print("\r                       \r", end="")
+
+        try:
+            destination_hash, group, repo = self.parse_remote_url(remote)
+            repo_path = f"{group}/{repo}"
+
+            request_data = {self.IDX_REPOSITORY: repo_path}
+            print(f"Remote is syncing repository...")
+            response, metadata = self.send_request(self.PATH_SYNC, request_data, timeout=900)
+
+            if not response or not isinstance(response, bytes): self.abort("No response from remote")
+
+            status_byte = response[0]
+            if status_byte == 0: print(f"Repository synced")
+            elif status_byte == self.RES_NOT_FOUND:
+                error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Not found"
+                self.abort(f"{error_msg}")
+
+            elif status_byte == self.RES_INVALID_REQ:
+                error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Invalid request"
+                self.abort(f"{error_msg}")
+
+            elif status_byte == self.RES_DISALLOWED:
+                error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Not allowed"
+                self.abort(f"{error_msg}")
+
+            else:
+                error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Unknown error"
+                self.abort(f"Server error: {error_msg}")
+
+        except Exception as e: self.abort(f"Error syncing repository: {e}")
         finally:
             if self.link: self.link.teardown()
 
@@ -548,8 +611,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.1)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Link establishment failed")
         
@@ -607,8 +670,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.5)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Link establishment failed")
         
@@ -666,8 +729,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.1)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Failed to establish link")
         print("\r                       \r", end="")
@@ -764,8 +827,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.5)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Failed to establish link")
         print("\r                       \r", end="")
@@ -807,8 +870,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.5)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Failed to establish link")
         print("\r                       \r", end="")
@@ -853,8 +916,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.1)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Link establishment failed")
         
@@ -911,8 +974,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.5)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Link establishment failed")
         
@@ -986,8 +1049,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.1)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Failed to establish link")
         print("\r                       \r", end="")
@@ -1031,8 +1094,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.1)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Failed to establish link")
         print("\r                       \r", end="")
@@ -1076,8 +1139,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.2)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Failed to establish link")
         print("\r                       \r", end="")
@@ -1130,8 +1193,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.2)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Failed to establish link")
         print("\r                       \r", end="")
@@ -1170,8 +1233,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.2)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Failed to establish link")
         print("\r                       \r", end="")
@@ -1213,8 +1276,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.2)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Failed to establish link")
         print("\r                       \r", end="")
@@ -1252,8 +1315,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.2)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Failed to establish link")
         print("\r                       \r", end="")
@@ -1291,8 +1354,8 @@ class ReticulumGitClient():
         
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(0.2)
-            timeout -= 1
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Failed to establish link")
         print("\r                       \r", end="")
@@ -1454,6 +1517,7 @@ class ReticulumGitNode():
     PATH_DELETE     = "/git/delete"
     PATH_CREATE     = "/git/create"
     PATH_FORK       = "/git/fork"
+    PATH_SYNC       = "/git/sync"
     PATH_MIRROR     = "/git/mirror"
     PATH_RELEASE    = "/mgmt/release"
     PATH_WORK       = "/mgmt/work"
@@ -1484,8 +1548,12 @@ class ReticulumGitNode():
         self.last_stats_job      = time.time()
         self.link_clean_interval = 5
         self.last_link_clean     = 0
+        self.mirror_interval     = 24*60*60
+        self.sync_check_interval = 15*60
+        self.last_sync_check     = time.time()
         self.active_links_lock   = Lock()
         self.stats_lock          = Lock()
+        self.sync_lock           = Lock()
         self.stats_ignored       = {}
         self.node_name           = "Anonymous Git Node"
 
@@ -1581,6 +1649,28 @@ class ReticulumGitNode():
                 os.rename(tmp_path, self.statspath)
             except Exception as e: RNS.log(f"Could not write stats file to {self.statspath}: {e}", RNS.LOG_ERROR)
 
+    def __sync_mirrors(self):
+        if self.sync_lock.locked(): return
+        with self.sync_lock:
+            try:
+                for group_name in self.groups.copy():
+                    for repository_name in self.groups[group_name]["repositories"].copy():
+                        repo = self.groups[group_name]["repositories"][repository_name]
+                        if repo["mirror"] and time.time() > self.__mirror_synced(repo["path"]) + self.mirror_interval:
+                            self.__sync_mirror(group_name, repository_name)
+
+            except Exception as e: RNS.log(f"Could not sync mirrors: {e}", RNS.LOG_ERROR)
+
+    def __sync_mirror(self, group_name, repository_name):
+        RNS.log(f"Syncing mirror {group_name}/{repository_name}", RNS.LOG_INFO)
+        # TODO: Implement
+        pass
+
+    def __sync_fork(self, group_name, repository_name):
+        RNS.log(f"Syncing fork {group_name}/{repository_name} with upstream", RNS.LOG_INFO)
+        # TODO: Implement
+        pass
+
     def __apply_config(self):
         if not os.path.isfile(self.identitypath):
             identity = RNS.Identity()
@@ -1601,6 +1691,7 @@ class ReticulumGitNode():
             section = self.config["rngit"]
             if "node_name" in section: self.node_name = section["node_name"]
             if "announce_interval" in section: self.announce_interval = section.as_int("announce_interval")*60
+            if "mirror_interval" in section: self.mirror_interval = section.as_int("mirror_interval")*60*60
             if "record_stats" in section: self.stats_enabled = section.as_bool("record_stats")
             if "stats_ignore_identities" in section:
                 ignored = section.as_list("stats_ignore_identities")
@@ -2003,6 +2094,10 @@ class ReticulumGitNode():
                     self.__persist_stats()
                     self.last_stats_job = time.time()
 
+                if time.time() > self.last_sync_check + self.sync_check_interval:
+                    self.__sync_mirrors()
+                    self.last_sync_check = time.time()
+
                 if time.time() > self.last_link_clean + self.link_clean_interval:
                     stale_links = []
                     with self.active_links_lock:
@@ -2085,6 +2180,25 @@ class ReticulumGitNode():
 
         except: return False
 
+    def __mirror_synced(self, path):
+        try:
+            result = subprocess.run(["git", "config", "repository.rngit.upstream.sync"], cwd=path, check=True, capture_output=True, text=True)
+            if not result: return 0
+            else: synced = int(result.stdout.strip())
+            return synced
+
+        except: return False
+
+    def __set_mirror_synced(self, path):
+        try:
+            result = subprocess.run(["git", "config", "repository.rngit.upstream.sync", str(int(time.time()))], cwd=path, check=True, capture_output=True, text=True)
+            if result: return True
+            else:
+                RNS.log(f"Could not set mirror sync time for {path}: {result.stderr}", RNS.LOG_ERROR)
+                return False
+
+        except: return False
+
     def register_request_handlers(self):
         ga_list = self.global_allowed_list if self.global_allow == RNS.Destination.ALLOW_LIST else None
         self.destination.register_request_handler(self.PATH_LIST,    self.handle_list,    allow=self.global_allow, allowed_list=ga_list)
@@ -2092,6 +2206,7 @@ class ReticulumGitNode():
         self.destination.register_request_handler(self.PATH_PUSH,    self.handle_push,    allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_CREATE,  self.handle_create,  allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_FORK,    self.handle_fork,    allow=self.global_allow, allowed_list=ga_list)
+        self.destination.register_request_handler(self.PATH_SYNC,    self.handle_sync,    allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_MIRROR,  self.handle_mirror,  allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_DELETE,  self.handle_delete,  allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_RELEASE, self.handle_release, allow=self.global_allow, allowed_list=ga_list)
@@ -2454,6 +2569,7 @@ class ReticulumGitNode():
         return self._handle_remote_clone(path, data, request_id, link_id, remote_identity, requested_at, "mirror")
 
     def _handle_remote_clone(self, path, data, request_id, link_id, remote_identity, requested_at, repo_type):
+        if repo_type not in ["mirror", "fork"]: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
         with self.active_links_lock:
             if not link_id in self.active_links: return self.RES_DISALLOWED.to_bytes(1, "big") + b"Not identified"
             else:                                link = self.active_links[link_id]
@@ -2511,13 +2627,18 @@ class ReticulumGitNode():
 
             result = subprocess.run(["git", "config", "repository.rngit.type", repo_type], cwd=repo_temp_path, capture_output=True, text=True, check=False)
             if result.returncode != 0:
-                RNS.log(f"Failed to set rngit_type config: {result.stderr}", RNS.LOG_WARNING)
+                RNS.log(f"Failed to set rngit.type config: {result.stderr}", RNS.LOG_WARNING)
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + f"Failed to configure repository type: {result.stderr}".encode("utf-8")
 
             result = subprocess.run(["git", "config", "repository.rngit.upstream.source", source_url], cwd=repo_temp_path, capture_output=True, text=True, check=False)
             if result.returncode != 0:
-                RNS.log(f"Failed to set rngit_upstream_source config: {result.stderr}", RNS.LOG_WARNING)
+                RNS.log(f"Failed to set rngit.upstream.source config: {result.stderr}", RNS.LOG_WARNING)
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + f"Failed to configure repository upstream source: {result.stderr}".encode("utf-8")
+
+            if repo_type == "mirror":
+                if not self.__set_mirror_synced(repo_temp_path):
+                    RNS.log(f"Failed to set rngit.upstream.sync config: {result.stderr}", RNS.LOG_WARNING)
+                    return self.RES_REMOTE_FAIL.to_bytes(1, "big") + f"Failed to configure repository type: {result.stderr}".encode("utf-8")
 
             try:
                 allowed_path = final_repository_path + ".allowed"
@@ -2552,6 +2673,26 @@ class ReticulumGitNode():
                 if os.path.exists(final_repository_path): shutil.rmtree(final_repository_path)
             except: pass
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
+
+    def handle_sync(self, path, data, request_id, remote_identity, requested_at):
+        RNS.log(f"Upstream sync request from remote {remote_identity}", RNS.LOG_DEBUG)
+        if not remote_identity:             return self.RES_DISALLOWED.to_bytes(1, "big")  + b"Not identified"
+        if not type(data) == dict:          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
+        if not self.IDX_REPOSITORY in data: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No repository specified"
+
+        group_name, repository_name = self.parse_request_repository_path(data[self.IDX_REPOSITORY])
+        read_access    = self.resolve_permission(remote_identity, group_name, repository_name, self.PERM_READ)
+        write_access   = self.resolve_permission(remote_identity, group_name, repository_name, self.PERM_WRITE)
+
+        if not read_access: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
+        if not write_access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"Not allowed"
+        else:
+            repo = self.groups[group_name]["repositories"][repository_name]
+            repository_path = repo["path"]
+            if not repo["mirror"] and not repo["fork"]: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Repository is neither fork nor mirror"
+            # TODO: Implement
+
+            return b"\x00"
 
     def handle_release(self, path, data, request_id, remote_identity, requested_at):
         RNS.log(f"Release request from remote {remote_identity}", RNS.LOG_DEBUG)
@@ -3887,6 +4028,12 @@ showcase = /another/path/to/directory/with/git/repositories
 # either place a "repo_name.description" file in the same
 # directory as the repository folder, or set it in the bare
 # repository with `git config repository.description`.
+
+# If you have mirrored repositories with the "rngit mirror"
+# command, you can configure the global mirroring interval
+# in hours.
+
+# mirror_interval = 24
 
 
 [access]
