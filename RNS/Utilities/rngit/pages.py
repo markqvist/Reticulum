@@ -221,6 +221,13 @@ class NomadNetworkNode():
         if not remote_identity: remote_identity = self.null_ident
         return self.owner.resolve_permission(remote_identity, group_name, repository_name, permission)
 
+    def resolve_doc_permission(self, remote_identity, group_name, repository_name, doc_id, permission):
+        # Since the nomadnet page protocol doesn't *require* authentication,
+        # we use null_ident in case the remote hasn't identified.
+        if not remote_identity: remote_identity = self.null_ident
+
+        return self.owner.resolve_doc_permission(remote_identity, group_name, repository_name, doc_id, permission)
+
     def register_request_handlers(self):
         self.destination.register_request_handler(self.PATH_INDEX,    response_generator=self.serve_front_page,    allow=RNS.Destination.ALLOW_ALL)
         self.destination.register_request_handler(self.PATH_GROUP,    response_generator=self.serve_group_page,    allow=RNS.Destination.ALLOW_ALL)
@@ -1349,7 +1356,7 @@ class NomadNetworkNode():
         group_name = data.get("var_g", "") if data else ""
         repo_name  = data.get("var_r", "") if data else ""
         scope      = data.get("var_scope", "active") if data else "active"
-        if scope not in ["active", "completed", "all"]: scope = "active"
+        if scope not in ["active", "completed", "proposed", "all"]: scope = "active"
 
         if not group_name or not repo_name:
             content = self.m_heading("Error", 2) + "\nInvalid request\n"
@@ -1372,16 +1379,18 @@ class NomadNetworkNode():
         sep = self.icon("sep")
         active_s = "`_" if scope == "active" else ""
         cmplt_s = "`_" if scope == "completed" else ""
+        prpsd_s = "`_" if scope == "proposed" else ""
         all_s = "`_" if scope == "all" else ""
         filter_links = []
         filter_links.append(active_s+self.m_link("Active", self.PATH_WORK, g=group_name, r=repo_name, scope="active")+active_s)
         filter_links.append(cmplt_s+self.m_link("Completed", self.PATH_WORK, g=group_name, r=repo_name, scope="completed")+cmplt_s)
+        filter_links.append(prpsd_s+self.m_link("Proposed", self.PATH_WORK, g=group_name, r=repo_name, scope="proposed")+prpsd_s)
         filter_links.append(all_s+self.m_link("All", self.PATH_WORK, g=group_name, r=repo_name, scope="all")+all_s)
         content_parts.append(f" {sep} ".join(filter_links) + "\n\n")
 
         # Load work documents
         work_path = f"{repo['path']}.work"
-        scopes_to_show = ["active", "completed"] if scope == "all" else [scope]
+        scopes_to_show = ["active", "completed", "proposed"] if scope == "all" else [scope]
 
         for s in scopes_to_show:
             folder_path = os.path.join(work_path, s)
@@ -1393,6 +1402,9 @@ class NomadNetworkNode():
                     if not os.path.isdir(doc_dir): continue
                     try:
                         doc_id = int(entry)
+                        read_access = self.resolve_doc_permission(remote_identity, group_name, repo_name, doc_id, self.owner.PERM_READ)
+                        if not read_access: continue
+
                         root_path = os.path.join(doc_dir, "root")
                         if not os.path.isfile(root_path): continue
 
@@ -1444,7 +1456,7 @@ class NomadNetworkNode():
         repo_name  = data.get("var_r", "") if data else ""
         doc_id     = data.get("var_id", "") if data else ""
         scope      = data.get("var_scope", "all") if data else "all"
-        if scope not in ["active", "completed", "all"]: scope = "active"
+        if scope not in ["active", "completed", "proposed", "all"]: scope = "active"
 
         if not group_name or not repo_name or not doc_id:
             content = self.m_heading("Error", 2) + "\nInvalid request\n"
@@ -1460,19 +1472,30 @@ class NomadNetworkNode():
             content = self.m_heading("Error", 2) + "\nThe requested repository was not found\n"
             return self.render_template(content, st=st)
 
-        work_path = f"{repo['path']}.work"
-        active_dir = os.path.join(work_path, "active", str(doc_id))
+        read_access = self.resolve_doc_permission(remote_identity, group_name, repo_name, doc_id, self.owner.PERM_READ)
+        if not read_access:
+            content = self.m_heading("Error", 2) + "\nThe requested work document was not found\n"
+            return self.render_template(content, st=st)
+
+        work_path     = f"{repo['path']}.work"
+        active_dir    = os.path.join(work_path, "active", str(doc_id))
         completed_dir = os.path.join(work_path, "completed", str(doc_id))
+        proposed_dir  = os.path.join(work_path, "proposed", str(doc_id))
         if   scope == "active":    doc_dir = active_dir
         elif scope == "completed": doc_dir = completed_dir
+        elif scope == "proposed":  doc_dir = proposed_dir
         elif scope == "all":
             if os.path.isdir(active_dir):
                 doc_dir = active_dir
                 scope = "active"
 
-            else:
+            elif os.path.isdir(completed_dir):
                 doc_dir = completed_dir
                 scope = "completed"
+
+            else:
+                doc_dir = proposed_dir
+                scope = "proposed"
 
         root_path = os.path.join(doc_dir, "root")
 
@@ -1694,27 +1717,39 @@ class NomadNetworkNode():
 
         try: doc_id = int(doc_id)
         except:
+            if not type(doc_id) == str or not type(doc_id) == bytes: doc_id = f"{doc_id}"
             RNS.log(f"Could not parse document ID for workdoc download request {group_name[:128]}/{repo_name[:128]}/{doc_id[:128]}", RNS.LOG_WARNING)
             return None
 
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
         if not repo:
-            RNS.log(f"Repository not found or no access for workdoc download request {group_name[:128]}/{repo_name[:128]}/{doc_id[:128]}", RNS.LOG_WARNING)
+            RNS.log(f"Repository not found or no access for workdoc download request {group_name[:128]}/{repo_name[:128]}/{doc_id}", RNS.LOG_WARNING)
             return None
 
-        work_path = f"{repo['path']}.work"
-        active_dir = os.path.join(work_path, "active", str(doc_id))
+        doc_access = self.resolve_doc_permission(remote_identity, group_name, repo_name, doc_id, self.owner.PERM_READ)
+        if not doc_access:
+            RNS.log(f"No access for workdoc download request {group_name[:128]}/{repo_name[:128]}/{doc_id}", RNS.LOG_WARNING)
+            return None
+
+        work_path     = f"{repo['path']}.work"
+        active_dir    = os.path.join(work_path, "active", str(doc_id))
         completed_dir = os.path.join(work_path, "completed", str(doc_id))
+        proposed_dir  = os.path.join(work_path, "proposed", str(doc_id))
         if   scope == "active":    doc_dir = active_dir
         elif scope == "completed": doc_dir = completed_dir
+        elif scope == "proposed":  doc_dir = proposed_dir
         elif scope == "all":
             if os.path.isdir(active_dir):
                 doc_dir = active_dir
                 scope = "active"
 
-            else:
+            elif os.path.isdir(completed_dir):
                 doc_dir = completed_dir
                 scope = "completed"
+
+            else:
+                doc_dir = proposed_dir
+                scope = "proposed"
 
         root_path = os.path.join(doc_dir, "root")
 

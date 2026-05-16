@@ -96,6 +96,7 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
             if   operation == "list":     git_client.work_list(remote=task["remote"], scope=scope)
             elif operation == "view":     git_client.work_view(remote=task["remote"], doc_id=doc_id, scope=scope)
             elif operation == "create":   git_client.work_create(remote=task["remote"], title=title)
+            elif operation == "propose":  git_client.work_propose(remote=task["remote"], title=title)
             elif operation == "edit":     git_client.work_edit(remote=task["remote"], title=title, doc_id=doc_id, scope=scope)
             elif operation == "delete":   git_client.work_delete(remote=task["remote"], doc_id=doc_id, scope=scope)
             elif operation == "update":   git_client.work_comment(remote=task["remote"], doc_id=doc_id, scope=scope)
@@ -141,7 +142,7 @@ def main():
             parser.add_argument("-t", "--title", action="store", default=None, help="document title for create", type=str)
             parser.add_argument("-d", "--id", action="store", default=None, help="document ID", type=int)
             parser.add_argument("repository", nargs="?", default=None, help="URL of remote repository", type=str)
-            parser.add_argument("operation", nargs="?", default=None, help="list, view, create, edit, delete, update, complete, activate or perms", type=str)
+            parser.add_argument("operation", nargs="?", default=None, help="list, view, create, propose, edit, delete, update, complete, activate or perms", type=str)
         
         parser.add_argument('-v', '--verbose', action='count', default=0)
         parser.add_argument('-q', '--quiet', action='count', default=0)
@@ -723,7 +724,7 @@ class ReticulumGitClient():
             if len(response) > 1: result = mp.unpackb(response[1:])
             else:                 result = {"active": [], "completed": []}
 
-            scopes_to_show = ["active", "completed"] if scope == "all" else [scope]
+            scopes_to_show = ["active", "completed", "proposed"] if scope == "all" else [scope]
 
             for s in scopes_to_show:
                 docs = result.get(s, [])
@@ -745,7 +746,7 @@ class ReticulumGitClient():
                     print()
                 elif scope != "all": print(f"No {s} work documents found.")
             
-            if scope == "all" and not result.get("active") and not result.get("completed"): print("No work documents found.")
+            if scope == "all" and not result.get("active") and not result.get("completed") and not result.get("proposed"): print("No work documents found.")
         
         except Exception as e: self.abort(f"Error listing work documents: {e}")
         finally:
@@ -866,6 +867,51 @@ class ReticulumGitClient():
                 print(f"Work document created as {result['scope']} #{result['id']}")
             
             else: print("Work document created")
+        
+        except Exception as e: self.abort(f"Error creating work document: {e}")
+        finally:
+            if self.link: self.link.teardown()
+
+    def work_propose(self, remote=None, title=None):
+        if not remote: print(f"No remote specified"); exit(1)
+        if not title: print(f"No title specified"); exit(1)
+        self.connect_remote(remote)
+        
+        timeout = self.link_timeout
+        while not self.link_ready and not self.link_failed and timeout > 0:
+            time.sleep(0.1)
+            timeout -= 1
+        
+        if not self.link_ready: self.abort("Failed to establish link")
+        print("\r                       \r", end="")
+        
+        try:
+            destination_hash, group, repo = self.parse_remote_url(remote)
+            repo_path = f"{group}/{repo}"
+
+            content = self._edit_work_content(title=title)
+            if content is None: print("Proposal cancelled"); return
+
+            signature = self.identity.sign(content.encode("utf-8"))
+            if not signature: self.abort("Could not sign work document")
+            
+            request_data = { self.IDX_REPOSITORY: repo_path, "operation": "propose",
+                             "title": title, "content": content, "format": "markdown",
+                             "signature": signature }
+            
+            response, metadata = self.send_request(self.PATH_WORK, request_data, timeout=30)
+            if not response or not isinstance(response, bytes): self.abort("No response from remote")
+            
+            status_byte = response[0]
+            if status_byte != 0:
+                error_msg = response[1:].decode("utf-8", errors="ignore")
+                self.abort(f"Server error: {error_msg}")
+            
+            if len(response) > 1:
+                result = mp.unpackb(response[1:])
+                print(f"Work document created as {result['scope']} #{result['id']}")
+            
+            else: print("Work document proposed")
         
         except Exception as e: self.abort(f"Error creating work document: {e}")
         finally:
@@ -1232,6 +1278,7 @@ class ReticulumGitNode():
     PERM_STATS      = 0x05
     PERM_RELEASE    = 0x06
     PERM_INTERACT   = 0x07
+    PERM_PROPOSE    = 0x08
     PERM_ADMIN      = 0xFE
     PERM_R_SMPHR    = ["r", "read"]
     PERM_W_SMPHR    = ["w", "write"]
@@ -1240,6 +1287,7 @@ class ReticulumGitNode():
     PERM_S_SMPHR    = ["s", "stats"]
     PERM_REL_SMPHR  = ["rel", "release"]
     PERM_I_SMPHR    = ["i", "interact"]
+    PERM_P_SMPHR    = ["p", "propose"]
     PERM_ADM_SMPHR  = ["adm", "admin"]
 
     TGT_NONE        = 0x01
@@ -1432,7 +1480,7 @@ class ReticulumGitNode():
                         perm, target = self.parse_permission(entry)
                         if not perm or not target: continue
                         else:
-                            read = False; write = False; create = False
+                            read = False; write = False; create = False; propose = False
                             stats = False; release = False; interact = False; admin = False
                             if perm == self.PERM_READ  or perm == self.PERM_READWRITE: read     = True
                             if perm == self.PERM_WRITE or perm == self.PERM_READWRITE: write    = True
@@ -1440,6 +1488,7 @@ class ReticulumGitNode():
                             if perm == self.PERM_STATS:                                stats    = True
                             if perm == self.PERM_RELEASE:                              release  = True
                             if perm == self.PERM_INTERACT:                             interact = True
+                            if perm == self.PERM_PROPOSE:                              propose  = True
                             if perm == self.PERM_ADMIN:                                admin    = True
 
                             if read     and not target in self.groups[group_name]["read"]:     self.groups[group_name]["read"].append(target)
@@ -1448,6 +1497,7 @@ class ReticulumGitNode():
                             if stats    and not target in self.groups[group_name]["stats"]:    self.groups[group_name]["stats"].append(target)
                             if release  and not target in self.groups[group_name]["release"]:  self.groups[group_name]["release"].append(target)
                             if interact and not target in self.groups[group_name]["interact"]: self.groups[group_name]["interact"].append(target)
+                            if propose  and not target in self.groups[group_name]["propose"]:  self.groups[group_name]["propose"].append(target)
                             if admin    and not target in self.groups[group_name]["admin"]:    self.groups[group_name]["admin"].append(target)
 
     def parse_permission(self, permission_string):
@@ -1462,6 +1512,7 @@ class ReticulumGitNode():
             elif perm in self.PERM_S_SMPHR:   perm = self.PERM_STATS
             elif perm in self.PERM_REL_SMPHR: perm = self.PERM_RELEASE
             elif perm in self.PERM_I_SMPHR:   perm = self.PERM_INTERACT
+            elif perm in self.PERM_P_SMPHR:   perm = self.PERM_PROPOSE
             elif perm in self.PERM_ADM_SMPHR: perm = self.PERM_ADMIN
             else:                             perm = None
 
@@ -1515,6 +1566,10 @@ class ReticulumGitNode():
             elif permission == self.PERM_INTERACT:
                 repository_permissions = self.groups[group_name]["repositories"][repository_name]["interact"]
                 group_permissions      = self.groups[group_name]["interact"]
+
+            elif permission == self.PERM_PROPOSE:
+                repository_permissions = self.groups[group_name]["repositories"][repository_name]["propose"]
+                group_permissions      = self.groups[group_name]["propose"]
 
             elif permission == self.PERM_ADMIN:
                 repository_permissions = self.groups[group_name]["repositories"][repository_name]["admin"]
@@ -1578,6 +1633,11 @@ class ReticulumGitNode():
             group_permissions      = self.groups[group_name]["interact"]
             doc_permissions        = doc_allowed_permissions["interact"]
 
+        elif permission == self.PERM_PROPOSE:
+            repository_permissions = self.groups[group_name]["repositories"][repository_name]["propose"]
+            group_permissions      = self.groups[group_name]["propose"]
+            doc_permissions        = doc_allowed_permissions["propose"]
+
         elif permission == self.PERM_ADMIN:
             repository_permissions = self.groups[group_name]["repositories"][repository_name]["admin"]
             group_permissions      = self.groups[group_name]["admin"]
@@ -1589,22 +1649,22 @@ class ReticulumGitNode():
         group_admins      = self.groups[group_name]["admin"]
         doc_admins        = doc_allowed_permissions["admin"]
 
-        if   self.TGT_NONE in repository_permissions: return False
-        elif self.TGT_ALL  in repository_permissions: return True
-        elif remote_hash   in repository_permissions: return True
-        elif remote_hash   in repository_admins:      return True
+        if  self.TGT_NONE in doc_permissions: return False
+        elif self.TGT_ALL in doc_permissions: return True
+        elif remote_hash  in doc_permissions: return True
+        elif remote_hash  in doc_admins:      return True
         else:
-            if len(repository_permissions) > 0:       return False
-            elif self.TGT_NONE in group_permissions:  return False
-            elif self.TGT_ALL  in group_permissions:  return True
-            elif remote_hash   in group_permissions:  return True
-            elif remote_hash   in group_admins:       return True
+            if   self.TGT_NONE in repository_permissions: return False
+            elif self.TGT_ALL  in repository_permissions: return True
+            elif remote_hash   in repository_permissions: return True
+            elif remote_hash   in repository_admins:      return True
             else:
-                if  self.TGT_NONE in doc_permissions: return False
-                elif self.TGT_ALL in doc_permissions: return True
-                elif remote_hash  in doc_permissions: return True
-                elif remote_hash  in doc_admins:      return True
-                else:                                 return False
+                if len(repository_permissions) > 0:       return False
+                elif self.TGT_NONE in group_permissions:  return False
+                elif self.TGT_ALL  in group_permissions:  return True
+                elif remote_hash   in group_permissions:  return True
+                elif remote_hash   in group_admins:       return True
+                else:                                     return False
 
         return False
 
@@ -1615,6 +1675,7 @@ class ReticulumGitNode():
         stats_allowed    = []
         release_allowed  = []
         interact_allowed = []
+        propose_allowed  = []
         admin_allowed    = []
 
         if allowed_input and type(allowed_input) == str:
@@ -1624,7 +1685,7 @@ class ReticulumGitNode():
                     perm, target = self.parse_permission(perm_input)
                     if not perm or not target: continue
                     else:
-                        read = False; write = False; create = False
+                        read = False; write = False; create = False; propose = False
                         stats = False; release = False; interact = False; admin = False
                         if perm == self.PERM_READ  or perm == self.PERM_READWRITE: read     = True
                         if perm == self.PERM_WRITE or perm == self.PERM_READWRITE: write    = True
@@ -1632,6 +1693,7 @@ class ReticulumGitNode():
                         if perm == self.PERM_STATS:                                stats    = True
                         if perm == self.PERM_RELEASE:                              release  = True
                         if perm == self.PERM_INTERACT:                             interact = True
+                        if perm == self.PERM_PROPOSE:                              propose  = True
                         if perm == self.PERM_ADMIN:                                admin    = True
 
                         if read     and not target in read_allowed:     read_allowed.append(target)
@@ -1640,17 +1702,18 @@ class ReticulumGitNode():
                         if stats    and not target in stats_allowed:    stats_allowed.append(target)
                         if release  and not target in release_allowed:  release_allowed.append(target)
                         if interact and not target in interact_allowed: interact_allowed.append(target)
+                        if propose  and not target in propose_allowed:  propose_allowed.append(target)
                         if admin    and not target in admin_allowed:    admin_allowed.append(target)
 
         permissions = {"read": read_allowed, "write": write_allowed, "create": create_allowed, "stats": stats_allowed,
-                       "release": release_allowed, "interact": interact_allowed, "admin": admin_allowed }
+                       "release": release_allowed, "interact": interact_allowed, "propose": propose_allowed, "admin": admin_allowed }
 
         return permissions
 
     def load_repository_group(self, group_name, group_path):
         # TODO: Implement group.allowed file
         if not group_name in self.groups: self.groups[group_name] = { "path": group_path, "repositories": {}, "read": [], "write": [], "create": [],
-                                                                      "stats": [], "release": [], "interact": [], "admin": [] }
+                                                                      "stats": [], "release": [], "interact": [], "propose": [], "admin": [] }
 
         if group_name in self.groups and self.groups[group_name]["path"] != group_path:
             RNS.log(f"Repository group path did not match existing entry while loading {group_name}, aborting load", RNS.LOG_ERROR)
@@ -1685,7 +1748,7 @@ class ReticulumGitNode():
                         group["repositories"][repository_name] = {"name": repository_name, "group": group_name, "path": path,
                                                                   "read": p["read"], "write": p["write"], "create": p["create"],
                                                                   "stats": p["stats"], "release": p["release"], "interact": p["interact"],
-                                                                  "admin": p["admin"] }
+                                                                  "propose": p["propose"], "admin": p["admin"] }
                         loaded += 1
 
         ms = "y" if loaded == 1 else "ies"
@@ -2452,9 +2515,20 @@ class ReticulumGitNode():
         read_access     = self.resolve_permission(remote_identity, group_name, repository_name, self.PERM_READ)
         write_access    = self.resolve_permission(remote_identity, group_name, repository_name, self.PERM_WRITE)
         interact_access = self.resolve_permission(remote_identity, group_name, repository_name, self.PERM_INTERACT)
+        propose_access  = self.resolve_permission(remote_identity, group_name, repository_name, self.PERM_PROPOSE)
+        admin_access    = self.resolve_permission(remote_identity, group_name, repository_name, self.PERM_ADMIN)
         access          = False
 
         if not read_access: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
+
+        if operation in ["read", "view", "comment", "edit", "delete", "perms"]:
+            if data.get("doc_id", None):
+                try: doc_id = int(data.get("doc_id", None))
+                except: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
+                read_access  = self.resolve_doc_permission(remote_identity, group_name, repository_name, doc_id, self.PERM_READ)
+                read_access |= admin_access
+
+                if not read_access: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Document not found"
 
         if operation in ["comment"]:
             if data.get("doc_id", None):
@@ -2462,14 +2536,22 @@ class ReticulumGitNode():
                 except: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
                 interact_access |= self.resolve_doc_permission(remote_identity, group_name, repository_name, doc_id, self.PERM_INTERACT)
 
+        if operation in ["edit"]:
+            if data.get("doc_id", None):
+                try: doc_id = int(data.get("doc_id", None))
+                except: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
+                interact_access |= self.resolve_doc_permission(remote_identity, group_name, repository_name, doc_id, self.PERM_INTERACT)
+                write_access    |= self.resolve_doc_permission(remote_identity, group_name, repository_name, doc_id, self.PERM_WRITE)
+
         comment_access = interact_access and (read_access or write_access)
         manage_access  = interact_access and write_access
         
         if   operation in ["list", "view"]             and read_access:    access = True
         elif operation in ["comment"]                  and comment_access: access = True
+        elif operation in ["propose"]                  and propose_access: access = True
         elif operation in ["create", "edit", "delete"] and manage_access:  access = True
         elif operation in ["complete", "activate"]     and manage_access:  access = True
-        elif operation in ["perms"]                    and manage_access:  access = True
+        elif operation in ["perms"]                    and admin_access:   access = True
         else:                                                              access = False
         
         if not access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"Not allowed"
@@ -2482,18 +2564,30 @@ class ReticulumGitNode():
                 elif operation == "view"     and read_access:     return self._work_view(work_path, data, remote_identity)
                 elif operation == "comment"  and comment_access:  return self._work_comment(work_path, data, remote_identity)
                 elif operation == "create"   and manage_access:   return self._work_create(work_path, data, remote_identity)
+                elif operation == "propose"  and propose_access:  return self._work_propose(work_path, data, remote_identity)
                 elif operation == "edit"     and manage_access:   return self._work_edit(work_path, data, remote_identity)
                 elif operation == "delete"   and manage_access:   return self._work_delete(work_path, data, remote_identity)
                 elif operation == "complete" and manage_access:   return self._work_complete(work_path, data, remote_identity)
                 elif operation == "activate" and manage_access:   return self._work_activate(work_path, data, remote_identity)
-                elif operation == "perms"    and manage_access:   return self._work_perms(work_path, data, remote_identity)
+                elif operation == "perms"    and admin_access:    return self._work_perms(work_path, data, remote_identity)
                 else: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
 
             except Exception as e:
                 RNS.log(f"Error while handling work request for {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
-    def _work_get_next_id(self, base_path):
+    def _work_get_next_id(self, work_path):
+        def scope_next_id(base_path):
+            if not os.path.isdir(base_path): return 1
+            try:
+                entries = [int(d) for d in os.listdir(base_path) if d.isdigit()]
+                if not entries: return 1
+                return max(entries) + 1
+            except: return 1
+
+        return max(scope_next_id(os.path.join(work_path, scope)) for scope in ["active", "completed", "proposed"])
+
+    def _work_get_next_comment_id(self, base_path):
         if not os.path.isdir(base_path): return 1
         try:
             entries = [int(d) for d in os.listdir(base_path) if d.isdigit()]
@@ -2521,10 +2615,11 @@ class ReticulumGitNode():
             return False
 
     def _work_list(self, work_path, data, remote_identity):
+        group_name, repository_name = self.parse_request_repository_path(data[self.IDX_REPOSITORY])
         scope = data.get("scope", "active")
         
-        result = {"active": [], "completed": []}
-        for folder_name, key in [("active", "active"), ("completed", "completed")]:
+        result = {"active": [], "completed": [], "proposed": []}
+        for folder_name, key in [("active", "active"), ("completed", "completed"), ("proposed", "proposed")]:
             if scope not in [folder_name, "all"]: continue
             folder_path = os.path.join(work_path, folder_name)
             if not os.path.isdir(folder_path): continue
@@ -2534,6 +2629,9 @@ class ReticulumGitNode():
                 if not os.path.isdir(doc_dir): continue
                 try:
                     doc_id = int(entry)
+                    read_access = self.resolve_doc_permission(remote_identity, group_name, repository_name, doc_id, self.PERM_READ)
+                    if not read_access: continue
+
                     root_path = os.path.join(doc_dir, "root")
                     if not os.path.isfile(root_path): continue
                     
@@ -2555,7 +2653,7 @@ class ReticulumGitNode():
     def _work_view(self, work_path, data, remote_identity):
         doc_id = data.get("doc_id")
         scope  = data.get("scope", "all")
-        if not scope in ["active", "completed", "all"]: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
+        if not scope in ["active", "completed", "proposed", "all"]: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
 
         if doc_id is None: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No document ID specified"
         try: doc_id = int(doc_id)
@@ -2563,7 +2661,7 @@ class ReticulumGitNode():
 
         scope = None
         doc_dir = None
-        for s in ["active", "completed"]:
+        for s in ["active", "completed", "proposed"]:
             d = os.path.join(work_path, s, str(doc_id))
             if os.path.isdir(d):
                 scope = s
@@ -2628,8 +2726,7 @@ class ReticulumGitNode():
         
         try:
             active_path = os.path.join(work_path, "active")
-            completed_path = os.path.join(work_path, "completed")
-            doc_id = max(self._work_get_next_id(active_path), self._work_get_next_id(completed_path))
+            doc_id = self._work_get_next_id(work_path)
             doc_dir = os.path.join(active_path, str(doc_id))
             
             now = time.time()
@@ -2649,6 +2746,57 @@ class ReticulumGitNode():
             RNS.log(f"Error creating work document: {e}", RNS.LOG_ERROR)
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
+    def _work_propose(self, work_path, data, remote_identity):
+        title       = data.get("title", "").strip()
+        content     = data.get("content", "").strip()
+        format_type = data.get("format", "markdown")
+        signature   = data.get("signature", None)
+        signed_data = content.encode("utf-8")
+        sig_length  = RNS.Identity.SIGLENGTH//8
+        limit       = self.WORK_DOC_LIMIT
+
+        if not signature:                                              return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No signature provided"
+        if signature and not len(signature) == sig_length:             return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature length"
+        if not remote_identity.validate(signature, signed_data):       return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature"
+        if len(title)+len(content)+len(format_type) > limit:           return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Content limit exceeded"
+        if not title:                                                  return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Title is required"
+        if not content:                                                return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Content is required"
+        
+        try:
+            proposed_path = os.path.join(work_path, "proposed")
+            doc_id = self._work_get_next_id(work_path)
+            doc_dir = os.path.join(proposed_path, str(doc_id))
+            
+            now = time.time()
+            document = { "content": content,
+                         "meta": { "format": format_type if format_type in ["markdown", "micron"] else "markdown",
+                                   "title": title, "created": now, "edited": now, "author": remote_identity.hash,
+                                   "signature": signature, "identity": remote_identity.get_public_key() } }
+            
+            root_path = os.path.join(doc_dir, "root")
+            if not self._work_save_document(root_path, document):
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error saving document"
+
+            try:
+                owner_permissions  = f"i:{RNS.hexrep(remote_identity.hash, delimit=False)}\n"
+                owner_permissions += f"w:{RNS.hexrep(remote_identity.hash, delimit=False)}\n"
+
+                allowed_path = work_path + f"/{doc_id}.allowed"
+                tmp_path = allowed_path + ".tmp"
+                with open(tmp_path, "w", encoding="utf-8") as f: f.write(owner_permissions)
+                os.rename(tmp_path, allowed_path)
+
+            except Exception as e:
+                RNS.log(f"Error setting permissions: {e}", RNS.LOG_ERROR)
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error setting document ownership"
+            
+            RNS.log(f"Proposed work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_DEBUG)
+            return b"\x00" + mp.packb({"id": doc_id, "scope": "proposed"})
+        
+        except Exception as e:
+            RNS.log(f"Error proposing work document: {e}", RNS.LOG_ERROR)
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
+
     def _work_edit(self, work_path, data, remote_identity):
         doc_id      = data.get("doc_id")
         scope       = data.get("scope", "active")
@@ -2663,7 +2811,7 @@ class ReticulumGitNode():
         if title:   size += len(title)
         if content: size += len(content)
 
-        if not scope in ["active", "completed", "all"]:                return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
+        if not scope in ["active", "completed", "proposed", "all"]:    return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
         if not signature:                                              return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No signature provided"
         if signature and not len(signature) == sig_length:             return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature length"
         if not remote_identity.validate(signature, signed_data):       return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature"
@@ -2676,7 +2824,7 @@ class ReticulumGitNode():
 
         scope = None
         doc_dir = None
-        for s in ["active", "completed"]:
+        for s in ["active", "completed", "proposed"]:
             d = os.path.join(work_path, s, str(doc_id))
             if os.path.isdir(d):
                 scope = s
@@ -2711,18 +2859,19 @@ class ReticulumGitNode():
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def _work_delete(self, work_path, data, remote_identity):
+        group_name, repository_name = self.parse_request_repository_path(data[self.IDX_REPOSITORY])
         doc_id = data.get("doc_id")
         scope  = data.get("scope", "active")
         
-        if not scope in ["active", "completed", "all"]: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
-        if doc_id is None:                              return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No document ID specified"
+        if not scope in ["active", "completed", "proposed", "all"]: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
+        if doc_id is None:                                          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No document ID specified"
         
         try: doc_id = int(doc_id)
         except: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid document ID"
 
         scope = None
         doc_dir = None
-        for s in ["active", "completed"]:
+        for s in ["active", "completed", "proposed"]:
             d = os.path.join(work_path, s, str(doc_id))
             if os.path.isdir(d):
                 scope = s
@@ -2737,7 +2886,18 @@ class ReticulumGitNode():
         doc = self._work_load_document(root_path)
         if not doc: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error loading document"
         
-        if doc.get("meta", {}).get("author") != remote_identity.hash: return self.RES_DISALLOWED.to_bytes(1, "big") + b"No access, not author"
+        is_author = doc.get("meta", {}).get("author") == remote_identity.hash
+        admin_access = self.resolve_doc_permission(remote_identity, group_name, repository_name, doc_id, self.PERM_ADMIN)
+
+        if not (is_author or admin_access): return self.RES_DISALLOWED.to_bytes(1, "big") + b"No access, not author"
+
+        try:
+            allowed_path = work_path + f"/{doc_id}.allowed"
+            os.unlink(allowed_path)
+
+        except Exception as e:
+            RNS.log(f"Error while deleting permissions file for {work_path}/{doc_id}: {e}", RNS.LOG_ERROR)
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
         
         try:
             shutil.rmtree(doc_dir)
@@ -2757,9 +2917,9 @@ class ReticulumGitNode():
         limit       = self.WORK_DOC_LIMIT
         size        = len(content)
 
-        if not scope in ["active", "completed", "all"]: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
-        if size > limit:                                return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Content limit exceeded"
-        if doc_id is None:                              return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No document ID specified"
+        if not scope in ["active", "completed", "proposed", "all"]: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
+        if size > limit:                                            return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Content limit exceeded"
+        if doc_id is None:                                          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No document ID specified"
         
         try: doc_id = int(doc_id)
         except: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid document ID"
@@ -2768,7 +2928,7 @@ class ReticulumGitNode():
 
         scope = None
         doc_dir = None
-        for s in ["active", "completed"]:
+        for s in ["active", "completed", "proposed"]:
             d = os.path.join(work_path, s, str(doc_id))
             if os.path.isdir(d):
                 scope = s
@@ -2781,7 +2941,7 @@ class ReticulumGitNode():
         if not os.path.isfile(root_path): return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Document not found"
         
         try:
-            comment_id = self._work_get_next_id(doc_dir)
+            comment_id = self._work_get_next_comment_id(doc_dir)
             now = time.time()
             
             comment = { "content": content,
@@ -2882,7 +3042,7 @@ class ReticulumGitNode():
 
         scope = None
         doc_dir = None
-        for s in ["active", "completed"]:
+        for s in ["active", "completed", "proposed"]:
             d = os.path.join(work_path, s, str(doc_id))
             if os.path.isdir(d):
                 scope = s
@@ -2925,7 +3085,7 @@ class ReticulumGitNode():
 
         scope = None
         doc_dir = None
-        for s in ["active", "completed"]:
+        for s in ["active", "completed", "proposed"]:
             d = os.path.join(work_path, s, str(doc_id))
             if os.path.isdir(d):
                 scope = s
