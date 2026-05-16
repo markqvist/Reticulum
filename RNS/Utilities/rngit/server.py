@@ -217,6 +217,7 @@ class ReticulumGitClient():
     PATH_FETCH      = "/git/fetch"
     PATH_PUSH       = "/git/push"
     PATH_DELETE     = "/git/delete"
+    PATH_CREATE     = "/git/create"
     PATH_RELEASE    = "/mgmt/release"
     PATH_WORK       = "/mgmt/work"
 
@@ -382,8 +383,41 @@ class ReticulumGitClient():
     #########################
 
     def create_repository(self, remote=None):
-        # TODO: Implement
-        pass
+        if not remote: print(f"No remote specified"); exit(1)
+        self.connect_remote(remote)
+
+        timeout = self.link_timeout
+        while not self.link_ready and not self.link_failed and timeout > 0:
+            time.sleep(0.1)
+            timeout -= 1
+
+        if not self.link_ready: self.abort("Link establishment failed")
+        print("\r                       \r", end="")
+
+        try:
+            destination_hash, group, repo = self.parse_remote_url(remote)
+            repo_path = f"{group}/{repo}"
+
+            request_data = {self.IDX_REPOSITORY: repo_path}
+            response, metadata = self.send_request(self.PATH_CREATE, request_data, timeout=30)
+
+            if not response or not isinstance(response, bytes): self.abort("No response from remote")
+
+            status_byte = response[0]
+            if   status_byte == 0:                    print(f"Repository {repo_path} created")
+            elif status_byte == self.RES_INVALID_REQ: self.abort(f"Remote error: Invalid request")
+            elif status_byte == self.RES_NOT_FOUND:   self.abort(f"Not found")
+            elif status_byte == self.RES_DISALLOWED:
+                error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Not allowed"
+                self.abort(f"{error_msg}")
+
+            else:
+                error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Unknown error"
+                self.abort(f"Remote error: {error_msg}")
+
+        except Exception as e: self.abort(f"Error creating repository: {e}")
+        finally:
+            if self.link: self.link.teardown()
 
     ######################
     # Release Management #
@@ -760,7 +794,7 @@ class ReticulumGitClient():
             status_byte = response[0]
             if status_byte != 0:
                 error_msg = response[1:].decode("utf-8", errors="ignore")
-                self.abort(f"Server error: {error_msg}")
+                self.abort(f"Remote error: {error_msg}")
             
             if len(response) > 1: result = mp.unpackb(response[1:])
             else:                 result = {"active": [], "completed": []}
@@ -2240,25 +2274,63 @@ class ReticulumGitNode():
         if not group_name or not repository_name: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
         if not group_name in self.groups: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
 
-        read_access   = self.resolve_group_permission(remote_identity, group_name, repository_name, self.PERM_READ)
-        create_access = self.resolve_group_permission(remote_identity, group_name, repository_name, self.PERM_CREATE)
+        read_access   = self.resolve_group_permission(remote_identity, group_name, self.PERM_READ)
+        create_access = self.resolve_group_permission(remote_identity, group_name, self.PERM_CREATE)
 
-        group_path_exists = os.path.exists(self.groups[group_name]["path"])
-        if not group_path_exists: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
+        group_path = self.groups[group_name]["path"]
+        if not os.path.exists(group_path): return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
 
         if not create_access: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found" if not read_access else self.RES_DISALLOWED.to_bytes(1, "big") + b"Not allowed"
         else:
-            repository_exists = group_name in self.groups and repository_name in self.groups[group_name]
-            path_exists       = group_name in self.groups and os.path.exists()
+            repository_path   = os.path.join(group_path, repository_name)
+            repository_exists = group_name in self.groups and repository_name in self.groups[group_name]["repositories"]
+            path_exists       = os.path.exists(repository_path)
+
             if repository_exists or path_exists:
                 existing_read_access = self.resolve_permission(remote_identity, group_name, repository_name, self.PERM_READ)
                 if existing_read_access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"Repository already exists"
                 else:                    return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
 
             else:
-                # Permissions validated, and repository does not already exist
-                # TODO: Implement new bare repository creation and loading into groups
-                pass
+                try:
+                    RNS.log(f"Creating repository {group_name}/{repository_name} for {remote_identity}", RNS.LOG_DEBUG)
+
+                    os.makedirs(repository_path, mode=0o755)
+
+                    result = subprocess.run(["git", "init", "--bare"], cwd=repository_path, capture_output=True, text=True, check=False)
+                    if result.returncode != 0:
+                        RNS.log(f"Failed to initialize bare repository at {repository_path}: {result.stderr}", RNS.LOG_ERROR)
+                        try: shutil.rmtree(repository_path)
+                        except: RNS.log(f"Could not clean up failed repository init at {repository_path}", RNS.LOG_ERROR)
+                        return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not initialize repository"
+
+                    try:
+                        allowed_path = repository_path+".allowed"
+                        repository_permissions = REPO_CREATE_PERMS_TEMPLATE.replace("{IDENTITY_HASH}", RNS.hexrep(remote_identity.hash, delimit=False))
+                        with open(allowed_path, "w") as fh: fh.write(repository_permissions)
+                    except Exception as e:
+                        RNS.log(f"Could not set default repository permissions for {group_name}/{repository_name}", RNS.LOG_ERROR)
+                        try: shutil.rmtree(repository_path)
+                        except: RNS.log(f"Could not clean up failed repository init at {repository_path}", RNS.LOG_ERROR)
+                        return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not initialize repository"
+
+                    group = self.groups[group_name]
+                    if not self.load_repository(group, repository_path):
+                        RNS.log(f"Repository {repository_path} created, but runtime loading failed", RNS.LOG_ERROR)
+                        try: shutil.rmtree(repository_path)
+                        except: RNS.log(f"Could not clean up failed repository init at {repository_path}", RNS.LOG_ERROR)
+                        return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Failed to register repository"
+                    
+                    else:
+                        RNS.log(f"Repository {group_name}/{repository_name} created and loaded successfully", RNS.LOG_DEBUG)
+                        return b"\x00"
+
+                except Exception as e:
+                    RNS.log(f"Error while creating repository {group_name}/{repository_name} for {remote_identity}: {e}", RNS.LOG_ERROR)
+                    try:
+                        if os.path.exists(repository_path): shutil.rmtree(repository_path)
+                    except: RNS.log(f"Could not clean up failed repository creation at {repository_path}", RNS.LOG_ERROR)
+                    return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def handle_release(self, path, data, request_id, remote_identity, requested_at):
         RNS.log(f"Release request from remote {remote_identity}", RNS.LOG_DEBUG)
@@ -3687,5 +3759,7 @@ RELEASE_NOTES_TEMPLATE = """# Enter release notes for {TAG}.
 COMMENT_TEMPLATE = "# Remove this line and enter your update. Save and exit when done, or save an empty document to abort abort."
 CREATE_DOC_TEMPLATE = "# Remove this line and enter your document content. Save and exit when done, or save an empty document to abort abort."
 DOC_PERMISSIONS_TEMPLATE ="# No permissions are currently defined for this workdoc. Add them below, and save and exit when you are done."
+
+REPO_CREATE_PERMS_TEMPLATE = "adm:{IDENTITY_HASH}"
 
 if __name__ == "__main__": main()
