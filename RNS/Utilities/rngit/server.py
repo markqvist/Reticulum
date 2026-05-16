@@ -78,7 +78,11 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
 
     else:
         command = task["command"]; operation = task["operation"]
-        if command == "release":
+        if command == "create":
+            git_client = ReticulumGitClient(configdir=configdir, verbosity=targetverbosity, identitypath=identity)
+            if   operation == "create": git_client.create_repository(remote=task["remote"])
+
+        elif command == "release":
             git_client = ReticulumGitClient(configdir=configdir, verbosity=targetverbosity, identitypath=identity)
             if   operation == "list":   git_client.list_releases(remote=task["remote"])
             elif operation == "view":   git_client.view_release(remote=task["remote"], target=task["target"])
@@ -110,7 +114,7 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
     exit(0)
 
 def main():
-    subcommands = ["node", "release", "work"]
+    subcommands = ["node", "release", "work", "create", "fork", "mirror"]
     try:
         if len(sys.argv) < 2 or sys.argv[1] not in subcommands: subcommand = "node"
         else:                                      subcommand = sys.argv[1]; sys.argv.pop(1)
@@ -123,6 +127,13 @@ def main():
             parser.add_argument('-p', '--print-identity', action='store_true', default=False, help="print identity and destination info and exit")
             parser.add_argument('-s', '--service', action='store_true', default=False, help="rngit is running as a service and should log to file")
             parser.add_argument('-i', '--interactive', action='store_true', default=False, help="drop into interactive shell after initialisation")
+
+        elif subcommand == "create":
+            parser = argparse.ArgumentParser(description="Reticulum Git Repository Creation")
+            parser.add_argument("--config", action="store", default=None, help="path to alternative config directory", type=str)
+            parser.add_argument("--rnsconfig", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
+            parser.add_argument("-i", "--identity", action="store", metavar="PATH", default=None, help="path to identity", type=str)
+            parser.add_argument("repository", default=None, help="URL of repository to create", type=str)
 
         elif subcommand == "release":
             parser = argparse.ArgumentParser(description="Reticulum Git Release Manager")
@@ -144,6 +155,23 @@ def main():
             parser.add_argument("repository", nargs="?", default=None, help="URL of remote repository", type=str)
             parser.add_argument("operation", nargs="?", default=None, help="list, view, create, propose, edit, delete, update, complete, activate or perms", type=str)
         
+        elif subcommand == "fork":
+            parser = argparse.ArgumentParser(description="Reticulum Git Repository Forker")
+            parser.add_argument("--config", action="store", default=None, help="path to alternative config directory", type=str)
+            parser.add_argument("--rnsconfig", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
+            parser.add_argument("-i", "--identity", action="store", metavar="PATH", default=None, help="path to identity", type=str)
+            parser.add_argument("source", default=None, help="URL of source repository", type=str)
+            parser.add_argument("target", default=None, help="URL of target repository", type=str)
+
+        elif subcommand == "mirror":
+            parser = argparse.ArgumentParser(description="Reticulum Git Mirror Management")
+            parser.add_argument("--config", action="store", default=None, help="path to alternative config directory", type=str)
+            parser.add_argument("--rnsconfig", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
+            parser.add_argument("-i", "--identity", action="store", metavar="PATH", default=None, help="path to identity", type=str)
+            parser.add_argument("--scope", action="store", default="active", help="document scope: active, completed or all", type=str)
+            parser.add_argument("source", default=None, help="URL of source repository", type=str)
+            parser.add_argument("target", default=None, help="URL of target repository", type=str)
+        
         parser.add_argument('-v', '--verbose', action='count', default=0)
         parser.add_argument('-q', '--quiet', action='count', default=0)
         parser.add_argument("--version", action="version", version="rngit {version}".format(version=__version__))
@@ -157,20 +185,25 @@ def main():
         else:              rnsconfigarg = None
 
         if subcommand == "node":
-            program_setup(configdir = configarg, rnsconfigdir=rnsconfigarg, service=args.service, verbosity=args.verbose,
+            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, service=args.service, verbosity=args.verbose,
                           quietness=args.quiet, interactive=args.interactive, print_identity=args.print_identity)
+
+        elif subcommand == "create":
+            task = {"command": subcommand, "operation": "create", "remote": args.repository}
+            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, verbosity=args.verbose, quietness=args.quiet,
+                          task=task, identity=args.identity)
 
         elif subcommand == "release":
             if not args.operation: parser.print_help()
             task = {"command": subcommand, "operation": args.operation, "remote": args.repository, "target": args.target}
-            program_setup(configdir = configarg, rnsconfigdir=rnsconfigarg, service=False, verbosity=args.verbose,
+            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, service=False, verbosity=args.verbose,
                           quietness=args.quiet, interactive=False, print_identity=False, task=task, identity=args.identity)
 
         elif subcommand == "work":
             if not args.operation: parser.print_help()
             task = {"command": subcommand, "operation": args.operation, "remote": args.repository, 
                     "scope": args.scope, "doc_id": args.id, "title": args.title}
-            program_setup(configdir = configarg, rnsconfigdir=rnsconfigarg, service=False, verbosity=args.verbose,
+            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, service=False, verbosity=args.verbose,
                           quietness=args.quiet, interactive=False, print_identity=False, task=task, identity=args.identity)
 
     except KeyboardInterrupt:
@@ -343,6 +376,14 @@ class ReticulumGitClient():
         RNS.log(f"Got response for: {path}", RNS.LOG_DEBUG)
         
         return self.request_response, self.response_metadata
+
+    #########################
+    # Repository Management #
+    #########################
+
+    def create_repository(self, remote=None):
+        # TODO: Implement
+        pass
 
     ######################
     # Release Management #
@@ -1289,6 +1330,7 @@ class ReticulumGitNode():
     PERM_I_SMPHR    = ["i", "interact"]
     PERM_P_SMPHR    = ["p", "propose"]
     PERM_ADM_SMPHR  = ["adm", "admin"]
+    ALL_PERMS       = ["read", "write", "create", "stats", "release", "interact", "propose", "admin"]
 
     TGT_NONE        = 0x01
     TGT_ALL         = 0x02
@@ -1299,6 +1341,7 @@ class ReticulumGitNode():
     PATH_FETCH      = "/git/fetch"
     PATH_PUSH       = "/git/push"
     PATH_DELETE     = "/git/delete"
+    PATH_CREATE     = "/git/create"
     PATH_RELEASE    = "/mgmt/release"
     PATH_WORK       = "/mgmt/work"
 
@@ -1468,37 +1511,7 @@ class ReticulumGitNode():
                 RNS.log(f"Loading repositery group \"{group_name}\"", RNS.LOG_VERBOSE)
                 group_path = os.path.expanduser(section[group_name])
                 if not os.path.isdir(group_path): RNS.log(f"The path \"{group_path}\" specified for repository group \"{group_name}\" does not exist, skipping.", RNS.LOG_ERROR)
-                else:
-                    self.load_repository_group(group_name, group_path)
-
-        if "access" in self.config:
-            section = self.config["access"]
-            for group_name in section:
-                if group_name in self.groups:
-                    group_permissions = section.as_list(group_name)
-                    for entry in group_permissions:
-                        perm, target = self.parse_permission(entry)
-                        if not perm or not target: continue
-                        else:
-                            read = False; write = False; create = False; propose = False
-                            stats = False; release = False; interact = False; admin = False
-                            if perm == self.PERM_READ  or perm == self.PERM_READWRITE: read     = True
-                            if perm == self.PERM_WRITE or perm == self.PERM_READWRITE: write    = True
-                            if perm == self.PERM_CREATE:                               create   = True
-                            if perm == self.PERM_STATS:                                stats    = True
-                            if perm == self.PERM_RELEASE:                              release  = True
-                            if perm == self.PERM_INTERACT:                             interact = True
-                            if perm == self.PERM_PROPOSE:                              propose  = True
-                            if perm == self.PERM_ADMIN:                                admin    = True
-
-                            if read     and not target in self.groups[group_name]["read"]:     self.groups[group_name]["read"].append(target)
-                            if write    and not target in self.groups[group_name]["write"]:    self.groups[group_name]["write"].append(target)
-                            if create   and not target in self.groups[group_name]["create"]:   self.groups[group_name]["create"].append(target)
-                            if stats    and not target in self.groups[group_name]["stats"]:    self.groups[group_name]["stats"].append(target)
-                            if release  and not target in self.groups[group_name]["release"]:  self.groups[group_name]["release"].append(target)
-                            if interact and not target in self.groups[group_name]["interact"]: self.groups[group_name]["interact"].append(target)
-                            if propose  and not target in self.groups[group_name]["propose"]:  self.groups[group_name]["propose"].append(target)
-                            if admin    and not target in self.groups[group_name]["admin"]:    self.groups[group_name]["admin"].append(target)
+                else:                             self.load_repository_group(group_name, group_path)
 
     def parse_permission(self, permission_string):
         comps = permission_string.split(":")
@@ -1539,7 +1552,7 @@ class ReticulumGitNode():
 
     def resolve_permission(self, remote_identity, group_name, repository_name, permission):
         remote_hash = remote_identity.hash
-        RNS.log(f"Resolving {group_name}/{repository_name} permission {permission} for {RNS.prettyhexrep(remote_hash)}", RNS.LOG_DEBUG) # TODO: Remove
+        RNS.log(f"Resolving {group_name}/{repository_name} permission {permission} for {RNS.prettyhexrep(remote_hash)}", RNS.LOG_DEBUG)
         if not group_name in self.groups: return False
         if not repository_name in self.groups[group_name]["repositories"]: return False
         else:
@@ -1591,6 +1604,33 @@ class ReticulumGitNode():
                 elif remote_hash   in group_permissions: return True
                 elif remote_hash   in group_admins:      return True
                 else:                                    return False
+
+            return False
+
+        return False
+
+    def resolve_group_permission(self, remote_identity, group_name, permission):
+        remote_hash = remote_identity.hash
+        RNS.log(f"Resolving {group_name} group permission {permission} for {RNS.prettyhexrep(remote_hash)}", RNS.LOG_DEBUG)
+        if not group_name in self.groups: return False
+        else:
+            if   permission == self.PERM_READ:     group_permissions = self.groups[group_name]["read"]
+            elif permission == self.PERM_WRITE:    group_permissions = self.groups[group_name]["write"]
+            elif permission == self.PERM_CREATE:   group_permissions = self.groups[group_name]["create"]
+            elif permission == self.PERM_STATS:    group_permissions = self.groups[group_name]["stats"]
+            elif permission == self.PERM_RELEASE:  group_permissions = self.groups[group_name]["release"]
+            elif permission == self.PERM_INTERACT: group_permissions = self.groups[group_name]["interact"]
+            elif permission == self.PERM_PROPOSE:  group_permissions = self.groups[group_name]["propose"]
+            elif permission == self.PERM_ADMIN:    group_permissions = self.groups[group_name]["admin"]
+            else:                                  return False
+
+            group_admins      = self.groups[group_name]["admin"]
+
+            if   self.TGT_NONE in group_permissions: return False
+            elif self.TGT_ALL  in group_permissions: return True
+            elif remote_hash   in group_permissions: return True
+            elif remote_hash   in group_admins:      return True
+            else:                                    return False
 
             return False
 
@@ -1711,48 +1751,123 @@ class ReticulumGitNode():
         return permissions
 
     def load_repository_group(self, group_name, group_path):
-        # TODO: Implement group.allowed file
-        if not group_name in self.groups: self.groups[group_name] = { "path": group_path, "repositories": {}, "read": [], "write": [], "create": [],
-                                                                      "stats": [], "release": [], "interact": [], "propose": [], "admin": [] }
+        if not group_name in self.groups: self.groups[group_name] = { "path": group_path, "name": group_name, "repositories": {}, "dynamic_perms": False,
+                                                                       "read": [], "write": [], "create": [], "stats": [], "release": [],
+                                                                       "interact": [], "propose": [], "admin": [] }
 
         if group_name in self.groups and self.groups[group_name]["path"] != group_path:
             RNS.log(f"Repository group path did not match existing entry while loading {group_name}, aborting load", RNS.LOG_ERROR)
             return
 
+        self.update_group_permissions(group_name)
+
         loaded = 0
         group  = self.groups[group_name]
         for entry in os.listdir(group_path):
             path = f"{group_path}/{entry}"
-            if os.path.isdir(path) and not path.endswith(".work") and not path.endswith(".releases"):
-                if not self.__is_git_repository(path): RNS.log(f"The directory \"{path}\" is not a git repository, skipping", RNS.LOG_WARNING)
-                else:
-                    if not self.__is_bare_repository(path):
-                        RNS.log(f"The directory \"{path}\" is not a bare git repository, skipping", RNS.LOG_WARNING)
-                        RNS.log(f"You can change it to a bare repository using \"git config --bool core.bare true\".", RNS.LOG_WARNING)
-
-                    else:
-                        repository_name  = os.path.basename(path)
-                        allowed_path     = f"{path}.allowed"
-                        allowed_input = ""
-                        if os.path.isfile(allowed_path):
-                            if os.access(allowed_path, os.X_OK):
-                                allowed_result = subprocess.run([allowed_path], stdout=subprocess.PIPE)
-                                allowed_input = allowed_result.stdout.decode("utf-8")
-
-                            else:
-                                fh = open(allowed_path, "rb")
-                                allowed_input = fh.read().decode("utf-8")
-                                fh.close()
-
-                        p = self.permissions_from_allowed_input(allowed_input)
-                        group["repositories"][repository_name] = {"name": repository_name, "group": group_name, "path": path,
-                                                                  "read": p["read"], "write": p["write"], "create": p["create"],
-                                                                  "stats": p["stats"], "release": p["release"], "interact": p["interact"],
-                                                                  "propose": p["propose"], "admin": p["admin"] }
-                        loaded += 1
+            if self.load_repository(group, path): loaded += 1
 
         ms = "y" if loaded == 1 else "ies"
         RNS.log(f"Loaded {loaded} repositor{ms} for group \"{group_name}\"", RNS.LOG_VERBOSE)
+
+    def update_group_permissions(self, group_name):
+        if not group_name in self.groups:
+            RNS.log(f"Attempt to set group permissions for non-existing group {group_name}, aborting", RNS.LOG_WARNING)
+            return
+
+        # Clear permissions before update
+        for perm in self.ALL_PERMS: self.groups[group_name][perm] = []
+
+        # Apply permissions from allowed file if present
+        group_path   = self.groups[group_name]["path"]
+        allowed_path = group_path+".allowed"
+        if os.path.isfile(allowed_path):
+            RNS.log(f"Applying group permissions for {group_name} from {allowed_path}", RNS.LOG_DEBUG)
+            try:
+                allowed_input = ""
+                if os.access(allowed_path, os.X_OK):
+                    allowed_result = subprocess.run([allowed_path], stdout=subprocess.PIPE)
+                    allowed_input = allowed_result.stdout.decode("utf-8")
+                    self.groups[group_name]["dynamic_perms"] = True
+
+                else:
+                    fh = open(allowed_path, "rb")
+                    allowed_input = fh.read().decode("utf-8")
+                    fh.close()
+
+                group_permissions = self.permissions_from_allowed_input(allowed_input)
+                for perm in group_permissions: self.groups[group_name][perm] = group_permissions[perm]
+
+            except Exception as e: RNS.log(f"Could not load group permissions from {allowed_path}: {e}", RNS.LOG_ERROR)
+
+        # Apply permissions from config file if present
+        if "access" in self.config:
+            section = self.config["access"]
+            for config_group_name in section:
+                if group_name == config_group_name:
+                    RNS.log(f"Applying group permissions for {group_name} from config file", RNS.LOG_DEBUG)
+                    config_group_permissions = section.as_list(group_name)
+
+                    for entry in config_group_permissions:
+                        perm, target = self.parse_permission(entry)
+                        if not perm or not target: continue
+                        else:
+                            read = False; write = False; create = False; propose = False
+                            stats = False; release = False; interact = False; admin = False
+                            if perm == self.PERM_READ  or perm == self.PERM_READWRITE: read     = True
+                            if perm == self.PERM_WRITE or perm == self.PERM_READWRITE: write    = True
+                            if perm == self.PERM_CREATE:                               create   = True
+                            if perm == self.PERM_STATS:                                stats    = True
+                            if perm == self.PERM_RELEASE:                              release  = True
+                            if perm == self.PERM_INTERACT:                             interact = True
+                            if perm == self.PERM_PROPOSE:                              propose  = True
+                            if perm == self.PERM_ADMIN:                                admin    = True
+
+                            if read     and not target in self.groups[group_name]["read"]:     self.groups[group_name]["read"].append(target)
+                            if write    and not target in self.groups[group_name]["write"]:    self.groups[group_name]["write"].append(target)
+                            if create   and not target in self.groups[group_name]["create"]:   self.groups[group_name]["create"].append(target)
+                            if stats    and not target in self.groups[group_name]["stats"]:    self.groups[group_name]["stats"].append(target)
+                            if release  and not target in self.groups[group_name]["release"]:  self.groups[group_name]["release"].append(target)
+                            if interact and not target in self.groups[group_name]["interact"]: self.groups[group_name]["interact"].append(target)
+                            if propose  and not target in self.groups[group_name]["propose"]:  self.groups[group_name]["propose"].append(target)
+                            if admin    and not target in self.groups[group_name]["admin"]:    self.groups[group_name]["admin"].append(target)
+
+        RNS.log(f"Final group permissions for {group_name}:\n{self.groups[group_name]}") # TODO: Remove
+
+    def load_repository(self, group, path):
+        if not group or not path: return False
+        group_name = group["name"]
+        if not (os.path.isdir(path) and not path.endswith(".work") and not path.endswith(".releases")): return False
+        else:
+            if not self.__is_git_repository(path): RNS.log(f"The directory \"{path}\" is not a git repository, skipping", RNS.LOG_WARNING)
+            else:
+                if not self.__is_bare_repository(path):
+                    RNS.log(f"The directory \"{path}\" is not a bare git repository, skipping", RNS.LOG_WARNING)
+                    RNS.log(f"You can change it to a bare repository using \"git config --bool core.bare true\".", RNS.LOG_WARNING)
+
+                else:
+                    repository_name  = os.path.basename(path)
+                    allowed_path     = f"{path}.allowed"
+                    allowed_input    = ""
+                    dynamic_perms    = False
+                    if os.path.isfile(allowed_path):
+                        if os.access(allowed_path, os.X_OK):
+                            allowed_result = subprocess.run([allowed_path], stdout=subprocess.PIPE)
+                            allowed_input  = allowed_result.stdout.decode("utf-8")
+                            dynamic_perms  = True
+
+                        else:
+                            fh = open(allowed_path, "rb")
+                            allowed_input = fh.read().decode("utf-8")
+                            fh.close()
+
+                    p = self.permissions_from_allowed_input(allowed_input)
+                    group["repositories"][repository_name] = { "name": repository_name, "group": group_name, "path": path }
+                    for perm in self.ALL_PERMS: group["repositories"][repository_name][perm] = p[perm] if perm in p else []
+                    RNS.log(f"Final perms for {group_name}/{repository_name}:\n\n{group["repositories"][repository_name]}\n") # TODO: Remove
+                    return True
+
+        return False
 
     def start(self):
         self._should_run = True
@@ -1833,6 +1948,7 @@ class ReticulumGitNode():
         self.destination.register_request_handler(self.PATH_LIST,    self.handle_list,    allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_FETCH,   self.handle_fetch,   allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_PUSH,    self.handle_push,    allow=self.global_allow, allowed_list=ga_list)
+        self.destination.register_request_handler(self.PATH_CREATE,  self.handle_create,  allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_DELETE,  self.handle_delete,  allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_RELEASE, self.handle_release, allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_WORK,    self.handle_work,    allow=self.global_allow, allowed_list=ga_list)
@@ -2113,6 +2229,36 @@ class ReticulumGitNode():
             except Exception as e:
                 RNS.log(f"Error while handling delete request for {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
+
+    def handle_create(self, path, data, request_id, remote_identity, requested_at):
+        RNS.log(f"Create request from remote {remote_identity}", RNS.LOG_DEBUG)
+        if not remote_identity:             return self.RES_DISALLOWED.to_bytes(1, "big")  + b"Not identified"
+        if not type(data) == dict:          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
+        if not self.IDX_REPOSITORY in data: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No repository specified"
+
+        group_name, repository_name = self.parse_request_repository_path(data[self.IDX_REPOSITORY])
+        if not group_name or not repository_name: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
+        if not group_name in self.groups: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
+
+        read_access   = self.resolve_group_permission(remote_identity, group_name, repository_name, self.PERM_READ)
+        create_access = self.resolve_group_permission(remote_identity, group_name, repository_name, self.PERM_CREATE)
+
+        group_path_exists = os.path.exists(self.groups[group_name]["path"])
+        if not group_path_exists: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
+
+        if not create_access: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found" if not read_access else self.RES_DISALLOWED.to_bytes(1, "big") + b"Not allowed"
+        else:
+            repository_exists = group_name in self.groups and repository_name in self.groups[group_name]
+            path_exists       = group_name in self.groups and os.path.exists()
+            if repository_exists or path_exists:
+                existing_read_access = self.resolve_permission(remote_identity, group_name, repository_name, self.PERM_READ)
+                if existing_read_access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"Repository already exists"
+                else:                    return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
+
+            else:
+                # Permissions validated, and repository does not already exist
+                # TODO: Implement new bare repository creation and loading into groups
+                pass
 
     def handle_release(self, path, data, request_id, remote_identity, requested_at):
         RNS.log(f"Release request from remote {remote_identity}", RNS.LOG_DEBUG)
