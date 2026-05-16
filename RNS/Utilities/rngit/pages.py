@@ -314,6 +314,16 @@ class NomadNetworkNode():
             field_str = "`" + "|".join(field_parts)
         return f"`[{sanitize_label(_label)}`:{_path}{field_str}]"
 
+    def m_link_e(self, _label, remote, _path, **fields):
+        def sanitize_v(value): return urllib.parse.quote_plus(str(value).encode("utf-8"))
+        def sanitize_label(value): return value.replace("[", "").replace("]", "").replace("`", "")
+        field_str = ""
+        if fields:
+            field_parts = []
+            for k, v in fields.items(): field_parts.append(f"{k}={sanitize_v(v)}")
+            field_str = "`" + "|".join(field_parts)
+        return f"`!`[{sanitize_label(_label)}`{remote}:{_path}{field_str}]`!"
+
     def m_link(self, _label, _path, **fields):
         def sanitize_v(value): return urllib.parse.quote_plus(str(value).encode("utf-8"))
         def sanitize_label(value): return value.replace("[", "").replace("]", "").replace("`", "")
@@ -426,6 +436,31 @@ class NomadNetworkNode():
         nav_parts.append(breadcrumb + "\n")
 
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
+
+        repo_source = ""; source_link = None
+        if repo["fork"] or repo["mirror"]:
+            if   repo["fork"]:   source_type = "fork"; source_url = repo["fork"]
+            elif repo["mirror"]: source_type = "mirror"; source_url = repo["mirror"]
+            else:                source_type = "retriev"; source_url = "unknown source"
+            if not source_url.lower().startswith("rns://"): source_link = ""
+            else:
+                try:
+                    url_components = source_url.split("/")
+                    if len(url_components) == 5 and len(url_components[2]) == RNS.Identity.TRUNCATED_HASHLENGTH//8*2:
+                        source_repo_dest  = bytes.fromhex(url_components[2])
+                        source_group_name = url_components[3]
+                        source_repo_name  = url_components[4]
+                        source_identity   = RNS.Identity.recall(source_repo_dest)
+                        if source_identity:
+                            source_page_dest = RNS.Destination.hash_from_name_and_identity("nomadnetwork.node", source_identity)
+                            mu_link = self.m_link_e(source_url, RNS.hexrep(source_page_dest, delimit=False), self.PATH_REPO, g=source_group_name, r=source_repo_name)
+                            source_link = f"{mu_link}"
+                except Exception as e: source_link = ""
+
+            source_desc   = f"{source_type}ed from"
+            source_indent = " "*(len(f"Node / {group_name} / {repo_name}")-len(source_desc))
+            if source_link: source_url = source_link
+            nav_parts.append(f"{self.CLR_DIM}{source_desc.capitalize()}{source_indent} {source_url}`f\n")
 
         if not repo:
             content = self.m_heading("Not Found", 1) + "\nThe requested repository was not found.\n"

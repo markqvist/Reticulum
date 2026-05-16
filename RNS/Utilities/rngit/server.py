@@ -1972,8 +1972,11 @@ class ReticulumGitNode():
                             allowed_input = fh.read().decode("utf-8")
                             fh.close()
 
+                    fork   = self.__is_fork(path)
+                    mirror = self.__is_mirror(path)
+
                     p = self.permissions_from_allowed_input(allowed_input)
-                    group["repositories"][repository_name] = { "name": repository_name, "group": group_name, "path": path }
+                    group["repositories"][repository_name] = { "name": repository_name, "group": group_name, "path": path, "fork": fork, "mirror": mirror }
                     for perm in self.ALL_PERMS: group["repositories"][repository_name][perm] = p[perm] if perm in p else []
 
                     return True
@@ -2052,6 +2055,34 @@ class ReticulumGitNode():
             if check == "true": return True
             else:               return False
         
+        except: return False
+
+    def __is_fork(self, path):
+        try:
+            result = subprocess.run(["git", "config", "repository.rngit.type"], cwd=path, check=True, capture_output=True, text=True)
+            if not result: return False
+            else: check = result.stdout.strip()
+            if not check == "fork": return False
+            else:
+                result = subprocess.run(["git", "config", "repository.rngit.upstream.source"], cwd=path, check=True, capture_output=True, text=True)
+                if not result: return False
+                else: source = result.stdout.strip()
+                return source
+
+        except: return False
+
+    def __is_mirror(self, path):
+        try:
+            result = subprocess.run(["git", "config", "repository.rngit.type"], cwd=path, check=True, capture_output=True, text=True)
+            if not result: return False
+            else: check = result.stdout.strip()
+            if not check == "mirror": return False
+            else:
+                result = subprocess.run(["git", "config", "repository.rngit.upstream.source"], cwd=path, check=True, capture_output=True, text=True)
+                if not result: return False
+                else: source = result.stdout.strip()
+                return source
+
         except: return False
 
     def register_request_handlers(self):
