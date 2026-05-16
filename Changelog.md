@@ -1,3 +1,29 @@
+### 2026-05-17: RNS 1.2.7
+
+This release significantly improves the `rngit` system with fork, mirroring and empty repository creation functionality, a new work document proposals feature, improvements to the transport core reliability and efficiency and various other tweaks and improvements.
+
+**Changes**
+- Added work document proposals functionality to `rngit`
+- Added fork and mirroring support to `rngit`
+- Added ability to create new repositories remotely to `rngit`
+- Added latest release management to `rngit`
+- Added download stats to `rngit`
+- Improved shared instance RPC error handling
+- Improved announce cache cleaning
+- Improved `rngit` page node link handling
+- Improved stats pages `rngit`
+- Improved transfer completed feedback in `rncp`, thanks to **neutral**
+- Improved interface transport insertion and removal
+
+**Release Signatures**
+Release artifacts include `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`. To verify files, download the `rsg` signatures, make sure they are in the same folder as the release artifact, and run `rnid` signature verification with the release identity as the required signer:
+
+```sh
+rnid -i bc7291552be7a58f361522990465165c -V rns*.whl
+```
+
+The `rnid` utility will then verify the signatures, and display whether it is valid. If the signature cannot be verified, the file has been tampered with and should be thrown very far away in a jiffy.
+
 ### 2026-05-14: RNS 1.2.6
 
 This release adds further improvements to the `rnid` and `rngit` utilities, and includes several bugfixes and other improvements.
