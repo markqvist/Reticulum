@@ -4108,6 +4108,8 @@ internal = rw:9710b86ba12c42d1d8f30f74fe509286
 #   s   = stats      (view repository statistics)
 #   rel = release    (create and manage releases)
 #   i   = interact   (comment on work documents)
+#   p   = propose    (propose new work documents)
+#   adm = admin      (full administrative access)
 #
 # To configure permissions per repository, you must create
 # an ".allowed" file matching the repository name. If the
