@@ -109,6 +109,14 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
             elif operation == "perms":    git_client.work_permissions(remote=task["remote"], doc_id=doc_id)
             else:                         print("Invalid operation"); exit(1)
 
+        elif command == "fork":
+            git_client = ReticulumGitClient(configdir=configdir, verbosity=targetverbosity, identitypath=identity)
+            git_client.fork_repository(source=task["source"], target=task["target"])
+
+        elif command == "mirror":
+            git_client = ReticulumGitClient(configdir=configdir, verbosity=targetverbosity, identitypath=identity)
+            git_client.mirror_repository(source=task["source"], target=task["target"])
+
         else: print("Invalid command"); exit(1)
 
     exit(0)
@@ -201,10 +209,20 @@ def main():
 
         elif subcommand == "work":
             if not args.operation: parser.print_help()
-            task = {"command": subcommand, "operation": args.operation, "remote": args.repository, 
+            task = {"command": subcommand, "operation": args.operation, "remote": args.repository,
                     "scope": args.scope, "doc_id": args.id, "title": args.title}
             program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, service=False, verbosity=args.verbose,
                           quietness=args.quiet, interactive=False, print_identity=False, task=task, identity=args.identity)
+
+        elif subcommand == "fork":
+            task = {"command": subcommand, "operation": "fork", "source": args.source, "target": args.target}
+            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, verbosity=args.verbose, quietness=args.quiet,
+                          task=task, identity=args.identity)
+
+        elif subcommand == "mirror":
+            task = {"command": subcommand, "operation": "fork", "source": args.source, "target": args.target}
+            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, verbosity=args.verbose, quietness=args.quiet,
+                          task=task, identity=args.identity)
 
     except KeyboardInterrupt:
         print("")
@@ -218,6 +236,8 @@ class ReticulumGitClient():
     PATH_PUSH       = "/git/push"
     PATH_DELETE     = "/git/delete"
     PATH_CREATE     = "/git/create"
+    PATH_FORK       = "/git/fork"
+    PATH_MIRROR     = "/git/mirror"
     PATH_RELEASE    = "/mgmt/release"
     PATH_WORK       = "/mgmt/work"
 
@@ -416,6 +436,63 @@ class ReticulumGitClient():
                 self.abort(f"Remote error: {error_msg}")
 
         except Exception as e: self.abort(f"Error creating repository: {e}")
+        finally:
+            if self.link: self.link.teardown()
+
+    ####################
+    # Fork & Mirroring #
+    ####################
+
+    def fork_repository(self, source=None, target=None):
+        if not source: print(f"No source specified"); exit(1)
+        if not target: print(f"No target specified"); exit(1)
+        self._remote_clone_operation(source, target, self.PATH_FORK, "fork")
+
+    def mirror_repository(self, source=None, target=None):
+        if not source: print(f"No source specified"); exit(1)
+        if not target: print(f"No target specified"); exit(1)
+        self._remote_clone_operation(source, target, self.PATH_MIRROR, "mirror")
+
+    def _remote_clone_operation(self, source, target, path, operation_name):
+        self.connect_remote(target)
+
+        timeout = self.link_timeout
+        while not self.link_ready and not self.link_failed and timeout > 0:
+            time.sleep(0.1)
+            timeout -= 1
+
+        if not self.link_ready: self.abort("Link establishment failed")
+        print("\r                       \r", end="")
+
+        try:
+            destination_hash, group, repo = self.parse_remote_url(target)
+            repo_path = f"{group}/{repo}"
+
+            request_data = {self.IDX_REPOSITORY: repo_path, "source": source}
+            print(f"Remote is {operation_name.lower()}ing repository to {repo_path}...")
+            response, metadata = self.send_request(path, request_data, timeout=900)
+
+            if not response or not isinstance(response, bytes): self.abort("No response from remote")
+
+            status_byte = response[0]
+            if status_byte == 0: print(f"Repository {operation_name}ed to {repo_path}")
+            elif status_byte == self.RES_NOT_FOUND:
+                error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Not found"
+                self.abort(f"{error_msg}")
+
+            elif status_byte == self.RES_INVALID_REQ:
+                error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Invalid request"
+                self.abort(f"{error_msg}")
+
+            elif status_byte == self.RES_DISALLOWED:
+                error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Not allowed"
+                self.abort(f"{error_msg}")
+
+            else:
+                error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Unknown error"
+                self.abort(f"Server error: {error_msg}")
+
+        except Exception as e: self.abort(f"Error {operation_name}ing repository: {e}")
         finally:
             if self.link: self.link.teardown()
 
@@ -1376,6 +1453,8 @@ class ReticulumGitNode():
     PATH_PUSH       = "/git/push"
     PATH_DELETE     = "/git/delete"
     PATH_CREATE     = "/git/create"
+    PATH_FORK       = "/git/fork"
+    PATH_MIRROR     = "/git/mirror"
     PATH_RELEASE    = "/mgmt/release"
     PATH_WORK       = "/mgmt/work"
 
@@ -1672,7 +1751,7 @@ class ReticulumGitNode():
 
     def resolve_doc_permission(self, remote_identity, group_name, repository_name, doc_id, permission):
         remote_hash = remote_identity.hash
-        RNS.log(f"Resolving {group_name}/{repository_name}/{doc_id} document permission {permission} for {RNS.prettyhexrep(remote_hash)}", RNS.LOG_DEBUG) # TODO: Remove
+        RNS.log(f"Resolving {group_name}/{repository_name}/{doc_id} document permission {permission} for {RNS.prettyhexrep(remote_hash)}", RNS.LOG_DEBUG)
         if not group_name in self.groups: return False
         if not repository_name in self.groups[group_name]["repositories"]: return False
 
@@ -1866,8 +1945,6 @@ class ReticulumGitNode():
                             if propose  and not target in self.groups[group_name]["propose"]:  self.groups[group_name]["propose"].append(target)
                             if admin    and not target in self.groups[group_name]["admin"]:    self.groups[group_name]["admin"].append(target)
 
-        RNS.log(f"Final group permissions for {group_name}:\n{self.groups[group_name]}") # TODO: Remove
-
     def load_repository(self, group, path):
         if not group or not path: return False
         group_name = group["name"]
@@ -1898,7 +1975,7 @@ class ReticulumGitNode():
                     p = self.permissions_from_allowed_input(allowed_input)
                     group["repositories"][repository_name] = { "name": repository_name, "group": group_name, "path": path }
                     for perm in self.ALL_PERMS: group["repositories"][repository_name][perm] = p[perm] if perm in p else []
-                    RNS.log(f"Final perms for {group_name}/{repository_name}:\n\n{group["repositories"][repository_name]}\n") # TODO: Remove
+
                     return True
 
         return False
@@ -1983,6 +2060,8 @@ class ReticulumGitNode():
         self.destination.register_request_handler(self.PATH_FETCH,   self.handle_fetch,   allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_PUSH,    self.handle_push,    allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_CREATE,  self.handle_create,  allow=self.global_allow, allowed_list=ga_list)
+        self.destination.register_request_handler(self.PATH_FORK,    self.handle_fork,    allow=self.global_allow, allowed_list=ga_list)
+        self.destination.register_request_handler(self.PATH_MIRROR,  self.handle_mirror,  allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_DELETE,  self.handle_delete,  allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_RELEASE, self.handle_release, allow=self.global_allow, allowed_list=ga_list)
         self.destination.register_request_handler(self.PATH_WORK,    self.handle_work,    allow=self.global_allow, allowed_list=ga_list)
@@ -2306,8 +2385,11 @@ class ReticulumGitNode():
 
                     try:
                         allowed_path = repository_path+".allowed"
+                        tmp_allowed  = allowed_path + ".tmp"
                         repository_permissions = REPO_CREATE_PERMS_TEMPLATE.replace("{IDENTITY_HASH}", RNS.hexrep(remote_identity.hash, delimit=False))
-                        with open(allowed_path, "w") as fh: fh.write(repository_permissions)
+                        with open(tmp_allowed, "w", encoding="utf-8") as fh: fh.write(repository_permissions)
+                        os.rename(tmp_allowed, allowed_path)
+
                     except Exception as e:
                         RNS.log(f"Could not set default repository permissions for {group_name}/{repository_name}", RNS.LOG_ERROR)
                         try: shutil.rmtree(repository_path)
@@ -2331,6 +2413,114 @@ class ReticulumGitNode():
                         if os.path.exists(repository_path): shutil.rmtree(repository_path)
                     except: RNS.log(f"Could not clean up failed repository creation at {repository_path}", RNS.LOG_ERROR)
                     return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
+
+    def handle_fork(self, path, data, request_id, link_id, remote_identity, requested_at):
+        RNS.log(f"Fork request from remote {remote_identity}", RNS.LOG_DEBUG)
+        return self._handle_remote_clone(path, data, request_id, link_id, remote_identity, requested_at, "fork")
+
+    def handle_mirror(self, path, data, request_id, link_id, remote_identity, requested_at):
+        RNS.log(f"Mirror request from remote {remote_identity}", RNS.LOG_DEBUG)
+        return self._handle_remote_clone(path, data, request_id, link_id, remote_identity, requested_at, "mirror")
+
+    def _handle_remote_clone(self, path, data, request_id, link_id, remote_identity, requested_at, repo_type):
+        with self.active_links_lock:
+            if not link_id in self.active_links: return self.RES_DISALLOWED.to_bytes(1, "big") + b"Not identified"
+            else:                                link = self.active_links[link_id]
+
+        if not remote_identity:             return self.RES_DISALLOWED.to_bytes(1, "big")  + b"Not identified"
+        if not type(data) == dict:          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
+        if not self.IDX_REPOSITORY in data: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No repository specified"
+
+        source_url = data.get("source", "")
+        if not source_url: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No source specified"
+
+        group_name, repository_name = self.parse_request_repository_path(data[self.IDX_REPOSITORY])
+        if not group_name or not repository_name: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
+        if not group_name in self.groups:         return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
+
+        read_access   = self.resolve_group_permission(remote_identity, group_name, self.PERM_READ)
+        create_access = self.resolve_group_permission(remote_identity, group_name, self.PERM_CREATE)
+
+        group_path = self.groups[group_name]["path"]
+        if not os.path.exists(group_path): return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
+
+        if not create_access: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found" if not read_access else self.RES_DISALLOWED.to_bytes(1, "big") + b"Not allowed"
+
+        final_repository_path = os.path.join(group_path, repository_name)
+        repository_exists = group_name in self.groups and repository_name in self.groups[group_name]["repositories"]
+        path_exists = os.path.exists(final_repository_path)
+
+        if repository_exists or path_exists:
+            existing_read_access = self.resolve_permission(remote_identity, group_name, repository_name, self.PERM_READ)
+            if existing_read_access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"Repository already exists"
+            else:                    return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
+
+        try:
+            RNS.log(f"{repo_type.capitalize()}ing {source_url} to {group_name}/{repository_name} for {remote_identity}", RNS.LOG_DEBUG)
+
+            if not hasattr(link, "temporary_directories"): link.temporary_directories = []
+            tmpdir = TemporaryDirectory()
+            link.temporary_directories.append(tmpdir)
+            tmp_path = tmpdir.name
+            RNS.log(f"Created temporary directory {tmp_path} for {link}", RNS.LOG_DEBUG)
+
+            repo_temp_path = os.path.join(tmp_path, repository_name)
+            os.makedirs(repo_temp_path, mode=0o755)
+
+            result = subprocess.run(["git", "init", "--bare"], cwd=repo_temp_path, capture_output=True, text=True, check=False)
+            if result.returncode != 0:
+                RNS.log(f"Failed to initialize bare repository at {repo_temp_path}: {result.stderr}", RNS.LOG_ERROR)
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Failed to initialize repository"
+
+            RNS.log(f"Fetching from {source_url}...", RNS.LOG_DEBUG)
+            result = subprocess.run(["git", "fetch", source_url, "+refs/*:refs/*"], cwd=repo_temp_path, capture_output=True, text=True, check=False)
+            if result.returncode != 0:
+                RNS.log(f"Failed to fetch from {source_url}: {result.stderr}", RNS.LOG_ERROR)
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + f"Failed to fetch from source: {result.stderr}".encode("utf-8")
+
+            result = subprocess.run(["git", "config", "repository.rngit.type", repo_type], cwd=repo_temp_path, capture_output=True, text=True, check=False)
+            if result.returncode != 0:
+                RNS.log(f"Failed to set rngit_type config: {result.stderr}", RNS.LOG_WARNING)
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + f"Failed to configure repository type: {result.stderr}".encode("utf-8")
+
+            result = subprocess.run(["git", "config", "repository.rngit.upstream.source", source_url], cwd=repo_temp_path, capture_output=True, text=True, check=False)
+            if result.returncode != 0:
+                RNS.log(f"Failed to set rngit_upstream_source config: {result.stderr}", RNS.LOG_WARNING)
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + f"Failed to configure repository upstream source: {result.stderr}".encode("utf-8")
+
+            try:
+                allowed_path = final_repository_path + ".allowed"
+                tmp_allowed = allowed_path + ".tmp"
+                repository_permissions = REPO_CREATE_PERMS_TEMPLATE.replace("{IDENTITY_HASH}", RNS.hexrep(remote_identity.hash, delimit=False))
+                with open(tmp_allowed, "w", encoding="utf-8") as fh: fh.write(repository_permissions)
+                os.rename(tmp_allowed, allowed_path)
+            except Exception as e:
+                RNS.log(f"Could not set default repository permissions for {group_name}/{repository_name}", RNS.LOG_ERROR)
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not initialize repository"
+
+            try:
+                shutil.move(repo_temp_path, final_repository_path)
+                RNS.log(f"Deployed fetched repository from {repo_temp_path} to {final_repository_path}", RNS.LOG_DEBUG)
+            except Exception as e:
+                RNS.log(f"Failed to deploy fetched repository to group directory", RNS.LOG_WARNING)
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not write repository"
+
+            group = self.groups[group_name]
+            if not self.load_repository(group, final_repository_path):
+                RNS.log(f"Repository {final_repository_path} created, but runtime loading failed", RNS.LOG_ERROR)
+                try: shutil.rmtree(final_repository_path)
+                except: RNS.log(f"Could not clean up failed repository init at {final_repository_path}", RNS.LOG_ERROR)
+                return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Failed to register repository"
+
+            RNS.log(f"Repository {group_name}/{repository_name} {repo_type}ed successfully from {source_url}", RNS.LOG_DEBUG)
+            return b"\x00"
+
+        except Exception as e:
+            RNS.log(f"Error while {repo_type}ing repository {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
+            try:
+                if os.path.exists(final_repository_path): shutil.rmtree(final_repository_path)
+            except: pass
+            return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def handle_release(self, path, data, request_id, remote_identity, requested_at):
         RNS.log(f"Release request from remote {remote_identity}", RNS.LOG_DEBUG)
