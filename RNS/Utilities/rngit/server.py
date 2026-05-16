@@ -3387,12 +3387,12 @@ class ReticulumGitNode():
         sig_length  = RNS.Identity.SIGLENGTH//8
         limit       = self.WORK_DOC_LIMIT
 
-        if not signature:                                              return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No signature provided"
-        if signature and not len(signature) == sig_length:             return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature length"
-        if not remote_identity.validate(signature, signed_data):       return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature"
-        if len(title)+len(content)+len(format_type) > limit:           return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Content limit exceeded"
-        if not title:                                                  return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Title is required"
-        if not content:                                                return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Content is required"
+        if not signature:                                        return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No signature provided"
+        if signature and not len(signature) == sig_length:       return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature length"
+        if not remote_identity.validate(signature, signed_data): return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid signature"
+        if len(title)+len(content)+len(format_type) > limit:     return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Content limit exceeded"
+        if not title:                                            return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Title is required"
+        if not content:                                          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Content is required"
         
         try:
             proposed_path = os.path.join(work_path, "proposed")
