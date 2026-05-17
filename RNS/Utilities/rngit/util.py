@@ -208,19 +208,21 @@ class MarkdownToMicron:
             code_content = '\n'.join(code_buffer)
             
             if self.syntax_highlighter and code_block_lang:
-                try:
-                    highlighted = self.syntax_highlighter.highlight(code_content, language=code_block_lang)
-                    result_lines.append(f"{self.CODE_BG}{self.CODE_FG}")
-                    result_lines.append(highlighted)
-                    result_lines.append(self.CODE_RESET)
+                if code_block_lang.lower() == "rawmu": result_lines.append(code_content)
+                else:
+                    try:
+                        highlighted = self.syntax_highlighter.highlight(code_content, language=code_block_lang)
+                        result_lines.append(f"{self.CODE_BG}{self.CODE_FG}")
+                        result_lines.append(highlighted)
+                        result_lines.append(self.CODE_RESET)
 
-                except Exception:
-                    # Fallback to plain literal block on any error
-                    result_lines.append(f"{self.CODE_BG}{self.CODE_FG}")
-                    result_lines.append(self.LITERAL_START)
-                    result_lines.append(self._escape_literals(code_content))
-                    result_lines.append(self.LITERAL_END)
-                    result_lines.append(self.CODE_RESET)
+                    except Exception:
+                        # Fallback to plain literal block on any error
+                        result_lines.append(f"{self.CODE_BG}{self.CODE_FG}")
+                        result_lines.append(self.LITERAL_START)
+                        result_lines.append(self._escape_literals(code_content))
+                        result_lines.append(self.LITERAL_END)
+                        result_lines.append(self.CODE_RESET)
             else:
                 result_lines.append(f"{self.CODE_BG}{self.CODE_FG}")
                 result_lines.append(self.LITERAL_START)
