@@ -492,7 +492,8 @@ def create_rsg(signer_identity, message, embed=False, meta=None, output="bin"):
 
     signed_data = { "hashtype": "sha256", "hash": get_rsg_hash(message),
                     "meta": { "signer": signer_identity.hash,
-                              "pubkey": signer_identity.get_public_key() } }
+                              "pubkey": signer_identity.get_public_key(),
+                              "note"  : None } } # TODO: Remove default note field in 1.2.9
 
     if embed:
         if type(message) == str: message = message.encode("utf-8")
@@ -700,6 +701,7 @@ def validate_message(args, identity, __recursive=False):
                             elif type(entry) == int:   etype = "i"
                             elif type(entry) == float: etype = "f"
                             elif entry == None:        etype = "N"
+                            if key == "note" and entry == None: return # TODO: Remove this check in 1.2.9
                             if type(entry) == bytes: entry = RNS.hexrep(entry, delimit=False)
                             leadin = f"{etype}{indent}{key}="; leadln = len(leadin)
                             entry = f"{entry}"; chunk = entry[:maxwidth]; entry = entry[maxwidth:]
