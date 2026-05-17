@@ -348,6 +348,8 @@ Access permissions can be configured at the group level in the config file or pe
 
 By default, **no** permissions are granted for anything! You will have to enable the permissions you require to be able to actually *do* something with ``rngit``.
 
+Permissions can be modified by editing the ``rngit`` config file, individual ``.allowed`` files on disk, or remotely using the ``rngit perms`` command.
+
 Permission Types
 ----------------
 
