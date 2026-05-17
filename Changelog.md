@@ -1,3 +1,31 @@
+### 2026-05-18: RNS 1.2.8
+
+This release improves the `rngit` system with signed release manifest generation and automatic artifact signing. It also includes several additions to `rnid` and various minor fixes and improvements to the `rngit` system.
+
+**Changes**
+- Added signed release manifest generation to `rngit release`
+- Added automatic artifact signing to `rngit release`
+- Added signed message creation from file to `rnid`
+- Added signed message metadata output option to `rnid`
+- Added `rsm` metadata embedding and spec validation to `rnid`
+- Added identity and destination aliases to `rngit`
+- Added blocked identities option to `rngit`
+- Added ability to render raw micron in markdown files to `rngit`
+- Added fork and mirror last sync time to repository page in `rngit`
+- Better handling of silly links in `rngit`
+- Fixed markdown table cell truncation not closing micron tags
+- Fixed various minor bugs and inconsistencies in `rngit`
+- Dropped `note` metadata field requirement from `rsg` structure
+
+**Release Signatures**
+Release artifacts include a signed `rsm` release manifest and `rsg` signature files that can be validated against the RNS release signing identity `<bc7291552be7a58f361522990465165c>` using `rnid`. To verify files, download the `rsm` and `rsg` signatures, make sure they are in the same folder as the release artifact, and run `rnid` signature verification with the release identity as the required signer:
+
+```sh
+rnid -i bc7291552be7a58f361522990465165c -V manifest.rsm *.rsg
+```
+
+The `rnid` utility will then verify the signatures, and display whether they are valid. If the signature cannot be verified, the release has been tampered with and should be discarded.
+
 ### 2026-05-17: RNS 1.2.7
 
 This release significantly improves the `rngit` system with fork, mirroring and empty repository creation functionality, a new work document proposals feature, improvements to the transport core reliability and efficiency and various other tweaks and improvements.
