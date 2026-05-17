@@ -4116,7 +4116,7 @@ internal = rw:9710b86ba12c42d1d8f30f74fe509286
 # repository is in a folder called "my_project.git", create
 # a "my_project.allowed" file next to it. This file must
 # contain a permission statement on each line in the form of
-# "r=IDENTITY_HASH", "w=IDENTITY_HASH" or "rw=IDENTITY_HASH".
+# "r:IDENTITY_HASH", "w:IDENTITY_HASH" or "r:IDENTITY_HASH".
 # Instead of IDENTITY_HASH, you can also use "all" or "none".
 #
 # You can also make the allow-files executable, and have them
