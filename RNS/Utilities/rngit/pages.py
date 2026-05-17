@@ -437,6 +437,10 @@ class NomadNetworkNode():
 
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
 
+        if not repo:
+            content = self.m_heading("Not Found", 1) + "\nThe requested repository was not found.\n"
+            return self.render_template(content, nav_content="".join(nav_parts), st=st)
+
         repo_source = ""; source_link = None
         if repo["fork"] or repo["mirror"]:
             if   repo["fork"]:   source_type = "fork"; source_url = repo["fork"]
@@ -465,10 +469,6 @@ class NomadNetworkNode():
             if source_link: source_url = source_link
             nav_parts.append(f"{self.CLR_DIM}{source_desc.capitalize()}{source_indent} {source_url}`f{sync_str}\n")
 
-        if not repo:
-            content = self.m_heading("Not Found", 1) + "\nThe requested repository was not found.\n"
-            return self.render_template(content, nav_content="".join(nav_parts), st=st)
-        
         description = self.get_repository_description(repo["path"])
         if description: description = f"{description}\n\n"
         else:           description = ""
