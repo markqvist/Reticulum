@@ -48,7 +48,7 @@ from RNS.Utilities.rngit.util import san_ref, san_refs, san_sha
 from RNS.vendor.configobj import ConfigObj
 from RNS.vendor import umsgpack as mp
 
-def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, service=False, interactive=False, print_identity=False, task=None, identity=None):
+def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, service=False, interactive=False, print_identity=False, task=None, identity=None, signer=None):
     targetverbosity = verbosity-quietness
 
     if service:
@@ -1763,6 +1763,7 @@ class ReticulumGitNode():
         self.active_links        = {}
         self.page_servers        = {}
         self.stats               = {}
+        self.blocked_identities  = {}
         self.last_announce       = 0
         self.announce_interval   = 0
         self.stats_enabled       = False
@@ -1777,6 +1778,7 @@ class ReticulumGitNode():
         self.stats_lock          = Lock()
         self.sync_lock           = Lock()
         self.stats_ignored       = {}
+        self.stats_push_ignored  = {}
         self.node_name           = "Anonymous Git Node"
 
         self.config              = None
@@ -1983,6 +1985,22 @@ class ReticulumGitNode():
                     else:
                         try: self.stats_ignored[bytes.fromhex(identhexhash)] = True
                         except Exception as e: RNS.log(f"Invalid identity hash for stats ignore: {identhexhash}", RNS.LOG_WARNING)
+            if "stats_push_ignore_identities" in section:
+                ignored = section.as_list("stats_push_ignore_identities")
+                for identhexhash in ignored:
+                    identhexhash = self.__resolve_identity_alias(identhexhash)
+                    if not len(identhexhash) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8*2: continue
+                    else:
+                        try: self.stats_push_ignored[bytes.fromhex(identhexhash)] = True
+                        except Exception as e: RNS.log(f"Invalid identity hash for stats ignore: {identhexhash}", RNS.LOG_WARNING)
+            if "blocked_identities" in section:
+                blocked = section.as_list("blocked_identities")
+                for identhexhash in blocked:
+                    identhexhash = self.__resolve_identity_alias(identhexhash)
+                    if not len(identhexhash) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8*2: continue
+                    else:
+                        try: self.blocked_identities[bytes.fromhex(identhexhash)] = True
+                        except Exception as e: RNS.log(f"Invalid identity hash for blocklist: {identhexhash}", RNS.LOG_WARNING)
 
         if "logging" in self.config:
             section = self.config["logging"]
@@ -2062,6 +2080,7 @@ class ReticulumGitNode():
 
     def resolve_permission(self, remote_identity, group_name, repository_name, permission):
         remote_hash = remote_identity.hash
+        if remote_hash in self.blocked_identities: return False
         RNS.log(f"Resolving {group_name}/{repository_name} permission {permission} for {RNS.prettyhexrep(remote_hash)}", RNS.LOG_DEBUG)
         if not group_name in self.groups: return False
         if not repository_name in self.groups[group_name]["repositories"]: return False
@@ -4547,6 +4566,13 @@ announce_interval = 360
 
 # record_stats = no
 # stats_ignore_identities = 9710b86ba12c42d1d8f30f74fe509286
+# stats_push_ignore_identities = 5bffebe038654304dafcbe12cbcd0412
+
+# You can block specific identities from any interaction
+# with this node.
+
+# blocked_identities = d31aeea49873006f13b3415520666a4e
+
 
 [repositories]
 
