@@ -478,6 +478,20 @@ Targets can also use short forms:
 - Repository permissions: `<group_root>/<group_name>/<repo_name>.allowed`
 - Document permissions: `<group_root>/<group_name>.work/<doc_id>.allowed`
 
+## Identity & Destination Aliases
+
+To make permission and remote destination management easier, you can locally define aliases for commonly used identity and destination hashes. Identity aliases used in permissions resolution can be defined in the `[aliases]` section of the `~/.rngit/config` file, while destination aliases are defined in the `[aliases]` section of the `~/.rngit/client_config` file.
+
+All alias definitions take the form of `aliased_name = HASH`:
+
+```text
+[aliases]
+  alice = d09285e660cfe27cee6d9a0beb58b7e0
+  bob = ffcffb4e255e156e77f79b82c13086a6
+```
+
+**Aliases are always resolved locally!** If for example you fork a repository with `rngit fork rns://bobs_node/public/repo_name rns://my_node/forks/repo_name`, the forked repository will of course still reference the full, original destination hash, and use this for subsequent upstream syncs.
+
 ## Serving Pages Over Nomad Network
 
 In addition to providing Git repository access via the Git remote helper protocol and command-line tools, `rngit` can also run a [Nomad Network](https://github.com/markqvist/nomadnet) compatible page node. This allows users to browse repository information, view file contents, inspect commit history and access repository statistics through any Nomad Network client.

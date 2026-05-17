@@ -675,6 +675,17 @@ w:none
 </ul>
 </section>
 </section>
+<section id="identity-destination-aliases">
+<h2>Identity &amp; Destination Aliases<a class="headerlink" href="#identity-destination-aliases" title="Link to this heading">¶</a></h2>
+<p>To make permission and remote destination management easier, you can locally define aliases for commonly used identity and destination hashes. Identity aliases used in permissions resolution can be defined in the <code class="docutils literal notranslate"><span class="pre">[aliases]</span></code> section of the <code class="docutils literal notranslate"><span class="pre">~/.rngit/config</span></code> file, while destination aliases are defined in the <code class="docutils literal notranslate"><span class="pre">[aliases]</span></code> section of the <code class="docutils literal notranslate"><span class="pre">~/.rngit/client_config</span></code> file.</p>
+<p>All alias definitions take the form of <code class="docutils literal notranslate"><span class="pre">aliased_name</span> <span class="pre">=</span> <span class="pre">HASH</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[aliases]
+  alice = d09285e660cfe27cee6d9a0beb58b7e0
+  bob = ffcffb4e255e156e77f79b82c13086a6
+</pre></div>
+</div>
+<p><strong>Aliases are always resolved locally!</strong> If for example you fork a repository with <code class="docutils literal notranslate"><span class="pre">rngit</span> <span class="pre">fork</span> <span class="pre">rns://bobs_node/public/repo_name</span> <span class="pre">rns://my_node/forks/repo_name</span></code>, the forked repository will of course still reference the full, original destination hash, and use this for subsequent upstream syncs.</p>
+</section>
 <section id="serving-pages-over-nomad-network">
 <h2>Serving Pages Over Nomad Network<a class="headerlink" href="#serving-pages-over-nomad-network" title="Link to this heading">¶</a></h2>
 <p>In addition to providing Git repository access via the Git remote helper protocol and command-line tools, <code class="docutils literal notranslate"><span class="pre">rngit</span></code> can also run a <a class="reference external" href="https://github.com/markqvist/nomadnet">Nomad Network</a> compatible page node. This allows users to browse repository information, view file contents, inspect commit history and access repository statistics through any Nomad Network client.</p>
@@ -1179,6 +1190,7 @@ options:
 <li><a class="reference internal" href="#permission-configuration-locations">Permission Configuration Locations</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#identity-destination-aliases">Identity &amp; Destination Aliases</a></li>
 <li><a class="reference internal" href="#serving-pages-over-nomad-network">Serving Pages Over Nomad Network</a><ul>
 <li><a class="reference internal" href="#enabling-the-git-page-node">Enabling the Git Page Node</a></li>
 <li><a class="reference internal" href="#accessing-repository-pages">Accessing Repository Pages</a></li>

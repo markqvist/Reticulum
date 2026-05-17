@@ -209,6 +209,7 @@ to participate in the development of Reticulum itself.
     * [Permission Examples](git.md#permission-examples)
     * [Permission Short Forms](git.md#permission-short-forms)
     * [Permission Configuration Locations](git.md#permission-configuration-locations)
+  * [Identity & Destination Aliases](git.md#identity-destination-aliases)
   * [Serving Pages Over Nomad Network](git.md#serving-pages-over-nomad-network)
     * [Enabling the Git Page Node](git.md#enabling-the-git-page-node)
     * [Accessing Repository Pages](git.md#accessing-repository-pages)
