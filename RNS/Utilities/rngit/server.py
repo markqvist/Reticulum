@@ -156,6 +156,7 @@ def main():
             parser.add_argument("--config", action="store", default=None, help="path to alternative config directory", type=str)
             parser.add_argument("--rnsconfig", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
             parser.add_argument("-i", "--identity", action="store", metavar="PATH", default=None, help="path to release identity", type=str)
+            parser.add_argument("-s", "--signer", action="store", metavar="PATH", default=None, help="path to signing identity, if different from release identity", type=str)
             parser.add_argument("repository", nargs="?", default=None, help="URL of remote repository", type=str)
             parser.add_argument("operation", nargs="?", default=None, help="list, view, create, latest or delete", type=str)
             parser.add_argument("target", nargs="?", default=None, help="tag and path to release artifacts directory", type=str)
@@ -226,8 +227,8 @@ def main():
         elif subcommand == "release":
             if not args.operation: parser.print_help()
             task = {"command": subcommand, "operation": args.operation, "remote": args.repository, "target": args.target}
-            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, service=False, verbosity=args.verbose,
-                          quietness=args.quiet, interactive=False, print_identity=False, task=task, identity=args.identity)
+            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, verbosity=args.verbose, quietness=args.quiet,
+                          task=task, identity=args.identity, signer=args.signer)
 
         elif subcommand == "perms":
             args.remote = args.remote.rstrip("/")
@@ -236,15 +237,15 @@ def main():
             elif url_components_len == 4: operation = "gperms"
             else: parser.print_help(); print("\nInvalid URL"); exit(1)
             task = {"command": subcommand, "operation": operation, "remote": args.remote}
-            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, service=False, verbosity=args.verbose,
-                          quietness=args.quiet, interactive=False, print_identity=False, task=task, identity=args.identity)
+            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, verbosity=args.verbose, quietness=args.quiet,
+                          task=task, identity=args.identity)
 
         elif subcommand == "work":
             if not args.operation: parser.print_help(); print()
             task = {"command": subcommand, "operation": args.operation, "remote": args.repository,
                     "scope": args.scope, "doc_id": args.id, "title": args.title}
-            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, service=False, verbosity=args.verbose,
-                          quietness=args.quiet, interactive=False, print_identity=False, task=task, identity=args.identity)
+            program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, verbosity=args.verbose, quietness=args.quiet,
+                          task=task, identity=args.identity)
 
         elif subcommand == "fork":
             task = {"command": subcommand, "operation": "fork", "source": args.source, "target": args.target}
