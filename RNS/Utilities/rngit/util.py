@@ -689,16 +689,18 @@ class MarkdownToMicron:
     
     def _truncate_cell(self, text, width):
         if self._visible_width(text) <= width: return text
-        
-        stripped = text
-        stripped = re.sub(r'`[FB][0-9a-fA-F]{3}', '', stripped)
-        stripped = re.sub(r'`[!*_]', '', stripped)
-        stripped = re.sub(r'`f`b', '', stripped)
-        
-        if len(stripped) <= width - 1: return text
-        
-        truncated = stripped[:width - 1] + "…"
-        return truncated
+
+        truncation_point = len(text)
+        while truncation_point > 0 and self._visible_width(text[0:truncation_point]) >= width:
+            truncation_point -= 1
+
+        truncated = text[:truncation_point]
+
+        # TODO: Track opened tags and close any that
+        # were not closed yet.
+
+        RNS.log(f"Truncated: {truncated}")
+        return truncated + "…"
     
     def _wrap_text(self, text, width):
         if not text: return [""]
