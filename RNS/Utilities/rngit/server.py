@@ -86,6 +86,7 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
             git_client = ReticulumGitClient(configdir=configdir, verbosity=targetverbosity, identitypath=identity)
             if   operation == "list":   git_client.list_releases(remote=task["remote"])
             elif operation == "view":   git_client.view_release(remote=task["remote"], target=task["target"])
+            elif operation == "fetch":  git_client.fetch_release(remote=task["remote"], target=task["target"])
             elif operation == "create": git_client.create_release(remote=task["remote"], target=task["target"], signer=task["signer"], name=task["name"])
             elif operation == "delete": git_client.delete_release(remote=task["remote"], target=task["target"])
             elif operation == "latest": git_client.latest_release(remote=task["remote"], target=task["target"])
@@ -161,7 +162,7 @@ def main():
             parser.add_argument("-s", "--signer", action="store", metavar="PATH", default=None, help="path to signing identity, if different from release identity", type=str)
             parser.add_argument("-n", "--name", action="store", metavar="name", default=None, help="package name if different from repo name", type=str)
             parser.add_argument("repository", nargs="?", default=None, help="URL of remote repository", type=str)
-            parser.add_argument("operation", nargs="?", default=None, help="list, view, create, latest or delete", type=str)
+            parser.add_argument("operation", nargs="?", default=None, help="list, view, fetch, create, latest or delete", type=str)
             parser.add_argument("target", nargs="?", default=None, help="tag and path to release artifacts directory", type=str)
 
         elif subcommand == "perms":
@@ -524,7 +525,7 @@ class ReticulumGitClient():
     #########################
 
     def create_repository(self, remote=None):
-        if not remote: print(f"No remote specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
         self.connect_remote(remote)
 
         timeout = self.link_timeout
@@ -565,13 +566,13 @@ class ReticulumGitClient():
     ####################
 
     def fork_repository(self, source=None, target=None):
-        if not source: print(f"No source specified"); exit(1)
-        if not target: print(f"No target specified"); exit(1)
+        if not source: self.abort(f"No source specified")
+        if not target: self.abort(f"No target specified")
         self._remote_clone_operation(source, target, self.PATH_FORK, "fork")
 
     def mirror_repository(self, source=None, target=None):
-        if not source: print(f"No source specified"); exit(1)
-        if not target: print(f"No target specified"); exit(1)
+        if not source: self.abort(f"No source specified")
+        if not target: self.abort(f"No target specified")
         self._remote_clone_operation(source, target, self.PATH_MIRROR, "mirror")
 
     def _resolve_aliased_url(self, url):
@@ -627,7 +628,7 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def sync_repository(self, remote=None):
-        if not remote: print(f"No remote specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
         self.connect_remote(remote)
 
         timeout = self.link_timeout
@@ -717,7 +718,7 @@ class ReticulumGitClient():
             return None
 
     def list_releases(self, remote=None):
-        if not remote: print(f"No remote specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -775,8 +776,8 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def view_release(self, remote=None, target=None):
-        if not remote: print(f"No remote specified"); exit(1)
-        if not target: print(f"No target specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
+        if not target: self.abort(f"No target specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -833,17 +834,56 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
+    def fetch_release(self, remote=None, target=None):
+        if not remote: self.abort(f"No remote specified")
+        if not target: self.abort(f"No target specified")
+        self.connect_remote(remote)
+        
+        timeout = self.link_timeout
+        while not self.link_ready and not self.link_failed and timeout > 0:
+            time.sleep(self.wait_sleep)
+            timeout -= self.wait_sleep
+        
+        if not self.link_ready: self.abort("Link establishment failed")
+        
+        try:
+            destination_hash, group, repo = self.parse_remote_url(remote)
+            repo_path = f"{group}/{repo}"
+
+            parts = target.split(":")
+            if len(parts) < 2: self.abort("Invalid release specification")
+            tag = parts[0]
+            artifact = parts[1]
+            
+            def fetch(name):
+                request_data = {self.IDX_REPOSITORY: repo_path, "operation": "fetch", "tag": tag, "artifact": name}
+                response, metadata = self.send_request(self.PATH_RELEASE, request_data, timeout=30)
+                print("\r                       \r", end="")
+                if not response or not isinstance(response, bytes): self.abort("No response from remote")
+                status_byte = response[0]
+                if status_byte != 0:
+                    error_msg = response[1:].decode("utf-8", errors="ignore")
+                    self.abort(f"Remote error: {error_msg}")
+                if len(response) <= 1: self.abort("Empty response from remote")
+                print()
+
+            # TODO: Implement
+        
+        except Exception as e: self.abort(f"Error viewing release: {e}")
+        finally:
+            if self.link: self.link.teardown()
+
     def create_release(self, remote=None, target=None, signer=None, name=None):
         if signer:
             try:
                 identity_path = os.path.expanduser(signer)
-                if not os.path.isfile(identity_path): print(f"Signer identity {identity_path} does not exist"); exit(1)
+                if not os.path.isfile(identity_path): self.abort(f"Signer identity {identity_path} does not exist")
                 else: signer = RNS.Identity.from_file(signer)
-                if not signer: print(f"Could not load signer identity from {identity_path}"); exit(1)
-            except Exception as e: print(f"Could not load signer identity from {identity_path}: {e}"); exit(1)
+                if not signer: self.abort(f"Could not load signer identity from {identity_path}")
+            except Exception as e: self.abort(f"Could not load signer identity from {identity_path}: {e}")
 
-        if not remote: print(f"No remote specified"); exit(1)
-        if not target: print(f"No target specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
+        if not target: self.abort(f"No target specified")
         if not signer: signer = self.identity
         self.connect_remote(remote)
         
@@ -861,15 +901,11 @@ class ReticulumGitClient():
             release_time      = int(time.time())
             release_time_iso  = datetime.fromtimestamp(release_time, tz=timezone.utc).isoformat().replace("+00:00", "Z")
             
-            # Parse target - can be:
-            # 1. Just a tag name: "v1.0.0"
-            # 3. Tag with path to artifacts directory: "v1.0.0:/path/to/artifacts"
-            
             parts = target.split(":")
             if len(parts) < 2: self.abort("Invalid release specification\nDid you provide both a tag and artifacts path such as \"1.0.0:./dist\"?")
             tag = parts[0]
             artifacts_path = os.path.expanduser(parts[1])
-            commit_hash = ""
+            commit_hash = None # TODO: Get commit hash from tag
 
             if not os.path.isdir(artifacts_path): self.abort("Specified artifacts directory does not exist")
             artifacts = [f for f in os.listdir(artifacts_path) if os.path.isfile(os.path.join(artifacts_path, f))]
@@ -882,8 +918,8 @@ class ReticulumGitClient():
 
             # Generate manifest
             package_name  = name or repo
-            manifest_meta = {"name": package_name ,"version": tag, "released": release_time_iso,
-                             "timestamp": release_time, "artifacts": []}
+            manifest_meta = {"name": package_name ,"version": tag, "released": release_time_iso, "timestamp": release_time,
+                             "origin": destination_hash, "commit": commit_hash, "artifacts": []}
             try:
                 manifest_path = artifacts_path+f"/manifest.{self.MSG_EXT}"
                 for artifact in artifacts:
@@ -902,7 +938,7 @@ class ReticulumGitClient():
                 manifest = create_rsg(signer, notes, embed=True, meta=manifest_meta)
                 with open(manifest_path, "wb") as fh: fh.write(manifest)
 
-            except Exception as e: print(f"Release manifest generation failed: {e}"); exit(1)
+            except Exception as e: self.abort(f"Release manifest generation failed: {e}")
 
             # Step 1: Initialize release
             print("Initializing release on remote...")
@@ -967,8 +1003,8 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def delete_release(self, remote=None, target=None):
-        if not remote: print(f"No remote specified"); exit(1)
-        if not target: print(f"No target specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
+        if not target: self.abort(f"No target specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -1010,8 +1046,8 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def latest_release(self, remote=None, target=None):
-        if not remote: print(f"No remote specified"); exit(1)
-        if not target: print(f"No target specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
+        if not target: self.abort(f"No target specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -1057,7 +1093,7 @@ class ReticulumGitClient():
     ##########################
 
     def group_permissions(self, remote=None):
-        if not remote: print(f"No remote specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
         self.connect_remote(remote)
 
         timeout = self.link_timeout
@@ -1107,7 +1143,7 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def repository_permissions(self, remote=None):
-        if not remote: print(f"No remote specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
         self.connect_remote(remote)
 
         timeout = self.link_timeout
@@ -1163,7 +1199,7 @@ class ReticulumGitClient():
     ########################
 
     def work_list(self, remote=None, scope="active"):
-        if not remote: print(f"No remote specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -1220,8 +1256,8 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def work_view(self, remote=None, doc_id=None, scope="active"):
-        if not remote: print(f"No remote specified"); exit(1)
-        if doc_id is None: print(f"No document ID specified"); exit(1)
+        if not remote:     self.abort(f"No remote specified")
+        if doc_id is None: self.abort(f"No document ID specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -1295,8 +1331,8 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def work_create(self, remote=None, title=None):
-        if not remote: print(f"No remote specified"); exit(1)
-        if not title: print(f"No title specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
+        if not title:  self.abort(f"No title specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -1340,8 +1376,8 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def work_propose(self, remote=None, title=None):
-        if not remote: print(f"No remote specified"); exit(1)
-        if not title: print(f"No title specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
+        if not title:  self.abort(f"No title specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -1385,8 +1421,8 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def work_edit(self, remote=None, doc_id=None, title=None, scope="active"):
-        if not remote: print(f"No remote specified"); exit(1)
-        if doc_id is None: print(f"No document ID specified"); exit(1)
+        if not remote:     self.abort(f"No remote specified")
+        if doc_id is None: self.abort(f"No document ID specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -1439,8 +1475,8 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def work_delete(self, remote=None, doc_id=None, scope="active"):
-        if not remote: print(f"No remote specified"); exit(1)
-        if doc_id is None: print(f"No document ID specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
+        if doc_id is None: self.abort(f"No document ID specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -1479,8 +1515,8 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def work_comment(self, remote=None, doc_id=None, scope="active"):
-        if not remote: print(f"No remote specified"); exit(1)
-        if doc_id is None: print(f"No document ID specified"); exit(1)
+        if not remote: self.abort(f"No remote specified")
+        if doc_id is None: self.abort(f"No document ID specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -1522,8 +1558,8 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def work_complete(self, remote=None, doc_id=None):
-        if not remote:     print(f"No remote specified"); exit(1)
-        if doc_id is None: print(f"No document ID specified"); exit(1)
+        if not remote:     self.abort(f"No remote specified")
+        if doc_id is None: self.abort(f"No document ID specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -1561,8 +1597,8 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def work_activate(self, remote=None, doc_id=None):
-        if not remote:     print(f"No remote specified"); exit(1)
-        if doc_id is None: print(f"No document ID specified"); exit(1)
+        if not remote:     self.abort(f"No remote specified")
+        if doc_id is None: self.abort(f"No document ID specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -1600,8 +1636,8 @@ class ReticulumGitClient():
             if self.link: self.link.teardown()
 
     def work_permissions(self, remote=None, doc_id=None):
-        if not remote:     print(f"No remote specified"); exit(1)
-        if doc_id is None: print(f"No document ID specified"); exit(1)
+        if not remote:     self.abort(f"No remote specified")
+        if doc_id is None: self.abort(f"No document ID specified")
         self.connect_remote(remote)
         
         timeout = self.link_timeout
