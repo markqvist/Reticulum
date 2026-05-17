@@ -48,9 +48,7 @@ from RNS.Utilities.rngit.util import san_ref, san_refs, san_sha
 from RNS.vendor.configobj import ConfigObj
 from RNS.vendor import umsgpack as mp
 
-def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, service=False, interactive=False,
-                  print_identity=False, task=None, identity=None):
-    
+def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, service=False, interactive=False, print_identity=False, task=None, identity=None):
     targetverbosity = verbosity-quietness
 
     if service:
@@ -275,6 +273,7 @@ class ReticulumGitClient():
         self.identity            = None
         self.userdir             = os.path.expanduser("~")
         self.config              = None
+        self.destination_aliases = {}
         self.verbosity           = verbosity or 0
         self.path_timeout        = self.PATH_TIMEOUT
         self.link_timeout        = self.LINK_TIMEOUT
@@ -320,15 +319,66 @@ class ReticulumGitClient():
             if not identity: self.abort("Could not initialize client identity")
             else:            self.identity = identity
 
+            if os.path.isfile(self.configpath):
+                try: self.config = ConfigObj(self.configpath)
+                except Exception as e:
+                    RNS.log("Could not parse the configuration at "+self.configpath, RNS.LOG_ERROR)
+                    RNS.log("Check your configuration file for errors!", RNS.LOG_ERROR)
+                    RNS.panic()
+            else:
+                RNS.log("Could not load config file, creating default configuration file...")
+                self.__create_default_config()
+                RNS.log("Default config file created. Make any necessary changes in "+self.configdir+"/config and restart rngit.")
+                RNS.log("Exiting now")
+                exit(1)
+
+            self.__apply_config()
+
+    def __create_default_config(self):
+        from RNS.Utilities.rngit.client import __default_rngit_config__ as __default_rngit_client_config__
+        self.config = ConfigObj(__default_rngit_client_config__)
+        self.config.filename = self.configpath
+        if not os.path.isdir(self.configdir): os.makedirs(self.configdir)
+        self.config.write()
+
+    def __apply_config(self):
+        if "logging" in self.config:
+            section = self.config["logging"]
+            if "loglevel" in section: RNS.loglevel = max(RNS.LOG_NONE, min(RNS.LOG_EXTREME, section.as_int("loglevel")))
+
+        if "aliases" in self.config:
+            section = self.config["aliases"]
+            for alias in section:
+                alias_hexhash = section[alias]
+                len_ok = len(alias_hexhash) == RNS.Identity.TRUNCATED_HASHLENGTH//8*2
+                try: alias_hash = bytes.fromhex(alias_hexhash)
+                except: alias_hash = None
+                alias_exists = alias in self.destination_aliases
+                if not len_ok or not alias_hash: continue
+                if alias_exists: continue
+                self.destination_aliases[alias] = RNS.hexrep(alias_hash, delimit=False)
+
+    def __resolve_destination_alias(self, alias):
+        def resolve(alias):
+            len_match = len(alias) == RNS.Identity.TRUNCATED_HASHLENGTH//8*2
+            try: hash_bytes = bytes.fromhex(alias)
+            except: hash_bytes = None
+            if len_match and hash_bytes: return alias
+            else: return self.destination_aliases[alias] if alias in self.destination_aliases else alias
+
+        resolved = resolve(alias)
+        return resolved
+
     def abort(self, msg):
         print(msg); exit(1)
 
     def parse_remote_url(self, remote):
         if not remote.lower().startswith(self.PROTO_SPEC): self.abort("Invalid protocol in remote URL")
         components = remote[len(self.PROTO_SPEC):].split("/")
+        destination_hexhash = self.__resolve_destination_alias(components[0])
         if not len(components) == 3: self.abort("Invalid number of URL components")
-        if not len(components[0]) == RNS.Identity.TRUNCATED_HASHLENGTH//8*2: self.abort("Invalid destination hash length")
-        try: destination_hash = bytes.fromhex(components[0])
+        if not len(destination_hexhash) == RNS.Identity.TRUNCATED_HASHLENGTH//8*2: self.abort("Invalid destination hash length")
+        try: destination_hash = bytes.fromhex(destination_hexhash)
         except Exception as e: self.abort(f"Invalid destination hash: {e}")
         return destination_hash, components[1], components[2]
 
@@ -472,7 +522,16 @@ class ReticulumGitClient():
         if not target: print(f"No target specified"); exit(1)
         self._remote_clone_operation(source, target, self.PATH_MIRROR, "mirror")
 
+    def _resolve_aliased_url(self, url):
+        if url.lower().startswith("rns://"):
+            destination_hash, group, repo = self.parse_remote_url(url)
+            if not destination_hash or not group or not repo: self.abort("Invalid source URL")
+            url = f"rns://{RNS.hexrep(destination_hash, delimit=False)}/{group}/{repo}"
+
+        return url
+
     def _remote_clone_operation(self, source, target, path, operation_name):
+        source = self._resolve_aliased_url(source)
         self.connect_remote(target)
 
         timeout = self.link_timeout
@@ -1510,6 +1569,7 @@ class ReticulumGitNode():
     TGT_ALL         = 0x02
     TGT_NONE_SMPHR  = ["n", "none", "nobody"]
     TGT_ALL_SMPHR   = ["a", "all", "everyone"]
+    ALL_TGTS        = TGT_NONE_SMPHR+TGT_ALL_SMPHR
 
     PATH_LIST       = "/git/list"
     PATH_FETCH      = "/git/fetch"
@@ -1533,10 +1593,13 @@ class ReticulumGitNode():
 
     WORK_DOC_LIMIT  = 256*1024
 
+    CLONE_PROTOS    = ["rns", "http", "https", "ssh"]
+
     def __init__(self, configdir=None, verbosity=None, print_identity=False):
         self.identity            = None
         self.userdir             = os.path.expanduser("~")
         self.global_allow        = RNS.Destination.ALLOW_ALL
+        self.identity_aliases    = {}
         self.groups              = {}
         self.active_links        = {}
         self.page_servers        = {}
@@ -1728,6 +1791,20 @@ class ReticulumGitNode():
 
         else: self.identity = identity
 
+        if "aliases" in self.config:
+            section = self.config["aliases"]
+            for alias in section:
+                alias_hexhash = section[alias]
+                name_ok = not alias in self.ALL_TGTS
+                len_ok = len(alias_hexhash) == RNS.Identity.TRUNCATED_HASHLENGTH//8*2
+                try: alias_hash = bytes.fromhex(alias_hexhash)
+                except: alias_hash = None
+                alias_exists = alias in self.identity_aliases
+                if not len_ok or not alias_hash: RNS.log(f"Invalid identity hash for alias {alias} in configuration file, ignoring", RNS.LOG_WARNING); continue
+                if not name_ok: RNS.log(f"Invalid alias {alias} in configuration file, ignoring", RNS.LOG_WARNING); continue
+                if alias_exists: RNS.log(f"Duplicate alias {alias} in configuration file, ignoring", RNS.LOG_WARNING); continue
+                self.identity_aliases[alias] = RNS.hexrep(alias_hash, delimit=False)
+
         if "rngit" in self.config:
             section = self.config["rngit"]
             if "node_name" in section: self.node_name = section["node_name"]
@@ -1737,6 +1814,7 @@ class ReticulumGitNode():
             if "stats_ignore_identities" in section:
                 ignored = section.as_list("stats_ignore_identities")
                 for identhexhash in ignored:
+                    identhexhash = self.__resolve_identity_alias(identhexhash)
                     if not len(identhexhash) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8*2: continue
                     else:
                         try: self.stats_ignored[bytes.fromhex(identhexhash)] = True
@@ -1758,11 +1836,25 @@ class ReticulumGitNode():
                 if not os.path.isdir(group_path): RNS.log(f"The path \"{group_path}\" specified for repository group \"{group_name}\" does not exist, skipping.", RNS.LOG_ERROR)
                 else:                             self.load_repository_group(group_name, group_path)
 
+    def __resolve_identity_alias(self, alias):
+        def resolve(alias):
+            if alias.lower() in self.ALL_TGTS: return alias
+            len_match = len(alias) == RNS.Identity.TRUNCATED_HASHLENGTH//8*2
+            try: hash_bytes = bytes.fromhex(alias)
+            except: hash_bytes = None
+            if len_match and hash_bytes: return alias
+            else: return self.identity_aliases[alias] if alias in self.identity_aliases else alias
+
+        resolved = resolve(alias)
+        return resolved
+
     def parse_permission(self, permission_string):
         comps = permission_string.split(":")
         if not len(comps) == 2: return None, None
         else:
             perm = comps[0].lower(); target = comps[1]
+            target = self.__resolve_identity_alias(target)
+
             if   perm in self.PERM_R_SMPHR:   perm = self.PERM_READ
             elif perm in self.PERM_W_SMPHR:   perm = self.PERM_WRITE
             elif perm in self.PERM_RW_SMPHR:  perm = self.PERM_READWRITE
@@ -2621,6 +2713,8 @@ class ReticulumGitNode():
 
         source_url = data.get("source", "")
         if not source_url: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No source specified"
+        if not type(source_url) == str: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid source URL"
+        if not source_url.lower().split("://")[0] in self.CLONE_PROTOS: return self.RES_DISALLOWED.to_bytes(1, "big")  + b"Prohibited source URL"
 
         group_name, repository_name = self.parse_request_repository_path(data[self.IDX_REPOSITORY])
         if not group_name or not repository_name: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
@@ -3747,7 +3841,7 @@ class ReticulumGitNode():
             if not stripped or stripped.startswith("#"): continue
             
             perm, target = self.parse_permission(stripped)
-            if perm is None or target is None:
+            if not perm or not target:
                 valid = False
                 error_line = line_num
                 invalid_perm = stripped
@@ -4087,6 +4181,19 @@ showcase = /another/path/to/directory/with/git/repositories
 
 # mirror_interval = 24
 
+
+[aliases]
+
+# You can define aliases for commonly used identity hashes
+# in this section. Each line must be in the format
+# aliased_name = IDENTITY_HASH
+#
+# These hashes are used for the permissions system and
+# identity resolution. For rngit CLI client operations,
+# aliases must be defined in ~/.rngit/client_config.
+
+# alice = d09285e660cfe27cee6d9a0beb58b7e0
+# bob = ffcffb4e255e156e77f79b82c13086a6
 
 [access]
 

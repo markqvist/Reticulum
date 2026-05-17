@@ -101,6 +101,7 @@ class ReticulumGitClient():
         self.config              = None
         self.ready               = False
         
+        self.destination_aliases = {}
         self.remote_identity     = None
         self.destination         = None
         self.link                = None
@@ -170,6 +171,18 @@ class ReticulumGitClient():
             section = self.config["client"]
             if "ref_batch_size" in section: self.ref_batch_size = max(0, min(1024, section.as_int("ref_batch_size")))
 
+        if "aliases" in self.config:
+            section = self.config["aliases"]
+            for alias in section:
+                alias_hexhash = section[alias]
+                len_ok = len(alias_hexhash) == RNS.Identity.TRUNCATED_HASHLENGTH//8*2
+                try: alias_hash = bytes.fromhex(alias_hexhash)
+                except: alias_hash = None
+                alias_exists = alias in self.destination_aliases
+                if not len_ok or not alias_hash: continue
+                if alias_exists: continue
+                self.destination_aliases[alias] = RNS.hexrep(alias_hash, delimit=False)
+
         if not os.path.isfile(self.identitypath):
             identity = RNS.Identity()
             identity.to_file(self.identitypath)
@@ -184,6 +197,19 @@ class ReticulumGitClient():
             self.ready = False
         
         else: self.identity = identity
+
+        self.destination_hexhash = self.__resolve_destination_alias(self.destination_hexhash)
+
+    def __resolve_destination_alias(self, alias):
+        def resolve(alias):
+            len_match = len(alias) == RNS.Identity.TRUNCATED_HASHLENGTH//8*2
+            try: hash_bytes = bytes.fromhex(alias)
+            except: hash_bytes = None
+            if len_match and hash_bytes: return alias
+            else: return self.destination_aliases[alias] if alias in self.destination_aliases else alias
+
+        resolved = resolve(alias)
+        return resolved
 
     def abort(self, reason=None, code=255):
         if not reason: reason = "Unknown reason"
@@ -655,6 +681,21 @@ __default_rngit_config__ = '''# This is the default rngit client config file.
 # using the ref_batch_size directive:
 
 ref_batch_size = 25
+
+
+[aliases]
+
+# You can define aliases for commonly used destination
+# hashes in this section. Each line must be in the format
+# aliased_name = DESTINATION_HASH
+#
+# These hashes are used for resolving remote destinations.
+# For rngit node permissions and identity resolution,
+# aliases must be defined in ~/.rngit/config.
+
+# my_node = 063d38912bffc850af4a1b8a270a9d85
+# bobs_node = 714981d03e41deda0e4468cb274414cc
+
 
 [logging]
 # Valid log levels are 0 through 7:
