@@ -46,6 +46,7 @@ from RNS.Cryptography.Hashes import file_sha256
 APP_NAME = "rns"
 DEFAULT_ASPECTS = f"{APP_NAME}.id"
 NO_MESSAGE = 0x01
+NO_META    = 0x02
 
 PRV_EXT      = "rid"
 PUB_EXT      = "pub"
@@ -122,11 +123,13 @@ def main():
         parser.add_argument("-e", "--encrypt", metavar="file", action="store", nargs="*", default=None, help="encrypt file")
         parser.add_argument("-V", "--validate", metavar="path", action="store", nargs="*", default=None, help="validate signature")
         parser.add_argument("-s", "--sign", metavar="path", action="store", nargs="*", default=None, help="sign file")
-        parser.add_argument("-S", "--sign-message", metavar="path", action="store", nargs="?", const=NO_MESSAGE, default=None, help="create embedded signed message")
+        parser.add_argument("-S", "--sign-message", metavar="text", action="store", nargs="?", const=NO_MESSAGE, default=None, help="create embedded signed message")
+        parser.add_argument("-E", "--embed-meta", metavar="text", action="store", nargs="?", const=NO_META, default=None, help="embed metadata structure from file")
         parser.add_argument("--raw", action="store_true", default=False, help="sign raw input data instead of hashing first")
 
         # I/O Control
-        parser.add_argument("-w", "--write", metavar="file", action="store", default=None, help="output file path", type=str)
+        parser.add_argument("-w", "--write", metavar="path", action="store", default=None, help="output file path", type=str)
+        parser.add_argument("-r", "--read", metavar="path", action="store", default=None, help="input file path for operations with optional file input", type=str)
         parser.add_argument("-f", "--force", action="store_true", default=None, help="write output even if it overwrites existing files")
         parser.add_argument("-I", "--stdin", action="store_true", default=False, help=argparse.SUPPRESS) # help="read input from STDIN instead of file"
         parser.add_argument("-O", "--stdout", action="store_true", default=False, help=argparse.SUPPRESS) # help="write output to STDOUT instead of file"
@@ -139,10 +142,11 @@ def main():
         parser.add_argument("-P", "--print-private", action="store_true", default=False, help="allow displaying private keys")
 
         # Formatting Control
-        parser.add_argument("-b", "--base64", action="store_true", default=False, help="Use base64-encoded input and output")
         parser.add_argument("-B", "--base32", action="store_true", default=False, help="Use base32-encoded input and output")
-        parser.add_argument("--hex", action="store_true", default=False, help="Use hex-encoded input and output")
-        parser.add_argument("--base256", action="store_true", default=False, help="Use base256-encoded input and output")
+        parser.add_argument("-b", "--base64", action="store_true", default=False, help="Use base64-encoded input and output")
+        parser.add_argument("-U", "--base256", action="store_true", default=False, help="Use base256-encoded input and output")
+        parser.add_argument("-F", "--hex", action="store_true", default=False, help="Use hex-encoded input and output")
+        parser.add_argument("--meta", action="store_true", default=False, help="Display RSM metadata if available")
 
         parser.add_argument("--version", action="version", version="rnid {version}".format(version=__version__))
         
@@ -656,7 +660,39 @@ def validate_message(args, identity, __recursive=False):
         signer_description = f"\nThe message was NOT signed by {identity_str or signing_identity}" if identity else ""
         if not valid: print(f"Invalid signature in {signature_path}{signer_description}"); exit(R_INVALID_SIGNATURE)
         else:
-            print(f"\nSignature is valid, the following message was signed by {signing_identity}:\n")
+            if args.meta:
+                print("RSM Metadata\n============\n")
+                def recurse(entry, key, level=1):
+                    try:
+                        indent = "  "*level
+                        if type(entry) == dict:
+                            print(f"d{indent}{key}:")
+                            for key in entry: recurse(entry[key], key, level=level+1)
+                        else:
+                            maxwidth = 64
+                            etype = "u"
+                            if   type(entry) == str:   etype = "s"
+                            elif type(entry) == bytes: etype = "b"
+                            elif type(entry) == list:  etype = "l"
+                            elif type(entry) == dict:  etype = "d"
+                            elif type(entry) == int:   etype = "i"
+                            elif type(entry) == float: etype = "f"
+                            elif entry == None:        etype = "N"
+                            if type(entry) == bytes: entry = RNS.hexrep(entry, delimit=False)
+                            leadin = f"{etype}{indent}{key}="; leadln = len(leadin)
+                            entry = f"{entry}"; chunk = entry[:maxwidth]; entry = entry[maxwidth:]
+                            print(f"{leadin}{chunk}")
+                            while len(entry): chunk = entry[:maxwidth]; entry = entry[maxwidth:]; print(f" "*leadln+chunk)
+                    except: print(f"E{indent}{key}=<Decode Error>")
+
+                meta = signed_data["meta"]
+                for key in meta: entry = meta[key]; recurse(entry, key)
+                print("\nValidation\n==========")
+
+            c = ":" if not args.meta else ""
+            f = "following" if not args.meta else ""
+            print(f"\nSignature is valid, the {f} message was signed by {signing_identity}{c}\n")
+            if args.meta: print("Message\n=======\n")
             print(signed_data["message"].decode("utf-8"))
 
             return exit(R_OK) if not __recursive else R_OK
@@ -722,7 +758,14 @@ def sign_message(args, identity):
     else:              output = "bin"
 
     if output == "bin" and not args.write: print("No write path specified"); exit(R_INVALID_ARGS)
-    if not identity.get_private_key(): print(f"Cannot sign \"{sign_path}\", the identity does not hold a private key"); exit(R_NO_PRVKEY)
+    if not identity: print(f"Cannot sign, no working identity available"); exit(R_NO_IDENTITY)
+    if not identity.get_private_key(): print(f"Cannot sign, the identity does not hold a private key"); exit(R_NO_PRVKEY)
+
+    if args.read:
+        if message != NO_MESSAGE: print("Both an input file and command-line provided message was specified, aborting"); exit(R_INVALID_ARGS)
+        sign_path = os.path.expanduser(args.read)
+        if not os.path.isfile(sign_path): print(f"The file {sign_path} does not exist"); exit(R_NO_FILE)
+        with open(sign_path, "r", encoding="utf-8") as fh: message = fh.read()
 
     if message == NO_MESSAGE: message = get_editor_content()
     if not message: print("No message specified"); exit(R_INVALID_ARGS)
