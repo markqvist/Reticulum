@@ -1899,7 +1899,7 @@ class ReticulumGitNode():
                 return False
 
             if self.__set_mirror_synced(repository_path):
-                RNS.log(f"Mirror {group_name}/{repository_name} synced successfully from {source_url}", RNS.LOG_DEBUG)
+                RNS.log(f"Mirror {group_name}/{repository_name} synced successfully from {source_url}", RNS.LOG_INFO)
                 return True
             
             else:
@@ -1926,7 +1926,7 @@ class ReticulumGitNode():
                 RNS.log(f"Failed to sync fork {group_name}/{repository_name} from {source_url}: {result.stderr}", RNS.LOG_ERROR)
                 return False
 
-            RNS.log(f"Fork {group_name}/{repository_name} synced successfully from {source_url}", RNS.LOG_DEBUG)
+            RNS.log(f"Fork {group_name}/{repository_name} synced successfully from {source_url}", RNS.LOG_INFO)
             return True
 
         except Exception as e:
