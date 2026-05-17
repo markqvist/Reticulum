@@ -559,6 +559,8 @@ def hello_world():
 ```
 ```
 
+You can use `rawmu` code blocks to render raw Micron inside Markdown files. If you create a code block with the language hint `rawmu`, everything inside it will be treated as Micron directly.
+
 ### Customizing Templates
 
 The page node uses a template system that allows complete customization of the generated pages. Templates are stored in the `~/.rngit/templates/` directory as Micron files.

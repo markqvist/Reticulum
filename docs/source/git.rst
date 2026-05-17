@@ -595,6 +595,8 @@ Code blocks in Markdown can include language hints for syntax highlighting:
       print("Hello, Reticulum!")
   ```
 
+You can use ``rawmu`` code blocks to render raw Micron inside Markdown files. If you create a code block with the language hint ``rawmu``, everything inside it will be treated as Micron directly.
+
 Customizing Templates
 ---------------------
 
