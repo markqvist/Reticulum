@@ -705,6 +705,7 @@ class NomadNetworkNode():
             content = self.m_heading("Invalid Path", 1) + "\n\nNo file path specified.\n"
             return self.render_template(content, st=st)
 
+        file_path = file_path.lstrip("./").replace("/./", "/")
         file_ext = os.path.splitext(file_path)[1].lower()
         renderable = file_ext in self.RENDERABLE_EXTS
         if not renderable: raw = True; render = False
