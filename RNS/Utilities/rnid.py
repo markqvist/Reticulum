@@ -40,6 +40,8 @@ import base64
 
 from RNS._version import __version__
 from RNS.vendor import umsgpack as mp
+from RNS.vendor.configobj import ConfigObj
+from RNS.vendor.validate import Validator
 from RNS.Cryptography.Hashes import sha256
 from RNS.Cryptography.Hashes import file_sha256
 
@@ -124,7 +126,8 @@ def main():
         parser.add_argument("-V", "--validate", metavar="path", action="store", nargs="*", default=None, help="validate signature")
         parser.add_argument("-s", "--sign", metavar="path", action="store", nargs="*", default=None, help="sign file")
         parser.add_argument("-S", "--sign-message", metavar="text", action="store", nargs="?", const=NO_MESSAGE, default=None, help="create embedded signed message")
-        parser.add_argument("-E", "--embed-meta", metavar="text", action="store", nargs="?", const=NO_META, default=None, help="embed metadata structure from file")
+        parser.add_argument("-E", "--embed-meta", metavar="path", action="store", nargs="?", const=NO_META, default=None, help="embed metadata structure from file")
+        parser.add_argument("--meta-spec", metavar="path", action="store", nargs="?", default=None, help="validate metadata for embedding with spec from file")
         parser.add_argument("--raw", action="store_true", default=False, help="sign raw input data instead of hashing first")
 
         # I/O Control
@@ -499,7 +502,7 @@ def create_rsg(signer_identity, message, embed=False, note=None, meta=None, outp
 
     if meta and type(meta) == dict:
         for key in meta:
-            if not key in signed_data["meta"]: signed_data["meta"]["key"] = meta["key"]
+            if not key in signed_data["meta"]: signed_data["meta"][key] = meta[key]
 
     envelope  = mp.packb(signed_data)
     signature = signer_identity.sign(envelope)
@@ -562,6 +565,27 @@ def unwrap_rsg(wrapped_rsg):
 
     return unwrapped if unwrapped else None
 
+def rsg_meta_from_file(path, spec_path=None):
+    if spec_path: meta_spec = ConfigObj(spec_path)
+    else:         meta_spec = None
+    parsed = ConfigObj(path, configspec=meta_spec)
+
+    if meta_spec:
+        validation = parsed.validate(Validator())
+        if not validation == True: raise ValueError("Metadata did not pass spec validation")
+
+    return parsed.dict()
+
+def rsg_meta_from_str(meta, spec=None):
+    if spec: meta_spec = ConfigObj(spec.splitlines())
+    else:    meta_spec = None
+    parsed = ConfigObj(meta.splitlines(), configspec=meta_spec)
+
+    if meta_spec:
+        validation = parsed.validate(Validator())
+        if not validation == True: raise ValueError("Metadata did not pass spec validation")
+
+    return parsed.dict()
 
 ###################################
 # Signing & Validation Operations #
@@ -690,8 +714,8 @@ def validate_message(args, identity, __recursive=False):
                 print("\nValidation\n==========")
 
             c = ":" if not args.meta else ""
-            f = "following" if not args.meta else ""
-            print(f"\nSignature is valid, the {f} message was signed by {signing_identity}{c}\n")
+            f = " following" if not args.meta else ""
+            print(f"\nSignature is valid, the{f} message was signed by {signing_identity}{c}\n")
             if args.meta: print("Message\n=======\n")
             print(signed_data["message"].decode("utf-8"))
 
@@ -750,6 +774,7 @@ def sign(args, identity, __recursive=False):
 
 def sign_message(args, identity):
     message = args.sign_message
+    meta = None
 
     if   args.base32:  output = "base32"
     elif args.base64:  output = "base64"
@@ -770,8 +795,19 @@ def sign_message(args, identity):
     if message == NO_MESSAGE: message = get_editor_content()
     if not message: print("No message specified"); exit(R_INVALID_ARGS)
 
+    if args.embed_meta:
+        meta_path = os.path.expanduser(args.embed_meta)
+        meta_spec_path = meta_path+".spec" if not args.meta_spec else args.meta_spec
+        if not os.path.isfile(meta_path): print(f"Metadata file {meta_path} does not exist"); exit(R_NO_FILE)
+        if not os.path.isfile(meta_spec_path): meta_spec_path = None
+        spec_info = f" using spec from {meta_spec_path}" if meta_spec_path else ""
+        print(f"Embedding metadata from {meta_path}{spec_info}")
+
+        try: meta = rsg_meta_from_file(meta_path, spec_path=meta_spec_path)
+        except Exception as e: print(f"Could not load metadata from {meta_path}: {e}"); exit(R_UNKNOWN_ERROR)
+
     try:
-        rsg = create_rsg(identity, message, embed=True, output=output)
+        rsg = create_rsg(identity, message, embed=True, meta=meta, output=output)
         if not rsg: print(f"No signature created, not writing"); exit(R_UNKNOWN_ERROR)
 
         if output == "bin":
