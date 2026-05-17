@@ -463,7 +463,6 @@ def validate_rsg(rsg, message=None, required_signer=None):
             if not "meta" in signed_data:                                  return False, None, None
             if not "signer" in signed_data["meta"]:                        return False, None, None
             if not "pubkey" in signed_data["meta"]:                        return False, None, None
-            if not "note" in signed_data["meta"]:                          return False, None, None
 
             try:
                 if type(required_signer) == RNS.Identity:
@@ -486,15 +485,14 @@ def validate_rsg(rsg, message=None, required_signer=None):
 
             return False, signed_data, signing_identity
 
-def create_rsg(signer_identity, message, embed=False, note=None, meta=None, output="bin"):
+def create_rsg(signer_identity, message, embed=False, meta=None, output="bin"):
     if not output in ["bin", "hex", "base32", "base256", "base64"]: raise TypeError(f"Invalid output format for rsg creation")
     if not type(signer_identity) == RNS.Identity:                   raise TypeError(f"{signer_identity} is not a Reticulum Identity")
     if not signer_identity.get_private_key():                       raise ValueError(f"{signer_identity} does not hold a private key")
 
     signed_data = { "hashtype": "sha256", "hash": get_rsg_hash(message),
                     "meta": { "signer": signer_identity.hash,
-                              "pubkey": signer_identity.get_public_key(),
-                              "note"  : note } }
+                              "pubkey": signer_identity.get_public_key() } }
 
     if embed:
         if type(message) == str: message = message.encode("utf-8")
