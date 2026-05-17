@@ -1927,8 +1927,13 @@ class ReticulumGitNode():
                 RNS.log(f"Failed to sync fork {group_name}/{repository_name} from {source_url}: {result.stderr}", RNS.LOG_ERROR)
                 return False
 
-            RNS.log(f"Fork {group_name}/{repository_name} synced successfully from {source_url}", RNS.LOG_INFO)
-            return True
+            if self.__set_mirror_synced(repository_path):
+                RNS.log(f"Fork {group_name}/{repository_name} synced successfully from {source_url}", RNS.LOG_INFO)
+                return True
+            
+            else:
+                RNS.log(f"Fork synced but could not update sync timestamp for {group_name}/{repository_name}", RNS.LOG_WARNING)
+                return True
 
         except Exception as e:
             RNS.log(f"Error syncing fork {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
@@ -2505,6 +2510,10 @@ class ReticulumGitNode():
 
         except: return False
 
+    def last_upstream_sync(self, path):
+        sync_time = self.__mirror_synced(path)
+        return sync_time if sync_time else 0
+
 
     ######################
     # Connectivity Setup #
@@ -2958,7 +2967,7 @@ class ReticulumGitNode():
                 RNS.log(f"Failed to set rngit.upstream.source config: {result.stderr}", RNS.LOG_WARNING)
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + f"Failed to configure repository upstream source: {result.stderr}".encode("utf-8")
 
-            if repo_type == "mirror":
+            if repo_type in ["mirror", "fork"]:
                 if not self.__set_mirror_synced(repo_temp_path):
                     RNS.log(f"Failed to set rngit.upstream.sync config: {result.stderr}", RNS.LOG_WARNING)
                     return self.RES_REMOTE_FAIL.to_bytes(1, "big") + f"Failed to configure repository type: {result.stderr}".encode("utf-8")

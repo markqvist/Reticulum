@@ -457,10 +457,13 @@ class NomadNetworkNode():
                             source_link = f"{mu_link}"
                 except Exception as e: source_link = ""
 
+            synced_ago    = max(0, time.time()-self.owner.last_upstream_sync(repo["path"]))
+            sync_time     = RNS.prettytime(synced_ago, compact=True).split(" ")[0]
+            sync_str      = f" `*{self.CLR_DIM_H}synced {sync_time} ago`f`*\n"
             source_desc   = f"{source_type}ed from"
             source_indent = " "*(len(f"Node / {group_name} / {repo_name}")-len(source_desc))
             if source_link: source_url = source_link
-            nav_parts.append(f"{self.CLR_DIM}{source_desc.capitalize()}{source_indent} {source_url}`f\n")
+            nav_parts.append(f"{self.CLR_DIM}{source_desc.capitalize()}{source_indent} {source_url}`f{sync_str}\n")
 
         if not repo:
             content = self.m_heading("Not Found", 1) + "\nThe requested repository was not found.\n"
