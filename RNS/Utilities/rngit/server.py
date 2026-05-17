@@ -40,6 +40,7 @@ import subprocess
 from threading import Lock
 from tempfile import TemporaryDirectory
 from tempfile import NamedTemporaryFile
+from datetime import datetime, timezone
 
 from RNS._version import __version__
 from RNS.Utilities.rngit import APP_NAME
@@ -47,6 +48,7 @@ from RNS.Utilities.rngit.pages import NomadNetworkNode
 from RNS.Utilities.rngit.util import san_ref, san_refs, san_sha
 from RNS.vendor.configobj import ConfigObj
 from RNS.vendor import umsgpack as mp
+from RNS.Utilities.rnid import create_rsg, rsg_meta_from_str
 
 def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, service=False, interactive=False, print_identity=False, task=None, identity=None, signer=None):
     targetverbosity = verbosity-quietness
@@ -84,7 +86,7 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
             git_client = ReticulumGitClient(configdir=configdir, verbosity=targetverbosity, identitypath=identity)
             if   operation == "list":   git_client.list_releases(remote=task["remote"])
             elif operation == "view":   git_client.view_release(remote=task["remote"], target=task["target"])
-            elif operation == "create": git_client.create_release(remote=task["remote"], target=task["target"])
+            elif operation == "create": git_client.create_release(remote=task["remote"], target=task["target"], signer=task["signer"], name=task["name"])
             elif operation == "delete": git_client.delete_release(remote=task["remote"], target=task["target"])
             elif operation == "latest": git_client.latest_release(remote=task["remote"], target=task["target"])
             else:                       print("Invalid operation"); exit(1)
@@ -157,6 +159,7 @@ def main():
             parser.add_argument("--rnsconfig", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
             parser.add_argument("-i", "--identity", action="store", metavar="PATH", default=None, help="path to release identity", type=str)
             parser.add_argument("-s", "--signer", action="store", metavar="PATH", default=None, help="path to signing identity, if different from release identity", type=str)
+            parser.add_argument("-n", "--name", action="store", metavar="name", default=None, help="package name if different from repo name", type=str)
             parser.add_argument("repository", nargs="?", default=None, help="URL of remote repository", type=str)
             parser.add_argument("operation", nargs="?", default=None, help="list, view, create, latest or delete", type=str)
             parser.add_argument("target", nargs="?", default=None, help="tag and path to release artifacts directory", type=str)
@@ -226,7 +229,8 @@ def main():
 
         elif subcommand == "release":
             if not args.operation: parser.print_help()
-            task = {"command": subcommand, "operation": args.operation, "remote": args.repository, "target": args.target}
+            task = {"command": subcommand, "operation": args.operation, "remote": args.repository, "target": args.target,
+                    "signer": args.signer, "name": args.name}
             program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, verbosity=args.verbose, quietness=args.quiet,
                           task=task, identity=args.identity, signer=args.signer)
 
@@ -268,6 +272,8 @@ def main():
 
 class ReticulumGitClient():
     PROTO_SPEC = "rns://"
+    SIG_EXT    = "rsg"
+    MSG_EXT    = "rsm"
 
     PATH_LIST       = "/git/list"
     PATH_FETCH      = "/git/fetch"
@@ -827,9 +833,18 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
-    def create_release(self, remote=None, target=None):
+    def create_release(self, remote=None, target=None, signer=None, name=None):
+        if signer:
+            try:
+                identity_path = os.path.expanduser(signer)
+                if not os.path.isfile(identity_path): print(f"Signer identity {identity_path} does not exist"); exit(1)
+                else: signer = RNS.Identity.from_file(signer)
+                if not signer: print(f"Could not load signer identity from {identity_path}"); exit(1)
+            except Exception as e: print(f"Could not load signer identity from {identity_path}: {e}"); exit(1)
+
         if not remote: print(f"No remote specified"); exit(1)
         if not target: print(f"No target specified"); exit(1)
+        if not signer: signer = self.identity
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -842,7 +857,9 @@ class ReticulumGitClient():
         
         try:
             destination_hash, group, repo = self.parse_remote_url(remote)
-            repo_path = f"{group}/{repo}"
+            repo_path         = f"{group}/{repo}"
+            release_time      = int(time.time())
+            release_time_iso  = datetime.fromtimestamp(release_time, tz=timezone.utc).isoformat().replace("+00:00", "Z")
             
             # Parse target - can be:
             # 1. Just a tag name: "v1.0.0"
@@ -862,9 +879,33 @@ class ReticulumGitClient():
             print(f"Creating release {tag}")
             notes = self._edit_release_notes(tag=tag)
             if notes is None: print("Release creation cancelled"); return
-            
+
+            # Generate manifest
+            package_name  = name or repo
+            manifest_meta = {"name": package_name ,"version": tag, "released": release_time_iso,
+                             "timestamp": release_time, "artifacts": []}
+            try:
+                manifest_path = artifacts_path+f"/manifest.{self.MSG_EXT}"
+                for artifact in artifacts:
+                    if artifact.endswith(f".{self.SIG_EXT}"): continue
+                    if artifact.endswith(f".{self.MSG_EXT}"): continue
+                    artifact_path  = os.path.join(artifacts_path, artifact)
+                    signature_path = f"{artifact_path}.{self.SIG_EXT}"
+                    artifact_meta  = {"timestamp": release_time}
+                    print(f"Signing {artifact_path} with {signer}")
+                    with open(artifact_path, "rb") as fh: rsg = create_rsg(signer, fh, meta=artifact_meta)
+                    if not rsg: raise SystemError(f"Could not create signature for {artifact_path}")
+                    with open(signature_path, "wb") as fh: fh.write(rsg)
+                    artifact_entry = {"name": artifact, "rsg": rsg}
+                    manifest_meta["artifacts"].append(artifact_entry)
+
+                manifest = create_rsg(signer, notes, embed=True, meta=manifest_meta)
+                with open(manifest_path, "wb") as fh: fh.write(manifest)
+
+            except Exception as e: print(f"Release manifest generation failed: {e}"); exit(1)
+
             # Step 1: Initialize release
-            print("Initializing release...")
+            print("Initializing release on remote...")
             request_data = { self.IDX_REPOSITORY: repo_path,
                              "operation": "create", "step": "init",
                              "tag": tag, "hash": commit_hash,
