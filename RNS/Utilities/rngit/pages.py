@@ -2571,7 +2571,7 @@ class NomadNetworkNode():
             first = str(labels[0])[:12]
             last  = str(labels[-1])[:12]
             mid_space = len(bottom) - len(first) - len(last)
-            lines.append(f"{self.CLR_DIM}{first}{" " * mid_space}{last}`f\n")
+            lines.append(f"{self.CLR_DIM}{first}{' ' * mid_space}{last}`f\n")
         
         return "".join(lines)
 
