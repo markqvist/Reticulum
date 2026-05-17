@@ -149,7 +149,7 @@ def main():
         args = parser.parse_args()
         validate_args(args)
 
-        op_requires_identity = (args.sign or args.encrypt or args.decrypt or args.announce or args.write
+        op_requires_identity = (args.sign or args.sign_message or args.encrypt or args.decrypt or args.announce or args.write
                                 or args.print_identity or args.print_identity or args.export_pub or args.export_prv)
 
         identity = get_operating_identity(args, allow_none=not op_requires_identity, no_cache=args.no_cache); op = False
