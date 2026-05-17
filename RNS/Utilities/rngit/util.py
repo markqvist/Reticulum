@@ -686,7 +686,7 @@ class MarkdownToMicron:
             return " " * left + text + " " * right
         else:
             return text + " " * padding
-    
+
     def _truncate_cell(self, text, width):
         if self._visible_width(text) <= width: return text
 
@@ -696,11 +696,54 @@ class MarkdownToMicron:
 
         truncated = text[:truncation_point]
 
-        # TODO: Track opened tags and close any that
-        # were not closed yet.
+        # Yes, this is convoluted, but if someone else has
+        # a better idea on how to handle unclosed micron
+        # tags in the truncated cells, I'm all ears.
+        active_tags = set()
+        fg_active = False
+        bg_active = False
 
-        RNS.log(f"Truncated: {truncated}")
-        return truncated + "…"
+        i = 0
+        while i < len(truncated):
+            if truncated[i] == '`':
+                if i + 1 < len(truncated):
+                    tag_char = truncated[i + 1]
+
+                    if tag_char in '!*_=':
+                        if tag_char in active_tags: active_tags.remove(tag_char)
+                        else:                       active_tags.add(tag_char)
+                        i += 2
+                        continue
+
+                    elif tag_char == 'f':
+                        fg_active = False
+                        i += 2
+                        continue
+
+                    elif tag_char == 'b':
+                        bg_active = False
+                        i += 2
+                        continue
+
+                    elif tag_char == 'F':
+                        fg_active = True
+                        if i + 2 < len(truncated) and truncated[i + 2] == 'T': i += 8
+                        else:                                                  i += 5
+                        continue
+
+                    elif tag_char == 'B':
+                        bg_active = True
+                        if i + 2 < len(truncated) and truncated[i + 2] == 'T': i += 8
+                        else:                                                  i += 5
+                        continue
+            i += 1
+
+        closers = []
+        if fg_active: closers.append('`f')
+        if bg_active: closers.append('`b')
+        for fmt in active_tags: closers.append(f'`{fmt}')
+
+        return truncated + ''.join(closers) + "…"
     
     def _wrap_text(self, text, width):
         if not text: return [""]
