@@ -2055,6 +2055,9 @@ class ReticulumGitNode():
                 RNS.log(f"Failed to sync mirror {group_name}/{repository_name} from {source_url}: {result.stderr}", RNS.LOG_ERROR)
                 return False
 
+            try: self.__update_head_to_source_default(repository_path, source_url)
+            except Exception as e: RNS.log(f"Failed to update HEAD while syncing mirror {group_name}/{repository_name}: {e}", RNS.LOG_WARNING)
+
             if self.__set_mirror_synced(repository_path):
                 RNS.log(f"Mirror {group_name}/{repository_name} synced successfully from {source_url}", RNS.LOG_INFO)
                 return True
@@ -2082,6 +2085,11 @@ class ReticulumGitNode():
             if result.returncode != 0:
                 RNS.log(f"Failed to sync fork {group_name}/{repository_name} from {source_url}: {result.stderr}", RNS.LOG_ERROR)
                 return False
+
+            # TODO: Determine whether tracking remote HEAD is actually a good
+            # idea here. Seems best to just set it initially on clone, and then
+            # let the fork maintainer decide what HEAD is from then on.
+            # self.__update_head_to_source_default(repository_path, source_url)
 
             if self.__set_mirror_synced(repository_path):
                 RNS.log(f"Fork {group_name}/{repository_name} synced successfully from {source_url}", RNS.LOG_INFO)
@@ -2687,6 +2695,56 @@ class ReticulumGitNode():
         sync_time = self.__mirror_synced(path)
         return sync_time if sync_time else 0
 
+    def __update_head_to_source_default(self, repo_path, source_url):
+        RNS.log(f"Updating HEAD for {repo_path} from {source_url}", RNS.LOG_VERBOSE)
+        target_branch = None
+
+        try:
+            result = subprocess.run(["git", "ls-remote", "--symref", source_url, "HEAD"],
+                                    capture_output=True, text=True, timeout=30, check=False)
+
+            if result.returncode == 0:
+                for line in result.stdout.split("\n"):
+                    if line.startswith("ref: refs/heads/"):
+                        parts = line.split("\t")
+                        if len(parts) >= 2 and parts[1] == "HEAD":
+                            target_branch = parts[0][5:].strip() # Remove "ref: " prefixes
+                            break
+
+        except subprocess.TimeoutExpired: RNS.log(f"Timeout querying remote HEAD from {source_url}", RNS.LOG_WARNING)
+        except Exception as e: RNS.log(f"Could not query remote HEAD from {source_url}: {e}", RNS.LOG_ERROR)
+
+        if target_branch:
+            RNS.log(f"Determined target branch as {target_branch} from {source_url}", RNS.LOG_DEBUG)
+            branch_check = subprocess.run(["git", "show-ref", "--verify", "--quiet", target_branch],
+                                          cwd=repo_path, capture_output=True, check=False)
+
+            if branch_check.returncode != 0:
+                RNS.log(f"Remote default branch {target_branch} not found locally, using fallback", RNS.LOG_WARNING)
+                target_branch = None
+
+        if not target_branch:
+            try:
+                RNS.log(f"Could not determine target branch from {source_url}, falling back to first available local branch", RNS.LOG_WARNING)
+                result = subprocess.run(["git", "for-each-ref", "--format=%(refname:short)", "refs/heads", "--count=1"],
+                                        cwd=repo_path, capture_output=True, text=True, check=False)
+                if result.returncode == 0 and result.stdout.strip(): target_branch = f"refs/heads/{result.stdout.strip()}"
+                else: return False
+
+            except Exception as e:
+                RNS.log(f"Could not determine fallback branch for {repo_path}: {e}", RNS.LOG_ERROR)
+                return False
+        try:
+            result = subprocess.run(["git", "symbolic-ref", "HEAD", target_branch],
+                                    cwd=repo_path, capture_output=True, text=True, check=False)
+
+            if result.returncode == 0: RNS.log(f"Updated {repo_path} HEAD to {target_branch}", RNS.LOG_VERBOSE); return True
+            else: RNS.log(f"Failed to update HEAD to {target_branch}: {result.stderr}", RNS.LOG_WARNING); return False
+
+        except Exception as e:
+            RNS.log(f"Error updating HEAD: {e}", RNS.LOG_ERROR)
+            return False
+
 
     ######################
     # Connectivity Setup #
@@ -3129,6 +3187,9 @@ class ReticulumGitNode():
             if result.returncode != 0:
                 RNS.log(f"Failed to fetch from {source_url}: {result.stderr}", RNS.LOG_ERROR)
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + f"Failed to fetch from source: {result.stderr}".encode("utf-8")
+
+            try: self.__update_head_to_source_default(repo_temp_path, source_url)
+            except Exception as e: RNS.log(f"Failed to update HEAD for repository cloned from {source_url}: {e}", RNS.LOG_ERROR)
 
             result = subprocess.run(["git", "config", "repository.rngit.type", repo_type], cwd=repo_temp_path, capture_output=True, text=True, check=False)
             if result.returncode != 0:
