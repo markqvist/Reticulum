@@ -920,16 +920,16 @@ class ReticulumGitClient():
                     name = os.path.basename(artifact["name"])
                     rsg  = artifact["rsg"]
                     if os.path.exists(name):
-                        with open(name, "rb") as fh:
-                            valid, signed_data, signing_identity = validate_rsg(rsg, fh, required_signer=signer_hash)
-                        
+                        with open(name, "rb") as fh: valid, signed_data, signing_identity = validate_rsg(rsg, fh, required_signer=signer_hash)
                         if not valid: print(f"Existing file {name} does not match manifest, fetching and overwriting")
                         else:
                             print(f"Existing file {name} validated, not fetching again")
                             continue
 
                     artifact_path = fetch(name)
-                    shutil.move(artifact_path, name)
+                    with open(artifact_path, "rb") as fh: valid, signed_data, signing_identity = validate_rsg(rsg, fh, required_signer=signer_hash)
+                    if not valid: self.abort(f"Fetched file {name} does not match manifest, aborting")
+                    else: shutil.move(artifact_path, name);
         
         except Exception as e: self.abort(f"Error fetching release: {e}")
         finally:
@@ -984,6 +984,7 @@ class ReticulumGitClient():
                              "origin": destination_hash, "commit": commit_hash, "artifacts": []}
             try:
                 manifest_path = artifacts_path+f"/manifest.{self.MSG_EXT}"
+                rsgs = []
                 for artifact in artifacts:
                     if artifact.endswith(f".{self.SIG_EXT}"): continue
                     if artifact.endswith(f".{self.MSG_EXT}"): continue
@@ -996,9 +997,12 @@ class ReticulumGitClient():
                     with open(signature_path, "wb") as fh: fh.write(rsg)
                     artifact_entry = {"name": artifact, "rsg": rsg}
                     manifest_meta["artifacts"].append(artifact_entry)
+                    rsgs.append(f"{artifact}.{self.SIG_EXT}")
 
                 manifest = create_rsg(signer, notes, embed=True, meta=manifest_meta)
                 with open(manifest_path, "wb") as fh: fh.write(manifest)
+                artifacts.extend(rsgs)
+                artifacts.append(f"manifest.{self.MSG_EXT}")
 
             except Exception as e: self.abort(f"Release manifest generation failed: {e}")
 
