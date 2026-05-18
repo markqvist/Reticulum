@@ -518,8 +518,10 @@ class ReticulumGitClient():
         if not self.link_ready: self.abort("Link not ready at request time")
         
         self.request_event.clear()
-        self.request_response  = None
-        self.response_metadata = None
+        self.request_response    = None
+        self.response_metadata   = None
+        self.previous_progress   = 0
+        self.progress_updated_at = None
         
         RNS.log(f"Sending request: {path}", RNS.LOG_DEBUG)
         progress_callback = self._on_progress if progress else None
