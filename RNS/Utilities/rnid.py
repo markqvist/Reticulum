@@ -586,6 +586,20 @@ def rsg_meta_from_str(meta, spec=None):
 
     return parsed.dict()
 
+def check_release_rsm_structure(signed_data):
+    release_meta = signed_data.get("meta", None)
+    if not release_meta: return "No release metadata in manifest"
+    release_name = release_meta.get("name", None)
+    release_version = release_meta.get("version", None)
+    release_origin = release_meta.get("origin", None)
+    release_origin_path = release_meta.get("path", None)
+    if not release_name or not release_version:                     return "Incomplete package data in manifest"
+    if not release_origin or not release_origin_path:               return "Incomplete release origin data in manifest"
+    if "/" in release_name or "/" in release_version:               return "Invalid data in release manifest"
+    if len(release_origin) != RNS.Identity.TRUNCATED_HASHLENGTH//8: return "Invalid origin hash length in manifest"
+    if not type(release_origin) == bytes:                           return "Invalid origin hash in manifest"
+    return True
+
 ###################################
 # Signing & Validation Operations #
 ###################################
