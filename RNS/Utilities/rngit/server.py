@@ -2661,6 +2661,10 @@ class ReticulumGitNode():
     # System Helpers #
     ##################
 
+    def log_request(self, msg, remote_identity):
+        if remote_identity.hash in self.blocked_identities: RNS.log(f"Blocked: {msg}", RNS.LOG_DEBUG)
+        else: RNS.log(msg, RNS.LOG_VERBOSE)
+
     @staticmethod
     def _ensure_git():
         try: subprocess.run(["git", "--version"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); return True
@@ -2823,7 +2827,7 @@ class ReticulumGitNode():
     ###########################
 
     def handle_list(self, path, data, request_id, remote_identity, requested_at):
-        RNS.log(f"List request from remote {remote_identity}", RNS.LOG_DEBUG)
+        self.log_request(f"List request from remote {remote_identity}", remote_identity)
         if not remote_identity:             return self.RES_DISALLOWED.to_bytes(1, "big") + b"Not identified"
         if not type(data) == dict:          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
         if not self.IDX_REPOSITORY in data: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No repository specified"
@@ -2842,7 +2846,7 @@ class ReticulumGitNode():
             repository_path = self.groups[group_name]["repositories"][repository_name]["path"]
 
             try:
-                RNS.log(f"Listing refs for {group_name}/{repository_name}", RNS.LOG_DEBUG)
+                RNS.log(f"Listing refs for {group_name}/{repository_name}", RNS.LOG_VERBOSE)
                 
                 # Get HEAD symref
                 head_path = os.path.join(repository_path, "HEAD")
@@ -2876,9 +2880,6 @@ class ReticulumGitNode():
                 
                 if unique_lines: output = '\n'.join(unique_lines) + f"\n@{head_ref} HEAD\n"
                 else:            output = f"@{head_ref} HEAD\n"
-                
-                if for_push: self.push_succeeded(group_name, repository_name, remote_identity)
-                else:        self.fetch_succeeded(group_name, repository_name, remote_identity)
 
                 return b"\x00" + output.encode("utf-8")
 
@@ -2887,7 +2888,7 @@ class ReticulumGitNode():
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def handle_fetch(self, path, data, request_id, link_id, remote_identity, requested_at):
-        RNS.log(f"Fetch request from remote {remote_identity}", RNS.LOG_DEBUG)
+        self.log_request(f"Fetch request from remote {remote_identity}", remote_identity)
         with self.active_links_lock:
             if not link_id in self.active_links: return self.RES_DISALLOWED.to_bytes(1, "big")  + b"Not identified"
             else: link = self.active_links[link_id]
@@ -2909,7 +2910,7 @@ class ReticulumGitNode():
             try:
                 ref_names = san_refs([r["ref"] for r in refs])
                 if not ref_names: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
-                RNS.log(f"Fetching refs {ref_names} for {group_name}/{repository_name}", RNS.LOG_DEBUG)
+                RNS.log(f"Fetching refs {ref_names} for {group_name}/{repository_name}", RNS.LOG_VERBOSE)
 
                 if not hasattr(link, "temporary_directories"): link.temporary_directories = []
                 tmpdir = TemporaryDirectory()
@@ -2954,6 +2955,7 @@ class ReticulumGitNode():
                         RNS.log(f"Error while fetching refs {ref_names} for {group_name}/{repository_name}: {result.stderr}", RNS.LOG_ERROR)
                         return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not fetch refs"
                 
+                self.fetch_succeeded(group_name, repository_name, remote_identity)
                 return open(bundle_path, "rb"), {self.IDX_RESULT_CODE: self.RES_OK}
 
             except Exception as e:
@@ -2961,7 +2963,7 @@ class ReticulumGitNode():
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def handle_push(self, path, data, request_id, remote_identity, requested_at):
-        RNS.log(f"Push request from remote {remote_identity}", RNS.LOG_DEBUG)
+        self.log_request(f"Push request from remote {remote_identity}", remote_identity)
         if not remote_identity:             return self.RES_DISALLOWED.to_bytes(1, "big")  + b"Not identified"
         if not type(data) == dict:          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
         if not self.IDX_REPOSITORY in data: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No repository specified"
@@ -2982,7 +2984,7 @@ class ReticulumGitNode():
             if bundle_data:
                 if not local_ref or not remote_ref: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Missing ref specification"
                 try:
-                    RNS.log(f"Push {local_ref}:{remote_ref} to {group_name}/{repository_name}", RNS.LOG_DEBUG)
+                    RNS.log(f"Push {local_ref}:{remote_ref} to {group_name}/{repository_name}", RNS.LOG_VERBOSE)
                     
                     with TemporaryDirectory() as tmpdir:
                         bundle_path = os.path.join(tmpdir, "push.bundle")
@@ -3006,6 +3008,7 @@ class ReticulumGitNode():
                             RNS.log(f"Bundle verification failed for push {local_ref}:{remote_ref} to {group_name}/{repository_name}: {result.stderr}", RNS.LOG_ERROR)
                             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not verify bundle"
 
+                        self.push_succeeded(group_name, repository_name, remote_identity)
                         return b"\x00"
 
                 except Exception as e:
@@ -3039,7 +3042,7 @@ class ReticulumGitNode():
                             if existing_sha != sha and not op_force:
                                 return self.RES_DISALLOWED.to_bytes(1, "big") + f"Ref {ref} already exists at different SHA (force required)".encode("utf-8")
 
-                        RNS.log(f"Updating ref {ref} to {sha} in {group_name}/{repository_name}", RNS.LOG_DEBUG)
+                        RNS.log(f"Updating ref {ref} to {sha} in {group_name}/{repository_name}", RNS.LOG_VERBOSE)
                         execv = ["git", "update-ref", ref, sha]
                         result = subprocess.run(execv, cwd=repository_path, capture_output=True, check=False)
 
@@ -3047,6 +3050,7 @@ class ReticulumGitNode():
                             RNS.log(f"Error while updating ref {ref} to {sha} for {group_name}/{repository_name}: {result.stderr}", RNS.LOG_ERROR)
                             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not update refs"
 
+                    self.push_succeeded(group_name, repository_name, remote_identity)
                     return b"\x00"
 
                 except Exception as e:
@@ -3056,7 +3060,7 @@ class ReticulumGitNode():
             else: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request data"
 
     def handle_delete(self, path, data, request_id, remote_identity, requested_at):
-        RNS.log(f"Delete request from remote {remote_identity}", RNS.LOG_DEBUG)
+        self.log_request(f"Delete request from remote {remote_identity}", remote_identity)
         if not remote_identity:             return self.RES_DISALLOWED.to_bytes(1, "big")  + b"Not identified"
         if not type(data) == dict:          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
         if not self.IDX_REPOSITORY in data: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No repository specified"
@@ -3073,7 +3077,7 @@ class ReticulumGitNode():
             if not ref_to_delete: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
             if not ref_to_delete.startswith("refs/"): return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
             try:
-                RNS.log(f"Deleting ref {ref_to_delete} in {group_name}/{repository_name}", RNS.LOG_DEBUG)
+                RNS.log(f"Deleting ref {ref_to_delete} in {group_name}/{repository_name}", RNS.LOG_VERBOSE)
                 execv = ["git", "update-ref", "-d", ref_to_delete]
                 result = subprocess.run(execv, cwd=repository_path, capture_output=True, check=False)
 
@@ -3081,7 +3085,9 @@ class ReticulumGitNode():
                     RNS.log(f"Error while deleting ref {ref_to_delete} for {group_name}/{repository_name}: {result.stderr}", RNS.LOG_ERROR)
                     return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not delete ref"
                 
-                else: return b"\x00"
+                else:
+                    self.push_succeeded(group_name, repository_name, remote_identity)
+                    return b"\x00"
 
             except Exception as e:
                 RNS.log(f"Error while handling delete request for {group_name}/{repository_name}: {e}", RNS.LOG_ERROR)
@@ -3093,7 +3099,7 @@ class ReticulumGitNode():
     ##################################
 
     def handle_create(self, path, data, request_id, remote_identity, requested_at):
-        RNS.log(f"Create request from remote {remote_identity}", RNS.LOG_DEBUG)
+        self.log_request(f"Create request from remote {remote_identity}", remote_identity)
         if not remote_identity:             return self.RES_DISALLOWED.to_bytes(1, "big")  + b"Not identified"
         if not type(data) == dict:          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
         if not self.IDX_REPOSITORY in data: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No repository specified"
@@ -3121,7 +3127,7 @@ class ReticulumGitNode():
 
             else:
                 try:
-                    RNS.log(f"Creating repository {group_name}/{repository_name} for {remote_identity}", RNS.LOG_DEBUG)
+                    RNS.log(f"Creating repository {group_name}/{repository_name} for {remote_identity}", RNS.LOG_VERBOSE)
 
                     os.makedirs(repository_path, mode=0o755)
 
@@ -3164,11 +3170,11 @@ class ReticulumGitNode():
                     return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def handle_fork(self, path, data, request_id, link_id, remote_identity, requested_at):
-        RNS.log(f"Fork request from remote {remote_identity}", RNS.LOG_DEBUG)
+        self.log_request(f"Fork request from remote {remote_identity}", remote_identity)
         return self._handle_remote_clone(path, data, request_id, link_id, remote_identity, requested_at, "fork")
 
     def handle_mirror(self, path, data, request_id, link_id, remote_identity, requested_at):
-        RNS.log(f"Mirror request from remote {remote_identity}", RNS.LOG_DEBUG)
+        self.log_request(f"Mirror request from remote {remote_identity}", remote_identity)
         return self._handle_remote_clone(path, data, request_id, link_id, remote_identity, requested_at, "mirror")
 
     def _handle_remote_clone(self, path, data, request_id, link_id, remote_identity, requested_at, repo_type):
@@ -3208,7 +3214,7 @@ class ReticulumGitNode():
             else:                    return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
 
         try:
-            RNS.log(f"{repo_type.capitalize()}ing {source_url} to {group_name}/{repository_name} for {remote_identity}", RNS.LOG_DEBUG)
+            RNS.log(f"{repo_type.capitalize()}ing {source_url} to {group_name}/{repository_name} for {remote_identity}", RNS.LOG_VERBOSE)
 
             if not hasattr(link, "temporary_directories"): link.temporary_directories = []
             tmpdir = TemporaryDirectory()
@@ -3224,7 +3230,7 @@ class ReticulumGitNode():
                 RNS.log(f"Failed to initialize bare repository at {repo_temp_path}: {result.stderr}", RNS.LOG_ERROR)
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Failed to initialize repository"
 
-            RNS.log(f"Fetching from {source_url}...", RNS.LOG_DEBUG)
+            RNS.log(f"Fetching from {source_url}...", RNS.LOG_VERBOSE)
             result = subprocess.run(["git", "fetch", source_url, "+refs/*:refs/*"], cwd=repo_temp_path, capture_output=True, text=True, check=False)
             if result.returncode != 0:
                 RNS.log(f"Failed to fetch from {source_url}: {result.stderr}", RNS.LOG_ERROR)
@@ -3260,7 +3266,7 @@ class ReticulumGitNode():
 
             try:
                 shutil.move(repo_temp_path, final_repository_path)
-                RNS.log(f"Deployed fetched repository from {repo_temp_path} to {final_repository_path}", RNS.LOG_DEBUG)
+                RNS.log(f"Deployed fetched repository from {repo_temp_path} to {final_repository_path}", RNS.LOG_VERBOSE)
             except Exception as e:
                 RNS.log(f"Failed to deploy fetched repository to group directory", RNS.LOG_WARNING)
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Could not write repository"
@@ -3272,7 +3278,7 @@ class ReticulumGitNode():
                 except: RNS.log(f"Could not clean up failed repository init at {final_repository_path}", RNS.LOG_ERROR)
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Failed to register repository"
 
-            RNS.log(f"Repository {group_name}/{repository_name} {repo_type}ed successfully from {source_url}", RNS.LOG_DEBUG)
+            RNS.log(f"Repository {group_name}/{repository_name} {repo_type}ed successfully from {source_url}", RNS.LOG_VERBOSE)
             return b"\x00"
 
         except Exception as e:
@@ -3283,7 +3289,7 @@ class ReticulumGitNode():
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
     def handle_sync(self, path, data, request_id, remote_identity, requested_at):
-        RNS.log(f"Upstream sync request from remote {remote_identity}", RNS.LOG_DEBUG)
+        self.log_request(f"Upstream sync request from remote {remote_identity}", remote_identity)
         if not remote_identity:             return self.RES_DISALLOWED.to_bytes(1, "big")  + b"Not identified"
         if not type(data) == dict:          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
         if not self.IDX_REPOSITORY in data: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No repository specified"
@@ -3319,7 +3325,7 @@ class ReticulumGitNode():
     ###############################
 
     def handle_release(self, path, data, request_id, remote_identity, requested_at):
-        RNS.log(f"Release request from remote {remote_identity}", RNS.LOG_DEBUG)
+        self.log_request(f"Release request from remote {remote_identity}", remote_identity)
         if not remote_identity:             return self.RES_DISALLOWED.to_bytes(1, "big")  + b"Not identified"
         if not type(data) == dict:          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
         if not self.IDX_REPOSITORY in data: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No repository specified"
@@ -3413,7 +3419,7 @@ class ReticulumGitNode():
                     tags[release_tag] = True if release_status == "published" else False
                 
                 except Exception as e:
-                    RNS.log(f"Error reading release metadata for {entry}: {e}", RNS.LOG_DEBUG)
+                    RNS.log(f"Error reading release metadata for {entry}: {e}", RNS.LOG_VERBOSE)
                     continue
 
 
@@ -3612,7 +3618,7 @@ class ReticulumGitNode():
             thanks_path = os.path.join(release_dir, "THANKS")
             with open(thanks_path, "wb") as f: f.write(mp.packb({"count": 0}))
             
-            RNS.log(f"Created release {tag} in draft status", RNS.LOG_DEBUG)
+            RNS.log(f"Created release {tag} in draft status", RNS.LOG_VERBOSE)
             return b"\x00"
         
         except Exception as e:
@@ -3649,7 +3655,7 @@ class ReticulumGitNode():
                 if isinstance(artifact_data, str): f.write(artifact_data.encode("utf-8"))
                 else:                              f.write(artifact_data)
             
-            RNS.log(f"Added artifact {artifact_name} to release {tag}", RNS.LOG_DEBUG)
+            RNS.log(f"Added artifact {artifact_name} to release {tag}", RNS.LOG_VERBOSE)
             return b"\x00"
         
         except Exception as e:
@@ -3682,11 +3688,11 @@ class ReticulumGitNode():
                 tmp_path = latest_path+".tmp"
                 with open(tmp_path, "w") as fh: fh.write(tag)
                 os.rename(tmp_path, latest_path)
-                RNS.log(f"Set {tag} as latest release for {releases_path}", RNS.LOG_DEBUG)
+                RNS.log(f"Set {tag} as latest release for {releases_path}", RNS.LOG_VERBOSE)
 
             except Exception as e: RNS.log(f"Error setting latest release for {releases_path}: {e}", RNS.LOG_ERROR)
             
-            RNS.log(f"Finalized release {tag} for {releases_path}", RNS.LOG_DEBUG)
+            RNS.log(f"Finalized release {tag} for {releases_path}", RNS.LOG_VERBOSE)
             return b"\x00"
         
         except Exception as e:
@@ -3706,7 +3712,7 @@ class ReticulumGitNode():
         
         try:
             shutil.rmtree(release_dir)
-            RNS.log(f"Deleted release {tag} from {releases_path}", RNS.LOG_DEBUG)
+            RNS.log(f"Deleted release {tag} from {releases_path}", RNS.LOG_VERBOSE)
             return b"\x00"
         
         except Exception as e:
@@ -3729,7 +3735,7 @@ class ReticulumGitNode():
             tmp_path = latest_path+".tmp"
             with open(tmp_path, "w") as fh: fh.write(tag)
             os.rename(tmp_path, latest_path)
-            RNS.log(f"Set {tag} as latest release for {releases_path}", RNS.LOG_DEBUG)
+            RNS.log(f"Set {tag} as latest release for {releases_path}", RNS.LOG_VERBOSE)
             return b"\x00"
         
         except Exception as e:
@@ -3741,7 +3747,7 @@ class ReticulumGitNode():
     ##########################
 
     def handle_work(self, path, data, request_id, remote_identity, requested_at):
-        RNS.log(f"Work request from remote {remote_identity}", RNS.LOG_DEBUG)
+        self.log_request(f"Work request from remote {remote_identity}", remote_identity)
         if not remote_identity:             return self.RES_DISALLOWED.to_bytes(1, "big")  + b"Not identified"
         if not type(data) == dict:          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
         if not self.IDX_REPOSITORY in data: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No repository specified"
@@ -3977,7 +3983,7 @@ class ReticulumGitNode():
             if not self._work_save_document(root_path, document):
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error saving document"
             
-            RNS.log(f"Created work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_DEBUG)
+            RNS.log(f"Created work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_VERBOSE)
             return b"\x00" + mp.packb({"id": doc_id, "scope": "active"})
         
         except Exception as e:
@@ -4028,7 +4034,7 @@ class ReticulumGitNode():
                 RNS.log(f"Error setting permissions: {e}", RNS.LOG_ERROR)
                 return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error setting document ownership"
             
-            RNS.log(f"Proposed work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_DEBUG)
+            RNS.log(f"Proposed work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_VERBOSE)
             return b"\x00" + mp.packb({"id": doc_id, "scope": "proposed"})
         
         except Exception as e:
@@ -4088,7 +4094,7 @@ class ReticulumGitNode():
             
             if not self._work_save_document(root_path, doc): return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error saving document"
             
-            RNS.log(f"Edited work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_DEBUG)
+            RNS.log(f"Edited work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_VERBOSE)
             return b"\x00"
         
         except Exception as e:
@@ -4138,7 +4144,7 @@ class ReticulumGitNode():
         
         try:
             shutil.rmtree(doc_dir)
-            RNS.log(f"Deleted work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_DEBUG)
+            RNS.log(f"Deleted work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_VERBOSE)
             return b"\x00"
         
         except Exception as e:
@@ -4189,7 +4195,7 @@ class ReticulumGitNode():
             comment_path = os.path.join(doc_dir, str(comment_id))
             if not self._work_save_document(comment_path, comment): return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error saving comment"
             
-            RNS.log(f"Added comment {comment_id} to work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_DEBUG)
+            RNS.log(f"Added comment {comment_id} to work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_VERBOSE)
             return b"\x00" + mp.packb({"id": comment_id})
         
         except Exception as e:
@@ -4218,7 +4224,7 @@ class ReticulumGitNode():
             completed_dir = os.path.join(completed_base, str(doc_id))
             shutil.move(active_dir, completed_dir)
             
-            RNS.log(f"Completed work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_DEBUG)
+            RNS.log(f"Completed work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_VERBOSE)
             return b"\x00" + mp.packb({"id": doc_id, "scope": "completed"})
         
         except Exception as e:
@@ -4247,7 +4253,7 @@ class ReticulumGitNode():
             active_dir = os.path.join(active_base, str(doc_id))
             shutil.move(completed_dir, active_dir)
             
-            RNS.log(f"Activated work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_DEBUG)
+            RNS.log(f"Activated work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_VERBOSE)
             return b"\x00" + mp.packb({"id": doc_id, "scope": "active"})
         
         except Exception as e:
@@ -4379,7 +4385,7 @@ class ReticulumGitNode():
     ##################################
 
     def handle_perms(self, path, data, request_id, remote_identity, requested_at):
-        RNS.log(f"Permissions request from remote {remote_identity}", RNS.LOG_DEBUG)
+        self.log_request(f"Permissions request from remote {remote_identity}", remote_identity)
         if not remote_identity:             return self.RES_DISALLOWED.to_bytes(1, "big")  + b"Not identified"
         if not type(data) == dict:          return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
 
@@ -4475,7 +4481,7 @@ class ReticulumGitNode():
             with open(tmp_path, "w", encoding="utf-8") as f: f.write(content)
             os.rename(tmp_path, allowed_path)
 
-            RNS.log(f"Permissions for group {group_name} updated by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_DEBUG)
+            RNS.log(f"Permissions for group {group_name} updated by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_VERBOSE)
             return b"\x00"
 
         except Exception as e:
@@ -4550,7 +4556,7 @@ class ReticulumGitNode():
             with open(tmp_path, "w", encoding="utf-8") as f: f.write(content)
             os.rename(tmp_path, allowed_path)
 
-            RNS.log(f"Permissions for repository {group_name}/{repository_name} updated by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_DEBUG)
+            RNS.log(f"Permissions for repository {group_name}/{repository_name} updated by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_VERBOSE)
             return b"\x00"
 
         except Exception as e:

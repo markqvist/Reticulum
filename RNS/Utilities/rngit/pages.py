@@ -2472,7 +2472,7 @@ class NomadNetworkNode():
             line = "│"
             for val in data:
                 upper_filled = val >= row_top
-                lower_filled = val >= row_mid
+                lower_filled = val >= row_mid or row == 1 and val > 0
 
                 if not upper_filled and not lower_filled: line += " "
                 elif upper_filled: line += f"`FT{gradient_color(grad_top)}`BT{gradient_color(grad_mid)}▀`f`b"
