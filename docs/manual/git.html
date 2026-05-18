@@ -263,6 +263,7 @@
         <article role="main" id="furo-main-content">
           <section id="git-over-reticulum">
 <span id="git-main"></span><h1>Git Over Reticulum<a class="headerlink" href="#git-over-reticulum" title="Link to this heading">¶</a></h1>
+<p>This chapter of the manual serves as the technical reference for the distributed software development and project collaboration tools included in RNS. For a conceptual overview, see the <span class="xref std std-ref">Distributed Development</span> chapter.</p>
 <p>A set of utilities for distributed collaborative software development and publishing are included in RNS.</p>
 <p>The system consists of two parts: The <code class="docutils literal notranslate"><span class="pre">rngit</span></code> node that hosts repositories, and the <code class="docutils literal notranslate"><span class="pre">git-remote-rns</span></code> helper that enables Git to communicate with rngit nodes. As soon as you have RNS installed on your system, you can transparently use Git with Reticulum-hosted repositories just like any other type of remote. Git over Reticulum uses URLs in the following format: <code class="docutils literal notranslate"><span class="pre">rns://DESTINATION_HASH/group/repo</span></code>.</p>
 <p>If you set a branch to track a Reticulum remote as the default upstream, you can simply use <code class="docutils literal notranslate"><span class="pre">git</span></code> as you normally would; all commands work transparently and as expected.</p>
@@ -388,10 +389,8 @@ Repository forked to public/myfork
 <p>The source can be any valid Git URL, including:</p>
 <ul class="simple">
 <li><p>HTTPS URLs: <code class="docutils literal notranslate"><span class="pre">https://github.com/user/repo.git</span></code></p></li>
-<li><p>Git URLs: <code class="docutils literal notranslate"><span class="pre">git://host.com/repo.git</span></code></p></li>
 <li><p>SSH URLs: <code class="docutils literal notranslate"><span class="pre">ssh://git&#64;host.com/repo.git</span></code></p></li>
 <li><p>Reticulum URLs: <code class="docutils literal notranslate"><span class="pre">rns://DESTINATION_HASH/group/repo</span></code></p></li>
-<li><p>Local paths: <code class="docutils literal notranslate"><span class="pre">/path/to/repo.git</span></code></p></li>
 </ul>
 <p>Forks are created as bare repositories with metadata tracking their origin. The fork process:</p>
 <ol class="arabic simple">
@@ -1269,6 +1268,26 @@ adm:9710b86ba12c42d1d8f30f74fe509286
 </ul>
 <p><strong>Nomad Network Interface</strong></p>
 <p>When the Nomad Network page node is enabled, work documents are viewable through the web interface. The work page lists all documents with their status, and clicking a document shows its full content and updates.</p>
+</section>
+<section id="cryptographic-attribution">
+<h3>Cryptographic Attribution<a class="headerlink" href="#cryptographic-attribution" title="Link to this heading">¶</a></h3>
+<p>Every work document is cryptographically signed by its creator using their Reticulum identity. When you create or edit a document, <code class="docutils literal notranslate"><span class="pre">rngit</span></code> generates an Ed25519 signature of the content, which is stored alongside the document contents and verified by the remote node, or locally when viewing the work document through the command-line interface. This provides two essential guarantees:</p>
+<ul class="simple">
+<li><p><strong>Attribution:</strong> Every document and comment can be cryptographically attributed to its actual author</p></li>
+<li><p><strong>Integrity:</strong> Any modification to the content after creation would invalidate the signature</p></li>
+</ul>
+<p>When viewing a work document, the signature validation status is displayed:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Author    : 9710b86ba12c42d1d8f30f74fe509286 (not locally validated)
+Signature : Document not signed
+</pre></div>
+</div>
+<p>Or, for valid signatures:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Author    : &lt;9710b86ba12c42d1d8f30f74fe509286&gt;
+Signature : Valid
+</pre></div>
+</div>
+<p>The “Valid” status indicates that the document content matches the author’s signature, and that the signing identity corresponds to the stated author. This can be used to create tamper-proof records of project decisions, investigations, and discussions that cannot be repudiated, or modified by third parties without detection.</p>
+<p>This cryptographic provenance is particularly valuable for distributed teams operating across trust boundaries. Because signatures are verified using the author’s Reticulum identity public keys - which can be recalled from any transport node on the network - work documents provide authoritative records of who said what, and when, without requiring a central authority to notarize or validate the communication. Even if the repository node hosting the documents becomes unavailable, the signed document files themselves retain validity and can be verified independently using standard Reticulum identity tools.</p>
 <p><strong>All Command-Line Options (rngit work)</strong></p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rngit work [-h] [--config CONFIG] [--rnsconfig RNSCONFIG]
                   [-i PATH] [--scope SCOPE] [-t TITLE] [-d ID] [-v]
@@ -1412,6 +1431,7 @@ options:
 <li><a class="reference internal" href="#proposing-work-documents">Proposing Work Documents</a></li>
 <li><a class="reference internal" href="#state-management">State Management</a></li>
 <li><a class="reference internal" href="#managing-work-document-permissions">Managing Work Document Permissions</a></li>
+<li><a class="reference internal" href="#cryptographic-attribution">Cryptographic Attribution</a></li>
 </ul>
 </li>
 </ul>

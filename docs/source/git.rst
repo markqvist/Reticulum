@@ -4,6 +4,8 @@
 Git Over Reticulum
 ******************
 
+This chapter of the manual serves as the technical reference for the distributed software development and project collaboration tools included in RNS. For a conceptual overview, see the :ref:`Distributed Development<distributed-development>` chapter.
+
 A set of utilities for distributed collaborative software development and publishing are included in RNS.
 
 The system consists of two parts: The ``rngit`` node that hosts repositories, and the ``git-remote-rns`` helper that enables Git to communicate with rngit nodes. As soon as you have RNS installed on your system, you can transparently use Git with Reticulum-hosted repositories just like any other type of remote. Git over Reticulum uses URLs in the following format: ``rns://DESTINATION_HASH/group/repo``.
@@ -170,10 +172,8 @@ To fork a repository:
 The source can be any valid Git URL, including:
 
 - HTTPS URLs: ``https://github.com/user/repo.git``
-- Git URLs: ``git://host.com/repo.git``
 - SSH URLs: ``ssh://git@host.com/repo.git``
 - Reticulum URLs: ``rns://DESTINATION_HASH/group/repo``
-- Local paths: ``/path/to/repo.git``
 
 Forks are created as bare repositories with metadata tracking their origin. The fork process:
 
@@ -1283,6 +1283,32 @@ Each document is a numbered directory containing:
 **Nomad Network Interface**
 
 When the Nomad Network page node is enabled, work documents are viewable through the web interface. The work page lists all documents with their status, and clicking a document shows its full content and updates.
+
+Cryptographic Attribution
+-------------------------
+
+Every work document is cryptographically signed by its creator using their Reticulum identity. When you create or edit a document, ``rngit`` generates an Ed25519 signature of the content, which is stored alongside the document contents and verified by the remote node, or locally when viewing the work document through the command-line interface. This provides two essential guarantees:
+
+- **Attribution:** Every document and comment can be cryptographically attributed to its actual author
+- **Integrity:** Any modification to the content after creation would invalidate the signature
+
+When viewing a work document, the signature validation status is displayed:
+
+.. code:: text
+
+  Author    : 9710b86ba12c42d1d8f30f74fe509286 (not locally validated)
+  Signature : Document not signed
+
+Or, for valid signatures:
+
+.. code:: text
+
+  Author    : <9710b86ba12c42d1d8f30f74fe509286>
+  Signature : Valid
+
+The "Valid" status indicates that the document content matches the author's signature, and that the signing identity corresponds to the stated author. This can be used to create tamper-proof records of project decisions, investigations, and discussions that cannot be repudiated, or modified by third parties without detection.
+
+This cryptographic provenance is particularly valuable for distributed teams operating across trust boundaries. Because signatures are verified using the author's Reticulum identity public keys - which can be recalled from any transport node on the network - work documents provide authoritative records of who said what, and when, without requiring a central authority to notarize or validate the communication. Even if the repository node hosting the documents becomes unavailable, the signed document files themselves retain validity and can be verified independently using standard Reticulum identity tools.
 
 **All Command-Line Options (rngit work)**
 

@@ -233,6 +233,7 @@ to participate in the development of Reticulum itself.
     * [Proposing Work Documents](git.md#proposing-work-documents)
     * [State Management](git.md#state-management)
     * [Managing Work Document Permissions](git.md#managing-work-document-permissions)
+    * [Cryptographic Attribution](git.md#cryptographic-attribution)
 * [Support Reticulum](support.md)
   * [Donations](support.md#donations)
   * [Provide Feedback](support.md#provide-feedback)
