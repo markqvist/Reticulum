@@ -864,7 +864,7 @@ class NomadNetworkNode():
                 author = commit["author"]
                 date = self.format_absolute_time(commit["timestamp"])+" - "+self.format_relative_time(commit["timestamp"])
 
-                hash_link = self.m_link(short_hash, self.PATH_COMMIT, g=group_name, r=repo_name, h=commit["hash"])
+                hash_link = self.m_link(short_hash, self.PATH_COMMIT, g=group_name, r=repo_name, ref=ref, h=commit["hash"])
 
                 content_parts.append(f"`F66d{hash_link}`f {self.m_escape(author)} {self.CLR_DIM}{date}`f\n")
                 content_parts.append(f"{self.m_escape(subject)}\n\n")
@@ -891,6 +891,7 @@ class NomadNetworkNode():
         if not data or not type(data) == dict: data = {}
         group_name = data.get("var_g", "")  if data else ""
         repo_name = data.get("var_r", "")   if data else ""
+        ref = data.get("var_ref", "HEAD")    if data else "HEAD"
         commit_hash = data.get("var_h", "") if data else ""
 
         if not group_name or not repo_name:
@@ -903,6 +904,12 @@ class NomadNetworkNode():
             return self.render_template(content, st=st)
 
         repo_path = repo["path"]
+
+        # Validate ref exists
+        resolved_ref = self.resolve_ref(repo_path, ref)
+        if not resolved_ref:
+            content = self.m_heading("Ref Not Found", 1) + f"\n\nThe ref '{ref}' does not exist in this repository.\n"
+            return self.render_template(content, st=st)
 
         # Validate commit hash
         if not commit_hash or len(commit_hash) < 7:
@@ -917,7 +924,7 @@ class NomadNetworkNode():
 
         # Breadcrumb navigation
         nav_parts = []
-        breadcrumb = f"{self.m_link('Node', self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / {resolved_hash[:7]}"
+        breadcrumb = f"{self.m_link('Node', self.PATH_INDEX)} / {self.m_link(group_name, self.PATH_GROUP, g=group_name)} / {self.m_link(repo_name, self.PATH_REPO, g=group_name, r=repo_name)} / {self.m_link('commits', self.PATH_COMMITS, g=group_name, r=repo_name, ref=ref)} / {resolved_hash[:7]}"
         nav_parts.append(">>\n" + breadcrumb + "\n")
         nav_content = "".join(nav_parts)
 
@@ -955,7 +962,7 @@ class NomadNetworkNode():
         if commit_info.get("parents"):
             parent_links = []
             for parent_hash in commit_info["parents"]:
-                parent_link = self.m_link(parent_hash[:7], self.PATH_COMMIT, g=group_name, r=repo_name, h=parent_hash)
+                parent_link = self.m_link(parent_hash[:7], self.PATH_COMMIT, g=group_name, r=repo_name, ref=ref, h=parent_hash)
                 parent_links.append(parent_link)
 
             content_parts.append(f"Parents: {' '.join(parent_links)}\n")
