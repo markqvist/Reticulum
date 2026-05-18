@@ -50,6 +50,7 @@ from RNS.vendor.configobj import ConfigObj
 from RNS.vendor import umsgpack as mp
 from RNS.Utilities.rnid import create_rsg, validate_rsg, get_rsg_hash
 from RNS.Utilities.rnid import rsg_meta_from_str, extract_signed_rsg_data
+from RNS.Utilities.rnid import check_release_rsm_structure
 
 def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, service=False, interactive=False, print_identity=False, task=None, identity=None, signer=None):
     targetverbosity = verbosity-quietness
@@ -88,7 +89,7 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
             if   operation == "list":   git_client.list_releases(remote=task["remote"])
             elif operation == "view":   git_client.view_release(remote=task["remote"], target=task["target"])
             elif operation == "fetch":  git_client.fetch_release(remote=task["remote"], target=task["target"], signer=task["signer"])
-            elif operation == "create": git_client.create_release(remote=task["remote"], target=task["target"], signer=task["signer"], name=task["name"])
+            elif operation == "create": git_client.create_release(remote=task["remote"], target=task["target"], signer=task["signer"], name=task["name"], no_upload=task["no_upload"])
             elif operation == "delete": git_client.delete_release(remote=task["remote"], target=task["target"])
             elif operation == "latest": git_client.latest_release(remote=task["remote"], target=task["target"])
             else:                       print("Invalid operation"); exit(1)
@@ -162,7 +163,8 @@ def main():
             parser.add_argument("-i", "--identity", action="store", metavar="PATH", default=None, help="path to release identity", type=str)
             parser.add_argument("-s", "--signer", action="store", metavar="PATH", default=None, help="path to signing identity, if different from release identity", type=str)
             parser.add_argument("-n", "--name", action="store", metavar="name", default=None, help="package name if different from repo name", type=str)
-            parser.add_argument("repository", nargs="?", default=None, help="URL of remote repository", type=str)
+            parser.add_argument('-L', '--local', action='store_true', default=False, help="generate release locally, but don't upload")
+            parser.add_argument("repository", nargs="?", default=None, help="URL of remote repository, or path to RSM manifest", type=str)
             parser.add_argument("operation", nargs="?", default=None, help="list, view, fetch, create, latest or delete", type=str)
             parser.add_argument("target", nargs="?", default=None, help="tag and path to release artifacts directory", type=str)
 
@@ -232,7 +234,7 @@ def main():
         elif subcommand == "release":
             if not args.operation: parser.print_help()
             task = {"command": subcommand, "operation": args.operation, "remote": args.repository, "target": args.target,
-                    "signer": args.signer, "name": args.name}
+                    "signer": args.signer, "name": args.name, "no_upload": args.local}
             program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, verbosity=args.verbose, quietness=args.quiet,
                           task=task, identity=args.identity, signer=args.signer)
 
@@ -857,15 +859,32 @@ class ReticulumGitClient():
             try: signer_hash = bytes.fromhex(signer)
             except Exception as e: self.abort(f"Invalid required signer identity hash: {e}")
 
+        if remote.endswith(f".{self.MSG_EXT}") and os.path.isfile(os.path.expanduser(remote)):
+            manifest_path = os.path.expanduser(remote)
+            with open(manifest_path, "rb") as fh: rsg = fh.read()
+            rsm_contents = extract_signed_rsg_data(rsg)
+            if not "message" in rsm_contents: self.abort(f"No embedded message in release manifest")
+            valid, signed_data, signing_identity = validate_rsg(rsg, message=rsm_contents["message"], required_signer=signer_hash)
+            if not valid: self.abort(f"Release manifest not signed by {RNS.prettyhexrep(signer_hash)}, aborting") if signer_hash else self.abort("Could not validate release manifest signature")
+            else:
+                print(f"Valid release manifest signature, signed by {signing_identity}")
+                rsm_structure_integrity = check_release_rsm_structure(signed_data)
+                if rsm_structure_integrity != True: self.abort(rsm_structure_integrity)
+                release_meta = signed_data.get("meta", None)
+                release_origin = release_meta.get("origin", None)
+                release_origin_path = release_meta.get("path", None)
+                remote = f"rns://{RNS.hexrep(release_origin, delimit=False)}/{release_origin_path}"
+                print(f"Release origin is {remote}")
+
         self.connect_remote(remote)
-        
+
         timeout = self.link_timeout
         while not self.link_ready and not self.link_failed and timeout > 0:
             time.sleep(self.wait_sleep)
             timeout -= self.wait_sleep
         
         if not self.link_ready: self.abort("Link establishment failed")
-        
+
         try:
             destination_hash, group, repo = self.parse_remote_url(remote)
             repo_path = f"{group}/{repo}"
@@ -874,9 +893,9 @@ class ReticulumGitClient():
             if len(parts) < 2: self.abort("Invalid release specification")
             tag = parts[0]
             artifact = parts[1]
-            
+
             def fetch(name):
-                self.transfer_label = name; self.progress_indent = ""
+                self.transfer_label = name
                 request_data = {self.IDX_REPOSITORY: repo_path, "operation": "fetch", "tag": tag, "artifact": name}
                 response, metadata = self.send_request(self.PATH_RELEASE, request_data, timeout=30, progress=True)
                 print("\r                       \r", end="")
@@ -901,6 +920,7 @@ class ReticulumGitClient():
                     return response.name
 
             # Fetch release manifest
+            self.progress_indent = ""
             manifest_path = fetch("manifest.rsm")
             with open(manifest_path, "rb") as fh: rsg = fh.read()
             rsm_contents = extract_signed_rsg_data(rsg)
@@ -909,12 +929,11 @@ class ReticulumGitClient():
             if not valid: self.abort(f"Release manifest not signed by {RNS.prettyhexrep(signer_hash)}, aborting") if signer_hash else self.abort("Could not validate release manifest signature")
             else:
                 print(f"Release manifest validated, signed by {signing_identity}")
+                rsm_structure_integrity = check_release_rsm_structure(signed_data)
+                if rsm_structure_integrity != True: self.abort(rsm_structure_integrity)
                 release_meta = signed_data.get("meta", None)
-                if not release_meta: self.abort(f"No release metadata in manifest")
                 release_name = release_meta.get("name", None)
                 release_version = release_meta.get("version", None)
-                if not release_name or not release_version: self.abort("Incomplete release data in manifest")
-                if "/" in release_name or "/" in release_version: self.abort("Invalid data in release manifest")
                 manifest_out = os.path.basename(f"{release_name}_{release_version}.{self.MSG_EXT}")
                 with open(manifest_out, "wb") as fh: fh.write(rsg)
 
@@ -927,6 +946,9 @@ class ReticulumGitClient():
                             fetch_artifacts = [entry]; break
                 
                 if not fetch_artifacts: self.abort("No available artifacts specified for fetch")
+                ms = "" if len(fetch_artifacts) == 1 else "s"
+                print(f"Fetching {len(fetch_artifacts)} artifact{ms}...")
+                self.progress_indent = "  "
                 for artifact in fetch_artifacts:
                     name = os.path.basename(artifact["name"])
                     rsg  = artifact["rsg"]
@@ -946,7 +968,7 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
-    def create_release(self, remote=None, target=None, signer=None, name=None):
+    def create_release(self, remote=None, target=None, signer=None, name=None, no_upload=False):
         if signer:
             try:
                 identity_path = os.path.expanduser(signer)
@@ -958,16 +980,8 @@ class ReticulumGitClient():
         if not remote: self.abort(f"No remote specified")
         if not target: self.abort(f"No target specified")
         if not signer: signer = self.identity
-        self.connect_remote(remote)
-        
-        timeout = self.link_timeout
-        while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(self.wait_sleep)
-            timeout -= self.wait_sleep
-        
-        if not self.link_ready: self.abort("Failed to establish link")
-        print("\r                       \r", end="")
-        
+        if no_upload:  self.link = None
+
         try:
             destination_hash, group, repo = self.parse_remote_url(remote)
             repo_path         = f"{group}/{repo}"
@@ -992,7 +1006,7 @@ class ReticulumGitClient():
             # Generate manifest
             package_name  = name or repo
             manifest_meta = {"name": package_name ,"version": tag, "released": release_time_iso, "timestamp": release_time,
-                             "origin": destination_hash, "commit": commit_hash, "artifacts": []}
+                             "origin": destination_hash, "path": f"{group}/{repo}", "commit": commit_hash, "artifacts": []}
             try:
                 manifest_path = artifacts_path+f"/manifest.{self.MSG_EXT}"
                 rsgs = []
@@ -1016,6 +1030,17 @@ class ReticulumGitClient():
                 artifacts.append(f"manifest.{self.MSG_EXT}")
 
             except Exception as e: self.abort(f"Release manifest generation failed: {e}")
+
+            if no_upload: print(f"Local release {package_name}:{tag} generated successfully in {target}"); exit(0)
+            else: self.connect_remote(remote)
+
+            timeout = self.link_timeout
+            while not self.link_ready and not self.link_failed and timeout > 0:
+                time.sleep(self.wait_sleep)
+                timeout -= self.wait_sleep
+
+            if not self.link_ready: self.abort("Failed to establish link")
+            print("\r                       \r", end="")
 
             # Step 1: Initialize release
             print("Initializing release on remote...")
@@ -1074,8 +1099,7 @@ class ReticulumGitClient():
             
             print(f"Release {tag} published")
         
-        except Exception as e:
-            self.abort(f"Error creating release: {e}")
+        except Exception as e: self.abort(f"Error creating release: {e}")
         finally:
             if self.link: self.link.teardown()
 
