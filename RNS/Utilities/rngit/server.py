@@ -88,7 +88,7 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
             git_client = ReticulumGitClient(configdir=configdir, verbosity=targetverbosity, identitypath=identity)
             if   operation == "list":   git_client.list_releases(remote=task["remote"])
             elif operation == "view":   git_client.view_release(remote=task["remote"], target=task["target"])
-            elif operation == "fetch":  git_client.fetch_release(remote=task["remote"], target=task["target"], signer=task["signer"])
+            elif operation == "fetch":  git_client.fetch_release(remote=task["remote"], target=task["target"], signer=task["signer"], offline=task["offline"])
             elif operation == "create": git_client.create_release(remote=task["remote"], target=task["target"], signer=task["signer"], name=task["name"], no_upload=task["no_upload"])
             elif operation == "delete": git_client.delete_release(remote=task["remote"], target=task["target"])
             elif operation == "latest": git_client.latest_release(remote=task["remote"], target=task["target"])
@@ -164,6 +164,7 @@ def main():
             parser.add_argument("-s", "--signer", action="store", metavar="PATH", default=None, help="path to signing identity, if different from release identity", type=str)
             parser.add_argument("-n", "--name", action="store", metavar="name", default=None, help="package name if different from repo name", type=str)
             parser.add_argument('-L', '--local', action='store_true', default=False, help="generate release locally, but don't upload")
+            parser.add_argument('-o', '--offline', action='store_true', default=False, help="verify manifest locally, but don't fetch updates")
             parser.add_argument("repository", nargs="?", default=None, help="URL of remote repository, or path to RSM manifest", type=str)
             parser.add_argument("operation", nargs="?", default=None, help="list, view, fetch, create, latest or delete", type=str)
             parser.add_argument("target", nargs="?", default=None, help="tag and path to release artifacts directory", type=str)
@@ -234,7 +235,7 @@ def main():
         elif subcommand == "release":
             if not args.operation: parser.print_help()
             task = {"command": subcommand, "operation": args.operation, "remote": args.repository, "target": args.target,
-                    "signer": args.signer, "name": args.name, "no_upload": args.local}
+                    "signer": args.signer, "name": args.name, "no_upload": args.local, "offline": args.offline}
             program_setup(configdir=configarg, rnsconfigdir=rnsconfigarg, verbosity=args.verbose, quietness=args.quiet,
                           task=task, identity=args.identity, signer=args.signer)
 
@@ -850,7 +851,8 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
-    def fetch_release(self, remote=None, target=None, signer=None):
+    def fetch_release(self, remote=None, target=None, signer=None, offline=False):
+        if offline and not target: target = "latest:all"
         if not remote: self.abort(f"No remote specified")
         if not target: self.abort(f"No target specified")
         if not signer: signer_hash = None
@@ -859,6 +861,8 @@ class ReticulumGitClient():
             try: signer_hash = bytes.fromhex(signer)
             except Exception as e: self.abort(f"Invalid required signer identity hash: {e}")
 
+        local_manifest = None
+        local_manifest_dir = None
         if remote.endswith(f".{self.MSG_EXT}") and os.path.isfile(os.path.expanduser(remote)):
             manifest_path = os.path.expanduser(remote)
             with open(manifest_path, "rb") as fh: rsg = fh.read()
@@ -874,16 +878,20 @@ class ReticulumGitClient():
                 release_origin = release_meta.get("origin", None)
                 release_origin_path = release_meta.get("path", None)
                 remote = f"rns://{RNS.hexrep(release_origin, delimit=False)}/{release_origin_path}"
+                local_manifest = manifest_path
+                local_manifest_dir = local_manifest.replace(os.path.basename(local_manifest), "")
                 print(f"Release origin is {remote}")
 
-        self.connect_remote(remote)
+        if offline and not local_manifest: self.abort("Cannot perform offline verification without a local manifest")
+        if offline: self.link = None
+        else:
+            self.connect_remote(remote)
+            timeout = self.link_timeout
+            while not self.link_ready and not self.link_failed and timeout > 0:
+                time.sleep(self.wait_sleep)
+                timeout -= self.wait_sleep
 
-        timeout = self.link_timeout
-        while not self.link_ready and not self.link_failed and timeout > 0:
-            time.sleep(self.wait_sleep)
-            timeout -= self.wait_sleep
-        
-        if not self.link_ready: self.abort("Link establishment failed")
+            if not self.link_ready: self.abort("Link establishment failed")
 
         try:
             destination_hash, group, repo = self.parse_remote_url(remote)
@@ -895,6 +903,8 @@ class ReticulumGitClient():
             artifact = parts[1]
 
             def fetch(name):
+                if offline and name == "manifest.rsm": return local_manifest
+                elif offline: return local_manifest_dir+name
                 self.transfer_label = name
                 request_data = {self.IDX_REPOSITORY: repo_path, "operation": "fetch", "tag": tag, "artifact": name}
                 response, metadata = self.send_request(self.PATH_RELEASE, request_data, timeout=30, progress=True)
@@ -945,14 +955,16 @@ class ReticulumGitClient():
                         if entry["name"] == artifact:
                             fetch_artifacts = [entry]; break
                 
+                valid_count = 0
                 if not fetch_artifacts: self.abort("No available artifacts specified for fetch")
                 ms = "" if len(fetch_artifacts) == 1 else "s"
-                print(f"Fetching {len(fetch_artifacts)} artifact{ms}...")
+                op = "Fetching" if not offline else "Validating"
+                print(f"{op} {len(fetch_artifacts)} artifact{ms}...")
                 self.progress_indent = "  "
                 for artifact in fetch_artifacts:
                     name = os.path.basename(artifact["name"])
                     rsg  = artifact["rsg"]
-                    if os.path.exists(name):
+                    if not offline and os.path.exists(name):
                         with open(name, "rb") as fh: valid, signed_data, signing_identity = validate_rsg(rsg, fh, required_signer=signer_hash)
                         if not valid: print(f"Existing file {name} does not match manifest, fetching and overwriting")
                         else:
@@ -960,9 +972,15 @@ class ReticulumGitClient():
                             continue
 
                     artifact_path = fetch(name)
+                    if offline and not os.path.exists(artifact_path): print(f"  File {name} from manifest does not exist locally, cannot validate"); continue
                     with open(artifact_path, "rb") as fh: valid, signed_data, signing_identity = validate_rsg(rsg, fh, required_signer=signer_hash)
-                    if not valid: self.abort(f"Fetched file {name} does not match manifest, aborting")
-                    else: shutil.move(artifact_path, name);
+                    if not valid: self.abort(f"Fetched file {name} does not match manifest, aborting") if not offline else print(f"  File {name} does not match manifest")
+                    else: shutil.move(artifact_path, name) if not offline else print(f"  File {name} validated against manifest {local_manifest}")
+                    if valid: valid_count += 1
+
+                if offline:
+                    if valid_count == len(fetch_artifacts): print("\nAll files validated"); exit(0)
+                    else:                                   print("\nRelease is not valid"); exit(1)
         
         except Exception as e: self.abort(f"Error fetching release: {e}")
         finally:
