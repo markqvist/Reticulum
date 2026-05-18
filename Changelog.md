@@ -4,6 +4,7 @@ This release improves the `rngit` system with signed release manifest generation
 
 **Changes**
 - Added signed release manifest generation to `rngit release`
+- Added verified release fetching to `rngit release`
 - Added automatic artifact signing to `rngit release`
 - Added signed message creation from file to `rnid`
 - Added signed message metadata output option to `rnid`
