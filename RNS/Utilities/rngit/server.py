@@ -909,7 +909,16 @@ class ReticulumGitClient():
             if not valid: self.abort(f"Release manifest not signed by {RNS.prettyhexrep(signer_hash)}, aborting") if signer_hash else self.abort("Could not validate release manifest signature")
             else:
                 print(f"Release manifest validated, signed by {signing_identity}")
-                artifacts = signed_data["meta"].get("artifacts", [])
+                release_meta = signed_data.get("meta", None)
+                if not release_meta: self.abort(f"No release metadata in manifest")
+                release_name = release_meta.get("name", None)
+                release_version = release_meta.get("version", None)
+                if not release_name or not release_version: self.abort("Incomplete release data in manifest")
+                if "/" in release_name or "/" in release_version: self.abort("Invalid data in release manifest")
+                manifest_out = os.path.basename(f"{release_name}_{release_version}.{self.MSG_EXT}")
+                with open(manifest_out, "wb") as fh: fh.write(rsg)
+
+                artifacts = release_meta.get("artifacts", [])
                 if not artifacts: self.abort("Release manifest contains no artifacts")
                 if artifact == "all": fetch_artifacts = artifacts
                 else:
