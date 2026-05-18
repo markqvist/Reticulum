@@ -48,7 +48,8 @@ from RNS.Utilities.rngit.pages import NomadNetworkNode
 from RNS.Utilities.rngit.util import san_ref, san_refs, san_sha
 from RNS.vendor.configobj import ConfigObj
 from RNS.vendor import umsgpack as mp
-from RNS.Utilities.rnid import create_rsg, rsg_meta_from_str
+from RNS.Utilities.rnid import create_rsg, validate_rsg, get_rsg_hash
+from RNS.Utilities.rnid import rsg_meta_from_str, extract_signed_rsg_data
 
 def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, service=False, interactive=False, print_identity=False, task=None, identity=None, signer=None):
     targetverbosity = verbosity-quietness
@@ -86,7 +87,7 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
             git_client = ReticulumGitClient(configdir=configdir, verbosity=targetverbosity, identitypath=identity)
             if   operation == "list":   git_client.list_releases(remote=task["remote"])
             elif operation == "view":   git_client.view_release(remote=task["remote"], target=task["target"])
-            elif operation == "fetch":  git_client.fetch_release(remote=task["remote"], target=task["target"])
+            elif operation == "fetch":  git_client.fetch_release(remote=task["remote"], target=task["target"], signer=task["signer"])
             elif operation == "create": git_client.create_release(remote=task["remote"], target=task["target"], signer=task["signer"], name=task["name"])
             elif operation == "delete": git_client.delete_release(remote=task["remote"], target=task["target"])
             elif operation == "latest": git_client.latest_release(remote=task["remote"], target=task["target"])
@@ -468,6 +469,15 @@ class ReticulumGitClient():
     def _response_ready(self, request_receipt):
         self.request_response = request_receipt.response
         self.response_metadata = request_receipt.metadata
+
+        if hasattr(self.request_response, "read") and callable(self.request_response.read):
+            if not hasattr(self, "tmpdir"): self.tmp_dir = TemporaryDirectory()
+            response_path = self.request_response.name
+            base_name = os.path.basename(response_path)
+            retained_path = os.path.join(self.tmp_dir.name, base_name)
+            shutil.move(response_path, retained_path)
+            self.request_response = open(retained_path, "rb")
+
         self.request_event.set()
 
     def _response_failed(self, request_receipt=None):
@@ -497,13 +507,14 @@ class ReticulumGitClient():
             self.progress_updated_at = now
 
             if self.progress_enabled and self.response_size:
+                pi = self.progress_indent if hasattr(self, "progress_indent") else "  "
                 percent = round(self.response_progress * 100, 1)
                 size = self.response_size
                 rxd = size*self.response_progress
                 speed_kbps = (self.response_speed / 1000) if hasattr(self, 'response_speed') else 0
-                print(f"  Transferring {self.transfer_label}: {percent}% ({RNS.prettysize(rxd)}/{RNS.prettysize(size)}) {RNS.prettyspeed(self.response_speed)}          \r", end="")
+                print(f"{pi}Transferring {self.transfer_label}: {percent}% ({RNS.prettysize(rxd)}/{RNS.prettysize(size)}) {RNS.prettyspeed(self.response_speed)}          \r", end="")
 
-    def send_request(self, path, data, timeout=120):
+    def send_request(self, path, data, timeout=120, progress=False):
         if not self.link_ready: self.abort("Link not ready at request time")
         
         self.request_event.clear()
@@ -511,7 +522,8 @@ class ReticulumGitClient():
         self.response_metadata = None
         
         RNS.log(f"Sending request: {path}", RNS.LOG_DEBUG)
-        request_receipt = self.link.request(path, data, response_callback=self._response_ready, failed_callback=self._response_failed, timeout=timeout)
+        progress_callback = self._on_progress if progress else None
+        request_receipt = self.link.request(path, data, progress_callback=progress_callback, response_callback=self._response_ready, failed_callback=self._response_failed, timeout=timeout)
         if request_receipt.resource: request_receipt.resource.progress_callback(self._on_progress)
         self.request_event.wait(timeout=timeout)
         
@@ -834,9 +846,15 @@ class ReticulumGitClient():
         finally:
             if self.link: self.link.teardown()
 
-    def fetch_release(self, remote=None, target=None):
+    def fetch_release(self, remote=None, target=None, signer=None):
         if not remote: self.abort(f"No remote specified")
         if not target: self.abort(f"No target specified")
+        if not signer: signer_hash = None
+        else:
+            if not len(signer) == RNS.Reticulum.TRUNCATED_HASHLENGTH//8*2: self.abort("Invalid required signer identity hash length")
+            try: signer_hash = bytes.fromhex(signer)
+            except Exception as e: self.abort(f"Invalid required signer identity hash: {e}")
+
         self.connect_remote(remote)
         
         timeout = self.link_timeout
@@ -856,20 +874,64 @@ class ReticulumGitClient():
             artifact = parts[1]
             
             def fetch(name):
+                self.transfer_label = name; self.progress_indent = ""
                 request_data = {self.IDX_REPOSITORY: repo_path, "operation": "fetch", "tag": tag, "artifact": name}
-                response, metadata = self.send_request(self.PATH_RELEASE, request_data, timeout=30)
+                response, metadata = self.send_request(self.PATH_RELEASE, request_data, timeout=30, progress=True)
                 print("\r                       \r", end="")
-                if not response or not isinstance(response, bytes): self.abort("No response from remote")
-                status_byte = response[0]
-                if status_byte != 0:
-                    error_msg = response[1:].decode("utf-8", errors="ignore")
-                    self.abort(f"Remote error: {error_msg}")
-                if len(response) <= 1: self.abort("Empty response from remote")
-                print()
 
-            # TODO: Implement
+                if not response: self.abort(f"No response from remote")
+                if not metadata:
+                    status_byte = response[0]
+                    if   status_byte == self.RES_INVALID_REQ: self.abort(f"Remote error: Invalid request")
+                    elif status_byte == self.RES_NOT_FOUND:
+                        error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Not found"
+                        self.abort(f"{error_msg}")
+                    elif status_byte == self.RES_DISALLOWED:
+                        error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Not allowed"
+                        self.abort(f"{error_msg}")
+                    else:
+                        error_msg = response[1:].decode("utf-8", errors="ignore") if len(response) > 1 else "Unknown error"
+                        self.abort(f"Remote error: {error_msg}")
+                else:
+                    if not "name" in metadata: self.abort(f"Invalid result metadata on fetch response")
+                    size = os.stat(response.name).st_size
+                    print(f"{self.progress_indent}Transferring {self.transfer_label}: 100% ({RNS.prettysize(size)})                         ")
+                    return response.name
+
+            # Fetch release manifest
+            manifest_path = fetch("manifest.rsm")
+            with open(manifest_path, "rb") as fh: rsg = fh.read()
+            rsm_contents = extract_signed_rsg_data(rsg)
+            if not "message" in rsm_contents: self.abort(f"No embedded message in release manifest")
+            valid, signed_data, signing_identity = validate_rsg(rsg, message=rsm_contents["message"], required_signer=signer_hash)
+            if not valid: self.abort(f"Release manifest not signed by {RNS.prettyhexrep(signer_hash)}, aborting") if signer_hash else self.abort("Could not validate release manifest signature")
+            else:
+                print(f"Release manifest validated, signed by {signing_identity}")
+                artifacts = signed_data["meta"].get("artifacts", [])
+                if not artifacts: self.abort("Release manifest contains no artifacts")
+                if artifact == "all": fetch_artifacts = artifacts
+                else:
+                    for entry in artifacts:
+                        if entry["name"] == artifact:
+                            fetch_artifacts = [entry]; break
+                
+                if not fetch_artifacts: self.abort("No available artifacts specified for fetch")
+                for artifact in fetch_artifacts:
+                    name = os.path.basename(artifact["name"])
+                    rsg  = artifact["rsg"]
+                    if os.path.exists(name):
+                        with open(name, "rb") as fh:
+                            valid, signed_data, signing_identity = validate_rsg(rsg, fh, required_signer=signer_hash)
+                        
+                        if not valid: print(f"Existing file {name} does not match manifest, fetching and overwriting")
+                        else:
+                            print(f"Existing file {name} validated, not fetching again")
+                            continue
+
+                    artifact_path = fetch(name)
+                    shutil.move(artifact_path, name)
         
-        except Exception as e: self.abort(f"Error viewing release: {e}")
+        except Exception as e: self.abort(f"Error fetching release: {e}")
         finally:
             if self.link: self.link.teardown()
 
@@ -3155,7 +3217,7 @@ class ReticulumGitNode():
         if not read_access: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Not found"
         
         if   operation in ["create", "delete", "latest"] and release_access and read_access: access = True
-        elif operation in ["list", "view"] and read_access:                                  access = True
+        elif operation in ["list", "view", "fetch"] and read_access:                         access = True
         else:                                                                                access = False
         
         if not access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"Not allowed"
@@ -3166,6 +3228,7 @@ class ReticulumGitNode():
             try:
                 if   operation == "list" and read_access:      return self._release_list(releases_path)
                 elif operation == "view" and read_access:      return self._release_view(releases_path, data)
+                elif operation == "fetch" and read_access:     return self._release_fetch(releases_path, data)
                 elif operation == "create" and release_access: return self._release_create(releases_path, repository_path, data, remote_identity)
                 elif operation == "delete" and release_access: return self._release_delete(releases_path, data)
                 elif operation == "latest" and release_access: return self._release_latest(releases_path, data)
@@ -3345,6 +3408,39 @@ class ReticulumGitNode():
         if not release_info: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error getting release data"
 
         return b"\x00" + mp.packb(release_info)
+
+    def _release_fetch(self, releases_path, data):
+        tag = data.get("tag", "")
+        if "/" in tag: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
+        if not tag:    return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid tag specified"
+
+        artifact = data.get("artifact", "")
+        if "/" in artifact: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid artifact specified"
+        if not artifact:    return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid artifact specified"
+
+        tag = os.path.basename(tag)
+        artifact = os.path.basename(artifact)
+
+        latest_release = None
+        if tag == "latest":
+            try:
+                latest_path = os.path.join(releases_path, "latest")
+                if os.path.isfile(latest_path):
+                    with open(latest_path, "r") as fh: latest_tag = fh.read().strip()
+                    latest_release = latest_tag
+
+            except Exception as e: RNS.log(f"Could not determine latest release for {releases_path}: {e}", RNS.LOG_ERROR)
+
+            if not latest_release: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"No latest release found"
+            else: tag = latest_release
+
+        release_dir = os.path.join(releases_path, tag)
+        if not os.path.isdir(release_dir): return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Release not found"
+
+        artifact_path = os.path.join(release_dir, "artifacts", artifact)
+        if not os.path.isfile(artifact_path): return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Artifact not found"
+
+        return [open(artifact_path, "rb"), {"name": artifact.encode("utf-8")}]
 
     def _release_create(self, releases_path, repository_path, data, remote_identity):
         step = data.get("step")
