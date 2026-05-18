@@ -56,22 +56,35 @@ documentation:
 manual:
 	make -C docs latexpdf epub
 
+distcollect:
+	cp docs/Reticulum\ Manual.* dist
+
 build_spkg: remove_symlinks build_sdist create_symlinks
 
-release: test remove_symlinks build_sdist build_wheel build_pure_wheel documentation manual create_symlinks
+release: test remove_symlinks build_sdist build_wheel build_pure_wheel documentation manual distcollect create_symlinks
 
 debug: remove_symlinks build_wheel build_pure_wheel create_symlinks
 
-upload: upload-rns upload-rnspure
+local: release sign
 
-upload-rns:
+sign:
+	rngit release rns://7649a50d84610232d1416b41d2896aff/reticulum/reticulum create $$(python setup.py --getversion):dist --name rns --local
+
+upload:
+	@echo Ready to publish release over Reticulum
+	@read VOID
+	rngit release rns://7649a50d84610232d1416b41d2896aff/reticulum/reticulum create $$(python setup.py --getversion):dist --name rns
+
+upload-pip: upload-rns-pip upload-rnspure-pip
+
+upload-rns-pip:
 	@echo Ready to publish rns release, hit enter to continue
 	@read VOID
 	@echo Uploading to PyPi...
 	twine upload dist/rns-*.whl dist/rns-*.tar.gz
 	@echo Release published
 
-upload-rnspure:
+upload-rnspure-pip:
 	@echo Ready to publish rnspure release, hit enter to continue
 	@read VOID
 	@echo Uploading to PyPi...
