@@ -13,6 +13,10 @@ exec(open("RNS/_version.py", "r").read())
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+if "--getversion" in sys.argv:
+    print(__version__, end="")
+    exit(0)
+
 if pure_python:
     pkg_name = "rnspure"
     requirements = []
