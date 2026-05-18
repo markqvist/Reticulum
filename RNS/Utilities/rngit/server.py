@@ -3953,8 +3953,7 @@ class ReticulumGitNode():
         
         doc_dir = os.path.join(work_path, scope, str(doc_id))
         root_path = os.path.join(doc_dir, "root")
-        RNS.log(f"PATH: {root_path}")
-        
+
         if not os.path.isfile(root_path): return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Document not found"
         
         doc = self._work_load_document(root_path)
