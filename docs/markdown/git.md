@@ -6,7 +6,7 @@ The system consists of two parts: The `rngit` node that hosts repositories, and 
 
 If you set a branch to track a Reticulum remote as the default upstream, you can simply use `git` as you normally would; all commands work transparently and as expected.
 
-#### WARNING
+#### IMPORTANT
 **The rngit program is a new addition to RNS!** This functionality was introduced in RNS 1.2.0. While great care has been taken to design a secure, but highly configurable and flexible [permission system](#permissions) for allowing many users to interact with many different repositories on a single node, `rngit` has not been tested extensively in the wild! Be careful when hosting repositories, especially if they are public or semi-public.
 
 ## The rngit Utility
@@ -480,6 +480,66 @@ Targets can also use short forms:
 - Repository permissions: `<group_root>/<group_name>/<repo_name>.allowed`
 - Document permissions: `<group_root>/<group_name>.work/<doc_id>.allowed`
 
+## Remote Permission Management
+
+While permissions can be configured directly on the node by editing configuration files and `.allowed` files, `rngit` also supports remote permission management through the `rngit perms` command. This allows administrators to modify access controls for groups and repositories over Reticulum, without requiring shell access to the hosting node.
+
+To use remote permission management, you must have `admin` permission on the target group or repository. The command opens your configured `$EDITOR` to modify permissions, using the same syntax and format as local `.allowed` files. When you save and exit the editor, the modified permissions are transmitted to the remote node and applied immediately.
+
+### Managing Group Permissions
+
+To view or modify permissions for an entire repository group, specify the group URL (ending with the group name):
+
+```text
+$ rngit perms rns://50824b711717f97c2fb1166ceddd5ea9/public
+```
+
+This retrieves the current permission configuration from the `public.allowed` file and opens it in your editor. Any changes you make are validated for syntax correctness. Invalid permission rules will be rejected with an error message indicating the problematic line.
+
+### Managing Repository Permissions
+
+To manage permissions for a specific repository, include the repository name in the URL:
+
+```text
+$ rngit perms rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo
+```
+
+This operates on the `myrepo.allowed` file next to the repository. Repository-level permissions take precedence over group-level permissions, allowing fine-grained access control for individual repositories within a group.
+
+### Permission Validation
+
+When modifying permissions remotely, `rngit` validates that:
+
+- Each permission line follows the correct `permission:target` syntax
+- Permission types are valid (r, w, rw, c, s, rel, i, p, adm)
+- Target specifications are valid (identity hashes, `all`, or `none`)
+- Identity hashes, when specified, are the correct length (32 hexadecimal characters)
+
+If validation fails, the editor will reopen with an error message describing the issue, allowing you to correct the problem before resubmitting.
+
+**All Command-Line Options (rngit perms)**
+
+```text
+usage: rngit perms [-h] [--config CONFIG] [--rnsconfig RNSCONFIG]
+                   [-i PATH] [-v] [-q] [--version]
+                   remote
+
+Reticulum Git Permission Manager
+
+positional arguments:
+  remote                URL of remote group or repository
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG       path to alternative config directory
+  --rnsconfig RNSCONFIG
+                        path to alternative Reticulum config directory
+  -i, --identity PATH   path to identity
+  -v, --verbose
+  -q, --quiet
+  --version             show program's version number and exit
+```
+
 ## Identity & Destination Aliases
 
 To make permission and remote destination management easier, you can locally define aliases for commonly used identity and destination hashes. Identity aliases used in permissions resolution can be defined in the `[aliases]` section of the `~/.rngit/config` file, while destination aliases are defined in the `[aliases]` section of the `~/.rngit/client_config` file.
@@ -639,6 +699,167 @@ A complete node configuration might look like this:
   unicode_icons = no
 ```
 
+## Verified Releases
+
+The `rngit` release system provides cryptographic provenance and integrity guarantees through automatic signing of release artifacts and signed release manifests. When you create a release, `rngit` generates an Ed25519 signature for each artifact and embeds these signatures in a cryptographically signed release manifest (`.rsm` file). This allows anyone who obtains the release to verify its authenticity and integrity, regardless of how the files were distributed.
+
+### Obtaining Verified Releases
+
+The `rngit` system lets you obtain releases securely and in a verified manner, by validating cryptographically signed release manifests in the `.rsm` format during the retrieval process. Once a release has been published with `rngit`, anyone that has read access to it can obtain the release with the `rngit release` command, for example:
+
+```text
+$ rngit release rns://remote_node/group/some_program fetch latest:all
+```
+
+This command will connect to the remote, retrieve the latest release manifest, verify it’s signature and integrity (you can optionally specify a required signer identity with `--signer`), and then download and sequentially verify all artifacts included in the release.
+
+If verification succeeds, the retrieved artifact files, along with the release manifest will be saved in the current working directory. From the above example, you would end up with a number of downloaded files, and a version- and package specific release manifest, such as `some_program_1.5.2.rsm`.
+
+#### IMPORTANT
+Keeping the retrieved release manifest is a **very** good idea! It allows you to easily obtain future releases and updates to the software directly, while verifying they came from the same publisher.
+
+**Obtaining & Updating Releases Using RSM Manifests**
+
+One of the key features of the `rngit` release system is the ability to fetch and verify new releases using only a signed release manifest. This is particularly valuable for distributing software over Reticulum. Once someone has an `.rsm` manifest of your package, they can use it to continually retrieve and update the software.
+
+To fetch a release using a manifest:
+
+```text
+$ rngit release some_program_1.5.2.rsm fetch latest:all
+```
+
+This command:
+
+1. Validates the manifest signature to confirm authenticity
+2. Extracts the origin node and repository path from the signed manifest
+3. Connects to the origin node over Reticulum
+4. Gets the *latest* release manifest from the developer
+5. Verifies it against the existing manifest
+6. Fetches each artifact listed in the manifest
+7. Verifies each downloaded file against the signature embedded in the manifest
+
+If any artifact fails signature verification, the fetch aborts with an error, preventing the installation of corrupted or tampered files.
+
+**Specifying Required Signers**
+
+You can require that releases be signed by specific identities. When fetching a release, use the `--signer` option to specify the identity hash of the required signer:
+
+```text
+$ rngit release rns://remote_node/public/myrepo fetch latest:all --signer 21a8daa6d9c3d3b8aab6e94b6bcb0e33
+```
+
+If the release was not signed by the specified identity, the fetch will abort before any files are downloaded. Likewise, if any downloaded artifacts were not signed by the required identity, the process will abort at the first invalid signature. This provides strong guarantees about the provenance of the software you are installing.
+
+The signer check also works when fetching from a local manifest:
+
+```text
+$ rngit release manifest.rsm fetch latest:all --signer 21a8daa6d9c3d3b8aab6e94b6bcb0e33
+```
+
+**Selective & Partial Fetches**
+
+You can fetch individual artifacts from a release by specifying the artifact name instead of `all`:
+
+```text
+$ rngit release rns://remote_node/public/myrepo fetch 1.2.0:myapp-1.2.0.tar.gz
+```
+
+This downloads only the specified artifact and verifies its signature against the manifest. If a file already exists locally, `rngit` verifies it against the manifest signature and skips the download if valid, making it safe to run the command multiple times. When fetching releases, `rngit release` will only download files that are missing or invalid according to the manifest. This means that partially completed release fetches can be continued later, if interrupted.
+
+**Offline Verification**
+
+Because the release manifest contains embedded signatures, you can verify the integrity of release artifacts offline, without connecting to the repository node. The `rnid` and `rngit` utilities can validate artifact signatures against `.rsg` and manifest files.
+
+**For individual files:**
+
+Ensure the `.rsg` signature is located in the same directory as the release artifact, then run:
+
+```text
+$ rnid -V myapp-1.2.0.tar.gz
+```
+
+This validates that the artifact file matches the signature created during the release process. Combined with the manifest’s own signature, this provides end-to-end verification from the original release creation to the final installation.
+
+**For a complete release:**
+
+Ensure the release manifest is located in the same directory as the release artifacts, then run:
+
+```text
+$ rngit release myapp-1.2.0.rsm --offline
+```
+
+This will load the manifest, and verify all files currently on-disk, but will not attempt to fetch the latest release manifest from the origin, or update local files to match it.
+
+### Creating Signed Releases
+
+Reticulum and the `rngit` system makes it easy to create signed releases that your users can verify and update securely. When you create a release using `rngit`, the program automatically:
+
+1. Generates an Ed25519 signature for each artifact file using your identity’s signing key
+2. Creates `.rsg` signature files alongside each artifact in your distribution directory
+3. Constructs a signed release manifest (`manifest.rsm`) containing metadata, an artifact list, and embedded signatures
+4. Transmits both artifacts, signatures and manifest to the remote node specified as release origin
+
+As an example, to create and publish a release from all files in the folder named `dist`, simply run:
+
+```text
+$ rngit release rns://my_node/group/myrepo create 1.2.0:./dist
+```
+
+Everything is automatically signed and uploaded to your node, and the release manifest will now include the following signed attestation information:
+
+- Package name and version
+- The release notes for this release
+- Release timestamp and commit hash
+- Origin node identity and repository path
+- Complete list of artifacts
+- Embedded signatures for each artifact
+
+That’s it, there’s nothing more to it than one command. Users can now securely obtain your release using `rngit release fetch`.
+
+**Release Manifest Format**
+
+Release manifests use the `.rsm` format (a general-purpose, structured signed message format) and are themselves cryptographically signed documents. The manifest format embeds the signing identity’s public key and a detached signature that covers the entire manifest content. This creates a chain of trust: the manifest signature proves the manifest’s authenticity, and the embedded artifact signatures prove each file’s integrity.
+
+When a release is created, the manifest is stored as `manifest.rsm` in the release artifacts directory. You can also generate a local release manifest without uploading by using the `--local` flag:
+
+```text
+$ rngit release rns://f2d31b2e080e5d4e358d32822ee4a3b7/public/myrepo create 1.2.0:./dist --local
+```
+
+This creates the `.rsg` signature files and `manifest.rsm` in your local distribution directory without connecting to the remote node, allowing you to inspect or distribute the signed release through alternative channels.
+
+**Signature File Format**
+
+Individual artifact signatures use the Reticulum Signature (`.rsg`) format and contain:
+
+- The Ed25519 signature of the file
+- The signing identity’s public key
+- Optional metadata, such as timestamps or notes
+
+These signature files are created automatically during the release process and can be used independently of the manifest for verification purposes. The `rnid` utility can create and validate RSG signatures for any file, making this signature format useful beyond the `rngit` release system.
+
+**Good Practices for Signature Distribution**
+
+While release manifests in the `.rsm` format *include* embedded `.rsg` signatures for every listed artifact, it is dependent on the situation and requirements whether individual `.rsg` signatures are distributed as well. It is generally a good idea to do so, since they are very light-weight, and provide an easy and convenient way to validate and authenticate *individual* files, as opposed to entire releases.
+
+When distributing software through multiple channels (direct download, mirror networks, physical media), including the `.rsm` manifest allows recipients to verify authenticity regardless of how they obtained the files. This is particularly valuable in low-connectivity environments where Reticulum may be the only available communication channel, as the manifest ensures that software updates can be verified even when received via store-and-forward mechanisms or physical media transport.
+
+**Integration with Package Management**
+
+While this functionality is still under development, the signed release manifest format is designed to be consumed by package management systems and automated deployment tools. Because the manifest is cryptographically signed and contains all necessary metadata and integrity checks, it can serve as a trusted source of truth for software distribution, even when fetched over untrusted channels or stored for long periods.
+
+**Release Encryption**
+
+While API primitives and command-line tools are currently not implemented for this, the release, distribution and verification system has been designed to also support *encrypted* releases, which can be distributed securely to authorized recipients.
+
+**Verified Package Format**
+
+The current system is being expanded to also include an `.rvp` package format, which can contain packaged releases including all relevant artifacts, metadata, manifest and signatures.
+
+**Automated Mirror Discovery**
+
+The `rngit` release system is designed to support automated mirror discovery and distribution package retrieval over Reticulum networks. Since everything is cryptographically signed and verified, it is possible to create automated mirror and distribution networks, where users can obtain software and information from local sources, without risking malicious modifications to the software they rely on. This functionality is currently in development.
+
 ## Release Management
 
 In addition to hosting Git repositories, `rngit` provides a complete release management system. This allows you to publish versioned releases with associated artifacts, release notes and metadata. Releases are managed through the `rngit release` subcommand, and are also viewable through the Nomad Network page interface.
@@ -650,12 +871,12 @@ Creating a release involves specifying a Git tag and a directory containing buil
 To create a release, specify the tag name and path to artifacts:
 
 ```text
-$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo create v1.2.0:./dist
+$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo create 1.2.0:./dist
 ```
 
 This will:
 
-1. Verify that the tag `v1.2.0` exists in the repository
+1. Verify that the tag `1.2.0` exists in the repository
 2. Open your editor to write release notes
 3. Upload all files from the `./dist` directory
 4. Publish the release
@@ -682,9 +903,9 @@ $ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo list
 
 Tag          Status     Created              Objs  Notes
 ------------------------------------------------------------------
-v1.2.0       published  2025-01-15 14:32     3     Another release
-v1.1.0       published  2024-12-03 09:15     2     Bug fix release
-v1.0.0       published  2024-10-20 16:45     2     Initial release
+1.2.0        published  2025-01-15 14:32     3     Another release
+1.1.0        published  2024-12-03 09:15     2     Bug fix release
+1.0.0        published  2024-10-20 16:45     2     Initial release
 ```
 
 **Viewing Release Details**
@@ -692,9 +913,9 @@ v1.0.0       published  2024-10-20 16:45     2     Initial release
 To see full information about a specific release:
 
 ```text
-$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo view v1.2.0
+$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo view 1.2.0
 
-Release : 0.9.2
+Release : 1.2.0
 Status  : published
 Created : 2026-05-04 23:53:09
 Thanks  : 5
@@ -711,15 +932,35 @@ Artifacts (4)
   - checksums.txt (256 B)
 ```
 
+**Fetching Releases**
+
+To fetch a release, specify the remote URL, version and artifacts:
+
+```text
+$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo fetch latest:all
+```
+
+This process is described in greater detail in the [Obtaining Verified Releases](#git-release-obtain) section.
+
+**Creating Releases**
+
+To fetch a release, specify the remote URL, version and artifacts:
+
+```text
+$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo create 1.3.9:artifacts_dir
+```
+
+This process is described in greater detail in the [Creating Signed Releases](#git-release-create) section.
+
 **Deleting Releases**
 
 To remove a release:
 
 ```text
-$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo delete v1.2.0
+$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo delete 1.2.0
 
-Are you sure you want to delete release 'v1.2.0'? [y/N]: y
-Release v1.2.0 deleted
+Are you sure you want to delete release '1.2.0'? [y/N]: y
+Release 1.2.0 deleted
 ```
 
 **Requirements & Validation**
@@ -747,15 +988,16 @@ When the Nomad Network page node is enabled, releases are displayed on a dedicat
 **All Command-Line Options (rngit release)**
 
 ```text
-usage: rngit release [-h] [--config CONFIG] [--rnsconfig RNSCONFIG]
-                     [-i PATH] [-v] [-q] [--version]
-                     [repository] [operation] [target]
+usage: python -m RNS.Utilities.rngit.server [-h] [--config CONFIG] [--rnsconfig RNSCONFIG]
+                                            [-i PATH] [-s PATH] [-n name] [-L]
+                                            [-o] [-v] [-q] [--version]
+                                            [repository] [operation] [target]
 
 Reticulum Git Release Manager
 
 positional arguments:
-  repository            URL of remote repository
-  operation             list, view, create or delete
+  repository            URL of remote repository, or path to RSM manifest
+  operation             list, view, fetch, create, latest or delete
   target                tag and path to release artifacts directory
 
 options:
@@ -764,6 +1006,10 @@ options:
   --rnsconfig RNSCONFIG
                         path to alternative Reticulum config directory
   -i, --identity PATH   path to release identity
+  -s, --signer PATH     path to signing identity, if different from release identity
+  -n, --name name       package name if different from repo name
+  -L, --local           generate release locally, but don't upload
+  -o, --offline         verify manifest locally, but don't fetch updates
   -v, --verbose
   -q, --quiet
   --version             show program's version number and exit

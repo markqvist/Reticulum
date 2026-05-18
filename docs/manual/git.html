@@ -266,8 +266,8 @@
 <p>A set of utilities for distributed collaborative software development and publishing are included in RNS.</p>
 <p>The system consists of two parts: The <code class="docutils literal notranslate"><span class="pre">rngit</span></code> node that hosts repositories, and the <code class="docutils literal notranslate"><span class="pre">git-remote-rns</span></code> helper that enables Git to communicate with rngit nodes. As soon as you have RNS installed on your system, you can transparently use Git with Reticulum-hosted repositories just like any other type of remote. Git over Reticulum uses URLs in the following format: <code class="docutils literal notranslate"><span class="pre">rns://DESTINATION_HASH/group/repo</span></code>.</p>
 <p>If you set a branch to track a Reticulum remote as the default upstream, you can simply use <code class="docutils literal notranslate"><span class="pre">git</span></code> as you normally would; all commands work transparently and as expected.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
 <p><strong>The rngit program is a new addition to RNS!</strong> This functionality was introduced in RNS 1.2.0. While great care has been taken to design a secure, but highly configurable and flexible <a class="reference external" href="#permissions">permission system</a> for allowing many users to interact with many different repositories on a single node, <code class="docutils literal notranslate"><span class="pre">rngit</span></code> has not been tested extensively in the wild! Be careful when hosting repositories, especially if they are public or semi-public.</p>
 </div>
 <section id="the-rngit-utility">
@@ -676,6 +676,63 @@ w:none
 </ul>
 </section>
 </section>
+<section id="remote-permission-management">
+<h2>Remote Permission Management<a class="headerlink" href="#remote-permission-management" title="Link to this heading">¶</a></h2>
+<p>While permissions can be configured directly on the node by editing configuration files and <code class="docutils literal notranslate"><span class="pre">.allowed</span></code> files, <code class="docutils literal notranslate"><span class="pre">rngit</span></code> also supports remote permission management through the <code class="docutils literal notranslate"><span class="pre">rngit</span> <span class="pre">perms</span></code> command. This allows administrators to modify access controls for groups and repositories over Reticulum, without requiring shell access to the hosting node.</p>
+<p>To use remote permission management, you must have <code class="docutils literal notranslate"><span class="pre">admin</span></code> permission on the target group or repository. The command opens your configured <code class="docutils literal notranslate"><span class="pre">$EDITOR</span></code> to modify permissions, using the same syntax and format as local <code class="docutils literal notranslate"><span class="pre">.allowed</span></code> files. When you save and exit the editor, the modified permissions are transmitted to the remote node and applied immediately.</p>
+<section id="managing-group-permissions">
+<h3>Managing Group Permissions<a class="headerlink" href="#managing-group-permissions" title="Link to this heading">¶</a></h3>
+<p>To view or modify permissions for an entire repository group, specify the group URL (ending with the group name):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit perms rns://50824b711717f97c2fb1166ceddd5ea9/public
+</pre></div>
+</div>
+<p>This retrieves the current permission configuration from the <code class="docutils literal notranslate"><span class="pre">public.allowed</span></code> file and opens it in your editor. Any changes you make are validated for syntax correctness. Invalid permission rules will be rejected with an error message indicating the problematic line.</p>
+</section>
+<section id="managing-repository-permissions">
+<h3>Managing Repository Permissions<a class="headerlink" href="#managing-repository-permissions" title="Link to this heading">¶</a></h3>
+<p>To manage permissions for a specific repository, include the repository name in the URL:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit perms rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo
+</pre></div>
+</div>
+<p>This operates on the <code class="docutils literal notranslate"><span class="pre">myrepo.allowed</span></code> file next to the repository. Repository-level permissions take precedence over group-level permissions, allowing fine-grained access control for individual repositories within a group.</p>
+</section>
+<section id="permission-validation">
+<h3>Permission Validation<a class="headerlink" href="#permission-validation" title="Link to this heading">¶</a></h3>
+<p>When modifying permissions remotely, <code class="docutils literal notranslate"><span class="pre">rngit</span></code> validates that:</p>
+<ul class="simple">
+<li><p>Each permission line follows the correct <code class="docutils literal notranslate"><span class="pre">permission:target</span></code> syntax</p></li>
+<li><p>Permission types are valid (r, w, rw, c, s, rel, i, p, adm)</p></li>
+<li><p>Target specifications are valid (identity hashes, <code class="docutils literal notranslate"><span class="pre">all</span></code>, or <code class="docutils literal notranslate"><span class="pre">none</span></code>)</p></li>
+<li><p>Identity hashes, when specified, are the correct length (32 hexadecimal characters)</p></li>
+</ul>
+<p>If validation fails, the editor will reopen with an error message describing the issue, allowing you to correct the problem before resubmitting.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>Remote permission modification requires administrative access (the <code class="docutils literal notranslate"><span class="pre">adm</span></code> permission), which grants full control over the repository or group. The permission change request is transmitted over the encrypted Reticulum link, and the remote node verifies your identity cryptographically before applying changes. However, be aware that granting <code class="docutils literal notranslate"><span class="pre">adm</span></code> permissions to remote identities effectively delegates full control, including the ability to revoke your own access or modify permissions in ways you may not anticipate.</p>
+</div>
+<p><strong>All Command-Line Options (rngit perms)</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rngit perms [-h] [--config CONFIG] [--rnsconfig RNSCONFIG]
+                   [-i PATH] [-v] [-q] [--version]
+                   remote
+
+Reticulum Git Permission Manager
+
+positional arguments:
+  remote                URL of remote group or repository
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG       path to alternative config directory
+  --rnsconfig RNSCONFIG
+                        path to alternative Reticulum config directory
+  -i, --identity PATH   path to identity
+  -v, --verbose
+  -q, --quiet
+  --version             show program&#39;s version number and exit
+</pre></div>
+</div>
+</section>
+</section>
 <section id="identity-destination-aliases">
 <h2>Identity &amp; Destination Aliases<a class="headerlink" href="#identity-destination-aliases" title="Link to this heading">¶</a></h2>
 <p>To make permission and remote destination management easier, you can locally define aliases for commonly used identity and destination hashes. Identity aliases used in permissions resolution can be defined in the <code class="docutils literal notranslate"><span class="pre">[aliases]</span></code> section of the <code class="docutils literal notranslate"><span class="pre">~/.rngit/config</span></code> file, while destination aliases are defined in the <code class="docutils literal notranslate"><span class="pre">[aliases]</span></code> section of the <code class="docutils literal notranslate"><span class="pre">~/.rngit/client_config</span></code> file.</p>
@@ -813,6 +870,120 @@ unicode_icons = yes
 </div>
 </section>
 </section>
+<section id="verified-releases">
+<h2>Verified Releases<a class="headerlink" href="#verified-releases" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">rngit</span></code> release system provides cryptographic provenance and integrity guarantees through automatic signing of release artifacts and signed release manifests. When you create a release, <code class="docutils literal notranslate"><span class="pre">rngit</span></code> generates an Ed25519 signature for each artifact and embeds these signatures in a cryptographically signed release manifest (<code class="docutils literal notranslate"><span class="pre">.rsm</span></code> file). This allows anyone who obtains the release to verify its authenticity and integrity, regardless of how the files were distributed.</p>
+<section id="obtaining-verified-releases">
+<span id="git-release-obtain"></span><h3>Obtaining Verified Releases<a class="headerlink" href="#obtaining-verified-releases" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">rngit</span></code> system lets you obtain releases securely and in a verified manner, by validating cryptographically signed release manifests in the <code class="docutils literal notranslate"><span class="pre">.rsm</span></code> format during the retrieval process. Once a release has been published with <code class="docutils literal notranslate"><span class="pre">rngit</span></code>, anyone that has read access to it can obtain the release with the <code class="docutils literal notranslate"><span class="pre">rngit</span> <span class="pre">release</span></code> command, for example:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://remote_node/group/some_program fetch latest:all
+</pre></div>
+</div>
+<p>This command will connect to the remote, retrieve the latest release manifest, verify it’s signature and integrity (you can optionally specify a required signer identity with <code class="docutils literal notranslate"><span class="pre">--signer</span></code>), and then download and sequentially verify all artifacts included in the release.</p>
+<p>If verification succeeds, the retrieved artifact files, along with the release manifest will be saved in the current working directory. From the above example, you would end up with a number of downloaded files, and a version- and package specific release manifest, such as <code class="docutils literal notranslate"><span class="pre">some_program_1.5.2.rsm</span></code>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Keeping the retrieved release manifest is a <strong>very</strong> good idea! It allows you to easily obtain future releases and updates to the software directly, while verifying they came from the same publisher.</p>
+</div>
+<p><strong>Obtaining &amp; Updating Releases Using RSM Manifests</strong></p>
+<p>One of the key features of the <code class="docutils literal notranslate"><span class="pre">rngit</span></code> release system is the ability to fetch and verify new releases using only a signed release manifest. This is particularly valuable for distributing software over Reticulum. Once someone has an <code class="docutils literal notranslate"><span class="pre">.rsm</span></code> manifest of your package, they can use it to continually retrieve and update the software.</p>
+<p>To fetch a release using a manifest:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release some_program_1.5.2.rsm fetch latest:all
+</pre></div>
+</div>
+<p>This command:</p>
+<ol class="arabic simple">
+<li><p>Validates the manifest signature to confirm authenticity</p></li>
+<li><p>Extracts the origin node and repository path from the signed manifest</p></li>
+<li><p>Connects to the origin node over Reticulum</p></li>
+<li><p>Gets the <em>latest</em> release manifest from the developer</p></li>
+<li><p>Verifies it against the existing manifest</p></li>
+<li><p>Fetches each artifact listed in the manifest</p></li>
+<li><p>Verifies each downloaded file against the signature embedded in the manifest</p></li>
+</ol>
+<p>If any artifact fails signature verification, the fetch aborts with an error, preventing the installation of corrupted or tampered files.</p>
+<p><strong>Specifying Required Signers</strong></p>
+<p>You can require that releases be signed by specific identities. When fetching a release, use the <code class="docutils literal notranslate"><span class="pre">--signer</span></code> option to specify the identity hash of the required signer:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://remote_node/public/myrepo fetch latest:all --signer 21a8daa6d9c3d3b8aab6e94b6bcb0e33
+</pre></div>
+</div>
+<p>If the release was not signed by the specified identity, the fetch will abort before any files are downloaded. Likewise, if any downloaded artifacts were not signed by the required identity, the process will abort at the first invalid signature. This provides strong guarantees about the provenance of the software you are installing.</p>
+<p>The signer check also works when fetching from a local manifest:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release manifest.rsm fetch latest:all --signer 21a8daa6d9c3d3b8aab6e94b6bcb0e33
+</pre></div>
+</div>
+<p><strong>Selective &amp; Partial Fetches</strong></p>
+<p>You can fetch individual artifacts from a release by specifying the artifact name instead of <code class="docutils literal notranslate"><span class="pre">all</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://remote_node/public/myrepo fetch 1.2.0:myapp-1.2.0.tar.gz
+</pre></div>
+</div>
+<p>This downloads only the specified artifact and verifies its signature against the manifest. If a file already exists locally, <code class="docutils literal notranslate"><span class="pre">rngit</span></code> verifies it against the manifest signature and skips the download if valid, making it safe to run the command multiple times. When fetching releases, <code class="docutils literal notranslate"><span class="pre">rngit</span> <span class="pre">release</span></code> will only download files that are missing or invalid according to the manifest. This means that partially completed release fetches can be continued later, if interrupted.</p>
+<p><strong>Offline Verification</strong></p>
+<p>Because the release manifest contains embedded signatures, you can verify the integrity of release artifacts offline, without connecting to the repository node. The <code class="docutils literal notranslate"><span class="pre">rnid</span></code> and <code class="docutils literal notranslate"><span class="pre">rngit</span></code> utilities can validate artifact signatures against <code class="docutils literal notranslate"><span class="pre">.rsg</span></code> and manifest files.</p>
+<p><strong>For individual files:</strong></p>
+<p>Ensure the <code class="docutils literal notranslate"><span class="pre">.rsg</span></code> signature is located in the same directory as the release artifact, then run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnid -V myapp-1.2.0.tar.gz
+</pre></div>
+</div>
+<p>This validates that the artifact file matches the signature created during the release process. Combined with the manifest’s own signature, this provides end-to-end verification from the original release creation to the final installation.</p>
+<p><strong>For a complete release:</strong></p>
+<p>Ensure the release manifest is located in the same directory as the release artifacts, then run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release myapp-1.2.0.rsm --offline
+</pre></div>
+</div>
+<p>This will load the manifest, and verify all files currently on-disk, but will not attempt to fetch the latest release manifest from the origin, or update local files to match it.</p>
+</section>
+<section id="creating-signed-releases">
+<span id="git-release-create"></span><h3>Creating Signed Releases<a class="headerlink" href="#creating-signed-releases" title="Link to this heading">¶</a></h3>
+<p>Reticulum and the <code class="docutils literal notranslate"><span class="pre">rngit</span></code> system makes it easy to create signed releases that your users can verify and update securely. When you create a release using <code class="docutils literal notranslate"><span class="pre">rngit</span></code>, the program automatically:</p>
+<ol class="arabic simple">
+<li><p>Generates an Ed25519 signature for each artifact file using your identity’s signing key</p></li>
+<li><p>Creates <code class="docutils literal notranslate"><span class="pre">.rsg</span></code> signature files alongside each artifact in your distribution directory</p></li>
+<li><p>Constructs a signed release manifest (<code class="docutils literal notranslate"><span class="pre">manifest.rsm</span></code>) containing metadata, an artifact list, and embedded signatures</p></li>
+<li><p>Transmits both artifacts, signatures and manifest to the remote node specified as release origin</p></li>
+</ol>
+<p>As an example, to create and publish a release from all files in the folder named <code class="docutils literal notranslate"><span class="pre">dist</span></code>, simply run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://my_node/group/myrepo create 1.2.0:./dist
+</pre></div>
+</div>
+<p>Everything is automatically signed and uploaded to your node, and the release manifest will now include the following signed attestation information:</p>
+<ul class="simple">
+<li><p>Package name and version</p></li>
+<li><p>The release notes for this release</p></li>
+<li><p>Release timestamp and commit hash</p></li>
+<li><p>Origin node identity and repository path</p></li>
+<li><p>Complete list of artifacts</p></li>
+<li><p>Embedded signatures for each artifact</p></li>
+</ul>
+<p>That’s it, there’s nothing more to it than one command. Users can now securely obtain your release using <code class="docutils literal notranslate"><span class="pre">rngit</span> <span class="pre">release</span> <span class="pre">fetch</span></code>.</p>
+<p><strong>Release Manifest Format</strong></p>
+<p>Release manifests use the <code class="docutils literal notranslate"><span class="pre">.rsm</span></code> format (a general-purpose, structured signed message format) and are themselves cryptographically signed documents. The manifest format embeds the signing identity’s public key and a detached signature that covers the entire manifest content. This creates a chain of trust: the manifest signature proves the manifest’s authenticity, and the embedded artifact signatures prove each file’s integrity.</p>
+<p>When a release is created, the manifest is stored as <code class="docutils literal notranslate"><span class="pre">manifest.rsm</span></code> in the release artifacts directory. You can also generate a local release manifest without uploading by using the <code class="docutils literal notranslate"><span class="pre">--local</span></code> flag:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://f2d31b2e080e5d4e358d32822ee4a3b7/public/myrepo create 1.2.0:./dist --local
+</pre></div>
+</div>
+<p>This creates the <code class="docutils literal notranslate"><span class="pre">.rsg</span></code> signature files and <code class="docutils literal notranslate"><span class="pre">manifest.rsm</span></code> in your local distribution directory without connecting to the remote node, allowing you to inspect or distribute the signed release through alternative channels.</p>
+<p><strong>Signature File Format</strong></p>
+<p>Individual artifact signatures use the Reticulum Signature (<code class="docutils literal notranslate"><span class="pre">.rsg</span></code>) format and contain:</p>
+<ul class="simple">
+<li><p>The Ed25519 signature of the file</p></li>
+<li><p>The signing identity’s public key</p></li>
+<li><p>Optional metadata, such as timestamps or notes</p></li>
+</ul>
+<p>These signature files are created automatically during the release process and can be used independently of the manifest for verification purposes. The <code class="docutils literal notranslate"><span class="pre">rnid</span></code> utility can create and validate RSG signatures for any file, making this signature format useful beyond the <code class="docutils literal notranslate"><span class="pre">rngit</span></code> release system.</p>
+<p><strong>Good Practices for Signature Distribution</strong></p>
+<p>While release manifests in the <code class="docutils literal notranslate"><span class="pre">.rsm</span></code> format <em>include</em> embedded <code class="docutils literal notranslate"><span class="pre">.rsg</span></code> signatures for every listed artifact, it is dependent on the situation and requirements whether individual <code class="docutils literal notranslate"><span class="pre">.rsg</span></code> signatures are distributed as well. It is generally a good idea to do so, since they are very light-weight, and provide an easy and convenient way to validate and authenticate <em>individual</em> files, as opposed to entire releases.</p>
+<p>When distributing software through multiple channels (direct download, mirror networks, physical media), including the <code class="docutils literal notranslate"><span class="pre">.rsm</span></code> manifest allows recipients to verify authenticity regardless of how they obtained the files. This is particularly valuable in low-connectivity environments where Reticulum may be the only available communication channel, as the manifest ensures that software updates can be verified even when received via store-and-forward mechanisms or physical media transport.</p>
+<p><strong>Integration with Package Management</strong></p>
+<p>While this functionality is still under development, the signed release manifest format is designed to be consumed by package management systems and automated deployment tools. Because the manifest is cryptographically signed and contains all necessary metadata and integrity checks, it can serve as a trusted source of truth for software distribution, even when fetched over untrusted channels or stored for long periods.</p>
+<p><strong>Release Encryption</strong></p>
+<p>While API primitives and command-line tools are currently not implemented for this, the release, distribution and verification system has been designed to also support <em>encrypted</em> releases, which can be distributed securely to authorized recipients.</p>
+<p><strong>Verified Package Format</strong></p>
+<p>The current system is being expanded to also include an <code class="docutils literal notranslate"><span class="pre">.rvp</span></code> package format, which can contain packaged releases including all relevant artifacts, metadata, manifest and signatures.</p>
+<p><strong>Automated Mirror Discovery</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">rngit</span></code> release system is designed to support automated mirror discovery and distribution package retrieval over Reticulum networks. Since everything is cryptographically signed and verified, it is possible to create automated mirror and distribution networks, where users can obtain software and information from local sources, without risking malicious modifications to the software they rely on. This functionality is currently in development.</p>
+</section>
+</section>
 <section id="release-management">
 <h2>Release Management<a class="headerlink" href="#release-management" title="Link to this heading">¶</a></h2>
 <p>In addition to hosting Git repositories, <code class="docutils literal notranslate"><span class="pre">rngit</span></code> provides a complete release management system. This allows you to publish versioned releases with associated artifacts, release notes and metadata. Releases are managed through the <code class="docutils literal notranslate"><span class="pre">rngit</span> <span class="pre">release</span></code> subcommand, and are also viewable through the Nomad Network page interface.</p>
@@ -820,12 +991,12 @@ unicode_icons = yes
 <h3>The Release Workflow<a class="headerlink" href="#the-release-workflow" title="Link to this heading">¶</a></h3>
 <p>Creating a release involves specifying a Git tag and a directory containing build artifacts or other files to distribute. The <code class="docutils literal notranslate"><span class="pre">rngit</span></code> client will open your configured <code class="docutils literal notranslate"><span class="pre">$EDITOR</span></code> to compose release notes, then upload all artifacts to the remote repository node.</p>
 <p>To create a release, specify the tag name and path to artifacts:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo create v1.2.0:./dist
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo create 1.2.0:./dist
 </pre></div>
 </div>
 <p>This will:</p>
 <ol class="arabic simple">
-<li><p>Verify that the tag <code class="docutils literal notranslate"><span class="pre">v1.2.0</span></code> exists in the repository</p></li>
+<li><p>Verify that the tag <code class="docutils literal notranslate"><span class="pre">1.2.0</span></code> exists in the repository</p></li>
 <li><p>Open your editor to write release notes</p></li>
 <li><p>Upload all files from the <code class="docutils literal notranslate"><span class="pre">./dist</span></code> directory</p></li>
 <li><p>Publish the release</p></li>
@@ -850,16 +1021,16 @@ unicode_icons = yes
 
 Tag          Status     Created              Objs  Notes
 ------------------------------------------------------------------
-v1.2.0       published  2025-01-15 14:32     3     Another release
-v1.1.0       published  2024-12-03 09:15     2     Bug fix release
-v1.0.0       published  2024-10-20 16:45     2     Initial release
+1.2.0        published  2025-01-15 14:32     3     Another release
+1.1.0        published  2024-12-03 09:15     2     Bug fix release
+1.0.0        published  2024-10-20 16:45     2     Initial release
 </pre></div>
 </div>
 <p><strong>Viewing Release Details</strong></p>
 <p>To see full information about a specific release:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo view v1.2.0
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo view 1.2.0
 
-Release : 0.9.2
+Release : 1.2.0
 Status  : published
 Created : 2026-05-04 23:53:09
 Thanks  : 5
@@ -876,12 +1047,24 @@ Artifacts (4)
   - checksums.txt (256 B)
 </pre></div>
 </div>
+<p><strong>Fetching Releases</strong></p>
+<p>To fetch a release, specify the remote URL, version and artifacts:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo fetch latest:all
+</pre></div>
+</div>
+<p>This process is described in greater detail in the <a class="reference internal" href="#git-release-obtain"><span class="std std-ref">Obtaining Verified Releases</span></a> section.</p>
+<p><strong>Creating Releases</strong></p>
+<p>To fetch a release, specify the remote URL, version and artifacts:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo create 1.3.9:artifacts_dir
+</pre></div>
+</div>
+<p>This process is described in greater detail in the <a class="reference internal" href="#git-release-create"><span class="std std-ref">Creating Signed Releases</span></a> section.</p>
 <p><strong>Deleting Releases</strong></p>
 <p>To remove a release:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo delete v1.2.0
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rngit release rns://50824b711717f97c2fb1166ceddd5ea9/public/myrepo delete 1.2.0
 
-Are you sure you want to delete release &#39;v1.2.0&#39;? [y/N]: y
-Release v1.2.0 deleted
+Are you sure you want to delete release &#39;1.2.0&#39;? [y/N]: y
+Release 1.2.0 deleted
 </pre></div>
 </div>
 <p><strong>Requirements &amp; Validation</strong></p>
@@ -902,15 +1085,16 @@ rel:none         # Deny everyone
 <p><strong>Nomad Network Interface</strong></p>
 <p>When the Nomad Network page node is enabled, releases are displayed on a dedicated releases page for each repository. Each release is listed with its tag, creation date, artifact count and a preview of the release notes. Clicking a release shows the full details including formatted release notes and a listing of all artifacts with their sizes.</p>
 <p><strong>All Command-Line Options (rngit release)</strong></p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rngit release [-h] [--config CONFIG] [--rnsconfig RNSCONFIG]
-                     [-i PATH] [-v] [-q] [--version]
-                     [repository] [operation] [target]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: python -m RNS.Utilities.rngit.server [-h] [--config CONFIG] [--rnsconfig RNSCONFIG]
+                                            [-i PATH] [-s PATH] [-n name] [-L]
+                                            [-o] [-v] [-q] [--version]
+                                            [repository] [operation] [target]
 
 Reticulum Git Release Manager
 
 positional arguments:
-  repository            URL of remote repository
-  operation             list, view, create or delete
+  repository            URL of remote repository, or path to RSM manifest
+  operation             list, view, fetch, create, latest or delete
   target                tag and path to release artifacts directory
 
 options:
@@ -919,6 +1103,10 @@ options:
   --rnsconfig RNSCONFIG
                         path to alternative Reticulum config directory
   -i, --identity PATH   path to release identity
+  -s, --signer PATH     path to signing identity, if different from release identity
+  -n, --name name       package name if different from repo name
+  -L, --local           generate release locally, but don&#39;t upload
+  -o, --offline         verify manifest locally, but don&#39;t fetch updates
   -v, --verbose
   -q, --quiet
   --version             show program&#39;s version number and exit
@@ -1192,6 +1380,12 @@ options:
 <li><a class="reference internal" href="#permission-configuration-locations">Permission Configuration Locations</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#remote-permission-management">Remote Permission Management</a><ul>
+<li><a class="reference internal" href="#managing-group-permissions">Managing Group Permissions</a></li>
+<li><a class="reference internal" href="#managing-repository-permissions">Managing Repository Permissions</a></li>
+<li><a class="reference internal" href="#permission-validation">Permission Validation</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#identity-destination-aliases">Identity &amp; Destination Aliases</a></li>
 <li><a class="reference internal" href="#serving-pages-over-nomad-network">Serving Pages Over Nomad Network</a><ul>
 <li><a class="reference internal" href="#enabling-the-git-page-node">Enabling the Git Page Node</a></li>
@@ -1200,6 +1394,11 @@ options:
 <li><a class="reference internal" href="#customizing-templates">Customizing Templates</a></li>
 <li><a class="reference internal" href="#repository-statistics">Repository Statistics</a></li>
 <li><a class="reference internal" href="#configuration-example">Configuration Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#verified-releases">Verified Releases</a><ul>
+<li><a class="reference internal" href="#obtaining-verified-releases">Obtaining Verified Releases</a></li>
+<li><a class="reference internal" href="#creating-signed-releases">Creating Signed Releases</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#release-management">Release Management</a><ul>
