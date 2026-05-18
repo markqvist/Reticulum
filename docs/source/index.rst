@@ -27,8 +27,8 @@ to participate in the development of Reticulum itself.
    hardware
    interfaces
    networks
-   git
    distributed
+   git
    support
    examples
    license

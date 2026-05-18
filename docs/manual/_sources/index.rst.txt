@@ -27,6 +27,7 @@ to participate in the development of Reticulum itself.
    hardware
    interfaces
    networks
+   distributed
    git
    support
    examples

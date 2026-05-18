@@ -1,6 +1,6 @@
 # Git Over Reticulum
 
-This chapter of the manual serves as the technical reference for the distributed software development and project collaboration tools included in RNS. For a conceptual overview, see the Distributed Development chapter.
+This chapter of the manual serves as the technical reference for the distributed software development and project collaboration tools included in RNS. For a conceptual overview, see the [Distributed Development](distributed.md#distributed-development) chapter.
 
 A set of utilities for distributed collaborative software development and publishing are included in RNS.
 

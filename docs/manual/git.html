@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Support Reticulum" href="support.html"><link rel="prev" title="Building Networks" href="networks.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Support Reticulum" href="support.html"><link rel="prev" title="Distributed Development" href="distributed.html">
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
@@ -222,6 +222,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interfaces.html">Configuring Interfaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed Development</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Git Over Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
@@ -263,7 +264,7 @@
         <article role="main" id="furo-main-content">
           <section id="git-over-reticulum">
 <span id="git-main"></span><h1>Git Over Reticulum<a class="headerlink" href="#git-over-reticulum" title="Link to this heading">¶</a></h1>
-<p>This chapter of the manual serves as the technical reference for the distributed software development and project collaboration tools included in RNS. For a conceptual overview, see the <span class="xref std std-ref">Distributed Development</span> chapter.</p>
+<p>This chapter of the manual serves as the technical reference for the distributed software development and project collaboration tools included in RNS. For a conceptual overview, see the <a class="reference internal" href="distributed.html#distributed-development"><span class="std std-ref">Distributed Development</span></a> chapter.</p>
 <p>A set of utilities for distributed collaborative software development and publishing are included in RNS.</p>
 <p>The system consists of two parts: The <code class="docutils literal notranslate"><span class="pre">rngit</span></code> node that hosts repositories, and the <code class="docutils literal notranslate"><span class="pre">git-remote-rns</span></code> helper that enables Git to communicate with rngit nodes. As soon as you have RNS installed on your system, you can transparently use Git with Reticulum-hosted repositories just like any other type of remote. Git over Reticulum uses URLs in the following format: <code class="docutils literal notranslate"><span class="pre">rns://DESTINATION_HASH/group/repo</span></code>.</p>
 <p>If you set a branch to track a Reticulum remote as the default upstream, you can simply use <code class="docutils literal notranslate"><span class="pre">git</span></code> as you normally would; all commands work transparently and as expected.</p>
@@ -1333,14 +1334,14 @@ options:
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="networks.html">
+          <a class="prev-page" href="distributed.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Building Networks</div>
+                <div class="title">Distributed Development</div>
                 
               </div>
             </a>
