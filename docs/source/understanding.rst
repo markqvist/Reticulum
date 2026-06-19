@@ -707,9 +707,13 @@ Announce Propagation Rules
 
 The following table illustrates the rules for automatically propagating announces from one interface type to another, for all possible combinations. For the purpose of announce propagation, the *Full* and *Gateway* modes are identical.
 
+See the :ref:`Interface Modes<interfaces-modes>` section for a conceptual overview of the different interface modes, and how they are configured.
+
 .. image:: graphics/if_mode_graph_b.png
 
-See the :ref:`Interface Modes<interfaces-modes>` section for a conceptual overview of the different interface modes, and how they are configured.
+Or, represented in table form:
+
+.. image:: graphics/if_mode_graph_c.png
 
 .. 
       (.. code-block:: text)
@@ -742,6 +746,18 @@ See the :ref:`Interface Modes<interfaces-modes>` section for a conceptual overvi
       Boundary ── ✕ ──┼─> Internal >─┼── ✓ ── Boundary
       Internal ── ✓ ──┤              ├── ✓ ── Internal
       Roaming ─── ✕ ──┘              └── ✕ ── Roaming
+
+                dest →   Full   AP   Boundary   Roaming    Gateway   Internal
+      source ↓                                                            
+      Full                ✓     ✕      ✓          ✓           ✓         ✓
+      Gateway             ✓     ✕      ✓          ✓           ✓         ✓
+      AP                  ✓     ✕      ✓          ✓           ✓         ✓
+      Boundary            ✓     ✕      ✓          ✕           ✓         ✕
+      Internal            ✓     ✕      ✓          ✕           ✓         ✓
+      Roaming             ✓     ✕      ✕          ✕           ✓         ✕
+
+      ✓ Will rebroadcast announce
+      ✕ Will not rebroadcast announce
 
 
 .. _understanding-primitives:

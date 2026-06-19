@@ -632,30 +632,55 @@ but excluding any interface access codes.
 
 The following table illustrates the rules for automatically propagating announces from one interface type to another, for all possible combinations. For the purpose of announce propagation, the *Full* and *Gateway* modes are identical.
 
-![image](graphics/if_mode_graph_b.png)
-
 See the [Interface Modes](interfaces.md#interfaces-modes) section for a conceptual overview of the different interface modes, and how they are configured.
 
+![image](graphics/if_mode_graph_b.png)
+
+Or, represented in table form:
+
+![image](graphics/if_mode_graph_c.png)
 <!-- (.. code-block:: text)
 Full ────── ✓ ──┐              ┌── ✓ ── Full
-AP ──────── ✓ ──┼───> Full >───┼── ✕ ── AP
-Boundary ── ✓ ──┤              ├── ✓ ── Boundary
+AP ──────── ✓ ──┤              ├── ✕ ── AP
+Boundary ── ✓ ──┼───> Full >───┼── ✓ ── Boundary
+Internal ── ✓ ──┤              ├── ✓ ── Internal
 Roaming ─── ✓ ──┘              └── ✓ ── Roaming
 
 Full ────── ✕ ──┐              ┌── ✓ ── Full
-AP ──────── ✕ ──┼────> AP >────┼── ✕ ── AP
-Boundary ── ✕ ──┤              ├── ✓ ── Boundary
+AP ──────── ✕ ──┤              ├── ✕ ── AP
+Boundary ── ✕ ──┼────> AP >────┼── ✓ ── Boundary
+Internal ── ✕ ──┤              ├── ✓ ── Internal
 Roaming ─── ✕ ──┘              └── ✓ ── Roaming
 
 Full ────── ✓ ──┐              ┌── ✓ ── Full
-AP ──────── ✓ ──┼─> Roaming >──┼── ✕ ── AP
-Boundary ── ✕ ──┤              ├── ✕ ── Boundary
+AP ──────── ✓ ──┤              ├── ✕ ── AP
+Boundary ── ✕ ──┼─> Roaming >──┼── ✕ ── Boundary
+Internal ── ✕ ──┤              ├── ✕ ── Internal
 Roaming ─── ✕ ──┘              └── ✕ ── Roaming
 
 Full ────── ✓ ──┐              ┌── ✓ ── Full
-AP ──────── ✓ ──┼─> Boundary >─┼── ✕ ── AP
-Boundary ── ✓ ──┤              ├── ✓ ── Boundary
-Roaming ─── ✕ ──┘              └── ✕ ── Roaming -->
+AP ──────── ✓ ──┤              ├── ✕ ── AP
+Boundary ── ✓ ──┼─> Boundary >─┼── ✓ ── Boundary
+Internal ── ✓ ──┤              ├── ✕ ── Internal
+Roaming ─── ✕ ──┘              └── ✕ ── Roaming
+
+Full ────── ✓ ──┐              ┌── ✓ ── Full
+AP ──────── ✓ ──┤              ├── ✕ ── AP
+Boundary ── ✕ ──┼─> Internal >─┼── ✓ ── Boundary
+Internal ── ✓ ──┤              ├── ✓ ── Internal
+Roaming ─── ✕ ──┘              └── ✕ ── Roaming
+
+          dest →   Full   AP   Boundary   Roaming    Gateway   Internal
+source ↓
+Full                ✓     ✕      ✓          ✓           ✓         ✓
+Gateway             ✓     ✕      ✓          ✓           ✓         ✓
+AP                  ✓     ✕      ✓          ✓           ✓         ✓
+Boundary            ✓     ✕      ✓          ✕           ✓         ✕
+Internal            ✓     ✕      ✓          ✕           ✓         ✓
+Roaming             ✓     ✕      ✕          ✕           ✓         ✕
+
+✓ Will rebroadcast announce
+✕ Will not rebroadcast announce -->
 
 ### Cryptographic Primitives
 

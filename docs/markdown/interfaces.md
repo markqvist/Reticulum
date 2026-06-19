@@ -1136,6 +1136,12 @@ These can be used to control various aspects of interface behaviour.
 >   link or a remote TCP tunnel) solely to discover better local
 >   infrastructure, which then supersedes the bootstrap interface.
 >   
+> * The `recursive_prs` option allows you to enable recursive path
+>   discovery on an interface regardless of its configured interface
+>   mode. When this option is enabled, Reticulum will attempt to
+>   recursively discover paths for path requests received on this
+>   interface.
+>   
 
 ## Interface Modes
 
@@ -1210,6 +1216,15 @@ the default mode.
 >   network, but also has a high-speed connection to a
 >   public Transport Node available on the Internet, the interface
 >   connecting over the Internet should be set to `boundary` mode.
+>   
+> * The `internal` mode designates interfaces that belong to an
+>   network different from any marked as `boundary`. Announces from
+>   a `boundary` interface will not propagate to interfaces set as
+>   `internal`, but announces *will* propagate from `internal` *to*
+>   `boundary`. Devices on the `internal` side of the network will
+>   still be able to resolve paths to destinations across the boundary
+>   when needed, since recursive path requests are enabled for `internal`
+>   mode interfaces by default.
 >   
 
 For a table describing the impact of all modes on announce propagation,
