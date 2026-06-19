@@ -1291,7 +1291,7 @@ the default mode.
      public Transport Node available on the Internet, the interface
      connecting over the Internet should be set to ``boundary`` mode.
 
- * | The ``internal`` mode designates interfaces that belong to an
+ * | The ``internal`` mode designates interfaces that belong to a
      network different from any marked as ``boundary``. Announces from
      a ``boundary`` interface will not propagate to interfaces set as
      ``internal``, but announces *will* propagate from ``internal`` *to*
