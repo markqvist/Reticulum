@@ -1291,6 +1291,15 @@ the default mode.
      public Transport Node available on the Internet, the interface
      connecting over the Internet should be set to ``boundary`` mode.
 
+ * | The ``internal`` mode designates interfaces that belong to an
+     network different from any marked as ``boundary``. Announces from
+     a ``boundary`` interface will not propagate to interfaces set as
+     ``internal``, but announces *will* propagate from ``internal`` *to*
+     ``boundary``. Devices on the ``internal`` side of the network will
+     still be able to resolve paths to destinations across the boundary
+     when needed, since recursive path requests are enabled for ``internal``
+     mode interfaces by default.
+
 For a table describing the impact of all modes on announce propagation,
 please see the :ref:`Announce Propagation Rules<understanding-announcepropagation>` section.
 

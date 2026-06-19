@@ -1196,6 +1196,22 @@ class Transport:
                                 RNS.log("Blocking announce broadcast on "+str(interface)+" due to AP mode", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                                 should_transmit = False
 
+                            elif interface.mode == RNS.Interfaces.Interface.Interface.MODE_INTERNAL:
+                                from_interface = Transport.next_hop_interface(packet.destination_hash)
+                                if from_interface == None or not hasattr(from_interface, "mode"):
+                                    should_transmit = False
+                                    if from_interface == None:
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface doesn't exist", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                    elif not hasattr(from_interface, "mode"):
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                else:
+                                    if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                        should_transmit = False
+                                    elif from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" due to boundary-mode next-hop interface", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                        should_transmit = False
+
                             elif interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
                                 local_destination = None
                                 with Transport.destinations_map_lock:

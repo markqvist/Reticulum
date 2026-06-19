@@ -714,23 +714,33 @@ See the :ref:`Interface Modes<interfaces-modes>` section for a conceptual overvi
 .. 
       (.. code-block:: text)
       Full ────── ✓ ──┐              ┌── ✓ ── Full
-      AP ──────── ✓ ──┼───> Full >───┼── ✕ ── AP
-      Boundary ── ✓ ──┤              ├── ✓ ── Boundary
+      AP ──────── ✓ ──┤              ├── ✕ ── AP
+      Boundary ── ✓ ──┼───> Full >───┼── ✓ ── Boundary
+      Internal ── ✓ ──┤              ├── ✓ ── Internal
       Roaming ─── ✓ ──┘              └── ✓ ── Roaming
 
       Full ────── ✕ ──┐              ┌── ✓ ── Full
-      AP ──────── ✕ ──┼────> AP >────┼── ✕ ── AP
-      Boundary ── ✕ ──┤              ├── ✓ ── Boundary
+      AP ──────── ✕ ──┤              ├── ✕ ── AP
+      Boundary ── ✕ ──┼────> AP >────┼── ✓ ── Boundary
+      Internal ── ✕ ──┤              ├── ✓ ── Internal
       Roaming ─── ✕ ──┘              └── ✓ ── Roaming
 
       Full ────── ✓ ──┐              ┌── ✓ ── Full
-      AP ──────── ✓ ──┼─> Roaming >──┼── ✕ ── AP
-      Boundary ── ✕ ──┤              ├── ✕ ── Boundary
+      AP ──────── ✓ ──┤              ├── ✕ ── AP
+      Boundary ── ✕ ──┼─> Roaming >──┼── ✕ ── Boundary
+      Internal ── ✕ ──┤              ├── ✕ ── Internal
       Roaming ─── ✕ ──┘              └── ✕ ── Roaming
 
       Full ────── ✓ ──┐              ┌── ✓ ── Full
-      AP ──────── ✓ ──┼─> Boundary >─┼── ✕ ── AP
-      Boundary ── ✓ ──┤              ├── ✓ ── Boundary
+      AP ──────── ✓ ──┤              ├── ✕ ── AP
+      Boundary ── ✓ ──┼─> Boundary >─┼── ✓ ── Boundary
+      Internal ── ✓ ──┤              ├── ✕ ── Internal
+      Roaming ─── ✕ ──┘              └── ✕ ── Roaming
+
+      Full ────── ✓ ──┐              ┌── ✓ ── Full
+      AP ──────── ✓ ──┤              ├── ✕ ── AP
+      Boundary ── ✕ ──┼─> Internal >─┼── ✓ ── Boundary
+      Internal ── ✓ ──┤              ├── ✓ ── Internal
       Roaming ─── ✕ ──┘              └── ✕ ── Roaming
 
 

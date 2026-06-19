@@ -48,10 +48,11 @@ class Interface:
     MODE_ROAMING        = 0x04
     MODE_BOUNDARY       = 0x05
     MODE_GATEWAY        = 0x06
+    MODE_INTERNAL       = 0x07
 
     # Which interface modes a Transport Node should
     # actively discover paths for.
-    DISCOVER_PATHS_FOR  = [MODE_ACCESS_POINT, MODE_GATEWAY, MODE_ROAMING]
+    DISCOVER_PATHS_FOR  = [MODE_ACCESS_POINT, MODE_GATEWAY, MODE_ROAMING, MODE_INTERNAL]
 
     # How many samples to use for announce
     # frequency calculations

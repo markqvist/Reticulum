@@ -423,6 +423,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ROAMING: modestr = "Roaming"
                         elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY: modestr = "Boundary"
                         elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_GATEWAY: modestr = "Gateway"
+                        elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_INTERNAL: modestr = "Internal"
                         else: modestr = "Full"
 
 

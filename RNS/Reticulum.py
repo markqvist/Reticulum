@@ -710,6 +710,8 @@ class Reticulum:
                 interface_mode = Interface.Interface.MODE_BOUNDARY
             elif c["mode"] == "gateway" or c["mode"] == "gw":
                 interface_mode = Interface.Interface.MODE_GATEWAY
+            elif c["mode"] == "internal":
+                interface_mode = Interface.Interface.MODE_INTERNAL
 
         elif "mode" in c:
             c["mode"] = str(c["mode"]).lower()
@@ -725,6 +727,8 @@ class Reticulum:
                 interface_mode = Interface.Interface.MODE_BOUNDARY
             elif c["mode"] == "gateway" or c["mode"] == "gw":
                 interface_mode = Interface.Interface.MODE_GATEWAY
+            elif c["mode"] == "internal":
+                interface_mode = Interface.Interface.MODE_INTERNAL
 
         ifac_size = None
         if "ifac_size" in c:
