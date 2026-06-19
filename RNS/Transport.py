@@ -2915,7 +2915,8 @@ class Transport:
         if attached_interface != None:
             should_ingress_limit = attached_interface.should_ingress_limit_pr()
             if RNS.Reticulum.transport_enabled():
-                if attached_interface.mode in RNS.Interfaces.Interface.Interface.DISCOVER_PATHS_FOR: should_search_for_unknown = True
+                if attached_interface.recursive_prs: should_search_for_unknown = True
+                elif attached_interface.mode in RNS.Interfaces.Interface.Interface.DISCOVER_PATHS_FOR: should_search_for_unknown = True
 
         if RNS.sl(RNS.LOG_DEBUG):
             interface_str = f" on {attached_interface}"

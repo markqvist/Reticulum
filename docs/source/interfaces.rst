@@ -1207,6 +1207,13 @@ These can be used to control various aspects of interface behaviour.
      link or a remote TCP tunnel) solely to discover better local
      infrastructure, which then supersedes the bootstrap interface.
 
+
+ * | The ``recursive_prs`` option allows you to enable recursive path
+     discovery on an interface regardless of its configured interface
+     mode. When this option is enabled, Reticulum will attempt to
+     recursively discover paths for path requests received on this
+     interface.
+
 .. _interfaces-modes:
 
 Interface Modes
