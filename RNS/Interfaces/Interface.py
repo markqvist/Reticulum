@@ -200,28 +200,17 @@ class Interface:
 
     def optimise_mtu(self):
         if self.AUTOCONFIGURE_MTU:
-            if self.bitrate   >= 1_000_000_000:
-                self.HW_MTU = 524288
-            elif self.bitrate > 750_000_000:
-                self.HW_MTU = 262144
-            elif self.bitrate > 400_000_000:
-                self.HW_MTU = 131072
-            elif self.bitrate > 200_000_000:
-                self.HW_MTU = 65536
-            elif self.bitrate > 100_000_000:
-                self.HW_MTU = 32768
-            elif self.bitrate > 10_000_000:
-                self.HW_MTU = 16384
-            elif self.bitrate > 5_000_000:
-                self.HW_MTU = 8192
-            elif self.bitrate > 2_000_000:
-                self.HW_MTU = 4096
-            elif self.bitrate > 1_000_000:
-                self.HW_MTU = 2048
-            elif self.bitrate > 62_500:
-                self.HW_MTU = 1024
-            else:
-                self.HW_MTU = None
+            if self.bitrate   >= 1_000_000_000:  self.HW_MTU = 524288
+            elif self.bitrate > 750_000_000:     self.HW_MTU = 262144
+            elif self.bitrate > 400_000_000:     self.HW_MTU = 131072
+            elif self.bitrate > 200_000_000:     self.HW_MTU = 65536
+            elif self.bitrate > 100_000_000:     self.HW_MTU = 32768
+            elif self.bitrate > 10_000_000:      self.HW_MTU = 16384
+            elif self.bitrate > 5_000_000:       self.HW_MTU = 8192
+            elif self.bitrate > 2_000_000:       self.HW_MTU = 4096
+            elif self.bitrate > 1_000_000:       self.HW_MTU = 2048
+            elif self.bitrate > 62_500:          self.HW_MTU = 1024
+            else:                                self.HW_MTU = None
 
         RNS.log(f"{self} hardware MTU set to {self.HW_MTU}", RNS.LOG_DEBUG)
 
