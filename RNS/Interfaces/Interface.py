@@ -108,6 +108,7 @@ class Interface:
         self.last_discovery_announce  = 0
         self.bootstrap_only           = False
         self.recursive_prs            = False
+        self.announces_from_internal  = True
         self.parent_interface         = None
         self.spawned_interfaces       = None
         self.tunnel_id                = None
