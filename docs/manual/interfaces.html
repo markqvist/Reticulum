@@ -1369,6 +1369,16 @@ recursively discover paths for path requests received on this
 interface.</div>
 </div>
 </li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">announces_from_internal</span></code> option controls whether any
+announces <em>received on</em> an <code class="docutils literal notranslate"><span class="pre">internal</span></code> mode interface will
+propagate <em>out</em> on the interface this option is set on. Note
+that this controls <em>announce propagation</em>; even if announces
+do not propagate out when received, paths to destinations on
+<code class="docutils literal notranslate"><span class="pre">internal</span></code> mode interfaces may still be resolvable by means
+of path requests.</div>
+</div>
+</li>
 </ul>
 </div></blockquote>
 </section>
@@ -1460,7 +1470,7 @@ connecting over the Internet should be set to <code class="docutils literal notr
 </div>
 </li>
 <li><div class="line-block">
-<div class="line">The <code class="docutils literal notranslate"><span class="pre">internal</span></code> mode designates interfaces that belong to an
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">internal</span></code> mode designates interfaces that belong to a
 network different from any marked as <code class="docutils literal notranslate"><span class="pre">boundary</span></code>. Announces from
 a <code class="docutils literal notranslate"><span class="pre">boundary</span></code> interface will not propagate to interfaces set as
 <code class="docutils literal notranslate"><span class="pre">internal</span></code>, but announces <em>will</em> propagate from <code class="docutils literal notranslate"><span class="pre">internal</span></code> <em>to</em>

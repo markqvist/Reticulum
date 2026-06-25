@@ -1142,6 +1142,14 @@ These can be used to control various aspects of interface behaviour.
 >   recursively discover paths for path requests received on this
 >   interface.
 >   
+> * The `announces_from_internal` option controls whether any
+>   announces *received on* an `internal` mode interface will
+>   propagate *out* on the interface this option is set on. Note
+>   that this controls *announce propagation*; even if announces
+>   do not propagate out when received, paths to destinations on
+>   `internal` mode interfaces may still be resolvable by means
+>   of path requests.
+>   
 
 ## Interface Modes
 
@@ -1217,7 +1225,7 @@ the default mode.
 >   public Transport Node available on the Internet, the interface
 >   connecting over the Internet should be set to `boundary` mode.
 >   
-> * The `internal` mode designates interfaces that belong to an
+> * The `internal` mode designates interfaces that belong to a
 >   network different from any marked as `boundary`. Announces from
 >   a `boundary` interface will not propagate to interfaces set as
 >   `internal`, but announces *will* propagate from `internal` *to*
