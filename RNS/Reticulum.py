@@ -252,6 +252,7 @@ class Reticulum:
 
         Reticulum.__network_identity                  = None
         Reticulum.__transport_enabled                 = False
+        Reticulum.__static_transport_identity         = False
         Reticulum.__link_mtu_discovery                = Reticulum.LINK_MTU_DISCOVERY
         Reticulum.__remote_management_enabled         = False
         Reticulum.__use_implicit_proof                = True
@@ -347,7 +348,7 @@ class Reticulum:
             self.rpc_type = "AF_INET"
 
         if self.rpc_key == None:
-            self.rpc_key  = RNS.Identity.full_hash(RNS.Transport.identity.get_private_key())
+            self.rpc_key  = RNS.Identity.full_hash(RNS.Transport.internal_identity().get_private_key())
         
         if self.is_shared_instance:
             self.rpc_listener = multiprocessing.connection.Listener(self.rpc_addr, family=self.rpc_type, authkey=self.rpc_key)
@@ -500,6 +501,10 @@ class Reticulum:
                     v = self.config["reticulum"].as_bool(option)
                     if v == True: Reticulum.__transport_enabled = True
                 
+                if option == "static_transport_identity":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v == True: Reticulum.__static_transport_identity = True
+
                 if option == "network_identity":
                     if Reticulum.__network_identity == None:
                         path = self.config["reticulum"][option]
@@ -1852,6 +1857,10 @@ class Reticulum:
     @staticmethod
     def max_autoconnected_interfaces():
         return Reticulum.__autoconnect_discovered_interfaces
+
+    @staticmethod
+    def static_transport_identity():
+        return Reticulum.__static_transport_identity
 
 # Default configuration file:
 __default_rns_config__ = '''# This is the default Reticulum config file.

@@ -207,7 +207,11 @@ class Transport:
     identity                    = None
     network_identity            = None
 
+    _identity                   = None
     _should_run                 = True
+
+    @staticmethod
+    def internal_identity(): return Transport._identity
 
     @staticmethod
     def start(reticulum_instance):
@@ -225,6 +229,12 @@ class Transport:
                 Transport.identity.to_file(transport_identity_path)
             else:
                 RNS.log("Loaded Transport Identity from storage", RNS.LOG_VERBOSE) if RNS.sl(RNS.LOG_VERBOSE) else None
+
+            Transport._identity = Transport.identity
+            if not RNS.Reticulum.transport_enabled() and not RNS.Reticulum.static_transport_identity():
+                Transport._identity = Transport.identity
+                Transport.identity   = RNS.Identity()
+                RNS.log(f"Initialized ephemeral transport identity {RNS.prettyhexrep(Transport.identity.hash)}", RNS.LOG_VERBOSE) if RNS.sl(RNS.LOG_VERBOSE) else None
 
         packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
         if not Transport.owner.is_connected_to_shared_instance:
@@ -1192,69 +1202,61 @@ class Transport:
 
                     if packet.packet_type == RNS.Packet.ANNOUNCE:
                         if packet.attached_interface == None:
+                            ac_loglevel = RNS.LOG_EXTREME
                             from_interface = Transport.next_hop_interface(packet.destination_hash)
+                            local_destination = None
+                            with Transport.destinations_map_lock:
+                                if packet.destination_hash in Transport.destinations_map:
+                                    local_destination = Transport.destinations_map[packet.destination_hash]
 
-                            if from_interface == None:
-                                RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface doesn't exist", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                            if not local_destination and from_interface == None:
+                                RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface doesn't exist", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                 should_transmit = False
 
-                            elif interface.announces_from_internal == False and from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_INTERNAL:
-                                RNS.log("Blocking announce broadcast on "+str(interface)+" due to internal-mode next hop interface", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                            elif not local_destination and interface.announces_from_internal == False and from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_INTERNAL:
+                                RNS.log("Blocking announce broadcast on "+str(interface)+" due to internal-mode next hop interface", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                 should_transmit = False
 
                             elif interface.mode == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT:
-                                RNS.log("Blocking announce broadcast on "+str(interface)+" due to AP mode", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                RNS.log("Blocking announce broadcast on "+str(interface)+" due to AP mode", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                 should_transmit = False
 
-                            elif interface.mode == RNS.Interfaces.Interface.Interface.MODE_INTERNAL:
+                            elif not local_destination and interface.mode == RNS.Interfaces.Interface.Interface.MODE_INTERNAL:
                                 if not hasattr(from_interface, "mode"):
                                     should_transmit = False
-                                    RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                    RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                 else:
-                                    if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
-                                        RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
-                                        should_transmit = False
-                                    elif from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
-                                        RNS.log("Blocking announce broadcast on "+str(interface)+" due to boundary-mode next-hop interface", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                    if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" due to boundary-mode next-hop interface", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                         should_transmit = False
 
                             elif interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
-                                local_destination = None
-                                with Transport.destinations_map_lock:
-                                    if packet.destination_hash in Transport.destinations_map:
-                                        local_destination = Transport.destinations_map[packet.destination_hash]
-
                                 if local_destination != None:
-                                    # RNS.log("Allowing announce broadcast on roaming-mode interface from instance-local destination", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                    # RNS.log("Allowing announce broadcast on roaming-mode interface from instance-local destination", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                     pass
                                 else:
                                     if not hasattr(from_interface, "mode"):
                                         should_transmit = False
-                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                     else:
                                         if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
-                                            RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                            RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                             should_transmit = False
                                         elif from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
-                                            RNS.log("Blocking announce broadcast on "+str(interface)+" due to boundary-mode next-hop interface", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                            RNS.log("Blocking announce broadcast on "+str(interface)+" due to boundary-mode next-hop interface", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                             should_transmit = False
 
                             elif interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
-                                local_destination = None
-                                with Transport.destinations_map_lock:
-                                    if packet.destination_hash in Transport.destinations_map:
-                                        local_destination = Transport.destinations_map[packet.destination_hash]
-
                                 if local_destination != None:
-                                    # RNS.log("Allowing announce broadcast on boundary-mode interface from instance-local destination", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                    # RNS.log("Allowing announce broadcast on boundary-mode interface from instance-local destination", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                     pass
                                 else:
                                     if not hasattr(from_interface, "mode"):
                                         should_transmit = False
-                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                        RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                     else:
                                         if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_ROAMING:
-                                            RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                            RNS.log("Blocking announce broadcast on "+str(interface)+" due to roaming-mode next-hop interface", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                             should_transmit = False
 
                             else:
