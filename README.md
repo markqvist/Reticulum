@@ -85,15 +85,15 @@ The Reticulum Protocol is defined entirely and authoritatively by this reference
 implementation, and its associated manual. It is maintained by Mark Qvist,
 identified by the Reticulum Identity `<bc7291552be7a58f361522990465165c>`.
 
+No second-order protocol specification derivatives currently do, or will ever exist. You can't get a better specification than one that is executable, functional, testable, deployed and operating 24/7 across the planet.
+
+There is not, and never will be a separate, derived "formal spec", "RFC" or anything similar for Reticulum:
+
+**The reference implementation *is* the final, authoritative specification.**
+
 Compatibility with the Reticulum Protocol is defined as having full interoperability,
 and sufficient functional parity with this reference implementation. Any specific protocol
 implementation that achieves this is Reticulum. Any that does not is not Reticulum.
-
-No second-order protocol specification derivatives currently do, or will ever exist. You cannot get a better specification, than one that is executable, functional, testable, deployed and operating 24/7 across the planet.
-
-There is not, and never will be an "official" external, derived "formal spec", "RFC" or anything similar for Reticulum:
-
-**The reference implementation *is* the final, authoritative specification.**
 
 The reference implementation is licensed under the Reticulum License.
 
