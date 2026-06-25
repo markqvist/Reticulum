@@ -655,7 +655,7 @@ Roaming ─── ✕ ──┘              └── ✓ ── Roaming
 Full ────── ✓ ──┐              ┌── ✓ ── Full
 AP ──────── ✓ ──┤              ├── ✕ ── AP
 Boundary ── ✕ ──┼─> Roaming >──┼── ✕ ── Boundary
-Internal ── ✕ ──┤              ├── ✕ ── Internal
+Internal ── ✕ ──┤              ├── ✓ ── Internal
 Roaming ─── ✕ ──┘              └── ✕ ── Roaming
 
 Full ────── ✓ ──┐              ┌── ✓ ── Full
@@ -668,7 +668,7 @@ Full ────── ✓ ──┐              ┌── ✓ ── Full
 AP ──────── ✓ ──┤              ├── ✕ ── AP
 Boundary ── ✕ ──┼─> Internal >─┼── ✓ ── Boundary
 Internal ── ✓ ──┤              ├── ✓ ── Internal
-Roaming ─── ✕ ──┘              └── ✕ ── Roaming
+Roaming ─── ✓ ──┘              └── ✕ ── Roaming
 
           dest →   Full   AP   Boundary   Roaming    Gateway   Internal
 source ↓
@@ -677,7 +677,7 @@ Gateway             ✓     ✕      ✓          ✓           ✓         ✓
 AP                  ✓     ✕      ✓          ✓           ✓         ✓
 Boundary            ✓     ✕      ✓          ✕           ✓         ✕
 Internal            ✓     ✕      ✓          ✕           ✓         ✓
-Roaming             ✓     ✕      ✕          ✕           ✓         ✕
+Roaming             ✓     ✕      ✕          ✕           ✓         ✓
 
 ✓ Will rebroadcast announce
 ✕ Will not rebroadcast announce -->

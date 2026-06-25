@@ -732,7 +732,7 @@ Or, represented in table form:
       Full ────── ✓ ──┐              ┌── ✓ ── Full
       AP ──────── ✓ ──┤              ├── ✕ ── AP
       Boundary ── ✕ ──┼─> Roaming >──┼── ✕ ── Boundary
-      Internal ── ✕ ──┤              ├── ✕ ── Internal
+      Internal ── ✕ ──┤              ├── ✓ ── Internal
       Roaming ─── ✕ ──┘              └── ✕ ── Roaming
 
       Full ────── ✓ ──┐              ┌── ✓ ── Full
@@ -745,7 +745,7 @@ Or, represented in table form:
       AP ──────── ✓ ──┤              ├── ✕ ── AP
       Boundary ── ✕ ──┼─> Internal >─┼── ✓ ── Boundary
       Internal ── ✓ ──┤              ├── ✓ ── Internal
-      Roaming ─── ✕ ──┘              └── ✕ ── Roaming
+      Roaming ─── ✓ ──┘              └── ✕ ── Roaming
 
                 dest →   Full   AP   Boundary   Roaming    Gateway   Internal
       source ↓                                                            
@@ -754,7 +754,7 @@ Or, represented in table form:
       AP                  ✓     ✕      ✓          ✓           ✓         ✓
       Boundary            ✓     ✕      ✓          ✕           ✓         ✕
       Internal            ✓     ✕      ✓          ✕           ✓         ✓
-      Roaming             ✓     ✕      ✕          ✕           ✓         ✕
+      Roaming             ✓     ✕      ✕          ✕           ✓         ✓
 
       ✓ Will rebroadcast announce
       ✕ Will not rebroadcast announce
