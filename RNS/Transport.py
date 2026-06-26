@@ -3071,25 +3071,19 @@ class Transport:
     def from_local_client(packet):
         if hasattr(packet.receiving_interface, "parent_interface"):
             return Transport.is_local_client_interface(packet.receiving_interface)
-        else:
-            return False
+        else: return False
 
     @staticmethod
     def is_local_client_interface(interface):
         if hasattr(interface, "parent_interface"):
-            if hasattr(interface.parent_interface, "is_local_shared_instance"):
-                return True
-            else:
-                return False
-        else:
-            return False
+            if hasattr(interface.parent_interface, "is_local_shared_instance"): return True
+            else:                                                               return False
+        else:                                                                   return False
 
     @staticmethod
     def interface_to_shared_instance(interface):
-        if hasattr(interface, "is_connected_to_shared_instance"):
-            return True
-        else:
-            return False
+        if hasattr(interface, "is_connected_to_shared_instance"): return True
+        else:                                                     return False
 
     @staticmethod
     def detach_interfaces():
