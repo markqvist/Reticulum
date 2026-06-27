@@ -31,5 +31,4 @@
 class Resolver:
   
   @staticmethod
-  def resolve_identity(full_name):
-    pass
+  def resolve_identity(full_name): pass

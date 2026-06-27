@@ -166,6 +166,7 @@ class Transport:
     local_client_rssi_cache     = []
     local_client_snr_cache      = []
     local_client_q_cache        = []
+    local_hops_delta            = 0
     LOCAL_CLIENT_CACHE_MAXSIZE  = 512
 
     pending_local_path_requests = {}
@@ -235,6 +236,8 @@ class Transport:
                 Transport._identity = Transport.identity
                 Transport.identity   = RNS.Identity()
                 RNS.log(f"Initialized ephemeral transport identity {RNS.prettyhexrep(Transport.identity.hash)}", RNS.LOG_VERBOSE) if RNS.sl(RNS.LOG_VERBOSE) else None
+
+            if RNS.Reticulum.local_hops_delta(): Transport.local_hops_delta = (ord(os.urandom(1))%6)+2
 
         packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
         if not Transport.owner.is_connected_to_shared_instance:
@@ -1147,7 +1150,7 @@ class Transport:
                     # Insert packet into transport
                     new_flags = (RNS.Packet.HEADER_2) << 6 | (Transport.TRANSPORT) << 4 | (packet.flags & 0b00001111)
                     new_raw = struct.pack("!B", new_flags)
-                    new_raw += packet.raw[1:2]
+                    new_raw += packet.raw[1:2] if not Transport.should_apply_delta(packet, outbound_interface) else struct.pack("!B", Transport.local_hops_delta)
                     new_raw += path_entry[IDX_PT_NEXT_HOP]
                     new_raw += packet.raw[2:]
                     packet_sent(packet)
@@ -1167,7 +1170,7 @@ class Transport:
                     # Insert packet into transport
                     new_flags = (RNS.Packet.HEADER_2) << 6 | (Transport.TRANSPORT) << 4 | (packet.flags & 0b00001111)
                     new_raw = struct.pack("!B", new_flags)
-                    new_raw += packet.raw[1:2]
+                    new_raw += packet.raw[1:2] if not Transport.should_apply_delta(packet, outbound_interface) else struct.pack("!B", Transport.local_hops_delta)
                     new_raw += path_entry[IDX_PT_NEXT_HOP]
                     new_raw += packet.raw[2:]
                     packet_sent(packet)
@@ -1180,7 +1183,9 @@ class Transport:
             # simply transmit the packet directly on that one.
             else:
                 packet_sent(packet)
-                Transport.transmit(outbound_interface, packet.raw)
+                if not Transport.should_apply_delta(packet, outbound_interface): raw = packet.raw
+                else: raw = Transport.mangle_hops(packet.raw, Transport.local_hops_delta)
+                Transport.transmit(outbound_interface, raw)
                 sent = True
 
         # If we don't have a known path for the destination, we'll
@@ -1194,11 +1199,10 @@ class Transport:
                     should_transmit = True
 
                     if packet.destination.type == RNS.Destination.LINK:
-                        if packet.destination.status == RNS.Link.CLOSED:       should_transmit = False
-                        if interface != packet.destination.attached_interface: should_transmit = False
+                        if packet.destination.status == RNS.Link.CLOSED:       continue
+                        if interface != packet.destination.attached_interface: continue
 
-                    if packet.attached_interface != None and interface != packet.attached_interface:
-                        should_transmit = False
+                    if packet.attached_interface != None and interface != packet.attached_interface: continue
 
                     if packet.packet_type == RNS.Packet.ANNOUNCE:
                         if packet.attached_interface == None:
@@ -1335,13 +1339,29 @@ class Transport:
                             Transport.add_packet_hash(packet.packet_hash)
                             stored_hash = True
 
-                        Transport.transmit(interface, packet.raw)
+                        if not Transport.should_apply_delta(packet, interface): raw = packet.raw
+                        else:
+                            if packet.packet_type != RNS.Packet.ANNOUNCE: raw = Transport.mangle_hops(packet.raw, Transport.local_hops_delta)
+                            else: raw = Transport.mangle_hops(packet.raw, Transport.local_hops_delta, transport_insert=packet.header_type==RNS.Packet.HEADER_1)
+
+                        Transport.transmit(interface, raw)
                         if packet.packet_type == RNS.Packet.ANNOUNCE: interface.sent_announce()
                         if packet.destination.type == RNS.Destination.PLAIN and packet.is_outbound_pr: interface.sent_path_request()
                         packet_sent(packet)
                         sent = True
 
         return sent
+
+    @staticmethod
+    def should_apply_delta(packet, interface):
+        return not Transport.owner.is_connected_to_shared_instance and packet.hops == 0 and Transport.local_hops_delta != 0 \
+               and not packet.destination.type == RNS.Destination.PLAIN and not packet.destination.type == RNS.Destination.GROUP \
+               and not interface in Transport.local_client_interfaces and not Transport.is_shared_instance(interface)
+
+    @staticmethod
+    def mangle_hops(raw, hops, transport_insert=False):
+        if not transport_insert: return raw[0:1]+struct.pack("!B", hops)+raw[2:]
+        else: return struct.pack("!B", ord(raw[0:1]) | (RNS.Packet.HEADER_2<<6) | (Transport.TRANSPORT<<4))+struct.pack("!B", hops)+Transport.identity.hash+raw[2:]
 
     @staticmethod
     def add_packet_hash(packet_hash):
@@ -1530,6 +1550,8 @@ class Transport:
             for_local_client_link     = (packet.packet_type != RNS.Packet.ANNOUNCE) and (packet.destination_hash in Transport.link_table and Transport.link_table[packet.destination_hash][IDX_LT_RCVD_IF] in Transport.local_client_interfaces)
             for_local_client_link    |= (packet.packet_type != RNS.Packet.ANNOUNCE) and (packet.destination_hash in Transport.link_table and Transport.link_table[packet.destination_hash][IDX_LT_NH_IF] in Transport.local_client_interfaces)
             proof_for_local_client    = (packet.destination_hash in Transport.reverse_table) and (Transport.reverse_table[packet.destination_hash][IDX_RT_RCVD_IF] in Transport.local_client_interfaces)
+            to_local_client           = for_local_client or for_local_client_link or proof_for_local_client
+            link_request_handled      = False
 
             # Plain broadcast packets from local clients are sent
             # directly on all attached interfaces, since they are
@@ -1591,10 +1613,23 @@ class Transport:
                                 new_raw += struct.pack("!B", packet.hops)
                                 new_raw += packet.raw[(RNS.Identity.TRUNCATED_HASHLENGTH//8)+2:]
                             elif remaining_hops == 0:
-                                # Just increase hop count and transmit
-                                new_raw  = packet.raw[0:1]
-                                new_raw += struct.pack("!B", packet.hops)
-                                new_raw += packet.raw[2:]
+                                if to_local_client and RNS.Transport.local_hops_delta != 0:
+                                    if packet.header_type == RNS.Packet.HEADER_2:
+                                        # Strip transport headers and transmit
+                                        new_flags = (RNS.Packet.HEADER_1) << 6 | (Transport.BROADCAST) << 4 | (packet.flags & 0b00001111)
+                                        new_raw = struct.pack("!B", new_flags)
+                                        new_raw += struct.pack("!B", packet.hops)
+                                        new_raw += packet.raw[(RNS.Identity.TRUNCATED_HASHLENGTH//8)+2:]
+                                    else:
+                                        # Just increase hop count and transmit
+                                        new_raw  = packet.raw[0:1]
+                                        new_raw += struct.pack("!B", packet.hops)
+                                        new_raw += packet.raw[2:]
+                                else:
+                                    # Just increase hop count and transmit
+                                    new_raw  = packet.raw[0:1]
+                                    new_raw += struct.pack("!B", packet.hops)
+                                    new_raw += packet.raw[2:]
 
                             outbound_interface = Transport.path_table[packet.destination_hash][IDX_PT_RVCD_IF]
 
@@ -1639,6 +1674,7 @@ class Transport:
                                                 proof_timeout ]                 # 8: Proof timeout timestamp
 
                                 with Transport.link_table_lock: Transport.link_table[RNS.Link.link_id_from_lr_packet(packet)] = link_entry
+                                link_request_handled = True
 
                             else:
                                 # Entry format is
@@ -1648,6 +1684,7 @@ class Transport:
 
                                 with Transport.reverse_table_lock: Transport.reverse_table[packet.getTruncatedHash()] = reverse_entry
 
+                            if Transport.local_hops_delta != 0 and from_local_client and not to_local_client: new_raw = Transport.mangle_hops(new_raw, Transport.local_hops_delta)
                             Transport.transmit(outbound_interface, new_raw)
                             with Transport.path_table_lock: Transport.path_table[packet.destination_hash][IDX_PT_TIMESTAMP] = time.time()
 
@@ -1691,7 +1728,7 @@ class Transport:
                             Transport.add_packet_hash(packet.packet_hash)
 
                             new_raw = packet.raw[0:1]
-                            new_raw += struct.pack("!B", packet.hops)
+                            new_raw += struct.pack("!B", packet.hops if not from_local_client or Transport.local_hops_delta == 0 else Transport.local_hops_delta)
                             new_raw += packet.raw[2:]
                             Transport.transmit(outbound_interface, new_raw)
                             Transport.link_table[packet.destination_hash][IDX_LT_TIMESTAMP] = time.time()
@@ -2104,7 +2141,7 @@ class Transport:
                                             RNS.trace_exception(e)
 
             # Handling for link requests to local destinations
-            elif packet.packet_type == RNS.Packet.LINKREQUEST:
+            elif packet.packet_type == RNS.Packet.LINKREQUEST and not link_request_handled:
                 if packet.transport_id == None or packet.transport_id == Transport.identity.hash:
                     destination = None
                     with Transport.destinations_map_lock:
@@ -2207,7 +2244,7 @@ class Transport:
                                         if peer_identity.validate(signature, signed_data):
                                             RNS.log("Link request proof validated for transport via "+str(link_entry[IDX_LT_RCVD_IF]), RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                                             new_raw = packet.raw[0:1]
-                                            new_raw += struct.pack("!B", packet.hops)
+                                            new_raw += struct.pack("!B", packet.hops if not from_local_client or Transport.local_hops_delta == 0 else Transport.local_hops_delta)
                                             new_raw += packet.raw[2:]
                                             Transport.link_table[packet.destination_hash][IDX_LT_VALIDATED] = True
                                             Transport.transmit(link_entry[IDX_LT_RCVD_IF], new_raw)
@@ -2274,7 +2311,7 @@ class Transport:
                         if packet.receiving_interface == reverse_entry[IDX_RT_OUTB_IF]:
                             RNS.log("Proof received on correct interface, transporting it via "+str(reverse_entry[IDX_RT_RCVD_IF]), RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                             new_raw = packet.raw[0:1]
-                            new_raw += struct.pack("!B", packet.hops)
+                            new_raw += struct.pack("!B", packet.hops if not from_local_client or Transport.local_hops_delta == 0 else Transport.local_hops_delta)
                             new_raw += packet.raw[2:]
                             Transport.transmit(reverse_entry[IDX_RT_RCVD_IF], new_raw)
                         else:
@@ -2672,7 +2709,8 @@ class Transport:
         :returns: The destination hash as *bytes* for the next hop to the specified destination, or *None* if the next hop is unknown.
         """
         with Transport.path_table_lock:
-            if destination_hash in Transport.path_table: return Transport.path_table[destination_hash][IDX_PT_NEXT_HOP]
+            if   destination_hash in Transport.path_table: return Transport.path_table[destination_hash][IDX_PT_NEXT_HOP]
+            elif destination_hash in Transport.destinations_map: return Transport.identity.hash
             else: return None
 
     @staticmethod
@@ -2682,7 +2720,8 @@ class Transport:
         :returns: The interface for the next hop to the specified destination, or *None* if the interface is unknown.
         """
         with Transport.path_table_lock:
-            if destination_hash in Transport.path_table: return Transport.path_table[destination_hash][IDX_PT_RVCD_IF]
+            if   destination_hash in Transport.path_table: return Transport.path_table[destination_hash][IDX_PT_RVCD_IF]
+            elif destination_hash in Transport.destinations_map: return RNS.Reticulum.get_instance().shared_instance_interface
             else: return None
 
     @staticmethod
@@ -3079,6 +3118,11 @@ class Transport:
             if hasattr(interface.parent_interface, "is_local_shared_instance"): return True
             else:                                                               return False
         else:                                                                   return False
+
+    @staticmethod
+    def is_shared_instance(interface):
+        if hasattr(interface, "is_local_shared_instance"): return True
+        else:                                              return False
 
     @staticmethod
     def interface_to_shared_instance(interface):

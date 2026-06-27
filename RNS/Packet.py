@@ -313,51 +313,40 @@ class Packet:
             # encrypted destinations
             self.pack()
             
-            if RNS.Transport.outbound(self):
-                return self.receipt
+            if RNS.Transport.outbound(self): return self.receipt
             else:
                 RNS.log("Re-send failed. No interfaces could process the outbound packet", RNS.LOG_WARNING)
                 self.sent = False
                 self.receipt = None
                 return False
-        else:
-            raise IOError("Packet was not sent yet")
+        
+        else: raise IOError("Packet was not sent yet")
 
     def prove(self, destination=None):
         if self.fromPacked and hasattr(self, "destination") and self.destination:
             if self.destination.identity and self.destination.identity.prv:
                 self.destination.identity.prove(self, destination)
-        elif self.fromPacked and hasattr(self, "link") and self.link:
-            self.link.prove_packet(self)
-        else:
-            RNS.log("Could not prove packet associated with neither a destination nor a link", RNS.LOG_ERROR)
+        elif self.fromPacked and hasattr(self, "link") and self.link: self.link.prove_packet(self)
+        else: RNS.log("Could not prove packet associated with neither a destination nor a link", RNS.LOG_ERROR)
 
     # Generates a special destination that allows Reticulum
     # to direct the proof back to the proved packet's sender
-    def generate_proof_destination(self):
-        return ProofDestination(self)
+    def generate_proof_destination(self): return ProofDestination(self)
 
-    def validate_proof_packet(self, proof_packet):
-        return self.receipt.validate_proof_packet(proof_packet)
+    def validate_proof_packet(self, proof_packet): return self.receipt.validate_proof_packet(proof_packet)
 
-    def validate_proof(self, proof):
-        return self.receipt.validate_proof(proof)
+    def validate_proof(self, proof): return self.receipt.validate_proof(proof)
 
-    def update_hash(self):
-        self.packet_hash = self.get_hash()
+    def update_hash(self): self.packet_hash = self.get_hash()
 
-    def get_hash(self):
-        return RNS.Identity.full_hash(self.get_hashable_part())
+    def get_hash(self): return RNS.Identity.full_hash(self.get_hashable_part())
 
-    def getTruncatedHash(self):
-        return RNS.Identity.truncated_hash(self.get_hashable_part())
+    def getTruncatedHash(self): return RNS.Identity.truncated_hash(self.get_hashable_part())
 
     def get_hashable_part(self):
         hashable_part = bytes([self.raw[0] & 0b00001111])
-        if self.header_type == Packet.HEADER_2:
-            hashable_part += self.raw[(RNS.Identity.TRUNCATED_HASHLENGTH//8)+2:]
-        else:
-            hashable_part += self.raw[2:]
+        if self.header_type == Packet.HEADER_2: hashable_part += self.raw[(RNS.Identity.TRUNCATED_HASHLENGTH//8)+2:]
+        else:                                   hashable_part += self.raw[2:]
 
         return hashable_part
 
@@ -365,36 +354,29 @@ class Packet:
         """
         :returns: The physical layer *Received Signal Strength Indication* if available, otherwise ``None``.
         """
-        if self.rssi != None:
-            return self.rssi
-        else:
-            return reticulum.get_packet_rssi(self.packet_hash)
+        if self.rssi != None: return self.rssi
+        else:                 return reticulum.get_packet_rssi(self.packet_hash)
             
     def get_snr(self):
         """
         :returns: The physical layer *Signal-to-Noise Ratio* if available, otherwise ``None``.
         """
-        if self.snr != None:
-            return self.snr
-        else:
-            return reticulum.get_packet_snr(self.packet_hash)
+        if self.snr != None: return self.snr
+        else:                return reticulum.get_packet_snr(self.packet_hash)
 
     def get_q(self):
         """
         :returns: The physical layer *Link Quality* if available, otherwise ``None``.
         """
-        if self.q != None:
-            return self.q
-        else:
-            return reticulum.get_packet_q(self.packet_hash)
+        if self.q != None: return self.q
+        else:              return reticulum.get_packet_q(self.packet_hash)
 
 class ProofDestination:
     def __init__(self, packet):
         self.hash = packet.get_hash()[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8];
         self.type = RNS.Destination.SINGLE
 
-    def encrypt(self, plaintext):
-        return plaintext
+    def encrypt(self, plaintext): return plaintext
 
 
 class PacketReceipt:
@@ -463,18 +445,17 @@ class PacketReceipt:
                     link.last_proof = self.concluded_at
 
                     if self.callbacks.delivery != None:
-                        try:
-                            self.callbacks.delivery(self)
+                        try: self.callbacks.delivery(self)
                         except Exception as e:
                             RNS.log("An error occurred while evaluating external delivery callback for "+str(link), RNS.LOG_ERROR)
                             RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
                             RNS.trace_exception(e)
                             
                     return True
-                else:
-                    return False
-            else:
-                return False
+                
+                else: return False
+            else: return False
+        
         elif len(proof) == PacketReceipt.IMPL_LENGTH:
             pass
             # TODO: Why is this disabled?
@@ -491,8 +472,7 @@ class PacketReceipt:
             # else:
             #   RNS.log("invalid")
             #   return False
-        else:
-            return False
+        else: return False
 
     # Validate a raw proof
     def validate_proof(self, proof, proof_packet=None):
@@ -509,24 +489,20 @@ class PacketReceipt:
                     self.proof_packet = proof_packet
 
                     if self.callbacks.delivery != None:
-                        try:
-                            self.callbacks.delivery(self)
+                        try: self.callbacks.delivery(self)
                         except Exception as e:
                             RNS.log("Error while executing proof validated callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
                     return True
-                else:
-                    return False
-            else:
-                return False
+                
+                else: return False
+            else: return False
+
         elif len(proof) == PacketReceipt.IMPL_LENGTH:
             # This is an implicit proof
 
-            if not hasattr(self.destination, "identity"):
-                return False
-
-            if self.destination.identity == None:
-                return False
+            if not hasattr(self.destination, "identity"): return False
+            if self.destination.identity == None:         return False
 
             signature = proof[:RNS.Identity.SIGLENGTH//8]
             proof_valid = self.destination.identity.validate(signature, self.hash)
@@ -537,16 +513,13 @@ class PacketReceipt:
                     self.proof_packet = proof_packet
 
                     if self.callbacks.delivery != None:
-                        try:
-                            self.callbacks.delivery(self)
-                        except Exception as e:
-                            RNS.log("Error while executing proof validated callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                        try: self.callbacks.delivery(self)
+                        except Exception as e: RNS.log("Error while executing proof validated callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
                             
                     return True
-            else:
-                return False
-        else:
-            return False
+
+            else: return False
+        else: return False
 
     def get_rtt(self):
         """
@@ -559,10 +532,8 @@ class PacketReceipt:
 
     def check_timeout(self):
         if self.status == PacketReceipt.SENT and self.is_timed_out():
-            if self.timeout == -1:
-                self.status = PacketReceipt.CULLED
-            else:
-                self.status = PacketReceipt.FAILED
+            if self.timeout == -1: self.status = PacketReceipt.CULLED
+            else:                  self.status = PacketReceipt.FAILED
 
             self.concluded_at = time.time()
 

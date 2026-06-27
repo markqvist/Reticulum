@@ -602,21 +602,18 @@ class Identity:
                             signal_str = " ["
                             if packet.rssi != None:
                                 signal_str += "RSSI "+str(packet.rssi)+"dBm"
-                                if packet.snr != None:
-                                    signal_str += ", "
-                            if packet.snr != None:
-                                signal_str += "SNR "+str(packet.snr)+"dB"
+                                if packet.snr != None: signal_str += ", "
+                            if packet.snr != None: signal_str += "SNR "+str(packet.snr)+"dB"
                             signal_str += "]"
-                        else:
-                            signal_str = ""
+
+                        else: signal_str = ""
 
                         if hasattr(packet, "transport_id") and packet.transport_id != None:
                             RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received via "+RNS.prettyhexrep(packet.transport_id)+" on "+str(packet.receiving_interface)+signal_str, RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                         else:
                             RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received on "+str(packet.receiving_interface)+signal_str, RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
 
-                        if ratchet:
-                            Identity._remember_ratchet(destination_hash, ratchet)
+                        if ratchet: Identity._remember_ratchet(destination_hash, ratchet)
 
                         return True
 
