@@ -1442,10 +1442,8 @@ class Transport:
                         ifac = raw[2:2+interface.ifac_size]
 
                         # Generate mask
-                        mask = RNS.Cryptography.hkdf(length=len(raw),
-                                                     derive_from=ifac,
-                                                     salt=interface.ifac_key,
-                                                     context=None)
+                        mask = RNS.Cryptography.hkdf(length=len(raw), derive_from=ifac,
+                                                     salt=interface.ifac_key, context=None)
                         # Unmask payload
                         i = 0; unmasked_raw = b""
                         for byte in raw:
@@ -1547,10 +1545,12 @@ class Transport:
             # through a shared Reticulum instance
             from_local_client         = (packet.receiving_interface in Transport.local_client_interfaces)
             for_local_client          = (packet.packet_type != RNS.Packet.ANNOUNCE) and (packet.destination_hash in Transport.path_table and Transport.path_table[packet.destination_hash][IDX_PT_HOPS] == 0)
-            for_local_client_link     = (packet.packet_type != RNS.Packet.ANNOUNCE) and (packet.destination_hash in Transport.link_table and Transport.link_table[packet.destination_hash][IDX_LT_RCVD_IF] in Transport.local_client_interfaces)
-            for_local_client_link    |= (packet.packet_type != RNS.Packet.ANNOUNCE) and (packet.destination_hash in Transport.link_table and Transport.link_table[packet.destination_hash][IDX_LT_NH_IF] in Transport.local_client_interfaces)
+            local_client_nh           = (packet.packet_type != RNS.Packet.ANNOUNCE) and (packet.destination_hash in Transport.link_table and Transport.link_table[packet.destination_hash][IDX_LT_NH_IF] in Transport.local_client_interfaces)
+            local_client_rh           = (packet.packet_type != RNS.Packet.ANNOUNCE) and (packet.destination_hash in Transport.link_table and Transport.link_table[packet.destination_hash][IDX_LT_RCVD_IF] in Transport.local_client_interfaces)
             proof_for_local_client    = (packet.destination_hash in Transport.reverse_table) and (Transport.reverse_table[packet.destination_hash][IDX_RT_RCVD_IF] in Transport.local_client_interfaces)
-            to_local_client           = for_local_client or for_local_client_link or proof_for_local_client
+            to_local_client           = for_local_client or proof_for_local_client
+            instance_local_link       = local_client_nh and local_client_rh
+            for_local_client_link     = local_client_nh or local_client_rh
             link_request_handled      = False
 
             # Plain broadcast packets from local clients are sent
@@ -1728,7 +1728,7 @@ class Transport:
                             Transport.add_packet_hash(packet.packet_hash)
 
                             new_raw = packet.raw[0:1]
-                            new_raw += struct.pack("!B", packet.hops if not from_local_client or Transport.local_hops_delta == 0 else Transport.local_hops_delta)
+                            new_raw += struct.pack("!B", packet.hops if not from_local_client or instance_local_link or Transport.local_hops_delta == 0 else Transport.local_hops_delta)
                             new_raw += packet.raw[2:]
                             Transport.transmit(outbound_interface, new_raw)
                             Transport.link_table[packet.destination_hash][IDX_LT_TIMESTAMP] = time.time()
@@ -1790,8 +1790,7 @@ class Transport:
                                     with Transport.announce_table_lock:
                                         if packet.destination_hash in Transport.announce_table: Transport.announce_table.pop(packet.destination_hash)
 
-                    else:
-                        received_from = packet.destination_hash
+                    else: received_from = packet.destination_hash
 
                     # Check if this announce should be inserted into
                     # announce and destination tables
@@ -1997,17 +1996,10 @@ class Transport:
                                     if is_from_local_client and packet.context == RNS.Packet.PATH_RESPONSE:
                                         for local_interface in Transport.local_client_interfaces:
                                             if packet.receiving_interface != local_interface:
-                                                new_announce = RNS.Packet(
-                                                    announce_destination,
-                                                    announce_data,
-                                                    RNS.Packet.ANNOUNCE, # <-- This one?
-                                                    context = announce_context,
-                                                    header_type = RNS.Packet.HEADER_2,
-                                                    transport_type = Transport.TRANSPORT,
-                                                    transport_id = Transport.identity.hash,
-                                                    attached_interface = local_interface,
-                                                    context_flag = packet.context_flag,
-                                                )
+                                                new_announce = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE, # <-- This one?
+                                                                          context = announce_context, header_type = RNS.Packet.HEADER_2,
+                                                                          transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash,
+                                                                          attached_interface = local_interface, context_flag = packet.context_flag)
                                                 
                                                 new_announce.hops = packet.hops
                                                 new_announce.send()
@@ -2015,17 +2007,10 @@ class Transport:
                                     else:
                                         for local_interface in Transport.local_client_interfaces:
                                             if packet.receiving_interface != local_interface:
-                                                new_announce = RNS.Packet(
-                                                    announce_destination,
-                                                    announce_data,
-                                                    RNS.Packet.ANNOUNCE,
-                                                    context = announce_context,
-                                                    header_type = RNS.Packet.HEADER_2,
-                                                    transport_type = Transport.TRANSPORT,
-                                                    transport_id = Transport.identity.hash,
-                                                    attached_interface = local_interface,
-                                                    context_flag = packet.context_flag,
-                                                )
+                                                new_announce = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE,
+                                                                          context = announce_context, header_type = RNS.Packet.HEADER_2,
+                                                                          transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash,
+                                                                          attached_interface = local_interface, context_flag = packet.context_flag)
 
                                                 new_announce.hops = packet.hops
                                                 new_announce.send()
@@ -2047,17 +2032,10 @@ class Transport:
                                     announce_context = RNS.Packet.NONE
                                     announce_data = packet.data
 
-                                    new_announce = RNS.Packet(
-                                        announce_destination,
-                                        announce_data,
-                                        RNS.Packet.ANNOUNCE,
-                                        context = RNS.Packet.PATH_RESPONSE,
-                                        header_type = RNS.Packet.HEADER_2,
-                                        transport_type = Transport.TRANSPORT,
-                                        transport_id = Transport.identity.hash,
-                                        attached_interface = attached_interface,
-                                        context_flag = packet.context_flag,
-                                    )
+                                    new_announce = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE,
+                                                              context = RNS.Packet.PATH_RESPONSE, header_type = RNS.Packet.HEADER_2,
+                                                              transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash,
+                                                              attached_interface = attached_interface, context_flag = packet.context_flag)
 
                                     new_announce.hops = packet.hops
                                     new_announce.send()
@@ -2074,8 +2052,7 @@ class Transport:
                                 # announce to the tunnels table
                                 if hasattr(packet.receiving_interface, "tunnel_id") and packet.receiving_interface.tunnel_id != None:
                                     with Transport.tunnels_lock:
-                                        if not packet.receiving_interface.tunnel_id in Transport.tunnels:
-                                            RNS.log(f"Tunnel ID for {packet.receiving_interface} was not found in tunnel table", RNS.LOG_WARNING)
+                                        if not packet.receiving_interface.tunnel_id in Transport.tunnels: RNS.log(f"Tunnel ID for {packet.receiving_interface} was not found in tunnel table", RNS.LOG_WARNING)
                                         else:
                                             tunnel_entry = Transport.tunnels[packet.receiving_interface.tunnel_id]
                                             paths = tunnel_entry[IDX_TT_PATHS]
@@ -2093,10 +2070,10 @@ class Transport:
                                             # the handlers aspect filter
                                             execute_callback = False
                                             announce_identity = RNS.Identity.recall(packet.destination_hash, _no_use=True)
-                                            if handler.aspect_filter == None:
-                                                # If the handlers aspect filter is set to
-                                                # None, we execute the callback in all cases
-                                                execute_callback = True
+
+                                            # If the handlers aspect filter is set to
+                                            # None, we execute the callback in all cases
+                                            if handler.aspect_filter == None: execute_callback = True
                                             else:
                                                 handler_expected_hash = RNS.Destination.hash_from_name_and_identity(handler.aspect_filter, announce_identity)
                                                 if packet.destination_hash == handler_expected_hash: execute_callback = True
@@ -2211,13 +2188,11 @@ class Transport:
                         packet.destination = destination
                         if destination.receive(packet):
                             if destination.proof_strategy == RNS.Destination.PROVE_ALL: packet.prove()
-
                             elif destination.proof_strategy == RNS.Destination.PROVE_APP:
                                 if destination.callbacks.proof_requested:
                                     try:
                                         if destination.callbacks.proof_requested(packet): packet.prove()
-                                    except Exception as e:
-                                        RNS.log("Error while executing proof request callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                                    except Exception as e: RNS.log("Error while executing proof request callback. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
             # Handling for proofs and link-request proofs
             elif packet.packet_type == RNS.Packet.PROOF:
@@ -2244,16 +2219,14 @@ class Transport:
                                         if peer_identity.validate(signature, signed_data):
                                             RNS.log("Link request proof validated for transport via "+str(link_entry[IDX_LT_RCVD_IF]), RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                                             new_raw = packet.raw[0:1]
-                                            new_raw += struct.pack("!B", packet.hops if not from_local_client or Transport.local_hops_delta == 0 else Transport.local_hops_delta)
+                                            new_raw += struct.pack("!B", packet.hops if not from_local_client or instance_local_link or Transport.local_hops_delta == 0 else Transport.local_hops_delta)
                                             new_raw += packet.raw[2:]
                                             Transport.link_table[packet.destination_hash][IDX_LT_VALIDATED] = True
                                             Transport.transmit(link_entry[IDX_LT_RCVD_IF], new_raw)
                                             if not Transport.owner.is_connected_to_shared_instance:
                                                 RNS.Identity._used_destination_data(link_entry[IDX_LT_DSTHASH])
 
-                                        else:
-                                            RNS.log("Invalid link request proof in transport for link "+RNS.prettyhexrep(packet.destination_hash)+", dropping proof.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-
+                                        else: RNS.log("Invalid link request proof in transport for link "+RNS.prettyhexrep(packet.destination_hash)+", dropping proof.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                                 except Exception as e: RNS.log("Could not transport link request proof. The contained exception was: "+str(e), RNS.LOG_DEBUG) if RNS.sl(LOG_DEBUG) else None
                             else: RNS.log("Link request proof received on wrong interface, not transporting it.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                         else: RNS.log("Received link request proof with hop mismatch, not transporting it", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
@@ -2311,7 +2284,7 @@ class Transport:
                         if packet.receiving_interface == reverse_entry[IDX_RT_OUTB_IF]:
                             RNS.log("Proof received on correct interface, transporting it via "+str(reverse_entry[IDX_RT_RCVD_IF]), RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                             new_raw = packet.raw[0:1]
-                            new_raw += struct.pack("!B", packet.hops if not from_local_client or Transport.local_hops_delta == 0 else Transport.local_hops_delta)
+                            new_raw += struct.pack("!B", packet.hops if not from_local_client or proof_for_local_client or Transport.local_hops_delta == 0 else Transport.local_hops_delta)
                             new_raw += packet.raw[2:]
                             Transport.transmit(reverse_entry[IDX_RT_RCVD_IF], new_raw)
                         else:
