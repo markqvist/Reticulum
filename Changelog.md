@@ -1,10 +1,13 @@
-### 2026-06-01: RNS 1.3.5
+### 2026-07-03: RNS 1.3.6
 
-This maintenance release contains an important fix for `AutoInterface` reliability when roaming between different physical networks.
+This maintenance release improves announces propagation logic, and adds additional options for configuring announce propagation and interface behavior in transport mode.
 
 **Changes**
-- Fixed UDP listener replacement deadlocking inbound AutoInterface traffic when fast-roaming between physical interfaces or WiFi APs
-- Fixed some paths never resolving when using other interfaces at the same time as a deadlocked AutoInterface
+- Added `internal` interface mode
+- Added `recursive_prs` interface option
+- Added `announces_from_internal` interface option
+- Added new options to the manual
+- Improved and cleaned up announce propagation logic
 
 **Verified Retrieval**
 You can retrieve and verify this release over Reticulum using the built-in `rngit release` utility. To retrieve only the installation `.whl` package, and the release manifest for future updates, you can use:
@@ -33,6 +36,14 @@ rnid -i bc7291552be7a58f361522990465165c -V rns_*.rsm *.rsg
 ```
 
 The `rnid` utility will then verify the signatures, and display whether they are valid. If the signature cannot be verified, the release has been tampered with and should be discarded.
+
+### 2026-06-01: RNS 1.3.5
+
+This maintenance release contains an important fix for `AutoInterface` reliability when roaming between different physical networks.
+
+**Changes**
+- Fixed UDP listener replacement deadlocking inbound AutoInterface traffic when fast-roaming between physical interfaces or WiFi APs
+- Fixed some paths never resolving when using other interfaces at the same time as a deadlocked AutoInterface
 
 ### 2026-05-29: RNS 1.3.4
 
