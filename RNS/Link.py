@@ -522,6 +522,7 @@ class Link:
                 self.rtt = max(measured_rtt, rtt)
                 self.status = Link.ACTIVE
                 self.activated_at = time.time()
+                self.expected_hops = packet.hops
 
                 if self.rtt != None and self.establishment_cost != None and self.rtt > 0 and self.establishment_cost > 0:
                     self.establishment_rate = self.establishment_cost/self.rtt
