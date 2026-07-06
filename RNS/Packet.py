@@ -278,6 +278,7 @@ class Packet:
         :returns: A :ref:`RNS.PacketReceipt<api-packetreceipt>` instance if *create_receipt* was set to *True* when the packet was instantiated, if not returns *None*. If the packet could not be sent *False* is returned.
         """
         if not self.sent:
+            if not self.packed: self.pack()
             if self.destination.type == RNS.Destination.LINK:
                 if self.destination.status == RNS.Link.CLOSED:
                     RNS.log("Attempt to transmit over a closed link, dropping packet", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
@@ -288,9 +289,7 @@ class Packet:
                 else:
                     self.destination.last_outbound = time.time()
                     self.destination.tx += 1
-                    self.destination.txbytes += len(self.data)
-
-            if not self.packed: self.pack()
+                    self.destination.txbytes += len(self.ciphertext)
 
             if RNS.Transport.outbound(self): return self.receipt
             else:
