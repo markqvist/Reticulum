@@ -359,6 +359,7 @@ class Evt():
     ET_MSG                       = 0x0000
     ET_SYSTEM_BOOT               = 0x0001
     ET_CORE_INIT                 = 0x0002
+    ET_BOARD_INIT                = 0x0003
     ET_DRV_UART_INIT             = 0x1000
     ET_DRV_USB_CDC_INIT          = 0x1010
     ET_DRV_USB_CDC_HOST_AVAIL    = 0x1011
@@ -428,6 +429,7 @@ class Evt():
     event_descriptions = {
         ET_SYSTEM_BOOT: "System boot",
         ET_CORE_INIT: "Core initialization",
+        ET_BOARD_INIT: "Board hardware initialization",
         ET_DRV_UART_INIT: "UART driver initialization",
         ET_DRV_USB_CDC_INIT: "USB CDC driver initialization",
         ET_DRV_USB_CDC_HOST_AVAIL: "USB CDC host became available",
