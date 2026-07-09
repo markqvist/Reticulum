@@ -109,30 +109,30 @@ class WDCL():
         self.switch_id = self.switch_identity.sig_pub_bytes[-4:]
         self.switch_pub_bytes = self.switch_identity.sig_pub_bytes
 
-        self.rxb = 0
-        self.txb = 0
-        self.owner = owner
-        self.as_interface = as_interface
-        self.device = device
+        self.rxb               = 0
+        self.txb               = 0
+        self.owner             = owner
+        self.as_interface      = as_interface
+        self.device            = device
         self.device.connection = self
-        self.pyserial = serial
-        self.serial   = None
-        self.port     = port
-        self.speed    = 3000000
-        self.databits = 8
-        self.parity   = parity
-        self.stopbits = 1
-        self.timeout  = 100
-        self.online   = False
-        self.frame_buffer = b""
-        self.next_tx = 0
-        self.should_run = True
-        self.receiver = None
-        self.wdcl_connected = False
-        self.reconnecting = False
-        self.frame_queue = deque()
-        if not self.as_interface:
-            self.id = RNS.Identity.full_hash(port.hwid.encode("utf-8"))
+        self.pyserial          = serial
+        self.serial            = None
+        self.port              = port
+        self.speed             = 3000000
+        self.databits          = 8
+        self.parity            = parity
+        self.stopbits          = 1
+        self.timeout           = 100
+        self.online            = False
+        self.frame_buffer      = b""
+        self.next_tx           = 0
+        self.should_run        = True
+        self.receiver          = None
+        self.wdcl_connected    = False
+        self.reconnecting      = False
+        self.frame_queue       = deque()
+
+        if not self.as_interface: self.id = RNS.Identity.full_hash(port.hwid.encode("utf-8"))
 
         if self.as_interface:
             try:
@@ -168,19 +168,10 @@ class WDCL():
                 self.owner.wlog(f"Opening serial port {self.port.device}...")
                 target_port = self.port.device
 
-            self.serial = self.pyserial.Serial(
-                port = target_port,
-                baudrate = self.speed,
-                bytesize = self.databits,
-                parity = self.parity,
-                stopbits = self.stopbits,
-                xonxoff = False,
-                rtscts = False,
-                timeout = 0.250,
-                inter_byte_timeout = None,
-                write_timeout = None,
-                dsrdtr = False)
-
+            self.serial = self.pyserial.Serial(port = target_port, baudrate = self.speed,
+                                               bytesize = self.databits, parity = self.parity, stopbits = self.stopbits,
+                                               xonxoff = False, rtscts = False, timeout = 0.250, inter_byte_timeout = None,
+                                               write_timeout = None, dsrdtr = False)
         else:
             if self.port != None:
                 # Get device parameters
@@ -198,19 +189,9 @@ class WDCL():
                         from usbserial4a.cdcacmserial4a import CdcAcmSerial
                         proxy = CdcAcmSerial
 
-                    self.serial = proxy(
-                        self.port,
-                        baudrate = self.speed,
-                        bytesize = self.databits,
-                        parity = self.parity,
-                        stopbits = self.stopbits,
-                        xonxoff = False,
-                        rtscts = False,
-                        timeout = None,
-                        inter_byte_timeout = None,
-                        # write_timeout = wtimeout,
-                        dsrdtr = False,
-                    )
+                    self.serial = proxy(self.port, baudrate = self.speed, bytesize = self.databits,
+                                        parity = self.parity, stopbits = self.stopbits, xonxoff = False,
+                                        rtscts = False, timeout = None, inter_byte_timeout = None, dsrdtr = False)
 
                     if vid == 0x0403:
                         # Hardware parameters for FTDI devices @ 115200 baud
@@ -299,10 +280,9 @@ class WDCL():
                                 frame = frame.replace(bytes([HDLC.ESC, HDLC.ESC  ^ HDLC.ESC_MASK]), bytes([HDLC.ESC]))
                                 if len(frame) > WDCL.HEADER_MINSIZE: self.process_incoming(frame)
                                 self.frame_buffer = self.frame_buffer[frame_end:]
-                            else:
-                                flags_remaining = False
-                        else:
-                            flags_remaining = False
+
+                            else: flags_remaining = False
+                        else: flags_remaining = False
                     
         except Exception as e:
             self.online = False
@@ -427,78 +407,78 @@ class Evt():
     IF_TYPE_DMA                  = 0x10
 
     event_descriptions = {
-        ET_SYSTEM_BOOT: "System boot",
-        ET_CORE_INIT: "Core initialization",
-        ET_BOARD_INIT: "Board hardware initialization",
-        ET_DRV_UART_INIT: "UART driver initialization",
-        ET_DRV_USB_CDC_INIT: "USB CDC driver initialization",
-        ET_DRV_USB_CDC_HOST_AVAIL: "USB CDC host became available",
-        ET_DRV_USB_CDC_HOST_SUSPEND: "USB CDC host suspend",
-        ET_DRV_USB_CDC_HOST_RESUME: "USB CDC host resume",
-        ET_DRV_USB_CDC_CONNECTED: "USB CDC host connection",
-        ET_DRV_USB_CDC_READ_ERR: "USB CDC read error",
-        ET_DRV_USB_CDC_OVERFLOW: "USB CDC overflow occurred",
-        ET_DRV_USB_CDC_DROPPED: "USB CDC dropped bytes",
-        ET_DRV_USB_CDC_TX_TIMEOUT: "USB CDC TX flush timeout",
-        ET_DRV_I2C_INIT: "I2C driver initialization",
-        ET_DRV_NVS_INIT: "NVS driver initialization",
-        ET_DRV_CRYPTO_INIT: "Cryptography driver initialization",
-        ET_DRV_W80211_INIT: "W802.11 driver initialization",
-        ET_DRV_W80211_CHANNEL: "W802.11 channel configuration",
-        ET_DRV_W80211_POWER: "W802.11 TX power configuration",
-        ET_DRV_DISPLAY_INIT: "Display driver initialization",
+        ET_SYSTEM_BOOT:               "System boot",
+        ET_CORE_INIT:                 "Core initialization",
+        ET_BOARD_INIT:                "Board hardware initialization",
+        ET_DRV_UART_INIT:             "UART driver initialization",
+        ET_DRV_USB_CDC_INIT:          "USB CDC driver initialization",
+        ET_DRV_USB_CDC_HOST_AVAIL:    "USB CDC host became available",
+        ET_DRV_USB_CDC_HOST_SUSPEND:  "USB CDC host suspend",
+        ET_DRV_USB_CDC_HOST_RESUME:   "USB CDC host resume",
+        ET_DRV_USB_CDC_CONNECTED:     "USB CDC host connection",
+        ET_DRV_USB_CDC_READ_ERR:      "USB CDC read error",
+        ET_DRV_USB_CDC_OVERFLOW:      "USB CDC overflow occurred",
+        ET_DRV_USB_CDC_DROPPED:       "USB CDC dropped bytes",
+        ET_DRV_USB_CDC_TX_TIMEOUT:    "USB CDC TX flush timeout",
+        ET_DRV_I2C_INIT:              "I2C driver initialization",
+        ET_DRV_NVS_INIT:              "NVS driver initialization",
+        ET_DRV_CRYPTO_INIT:           "Cryptography driver initialization",
+        ET_DRV_W80211_INIT:           "W802.11 driver initialization",
+        ET_DRV_W80211_CHANNEL:        "W802.11 channel configuration",
+        ET_DRV_W80211_POWER:          "W802.11 TX power configuration",
+        ET_DRV_DISPLAY_INIT:          "Display driver initialization",
         ET_DRV_DISPLAY_BUS_AVAILABLE: "Display bus availability",
         ET_DRV_DISPLAY_IO_CONFIGURED: "Display I/O configuration",
         ET_DRV_DISPLAY_PANEL_CREATED: "Display panel allocation",
-        ET_DRV_DISPLAY_PANEL_RESET: "Display panel reset",
-        ET_DRV_DISPLAY_PANEL_INIT: "Display panel initialization",
-        ET_DRV_DISPLAY_PANEL_ENABLE: "Display panel activation",
+        ET_DRV_DISPLAY_PANEL_RESET:   "Display panel reset",
+        ET_DRV_DISPLAY_PANEL_INIT:    "Display panel initialization",
+        ET_DRV_DISPLAY_PANEL_ENABLE:  "Display panel activation",
         ET_DRV_DISPLAY_REMOTE_ENABLE: "Remote display output activation",
-        ET_KRN_LOGGER_INIT: "Logging service initialization",
-        ET_KRN_LOGGER_OUTPUT: "Logging service output activation",
-        ET_KRN_UI_INIT: "User interface service initialization",
-        ET_PROTO_WDCL_INIT: "WDCL protocol initialization",
-        ET_PROTO_WDCL_RUNNING: "WDCL protocol activation",
-        ET_PROTO_WDCL_CONNECTION: "WDCL host connection",
-        ET_PROTO_WDCL_HOST_ENDPOINT: "Weave host endpoint",
-        ET_PROTO_WEAVE_INIT: "Weave protocol initialization",
-        ET_PROTO_WEAVE_RUNNING: "Weave protocol activation",
-        ET_PROTO_WEAVE_EP_ALIVE: "Weave endpoint alive",
-        ET_PROTO_WEAVE_EP_TIMEOUT: "Weave endpoint disappeared",
-        ET_SRVCTL_REMOTE_DISPLAY: "Remote display service control event",
-        ET_INTERFACE_REGISTERED: "Interface registration",
-        ET_SYSERR_MEM_EXHAUSTED: "System memory exhausted",
+        ET_KRN_LOGGER_INIT:           "Logging service initialization",
+        ET_KRN_LOGGER_OUTPUT:         "Logging service output activation",
+        ET_KRN_UI_INIT:               "User interface service initialization",
+        ET_PROTO_WDCL_INIT:           "WDCL protocol initialization",
+        ET_PROTO_WDCL_RUNNING:        "WDCL protocol activation",
+        ET_PROTO_WDCL_CONNECTION:     "WDCL host connection",
+        ET_PROTO_WDCL_HOST_ENDPOINT:  "Weave host endpoint",
+        ET_PROTO_WEAVE_INIT:          "Weave protocol initialization",
+        ET_PROTO_WEAVE_RUNNING:       "Weave protocol activation",
+        ET_PROTO_WEAVE_EP_ALIVE:      "Weave endpoint alive",
+        ET_PROTO_WEAVE_EP_TIMEOUT:    "Weave endpoint disappeared",
+        ET_SRVCTL_REMOTE_DISPLAY:     "Remote display service control event",
+        ET_INTERFACE_REGISTERED:      "Interface registration",
+        ET_SYSERR_MEM_EXHAUSTED:      "System memory exhausted",
     }
 
     interface_types = {
-        IF_TYPE_USB: "usb",
-        IF_TYPE_UART: "uart",
-        IF_TYPE_W80211: "mw",
-        IF_TYPE_BLE: "ble",
-        IF_TYPE_LORA: "lora",
+        IF_TYPE_USB:      "usb",
+        IF_TYPE_UART:     "uart",
+        IF_TYPE_W80211:   "mw",
+        IF_TYPE_BLE:      "ble",
+        IF_TYPE_LORA:     "lora",
         IF_TYPE_ETHERNET: "eth",
-        IF_TYPE_WIFI: "wifi",
-        IF_TYPE_TCP: "tcp",
-        IF_TYPE_UDP: "udp",
-        IF_TYPE_IR: "ir",
-        IF_TYPE_AFSK: "afsk",
-        IF_TYPE_GPIO: "gpio",
-        IF_TYPE_SPI: "spi",
-        IF_TYPE_I2C: "i2c",
-        IF_TYPE_CAN: "can",
-        IF_TYPE_DMA: "dma",
+        IF_TYPE_WIFI:     "wifi",
+        IF_TYPE_TCP:      "tcp",
+        IF_TYPE_UDP:      "udp",
+        IF_TYPE_IR:       "ir",
+        IF_TYPE_AFSK:     "afsk",
+        IF_TYPE_GPIO:     "gpio",
+        IF_TYPE_SPI:      "spi",
+        IF_TYPE_I2C:      "i2c",
+        IF_TYPE_CAN:      "can",
+        IF_TYPE_DMA:      "dma",
     }
 
     channel_descriptions = {
-        1: "Channel 1 (2412 MHz)",
-        2: "Channel 2 (2417 MHz)",
-        3: "Channel 3 (2422 MHz)",
-        4: "Channel 4 (2427 MHz)",
-        5: "Channel 5 (2432 MHz)",
-        6: "Channel 6 (2437 MHz)",
-        7: "Channel 7 (2442 MHz)",
-        8: "Channel 8 (2447 MHz)",
-        9: "Channel 9 (2452 MHz)",
+        1:  "Channel 1 (2412 MHz)",
+        2:  "Channel 2 (2417 MHz)",
+        3:  "Channel 3 (2422 MHz)",
+        4:  "Channel 4 (2427 MHz)",
+        5:  "Channel 5 (2432 MHz)",
+        6:  "Channel 6 (2437 MHz)",
+        7:  "Channel 7 (2442 MHz)",
+        8:  "Channel 8 (2447 MHz)",
+        9:  "Channel 9 (2452 MHz)",
         10: "Channel 10 (2457 MHz)",
         11: "Channel 11 (2462 MHz)",
         12: "Channel 12 (2467 MHz)",
@@ -531,23 +511,23 @@ class Evt():
     }
 
     task_descriptions = {
-        "taskLVGL": "Driver: UI Renderer",
-        "ui_service": "Service: User Interface",
-        "TinyUSB":  "Driver: USB",
-        "drv_w80211": "Driver: W802.11",
-        "system_stats": "System: Stats",
-        "core": "System: Core",
-        "protocol_wdcl": "Protocol: WDCL",
+        "taskLVGL":       "Driver: UI Renderer",
+        "ui_service":     "Service: User Interface",
+        "TinyUSB":        "Driver: USB",
+        "drv_w80211":     "Driver: W802.11",
+        "system_stats":   "System: Stats",
+        "core":           "System: Core",
+        "protocol_wdcl":  "Protocol: WDCL",
         "protocol_weave": "Protocol: Weave",
-        "tiT": "Protocol: TCP/IP",
-        "ipc0": "System: CPU 0 IPC",
-        "ipc1": "System: CPU 1 IPC",
-        "esp_timer": "Driver: Timers",
-        "Tmr Svc": "Service: Timers",
-        "kernel_logger": "Service: Logging",
+        "tiT":            "Protocol: TCP/IP",
+        "ipc0":           "System: CPU 0 IPC",
+        "ipc1":           "System: CPU 1 IPC",
+        "esp_timer":      "Driver: Timers",
+        "Tmr Svc":        "Service: Timers",
+        "kernel_logger":  "Service: Logging",
         "remote_display": "Service: Remote Display",
-        "wifi": "System: WiFi Hardware",
-        "sys_evt": "System: Kernel Events",
+        "wifi":           "System: WiFi Hardware",
+        "sys_evt":        "System: Kernel Events",
     }
 
     @staticmethod

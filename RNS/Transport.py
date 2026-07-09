@@ -331,7 +331,7 @@ class Transport:
                                 del path_identity
 
                             if announce_packet != None and receiving_interface != None and blackholed == False:
-                                announce_packet.unpack()
+                                if not announce_packet.unpack(): continue
                                 # We increase the hops, since reading a packet
                                 # from cache is equivalent to receiving it again
                                 # over an interface. It is cached with it's non-
@@ -384,7 +384,7 @@ class Transport:
                             announce_packet = Transport.get_cached_packet(serialised_entry[7], packet_type="announce")
 
                             if announce_packet != None:
-                                announce_packet.unpack()
+                                if not announce_packet.unpack(): continue
                                 # We increase the hops, since reading a packet
                                 # from cache is equivalent to receiving it again
                                 # over an interface. It is cached with it's non-
@@ -634,7 +634,7 @@ class Transport:
                                         
                                         outgoing.append(new_packet)
 
-                                        # This handles an edge case where a peer sends a past
+                                        # This handles an edge case where a peer sends a path
                                         # request for a destination just after an announce for
                                         # said destination has arrived, but before it has been
                                         # rebroadcast locally. In such a case the actual announce
@@ -2161,7 +2161,7 @@ class Transport:
                                     if packet.context == RNS.Packet.CACHE_REQUEST:
                                         cached_packet = Transport.get_cached_packet(packet.data)
                                         if cached_packet != None:
-                                            cached_packet.unpack()
+                                            if not cached_packet.unpack(): return
                                             RNS.Packet(destination=link, data=cached_packet.data,
                                                        packet_type=cached_packet.packet_type, context=cached_packet.context).send()
                                     
@@ -2981,7 +2981,7 @@ class Transport:
                 RNS.log("Not answering path request on roaming-mode interface, since next hop is on same roaming-mode interface", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
             else:
-                packet.unpack()
+                if not packet.unpack(): return
                 packet.hops = Transport.path_table[destination_hash][IDX_PT_HOPS]
 
                 if requestor_transport_id != None and next_hop == requestor_transport_id:

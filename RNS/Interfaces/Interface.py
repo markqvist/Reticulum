@@ -218,7 +218,9 @@ class Interface:
         return time.time()-self.created
 
     def hold_announce(self, announce_packet):
-        if announce_packet.destination_hash in self.held_announces:
+        if announce_packet.hops >= RNS.Transport.PATHFINDER_M-1:
+            return
+        elif announce_packet.destination_hash in self.held_announces:
             self.held_announces[announce_packet.destination_hash] = announce_packet
         elif not len(self.held_announces) >= self.ic_max_held_announces:
             self.held_announces[announce_packet.destination_hash] = announce_packet

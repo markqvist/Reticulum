@@ -244,6 +244,9 @@ class Packet:
             self.flags = self.raw[0]
             self.hops  = self.raw[1]
 
+            if self.hops >= RNS.Transport.PATHFINDER_M:
+                raise ValueError(f"Invalid hop count {self.hops}")
+
             self.header_type      = (self.flags & 0b01000000) >> 6
             self.context_flag     = (self.flags & 0b00100000) >> 5
             self.transport_type   = (self.flags & 0b00010000) >> 4
@@ -268,7 +271,7 @@ class Packet:
             return True
 
         except Exception as e:
-            RNS.log("Received malformed packet, dropping it. The contained exception was: "+str(e), RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+            RNS.log(f"Received malformed packet, dropping it. The contained exception was: {e}", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
             return False
 
     def send(self):
