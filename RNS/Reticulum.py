@@ -829,6 +829,7 @@ class Reticulum:
         latitude = None
         longitude = None
         height = None
+        discovery_location = None
         discovery_frequency = None
         discovery_bandwidth = None
         discovery_modulation = None
@@ -846,6 +847,7 @@ class Reticulum:
                 if "discovery_encrypt" in c: discovery_encrypt = c.as_bool("discovery_encrypt")
                 if "reachable_on" in c: reachable_on = c["reachable_on"]
                 if "publish_ifac" in c: publish_ifac = c.as_bool("publish_ifac")
+                if "location_cmd" in c: discovery_location = c["location_cmd"]
                 if "latitude" in c: latitude = c.as_float("latitude")
                 if "longitude" in c: longitude = c.as_float("longitude")
                 if "height" in c: height = c.as_float("height")
@@ -884,6 +886,7 @@ class Reticulum:
                     interface.discovery_name                  = discovery_name
                     interface.discovery_encrypt               = discovery_encrypt
                     interface.discovery_stamp_value           = discovery_stamp_value
+                    interface.discovery_location              = discovery_location
                     interface.discovery_latitude              = latitude
                     interface.discovery_longitude             = longitude
                     interface.discovery_height                = height

@@ -99,6 +99,33 @@ class InterfaceAnnouncer():
 
         if not interface_type in self.DISCOVERABLE_INTERFACE_TYPES: return None
         else:
+            if not RNS.vendor.platformutils.is_windows() and interface.discovery_location:
+                try:
+                    discovery_location = self.sanitize(interface.discovery_location)
+                    exec_path = os.path.expanduser(discovery_location)
+                    if os.path.isfile(exec_path) and os.access(exec_path, os.X_OK):
+                        RNS.log(f"Evaluating discovery location from executable at {exec_path}", RNS.LOG_DEBUG)
+                        exec_result = subprocess.run([exec_path], stdout=subprocess.PIPE)
+                        exec_stdout = exec_result.stdout.decode("utf-8")
+                        if exec_result.returncode != 0: raise ValueError("Non-zero exit code from subprocess")
+                        discovery_location = self.sanitize(exec_stdout)
+                        location_components = discovery_location.replace(" ", "").split(",")
+                        if len(location_components) != 3: raise ValueError(f"Invalid location component count: {len(location_components)}")
+                        dlat = float(location_components[0])
+                        dlon = float(location_components[1])
+                        dhgt = float(location_components[2])
+                        if dlat < -90   or dlat > 90:  raise ValueError(f"Invalid latitude: {dlat}")
+                        if dlon < -180  or dlat > 180: raise ValueError(f"Invalid longitude: {dlon}")
+                        if dhgt < -4000 or dhgt > 1e6: raise ValueError(f"Invalid height: {dhgt}")
+                        interface.discovery_latitude  = dlat
+                        interface.discovery_longitude = dlon
+                        interface.discovery_height    = dhgt
+
+                except Exception as e:
+                    RNS.log(f"Error while getting reachable_on from executable at {interface.reachable_on}: {e}", RNS.LOG_ERROR)
+                    RNS.log(f"Aborting discovery announce", RNS.LOG_ERROR)
+                    return None
+
             flags = 0x00
             info  = {INTERFACE_TYPE: interface_type,
                      TRANSPORT:      RNS.Reticulum.transport_enabled(),
