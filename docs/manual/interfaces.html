@@ -1154,9 +1154,15 @@ curl<span class="w"> </span>-s<span class="w"> </span>ip.me
 </dl>
 <p><strong>Physical Location</strong></p>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">latitude</span></code>, <code class="docutils literal notranslate"><span class="pre">longitude</span></code>, <code class="docutils literal notranslate"><span class="pre">height</span></code></dt><dd><p>Optional physical coordinates for the interface. These are useful for mapping discovered interfaces geographically or for clients to automatically select the nearest access point. Coordinates should be in decimal degrees, height in meters.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">latitude</span></code>, <code class="docutils literal notranslate"><span class="pre">longitude</span></code>, <code class="docutils literal notranslate"><span class="pre">height</span></code></dt><dd><p>Optional physical coordinates for the interface. These are useful for mapping discovered interfaces geographically or for clients to automatically select the nearest access point. Coordinates should be in decimal degrees, height in meters above mean sea level.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">location_cmd</span></code></dt><dd><p>Optional path to executable or script that returns the physical coordinates for the interface. This can be used instead of manually setting <code class="docutils literal notranslate"><span class="pre">latitude</span></code>, <code class="docutils literal notranslate"><span class="pre">longitude</span></code> and <code class="docutils literal notranslate"><span class="pre">height</span></code>. Reticulum expects the script to output the location data to <code class="docutils literal notranslate"><span class="pre">stdout</span></code> on a single line, separated by commas, with values as floating point numbers in the format <code class="docutils literal notranslate"><span class="pre">LAT,</span> <span class="pre">LON,</span> <span class="pre">HEIGHT</span></code>. Coordinates should be in decimal degrees, height in meters above mean sea level.</p>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The height value for interface discovery is specified in <em>height above mean sea level</em>! This is the geoid-corrected height value, and is distinct from GPS altitude. If you manually specify height, it will typically be set to what you find on a topographical map. If you are using a script to output the location data, make sure that you are using the geoid-corrected altitude, not height above the GPS ellipsoid. Most GPS systems will make both figures available.</p>
+</div>
 <p><strong>Radio Parameters</strong></p>
 <p>For physical radio interfaces like <code class="docutils literal notranslate"><span class="pre">RNodeInterface</span></code> or <code class="docutils literal notranslate"><span class="pre">KISSInterface</span></code>, the following optional parameters allow you to broadcast the operating frequency and characteristics, allowing clients to verify compatibility before connecting:</p>
 <dl class="simple">

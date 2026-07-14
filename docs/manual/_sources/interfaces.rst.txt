@@ -998,7 +998,13 @@ On a real system, you should make the script robust enough to deal with intermit
 **Physical Location**
 
 ``latitude``, ``longitude``, ``height``
-  Optional physical coordinates for the interface. These are useful for mapping discovered interfaces geographically or for clients to automatically select the nearest access point. Coordinates should be in decimal degrees, height in meters.
+  Optional physical coordinates for the interface. These are useful for mapping discovered interfaces geographically or for clients to automatically select the nearest access point. Coordinates should be in decimal degrees, height in meters above mean sea level.
+
+``location_cmd``
+  Optional path to executable or script that returns the physical coordinates for the interface. This can be used instead of manually setting ``latitude``, ``longitude`` and ``height``. Reticulum expects the script to output the location data to ``stdout`` on a single line, separated by commas, with values as floating point numbers in the format ``LAT, LON, HEIGHT``. Coordinates should be in decimal degrees, height in meters above mean sea level.
+
+.. note::
+   The height value for interface discovery is specified in *height above mean sea level*! This is the geoid-corrected height value, and is distinct from GPS altitude. If you manually specify height, it will typically be set to what you find on a topographical map. If you are using a script to output the location data, make sure that you are using the geoid-corrected altitude, not height above the GPS ellipsoid. Most GPS systems will make both figures available.
 
 **Radio Parameters**
 
