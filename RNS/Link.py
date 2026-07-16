@@ -664,6 +664,7 @@ class Link:
         Closes the link and purges encryption keys. New keys will
         be used if a new link to the same destination is established.
         """
+        if self.status == Link.CLOSED: return
         if self.status != Link.PENDING and self.status != Link.CLOSED: self.__teardown_packet()
         self.status = Link.CLOSED
         if self.initiator: self.teardown_reason = Link.INITIATOR_CLOSED
@@ -968,10 +969,11 @@ class Link:
                                         self.teardown()
 
                                     else:
-                                        self.__remote_identity = identity
-                                        if self.callbacks.remote_identified != None:
-                                            try: self.callbacks.remote_identified(self, self.__remote_identity)
-                                            except Exception as e: RNS.log(f"Error while executing remote identified callback from {self}. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                                        if self.__remote_identity == None:
+                                            self.__remote_identity = identity
+                                            if self.callbacks.remote_identified != None:
+                                                try: self.callbacks.remote_identified(self, self.__remote_identity)
+                                                except Exception as e: RNS.log(f"Error while executing remote identified callback from {self}. The contained exception was: "+str(e), RNS.LOG_ERROR)
                                 
                                     self.__update_phy_stats(packet, query_shared=True)
 

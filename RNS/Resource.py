@@ -149,7 +149,7 @@ class Resource:
     COMPLETE        = 0x06
     FAILED          = 0x07
     CORRUPT         = 0x08
-    REJECTED        = 0x00
+    REJECTED        = 0x09
 
     @staticmethod
     def reject(advertisement_packet):
@@ -1090,10 +1090,14 @@ class Resource:
                     try:
                         cancel_packet = RNS.Packet(self.link, self.hash, context=RNS.Packet.RESOURCE_ICL)
                         cancel_packet.send()
-                    except Exception as e:
-                        RNS.log("Could not send resource cancel packet, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                    except Exception as e: RNS.log("Could not send resource cancel packet, the contained exception was: "+str(e), RNS.LOG_ERROR)
                 self.link.cancel_outgoing_resource(self)
             else:
+                if self.link.status == RNS.Link.ACTIVE:
+                    try:
+                        cancel_packet = RNS.Packet(self.link, self.hash, context=RNS.Packet.RESOURCE_RCL)
+                        cancel_packet.send()
+                    except Exception as e: RNS.log("Could not send resource cancel packet, the contained exception was: "+str(e), RNS.LOG_ERROR)
                 self.link.cancel_incoming_resource(self)
             
             if self.callback != None:
