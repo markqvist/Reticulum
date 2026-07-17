@@ -855,14 +855,14 @@ class Reticulum:
                 if "discovery_bandwidth" in c: discovery_bandwidth = c.as_int("discovery_bandwidth")
                 if "discovery_modulation" in c: discovery_modulation = c.as_int("discovery_modulation")
 
-                if not interface_mode in [Interface.Interface.MODE_GATEWAY, Interface.Interface.MODE_ACCESS_POINT]:
+                if not interface_mode in [Interface.Interface.MODE_GATEWAY, Interface.Interface.MODE_ACCESS_POINT, Interface.Interface.MODE_INTERNAL]:
                     if not ignore_config_warnings:
                         if c["type"] in ["RNodeInterface", "RNodeMultiInterface"]:
                             interface_mode = Interface.Interface.MODE_ACCESS_POINT
-                            RNS.log(f"Discovery enabled on interface {name} without gateway or AP mode. Auto-configured to AP mode.", RNS.LOG_NOTICE)
+                            RNS.log(f"Discovery enabled on interface {name} without gateway, internal or AP mode. Auto-configured to AP mode.", RNS.LOG_NOTICE)
                         else:
                             interface_mode = Interface.Interface.MODE_GATEWAY
-                            RNS.log(f"Discovery enabled on interface {name} without gateway or AP mode. Auto-configured to gateway mode.", RNS.LOG_NOTICE)
+                            RNS.log(f"Discovery enabled on interface {name} without gateway, internal or AP mode. Auto-configured to gateway mode.", RNS.LOG_NOTICE)
                 
         try:
             def interface_post_init(interface):
