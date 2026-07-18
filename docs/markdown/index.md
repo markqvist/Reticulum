@@ -161,6 +161,7 @@ to participate in the development of Reticulum itself.
   * [Backbone Interface](interfaces.md#backbone-interface)
     * [Listeners](interfaces.md#listeners)
     * [Connecting Remotes](interfaces.md#connecting-remotes)
+    * [Automated Blocking](interfaces.md#automated-blocking)
   * [TCP Server Interface](interfaces.md#tcp-server-interface)
   * [TCP Client Interface](interfaces.md#tcp-client-interface)
   * [UDP Interface](interfaces.md#udp-interface)

@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>Configuring Interfaces - Reticulum Network Stack 1.3.8 documentation</title>
+        <title>Configuring Interfaces - Reticulum Network Stack 1.3.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.3.8 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.3.9 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.3.8 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.3.9 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -459,6 +459,47 @@ specify the target Yggdrasil IPv6 address and port, like so:</p>
 <span class="w">    </span><span class="na">target_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4343</span>
 </pre></div>
 </div>
+</section>
+<section id="automated-blocking">
+<h3>Automated Blocking<a class="headerlink" href="#automated-blocking" title="Link to this heading">¶</a></h3>
+<p>Listener instances of <code class="docutils literal notranslate"><span class="pre">BackboneInterface</span></code> will automatically block fast-flapping clients,
+that repeatedly connect for a short amount of time, and then disconnect. Such behavior usually
+occurs from clients trying to spam the network with announces or path requests, by connecting, dumping
+a massive amount of requests, and then disconnecting in an attempt to bypass rate limits.</p>
+<p>While such bypass attempts only have very limited effect on the amount of spam actually dumped (ingress limits
+trigger immediately once a client exceeds rate limits), the behavior is often seen anyways, and
+causes log noise and needless interface rotation. The fast-flapping block ensures such clients
+are never allocated an interface on the transport instance.</p>
+<p>Another common cause can simply be clients using implementations that are broken, or automated
+scanning tools attempting to connect to the instance.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[[Backbone Listener]]</span>
+<span class="w">  </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">BackboneInterface</span>
+<span class="w">  </span><span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="w">  </span><span class="na">listen_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0.0.0</span>
+<span class="w">  </span><span class="na">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4242</span>
+
+<span class="w">  </span><span class="c1"># Whether to enable blocking</span>
+<span class="w">  </span><span class="na">block_fast_flapping</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+
+<span class="w">  </span><span class="c1"># How long an IP address stays</span>
+<span class="w">  </span><span class="c1"># blocked, in minutes. Set to</span>
+<span class="w">  </span><span class="c1"># 12 hours by default.</span>
+<span class="w">  </span><span class="na">fast_flapping_block_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">720</span>
+
+<span class="w">  </span><span class="c1"># The minimum time, in seconds,</span>
+<span class="w">  </span><span class="c1"># an interface must stay connected</span>
+<span class="w">  </span><span class="c1"># to be considered not fast-flapping.</span>
+<span class="w">  </span><span class="na">fast_flapping_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20</span>
+
+<span class="w">  </span><span class="c1"># Amount of fast flaps a remote</span>
+<span class="w">  </span><span class="c1"># IP can perform before having</span>
+<span class="w">  </span><span class="c1"># blocking triggered.</span>
+<span class="w">  </span><span class="na">fast_flapping_grace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5</span>
+</pre></div>
+</div>
+<p>The configuration options listed in the example above are the <em>default values</em>, and you do
+not need to add them for automated blocking to work, but you can use them to change the
+behavior from the defaults, if necessary.</p>
 </section>
 </section>
 <section id="tcp-server-interface">
@@ -1773,6 +1814,7 @@ interface basis under the relevant interface configuration section.</p>
 <li><a class="reference internal" href="#backbone-interface">Backbone Interface</a><ul>
 <li><a class="reference internal" href="#listeners">Listeners</a></li>
 <li><a class="reference internal" href="#connecting-remotes">Connecting Remotes</a></li>
+<li><a class="reference internal" href="#automated-blocking">Automated Blocking</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#tcp-server-interface">TCP Server Interface</a></li>
@@ -1809,7 +1851,7 @@ interface basis under the relevant interface configuration section.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=3cbadadc"></script>
+</div><script src="_static/documentation_options.js?v=98c25ec5"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

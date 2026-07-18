@@ -230,6 +230,51 @@ specify the target Yggdrasil IPv6 address and port, like so:
       target_host = 201:5d78:af73:5caf:a4de:a79f:3278:71e5
       target_port = 4343
 
+Automated Blocking
+------------------
+Listener instances of ``BackboneInterface`` will automatically block fast-flapping clients,
+that repeatedly connect for a short amount of time, and then disconnect. Such behavior usually
+occurs from clients trying to spam the network with announces or path requests, by connecting, dumping
+a massive amount of requests, and then disconnecting in an attempt to bypass rate limits.
+
+While such bypass attempts only have very limited effect on the amount of spam actually dumped (ingress limits
+trigger immediately once a client exceeds rate limits), the behavior is often seen anyways, and
+causes log noise and needless interface rotation. The fast-flapping block ensures such clients
+are never allocated an interface on the transport instance.
+
+Another common cause can simply be clients using implementations that are broken, or automated
+scanning tools attempting to connect to the instance.
+
+.. code:: ini
+
+  [[Backbone Listener]]
+    type = BackboneInterface
+    enabled = yes    
+    listen_on = 0.0.0.0
+    port = 4242
+
+    # Whether to enable blocking
+    block_fast_flapping = yes
+
+    # How long an IP address stays
+    # blocked, in minutes. Set to
+    # 12 hours by default.
+    fast_flapping_block_time = 720
+
+    # The minimum time, in seconds,
+    # an interface must stay connected
+    # to be considered not fast-flapping.
+    fast_flapping_threshold = 20
+
+    # Amount of fast flaps a remote
+    # IP can perform before having
+    # blocking triggered.
+    fast_flapping_grace = 5
+
+The configuration options listed in the example above are the *default values*, and you do
+not need to add them for automated blocking to work, but you can use them to change the
+behavior from the defaults, if necessary.
+
 .. _interfaces-tcps:
 
 TCP Server Interface
