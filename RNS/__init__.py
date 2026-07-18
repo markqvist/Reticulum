@@ -70,7 +70,8 @@ LOG_NOTICE   = 3
 LOG_INFO     = 4
 LOG_VERBOSE  = 5
 LOG_DEBUG    = 6
-LOG_EXTREME  = 7
+LOG_PATHING  = 7
+LOG_EXTREME  = 8
 
 LOG_STDOUT   = 0x91
 LOG_FILE     = 0x92
@@ -102,6 +103,7 @@ def loglevelname(level):
     if (level == LOG_INFO):     return "[Info]    "
     if (level == LOG_VERBOSE):  return "[Verbose] "
     if (level == LOG_DEBUG):    return "[Debug]   "
+    if (level == LOG_PATHING):  return "[Pathing] "
     if (level == LOG_EXTREME):  return "[Extra]   "
     
     return "Unknown"
