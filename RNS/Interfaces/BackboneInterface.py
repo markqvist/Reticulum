@@ -759,6 +759,14 @@ class BackboneClientInterface(Interface):
                 RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
                 self.teardown()
 
+    def check_frame_len(self, frame_len):
+        if   frame_len <= RNS.Reticulum.HEADER_MINSIZE:        return False
+        elif frame_len >  self.HW_MTU + (self.ifac_size or 0): return False
+        else:                                                  return True
+
+    def invalid_frame(self, frame_len):
+        RNS.log(f"Invalid HDLC frame of {RNS.prettysize(frame_len)} received on {self}, dropping frame", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+
     def receive(self, data_in):
         try:
             if len(data_in) > 0:
@@ -772,12 +780,18 @@ class BackboneClientInterface(Interface):
                             frame = self.frame_buffer[frame_start+1:frame_end]
                             frame = frame.replace(bytes([HDLC.ESC, HDLC.FLAG ^ HDLC.ESC_MASK]), bytes([HDLC.FLAG]))
                             frame = frame.replace(bytes([HDLC.ESC, HDLC.ESC  ^ HDLC.ESC_MASK]), bytes([HDLC.ESC]))
-                            if len(frame) > RNS.Reticulum.HEADER_MINSIZE:
-                                self.process_incoming(frame)
+                            frame_len = len(frame)
+                            if frame_len != 0:
+                                if self.check_frame_len(frame_len): self.process_incoming(frame)
+                                else:                               self.invalid_frame(len(frame))
+
                             self.frame_buffer = self.frame_buffer[frame_end:]
+
                         else:
+                            if len(self.frame_buffer) > self.HW_MTU*2: self.frame_buffer = b""
                             flags_remaining = False
                     else:
+                        self.frame_buffer = b""
                         flags_remaining = False
 
             else:
