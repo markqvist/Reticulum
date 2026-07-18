@@ -450,6 +450,9 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                                     clients_string = ""
                             else:
                                 clients_string = "Clients   : "+str(clients)
+                                if "blocked_ips" in ifstat:
+                                    p = ifstat["blocked_ips"] > 0
+                                    if p: clients_string += "\n    Blocked   : "+str(ifstat["blocked_ips"])+" IP"+"s" if p else ""
 
                         else:
                             clients = None

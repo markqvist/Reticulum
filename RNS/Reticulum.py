@@ -1415,6 +1415,9 @@ class Reticulum:
                     if interface.announce_queue != None: ifstats["announce_queue"] = len(interface.announce_queue)
                     else:                                ifstats["announce_queue"] = None
 
+                if hasattr(interface, "blocked_ip_count"):
+                    ifstats["blocked_ips"] = interface.blocked_ip_count
+
                 ifstats["name"]                        = str(interface)
                 ifstats["short_name"]                  = str(interface.name)
                 ifstats["hash"]                        = interface.get_hash()
