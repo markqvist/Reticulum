@@ -44,7 +44,8 @@ def setup_argument_parser():
     parser = argparse.ArgumentParser(description="Reticulum Remote Shell Utility", epilog="When specifying a command to execute, separate rnsh\noptions from the command and its arguments with --\n\nFor example:\n  rnsh -l -- /bin/bash --login\n  rnsh <destination> -- ls -la /tmp", formatter_class=argparse.RawDescriptionHelpFormatter)
 
     # Common options
-    parser.add_argument("--config", "-c", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
+    parser.add_argument("--config", "-c", action="store", default=None, help="path to config directory", type=str)
+    parser.add_argument("--rnsconfig", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
     parser.add_argument("--identity", "-i", action="store", default=None, help="path to identity file to use", type=str)
     parser.add_argument("-v", "--verbose", action="count", default=0, help="increase verbosity")
     parser.add_argument("-q", "--quiet", action="count", default=0, help="decrease verbosity")

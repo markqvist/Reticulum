@@ -144,7 +144,7 @@ class RemoteExecutionError(Exception):
     def __init__(self, msg): self.msg = msg
 
 
-async def _initiate_link(configdir, rnsconfigdir, identitypath=None, verbosity=0, quietness=0, noid=False, destination=None,
+async def _initiate_link(configdir, rnsconfigdir, identitypath=None, logfile=None, verbosity=0, quietness=0, noid=False, destination=None,
                          timeout=RNS.Transport.PATH_REQUEST_TIMEOUT):
     global _identity, _reticulum, _link, _destination, _remote_exec_grace
 
@@ -160,11 +160,11 @@ async def _initiate_link(configdir, rnsconfigdir, identitypath=None, verbosity=0
 
     if _reticulum is None:
         targetloglevel = compute_target_rns_loglevel(verbosity, quietness, RNS.LOG_ERROR)
-        RNS.logfile = os.path.join(configdir, "logfile")
+        RNS.logfile = logfile
         _reticulum = RNS.Reticulum(configdir=rnsconfigdir, loglevel=targetloglevel, logdest=RNS.LOG_FILE)
 
     if _identity is None:
-        _identity = rnsh.prepare_identity(identitypath)
+        _identity = rnsh.prepare_identity(identity_path=identitypath, service_name=None, configdir=configdir)
 
     if not RNS.Transport.has_path(destination_hash):
         RNS.Transport.request_path(destination_hash)
@@ -211,8 +211,9 @@ async def _handle_error(errmsg: RNS.MessageBase):
         raise RemoteExecutionError(f"Remote error: {errmsg.msg}")
 
 
-async def initiate(configdir: str, rnsconfigdir:str, identitypath: str, verbosity: int, quietness: int, noid: bool, destination: str,
+async def initiate(configdir: str, rnsconfigdir:str, identitypath: str, logfile:str, verbosity: int, quietness: int, noid: bool, destination: str,
                    timeout: float, command: [str] | None = None):
+
     global _finished, _link
     if timeout is None:
         timeout = RNS.Transport.PATH_REQUEST_TIMEOUT

@@ -57,43 +57,54 @@ loop: asyncio.AbstractEventLoop | None = None
 
 def _sanitize_service_name(service_name:str) -> str: return re.sub(r'\W+', '', service_name)
 
-def prepare_identity(identity_path, service_name: str = None) -> tuple[RNS.Identity]:
+def prepare_identity(identity_path=None, service_name=None, configdir=None):
     service_name = _sanitize_service_name(service_name or "")
-    if identity_path is None:
-        identity_path = RNS.Reticulum.identitypath + "/" + APP_NAME + \
-                        (f".{service_name}" if service_name and len(service_name) > 0 else "")
+    if not identity_path:
+        identity_path = f"{configdir}/identity" + (f".{service_name}" if service_name and len(service_name) > 0 else "")
 
     identity = None
     if os.path.isfile(identity_path):
+        RNS.log(f"Loading identity from {identity_path}", RNS.LOG_VERBOSE)
         identity = RNS.Identity.from_file(identity_path)
 
     if identity is None:
-        RNS.log("No valid saved identity found, creating new...", RNS.LOG_INFO)
+        RNS.log(f"Creating identity {identity_path}", RNS.LOG_NOTICE)
         identity = RNS.Identity()
         identity.to_file(identity_path)
     
     return identity
 
 
-def print_identity(configdir, identitypath, service_name, include_destination: bool):
-    reticulum = RNS.Reticulum(configdir=configdir, loglevel=RNS.LOG_INFO)
-    if service_name and len(service_name) > 0:
-        print(f"Using service name \"{service_name}\"")
-    identity = prepare_identity(identitypath, service_name)
+def print_identity(configdir, rnsconfigdir, identitypath, service_name, include_destination: bool):
+    reticulum = RNS.Reticulum(configdir=rnsconfigdir, loglevel=RNS.LOG_INFO)
+    if service_name and len(service_name) > 0: print(f"Using service name \"{service_name}\"")
+    identity = prepare_identity(identity_path=identitypath, service_name=service_name, configdir=configdir)
     destination = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME)
     print("Identity     : " + str(identity))
-    if include_destination:
-        print("Listening on : " + RNS.prettyhexrep(destination.hash))
+    if include_destination: print("Listening on : " + RNS.prettyhexrep(destination.hash))
 
     exit(0)
 
 verbose_set = False
 
-def ensure_config_directory():
-    if os.path.isdir(os.path.expanduser("~/.config/rnsh")): return os.path.expanduser("~/.config/rnsh")
-    elif os.path.isdir(os.path.expanduser("~/.rnsh")): return os.path.expanduser("~/.rnsh")
+def ensure_config_directory(configdir=None):
+    if configdir:
+        if os.path.isdir(os.path.expanduser(configdir)): return os.path.expanduser(configdir)
+        else:
+            try:
+                RNS.log(f"Creating configuration directory: {os.path.expanduser(configdir)}")
+                os.makedirs(os.path.expanduser(configdir))
+                return os.path.expanduser(configdir)
+
+            except Exception as e:
+                RNS.log(f"Could not get or create rnsh configuration directory, aborting", RNS.LOG_CRITICAL)
+                os._exit(1)
+
+    elif os.path.isdir(os.path.expanduser("~/.config/rnsh")): return os.path.expanduser("~/.config/rnsh")
+    elif os.path.isdir(os.path.expanduser("~/.rnsh")):        return os.path.expanduser("~/.rnsh")
     else:
         try:
+            RNS.log(f"Creating configuration directory: {os.path.expanduser('~/.rnsh')}")
             os.makedirs(os.path.expanduser("~/.rnsh"))
             return os.path.expanduser("~/.rnsh")
 
@@ -106,24 +117,29 @@ async def _rnsh_cli_main():
     global verbose_set
     args, parser = parse_arguments()
     verbose_set  = args.verbose > 0
-    configdir    = ensure_config_directory()
+    configdir    = ensure_config_directory(args.config)
+
+    if not configdir:
+        RNS.log(f"Could not resolve rnsh configuration directory", RNS.LOG_CRITICAL)
+        os._exit(1)
 
     if args.print_identity:
-        print_identity(args.config, args.identity, args.service, args.listen)
+        print_identity(configdir, args.rnsconfig, args.identity, args.service, args.listen)
         return 0
+
+    logfile = f"{configdir}/logfile"
 
     if args.listen:
         allowed_file = None
         dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2
-        if os.path.isfile(os.path.expanduser("~/.config/rnsh/allowed_identities")):
-            allowed_file = os.path.expanduser("~/.config/rnsh/allowed_identities")
-        elif os.path.isfile(os.path.expanduser("~/.rnsh/allowed_identities")):
-            allowed_file = os.path.expanduser("~/.rnsh/allowed_identities")
+        if os.path.isfile(os.path.expanduser(f"{configdir}/allowed_identities")):
+            allowed_file = os.path.expanduser(f"{configdir}/allowed_identities")
 
         await listener.listen(configdir=configdir,
-                              rnsconfigdir=args.config,
+                              rnsconfigdir=args.rnsconfig,
                               command=args.command,
                               identitypath=args.identity,
+                              logfile=logfile,
                               service_name=args.service,
                               verbosity=args.verbose,
                               quietness=args.quiet,
@@ -137,8 +153,9 @@ async def _rnsh_cli_main():
 
     if args.destination is not None:
         return_code = await initiator.initiate(configdir=configdir,
-                                               rnsconfigdir=args.config,
+                                               rnsconfigdir=args.rnsconfig,
                                                identitypath=args.identity,
+                                               logfile=logfile,
                                                verbosity=args.verbose,
                                                quietness=args.quiet,
                                                noid=args.no_id,

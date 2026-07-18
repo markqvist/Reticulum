@@ -118,25 +118,32 @@ def compute_target_rns_loglevel(verbosity: int, quietness: int, base_level: int 
     
     except Exception: return base_level
 
-async def listen(configdir, rnsconfigdir, command, identitypath=None, service_name=None, verbosity=0, quietness=0, allowed=None,
-                 allowed_file=None, disable_auth=None, announce_period=900, no_remote_command=True, remote_cmd_as_args=False,
+async def listen(configdir, rnsconfigdir, command, identitypath=None, logfile=None, service_name=None, verbosity=0, quietness=0,
+                 allowed=None, allowed_file=None, disable_auth=None, announce_period=900, no_remote_command=True, remote_cmd_as_args=False,
                  loop: asyncio.AbstractEventLoop = None):
     global _identity, _allow_all, _allowed_identity_hashes, _allowed_file, _allowed_file_identity_hashes
     global _reticulum, _cmd, _destination, _no_remote_command, _remote_cmd_as_args, _finished
 
     if not loop: loop = asyncio.get_running_loop()
-    if service_name is None or len(service_name) == 0:
-        service_name = "default"
+    if service_name is None or len(service_name) == 0: service_name = "default"
 
     RNS.log(f"Using service name {service_name}", RNS.LOG_INFO)
+    if logfile:
+        RNS.log(f"Logging to {logfile}", RNS.LOG_NOTICE)
+        logdest = RNS.LOG_FILE
+        RNS.logfile = logfile
+    else:
+        RNS.log(f"Logging to console", RNS.LOG_NOTICE)
+        logdest = RNS.LOG_STDOUT
 
     # More -v should increase verbosity (higher RNS.loglevel); -q should decrease it
     targetloglevel = compute_target_rns_loglevel(verbosity, quietness, RNS.LOG_INFO)
     _reticulum = RNS.Reticulum(configdir=rnsconfigdir, loglevel=targetloglevel)
-    _identity = rnsh.prepare_identity(identitypath, service_name)
+    _identity = rnsh.prepare_identity(identity_path=identitypath, service_name=service_name, configdir=configdir)
     _destination = RNS.Destination(_identity, RNS.Destination.IN, RNS.Destination.SINGLE, rnsh.APP_NAME)
     
     RNS.log(f"rnsh listening for commands on {RNS.prettyhexrep(_destination.hash)}", RNS.LOG_NOTICE)
+    RNS.logdest = logdest
     
     _cmd = command
     if _cmd is None or len(_cmd) == 0:
