@@ -105,9 +105,8 @@ def ensure_config_directory():
 async def _rnsh_cli_main():
     global verbose_set
     args, parser = parse_arguments()
-    verbose_set = args.verbose > 0
-
-    configdir = ensure_config_directory()
+    verbose_set  = args.verbose > 0
+    configdir    = ensure_config_directory()
 
     if args.print_identity:
         print_identity(args.config, args.identity, args.service, args.listen)
@@ -169,6 +168,5 @@ def main():
     process.tty_unset_reader_callbacks(0)
     if verbose_set and exc: raise exc
     sys.exit(return_code if return_code is not None else 255)
-
 
 if __name__ == "__main__": main()

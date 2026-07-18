@@ -88,8 +88,7 @@ class RetryThread(AbstractContextManager):
         self._thread = threading.Thread(name=name, target=self._thread_run, daemon=True)
         self._thread.start()
 
-    def is_alive(self):
-        return self._thread.is_alive()
+    def is_alive(self): return self._thread.is_alive()
 
     def close(self, loop: asyncio.AbstractEventLoop = None) -> asyncio.Future:
         RNS.log("Stopping timer thread", RNS.LOG_DEBUG)
@@ -102,16 +101,11 @@ class RetryThread(AbstractContextManager):
             return self._finished
 
     def wait(self, timeout: float = None):
-        if timeout:
-            timeout = timeout + time.time()
-
+        if timeout: timeout = timeout + time.time()
         while timeout is None or time.time() < timeout:
-            with self._lock:
-                task_count = len(self._statuses)
-            if task_count == 0:
-                return
+            with self._lock: task_count = len(self._statuses)
+            if task_count == 0: return
             time.sleep(0.1)
-
 
     def _thread_run(self):
         while self._run and self._finished is None:

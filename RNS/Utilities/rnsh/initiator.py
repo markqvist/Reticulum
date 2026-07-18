@@ -239,12 +239,6 @@ async def initiate(configdir: str, rnsconfigdir:str, identitypath: str, verbosit
         channel = _link.get_channel()
         protocol.register_message_types(channel)
         channel.add_message_handler(_client_message_handler)
-
-        # Next step after linking and identifying: send version
-        # if not await _spin(lambda: messenger.is_outlet_ready(outlet), timeout=5, quiet=quietness > 0):
-        #     print("Error bringing up link")
-        #     return 253
-
         channel.send(protocol.VersionInfoMessage())
         try:
             vm = _pq.get(timeout=max(outlet.rtt * 20, 5))
@@ -283,10 +277,8 @@ async def initiate(configdir: str, rnsconfigdir:str, identitypath: str, verbosit
                 return None
             elif b == "L":
                 line_mode = not line_mode
-                if line_mode:
-                    os.write(1, "\n\rLine-interactive mode enabled\n\r".encode("utf-8"))
-                else:
-                    os.write(1, "\n\rLine-interactive mode disabled\n\r".encode("utf-8"))
+                if line_mode: os.write(1, "\n\rLine-interactive mode enabled\n\r".encode("utf-8"))
+                else:         os.write(1, "\n\rLine-interactive mode disabled\n\r".encode("utf-8"))
                 return None
 
             return b

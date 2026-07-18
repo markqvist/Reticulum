@@ -53,8 +53,6 @@ class permit(AbstractContextManager):
     """
 
     def __init__(self, *exceptions): self._exceptions = exceptions
-
     def __enter__(self): pass
-
     def __exit__(self, exctype, excinst, exctb):
         return exctype is not None and not issubclass(exctype, self._exceptions)

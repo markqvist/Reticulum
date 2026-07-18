@@ -55,5 +55,4 @@ class SleepRate:
         return sleep_for if sleep_for > 0 else 0
 
     async def sleep_async(self): await asyncio.sleep(self.next_sleep_time())
-
     def sleep_block(self): time.sleep(self.next_sleep_time())
