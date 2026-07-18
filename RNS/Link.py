@@ -808,7 +808,7 @@ class Link:
             request_data = unpacked_request[2]
 
             if path_hash in self.destination.request_handlers:
-                request_handler = self.destination.request_handlers[path_hash]
+                request_handler    = self.destination.request_handlers[path_hash]
                 path               = request_handler[0]
                 response_generator = request_handler[1]
                 allow              = request_handler[2]
@@ -1014,36 +1014,39 @@ class Link:
                         packet.plaintext = self.decrypt(packet.data)
                         if packet.plaintext != None:
                             self.__update_phy_stats(packet, query_shared=True)
-
-                            if RNS.ResourceAdvertisement.is_request(packet):
-                                RNS.Resource.accept(packet, callback=self.request_resource_concluded)
-                            elif RNS.ResourceAdvertisement.is_response(packet):
-                                request_id = RNS.ResourceAdvertisement.read_request_id(packet)
-                                for pending_request in self.pending_requests:
-                                    if pending_request.request_id == request_id:
-                                        response_resource = RNS.Resource.accept(packet, callback=self.response_resource_concluded, progress_callback=pending_request.response_resource_progress, request_id = request_id)
-                                        if response_resource != None:
-                                            if pending_request.response_size == None:
-                                                pending_request.response_size = RNS.ResourceAdvertisement.read_size(packet)
-                                            if pending_request.response_transfer_size == None:
-                                                pending_request.response_transfer_size = 0
-                                            pending_request.response_transfer_size += RNS.ResourceAdvertisement.read_transfer_size(packet)
-                                            if pending_request.started_at == None:
-                                                pending_request.started_at = time.time()
-                                            pending_request.response_resource_progress(response_resource)
-
-                            elif self.resource_strategy == Link.ACCEPT_NONE: pass
-                            elif self.resource_strategy == Link.ACCEPT_APP:
-                                if self.callbacks.resource != None:
-                                    try:
-                                        resource_advertisement = RNS.ResourceAdvertisement.unpack(packet.plaintext)
-                                        resource_advertisement.link = self
-                                        if self.callbacks.resource(resource_advertisement): RNS.Resource.accept(packet, self.callbacks.resource_concluded)
-                                        else:                                               RNS.Resource.reject(packet)
-                                    except Exception as e:
-                                        RNS.log("Error while executing resource accept callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
-                            elif self.resource_strategy == Link.ACCEPT_ALL:
-                                RNS.Resource.accept(packet, self.callbacks.resource_concluded)
+                            try:
+                                if RNS.ResourceAdvertisement.is_request(packet):
+                                    if self.destination.request_handlers:
+                                        RNS.Resource.accept(packet, callback=self.request_resource_concluded)
+                                elif RNS.ResourceAdvertisement.is_response(packet):
+                                    request_id = RNS.ResourceAdvertisement.read_request_id(packet)
+                                    for pending_request in self.pending_requests:
+                                        if pending_request.request_id == request_id:
+                                            response_resource = RNS.Resource.accept(packet, callback=self.response_resource_concluded, progress_callback=pending_request.response_resource_progress, request_id = request_id)
+                                            if response_resource != None:
+                                                if pending_request.response_size == None:
+                                                    pending_request.response_size = RNS.ResourceAdvertisement.read_size(packet)
+                                                if pending_request.response_transfer_size == None:
+                                                    pending_request.response_transfer_size = 0
+                                                pending_request.response_transfer_size += RNS.ResourceAdvertisement.read_transfer_size(packet)
+                                                if pending_request.started_at == None:
+                                                    pending_request.started_at = time.time()
+                                                pending_request.response_resource_progress(response_resource)
+                                elif self.resource_strategy == Link.ACCEPT_NONE: pass
+                                elif self.resource_strategy == Link.ACCEPT_APP:
+                                    if self.callbacks.resource != None:
+                                        try:
+                                            resource_advertisement = RNS.ResourceAdvertisement.unpack(packet.plaintext)
+                                            resource_advertisement.link = self
+                                            if self.callbacks.resource(resource_advertisement): RNS.Resource.accept(packet, self.callbacks.resource_concluded)
+                                            else:                                               RNS.Resource.reject(packet)
+                                        except Exception as e:
+                                            RNS.log("Error while executing resource accept callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
+                                elif self.resource_strategy == Link.ACCEPT_ALL:
+                                    RNS.Resource.accept(packet, self.callbacks.resource_concluded)
+                            except Exception as e:
+                                RNS.log(f"Invalid resource advertisement on {self}: {e}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                                self.teardown()
 
                     elif packet.context == RNS.Packet.RESOURCE_REQ:
                         plaintext = self.decrypt(packet.data)
