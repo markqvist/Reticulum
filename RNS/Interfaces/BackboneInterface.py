@@ -430,7 +430,7 @@ class BackboneInterface(Interface):
                         last_flap        = ffe[1]
                         flaps            = ffe[2]
                         if flaps > self.fast_flap_grace:
-                            RNS.log(f"Ignoring incoming connection from fast-flapping IP {remote_ip}", RNS.LOG_PATHING)
+                            RNS.log(f"Ignoring incoming connection from fast-flapping IP {remote_ip}", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
                             return False
 
             RNS.log("Accepting incoming connection", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
