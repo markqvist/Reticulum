@@ -213,7 +213,7 @@ class Identity:
                 except Exception as e:
                     RNS.log("Skipped recombining known destinations from disk, since an error occurred: "+str(e), RNS.LOG_WARNING)
 
-            RNS.log("Saving "+str(len(Identity.known_destinations))+" known destinations to storage...", RNS.LOG_VERBOSE)
+            RNS.log("Saving "+str(len(Identity.known_destinations))+" known destinations to storage...", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
             temp_file = RNS.Reticulum.storagepath+f"/known_destinations.tmp.{time.time()}"
 
             try:
@@ -230,7 +230,7 @@ class Identity:
             if save_time < 1: time_str = str(round(save_time*1000,2))+"ms"
             else:             time_str = str(round(save_time,2))+"s"
 
-            RNS.log("Saved known destinations to storage in "+time_str, RNS.LOG_VERBOSE)
+            RNS.log("Saved known destinations to storage in "+time_str, RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
         except Exception as e:
             RNS.log("Error while saving known destinations to disk, the contained exception was: "+str(e), RNS.LOG_ERROR)

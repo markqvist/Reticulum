@@ -264,7 +264,7 @@ class InterfaceAnnounceHandler:
                 valid     = self.stamper.stamp_valid(stamp, self.required_value, workblock)
 
                 if not valid:
-                    RNS.log(f"Ignored discovered interface with invalid stamp", RNS.LOG_DEBUG)
+                    RNS.log(f"Ignored discovered interface with insufficient stamp value {value}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                     return
 
                 if value < self.required_value: RNS.log(f"Ignored discovered interface with stamp value {value}", RNS.LOG_DEBUG)
