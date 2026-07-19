@@ -1,12 +1,20 @@
-### 2026-07-10: RNS 1.3.8
+### 2026-07-19: RNS 1.3.9
 
-This release fixes various inconsistencies in link and hop-count related APIs.
+**Critical Security Update**: This release fixes a severe security flaw in `rnsh`. Due to the nature of the issue, I will not disclose any further details for the time being. Once operators have had time to update, I will provide a full report for transparency. If you use `rnsh`, update **right now**.
+
+**Important**: The new version of `rnsh` changes default identity file locations, and these will now be sourced from `~/.rnsh/identity` (initiator) and `~/.rnsh/identity.default` (listener). Make sure you copy your old files to this directory, or specify a custom identity path using the command line arguments. The `--config` argument has also been renamed to `--rnsconfig`, and the `--config` argument will now specify the `rnsh` configuration directory instead of the RNS configuration directory, bringing the behavior into alignment with other RNS utilities. 
+
+Additionally, this release includes automated blocking of fast-flapping clients on `BackboneInterface` listeners (see the Interfaces chapter of the manual for details), and a number of improvements to resource handling. The logging system has also been improved, and path and destination information moved to a new `LOG_PATHING` loglevel, to decrease log noise.
 
 **Changes**
-- Fixed inconsistent link traffic stats calculation
-- Fixed link hop-count metric only being available on initiator side
-- Fixed potential hop-count serialization error on transport
-- Updated `WeaveInterface` to support latest Weave firmware
+- Fixed a critical security issue in `rnsh`
+- Added automated blocking of fast-flapping clients to `BackboneInterface`
+- Added new `LOG_PATHING` loglevel, improved logging
+- Added ability to make internal-mode interfaces discoverable
+- Added ability to get discoverable interface location from external script
+- Added `RESOURCE_RCL` signal on resource receiver cancel
+- Improved resource handling and reliability
+- Updated `rnsh` config args to work similarly to other RNS utilities
 
 **Verified Retrieval**
 You can retrieve and verify this release over Reticulum using the built-in `rngit release` utility. To retrieve only the installation `.whl` package, and the release manifest for future updates, you can use:
@@ -35,6 +43,16 @@ rnid -i bc7291552be7a58f361522990465165c -V rns_*.rsm *.rsg
 ```
 
 The `rnid` utility will then verify the signatures, and display whether they are valid. If the signature cannot be verified, the release has been tampered with and should be discarded.
+
+### 2026-07-10: RNS 1.3.8
+
+This release fixes various inconsistencies in link and hop-count related APIs.
+
+**Changes**
+- Fixed inconsistent link traffic stats calculation
+- Fixed link hop-count metric only being available on initiator side
+- Fixed potential hop-count serialization error on transport
+- Updated `WeaveInterface` to support latest Weave firmware
 
 ### 2026-07-03: RNS 1.3.7
 
