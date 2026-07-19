@@ -746,7 +746,7 @@ class Link:
                     last_inbound = max(max(self.last_inbound, self.last_proof), activated_at)
                     now = time.time()
 
-                    if now >= last_inbound + self.keepalive:
+                    if now >= last_inbound + self.keepalive or now >= self.last_outbound + self.keepalive:
                         if self.initiator and now >= self.last_keepalive + self.keepalive:
                             self.send_keepalive()
 
@@ -1099,9 +1099,10 @@ class Link:
 
                     elif packet.context == RNS.Packet.KEEPALIVE:
                         if not self.initiator and packet.data == bytes([0xFF]):
-                            keepalive_packet = RNS.Packet(self, bytes([0xFE]), context=RNS.Packet.KEEPALIVE)
-                            keepalive_packet.send()
-                            self.had_outbound(is_keepalive = True)
+                            if time.time() >= self.last_outbound + self.keepalive:
+                                keepalive_packet = RNS.Packet(self, bytes([0xFE]), context=RNS.Packet.KEEPALIVE)
+                                keepalive_packet.send()
+                                self.had_outbound(is_keepalive = True)
 
 
                     # TODO: find the most efficient way to allow multiple
