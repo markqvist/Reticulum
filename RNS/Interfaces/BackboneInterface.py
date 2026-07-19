@@ -525,26 +525,28 @@ class BackboneInterface(Interface):
 
     @property
     def blocked_ip_count(self):
-        count = 0
-        expired = []
-        now = time.time()
-        with BackboneInterface.fast_flapping_lock:
-            for remote_ip in BackboneInterface.fast_flapping:
-                ffe              = BackboneInterface.fast_flapping[remote_ip]
-                started_flapping = ffe[0]
-                last_flap        = ffe[1]
-                flaps            = ffe[2]
-                if now - last_flap > self.fast_flap_expiry: expired.append(remote_ip)
-                elif flaps > self.fast_flap_grace: count += 1
+        if not self.block_fast_flapping: return 0
+        else:
+            count = 0
+            expired = []
+            now = time.time()
+            with BackboneInterface.fast_flapping_lock:
+                for remote_ip in BackboneInterface.fast_flapping:
+                    ffe              = BackboneInterface.fast_flapping[remote_ip]
+                    started_flapping = ffe[0]
+                    last_flap        = ffe[1]
+                    flaps            = ffe[2]
+                    if now - last_flap > self.fast_flap_expiry: expired.append(remote_ip)
+                    elif flaps > self.fast_flap_grace: count += 1
 
-            for remote_ip in expired:
-                if remote_ip in BackboneInterface.fast_flapping:
-                    try:
-                        BackboneInterface.fast_flapping.pop(remote_ip)
-                        RNS.log(f"Fast-flapping block expired for {remote_ip}", RNS.LOG_DEBUG)
-                    except Exception as e: RNS.log(f"Error while expiring fast-flapping block for {remote_ip}: {e}", RNS.LOG_ERROR)
+                for remote_ip in expired:
+                    if remote_ip in BackboneInterface.fast_flapping:
+                        try:
+                            BackboneInterface.fast_flapping.pop(remote_ip)
+                            RNS.log(f"Fast-flapping block expired for {remote_ip}", RNS.LOG_DEBUG)
+                        except Exception as e: RNS.log(f"Error while expiring fast-flapping block for {remote_ip}: {e}", RNS.LOG_ERROR)
 
-        return count
+            return count
 
     def __str__(self):
         if ":" in self.bind_ip: ip_str = f"[{self.bind_ip}]"
@@ -822,7 +824,7 @@ class BackboneClientInterface(Interface):
 
         else:
             RNS.log("The interface "+str(self)+" is being torn down.", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
-            if hasattr(self, "spawned_at"):
+            if self.parent_interface.block_fast_flapping and hasattr(self, "spawned_at"):
                 connected_time = time.time() - self.spawned_at
                 if connected_time < self.parent_interface.fast_flap_threshold:
                     try:
