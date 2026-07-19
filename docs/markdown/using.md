@@ -965,39 +965,35 @@ positional arguments:
   destination           hexadecimal hash of the destination to connect to
 
 options:
-  -h, --help            show this help message and exit
-  --config, -c CONFIG   path to alternative Reticulum config directory
-  --identity, -i IDENTITY
-                        path to identity file to use
-  -v, --verbose         increase verbosity
-  -q, --quiet           decrease verbosity
-  -p, --print-identity  print identity and destination info and exit
-  --version             show program's version number and exit
-  -l, --listen          listen (server) mode; any command specified after --
-                        will be used as the default command when the initiator
-                        does not provide one or when remote command execution
-                        is disabled; if no command is specified, the default
-                        shell of the user running rnsh will be used
-  -s, --service SERVICE
-                        service name for identity file if not the default
-  -b, --announce PERIOD
-                        announce on startup and every PERIOD seconds; specify
-                        0 to announce on startup only
-  -a, --allowed HASH    allow this identity to connect (may be specified
-                        multiple times); allowed identities can also be
-                        specified in ~/.rnsh/allowed_identities or
-                        ~/.config/rnsh/allowed_identities, one hash per line
-  -n, --no-auth         disable authentication (allow any identity to connect)
+  -h, --help              show this help message and exit
+  --config, -c PATH       path to config directory
+  --rnsconfig, -c PATH    path to alternative Reticulum config directory
+  --identity, -i IDENTITY path to identity file to use
+  -v, --verbose           increase verbosity
+  -q, --quiet             decrease verbosity
+  -p, --print-identity    print identity and destination info and exit
+  --version               show program's version number and exit
+  -l, --listen            listen (server) mode; any command specified after --
+                          will be used as the default command when the initiator
+                          does not provide one or when remote command execution
+                          is disabled; if no command is specified, the default
+                          shell of the user running rnsh will be used
+  -s, --service SERVICE   service name for identity file if not the default
+  -b, --announce PERIOD   announce on startup and every PERIOD seconds; specify
+                          0 to announce on startup only
+  -a, --allowed HASH      allow this identity to connect (may be specified
+                          multiple times); allowed identities can also be
+                          specified in ~/.rnsh/allowed_identities or
+                          ~/.config/rnsh/allowed_identities, one hash per line
+  -n, --no-auth           disable authentication (allow any identity to connect)
   -A, --remote-command-as-args
-                        concatenate remote command to the argument list of the
-                        default program or shell
-  -C, --no-remote-command
-                        disable executing command lines received from the
-                        remote initiator
-  -N, --no-id           disable identity announcement on connect
-  -m, --mirror          return with the exit code of the remote process
-  -w, --timeout SECONDS
-                        connect and request timeout in seconds
+                          concatenate remote command to the argument list of the
+                          default program or shell
+  -C, --no-remote-command disable executing command lines received from the
+                          remote initiator
+  -N, --no-id             disable identity announcement on connect
+  -m, --mirror            return with the exit code of the remote process
+  -w, --timeout SECONDS   connect and request timeout in seconds
 
 When specifying a command to execute, separate rnsh options from the command
 and its arguments with --. For example:
