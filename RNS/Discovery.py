@@ -32,7 +32,7 @@ APP_NAME = "rnstransport"
 
 class InterfaceAnnouncer():
     JOB_INTERVAL = 60
-    DEFAULT_STAMP_VALUE = 14
+    DEFAULT_STAMP_VALUE = 16
     WORKBLOCK_EXPAND_ROUNDS = 20
 
     DISCOVERABLE_INTERFACE_TYPES = ["BackboneInterface", "TCPServerInterface", "TCPClientInterface",
