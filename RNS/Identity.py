@@ -282,7 +282,7 @@ class Identity:
         except Exception as e: RNS.log(f"Error while retaining identity {RNS.prettyhexrep(identity_hash)}: {e}", RNS.LOG_ERROR)
     
     @staticmethod
-    def clean_known_destinations():
+    def clean_known_destinations(background=False):
         now        = time.time()
         st         = now
         total      = len(Identity.known_destinations)
@@ -292,9 +292,13 @@ class Identity:
         never_used = 0
         ratchetdir = RNS.Reticulum.storagepath+"/ratchets"
 
+        RNS.log(f"Cleaning known destinations{' at background priority' if background else ''}...", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+
         with Identity.known_destinations_lock: destination_hashes = list(Identity.known_destinations.keys())
         for destination_hash in destination_hashes:
             try:
+                if background: time.sleep(0.001) # Low priority, yield thread
+                RNS.Transport.destinations_last_cleaned = time.time()
                 if RNS.Transport.has_path(destination_hash): has_path = True
                 else:
                     has_path = False
@@ -340,7 +344,8 @@ class Identity:
                 if os.path.isfile(ratchet_path): os.unlink(ratchet_path)
             except Exception as e: RNS.log(f"Could not clean stale ratchets for {RNS.prettyhexrep(destination_hash)}: {e}", RNS.LOG_WARNING)
 
-        # RNS.log(f"Total destinations: {total}, stale: {len(stale)}, removed: {removed}, no path: {no_path}, never used: {never_used}, with path: {total-no_path}, used: {total-never_used}, retained: {retained}. Completed in {RNS.prettyshorttime(time.time()-st)}", RNS.LOG_WARNING) # TODO: Remove
+        RNS.log(f"Cleaned known destinations in {RNS.prettyshorttime(time.time()-st)}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+        RNS.log(f"Total: {total}, stale: {len(stale)}, removed: {removed}, no path: {no_path}, never used: {never_used}, with path: {total-no_path}, used: {total-never_used}, retained: {retained}", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
         if not RNS.Transport.owner.is_connected_to_shared_instance: Identity.save_known_destinations(recombine=False)
 
     @staticmethod

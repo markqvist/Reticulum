@@ -969,7 +969,10 @@ class Transport:
                 # Clean known destinations
                 if time.time() > Transport.destinations_last_cleaned+Transport.known_destinations_interval:
                     Transport.destinations_last_cleaned = time.time()
-                    def job(): RNS.Identity.clean_known_destinations()
+                    def job():
+                        try: RNS.Identity.clean_known_destinations(background=True)
+                        except Exception as e: RNS.log(f"Error while running scheduled known destinations cleaning: {e}", RNS.LOG_ERROR)
+                        finally: Transport.destinations_last_cleaned = time.time()
                     threading.Thread(target=job, daemon=True).start()
 
                 # Send announces for management destinations
