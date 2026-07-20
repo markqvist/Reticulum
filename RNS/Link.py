@@ -750,13 +750,13 @@ class Link:
                         if self.initiator and now >= self.last_keepalive + self.keepalive:
                             self.send_keepalive()
 
-                        if time.time() >= last_inbound + self.stale_time:
+                        if now >= last_inbound + self.stale_time:
                             sleep_time = self.rtt * self.keepalive_timeout_factor + Link.STALE_GRACE
                             self.status = Link.STALE
 
                         else: sleep_time = self.keepalive
                     
-                    else: sleep_time = (last_inbound + self.keepalive) - time.time()
+                    else: sleep_time = (last_inbound + self.keepalive) - now
 
                 elif self.status == Link.STALE:
                     sleep_time = 0.001
@@ -766,9 +766,9 @@ class Link:
                     self.link_closed()
 
 
-                if sleep_time == 0: RNS.log("Warning! Link watchdog sleep time of 0!", RNS.LOG_ERROR)
+                if sleep_time == 0: RNS.log(f"Link watchdog sleep time of 0 on {self}", RNS.LOG_ERROR)
                 if sleep_time == None or sleep_time < 0:
-                    RNS.log("Timing error! Tearing down link "+str(self)+" now.", RNS.LOG_ERROR)
+                    RNS.log(f"Timing error, tearing down link {self} now", RNS.LOG_ERROR)
                     self.teardown()
                     sleep_time = 0.1
 
