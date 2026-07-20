@@ -175,6 +175,7 @@ class Identity:
 
     @staticmethod
     def save_known_destinations(background=False, recombine=False):
+        if recombine: RNS.log(f"Recombining known destinations from disk cache on persist is deprecated, argument ignored", RNS.LOG_WARNING)
         if RNS.Transport.owner.is_connected_to_shared_instance: return
         
         try:
@@ -191,23 +192,6 @@ class Identity:
             Identity.saving_known_destinations = True
             save_start = time.time()
             RNS.log("Saving "+str(len(Identity.known_destinations))+" known destinations to storage...", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-
-            # if recombine:
-            #     storage_known_destinations = {}
-            #     if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
-            #         try:
-            #             with open(RNS.Reticulum.storagepath+"/known_destinations","rb") as file:
-            #                 storage_known_destinations = umsgpack.load(file)
-            #         except: pass
-
-            #     try:
-            #         for destination_hash in storage_known_destinations:
-            #             if not destination_hash in Identity.known_destinations:
-            #                 with Identity.known_destinations_lock:
-            #                     Identity.known_destinations[destination_hash] = storage_known_destinations[destination_hash]
-                
-            #     except Exception as e:
-            #         RNS.log("Skipped recombining known destinations from disk, since an error occurred: "+str(e), RNS.LOG_WARNING)
 
             temp_file = RNS.Reticulum.storagepath+f"/known_destinations.tmp.{time.time()}"
             try:
