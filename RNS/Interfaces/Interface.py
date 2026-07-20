@@ -102,6 +102,7 @@ class Interface:
         self.online   = False
         self.bitrate  = 62500
         self.HW_MTU   = None
+        self.__hash   = None
 
         self.supports_discovery       = False
         self.discoverable             = False
@@ -139,7 +140,8 @@ class Interface:
         self.op_freq_deque = deque(maxlen=Interface.OA_FREQ_SAMPLES)
 
     def get_hash(self):
-        return RNS.Identity.full_hash(str(self).encode("utf-8"))
+        if not self.__hash: self.__hash = RNS.Identity.full_hash(str(self).encode("utf-8"))
+        return self.__hash
 
     # This is a generic function for determining when an interface
     # should activate ingress limiting. Since this can vary for
@@ -364,11 +366,9 @@ class Interface:
 
     @staticmethod
     def get_config_obj(config_in):
-        if type(config_in) == ConfigObj:
-            return config_in
+        if type(config_in) == ConfigObj: return config_in
         else:
-            try:
-                return ConfigObj(config_in)
+            try: return ConfigObj(config_in)
             except Exception as e:
                 RNS.log(f"Could not parse supplied configuration data. The contained exception was: {e}", RNS.LOG_ERROR)
                 raise SystemError("Invalid configuration data supplied")
