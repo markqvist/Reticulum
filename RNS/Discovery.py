@@ -8,6 +8,7 @@ import ipaddress
 import subprocess
 from threading import Lock
 from .vendor import umsgpack as msgpack
+from collections import deque
 
 NAME            = 0xFF
 TRANSPORT_ID    = 0xFE
@@ -228,6 +229,7 @@ class InterfaceAnnounceHandler:
         self.required_value = required_value
         self.callback       = callback
         self.stamper        = LXStamper
+        self.invalid_cache  = deque(maxlen=2048)
 
     @staticmethod
     def sanitize_name(name):
@@ -250,6 +252,11 @@ class InterfaceAnnounceHandler:
                 app_data  = app_data[1:]
                 signed    = flags & self.FLAG_SIGNED
                 encrypted = flags & self.FLAG_ENCRYPTED
+                fullhash  = RNS.Identity.full_hash(app_data)
+
+                if fullhash in self.invalid_cache:
+                    RNS.log(f"Ignored previously discovered interface with insufficient stamp value", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
+                    return
 
                 if encrypted:
                     if not RNS.Transport.has_network_identity(): return
@@ -265,6 +272,7 @@ class InterfaceAnnounceHandler:
 
                 if not valid:
                     RNS.log(f"Ignored discovered interface with insufficient stamp value {value}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                    self.invalid_cache.append(fullhash)
                     return
 
                 if value < self.required_value: RNS.log(f"Ignored discovered interface with stamp value {value}", RNS.LOG_DEBUG)
