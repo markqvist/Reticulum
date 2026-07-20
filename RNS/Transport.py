@@ -238,16 +238,19 @@ class Transport:
 
             if RNS.Reticulum.local_hops_delta(): Transport.local_hops_delta = (ord(os.urandom(1))%6)+2
 
-        packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
-        if not Transport.owner.is_connected_to_shared_instance:
+        packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist.raw"
+        if RNS.Reticulum.transport_enabled() and not Transport.owner.is_connected_to_shared_instance:
             if os.path.isfile(packet_hashlist_path):
                 try:
-                    file = open(packet_hashlist_path, "rb")
-                    hashlist_data = umsgpack.unpackb(file.read())
-                    Transport.packet_hashlist = set(hashlist_data)
-                    file.close()
-                except Exception as e:
-                    RNS.log("Could not load packet hashlist from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                    with open(packet_hashlist_path, "rb") as file:
+                        hashlen = RNS.Identity.HASHLENGTH//8
+                        done = False
+                        while not done:
+                            packet_hash = file.read(hashlen)
+                            if len(packet_hash) == hashlen: Transport.packet_hashlist.add(packet_hash)
+                            else: done = True
+
+                except Exception as e: RNS.log("Could not load packet hashlist from storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
         Transport.reload_blackhole()
 
@@ -2514,6 +2517,10 @@ class Transport:
         gc.collect()
 
     @staticmethod
+    def interface_hashes():
+        return {interface.get_hash() for interface in Transport.interfaces}
+
+    @staticmethod
     def find_interface_from_hash(interface_hash):
         for interface in Transport.interfaces:
             if interface.get_hash() == interface_hash:
@@ -3222,6 +3229,7 @@ class Transport:
     @staticmethod
     def save_packet_hashlist(background=False):
         if not Transport.owner.is_connected_to_shared_instance:
+            if not RNS.Reticulum.transport_enabled(): return
             if hasattr(Transport, "saving_packet_hashlist"):
                 wait_interval = 0.2
                 wait_timeout = 5
@@ -3236,23 +3244,28 @@ class Transport:
                 Transport.saving_packet_hashlist = True
                 save_start = time.time()
 
-                if not RNS.Reticulum.transport_enabled(): Transport.packet_hashlist = set()
-                else: RNS.log("Saving packet hashlist to storage...", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                if RNS.Reticulum.transport_enabled(): RNS.log("Saving packet hashlist to storage...", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                else: return
 
-                packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist"
-                file = open(packet_hashlist_path, "wb")
-                file.write(umsgpack.packb(list(Transport.packet_hashlist.copy())))
-                file.close()
+                round_started_at = save_start
+                yield_threshold  = 0.010
 
-                save_time = time.time() - save_start
-                if save_time < 1: time_str = str(round(save_time*1000,2))+"ms"
-                else: time_str = str(round(save_time,2))+"s"
-                RNS.log("Saved packet hashlist in "+time_str, RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                packet_hashlist_path = RNS.Reticulum.storagepath+"/packet_hashlist.raw"
+                with open(packet_hashlist_path, "wb") as file:
+                    for packet_hash in Transport.packet_hashlist.copy():
+                        if background:
+                            if time.time() - round_started_at > yield_threshold:
+                                # Low priority, yield thread
+                                round_started_at = time.time()
+                                time.sleep(0.001)
 
-            except Exception as e:
-                RNS.log("Could not save packet hashlist to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                        file.write(packet_hash)
 
-            Transport.saving_packet_hashlist = False
+                RNS.log(f"Saved packet hashlist in {RNS.prettyshorttime(time.time()-save_start)}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+
+            except Exception as e: RNS.log("Could not save packet hashlist to storage, the contained exception was: "+str(e), RNS.LOG_ERROR)
+            finally: Transport.saving_packet_hashlist = False
+
             gc.collect()
 
 
@@ -3274,40 +3287,52 @@ class Transport:
                 save_start = time.time()
                 RNS.log("Saving path table to storage...", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
-                serialised_destinations = []
-                path_table = Transport.path_table.copy()
+                serialised_destinations     = []
+                path_table                  = Transport.path_table.copy()
+                interface_hashes_updated_at = 0
+                round_started_at            = save_start
+                yield_threshold             = 0.010
+
                 for destination_hash in path_table:
+                    if background:
+                        if time.time() - round_started_at > yield_threshold:
+                            # Low priority, yield thread
+                            round_started_at = time.time()
+                            time.sleep(0.001)
                     try:
+                        # Throttle interface hash lookup to 2 seconds
+                        if time.time() > interface_hashes_updated_at + 2:
+                            interface_hashes = Transport.interface_hashes()
+
                         # Get the destination entry from the destination table
-                        de = path_table[destination_hash]
-                        interface_hash = de[IDX_PT_RVCD_IF].get_hash()
+                        de        = path_table[destination_hash]
+                        interface = de[IDX_PT_RVCD_IF]
 
                         # Only store destination table entry if the associated
                         # interface is still active
-                        interface = Transport.find_interface_from_hash(interface_hash)
-                        if interface != None:
+                        if not interface.get_hash() in interface_hashes: RNS.log(f"Skipping persist for path table entry {RNS.prettyhexrep(destination_hash)}, interface {interface} no longer active", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                        else:
                             # Get the destination entry from the destination table
                             if not destination_hash in path_table:
                                 RNS.log(f"Skipping persist for path table entry {RNS.prettyhexrep(destination_hash)}, no longer in table", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
 
-                            de = path_table[destination_hash]
-                            timestamp = de[IDX_PT_TIMESTAMP]
-                            received_from = de[IDX_PT_NEXT_HOP]
-                            hops = de[IDX_PT_HOPS]
-                            expires = de[IDX_PT_EXPIRES]
-                            random_blobs = de[IDX_PT_RANDBLOBS]
-                            packet_hash = de[IDX_PT_PACKET]
+                            de             = path_table[destination_hash]
+                            timestamp      = de[IDX_PT_TIMESTAMP]
+                            received_from  = de[IDX_PT_NEXT_HOP]
+                            hops           = de[IDX_PT_HOPS]
+                            expires        = de[IDX_PT_EXPIRES]
+                            random_blobs   = de[IDX_PT_RANDBLOBS]
+                            packet_hash    = de[IDX_PT_PACKET]
+                            interface_hash = interface.get_hash()
 
-                            serialised_entry = [
-                                destination_hash,
-                                timestamp,
-                                received_from,
-                                hops,
-                                expires,
-                                random_blobs,
-                                interface_hash,
-                                packet_hash
-                            ]
+                            serialised_entry = [ destination_hash,
+                                                 timestamp,
+                                                 received_from,
+                                                 hops,
+                                                 expires,
+                                                 random_blobs,
+                                                 interface_hash,
+                                                 packet_hash ]
 
                             serialised_destinations.append(serialised_entry)
 
@@ -3353,7 +3378,16 @@ class Transport:
                 RNS.log("Saving tunnel table to storage...", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
                 serialised_tunnels = []
+                round_started_at   = save_start
+                yield_threshold    = 0.010
+
                 for tunnel_id in Transport.tunnels.copy():
+                    if background:
+                        if time.time() - round_started_at > yield_threshold:
+                            # Low priority, yield thread
+                            round_started_at = time.time()
+                            time.sleep(0.001)
+
                     te = Transport.tunnels[tunnel_id]
                     interface = te[1]
                     tunnel_paths = te[2].copy()
