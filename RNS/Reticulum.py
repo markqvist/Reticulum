@@ -1418,6 +1418,9 @@ class Reticulum:
                 if hasattr(interface, "blocked_ip_count"):
                     ifstats["blocked_ips"] = interface.blocked_ip_count
 
+                if hasattr(interface, "blocked_ip_list"):
+                    ifstats["blocked_ip_list"] = interface.blocked_ip_list
+
                 ifstats["name"]                        = str(interface)
                 ifstats["short_name"]                  = str(interface.name)
                 ifstats["hash"]                        = interface.get_hash()

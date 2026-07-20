@@ -526,6 +526,11 @@ class BackboneInterface(Interface):
                             else: RNS.log("Error while shutting down socket for "+str(self)+": "+str(e), RNS.LOG_ERROR)
 
     @property
+    def blocked_ip_list(self):
+        if not self.block_fast_flapping: return []
+        else: return list(self.fast_flapping.keys())
+
+    @property
     def blocked_ip_count(self):
         if not self.block_fast_flapping: return 0
         else:
