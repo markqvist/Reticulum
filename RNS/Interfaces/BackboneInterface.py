@@ -276,7 +276,9 @@ class BackboneInterface(Interface):
 
         try: BackboneInterface.epoll.unregister(fileno)
         except Exception as e:
-            RNS.log(f"An error occurred while deregistering file descriptor {fileno}: {e}", RNS.LOG_DEBUG)
+            if   str(e).endswith("No such file or directory"): pass
+            elif str(e).endswith("Bad file descriptor"):       pass
+            else: RNS.log(f"An error occurred while deregistering file descriptor {fileno}: {e}", RNS.LOG_DEBUG)
 
     @staticmethod
     def deregister_listeners():
@@ -400,7 +402,7 @@ class BackboneInterface(Interface):
                                             try: client_socket.close()
                                             except Exception as e: RNS.log(f"Error while closing socket for failed incoming connection: {e}", RNS.LOG_WARNING)
 
-                                    except:
+                                    except Exception as e:
                                         RNS.log(f"Accepting socket failed for incoming connection: {e}", RNS.LOG_WARNING)
                                         try: client_socket.close()
                                         except Exception as e: RNS.log(f"Error while closing socket for failed incoming socket accept: {e}", RNS.LOG_WARNING)
@@ -832,7 +834,7 @@ class BackboneClientInterface(Interface):
 
         else:
             RNS.log("The interface "+str(self)+" is being torn down.", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
-            if self.parent_interface.block_fast_flapping and hasattr(self, "spawned_at"):
+            if self.parent_interface and self.parent_interface.block_fast_flapping and hasattr(self, "spawned_at"):
                 connected_time = time.time() - self.spawned_at
                 if connected_time < self.parent_interface.fast_flap_threshold:
                     try:
