@@ -174,12 +174,8 @@ class Identity:
         else: return None
 
     @staticmethod
-    def save_known_destinations(background=False, recombine=True):
-        # TODO: Improve the storage method so we don't have to
-        # deserialize and serialize the entire table on every
-        # save, but the only changes. It might be possible to
-        # simply overwrite on exit now that every local client
-        # disconnect triggers a data persist.
+    def save_known_destinations(background=False, recombine=False):
+        if RNS.Transport.owner.is_connected_to_shared_instance: return
         
         try:
             if hasattr(Identity, "saving_known_destinations"):
@@ -194,28 +190,26 @@ class Identity:
 
             Identity.saving_known_destinations = True
             save_start = time.time()
-
-            if recombine:
-                storage_known_destinations = {}
-                if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
-                    try:
-                        with open(RNS.Reticulum.storagepath+"/known_destinations","rb") as file:
-                            storage_known_destinations = umsgpack.load(file)
-     
-                    except: pass
-
-                try:
-                    for destination_hash in storage_known_destinations:
-                        if not destination_hash in Identity.known_destinations:
-                            with Identity.known_destinations_lock:
-                                Identity.known_destinations[destination_hash] = storage_known_destinations[destination_hash]
-                
-                except Exception as e:
-                    RNS.log("Skipped recombining known destinations from disk, since an error occurred: "+str(e), RNS.LOG_WARNING)
-
             RNS.log("Saving "+str(len(Identity.known_destinations))+" known destinations to storage...", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-            temp_file = RNS.Reticulum.storagepath+f"/known_destinations.tmp.{time.time()}"
 
+            # if recombine:
+            #     storage_known_destinations = {}
+            #     if os.path.isfile(RNS.Reticulum.storagepath+"/known_destinations"):
+            #         try:
+            #             with open(RNS.Reticulum.storagepath+"/known_destinations","rb") as file:
+            #                 storage_known_destinations = umsgpack.load(file)
+            #         except: pass
+
+            #     try:
+            #         for destination_hash in storage_known_destinations:
+            #             if not destination_hash in Identity.known_destinations:
+            #                 with Identity.known_destinations_lock:
+            #                     Identity.known_destinations[destination_hash] = storage_known_destinations[destination_hash]
+                
+            #     except Exception as e:
+            #         RNS.log("Skipped recombining known destinations from disk, since an error occurred: "+str(e), RNS.LOG_WARNING)
+
+            temp_file = RNS.Reticulum.storagepath+f"/known_destinations.tmp.{time.time()}"
             try:
                 with open(temp_file,"wb") as file: umsgpack.dump(Identity.known_destinations.copy(), file)
                 os.replace(temp_file, RNS.Reticulum.storagepath+f"/known_destinations")
@@ -226,17 +220,13 @@ class Identity:
                 except Exception as e: RNS.log(f"Could not clean up temporary file {temp_file}: {e}", RNS.LOG_WARNING)
                 raise e
 
-            save_time = time.time() - save_start
-            if save_time < 1: time_str = str(round(save_time*1000,2))+"ms"
-            else:             time_str = str(round(save_time,2))+"s"
-
-            RNS.log("Saved known destinations to storage in "+time_str, RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+            RNS.log(f"Saved known destinations to storage in {RNS.prettyshorttime(time.time()-save_start)}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
         except Exception as e:
             RNS.log("Error while saving known destinations to disk, the contained exception was: "+str(e), RNS.LOG_ERROR)
             RNS.trace_exception(e)
 
-        Identity.saving_known_destinations = False
+        finally: Identity.saving_known_destinations = False
 
     @staticmethod
     def load_known_destinations():
