@@ -225,11 +225,14 @@ class InterfaceAnnounceHandler:
             RNS.log("You can install it with the command: pip install lxmf", RNS.LOG_CRITICAL)
             RNS.panic()
 
-        self.aspect_filter  = APP_NAME+".discovery.interface"
-        self.required_value = required_value
-        self.callback       = callback
-        self.stamper        = LXStamper
-        self.invalid_cache  = deque(maxlen=2048)
+        self.aspect_filter   = APP_NAME+".discovery.interface"
+        self.required_value  = required_value
+        self.callback        = callback
+        self.stamper         = LXStamper
+        self.valid_cache     = {}
+        self.valid_cache_max = 2048
+        self.invalid_cache   = deque(maxlen=2048)
+        self.validation_lock = threading.Lock()
 
     @staticmethod
     def sanitize_name(name):
@@ -258,17 +261,33 @@ class InterfaceAnnounceHandler:
                     RNS.log(f"Ignored previously discovered interface with insufficient stamp value", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
                     return
 
-                if encrypted:
-                    if not RNS.Transport.has_network_identity(): return
-                    app_data = RNS.Transport.network_identity.decrypt(app_data)
-                    if not app_data: return
+                if fullhash in self.valid_cache:
+                    RNS.log(f"Discovery announce cache hit", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
+                    cache_entry = self.valid_cache[fullhash]
+                    stamp       = cache_entry["stamp"]
+                    packed      = cache_entry["packed"]
+                    value       = cache_entry["value"]
+                    valid       = cache_entry["valid"]
 
-                stamp     = app_data[-self.stamper.STAMP_SIZE:]
-                packed    = app_data[:-self.stamper.STAMP_SIZE]
-                infohash  = RNS.Identity.full_hash(packed)
-                workblock = self.stamper.stamp_workblock(infohash, expand_rounds=InterfaceAnnouncer.WORKBLOCK_EXPAND_ROUNDS)
-                value     = self.stamper.stamp_value(workblock, stamp)
-                valid     = self.stamper.stamp_valid(stamp, self.required_value, workblock)
+                else:
+                    if encrypted:
+                        if not RNS.Transport.has_network_identity(): return
+                        app_data = RNS.Transport.network_identity.decrypt(app_data)
+                        if not app_data: return
+
+                    if self.validation_lock.locked():
+                        RNS.log(f"Dropping received interface discovery announce, already validating other discovery stamp", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                        return
+
+                    with self.validation_lock:
+                        stamp     = app_data[-self.stamper.STAMP_SIZE:]
+                        packed    = app_data[:-self.stamper.STAMP_SIZE]
+                        infohash  = RNS.Identity.full_hash(packed)
+                        workblock = self.stamper.stamp_workblock(infohash, expand_rounds=InterfaceAnnouncer.WORKBLOCK_EXPAND_ROUNDS)
+                        value     = self.stamper.stamp_value(workblock, stamp)
+                        valid     = self.stamper.stamp_valid(stamp, self.required_value, workblock)
+                        self.valid_cache[fullhash] = {"valid": valid, "value": value, "packed": packed, "stamp": stamp}
+                        while len(self.valid_cache) > self.valid_cache_max: self.valid_cache.pop(next(iter(self.valid_cache)))
 
                 if not valid:
                     RNS.log(f"Ignored discovered interface with insufficient stamp value {value}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
