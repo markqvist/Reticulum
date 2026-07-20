@@ -296,7 +296,7 @@ class BackboneInterface(Interface):
                 try: BackboneInterface.epoll.modify(fileno, select.EPOLLOUT)
                 except Exception as e:
                     if   str(e).endswith("No such file or directory"): pass
-                    elif str(e).endswith("Bad file descriptor"): pass
+                    elif str(e).endswith("Bad file descriptor"):       pass
                     else: RNS.log(f"Error occurred on {interface} while modifying socket EPOLL state: {e}", RNS.LOG_WARNING)
                     raise e
 
@@ -342,8 +342,10 @@ class BackboneInterface(Interface):
                                         written = 0
                                         if not spawned_interface.detached:
                                             if RNS.sl(RNS.LOG_DEBUG):
-                                                if   str(e).endswith("Connection timed out"): pass
+                                                if   str(e).endswith("Connection timed out"):     pass
                                                 elif str(e).endswith("Connection reset by peer"): pass
+                                                elif str(e).endswith("No route to host"):         pass
+                                                elif str(e).endswith("Broken pipe"):              pass
                                                 else: RNS.log(f"Error while writing to {spawned_interface}: {e}", RNS.LOG_DEBUG)
                                         BackboneInterface.deregister_fileno(fileno)
 
@@ -659,7 +661,8 @@ class BackboneClientInterface(Interface):
                     try:
                         if self.socket != None: self.socket.shutdown(socket.SHUT_RDWR)
                     except Exception as e:
-                        if str(e).endswith("Transport endpoint is not connected"): pass
+                        if   str(e).endswith("Transport endpoint is not connected"): pass
+                        elif str(e).endswith("Bad file descriptor"):                 pass
                         else: RNS.log("Error while shutting down socket for "+str(self)+": "+str(e), RNS.LOG_ERROR)
 
                     try:
