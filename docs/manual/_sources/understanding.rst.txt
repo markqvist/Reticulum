@@ -759,6 +759,8 @@ Or, represented in table form:
       ✓ Will rebroadcast announce
       ✕ Will not rebroadcast announce
 
+For a visually intuitive overview of how announce propagation rules function in practice, you can take a look at the `Announce Propagation Simulator <https://rns.moscow/announce-sim.html>`_ hosted by `rns.moscow <https://rns.moscow/>`_.
+
 
 .. _understanding-primitives:
 

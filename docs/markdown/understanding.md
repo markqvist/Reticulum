@@ -682,6 +682,8 @@ Roaming             ✓     ✕      ✕          ✕           ✓         ✓
 ✓ Will rebroadcast announce
 ✕ Will not rebroadcast announce -->
 
+For a visually intuitive overview of how announce propagation rules function in practice, you can take a look at the [Announce Propagation Simulator](https://rns.moscow/announce-sim.html) hosted by [rns.moscow](https://rns.moscow/).
+
 ### Cryptographic Primitives
 
 Reticulum uses a simple suite of efficient, strong and well-tested cryptographic primitives, with widely available implementations that can be used both on general-purpose CPUs and on microcontrollers.

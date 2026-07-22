@@ -1303,6 +1303,11 @@ network_identity = ~/.reticulum/storage/identities/my_network
 ...
 </pre></div>
 </div>
+<p>For more fine-grained control over how discovered interfaces are auto-connected, additional options are provided for configuraiton. These are not necessary to set in most cases, but can be useful in certain situations.</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">autoconnect_discovered_mode</span></code> options specifies which mode discovered interfaces should be created with when auto-connecting.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">autoconnect_announces_to_internal</span></code> option allows you to specify that auto-connected interfaces should propagate announces to <code class="docutils literal notranslate"><span class="pre">internal</span></code> mode interfaces, even if the auto-connected interface’s mode would normally not allow for this.</p></li>
+</ul>
 </section>
 <section id="remote-management">
 <h2>Remote Management<a class="headerlink" href="#remote-management" title="Link to this heading">¶</a></h2>

@@ -1274,6 +1274,11 @@ These can be used to control various aspects of interface behaviour.
      ``internal`` mode interfaces may still be resolvable by means
      of path requests.
 
+
+ * | To allow an interface that would *otherwise not* propagate
+     announces to ``internal`` mode interfaces to do so, you can
+     configure the ``announces_to_internal`` option to ``True``.
+
 .. _interfaces-modes:
 
 Interface Modes
