@@ -418,6 +418,8 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if ifstat["status"]: ss = "Up"
                         else: ss = "Down"
 
+                        if "gravity" in ifstat and ifstat["gravity"]: ss += ", gravity "+str(ifstat["gravity"])
+
                         if ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ACCESS_POINT: modestr = "Access Point"
                         elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_POINT_TO_POINT: modestr = "Point-to-Point"
                         elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_ROAMING: modestr = "Roaming"

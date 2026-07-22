@@ -758,6 +758,9 @@ class Reticulum:
             elif c["mode"] == "internal":
                 interface_mode = Interface.Interface.MODE_INTERNAL
 
+        gravity = None
+        if "gravity" in c: gravity = c.as_int("gravity")
+
         ifac_size = None
         if "ifac_size" in c:
             if c.as_int("ifac_size") >= Reticulum.IFAC_MIN_SIZE*8: ifac_size = c.as_int("ifac_size")//8
@@ -895,6 +898,7 @@ class Reticulum:
                     else:                                                  interface.OUT = True
 
                     interface.mode = interface_mode
+                    interface.gravity = gravity
                     interface.announce_cap = announce_cap
                     interface.bootstrap_only = bootstrap_only
                     if configured_bitrate: interface.bitrate = configured_bitrate
@@ -1075,15 +1079,17 @@ class Reticulum:
             RNS.trace_exception(e)
             RNS.panic()
 
-    def _add_interface(self, interface, mode = None, configured_bitrate=None, ifac_size=None, ifac_netname=None, ifac_netkey=None,
+    def _add_interface(self, interface, mode=None, gravity=None, configured_bitrate=None, ifac_size=None, ifac_netname=None, ifac_netkey=None,
                        announce_cap=None, announce_rate_target=None, announce_rate_grace=None, announce_rate_penalty=None,
                        bootstrap_only=False, recursive_prs=False, announces_from_internal=True, announces_to_internal=None):
 
         if not self.is_connected_to_shared_instance:
             if interface != None and issubclass(type(interface), RNS.Interfaces.Interface.Interface):
                 
-                if mode == None: mode = Interface.Interface.MODE_FULL
+                if mode == None:    mode = Interface.Interface.MODE_FULL
+                if gravity == None: gravity = 0
                 interface.mode = mode
+                interface.gravity = gravity
                 interface.OUT  = True
 
                 if configured_bitrate: interface.bitrate = configured_bitrate
@@ -1467,6 +1473,7 @@ class Reticulum:
                 ifstats["pr_burst_activated"]          = interface.ic_pr_burst_activated
                 ifstats["status"]                      = interface.online
                 ifstats["mode"]                        = interface.mode
+                ifstats["gravity"]                     = interface.gravity
                 ifstats["announces_to_internal"]       = interface.announces_to_internal
 
                 interfaces.append(ifstats)

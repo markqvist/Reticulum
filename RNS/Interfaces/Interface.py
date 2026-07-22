@@ -98,6 +98,7 @@ class Interface:
     def __init__(self):
         self.rxb      = 0
         self.txb      = 0
+        self.gravity  = 0
         self.created  = time.time()
         self.detached = False
         self.online   = False
