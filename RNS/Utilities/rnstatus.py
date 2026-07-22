@@ -425,7 +425,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_GATEWAY: modestr = "Gateway"
                         elif ifstat["mode"] == RNS.Interfaces.Interface.Interface.MODE_INTERNAL: modestr = "Internal"
                         else: modestr = "Full"
-
+                        if "announces_to_internal" in ifstat and ifstat["announces_to_internal"]: modestr += " (a>i)"
 
                         if ifstat["clients"] != None:
                             clients = ifstat["clients"]
@@ -471,7 +471,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             print("    "+clients_string)
 
                         if not (name.startswith("Shared Instance[") or name.startswith("TCPInterface[Client") or name.startswith("LocalInterface[")):
-                            print("    Mode      : {mode}".format(mode=modestr))
+                            print(f"    Mode      : {modestr}")
 
                         if "bitrate" in ifstat and ifstat["bitrate"] != None:
                             print("    Rate      : {ss}".format(ss=speed_str(ifstat["bitrate"])))

@@ -217,6 +217,19 @@ instance_name = default
 
 # panic_on_interface_error = no
 
+# You can specify which mode discovered interfaces should
+# be created with when auto-connecting.
+
+# autoconnect_discovered_mode = gw
+
+
+# It is possible to allow announces from auto-connected
+# interfaces to propagate announces to internal-mode
+# interfaces, even if the auto-connected interface's mode
+# would normally not allow for this.
+
+# autoconnect_announces_to_internal = yes
+
 
 # When Transport is enabled, it is possible to allow the
 # Transport Instance to respond to probe requests from

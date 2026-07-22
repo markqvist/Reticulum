@@ -261,6 +261,8 @@ class Reticulum:
         Reticulum.__discovery_enabled                 = False
         Reticulum.__discover_interfaces               = False
         Reticulum.__autoconnect_discovered_interfaces = False
+        Reticulum.__autoconnect_interface_mode        = None
+        Reticulum.__autoconnect_announces_to_internal = None
         Reticulum.__required_discovery_value          = None
         Reticulum.__publish_blackhole                 = False
         Reticulum.__blackhole_update_interval         = RNS.Discovery.BlackholeUpdater.UPDATE_INTERVAL
@@ -608,6 +610,25 @@ class Reticulum:
                     v = self.config["reticulum"].as_int(option)
                     if v > 0: Reticulum.__autoconnect_discovered_interfaces = v
                 
+                if option == "autoconnect_discovered_mode":
+                    v = None; dmode = str(self.config["reticulum"]["autoconnect_discovered_mode"]).lower()
+                    if   dmode == "full":         v = Interface.Interface.MODE_FULL
+                    elif dmode == "access_point": v = Interface.Interface.MODE_ACCESS_POINT
+                    elif dmode == "accesspoint":  v = Interface.Interface.MODE_ACCESS_POINT
+                    elif dmode == "ap":           v = Interface.Interface.MODE_ACCESS_POINT
+                    elif dmode == "pointtopoint": v = Interface.Interface.MODE_POINT_TO_POINT
+                    elif dmode == "ptp":          v = Interface.Interface.MODE_POINT_TO_POINT
+                    elif dmode == "roaming":      v = Interface.Interface.MODE_ROAMING
+                    elif dmode == "boundary":     v = Interface.Interface.MODE_BOUNDARY
+                    elif dmode == "gateway":      v = Interface.Interface.MODE_GATEWAY
+                    elif dmode == "gw":           v = Interface.Interface.MODE_GATEWAY
+                    elif dmode == "internal":     v = Interface.Interface.MODE_INTERNAL
+                    if v != None: Reticulum.__autoconnect_interface_mode = v
+
+                if option == "autoconnect_announces_to_internal":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v > 0: Reticulum.__autoconnect_announces_to_internal = v
+
                 if option == "default_ar_target":
                     v = self.config["reticulum"].as_int(option)
                     if   v == 0: Reticulum.__default_ar_target = None
@@ -1446,6 +1467,7 @@ class Reticulum:
                 ifstats["pr_burst_activated"]          = interface.ic_pr_burst_activated
                 ifstats["status"]                      = interface.online
                 ifstats["mode"]                        = interface.mode
+                ifstats["announces_to_internal"]       = interface.announces_to_internal
 
                 interfaces.append(ifstats)
 
@@ -1806,6 +1828,14 @@ class Reticulum:
     @staticmethod
     def should_autoconnect_discovered_interfaces():
         return Reticulum.__autoconnect_discovered_interfaces > 0
+
+    @staticmethod
+    def autoconnect_interface_mode():
+        return Reticulum.__autoconnect_interface_mode
+
+    @staticmethod
+    def autoconnect_announces_to_internal():
+        return Reticulum.__autoconnect_announces_to_internal
 
     @staticmethod
     def max_autoconnected_interfaces():
