@@ -457,7 +457,7 @@ class Reticulum:
                     RNS.loglevel = int(value)
                     if self.requested_verbosity != None: RNS.loglevel += self.requested_verbosity
                     if RNS.loglevel < 0:                 RNS.loglevel = 0
-                    if RNS.loglevel > 7:                 RNS.loglevel = 7
+                    if RNS.loglevel > 8:                 RNS.loglevel = 8
                 elif option == "logtimestamps":
                     value = self.config["logging"].as_bool(option)
                     RNS.logtimestamps = bool(value)
