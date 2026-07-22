@@ -154,7 +154,7 @@ class Interface:
 
             if self.ic_burst_active:
                 if ia_freq < freq_threshold and time.time() > self.ic_burst_activated+self.ic_burst_hold:
-                    if len(self.ia_freq_deque) >= self.IC_BURST_MIN_SAMPLES: self.ic_burst_active = False
+                    if len(self.ia_freq_deque) >= self.IC_DEQUE_MIN_SAMPLE: self.ic_burst_active = False
 
                 return True
 
