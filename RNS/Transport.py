@@ -1812,24 +1812,36 @@ class Transport:
                         random_blobs = []
                         with Transport.inbound_announce_lock:
                             announced_destination_known |= packet.destination_hash in Transport.path_table
-                            if announced_destination_known:
-                                random_blobs = Transport.path_table[packet.destination_hash][IDX_PT_RANDBLOBS]
+                            if not announced_destination_known:
+                                # If this destination is unknown in our table
+                                # we should add it
+                                should_add = True
 
-                                # If we already have a path to the announced
-                                # destination, but the hop count is equal or
-                                # less, we'll update our tables.
+                            else:
+                                random_blobs     = Transport.path_table[packet.destination_hash][IDX_PT_RANDBLOBS]
+                                current_gravity  = Transport.path_table[packet.destination_hash][IDX_PT_RVCD_IF].gravity
+                                announce_gravity = packet.receiving_interface.gravity if packet.receiving_interface != None else None
+
+                                # If we already have a path to the announced destination,
+                                # but a more recently emitted announce arrives with a hop
+                                # count equal to or less than the existing path, we will
+                                # update our tables.
                                 if packet.hops <= Transport.path_table[packet.destination_hash][IDX_PT_HOPS]:
-                                    # Make sure we haven't heard the random
-                                    # blob before, so announces can't be
-                                    # replayed to forge paths.
-                                    # TODO: Check whether this approach works
-                                    # under all circumstances
                                     path_timebase = Transport.timebase_from_random_blobs(random_blobs)
                                     if not random_blob in random_blobs and announce_emitted > path_timebase:
                                         Transport.mark_path_unknown_state(packet.destination_hash)
                                         should_add = True
                                     else:
-                                        should_add = False
+                                        # If the same announce is received later on an interface
+                                        # with higher gravity, allow updating the path table to
+                                        # use this interface instead.
+                                        if   announce_emitted != path_timebase: should_add = False
+                                        elif announce_gravity == None or current_gravity == None: should_add = False
+                                        else:
+                                            if announce_gravity <= current_gravity: should_add = False
+                                            else:
+                                                RNS.log(f"Replacing path table entry for {RNS.prettyhexrep(packet.destination_hash)} with new announce due to higher gravity ({current_gravity}>{announce_gravity})", RNS.LOG_WARNING)
+                                                should_add = True
                                 else:
                                     # If an announce arrives with a larger hop
                                     # count than we already have in the table,
@@ -1841,8 +1853,7 @@ class Transport:
                                     path_announce_emitted = 0
                                     for path_random_blob in random_blobs:
                                         path_announce_emitted = max(path_announce_emitted, int.from_bytes(path_random_blob[5:10], "big"))
-                                        if path_announce_emitted >= announce_emitted:
-                                            break
+                                        if path_announce_emitted >= announce_emitted: break
 
                                     # If the path has expired, consider this
                                     # announce for adding to the path table.
@@ -1851,13 +1862,11 @@ class Transport:
                                         # different from ones we've already heard,
                                         # to avoid loops in the network
                                         if not random_blob in random_blobs:
-                                            # TODO: Check that this ^ approach actually
-                                            # works under all circumstances
                                             RNS.log("Replacing path table entry for "+str(RNS.prettyhexrep(packet.destination_hash))+" with new announce due to expired path", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
                                             Transport.mark_path_unknown_state(packet.destination_hash)
                                             should_add = True
-                                        else:
-                                            should_add = False
+                                        else: should_add = False
+
                                     else:
                                         # If the path is not expired, but the emission
                                         # is more recent, and we haven't already heard
@@ -1867,8 +1876,7 @@ class Transport:
                                                 RNS.log("Replacing path table entry for "+str(RNS.prettyhexrep(packet.destination_hash))+" with new announce, since it was more recently emitted", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
                                                 Transport.mark_path_unknown_state(packet.destination_hash)
                                                 should_add = True
-                                            else:
-                                                should_add = False
+                                            else: should_add = False
                                         
                                         # If we have already heard this announce before,
                                         # but the path has been marked as unresponsive
@@ -1878,13 +1886,7 @@ class Transport:
                                             if Transport.path_is_unresponsive(packet.destination_hash):
                                                 RNS.log("Replacing path table entry for "+str(RNS.prettyhexrep(packet.destination_hash))+" with new announce, since previously tried path was unresponsive", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
                                                 should_add = True
-                                            else:
-                                                should_add = False
-
-                            else:
-                                # If this destination is unknown in our table
-                                # we should add it
-                                should_add = True
+                                            else: should_add = False
 
                             if should_add:
                                 now = time.time()
