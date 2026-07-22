@@ -2945,13 +2945,17 @@ class Transport:
     @staticmethod
     def path_request(destination_hash, is_from_local_client, attached_interface, requestor_transport_id=None, tag=None):
         should_search_for_unknown = False
-        should_ingress_limit = False
+        should_ingress_limit      = False
+        search_mode_filter        = None
 
         if attached_interface != None:
             should_ingress_limit = attached_interface.should_ingress_limit_pr()
             if RNS.Reticulum.transport_enabled():
                 if attached_interface.recursive_prs: should_search_for_unknown = True
                 elif attached_interface.mode in RNS.Interfaces.Interface.Interface.DISCOVER_PATHS_FOR: should_search_for_unknown = True
+                elif attached_interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
+                    should_search_for_unknown = True
+                    search_mode_filter        = RNS.Interfaces.Interface.Interface.BOUNDARY_SEARCH_MODES
 
         if RNS.sl(RNS.LOG_PATHING):
             interface_str = f" on {attached_interface}"
@@ -3068,6 +3072,7 @@ class Transport:
                 with Transport.discovery_pr_lock: Transport.discovery_path_requests[destination_hash] = pr_entry
 
                 for interface in Transport.interfaces:
+                    if search_mode_filter and not interface.mode in search_mode_filter: continue
                     if not interface == attached_interface:
                         if interface.should_egress_limit_pr():
                             RNS.log(f"Not sending recursive path request on {interface} due to active egress limiting", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
