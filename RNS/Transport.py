@@ -1233,7 +1233,8 @@ class Transport:
                                     should_transmit = False
                                     RNS.log("Blocking announce broadcast on "+str(interface)+" since next hop interface has no mode configured", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                 else:
-                                    if from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
+                                    if from_interface.announces_to_internal == True: pass
+                                    elif from_interface.mode == RNS.Interfaces.Interface.Interface.MODE_BOUNDARY:
                                         RNS.log("Blocking announce broadcast on "+str(interface)+" due to boundary-mode next-hop interface", ac_loglevel) if RNS.sl(ac_loglevel) else None
                                         should_transmit = False
 

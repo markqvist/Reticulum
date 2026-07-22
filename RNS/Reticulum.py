@@ -811,6 +811,9 @@ class Reticulum:
         announces_from_internal = True
         if "announces_from_internal" in c: announces_from_internal = c.as_bool("announces_from_internal")
 
+        announces_to_internal = None
+        if "announces_to_internal" in c: announces_to_internal = c.as_bool("announces_to_internal")
+
         ignore_config_warnings = False
         if "ignore_config_warnings" in c: ignore_config_warnings = c.as_bool("ignore_config_warnings")
 
@@ -896,6 +899,7 @@ class Reticulum:
 
                     interface.recursive_prs                   = recursive_prs
                     interface.announces_from_internal         = announces_from_internal
+                    interface.announces_to_internal           = announces_to_internal
                     interface.announce_rate_target            = announce_rate_target
                     interface.announce_rate_grace             = announce_rate_grace
                     interface.announce_rate_penalty           = announce_rate_penalty
@@ -1052,7 +1056,7 @@ class Reticulum:
 
     def _add_interface(self, interface, mode = None, configured_bitrate=None, ifac_size=None, ifac_netname=None, ifac_netkey=None,
                        announce_cap=None, announce_rate_target=None, announce_rate_grace=None, announce_rate_penalty=None,
-                       bootstrap_only=False, recursive_prs=False, announces_from_internal=True):
+                       bootstrap_only=False, recursive_prs=False, announces_from_internal=True, announces_to_internal=None):
 
         if not self.is_connected_to_shared_instance:
             if interface != None and issubclass(type(interface), RNS.Interfaces.Interface.Interface):
@@ -1070,6 +1074,7 @@ class Reticulum:
 
                 interface.recursive_prs           = recursive_prs
                 interface.announces_from_internal = announces_from_internal
+                interface.announces_to_internal   = announces_to_internal
                 interface.announce_cap            = announce_cap if announce_cap != None else Reticulum.ANNOUNCE_CAP/100.0
                 interface.announce_rate_target    = announce_rate_target
                 interface.announce_rate_grace     = announce_rate_grace
