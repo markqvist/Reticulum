@@ -71,9 +71,8 @@ class Interface:
     # to hold at any given time.
     MAX_HELD_ANNOUNCES  = 256
 
-    # How long a spawned interface will be
-    # considered to be newly created. Two
-    # hours by default.
+    # Control parameters
+    DEFAULT_GRAVITY          = 0
     IC_NEW_TIME              = 2*60*60
     IC_BURST_FREQ_NEW        = 3
     IC_BURST_FREQ            = 10
