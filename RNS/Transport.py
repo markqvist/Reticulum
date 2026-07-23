@@ -2297,10 +2297,12 @@ class Transport:
                                                     RNS.log(f"Re-balancing path to {RNS.prettyhexrep(link.destination.hash)} at link terminus ({link.expected_hops}->{packet.hops})", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
                                                     link.expected_hops = packet.hops
                                                     with Transport.path_table_lock:
-                                                        if link.destination.hash in Transport.path_table:
-                                                            path_entry = Transport.path_table[link.destination.hash]
-                                                            path_entry[IDX_PT_HOPS] = packet.hops
-                                                            RNS.log(f"Path table re-balanced for {RNS.prettyhexrep(link.destination.hash)}", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
+                                                        if not link.rebalanced:
+                                                            link.rebalanced = time.time()
+                                                            if link.destination.hash in Transport.path_table:
+                                                                path_entry = Transport.path_table[link.destination.hash]
+                                                                path_entry[IDX_PT_HOPS] = packet.hops
+                                                                RNS.log(f"Path table re-balanced for {RNS.prettyhexrep(link.destination.hash)}", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
 
                                                 else: RNS.log(f"Aborting path re-balancing at link terminus for {RNS.prettyhexrep(link.destination.hash)} on link {link} due to invalid signature", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
                                         except Exception as e: RNS.log("Error while validating link request proof for path re-balancing at link terminus. The contained exception was: "+str(e), REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None

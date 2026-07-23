@@ -265,6 +265,7 @@ class Link:
         self.owner = owner
         self.destination = destination
         self.expected_hops = None
+        self.rebalanced = None
         self.attached_interface = None
         self.__remote_identity = None
         self.__track_phy_stats = False
