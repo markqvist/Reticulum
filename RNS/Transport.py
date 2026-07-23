@@ -2294,11 +2294,11 @@ class Transport:
                                                 signature = packet_data[:RNS.Identity.SIGLENGTH//8]
 
                                                 if link.destination.identity.validate(signature, signed_data):
-                                                    RNS.log(f"Re-balancing path to {RNS.prettyhexrep(link.destination.hash)} at link terminus ({link.expected_hops}->{packet.hops})", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
-                                                    link.expected_hops = packet.hops
                                                     with Transport.path_table_lock:
                                                         if not link.rebalanced:
+                                                            RNS.log(f"Re-balancing path to {RNS.prettyhexrep(link.destination.hash)} at link terminus ({link.expected_hops}->{packet.hops})", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
                                                             link.rebalanced = time.time()
+                                                            link.expected_hops = packet.hops
                                                             if link.destination.hash in Transport.path_table:
                                                                 path_entry = Transport.path_table[link.destination.hash]
                                                                 path_entry[IDX_PT_HOPS] = packet.hops
