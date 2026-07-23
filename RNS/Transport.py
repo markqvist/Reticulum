@@ -87,6 +87,7 @@ class Transport:
     STATE_RESPONSIVE            = 0x02
 
     LINK_TIMEOUT                = RNS.Link.STALE_TIME * 1.25
+    ALLOW_LINK_PATH_REBALANCE   = True
     REVERSE_TIMEOUT             = 8*60         # Reverse table entries are removed after 8 minutes
     DESTINATION_TIMEOUT         = 60*60*24*7   # Destination table entries are removed if unused for one week
     UNUSED_DESTINATION_LINGER   = 6*60         # Linger time for pathless and never used destinations
@@ -1840,7 +1841,7 @@ class Transport:
                                         else:
                                             if announce_gravity <= current_gravity: should_add = False
                                             else:
-                                                RNS.log(f"Replacing path table entry for {RNS.prettyhexrep(packet.destination_hash)} with new announce due to higher gravity ({current_gravity}>{announce_gravity})", RNS.LOG_WARNING)
+                                                RNS.log(f"Replacing path table entry for {RNS.prettyhexrep(packet.destination_hash)} with new announce due to higher gravity ({current_gravity}->{announce_gravity})", RNS.LOG_WARNING)
                                                 should_add = True
                                 else:
                                     # If an announce arrives with a larger hop
@@ -2203,10 +2204,37 @@ class Transport:
             # Handling for proofs and link-request proofs
             elif packet.packet_type == RNS.Packet.PROOF:
                 if packet.context == RNS.Packet.LRPROOF:
-                    # This is a link request proof, check if it
-                    # needs to be transported
+                    # This is a link request proof, check if it needs to be transported
+                    REBALANCE_LOGLEVEL = RNS.LOG_WARNING # TODO: Drop level after testing
                     if (RNS.Reticulum.transport_enabled() or for_local_client_link or from_local_client) and packet.destination_hash in Transport.link_table:
                         link_entry = Transport.link_table[packet.destination_hash]
+                        if packet.hops != link_entry[IDX_LT_REM_HOPS] and Transport.ALLOW_LINK_PATH_REBALANCE:
+                            if packet.receiving_interface == link_entry[IDX_LT_NH_IF]:
+                                try:
+                                    if len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2 or len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2+RNS.Link.LINK_MTU_SIZE:
+                                        signalling_bytes = b""
+                                        if len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2+RNS.Link.LINK_MTU_SIZE:
+                                            signalling_bytes = RNS.Link.signalling_bytes(RNS.Link.mtu_from_lp_packet(packet), RNS.Link.mode_from_lp_packet(packet))
+
+                                        peer_pub_bytes = packet.data[RNS.Identity.SIGLENGTH//8:RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2]
+                                        peer_identity = RNS.Identity.recall(link_entry[IDX_LT_DSTHASH], _no_use=True)
+                                        peer_sig_pub_bytes = peer_identity.get_public_key()[RNS.Link.ECPUBSIZE//2:RNS.Link.ECPUBSIZE]
+
+                                        signed_data = packet.destination_hash+peer_pub_bytes+peer_sig_pub_bytes+signalling_bytes
+                                        signature = packet.data[:RNS.Identity.SIGLENGTH//8]
+                                        link_destination = link_entry[IDX_LT_DSTHASH]
+
+                                        if peer_identity.validate(signature, signed_data) and not link_entry[IDX_LT_VALIDATED]:
+                                            RNS.log(f"Re-balancing path to {RNS.prettyhexrep(link_destination)} from link-request proof ({link_entry[IDX_LT_REM_HOPS]}->{packet.hops})", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
+                                            link_entry[IDX_LT_REM_HOPS] = packet.hops
+                                            with Transport.path_table_lock:
+                                                if link_destination in Transport.path_table:
+                                                    path_entry = Transport.path_table[link_destination]
+                                                    path_entry[IDX_PT_HOPS] = packet.hops
+
+                                        else: RNS.log(f"Aborting link request proof path re-balancing for {RNS.prettyhexrep(link_destination)} on link {RNS.prettyhexrep(packet.destination_hash)} due to invalid signature", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
+                                except Exception as e: RNS.log(f"Error while re-balancing path from link request proof. The contained exception was: {e}", RNS.LOG_ERROR) if RNS.sl(RNS.LOG_ERROR) else None # TODO: Drop to DEBUG at some point
+
                         if packet.hops == link_entry[IDX_LT_REM_HOPS]:
                             if packet.receiving_interface == link_entry[IDX_LT_NH_IF]:
                                 try:
@@ -2233,9 +2261,9 @@ class Transport:
                                                 RNS.Identity._used_destination_data(link_entry[IDX_LT_DSTHASH])
 
                                         else: RNS.log("Invalid link request proof in transport for link "+RNS.prettyhexrep(packet.destination_hash)+", dropping proof.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-                                except Exception as e: RNS.log("Could not transport link request proof. The contained exception was: "+str(e), RNS.LOG_DEBUG) if RNS.sl(LOG_DEBUG) else None
+                                except Exception as e: RNS.log("Could not transport link request proof. The contained exception was: "+str(e), RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                             else: RNS.log("Link request proof received on wrong interface, not transporting it.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-                        else: RNS.log(f"Received link request proof with hop mismatch ({packet.hops}/{link_entry[IDX_LT_REM_HOPS]}:{link_entry[IDX_LT_NH_IF]}->{link_entry[IDX_LT_RCVD_IF]}), not transporting it", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                        else: RNS.log(f"Received link request proof with hop mismatch ({packet.hops}/{link_entry[IDX_LT_REM_HOPS]}:{link_entry[IDX_LT_NH_IF]}->{link_entry[IDX_LT_RCVD_IF]}), not transporting it", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
                     
                     else:
                         # Check if we can deliver it to a local
@@ -2245,19 +2273,39 @@ class Transport:
                         with Transport.pending_links_lock:
                             for link in Transport.pending_links:
                                 if link.link_id == packet.destination_hash:
-                                    # We need to also allow an expected hops value of
-                                    # PATHFINDER_M, since in some cases, the number of hops
-                                    # to the destination will be unknown at link creation
-                                    # time. The real chance of this occuring is likely to be
-                                    # extremely small, and this allowance could probably
-                                    # be discarded without major issues, but it is kept
-                                    # for now to ensure backwards compatibility.
+                                    if packet.hops != link.expected_hops and link.status == RNS.Link.PENDING and Transport.ALLOW_LINK_PATH_REBALANCE:
+                                        RNS.log(f"Unbalanced link path ({packet.hops}/{link.expected_hops}) detected on link {link}, validating signature for re-balancing...", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
+                                        try:
+                                            if len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2 or len(packet.data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2+RNS.Link.LINK_MTU_SIZE:
+                                                packet_data = packet.data
+                                                signalling_bytes = b""
+                                                confirmed_mtu = None
+                                                mode = RNS.Link.mode_from_lp_packet(packet)
+                                                if mode != link.mode: raise TypeError(f"Invalid link mode {mode} in link request proof")
+                                                if len(packet_data) == RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2+RNS.Link.LINK_MTU_SIZE:
+                                                    confirmed_mtu = RNS.Link.mtu_from_lp_packet(packet)
+                                                    signalling_bytes = RNS.Link.signalling_bytes(confirmed_mtu, mode)
+                                                    packet_data = packet_data[:RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2]
 
-                                    # TODO: Probably reset check back to
-                                    # if packet.hops == link.expected_hops:
-                                    # within one of the next releases
+                                                peer_pub_bytes = packet_data[RNS.Identity.SIGLENGTH//8:RNS.Identity.SIGLENGTH//8+RNS.Link.ECPUBSIZE//2]
+                                                peer_sig_pub_bytes = link.destination.identity.get_public_key()[RNS.Link.ECPUBSIZE//2:RNS.Link.ECPUBSIZE]
 
-                                    if packet.hops == link.expected_hops or link.expected_hops == RNS.Transport.PATHFINDER_M:
+                                                signed_data = link.link_id+peer_pub_bytes+peer_sig_pub_bytes+signalling_bytes
+                                                signature = packet_data[:RNS.Identity.SIGLENGTH//8]
+
+                                                if link.destination.identity.validate(signature, signed_data):
+                                                    RNS.log(f"Re-balancing path to {RNS.prettyhexrep(link.destination.hash)} at link terminus ({link.expected_hops}->{packet.hops})", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
+                                                    link.expected_hops = packet.hops
+                                                    with Transport.path_table_lock:
+                                                        if link.destination.hash in Transport.path_table:
+                                                            path_entry = Transport.path_table[link.destination.hash]
+                                                            path_entry[IDX_PT_HOPS] = packet.hops
+                                                            RNS.log(f"Path table re-balanced for {RNS.prettyhexrep(link.destination.hash)}", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
+
+                                                else: RNS.log(f"Aborting path re-balancing at link terminus for {RNS.prettyhexrep(link.destination.hash)} on link {link} due to invalid signature", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
+                                        except Exception as e: RNS.log("Error while validating link request proof for path re-balancing at link terminus. The contained exception was: "+str(e), REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
+
+                                    if packet.hops == link.expected_hops:
                                         # Add this packet to the filter hashlist if we
                                         # have determined that it's actually destined
                                         # for this system, and then validate the proof
