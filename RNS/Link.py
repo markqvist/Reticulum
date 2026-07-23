@@ -190,24 +190,22 @@ class Link:
                 link.set_link_id(packet)
 
                 if len(data) == Link.ECPUBSIZE+Link.LINK_MTU_SIZE:
-                    RNS.log("Link request includes MTU signalling", RNS.LOG_DEBUG) # TODO: Remove debug
+                    RNS.log("Link request includes MTU signalling", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                     try: link.mtu = Link.mtu_from_lr_packet(packet) or Reticulum.MTU
                     except Exception as e:
                         RNS.trace_exception(e)
                         link.mtu = RNS.Reticulum.MTU
 
                 link.mode = Link.mode_from_lr_packet(packet)
-                
-                # TODO: Remove debug
-                RNS.log(f"Incoming link request with mode {Link.MODE_DESCRIPTIONS[link.mode]}", RNS.LOG_DEBUG)
+                RNS.log(f"Incoming link request with mode {Link.MODE_DESCRIPTIONS[link.mode]}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
                 link.update_mdu()
                 link.destination = packet.destination
                 link.establishment_timeout = Link.ESTABLISHMENT_TIMEOUT_PER_HOP * max(1, packet.hops) + Link.KEEPALIVE
                 link.establishment_cost += len(packet.raw)
-                RNS.log(f"Validating link request {RNS.prettyhexrep(link.link_id)}", RNS.LOG_DEBUG)
-                RNS.log(f"Link MTU configured to {RNS.prettysize(link.mtu)}", RNS.LOG_EXTREME)
-                RNS.log(f"Establishment timeout is {RNS.prettytime(link.establishment_timeout)} for incoming link request "+RNS.prettyhexrep(link.link_id), RNS.LOG_EXTREME)
+                RNS.log(f"Validating link request {RNS.prettyhexrep(link.link_id)}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                RNS.log(f"Link MTU configured to {RNS.prettysize(link.mtu)}", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                RNS.log(f"Establishment timeout is {RNS.prettytime(link.establishment_timeout)} for incoming link request {RNS.prettyhexrep(link.link_id)}", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                 link.handshake()
                 link.attached_interface = packet.receiving_interface
                 link.prove()
@@ -217,15 +215,15 @@ class Link:
                 link.__update_phy_stats(packet, force_update=True)
                 link.start_watchdog()
 
-                RNS.log("Incoming link request "+str(link)+" accepted on "+str(link.attached_interface), RNS.LOG_DEBUG)
+                RNS.log(f"Incoming link request {link} accepted on {link.attached_interface}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                 return link
 
             except Exception as e:
-                RNS.log(f"Validating link request failed: {e}", RNS.LOG_VERBOSE)
+                RNS.log(f"Validating link request failed: {e}", RNS.LOG_VERBOSE) if RNS.sl(RNS.LOG_VERBOSE) else None
                 return None
 
         else:
-            RNS.log(f"Invalid link request payload size of {len(data)} bytes, dropping request", RNS.LOG_DEBUG)
+            RNS.log(f"Invalid link request payload size of {len(data)} bytes, dropping request", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
             return None
 
 
@@ -395,13 +393,13 @@ class Link:
                 signalling_bytes = b""
                 confirmed_mtu = None
                 mode = Link.mode_from_lp_packet(packet)
-                RNS.log(f"Validating link request proof with mode {Link.MODE_DESCRIPTIONS[mode]}", RNS.LOG_DEBUG) # TODO: Remove debug
+                RNS.log(f"Validating link request proof with mode {Link.MODE_DESCRIPTIONS[mode]}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                 if mode != self.mode: raise TypeError(f"Invalid link mode {mode} in link request proof")
                 if len(packet.data) == RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2+Link.LINK_MTU_SIZE:
                     confirmed_mtu = Link.mtu_from_lp_packet(packet)
                     signalling_bytes = Link.signalling_bytes(confirmed_mtu, mode)
                     packet.data = packet.data[:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2]
-                    RNS.log(f"Destination confirmed link MTU of {RNS.prettysize(confirmed_mtu)}", RNS.LOG_DEBUG) # TODO: Remove debug
+                    RNS.log(f"Destination confirmed link MTU of {RNS.prettysize(confirmed_mtu)}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
                 if self.initiator and len(packet.data) == RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2:
                     peer_pub_bytes = packet.data[RNS.Identity.SIGLENGTH//8:RNS.Identity.SIGLENGTH//8+Link.ECPUBSIZE//2]
@@ -426,7 +424,7 @@ class Link:
                         self.activated_at = time.time()
                         self.last_proof = self.activated_at
                         RNS.Transport.activate_link(self)
-                        RNS.log("Link "+str(self)+" established with "+str(self.destination)+", RTT is "+RNS.prettyshorttime(self.rtt), RNS.LOG_DEBUG)
+                        RNS.log(f"Link {self} established with {self.destination}, RTT is {RNS.prettyshorttime(self.rtt)}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                         
                         if self.rtt != None and self.establishment_cost != None and self.rtt > 0 and self.establishment_cost > 0:
                             self.establishment_rate = self.establishment_cost/self.rtt
@@ -444,7 +442,7 @@ class Link:
                             thread.daemon = True
                             thread.start()
 
-                    else: RNS.log("Invalid link proof signature received by "+str(self)+". Ignoring.", RNS.LOG_DEBUG)
+                    else: RNS.log(f"Invalid link proof signature received by {self}. Ignoring.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
         
         except Exception as e:
             self.status = Link.CLOSED
