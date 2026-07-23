@@ -2232,7 +2232,9 @@ class Transport:
                                                     path_entry = Transport.path_table[link_destination]
                                                     path_entry[IDX_PT_HOPS] = packet.hops
 
-                                        else: RNS.log(f"Aborting link request proof path re-balancing for {RNS.prettyhexrep(link_destination)} on link {RNS.prettyhexrep(packet.destination_hash)} due to invalid signature", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
+                                        elif not link_entry[IDX_LT_VALIDATED]: RNS.log(f"Aborting link request proof path re-balancing for {RNS.prettyhexrep(link_destination)} on link {RNS.prettyhexrep(packet.destination_hash)} due to invalid signature", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
+                                        else: pass
+
                                 except Exception as e: RNS.log(f"Error while re-balancing path from link request proof. The contained exception was: {e}", RNS.LOG_ERROR) if RNS.sl(RNS.LOG_ERROR) else None # TODO: Drop to DEBUG at some point
 
                         if packet.hops == link_entry[IDX_LT_REM_HOPS]:
@@ -2266,9 +2268,7 @@ class Transport:
                         else: RNS.log(f"Received link request proof with hop mismatch ({packet.hops}/{link_entry[IDX_LT_REM_HOPS]}:{link_entry[IDX_LT_NH_IF]}->{link_entry[IDX_LT_RCVD_IF]}), not transporting it", REBALANCE_LOGLEVEL) if RNS.sl(REBALANCE_LOGLEVEL) else None
                     
                     else:
-                        # Check if we can deliver it to a local
-                        # pending link
-
+                        # Check if we can deliver it to a local pending link
                         pending_link = None
                         with Transport.pending_links_lock:
                             for link in Transport.pending_links:
