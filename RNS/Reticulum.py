@@ -262,12 +262,14 @@ class Reticulum:
         Reticulum.__discover_interfaces               = False
         Reticulum.__autoconnect_discovered_interfaces = False
         Reticulum.__autoconnect_interface_mode        = None
+        Reticulum.__autoconnect_interface_gravity     = None
         Reticulum.__autoconnect_announces_to_internal = None
         Reticulum.__required_discovery_value          = None
         Reticulum.__publish_blackhole                 = False
         Reticulum.__blackhole_update_interval         = RNS.Discovery.BlackholeUpdater.UPDATE_INTERVAL
         Reticulum.__blackhole_sources                 = []
         Reticulum.__interface_sources                 = []
+        Reticulum.__default_gravity                   = None
         Reticulum.__default_ar_target                 = None
         Reticulum.__default_ar_penalty                = None
         Reticulum.__default_ar_grace                  = None
@@ -568,6 +570,10 @@ class Reticulum:
                     if v == True:  Reticulum.__use_implicit_proof = True
                     if v == False: Reticulum.__use_implicit_proof = False
                 
+                if option == "default_gravity":
+                    v = self.config["reticulum"].as_int(option)
+                    Reticulum.__default_gravity = v
+
                 if option == "discover_interfaces":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True:  Reticulum.__discover_interfaces = True
@@ -605,13 +611,13 @@ class Reticulum:
                         try: source_identity_hash = bytes.fromhex(hexhash)
                         except Exception as e: raise ValueError(f"Invalid identity hash for interface discovery source: {hexhash}")
                         if not source_identity_hash in Reticulum.__interface_sources: Reticulum.__interface_sources.append(source_identity_hash)
-                
+
                 if option == "autoconnect_discovered_interfaces":
                     v = self.config["reticulum"].as_int(option)
                     if v > 0: Reticulum.__autoconnect_discovered_interfaces = v
-                
-                if option == "autoconnect_discovered_mode":
-                    v = None; dmode = str(self.config["reticulum"]["autoconnect_discovered_mode"]).lower()
+
+                if option == "autoconnect_interface_mode":
+                    v = None; dmode = str(self.config["reticulum"]["autoconnect_interface_mode"]).lower()
                     if   dmode == "full":         v = Interface.Interface.MODE_FULL
                     elif dmode == "access_point": v = Interface.Interface.MODE_ACCESS_POINT
                     elif dmode == "accesspoint":  v = Interface.Interface.MODE_ACCESS_POINT
@@ -624,6 +630,10 @@ class Reticulum:
                     elif dmode == "gw":           v = Interface.Interface.MODE_GATEWAY
                     elif dmode == "internal":     v = Interface.Interface.MODE_INTERNAL
                     if v != None: Reticulum.__autoconnect_interface_mode = v
+
+                if option == "autoconnect_interface_gravity":
+                    v = self.config["reticulum"].as_int(option)
+                    Reticulum.__autoconnect_interface_gravity = v
 
                 if option == "autoconnect_announces_to_internal":
                     v = self.config["reticulum"].as_bool(option)
@@ -758,7 +768,7 @@ class Reticulum:
             elif c["mode"] == "internal":
                 interface_mode = Interface.Interface.MODE_INTERNAL
 
-        gravity = None
+        gravity = self._default_gravity()
         if "gravity" in c: gravity = c.as_int("gravity")
 
         ifac_size = None
@@ -1087,7 +1097,7 @@ class Reticulum:
             if interface != None and issubclass(type(interface), RNS.Interfaces.Interface.Interface):
                 
                 if mode == None:    mode = Interface.Interface.MODE_FULL
-                if gravity == None: gravity = 0
+                if gravity == None: gravity = self._default_gravity()
                 interface.mode = mode
                 interface.gravity = gravity
                 interface.OUT  = True
@@ -1128,6 +1138,9 @@ class Reticulum:
 
                 RNS.Transport.add_interface(interface)
                 interface.final_init()
+
+    def _default_gravity(self):
+        return self.__default_gravity or RNS.Interfaces.Interface.Interface.DEFAULT_GRAVITY
 
     def _default_ar_target(self):
         return self.__default_ar_target or RNS.Interfaces.Interface.Interface.DEFAULT_AR_TARGET
@@ -1839,6 +1852,10 @@ class Reticulum:
     @staticmethod
     def autoconnect_interface_mode():
         return Reticulum.__autoconnect_interface_mode
+
+    @staticmethod
+    def autoconnect_interface_gravity():
+        return Reticulum.__autoconnect_interface_gravity
 
     @staticmethod
     def autoconnect_announces_to_internal():

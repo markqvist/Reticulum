@@ -173,6 +173,12 @@ instance_name = default
 # network_identity = ~/.reticulum/storage/identity/network
 
 
+# It is possible to configure the global default interface
+# gravity. This value will be used if an interface does
+# not have a specific gravity value in its configuration.
+
+# default_gravity = 0
+
 # You can configure whether Reticulum should discover
 # available interfaces from other Transport Instances over
 # the network. If this option is enabled, Reticulum will
@@ -220,7 +226,7 @@ instance_name = default
 # You can specify which mode discovered interfaces should
 # be created with when auto-connecting.
 
-# autoconnect_discovered_mode = gw
+# autoconnect_interface_mode = gw
 
 
 # It is possible to allow announces from auto-connected
@@ -229,6 +235,12 @@ instance_name = default
 # would normally not allow for this.
 
 # autoconnect_announces_to_internal = yes
+
+
+# You can configure the gravity for discovered interfaces
+# that are auto-connected.
+
+# autoconnect_interface_gravity = 0
 
 
 # When Transport is enabled, it is possible to allow the

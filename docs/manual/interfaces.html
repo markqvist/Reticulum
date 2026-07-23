@@ -1335,8 +1335,18 @@ someone is actually using them. An example of this could
 be a radio interface serving a wide area, where users are
 expected to connect momentarily, use the network, and then
 disappear again.</p></li>
+<li><p>See the <a class="reference internal" href="#interfaces-modes"><span class="std std-ref">Interface Modes</span></a> section
+below for a reference on additional modes.</p></li>
 </ul>
 </div></blockquote>
+</li>
+<li><div class="line-block">
+<div class="line">The <code class="docutils literal notranslate"><span class="pre">gravity</span></code> option specifies the pathing affinity of an interface.
+If not set specifically, and unless otherwise configured by
+<code class="docutils literal notranslate"><span class="pre">default_gravity</span></code> or <code class="docutils literal notranslate"><span class="pre">autoconnect_interface_gravity</span></code>,
+it defaults to <code class="docutils literal notranslate"><span class="pre">0</span></code>. Positive values increase pathing affinity,
+and negative values decrease it.</div>
+</div>
 </li>
 <li><div class="line-block">
 <div class="line">The <code class="docutils literal notranslate"><span class="pre">outgoing</span></code> option sets whether an interface is allowed

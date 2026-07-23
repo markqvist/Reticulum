@@ -430,6 +430,9 @@ class InterfaceDiscovery():
     AUTOCONNECT_TYPES  = ["BackboneInterface", "TCPServerInterface"]
     DISCOVERABLE_TYPES = ["BackboneInterface", "TCPServerInterface", "I2PInterface", "RNodeInterface", "WeaveInterface", "KISSInterface"]
 
+    AC_TRANSPORT_MODE  = RNS.Interfaces.Interface.Interface.MODE_GATEWAY
+    AC_GRAVITY         = 0
+
     discovery_lock     = Lock()
 
     def __init__(self, required_value=InterfaceAnnouncer.DEFAULT_STAMP_VALUE, callback=None, discover_interfaces=True):
@@ -723,14 +726,15 @@ class InterfaceDiscovery():
                                 interface.autoconnect_hash = endpoint_hash
                                 interface.autoconnect_source = info["network_id"]
                                 if RNS.Reticulum.autoconnect_interface_mode(): mode = RNS.Reticulum.autoconnect_interface_mode()
-                                else: mode = RNS.Interfaces.Interface.Interface.MODE_GATEWAY if RNS.Reticulum.transport_enabled() else None
+                                else: mode = self.AC_TRANSPORT_MODE if RNS.Reticulum.transport_enabled() else None
                                 internal_a = True if RNS.Reticulum.autoconnect_announces_to_internal() else None
+                                gravity    = RNS.Reticulum.autoconnect_interface_gravity() or self.AC_GRAVITY
                                 ar_target  = RNS.Reticulum.get_instance()._default_ar_target() if RNS.Reticulum.transport_enabled() else None
                                 ar_penalty = RNS.Reticulum.get_instance()._default_ar_penalty() if RNS.Reticulum.transport_enabled() else None
                                 ar_grace   = RNS.Reticulum.get_instance()._default_ar_grace() if RNS.Reticulum.transport_enabled() else None
                                 RNS.Reticulum.get_instance()._add_interface(interface, mode=mode, ifac_netname=ifac_netname, ifac_netkey=ifac_netkey, configured_bitrate=5E6,
                                                                             announce_rate_target=ar_target, announce_rate_grace=ar_grace, announce_rate_penalty=ar_penalty,
-                                                                            announces_to_internal=internal_a)
+                                                                            announces_to_internal=internal_a, gravity=gravity)
                                 self.monitor_interface(interface)
 
         except Exception as e:

@@ -1200,6 +1200,15 @@ These can be used to control various aspects of interface behaviour.
        expected to connect momentarily, use the network, and then
        disappear again.
 
+     - See the :ref:`Interface Modes<interfaces-modes>` section
+       below for a reference on additional modes.
+
+ * | The ``gravity`` option specifies the pathing affinity of an interface.
+     If not set specifically, and unless otherwise configured by
+     ``default_gravity`` or ``autoconnect_interface_gravity``,
+     it defaults to ``0``. Positive values increase pathing affinity,
+     and negative values decrease it.
+
  * | The ``outgoing`` option sets whether an interface is allowed
      to transmit. Defaults to ``True``. If set to ``False`` or ``No``
      the interface will only receive data, and never transmit.
