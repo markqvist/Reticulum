@@ -385,6 +385,8 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 interfaces.sort(key=lambda i: i["outgoing_pr_frequency"], reverse=not sort_reverse)
             if sorting == "held":
                 interfaces.sort(key=lambda i: i["held_announces"], reverse=not sort_reverse)
+            if sorting == "gravity" or sorting == "g":
+                interfaces.sort(key=lambda i: i["gravity"], reverse=not sort_reverse)
 
           
         for ifstat in interfaces:
