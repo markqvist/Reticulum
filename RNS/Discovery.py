@@ -467,13 +467,17 @@ class InterfaceDiscovery():
                     with open(filepath, "rb") as f: info = msgpack.unpackb(f.read())
 
                 should_remove = False
-                heard_delta = now-info["last_heard"]
-                info["name"] = InterfaceAnnounceHandler.sanitize_name(info["name"])
+                heard_delta   = now-info["last_heard"]
+                info["name"]  = InterfaceAnnounceHandler.sanitize_name(info["name"])
                 
-                if heard_delta > self.THRESHOLD_REMOVE: should_remove = True
+                if   heard_delta > self.THRESHOLD_REMOVE: should_remove = True
+                elif not "transport_id" in info or not info["transport_id"]: should_remove = True
+                elif not "network_id" in info or not info["network_id"]: should_remove = True
                 elif discovery_sources and not "network_id" in info: should_remove = True
                 elif discovery_sources and not bytes.fromhex(info["network_id"]) in discovery_sources: should_remove = True
                 elif not "type" in info or ("type" in info and not info["type"] in self.DISCOVERABLE_TYPES): should_remove = True
+                elif self.rns_instance.is_blackholed(bytes.fromhex(info["network_id"])): should_remove = True
+                elif self.rns_instance.is_blackholed(bytes.fromhex(info["transport_id"])): should_remove = True
                 elif "reachable_on" in info:
                     if not (is_ip_address(info["reachable_on"]) or is_hostname(info["reachable_on"])): should_remove = True
 
