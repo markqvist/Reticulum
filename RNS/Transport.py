@@ -1841,7 +1841,7 @@ class Transport:
                                         else:
                                             if announce_gravity <= current_gravity: should_add = False
                                             else:
-                                                RNS.log(f"Replacing path table entry for {RNS.prettyhexrep(packet.destination_hash)} with new announce due to higher gravity ({current_gravity}->{announce_gravity})", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                                                RNS.log(f"Replacing path table entry for {RNS.prettyhexrep(packet.destination_hash)} with new announce due to higher gravity ({current_gravity}->{announce_gravity})", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
                                                 should_add = True
                                 else:
                                     # If an announce arrives with a larger hop
