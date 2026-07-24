@@ -155,6 +155,7 @@ class Destination:
         self.accept_link_requests = True
         self.callbacks = Callbacks()
         self.request_handlers = {}
+        self.max_request_size = None
         self.type = type
         self.direction = direction
         self.proof_strategy = Destination.PROVE_NONE
@@ -362,10 +363,20 @@ class Destination:
 
         :param proof_strategy: One of ``RNS.Destination.PROVE_NONE``, ``RNS.Destination.PROVE_ALL`` or ``RNS.Destination.PROVE_APP``. If ``RNS.Destination.PROVE_APP`` is set, the `proof_requested_callback` will be called to determine whether a proof should be sent or not.
         """
-        if not proof_strategy in Destination.proof_strategies:
-            raise TypeError("Unsupported proof strategy")
-        else:
-            self.proof_strategy = proof_strategy
+        if not proof_strategy in Destination.proof_strategies: raise TypeError("Unsupported proof strategy")
+        else:                                                  self.proof_strategy = proof_strategy
+
+    def set_max_request_size(self, max_request_size):
+        """
+        Registers a request handler.
+
+        :param max_request_size: The path for the request handler to be registered.
+        :raises: ``TypeError`` or ``ValueError`` if any of the argument is invalid.
+        """
+        try: max_request_size = int(max_request_size)
+        except: raise TypeError("Invalid maximum request size specified")
+        if max_request_size < 0: raise ValueError("Maximum request size cannot be negative")
+        self.max_request_size = max_request_size
 
     def register_request_handler(self, path, response_generator = None, allow = ALLOW_NONE, allowed_list = None, auto_compress = True):
         """

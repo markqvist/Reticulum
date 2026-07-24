@@ -981,9 +981,13 @@ class Link:
                             request_id = packet.getTruncatedHash()
                             packed_request = self.decrypt(packet.data)
                             if packed_request != None:
-                                unpacked_request = umsgpack.unpackb(packed_request)
-                                def job(): self.handle_request(request_id, unpacked_request)
-                                threading.Thread(target=job, daemon=True).start()
+                                if self.destination.max_request_size == None: size_ok = True
+                                else: size_ok = len(packed_request) <= self.destination.max_request_size
+                                if not size_ok: RNS.log(f"Ignored request with excessive size {RNS.prettysize(len(packed_request))} on {self.destination}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                                else:
+                                    unpacked_request = umsgpack.unpackb(packed_request)
+                                    def job(): self.handle_request(request_id, unpacked_request)
+                                    threading.Thread(target=job, daemon=True).start()
                                 self.__update_phy_stats(packet, query_shared=True)
                         except Exception as e: RNS.log("Error occurred while handling request. The contained exception was: "+str(e), RNS.LOG_ERROR)
 
@@ -1016,7 +1020,12 @@ class Link:
                             try:
                                 if RNS.ResourceAdvertisement.is_request(packet):
                                     if self.destination.request_handlers:
-                                        RNS.Resource.accept(packet, callback=self.request_resource_concluded)
+                                        if self.destination.max_request_size == None: size_ok = True
+                                        else: size_ok = RNS.ResourceAdvertisement.read_size(packet) <= self.destination.max_request_size
+                                        if size_ok: RNS.Resource.accept(packet, callback=self.request_resource_concluded)
+                                        else:
+                                            RNS.Resource.reject(packet)
+                                            RNS.log(f"Ignored request with excessive size {RNS.prettysize(RNS.ResourceAdvertisement.read_size(packet))} on {self.destination}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                                 elif RNS.ResourceAdvertisement.is_response(packet):
                                     request_id = RNS.ResourceAdvertisement.read_request_id(packet)
                                     for pending_request in self.pending_requests:
