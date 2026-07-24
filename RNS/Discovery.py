@@ -331,7 +331,7 @@ class InterfaceAnnounceHandler:
                         if IFAC_NETKEY  in unpacked: info["ifac_netkey"]  = str(unpacked[IFAC_NETKEY])
 
                         if interface_type in ["BackboneInterface", "TCPServerInterface"]:
-                            backbone_support     = not RNS.vendor.platformutils.is_windows()
+                            backbone_support     = not RNS.vendor.platformutils.is_windows() and not RNS.vendor.platformutils.is_darwin()
                             info["reachable_on"] = unpacked[REACHABLE_ON]
                             info["port"]         = unpacked[PORT]
                             connection_interface = "BackboneInterface" if backbone_support else "TCPClientInterface"
