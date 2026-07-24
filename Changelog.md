@@ -1,20 +1,25 @@
-### 2026-07-19: RNS 1.3.9
+### 2026-07-24: RNS 1.4.1
 
-**Critical Security Update**: This release fixes a severe security flaw in `rnsh`. Due to the nature of the issue, I will not disclose any further details for the time being. Once operators have had time to update, I will provide a full report for transparency. If you use `rnsh`, update **right now**.
+This release significantly improves path convergence and stability with the new path re-balancing functionality. It also introduces interface gravity configuration, new API functionality and fixes a range of bugs and inefficiencies.
 
-**Important**: The new version of `rnsh` changes default identity file locations, and these will now be sourced from `~/.rnsh/identity` (initiator) and `~/.rnsh/identity.default` (listener). Make sure you copy your old files to this directory, or specify a custom identity path using the command line arguments. The `--config` argument has also been renamed to `--rnsconfig`, and the `--config` argument will now specify the `rnsh` configuration directory instead of the RNS configuration directory, bringing the behavior into alignment with other RNS utilities. 
-
-Additionally, this release includes automated blocking of fast-flapping clients on `BackboneInterface` listeners (see the Interfaces chapter of the manual for details), and a number of improvements to resource handling. The logging system has also been improved, and path and destination information moved to a new `LOG_PATHING` loglevel, to decrease log noise.
-
-**Changes**
-- Fixed a critical security issue in `rnsh`
-- Added automated blocking of fast-flapping clients to `BackboneInterface`
-- Added new `LOG_PATHING` loglevel, improved logging
-- Added ability to make internal-mode interfaces discoverable
-- Added ability to get discoverable interface location from external script
-- Added `RESOURCE_RCL` signal on resource receiver cancel
-- Improved resource handling and reliability
-- Updated `rnsh` config args to work similarly to other RNS utilities
+- Added dynamic path re-balancing
+- Added `set_max_request_size` to `Destination` API
+- Added `max_response_size` to request API
+- Added interface gravity handling
+- Added `autoconnect_interface_mode` option
+- Added `autoconnect_announces_to_internal` option
+- Added `autoconnect_interface_gravity` option
+- Added `default_gravity` option
+- Added `announces_to_internal` interface option
+- Added `gravity` interface option
+- Added gravity display and sorting option to `rnstatus`
+- Added boundary -> boundary and boundary -> gateway path requests
+- Fixed `I2PInterface` tasks getting garbage-collected prematurely, thanks to **welo**
+- Fixed various minor bugs in `I2PInterface`
+- Fixed ingress control burst active flag deadlocking until new announces arrived under burst timing patterns
+- Fixed various memory inefficiencies
+- Fixed loglevel `LOG_EXTREME` not being usable in some cases
+- Fixed historical interface discoveries not being cleaned according to blackholed identities
 
 **Verified Retrieval**
 You can retrieve and verify this release over Reticulum using the built-in `rngit release` utility. To retrieve only the installation `.whl` package, and the release manifest for future updates, you can use:
@@ -43,6 +48,44 @@ rnid -i bc7291552be7a58f361522990465165c -V rns_*.rsm *.rsg
 ```
 
 The `rnid` utility will then verify the signatures, and display whether they are valid. If the signature cannot be verified, the release has been tampered with and should be discarded.
+
+### 2026-07-20: RNS 1.4.0
+
+This release focuses on performance, stability and reliability improvements, particularly with resource-constrained systems in mind. It also fixes several bugs, reduces logging noise, and makes information about blocked `BackboneInterface` clients available in `ifstats`.
+
+**Changes**
+- Optimized transport data persistence to avoid CPU spikes on low-powered systems
+- Optimized interface hashes calculation and access to reduce overall processing load
+- Implemented known destinations cleaning as background priority to avoid lock contention and reduce load on CPU-constrained systems
+- Deprecated known destination on-disk recombination on background data persist to alleviate lock contention on CPU-constrained systems
+- Implemented caching of invalid discovery stamps to reduce CPU load on low-powered systems
+- Implemented valid discovery announce caching and sequential validation lock to reduce processing load on CPU-constrained systems
+- Fixed link stale teardown erroneously occurring due to missing keepalive from initiator side when destination continously sends packets but initiator stays silent
+- Fixed race condition in link watchdog timing
+- Fixed missing None-check in `BackboneInterface` fast-flap detection
+- Fixed invalid exception log handler in `BackboneInterface`
+- Increased default discovery stamp value to 16
+- Added blocked IPs list to ifstats
+- Improved backbone interface logging
+- Reduced overall logging noise
+
+### 2026-07-19: RNS 1.3.9
+
+**Critical Security Update**: This release fixes a severe security flaw in `rnsh`. Due to the nature of the issue, I will not disclose any further details for the time being. Once operators have had time to update, I will provide a full report for transparency. If you use `rnsh`, update **right now**.
+
+**Important**: The new version of `rnsh` changes default identity file locations, and these will now be sourced from `~/.rnsh/identity` (initiator) and `~/.rnsh/identity.default` (listener). Make sure you copy your old files to this directory, or specify a custom identity path using the command line arguments. The `--config` argument has also been renamed to `--rnsconfig`, and the `--config` argument will now specify the `rnsh` configuration directory instead of the RNS configuration directory, bringing the behavior into alignment with other RNS utilities. 
+
+Additionally, this release includes automated blocking of fast-flapping clients on `BackboneInterface` listeners (see the Interfaces chapter of the manual for details), and a number of improvements to resource handling. The logging system has also been improved, and path and destination information moved to a new `LOG_PATHING` loglevel, to decrease log noise.
+
+**Changes**
+- Fixed a critical security issue in `rnsh`
+- Added automated blocking of fast-flapping clients to `BackboneInterface`
+- Added new `LOG_PATHING` loglevel, improved logging
+- Added ability to make internal-mode interfaces discoverable
+- Added ability to get discoverable interface location from external script
+- Added `RESOURCE_RCL` signal on resource receiver cancel
+- Improved resource handling and reliability
+- Updated `rnsh` config args to work similarly to other RNS utilities
 
 ### 2026-07-10: RNS 1.3.8
 
