@@ -1177,7 +1177,7 @@ network_identity = ~/.reticulum/storage/identities/my_network
 
 For more fine-grained control over how discovered interfaces are auto-connected, additional options are provided for configuraiton. These are not necessary to set in most cases, but can be useful in certain situations.
 
-* The `autoconnect_discovered_mode` options specifies which mode discovered interfaces should be created with when auto-connecting.
+* The `autoconnect_interface_mode` options specifies which mode discovered interfaces should be created with when auto-connecting.
 * The `autoconnect_announces_to_internal` option allows you to specify that auto-connected interfaces should propagate announces to `internal` mode interfaces, even if the auto-connected interface’s mode would normally not allow for this.
 
 ## Remote Management
