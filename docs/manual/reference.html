@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>API Reference - Reticulum Network Stack 1.4.0 documentation</title>
+        <title>API Reference - Reticulum Network Stack 1.4.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.4.0 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.4.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.4.0 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.4.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -926,6 +926,20 @@ proofs should be returned for received packets.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.set_max_request_size">
+<span class="sig-name descname"><span class="pre">set_max_request_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_request_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.set_max_request_size" title="Link to this definition">¶</a></dt>
+<dd><p>Sets the maximum accepted request size for registered request handlers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>max_request_size</strong> – The maximum accepted request size in bytes, as an integer.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">TypeError</span></code> or <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> if any of the argument is invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="RNS.Destination.register_request_handler">
 <span class="sig-name descname"><span class="pre">register_request_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ALLOW_NONE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowed_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.register_request_handler" title="Link to this definition">¶</a></dt>
 <dd><p>Registers a request handler.</p>
@@ -1341,7 +1355,7 @@ thus preserved. This method can be used for authentication.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Link.request">
-<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failed_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.request" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failed_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_response_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Link.request" title="Link to this definition">¶</a></dt>
 <dd><p>Sends a request to the remote peer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1350,6 +1364,7 @@ thus preserved. This method can be used for authentication.</p>
 <li><p><strong>response_callback</strong> – An optional function or method with the signature <em>response_callback(request_receipt)</em> to be called when a response is received. See the <a class="reference internal" href="examples.html#example-request"><span class="std std-ref">Request Example</span></a> for more info.</p></li>
 <li><p><strong>failed_callback</strong> – An optional function or method with the signature <em>failed_callback(request_receipt)</em> to be called when a request fails. See the <a class="reference internal" href="examples.html#example-request"><span class="std std-ref">Request Example</span></a> for more info.</p></li>
 <li><p><strong>progress_callback</strong> – An optional function or method with the signature <em>progress_callback(request_receipt)</em> to be called when progress is made receiving the response. Progress can be accessed as a float between 0.0 and 1.0 by the <em>request_receipt.progress</em> property.</p></li>
+<li><p><strong>max_response_size</strong> – An optional maximum accepted response size, in bytes as an integer.</p></li>
 <li><p><strong>timeout</strong> – An optional timeout in seconds for the request. If <em>None</em> is supplied it will be calculated based on link RTT.</p></li>
 </ul>
 </dd>
@@ -2373,6 +2388,7 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Destination.set_packet_callback"><code class="docutils literal notranslate"><span class="pre">set_packet_callback()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.set_proof_requested_callback"><code class="docutils literal notranslate"><span class="pre">set_proof_requested_callback()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.set_proof_strategy"><code class="docutils literal notranslate"><span class="pre">set_proof_strategy()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.set_max_request_size"><code class="docutils literal notranslate"><span class="pre">set_max_request_size()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.register_request_handler"><code class="docutils literal notranslate"><span class="pre">register_request_handler()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.deregister_request_handler"><code class="docutils literal notranslate"><span class="pre">deregister_request_handler()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.enable_ratchets"><code class="docutils literal notranslate"><span class="pre">enable_ratchets()</span></code></a></li>
@@ -2519,7 +2535,7 @@ will announce it.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=9172181d"></script>
+</div><script src="_static/documentation_options.js?v=350a9c04"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
