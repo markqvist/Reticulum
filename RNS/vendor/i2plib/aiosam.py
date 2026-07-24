@@ -6,14 +6,12 @@ from . import utils
 from .log import logger
 
 def parse_reply(data):
-    if not data:
-        raise ConnectionAbortedError("Empty response: SAM API went offline")
+    if not data: raise ConnectionAbortedError("Empty response: SAM API went offline")
 
     try:
         msg = sam.Message(data.decode().strip())
         logger.debug("SAM reply: "+str(msg))
-    except:
-        raise ConnectionAbortedError("Invalid SAM response")
+    except: raise ConnectionAbortedError("Invalid SAM response")
 
     return msg
 
@@ -28,8 +26,7 @@ async def get_sam_socket(sam_address=sam.DEFAULT_ADDRESS, loop=None):
     reader, writer = await asyncio.open_connection(*sam_address)
     writer.write(sam.hello("3.1", "3.1"))
     reply = parse_reply(await reader.readline())
-    if reply.ok:
-        return (reader, writer)
+    if reply.ok: return (reader, writer)
     else:
         writer.close()
         raise exceptions.SAM_EXCEPTIONS[reply["RESULT"]]()
@@ -49,10 +46,8 @@ async def dest_lookup(domain, sam_address=sam.DEFAULT_ADDRESS,
     writer.write(sam.naming_lookup(domain))
     reply = parse_reply(await reader.readline())
     writer.close()
-    if reply.ok:
-        return sam.Destination(reply["VALUE"])
-    else:
-        raise exceptions.SAM_EXCEPTIONS[reply["RESULT"]]()
+    if reply.ok: return sam.Destination(reply["VALUE"])
+    else: raise exceptions.SAM_EXCEPTIONS[reply["RESULT"]]()
 
 async def new_destination(sam_address=sam.DEFAULT_ADDRESS, loop=None,
                       sig_type=sam.Destination.default_sig_type):
@@ -91,15 +86,10 @@ async def create_session(session_name, sam_address=sam.DEFAULT_ADDRESS,
     """
     logger.debug("Creating session {}".format(session_name))
     if destination:
-        if type(destination) == sam.Destination:
-            destination = destination
-        else:
-            destination = sam.Destination(
-                    destination, has_private_key=True)
-
+        if type(destination) == sam.Destination: destination = destination
+        else:                                    destination = sam.Destination(destination, has_private_key=True)
         dest_string = destination.private_key.base64
-    else:
-        dest_string = sam.TRANSIENT_DESTINATION
+    else: dest_string = sam.TRANSIENT_DESTINATION
 
     options = " ".join(["{}={}".format(k, v) for k, v in options.items()])
 
@@ -109,9 +99,7 @@ async def create_session(session_name, sam_address=sam.DEFAULT_ADDRESS,
 
     reply = parse_reply(await reader.readline())
     if reply.ok:
-        if not destination:
-            destination = sam.Destination(
-                    reply["DESTINATION"], has_private_key=True) 
+        if not destination: destination = sam.Destination(reply["DESTINATION"], has_private_key=True) 
         logger.debug(destination.base32)
         logger.debug("Session created {}".format(session_name))
         return (reader, writer)
@@ -130,10 +118,8 @@ async def stream_connect(session_name, destination,
     :return: A (reader, writer) pair
     """
     logger.debug("Connecting stream {}".format(session_name))
-    if isinstance(destination, str) and not destination.endswith(".i2p"):
-        destination = sam.Destination(destination)
-    elif isinstance(destination, str):
-        destination = await dest_lookup(destination, sam_address, loop)
+    if isinstance(destination, str) and not destination.endswith(".i2p"): destination = sam.Destination(destination)
+    elif isinstance(destination, str):                                    destination = await dest_lookup(destination, sam_address, loop)
 
     reader, writer = await get_sam_socket(sam_address, loop)
     writer.write(sam.stream_connect(session_name, destination.base64,
@@ -158,8 +144,7 @@ async def stream_accept(session_name, sam_address=sam.DEFAULT_ADDRESS,
     reader, writer = await get_sam_socket(sam_address, loop)
     writer.write(sam.stream_accept(session_name, silent="false"))
     reply = parse_reply(await reader.readline())
-    if reply.ok:
-        return (reader, writer)
+    if reply.ok: return (reader, writer)
     else:
         writer.close()
         raise exceptions.SAM_EXCEPTIONS[reply["RESULT"]]()
@@ -183,9 +168,9 @@ class Session:
     :return: :class:`Session` object
     """
     def __init__(self, session_name, sam_address=sam.DEFAULT_ADDRESS, 
-                         loop=None, style="STREAM",
-                         signature_type=sam.Destination.default_sig_type,
-                         destination=None, options={}):
+                 loop=None, style="STREAM", signature_type=sam.Destination.default_sig_type,
+                 destination=None, options={}):
+
         self.session_name = session_name
         self.sam_address = sam_address
         self.loop = loop
@@ -195,10 +180,9 @@ class Session:
         self.options = options
 
     async def __aenter__(self):
-        self.reader, self.writer = await create_session(self.session_name, 
-                sam_address=self.sam_address, loop=self.loop, style=self.style, 
-                signature_type=self.signature_type, 
-                destination=self.destination, options=self.options)
+        self.reader, self.writer = await create_session(self.session_name, sam_address=self.sam_address, loop=self.loop,
+                                                        style=self.style, signature_type=self.signature_type,
+                                                        destination=self.destination, options=self.options)
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
@@ -214,16 +198,15 @@ class StreamConnection:
     :param loop: (optional) Event loop instance
     :return: :class:`StreamConnection` object
     """
-    def __init__(self, session_name, destination, 
-                 sam_address=sam.DEFAULT_ADDRESS, loop=None):
+    def __init__(self, session_name, destination, sam_address=sam.DEFAULT_ADDRESS, loop=None):
         self.session_name = session_name
         self.sam_address = sam_address
         self.loop = loop
         self.destination = destination
 
     async def __aenter__(self):
-        self.reader, self.writer = await stream_connect(self.session_name, 
-                self.destination, sam_address=self.sam_address, loop=self.loop)
+        self.reader, self.writer = await stream_connect(self.session_name, self.destination,
+                                                        sam_address=self.sam_address, loop=self.loop)
         self.read = self.reader.read
         self.write = self.writer.write
         return self
@@ -240,15 +223,13 @@ class StreamAcceptor:
     :param loop: (optional) Event loop instance
     :return: :class:`StreamAcceptor` object
     """
-    def __init__(self, session_name, sam_address=sam.DEFAULT_ADDRESS, 
-                 loop=None):
+    def __init__(self, session_name, sam_address=sam.DEFAULT_ADDRESS, loop=None):
         self.session_name = session_name
         self.sam_address = sam_address
         self.loop = loop
 
     async def __aenter__(self):
-        self.reader, self.writer = await stream_accept(self.session_name, 
-                        sam_address=self.sam_address, loop=self.loop)
+        self.reader, self.writer = await stream_accept(self.session_name, sam_address=self.sam_address, loop=self.loop)
         self.read = self.reader.read
         self.write = self.writer.write
         return self

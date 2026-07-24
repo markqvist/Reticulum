@@ -3,7 +3,6 @@ from hashlib import sha256
 import struct
 import re
 
-
 I2P_B64_CHARS = "-~"
 
 def i2p_b64encode(x):
@@ -41,11 +40,9 @@ class Message(object):
         return self.opts[key]
 
     @property
-    def ok(self):
-        return self["RESULT"] == "OK"
+    def ok(self): return self["RESULT"] == "OK"
 
-    def __repr__(self):
-        return self._reply_string
+    def __repr__(self): return self._reply_string
 
 
 # SAM request messages
