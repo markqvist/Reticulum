@@ -368,9 +368,9 @@ class Destination:
 
     def set_max_request_size(self, max_request_size):
         """
-        Registers a request handler.
+        Sets the maximum accepted request size for registered request handlers.
 
-        :param max_request_size: The path for the request handler to be registered.
+        :param max_request_size: The maximum accepted request size in bytes, as an integer.
         :raises: ``TypeError`` or ``ValueError`` if any of the argument is invalid.
         """
         try: max_request_size = int(max_request_size)
