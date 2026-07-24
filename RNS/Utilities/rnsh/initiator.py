@@ -133,8 +133,8 @@ def _client_message_handler(message: RNS.MessageBase): _pq.put(message)
 def compute_target_rns_loglevel(verbosity: int, quietness: int, base_level: int = RNS.LOG_INFO) -> int:
     try:
         target = int(base_level) + int(verbosity) - int(quietness)
-        if target < RNS.LOG_CRITICAL: target = RNS.LOG_CRITICAL
-        if target > RNS.LOG_DEBUG:    target = RNS.LOG_DEBUG
+        if target < RNS.LOG_NONE:    target = RNS.LOG_NONE
+        if target > RNS.LOG_EXTREME: target = RNS.LOG_EXTREME
         return target
     
     except Exception: return base_level
@@ -226,6 +226,7 @@ async def initiate(configdir: str, rnsconfigdir:str, identitypath: str, logfile:
         await _initiate_link(configdir=configdir,
                              rnsconfigdir=rnsconfigdir,
                              identitypath=identitypath,
+                             logfile=logfile,
                              verbosity=verbosity,
                              quietness=quietness,
                              noid=noid,
@@ -391,7 +392,7 @@ async def initiate(configdir: str, rnsconfigdir:str, identitypath: str, logfile:
                         if message.stream_id == protocol.StreamDataMessage.STREAM_ID_STDOUT:
                             if message.data and len(message.data) > 0:
                                 ttyRestorer.raw()
-                                RNS.log(f"stdout: {message.data}", RNS.LOG_DEBUG)
+                                # RNS.log(f"stdout: {message.data}", RNS.LOG_EXTREME)
                                 os.write(1, message.data)
                                 sys.stdout.flush()
                             if message.eof:
@@ -399,7 +400,7 @@ async def initiate(configdir: str, rnsconfigdir:str, identitypath: str, logfile:
                         if message.stream_id == protocol.StreamDataMessage.STREAM_ID_STDERR:
                             if message.data and len(message.data) > 0:
                                 ttyRestorer.raw()
-                                RNS.log(f"stdout: {message.data}", RNS.LOG_DEBUG)
+                                # RNS.log(f"stdout: {message.data}", RNS.LOG_EXTREME)
                                 os.write(2, message.data)
                                 sys.stderr.flush()
                             if message.eof:

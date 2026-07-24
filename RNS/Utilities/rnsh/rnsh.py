@@ -155,7 +155,7 @@ async def _rnsh_cli_main():
         return_code = await initiator.initiate(configdir=configdir,
                                                rnsconfigdir=args.rnsconfig,
                                                identitypath=args.identity,
-                                               logfile=logfile,
+                                               logfile=f"{logfile}.initiator",
                                                verbosity=args.verbose,
                                                quietness=args.quiet,
                                                noid=args.no_id,

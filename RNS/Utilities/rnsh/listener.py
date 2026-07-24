@@ -112,8 +112,8 @@ def _reload_allowed_file():
 def compute_target_rns_loglevel(verbosity: int, quietness: int, base_level: int = RNS.LOG_INFO) -> int:
     try:
         target = int(base_level) + int(verbosity) - int(quietness)
-        if target < RNS.LOG_CRITICAL: target = RNS.LOG_CRITICAL
-        if target > RNS.LOG_DEBUG:    target = RNS.LOG_DEBUG
+        if target < RNS.LOG_NONE:    target = RNS.LOG_NONE
+        if target > RNS.LOG_EXTREME: target = RNS.LOG_EXTREME
         return target
     
     except Exception: return base_level
