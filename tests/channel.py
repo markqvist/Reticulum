@@ -1,7 +1,7 @@
 from __future__ import annotations
 import threading
 import RNS
-from RNS.Channel import MessageState, ChannelOutletBase, Channel, MessageBase
+from RNS.Channel import MessageState, LinkChannelOutlet, Channel, MessageBase
 import RNS.Buffer
 from RNS.vendor import umsgpack
 from typing import Callable
@@ -71,7 +71,7 @@ class Packet:
             self.delivered_callback(self)
 
 
-class ChannelOutletTest(ChannelOutletBase):
+class ChannelOutletTest(LinkChannelOutlet):
     def get_packet_state(self, packet: Packet) -> MessageState:
         return packet.state
 
@@ -93,7 +93,7 @@ class ChannelOutletTest(ChannelOutletBase):
         self._usable = True
         self.packets = []
         self.lock = threading.RLock()
-        self.packet_callback: Callable[[ChannelOutletBase, bytes], None] | None = None
+        self.packet_callback: Callable[[LinkChannelOutlet, bytes], None] | None = None
 
     def send(self, raw: bytes) -> Packet:
         with self.lock:
