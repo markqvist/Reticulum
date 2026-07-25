@@ -446,6 +446,8 @@ class InterfaceDiscovery():
         self.monitor_interval        = self.MONITOR_INTERVAL
         self.detach_threshold        = self.DETACH_THRESHOLD
         self.initial_autoconnect_ran = False
+        self.blackholed_updated      = 0
+        self.__blackholed            = {}
 
         if not self.rns_instance: raise SystemError("Attempt to start interface discovery listener without an active RNS instance")
         self.storagepath = os.path.join(RNS.Reticulum.storagepath, "discovery", "interfaces")
@@ -456,10 +458,18 @@ class InterfaceDiscovery():
             RNS.Transport.register_announce_handler(self.handler)
             threading.Thread(target=self.connect_discovered, daemon=True).start()
 
+    def __blackholed_identities(self):
+        st = time.time()
+        if not self.__blackholed or time.time() > self.blackholed_updated+60:
+            self.__blackholed = self.rns_instance.get_blackholed_identities()
+            self.blackholed_updated = time.time()
+        return self.__blackholed
+
     def list_discovered_interfaces(self, only_available=False, only_transport=False):
         now = time.time()
         discovered_interfaces = []
         discovery_sources = RNS.Reticulum.interface_discovery_sources()
+        blackholed_identities = self.__blackholed_identities()
         for filename in os.listdir(self.storagepath):
             try:
                 with self.discovery_lock:
@@ -476,8 +486,8 @@ class InterfaceDiscovery():
                 elif discovery_sources and not "network_id" in info: should_remove = True
                 elif discovery_sources and not bytes.fromhex(info["network_id"]) in discovery_sources: should_remove = True
                 elif not "type" in info or ("type" in info and not info["type"] in self.DISCOVERABLE_TYPES): should_remove = True
-                elif self.rns_instance.is_blackholed(bytes.fromhex(info["network_id"])): should_remove = True
-                elif self.rns_instance.is_blackholed(bytes.fromhex(info["transport_id"])): should_remove = True
+                elif bytes.fromhex(info["network_id"])   in blackholed_identities: should_remove = True
+                elif bytes.fromhex(info["transport_id"]) in blackholed_identities: should_remove = True
                 elif "reachable_on" in info:
                     if not (is_ip_address(info["reachable_on"]) or is_hostname(info["reachable_on"])): should_remove = True
 
