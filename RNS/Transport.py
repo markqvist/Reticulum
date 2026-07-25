@@ -3126,6 +3126,7 @@ class Transport:
 
                 for interface in Transport.interfaces:
                     if search_mode_filter and not interface.mode in search_mode_filter: continue
+                    if not interface.online: continue
                     if not interface == attached_interface:
                         if interface.should_egress_limit_pr():
                             RNS.log(f"Not sending recursive path request on {interface} due to active egress limiting", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
