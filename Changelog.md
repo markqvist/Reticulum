@@ -1,25 +1,10 @@
-### 2026-07-24: RNS 1.4.1
+### 2026-07-26: RNS 1.4.2
 
-This release significantly improves path convergence and stability with the new path re-balancing functionality. It also introduces interface gravity configuration, new API functionality and fixes a range of bugs and inefficiencies.
+This maintenance release fixes bugs in blackholed identity filtering and recursive path request handling for RNode interfaces.
 
-- Added dynamic path re-balancing
-- Added `set_max_request_size` to `Destination` API
-- Added `max_response_size` to request API
-- Added interface gravity handling
-- Added `autoconnect_interface_mode` option
-- Added `autoconnect_announces_to_internal` option
-- Added `autoconnect_interface_gravity` option
-- Added `default_gravity` option
-- Added `announces_to_internal` interface option
-- Added `gravity` interface option
-- Added gravity display and sorting option to `rnstatus`
-- Added boundary -> boundary and boundary -> gateway path requests
-- Fixed `I2PInterface` tasks getting garbage-collected prematurely, thanks to **welo**
-- Fixed various minor bugs in `I2PInterface`
-- Fixed ingress control burst active flag deadlocking until new announces arrived under burst timing patterns
-- Fixed various memory inefficiencies
-- Fixed loglevel `LOG_EXTREME` not being usable in some cases
-- Fixed historical interface discoveries not being cleaned according to blackholed identities
+**Changes**
+- Fixed a bug where recursive path requests would cause a division by zero error on uninitialized RNode interfaces.
+- Fixed slow blackholed filtering for discovered interfaces on Android in some cases.
 
 **Verified Retrieval**
 You can retrieve and verify this release over Reticulum using the built-in `rngit release` utility. To retrieve only the installation `.whl` package, and the release manifest for future updates, you can use:
@@ -49,6 +34,28 @@ rnid -i bc7291552be7a58f361522990465165c -V rns_*.rsm *.rsg
 
 The `rnid` utility will then verify the signatures, and display whether they are valid. If the signature cannot be verified, the release has been tampered with and should be discarded.
 
+### 2026-07-24: RNS 1.4.1
+
+This release significantly improves path convergence and stability with the new path re-balancing functionality. It also introduces interface gravity configuration, new API functionality and fixes a range of bugs and inefficiencies.
+
+- Added dynamic path re-balancing
+- Added `set_max_request_size` to `Destination` API
+- Added `max_response_size` to request API
+- Added interface gravity handling
+- Added `autoconnect_interface_mode` option
+- Added `autoconnect_announces_to_internal` option
+- Added `autoconnect_interface_gravity` option
+- Added `default_gravity` option
+- Added `announces_to_internal` interface option
+- Added `gravity` interface option
+- Added gravity display and sorting option to `rnstatus`
+- Added boundary -> boundary and boundary -> gateway path requests
+- Fixed `I2PInterface` tasks getting garbage-collected prematurely, thanks to **welo**
+- Fixed various minor bugs in `I2PInterface`
+- Fixed ingress control burst active flag deadlocking until new announces arrived under burst timing patterns
+- Fixed various memory inefficiencies
+- Fixed loglevel `LOG_EXTREME` not being usable in some cases
+- Fixed historical interface discoveries not being cleaned according to blackholed identities
 ### 2026-07-20: RNS 1.4.0
 
 This release focuses on performance, stability and reliability improvements, particularly with resource-constrained systems in mind. It also fixes several bugs, reduces logging noise, and makes information about blocked `BackboneInterface` clients available in `ifstats`.
