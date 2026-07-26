@@ -488,8 +488,6 @@ class CallbackSubprocess:
         self._stdin_is_pipe = stdin_is_pipe
         self._stdout_is_pipe = stdout_is_pipe
         self._stderr_is_pipe = stderr_is_pipe
-        self._at_line_start: bool = True
-        self._tty_line_buffer: bytearray = bytearray()
 
     def _ensure_pipes_closed(self):
         stdin = self._child_stdin
@@ -624,26 +622,12 @@ class CallbackSubprocess:
         """
         RNS.log("start()", RNS.LOG_EXTREME)
 
-        # # Using the parent environment seems to do some weird stuff, at least on macOS
-        # parentenv = os.environ.copy()
-        # env = {"HOME": parentenv["HOME"],
-        #        "PATH": parentenv["PATH"],
-        #        "TERM": self._term if self._term is not None else parentenv.get("TERM", "xterm"),
-        #        "LANG": parentenv.get("LANG"),
-        #        "SHELL": self._command[0]}
-
         env = os.environ.copy()
         for key in self._env:
             env[key] = self._env[key]
 
         program = self._command[0]
         assert isinstance(program, str)
-
-        # match = re.search("^/bin/(.*sh)$", program)
-        # if match:
-        #     self._command[0] = "-" + match.group(1)
-        #     env["SHELL"] = program
-        #     self._log.debug(f"set login shell {self._command}")
 
         self._pid, \
             self._child_stdin, \

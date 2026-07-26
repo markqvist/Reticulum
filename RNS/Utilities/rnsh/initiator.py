@@ -35,7 +35,6 @@
 from __future__ import annotations
 
 import asyncio
-import base64
 import enum
 import functools
 import os
@@ -53,10 +52,8 @@ import RNS.Utilities.rnsh.exception as exception
 import RNS.Utilities.rnsh.process as process
 import RNS.Utilities.rnsh.retry as retry
 import RNS.Utilities.rnsh.session as session
-import re
 import contextlib
 
-import pwd
 import bz2
 import RNS.Utilities.rnsh.protocol as protocol
 import RNS.Utilities.rnsh.helpers as helpers
