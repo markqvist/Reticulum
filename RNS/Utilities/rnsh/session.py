@@ -309,7 +309,8 @@ class ListenerSession:
             self.terminate("Invalid state")
             return
 
-        self.cmdline = self.default_command
+        self.cmdline = []
+        self.cmdline.extend(self.default_command)
         if not self.allow_remote_command and cmdline and len(cmdline) > 0:
             self.terminate("Remote command line not allowed by listener")
             return

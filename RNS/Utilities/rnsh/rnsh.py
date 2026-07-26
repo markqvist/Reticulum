@@ -163,6 +163,7 @@ async def _rnsh_cli_main():
                                                timeout=args.timeout,
                                                command=args.command
         )
+        RNS.log(f"Sesssion with <{args.destination}> ended", RNS.LOG_INFO)
         return return_code if args.mirror else 0
     else:
         print("")

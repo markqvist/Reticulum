@@ -35,7 +35,13 @@
 from ._version import __version__
 
 import os
+import glob
 module_abs_filename = os.path.abspath(__file__)
 module_dir = os.path.dirname(module_abs_filename)
+
+py_modules  = glob.glob(os.path.dirname(__file__)+"/*.py")
+pyc_modules = glob.glob(os.path.dirname(__file__)+"/*.pyc")
+modules     = py_modules+pyc_modules
+__all__ = list(set([os.path.basename(f).replace(".pyc", "").replace(".py", "") for f in modules if not (f.endswith("__init__.py") or f.endswith("__init__.pyc"))]))
 
 def _get_version(): return __version__

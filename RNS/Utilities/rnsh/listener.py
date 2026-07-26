@@ -161,8 +161,7 @@ async def listen(configdir, rnsconfigdir, command, identitypath=None, logfile=No
     _no_remote_command = no_remote_command
     session.ListenerSession.allow_remote_command = not no_remote_command
     _remote_cmd_as_args = remote_cmd_as_args
-    if (_cmd is None or len(_cmd) == 0 or _cmd[0] is None or len(_cmd[0]) == 0) \
-            and (_no_remote_command or _remote_cmd_as_args):
+    if (_cmd is None or len(_cmd) == 0 or _cmd[0] is None or len(_cmd[0]) == 0) and (_no_remote_command or _remote_cmd_as_args):
         raise Exception(f"Unable to look up shell for {os.getlogin}, cannot proceed with -A or -C and no <program>.")
 
     session.ListenerSession.default_command = _cmd
