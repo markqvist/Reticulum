@@ -150,6 +150,7 @@ class NomadNetworkNode():
         self.templates["stats"]    = DEFAULT_STATS_TEMPLATE
         self.templates["work"]     = DEFAULT_WORK_TEMPLATE
         self.templates["work_doc"] = DEFAULT_WORK_DOC_TEMPLATE
+        self.templates["no_ident"] = DEFAULT_NO_IDENT_TEMPLATE
         self.templatesdir          = self.owner.configdir+"/templates"
         self.use_nerdfonts         = self.USE_NERDFONTS
         self.highlight_syntax      = True
@@ -372,6 +373,10 @@ class NomadNetworkNode():
         self.owner.view_succeeded(None, None, remote_identity)
         page_content = "".join(content_parts)
         nav_content = "".join(nav_parts)
+
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", nav_content=nav_content, st=st)
+
         return self.render_template(page_content, nav_content=nav_content, template="front", st=st)
 
     def serve_group_page(self, path, data, request_id, link_id, remote_identity, requested_at):
@@ -391,6 +396,9 @@ class NomadNetworkNode():
         breadcrumb = f">>\n{self.m_link('Node', self.PATH_INDEX)} / {group_name}"
         nav_parts.append(breadcrumb + "\n")
         nav_content = "".join(nav_parts)
+
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", nav_content=nav_content, st=st)
 
         accessible_repos = self.get_accessible_repositories(remote_identity, group_name)
         
@@ -440,6 +448,9 @@ class NomadNetworkNode():
         nav_parts.append(breadcrumb + "\n")
 
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
+
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", nav_content="".join(nav_parts), st=st)
 
         if not repo:
             content = self.m_heading("Not Found", 1) + "\nThe requested repository was not found.\n"
@@ -553,6 +564,9 @@ class NomadNetworkNode():
             page_num = max(0, int(page_str))
         
         except (ValueError, TypeError): page_num = 0
+
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", st=st)
 
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
         if not repo:
@@ -691,6 +705,9 @@ class NomadNetworkNode():
         render = True if render else False
         raw = True if raw else False
 
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", st=st)
+
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
         if not repo:
             content = self.m_heading("Not Found", 1) + "\n\nThe requested repository does not exist or you do not have access to it.\n"
@@ -823,6 +840,9 @@ class NomadNetworkNode():
         
         except (ValueError, TypeError): page_num = 0
 
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", st=st)
+
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
         if not repo:
             content = self.m_heading("Not Found", 1) + "\n\nThe requested repository does not exist or you do not have access to it.\n"
@@ -901,6 +921,9 @@ class NomadNetworkNode():
         if not group_name or not repo_name:
             content = self.m_heading("Error", 2) + "\nInvalid request\n"
             return self.render_template(content, st=st)
+
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", st=st)
 
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
         if not repo:
@@ -1057,6 +1080,9 @@ class NomadNetworkNode():
         nav_parts.append(">>\n" + breadcrumb + "\n")
         nav_content = "".join(nav_parts)
 
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", st=st)
+
         if not group_name or not repo_name:
             content = self.m_heading("Error", 2) + "\nInvalid request\n"
             return self.render_template(content, st=st)
@@ -1155,6 +1181,9 @@ class NomadNetworkNode():
         if not group_name or not repo_name:
             content = self.m_heading("Error", 2) + "\nInvalid request\n"
             return self.render_template(content, st=st)
+
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", st=st)
         
         content_parts = []
         nav_parts = []
@@ -1256,6 +1285,9 @@ class NomadNetworkNode():
             content = self.m_heading("Error", 2) + "\nInvalid request\n"
             return self.render_template(content, st=st)
 
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", st=st)
+
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
         if not repo:
             content = self.m_heading("Error", 2) + "\nThe requested repository was not found.\n"
@@ -1319,6 +1351,9 @@ class NomadNetworkNode():
         if not group_name or not repo_name or not tag:
             content = self.m_heading("Error", 2) + "\nInvalid request\n"
             return self.render_template(content, st=st)
+
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", st=st)
 
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
         if not repo:
@@ -1422,6 +1457,9 @@ class NomadNetworkNode():
             content = self.m_heading("Error", 2) + "\nInvalid request\n"
             return self.render_template(content, st=st)
 
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", st=st)
+
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
         if not repo:
             content = self.m_heading("Error", 2) + "\nThe requested repository was not found.\n"
@@ -1521,6 +1559,9 @@ class NomadNetworkNode():
         if not group_name or not repo_name or not doc_id:
             content = self.m_heading("Error", 2) + "\nInvalid request\n"
             return self.render_template(content, st=st)
+
+        if not remote_identity and self.null_ident.hash in self.owner.blocked_identities:
+            return self.render_template("", template="no_ident", st=st)
 
         try: doc_id = int(doc_id)
         except:
@@ -2794,6 +2835,9 @@ DEFAULT_STATS_TEMPLATE = """{PAGE_CONTENT}"""
 DEFAULT_WORK_TEMPLATE = """{PAGE_CONTENT}"""
 
 DEFAULT_WORK_DOC_TEMPLATE = """{PAGE_CONTENT}"""
+
+# Error state templates
+DEFAULT_NO_IDENT_TEMPLATE = """>>No Identity\n\nThis page requires identification, and none was received.\n"""
 
 # Fallback template
 FALLBACK_TEMPLATE = """{PAGE_CONTENT}"""
