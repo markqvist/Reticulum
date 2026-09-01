@@ -50,6 +50,15 @@ class HDLC():
         frame = frame.replace(HDLC.ESCPD_ESC,  HDLC.ESC_B)
         return frame
 
+    @staticmethod
+    def frame(data):
+        esc         = HDLC.escape(data)
+        frame       = bytearray(len(esc)+2)
+        frame[0]    = HDLC.FLAG
+        frame[1:-1] = esc
+        frame[-1]   = HDLC.FLAG
+        return frame
+
 class ReceiveBuffer():
     def __init__(self, mtu, min_frame_len, max_frame_len=None, on_frame=None, on_invalid=None):
         self._mtu           = mtu

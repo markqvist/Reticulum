@@ -1031,7 +1031,7 @@ class BackboneClientInterface(Interface):
     def process_outgoing(self, data):
         if self.online and not self.detached:
             try:
-                frame = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
+                frame = HDLC.frame(data)
                 if self.tx_stalled or not self.transmit_buffer.append(frame, self.tx_hwm):
                     self.tx_drops += 1
                     self.tx_dropped_bytes += len(frame)

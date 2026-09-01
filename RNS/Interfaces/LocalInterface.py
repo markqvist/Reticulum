@@ -218,7 +218,7 @@ class LocalClientInterface(Interface):
         if self.online:
             try:
                 if self.epoll_backend:
-                    frame = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
+                    frame = HDLC.frame(data)
                     if self.tx_stalled or not self.transmit_buffer.append(frame, self.tx_hwm):
                         self.tx_drops += 1
                         self.tx_dropped_bytes += len(frame)
@@ -235,7 +235,7 @@ class LocalClientInterface(Interface):
                             s = len(data) / self.bitrate * 8
                             time.sleep(s)
 
-                    data = bytes([HDLC.FLAG])+HDLC.escape(data)+bytes([HDLC.FLAG])
+                    data = HDLC.frame(data)
                     self.socket.sendall(data)
                     self.writing = False
                     self.txb += len(data)
