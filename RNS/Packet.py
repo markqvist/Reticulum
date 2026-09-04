@@ -305,7 +305,9 @@ class Packet:
 
             if RNS.Transport.outbound(self): return self.receipt
             else:
-                RNS.log(f"No interfaces could process the outbound {self.hops} hop, type {self.packet_type} packet for {self.destination}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                if not self.attached_interface:
+                    RNS.log(f"No interfaces could process the outbound {self.hops} hop, type {self.packet_type} packet for {self.destination}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+
                 self.sent = False
                 self.receipt = None
                 return False
