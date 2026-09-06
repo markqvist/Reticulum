@@ -249,7 +249,7 @@ class NomadNetworkNode():
         self.destination.register_request_handler(self.PATH_RELEASE,  response_generator=self.serve_release_page,  allow=RNS.Destination.ALLOW_ALL)
         self.destination.register_request_handler(self.PATH_WORK,     response_generator=self.serve_work_page,     allow=RNS.Destination.ALLOW_ALL)
         self.destination.register_request_handler(self.PATH_WORK_DOC, response_generator=self.serve_work_doc_page, allow=RNS.Destination.ALLOW_ALL)
-        self.destination.register_request_handler(self.PATH_MEDIA,    response_generator=self.serve_media,         allow=RNS.Destination.ALLOW_ALL)
+        self.destination.register_request_handler(self.PATH_MEDIA,    response_generator=self.serve_media,         allow=RNS.Destination.ALLOW_ALL, auto_compress=False)
         self.destination.register_request_handler(self.FILE_ARTIFACT, response_generator=self.serve_artifact,      allow=RNS.Destination.ALLOW_ALL)
         self.destination.register_request_handler(self.FILE_DOWNLOAD, response_generator=self.serve_download,      allow=RNS.Destination.ALLOW_ALL)
         self.destination.register_request_handler(self.FILE_WORKDOC,  response_generator=self.serve_wd_download,   allow=RNS.Destination.ALLOW_ALL)
