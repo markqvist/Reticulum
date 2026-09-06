@@ -593,7 +593,7 @@ class Link:
 
     def get_expected_rate(self):
         """
-        :returns: The packet expected in-flight data rate of an established link.
+        :returns: The expected in-flight data rate of an established link.
         """
         if self.status == Link.ACTIVE: return self.expected_rate
         else:                          return None
