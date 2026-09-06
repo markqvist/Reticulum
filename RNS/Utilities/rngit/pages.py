@@ -64,6 +64,7 @@ class NomadNetworkNode():
     PATH_RELEASE          = "/page/release.mu"
     PATH_WORK             = "/page/work.mu"
     PATH_WORK_DOC         = "/page/work_doc.mu"
+    PATH_MEDIA            = "/media"
     FILE_ARTIFACT         = "/file/artifact"
     FILE_DOWNLOAD         = "/file/download"
     FILE_WORKDOC          = "/file/workdoc"
@@ -122,6 +123,7 @@ class NomadNetworkNode():
 
     RENDERABLE_EXTS = [".md", ".mu"]
     RENDER_DEFAULT  = [".md", ".mu"]
+    IMAGE_EXTS      = [".webp", ".png", ".jpg", ".jpeg", ".gif", ".tiff", ".tif", ".bmp"]
 
     def __init__(self, owner=None):
         if not owner: raise TypeError(f"Invalid owner {owner} for {self}")
@@ -247,6 +249,7 @@ class NomadNetworkNode():
         self.destination.register_request_handler(self.PATH_RELEASE,  response_generator=self.serve_release_page,  allow=RNS.Destination.ALLOW_ALL)
         self.destination.register_request_handler(self.PATH_WORK,     response_generator=self.serve_work_page,     allow=RNS.Destination.ALLOW_ALL)
         self.destination.register_request_handler(self.PATH_WORK_DOC, response_generator=self.serve_work_doc_page, allow=RNS.Destination.ALLOW_ALL)
+        self.destination.register_request_handler(self.PATH_MEDIA,    response_generator=self.serve_media,         allow=RNS.Destination.ALLOW_ALL)
         self.destination.register_request_handler(self.FILE_ARTIFACT, response_generator=self.serve_artifact,      allow=RNS.Destination.ALLOW_ALL)
         self.destination.register_request_handler(self.FILE_DOWNLOAD, response_generator=self.serve_download,      allow=RNS.Destination.ALLOW_ALL)
         self.destination.register_request_handler(self.FILE_WORKDOC,  response_generator=self.serve_wd_download,   allow=RNS.Destination.ALLOW_ALL)
@@ -788,8 +791,9 @@ class NomadNetworkNode():
                 content_parts.append(f"`*{self.m_escape(symlink_target or 'unknown')}`*\n")
 
             elif is_binary:
-                content_parts.append("This file appears to be binary and cannot be displayed as text.\n")
-                # TODO: Implement raw file downloads
+                if file_ext in self.IMAGE_EXTS:
+                    content_parts.append(f"`(Image file`w=n`a=c`:/media/{group_name}/{repo_name}/{ref}/{urllib.parse.quote_plus(file_path)})\n")
+                else: content_parts.append("This file appears to be binary and cannot be displayed as text.\n")
 
             elif size > self.BLOB_SIZE_LIMIT:
                 content_parts.append(f"This file is {RNS.prettysize(size)}, which exceeds the display limit of {RNS.prettysize(self.BLOB_SIZE_LIMIT)}.\n")
@@ -1755,6 +1759,68 @@ class NomadNetworkNode():
 
         self.owner.release_download_succeeded(group_name, repo_name, remote_identity)
         return [open(artifact_path, "rb"), {"name": artifact.encode("utf-8")}]
+
+    def serve_media(self, path, data, request_id, link_id, remote_identity, requested_at):
+        st = time.time()
+        RNS.log(f"Media request from {remote_identity}", RNS.LOG_DEBUG)
+
+        if not data or not type(data) == dict: data = {}
+        if not "key" in data:
+            RNS.log(f"Missing request key in media request", RNS.LOG_DEBUG)
+            return False
+
+        media_path = data.get("path", None)
+        if not media_path:
+            RNS.log(f"Missing path in media request", RNS.LOG_DEBUG)
+            return False
+
+        comps = media_path.removeprefix("/media").lstrip("/").split("/")
+        RNS.log(comps)
+
+        if len(comps) < 4:
+            RNS.log(f"Insufficient path components in media request", RNS.LOG_DEBUG)
+            return False
+
+        group_name = comps[0]
+        repo_name  = comps[1]
+        ref        = comps[2]
+        file_path  = "/".join(comps[3:])
+        file_path  = urllib.parse.unquote_plus(file_path)
+        file_name  = os.path.basename(file_path)
+
+        RNS.log(f"{group_name}, {repo_name}, {ref}, {file_path}, {file_name}")
+
+        repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
+        if not repo:
+            RNS.log(f"Repository not found or no access for media request {group_name}/{repo_name}/{ref}/{file_path}", RNS.LOG_DEBUG)
+            return False
+
+        repo_path = repo["path"]
+
+        resolved_ref = self.resolve_ref(repo_path, ref)
+        if not resolved_ref:
+            RNS.log(f"Ref not found for media request {group_name}/{repo_name}/{ref}/{file_path}", RNS.LOG_WARNING)
+            return False
+
+        if not file_path:
+            RNS.log(f"No file path for media request {group_name}/{repo_name}/{ref}/{file_path}", RNS.LOG_WARNING)
+            return False
+
+        blob_info = self.get_blob_info(repo_path, resolved_ref, file_path)
+        if blob_info is None:
+            RNS.log(f"File not found at ref for media request {group_name}/{repo_name}/{ref}/{file_path}", RNS.LOG_WARNING)
+            return False
+        
+        else:
+            stream = self.get_blob_stream(repo_path, resolved_ref, file_path)
+            if stream is not None:
+                return [stream, {"name": file_name.encode("utf-8")}]
+
+            else:
+                RNS.log(f"Could not resolve blob stream for media request {group_name}/{repo_name}/{ref}/{file_path}", RNS.LOG_WARNING)
+                return None
+
+        return None
 
     def serve_download(self, path, data, request_id, link_id, remote_identity, requested_at):
         st = time.time()
