@@ -5001,14 +5001,26 @@ internal = rw:9710b86ba12c42d1d8f30f74fe509286
 
 # serve_nomadnet = no
 
-# It is possible to  disable Nerd Font icons and instead
+# It is possible to disable Nerd Font icons and instead
 # use simpler (but more compatible) unicode icons.
 
 # unicode_icons = yes
 
+# You can configure whether the page server should try
+# to convert media files to WebP on the fly, for serving
+# to nomadnet clients. Enabled by default, but will
+# require an available encoding backend installed on
+# your system. Supported backends utilities are "magick",
+# "convert", "gm", "ffmpeg" and "avconv". If any one is
+# installed, rngit will auto-detect and use it, but you
+# can force a specific backend with the environment
+# variable RNGIT_MEDIA_BACKEND.
+
+# media_conversion = yes
+
 
 [logging]
-# Valid log levels are 0 through 7:
+# Valid log levels are 0 through 8:
 #   0: Log only critical information
 #   1: Log errors and lower log levels
 #   2: Log warnings and lower log levels
@@ -5016,7 +5028,8 @@ internal = rw:9710b86ba12c42d1d8f30f74fe509286
 #   4: Log info and lower (this is the default)
 #   5: Verbose logging
 #   6: Debug logging
-#   7: Extreme logging
+#   7: Pathing logging
+#   8: Extreme logging
 
 loglevel = 4
 

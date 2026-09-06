@@ -32,13 +32,14 @@ import os
 import time
 import threading
 import subprocess
+import tempfile
 import urllib.parse
 import RNS
 import struct
 import base64
 from collections import deque
 from datetime import datetime
-from RNS.Utilities.rngit import APP_NAME
+from RNS.Utilities.rngit import APP_NAME, media
 from RNS.Utilities.rngit.util import MarkdownToMicron, san_sha
 from RNS.Utilities.rngit.highlight import SyntaxHighlighter
 from RNS.vendor.configobj import ConfigObj
@@ -50,6 +51,7 @@ from RNS.Utilities.rngit.commitsigs import unarmor_ssh_signature, parse_ssh_sign
 class NomadNetworkNode():
     APP_NAME              = "nomadnetwork"
     JOBS_INTERVAL         = 5
+    LINK_CLEAN_INTERVAL   = 60
 
     PATH_INDEX            = "/page/index.mu"
     PATH_GROUP            = "/page/group.mu"
@@ -155,10 +157,13 @@ class NomadNetworkNode():
         self.templates["no_ident"] = DEFAULT_NO_IDENT_TEMPLATE
         self.templatesdir          = self.owner.configdir+"/templates"
         self.use_nerdfonts         = self.USE_NERDFONTS
+        self.media_conversion      = True
         self.highlight_syntax      = True
         self.highlighter           = SyntaxHighlighter()
         self.mdc                   = MarkdownToMicron(max_width=self.MAX_RENDER_WIDTH, syntax_highlighter=self.highlighter)
         self.thanks_deque          = deque(maxlen=256)
+        self.active_links          = {}
+        self.last_link_clean       = 0
 
         if not os.path.isdir(self.templatesdir):
             try: os.makedirs(self.templatesdir)
@@ -167,6 +172,8 @@ class NomadNetworkNode():
         if "pages" in self.owner.config:
             if "unicode_icons" in self.owner.config["pages"]:
                 if self.owner.config["pages"].as_bool("unicode_icons"): self.use_nerdfonts = False
+            if "media_conversion" in self.owner.config["pages"]:
+                self.media_conversion = self.owner.config["pages"].as_bool("media_conversion")
 
         self.destination = RNS.Destination(self.identity, RNS.Destination.IN, RNS.Destination.SINGLE, self.APP_NAME, "node")
         self.destination.set_link_established_callback(self.remote_connected)
@@ -212,6 +219,10 @@ class NomadNetworkNode():
             time.sleep(self.JOBS_INTERVAL)
             try:
                 if self.announce_interval and time.time() > self.last_announce + self.announce_interval: self.announce()
+
+                if time.time() > self.last_link_clean + self.LINK_CLEAN_INTERVAL:
+                    self.clean_links()
+                    self.last_link_clean = time.time()
 
             except Exception as e: RNS.log(f"Error while running periodic jobs: {e}", RNS.LOG_ERROR)
 
@@ -1775,8 +1786,6 @@ class NomadNetworkNode():
             return False
 
         comps = media_path.removeprefix("/media").lstrip("/").split("/")
-        RNS.log(comps)
-
         if len(comps) < 4:
             RNS.log(f"Insufficient path components in media request", RNS.LOG_DEBUG)
             return False
@@ -1787,8 +1796,6 @@ class NomadNetworkNode():
         file_path  = "/".join(comps[3:])
         file_path  = urllib.parse.unquote_plus(file_path)
         file_name  = os.path.basename(file_path)
-
-        RNS.log(f"{group_name}, {repo_name}, {ref}, {file_path}, {file_name}")
 
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
         if not repo:
@@ -1812,10 +1819,15 @@ class NomadNetworkNode():
             return False
         
         else:
-            stream = self.get_blob_stream(repo_path, resolved_ref, file_path)
-            if stream is not None:
-                return [stream, {"name": file_name.encode("utf-8")}]
+            stream = None
+            response_name = file_name
+            file_ext = os.path.splitext(file_path)[1].lower()
+            if self.media_conversion and file_ext in self.IMAGE_EXTS and file_ext != ".webp":
+                converted = self.get_webp_stream(repo_path, resolved_ref, file_path, link_id)
+                if converted: stream, response_name = converted
 
+            if not stream: stream = self.get_blob_stream(repo_path, resolved_ref, file_path)
+            if stream: return [stream, {"name": response_name.encode("utf-8")}]
             else:
                 RNS.log(f"Could not resolve blob stream for media request {group_name}/{repo_name}/{ref}/{file_path}", RNS.LOG_WARNING)
                 return None
@@ -2190,6 +2202,40 @@ class NomadNetworkNode():
         except Exception as e:            RNS.log(f"Error getting blob content handle: {e}", RNS.LOG_WARNING)
         
         return None
+
+    def get_webp_stream(self, repo_path, ref, file_path, link_id):
+        file_path = file_path.strip("/")
+        link = self.active_links.get(link_id)
+        if not link:
+            RNS.log(f"Could not resolve link for media conversion of {file_path}", RNS.LOG_WARNING)
+            return None
+
+        if not hasattr(link, "temporary_directories"): link.temporary_directories = []
+        tmpdir = tempfile.TemporaryDirectory()
+        link.temporary_directories.append(tmpdir)
+
+        stem = os.path.splitext(os.path.basename(file_path))[0]
+        response_name = stem + ".webp"
+
+        try:
+            fd, spool_path = tempfile.mkstemp(prefix=stem+".", suffix=".webp", dir=tmpdir.name)
+            os.close(fd)
+
+            converted = media.convert_to_webp(["git", "show", f"{ref}:{file_path}"], spool_path, cwd=repo_path)
+            if not converted:
+                if tmpdir in link.temporary_directories: link.temporary_directories.remove(tmpdir)
+                tmpdir.cleanup()
+                return None
+
+            spool = open(spool_path, "rb")
+            return spool, response_name
+
+        except Exception as e:
+            RNS.log(f"Error during media conversion of {file_path} for {link}: {e}", RNS.LOG_WARNING)
+            if tmpdir in link.temporary_directories: link.temporary_directories.remove(tmpdir)
+            try: tmpdir.cleanup()
+            except Exception: pass
+            return None
 
     def get_refs_info(self, repo_path, default_branch=None):
         refs = {"heads": [], "tags": []}
@@ -2802,11 +2848,38 @@ class NomadNetworkNode():
 
     def remote_connected(self, link):
         RNS.log(f"Peer connected to {self.destination}", RNS.LOG_DEBUG)
+        self.active_links[link.link_id] = link
         link.set_remote_identified_callback(self.remote_identified)
         link.set_link_closed_callback(self.remote_disconnected)
 
     def remote_disconnected(self, link):
         RNS.log(f"Peer disconnected from {self.destination}", RNS.LOG_DEBUG)
+        if link.link_id in self.active_links: self.active_links.pop(link.link_id)
+        self.cleanup_link_temporary_resources(link)
+
+    def clean_links(self):
+        stale_links = []
+        for link_id, link in self.active_links.items():
+            if not link.status == RNS.Link.ACTIVE: stale_links.append(link_id)
+
+        cleaned_links = 0
+        for link_id in stale_links:
+            link = self.active_links.pop(link_id, None)
+            if link:
+                self.cleanup_link_temporary_resources(link)
+                cleaned_links += 1
+
+        if cleaned_links > 0: RNS.log(f"Cleaned {cleaned_links} stale link{'s' if cleaned_links != 1 else ''}", RNS.LOG_DEBUG)
+
+    def cleanup_link_temporary_resources(self, link):
+        if hasattr(link, "temporary_directories"):
+            for tmpdir in link.temporary_directories:
+                try:
+                    tmpdir.cleanup()
+                    RNS.log(f"Cleaned up {tmpdir.name}", RNS.LOG_DEBUG)
+                except Exception as e: RNS.log(f"Error while cleaning temporary directory: {e}", RNS.LOG_ERROR)
+
+            link.temporary_directories = []
 
     def remote_identified(self, link, identity):
         RNS.log(f"Peer identified as {link.get_remote_identity()} on {link}", RNS.LOG_DEBUG)
