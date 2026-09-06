@@ -1,6 +1,6 @@
 >> Reticulum Network Stack
 
-`(RNS Logo`w=20`a=c`:/media/reticulum/reticulum/HEAD/rns_logo_512.webp)
+`(RNS Logo`w=20`a=c`:/media/reticulum/reticulum/HEAD/docs/source/graphics/rns_logo_512.webp)
 
 To understand the foundational philosophy and goals of this system, read the `_`!`[Zen of Reticulum`:/page/blob.mu`g=reticulum|r=reticulum|ref=HEAD|path=Zen+of+Reticulum.md]`!`_.
 
