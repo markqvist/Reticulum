@@ -3835,8 +3835,8 @@ class ReticulumGitNode():
                 elif operation == "propose"  and propose_access:  return self._work_propose(work_path, data, remote_identity)
                 elif operation == "edit"     and manage_access:   return self._work_edit(work_path, data, remote_identity)
                 elif operation == "delete"   and manage_access:   return self._work_delete(work_path, data, remote_identity)
-                elif operation == "complete" and manage_access:   return self._work_complete(work_path, data, remote_identity)
-                elif operation == "activate" and manage_access:   return self._work_activate(work_path, data, remote_identity)
+                elif operation == "complete" and manage_access:   return self._work_complete(work_path, data, remote_identity, group_name, repository_name)
+                elif operation == "activate" and manage_access:   return self._work_activate(work_path, data, remote_identity, group_name, repository_name)
                 elif operation == "perms"    and admin_access:    return self._work_perms(work_path, data, remote_identity)
                 else: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
 
@@ -4230,7 +4230,7 @@ class ReticulumGitNode():
             RNS.log(f"Error adding comment: {e}", RNS.LOG_ERROR)
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
-    def _work_complete(self, work_path, data, remote_identity):
+    def _work_complete(self, work_path, data, remote_identity, group_name=None, repository_name=None):
         doc_id = data.get("doc_id")
         
         if doc_id is None: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No document ID specified"
@@ -4246,7 +4246,9 @@ class ReticulumGitNode():
         doc = self._work_load_document(root_path)
         if not doc: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error loading document"
         
-        if doc.get("meta", {}).get("author") != remote_identity.hash: return self.RES_DISALLOWED.to_bytes(1, "big") + b"No access, not author"
+        is_author    = doc.get("meta", {}).get("author") == remote_identity.hash
+        admin_access = self.resolve_doc_permission(remote_identity, group_name, repository_name, doc_id, self.PERM_ADMIN)
+        if not is_author and not admin_access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"No access, not author or admin"
         
         try:
             completed_dir = os.path.join(completed_base, str(doc_id))
@@ -4259,7 +4261,7 @@ class ReticulumGitNode():
             RNS.log(f"Error completing work document: {e}", RNS.LOG_ERROR)
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
-    def _work_activate(self, work_path, data, remote_identity):
+    def _work_activate(self, work_path, data, remote_identity, group_name=None, repository_name=None):
         doc_id = data.get("doc_id")
         
         if doc_id is None: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No document ID specified"
@@ -4281,7 +4283,9 @@ class ReticulumGitNode():
         doc = self._work_load_document(root_path)
         if not doc: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error loading document"
         
-        if doc.get("meta", {}).get("author") != remote_identity.hash: return self.RES_DISALLOWED.to_bytes(1, "big") + b"No access, not author"
+        is_author    = doc.get("meta", {}).get("author") == remote_identity.hash
+        admin_access = self.resolve_doc_permission(remote_identity, group_name, repository_name, doc_id, self.PERM_ADMIN)
+        if not is_author and not admin_access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"No access, not author or admin"
         
         try:
             active_dir = os.path.join(active_base, str(doc_id))
