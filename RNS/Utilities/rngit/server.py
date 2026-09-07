@@ -4266,12 +4266,18 @@ class ReticulumGitNode():
         try: doc_id = int(doc_id)
         except: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid document ID"
         
-        completed_dir = os.path.join(work_path, "completed", str(doc_id))
         active_base = os.path.join(work_path, "active")
         
-        if not os.path.isdir(completed_dir): return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Document not found"
+        doc_dir = None
+        for scope in ["completed", "proposed"]:
+            d = os.path.join(work_path, scope, str(doc_id))
+            if os.path.isdir(d):
+                doc_dir = d
+                break
         
-        root_path = os.path.join(completed_dir, "root")
+        if not doc_dir: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Document not found"
+        
+        root_path = os.path.join(doc_dir, "root")
         doc = self._work_load_document(root_path)
         if not doc: return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Error loading document"
         
@@ -4279,7 +4285,7 @@ class ReticulumGitNode():
         
         try:
             active_dir = os.path.join(active_base, str(doc_id))
-            shutil.move(completed_dir, active_dir)
+            shutil.move(doc_dir, active_dir)
             
             RNS.log(f"Activated work document {doc_id} by {RNS.prettyhexrep(remote_identity.hash)}", RNS.LOG_VERBOSE)
             return b"\x00" + mp.packb({"id": doc_id, "scope": "active"})
