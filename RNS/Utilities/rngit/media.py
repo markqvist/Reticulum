@@ -32,6 +32,7 @@ import os
 import time
 import shutil
 import subprocess
+import tempfile
 import RNS
 
 CONVERSION_TIMEOUT = 8
@@ -110,19 +111,77 @@ def _valid_webp(path):
         with open(path, "rb") as fh: return _webp_info(fh.read(30)) is not None
     except Exception: return False
 
-def convert_to_webp(input_argv, output_path, cwd=None, timeout=None):
-    global _no_backend_logged
-    if timeout is None: timeout = CONVERSION_TIMEOUT
+def _unlink_output(path):
+    try: os.unlink(path)
+    except Exception: pass
 
+def _configured_backend(quality=None, max_dimension=None):
+    global _no_backend_logged
     backend = _selected_backend()
     if backend is None:
         if not _no_backend_logged:
             _no_backend_logged = True
             RNS.log("No WebP encoding backend available for media conversion. You can Install ImageMagick or ffmpeg to enable image conversion.", RNS.LOG_WARNING)
-        return False
+        return None
 
     backend_name, encoder_argv = backend
     _no_backend_logged = False
+
+    quality_arg = None
+    dimension_arg = None
+    if quality is not None:
+        try: quality_arg = max(1, min(100, int(quality)))
+        except (ValueError, TypeError): pass
+    if max_dimension is not None:
+        try: dimension_arg = int(max_dimension)
+        except (ValueError, TypeError): pass
+        if dimension_arg is not None and dimension_arg < 1: dimension_arg = None
+
+    encoder_argv = list(encoder_argv)
+    if backend_name in ("magick", "convert", "gm"):
+        options = []
+        if quality_arg is not None:   options += ["-quality", str(quality_arg)]
+        if dimension_arg is not None: options += ["-resize", f"{dimension_arg}x{dimension_arg}>"]
+        encoder_argv = encoder_argv[:-1] + options + encoder_argv[-1:]
+    elif backend_name in ("ffmpeg", "avconv"):
+        options = []
+        if quality_arg is not None:   options += ["-quality", str(quality_arg)]
+        if dimension_arg is not None: options += ["-vf", f"scale='min(iw,{dimension_arg})':'min(ih,{dimension_arg})':force_original_aspect_ratio=decrease"]
+        try: format_index = encoder_argv.index("-f")
+        except ValueError: format_index = len(encoder_argv)
+        encoder_argv = encoder_argv[:format_index] + options + encoder_argv[format_index:]
+
+    return backend_name, encoder_argv
+
+def _await(backend_name, encoder_proc, input_proc=None, timeout=None):
+    if timeout is None: timeout = CONVERSION_TIMEOUT
+
+    deadline = time.time() + timeout
+    try:
+        encoder_proc.wait(timeout=max(0.0, deadline - time.time()))
+        if input_proc is not None: input_proc.wait(timeout=max(0.0, deadline - time.time()))
+    except subprocess.TimeoutExpired:
+        _terminate(input_proc)
+        _terminate(encoder_proc)
+        RNS.log(f"Media conversion via {backend_name} timed out after {timeout} seconds", RNS.LOG_WARNING)
+        return False
+
+    if encoder_proc.returncode != 0:
+        detail = ""
+        encoder_tail = _stderr_tail(encoder_proc)
+        input_tail = _stderr_tail(input_proc) if input_proc is not None else ""
+        if encoder_tail: detail += f" Encoder: {encoder_tail}"
+        if input_tail:   detail += f" Input: {input_tail}"
+        RNS.log(f"Media conversion via {backend_name} failed.{detail}", RNS.LOG_WARNING)
+        return False
+
+    return True
+
+def convert_to_webp(input_argv, output_path, cwd=None, timeout=None, quality=None, max_dimension=None):
+    configured = _configured_backend(quality=quality, max_dimension=max_dimension)
+    if configured is None: return False
+
+    backend_name, encoder_argv = configured
 
     try:
         with open(output_path, "wb") as output_fh:
@@ -132,25 +191,7 @@ def convert_to_webp(input_argv, output_path, cwd=None, timeout=None):
             # The parent must not retain a copy of the input pipe's write
             # end, or the input process would never see EOF.
             input_proc.stdout.close()
-
-            deadline = time.time() + timeout
-            try:
-                encoder_proc.wait(timeout=max(0.0, deadline - time.time()))
-                input_proc.wait(timeout=max(0.0, deadline - time.time()))
-            except subprocess.TimeoutExpired:
-                _terminate(input_proc)
-                _terminate(encoder_proc)
-                RNS.log(f"Media conversion via {backend_name} timed out after {timeout} seconds", RNS.LOG_WARNING)
-                return False
-
-            if encoder_proc.returncode != 0:
-                detail = ""
-                encoder_tail = _stderr_tail(encoder_proc)
-                input_tail = _stderr_tail(input_proc)
-                if encoder_tail: detail += f" Encoder: {encoder_tail}"
-                if input_tail:   detail += f" Input: {input_tail}"
-                RNS.log(f"Media conversion via {backend_name} failed.{detail}", RNS.LOG_WARNING)
-                return False
+            if not _await(backend_name, encoder_proc, input_proc=input_proc, timeout=timeout): return False
 
         if not _valid_webp(output_path):
             RNS.log(f"Media conversion via {backend_name} produced invalid WebP output", RNS.LOG_WARNING)
@@ -162,3 +203,37 @@ def convert_to_webp(input_argv, output_path, cwd=None, timeout=None):
     except Exception as e:
         RNS.log(f"Error during media conversion: {e}", RNS.LOG_WARNING)
         return False
+
+def convert_file_to_webp(source_path, quality=85, max_dimension=None, timeout=None):
+    configured = _configured_backend(quality=quality, max_dimension=max_dimension)
+    if configured is None: return False
+    backend_name, encoder_argv = configured
+
+    tmp_path = None
+    success = False
+    try:
+        if not os.path.isfile(source_path):
+            RNS.log(f"Cannot convert media: source file does not exist: {source_path}", RNS.LOG_WARNING)
+            return False
+
+        fd, tmp_path = tempfile.mkstemp(prefix="rns_media_", suffix=".webp")
+        os.close(fd)
+
+        with open(source_path, "rb") as input_fh, open(tmp_path, "wb") as output_fh:
+            encoder_proc = subprocess.Popen(encoder_argv, stdin=input_fh, stdout=output_fh, stderr=subprocess.PIPE)
+            if not _await(backend_name, encoder_proc, timeout=timeout): return False
+
+        if not _valid_webp(tmp_path):
+            RNS.log(f"Invalid media conversion output from {backend_name}", RNS.LOG_WARNING)
+            return False
+
+        success = True
+        RNS.log(f"Media converted to WebP with {backend_name}", RNS.LOG_DEBUG)
+        return tmp_path
+
+    except Exception as e:
+        RNS.log(f"Error during media conversion: {e}", RNS.LOG_WARNING)
+        return False
+
+    finally:
+        if not success and tmp_path is not None: _unlink_output(tmp_path)

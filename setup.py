@@ -16,7 +16,7 @@ if '--pure' in sys.argv:
 if '--native' in sys.argv:
     native_build = True
     sys.argv.remove('--native')
-    print("Building native (compiled) wheel")
+    print("Building native wheel")
 
 exec(open("RNS/_version.py", "r").read())
 with open("README.md", "r") as fh:
@@ -50,6 +50,7 @@ NATIVE_EXCLUDES = { "RNS.Interfaces.AX25KISSInterface",
                     "RNS.Utilities.rngit.main",
                     "RNS.Utilities.rngit.pages",
                     "RNS.Utilities.rngit.server",
+                    "RNS.Utilities.rngit.media",
                     "RNS.Utilities.rngit.util",
                     "RNS.Utilities.rnsh._version",
                     "RNS.Utilities.rnsh.args",
