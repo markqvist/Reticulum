@@ -3835,8 +3835,8 @@ class ReticulumGitNode():
                 elif operation == "propose"  and propose_access:  return self._work_propose(work_path, data, remote_identity)
                 elif operation == "edit"     and manage_access:   return self._work_edit(work_path, data, remote_identity)
                 elif operation == "delete"   and manage_access:   return self._work_delete(work_path, data, remote_identity)
-                elif operation == "complete" and manage_access:   return self._work_complete(work_path, data, remote_identity, group_name, repository_name)
-                elif operation == "activate" and manage_access:   return self._work_activate(work_path, data, remote_identity, group_name, repository_name)
+                elif operation == "complete" and manage_access:   return self._work_complete(work_path, data, remote_identity)
+                elif operation == "activate" and manage_access:   return self._work_activate(work_path, data, remote_identity)
                 elif operation == "perms"    and admin_access:    return self._work_perms(work_path, data, remote_identity)
                 else: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"Invalid request"
 
@@ -4230,7 +4230,8 @@ class ReticulumGitNode():
             RNS.log(f"Error adding comment: {e}", RNS.LOG_ERROR)
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
-    def _work_complete(self, work_path, data, remote_identity, group_name=None, repository_name=None):
+    def _work_complete(self, work_path, data, remote_identity):
+        group_name, repository_name = self.parse_request_repository_path(data[self.IDX_REPOSITORY])
         doc_id = data.get("doc_id")
         
         if doc_id is None: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No document ID specified"
@@ -4261,7 +4262,8 @@ class ReticulumGitNode():
             RNS.log(f"Error completing work document: {e}", RNS.LOG_ERROR)
             return self.RES_REMOTE_FAIL.to_bytes(1, "big") + b"Remote error"
 
-    def _work_activate(self, work_path, data, remote_identity, group_name=None, repository_name=None):
+    def _work_activate(self, work_path, data, remote_identity):
+        group_name, repository_name = self.parse_request_repository_path(data[self.IDX_REPOSITORY])
         doc_id = data.get("doc_id")
         
         if doc_id is None: return self.RES_INVALID_REQ.to_bytes(1, "big") + b"No document ID specified"
