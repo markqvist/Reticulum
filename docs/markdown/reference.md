@@ -860,7 +860,7 @@ statistics, you will be able to retrieve stats such as *RSSI*, *SNR* and physica
 #### `get_expected_rate()`
 
 * **Returns:**
-  The packet expected in-flight data rate of an established link.
+  The expected in-flight data rate of an established link.
 
 #### `get_mode()`
 

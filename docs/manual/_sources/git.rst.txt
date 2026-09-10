@@ -683,6 +683,7 @@ The following template files are supported:
 - ``commit.mu`` - Individual commit detail page
 - ``refs.mu`` - Branches and tags listing
 - ``stats.mu`` - Statistics page
+- ``no_ident.mu`` - Displayed to non-identified initiators if blocked
 
 Templates can include the following variables:
 
