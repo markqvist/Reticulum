@@ -4249,7 +4249,7 @@ class ReticulumGitNode():
         
         is_author    = doc.get("meta", {}).get("author") == remote_identity.hash
         admin_access = self.resolve_doc_permission(remote_identity, group_name, repository_name, doc_id, self.PERM_ADMIN)
-        if not is_author and not admin_access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"No access, not author or admin"
+        if not is_author and not admin_access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"Not allowed"
         
         try:
             completed_dir = os.path.join(completed_base, str(doc_id))
@@ -4287,7 +4287,7 @@ class ReticulumGitNode():
         
         is_author    = doc.get("meta", {}).get("author") == remote_identity.hash
         admin_access = self.resolve_doc_permission(remote_identity, group_name, repository_name, doc_id, self.PERM_ADMIN)
-        if not is_author and not admin_access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"No access, not author or admin"
+        if not is_author and not admin_access: return self.RES_DISALLOWED.to_bytes(1, "big") + b"Not allowed"
         
         try:
             active_dir = os.path.join(active_base, str(doc_id))
