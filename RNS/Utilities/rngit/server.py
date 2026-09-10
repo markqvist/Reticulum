@@ -4278,7 +4278,7 @@ class ReticulumGitNode():
             if os.path.isdir(d):
                 doc_dir = d
                 break
-        
+
         if not doc_dir: return self.RES_NOT_FOUND.to_bytes(1, "big") + b"Document not found"
         
         root_path = os.path.join(doc_dir, "root")
