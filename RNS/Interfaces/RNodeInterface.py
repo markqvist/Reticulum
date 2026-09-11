@@ -480,8 +480,7 @@ class RNodeInterface(Interface):
         self.setLTALock()
         self.setRadioState(KISS.RADIO_STATE_ON)
 
-        if self.use_ble:
-            time.sleep(2)
+        if self.use_ble: time.sleep(2)
 
     def detect(self):
         kiss_command = bytes([KISS.FEND, KISS.CMD_DETECT, KISS.DETECT_REQ, KISS.FEND, KISS.CMD_FW_VERSION, 0x00, KISS.FEND, KISS.CMD_PLATFORM, 0x00, KISS.FEND, KISS.CMD_MCU, 0x00, KISS.FEND])
@@ -687,10 +686,8 @@ class RNodeInterface(Interface):
             RNS.log("Radio state mismatch", RNS.LOG_ERROR)
             self.validcfg = False
 
-        if (self.validcfg):
-            return True
-        else:
-            return False
+        if (self.validcfg): return True
+        else:               return False
 
 
     def updateBitrate(self):
@@ -1353,6 +1350,7 @@ class BLEConnection():
                             self.owner.ble_receive(data)
 
                     self.connected = True
+                    self.device_disappeared = False
                     self.ble_device = ble_client
                     self.last_client = ble_client
                     self.owner.port = str(f"ble://{ble_client.address}")
@@ -1388,7 +1386,7 @@ class BLEConnection():
     def find_target_device(self):
         RNS.log(f"Searching for attachable BLE device for {self.owner}...", RNS.LOG_EXTREME)
         import platform
-        if platform.system() == "Windows":
+        if RNS.vendor.platformutils.is_windows():
             self._windows_paired_addrs = self._get_windows_paired_ble_addresses()
         def device_filter(device: self.bleak.backends.device.BLEDevice, adv: self.bleak.backends.scanner.AdvertisementData):
             if BLEConnection.UART_SERVICE_UUID.lower() in adv.service_uuids:
