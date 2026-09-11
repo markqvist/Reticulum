@@ -1298,6 +1298,7 @@ class BLEConnection():
         self.must_disconnect = False
         self.connect_job_running = False
         self.device_disappeared = False
+        self._windows_paired_addrs = None
 
         import importlib.util
         if BLEConnection.bleak == None:
@@ -1308,8 +1309,8 @@ class BLEConnection():
                 import asyncio
                 BLEConnection.asyncio = asyncio
             else:
-                RNS.log("Using the RNode interface over BLE requires a the \"bleak\" module to be installed.", RNS.LOG_CRITICAL)
-                RNS.log("You can install one with the command: python3 -m pip install bleak", RNS.LOG_CRITICAL)
+                RNS.log("Using the RNode interface over BLE requires the \"bleak\" module to be installed.", RNS.LOG_CRITICAL)
+                RNS.log("You can install it with the command: python3 -m pip install bleak", RNS.LOG_CRITICAL)
                 RNS.panic()
 
         self.should_run = True
@@ -1325,6 +1326,7 @@ class BLEConnection():
         self.should_run = False
 
     def connection_job(self):
+        self.running = True
         while self.should_run:
             if self.ble_device == None:
                 self.ble_device = self.find_target_device()
@@ -1385,6 +1387,9 @@ class BLEConnection():
 
     def find_target_device(self):
         RNS.log(f"Searching for attachable BLE device for {self.owner}...", RNS.LOG_EXTREME)
+        import platform
+        if platform.system() == "Windows":
+            self._windows_paired_addrs = self._get_windows_paired_ble_addresses()
         def device_filter(device: self.bleak.backends.device.BLEDevice, adv: self.bleak.backends.scanner.AdvertisementData):
             if BLEConnection.UART_SERVICE_UUID.lower() in adv.service_uuids:
                 if self.device_bonded(device):
@@ -1416,6 +1421,9 @@ class BLEConnection():
 
     def device_bonded(self, device):
         try:
+            if self._windows_paired_addrs is not None:
+                return device.address is not None and device.address.lower() in self._windows_paired_addrs
+
             if hasattr(device, "details"):
                 if "props" in device.details and "Bonded" in device.details["props"]:
                     if device.details["props"]["Bonded"] == True:
@@ -1425,6 +1433,15 @@ class BLEConnection():
             RNS.log(f"Error while determining device bond status for {device}, the contained exception was: {e}", RNS.LOG_ERROR)
 
         return False
+
+    def _get_windows_paired_ble_addresses(self):
+        from winrt.windows.devices.bluetooth import BluetoothLEDevice
+        from winrt.windows.devices.enumeration import DeviceInformation
+        async def _query():
+            selector = BluetoothLEDevice.get_device_selector_from_pairing_state(True)
+            infos = await DeviceInformation.find_all_async_aqs_filter(selector)
+            return set(info.id.split("-")[-1].lower() for info in infos)
+        return self.asyncio.run(_query())
 
 class TCPConnection():
     TARGET_PORT = 7633
