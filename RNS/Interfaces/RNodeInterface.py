@@ -386,6 +386,7 @@ class RNodeInterface(Interface):
                 RNS.log(f"Opening BLE connection for {self}...")
                 self.timeout = 1250
                 if self.ble != None and self.ble.running == False:
+                    RNS.log(f"Cleaning up previous BLE connection for {self}...")
                     self.ble.close()
                     self.ble.cleanup()
                     self.ble = None
@@ -442,7 +443,11 @@ class RNodeInterface(Interface):
             ble_detect_timeout = 5.0
             detect_time = time.time()
             while not self.detected and time.time() < detect_time + ble_detect_timeout: time.sleep(0.1)
-            if not self.detected: RNS.log(f"RNode detect timed out over BLE", RNS.LOG_ERROR)
+            if not self.detected:
+                RNS.log(f"RNode detect timed out over BLE", RNS.LOG_ERROR)
+                if self.ble:
+                    self.ble.should_run = False
+                    self.ble.must_disconnect = True
         else:
             sleep(0.2)
         
