@@ -1,16 +1,11 @@
-### 2026-09-10: RNS 1.5.3
+### 2026-09-11: RNS 1.5.4
 
-This maintenance release adds functionality to, and fixes bugs in `rngit`, and includes a few other optimizations and improvements.
+This release improves RNode BLE connectivity reliability on desktop operating systems.
 
 **Changes**
-- Added media request handler to `rngit`, for serving images to `nomadnet` clients
-- Added media conversion handler to `rngit`, auto-converting images to webp
-- Added importable helper method for using the `rngit` media converter in other programs
-- Added a `no_ident` template to the `rngit` page node
-- Added immediate activation of changed permissions with `rngit perms`
-- Added optimized HDLC framer
-- Fixed `rngit` repo admins not being able activate/complete workdocs from other users, by **Bergie**
-- Fixed a typo, I'm positively certain this is the last one
+- Fixed RNode BLE device address acquisition on windows, by **Nickie Deuxyeux**
+- Fixed RNode BLE re-connection deadlock on desktop
+- Improved RNode BLE reconnect reliability
 
 **Verified Retrieval**
 You can retrieve and verify this release over Reticulum using the built-in `rngit release` utility. To retrieve only the installation `.whl` package, and the release manifest for future updates, you can use:
@@ -39,6 +34,20 @@ rnid -i bc7291552be7a58f361522990465165c -V rns_*.rsm *.rsg
 ```
 
 The `rnid` utility will then verify the signatures, and display whether they are valid. If the signature cannot be verified, the release has been tampered with and should be discarded.
+
+### 2026-09-10: RNS 1.5.3
+
+This maintenance release adds functionality to, and fixes bugs in `rngit`, and includes a few other optimizations and improvements.
+
+**Changes**
+- Added media request handler to `rngit`, for serving images to `nomadnet` clients
+- Added media conversion handler to `rngit`, auto-converting images to webp
+- Added importable helper method for using the `rngit` media converter in other programs
+- Added a `no_ident` template to the `rngit` page node
+- Added immediate activation of changed permissions with `rngit perms`
+- Added optimized HDLC framer
+- Fixed `rngit` repo admins not being able activate/complete workdocs from other users, by **Bergie**
+- Fixed a typo, I'm positively certain this is the last one
 
 ### 2026-08-28: RNS 1.5.2
 
