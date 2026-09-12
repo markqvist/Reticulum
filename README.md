@@ -222,15 +222,35 @@ Currently, the following built-in interfaces are supported:
 - Custom hardware via stdio or pipes
 
 ## Performance
-Reticulum targets a *very* wide usable performance envelope, but prioritises
-functionality and performance on low-bandwidth mediums. The goal is to
-provide a dynamic performance envelope from 250 bits per second, to 1 gigabit
-per second on normal hardware.
+*All performance numbers here assume `rnsd` running in fully interpreted Python mode,
+limited to a single CPU core.*
 
-Currently, the usable performance envelope is approximately 150 bits per second
-to 500 megabits per second, with physical mediums faster than that not being
-saturated. Performance beyond the current level is intended for future
-upgrades, but not highly prioritised at this point in time.
+Reticulum targets a *very* wide usable performance envelope, but prioritises
+functionality and performance on low-bandwidth mediums. The goal is to provide a
+dynamic performance envelope from 100 bits per second, to 10 gigabits per second
+on normal hardware.
+
+Currently, the on-network, usable performance envelope is approximately 150 bits
+per second to 1 gigabit per second on modest hardware. Real-world performance will
+vary widely with the speed of your system, availability of cryptographic hardware
+acceleration, and other factors.
+
+Raw routing throughput for a transport node hosted on a Raspberry Pi 5 is
+approximately 5 gigabits per second. Systems with modern crypto hardware acceleration
+can achieve transport throughput of 15 gigabits per second and higher.
+
+While the reference implementation is perfectly capable of reaching 100+ Gbps, by
+utilizing multiple CPU cores and vectorized transport, performance beyond the
+current level is not higly prioritised, since RNS is already able to saturate available
+physical medium bandwidth in almost all real-world situations.
+
+The primary objectives for RNS are *reliability*, *correctness*, *security*,
+*proper traffic management* and *actually practical performance*, not hollow on-paper
+"benchmarks" with little to no bearing on real-world usability.
+
+All alternative-implementation maintainers are *highly* encouraged to adopt a
+similar approach, and especially to focus on getting their implementations working
+properly before publishing empirically dubious or factually wrong performance claims.
 
 ## Current Status
 All core protocol features are implemented and functioning, but additions will
