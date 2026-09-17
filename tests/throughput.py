@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 #
+# Generated with lc/deepseek_v4_flash_q8_k_xl
+# Reviewed and corrected by Mark Qvist
+#
 # Usage examples:
 #
 #   python3 tests/transport_throughput.py

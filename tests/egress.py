@@ -1,3 +1,5 @@
+# Partially generated with lc/kimi_k2.6
+# Reviewed and approved by Mark Qvist
 import unittest
 
 import time
