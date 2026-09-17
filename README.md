@@ -99,6 +99,21 @@ The reference implementation is licensed under the Reticulum License.
 
 The Reticulum Protocol was dedicated to the Public Domain in 2016.
 
+## Community Implementations
+
+The implementations listed here have demonstrated wire-compatibility, sufficient feature parity, sensible security and development practices, long-term commitment and care for implementation quality. Additionally, they have a track record of at least 18 months of active development. Most importantly, their developers and maintainers are recognized by the community to actually know what they are doing, and as having a commitment to improving the overall Reticulum ecosystem.
+
+- [Chad Atterman's](https://github.com/attermann) [microReticulum](https://github.com/attermann/microReticulum/) is a C++ implementation targeting 32-bit micro-controllers.
+- [Quad4's](https://quad4.io/) [Reticulum-Go](https://reticulum-go.quad4.io/) is a Go implementation targeting both desktop, mobile and embedded systems.
+
+*If you are the maintainer of an implementation not listed above, and believe that it deserves inclusion by following the same standards of rigor and commitment, your proposal will be welcomed.*
+
+**Warning!** A significant number of hastily launched, incorrect, dubious, directly harmful and, in most cases, entirely LLM-generated fakes of Reticulum implementations are currently being marketed and pushed under polished, but ultimately misleading or outright deceptive claims. Most of these are either quick attention or money grabs, completely unreviewed, incompatible, without maintenance or human oversight, actively trying to fragment the community, or a combination thereof.
+
+The core Reticulum maintainers and developers **strongly advise against using any such "implementation"**. The deceitful and self-serving behavior of a small number of either malintented, attention-seeking or incompetent individuals has caused significant damage, waste of time and resources for both developers, node operators, users and the community and Reticulum project at large.
+
+We kindly, but urgently ask all users to excercise caution, common sense and healthy skepticism when evaluating the potential use of any implementation not listed above; and to accept that **choosing to do so regardless translates the responsibility for potential damage from an irresponsible or malicious individual onto yourself**.
+
 ## Examples of Reticulum Applications
 If you want to quickly get an idea of what Reticulum can do, take a look at the
 [Programs Using Reticulum](https://reticulum.network/manual/software.html)
