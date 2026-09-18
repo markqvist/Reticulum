@@ -254,7 +254,9 @@ The Reticulum License imposes its conditions on a fraction of would-be users so 
 
 That is the entire list. Everyone else - the overwhelming majority, the community, the developers, the users, the downstream projects - receives the full, unrestricted rights to use, copy, modify, merge, publish, distribute, sublicense, and sell the software, with none of the viral encumbrance of copyleft.
 
-So when the claim is made that the Reticulum License "is more restrictive" than the GPL, the claim is not merely wrong; it is the exact inverse of the truth. The GPL restricts the freedom of everyone, in the name of a specific ideology. The Reticulum License restricts the freedom of the harm-doer and the appropriator, and leaves everyone else free. The two approaches do not differ in whether they contain moral axioms - **all licenses do**. They differ in whether the axioms are stated openly, and in *whose* freedom they restrict.
+So when the claim is made that the Reticulum License "is more restrictive" than the GPL, the claim is not merely wrong; it is the exact inverse of the truth. The GPL restricts the freedom of everyone, in the name of a specific ideology.
+
+The Reticulum License restricts the freedom of the harm-doer and the appropriator, and leaves everyone else free. The two approaches do not differ in whether they contain moral axioms - **all licenses do**. They differ in whether the axioms are stated openly, and in *whose* freedom they restrict.
 
 .. _brandolinis-consequences-not-open:
 
@@ -347,7 +349,7 @@ Specifically, it was generated using ``lc`` managing a ``Q8_K_XL`` quant of ``De
 
 If you know my writing, and have a hard time discerning where this chapter is me directly, typing manually, and where it is the machine output, it is because of two things: Almost every line in this chapter was either directly edited by my hands on the keyboard or typed by me, and the text corpus that informed the process *is* genuinely me - my thoughts, written by me, over a period of years.
 
-The chapter was produced this way *deliberately and openly*\ , under a software framework I designed and wrote, with the human directing the inquiry points, flow of investigation, structure of the outputs, contents of every section, making the editorial decisions, reviewing the conclusions, painstakingly adjusting every line, and taking responsibility for the final claims presented, with the goal of reaching a higher level of synthesis and symbolic density than I could have achieved without that assistance.
+The chapter was produced this way *deliberately and openly*, under a software framework I designed and wrote, with the human directing the inquiry points, flow of investigation, structure of the outputs, contents of every section, making the editorial decisions, reviewing the conclusions, painstakingly adjusting every line, and taking responsibility for the final claims presented, with the goal of reaching a higher level of synthesis and symbolic density than I could have achieved without that assistance.
 
 The tool was *used as tool*, both to structure and produce a complex chapter, and to inspect a repository so preposterous in size, commit velocity and nonsensical wording that it barred any purely human inquiry.
 
@@ -1089,7 +1091,7 @@ The register of the campaign is almost always the register of solicitude: "we ar
 
 **Event seizure**
 
-Any event - a license change, a platform move, a forum moderation decision, a subreddit closure, a security notice, even the most banal messages from maintainers or known contributors - are seized, stripped of their actual context, and re-narrated as evidence of the same pre-written story. The subreddit that was closed after its moderator vanished  and ceased moderating (according to *prior agreement with said moderator*\ ) becomes "the maintainer shutting down dissent". Moving away from a highly centralized online platform becomes "the founder retreating". The license becomes "the enclosure". The pattern is so reliable that the story could be pre-written by by a lightly mechanized quill; only the date changes. The actual real-world context of these events is documented, in public, in each case; the re-narration proceeds regardless.
+Any event - a license change, a platform move, a forum moderation decision, a subreddit closure, a security notice, even the most banal messages from maintainers or known contributors - are seized, stripped of their actual context, and re-narrated as evidence of the same pre-written story. The subreddit that was closed after its moderator vanished and ceased moderating (according to *prior agreement with said moderator*) becomes "the maintainer shutting down dissent". Moving away from a highly centralized online platform becomes "the founder retreating". The license becomes "the enclosure". The pattern is so reliable that the story could be pre-written by by a lightly mechanized quill; only the date changes. The actual real-world context of these events is documented, in public, in each case; the re-narration proceeds regardless.
 
 **The legitimacy circuit**
 
@@ -1323,3 +1325,5 @@ The networks need defending - not because they are under severe physical attacks
 A lot of us rely on these networks every day. They carry our messages, our coordination, our friendships, and in some places, our safety. That is exactly why they are a target:
 
 They are valuable, free, and very hard to shut down. The response is not to become aggressive. It is to be *more* of what the network already is: Real, open, owned, and shared.
+
+*Mark*
