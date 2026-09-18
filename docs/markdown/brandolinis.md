@@ -855,18 +855,18 @@ A resolution of this claim requires one step: Count them.
 
 This “movement” does have a headcount. It is not in the hundreds, and it is not in the dozens. It is a small number of people who appear, in various combinations and under various names, in the following roles:
 
-* Creators of the machine-generated “Reticulum implementations” examined in this chapter
+* Creators of the machine-generated “Reticulum implementations” examined in this chapter.
 * Creators of articles praising those implementations and lamenting the state of the
   reference, its moral shortcomings, its unavailability or lack of something it already has.
 * Commenters “defending” the implementations when they are evaluated reasonably and critically,
   most often by attempting simply to derail the discussion.
-* Critics of the Reticulum License on “open source” grounds
-* “Concerned community members” objecting to the maintainer’s conduct
+* Critics of the Reticulum License on “open source” grounds.
+* “Concerned community members” objecting to the maintainer’s conduct.
 * Campaigners on online platforms; and
 * In some cases, a single individual performing *several* of these roles at once, under
   different names, in the same week.
 
-The overlap is well documented at this point, across time and different platforms. The same phrasing, the same arguments, the same links, the same reactive reflexes, the same handful of accounts appearing in the same threads at the same moments. When the sockpuppet accounts are unmasked (and they frequently unmask themselves) the cast does not grow, but rapidly shrinks.
+The overlap is well documented at this point, across time and different platforms. The same phrasing, the same arguments, the same links, the same reactive reflexes, the same handful of accounts appearing in the same threads at the same moments. When the sockpuppets are unmasked (and they frequently unmask themselves) the cast does not grow, but rapidly shrinks.
 
 This is the most interesting single fact about the “movement”: **It isn’t one. It is a synthetic cast**, held together mostly by LLM-glue, reddit handles and hysteria. A cast is not a constituency. It performs; it does not represent. The difference matters quite a bit, because a great deal of this “movement’s” imagined power comes from the assumption that the *plural form* is actual evidence of plurality. If that sentence seemed opaque, notice how many times a statement or article uses “we” instead of “I”, and it will be less so.
 
@@ -930,7 +930,7 @@ The register of the campaign is almost always the register of solicitude: “we 
 
 **Event seizure**
 
-Any event - a license change, a platform move, a forum moderation decision, a subreddit closure, a security notice, even the most banal messages from maintainers or known contributors - are seized, stripped of their actual context, and re-narrated as evidence of the same pre-written story. The subreddit that was closed after its moderator vanished and ceased moderating (according to *prior agreement with said moderator*) becomes “the maintainer shutting down dissent”. Moving away from a highly centralized online platform becomes “the founder retreating”. The license becomes “the enclosure”. The pattern is so reliable that the story could be pre-written by by a lightly mechanized quill; only the date changes. The actual real-world context of these events is documented, in public, in each case; the re-narration proceeds regardless.
+Any event - a license change, a platform move, a forum moderation decision, a subreddit closure, a security notice, even the most banal messages from maintainers or known contributors - are seized, stripped of their actual context, and re-narrated as evidence of the same pre-written story. The subreddit that was closed after its moderator vanished and ceased moderating (according to *prior agreement with said moderator*) becomes “the maintainer shutting down dissent”. Moving away from a highly centralized online platform becomes “the founder retreating”. The license becomes “the enclosure”. The pattern is so reliable that the story could be pre-written by a lightly mechanized quill; only the date changes. The actual real-world context of these events is documented, in public, in each case; the re-narration proceeds regardless.
 
 **The legitimacy circuit**
 
@@ -1010,8 +1010,7 @@ For anyone who encounters the pattern fresh, here is a proposal on how to recogn
 * Sockpuppet theater: The same person or footsoldiers thereof appearing as several “supporters”
   (and occasionally slipping up mid-performance).
 * Articles, ports, and forum threads that cite and reference each other in a closed loop.
-* The immediate, reflexive turn to “bullying”, “exclusion” and “toxicity” whenever the record is
-  documented.
+* The immediate, reflexive turn to “bullying”, “exclusion” and “toxicity” whenever a claim is refuted.
 * A complete absence of engagement with the substance of the answers given, and a complete
   absence of stake in the network itself.
 
@@ -1113,7 +1112,7 @@ None of this is a high bar. It is the bar the reference implementation has met, 
 
 The networks need defending - not because they are under severe physical attacks (yet), but because attention, talent and resources is being stolen from them, trust is being mined against them, and its newcomers are being harvested by the machinery documented in this chapter. Defence, for a commons, has specific shapes, and it is not what the theater would like it to be.
 
-* Defence is **documentation**: Records, kept public, of what was claimed, what was
+* Defence is **documentation**: Records kept public, of what was claimed, what was
   answered, and what turned out true.
 * Defence is **a headcount**: Calm, unexcited reminders that a “movement” might just be a dozen
   people having a tantrum.
