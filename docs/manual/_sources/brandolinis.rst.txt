@@ -784,20 +784,22 @@ The first of the two deciding questions from :ref:`Evaluating A Reticulum Implem
   being the reference's companion messaging protocol - together with a daemon scaffold and
   a 233-line founding document, ``docs/build-ethos.md``. That document declares the project's
   goal as a "performance-focused drop-in-replacement for rnsd" and its governing principle
-  as: "Port the contract, not the implementation." It further states, in the project's own
-  words, that fidelity is owed to the reference "at exactly two boundaries": "the wire" and
-  "the behaviour".
-* **Continuous alignment to the reference.** 506 commits reference RNS or Reticulum
+  as: "Port the contract, not the implementation." It further states directly to the
+  machine-loop, that **"You owe the reference fidelity at exactly two boundaries:
+  The wire... The behavior. ... Between those two boundaries, the model is yours"**.
+  At this point, the very first commit, effectively the whole of the implementation design
+  and any relevant decisions are handed over to the LLM.
+* **Continuous ingestion from the reference.** 506 commits reference RNS or Reticulum
   source behaviour; the word "parity" appears in 49 commit messages. Commits cite the reference
-  implementation's own source locations (for example ``Transport.py:1367``\ ) when correcting
+  implementation's own source locations (for example ``Transport.py:1367``) when correcting
   their own divergences and mistakes.
 * **Byte-level fidelity as an explicit goal.** Within 48 hours of the first commit, the
   record shows a "crypto adapter - vetted primitives, byte-exact vs RNS 1.3.1", and a wire
   implementation matching the reference's packet header layout. The project's own
   validation apparatus decodes wire vectors using the reference implementation's own
   packet parser, and the interop suite consists of real, stock-RNS peer nodes - that is,
-  the reference itself, used as the ground truth against which this project's output is
-  checked, and committed as accepted verified after 48 hours of the project's recorded start.
+  the reference source itself, used as the ground truth against which this LLM output is
+  checked, and committed as accepted and verified after 48 hours of the project's recorded start.
 * **The marketing mismatch.** The same record that documents all of the above describes the
   project, publicly, as "a ground-up implementation of Reticulum" - while declining, on its
   website, to link to the reference implementation at all: the entire tree mentions the
@@ -927,17 +929,17 @@ Evaluated against the conditions of :ref:`Evaluating A Reticulum Implementation<
 
 * **Provenance and attribution.** Fails: The fake "ground-up" origin story; zero reference links
   on the website; a single well-hidden link in the README; a license file reading
-  "Copyright (c) 2026 The Prns Authors" over work directly generated from the licensed reference;
+  ``Copyright (c) 2026 The Prns Authors`` over work directly generated from the licensed reference;
   no original copyright or permission notice anywhere.
 * **Agency and answerability.** Fails on every criterion of :ref:`Assistance Versus Machine Substitution<brandolinis-assistance-versus-substitution>`:
   Unauthored scope, uniform generation, discovery by regeneration, laundered provenance,
   authorship by assignment.
-* **Engineering reality.** Fails: The benchmark apparatus above; interop demonstrated only
+* **Engineering.** Fails: The benchmark apparatus above; interop demonstrated only
   against a pinned, outdated reference version over loopback while the marketing claims current
   parity, interop failures with stock RNS; vendored prebuilt binaries and a republished fork
   of an upstream crate (``nrf-softdevice 0.1.0-prns.1``) with no verifiable provenance;
   committed WASM bundles.
-* **Network citizenship.** Fails: Invented spectrum behaviour, and compatibility claims
+* **Network behaviour.** Fails: Invented spectrum behaviour and compatibility claims
   about third-party applications of the reference ecosystem (Sideband, NomadNet, MeshChat)
   that are not established by any evidence.
 * **Monetary and influence signals.** The marketing apparatus - website before protocol,
@@ -1222,9 +1224,11 @@ The protocol belongs to humanity; no one owns it. The network belongs to everyon
 Health Is A Property Of The Whole
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A network is not made healthy by the excellence of any single part. It is made healthy by the behaviour of every part on the shared medium, and how they interact. And the shared medium is the point. When your node transmits, it transmits into the same spectrum, the same line, the same time, the same mathematical address space, the same bandwidth that its neighbours depend on. Duty cycles, channel etiquette, retry behaviour, announce discipline: These are not private performance details. They are the terms of coexistence, and they bind every member as tightly as the protocol itself.
+A network is not made healthy by the excellence of any single part. It is made healthy by the behaviour of every part on the shared medium, and how they interact. And the shared medium is the point. When your node transmits, it transmits into the same spectrum, the same line, the same time, the same mathematical address space, the same bandwidth that its neighbours depend on.
 
-This is why the health of the network cannot be certified by any single project's claims, and why the evaluation framework of :ref:`Evaluating A Reticulum Implementation<brandolinis-evaluating>` includes respectful citizenship as a core category. A node that is a bad neighbour - that invents its own channel behaviour on shared spectrum, that announces without discipline, that spawns tens of thousands of links to scrape the network, that floods and retries without mercy - is a hazard to every node that shares its medium, regardless of how well its "creator" imagines its own code to work in isolation. On a shared medium, "my software works" is not a complete sentence. The complete sentence is "my software works *and coexists*". A network's health deteriorates with its worst-behaved member, and every member has a responsibility to not be *that* member. There is no final, technical solution for this; the solutions are human.
+The network cannot be certified by any single project's claims. A node that is a bad neighbour, that invents its own channel behaviour on shared spectrum, that announces without discipline, that spawns tens of thousands of links to scrape the network, that floods and retries without mercy, is a hazard to every node that shares its medium, regardless of how well its "creator" imagines its own code to work in isolation.
+
+On a shared medium, "my software works" is not a complete sentence. The complete sentence is "my software works *and coexists*". A network's health deteriorates with its worst-behaved member, and every member has a responsibility to not be *that* member. There is no final, technical solution for this; the solutions are human.
 
 .. _brandolinis-history-of-what-works:
 
@@ -1246,7 +1250,7 @@ The **reality**, documented and reproducible, is that a loose community of human
 The Role Of The Individual
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The networks are built by physical acts and human coordination. You cannot prompt an antenna into existence. No model can string up a dipole, or stand in the rain aligning a radio, or coordinate with a neighbour three valleys away about who covers which repeater frequency, or sit down with a newcomer and explain why their first node didn't announce. These are the acts that make a network *organic* - present in the physical world, resilient because it is *real*\ , valuable because it is *human*. The machines and technology we use are tools aimed at a well-defined, openly described goal. But the networks themself are composed of intentional human actions, and every node operator is infrastructure for other humans.
+The networks are built by physical acts and human coordination. You cannot prompt an antenna into existence. No model can string up a dipole, or stand in the rain aligning a radio, or coordinate with a neighbour three valleys away about who covers which repeater frequency, or sit down with a newcomer and explain why their first node didn't announce. These are the acts that make a network *organic* - present in the physical world, resilient because it is *real*, valuable because it is *human*. The machines and technology we use are tools aimed at a well-defined, openly described goal. But the networks themself are composed of intentional human actions, and every node operator is infrastructure for other humans.
 
 This has a corollary for the individual: You do not need permission, and you do not need to be an expert, to participate. Run a node. Help a neighbour. Ask questions in the community, and answer the questions you can. Build something small at first. The network grows by these acts, and they are the most meaningful ones - the things that can only be done together, as humans, in the physical world. The parasitic "movement" that haunts the peripheries of this ecosystem cannot do any of this. It cannot build a node because it does not exist, in any real connected and human sense; only people can, and people are precisely what a self-recurrent loop lacks.
 
