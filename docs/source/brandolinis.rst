@@ -492,7 +492,7 @@ The tool is not the hazard, plain old human nature is. The tool is a mirror, and
 Disclosed Assistance Or Laundered Generation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The contrast at the centre of this entire discussion can be made clearer with two examples, both of which are a publicly accessible, both produced in the same year, by people using the same class of tools.
+The contrast at the centre of this entire discussion can be made clearer with two examples, both of which are publicly accessible, both produced in the same year, by people using the same class of tools.
 
 The first is this chapter. It was produced with machine assistance, openly: the structure was directed by the human, the material was assembled with the tool's help, every conclusion, every line, every slight nuance of meaning and semantics was examined, edited, and accepted or rejected by the human, and the process described publicly - including the precise characteristics of the technological assistance framework used. The human can answer for every claim in these documents, because the human made the decisions the claims rest on.
 
