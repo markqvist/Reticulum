@@ -1,0 +1,1400 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="API Reference" href="reference.html"><link rel="prev" title="Reticulum License" href="license.html">
+        <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
+
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
+        <title>Brandolini’s Reference - Reticulum Network Stack 1.5.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=e1715074" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-background-primary: #202b38;
+  --color-background-secondary: #161f27;
+  --color-foreground-primary: #dbdbdb;
+  --color-foreground-secondary: #a9b1ba;
+  --color-brand-primary: #41adff;
+  --color-background-hover: #161f27;
+  --color-api-name: #ffbe85;
+  --color-api-pre-name: #efae75;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.5.4 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.5.4 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="whatis.html">What is Reticulum?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstartedfast.html">Getting Started Fast</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zen.html">Zen of Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software.html">Programs Using Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using.html">Using Reticulum on Your System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interfaces.html">Configuring Interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git Over Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support Reticulum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Code Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Reticulum License</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Brandolini’s Reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="brandolini-s-reference">
+<span id="brandolinis-main"></span><h1>Brandolini’s Reference<a class="headerlink" href="#brandolini-s-reference" title="Link to this heading">¶</a></h1>
+<blockquote>
+<div><div class="line-block">
+<div class="line"><em>A little learning is a dang’rous thing;</em></div>
+<div class="line"><em>Drink deep, or taste not the Pierian spring.</em></div>
+<div class="line"><em>There shallow draughts intoxicate the brain,</em></div>
+<div class="line"><em>And drinking largely sobers us again.</em></div>
+<div class="line"><br /></div>
+<div class="line">- Alexander Pope, 1711</div>
+</div>
+</div></blockquote>
+<p>This chapter serves as a helpful reference for developers, users and community members living in an Age of Bullshit Manufacture equivalent to the Cambrian Explosion.</p>
+<p>As we are surely only at the on-ramp of this trajectory, the chapter will continue to evolve, expand and be updated based on community feedback as events occur.</p>
+<section id="what-the-reticulum-license-is">
+<span id="brandolinis-what-the-license-is"></span><h2>What The Reticulum License Is<a class="headerlink" href="#what-the-reticulum-license-is" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="license.html#license"><span class="std std-ref">Reticulum License</span></a> is the license under which RNS, the Reticulum reference implementation, has been published since <strong>April 15, 2025</strong>, in versioning effective from <strong>0.9.4</strong> and every release since. In practical terms, it covers all of “modern Reticulum”: The current wire format, the cryptographic machinery as it exists today (including the AES-256-based link encryption, ratchets, et cetera), and all protocol additions that distinguish the modern implementation from the earliest pre-1.0.0 beta formats. If an implementation speaks today’s Reticulum protocol, it is, in all relevant respects, built on Reticulum-licensed work.</p>
+<p>The license is a permissive license. It grants the full range of rights to use, copy, modify, merge, publish, distribute, sublicense, and sell the software, free of charge; subject to three conditions, which are reproduced here verbatim:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The Software shall not be used in any kind of system which includes amongst its
+functions the ability to purposefully do harm to human beings.</p></li>
+<li><p>The Software shall not be used, directly or indirectly, in the creation of an artificial
+intelligence, machine learning or language model training dataset, including but not
+limited to any use that contributes to the training or development of such a model or
+algorithm.</p></li>
+<li><p>The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.</p></li>
+</ul>
+</div></blockquote>
+<section id="why-this-license-exists">
+<span id="brandolinis-why-the-license-exists"></span><h3>Why This License Exists<a class="headerlink" href="#why-this-license-exists" title="Link to this heading">¶</a></h3>
+<p>Reticulum was not moved to a custom license casually or quickly. It was licensed under the MIT license for the greater part of its existence, and that served well for a long time. The change came when it became clear that no existing license expressed what the project needed, and that the two most commonly proposed alternatives would either say the wrong thing or say nothing useful at all. Three factors had primary influence on the situation:</p>
+<p><strong>The harm problem</strong></p>
+<p>Reticulum is a tool that was built, deliberately and at great cost, to empower people; to make communication something you own rather than something you are temporarily granted. It has also been, at various times, exactly what certain kinds of organisations would like to use to control people. This is the duality of any powerful tool. A permissive license could not, and cannot, say anything about that; MIT is silent on the question of whether the software may be used to build systems designed to harm human beings. The Reticulum License is not silent. It does not pretend that a license can stop an individual madman; it does assert, however, plainly and in enforceable terms, that corporations and organisations integrated into the legal system cannot consume this software for harm and then claim they never knew. The line is drawn by the creators of the tool, not by an external authority, and it is drawn deliberately. This is covered in more depth in the discussion of the ethics of the tool in the <em>Zen of Reticulum</em>.</p>
+<p><strong>The appropriation problem</strong></p>
+<p>The second factor was the machine-learning appropriation of the open-source commons. By 2025 that was no longer hypothetical: The commons was already being systematically ingested by corporate training pipelines, and the code, words, and creativity of the people who built it were being converted into synthetic systems designed to replace them. The license responds to this with an explicit condition: The software shall not be used in the creation of an AI, machine-learning, or language-model training dataset, nor in any use that contributes to the training or development of such a model or algorithm.</p>
+<p>It is important to understand what this condition does and does not do, which matters for what follows in this chapter. <strong>The AI-training condition is not the legal basis for protecting the code from machine copying</strong>. That protection <em>already exists</em>, in the oldest and most well-tested form of copyright law, and it applies regardless of any license (see <a class="reference internal" href="#brandolinis-copyright-and-layers"><span class="std std-ref">Copyright &amp; The Two Legal Layers</span></a>).</p>
+<p>The AI-training condition addresses something <em>additional</em>: the appropriation of the code <em>into the models themselves</em>; the ingestion of human-made work as raw material for a synthetic replacement, and the use of that ingestion to fabricate “prior work” minefields, patent-troll material, and a wall of slop meant to bury and devalue the actual ecosystem. That danger was foreseeable; the licensing decision was made with full awareness of it. The events of 2026 have since demonstrated, in public and in detail, that the concern was not theoretical.</p>
+<p><strong>The sustainability problem</strong></p>
+<p>Reticulum has been developed and maintained for over a decade by a single person, supported by a small group of contributors and network-building users, without corporate backing, without VC funding, through several serious attempts at commercialization and takeover from both the corporate and the ideological side. The license is part of what makes that sustainable, and possible at all.</p>
+<p>It ensures that the specific, painstaking labor of the reference implementation cannot be hijacked to undermine the intent of the project, while leaving the protocol itself, the mathematical rules of how Reticulum works, dedicated to the public domain, where it belongs to humanity and can never be owned. Anyone can implement the protocol, provided they themselves invest the <em>actual</em> work and effort. What the license protects is the work, and the intent embodied in it.</p>
+</section>
+<section id="on-freedom">
+<span id="brandolinis-on-freedom"></span><h3>On Freedom<a class="headerlink" href="#on-freedom" title="Link to this heading">¶</a></h3>
+<p>The most persistent mischaracterisation of the Reticulum License is that it is “more restrictive” than the licenses it replaced or than the GPL family. This is backwards, and I’ll state the comparison plainly, because the confusion is the foundation of a great deal of deliberately manufactured controversy examined later in this chapter.</p>
+<p>The GPL and AGPL are constructed around a single, self-referential axiom: that “free” is <em>defined by the terms of the license itself</em>, and that any use falling outside those terms is not free. In practice, this means the GPL restricts the freedom of <strong>everyone</strong> - you may not write, distribute, link, or (in some cases) even communicate with GPL-covered software without the entire arrangement being pulled under the same terms, which the licensor then controls. The restriction applies to 100% of users, including the ones building purely constructive things.</p>
+<p>The Reticulum License restricts the freedom of almost nobody. Its restrictions apply only to:</p>
+<ul class="simple">
+<li><p>Those who wish to use the software in systems that purposefully harm human beings, and</p></li>
+<li><p>Those who wish to ingest the software into AI training pipelines.</p></li>
+</ul>
+<p>That is a restriction on a vanishingly small fraction of would-be users - the 0.0000001% - and it is a restriction they can characterise however they like, forever. The bickering is itself a signal that the licensing decision hit exactly the right target.</p>
+<p>Everyone else retains the full breadth of use, modification, distribution, and sale, with none of the viral encumbrance of copyleft.</p>
+<p>Both licenses contain moral axioms. The difference is that the Reticulum License states its axioms out loud:</p>
+<ul class="simple">
+<li><p><em>Intentionally restricting the way that millions of people use and build upon a foundational
+communications technology</em> - <strong>The mechanism of copyleft</strong></p></li>
+<li><p><em>Intentionally restricting a small number of organisations from using the technology to
+violently harm human beings</em> - <strong>The mechanism of the Reticulum License</strong></p></li>
+</ul>
+<p>Which of these is more free? The answer is not a matter of committee approval. It is a matter of what the word “free” means to the people <em>whose freedom is at stake</em>. The question of whether “open source” requires the blessing of a particular licensing orthodoxy is examined in <a class="reference internal" href="#brandolinis-opensource"><span class="std std-ref">Open Source Means Open Source</span></a>.</p>
+</section>
+<section id="the-prediction-and-what-happened">
+<span id="brandolinis-prediction"></span><h3>The Prediction, And What Happened<a class="headerlink" href="#the-prediction-and-what-happened" title="Link to this heading">¶</a></h3>
+<p>When the license change was made and publicly discussed in 2025, the following was said, in public, about the machine-learning threat:</p>
+<blockquote>
+<div><p>A generative system could be trained on the Reticulum codebase, and for extremely low cost
+be set to work spewing out millions of source repositories for all kinds of ridiculous
+“Reticulum-based programs”. This is already happening. You can find several examples of this
+on GitHub already. … the point of this kind of trolling is to establish as wide a base for
+“prior work” as possible. By doing that, a patent troll or IP abuser can create an immense
+minefield for real developers.</p>
+</div></blockquote>
+<p>This was written when the phenomenon was just beginning. It was not a guess; it was a description of a mechanism already in motion, in the specific context of Reticulum, by people who had already begun to appear around the project.</p>
+<p>Less than a year and a half later, the prediction has now been demonstrated, in public, exhaustively and to the letter. There are now roughly a dozen machine-generated “Reticulum implementations” of the same shape: fluent, marketing-heavy, some without attribution, and - in several cases - actively harmful to the network. The <a class="reference internal" href="#brandolinis-prns"><span class="std std-ref">Prns case</span></a> is an example documented in this chapter. The pattern that produced it (and the people, mechanisms, and the recycling of falsehoods behind the <em>wider</em> phenomenon) is examined in <a class="reference internal" href="#brandolinis-movement-of-a-dozen"><span class="std std-ref">A Movement Of A Dozen</span></a>.</p>
+<p>The license was written, in part, so that when this happened, the community would not be defenceless.</p>
+</section>
+<section id="what-this-means-for-other-implementations">
+<span id="brandolinis-means-for-other-implementations"></span><h3>What This Means For Other Implementations<a class="headerlink" href="#what-this-means-for-other-implementations" title="Link to this heading">¶</a></h3>
+<p>Two simple things must be kept separate:</p>
+<ol class="arabic simple">
+<li><p><strong>The protocol is public domain.</strong> The mathematical rules of Reticulum - addresses,
+signatures, routing, the wire format as an idea - belong to humanity. A <em>genuine</em> clean-room
+implementation of the protocol, written by human beings who reasoned it out themselves, is
+free and welcome, and owes nothing to the Reticulum License. Nothing in this chapter is an
+argument against implementing the protocol. On the contrary: More good implementations,
+honestly made, are good for the network.</p></li>
+<li><p><strong>The implementation is licensed.</strong> Copying the reference implementation - by machine or
+by silk-screen press - and modifying and redistributing the result, is
+exercising rights granted by the license, and is therefore subject to its conditions: The attribution
+notice, the harm condition, the AI-training condition. A copy that does not follow those
+conditions is <strong>not</strong> licensed, and it is not “open source in spirit”; it is an unauthorized
+derivative work, and therefore a copyright violation.</p></li>
+</ol>
+<p>The distinction is the same one the license itself makes, and it must be held firmly: An implementation that <em>speaks</em> Reticulum is exercising the public domain protocol, <strong>if</strong> it was truly created independently. An implementation that was <em>generated from</em> RNS, reproduced by a copy process, is a derivative of licensed work.</p>
+</section>
+<section id="copyright-the-two-legal-layers">
+<span id="brandolinis-copyright-and-layers"></span><h3>Copyright &amp; The Two Legal Layers<a class="headerlink" href="#copyright-the-two-legal-layers" title="Link to this heading">¶</a></h3>
+<p>The exact legal structure is frequently muddied in public discussion; and in several cases deliberately.</p>
+<p><strong>Layer A - Copyright (license-independent)</strong></p>
+<p>Copyright does not depend on any license. A primarily machine-generated copy of a copyrighted work - a copy not accompanied by demonstrable, substantial, new human creative input - is a derivative work over which the copier holds no copyright whatsoever, and the reproduction of which, without the original author’s permission, is an infringement of the original author’s copyright. This is standard, well-tested law, and it applies with equal force under the MIT license, the GPL, or any other license, because it is not about the license at all; it is about who created what. A process that copies the reference implementation into a machine, produces a transformed derivative, and then claims “Copyright, [name of the process operator]” - with no human able to account for the creative decisions in the result - <strong>is not</strong> asserting a valid copyright over the result. They are openly asserting the absence of one, and reproducing someone else’s work without authorisation. This is probably the cleanest cut copyright violation one could imagine.</p>
+<p><strong>Layer B - License Conditions (Reticulum License specific)</strong></p>
+<p>Where a copy <em>is</em> a licensed derivative, the conditions of the Reticulum License apply: The copyright notice and permission notice must be included in all copies and substantial portions; the harm condition must be honoured; the AI-training condition must be honoured. A derivative that follows none of these is unlicensed <em>a second way over</em>.</p>
+<p>The two layers are often intentionally confused in public discussion - the AI-training condition is waved around as if the entire question of machine copying rested on it, when in fact machine copying of copyrighted work is a copyright violation that would exist even under the most permissive license ever written. The purpose of keeping the layers separate is not rhetorical flourish; it is that Layer A is old, settled law, and does not rely on any novel legal theory, while Layer B is specific to this license. Both matter. Neither is a substitute for the other.</p>
+<p>Layer B is the required mechanism for closing the loophole where the work is <em>first</em> ingested during model training into the weights of a model itself, which would make any resulting violations almost impossible to detect and enforce.</p>
+</section>
+<section id="the-clean-room-delusion">
+<span id="brandolinis-cleanroom-delusion"></span><h3>The “Clean-Room” Delusion<a class="headerlink" href="#the-clean-room-delusion" title="Link to this heading">¶</a></h3>
+<p>I regularly receive mail or LXMF messages from people who proudly and happily proclaim that they have created a “clean-room” implementation of one of the software systems I maintain; RNS, Sideband, LXMF or others. The declaration is delivered with the flat certainty of someone who believes they have found the legal lock-pick that settles everything at once: Their production is independent, uncontaminated, and therefore free of any obligation to the work they copied, its license, or its author. The proclamation usually concludes with a request for blessing, or at least acknowledgment. The proclamation is, usually, also generated by an LLM.</p>
+<p>This is a delusion, and I’ll cut through it surgically. The word they here invoke as magic is attempting to do a great deal of work it was never able to bear.</p>
+<p><strong>What a clean room actually was</strong></p>
+<p>The legal “clean room” is not folklore, incantation, witchcraft or a claim a person gets to make about their own output. It is a very specific, institutionalized procedure that grew out of the hardware and software litigations of the 1980s, and it existed for exactly one purpose: <strong>Convincingly proving the absence of copying in a court of law</strong>.</p>
+<p>The canonical case was Phoenix Technologies and its 1984 reimplementation of the IBM PC BIOS. IBM’s BIOS was copyrighted, which meant that the entire PC-compatible industry depended on being able to show that a compatible BIOS had been written independently, and not from IBM’s code. Phoenix’s answer was a physical and procedural firewall:</p>
+<ul class="simple">
+<li><p>One team, the “dirty room”, read the original code and produced written <em>functional specifications</em>: descriptions of what the BIOS did, not how IBM’s code did it.</p></li>
+<li><p>A second team, the “clean room”, consisted of engineers who had <em>never seen the original code at all</em>, and they wrote the new BIOS from those specifications alone.</p></li>
+</ul>
+<p>This obsessively documented, legally attested separation was not a preference or a willy-nilly show for a kindergarten; it was the entire legal point, and it had to be <em>solid</em>. If even one clean-room engineer had <em>glanced</em> at IBM’s code, the clone would have been contaminated, and the defense would shatter.</p>
+<p>The other landmark case was <em>Computer Associates v. Altai</em> (1992), in which Altai had copied CA’s scheduler code into its own product, and (upon being caught) hired outside counsel to run a genuine clean-room procedure: A programmer with no exposure to the original was brought in to rewrite the infringing modules from functional specifications prepared by the team that had seen the code. The court credited the good-faith effort precisely because it was done, as the carefully documented record showed, to the letter of the procedure.</p>
+<p>Bear in mind what this procedure entailed in practice, because this is the part the modern claimants never seem to have even <em>heard</em> of: Physical separation of teams, legal counsel managing the process, signed and notarised declarations of non-exposure, controlled specification documents that described <em>behaviour</em> and never <em>code</em>, months of work, and testing against the specification - not against the original, which the implementers were forbidden to consult.</p>
+<p>The people on the clean-room side of the wall did not just <em>claim</em> they had not read the code. Their non-exposure was institutionally guaranteed, obsessively documented, and legally attestable through every fart and sneeze of the process, because the entire point was that a court - hostile, adversarial, and entitled to discovery - would believe it.</p>
+<p><em>That</em> is the process. “Clean-room implementation” is the name of a <em>certified procedure for proving independent authorship</em>. It is not a mood, a marketing label, or a property a person gets to declare about their own work.</p>
+<p><strong>The moronic inversion</strong></p>
+<p>Now consider what is actually being described when someone says: <em>“I created a clean-room implementation of Reticulum by feeding the source code into a machine.”</em></p>
+<p>That sentence is the opposite of a clean room. Feeding a copyrighted work into a machine so that it reproduces and transforms the work is <strong>the definition of copying</strong>, and a clean room is the one procedure whose entire purpose is the demonstrated <em>absence</em> of copying. This process cannot demonstrate the absence of copying, because the process is <em>composed of</em> copying. The cleanest possible room has been replaced by the dirtiest possible room, and the dirt has been installed as the base feature. What these claimants have actually performed is a photocopy with extra steps, and the extra steps, far from cleaning anything, are simply steps that forge a certificate they believe the output has earned.</p>
+<p><strong>Why the word is deployed</strong></p>
+<p>The word “clean-room” is deployed because it sounds like what the speaker wishes were true. It carries the accumulated legal prestige of the 1980s and 1990s - the BIOS clones, the Altai credit - and it sounds like a certificate already issued: <em>Independent, original, unencumbered</em>, the work of a person who owes nothing. The claimants want that halo without the procedure: No law firm, no physical separation, no written specifications, no signed declarations, no months of process - just a laptop, a loop, and the word “clean-room” typed into a README. The word must do the work of the process it replaces, and the delusional replacement is the entire point.</p>
+<p><strong>The irony runs deep</strong></p>
+<p>The Reticulum protocol is public domain. Any human being can implement it - from the mathematics, from the documentation, from their own reasoning - and owe nothing whatsoever to the license, to the reference implementation, or to me.</p>
+<p>An honestly written implementation needs no incantations, no legal theater, and no special vocabulary; it simply <em>is</em> what it claims. It’s plain for everyone to see. <strong>It’s also plain for everyone to see when you’re faking it</strong>. The people who reach for the word “clean-room” are, without exception, the people who need it to create a fantasy - and the people who need that are precisely the people who cannot have it. If what you wrote were genuinely independent work on the public-domain protocol, you would not need to call it anything. The word is not a seal of independence. In this context it is a confession of copying, filed by the copier, in the confident belief that it says the opposite.</p>
+</section>
+</section>
+<section id="open-source-means-open-source">
+<span id="brandolinis-opensource"></span><h2>Open Source Means Open Source<a class="headerlink" href="#open-source-means-open-source" title="Link to this heading">¶</a></h2>
+<p>An objection regarding the “open source status” of RNS appears occasionally in variations, but always reduces to the same syllogism:</p>
+<ol class="arabic simple">
+<li><p>“Open source” means <em>licensed under one of the licenses approved by the Open Source
+Initiative (or, in other variants, compatible with GPL orthodoxy)</em>.</p></li>
+<li><p>The Reticulum License is not on that list.</p></li>
+<li><p>Therefore Reticulum is not open source, and anything built on it is illegitimate.</p></li>
+</ol>
+<p>The entire argument rests on the first premise, and the first premise is false.</p>
+<p>Open source is not a certification conferred by a committee. It is a description of a fact: The source code is available, and the rights to use, copy, modify, merge, publish, distribute, sublicense, and sell it are granted to everyone, free of charge.</p>
+<p>The Reticulum License does all of those things. It is, in every substantive respect that concerns the person who wants to use, study, modify, or build upon the software, <strong>an open license</strong>. What it adds - and what disqualifies it in the eyes of the orthodoxy - is two conditions on <em>who may do what with the original work</em>, not on what the <em>user</em> is allowed to do with it.</p>
+<p>The definition being wielded against Reticulum is not even a young one. It is, in essence, the Debian Free Software Guidelines written in 1997, adopted by the OSI in 1998, and treated ever since by certain people as if it had descended from a mountain on tablets. It is an approach that is close to three decades old. Being old is not itself a flaw - but being old is also not a proof of correctness, and the suggestion that the meaning of a word like “open” was settled for all time by a committee in the 1990s, and may never be revisited, is not a position rooted in reason. It is rooted in institutional inertia dressed as principle, maintained by those whose ideologies it serves.</p>
+<section id="what-the-argument-is-actually-doing">
+<span id="brandolinis-what-the-argument-is-doing"></span><h3>What The Argument Is Actually Doing<a class="headerlink" href="#what-the-argument-is-actually-doing" title="Link to this heading">¶</a></h3>
+<p>I would like to go into some detail about the rhetorical mechanism, because it is roughly the same mechanism that powers the rest of the campaign described later in this chapter.</p>
+<p>The orthodoxy’s argument is self-referential: <em>“open source means what we say it means, because we are the ones who define it.”</em> When the Reticulum License is measured against that definition and found wanting, the conclusion is presented as a property of Reticulum - when in fact it is <em>a property of the definition</em>. The definition is treated as neutral and authoritative - as some base fact of raw cosmology - and the license is treated as deviant. But the definition is no more neutral than the license is. It encodes a moral position, and that moral position is exactly the one that this project declines to take.</p>
+<p>Consider what the orthodoxy’s definition requires, in the case at hand. The OSI-based definition contains, in its ancestry, the Debian Free Software Guideline of “No discrimination against fields of endeavor”: The software must not restrict who may use it or for what purpose. Taken to its logical end, this means that open source, properly “certified”, must be equally available to those who build hospitals and those who build weapons, those who connect people and those who control them, those who create and those who ingest and replace.</p>
+<p>The orthodoxy presents this as neutrality. It is not neutrality; it is a moral position - one that says, in effect, that <em>harming human beings is a field of endeavor like any other, and software must not discriminate against it</em>.</p>
+<p>The Reticulum License takes a different position, and it has the honesty to state it in the license text: this software is for life, not for death; it is for people, not for the systems that would replace them. That is not a restriction on openness, nor on freedom. It is a restriction on <em>who may consume the work</em>, and it is a restriction the orthodoxy’s definition cannot express - which is why the orthodoxy must always attack the license as “not open source” rather than engage with what it actually does.</p>
+</section>
+<section id="who-is-restricted-by-which-license">
+<span id="brandolinis-who-is-restricted"></span><h3>Who Is Restricted By Which License?<a class="headerlink" href="#who-is-restricted-by-which-license" title="Link to this heading">¶</a></h3>
+<p>The arithmetic is simple, so let’s do it out loud, because the orthodoxy’s framing inverts it every time.</p>
+<p>The GPL family imposes its conditions on <strong>everyone</strong>: You may not distribute, link, or - in the AGPL case - even <em>communicate with</em> GPL-covered software without your own work being pulled under the same terms. “Free” in this system is defined (self-referentially) <em>by the license’s own terms</em>; everything outside those terms is, by definition, unfree. The restriction applies to 100% of users. It applies to the hospital, the mesh community, the school, and the hobbyist with the same force it applies to anyone else. That is not freedom for everyone; it is a <em>specific moral architecture applied to everyone</em>, presented <em>as if it were the absence of one</em>.</p>
+<p>The Reticulum License imposes its conditions on a fraction of would-be users so small as to be practically unmeasurable:</p>
+<ul class="simple">
+<li><p>Those whose intended use is to build systems that purposefully harm human beings, and</p></li>
+<li><p>Those whose intended use is to ingest the work into AI training pipelines.</p></li>
+</ul>
+<p>That is the entire list. Everyone else - the overwhelming majority, the community, the developers, the users, the downstream projects - receives the full, unrestricted rights to use, copy, modify, merge, publish, distribute, sublicense, and sell the software, with none of the viral encumbrance of copyleft.</p>
+<p>So when the claim is made that the Reticulum License “is more restrictive” than the GPL, the claim is not merely wrong; it is the exact inverse of the truth. The GPL restricts the freedom of everyone, in the name of a specific ideology. The Reticulum License restricts the freedom of the harm-doer and the appropriator, and leaves everyone else free. The two approaches do not differ in whether they contain moral axioms - <strong>all licenses do</strong>. They differ in whether the axioms are stated openly, and in <em>whose</em> freedom they restrict.</p>
+</section>
+<section id="the-consequences-of-the-not-open-source-claim">
+<span id="brandolinis-consequences-not-open"></span><h3>The Consequences Of The “Not Open Source” Claim<a class="headerlink" href="#the-consequences-of-the-not-open-source-claim" title="Link to this heading">¶</a></h3>
+<p>This would be a footnote debate if the mischaracterisation had no practical consequences. It has very large ones, and therefore this section exists.</p>
+<p>The claim that “Reticulum is not open source” is the foundation of the takeover narrative it so often accompanies. The sequence is always the same:</p>
+<ul class="simple">
+<li><p>First, declare the reference implementation illegitimate (“not really open source”, “owned by one man”, “not a real community project”)</p></li>
+<li><p>Second, conclude that it is therefore acceptable - even necessary - to replace it.</p></li>
+<li><p>Third, present the replacement, which is (conveniently) often the speaker’s own machine-generated clone, as the legitimate heir.</p></li>
+</ul>
+<p>This is not speculation about motives; it is the documented structure of the campaign examined in <a class="reference internal" href="#brandolinis-movement-of-a-dozen"><span class="std std-ref">A Movement Of A Dozen</span></a>.</p>
+<p>The “not open source” claim is the legal-ideological battering ram of that campaign. It is recycled, in article after article, in forum after forum, because it works on people who assume that a committee’s definition is the same thing as the truth.</p>
+<p>It is also worth stating the other obvious fact: None of these critics have ever shown that the Reticulum License restricts <em>them</em>. They do not build weapons. They are not training models on the codebase. They are free, in every practical sense, to use Reticulum exactly as they would under MIT or GPL. Their objection is not to a restriction on themselves; it is to the <em>mere existence</em> of a license that states a moral position they disagree with, or which they can use as leverage for a different goal entirely, and to the institutional fact that it does so outside <em>their</em> system of approval and control. The complaint is not that the license makes them unfree. The complaint is that the license is <em>free of them</em>.</p>
+</section>
+<section id="the-distribution-argument">
+<span id="brandolinis-distribution-argument"></span><h3>The Distribution Argument<a class="headerlink" href="#the-distribution-argument" title="Link to this heading">¶</a></h3>
+<p>A recurring companion claim is that RNS is not properly “distributed”, usually deployed as “it’s not packaged as a .deb” or “it’s not on package manager X”, with the implication that it is somehow unavailable or inaccessible, or hard to install on a given system.</p>
+<p>This is simply false, and it has been false for years. The reference implementation is available on practically every platform and architecture with a single command (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">rns</span></code>). It is packaged in the Arch User Repository, in NixOS, and in a range of other distribution channels, community-maintained and official. It can be installed, updated, and kept current <em>over Reticulum itself</em> - the network transports its own software updates. It is used on more than a hundred thousand devices worldwide, is embedded in over a hundred other packages and applications, and carries terabytes of traffic every day.</p>
+<p>The claim that Reticulum needs a <code class="docutils literal notranslate"><span class="pre">.deb</span></code> to be “really distributed” mistakes the mechanism for the goal. The goal is that people can obtain and update the software easily, everywhere, <strong>on their own terms</strong>, and distribute it themselves, both offline, online and over Reticulum with full cryptographic verification of the install packages, without any central infrastructure.</p>
+<p>That goal is met to an excellence that few software packages can speak of, and met in a way that does not pin the project’s release cadence to the review cycles of distribution maintainers, which is an achievement, not a bug.</p>
+<p>A project like RNS that updates continuously, sometimes daily, and has a track-record of shipping security updates mere hours after issues are discovered, would be crippled by packaging that makes every change wait months for approval. The distribution complaint is a strawman generated for the occasion. It has been answered, in public, many times; it is repeated anyway, because the people repeating it are not counting on facts - they are counting on the reader never having heard the answer.</p>
+</section>
+<section id="on-the-institutions-in-fairness">
+<span id="brandolinis-on-institutions"></span><h3>On The Institutions, In Fairness<a class="headerlink" href="#on-the-institutions-in-fairness" title="Link to this heading">¶</a></h3>
+<p>None of the above is hostility toward the Open Source Initiative or the Free Software Foundation as institutions, nor toward the individuals who have dedicated decades of work to them. Their contribution to the world of software is <strong>enormous</strong>, and this document does not dispute it. What is disputed is a specific claim of authority: That “open source” is a term whose meaning is reserved to a committee’s approval, and that a license which does not submit itself to that approval is therefore not open.</p>
+<p>That claim of authority is not in Reticulum’s interest, and it is not in the interest of the people the movement claims to serve. The current legal and technological landscape - the machine-appropriation of the commons, the weaponisation of “prior work” generation, the  erosion of human agency by synthetic systems - was not anticipated by the DFSG of 1997, and  the institutions have not, as of this writing, produced <em>any</em> meaningful answer to it. The choice, as it was put at the time of the license change, is whether developers should sit back and  wait for a solution from a committee that “may or may not ever materialize, before the entire foundation we stand on has been eaten away”.</p>
+<p><strong>Reticulum’s answer was to act</strong>. If we had waited, it would have been too late.</p>
+<p>If an OSI-approved license existed that expressed the same constraints - and did not impose the far more severe restrictions of copyleft - the project would have used it. None such exists. That is not Reticulum’s failure. It is the measure of what the definition is missing.</p>
+</section>
+<section id="what-open-means-positively">
+<span id="brandolinis-what-open-means"></span><h3>What “Open” Means Positively<a class="headerlink" href="#what-open-means-positively" title="Link to this heading">¶</a></h3>
+<p>For anyone who wants the positive statement rather than the rebuttal, Open Source, in this project’s understanding, means:</p>
+<ul class="simple">
+<li><p>The source code is available, to everyone, without charge</p></li>
+<li><p>Everyone may use, copy, modify, merge, publish, distribute, sublicense, and sell the
+software</p></li>
+<li><p>No one is discriminated against as a person - developer, user, community, or project</p></li>
+<li><p>The protocol itself is dedicated to the public domain, where no one can own it</p></li>
+<li><p>And the single, plainly stated condition of the license is that the work shall not be
+consumed to harm human beings, or ingested to replace the humans who made it</p></li>
+</ul>
+<p>If that is not “open” by a definition written in the 1990s, then the definition is the thing
+that has failed - not the software, and not the people who use it.</p>
+<p><strong>Open source means open source</strong>. It was true before the committees existed to certify it, and it will remain true after they are gone.</p>
+</section>
+</section>
+<section id="assistance-versus-machine-substitution">
+<span id="brandolinis-assistance-versus-substitution"></span><h2>Assistance Versus Machine-Substitution<a class="headerlink" href="#assistance-versus-machine-substitution" title="Link to this heading">¶</a></h2>
+<section id="false-dichotomy">
+<span id="brandolinis-false-dichotomy"></span><h3>False Dichotomy<a class="headerlink" href="#false-dichotomy" title="Link to this heading">¶</a></h3>
+<p>The public discussion around machine learning and software development has been derailed, by the loudest voices on both sides, into a farcical fight between “AI enthusiasts” and “AI haters”.</p>
+<blockquote>
+<div><p><strong>Both positions are absolute caricatures.</strong></p>
+<p><strong>The fight is beside the point in the ways that matters most.</strong></p>
+</div></blockquote>
+<p>It is not an accident, but a very conscious choice that the initial analysis of the Prns case examined herein, and this very chapter, were themself produced with the assistance of a machine-learning based generative system.</p>
+<p>Specifically, it was generated using <code class="docutils literal notranslate"><span class="pre">lc</span></code> managing a <code class="docutils literal notranslate"><span class="pre">Q8_K_XL</span></code> quant of <code class="docutils literal notranslate"><span class="pre">DeepSeek</span> <span class="pre">v4</span> <span class="pre">Flash</span></code> running in the <code class="docutils literal notranslate"><span class="pre">llama.cpp</span></code> inference engine. The main context base used to stabilize, ground and inform the generative environment consisted of approximately 100,000 tokens of text material that I personally thought out and wrote (by hand), then archived and organized, over the last eight years.</p>
+<p>If you know my writing, and have a hard time discerning where this chapter is me directly, typing manually, and where it is the machine output, it is because of two things: Almost every line in this chapter was either directly edited by my hands on the keyboard or typed by me, and the text corpus that informed the process <em>is</em> genuinely me - my thoughts, written by me, over a period of years.</p>
+<p>The chapter was produced this way <em>deliberately and openly</em>, under a software framework I designed and wrote, with the human directing the inquiry points, flow of investigation, structure of the outputs, contents of every section, making the editorial decisions, reviewing the conclusions, painstakingly adjusting every line, and taking responsibility for the final claims presented, with the goal of reaching a higher level of synthesis and symbolic density than I could have achieved without that assistance.</p>
+<p>The tool was <em>used as tool</em>, both to structure and produce a complex chapter, and to inspect a repository so preposterous in size, commit velocity and nonsensical wording that it barred any purely human inquiry.</p>
+<p>As such, the position is hereby, by personal example and demonstration, stated clearly:</p>
+<ul class="simple">
+<li><p><strong>Technological assistance is not the problem</strong></p></li>
+<li><p><strong>It was never the problem</strong></p></li>
+<li><p><strong>It is the opposite of the problem</strong></p></li>
+</ul>
+<p>The problems are <em>substitution</em> and <em>usurpation</em>: The perverse process in which the machine becomes the author of choices, and the human becomes the facade of software, while expecting “reciprocity” or recognition for deeds they never performed.</p>
+</section>
+<section id="the-line">
+<span id="brandolinis-the-line"></span><h3>The Line<a class="headerlink" href="#the-line" title="Link to this heading">¶</a></h3>
+<p>The exact distinction can be reduced neither to how many lines of code a machine produced, nor who pressed the keys. The final distinction has to rest on <strong>who, or what, the real agent of the work is</strong>.</p>
+<ul class="simple">
+<li><p><strong>Assistance</strong> is when the human retains the full seat of agency: The human decides what to build, judges
+what is correct, rejects what is wrong, understands what is shipped, and can answer for every single line of it.
+The machine writes, suggests, drafts, accelerates <em>meaningfully</em> and within reason - but every choice that survives into the
+final work is a choice the human made <em>consciously</em>, and understood - or grew to understand - the consequences of.</p></li>
+<li><p><strong>Substitution</strong> is when the machine <em>becomes</em> the agency: the machine decides what to build,
+decides what is correct, iterates on its own errors, generates at a scale and speed no single
+human can follow - and the human’s role is reduced to providing the name, the account, the
+signature, and the marketing launch.</p></li>
+</ul>
+<blockquote>
+<div><p>The Line can be stated as a single test, and this is the same test that has always separated authorship from couriership: <strong>Can the person whose name is on the work answer for it fully?</strong> Not “can they describe what it does” - can they account for why it is the way it is, line by line and decision by decision, and the history of how it came to be that way, under questioning, without machine assistance, including by people who know more than they do?</p>
+</div></blockquote>
+<p>If they cannot, they did not author the work. They wore it, or in more severe cases, they stole it. And a courier who claims authorship is not a writer; they are a fraud.</p>
+</section>
+<section id="what-assistance-looks-like">
+<span id="brandolinis-what-assistance-looks-like"></span><h3>What assistance looks like<a class="headerlink" href="#what-assistance-looks-like" title="Link to this heading">¶</a></h3>
+<p>Assisted work is recognisable, and recognisability is itself part of its value. It has the following observable properties:</p>
+<ol class="arabic simple">
+<li><p><strong>The human can explain it.</strong> Under examination, the author can say why this choice was
+made, what was rejected, and what they verified. The ability to explain is not a luxury;
+it is the very demonstration of authorship. On a large project with many contributors this is partial in
+practice - no one can explain every line of a large codebase - but the <em>full capacity</em> must
+exist between the authors and the <em>habit</em> must be visible.</p></li>
+<li><p><strong>The human can, and does, reject machine output.</strong> An author who has never rejected the machine’s output is not
+an author, but an open drain. Rejection is not a stylistic flourish; it is the
+mechanism by which any work attains Quality. A record of decisions, including reversals and rejections,
+is a sign of agency. A record without rejection is a record of assent-by-default.</p></li>
+<li><p><strong>The human’s judgment is directional.</strong> The work contains the human’s actual choices;
+things the machine would not have decided on its own, which the human can defend on their
+merits. This directionality has many names in engineering: Design, architecture, taste,
+judgment. Where it is absent, the work has the uniform, self-consistent texture of
+something that was never doubted, and doubt is exactly what anything important requires.</p></li>
+<li><p><strong>Provenance is not concealed.</strong> Disclosure of how the work was made is not a legal
+requirement in every jurisdiction; it is not even always a practical requirement. But it
+is a <em>statement</em> that matters. A project that discloses its process -
+including its use of machines - is telling the truth about the relationship between the
+human and the work, and that is a property users <em>are</em> entitled to know. Concealment of
+provenance is not a stylistic choice; it is deception, made by someone who knows what the
+record would otherwise show.</p></li>
+<li><p><strong>The human stands behind the failures.</strong> When assisted work fails, the human can say: Yes, I
+chose this, under these assumptions, here is why, here is what I got wrong, here is the fix.
+That sentence is the entire contract between an author and the people who depend on their work.
+A human who cannot say it - because the choices were never theirs - <em>has nothing to offer anyone</em>, and
+is by definition entirely replaceable; anyone else could have pressed the same button.</p></li>
+</ol>
+</section>
+<section id="what-substitution-looks-like">
+<span id="brandolinis-what-substitution-looks-like"></span><h3>What substitution looks like<a class="headerlink" href="#what-substitution-looks-like" title="Link to this heading">¶</a></h3>
+<p>Substitution is equally recognisable, once the pattern is known:</p>
+<ol class="arabic simple">
+<li><p><strong>Scope that no human could have authored.</strong> Output that
+structurally cannot have been the product of human authorship, review, and judgment, for
+example when the volume exceeds any reasonable human capacity within the span of the project’s life.
+When the review capacity and the output volume are incommensurable, the output was not
+reviewed. It was generated, then forgotten, and the record was signed blindly.</p></li>
+<li><p><strong>Uniform generation.</strong> The work carries no trace of a human’s changing mind. No style
+drift, no contested decisions, no “we tried X and it was wrong, so we did Y”. That is, <em>no
+signs of actual development, growth and learning</em>. Instead, endless, self-referential
+refactoring, renamed abstractions, and the same fluent register in every commit,
+every document, every reply. A human’s history shows the wear of judgment.
+Pure generation shows the superficial polish of its absence.</p></li>
+<li><p><strong>Discovery by recursive regeneration.</strong> When errors are found, they are found by the machine’s own
+subsequent runs, not by human scrutiny - and the findings are recorded as planned
+“reviews” and “alignments” rather than as the corrections they are. This is the tell: A
+machine editing its own previous output, while the edit is recorded as if it were a
+scheduled milestone. That’s not review. That’s a continuous generation loop revising itself,
+with the attempt of an illusion-preserving voice-over.</p></li>
+<li><p><strong>Laundered provenance.</strong> Theatrical concealment machinery: Commit hooks that refuse
+attribution of machine generation, contribution policies that declare machine output
+“yours”, processes that scrub personal traces from the history, fake identities in the
+contributor list. All of these have one function: To make the record say what the “author”
+<em>wished</em> had happened, rather than what happened. A project that builds such machinery is
+not making a record of its work; it is using automated software to manufacture one.</p></li>
+<li><p><strong>Authorship by assignment.</strong> The human’s name is on the work, but the human cannot
+answer for it - because the human did not choose any of it, and knows it. The name is not a
+signature of authorship; it is a <em>fraudulent claim of ownership</em> over something the claimant did not
+make and cannot explain. In every field that has ever dealt with such claims - art,
+literature, invention, journalism - <em>this has a name</em>. That <strong>forgery</strong> is now cheap in software
+makes it no more forgivable.</p></li>
+</ol>
+</section>
+<section id="infrastructure-matters">
+<span id="brandolinis-infrastructure-matters"></span><h3>Infrastructure Matters<a class="headerlink" href="#infrastructure-matters" title="Link to this heading">¶</a></h3>
+<p>For a hobby project, the distinction between assistance and substitution is a personal matter. For infrastructure - code that other people’s communications, safety, and freedom run on - it is a matter of life and safety, and any statement about this must be entirely unapologetic.</p>
+<p>Infrastructure has one property that distinguishes it from almost all other software: While most of the people who depend on it cannot verify it themselves, <strong>it must be verifiable, auditable and open to human inspection</strong>, and be engineered in such a way that this is as frictionless and straight-forward as possible.</p>
+<p>The reference implementation of Reticulum was designed this way, and continues to make that goal a primary one. While it <em>is</em> a complex piece of software, with an intricate array of interlocking and moving parts, the core parts of RNS, the entire Reticulum protocol implementation, the transport logic, the cryptographic primitive interfaces, <strong>is less than 15,000 lines of code</strong>. That line count even includes the rather extensive comments, incredibly detailed logging facilities and other choices that makes the code easy to read and understand for humans, and easy to operate, verify and debug. It took real dedication, and <em>a lot</em> of hard work to achieve that.</p>
+<p>Exactly because not <em>everyone</em> can do this, it is a fundamental necessity for infrastructure software that it is designed and authored so that <em>as many as possible can</em>, and that the <em>chain of accountability</em> - who made it, who reviewed it, who answers for it - is held intact at every link. That chain is not decoration. It is the entire mechanism by which normal users decide to trust a system they cannot fully verify. The transparent foundations and the chain combined <em>is</em> the verification for most users.</p>
+<p>Substitution breaks the chain both at the foundations, and at its load-bearing link: The human at the top can no longer answer, because they were never the maker. Unfortunately, the chain does not always fail visibly; often it fails silently, at the exact moment a question goes deep, or when routing fails subtly at a critical moment.</p>
+<p>For the user, the result is not a project with a normal and humanly flawed author - it is a project <em>with no author at all</em>; a signature with no substance behind it, a name that cannot be held to account, and a body of work that nobody on earth can (or wants to) explain, defend, or fix in a crisis.</p>
+</section>
+<section id="the-fluency-trap">
+<span id="brandolinis-the-fluency-trap"></span><h3>The Fluency Trap<a class="headerlink" href="#the-fluency-trap" title="Link to this heading">¶</a></h3>
+<p>It is worth understanding, briefly, why substitution is so attractive and so dangerous at once. Machine-generated output is fluent. It is confident, well-structured, and terminologically <em>self-consistent</em>. At the surface, and from the perspective of someone outside a given craft, it is indistinguishable from the output of a knowledgeable human. Fluency of this kind can be a useful property: It makes assisted work fast. But fluency is <em>not</em> understanding. It is the <em>minimal conformal surface</em> of understanding.</p>
+<p>The danger is that the surface is exclusively where the substituter invests; for the simple reason that the surface is where most of the desired audience looks, and what yields attention to the project.</p>
+<p>A human who can tell the difference uses the tool well. A human who cannot is being deceived through means they cannot detect from inside, namely through their own inability to account for the limits imposed by what they do not know.</p>
+<p>This is why the most important quality for anyone working with systems like Reticulum is not speed, and not vocabulary, but the oldest engineering virtue there is: The honest, uncomfortable, terrorizing knowledge of <strong>what you do not know</strong>. The substitute <em>never</em> has it. The substitute’s operator, <em>if</em> they ever had it, loses it precisely the moment they accept the fantasy of the substitution process.</p>
+<p>The tool is not the hazard, plain old human nature is. The tool is a mirror, and mirrors - as has been observed for rather longer than software has existed - show the truth only to those willing and yearning to see their own shortcomings.</p>
+</section>
+<section id="disclosed-assistance-or-laundered-generation">
+<span id="brandolinis-disclosed-assistance"></span><h3>Disclosed Assistance Or Laundered Generation<a class="headerlink" href="#disclosed-assistance-or-laundered-generation" title="Link to this heading">¶</a></h3>
+<p>The contrast at the centre of this entire discussion can be made clearer with two examples, both of which are a publicly accessible, both produced in the same year, by people using the same class of tools.</p>
+<p>The first is this chapter. It was produced with machine assistance, openly: the structure was directed by the human, the material was assembled with the tool’s help, every conclusion, every line, every slight nuance of meaning and semantics was examined, edited, and accepted or rejected by the human, and the process described publicly - including the precise characteristics of the technological assistance framework used. The human can answer for every claim in these documents, because the human made the decisions the claims rest on.</p>
+<p>The second is the project examined in <a class="reference internal" href="#brandolinis-prns"><span class="std std-ref">the Prns case</span></a>. It was produced by a machine, at a volume no human could review, and the authorship record was engineered to erase the machine’s role: A commit hook that refuses attribution of machine generation, a contribution policy declaring machine output the human’s own, a fictitious contributor identity, 637,000 lines of unreviewed code. The human cannot answer for the code, because the choices were never made by a human - only the conformal surface of the presentation was.</p>
+<p>The same tool class. The same technology. Two diametrically opposed relationships to truth and responsibility. <strong>The difference is not the tool</strong>. The difference is the presence or absence of the human as the agent of the work - and the honesty or concealment with which that relationship is recorded.</p>
+<p>Assistance leaves the human as the agent and the commons as the source from which the human works and can grow. Substitution removes the human from the loop and converts the commons into fuel for the thing that seeks to replace them, or usurp their work for the profit of the few, human atrophying in the process.</p>
+</section>
+<section id="the-license-in-this-context">
+<span id="brandolinis-license-in-context"></span><h3>The License In This Context<a class="headerlink" href="#the-license-in-this-context" title="Link to this heading">¶</a></h3>
+<p>The Reticulum License, examined in <a class="reference internal" href="#brandolinis-what-the-license-is"><span class="std std-ref">What The Reticulum License Is</span></a>, draws the same line, at the level of the law. Its AI condition does not forbid the use of machine-learning technology to <em>assist</em> development - no reading of the license could support that, and no one associated with this project has ever claimed so. What the condition forbids is the <em>appropriation of the work into the machine itself</em>: The ingestion of the commons as raw material for synthetic replacement, and the concealed fabrication of “prior work” that would bury the real thing.</p>
+<p>As also noted in <a class="reference internal" href="#brandolinis-copyright-and-layers"><span class="std std-ref">Copyright &amp; The Two Legal Layers</span></a>, plain old copyright law already protects against the case where a process copies the reference implementation into a machine, produces a transformed derivative, and then claims “Copyright, [name of the process operator]”, with no human able to account for the creative decisions in the result. That is simple, petty theft, as it always has been.</p>
+</section>
+<section id="the-general-principle">
+<span id="brandolinis-general-principle"></span><h3>The General Principle<a class="headerlink" href="#the-general-principle" title="Link to this heading">¶</a></h3>
+<p>In these regards, the position of this project can be codensed to something relatively concise:</p>
+<ul class="simple">
+<li><p>Machine assistance in human learning, development, and creation is accepted and useful.
+It is not a shameful secret; but it <em>is</em> a tool that needs knowledge, training, understanding,
+and great care to use. It should not make anything easier or more fun, it should make the
+results better, more carefully considered, and arrive at <em>higher levels of synthesis</em>, not
+produce endless streams of code churn.</p></li>
+<li><p>The line is crossed when the human stops being the agent of the work. When <em>any</em> output is
+accepted that the human cannot explain, produced at a scale the human cannot review, or filed under a record
+where the human has arranged to conceal the fact.</p></li>
+<li><p>The line is crossed, when a human claims authorship of work they cannot
+answer for or has usurped. Credit follows the ability to answer. It has always worked that way, and
+machines do not change the rule - they only make it cheaper and more tempting to break.</p></li>
+<li><p>The people who depend on infrastructure have the right to know which side of the line
+the code they run was made on. That knowledge is the only verification most of
+them will ever be able to perform.</p></li>
+</ul>
+<p>Use assistance, by all means, <em>and learn</em>, but don’t substitute. And never sign what you cannot answer for.</p>
+<p>Somewhere, within the general shape of the conceptual framework outlined in this section, or realistically, a more refined variant of it, I do believe there is the <em>potential</em> of the <em>beginning</em> of a constructive outcome to the immense challenge we are faced with as a species in regards to these problems.</p>
+<p>At the same time, I reserve my right to revert that position to Butlerian Jihad without prior notice. We are on a knife’s edge, and you know it just as well as I do.</p>
+</section>
+</section>
+<section id="evaluating-a-reticulum-implementation">
+<span id="brandolinis-evaluating"></span><h2>Evaluating a Reticulum Implementation<a class="headerlink" href="#evaluating-a-reticulum-implementation" title="Link to this heading">¶</a></h2>
+<section id="the-intention-of-this-guide">
+<span id="brandolinis-intention-of-guide"></span><h3>The Intention Of This Guide<a class="headerlink" href="#the-intention-of-this-guide" title="Link to this heading">¶</a></h3>
+<p>Very few user of network infrastructure can verify the software they run. This is true of the reference implementation as well, and it is precisely why it was engineered the way it was: the entire Reticulum protocol implementation - the transport logic, the cryptographic interfaces, the routing - is less than 15,000 lines of code, including its extensive comments and detailed logging. The reference is <em>designed</em> to be readable by a human in a reasonable sitting. That is a deliberate decision, and it is the standard against which every other implementation should be measured: An implementation that asks for trust while being structurally unreadable is asking for the absurd.</p>
+<p>Because most users cannot verify the code directly, the evaluation of the <em>project</em> is the evaluation of the software. The framework below exists so that this evaluation can be performed in minutes, by anyone, without expertise - and so that each new “implementation” does not require the kind of full investigation that would otherwise be if not impossible, prohibitevly expensive.</p>
+</section>
+<section id="two-questions-that-resolve-most-cases">
+<span id="brandolinis-two-questions"></span><h3>Two Questions That Resolve Most Cases<a class="headerlink" href="#two-questions-that-resolve-most-cases" title="Link to this heading">¶</a></h3>
+<p>Other considerations in this guide is further corroboration. These two questions allow you to decide the case quickly in most instances, and they should be asked first.</p>
+<p><strong>Question 1: Does this speak the protocol, or was it just generated from the reference?</strong></p>
+<p>The copyright and license realities, described in <a class="reference internal" href="#brandolinis-what-the-license-is"><span class="std std-ref">What The Reticulum License Is</span></a>, is the legal foundation of this distinction. The protocol is public domain: A <em>genuine</em> <a class="reference internal" href="#brandolinis-cleanroom-delusion"><span class="std std-ref">clean-room</span></a> implementation, reasoned out and written by humans, is free and welcome, and owes nothing to any license. But an implementation that was <em>directly generated from</em> the reference - reproduced by a copy process, whether manually or through a machine or software - is a derivative of the licensed work, and is subject to both the license’s conditions, and to the ordinary copyright law examined in <a class="reference internal" href="#brandolinis-copyright-and-layers"><span class="std std-ref">Copyright &amp; The Two Legal Layers</span></a>. A primarily machine-generated copy without substantial human creative input is not merely unlicensed; it is a copyright violation that would exist under any license at all.</p>
+<p><strong>Ask</strong>: Does the project say where its protocol knowledge came from? Does it credit the reference implementation, or claim “ground-up” status while its own history shows continuous ingestion of the reference’s source? Does its license carry the original copyright notice? The answers tell you, within minutes, which of two very different kinds of project you are dealing with.</p>
+<p><strong>Question 2: Who, or what, is the agent of the work?</strong></p>
+<p>This distinction, established in <a class="reference internal" href="#brandolinis-assistance-versus-substitution"><span class="std std-ref">Assistance Versus Machine Substitution</span></a>, is the trust foundation of everything else. Is there a human who decided what to build, judged what was correct, rejected what was wrong, understands what was shipped - and can answer for it, line by line and decision by decision, <em>without machine assistance</em>? Or is the machine the agent, with the human’s role reduced to the name, the account, and the signature?</p>
+<blockquote>
+<div><p>This test has a sharper form: <strong>would the project be meaningfully different if someone else had pressed the button?</strong> If the answer is no - if any person could have been the signature and nothing would change - then the “author” is not the agent of the work. They are its facade, and the project is, in the most literal sense, worthless and unowned.</p>
+</div></blockquote>
+<p>A project with no owner is a project no one can answer for, and infrastructure with no one to answer for it has no place carrying other people’s traffic.</p>
+</section>
+<section id="other-signals-to-look-for">
+<span id="brandolinis-other-signals"></span><h3>Other Signals To Look For<a class="headerlink" href="#other-signals-to-look-for" title="Link to this heading">¶</a></h3>
+<p>Once the first two questions are answered, the following signals determine the verdict. None is alone decisive; together they form a pattern that is difficult to fake in the directions that matter.</p>
+<section id="provenance-and-attribution">
+<span id="brandolinis-provenance"></span><h4>Provenance and attribution<a class="headerlink" href="#provenance-and-attribution" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>Credit to the reference.</strong> Does the project name Reticulum’s reference implementation
+in its README, its website, its licenses, and the code? Does it present itself as a port
+or as a “ground-up” origin story? Absence of credit, in a field where every implementation
+owes its existence to the reference, is not an oversight; it is a decision.</p></li>
+<li><p><strong>License compliance.</strong> For a derivative, the license conditions apply: the copyright
+notice and permission notice in all copies and substantial portions, the harm condition,
+the AI-training condition. A project whose license file claims a fresh copyright in the
+operator’s name, over work that was generated from the reference, has failed the minimum
+bar of honesty before any code is read.</p></li>
+<li><p><strong>Disclosed provenance.</strong> Is the use of machine assistance stated openly, or does the
+project maintain machinery to conceal it - commit hooks that refuse attribution of
+generation, contribution policies that declare machine output the human’s own, scrubbers
+for personal traces, fictitious contributor identities? The first is the mark of a human
+using a tool. The second is the mark of a record being manufactured.</p></li>
+<li><p><strong>The author’s history.</strong> Is there a prior record - projects, contributions, a body of
+work that a person can look at and reasonably assess? A sudden, fully-formed “decade of experience”
+appearing from nowhere, attached to a project of unprecedented scope, is a story that
+contradicts itself.</p></li>
+</ul>
+</section>
+<section id="agency-and-answerability">
+<span id="brandolinis-agency"></span><h4>Agency and answerability<a class="headerlink" href="#agency-and-answerability" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>Who answers the questions?</strong> When technical questions are asked, does a human answer
+with substance - going deeper, explaining trade-offs, admitting uncertainty - or do
+answers deflect to process (“the CI verifies it”, “the proofs prove it”, “the audit
+covered it”)? Are the answers themself machine generated? Deflection to process is
+the substitute’s answer pattern: It names the machinery instead of the reasoning.</p></li>
+<li><p><strong>Velocity commensurate with authorship.</strong> Is the output volume compatible with human
+authorship, review, and judgment? An implementation ten (or 42!) times the size of the reference,
+produced in a fraction of the time by a single person, is not evidence of brilliance; it
+is evidence of unchecked generation. Churn is part of the same signal: A project that
+deletes half of everything it adds is not building; it is looping.</p></li>
+<li><p><strong>Signs of development, growth and learning.</strong> Do reversals exist? Contested decisions?
+“We tried X and it was wrong, so we did Y”? Humans change their minds, admit mistakes, and
+leave the wear of judgment in their history. Pure generation shows “the polish of its
+absence”: uniform register, endless renaming, and errors discovered by the generator’s own
+later runs, recorded as if they were planned milestones.</p></li>
+<li><p><strong>Standing behind failures.</strong> When something is wrong, does the human say “I chose this,
+here is what I got wrong, here is the fix”? Or do corrections arrive as process language,
+with nobody accepting that a decision was even made? A project whose history contains no
+first-person acceptance of error contains no author.</p></li>
+</ul>
+</section>
+<section id="engineering-reality">
+<span id="brandolinis-engineering"></span><h4>Engineering reality<a class="headerlink" href="#engineering-reality" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>Honest benchmarks, or none.</strong> If performance is claimed, is the baseline real - stock,
+current, interpreted RNS, on the modern interface, at equal policy, with methodology
+published in advance and reproducible by anyone?</p></li>
+<li><p><strong>Interop with reality.</strong> Is compatibility verified against the <em>current</em> reference
+implementation - on real hardware, including the radio and serial interfaces this
+protocol family lives on - in both directions, over long transfers, uptimes and edge cases?</p></li>
+<li><p><strong>The readability standard.</strong> Can a competent human read the core of this implementation
+in a reasonable sitting, the way the 15,000-line reference can be read? Was human
+readability a stated design goal, or an afterthought? A project that cannot be inspected
+is a project asking for trust it has not earned and will never attend to.</p></li>
+<li><p><strong>Nonstandard inventions.</strong> Does the project “improve” on the protocol with its own
+modes - new channel behaviour on shared spectrum, new rendezvous mechanisms, new crypto,
+“post-quantum” replacements, “turbo” variants? Inventions that change behaviour on a
+shared network are not features; they are forks of the airwaves, imposed on every other
+node that shares the medium. A project that invents on top of a protocol it has not yet
+correctly implemented is not advanced; it is dangerous to its neighbours.</p></li>
+<li><p><strong>The public record.</strong> The commit history is public. Read it.</p></li>
+</ul>
+</section>
+<section id="network-citizenship">
+<span id="brandolinis-network-citizenship"></span><h4>Network citizenship<a class="headerlink" href="#network-citizenship" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>Honest presence.</strong> Does the project identify itself honestly on the network, or does
+it masquerade as something it is not?</p></li>
+<li><p><strong>Coexistence.</strong> Does it respect the shared medium and network conventions? A node that
+is a bad neighbour on the spectrum is a hazard regardless of how well its code works in isolation.</p></li>
+<li><p><strong>Community participation.</strong> Does the author participate in the community as a member -
+answering questions, contributing, learning - or only appear to advertise? The second is
+not participation; it is exploiting the community as a broadcasting target.</p></li>
+</ul>
+</section>
+<section id="monetary-and-influence-signals">
+<span id="brandolinis-signals"></span><h4>Monetary and influence signals<a class="headerlink" href="#monetary-and-influence-signals" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>Money under the claim.</strong> Donations, funding, or commercial offers premised on claims
+like “89× faster” or “formally proven” convert false marketing into a different category
+of problem. When money changes hands on the strength of fabricated measurements, the
+stakes are no longer theoretical.</p></li>
+<li><p><strong>Tokens and “investment” vehicles.</strong> Any implementation that surrounds itself with a
+crypto token, a “coin”, or an investment pitch should be treated as what it is: A project
+whose primary purpose is to earn the controller a profit, not open networking.</p></li>
+<li><p><strong>Marketing-first ordering.</strong> A polished website on day three, a twelve-language marketing
+presence, a “benchmarks” page and a “get started” funnel existing before the protocol works
+is a massive red flag. Real builders ship, then talk. The inverse order is the signature of
+a project whose goal is attention.</p></li>
+</ul>
+</section>
+</section>
+<section id="the-conformal-surface">
+<span id="brandolinis-conformal-surface"></span><h3>The Conformal Surface<a class="headerlink" href="#the-conformal-surface" title="Link to this heading">¶</a></h3>
+<p>One warning before the synthesis. When you evaluate any project, assume - as a working hypothesis - that its surface is an investment. The marketing, the design, the badge collection, the “proof records”, the fluent and confident prose: This is exactly where substitution invests, for the simple reason that it is where the audience looks first. Fluency is the <em>minimal conformal surface</em> of understanding, and the surface is not evidence of anything except that the author <em>wanted to look convincing</em>. If you find yourself impressed by the surface before you have asked Question 1 and Question 2, you are doing the evaluation in the order the substitute operator hoped you would.</p>
+</section>
+<section id="possible-verdicts">
+<span id="brandolinis-possible-verdicts"></span><h3>Possible Verdicts<a class="headerlink" href="#possible-verdicts" title="Link to this heading">¶</a></h3>
+<p>The framework proposed here can yield three different verdicts:</p>
+<ol class="arabic simple">
+<li><p><strong>Meets the standard.</strong> A named human who can answer for the work and demonstrably does;
+provenance disclosed; attribution given; honest benchmarks; interop
+demonstrated against current, real RNS on real media; readable code; a maintenance
+history that shows growth and learning. This standard is not high. It is what the
+reference implementation has met, in public, for over a decade, and it is what any
+project that wants other people’s traffic should be willing to meet in turn.</p></li>
+<li><p><strong>Experimental, but honest.</strong> A project that clearly labels itself as in-progress and
+experimental (“do not use this yet”, in plain words, as the first thing a user sees)
+discloses its provenance, credits the reference, and is being developed in the open by
+humans who answer questions. Such projects should be encouraged. They are how the
+ecosystem grows, new ideas are tested, and the framework above is designed to make an
+honest experimental project <em>easy</em> to recognize, not hard.</p></li>
+<li><p><strong>Does not meet the standard.</strong> Unanswerable authorship, concealed provenance, fabricated
+measurements, invented protocol behaviour, absent interop, marketing ahead of substance.
+Such projects should be treated as unproven regardless of their surface, and as hazards
+if they invite users onto shared networks. The community owes them exactly the
+skepticism they have earned, and not a moment of engagement beyond that; the network’s
+time is better spent elsewhere.</p></li>
+</ol>
+</section>
+<section id="these-standards-are-reasonable">
+<span id="brandolinis-standards-reasonable"></span><h3>These Standards Are Reasonable<a class="headerlink" href="#these-standards-are-reasonable" title="Link to this heading">¶</a></h3>
+<p>I’ll close this guide by stating what these standards are <em>not</em>: They are neither a demand for perfection, nor a ban on machine assistance. Assistance is useful, when it is used to arrive at <em>higher levels of synthesis</em> than unaided work. It is not a requirement that an implementation be a clone of the reference; neither is it a requirement that it invents everything from scratch or aspires to be a <a class="reference internal" href="#brandolinis-cleanroom-delusion"><span class="std std-ref">“clean-room”</span></a> implementation. Good implementations of the protocol are very welcome, <em>however they come</em>, but working on one requires <em>serious</em> work, considerable skill, and <strong>deep competence</strong>.</p>
+<p>The reference implementation has met this standard for years, and its users know what that looks like.</p>
+</section>
+</section>
+<section id="the-prns-case">
+<span id="brandolinis-prns"></span><h2>The Prns Case<a class="headerlink" href="#the-prns-case" title="Link to this heading">¶</a></h2>
+<section id="purpose-scope">
+<span id="brandolinis-purpose-and-scope"></span><h3>Purpose &amp; Scope<a class="headerlink" href="#purpose-scope" title="Link to this heading">¶</a></h3>
+<p>This section provides a concrete example, which future evaluations can use as a template. Its purpose is not to be the last word on this particular subject, but to be an example of how the ideas in this chapter can be applied, and to make the next such examination easier.</p>
+<p>The subject of this case study is <strong>Prns</strong>, a project published at the repository <code class="docutils literal notranslate"><span class="pre">github.com/KenAKAFrosty/Prns</span></code>, presented as a “ground-up implementation of Reticulum, written in Rust”, marketed as faster, safer, and more strictly tested than the reference, and widely promoted with the claim of “up to 89× the throughput” of the reference implementation. The record described below is the project’s own, and sourced from its GitHub repository, analyzed locally.</p>
+</section>
+<section id="the-project-in-brief">
+<span id="brandolinis-project-in-brief"></span><h3>The Project In Brief<a class="headerlink" href="#the-project-in-brief" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Time span.</strong> 3,374 commits between 2026-05-26 and 2026-09-12: approximately 110 days,
+at a mean rate of ~31 commits per day. Monthly: 132 / 1,137 / 1,097 / 805 / 203.</p></li>
+<li><p><strong>Authorship.</strong> 3,252 of 3,374 commits (96.4%) are authored by a single account. A
+second identity, “Prns Tests <a class="reference external" href="mailto:tests&#37;&#52;&#48;example&#46;test">tests<span>&#64;</span>example<span>&#46;</span>test</a>” - a fictitious identity on a reserved
+domain - contributed 35 commits, every one of them website and marketing content.</p></li>
+<li><p><strong>Size.</strong> 3,519 tracked files; 1,983 Rust files; 636,226 lines of Rust; approximately
+22.7 MB of Rust source; 69.5 MB of total repository content.</p></li>
+<li><p><strong>Scope claimed.</strong> A daemon (“drop-in replacement” for the reference daemon), embedded
+firmware for three microcontroller families (including six ESP32-S3 board variants and
+nRF52840), SDKs and bindings for nine languages, a browser-based node and web flasher, a
+twelve-language website, a benchmark apparatus with its own publication and “proof”
+pipeline, and a validation hub with oracles, fuzzing, mutation testing, and formal-proof
+claims.</p></li>
+<li><p><strong>Marketing claims.</strong> “Ground-up implementation of Reticulum”; “up to 89× the
+throughput”; “48× smaller peak-memory footprint”; “33× the energy efficiency”;
+“Measured, not just claimed”; “Enforced, then audited”; “byte-for-byte wire parity with
+the reference implementation”; “works with Sideband, NomadNet, MeshChat, etc.”;
+“no_std (no alloc required either)”.</p></li>
+<li><p><strong>Status at the time of writing.</strong> Version 0.3.7; published version history begins at
+0.3.0. The repository continues to receive commits.</p></li>
+</ul>
+</section>
+<section id="question-1-is-this-a-clean-implementation-or-was-it-directly-generated-from-the-reference">
+<span id="brandolinis-prns-question-1"></span><h3>Question 1: Is this a clean implementation, or was it directly generated from the reference?<a class="headerlink" href="#question-1-is-this-a-clean-implementation-or-was-it-directly-generated-from-the-reference" title="Link to this heading">¶</a></h3>
+<p>The first of the two deciding questions from <a class="reference internal" href="#brandolinis-evaluating"><span class="std std-ref">Evaluating A Reticulum Implementation</span></a> is settled by the project’s own record. An actual <a class="reference internal" href="#brandolinis-cleanroom-delusion"><span class="std std-ref">clean-room</span></a> implementation, reasoned out and written by humans, would owe nothing to any license. The data available shows clearly that Prns is not that.</p>
+<ul class="simple">
+<li><p><strong>The founding state.</strong> The first commit, “Scaffold Personal Reticulum suite”, contains
+the scaffolding of not one but two ports - <code class="docutils literal notranslate"><span class="pre">personal-rns</span></code> and <code class="docutils literal notranslate"><span class="pre">personal-lxmf</span></code>, the latter
+being the reference’s companion messaging protocol - together with a daemon scaffold and
+a 233-line founding document, <code class="docutils literal notranslate"><span class="pre">docs/build-ethos.md</span></code>. That document declares the project’s
+goal as a “performance-focused drop-in-replacement for rnsd” and its governing principle
+as: “Port the contract, not the implementation.” It further states, in the project’s own
+words, that fidelity is owed to the reference “at exactly two boundaries”: “the wire” and
+“the behaviour”.</p></li>
+<li><p><strong>Continuous alignment to the reference.</strong> 506 commits reference RNS or Reticulum
+source behaviour; the word “parity” appears in 49 commit messages. Commits cite the reference
+implementation’s own source locations (for example <code class="docutils literal notranslate"><span class="pre">Transport.py:1367</span></code>) when correcting
+their own divergences and mistakes.</p></li>
+<li><p><strong>Byte-level fidelity as an explicit goal.</strong> Within 48 hours of the first commit, the
+record shows a “crypto adapter - vetted primitives, byte-exact vs RNS 1.3.1”, and a wire
+implementation matching the reference’s packet header layout. The project’s own
+validation apparatus decodes wire vectors using the reference implementation’s own
+packet parser, and the interop suite consists of real, stock-RNS peer nodes - that is,
+the reference itself, used as the ground truth against which this project’s output is
+checked, and committed as accepted verified after 48 hours of the project’s recorded start.</p></li>
+<li><p><strong>The marketing mismatch.</strong> The same record that documents all of the above describes the
+project, publicly, as “a ground-up implementation of Reticulum” - while declining, on its
+website, to link to the reference implementation at all: the entire tree mentions the
+reference’s author in six files, and the website in none.</p></li>
+</ul>
+<p>Conclusion: the project’s own history and commit record establishes that it was generated directly from the reference implementation’s source code, not reasoned out from the public-domain protocol. It is a derivative of licensed work within the meaning of <a class="reference internal" href="#brandolinis-what-the-license-is"><span class="std std-ref">the Reticulum License</span></a> and <a class="reference internal" href="#brandolinis-copyright-and-layers"><span class="std std-ref">general copyright law</span></a>. The “ground-up” claim, which carries its entire legal and marketing posture, is disproven by the project’s own history.</p>
+</section>
+<section id="question-2-who-or-what-is-the-agent-of-the-work">
+<span id="brandolinis-prns-question-2"></span><h3>Question 2: Who, or what, is the agent of the work?<a class="headerlink" href="#question-2-who-or-what-is-the-agent-of-the-work" title="Link to this heading">¶</a></h3>
+<p>The second deciding question is answered by the application of <a class="reference internal" href="#brandolinis-assistance-versus-substitution"><span class="std std-ref">Assistance Versus Machine Substitution</span></a> criteria to the project.</p>
+<p><strong>Scope that no human could have authored</strong></p>
+<p>636,226 lines of Rust in 110 days is approximately 5,800 lines per day, every day, including weekends - with 149 commits recorded between midnight and 06:00, and Saturday the single busiest weekday. No human review or decision capacity is commensurable with this volume; the review capacity and the output volume are structurally incommensurable, which is the definition of unauthored scope.</p>
+<p><strong>Uniform generation</strong></p>
+<p>The record shows no sign of human development, growth, or learning: No contested decisions, no style drift. Instead: endless renaming (in the first 48 hours: <code class="docutils literal notranslate"><span class="pre">State</span> <span class="pre">→</span> <span class="pre">EngineState</span> <span class="pre">→</span> <span class="pre">TickInput</span> <span class="pre">→</span> <span class="pre">TickOutput</span></code>), uniform fluent register in every commit, and the exact same, synthetic voice in code, documentation, and website copy.</p>
+<p><strong>Discovery by regeneration</strong></p>
+<p>Corrections arrived by the machine’s own subsequent runs, recorded as planned milestones. In early July 2026, a series of “core review” commits documented, in the project’s own words:</p>
+<ul class="simple">
+<li><p>announce-ID history “was unbounded per-slot growth” (<code class="docutils literal notranslate"><span class="pre">54cc8d601</span></code>);</p></li>
+<li><p>interface announce limiting could “leak a sustained flood” (<code class="docutils literal notranslate"><span class="pre">9d27af75c</span></code>);</p></li>
+<li><p>a “phantom-airtime leak” where frames “used to vanish silently” (<code class="docutils literal notranslate"><span class="pre">4ed75ffdd</span></code>);</p></li>
+<li><p>Group-packet deduplication “which RNS does not do” - a behaviour the reference never had,
+implemented and later removed (<code class="docutils literal notranslate"><span class="pre">edd8e72be</span></code>);</p></li>
+<li><p>“both <code class="docutils literal notranslate"><span class="pre">unwrap_or(&amp;[])</span></code> arms were unreachable dead defaults” (<code class="docutils literal notranslate"><span class="pre">74bea355e</span></code>);</p></li>
+<li><p>a benchmark crate “hasn’t compiled since” a prior rename, undetected for weeks because it
+was outside the CI’s workspace (<code class="docutils literal notranslate"><span class="pre">86240b027</span></code>).</p></li>
+</ul>
+<p>Earlier still: the record shows a “&gt;1 MiB RNS-to-Prns interop stall” closed three weeks in
+(<code class="docutils literal notranslate"><span class="pre">cc4d524a3</span></code>), and a known send-path hang shipped with the note “typed fast-fail a
+candidate for later” (<code class="docutils literal notranslate"><span class="pre">a010e6613</span></code>).</p>
+<p><strong>Laundered provenance</strong></p>
+<p>The repository contains a committed commit-message hook (<code class="docutils literal notranslate"><span class="pre">.githooks/commit-msg</span></code>) that <em>blocks</em> any commit containing attribution for machine generation (“generated with claude/codex/copilot/cursor/gemini”, “co-authored-by”), with the explanation “The committer owns the commit”. The contributing guide is explicit: “AI tools … are welcome … what you submit is <em>yours</em>”, and describes the contributing population as “both human and automated contributors”. The fictitious “Prns Tests” identity completes the picture: A manufactured, unknowable contributor, used for marketing content.</p>
+<p><strong>Authorship by assignment</strong></p>
+<p>The human whose name is on the work cannot answer for it, because the choices were never made by a human, and only the general shape and constraints of the outward presentation was. Nothing in the project’s history shows an individual explaining a design decision, accepting a mistake in the first person, or going deeper under technical questioning; the record shows process language and marketing instead. Per the earlier mentioned test: any other person could have pressed the same button, and nothing would be different. The project is effectively unowned, and void of value.</p>
+<p>By the criteria of <a class="reference internal" href="#brandolinis-assistance-versus-substitution"><span class="std std-ref">Assistance Versus Machine Substitution</span></a>, this is substitution. The machine was the agent of the work; the “author” was a facade.</p>
+</section>
+<section id="the-performance-claims">
+<span id="brandolinis-prns-performance"></span><h3>The performance claims<a class="headerlink" href="#the-performance-claims" title="Link to this heading">¶</a></h3>
+<p>The project’s central marketing claim - “up to 89× the throughput” of the reference - is also its most completely documented failure, because the project published the evidence of its own measurement. The apparatus, the results, and the problems are all on the record.</p>
+<p><strong>The claim</strong></p>
+<p>The README states “up to 89× the throughput”; the on-network marketing page repeats “up to 89× the throughput, 48× smaller peak-memory footprint, and 33× the energy efficiency of stock RNS 1.4.2”; the website’s front page carries the tagline “Measured, not just claimed”.</p>
+<p><strong>The apparatus</strong></p>
+<p>The reference is loaded through <code class="docutils literal notranslate"><span class="pre">benchmarks/reference/compiled_reference.py</span></code>, which installs <code class="docutils literal notranslate"><span class="pre">pyximport</span></code> and then asserts two things: that <code class="docutils literal notranslate"><span class="pre">RNS.compiled</span> <span class="pre">==</span> <span class="pre">True</span></code>, and that at least <em>one</em> RNS module was loaded from a native extension. The project’s own published “proof” records show exactly what those checks captured, on every platform:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aarch64</span><span class="o">-</span><span class="n">apple</span><span class="o">-</span><span class="n">darwin</span><span class="p">:</span> <span class="o">.../</span><span class="n">RNS</span><span class="o">.</span><span class="n">cpython</span><span class="o">-</span><span class="mi">313</span><span class="o">-</span><span class="n">darwin</span><span class="o">.</span><span class="n">so</span><span class="p">,</span>  <span class="n">Cython</span> <span class="mf">3.2.8</span><span class="p">,</span> <span class="n">Python</span> <span class="mf">3.13.13</span>
+<span class="n">x86_64</span><span class="o">-</span><span class="n">unknown</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="p">:</span> <span class="o">.../</span><span class="n">RNS</span><span class="o">.</span><span class="n">cpython</span><span class="o">-</span><span class="mi">313</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span><span class="o">.</span><span class="n">so</span><span class="p">,</span>  <span class="n">gcc</span> <span class="mf">11.4.0</span>
+<span class="n">x86_64</span><span class="o">-</span><span class="n">pc</span><span class="o">-</span><span class="n">windows</span><span class="o">-</span><span class="n">msvc</span><span class="p">:</span> <span class="o">~/.</span><span class="n">prns</span><span class="o">-</span><span class="n">oc</span><span class="o">/</span><span class="n">lib</span><span class="o">.</span><span class="n">win</span><span class="o">-</span><span class="n">amd64</span><span class="o">-</span><span class="n">cpython</span><span class="o">-</span><span class="mi">313</span><span class="o">/</span><span class="n">RNS</span><span class="o">.</span><span class="n">cp313</span><span class="o">-</span><span class="n">win_amd64</span><span class="o">.</span><span class="n">pyd</span>
+</pre></div>
+</div>
+<p>In every case the recorded native module is the <strong>top-level package only</strong> - <code class="docutils literal notranslate"><span class="pre">RNS.so</span></code>, nothing below it. Nothing named <code class="docutils literal notranslate"><span class="pre">RNS.Transport</span></code>, <code class="docutils literal notranslate"><span class="pre">RNS.Destination</span></code>, <code class="docutils literal notranslate"><span class="pre">RNS.Packet</span></code>, <code class="docutils literal notranslate"><span class="pre">RNS.Link</span></code>, or <code class="docutils literal notranslate"><span class="pre">RNS.Resource</span></code> ever appears, because <em>nothing below the top level was ever compiled</em>. Nobody bothered to check or verify <em>anything</em> here.</p>
+<p>The machine output was simply taken for truth, and a full marketing strategy was spun and produced on it. “RNS 1.4.2 (compiled)” - the label used in every table, chart, and marketing page - <em>is not a mode of RNS that exists</em>, but the hallucinations of a machine, which the humans created a marketing strategy on. In reality, it is the old <code class="docutils literal notranslate"><span class="pre">CRNS</span></code> development shim, whose top-level-only, debug-oriented “compilation” is slower than plain interpreted RNS, and which was <em>defunct for over a year</em> before these benchmarks were published.</p>
+<p><strong>Interface choices</strong></p>
+<p>The harness writes the reference’s configuration itself (<code class="docutils literal notranslate"><span class="pre">benchmarks/reference/participant_node.py</span></code>): <code class="docutils literal notranslate"><span class="pre">TCPClientInterface</span></code> for the initiator, <code class="docutils literal notranslate"><span class="pre">TCPServerInterface</span></code> for the responder and both relay sides, with <code class="docutils literal notranslate"><span class="pre">UDPInterface</span></code> as the abstract wire. The reference was never given its modern <code class="docutils literal notranslate"><span class="pre">BackboneInterface</span></code> on any platform, forcing the slowest possible interrfaces. The interface selection is never mentioned in any methodology text.</p>
+<p><strong>The policy</strong></p>
+<p>The published default-policy tables record the asymmetry directly: Prns at 500 Mbps / 128 KiB TCP policy against the reference at 10 Mbps / 8 KiB - slyly footnoted as “preserves each implementation’s normal TCP policy” (in the case of RNS, a conservative default policy that was selected to prioritize coexistence on slower, shared links, requiring the user to dial it up to full speed if they knew what they were doing). Raw transport “throughput” ratios of 20.65× (Linux) and 38.84× (Windows) are therefore mostly policy, not engine.</p>
+<p><strong>The cross-host evidence</strong></p>
+<p>The published results show the same scenario producing wildly different ratios by host, and the variance is entirely in the reference artifact:</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Host</p></th>
+<th class="head"><p>Prns, single-packet</p></th>
+<th class="head"><p>“Reference”, single-packet</p></th>
+<th class="head"><p>Ratio</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>macOS (Apple M4)</p></td>
+<td><p>37.4k/s</p></td>
+<td><p>420/s</p></td>
+<td><p>89.09×</p></td>
+</tr>
+<tr class="row-odd"><td><p>Linux (i7-1260P)</p></td>
+<td><p>25.3k/s</p></td>
+<td><p>3.5k/s</p></td>
+<td><p>7.19×</p></td>
+</tr>
+<tr class="row-even"><td><p>Windows (Ryzen 5 5600X)</p></td>
+<td><p>30.8k/s</p></td>
+<td><p>3.9k/s</p></td>
+<td><p>8.00×</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Prns is consistent (25–37k/s). The reference artifact collapses to different depths on different hosts, and the single worst collapse - 420 packets per second on macOS - is the cell selected as the global headline. The “89×” is not a measure of Prns; it is a measure of how badly the broken baseline happened to fail on one host.</p>
+<p>For reality calibration: Stock, interpreted RNS 1.5.4 on an ordinary mid-range laptop, single core, sustains roughly 30,000 single-packet deliveries per second (including ephemeral-key decryption), ~175,000–280,000 packets per second in transit relay, and on the order of 10 Gbps at 16 KiB payloads. The project’s “compiled” artifact measured 420–3,900 packets per second for its single-packet scenario: An order of magnitude or more <em>below</em> stock interpreted RNS. The comparison being marketed was not “Rust vs Python”; <strong>it was “an implementation running under optimal conditions versus a mislabeled, broken shim on a slow legacy interface at a severe policy disadvantage”</strong>.</p>
+<p><strong>The equalized rows</strong></p>
+<p>The project’s own “1 Gbps policy” rows, in which both sides are explicitly configured identically, publish ratios of roughly 2.4–8.4× across all hosts and scenarios - still against the broken baseline, but nowhere near 89×, and consistent with the ordinary, uncontroversial observation that a native implementation tends to outperform an interpreted one in raw throughput. That point needed no fudging to make, and is banal.</p>
+<p>Interestingly, though, it seems that Prns is really only <em>marginally</em> faster than a Python implementation, running in interpreted mode, on a single CPU core.</p>
+<p><strong>Assessment</strong></p>
+<p>The front page says “Measured, not just claimed.” The record shows the opposite ordering: claimed, and arranged to look measured. No methodology section anywhere states what “compiled” means, that it is a deprecated development shim, that it builds debug targets, or which interface the reference was given; the one statement of the policy asymmetry appears in a footnote of the results tables themselves. If they did not need to fudge it, they would have published the method clearly.</p>
+</section>
+<section id="overall-evaluation">
+<span id="brandolinis-prns-overall"></span><h3>Overall Evaluation<a class="headerlink" href="#overall-evaluation" title="Link to this heading">¶</a></h3>
+<p>Evaluated against the conditions of <a class="reference internal" href="#brandolinis-evaluating"><span class="std std-ref">Evaluating A Reticulum Implementation</span></a>:</p>
+<ul class="simple">
+<li><p><strong>Provenance and attribution.</strong> Fails: The fake “ground-up” origin story; zero reference links
+on the website; a single well-hidden link in the README; a license file reading
+“Copyright (c) 2026 The Prns Authors” over work directly generated from the licensed reference;
+no original copyright or permission notice anywhere.</p></li>
+<li><p><strong>Agency and answerability.</strong> Fails on every criterion of <a class="reference internal" href="#brandolinis-assistance-versus-substitution"><span class="std std-ref">Assistance Versus Machine Substitution</span></a>:
+unauthored scope, uniform generation, discovery by regeneration, laundered provenance,
+authorship by assignment.</p></li>
+<li><p><strong>Engineering reality.</strong> Fails: The benchmark apparatus above; interop demonstrated only
+against a pinned, outdated reference version (RNS 1.4.2; some published suites against
+1.4.0) over loopback, with the project’s own result tables documenting interop failures
+with stock RNS; the reference version itself drifts across the project’s publication history
+while the marketing claims current parity; a nonstandard “turbo” sub-GHz mode invented for shared spectrum,
+in a codebase whose own history shows it had not yet correctly understood the
+reference’s duty-cycle accounting when the invention was layered on; vendored prebuilt
+binaries and a republished fork of an upstream crate (<code class="docutils literal notranslate"><span class="pre">nrf-softdevice</span> <span class="pre">0.1.0-prns.1</span></code>)
+with no verifiable provenance; committed WASM bundles.</p></li>
+<li><p><strong>Network citizenship.</strong> Fails: Invented spectrum behaviour, and compatibility claims
+about third-party applications of the reference ecosystem (Sideband, NomadNet, MeshChat)
+that are not established by any evidence.</p></li>
+<li><p><strong>Monetary and influence signals.</strong> The marketing apparatus - website before protocol,
+day-three twelve-language marketing, false benchmark headlines, “audited” claims - is the
+conformal surface described in <a class="reference internal" href="#brandolinis-evaluating"><span class="std std-ref">Evaluating A Reticulum Implementation</span></a>:
+the surface is where this project invested.</p></li>
+</ul>
+</section>
+<section id="licensing-analysis">
+<span id="brandolinis-prns-licensing"></span><h3>Licensing Analysis<a class="headerlink" href="#licensing-analysis" title="Link to this heading">¶</a></h3>
+<p>Applying the two legal layers established in <a class="reference internal" href="#brandolinis-copyright-and-layers"><span class="std std-ref">Copyright &amp; The Two Legal Layers</span></a>:</p>
+<p><strong>Layer A - copyright infringement (license-independent)</strong></p>
+<p>The record shows a direct copy roundtrip: the licensed reference implementation fed into a machine, transformed, at a scale and cadence no human could review, with a license file asserting a fresh copyright in the operator’s name and no acknowledgment of the work the project was generated from. No substantial, new human creative input is demonstrated anywhere in the record - the founding document explicitly frames the design as an instructed port of the reference’s contract. A primarily machine-generated copy of a copyrighted work, not accompanied by demonstrable substantial human creative input, is a derivative work over which the copier holds no copyright, and a reproduction of which without the original author’s permission infringes the original author’s copyright. This holds under any license, MIT included. The operator’s copyright claim over the result is, on this evidence, not merely unsubstantiated; it is the absence of one, directly asserted in the project’s own writing.</p>
+<p><strong>Layer B - license conditions (Reticulum License specific)</strong></p>
+<p>Modern Reticulum - the current wire format, the AES-256-based link encryption, ratchets, the cryptographic machinery as it exists today - has been published under the Reticulum License since April 15, 2025, effective from release 0.9.4 and every release since. As a derivative of that work, the license’s conditions attach: The copyright and permission notice must be included in all copies and substantial portions; the AI-training condition must be honoured; the harm condition must be honoured. The record shows none of the notice requirements met, and a production process that consists of the licensed work being ingested into a machine and regurgitated, at industrial scale and cadence.</p>
+<p><strong>The cascading consequence</strong></p>
+<p>Prns is distributed claiming dual MIT/Apache-2.0 licensing. It is, however, a direct derivative of Reticulum-licensed work, and the claimed grant is therefore void. Every downstream project that builds on Prns believing it is MIT/Apache-licensed is building on a grant that does not exist. The users of Prns, and all software developers using it, have in effect, been placed under conditions they were never told about. The “ground-up” claim is not merely false; it is the sole load-bearing element of an entire licensing posture, and it fails spectacularly.</p>
+</section>
+<section id="consequences">
+<span id="brandolinis-prns-consequences"></span><h3>Consequences<a class="headerlink" href="#consequences" title="Link to this heading">¶</a></h3>
+<p>The consequences of this pattern are examined in the following sections - the harm to users and to the network in <a class="reference internal" href="#brandolinis-movement-of-a-dozen"><span class="std std-ref">A Movement Of A Dozen</span></a>, and the human dimension in <a class="reference internal" href="#brandolinis-health-and-coexistence"><span class="std std-ref">Network Health &amp; Coexistence</span></a>. This section’s contribution is narrower and intended as an instructive example: This is what a substitution project looks like, in full, on its own record. It is a reference example for <a class="reference internal" href="#brandolinis-evaluating"><span class="std std-ref">Evaluating A Reticulum Implementation</span></a>, and it demonstrates, in one case, most of the elements this chapter describes.</p>
+</section>
+<section id="verdict">
+<span id="brandolinis-prns-verdict"></span><h3>Verdict<a class="headerlink" href="#verdict" title="Link to this heading">¶</a></h3>
+<p>Applying the three verdicts of <a class="reference internal" href="#brandolinis-evaluating"><span class="std std-ref">Evaluating A Reticulum Implementation</span></a>, this project does not meet the standard. It is not “experimental but honest” - it is not labeled as experimental anywhere; the first thing users saw was a polished marketing presence promising a finished, tested, drop-in replacement. It is a project whose central claims are fabricated (the performance apparatus), whose provenance is laundered (the authorship machinery), whose foundation is misrepresented (the “ground-up” story), whose core semantics were learned late and by regeneration, and whose operator cannot possibly answer for any of it. It is also a blatant copyright violation of the reference implementation.</p>
+<p>The proposed conclusion, for users and for the network: Treat the Prns project as hostile regardless of its polished surface, and as a hazard insofar as it invites users onto shared networks. Nothing in this section is a judgment about the people involved; it is a reading of the results produced, their history and how they came to be, which in the regrettable lack of any human authorship is the only thing that can be expected to be held to account.</p>
+</section>
+<section id="dating">
+<span id="brandolinis-prns-dating"></span><h3>Dating<a class="headerlink" href="#dating" title="Link to this heading">¶</a></h3>
+<p>This examination reflects the publicly available material as of September 2026; the repository in question continued to receive commits at the time of writing, so readers should treat citations to commits and files as point-in-time evidence. A <a class="reference external" href="https://github.com/markqvist/forensics_prns">forensics snapshot</a> is publicly available on GitHub.</p>
+</section>
+</section>
+<section id="the-movement-of-a-dozen">
+<span id="brandolinis-movement-of-a-dozen"></span><h2>The Movement Of A Dozen<a class="headerlink" href="#the-movement-of-a-dozen" title="Link to this heading">¶</a></h2>
+<section id="presentation-elongated">
+<span id="brandolinis-presentation-elongated"></span><h3>Presentation, Elongated<a class="headerlink" href="#presentation-elongated" title="Link to this heading">¶</a></h3>
+<p>Whenever Reticulum defends itself, its license, or its community - or simply continues to exist - a familiar chorus appears. The register is always similar: <em>concern</em>. Concern about the direction of the project. Concern about its license. Concern about its governance. Concern about its “bullying” of “good-faith contributors”. Concern about the future of the ecosystem at the hands of a single maintainer. The chorus speaks in the plural, presents itself as a body of independent voices, and insists, with some frequency, that it is… <em>not alone</em>.</p>
+<p>The implicit claim under examination in this section is that there exists a <em>movement</em> of concerned individuals, spread across the ecosystem, all worried about Reticulum, and therefore (for some reason) deserving of a place at the table of decisions.</p>
+<p>A resolution of this claim requires one step: Count them.</p>
+</section>
+<section id="headcount">
+<span id="brandolinis-headcount"></span><h3>Headcount<a class="headerlink" href="#headcount" title="Link to this heading">¶</a></h3>
+<p>This “movement” does have a headcount. It is not in the hundreds, and it is not in the dozens. It is a small number of people who appear, in various combinations and under various names, in the following roles:</p>
+<ul class="simple">
+<li><p>Creators of the machine-generated “Reticulum implementations” examined in this chapter</p></li>
+<li><p>Creators of articles praising those implementations and lamenting the state of the
+reference, its moral shortcomings, its unavailability or lack of something it already has.</p></li>
+<li><p>Commenters “defending” the implementations when they are evaluated reasonably and critically,
+most often by attempting simply to derail the discussion.</p></li>
+<li><p>Critics of the Reticulum License on “open source” grounds</p></li>
+<li><p>“Concerned community members” objecting to the maintainer’s conduct</p></li>
+<li><p>Campaigners on online platforms; and</p></li>
+<li><p>In some cases, a single individual performing <em>several</em> of these roles at once, under
+different names, in the same week.</p></li>
+</ul>
+<p>The overlap is well documented at this point, across time and different platforms. The same phrasing, the same arguments, the same links, the same reactive reflexes, the same handful of accounts appearing in the same threads at the same moments. When the sockpuppet accounts are unmasked (and they frequently unmask themselves) the cast does not grow, but rapidly shrinks.</p>
+<p>This is the most interesting single fact about the “movement”: <strong>It isn’t one. It is a synthetic cast</strong>, held together mostly by LLM-glue, reddit handles and hysteria. A cast is not a constituency. It performs; it does not represent. The difference matters quite a bit, because a great deal of this “movement’s” imagined power comes from the assumption that the <em>plural form</em> is actual evidence of plurality. If that sentence seemed opaque, notice how many times a statement or article uses “we” instead of “I”, and it will be less so.</p>
+</section>
+<section id="recycled-wine-fermenting">
+<span id="brandolinis-recycled-wine"></span><h3>Recycled Wine, Fermenting<a class="headerlink" href="#recycled-wine-fermenting" title="Link to this heading">¶</a></h3>
+<p>The cast is not only small, it is also, by any evidentiary standard, <em>forgetful</em>. Every major claim this “movement” advances has been advanced before, answered in public, with evidence, and often years ago - and is then advanced again, unchanged and completely ignoring any rationale or evidence presented previously (to the same people), as if the answer had never been written.</p>
+<ul class="simple">
+<li><p><strong>The license argument.</strong> Reticulum is “not really open source” because its license is not
+approved by a particular orthodoxy. This is answered (now in a new and updated version, for the
+fifth time) in full in <a class="reference internal" href="#brandolinis-opensource"><span class="std std-ref">Open Source Means Open Source</span></a>. It was also
+answered in public, at length, at the time of the license change - including the
+arithmetic of who is actually restricted by which license. It is repeated <em>ad infinitum</em> anyway.
+Quite a conversation starter, apparently.</p></li>
+<li><p><strong>The distribution argument.</strong> Reticulum is “not properly distributed” because it is not
+packaged as a <code class="docutils literal notranslate"><span class="pre">.deb</span></code> or on some favoured catalogue. Reality: It is available on practically every
+platform with a single command, packaged by the community in a wide range of channels, and
+capable of updating itself over its own network. The argument has been answered; it is repeated.</p></li>
+<li><p><strong>The “stepped back” narrative.</strong> When the primary mirror of the project moved away from
+a public internet platform, it was spun as the founder leaving for good, or now taking on dictatorial
+powers, or abandoning his creation, or any variation or nonsensical combination thereof.
+Those spins always center around justifying that <em>a vaccuum now needs to be filled</em>.
+There was no such vaccuum. The narrative is repeated in various forms whenever convenient.</p></li>
+<li><p><strong>The enclosure narrative.</strong> The license is reframed as a “power grab” or an “enclosure”
+of the commons - as if a license whose protocol is public domain and whose conditions
+restrict only harm and appropriation were a form of enclosure. The <a class="reference external" href="https://gaggl.com/blogs/2026-09-05-enclosure-by-good-intentions/">most recent</a> (and mostly incoherent)
+expression of this narrative is, once again, fluent, polite, and factually hollow. The
+bizarre arguments supporting the “article” include: Defunct and abandoned forks presented
+as living, community forks bearing the very Reticulum License mislabeled as AGPL license vehicles
+(created by “concerned users”), companion app forks correctly retaining the Creative Commons
+licensing used as further evidence of the same and completely abandoned projects propped up
+as being “the ecosystem”. Another case of LLM generated nonsense that the “author” didn’t bother checking.
+The intent is clear here, simply produce more <em>mass</em> of the bullshit, so it can be further
+referenced, regurgitated and linked to.</p></li>
+<li><p><strong>The “bullying” narrative.</strong> Whenever the community declines to treat manufactured
+controversies as legitimate, or calmly documents the falsity of claims, or (Lord forbid)
+moves a forum post for violating clearly stated forum rules,
+the response is the same: The documentation is “bullying”, the community is “excluding” people, the
+maintainer is “unprofessional”. In the most recent example, those accusations were made by someone who, in the
+same week, publically called for the Reticulum maintainer’s “removal from the equation”, forged a moderator’s
+username, attempted to drag unrelated individuals into the campaign, and presented a new
+round of outright falsehoods. Contrary to popular belief, the accusation of incivility
+is not the last resort of the wronged; it is the standard reflex of the exposed.</p></li>
+</ul>
+<p>None of the “arguments” engages the answers given repeatedly, and extensively. That is the point, and the strategy. The arguments are not produced for the purpose of being engaged; they are produced for the purpose of <em>being repeated</em> - the same wine, poured into new bottles, on a cycle. Each cycle is short, cheap to produce, and (thanks to freely available fluent text generation) now nearly effortless. The intended audience is not the community, which has heard it all before. The intended audience is the newcomer, who has not.</p>
+</section>
+<section id="the-method-of-madness">
+<span id="brandolinis-the-method"></span><h3>The Method, of Madness<a class="headerlink" href="#the-method-of-madness" title="Link to this heading">¶</a></h3>
+<p>The method behind the pattern is consistent and simple enough to be described precisely:</p>
+<p><strong>Bullshit asymmetry</strong></p>
+<p>Producing a fluent, plausibly-sourced smear is now the work of minutes. Refuting it to the standard this manual demands is the work of days, and the refuted smear is replaced by the next one within the week. This asymmetry isn’t just a fine point of the campaign; <strong>it is the campaign</strong>. The goal is exhaustion - the slow conversion of the community’s time and attention from building to defending.</p>
+<p><strong>Weaponized concern</strong></p>
+<p>The register of the campaign is almost always the register of solicitude: “we are worried about the ecosystem”, “we just want what is best for the community”, “this is about the future of the project”. The concern is directed, without exception, at the things the campaign wants changed, and the change it wants is always the same: <strong>The replacement of the reference’s authority with its own</strong>. Concern is the <em>costume</em>; capture is the choreography. It is the oldest form of cheap power grab in the book.</p>
+<p><strong>Event seizure</strong></p>
+<p>Any event - a license change, a platform move, a forum moderation decision, a subreddit closure, a security notice, even the most banal messages from maintainers or known contributors - are seized, stripped of their actual context, and re-narrated as evidence of the same pre-written story. The subreddit that was closed after its moderator vanished  and ceased moderating (according to <em>prior agreement with said moderator</em>) becomes “the maintainer shutting down dissent”. Moving away from a highly centralized online platform becomes “the founder retreating”. The license becomes “the enclosure”. The pattern is so reliable that the story could be pre-written by by a lightly mechanized quill; only the date changes. The actual real-world context of these events is documented, in public, in each case; the re-narration proceeds regardless.</p>
+<p><strong>The legitimacy circuit</strong></p>
+<p>The campaign invests heavily in the places where legitimacy is minted: Conference talks, blog platforms, social threads, and forums - presented as if these appearances constituted some sort of ecosystem-wide groundswell rather than the same dozen people moving through the same circuit. The LLM-generated articles cite the LLM-generated ports; the ports are praised in the articles; the managers of the ports spread the articles, and echo them on the forums and internet platforms; the conference presentations cite the forums. Random bypassers with the need for a cause watch the conference presentations and take on the holy duty of Internet Soldier. The circuit is closed, self-referential, and (to a reader encountering it fresh) convincing. It is also, entirely, <strong>a loop of bullshit</strong>.</p>
+<p><strong>The prior-work minefield</strong></p>
+<p>The machine-generated implementations have a consequence beyond attention: They flood the space with fake “prior work”. The effect, as the license discussion predicted in the beginning of 2025, is the creation of a minefield of sloppy repositories that can later be matched against any genuine project, and attempt to claim prior art, or even worse: Dissuade actual, honest developers or builders from taking up a real project they might have succeeded with, because they now believe it has already been done. Just as importantly, it also buries real efforts under machine-generated noise. The machine-ports are not failed attempts to contribute. They are (disregarding intentions, but effectively) the campaign’s long game, deployed as inventory.</p>
+</section>
+<section id="a-persistent-but-fragile-triad">
+<span id="brandolinis-fragile-triad"></span><h3>A Persistent, But Fragile Triad<a class="headerlink" href="#a-persistent-but-fragile-triad" title="Link to this heading">¶</a></h3>
+<p>This chapter as a whole has documented three fronts: The legal-ideological attack on the license (<a class="reference internal" href="#brandolinis-opensource"><span class="std std-ref">Open Source Means Open Source</span></a>), the substitution and usurpation pattern in machine-generated implementations (<a class="reference internal" href="#brandolinis-assistance-versus-substitution"><span class="std std-ref">Assistance Versus Machine Substitution</span></a>), and the takeover narratives examined in this section. They are three fronts of the same operation, run by the same cast.</p>
+<ul class="simple">
+<li><p>The license attack and other urgency-engineered narratives are the <em>cover</em>: They supply
+the ideological justification for treating the reference as illegitimate, and needing replacement.</p></li>
+<li><p>The ports are the <em>inventory</em>: they supply the “replacements” that the narrative claims
+the ecosystem needs.</p></li>
+<li><p>The takeover narrative is the <em>objective function</em>: the repeated, persistent, escalating claim that
+the reference should be replaced, and that the speakers themself are the natural heirs.</p></li>
+</ul>
+<p>Each front depends on the others, and all three depend on a single, fragile assumption: That their audience cannot count. Restore the count, and the charade collapses into what it is:</p>
+<p><strong>A small group of people, obsessively orbiting a technology they did not build, synthetically producing the
+appearance of a constituency they do not have, in service of a takeover they cannot justify.</strong></p>
+</section>
+<section id="what-the-pattern-is-not">
+<span id="brandolinis-pattern-is-not"></span><h3>What The Pattern Is Not<a class="headerlink" href="#what-the-pattern-is-not" title="Link to this heading">¶</a></h3>
+<p>It is important, to also say what this pattern is <em>not</em>, exactly because the campaign depends on being mistaken for such things.</p>
+<p><strong>It is not criticism</strong></p>
+<p>The Reticulum community has always had lively, rigorous criticism - of decisions, of priorities, of direction - and it has always engaged that criticism on the merits, and changed course and development priorities many times. The license discussions at the time of the change were extensive, public, and answered in full, including with the critics themselves. Core protocol decisions were always discussed and evaluated in the community. The complex coordination and execution of several protocol upgrades between a loosely organised group of developers, node operators and users have succeeded surprisingly fluidly. All of these are success stories that the “critics” <strong>always</strong> ignore. Real criticism engages the content and accepts evidence. The campaign engages nothing.</p>
+<p><strong>It is not a community</strong></p>
+<p>Communities <em>build things</em>, maintain them, and have skin in the game; long-term users, operators of nodes, authors of real applications, people whose traffic flows through the network every day. A community has a stake. The “movement” only has an agenda.</p>
+<p><strong>It is not a debate</strong></p>
+<p>A debate has parties who evaluate arguments and evidence, and as a function of that, the debate moves forward, perpetually. The campaign’s arguments, as shown above, are not designed to survive contact with answers, but to be repeated past them. You cannot debate a loop. You can decline to perform for it, though.</p>
+</section>
+<section id="intent-consequence">
+<span id="brandolinis-intent-and-consequence"></span><h3>Intent &amp; Consequence<a class="headerlink" href="#intent-consequence" title="Link to this heading">¶</a></h3>
+<p>While it would provide for interesting speculation, we do not need to know what the individuals in the cast <em>intend</em>, and this document will not speculate about their inner lives. People may believe their own narratives entirely, or partly, or not at all; <strong>the pattern is the same in any case</strong>, and the pattern is what matters here, since it is the exact thing that has been so insidiously destructive and resource wasting for the actual Reticulum project and community, ever since Reticulum was more widely discovered, popularized, and became a prime target for all sorts of grift known to man.</p>
+<p>The consequences are very real:</p>
+<ul class="simple">
+<li><p><strong>Time</strong>. The community’s scarcest resource is the attention of skilled people who actually build
+and maintain the network. The campaign converts that attention into reactive defence, on a cycle
+with no end.</p></li>
+<li><p><strong>Harm</strong>. Hastily machine-generated implementations, marketed as drop-in replacements and carrying
+traffic onto shared networks, mislead users and can damage the network and its neighbours.
+We, the actual reticulum community, all rely on these networks every day, and it is my belief
+that we need to defend them. The fabricated measurements and laundered authorship examined in this chapter are not
+editorial embellishments; they are the mechanism by which real users are induced to run
+unverified, and often destructive software.</p></li>
+<li><p><strong>Erosion of the currency of trust</strong>. Every manufactured scandal, every fluently polite smear, every
+fabricated “movement” debases the currency of trust and degrades it for <strong>everyone</strong>;
+including, most of all, the honest projects that come after. This is deep harm, and
+it is the primary reason this chapter exists.</p></li>
+</ul>
+<p>Whatever the intent - profit, control, attention, or a simple, obsessive inability to stop - the mechanism is the same, and the response should be <em>calibrated to the mechanism as a whole</em>, not to the individual person acting as the current avatar for it.</p>
+</section>
+<section id="recognition-response">
+<span id="brandolinis-recognition-and-response"></span><h3>Recognition &amp; Response<a class="headerlink" href="#recognition-response" title="Link to this heading">¶</a></h3>
+<p>For anyone who encounters the pattern fresh, here is a proposal on how to recognise it, and what to do about it.</p>
+<p><strong>Recognition:</strong> The pattern is recognisable in minutes, once the signs are known:</p>
+<ul class="simple">
+<li><p>Claims that have been answered before, repeated as if never answered.</p></li>
+<li><p>The register of solemn concern applied, without exception, in one direction.</p></li>
+<li><p>A severe allergic reaction to answering any questions posed.</p></li>
+<li><p>A cast that is small, overlapping, and frequently anonymous, with the <em>plural form</em> doing the
+work of plurality.</p></li>
+<li><p>Sockpuppet theater: The same person or footsoldiers thereof appearing as several “supporters”
+(and occasionally slipping up mid-performance).</p></li>
+<li><p>Articles, ports, and forum threads that cite and reference each other in a closed loop.</p></li>
+<li><p>The immediate, reflexive turn to “bullying”, “exclusion” and “toxicity” whenever the record is
+documented.</p></li>
+<li><p>A complete absence of engagement with the substance of the answers given, and a complete
+absence of stake in the network itself.</p></li>
+</ul>
+<p><strong>Response:</strong> A constructive response is one that is proportionate, and does not cost the
+community its resources, sanity and dignity:</p>
+<ul class="simple">
+<li><p>Engage the content once, on its merits (if any), with evidence, in public, and then refer to the
+existing records. The answers already exist; they do not need to be re-derived for every new
+bottle of piss-sour burgundy served from a man behind the curtains. I will do my best to keep this
+chapter up to date with such answers and records, for easy reference, but other great resources
+exist.</p></li>
+<li><p>Do not become part of the theater performance. The “movement” feeds on engagement in <em>any</em> form;
+attention is its fuel, and outrage is as good as endorsement for them, if not better.</p></li>
+<li><p>Do the headcount. When the audience is reminded that a “movement” is a dozen people
+recycling answered falsehoods, its projected power dissipates. The power was never real;
+only the audience’s own assumption of scale can make the illusion effective. A polished-looking
+“ground up” implementation might look like the work of many people, but is most likely
+just the result of an LLM looping on a laptop for a couple of months (this is weird, but it is
+the reality we now live in). Four different users suddenly singing in unison may look like the
+representatives of a broader sentiment, but is most likely the same person hiding behind the same keyboard.</p></li>
+<li><p>Then, spend the saved time on the networks: On building real infrastructure, putting up nodes
+and antennas, on real development, real maintenance, real coexistence, and on the people
+<em>who actually use Reticulum</em>. The things that we can only do <em>together</em>, as humans. That is
+what the fake “movement” cannot do, no matter how fluent and smooth its productions become.</p></li>
+</ul>
+</section>
+</section>
+<section id="network-health-coexistence">
+<span id="brandolinis-health-and-coexistence"></span><h2>Network Health &amp; Coexistence<a class="headerlink" href="#network-health-coexistence" title="Link to this heading">¶</a></h2>
+<section id="substance-of-the-networks">
+<span id="brandolinis-substance"></span><h3>Substance Of The Networks<a class="headerlink" href="#substance-of-the-networks" title="Link to this heading">¶</a></h3>
+<p>Before examining health, we should consider what is being protected. The networks are not a repository. They are not a website, a social presence, or a set of marketing pages. They are a habitat: A living commons of communication, carried by, from a catious estimate, an intermesh now consisting of over a hundred thousand physical devices, embedded in a plethora of applications and packages, transporting terabytes of traffic every single day - real messages, real coordination, real people - across radios, serial lines, phones, laptops, and backbone servers, in cities, places and ways that no other network reaches.</p>
+<p>The protocol belongs to humanity; no one owns it. The network belongs to everyone on it, and its membership is defined by nothing other than participation: A node on a mast, a phone in a pocket, a server routing for its neighbourhood, a developer building on the commons. The network has no gatekeepers because it needs none; it is held together by the same physics and mathematics everywhere, and by a shared expectation of how members behave. That expectation - unwritten, unenforced by any central authority, and just as important as any code - is the subject of this section. The <em>Zen of Reticulum</em> calls the software a habitat. A habitat is healthy or unhealthy as a whole, and the health of this one is decided, every day, by the people who live in it.</p>
+</section>
+<section id="health-is-a-property-of-the-whole">
+<span id="brandolinis-property-of-the-whole"></span><h3>Health Is A Property Of The Whole<a class="headerlink" href="#health-is-a-property-of-the-whole" title="Link to this heading">¶</a></h3>
+<p>A network is not made healthy by the excellence of any single part. It is made healthy by the behaviour of every part on the shared medium, and how they interact. And the shared medium is the point. When your node transmits, it transmits into the same spectrum, the same line, the same time, the same mathematical address space, the same bandwidth that its neighbours depend on. Duty cycles, channel etiquette, retry behaviour, announce discipline: These are not private performance details. They are the terms of coexistence, and they bind every member as tightly as the protocol itself.</p>
+<p>This is why the health of the network cannot be certified by any single project’s claims, and why the evaluation framework of <a class="reference internal" href="#brandolinis-evaluating"><span class="std std-ref">Evaluating A Reticulum Implementation</span></a> includes respectful citizenship as a core category. A node that is a bad neighbour - that invents its own channel behaviour on shared spectrum, that announces without discipline, that spawns tens of thousands of links to scrape the network, that floods and retries without mercy - is a hazard to every node that shares its medium, regardless of how well its “creator” imagines its own code to work in isolation. On a shared medium, “my software works” is not a complete sentence. The complete sentence is “my software works <em>and coexists</em>”. A network’s health deteriorates with its worst-behaved member, and every member has a responsibility to not be <em>that</em> member. There is no final, technical solution for this; the solutions are human.</p>
+</section>
+<section id="a-history-of-what-works">
+<span id="brandolinis-history-of-what-works"></span><h3>A History Of What Works<a class="headerlink" href="#a-history-of-what-works" title="Link to this heading">¶</a></h3>
+<p>Let’s recall, because it is the ground truth this entire thing rests on, that the coexistence model has <em>worked</em> - is working, right now, <strong>at scale</strong>. Reticulum’s protocol decisions have been discussed and evaluated in the community, openly, for years. Protocol upgrades have been designed, coordinated, and executed between a loosely organised group of independent developers, node operators, and users - and have succeeded, repeatedly, without any corporate board, without any central command, and without the collapse that the skeptics predict every second week (while screaming for <em>GOVERNANCE</em>). The reference implementation has been developed in the open for over a decade, by a maintainer who answers for it, fixes bugs or issues within hours of their discovery, and is set down in code deliberately kept small enough (the entire protocol implementation under 15,000 lines, including its comments) for a human to read, verify, <em>and challenge</em>.</p>
+<p>This is the empirical baseline that every narrative examined in <a class="reference internal" href="#brandolinis-movement-of-a-dozen"><span class="std std-ref">A Movement Of A Dozen</span></a> conveniently ignores, in order to justify:</p>
+<ul class="simple">
+<li><p>The claim that the project is a one-man dictatorship</p></li>
+<li><p>The claim that the community is excluded</p></li>
+<li><p>The claim that the networks need saving from their own founders</p></li>
+</ul>
+<p>The <strong>reality</strong>, documented and reproducible, is that a loose community of humans coordinates complex technical evolution <em>without</em> the apparatus the narratives insist is missing. The health of the networks is not a promise for the future; it is a demonstrated property of the past and present, under the leadership and community model that brought it into existence and navigated it through difficult decisions and situations over a decade. <strong>My job is to keep it that way</strong>, and you can be damned certain that I take it seriously.</p>
+</section>
+<section id="the-role-of-the-individual">
+<span id="brandolinis-role-of-the-individual"></span><h3>The Role Of The Individual<a class="headerlink" href="#the-role-of-the-individual" title="Link to this heading">¶</a></h3>
+<p>The networks are built by physical acts and human coordination. You cannot prompt an antenna into existence. No model can string up a dipole, or stand in the rain aligning a radio, or coordinate with a neighbour three valleys away about who covers which repeater frequency, or sit down with a newcomer and explain why their first node didn’t announce. These are the acts that make a network <em>organic</em> - present in the physical world, resilient because it is <em>real</em>, valuable because it is <em>human</em>. The machines and technology we use are tools aimed at a well-defined, openly described goal. But the networks themself are composed of intentional human actions, and every node operator is infrastructure for other humans.</p>
+<p>This has a corollary for the individual: You do not need permission, and you do not need to be an expert, to participate. Run a node. Help a neighbour. Ask questions in the community, and answer the questions you can. Build something small at first. The network grows by these acts, and they are the most meaningful ones - the things that can only be done together, as humans, in the physical world. The parasitic “movement” that haunts the peripheries of this ecosystem cannot do any of this. It cannot build a node because it does not exist, in any real connected and human sense; only people can, and people are precisely what a self-recurrent loop lacks.</p>
+</section>
+<section id="the-place-of-new-implementations">
+<span id="brandolinis-place-of-new"></span><h3>The Place Of New Implementations<a class="headerlink" href="#the-place-of-new-implementations" title="Link to this heading">¶</a></h3>
+<p>The future of the network includes more implementations - and they are welcome. This chapter is not an argument against implementing Reticulum. The protocol is public domain, by design, and the network is made stronger by genuine diversity: More <em>good</em> implementations, honestly made, mean more resilience, more experimentation, more people who understand the protocol deeply <em>because they have built it themselves</em>. That is the goal: <strong>For people to understand and own the technology they rely on</strong>. Not to spew out a 637,000 line rust port that fills no meaningful gap or purpose.</p>
+<p>What the ecosystem needs, from every implementation, is the ordinary floor that <a class="reference internal" href="#brandolinis-evaluating"><span class="std std-ref">Evaluating A Reticulum Implementation</span></a> establishes, and that the reference has met for over a decade: A human who made it and answers for it; provenance disclosed; attribution given; benchmarks honest or absent; interop demonstrated against the real network; code a human can read. And it needs the one thing that costs nothing and changes everything: <strong>Honest labeling</strong>.</p>
+<p>An experimental implementation that says, plainly, as the first thing a user sees: “This is in-progress, experimental, do not depend on it yet, but help if you can”, that is a gift to the ecosystem. It contributes, it invites participation, and it protects users.</p>
+<p>The opposite, the polished “drop-in replacement” with fabricated measurements and laundered authorship, does damage far beyond its own users: It dissuades the honest developers who might have built <em>the real thing</em>, because the polished slop persuades them the work is already done. That dissuasion is one of the quietest and most expensive harms in this entire affair, and the antidote is honesty at every project’s door.</p>
+</section>
+<section id="expanding-the-commons">
+<span id="brandolinis-expanding-commons"></span><h3>Expanding The Commons<a class="headerlink" href="#expanding-the-commons" title="Link to this heading">¶</a></h3>
+<p>Coexistence, reduced to its essentials, is a short formula; the duties of membership in a network no one owns:</p>
+<ul class="simple">
+<li><p><strong>Be honest.</strong> Say what you are, what you built, how you built it, and what you used to
+build it. Label experimental work as experimental. Credit the work you build on, including
+the reference implementation, in the licenses and in the prose. Concealment is not a
+defence; it is a very clear diagnosis marker.</p></li>
+<li><p><strong>Be owned.</strong> Have a human who made the work and can answer for it. Use assistance, don’t
+substitute. Never sign what you cannot answer for. The chain of accountability is the
+community’s only verification at scale, and every link in it is a <em>person</em>, not a facade.</p></li>
+<li><p><strong>Be a good neighbour.</strong> Respect the shared mediums. Do not invent new behaviour in our
+shared space and call it progress. The network belongs to its other members as much as
+to you.</p></li>
+<li><p><strong>Measure honestly, or not at all.</strong> An unfudged measurement is worth more than a headline.
+If you compare, compare against reality - stock, current, real - and publish the methodology
+first. That way, we can <em>all</em> learn and improve.</p></li>
+<li><p><strong>Verify against the network.</strong> Compatibility is a property demonstrated with actual nodes,
+on actual media, against the actual current protocol, over a period of <em>years</em>, not 48 hours.
+And not a claim pinned to an old snapshot over loopback.</p></li>
+<li><p><strong>Participate as a member.</strong> Ask, answer, help, build. <em>Advertising at</em> the community is not
+the same as being part of it, and it is <strong>not</strong> the first thing you should do.</p></li>
+</ul>
+<p>None of this is a high bar. It is the bar the reference implementation has met, in public, for over a decade, and the bar the ecosystem has adopted organically itself, successfully, through every protocol upgrade it has ever coordinated, and everything running on Reticulum today, that people actually use. It is not a new requirement; it is the existing, working culture of the networks, now written down so that newcomers can find it and so that those who would exploit us cannot claim they never saw it.</p>
+</section>
+<section id="defence-of-the-commons">
+<span id="brandolinis-defence-of-commons"></span><h3>Defence Of The Commons<a class="headerlink" href="#defence-of-the-commons" title="Link to this heading">¶</a></h3>
+<p>The networks need defending - not because they are under severe physical attacks (yet), but because attention, talent and resources is being stolen from them, trust is being mined against them, and its newcomers are being harvested by the machinery documented in this chapter. Defence, for a commons, has specific shapes, and it is not what the theater would like it to be.</p>
+<ul class="simple">
+<li><p>Defence is <strong>documentation</strong>: Records, kept public, of what was claimed, what was
+answered, and what turned out true.</p></li>
+<li><p>Defence is <strong>a headcount</strong>: Calm, unexcited reminders that a “movement” might just be a dozen
+people having a tantrum.</p></li>
+<li><p>Defence is <strong>honesty in action</strong>: The visible, ordinary practice of the good behaviour
+by the people who actually run the networks.</p></li>
+<li><p>And defence is <strong>building</strong>: Every node raised, every page of <em>real</em> documentation, every
+honest implementation, every new user helped into the community with the knowledge to know
+what they are doing is more durable than any rebuttal, because it adds to the thing being
+defended.</p></li>
+</ul>
+<hr class="docutils" />
+<p><strong>The theatre cannot keep up with a network.</strong></p>
+<p><strong>It can only orbit it, while it recycles its own sour piss.</strong></p>
+<hr class="docutils" />
+<p>A lot of us rely on these networks every day. They carry our messages, our coordination, our friendships, and in some places, our safety. That is exactly why they are a target:</p>
+<p>They are valuable, free, and very hard to shut down. The response is not to become aggressive. It is to be <em>more</em> of what the network already is: Real, open, owned, and shared.</p>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="reference.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">API Reference</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="license.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Reticulum License</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Mark Qvist
+            </div>
+            Generated with <a href="https://www.sphinx-doc.org/">Sphinx</a> and 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Brandolini’s Reference</a><ul>
+<li><a class="reference internal" href="#what-the-reticulum-license-is">What The Reticulum License Is</a><ul>
+<li><a class="reference internal" href="#why-this-license-exists">Why This License Exists</a></li>
+<li><a class="reference internal" href="#on-freedom">On Freedom</a></li>
+<li><a class="reference internal" href="#the-prediction-and-what-happened">The Prediction, And What Happened</a></li>
+<li><a class="reference internal" href="#what-this-means-for-other-implementations">What This Means For Other Implementations</a></li>
+<li><a class="reference internal" href="#copyright-the-two-legal-layers">Copyright &amp; The Two Legal Layers</a></li>
+<li><a class="reference internal" href="#the-clean-room-delusion">The “Clean-Room” Delusion</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#open-source-means-open-source">Open Source Means Open Source</a><ul>
+<li><a class="reference internal" href="#what-the-argument-is-actually-doing">What The Argument Is Actually Doing</a></li>
+<li><a class="reference internal" href="#who-is-restricted-by-which-license">Who Is Restricted By Which License?</a></li>
+<li><a class="reference internal" href="#the-consequences-of-the-not-open-source-claim">The Consequences Of The “Not Open Source” Claim</a></li>
+<li><a class="reference internal" href="#the-distribution-argument">The Distribution Argument</a></li>
+<li><a class="reference internal" href="#on-the-institutions-in-fairness">On The Institutions, In Fairness</a></li>
+<li><a class="reference internal" href="#what-open-means-positively">What “Open” Means Positively</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#assistance-versus-machine-substitution">Assistance Versus Machine-Substitution</a><ul>
+<li><a class="reference internal" href="#false-dichotomy">False Dichotomy</a></li>
+<li><a class="reference internal" href="#the-line">The Line</a></li>
+<li><a class="reference internal" href="#what-assistance-looks-like">What assistance looks like</a></li>
+<li><a class="reference internal" href="#what-substitution-looks-like">What substitution looks like</a></li>
+<li><a class="reference internal" href="#infrastructure-matters">Infrastructure Matters</a></li>
+<li><a class="reference internal" href="#the-fluency-trap">The Fluency Trap</a></li>
+<li><a class="reference internal" href="#disclosed-assistance-or-laundered-generation">Disclosed Assistance Or Laundered Generation</a></li>
+<li><a class="reference internal" href="#the-license-in-this-context">The License In This Context</a></li>
+<li><a class="reference internal" href="#the-general-principle">The General Principle</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#evaluating-a-reticulum-implementation">Evaluating a Reticulum Implementation</a><ul>
+<li><a class="reference internal" href="#the-intention-of-this-guide">The Intention Of This Guide</a></li>
+<li><a class="reference internal" href="#two-questions-that-resolve-most-cases">Two Questions That Resolve Most Cases</a></li>
+<li><a class="reference internal" href="#other-signals-to-look-for">Other Signals To Look For</a><ul>
+<li><a class="reference internal" href="#provenance-and-attribution">Provenance and attribution</a></li>
+<li><a class="reference internal" href="#agency-and-answerability">Agency and answerability</a></li>
+<li><a class="reference internal" href="#engineering-reality">Engineering reality</a></li>
+<li><a class="reference internal" href="#network-citizenship">Network citizenship</a></li>
+<li><a class="reference internal" href="#monetary-and-influence-signals">Monetary and influence signals</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-conformal-surface">The Conformal Surface</a></li>
+<li><a class="reference internal" href="#possible-verdicts">Possible Verdicts</a></li>
+<li><a class="reference internal" href="#these-standards-are-reasonable">These Standards Are Reasonable</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-prns-case">The Prns Case</a><ul>
+<li><a class="reference internal" href="#purpose-scope">Purpose &amp; Scope</a></li>
+<li><a class="reference internal" href="#the-project-in-brief">The Project In Brief</a></li>
+<li><a class="reference internal" href="#question-1-is-this-a-clean-implementation-or-was-it-directly-generated-from-the-reference">Question 1: Is this a clean implementation, or was it directly generated from the reference?</a></li>
+<li><a class="reference internal" href="#question-2-who-or-what-is-the-agent-of-the-work">Question 2: Who, or what, is the agent of the work?</a></li>
+<li><a class="reference internal" href="#the-performance-claims">The performance claims</a></li>
+<li><a class="reference internal" href="#overall-evaluation">Overall Evaluation</a></li>
+<li><a class="reference internal" href="#licensing-analysis">Licensing Analysis</a></li>
+<li><a class="reference internal" href="#consequences">Consequences</a></li>
+<li><a class="reference internal" href="#verdict">Verdict</a></li>
+<li><a class="reference internal" href="#dating">Dating</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-movement-of-a-dozen">The Movement Of A Dozen</a><ul>
+<li><a class="reference internal" href="#presentation-elongated">Presentation, Elongated</a></li>
+<li><a class="reference internal" href="#headcount">Headcount</a></li>
+<li><a class="reference internal" href="#recycled-wine-fermenting">Recycled Wine, Fermenting</a></li>
+<li><a class="reference internal" href="#the-method-of-madness">The Method, of Madness</a></li>
+<li><a class="reference internal" href="#a-persistent-but-fragile-triad">A Persistent, But Fragile Triad</a></li>
+<li><a class="reference internal" href="#what-the-pattern-is-not">What The Pattern Is Not</a></li>
+<li><a class="reference internal" href="#intent-consequence">Intent &amp; Consequence</a></li>
+<li><a class="reference internal" href="#recognition-response">Recognition &amp; Response</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#network-health-coexistence">Network Health &amp; Coexistence</a><ul>
+<li><a class="reference internal" href="#substance-of-the-networks">Substance Of The Networks</a></li>
+<li><a class="reference internal" href="#health-is-a-property-of-the-whole">Health Is A Property Of The Whole</a></li>
+<li><a class="reference internal" href="#a-history-of-what-works">A History Of What Works</a></li>
+<li><a class="reference internal" href="#the-role-of-the-individual">The Role Of The Individual</a></li>
+<li><a class="reference internal" href="#the-place-of-new-implementations">The Place Of New Implementations</a></li>
+<li><a class="reference internal" href="#expanding-the-commons">Expanding The Commons</a></li>
+<li><a class="reference internal" href="#defence-of-the-commons">Defence Of The Commons</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=1cd648e3"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>
