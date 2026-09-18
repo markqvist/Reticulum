@@ -32,6 +32,7 @@ to participate in the development of Reticulum itself.
    support
    examples
    license
+   brandolinis
 
 .. toctree::
    :maxdepth: 2
