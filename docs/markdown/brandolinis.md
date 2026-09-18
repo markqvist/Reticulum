@@ -789,27 +789,23 @@ Evaluated against the conditions of [Evaluating A Reticulum Implementation](#bra
   no original copyright or permission notice anywhere.
 
 * **Agency and answerability.** Fails on every criterion of [Assistance Versus Machine Substitution](#brandolinis-assistance-versus-substitution):
-  unauthored scope, uniform generation, discovery by regeneration, laundered provenance,
+  Unauthored scope, uniform generation, discovery by regeneration, laundered provenance,
   authorship by assignment.
 
 * **Engineering reality.** Fails: The benchmark apparatus above; interop demonstrated only
-  against a pinned, outdated reference version (RNS 1.4.2; some published suites against
-  1.4.0) over loopback, with the project’s own result tables documenting interop failures
-  with stock RNS; the reference version itself drifts across the project’s publication history
-  while the marketing claims current parity; a nonstandard “turbo” sub-GHz mode invented for shared spectrum,
-  in a codebase whose own history shows it had not yet correctly understood the
-  reference’s duty-cycle accounting when the invention was layered on; vendored prebuilt
-  binaries and a republished fork of an upstream crate (`nrf-softdevice 0.1.0-prns.1`)
-  with no verifiable provenance; committed WASM bundles.
+  against a pinned, outdated reference version over loopback while the marketing claims current
+  parity, interop failures with stock RNS; vendored prebuilt binaries and a republished fork
+  of an upstream crate (`nrf-softdevice 0.1.0-prns.1`) with no verifiable provenance;
+  committed WASM bundles.
 
 * **Network citizenship.** Fails: Invented spectrum behaviour, and compatibility claims
   about third-party applications of the reference ecosystem (Sideband, NomadNet, MeshChat)
   that are not established by any evidence.
 
 * **Monetary and influence signals.** The marketing apparatus - website before protocol,
-  day-three twelve-language marketing, false benchmark headlines, “audited” claims - is the
-  conformal surface described in [Evaluating A Reticulum Implementation](#brandolinis-evaluating):
-  the surface is where this project invested.
+  day-three twelve-language marketing, false benchmark headlines, “audited” and “formal proof”
+  claims - the conformal surface described in [Evaluating A Reticulum Implementation](#brandolinis-evaluating):
+  is where this project invested.
 
 ### Licensing Analysis
 
@@ -1070,13 +1066,13 @@ This has a corollary for the individual: You do not need permission, and you do 
 
 ### The Place Of New Implementations
 
-The future of the network includes more implementations - and they are welcome. This chapter is not an argument against implementing Reticulum. The protocol is public domain, by design, and the network is made stronger by genuine diversity: More *good* implementations, honestly made, mean more resilience, more experimentation, more people who understand the protocol deeply *because they have built it themselves*. That is the goal: **For people to understand and own the technology they rely on**. Not to spew out a 637,000 line rust port that fills no meaningful gap or purpose.
+The future of the network includes more implementations - and they are welcome. This chapter is not an argument against implementing Reticulum. The protocol is public domain, by design, and the network is made stronger by genuine diversity: More *good* implementations, honestly made, mean more resilience, more experimentation, more people who understand the protocol deeply *because they have built it themselves*. That is the goal: **For people to understand and own the technology they rely on**. Not to spew out 600,000 line rust ports that fills no meaningful gap or purpose.
 
 What the ecosystem needs, from every implementation, is the ordinary floor that [Evaluating A Reticulum Implementation](#brandolinis-evaluating) establishes, and that the reference has met for over a decade: A human who made it and answers for it; provenance disclosed; attribution given; benchmarks honest or absent; interop demonstrated against the real network; code a human can read. And it needs the one thing that costs nothing and changes everything: **Honest labeling**.
 
 An experimental implementation that says, plainly, as the first thing a user sees: “This is in-progress, experimental, do not depend on it yet, but help if you can”, that is a gift to the ecosystem. It contributes, it invites participation, and it protects users.
 
-The opposite, the polished “drop-in replacement” with fabricated measurements and laundered authorship, does damage far beyond its own users: It dissuades the honest developers who might have built *the real thing*, because the polished slop persuades them the work is already done. That dissuasion is one of the quietest and most expensive harms in this entire affair, and the antidote is honesty at every project’s door.
+The opposite, the polished “drop-in replacement”, does damage far beyond its own users: It dissuades the honest developers who might have built *the real thing*, because the polished slop persuades them the work is already done. That dissuasion is one of the quietest and most expensive harms in this entire affair, and the antidote is honesty at every project’s door.
 
 ### Expanding The Commons
 
@@ -1094,10 +1090,6 @@ Coexistence, reduced to its essentials, is a short formula; the duties of member
 * **Be a good neighbour.** Respect the shared mediums. Do not invent new behaviour in our
   shared space and call it progress. The network belongs to its other members as much as
   to you.
-
-* **Measure honestly, or not at all.** An unfudged measurement is worth more than a headline.
-  If you compare, compare against reality - stock, current, real - and publish the methodology
-  first. That way, we can *all* learn and improve.
 
 * **Verify against the network.** Compatibility is a property demonstrated with actual nodes,
   on actual media, against the actual current protocol, over a period of *years*, not 48 hours.

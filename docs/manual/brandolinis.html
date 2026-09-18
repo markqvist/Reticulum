@@ -946,24 +946,20 @@ on the website; a single well-hidden link in the README; a license file reading
 “Copyright (c) 2026 The Prns Authors” over work directly generated from the licensed reference;
 no original copyright or permission notice anywhere.</p></li>
 <li><p><strong>Agency and answerability.</strong> Fails on every criterion of <a class="reference internal" href="#brandolinis-assistance-versus-substitution"><span class="std std-ref">Assistance Versus Machine Substitution</span></a>:
-unauthored scope, uniform generation, discovery by regeneration, laundered provenance,
+Unauthored scope, uniform generation, discovery by regeneration, laundered provenance,
 authorship by assignment.</p></li>
 <li><p><strong>Engineering reality.</strong> Fails: The benchmark apparatus above; interop demonstrated only
-against a pinned, outdated reference version (RNS 1.4.2; some published suites against
-1.4.0) over loopback, with the project’s own result tables documenting interop failures
-with stock RNS; the reference version itself drifts across the project’s publication history
-while the marketing claims current parity; a nonstandard “turbo” sub-GHz mode invented for shared spectrum,
-in a codebase whose own history shows it had not yet correctly understood the
-reference’s duty-cycle accounting when the invention was layered on; vendored prebuilt
-binaries and a republished fork of an upstream crate (<code class="docutils literal notranslate"><span class="pre">nrf-softdevice</span> <span class="pre">0.1.0-prns.1</span></code>)
-with no verifiable provenance; committed WASM bundles.</p></li>
+against a pinned, outdated reference version over loopback while the marketing claims current
+parity, interop failures with stock RNS; vendored prebuilt binaries and a republished fork
+of an upstream crate (<code class="docutils literal notranslate"><span class="pre">nrf-softdevice</span> <span class="pre">0.1.0-prns.1</span></code>) with no verifiable provenance;
+committed WASM bundles.</p></li>
 <li><p><strong>Network citizenship.</strong> Fails: Invented spectrum behaviour, and compatibility claims
 about third-party applications of the reference ecosystem (Sideband, NomadNet, MeshChat)
 that are not established by any evidence.</p></li>
 <li><p><strong>Monetary and influence signals.</strong> The marketing apparatus - website before protocol,
-day-three twelve-language marketing, false benchmark headlines, “audited” claims - is the
-conformal surface described in <a class="reference internal" href="#brandolinis-evaluating"><span class="std std-ref">Evaluating A Reticulum Implementation</span></a>:
-the surface is where this project invested.</p></li>
+day-three twelve-language marketing, false benchmark headlines, “audited” and “formal proof”
+claims - the conformal surface described in <a class="reference internal" href="#brandolinis-evaluating"><span class="std std-ref">Evaluating A Reticulum Implementation</span></a>:
+is where this project invested.</p></li>
 </ul>
 </section>
 <section id="licensing-analysis">
@@ -1189,10 +1185,10 @@ what the fake “movement” cannot do, no matter how fluent and smooth its prod
 </section>
 <section id="the-place-of-new-implementations">
 <span id="brandolinis-place-of-new"></span><h3>The Place Of New Implementations<a class="headerlink" href="#the-place-of-new-implementations" title="Link to this heading">¶</a></h3>
-<p>The future of the network includes more implementations - and they are welcome. This chapter is not an argument against implementing Reticulum. The protocol is public domain, by design, and the network is made stronger by genuine diversity: More <em>good</em> implementations, honestly made, mean more resilience, more experimentation, more people who understand the protocol deeply <em>because they have built it themselves</em>. That is the goal: <strong>For people to understand and own the technology they rely on</strong>. Not to spew out a 637,000 line rust port that fills no meaningful gap or purpose.</p>
+<p>The future of the network includes more implementations - and they are welcome. This chapter is not an argument against implementing Reticulum. The protocol is public domain, by design, and the network is made stronger by genuine diversity: More <em>good</em> implementations, honestly made, mean more resilience, more experimentation, more people who understand the protocol deeply <em>because they have built it themselves</em>. That is the goal: <strong>For people to understand and own the technology they rely on</strong>. Not to spew out 600,000 line rust ports that fills no meaningful gap or purpose.</p>
 <p>What the ecosystem needs, from every implementation, is the ordinary floor that <a class="reference internal" href="#brandolinis-evaluating"><span class="std std-ref">Evaluating A Reticulum Implementation</span></a> establishes, and that the reference has met for over a decade: A human who made it and answers for it; provenance disclosed; attribution given; benchmarks honest or absent; interop demonstrated against the real network; code a human can read. And it needs the one thing that costs nothing and changes everything: <strong>Honest labeling</strong>.</p>
 <p>An experimental implementation that says, plainly, as the first thing a user sees: “This is in-progress, experimental, do not depend on it yet, but help if you can”, that is a gift to the ecosystem. It contributes, it invites participation, and it protects users.</p>
-<p>The opposite, the polished “drop-in replacement” with fabricated measurements and laundered authorship, does damage far beyond its own users: It dissuades the honest developers who might have built <em>the real thing</em>, because the polished slop persuades them the work is already done. That dissuasion is one of the quietest and most expensive harms in this entire affair, and the antidote is honesty at every project’s door.</p>
+<p>The opposite, the polished “drop-in replacement”, does damage far beyond its own users: It dissuades the honest developers who might have built <em>the real thing</em>, because the polished slop persuades them the work is already done. That dissuasion is one of the quietest and most expensive harms in this entire affair, and the antidote is honesty at every project’s door.</p>
 </section>
 <section id="expanding-the-commons">
 <span id="brandolinis-expanding-commons"></span><h3>Expanding The Commons<a class="headerlink" href="#expanding-the-commons" title="Link to this heading">¶</a></h3>
@@ -1208,9 +1204,6 @@ community’s only verification at scale, and every link in it is a <em>person</
 <li><p><strong>Be a good neighbour.</strong> Respect the shared mediums. Do not invent new behaviour in our
 shared space and call it progress. The network belongs to its other members as much as
 to you.</p></li>
-<li><p><strong>Measure honestly, or not at all.</strong> An unfudged measurement is worth more than a headline.
-If you compare, compare against reality - stock, current, real - and publish the methodology
-first. That way, we can <em>all</em> learn and improve.</p></li>
 <li><p><strong>Verify against the network.</strong> Compatibility is a property demonstrated with actual nodes,
 on actual media, against the actual current protocol, over a period of <em>years</em>, not 48 hours.
 And not a claim pinned to an old snapshot over loopback.</p></li>
