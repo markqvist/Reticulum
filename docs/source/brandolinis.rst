@@ -1072,8 +1072,8 @@ None of the "arguments" engages the answers given repeatedly, and extensively. T
 
 .. _brandolinis-the-method:
 
-The Method, of Madness
-^^^^^^^^^^^^^^^^^^^^^^
+The Method of Madness
+^^^^^^^^^^^^^^^^^^^^^
 
 The method behind the pattern is consistent and simple enough to be described precisely:
 
