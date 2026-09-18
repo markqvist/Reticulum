@@ -317,7 +317,7 @@ to participate in the development of Reticulum itself.
     * [Presentation, Elongated](brandolinis.md#presentation-elongated)
     * [Headcount](brandolinis.md#headcount)
     * [Recycled Wine, Fermenting](brandolinis.md#recycled-wine-fermenting)
-    * [The Method, of Madness](brandolinis.md#the-method-of-madness)
+    * [The Method of Madness](brandolinis.md#the-method-of-madness)
     * [A Persistent, But Fragile Triad](brandolinis.md#a-persistent-but-fragile-triad)
     * [What The Pattern Is Not](brandolinis.md#what-the-pattern-is-not)
     * [Intent & Consequence](brandolinis.md#intent-consequence)

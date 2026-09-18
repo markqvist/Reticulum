@@ -912,7 +912,7 @@ The cast is not only small, it is also, by any evidentiary standard, *forgetful*
 
 None of the “arguments” engages the answers given repeatedly, and extensively. That is the point, and the strategy. The arguments are not produced for the purpose of being engaged; they are produced for the purpose of *being repeated* - the same wine, poured into new bottles, on a cycle. Each cycle is short, cheap to produce, and (thanks to freely available fluent text generation) now nearly effortless. The intended audience is not the community, which has heard it all before. The intended audience is the newcomer, who has not.
 
-### The Method, of Madness
+### The Method of Madness
 
 The method behind the pattern is consistent and simple enough to be described precisely:
 
