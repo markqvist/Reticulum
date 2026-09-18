@@ -1,6 +1,8 @@
 Reticulum Network Stack <img align="right" src="https://static.pepy.tech/personalized-badge/rns?period=month&units=international_system&left_color=grey&right_color=blue&left_text=Installs/month" style="padding-left:10px"/><a href="https://github.com/markqvist/Reticulum/actions/workflows/build.yml"><img align="right" src="https://github.com/markqvist/Reticulum/actions/workflows/build.yml/badge.svg"/></a>
 ==========
 
+**Warning!** A significant number of hastily launched, incorrect, dubious, directly harmful and, in most cases, entirely LLM-generated fakes of Reticulum implementations are currently being marketed and pushed under polished, but ultimately misleading or outright deceptive claims. For more detailed information, see the relevant sections of the [Brandolini's Reference](https://reticulum.network/manual/brandolinis.html) chapter of the manual.
+
 <p align="center"><img width="200" src="https://raw.githubusercontent.com/markqvist/Reticulum/master/docs/source/graphics/rns_logo_512.png"></p>
 
 *This repository is [a public mirror](./MIRROR.md). All development is happening elsewhere.*
@@ -109,6 +111,8 @@ The implementations listed here have demonstrated wire-compatibility, sufficient
 *If you are the maintainer of an implementation not listed above, and believe that it deserves inclusion by following the same standards of rigor and commitment, your proposal will be welcomed.*
 
 **Warning!** A significant number of hastily launched, incorrect, dubious, directly harmful and, in most cases, entirely LLM-generated fakes of Reticulum implementations are currently being marketed and pushed under polished, but ultimately misleading or outright deceptive claims. Most of these are either quick attention or money grabs, completely unreviewed, incompatible, without maintenance or human oversight, actively trying to fragment the community, or a combination thereof.
+
+For more extensive information on this topic, read the [Brandolini's Reference](https://reticulum.network/manual/brandolinis.html) chapter of the manual.
 
 The core Reticulum maintainers and developers **strongly advise against using any such "implementation"**. The deceitful and self-serving behavior of a small number of either malintented, attention-seeking or incompetent individuals has caused significant damage, waste of time and resources for both developers, node operators, users and the community and Reticulum project at large.
 
