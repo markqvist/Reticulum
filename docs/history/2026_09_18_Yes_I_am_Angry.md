@@ -10,10 +10,12 @@ The man that produced the "article" in question here is either so disposessed of
 
 If any rational explanation can produce an alternative, I am all ears.
 
-**To the footsoldiers of the "cause" the article represents:**
+**To the footsoldiers of the "cause" the article represents**
+
 Let's get this show on. Let's see the barrage of new smear pieces you can prompt forth from the fuel I provide you here. It'll fit straight into your theater production, so: Be my fucking guest, and dig your own hole of delusion, mistrust and ridicule even deeper than it alraedy is.
 
 **To anyone else**
+
 Consider this a paranthetical, sarcastic (and for me, cathartic) aside in the whole of the corpus of writings I have published, and weigh it in the context of the rest of those 200,000 words or so, together with the frustration and exhaustion that inevitably entails from dealing with this same fabricated campaign and its regurgitated nonsense for *years* on end, while trying to do constructive and helpful work; and not expecting anything else than basic decency in return.
 
 I am no angel, not perfect, flawed in many ways, but I certainly ain't afraid to show that I am a real human being, with the capacity for anger, and that in this case, the anger is fed by the most bitter form of disappointment and sadness in what people will stoop to for influence and attention.
