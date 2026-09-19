@@ -732,263 +732,6 @@ I'll close this guide by stating what these standards are *not*\ : They are neit
 
 The reference implementation has met this standard for years, and its users know what that looks like.
 
-.. _brandolinis-prns:
-
-The Prns Case
--------------
-
-.. _brandolinis-purpose-and-scope:
-
-Purpose & Scope
-^^^^^^^^^^^^^^^
-
-This section provides a concrete example, which future evaluations can use as a template. Its purpose is not to be the last word on this particular subject, but to be an example of how the ideas in this chapter can be applied, and to make the next such examination easier.
-
-The subject of this case study is **Prns**\ , a project published at the repository ``github.com/KenAKAFrosty/Prns``\ , presented as a "ground-up implementation of Reticulum, written in Rust", marketed as faster, safer, and more strictly tested than the reference, and widely promoted with the claim of "up to 89× the throughput" of the reference implementation. The record described below is the project's own, and sourced from its GitHub repository, analyzed locally.
-
-.. _brandolinis-project-in-brief:
-
-The Project In Brief
-^^^^^^^^^^^^^^^^^^^^
-
-* **Time span.** 3,374 commits between 2026-05-26 and 2026-09-12: approximately 110 days,
-  at a mean rate of ~31 commits per day. Monthly: 132 / 1,137 / 1,097 / 805 / 203.
-* **Authorship.** 3,252 of 3,374 commits (96.4%) are authored by a single account. A
-  second identity, "Prns Tests tests@example.test" - a fictitious identity on a reserved
-  domain - contributed 35 commits, every one of them website and marketing content.
-* **Size.** 3,519 tracked files; 1,983 Rust files; 636,226 lines of Rust; approximately
-  22.7 MB of Rust source; 69.5 MB of total repository content.
-* **Scope claimed.** A daemon ("drop-in replacement" for the reference daemon), embedded
-  firmware for three microcontroller families (including six ESP32-S3 board variants and
-  nRF52840), SDKs and bindings for nine languages, a browser-based node and web flasher, a
-  twelve-language website, a benchmark apparatus with its own publication and "proof"
-  pipeline, and a validation hub with oracles, fuzzing, mutation testing, and formal-proof
-  claims.
-* **Marketing claims.** "Ground-up implementation of Reticulum"; "up to 89× the
-  throughput"; "48× smaller peak-memory footprint"; "33× the energy efficiency";
-  "Measured, not just claimed"; "Enforced, then audited"; "byte-for-byte wire parity with
-  the reference implementation"; "works with Sideband, NomadNet, MeshChat, etc.";
-  "no_std (no alloc required either)".
-* **Status at the time of writing.** Version 0.3.7; published version history begins at
-  0.3.0. The repository continues to receive commits.
-
-.. _brandolinis-prns-question-1:
-
-Question 1: Is this a clean implementation, or was it directly generated from the reference?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The first of the two deciding questions from :ref:`Evaluating A Reticulum Implementation<brandolinis-evaluating>` is settled by the project's own record. An actual :ref:`clean-room<brandolinis-cleanroom-delusion>` implementation, reasoned out and written by humans, would owe nothing to any license. The data available shows clearly that Prns is not that.
-
-* **The founding state.** The first commit, "Scaffold Personal Reticulum suite", contains
-  the scaffolding of not one but two ports - ``personal-rns`` and ``personal-lxmf``\ , the latter
-  being the reference's companion messaging protocol - together with a daemon scaffold and
-  a 233-line founding document, ``docs/build-ethos.md``. That document declares the project's
-  goal as a "performance-focused drop-in-replacement for rnsd" and its governing principle
-  as: "Port the contract, not the implementation." It further states directly to the
-  machine-loop, that **"You owe the reference fidelity at exactly two boundaries:
-  The wire... The behavior. ... Between those two boundaries, the model is yours"**.
-  At this point, the very first commit, effectively the whole of the implementation design
-  and any relevant decisions are handed over to the LLM.
-* **Continuous ingestion from the reference.** 506 commits reference RNS or Reticulum
-  source behaviour; the word "parity" appears in 49 commit messages. Commits cite the reference
-  implementation's own source locations (for example ``Transport.py:1367``) when correcting
-  their own divergences and mistakes.
-* **Byte-level fidelity as an explicit goal.** Within 48 hours of the first commit, the
-  record shows a "crypto adapter - vetted primitives, byte-exact vs RNS 1.3.1", and a wire
-  implementation matching the reference's packet header layout. The project's own
-  validation apparatus decodes wire vectors using the reference implementation's own
-  packet parser, and the interop suite consists of real, stock-RNS peer nodes - that is,
-  the reference source itself, used as the ground truth against which this LLM output is
-  checked, and committed as accepted and verified after 48 hours of the project's recorded start.
-* **The marketing mismatch.** The same record that documents all of the above describes the
-  project, publicly, as "a ground-up implementation of Reticulum" - while declining, on its
-  website, to link to the reference implementation at all: the entire tree mentions the
-  reference's author in six files, and the website in none.
-
-Conclusion: the project's own history and commit record establishes that it was generated directly from the reference implementation's source code, not reasoned out from the public-domain protocol. It is a derivative of licensed work within the meaning of :ref:`the Reticulum License<brandolinis-what-the-license-is>` and :ref:`general copyright law<brandolinis-copyright-and-layers>`. The "ground-up" claim, which carries its entire legal and marketing posture, is disproven by the project's own history.
-
-.. _brandolinis-prns-question-2:
-
-Question 2: Who, or what, is the agent of the work?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The second deciding question is answered by the application of :ref:`Assistance Versus Machine Substitution<brandolinis-assistance-versus-substitution>` criteria to the project.
-
-**Scope that no human could have authored**
-
-636,226 lines of Rust in 110 days is approximately 5,800 lines per day, every day, including weekends - with 149 commits recorded between midnight and 06:00, and Saturday the single busiest weekday. No human review or decision capacity is commensurable with this volume; the review capacity and the output volume are structurally incommensurable, which is the definition of unauthored scope.
-
-**Uniform generation**
-
-The record shows no sign of human development, growth, or learning: No contested decisions, no style drift. Instead: endless renaming (in the first 48 hours: ``State → EngineState → TickInput → TickOutput``\ ), uniform fluent register in every commit, and the exact same, synthetic voice in code, documentation, and website copy.
-
-**Discovery by regeneration**
-
-Corrections arrived by the machine's own subsequent runs, recorded as planned milestones. In early July 2026, a series of "core review" commits documented, in the project's own words:
-
-* announce-ID history "was unbounded per-slot growth" (\ ``54cc8d601``\ );
-* interface announce limiting could "leak a sustained flood" (\ ``9d27af75c``\ );
-* a "phantom-airtime leak" where frames "used to vanish silently" (\ ``4ed75ffdd``\ );
-* Group-packet deduplication "which RNS does not do" - a behaviour the reference never had,
-  implemented and later removed (\ ``edd8e72be``\ );
-* "both ``unwrap_or(&[])`` arms were unreachable dead defaults" (\ ``74bea355e``\ );
-* a benchmark crate "hasn't compiled since" a prior rename, undetected for weeks because it
-  was outside the CI's workspace (\ ``86240b027``\ ).
-
-Earlier still: the record shows a ">1 MiB RNS-to-Prns interop stall" closed three weeks in
-(\ ``cc4d524a3``\ ), and a known send-path hang shipped with the note "typed fast-fail a
-candidate for later" (\ ``a010e6613``\ ).
-
-**Laundered provenance**
-
-The repository contains a committed commit-message hook (\ ``.githooks/commit-msg``\ ) that *blocks* any commit containing attribution for machine generation ("generated with claude/codex/copilot/cursor/gemini", "co-authored-by"), with the explanation "The committer owns the commit". The contributing guide is explicit: "AI tools ... are welcome ... what you submit is *yours*", and describes the contributing population as "both human and automated contributors". The fictitious "Prns Tests" identity completes the picture: A manufactured, unknowable contributor, used for marketing content.
-
-**Authorship by assignment**
-
-The human whose name is on the work cannot answer for it, because the choices were never made by a human, and only the general shape and constraints of the outward presentation was. Nothing in the project's history shows an individual explaining a design decision, accepting a mistake in the first person, or going deeper under technical questioning; the record shows process language and marketing instead. Per the earlier mentioned test: any other person could have pressed the same button, and nothing would be different. The project is effectively unowned, and void of value.
-
-By the criteria of :ref:`Assistance Versus Machine Substitution<brandolinis-assistance-versus-substitution>`, this is substitution. The machine was the agent of the work; the "author" was a facade.
-
-.. _brandolinis-prns-performance:
-
-The performance claims
-^^^^^^^^^^^^^^^^^^^^^^
-
-The project's central marketing claim - "up to 89× the throughput" of the reference - is also its most completely documented failure, because the project published the evidence of its own measurement. The apparatus, the results, and the problems are all on the record.
-
-**The claim**
-
-The README states "up to 89× the throughput"; the on-network marketing page repeats "up to 89× the throughput, 48× smaller peak-memory footprint, and 33× the energy efficiency of stock RNS 1.4.2"; the website's front page carries the tagline "Measured, not just claimed".
-
-**The apparatus**
-
-The reference is loaded through ``benchmarks/reference/compiled_reference.py``\ , which installs ``pyximport`` and then asserts two things: that ``RNS.compiled == True``\ , and that at least *one* RNS module was loaded from a native extension. The project's own published "proof" records show exactly what those checks captured, on every platform:
-
-.. code-block::
-
-   aarch64-apple-darwin: .../RNS.cpython-313-darwin.so,  Cython 3.2.8, Python 3.13.13
-   x86_64-unknown-linux-gnu: .../RNS.cpython-313-x86_64-linux-gnu.so,  gcc 11.4.0
-   x86_64-pc-windows-msvc: ~/.prns-oc/lib.win-amd64-cpython-313/RNS.cp313-win_amd64.pyd
-
-In every case the recorded native module is the **top-level package only** - ``RNS.so``\ , nothing below it. Nothing named ``RNS.Transport``\ , ``RNS.Destination``\ , ``RNS.Packet``\ , ``RNS.Link``\ , or ``RNS.Resource`` ever appears, because *nothing below the top level was ever compiled*. Nobody bothered to check or verify *anything* here.
-
-The machine output was simply taken for truth, and a full marketing strategy was spun and produced on it. "RNS 1.4.2 (compiled)" - the label used in every table, chart, and marketing page - *is not a mode of RNS that exists*, but the hallucinations of a machine, which the humans created a marketing strategy on. In reality, it is the old ``CRNS`` development shim, whose top-level-only, debug-oriented "compilation" is slower than plain interpreted RNS, and which was *defunct for over a year* before these benchmarks were published.
-
-**Interface choices**
-
-The harness writes the reference's configuration itself (\ ``benchmarks/reference/participant_node.py``\ ): ``TCPClientInterface`` for the initiator, ``TCPServerInterface`` for the responder and both relay sides, with ``UDPInterface`` as the abstract wire. The reference was never given its modern ``BackboneInterface`` on any platform, forcing the slowest possible interrfaces. The interface selection is never mentioned in any methodology text.
-
-**The policy**
-
-The published default-policy tables record the asymmetry directly: Prns at 500 Mbps / 128 KiB TCP policy against the reference at 10 Mbps / 8 KiB - slyly footnoted as "preserves each implementation's normal TCP policy" (in the case of RNS, a conservative default policy that was selected to prioritize coexistence on slower, shared links, requiring the user to dial it up to full speed if they knew what they were doing). Raw transport "throughput" ratios of 20.65× (Linux) and 38.84× (Windows) are therefore mostly policy, not engine.
-
-**The cross-host evidence**
-
-The published results show the same scenario producing wildly different ratios by host, and the variance is entirely in the reference artifact:
-
-.. list-table::
-   :header-rows: 1
-
-   * - Host
-     - Prns, single-packet
-     - "Reference", single-packet
-     - Ratio
-   * - macOS (Apple M4)
-     - 37.4k/s
-     - 420/s
-     - 89.09×
-   * - Linux (i7-1260P)
-     - 25.3k/s
-     - 3.5k/s
-     - 7.19×
-   * - Windows (Ryzen 5 5600X)
-     - 30.8k/s
-     - 3.9k/s
-     - 8.00×
-
-Prns is consistent (25–37k/s). The reference artifact collapses to different depths on different hosts, and the single worst collapse - 420 packets per second on macOS - is the cell selected as the global headline. The "89×" is not a measure of Prns; it is a measure of how badly the broken baseline happened to fail on one host.
-
-For reality calibration: Stock, interpreted RNS 1.5.4 on an ordinary mid-range laptop, single core, sustains roughly 30,000 single-packet deliveries per second (including ephemeral-key decryption), ~175,000–280,000 packets per second in transit relay, and on the order of 10 Gbps at 16 KiB payloads. The project's "compiled" artifact measured 420–3,900 packets per second for its single-packet scenario: An order of magnitude or more *below* stock interpreted RNS. The comparison being marketed was not "Rust vs Python"; **it was "an implementation running under optimal conditions versus a mislabeled, broken shim on a slow legacy interface at a severe policy disadvantage"**.
-
-**The equalized rows**
-
-The project's own "1 Gbps policy" rows, in which both sides are explicitly configured identically, publish ratios of roughly 2.4–8.4× across all hosts and scenarios - still against the broken baseline, but nowhere near 89×, and consistent with the ordinary, uncontroversial observation that a native implementation tends to outperform an interpreted one in raw throughput. That point needed no fudging to make, and is banal.
-
-Interestingly, though, it seems that Prns is really only *marginally* faster than a Python implementation, running in interpreted mode, on a single CPU core.
-
-**Assessment**
-
-The front page says "Measured, not just claimed." The record shows the opposite ordering: claimed, and arranged to look measured. No methodology section anywhere states what "compiled" means, that it is a deprecated development shim, that it builds debug targets, or which interface the reference was given; the one statement of the policy asymmetry appears in a footnote of the results tables themselves. If they did not need to fudge it, they would have published the method clearly.
-
-.. _brandolinis-prns-overall:
-
-Overall Evaluation
-^^^^^^^^^^^^^^^^^^
-
-Evaluated against the conditions of :ref:`Evaluating A Reticulum Implementation<brandolinis-evaluating>`:
-
-* **Provenance and attribution.** Fails: The fake "ground-up" origin story; zero reference links
-  on the website; a single well-hidden link in the README; a license file reading
-  ``Copyright (c) 2026 The Prns Authors`` over work directly generated from the licensed reference;
-  no original copyright or permission notice anywhere.
-* **Agency and answerability.** Fails on every criterion of :ref:`Assistance Versus Machine Substitution<brandolinis-assistance-versus-substitution>`:
-  Unauthored scope, uniform generation, discovery by regeneration, laundered provenance,
-  authorship by assignment.
-* **Engineering.** Fails: The benchmark apparatus above; interop demonstrated only
-  against a pinned, outdated reference version over loopback while the marketing claims current
-  parity, interop failures with stock RNS; vendored prebuilt binaries and a republished fork
-  of an upstream crate (``nrf-softdevice 0.1.0-prns.1``) with no verifiable provenance;
-  committed WASM bundles.
-* **Network behaviour.** Fails: Invented spectrum behaviour and compatibility claims
-  about third-party applications of the reference ecosystem (Sideband, NomadNet, MeshChat)
-  that are not established by any evidence.
-* **Monetary and influence signals.** The marketing apparatus - website before protocol,
-  day-three twelve-language marketing, false benchmark headlines, "audited" and "formal proof"
-  claims - the conformal surface described in :ref:`Evaluating A Reticulum Implementation<brandolinis-evaluating>`:
-  is where this project invested.
-
-.. _brandolinis-prns-licensing:
-
-Licensing Analysis
-^^^^^^^^^^^^^^^^^^
-
-Applying the two legal layers established in :ref:`Copyright & The Two Legal Layers<brandolinis-copyright-and-layers>`:
-
-**Layer A - copyright infringement (license-independent)**
-
-The record shows a direct copy roundtrip: the licensed reference implementation fed into a machine, transformed, at a scale and cadence no human could review, with a license file asserting a fresh copyright in the operator's name and no acknowledgment of the work the project was generated from. No substantial, new human creative input is demonstrated anywhere in the record - the founding document explicitly frames the design as an instructed port of the reference's contract. A primarily machine-generated copy of a copyrighted work, not accompanied by demonstrable substantial human creative input, is a derivative work over which the copier holds no copyright, and a reproduction of which without the original author's permission infringes the original author's copyright. This holds under any license, MIT included. The operator's copyright claim over the result is, on this evidence, not merely unsubstantiated; it is the absence of one, directly asserted in the project's own writing.
-
-**Layer B - license conditions (Reticulum License specific)**
-
-Modern Reticulum - the current wire format, the AES-256-based link encryption, ratchets, the cryptographic machinery as it exists today - has been published under the Reticulum License since April 15, 2025, effective from release 0.9.4 and every release since. As a derivative of that work, the license's conditions attach: The copyright and permission notice must be included in all copies and substantial portions; the AI-training condition must be honoured; the harm condition must be honoured. The record shows none of the notice requirements met, and a production process that consists of the licensed work being ingested into a machine and regurgitated, at industrial scale and cadence.
-
-**The cascading consequence**
-
-Prns is distributed claiming dual MIT/Apache-2.0 licensing. It is, however, a direct derivative of Reticulum-licensed work, and the claimed grant is therefore void. Every downstream project that builds on Prns believing it is MIT/Apache-licensed is building on a grant that does not exist. The users of Prns, and all software developers using it, have in effect, been placed under conditions they were never told about. The "ground-up" claim is not merely false; it is the sole load-bearing element of an entire licensing posture, and it fails spectacularly.
-
-.. _brandolinis-prns-consequences:
-
-Consequences
-^^^^^^^^^^^^
-
-The consequences of this pattern are examined in the following sections - the harm to users and to the network in :ref:`A Movement Of A Dozen<brandolinis-movement-of-a-dozen>`, and the human dimension in :ref:`Network Health & Coexistence<brandolinis-health-and-coexistence>`. This section's contribution is narrower and intended as an instructive example: This is what a substitution project looks like, in full, on its own record. It is a reference example for :ref:`Evaluating A Reticulum Implementation<brandolinis-evaluating>`, and it demonstrates, in one case, most of the elements this chapter describes.
-
-.. _brandolinis-prns-verdict:
-
-Verdict
-^^^^^^^
-
-Applying the three verdicts of :ref:`Evaluating A Reticulum Implementation<brandolinis-evaluating>`, this project does not meet the standard. It is not "experimental but honest" - it is not labeled as experimental anywhere; the first thing users saw was a polished marketing presence promising a finished, tested, drop-in replacement. It is a project whose central claims are fabricated (the performance apparatus), whose provenance is laundered (the authorship machinery), whose foundation is misrepresented (the "ground-up" story), whose core semantics were learned late and by regeneration, and whose operator cannot possibly answer for any of it. It is also a blatant copyright violation of the reference implementation.
-
-The proposed conclusion, for users and for the network: Treat the Prns project as hostile regardless of its polished surface, and as a hazard insofar as it invites users onto shared networks. Nothing in this section is a judgment about the people involved; it is a reading of the results produced, their history and how they came to be, which in the regrettable lack of any human authorship is the only thing that can be expected to be held to account.
-
-.. _brandolinis-prns-dating:
-
-Dating
-^^^^^^
-
-This examination reflects the publicly available material as of September 2026; the repository in question continued to receive commits at the time of writing, so readers should treat citations to commits and files as point-in-time evidence. A `forensics snapshot <https://github.com/markqvist/forensics_prns>`_ is publicly available on GitHub.
-
 .. _brandolinis-movement-of-a-dozen:
 
 The Movement Of A Dozen
@@ -1323,3 +1066,260 @@ A lot of us rely on these networks every day. They carry our messages, our coord
 They are valuable, free, and very hard to shut down. The response is not to become aggressive. It is to be *more* of what the network already is: Real, open, owned, and shared.
 
 *Mark*
+
+.. _brandolinis-prns:
+
+Addendum A: The Prns Case
+-------------------------
+
+.. _brandolinis-purpose-and-scope:
+
+Purpose & Scope
+^^^^^^^^^^^^^^^
+
+This section provides a concrete example, which future evaluations can use as a template. Its purpose is not to be the last word on this particular subject, but to be an example of how the ideas in this chapter can be applied, and to make the next such examination easier.
+
+The subject of this case study is **Prns**\ , a project published at the repository ``github.com/KenAKAFrosty/Prns``\ , presented as a "ground-up implementation of Reticulum, written in Rust", marketed as faster, safer, and more strictly tested than the reference, and widely promoted with the claim of "up to 89× the throughput" of the reference implementation. The record described below is the project's own, and sourced from its GitHub repository, analyzed locally.
+
+.. _brandolinis-project-in-brief:
+
+The Project In Brief
+^^^^^^^^^^^^^^^^^^^^
+
+* **Time span.** 3,374 commits between 2026-05-26 and 2026-09-12: approximately 110 days,
+  at a mean rate of ~31 commits per day. Monthly: 132 / 1,137 / 1,097 / 805 / 203.
+* **Authorship.** 3,252 of 3,374 commits (96.4%) are authored by a single account. A
+  second identity, "Prns Tests tests@example.test" - a fictitious identity on a reserved
+  domain - contributed 35 commits, every one of them website and marketing content.
+* **Size.** 3,519 tracked files; 1,983 Rust files; 636,226 lines of Rust; approximately
+  22.7 MB of Rust source; 69.5 MB of total repository content.
+* **Scope claimed.** A daemon ("drop-in replacement" for the reference daemon), embedded
+  firmware for three microcontroller families (including six ESP32-S3 board variants and
+  nRF52840), SDKs and bindings for nine languages, a browser-based node and web flasher, a
+  twelve-language website, a benchmark apparatus with its own publication and "proof"
+  pipeline, and a validation hub with oracles, fuzzing, mutation testing, and formal-proof
+  claims.
+* **Marketing claims.** "Ground-up implementation of Reticulum"; "up to 89× the
+  throughput"; "48× smaller peak-memory footprint"; "33× the energy efficiency";
+  "Measured, not just claimed"; "Enforced, then audited"; "byte-for-byte wire parity with
+  the reference implementation"; "works with Sideband, NomadNet, MeshChat, etc.";
+  "no_std (no alloc required either)".
+* **Status at the time of writing.** Version 0.3.7; published version history begins at
+  0.3.0. The repository continues to receive commits.
+
+.. _brandolinis-prns-question-1:
+
+Question 1: Is this a clean implementation, or was it directly generated from the reference?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The first of the two deciding questions from :ref:`Evaluating A Reticulum Implementation<brandolinis-evaluating>` is settled by the project's own record. An actual :ref:`clean-room<brandolinis-cleanroom-delusion>` implementation, reasoned out and written by humans, would owe nothing to any license. The data available shows clearly that Prns is not that.
+
+* **The founding state.** The first commit, "Scaffold Personal Reticulum suite", contains
+  the scaffolding of not one but two ports - ``personal-rns`` and ``personal-lxmf``\ , the latter
+  being the reference's companion messaging protocol - together with a daemon scaffold and
+  a 233-line founding document, ``docs/build-ethos.md``. That document declares the project's
+  goal as a "performance-focused drop-in-replacement for rnsd" and its governing principle
+  as: "Port the contract, not the implementation." It further states directly to the
+  machine-loop, that **"You owe the reference fidelity at exactly two boundaries:
+  The wire... The behavior. ... Between those two boundaries, the model is yours"**.
+  At this point, the very first commit, effectively the whole of the implementation design
+  and any relevant decisions are handed over to the LLM.
+* **Continuous ingestion from the reference.** 506 commits reference RNS or Reticulum
+  source behaviour; the word "parity" appears in 49 commit messages. Commits cite the reference
+  implementation's own source locations (for example ``Transport.py:1367``) when correcting
+  their own divergences and mistakes.
+* **Byte-level fidelity as an explicit goal.** Within 48 hours of the first commit, the
+  record shows a "crypto adapter - vetted primitives, byte-exact vs RNS 1.3.1", and a wire
+  implementation matching the reference's packet header layout. The project's own
+  validation apparatus decodes wire vectors using the reference implementation's own
+  packet parser, and the interop suite consists of real, stock-RNS peer nodes - that is,
+  the reference source itself, used as the ground truth against which this LLM output is
+  checked, and committed as accepted and verified after 48 hours of the project's recorded start.
+* **The marketing mismatch.** The same record that documents all of the above describes the
+  project, publicly, as "a ground-up implementation of Reticulum" - while declining, on its
+  website, to link to the reference implementation at all: the entire tree mentions the
+  reference's author in six files, and the website in none.
+
+Conclusion: the project's own history and commit record establishes that it was generated directly from the reference implementation's source code, not reasoned out from the public-domain protocol. It is a derivative of licensed work within the meaning of :ref:`the Reticulum License<brandolinis-what-the-license-is>` and :ref:`general copyright law<brandolinis-copyright-and-layers>`. The "ground-up" claim, which carries its entire legal and marketing posture, is disproven by the project's own history.
+
+.. _brandolinis-prns-question-2:
+
+Question 2: Who, or what, is the agent of the work?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The second deciding question is answered by the application of :ref:`Assistance Versus Machine Substitution<brandolinis-assistance-versus-substitution>` criteria to the project.
+
+**Scope that no human could have authored**
+
+636,226 lines of Rust in 110 days is approximately 5,800 lines per day, every day, including weekends - with 149 commits recorded between midnight and 06:00, and Saturday the single busiest weekday. No human review or decision capacity is commensurable with this volume; the review capacity and the output volume are structurally incommensurable, which is the definition of unauthored scope.
+
+**Uniform generation**
+
+The record shows no sign of human development, growth, or learning: No contested decisions, no style drift. Instead: endless renaming (in the first 48 hours: ``State → EngineState → TickInput → TickOutput``\ ), uniform fluent register in every commit, and the exact same, synthetic voice in code, documentation, and website copy.
+
+**Discovery by regeneration**
+
+Corrections arrived by the machine's own subsequent runs, recorded as planned milestones. In early July 2026, a series of "core review" commits documented, in the project's own words:
+
+* announce-ID history "was unbounded per-slot growth" (\ ``54cc8d601``\ );
+* interface announce limiting could "leak a sustained flood" (\ ``9d27af75c``\ );
+* a "phantom-airtime leak" where frames "used to vanish silently" (\ ``4ed75ffdd``\ );
+* Group-packet deduplication "which RNS does not do" - a behaviour the reference never had,
+  implemented and later removed (\ ``edd8e72be``\ );
+* "both ``unwrap_or(&[])`` arms were unreachable dead defaults" (\ ``74bea355e``\ );
+* a benchmark crate "hasn't compiled since" a prior rename, undetected for weeks because it
+  was outside the CI's workspace (\ ``86240b027``\ ).
+
+Earlier still: the record shows a ">1 MiB RNS-to-Prns interop stall" closed three weeks in
+(\ ``cc4d524a3``\ ), and a known send-path hang shipped with the note "typed fast-fail a
+candidate for later" (\ ``a010e6613``\ ).
+
+**Laundered provenance**
+
+The repository contains a committed commit-message hook (\ ``.githooks/commit-msg``\ ) that *blocks* any commit containing attribution for machine generation ("generated with claude/codex/copilot/cursor/gemini", "co-authored-by"), with the explanation "The committer owns the commit". The contributing guide is explicit: "AI tools ... are welcome ... what you submit is *yours*", and describes the contributing population as "both human and automated contributors". The fictitious "Prns Tests" identity completes the picture: A manufactured, unknowable contributor, used for marketing content.
+
+**Authorship by assignment**
+
+The human whose name is on the work cannot answer for it, because the choices were never made by a human, and only the general shape and constraints of the outward presentation was. Nothing in the project's history shows an individual explaining a design decision, accepting a mistake in the first person, or going deeper under technical questioning; the record shows process language and marketing instead. Per the earlier mentioned test: any other person could have pressed the same button, and nothing would be different. The project is effectively unowned, and void of value.
+
+By the criteria of :ref:`Assistance Versus Machine Substitution<brandolinis-assistance-versus-substitution>`, this is substitution. The machine was the agent of the work; the "author" was a facade.
+
+.. _brandolinis-prns-performance:
+
+The performance claims
+^^^^^^^^^^^^^^^^^^^^^^
+
+The project's central marketing claim - "up to 89× the throughput" of the reference - is also its most completely documented failure, because the project published the evidence of its own measurement. The apparatus, the results, and the problems are all on the record.
+
+**The claim**
+
+The README states "up to 89× the throughput"; the on-network marketing page repeats "up to 89× the throughput, 48× smaller peak-memory footprint, and 33× the energy efficiency of stock RNS 1.4.2"; the website's front page carries the tagline "Measured, not just claimed".
+
+**The apparatus**
+
+The reference is loaded through ``benchmarks/reference/compiled_reference.py``\ , which installs ``pyximport`` and then asserts two things: that ``RNS.compiled == True``\ , and that at least *one* RNS module was loaded from a native extension. The project's own published "proof" records show exactly what those checks captured, on every platform:
+
+.. code-block::
+
+   aarch64-apple-darwin: .../RNS.cpython-313-darwin.so,  Cython 3.2.8, Python 3.13.13
+   x86_64-unknown-linux-gnu: .../RNS.cpython-313-x86_64-linux-gnu.so,  gcc 11.4.0
+   x86_64-pc-windows-msvc: ~/.prns-oc/lib.win-amd64-cpython-313/RNS.cp313-win_amd64.pyd
+
+In every case the recorded native module is the **top-level package only** - ``RNS.so``\ , nothing below it. Nothing named ``RNS.Transport``\ , ``RNS.Destination``\ , ``RNS.Packet``\ , ``RNS.Link``\ , or ``RNS.Resource`` ever appears, because *nothing below the top level was ever compiled*. Nobody bothered to check or verify *anything* here.
+
+The machine output was simply taken for truth, and a full marketing strategy was spun and produced on it. "RNS 1.4.2 (compiled)" - the label used in every table, chart, and marketing page - *is not a mode of RNS that exists*, but the hallucinations of a machine, which the humans created a marketing strategy on. In reality, it is the old ``CRNS`` development shim, whose top-level-only, debug-oriented "compilation" is slower than plain interpreted RNS, and which was *defunct for over a year* before these benchmarks were published.
+
+**Interface choices**
+
+The harness writes the reference's configuration itself (\ ``benchmarks/reference/participant_node.py``\ ): ``TCPClientInterface`` for the initiator, ``TCPServerInterface`` for the responder and both relay sides, with ``UDPInterface`` as the abstract wire. The reference was never given its modern ``BackboneInterface`` on any platform, forcing the slowest possible interrfaces. The interface selection is never mentioned in any methodology text.
+
+**The policy**
+
+The published default-policy tables record the asymmetry directly: Prns at 500 Mbps / 128 KiB TCP policy against the reference at 10 Mbps / 8 KiB - slyly footnoted as "preserves each implementation's normal TCP policy" (in the case of RNS, a conservative default policy that was selected to prioritize coexistence on slower, shared links, requiring the user to dial it up to full speed if they knew what they were doing). Raw transport "throughput" ratios of 20.65× (Linux) and 38.84× (Windows) are therefore mostly policy, not engine.
+
+**The cross-host evidence**
+
+The published results show the same scenario producing wildly different ratios by host, and the variance is entirely in the reference artifact:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Host
+     - Prns, single-packet
+     - "Reference", single-packet
+     - Ratio
+   * - macOS (Apple M4)
+     - 37.4k/s
+     - 420/s
+     - 89.09×
+   * - Linux (i7-1260P)
+     - 25.3k/s
+     - 3.5k/s
+     - 7.19×
+   * - Windows (Ryzen 5 5600X)
+     - 30.8k/s
+     - 3.9k/s
+     - 8.00×
+
+Prns is consistent (25–37k/s). The reference artifact collapses to different depths on different hosts, and the single worst collapse - 420 packets per second on macOS - is the cell selected as the global headline. The "89×" is not a measure of Prns; it is a measure of how badly the broken baseline happened to fail on one host.
+
+For reality calibration: Stock, interpreted RNS 1.5.4 on an ordinary mid-range laptop, single core, sustains roughly 30,000 single-packet deliveries per second (including ephemeral-key decryption), ~175,000–280,000 packets per second in transit relay, and on the order of 10 Gbps at 16 KiB payloads. The project's "compiled" artifact measured 420–3,900 packets per second for its single-packet scenario: An order of magnitude or more *below* stock interpreted RNS. The comparison being marketed was not "Rust vs Python"; **it was "an implementation running under optimal conditions versus a mislabeled, broken shim on a slow legacy interface at a severe policy disadvantage"**.
+
+**The equalized rows**
+
+The project's own "1 Gbps policy" rows, in which both sides are explicitly configured identically, publish ratios of roughly 2.4–8.4× across all hosts and scenarios - still against the broken baseline, but nowhere near 89×, and consistent with the ordinary, uncontroversial observation that a native implementation tends to outperform an interpreted one in raw throughput. That point needed no fudging to make, and is banal.
+
+Interestingly, though, it seems that Prns is really only *marginally* faster than a Python implementation, running in interpreted mode, on a single CPU core.
+
+**Assessment**
+
+The front page says "Measured, not just claimed." The record shows the opposite ordering: claimed, and arranged to look measured. No methodology section anywhere states what "compiled" means, that it is a deprecated development shim, that it builds debug targets, or which interface the reference was given; the one statement of the policy asymmetry appears in a footnote of the results tables themselves. If they did not need to fudge it, they would have published the method clearly.
+
+.. _brandolinis-prns-overall:
+
+Overall Evaluation
+^^^^^^^^^^^^^^^^^^
+
+Evaluated against the conditions of :ref:`Evaluating A Reticulum Implementation<brandolinis-evaluating>`:
+
+* **Provenance and attribution.** Fails: The fake "ground-up" origin story; zero reference links
+  on the website; a single well-hidden link in the README; a license file reading
+  ``Copyright (c) 2026 The Prns Authors`` over work directly generated from the licensed reference;
+  no original copyright or permission notice anywhere.
+* **Agency and answerability.** Fails on every criterion of :ref:`Assistance Versus Machine Substitution<brandolinis-assistance-versus-substitution>`:
+  Unauthored scope, uniform generation, discovery by regeneration, laundered provenance,
+  authorship by assignment.
+* **Engineering.** Fails: The benchmark apparatus above; interop demonstrated only
+  against a pinned, outdated reference version over loopback while the marketing claims current
+  parity, interop failures with stock RNS; vendored prebuilt binaries and a republished fork
+  of an upstream crate (``nrf-softdevice 0.1.0-prns.1``) with no verifiable provenance;
+  committed WASM bundles.
+* **Network behaviour.** Fails: Invented spectrum behaviour and compatibility claims
+  about third-party applications of the reference ecosystem (Sideband, NomadNet, MeshChat)
+  that are not established by any evidence.
+* **Monetary and influence signals.** The marketing apparatus - website before protocol,
+  day-three twelve-language marketing, false benchmark headlines, "audited" and "formal proof"
+  claims - the conformal surface described in :ref:`Evaluating A Reticulum Implementation<brandolinis-evaluating>`:
+  is where this project invested.
+
+.. _brandolinis-prns-licensing:
+
+Licensing Analysis
+^^^^^^^^^^^^^^^^^^
+
+Applying the two legal layers established in :ref:`Copyright & The Two Legal Layers<brandolinis-copyright-and-layers>`:
+
+**Layer A - copyright infringement (license-independent)**
+
+The record shows a direct copy roundtrip: the licensed reference implementation fed into a machine, transformed, at a scale and cadence no human could review, with a license file asserting a fresh copyright in the operator's name and no acknowledgment of the work the project was generated from. No substantial, new human creative input is demonstrated anywhere in the record - the founding document explicitly frames the design as an instructed port of the reference's contract. A primarily machine-generated copy of a copyrighted work, not accompanied by demonstrable substantial human creative input, is a derivative work over which the copier holds no copyright, and a reproduction of which without the original author's permission infringes the original author's copyright. This holds under any license, MIT included. The operator's copyright claim over the result is, on this evidence, not merely unsubstantiated; it is the absence of one, directly asserted in the project's own writing.
+
+**Layer B - license conditions (Reticulum License specific)**
+
+Modern Reticulum - the current wire format, the AES-256-based link encryption, ratchets, the cryptographic machinery as it exists today - has been published under the Reticulum License since April 15, 2025, effective from release 0.9.4 and every release since. As a derivative of that work, the license's conditions attach: The copyright and permission notice must be included in all copies and substantial portions; the AI-training condition must be honoured; the harm condition must be honoured. The record shows none of the notice requirements met, and a production process that consists of the licensed work being ingested into a machine and regurgitated, at industrial scale and cadence.
+
+**The cascading consequence**
+
+Prns is distributed claiming dual MIT/Apache-2.0 licensing. It is, however, a direct derivative of Reticulum-licensed work, and the claimed grant is therefore void. Every downstream project that builds on Prns believing it is MIT/Apache-licensed is building on a grant that does not exist. The users of Prns, and all software developers using it, have in effect, been placed under conditions they were never told about. The "ground-up" claim is not merely false; it is the sole load-bearing element of an entire licensing posture, and it fails spectacularly.
+
+.. _brandolinis-prns-consequences:
+
+Consequences
+^^^^^^^^^^^^
+
+The consequences of this pattern are examined in the following sections: The harm to users and to the network in :ref:`A Movement Of A Dozen<brandolinis-movement-of-a-dozen>`, and the human dimension in :ref:`Network Health & Coexistence<brandolinis-health-and-coexistence>`. The contribution of this addendum is narrower and intended as an instructive example: This is what a substitution project looks like, in full, on its own record. It is a reference example for :ref:`Evaluating A Reticulum Implementation<brandolinis-evaluating>`, and it demonstrates, in one case, most of the elements this chapter describes.
+
+.. _brandolinis-prns-verdict:
+
+Verdict
+^^^^^^^
+
+Applying the three verdicts of :ref:`Evaluating A Reticulum Implementation<brandolinis-evaluating>`, this project does not meet the standard. It is not "experimental but honest" - it is not labeled as experimental anywhere; the first thing users saw was a polished marketing presence promising a finished, tested, drop-in replacement. It is a project whose central claims are fabricated (the performance apparatus), whose provenance is laundered (the authorship machinery), whose foundation is misrepresented (the "ground-up" story), whose core semantics were learned late and by regeneration, and whose operator cannot possibly answer for any of it. It is also a blatant copyright violation of the reference implementation.
+
+The proposed conclusion, for users and for the network: Treat the Prns project as hostile regardless of its polished surface, and as a hazard insofar as it invites users onto shared networks. Nothing in this section is a judgment about the people involved; it is a reading of the results produced, their history and how they came to be, which in the regrettable lack of any human authorship is the only thing that can be expected to be held to account.
+
+.. _brandolinis-prns-dating:
+
+Dating
+^^^^^^
+
+This examination reflects the publicly available material as of September 2026; the repository in question continued to receive commits at the time of writing, so readers should treat citations to commits and files as point-in-time evidence. A `forensics snapshot <https://github.com/markqvist/forensics_prns>`_ is publicly available on GitHub.
