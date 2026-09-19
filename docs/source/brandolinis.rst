@@ -1079,7 +1079,7 @@ Purpose & Scope
 
 This section provides a concrete example, which future evaluations can use as a template. Its purpose is not to be the last word on this particular subject, but to be an example of how the ideas in this chapter can be applied, and to make the next such examination easier.
 
-The subject of this case study is **Prns**\ , a project published at the repository ``github.com/KenAKAFrosty/Prns``\ , presented as a "ground-up implementation of Reticulum, written in Rust", marketed as faster, safer, and more strictly tested than the reference, and widely promoted with the claim of "up to 89× the throughput" of the reference implementation. The record described below is the project's own, and sourced from its GitHub repository, analyzed locally.
+The subject of this case study is **Prns**, a project published at the repository ``github.com/KenAKAFrosty/Prns``, presented as a "ground-up implementation of Reticulum, written in Rust", marketed as faster, safer, and more strictly tested than the reference, widely promoted with the claim of "up to 89× the throughput" of the reference implementation, and an "author" actively engaged in the tactics described in :ref:`A Movement Of A Dozen<brandolinis-recycled-wine>` on online platforms. The record described below is the project's own, and sourced from its GitHub repository, analyzed locally.
 
 .. _brandolinis-project-in-brief:
 

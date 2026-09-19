@@ -210,7 +210,7 @@ Oooooh... Tension. Drama. Tell me more, let's have the juicy details, huh? Outra
 
 The only thing that keeps coming back here is nonsense.
 
-The decisions follow those responsible, over years, and actual the work. Not cry-babies like you. Get used to it.
+The decisions follow those responsible, over years, and the actual work. Not cry-babies like you. Get used to it.
 
 > Relicensing a codebase other people contributed to, under MIT terms, with a single unilateral commit, is itself a small act of enclosure.
 
@@ -220,13 +220,13 @@ But your ideology runs so deep now, *that we cannot ourselves decide how we lice
 
 It's *almost* like you've decided you already personally own Reticulum.
 
-> The pattern shows up off the codebase too. In late August 2026, after a badly-behaved crawler hammered **his** NomadNet git node with tens of thousands of requests
+> The pattern shows up off the codebase too. In late August 2026, after a badly-behaved crawler hammered his NomadNet git node with tens of thousands of requests
 
 Ah yes, so I got personally mad because it hit *my* node, and had a tantrum?
 
 The scraper was hitting *every node across the entire fucking intermesh*, from a high-bandwidth VPS, with no throttling, no regards for people's radio links, airtime concerns, metered connections or limited compute resources.
 
-For what reason? To gouge **millions** of requests to a broken piece of shit software that an idiot deployed and left running without oversight, trying to infintely download **everything that everyone had ever put on their nodes several times over** on a recursive loop.
+For what reason? To gouge tens of **millions** of requests to a broken piece of shit software that an idiot deployed and left running without oversight, trying to infintely download **everything that everyone had ever put on their nodes several times over** on a recursive loop.
 
 Who made that stop? I did, because I contacted the idiot and talked him out of it.
 
