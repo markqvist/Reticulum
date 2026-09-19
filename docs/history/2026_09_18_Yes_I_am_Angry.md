@@ -317,3 +317,7 @@ Yours truly,
 Mark Qvist
 
 September 18th, 2026
+
+---
+
+That it is, I am no longer angry. Back to work.
