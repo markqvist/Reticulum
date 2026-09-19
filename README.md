@@ -113,11 +113,13 @@ The implementations listed here have demonstrated wire-compatibility, sufficient
 
 **Warning!** A significant number of hastily launched, incorrect, dubious, directly harmful and, in most cases, entirely LLM-generated fakes of Reticulum implementations are currently being marketed and pushed under polished, but ultimately misleading or outright deceptive claims. Most of these are either quick attention or money grabs, completely unreviewed, incompatible, without maintenance or human oversight, actively trying to fragment the community, or a combination thereof.
 
-For more extensive information on this topic, read the [Brandolini's Reference](https://reticulum.network/manual/brandolinis.html) chapter of the manual.
+For more extensive information on this topic, read the [Brandolini's Reference](https://reticulum.network/manual/brandolinis.html) chapter of the manual. That chapter is roughly 18,000 words in total, and is the polite, measured analysis, designed as an evolving, sectioned reference on these issues.
 
-The core Reticulum maintainers and developers **strongly advise against using any such "implementation"**. The deceitful and self-serving behavior of a small number of either malintented, attention-seeking or incompetent individuals has caused significant damage, waste of time and resources for both developers, node operators, users and the community and Reticulum project at large.
+If you would rather just have the short, unfiltered and quite angry version, which consists of an enacted response to one particular manifestation of the phenomenon as a whole, used as an example, you can read [Yes, I am Angry](docs/history/2026_09_18_Yes_I_am_Angry.md). It gets the same point across, in a very different language, if you can handle that sort of communication.
 
-We kindly, but urgently ask all users to excercise caution, common sense and healthy skepticism when evaluating the potential use of any implementation not listed above; and to accept that **choosing to do so regardless translates the responsibility for potential damage from an irresponsible or malicious individual onto yourself**.
+The core Reticulum maintainers and developers **strongly advise against using any such "implementation"**. The [deceitful and self-serving behavior](https://reticulum.network/manual/brandolinis.html#a-persistent-but-fragile-triad) of a small number of either malintented, attention-seeking or incompetent individuals has caused significant [damage and waste of time and resources](https://reticulum.network/manual/brandolinis.html#intent-consequence) for both developers, node operators, users and the community and Reticulum project at large.
+
+We kindly, but urgently ask all users to excercise caution, common sense and healthy skepticism when [evaluating](https://reticulum.network/manual/brandolinis.html#evaluating-a-reticulum-implementation) the potential use of any implementation not listed above; and to accept that **choosing to do so regardless translates the responsibility for potential damage from an irresponsible or malicious individual onto yourself**.
 
 ## Examples of Reticulum Applications
 If you want to quickly get an idea of what Reticulum can do, take a look at the
