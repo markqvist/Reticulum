@@ -114,7 +114,7 @@ Oh for Christ's sake, this one [again](https://reticulum.network/manual/brandoli
 
 > Kaonic tactical mesh radios are sold for military command and control, drone and autonomous-systems networking, and operation in “austere, contested environments”, and which has since been selected for NATO’s DIANA defence-innovation accelerator. It is MIT-licensed, it is an independent implementation of a protocol that is itself public domain, and its repository predates Qvist’s harm clause by nine months.
 
-Those fuckers came to me and presented themselves as wanting to create a rust port for the good of the ecosystem, the world and the community. That was a blatant lie and front for their actual goal of acquiring my goodwill and expertise so they could quickly create a shallow clone, hardfork it with their own sloppy "Post-Quantum" crypto, and get big money from the military. They deliberately lied and manipulated to extract from a whole community and someone they believed to be a naive, vulnerable autistic developer.
+Those fuckers came to me and presented themselves as wanting to create a rust port for the good of the ecosystem, the world and the community. That was a blatant lie and front for their actual goal of acquiring my goodwill and expertise so they could quickly create a shallow clone, hardfork it with their own sloppy "Post-Quantum" crypto, and get big money from the military. They deliberately lied and manipulated to extract from a whole community and someone they believed to be a naive, vulnerable developer.
 
 Why do you think a non-harm clause is needed? Their implementation is still not *working*, by the way, and has provided **nothing** to the community or world at large.
 
