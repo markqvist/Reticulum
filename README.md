@@ -111,7 +111,11 @@ The implementations listed here have demonstrated wire-compatibility, sufficient
 
 *If you are the maintainer of an implementation not listed above, and believe that it deserves inclusion by following the same standards of rigor and commitment, your proposal will be welcomed.*
 
+---
+
 **Warning!** A significant number of hastily launched, incorrect, dubious, directly harmful and, in most cases, entirely LLM-generated fakes of Reticulum implementations are currently being marketed and pushed under polished, but ultimately misleading or outright deceptive claims. Most of these are either quick attention or money grabs, completely unreviewed, incompatible, without maintenance or human oversight, actively trying to fragment the community, or a combination thereof.
+
+---
 
 For more extensive information on this topic, read the [Brandolini's Reference](https://reticulum.network/manual/brandolinis.html) chapter of the manual. That chapter is roughly 18,000 words in total, and is the polite, measured analysis, designed as an evolving, sectioned reference on these issues.
 
