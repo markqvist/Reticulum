@@ -46,7 +46,7 @@ Interesting you don't bring up *any* of the extensive argumentation made against
 
 > Reticulum is now marked non-free by Debian
 
-Which is excellent, since debian users will not have to use old, and potentially outdated versions of a package that updates *fast* everytime it is required.
+Which is [excellent](https://reticulum.network/manual/brandolinis.html#the-distribution-argument), since debian users will not have to use old, and potentially outdated versions of a package that updates *fast* everytime it is required.
 
 And "now"? Weasel wording.
 
@@ -56,11 +56,11 @@ RNS? In the F-Droid repository? How would that even work? People install the bas
 
 If people want to do that, open Termux and type `pip install rns`. Done. Has been possible and documented since the dawn of the project.
 
-All actual *apps* that use Reticulum are distributed as APKs, ready to install and download, offline, from their websites, over Reticulum itself, or whatever platform they prefer. Commercially or for free. That's the point.
+All actual *apps* that use Reticulum are distributed as APKs, ready to install and download, distribute offline, fetch from their websites, over Reticulum itself, or whatever platform they prefer. Commercially or for free. That's the point.
 
 > It cannot be combined with GPL-licensed code
 
-Cry me a river. Not my fault that people choose to use viral licenses that absolutely must subsume everything and their aunt under their own restrictive terms.
+[Cry me a river](https://reticulum.network/manual/brandolinis.html#on-freedom). Not my fault that people choose to use viral licenses that absolutely must subsume everything and their aunt under their own restrictive terms.
 
 > It is not eligible for most open-source grant funding.
 
@@ -172,9 +172,9 @@ What I have been doing, for over a decade, is real maintenance work.
 
 > four independent teams have rebuilt Reticulum from scratch in Rust.
 
-Those [have not "rebuild"](https://reticulum.network/manual/brandolinis.html#the-clean-room-delusion) anything ["from scratch"](https://reticulum.network/manual/brandolinis.html#copyright-the-two-legal-layers).
+Those [have not "rebuild"](https://reticulum.network/manual/brandolinis.html#copyright-the-two-legal-layers) anything ["from scratch"](https://reticulum.network/manual/brandolinis.html#the-clean-room-delusion).
 
-They are feeding the source code of RNS directly into an LLM, running automated agent loops, and copying it, blatantly, bit for bit, without any modicum of creative input, work or understanding.
+They are feeding the source code of RNS directly into an LLM, running automated software loops, and copying it, blatantly, bit for bit, without any modicum of creative input, work or understanding.
 
 Such a connoisseur of the commons you are.
 
@@ -182,7 +182,7 @@ Such a connoisseur of the commons you are.
 
 The project is already alive, and has been for a decade. You are lying so hard that it's fucking raining.
 
-Those people, are in their own words, "Killing Reticulum" (quote, Lew Palm, "author" of "Leviculum"), so they can appropriate it for their profit and control.
+Those people, are in their own words, "Killing Reticulum" (quote, Lew Palm, "author" of "Leviculum"), so they can appropriate it for their own profit and control.
 
 > The two that put enclosure resistance first, Leviculum and the rsReticulum stack behind Ratspeak, both chose AGPLv3.
 
@@ -192,23 +192,23 @@ And all of those are void and null, because what they *really* chose is **copyri
 
 Oooooh... Tension. Drama. Tell me more, let's have the juicy details, huh? Outrage incoming, I can feel it! Ramp up your audience like a good boy, Leo!
 
-The only thing your site keeps coming back to is nonsense.
+The only thing that keeps coming back here is nonsense.
 
-The decisions follow those responsible over years, and the work. Not cry-babies like you. Get used to it.
+The decisions follow those responsible, over years, and actual the work. Not cry-babies like you. Get used to it.
 
 > Relicensing a codebase other people contributed to, under MIT terms, with a single unilateral commit, is itself a small act of enclosure.
 
-I am responsible for over 98% of commits in that repository. Not a single one of the other contributors disagreed to the decision.
+I am responsible for over 98% of commits in that repository. Not a single one of the other contributors disagreed to the license decision.
 
 But your ideology runs so deep now, *that we cannot ourselves decide how we license our own software*? Yes, let's consider for a moment **who the fucking dictator is here**...
 
 It's *almost* like you've decided you already personally own Reticulum.
 
-> The pattern shows up off the codebase too. In late August 2026, after a badly-behaved crawler hammered his NomadNet git node with tens of thousands of requests
+> The pattern shows up off the codebase too. In late August 2026, after a badly-behaved crawler hammered **his** NomadNet git node with tens of thousands of requests
 
-Ah yes, so I got personally mad, and had a tantrum?
+Ah yes, so I got personally mad because it hit *my* node, and had a tantrum?
 
-The scraper was hitting *every node across the entire fucking intermesh*, from a high-bandwidth VPS, with no throttling, no regards for peoples radio links, airtime concerns, metered connections or limited compute resources.
+The scraper was hitting *every node across the entire fucking intermesh*, from a high-bandwidth VPS, with no throttling, no regards for people's radio links, airtime concerns, metered connections or limited compute resources.
 
 For what reason? To gouge **millions** of requests to a broken piece of shit software that an idiot deployed and left running without oversight, trying to infintely download **everything that everyone had ever put on their nodes several times over** on a recursive loop.
 
@@ -228,9 +228,9 @@ Does time not exist in your alternate universe? The events you allude to are sep
 
 Further, I did not manage or administrate the Matrix room. It was a community room, run by volunteers, flooded with spam and bad-faith actors. I had *zero* admin rights on it. The moderators of the room made that decision themselves, long after I had left - *to focus on actual work*.
 
-The development was *never* centered on the GitHub issue tracker, it ran over Reticulum long before the preposterous madhouse of GitHub was left behind, as it continues to do today, as is documented and stated several places (including the front-page of the repository you refuse to link to).
+The development was *never* centered on the GitHub issue tracker, it ran over Reticulum long before the preposterous madhouse of GitHub was left behind for good, as it continues to do today, as is documented and stated several places (including the front-page of the repository you refuse to link to).
 
-Signal to noise ratio has gone up *significantly* because of that. The community is more alive, and more productive.
+Signal to noise ratio has gone up *significantly* because of that. The community is *more* alive, and more productive.
 
 You are literally making things up as you go.
 
@@ -238,7 +238,7 @@ You are literally making things up as you go.
 
 Yes, let's just [invent](https://reticulum.network/manual/brandolinis.html#the-movement-of-a-dozen) another concerned "community member". Who? Some random nutjob on reddit?
 
-A random strager of your choosing is not a "community member" that gets to decide how a highly complex engineering project is run. But damn man, you wish it worked that way. You wish it badly.
+A random stranger of your choosing is not a "community member" that gets to decide how a highly complex engineering project is run. But damn man, you wish it worked that way. You wish it badly.
 
 > None of this is meant as a pile-on.
 
@@ -313,5 +313,7 @@ Thanks for the material, though. You've provided a textbook example of the inces
 *In ideology and war, self-justification wears the same coat, and feeds the same destruction, perpetually.*
 
 Yours truly,
+
 Mark Qvist
+
 September 18th, 2026
