@@ -12,7 +12,7 @@ If any rational explanation can produce an alternative, I am all ears.
 
 **To the footsoldiers of the "cause" the article represents**
 
-Let's get this show on. Let's see the barrage of new smear pieces you can prompt forth from the fuel I provide you here. It'll fit straight into your theater production, so: Be my fucking guest, and dig your own hole of delusion, mistrust and ridicule even deeper than it already is. I can then hurl it right back at you, and we can all have a crap-fight till the end of days. *Or* we could take responsibility and ownership for our words and action, and actually build something together. Ball's in your court.
+Let's get this show on. Let's see the barrage of new smear pieces you can prompt forth from the fuel I provide you here. It'll fit straight into your theater production, so: Be my fucking guest, and dig your own hole of delusion, mistrust and ridicule even deeper than it already is. I can then hurl it right back at you, and we can all have a crap-fight till the end of days. *Or* we could take responsibility and ownership for our words and actions, and actually build something together. Ball's in your court.
 
 **To anyone else**
 
