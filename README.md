@@ -117,7 +117,7 @@ The implementations listed here have demonstrated wire-compatibility, sufficient
 
 ---
 
-For more extensive information on this topic, read the [Brandolini's Reference](https://reticulum.network/manual/brandolinis.html) chapter of the manual. That chapter is roughly 18,000 words in total, and is the polite, measured analysis, designed as an evolving, sectioned reference on these issues.
+For more extensive information on this topic, read the [Brandolini's Reference](https://reticulum.network/manual/brandolinis.html) chapter of the manual. That chapter is very long, very detailed, and is the polite, measured analysis, intended as an evolving, sectioned reference on these issues.
 
 If you would rather just have the short, unfiltered and quite angry version, which consists of an enacted response to one particular manifestation of the phenomenon as a whole, used as an example, you can read [Yes, I am Angry](docs/history/2026_09_18_Yes_I_am_Angry.md). It gets the same point across, in a very different language, if you can handle that sort of communication.
 
