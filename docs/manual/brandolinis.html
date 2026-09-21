@@ -279,6 +279,7 @@
 <p>As we are surely only at the on-ramp of this trajectory, the chapter will continue to evolve, expand and be updated based on community feedback as events occur.</p>
 <section id="what-the-reticulum-license-is">
 <span id="brandolinis-what-the-license-is"></span><h2>What The Reticulum License Is<a class="headerlink" href="#what-the-reticulum-license-is" title="Link to this heading">¶</a></h2>
+<p><em>To understand the legal reality relating to this section, see</em> <a class="reference internal" href="#brandolinis-void-grants"><span class="std std-ref">Void Grants</span></a>.</p>
 <p>The <a class="reference internal" href="license.html#license"><span class="std std-ref">Reticulum License</span></a> is the license under which RNS, the Reticulum reference implementation, has been published since <strong>April 15, 2025</strong>, in versioning effective from <strong>0.9.4</strong> and every release since. In practical terms, it covers all of “modern Reticulum”: The current wire format, the cryptographic machinery as it exists today (including the AES-256-based link encryption, ratchets, et cetera), and all protocol additions that distinguish the modern implementation from the earliest pre-1.0.0 beta formats. If an implementation speaks today’s Reticulum protocol, it is, in all relevant respects, built on Reticulum-licensed work.</p>
 <p>The license is a permissive license. It grants the full range of rights to use, copy, modify, merge, publish, distribute, sublicense, and sell the software, free of charge; subject to three conditions, which are reproduced here verbatim:</p>
 <blockquote>
@@ -639,10 +640,10 @@ them will ever be able to perform.</p></li>
 <section id="void-grants-legal-foundations-of-machine-generated-code">
 <span id="brandolinis-void-grants"></span><h2>Void Grants: Legal Foundations of Machine-Generated Code<a class="headerlink" href="#void-grants-legal-foundations-of-machine-generated-code" title="Link to this heading">¶</a></h2>
 <p>A grant of rights is only as real as the rights behind it. A license conveys what its issuer holds, and nothing more. A derivative may be distributed only under whatever license covers what it took. And over a work that a machine originated, no human holds anything at all.</p>
-<p>Each of these statements is a matter of settled statute and case law, and this document sets out the authorities, in order. The conclusions they support are:</p>
+<p>Each of these statements is a matter of settled statute and case law, and this section sets out the authorities, in order. The conclusions they support are:</p>
 <ol class="arabic simple">
-<li><p>A software implementation generated from a licensed work by a machine, published under its operator’s claimed copyright and license, conveys rights the operator never possessed.</p></li>
-<li><p>Its grant is void. The projects, products, and promises built upon such grants stand on nothing. A field of void grants is a minefield for everyone who crosses it.</p></li>
+<li><p>A software implementation generated from a licensed work by a machine, published under its operator’s claimed copyright and license, <strong>conveys rights the operator never possessed</strong>.</p></li>
+<li><p><strong>Its grant is void</strong>. The projects, products, and promises built upon such grants stand on nothing. A field of void grants is a minefield for everyone who crosses it.</p></li>
 </ol>
 <p>This document is a general examination of copyright law as it applies to machine-generated code. It is not legal advice.</p>
 <section id="i-the-foundational-statute-translation-is-copying">
@@ -660,7 +661,7 @@ them will ever be able to perform.</p></li>
 (3) to distribute copies or phonorecords of the copyrighted work to the public by sale or other transfer of ownership, or by rental, lease, or lending;</p>
 </div></blockquote>
 <p>Violation of any of these rights is infringement. 17 U.S.C. § 501(a).</p>
-<p>Taken together, the provisions yield a syllogism that is difficult to improve upon and impossible to escape:</p>
+<p>Taken together, the provisions yield a construction that is difficult to improve upon and impossible to escape:</p>
 <ol class="arabic simple">
 <li><p><strong>A port is a translation.</strong> A work that takes a program written in one language and from it produces a program written in another language, implementing the same behavior, is a translation of the original - whatever mechanism performed it, and however the surface presentation differs.</p></li>
 <li><p><strong>A translation is a derivative work.</strong> Section 101 says so, explicitly.</p></li>
@@ -691,7 +692,7 @@ them will ever be able to perform.</p></li>
 <p>In <em>Thaler v. Perlmutter</em>, the district court held that <em>“copyright law protects only works of human creation,”</em> and that <em>“human authorship is a bedrock requirement of copyright”</em> (687 F. Supp. 3d 140, 146, D.D.C. 2023). On appeal, the United States Court of Appeals for the District of Columbia Circuit affirmed, holding that the Copyright Act <em>“requires all eligible works to be authored in the first instance by a human being”</em> (No. 23-5233, D.C. Cir. Mar. 18, 2025).</p>
 <p>The requirement traces to the ordinary meaning of the statutory term. In <em>Burrow-Giles Lithographic Co. v. Sarony</em>, the Supreme Court defined an “author” as <em>“he to whom anything owes its origin; originator; maker; one who completes a work of science or literature”</em> (111 U.S. 53, 57–58, 1884), and more recently described the author as <em>“the person who translates an idea into a fixed, tangible expression entitled to copyright protection”</em> (<em>Community for Creative Non-Violence v. Reid</em>, 490 U.S. 730, 737, 1989).</p>
 <hr class="docutils" />
-<p><strong>A machine does not owe expression its origin; it produces it. No court has recognized copyright in material created by non-humans, and the courts that have addressed the question have rejected it. If you create by machine generation, you do not own the output.</strong></p>
+<p><strong>A machine does not owe expression its origin; it reproduces it. No court has recognized copyright in material created by non-humans, and the courts that have addressed the question have rejected it. If you create by machine generation, you do not own the output.</strong></p>
 <hr class="docutils" />
 <p>The Copyright Office’s registration guidance applies the requirement to generative systems in terms that are directly on point. The Office asks:</p>
 <blockquote>
@@ -700,7 +701,7 @@ them will ever be able to perform.</p></li>
 <ul class="simple">
 <li><p><em>Copyright Registration Guidance: Works Containing Material Generated by Artificial Intelligence</em>, 88 Fed. Reg. 16190, 16192 (Mar. 16, 2023)</p></li>
 </ul>
-<p>And it states the consequence: “If a work’s traditional elements of authorship were produced by a machine, the work lacks human authorship and the Office will not register it” (<em>Id.</em>).</p>
+<p>And it states the consequence: <em>“If a work’s traditional elements of authorship were produced by a machine, the work lacks human authorship and the Office will not register it”</em> (<em>Id.</em>).</p>
 <p>On the role of prompts, the Office is equally explicit: when a system receives a prompt and produces a work in response, <em>“these prompts function more like instructions to a commissioned artist - they identify what the prompter wishes to have depicted, but the machine determines how those instructions are implemented in its output”</em> (<em>Id.</em>).</p>
 <p>The agency applied this standard and excluded machine-originated material from registration in the leading administrative case. In <em>Zarya of the Dawn</em> (Cancellation Decision, Feb. 21, 2023, Registration No. VAu001480196), the Office cancelled registration of images generated by the Midjourney service, holding that <em>“it was Midjourney-not [the author]-that originated the ‘traditional elements of authorship’ in the images”</em>, while preserving protection for the human-authored text and the human selection and arrangement of the work.</p>
 <p>The Copyright Office’s 2025 report on AI copyrightability reaches the same conclusion:</p>
