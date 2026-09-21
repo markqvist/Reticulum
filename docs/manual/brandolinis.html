@@ -636,6 +636,206 @@ them will ever be able to perform.</p></li>
 <p>At the same time, I reserve my right to revert that position to Butlerian Jihad without prior notice. We are on a knife’s edge, and you know it just as well as I do.</p>
 </section>
 </section>
+<section id="void-grants-legal-foundations-of-machine-generated-code">
+<span id="brandolinis-void-grants"></span><h2>Void Grants: Legal Foundations of Machine-Generated Code<a class="headerlink" href="#void-grants-legal-foundations-of-machine-generated-code" title="Link to this heading">¶</a></h2>
+<p>A grant of rights is only as real as the rights behind it. A license conveys what its issuer holds, and nothing more. A derivative may be distributed only under whatever license covers what it took. And over a work that a machine originated, no human holds anything at all.</p>
+<p>Each of these statements is a matter of settled statute and case law, and this document sets out the authorities, in order. The conclusions they support are:</p>
+<ol class="arabic simple">
+<li><p>A software implementation generated from a licensed work by a machine, published under its operator’s claimed copyright and license, conveys rights the operator never possessed.</p></li>
+<li><p>Its grant is void. The projects, products, and promises built upon such grants stand on nothing. A field of void grants is a minefield for everyone who crosses it.</p></li>
+</ol>
+<p>This document is a general examination of copyright law as it applies to machine-generated code. It is not legal advice.</p>
+<section id="i-the-foundational-statute-translation-is-copying">
+<h3>I. The Foundational Statute: Translation Is Copying<a class="headerlink" href="#i-the-foundational-statute-translation-is-copying" title="Link to this heading">¶</a></h3>
+<p>The starting point is the statutory definition of the class of works at issue. Title 17, United States Code, section 101 provides the definition of a derivative work:</p>
+<blockquote>
+<div><p>A “derivative work” is a work based upon one or more preexisting works, such as a <em>translation</em>, musical arrangement, dramatization, fictionalization, motion picture version, sound recording, art reproduction, abridgment, condensation, or <em>any other form in which a work may be recast, transformed, or adapted</em>.</p>
+</div></blockquote>
+<p>Section 101 further provides that <em>“the terms ‘including’ and ‘such as’ are illustrative and not limitative”</em>. As such, the list is a list of <em>examples</em>, and the very first example is translation. The definition also reaches, in its own words, <em>“any other form in which a work may be recast, transformed, or adapted”</em>.</p>
+<p>The exclusive right at issue is defined in section 106:</p>
+<blockquote>
+<div><p>Subject to sections 107 through 122, the owner of copyright under this title has the exclusive rights to do and to authorize any of the following:
+(1) to reproduce the copyrighted work in copies or phonorecords;
+(2) to prepare derivative works based upon the copyrighted work;
+(3) to distribute copies or phonorecords of the copyrighted work to the public by sale or other transfer of ownership, or by rental, lease, or lending;</p>
+</div></blockquote>
+<p>Violation of any of these rights is infringement. 17 U.S.C. § 501(a).</p>
+<p>Taken together, the provisions yield a syllogism that is difficult to improve upon and impossible to escape:</p>
+<ol class="arabic simple">
+<li><p><strong>A port is a translation.</strong> A work that takes a program written in one language and from it produces a program written in another language, implementing the same behavior, is a translation of the original - whatever mechanism performed it, and however the surface presentation differs.</p></li>
+<li><p><strong>A translation is a derivative work.</strong> Section 101 says so, explicitly.</p></li>
+<li><p><strong>Preparing a derivative work is the copyright owner’s exclusive right.</strong> Section 106(2) says so explicitly. A derivative work prepared without authorization, or outside the scope of any authorization, infringes that right.</p></li>
+</ol>
+<p>The common objection - “the code is in a different language, so it is completely different” - is not a legal argument; it is the definition of what the statute already classifies.</p>
+<p>Translation <em>is</em> the paradigm of derivative authorship, not an exception to it. If translating a work without permission were a defense, the derivative-work right would be meaningless; every infringing adaptation would simply need to be “different enough” to count as a translation of its source.</p>
+<p>Nor does the identity of the translator change the analysis. The statute asks whether the work is “based upon” a preexisting work. It does not ask who or what performed the translation. A machine that ingests a licensed work and reproduces a translated transformation of it has performed the mechanical translation; the output is a derivative of the ingested work, and the law governing derivative works applies to it exactly as it applies to a translation made by hand.</p>
+</section>
+<section id="ii-ideas-are-free-expressions-protected">
+<h3>II. Ideas Are Free; Expressions Protected<a class="headerlink" href="#ii-ideas-are-free-expressions-protected" title="Link to this heading">¶</a></h3>
+<p>The second foundation is the distinction between what a work <em>is</em> - its ideas, its processes, its systems - and the <em>expression</em> in which those ideas are embodied. The distinction is codified in section 102(b):</p>
+<blockquote>
+<div><p>In no case does copyright protection for an original work of authorship extend to any idea, procedure, process, system, method of operation, concept, principle, or discovery, regardless of the form in which it is described, explained, illustrated, or embodied in such work.</p>
+</div></blockquote>
+<p>The principle is older than the statute, and its application to software is settled. An author may own the particular code in which a method is expressed; the method itself, the process, the algorithm, belongs to no one - because <em>“the sine qua non of copyright is originality”</em> (<em>Feist Publications, Inc. v. Rural Telephone Service Co.</em>, 499 U.S. 340, 345. 1991). And ideas are not original to anyone in particular: <em>Baker v. Selden</em>, 101 U.S. 99 (1879), established the line: copyright in a book describing a system does not prevent others from practicing the system.</p>
+<p>Applied to a communications protocol, the structure is clean:</p>
+<hr class="docutils" />
+<p><strong>An implementation of a public-domain protocol, honestly reasoned and written by humans, is welcome and unencumbered, and owes nothing to any license. An implementation generated from a licensed implementation is a derivative of licensed work, subject to its conditions and to the ordinary copyright of its source.</strong></p>
+<hr class="docutils" />
+<p>The public-domain status of the protocol’s ideas changes nothing about the copyright in an implementation’s expression. A person who copies an implementation - by machine or by hand - cannot defend the copying by pointing to the protocol, because the protocol covers the ideas, not the symbols in which someone expressed them.</p>
+<p>A further misconception can be dismissed here; the recently popularized claim about the absence of copying. A “clean room” is a not a magic label achievable my LLM, but a specific, institutionalized procedure for proving to a court that copying did not occur: Physically separated teams, written functional specifications, attestable non-exposure, and no access to the original by the implementers (<em>Altai</em>, 982 F.2d at 709–11).</p>
+<p><em>“I created a clean-room implementation by feeding the original source code into a machine”</em> attempts to <em>claim</em> the certified, legally established procedure for proving the absence of copying by describing, in the same breath, a process <strong>composed entirely of copying</strong>. The word is deployed because the procedure it names is what the claimant would <em>need to have happened</em>.</p>
+</section>
+<section id="iii-machine-output-has-no-author">
+<h3>III. Machine Output Has No Author<a class="headerlink" href="#iii-machine-output-has-no-author" title="Link to this heading">¶</a></h3>
+<p>The third foundation is the human authorship requirement. It is settled at both levels of the federal courts and in the Copyright Office’s administering practice.</p>
+<p>In <em>Thaler v. Perlmutter</em>, the district court held that <em>“copyright law protects only works of human creation,”</em> and that <em>“human authorship is a bedrock requirement of copyright”</em> (687 F. Supp. 3d 140, 146, D.D.C. 2023). On appeal, the United States Court of Appeals for the District of Columbia Circuit affirmed, holding that the Copyright Act <em>“requires all eligible works to be authored in the first instance by a human being”</em> (No. 23-5233, D.C. Cir. Mar. 18, 2025).</p>
+<p>The requirement traces to the ordinary meaning of the statutory term. In <em>Burrow-Giles Lithographic Co. v. Sarony</em>, the Supreme Court defined an “author” as <em>“he to whom anything owes its origin; originator; maker; one who completes a work of science or literature”</em> (111 U.S. 53, 57–58, 1884), and more recently described the author as <em>“the person who translates an idea into a fixed, tangible expression entitled to copyright protection”</em> (<em>Community for Creative Non-Violence v. Reid</em>, 490 U.S. 730, 737, 1989).</p>
+<hr class="docutils" />
+<p><strong>A machine does not owe expression its origin; it produces it. No court has recognized copyright in material created by non-humans, and the courts that have addressed the question have rejected it. If you create by machine generation, you do not own the output.</strong></p>
+<hr class="docutils" />
+<p>The Copyright Office’s registration guidance applies the requirement to generative systems in terms that are directly on point. The Office asks:</p>
+<blockquote>
+<div><p>whether the “work” is basically one of human authorship, with the computer [or other device] merely being an assisting instrument, or whether the traditional elements of authorship in the work (literary, artistic, or musical expression or elements of selection, arrangement, etc.) were actually conceived and executed not by man but by a machine.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><em>Copyright Registration Guidance: Works Containing Material Generated by Artificial Intelligence</em>, 88 Fed. Reg. 16190, 16192 (Mar. 16, 2023)</p></li>
+</ul>
+<p>And it states the consequence: “If a work’s traditional elements of authorship were produced by a machine, the work lacks human authorship and the Office will not register it” (<em>Id.</em>).</p>
+<p>On the role of prompts, the Office is equally explicit: when a system receives a prompt and produces a work in response, <em>“these prompts function more like instructions to a commissioned artist - they identify what the prompter wishes to have depicted, but the machine determines how those instructions are implemented in its output”</em> (<em>Id.</em>).</p>
+<p>The agency applied this standard and excluded machine-originated material from registration in the leading administrative case. In <em>Zarya of the Dawn</em> (Cancellation Decision, Feb. 21, 2023, Registration No. VAu001480196), the Office cancelled registration of images generated by the Midjourney service, holding that <em>“it was Midjourney-not [the author]-that originated the ‘traditional elements of authorship’ in the images”</em>, while preserving protection for the human-authored text and the human selection and arrangement of the work.</p>
+<p>The Copyright Office’s 2025 report on AI copyrightability reaches the same conclusion:</p>
+<blockquote>
+<div><p>Based on the functioning of current generally available technology, prompts do not alone provide sufficient control.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>U.S. Copyright Office, <em>Copyright and Artificial Intelligence, Part 2: Copyrightability</em>, at iii (Jan. 29, 2025)</p></li>
+</ul>
+<p>The report’s analysis is explicit: <em>“The Office concludes that, given current generally available technology, prompts alone do not provide sufficient human control to make users of an AI system the authors of the output. Prompts essentially function as instructions that convey unprotectible ideas”</em> (<em>Id.</em> at 18).</p>
+<p>Its guiding distinction is stated plainly: <em>“The use of AI tools to assist rather than stand in for human creativity does not affect the availability of copyright protection for the output”</em> while <em>“Copyright does not extend to purely AI-generated material, or material where there is insufficient human control over the expressive elements”</em> (<em>Id.</em> at iii).</p>
+<p>The boundary is therefore not “AI or no AI”. It is <em>assistance or substitution</em>: Whether a human exercised sufficient creative control over the expressive elements and can answer for them, or whether the machine originated them and the human merely supplied instructions and a signature. That is a question of fact in each case, determined from the record of how the work was made.</p>
+<p>Two facts follow, and stated together, they form the base legal reality:</p>
+<ol class="arabic simple">
+<li><p><strong>A work whose expressive elements were originated by a machine contains no valid new copyright: It has no human author. To the extent that the same work reproduces a preexisting copyrighted work without explicit license, it is at the same time an unauthorized derivative. It is unowned for anything new it contains, and unlicensed for everything taken.</strong></p></li>
+<li><p><strong>Its operator therefore holds no copyright in it and no grant over it - and a person who holds neither copyright nor grant can convey neither.</strong></p></li>
+</ol>
+<p>The first fact makes the work <strong>unownable</strong> by its operator. The second makes it infringing against its source. Neither replaces the other:</p>
+<ul class="simple">
+<li><p>The absence of copyright in machine output does not make the output free for anyone to take; it makes it unowned.</p></li>
+<li><p>This is a different thing entirely, especially when what it contains is someone else’s expression.</p></li>
+</ul>
+</section>
+<section id="iv-license-conditions-bound-the-grant">
+<h3>IV. License Conditions Bound the Grant<a class="headerlink" href="#iv-license-conditions-bound-the-grant" title="Link to this heading">¶</a></h3>
+<p>The fourth foundation governs what a license <em>is</em>. A copyright owner may grant permission to use the work on conditions. The conditions define the scope of the permission. Use outside the scope is use that was never authorized.</p>
+<p>In <em>Jacobsen v. Katzer</em>, 535 F.3d 1373 (Fed. Cir. 2008), the Federal Circuit held that the conditions of an open-source license are <em>conditions of the copyright license itself</em>, not mere contractual promises, and that a licensee operating outside them is an infringer:</p>
+<blockquote>
+<div><p>Copyright holders who engage in open source licensing have the right to control the modification and distribution of copyrighted material.</p>
+<p>The choice to exact consideration in the form of compliance with the open source requirements of disclosure and explanation of changes, rather than as a dollar-denominated fee, is entitled to no less legal recognition.</p>
+<p>It is outside the scope of the [license] to modify and distribute the copyrighted materials without copyright notices and a tracking of modifications from the original computer files.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><em>Id.</em> at 1381–82</p></li>
+</ul>
+<p>The doctrinal mechanism is settled: <em>“A copyright owner who grants a nonexclusive license to use his copyrighted material waives his right to sue the licensee for copyright infringement”</em> within the scope of the license. If, however <em>“the licensee acts outside the scope, the licensor can bring an action for copyright infringement”</em>: An act outside the granted scope <strong>is infringement</strong> (<em>Sun Microsystems, Inc. v. Microsoft Corp.</em>, 188 F.3d 1115, 1121, 9th Cir. 1999; <em>Graham v. James</em>, 144 F.3d 229, 236, 2d Cir. 1998; <em>S.O.S., Inc. v. Payday, Inc.</em>, 886 F.2d 1081, 1087, 9th Cir. 1989).</p>
+<p>Whether a given license term is a condition of the grant or a mere covenant is determined from the license’s own language; conditions that limit what may be copied, modified, and distributed - the attribution terms, the notice terms, the modification-tracking terms, the field-of-use terms - are the boundaries of the copyright grant (<em>MDY Industries, LLC v. Blizzard Entertainment, Inc.</em>, 629 F.3d 928, 940, 9th Cir. 2010).</p>
+<p>Three consequences follow for the analysis at hand. They are not hypothetical.</p>
+<p><strong>First, the conditions are measured at the moment of copying</strong></p>
+<p>A work is licensed under whatever conditions applied when the reproduction, adaptation, and distribution occurred. There is <strong>no</strong> period in which copying a licensed work is “free” because the copy was made by a machine; the machine is the <em>licensee’s tool</em>, and the licensee is bound by the conditions regardless. A derivative generated without satisfying the conditions - without the attribution, without authorization for the manner of use - was never within the scope of the license, from the first instant of its existence.</p>
+<p><strong>Second, breach does not restore rights that never attached</strong></p>
+<p>The district court in <em>Artifex Software, Inc. v. Hancom, Inc.</em>, No. 16-cv-06982-JSC (N.D. Cal. Sept. 12, 2017), analyzing the GPL’s termination provisions, observed that <em>“the language of the GPL suggests that [the licensee’s] obligations persisted beyond termination of its rights to propagate software using Ghostscript,”</em> because the source-code obligation recurs each time a covered work is conveyed. The same structure operates a fortiori where a derivative was produced <em>outside</em> the license entirely: No grant ever attached, and no subsequent event creates one.</p>
+<p><strong>Third, the settled conditions are the enforceable core</strong></p>
+<p>The attribution and notice conditions rest on the settled doctrine above. Novel conditions  (restrictions on field of use, restrictions on how the work may be consumed) are enforceable as conditions of the grant when clearly drafted, but their enforcement history is thinner. The argument that a derivative is unlicensed does <em>not</em> depend on the novel conditions being vindicated; it needs <strong>only</strong> the settled ones, and the ordinary law of derivative works, to stand.</p>
+</section>
+<section id="v-the-void-grant">
+<h3>V. The Void Grant<a class="headerlink" href="#v-the-void-grant" title="Link to this heading">¶</a></h3>
+<p>The preceding sections assemble into a single structure. Let us apply it to an example situation:</p>
+<ul class="simple">
+<li><p>A project presented as an independent implementation of a protocol; “ground-up”, “from scratch” or “clean-room” work.</p></li>
+<li><p>The actual history shows continuous, machine-mediated ingestion of a licensed reference implementation.</p></li>
+<li><p>The output is generated at a scale no human could produce or review, with the provenance of the process obscured.</p></li>
+</ul>
+<p><strong>Step One: The derivative</strong></p>
+<p>The project’s output is a translation of the licensed implementation: A derivative work, produced by a copy process. 17 U.S.C. §§ 101, 106(2). Preparing it without authorization infringed from the first moment of its existence. <em>Id.</em> § 501(a).</p>
+<p><strong>Step Two: The license</strong></p>
+<p>The derivative was produced outside the conditions of the license; without the notices, without the attribution. The license never attached (<em>Jacobsen</em>, 535 F.3d at 1381–82).</p>
+<p><strong>Step Three: Authorship</strong></p>
+<p>The expression was originated by a machine. No human can account for its creative decisions, and no human authored it. It contains no valid new copyright (<em>Thaler</em>, 687 F. Supp. 3d at 146; No. 23-5233, D.C. Cir. 2025; 88 Fed. Reg. at 16192).</p>
+<p><strong>Consequence: Void Grant</strong></p>
+<p>The statute supplies the consequence. Section 103(a) provides:</p>
+<blockquote>
+<div><p>The subject matter of copyright as specified by section 102 includes compilations and derivative works, but protection for a work employing preexisting material in which copyright subsists does not extend to any part of the work in which such material has been used unlawfully.</p>
+</div></blockquote>
+<p>And section 103(b) provides that copyright in a derivative work <em>“extends only to the material contributed by the author of such work.”</em> The legislative history states the point without ambiguity: “An unauthorized translation of a novel could not be copyrighted at all” (H.R. Rep. No. 94-1476, at 57, 1976).</p>
+<p>In our example, the operator of the derivative’s copy process decides to assert copyright over the output, and licenses it to the world under terms of the operator’s choosing, for example the Apache License.</p>
+<p>But the operator holds no copyright in machine-originated content (section III) and no license over the source from which it was derived (sections I and IV).</p>
+<p>For the derived material, the operator’s copyright claim <strong>is an assertion of a right that never existed</strong>. The material was used unlawfully, and section 103(a) withholds protection from <em>every</em> part of the work in which it appears. For the machine-originated remainder, the operator holds no copyright either, for lack of any human author.</p>
+<p>The operator’s license to the world is a promise the operator had no power to make. Every person who receives the work believing they received a valid grant has received <strong>a void grant</strong>, and stands, as a matter of settled law, in the position of a downstream user of an unauthorized derivative, whatever they were told at the time.</p>
+<p>This is a cascading consequence, and it is why the pattern is a hazard. No combination of self-granted licenses - “MIT,” “Apache,” “public domain,” anything at all - can transfer rights the operator never held. Every downstream project, product, or deployment built on the derivative is built on unlicensed reproduction of a third party’s work, whether or not it knew, whether or not it was told, and whether or not the marketing was plausible.</p>
+<p>The longer the derivative circulates unexamined, the more it becomes embedded, forked, vendored, depended upon, and the more expensive its correction becomes for everyone who trusted it. A field of superficially real projects, repositories, and licenses that <strong>in reality confer nothing on anyone who relies on them is a minefield</strong>, in the most precise sense the law allows: The rights they purport to grant <em>were never possessed</em>.</p>
+<p>The law defines what may be asserted, not what will be. The copyright owner may choose whether and how to assert these rights, and at what point in time. The exposure exists regardless, and for <em>every</em> downstream that trusted the void grant. This is the scope of the hazard that the conduct exemplified here produces.</p>
+</section>
+<section id="vi-fair-use-does-not-rescue-this-pattern">
+<h3>VI. Fair Use Does Not Rescue This Pattern<a class="headerlink" href="#vi-fair-use-does-not-rescue-this-pattern" title="Link to this heading">¶</a></h3>
+<p>Every defendant raises fair use. It is an essential and important limitation in the service of free speech, accountability, criticism, education and other important domains. Therefore, it must be considered, and in the case exemplified here, it fails.</p>
+<p>Fair use is a limitation on the exclusive rights, evaluated case by case under four factors: the purpose and character of the use; the nature of the copyrighted work; the amount and substantiality of the portion used; and the effect of the use on the potential market for or value of the work. 17 U.S.C. § 107. On the first factor, the governing standard is <em>Andy Warhol Foundation for the Visual Arts, Inc. v. Goldsmith</em>, 598 U.S. 508 (2023), in which the Supreme Court held that:</p>
+<blockquote>
+<div><p>In sum, the first fair use factor considers whether the use of a copyrighted work has a further purpose or different character, which is a matter of degree, and the degree of difference must be balanced against the commercial nature of the use</p>
+</div></blockquote>
+<p>The question is whether the use serves a further purpose, not whether the surface changed. A derivative that exists to serve as the same thing as the original, marketed to the people who would otherwise use the original, has not acquired a further purpose by being translated; the surface changed, the function did not, and the use is commercial.</p>
+<p>The remaining factors resolve the same way. Source code is expressive creative work, not bare fact. The pattern under examination copies the whole; a complete implementation, ingested and translated in its entirety. And the market effect is the decisive factor, because it is engineered: A derivative marketed as a drop-in replacement for the work it was copied from is not a complement to the original’s market, it is a substitute for it. The Supreme Court has long held that use of a work to satisfy the market demand for the original is the paradigm of an <em>unfair</em> use (<em>Harper &amp; Row, Publishers, Inc. v. Nation Enterprises</em>, 471 U.S. 539, 566–67, 1985)</p>
+<p>The one case that is always raised in response, <em>Google LLC v. Oracle America, Inc.</em>, 593 U.S. 1 (2021), holds less than it is believed to. The Court there assumed <em>“for argument’s sake, that the material was copyrightable”</em> and held <em>“that the copying here at issue nonetheless constituted a fair use”</em> (<em>Id.</em> at 11). The material in question was a thin slice of <em>declaring code</em>, which the Court found sits, <em>“if copyrightable at all, further than are most computer programs (such as the implementing code) from the core of copyright”</em> (<em>id.</em>), in a use that built a new platform for a new environment, with the copier <strong>having written the vast majority of its own code</strong>. By comparison: A wholesale translation of an entire implementation, marketed as a substitute for it, is not that case; it is the other end of every factor.</p>
+<p>The valuable zones of fair use remain, and they are important. <strong>Commentary and criticism</strong>, quoting from a work to review, discuss or criticize it. <strong>Teaching and scholarship</strong>, explaining concepts and quoting excerpts, is its traditional beneficiary.</p>
+</section>
+<section id="conclusion">
+<h3>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">¶</a></h3>
+<p>The law is neither obscure nor new. The conclusion it yields can now be stated:</p>
+<ul class="simple">
+<li><p>A machine translation of a protected implementation is a derivative work, and an unauthorized derivative is an infringement, whatever language it speaks and whatever machinery produced it.</p></li>
+<li><p>A work whose expression a machine originated has no human author, no valid new copyright, and without valid copyright no license can be granted on it.</p></li>
+<li><p>§ 103 withholds protection from every part of a derivative in which protected material was used unlawfully. A license is a grant with conditions, and a derivative made outside the conditions never received a grant.</p></li>
+<li><p>A person who holds no copyright and no grant <strong>can convey neither</strong>, and <em>every</em> downstream consumer who received from them received a void grant.</p></li>
+</ul>
+<p>This is a catastrophic failure state for all who want to create things good and useful: The projects that inherit only void grants and liability believing they have inherited foundations, the users who depend on code that no one on earth can answer for, the honest builders whose work is buried under a field of plausible-looking impostors.</p>
+</section>
+<section id="sources-and-authorities">
+<h3>Sources and Authorities<a class="headerlink" href="#sources-and-authorities" title="Link to this heading">¶</a></h3>
+<p>Statutory references are to Title 17, United States Code. Case citations are to the official or generally cited reporters. Section numbers refer to the sections of this document in which each authority is principally relied upon.</p>
+<p><strong>Statutes</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.law.cornell.edu/uscode/text/17/101">17 U.S.C. § 101 (definitions: “derivative work,” “including,” “publication”) - I, II</a></p></li>
+<li><p><a class="reference external" href="https://www.law.cornell.edu/uscode/text/17/102">17 U.S.C. § 102(b) (idea/expression) - II</a></p></li>
+<li><p><a class="reference external" href="https://www.law.cornell.edu/uscode/text/17/103">17 U.S.C. § 103(a)–(b) (derivative works employing unlawfully used preexisting material) - V</a></p></li>
+<li><p><a class="reference external" href="https://www.law.cornell.edu/uscode/text/17/106">17 U.S.C. § 106(1)–(3) (exclusive rights: reproduction, derivative works, distribution) - I</a></p></li>
+<li><p><a class="reference external" href="https://www.law.cornell.edu/uscode/text/17/107">17 U.S.C. § 107 (fair use) - VI</a></p></li>
+<li><p><a class="reference external" href="https://www.law.cornell.edu/uscode/text/17/501">17 U.S.C. § 501(a) (infringement) - I, V</a></p></li>
+</ul>
+<p><strong>Judicial decisions</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.casemine.com/judgement/us/5914b290add7b04934760a54">*Jacobsen v. Katzer*, 535 F.3d 1373 (Fed. Cir. 2008) - IV, V</a></p></li>
+<li><p><a class="reference external" href="https://law.justia.com/cases/federal/appellate-courts/F3/188/1115/629501/">*Sun Microsystems, Inc. v. Microsoft Corp.*, 188 F.3d 1115 (9th Cir. 1999) - IV</a></p></li>
+<li><p><a class="reference external" href="https://caselaw.findlaw.com/court/us-2nd-circuit/1011522.html">*Graham v. James*, 144 F.3d 229 (2d Cir. 1998) - IV</a></p></li>
+<li><p><a class="reference external" href="https://law.justia.com/cases/federal/appellate-courts/F2/886/1081/19091/">*S.O.S., Inc. v. Payday, Inc.*, 886 F.2d 1081 (9th Cir. 1989) - IV</a></p></li>
+<li><p><a class="reference external" href="https://law.justia.com/cases/federal/appellate-courts/ca9/09-15932/09-15932-2011-02-25.html">*MDY Industries, LLC v. Blizzard Entertainment, Inc.*, 629 F.3d 928 (9th Cir. 2010) - IV</a></p></li>
+<li><p><a class="reference external" href="https://storage.courtlistener.com/recap/gov.uscourts.cand.305835/gov.uscourts.cand.305835.54.0_1.pdf">*Artifex Software, Inc. v. Hancom, Inc.*, No. 16-cv-06982-JSC (N.D. Cal. Sept. 12, 2017) (settled; dismissed with prejudice Jan. 2018) - IV</a></p></li>
+<li><p><a class="reference external" href="https://www.bitlaw.com/source/cases/copyright/Thaler-Perlmutter-Dct.html">*Thaler v. Perlmutter*, 687 F. Supp. 3d 140 (D.D.C. 2023), aff’d, No. 23-5233 (D.C. Cir. Mar. 18, 2025) - III, V</a></p></li>
+<li><p><a class="reference external" href="https://supreme.justia.com/cases/federal/us/111/53/">*Burrow-Giles Lithographic Co. v. Sarony*, 111 U.S. 53 (1884) - III</a></p></li>
+<li><p><a class="reference external" href="https://supreme.justia.com/cases/federal/us/490/730/">*Community for Creative Non-Violence v. Reid*, 490 U.S. 730 (1989) - III</a></p></li>
+<li><p><a class="reference external" href="https://supreme.justia.com/cases/federal/us/499/340/">*Feist Publications, Inc. v. Rural Telephone Service Co.*, 499 U.S. 340 (1991) - II</a></p></li>
+<li><p><a class="reference external" href="https://supreme.justia.com/cases/federal/us/101/99/">*Baker v. Selden*, 101 U.S. 99 (1879) - II</a></p></li>
+<li><p><a class="reference external" href="https://law.justia.com/cases/federal/appellate-courts/F2/982/693/137252/">*Computer Associates International, Inc. v. Altai, Inc.*, 982 F.2d 693 (2d Cir. 1992) - II</a></p></li>
+<li><p><a class="reference external" href="https://www.supremecourt.gov/opinions/22pdf/21-869_87ad.pdf">*Andy Warhol Foundation for the Visual Arts, Inc. v. Goldsmith*, 598 U.S. 508 (2023) - VI</a></p></li>
+<li><p><a class="reference external" href="https://supreme.justia.com/cases/federal/us/593/18-956/">*Google LLC v. Oracle America, Inc.*, 593 U.S. 1 (2021) - VI</a></p></li>
+<li><p><a class="reference external" href="https://supreme.justia.com/cases/federal/us/471/539/">*Harper &amp; Row, Publishers, Inc. v. Nation Enterprises*, 471 U.S. 539 (1985) - VI</a></p></li>
+</ul>
+<p><strong>Administrative and policy authorities</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.federalregister.gov/documents/2023/03/16/2023-05321/copyright-registration-guidance-works-containing-material-generated-by-artificial-intelligence">*Copyright Registration Guidance: Works Containing Material Generated by Artificial Intelligence*, 88 Fed. Reg. 16190 (Mar. 16, 2023) - III</a></p></li>
+<li><p><a class="reference external" href="https://www.copyright.gov/docs/zarya-of-the-dawn.pdf">*Zarya of the Dawn*, U.S. Copyright Office (Cancellation Decision, Feb. 21, 2023), Registration No. VAu001480196 - III</a></p></li>
+<li><p><a class="reference external" href="https://www.copyright.gov/ai/Copyright-and-Artificial-Intelligence-Part-2-Copyrightability-Report.pdf">U.S. Copyright Office, *Copyright and Artificial Intelligence, Part 2: Copyrightability* (Jan. 29, 2025) - III</a></p></li>
+<li><p><a class="reference external" href="https://law.resource.org/pub/us/works/aba/ibr/H.Rep.94-1476.pdf">H.R. Rep. No. 94-1476 (1976) - V</a></p></li>
+</ul>
+</section>
+</section>
 <section id="evaluating-a-reticulum-implementation">
 <span id="brandolinis-evaluating"></span><h2>Evaluating a Reticulum Implementation<a class="headerlink" href="#evaluating-a-reticulum-implementation" title="Link to this heading">¶</a></h2>
 <section id="the-intention-of-this-guide">
@@ -1324,6 +1524,17 @@ is where this project invested.</p></li>
 <li><a class="reference internal" href="#disclosed-assistance-or-laundered-generation">Disclosed Assistance Or Laundered Generation</a></li>
 <li><a class="reference internal" href="#the-license-in-this-context">The License In This Context</a></li>
 <li><a class="reference internal" href="#the-general-principle">The General Principle</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#void-grants-legal-foundations-of-machine-generated-code">Void Grants: Legal Foundations of Machine-Generated Code</a><ul>
+<li><a class="reference internal" href="#i-the-foundational-statute-translation-is-copying">I. The Foundational Statute: Translation Is Copying</a></li>
+<li><a class="reference internal" href="#ii-ideas-are-free-expressions-protected">II. Ideas Are Free; Expressions Protected</a></li>
+<li><a class="reference internal" href="#iii-machine-output-has-no-author">III. Machine Output Has No Author</a></li>
+<li><a class="reference internal" href="#iv-license-conditions-bound-the-grant">IV. License Conditions Bound the Grant</a></li>
+<li><a class="reference internal" href="#v-the-void-grant">V. The Void Grant</a></li>
+<li><a class="reference internal" href="#vi-fair-use-does-not-rescue-this-pattern">VI. Fair Use Does Not Rescue This Pattern</a></li>
+<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+<li><a class="reference internal" href="#sources-and-authorities">Sources and Authorities</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#evaluating-a-reticulum-implementation">Evaluating a Reticulum Implementation</a><ul>
