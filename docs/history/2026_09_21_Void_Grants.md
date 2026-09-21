@@ -212,7 +212,7 @@ This is a catastrophic failure state for all who want to create things good and 
 
 ### Sources and Authorities
 
-Statutory references are to Title 17, United States Code. Case citations are to the official or generally cited reporters. Section numbers refer to the sections of this document in which each authority is principally relied upon.
+Statutory references are to Title 17, United States Code. Case citations are to the official or generally cited reporters. Online links are for reference only. Section numbers refer to the sections of this document in which each authority is principally relied upon.
 
 **Statutes**
 

@@ -553,7 +553,7 @@ Each of these statements is a matter of settled statute and case law, and this s
 #. A software implementation generated from a licensed work by a machine, published under its operator's claimed copyright and license, **conveys rights the operator never possessed**.
 #. **Its grant is void**. The projects, products, and promises built upon such grants stand on nothing. A field of void grants is a minefield for everyone who crosses it.
 
-This document is a general examination of copyright law as it applies to machine-generated code. It is not legal advice.
+This section is a general examination of copyright law as it applies to machine-generated code. It is not legal advice.
 
 I. The Foundational Statute: Translation Is Copying
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -796,7 +796,7 @@ This is a catastrophic failure state for all who want to create things good and 
 Sources and Authorities
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Statutory references are to Title 17, United States Code. Case citations are to the official or generally cited reporters. Section numbers refer to the sections of this document in which each authority is principally relied upon.
+Statutory references are to Title 17, United States Code. Case citations are to the official or generally cited reporters. Online links are for reference only. Section numbers refer to the sections in which each authority is principally relied upon.
 
 **Statutes**
 
