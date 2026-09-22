@@ -297,7 +297,7 @@ to participate in the development of Reticulum itself.
     * [The General Principle](brandolinis.md#the-general-principle)
   * [Void Grants: Legal Foundations of Machine-Generated Code](brandolinis.md#void-grants-legal-foundations-of-machine-generated-code)
     * [I. The Foundational Statute: Translation Is Copying](brandolinis.md#i-the-foundational-statute-translation-is-copying)
-    * [II. Ideas Are Free; Expressions Protected](brandolinis.md#ii-ideas-are-free-expressions-protected)
+    * [II. Ideas Are Free, Expressions Protected](brandolinis.md#ii-ideas-are-free-expressions-protected)
     * [III. Machine Output Has No Author](brandolinis.md#iii-machine-output-has-no-author)
     * [IV. License Conditions Bound the Grant](brandolinis.md#iv-license-conditions-bound-the-grant)
     * [V. The Void Grant](brandolinis.md#v-the-void-grant)

@@ -548,12 +548,12 @@ Void Grants: Legal Foundations of Machine-Generated Code
 
 A grant of rights is only as real as the rights behind it. A license conveys what its issuer holds, and nothing more. A derivative may be distributed only under whatever license covers what it took. And over a work that a machine originated, no human holds anything at all.
 
-Each of these statements is a matter of settled statute and case law, and this section sets out the authorities, in order. The conclusions they support are:
+Each of these statements is a matter of settled statute and case law, and this section sets out the authorities. The conclusions they support are:
 
 #. A software implementation generated from a licensed work by a machine, published under its operator's claimed copyright and license, **conveys rights the operator never possessed**.
 #. **Its grant is void**. The projects, products, and promises built upon such grants stand on nothing. A field of void grants is a minefield for everyone who crosses it.
 
-This document is a general examination of copyright law as it applies to machine-generated code. It is not legal advice.
+This section is a general examination of copyright law as it applies to machine-generated code. It is not legal advice.
 
 I. The Foundational Statute: Translation Is Copying
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -587,11 +587,11 @@ Taken together, the provisions yield a construction that is difficult to improve
 
 The common objection - "the code is in a different language, so it is completely different" - is not a legal argument; it is the definition of what the statute already classifies.
 
-Translation *is* the paradigm of derivative authorship, not an exception to it. If translating a work without permission were a defense, the derivative-work right would be meaningless; every infringing adaptation would simply need to be "different enough" to count as a translation of its source.
+Translation *is the paradigm* of derivative authorship, not an exception to it. If translating a work without permission was a defense, the derivative-work right would be meaningless; every infringing adaptation would simply need to be "different enough" to count as a translation of its source.
 
-Nor does the identity of the translator change the analysis. The statute asks whether the work is "based upon" a preexisting work. It does not ask who or what performed the translation. A machine that ingests a licensed work and reproduces a translated transformation of it has performed the mechanical translation; the output is a derivative of the ingested work, and the law governing derivative works applies to it exactly as it applies to a translation made by hand.
+Nor does the identity of the translator change the analysis. The statute asks whether the work is "based upon" a preexisting work. It does not ask who or what performed the translation. A machine that ingests a licensed work and reproduces a translated transformation of it has performed mechanical translation; the output is a derivative of the ingested work, and the law governing derivative works applies to it exactly as it applies to a translation made by hand.
 
-II. Ideas Are Free; Expressions Protected
+II. Ideas Are Free, Expressions Protected
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The second foundation is the distinction between what a work *is* - its ideas, its processes, its systems - and the *expression* in which those ideas are embodied. The distinction is codified in section 102(b):
@@ -601,7 +601,7 @@ The second foundation is the distinction between what a work *is* - its ideas, i
    In no case does copyright protection for an original work of authorship extend to any idea, procedure, process, system, method of operation, concept, principle, or discovery, regardless of the form in which it is described, explained, illustrated, or embodied in such work.
 
 
-The principle is older than the statute, and its application to software is settled. An author may own the particular code in which a method is expressed; the method itself, the process, the algorithm, belongs to no one - because *"the sine qua non of copyright is originality"* (\ *Feist Publications, Inc. v. Rural Telephone Service Co.*\ , 499 U.S. 340, 345. 1991). And ideas are not original to anyone in particular: *Baker v. Selden*\ , 101 U.S. 99 (1879), established the line: copyright in a book describing a system does not prevent others from practicing the system.
+The principle is older than the statute, and its application to software is settled. An author may own the particular code in which a method is expressed; the method itself, the process, the algorithm, belongs to no one - because *"the sine qua non of copyright is originality"* (\ *Feist Publications, Inc. v. Rural Telephone Service Co.*\ , 499 U.S. 340, 345. 1991). And ideas are not original to anyone in particular, *Baker v. Selden*\ , 101 U.S. 99 (1879), established the line: Copyright in a book describing a system does not prevent others from practicing the system.
 
 Applied to a communications protocol, the structure is clean:
 
@@ -613,7 +613,7 @@ Applied to a communications protocol, the structure is clean:
 
 The public-domain status of the protocol's ideas changes nothing about the copyright in an implementation's expression. A person who copies an implementation - by machine or by hand - cannot defend the copying by pointing to the protocol, because the protocol covers the ideas, not the symbols in which someone expressed them.
 
-A further misconception can be dismissed here; the recently popularized claim about the absence of copying. A "clean room" is a not a magic label achievable my LLM, but a specific, institutionalized procedure for proving to a court that copying did not occur: Physically separated teams, written functional specifications, attestable non-exposure, and no access to the original by the implementers (\ *Altai*\ , 982 F.2d at 709–11).
+A further misconception can be dismissed here; the recently popularized "clean-room" claim about the absence of copying. A :ref:`clean-room<brandolinis-cleanroom-delusion>` is a not a magic label achievable by LLM, but a specific, institutionalized procedure for proving to a court that copying did not occur: Physically separated teams, written functional specifications, attestable non-exposure, and no access to the original by the implementers (\ *Altai*\ , 982 F.2d at 709–11).
 
 *"I created a clean-room implementation by feeding the original source code into a machine"* attempts to *claim* the certified, legally established procedure for proving the absence of copying by describing, in the same breath, a process **composed entirely of copying**. The word is deployed because the procedure it names is what the claimant would *need to have happened*.
 
@@ -744,7 +744,7 @@ The statute supplies the consequence. Section 103(a) provides:
    The subject matter of copyright as specified by section 102 includes compilations and derivative works, but protection for a work employing preexisting material in which copyright subsists does not extend to any part of the work in which such material has been used unlawfully.
 
 
-And section 103(b) provides that copyright in a derivative work *"extends only to the material contributed by the author of such work."* The legislative history states the point without ambiguity: "An unauthorized translation of a novel could not be copyrighted at all" (H.R. Rep. No. 94-1476, at 57, 1976).
+And section 103(b) provides that copyright in a derivative work *"extends only to the material contributed by the author of such work."* The legislative history states the point without ambiguity: *"An unauthorized translation of a novel could not be copyrighted at all"* (H.R. Rep. No. 94-1476, at 57, 1976).
 
 In our example, the operator of the derivative's copy process decides to assert copyright over the output, and licenses it to the world under terms of the operator's choosing, for example the Apache License.
 
@@ -765,7 +765,9 @@ VI. Fair Use Does Not Rescue This Pattern
 
 Every defendant raises fair use. It is an essential and important limitation in the service of free speech, accountability, criticism, education and other important domains. Therefore, it must be considered, and in the case exemplified here, it fails.
 
-Fair use is a limitation on the exclusive rights, evaluated case by case under four factors: the purpose and character of the use; the nature of the copyrighted work; the amount and substantiality of the portion used; and the effect of the use on the potential market for or value of the work. 17 U.S.C. § 107. On the first factor, the governing standard is *Andy Warhol Foundation for the Visual Arts, Inc. v. Goldsmith*\ , 598 U.S. 508 (2023), in which the Supreme Court held that:
+Fair use is a limitation on the exclusive rights, evaluated case by case under four factors: The purpose and character of the use; the nature of the copyrighted work; the amount and substantiality of the portion used; and the effect of the use on the potential market for or value of the work (17 U.S.C. § 107).
+
+On the first factor, the governing standard is *Andy Warhol Foundation for the Visual Arts, Inc. v. Goldsmith*\ , 598 U.S. 508 (2023), in which the Supreme Court held that:
 
 ..
 
@@ -774,9 +776,11 @@ Fair use is a limitation on the exclusive rights, evaluated case by case under f
 
 The question is whether the use serves a further purpose, not whether the surface changed. A derivative that exists to serve as the same thing as the original, marketed to the people who would otherwise use the original, has not acquired a further purpose by being translated; the surface changed, the function did not, and the use is commercial.
 
-The remaining factors resolve the same way. Source code is expressive creative work, not bare fact. The pattern under examination copies the whole; a complete implementation, ingested and translated in its entirety. And the market effect is the decisive factor, because it is engineered: A derivative marketed as a drop-in replacement for the work it was copied from is not a complement to the original's market, it is a substitute for it. The Supreme Court has long held that use of a work to satisfy the market demand for the original is the paradigm of an *unfair* use (\ *Harper & Row, Publishers, Inc. v. Nation Enterprises*\ , 471 U.S. 539, 566–67, 1985)
+The remaining factors resolve the same way. Source code is expressive creative work, not bare fact. The pattern under examination copies the whole; a complete implementation, ingested and translated in its entirety. And the market effect is the decisive factor, because it is engineered: A derivative marketed as a drop-in replacement for the work it was copied from is not a complement to the original's market, it is a substitute for it. The Supreme Court has long held that use of a work to satisfy the market demand for the original is the paradigm of an *unfair* use (\ *Harper & Row, Publishers, Inc. v. Nation Enterprises*\ , 471 U.S. 539, 566–67, 1985).
 
-The one case that is always raised in response, *Google LLC v. Oracle America, Inc.*\ , 593 U.S. 1 (2021), holds less than it is believed to. The Court there assumed *"for argument's sake, that the material was copyrightable"* and held *"that the copying here at issue nonetheless constituted a fair use"* (\ *Id.* at 11). The material in question was a thin slice of *declaring code*\ , which the Court found sits, *"if copyrightable at all, further than are most computer programs (such as the implementing code) from the core of copyright"* (\ *id.*\ ), in a use that built a new platform for a new environment, with the copier **having written the vast majority of its own code**. By comparison: A wholesale translation of an entire implementation, marketed as a substitute for it, is not that case; it is the other end of every factor.
+The one case that is always raised in response, *Google LLC v. Oracle America, Inc.*\ , 593 U.S. 1 (2021), holds less than it is believed to. The Court there assumed *"for argument's sake, that the material was copyrightable"* and held *"that the copying here at issue nonetheless constituted a fair use"* (\ *Id.* at 11).
+
+The material in question was a thin slice of *declaring code*\ , which the Court found sits, *"if copyrightable at all, further than are most computer programs (such as the implementing code) from the core of copyright"* (\ *id.*\ ), in a use that built a new platform for a new environment, with the copier **having written the vast majority of its own code**. By comparison: A wholesale translation of an entire implementation, marketed as a substitute for it, is **not** that case; it is the other end of every factor.
 
 The valuable zones of fair use remain, and they are important. **Commentary and criticism**\ , quoting from a work to review, discuss or criticize it. **Teaching and scholarship**\ , explaining concepts and quoting excerpts, is its traditional beneficiary.
 
@@ -786,17 +790,17 @@ Conclusion
 The law is neither obscure nor new. The conclusion it yields can now be stated:
 
 
-* A machine translation of a protected implementation is a derivative work, and an unauthorized derivative is an infringement, whatever language it speaks and whatever machinery produced it.
-* A work whose expression a machine originated has no human author, no valid new copyright, and without valid copyright no license can be granted on it.
-* § 103 withholds protection from every part of a derivative in which protected material was used unlawfully. A license is a grant with conditions, and a derivative made outside the conditions never received a grant.
-* A person who holds no copyright and no grant **can convey neither**\ , and *every* downstream consumer who received from them received a void grant.
+* A machine translation of a protected implementation **is a derivative work**, and an unauthorized derivative **is an infringement**, whatever language it speaks and whatever machinery produced it.
+* A work whose expression a machine originated has no human author, no valid new copyright, and without valid copyright **no license can be granted on it**.
+* § 103 withholds protection from every part of a derivative in which protected material was used unlawfully. A license is a grant with conditions, and a derivative made outside the conditions **never received a grant**.
+* A person who holds no copyright and no grant **can convey neither**, and *every* downstream consumer who received from them received a **void grant**.
 
-This is a catastrophic failure state for all who want to create things good and useful: The projects that inherit only void grants and liability believing they have inherited foundations, the users who depend on code that no one on earth can answer for, the honest builders whose work is buried under a field of plausible-looking impostors.
+This is a *catastrophic* failure state for all who want to create things good and useful: The projects that inherit only void grants and liability believing they have inherited foundations, the users who depend on code that no one on earth can answer for, the honest builders whose work is buried under a field of plausible-looking impostors.
 
 Sources and Authorities
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Statutory references are to Title 17, United States Code. Case citations are to the official or generally cited reporters. Section numbers refer to the sections of this document in which each authority is principally relied upon.
+Statutory references are to Title 17, United States Code. Case citations are to the official or generally cited reporters. Online links are for reference only. Section numbers refer to the sections in which each authority is principally relied upon.
 
 **Statutes**
 
