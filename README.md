@@ -2,9 +2,15 @@ Reticulum Network Stack <img align="right" src="https://static.pepy.tech/persona
 ==========
 
 > [!WARNING]  
-> A significant number of hastily launched, incorrect, dubious, directly harmful and, in most cases, entirely LLM-generated fakes of Reticulum implementations and user-facing applications are currently being marketed and pushed under polished, but ultimately misleading or outright deceptive claims.
+> A significant number of hastily launched, incorrect, dubious, directly harmful and, in most cases, entirely LLM-generated fakes of Reticulum implementations, "documentation", "guides" and user-facing applications are currently being marketed under polished, but ultimately misleading or outright deceptive claims.
 >
 > For more detailed information, see the relevant sections of the [Brandolini's Reference](https://reticulum.network/manual/brandolinis.html) chapter of the manual. Known good community implementations are listed in the [Community Implementations](#community-implementations) section of this readme. For software and projects recognized by the Reticulum community, see the [Programs Using Reticulum](https://reticulum.network/manual/software.html) chapter of the manual.
+>
+> Machine-generated content derived from the RNS source code or documentation (such as "implementations", "guides" for sale, et cetera), are in several, well-documented cases violating the open source licenses that granted rights of copying and distribution.
+>
+> Any claimed assertion of copyright or grant of license (Apache, GPL, et cetera) that such projects are making are [void grants](https://reticulum.network/manual/brandolinis.html#void-grants-legal-foundations-of-machine-generated-code). Both the forgers themselves, and all downstream projects using the violating derivatives, are **directly** and personally liable for the legal consequences.
+>
+> Do **not** use these "projects", they are a hazard to the entire ecosystem we have been carefully building over the last ten years.
 
 <p align="center"><img width="200" src="https://raw.githubusercontent.com/markqvist/Reticulum/master/docs/source/graphics/rns_logo_512.png"></p>
 
@@ -83,6 +89,17 @@ For more info, see [reticulum.network](https://reticulum.network/) and [the FAQ 
   - Low cost of keeping links open at only 0.44 bits per second
 - Reliable sequential delivery with Channel and Buffer mechanisms
 
+## Community Resources
+
+The references listed here are not run, managed or moderated by the Reticulum project or its maintainer. They are provided by dedicated, independent volunteers in the community, for the benefit of anyone interested in learning more about Reticulum.
+
+- [Reticulum Community Wiki](https://reticulum.miraheze.org/wiki)
+- [RNS Recipes](https://rns.recipes/)
+- [RNS Moscow](https://rns.moscow/)
+- [RMAP.world](https://rmap.world/)
+
+If you find anything that is no longer accurate, incorrect or simply not quite up to date, do not demand or complain towards the maintainers of these resources. Instead, take the task upon yourself to help out and improve things by working on, and offering the contributions you would like to see, like the creators of the above did themselves.
+
 ## Reference Implementation
 
 The Python code in this repository is the Reference Implementation of Reticulum.
@@ -106,7 +123,9 @@ The Reticulum Protocol was dedicated to the Public Domain in 2016.
 
 ## Community Implementations
 
-The implementations listed here have demonstrated wire-compatibility, sufficient feature parity, sensible security and development practices, long-term commitment and care for implementation quality. Additionally, they have a track record of at least 18 months of active development. Most importantly, their developers and maintainers are recognized by the community to actually know what they are doing, and as having a commitment to improving the overall Reticulum ecosystem.
+The implementations listed here have demonstrated wire-compatibility, sufficient feature parity, sensible security and development practices, long-term commitment and care for implementation quality. Additionally, they have a track record of at least 18 months of active development.
+
+Most importantly, their developers and maintainers are recognized by the community to actually know what they are doing, and as having a commitment to improving the overall Reticulum ecosystem.
 
 - [Chad Atterman's](https://github.com/attermann) [microReticulum](https://github.com/attermann/microReticulum/) is a C++ implementation targeting 32-bit micro-controllers.
 - [Quad4's](https://quad4.io/) [Reticulum-Go](https://reticulum-go.quad4.io/) is a Go implementation targeting both desktop, mobile and embedded systems.
