@@ -202,7 +202,7 @@ Those people, are in their own words, "Killing Reticulum" (quote, Lew Palm, "aut
 
 > The two that put enclosure resistance first, Leviculum and the rsReticulum stack behind Ratspeak, both chose AGPLv3.
 
-And all of those are void and null, because what they *really* chose is **copyright violation**, and complete disrespect ([as is now becoming tradition](https://reticulum.network/manual/brandolinis.html#licensing-analysis)) for open source development practices, attribution and basic decency.
+And all of those are [void and null](https://reticulum.network/manual/brandolinis.html#void-grants-legal-foundations-of-machine-generated-code), because what they *really* chose is **copyright violation**, and complete disrespect ([as is now becoming tradition](https://reticulum.network/manual/brandolinis.html#licensing-analysis)) for open source development practices, attribution and basic decency.
 
 > Underneath the licence choice sits a harder problem, and it is the one this site keeps coming back to: a system can be decentralised in its architecture and completely centralised in who decides things.
 
