@@ -48,7 +48,7 @@ It features encrypted LXMF messaging (both direct and delayed-delivery for offli
 Ren Browser
 ^^^^^^^^^^^
 
-`Ren Browser <https://github.com/Quad4-Software/Ren-Browser>`_ is a modern, standalone browser for Reticulum Network using the `Reticulum-Go <https://github.com/Quad4-Software/Reticulum-Go>`_ stack. The project actively being developed, and should be considered alpha level software, but much of the functionality is already working. If you want to help expanding the ecosystem, this is an excellent project to take a look at.
+`Ren Browser <https://github.com/Quad4-Software/Ren-Browser>`_ is a modern, standalone browser for Nomad Network using the `Reticulum-Go <https://github.com/Quad4-Software/Reticulum-Go>`_ implementation. The project is actively being developed, and should be considered alpha level software, but much of the functionality is already working. If you want to help expanding the ecosystem, this is an excellent project to take a look at.
 
 .. only:: html
 
@@ -62,7 +62,7 @@ Ren Browser
       :align: center
       :target: https://github.com/fr33n0w/rBrowser
 
-Ren Browser is great example of an application aiming for true, seamless interoperability with the existing software ecosystem. It can operate fully standalone using it's embedded `Go implementation <https://github.com/Quad4-Software/Reticulum-Go>`_ of Reticulum, or seamlessly utilise a shared RNS instance already running on the system.
+Ren Browser is great example of an application aiming for true, seamless interoperability with the existing software ecosystem. It can operate fully standalone using it's own embedded `Go implementation <https://github.com/Quad4-Software/Reticulum-Go>`_ of Reticulum, or seamlessly utilise a shared RNS instance already running on the system.
 
 RNS Page Node
 ^^^^^^^^^^^^^
