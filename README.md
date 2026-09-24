@@ -8,7 +8,7 @@ Reticulum Network Stack <img align="right" src="https://static.pepy.tech/persona
 >
 > Machine-generated content derived from the RNS source code or documentation (such as "implementations", "guides" for sale, et cetera), are in several, well-documented cases violating the open source licenses that granted rights of copying and distribution.
 >
-> Any claimed assertion of copyright or grant of license (Apache, GPL, et cetera) that such projects are making are [void grants](https://reticulum.network/manual/brandolinis.html#void-grants-legal-foundations-of-machine-generated-code). Both the forgers themselves, and all downstream projects using the violating derivatives, are **directly** and personally liable for the legal consequences.
+> Any claimed assertion of copyright or grant of license (Apache, GPL, et cetera) that such projects are making are [void grants](https://reticulum.network/manual/brandolinis.html#void-grants-legal-foundations-of-machine-generated-code). Both the violators themselves, and all downstream projects using the infringing derivatives, are **directly** and personally liable for the legal consequences.
 >
 > Do **not** use these "projects", they are a hazard to the entire ecosystem we have been carefully building over the last ten years.
 
