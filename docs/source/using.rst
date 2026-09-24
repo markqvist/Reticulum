@@ -705,7 +705,7 @@ The rnx Utility
 The ``rnx`` utility is a basic remote command execution program. It allows you to
 execute commands on remote systems over Reticulum, and to view returned command
 output. For a fully interactive remote shell solution, be sure to also take a look
-at the `rnsh <https://github.com/acehoss/rnsh>`_ program.
+at the :ref:`rnsh<using-rnsh>` program.
 
 **Usage Examples**
 
@@ -770,6 +770,8 @@ another one, which will be created if it does not already exist
     --stderr STDERR       max size in bytes of returned stderr
     --version             show program's version number and exit
 
+
+.. _using-rnsh:
 
 The rnsh Utility
 ================

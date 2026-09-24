@@ -2,7 +2,7 @@ Reticulum Network Stack <img align="right" src="https://static.pepy.tech/persona
 ==========
 
 > [!WARNING]  
-> A significant number of hastily launched, incorrect, dubious, directly harmful and, in most cases, entirely LLM-generated fakes of Reticulum implementations are currently being marketed and pushed under polished, but ultimately misleading or outright deceptive claims. For more detailed information, see the relevant sections of the [Brandolini's Reference](https://reticulum.network/manual/brandolinis.html) chapter of the manual. Known good community implementations are listed in the **Community Implementations** section of this readme.
+> A significant number of hastily launched, incorrect, dubious, directly harmful and, in most cases, entirely LLM-generated fakes of Reticulum implementations are currently being marketed and pushed under polished, but ultimately misleading or outright deceptive claims. For more detailed information, see the relevant sections of the [Brandolini's Reference](https://reticulum.network/manual/brandolinis.html) chapter of the manual. Known good community implementations are listed in the [Community Implementations](#community-implementations) section of this readme.
 
 <p align="center"><img width="200" src="https://raw.githubusercontent.com/markqvist/Reticulum/master/docs/source/graphics/rns_logo_512.png"></p>
 
@@ -126,9 +126,7 @@ The core Reticulum maintainers and developers **strongly advise against using an
 We kindly, but urgently ask all users to excercise caution, common sense and healthy skepticism when [evaluating](https://reticulum.network/manual/brandolinis.html#evaluating-a-reticulum-implementation) the potential use of any implementation not listed above; and to accept that **choosing to do so regardless translates the responsibility for potential damage from an irresponsible or malicious individual onto yourself**.
 
 ## Examples of Reticulum Applications
-If you want to quickly get an idea of what Reticulum can do, take a look at the
-[Programs Using Reticulum](https://reticulum.network/manual/software.html)
-section of the manual, or the following resources:
+If you want to quickly get an idea of what Reticulum can do, take a look at the [Programs Using Reticulum](https://reticulum.network/manual/software.html) section of the manual, or the following resources:
 
 - [LXMF](https://github.com/markqvist/lxmf) is a distributed, delay and disruption tolerant message transfer protocol built on Reticulum
 - The [LXST](https://github.com/markqvist/lxst) protocol and framework provides real-time audio and signals transport over Reticulum. It includes primitives and utilities for building voice-based applications and hardware devices, such as the `rnphone` program, that can be used to build hardware telephones.
@@ -136,6 +134,7 @@ section of the manual, or the following resources:
 - The Android, Linux, macOS and Windows app [Sideband](https://github.com/markqvist/Sideband) has a graphical interface and many advanced features, such as file transfers, image and voice messages, real-time voice calls, a distributed telemetry system, mapping capabilities and full plugin extensibility.
 - [MeshChatX](https://git.quad4.io/RNS-Things/MeshChatX) is a full-featured LXMF client with many built-in tools and functionalities, that also supports image and voice messages, file transfers and voice calls. It also includes a built-in page browser for browsing Nomad Network nodes.
 - You can use the included [rnsh](https://reticulum.network/manual/using.html#the-rnsh-utility) program to establish remote shell sessions over Reticulum.
+- The included [rngit](https://reticulum.network/manual/git.html) system provides a full solution for managing, hosting, collaborating on and interacting with Git repositories over Reticulum.
 
 ## Where can Reticulum be used?
 Over practically any medium that can support at least a half-duplex channel
