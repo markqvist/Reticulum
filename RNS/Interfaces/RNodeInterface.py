@@ -1390,7 +1390,6 @@ class BLEConnection():
 
     def find_target_device(self):
         RNS.log(f"Searching for attachable BLE device for {self.owner}...", RNS.LOG_EXTREME)
-        import platform
         if RNS.vendor.platformutils.is_windows():
             self._windows_paired_addrs = self._get_windows_paired_ble_addresses()
         def device_filter(device: self.bleak.backends.device.BLEDevice, adv: self.bleak.backends.scanner.AdvertisementData):
