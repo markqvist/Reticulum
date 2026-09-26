@@ -18,7 +18,9 @@ As we are surely only at the on-ramp of this trajectory, the chapter will contin
 
 ## What The Reticulum License Is
 
-The [Reticulum License](license.md#license) is the license under which RNS, the Reticulum reference implementation, has been published since **April 15, 2025**, in versioning effective from **0.9.4** and every release since. In practical terms, it covers all of “modern Reticulum”: The current wire format, the cryptographic machinery as it exists today (including the AES-256-based link encryption, ratchets, et cetera), and all protocol additions that distinguish the modern implementation from the earliest pre-1.0.0 beta formats. If an implementation speaks today’s Reticulum protocol, it is, in all relevant respects, built on Reticulum-licensed work.
+*To understand the legal reality relating to this section, see* [Void Grants](#void-grants).
+
+The [Reticulum License](./LICENSE) is the license under which RNS, the Reticulum reference implementation, has been published since **April 15, 2025**, in versioning effective from **0.9.4** and every release since. In practical terms, it covers all of “modern Reticulum”: The current wire format, the cryptographic machinery as it exists today (including the AES-256-based link encryption, ratchets, et cetera), and all protocol additions that distinguish the modern implementation from the earliest pre-1.0.0 beta formats. If an implementation speaks today’s Reticulum protocol, it is, in all relevant respects, built on Reticulum-licensed work.
 
 The license is a permissive license. It grants the full range of rights to use, copy, modify, merge, publish, distribute, sublicense, and sell the software, free of charge; subject to three conditions, which are reproduced here verbatim:
 
@@ -212,7 +214,9 @@ The Reticulum License imposes its conditions on a fraction of would-be users so 
 
 That is the entire list. Everyone else - the overwhelming majority, the community, the developers, the users, the downstream projects - receives the full, unrestricted rights to use, copy, modify, merge, publish, distribute, sublicense, and sell the software, with none of the viral encumbrance of copyleft.
 
-So when the claim is made that the Reticulum License “is more restrictive” than the GPL, the claim is not merely wrong; it is the exact inverse of the truth. The GPL restricts the freedom of everyone, in the name of a specific ideology. The Reticulum License restricts the freedom of the harm-doer and the appropriator, and leaves everyone else free. The two approaches do not differ in whether they contain moral axioms - **all licenses do**. They differ in whether the axioms are stated openly, and in *whose* freedom they restrict.
+So when the claim is made that the Reticulum License “is more restrictive” than the GPL, the claim is not merely wrong; it is the exact inverse of the truth. The GPL restricts the freedom of everyone, in the name of a specific ideology.
+
+The Reticulum License restricts the freedom of the harm-doer and the appropriator, and leaves everyone else free. The two approaches do not differ in whether they contain moral axioms - **all licenses do**. They differ in whether the axioms are stated openly, and in *whose* freedom they restrict.
 
 ### The Consequences Of The “Not Open Source” Claim
 
@@ -410,7 +414,7 @@ The tool is not the hazard, plain old human nature is. The tool is a mirror, and
 
 ### Disclosed Assistance Or Laundered Generation
 
-The contrast at the centre of this entire discussion can be made clearer with two examples, both of which are a publicly accessible, both produced in the same year, by people using the same class of tools.
+The contrast at the centre of this entire discussion can be made clearer with two examples, both of which are publicly accessible, both produced in the same year, by people using the same class of tools.
 
 The first is this chapter. It was produced with machine assistance, openly: the structure was directed by the human, the material was assembled with the tool’s help, every conclusion, every line, every slight nuance of meaning and semantics was examined, edited, and accepted or rejected by the human, and the process described publicly - including the precise characteristics of the technological assistance framework used. The human can answer for every claim in these documents, because the human made the decisions the claims rest on.
 
@@ -450,6 +454,256 @@ Use assistance, by all means, *and learn*, but don’t substitute. And never sig
 Somewhere, within the general shape of the conceptual framework outlined in this section, or realistically, a more refined variant of it, I do believe there is the *potential* of the *beginning* of a constructive outcome to the immense challenge we are faced with as a species in regards to these problems.
 
 At the same time, I reserve my right to revert that position to Butlerian Jihad without prior notice. We are on a knife’s edge, and you know it just as well as I do.
+
+## Void Grants: Legal Foundations of Machine-Generated Code
+
+A grant of rights is only as real as the rights behind it. A license conveys what its issuer holds, and nothing more. A derivative may be distributed only under whatever license covers what it took. And over a work that a machine originated, no human holds anything at all.
+
+Each of these statements is a matter of settled statute and case law, and this section sets out the authorities. The conclusions they support are:
+
+1. A software implementation generated from a licensed work by a machine, published under its operator’s claimed copyright and license, **conveys rights the operator never possessed**.
+2. **Its grant is void**. The projects, products, and promises built upon such grants stand on nothing. A field of void grants is a minefield for everyone who crosses it.
+
+This section is a general examination of copyright law as it applies to machine-generated code. It is not legal advice.
+
+### I. The Foundational Statute: Translation Is Copying
+
+The starting point is the statutory definition of the class of works at issue. Title 17, United States Code, section 101 provides the definition of a derivative work:
+
+> A “derivative work” is a work based upon one or more preexisting works, such as a *translation*, musical arrangement, dramatization, fictionalization, motion picture version, sound recording, art reproduction, abridgment, condensation, or *any other form in which a work may be recast, transformed, or adapted*.
+
+Section 101 further provides that  *“the terms ‘including’ and ‘such as’ are illustrative and not limitative”*. As such, the list is a list of *examples*, and the very first example is translation. The definition also reaches, in its own words,  *“any other form in which a work may be recast, transformed, or adapted”*.
+
+The exclusive right at issue is defined in section 106:
+
+> Subject to sections 107 through 122, the owner of copyright under this title has the exclusive rights to do and to authorize any of the following:
+> (1) to reproduce the copyrighted work in copies or phonorecords;
+> (2) to prepare derivative works based upon the copyrighted work;
+> (3) to distribute copies or phonorecords of the copyrighted work to the public by sale or other transfer of ownership, or by rental, lease, or lending;
+
+Violation of any of these rights is infringement. 17 U.S.C. § 501(a).
+
+Taken together, the provisions yield a construction that is difficult to improve upon and impossible to escape:
+
+1. **A port is a translation.** A work that takes a program written in one language and from it produces a program written in another language, implementing the same behavior, is a translation of the original - whatever mechanism performed it, and however the surface presentation differs.
+2. **A translation is a derivative work.** Section 101 says so, explicitly.
+3. **Preparing a derivative work is the copyright owner’s exclusive right.** Section 106(2) says so explicitly. A derivative work prepared without authorization, or outside the scope of any authorization, infringes that right.
+
+The common objection - “the code is in a different language, so it is completely different” - is not a legal argument; it is the definition of what the statute already classifies.
+
+Translation *is the paradigm* of derivative authorship, not an exception to it. If translating a work without permission was a defense, the derivative-work right would be meaningless; every infringing adaptation would simply need to be “different enough” to count as a translation of its source.
+
+Nor does the identity of the translator change the analysis. The statute asks whether the work is “based upon” a preexisting work. It does not ask who or what performed the translation. A machine that ingests a licensed work and reproduces a translated transformation of it has performed mechanical translation; the output is a derivative of the ingested work, and the law governing derivative works applies to it exactly as it applies to a translation made by hand.
+
+### II. Ideas Are Free, Expressions Protected
+
+The second foundation is the distinction between what a work *is* - its ideas, its processes, its systems - and the *expression* in which those ideas are embodied. The distinction is codified in section 102(b):
+
+> In no case does copyright protection for an original work of authorship extend to any idea, procedure, process, system, method of operation, concept, principle, or discovery, regardless of the form in which it is described, explained, illustrated, or embodied in such work.
+
+The principle is older than the statute, and its application to software is settled. An author may own the particular code in which a method is expressed; the method itself, the process, the algorithm, belongs to no one - because  *“the sine qua non of copyright is originality”* (*Feist Publications, Inc. v. Rural Telephone Service Co.*, 499 U.S. 340, 345. 1991). And ideas are not original to anyone in particular, *Baker v. Selden*, 101 U.S. 99 (1879), established the line: Copyright in a book describing a system does not prevent others from practicing the system.
+
+Applied to a communications protocol, the structure is clean:
+
+---
+
+**An implementation of a public-domain protocol, honestly reasoned and written by humans, is welcome and unencumbered, and owes nothing to any license. An implementation generated from a licensed implementation is a derivative of licensed work, subject to its conditions and to the ordinary copyright of its source.**
+
+---
+
+The public-domain status of the protocol’s ideas changes nothing about the copyright in an implementation’s expression. A person who copies an implementation - by machine or by hand - cannot defend the copying by pointing to the protocol, because the protocol covers the ideas, not the symbols in which someone expressed them.
+
+A further misconception can be dismissed here; the recently popularized “clean-room” claim about the absence of copying. A [clean-room](#brandolinis-cleanroom-delusion) is a not a magic label achievable by LLM, but a specific, institutionalized procedure for proving to a court that copying did not occur: Physically separated teams, written functional specifications, attestable non-exposure, and no access to the original by the implementers (*Altai*, 982 F.2d at 709–11).
+
+ *“I created a clean-room implementation by feeding the original source code into a machine”* attempts to *claim* the certified, legally established procedure for proving the absence of copying by describing, in the same breath, a process **composed entirely of copying**. The word is deployed because the procedure it names is what the claimant would *need to have happened*.
+
+### III. Machine Output Has No Author
+
+The third foundation is the human authorship requirement. It is settled at both levels of the federal courts and in the Copyright Office’s administering practice.
+
+In *Thaler v. Perlmutter*, the district court held that  *“copyright law protects only works of human creation,”* and that  *“human authorship is a bedrock requirement of copyright”* (687 F. Supp. 3d 140, 146, D.D.C. 2023). On appeal, the United States Court of Appeals for the District of Columbia Circuit affirmed, holding that the Copyright Act  *“requires all eligible works to be authored in the first instance by a human being”* (No. 23-5233, D.C. Cir. Mar. 18, 2025).
+
+The requirement traces to the ordinary meaning of the statutory term. In *Burrow-Giles Lithographic Co. v. Sarony*, the Supreme Court defined an “author” as  *“he to whom anything owes its origin; originator; maker; one who completes a work of science or literature”* (111 U.S. 53, 57–58, 1884), and more recently described the author as  *“the person who translates an idea into a fixed, tangible expression entitled to copyright protection”* (*Community for Creative Non-Violence v. Reid*, 490 U.S. 730, 737, 1989).
+
+---
+
+**A machine does not owe expression its origin; it reproduces it. No court has recognized copyright in material created by non-humans, and the courts that have addressed the question have rejected it. If you create by machine generation, you do not own the output.**
+
+---
+
+The Copyright Office’s registration guidance applies the requirement to generative systems in terms that are directly on point. The Office asks:
+
+> whether the “work” is basically one of human authorship, with the computer [or other device] merely being an assisting instrument, or whether the traditional elements of authorship in the work (literary, artistic, or musical expression or elements of selection, arrangement, etc.) were actually conceived and executed not by man but by a machine.
+* *Copyright Registration Guidance: Works Containing Material Generated by Artificial Intelligence*, 88 Fed. Reg. 16190, 16192 (Mar. 16, 2023)
+
+And it states the consequence:  *“If a work’s traditional elements of authorship were produced by a machine, the work lacks human authorship and the Office will not register it”* (*Id.*).
+
+On the role of prompts, the Office is equally explicit: when a system receives a prompt and produces a work in response,  *“these prompts function more like instructions to a commissioned artist - they identify what the prompter wishes to have depicted, but the machine determines how those instructions are implemented in its output”* (*Id.*).
+
+The agency applied this standard and excluded machine-originated material from registration in the leading administrative case. In *Zarya of the Dawn* (Cancellation Decision, Feb. 21, 2023, Registration No. VAu001480196), the Office cancelled registration of images generated by the Midjourney service, holding that  *“it was Midjourney-not [the author]-that originated the ‘traditional elements of authorship’ in the images”*, while preserving protection for the human-authored text and the human selection and arrangement of the work.
+
+The Copyright Office’s 2025 report on AI copyrightability reaches the same conclusion:
+
+> Based on the functioning of current generally available technology, prompts do not alone provide sufficient control.
+* U.S. Copyright Office, *Copyright and Artificial Intelligence, Part 2: Copyrightability*, at iii (Jan. 29, 2025)
+
+The report’s analysis is explicit:  *“The Office concludes that, given current generally available technology, prompts alone do not provide sufficient human control to make users of an AI system the authors of the output. Prompts essentially function as instructions that convey unprotectible ideas”* (*Id.* at 18).
+
+Its guiding distinction is stated plainly:  *“The use of AI tools to assist rather than stand in for human creativity does not affect the availability of copyright protection for the output”* while  *“Copyright does not extend to purely AI-generated material, or material where there is insufficient human control over the expressive elements”* (*Id.* at iii).
+
+The boundary is therefore not “AI or no AI”. It is *assistance or substitution*: Whether a human exercised sufficient creative control over the expressive elements and can answer for them, or whether the machine originated them and the human merely supplied instructions and a signature. That is a question of fact in each case, determined from the record of how the work was made.
+
+Two facts follow, and stated together, they form the base legal reality:
+
+1. **A work whose expressive elements were originated by a machine contains no valid new copyright: It has no human author. To the extent that the same work reproduces a preexisting copyrighted work without explicit license, it is at the same time an unauthorized derivative. It is unowned for anything new it contains, and unlicensed for everything taken.**
+2. **Its operator therefore holds no copyright in it and no grant over it - and a person who holds neither copyright nor grant can convey neither.**
+
+The first fact makes the work **unownable** by its operator. The second makes it infringing against its source. Neither replaces the other:
+
+* The absence of copyright in machine output does not make the output free for anyone to take; it makes it unowned.
+* This is a different thing entirely, especially when what it contains is someone else’s expression.
+
+### IV. License Conditions Bound the Grant
+
+The fourth foundation governs what a license *is*. A copyright owner may grant permission to use the work on conditions. The conditions define the scope of the permission. Use outside the scope is use that was never authorized.
+
+In *Jacobsen v. Katzer*, 535 F.3d 1373 (Fed. Cir. 2008), the Federal Circuit held that the conditions of an open-source license are *conditions of the copyright license itself*, not mere contractual promises, and that a licensee operating outside them is an infringer:
+
+> Copyright holders who engage in open source licensing have the right to control the modification and distribution of copyrighted material.
+
+> The choice to exact consideration in the form of compliance with the open source requirements of disclosure and explanation of changes, rather than as a dollar-denominated fee, is entitled to no less legal recognition.
+
+> It is outside the scope of the [license] to modify and distribute the copyrighted materials without copyright notices and a tracking of modifications from the original computer files.
+* *Id.* at 1381–82
+
+The doctrinal mechanism is settled:  *“A copyright owner who grants a nonexclusive license to use his copyrighted material waives his right to sue the licensee for copyright infringement”* within the scope of the license. If, however  *“the licensee acts outside the scope, the licensor can bring an action for copyright infringement”*: An act outside the granted scope **is infringement** (*Sun Microsystems, Inc. v. Microsoft Corp.*, 188 F.3d 1115, 1121, 9th Cir. 1999; *Graham v. James*, 144 F.3d 229, 236, 2d Cir. 1998; *S.O.S., Inc. v. Payday, Inc.*, 886 F.2d 1081, 1087, 9th Cir. 1989).
+
+Whether a given license term is a condition of the grant or a mere covenant is determined from the license’s own language; conditions that limit what may be copied, modified, and distributed - the attribution terms, the notice terms, the modification-tracking terms, the field-of-use terms - are the boundaries of the copyright grant (*MDY Industries, LLC v. Blizzard Entertainment, Inc.*, 629 F.3d 928, 940, 9th Cir. 2010).
+
+Three consequences follow for the analysis at hand. They are not hypothetical.
+
+**First, the conditions are measured at the moment of copying**
+
+A work is licensed under whatever conditions applied when the reproduction, adaptation, and distribution occurred. There is **no** period in which copying a licensed work is “free” because the copy was made by a machine; the machine is the *licensee’s tool*, and the licensee is bound by the conditions regardless. A derivative generated without satisfying the conditions - without the attribution, without authorization for the manner of use - was never within the scope of the license, from the first instant of its existence.
+
+**Second, breach does not restore rights that never attached**
+
+The district court in *Artifex Software, Inc. v. Hancom, Inc.*, No. 16-cv-06982-JSC (N.D. Cal. Sept. 12, 2017), analyzing the GPL’s termination provisions, observed that  *“the language of the GPL suggests that [the licensee’s] obligations persisted beyond termination of its rights to propagate software using Ghostscript,”* because the source-code obligation recurs each time a covered work is conveyed. The same structure operates a fortiori where a derivative was produced *outside* the license entirely: No grant ever attached, and no subsequent event creates one.
+
+**Third, the settled conditions are the enforceable core**
+
+The attribution and notice conditions rest on the settled doctrine above. Novel conditions  (restrictions on field of use, restrictions on how the work may be consumed) are enforceable as conditions of the grant when clearly drafted, but their enforcement history is thinner. The argument that a derivative is unlicensed does *not* depend on the novel conditions being vindicated; it needs **only** the settled ones, and the ordinary law of derivative works, to stand.
+
+### V. The Void Grant
+
+The preceding sections assemble into a single structure. Let us apply it to an example situation:
+
+* A project presented as an independent implementation of a protocol; “ground-up”, “from scratch” or “clean-room” work.
+* The actual history shows continuous, machine-mediated ingestion of a licensed reference implementation.
+* The output is generated at a scale no human could produce or review, with the provenance of the process obscured.
+
+**Step One: The derivative**
+
+The project’s output is a translation of the licensed implementation: A derivative work, produced by a copy process. 17 U.S.C. §§ 101, 106(2). Preparing it without authorization infringed from the first moment of its existence. *Id.* § 501(a).
+
+**Step Two: The license**
+
+The derivative was produced outside the conditions of the license; without the notices, without the attribution. The license never attached (*Jacobsen*, 535 F.3d at 1381–82).
+
+**Step Three: Authorship**
+
+The expression was originated by a machine. No human can account for its creative decisions, and no human authored it. It contains no valid new copyright (*Thaler*, 687 F. Supp. 3d at 146; No. 23-5233, D.C. Cir. 2025; 88 Fed. Reg. at 16192).
+
+**Consequence: Void Grant**
+
+The statute supplies the consequence. Section 103(a) provides:
+
+> The subject matter of copyright as specified by section 102 includes compilations and derivative works, but protection for a work employing preexisting material in which copyright subsists does not extend to any part of the work in which such material has been used unlawfully.
+
+And section 103(b) provides that copyright in a derivative work  *“extends only to the material contributed by the author of such work.”* The legislative history states the point without ambiguity:  *“An unauthorized translation of a novel could not be copyrighted at all”* (H.R. Rep. No. 94-1476, at 57, 1976).
+
+In our example, the operator of the derivative’s copy process decides to assert copyright over the output, and licenses it to the world under terms of the operator’s choosing, for example the Apache License.
+
+But the operator holds no copyright in machine-originated content (section III) and no license over the source from which it was derived (sections I and IV).
+
+For the derived material, the operator’s copyright claim **is an assertion of a right that never existed**. The material was used unlawfully, and section 103(a) withholds protection from *every* part of the work in which it appears. For the machine-originated remainder, the operator holds no copyright either, for lack of any human author.
+
+The operator’s license to the world is a promise the operator had no power to make. Every person who receives the work believing they received a valid grant has received **a void grant**, and stands, as a matter of settled law, in the position of a downstream user of an unauthorized derivative, whatever they were told at the time.
+
+This is a cascading consequence, and it is why the pattern is a hazard. No combination of self-granted licenses - “MIT,” “Apache,” “public domain,” anything at all - can transfer rights the operator never held. Every downstream project, product, or deployment built on the derivative is built on unlicensed reproduction of a third party’s work, whether or not it knew, whether or not it was told, and whether or not the marketing was plausible.
+
+The longer the derivative circulates unexamined, the more it becomes embedded, forked, vendored, depended upon, and the more expensive its correction becomes for everyone who trusted it. A field of superficially real projects, repositories, and licenses that **in reality confer nothing on anyone who relies on them is a minefield**, in the most precise sense the law allows: The rights they purport to grant *were never possessed*.
+
+The law defines what may be asserted, not what will be. The copyright owner may choose whether and how to assert these rights, and at what point in time. The exposure exists regardless, and for *every* downstream that trusted the void grant. This is the scope of the hazard that the conduct exemplified here produces.
+
+### VI. Fair Use Does Not Rescue This Pattern
+
+Every defendant raises fair use. It is an essential and important limitation in the service of free speech, accountability, criticism, education and other important domains. Therefore, it must be considered, and in the case exemplified here, it fails.
+
+Fair use is a limitation on the exclusive rights, evaluated case by case under four factors: The purpose and character of the use; the nature of the copyrighted work; the amount and substantiality of the portion used; and the effect of the use on the potential market for or value of the work (17 U.S.C. § 107).
+
+On the first factor, the governing standard is *Andy Warhol Foundation for the Visual Arts, Inc. v. Goldsmith*, 598 U.S. 508 (2023), in which the Supreme Court held that:
+
+> In sum, the first fair use factor considers whether the use of a copyrighted work has a further purpose or different character, which is a matter of degree, and the degree of difference must be balanced against the commercial nature of the use
+
+The question is whether the use serves a further purpose, not whether the surface changed. A derivative that exists to serve as the same thing as the original, marketed to the people who would otherwise use the original, has not acquired a further purpose by being translated; the surface changed, the function did not, and the use is commercial.
+
+The remaining factors resolve the same way. Source code is expressive creative work, not bare fact. The pattern under examination copies the whole; a complete implementation, ingested and translated in its entirety. And the market effect is the decisive factor, because it is engineered: A derivative marketed as a drop-in replacement for the work it was copied from is not a complement to the original’s market, it is a substitute for it. The Supreme Court has long held that use of a work to satisfy the market demand for the original is the paradigm of an *unfair* use (*Harper & Row, Publishers, Inc. v. Nation Enterprises*, 471 U.S. 539, 566–67, 1985).
+
+The one case that is always raised in response, *Google LLC v. Oracle America, Inc.*, 593 U.S. 1 (2021), holds less than it is believed to. The Court there assumed  *“for argument’s sake, that the material was copyrightable”* and held  *“that the copying here at issue nonetheless constituted a fair use”* (*Id.* at 11).
+
+The material in question was a thin slice of *declaring code*, which the Court found sits,  *“if copyrightable at all, further than are most computer programs (such as the implementing code) from the core of copyright”* (*id.*), in a use that built a new platform for a new environment, with the copier **having written the vast majority of its own code**. By comparison: A wholesale translation of an entire implementation, marketed as a substitute for it, is **not** that case; it is the other end of every factor.
+
+The valuable zones of fair use remain, and they are important. **Commentary and criticism**, quoting from a work to review, discuss or criticize it. **Teaching and scholarship**, explaining concepts and quoting excerpts, is its traditional beneficiary.
+
+### Conclusion
+
+The law is neither obscure nor new. The conclusion it yields can now be stated:
+
+* A machine translation of a protected implementation **is a derivative work**, and an unauthorized derivative **is an infringement**, whatever language it speaks and whatever machinery produced it.
+* A work whose expression a machine originated has no human author, no valid new copyright, and without valid copyright **no license can be granted on it**.
+* § 103 withholds protection from every part of a derivative in which protected material was used unlawfully. A license is a grant with conditions, and a derivative made outside the conditions **never received a grant**.
+* A person who holds no copyright and no grant **can convey neither**, and *every* downstream consumer who received from them received a **void grant**.
+
+This is a *catastrophic* failure state for all who want to create things good and useful: The projects that inherit only void grants and liability believing they have inherited foundations, the users who depend on code that no one on earth can answer for, the honest builders whose work is buried under a field of plausible-looking impostors.
+
+### Sources and Authorities
+
+Statutory references are to Title 17, United States Code. Case citations are to the official or generally cited reporters. Online links are for reference only. Section numbers refer to the sections in which each authority is principally relied upon.
+
+**Statutes**
+
+* [17 U.S.C. § 101 (definitions: “derivative work,” “including,” “publication”) - I, II](https://www.law.cornell.edu/uscode/text/17/101)
+* [17 U.S.C. § 102(b) (idea/expression) - II](https://www.law.cornell.edu/uscode/text/17/102)
+* [17 U.S.C. § 103(a)–(b) (derivative works employing unlawfully used preexisting material) - V](https://www.law.cornell.edu/uscode/text/17/103)
+* [17 U.S.C. § 106(1)–(3) (exclusive rights: reproduction, derivative works, distribution) - I](https://www.law.cornell.edu/uscode/text/17/106)
+* [17 U.S.C. § 107 (fair use) - VI](https://www.law.cornell.edu/uscode/text/17/107)
+* [17 U.S.C. § 501(a) (infringement) - I, V](https://www.law.cornell.edu/uscode/text/17/501)
+
+**Judicial decisions**
+
+* [\*Jacobsen v. Katzer\*, 535 F.3d 1373 (Fed. Cir. 2008) - IV, V](https://www.casemine.com/judgement/us/5914b290add7b04934760a54)
+* [\*Sun Microsystems, Inc. v. Microsoft Corp.\*, 188 F.3d 1115 (9th Cir. 1999) - IV](https://law.justia.com/cases/federal/appellate-courts/F3/188/1115/629501/)
+* [\*Graham v. James\*, 144 F.3d 229 (2d Cir. 1998) - IV](https://caselaw.findlaw.com/court/us-2nd-circuit/1011522.html)
+* [\*S.O.S., Inc. v. Payday, Inc.\*, 886 F.2d 1081 (9th Cir. 1989) - IV](https://law.justia.com/cases/federal/appellate-courts/F2/886/1081/19091/)
+* [\*MDY Industries, LLC v. Blizzard Entertainment, Inc.\*, 629 F.3d 928 (9th Cir. 2010) - IV](https://law.justia.com/cases/federal/appellate-courts/ca9/09-15932/09-15932-2011-02-25.html)
+* [\*Artifex Software, Inc. v. Hancom, Inc.\*, No. 16-cv-06982-JSC (N.D. Cal. Sept. 12, 2017) (settled; dismissed with prejudice Jan. 2018) - IV](https://storage.courtlistener.com/recap/gov.uscourts.cand.305835/gov.uscourts.cand.305835.54.0_1.pdf)
+* [\*Thaler v. Perlmutter\*, 687 F. Supp. 3d 140 (D.D.C. 2023), aff’d, No. 23-5233 (D.C. Cir. Mar. 18, 2025) - III, V](https://www.bitlaw.com/source/cases/copyright/Thaler-Perlmutter-Dct.html)
+* [\*Burrow-Giles Lithographic Co. v. Sarony\*, 111 U.S. 53 (1884) - III](https://supreme.justia.com/cases/federal/us/111/53/)
+* [\*Community for Creative Non-Violence v. Reid\*, 490 U.S. 730 (1989) - III](https://supreme.justia.com/cases/federal/us/490/730/)
+* [\*Feist Publications, Inc. v. Rural Telephone Service Co.\*, 499 U.S. 340 (1991) - II](https://supreme.justia.com/cases/federal/us/499/340/)
+* [\*Baker v. Selden\*, 101 U.S. 99 (1879) - II](https://supreme.justia.com/cases/federal/us/101/99/)
+* [\*Computer Associates International, Inc. v. Altai, Inc.\*, 982 F.2d 693 (2d Cir. 1992) - II](https://law.justia.com/cases/federal/appellate-courts/F2/982/693/137252/)
+* [\*Andy Warhol Foundation for the Visual Arts, Inc. v. Goldsmith\*, 598 U.S. 508 (2023) - VI](https://www.supremecourt.gov/opinions/22pdf/21-869_87ad.pdf)
+* [\*Google LLC v. Oracle America, Inc.\*, 593 U.S. 1 (2021) - VI](https://supreme.justia.com/cases/federal/us/593/18-956/)
+* [\*Harper & Row, Publishers, Inc. v. Nation Enterprises\*, 471 U.S. 539 (1985) - VI](https://supreme.justia.com/cases/federal/us/471/539/)
+
+**Administrative and policy authorities**
+
+* [\*Copyright Registration Guidance: Works Containing Material Generated by Artificial Intelligence\*, 88 Fed. Reg. 16190 (Mar. 16, 2023) - III](https://www.federalregister.gov/documents/2023/03/16/2023-05321/copyright-registration-guidance-works-containing-material-generated-by-artificial-intelligence)
+* [\*Zarya of the Dawn\*, U.S. Copyright Office (Cancellation Decision, Feb. 21, 2023), Registration No. VAu001480196 - III](https://www.copyright.gov/docs/zarya-of-the-dawn.pdf)
+* [U.S. Copyright Office, \*Copyright and Artificial Intelligence, Part 2: Copyrightability\* (Jan. 29, 2025) - III](https://www.copyright.gov/ai/Copyright-and-Artificial-Intelligence-Part-2-Copyrightability-Report.pdf)
+* [H.R. Rep. No. 94-1476 (1976) - V](https://law.resource.org/pub/us/works/aba/ibr/H.Rep.94-1476.pdf)
 
 ## Evaluating a Reticulum Implementation
 
@@ -615,13 +869,307 @@ I’ll close this guide by stating what these standards are *not*: They are neit
 
 The reference implementation has met this standard for years, and its users know what that looks like.
 
-## The Prns Case
+## The Movement Of A Dozen
+
+### Presentation, Elongated
+
+Whenever Reticulum defends itself, its license, or its community - or simply continues to exist - a familiar chorus appears. The register is always similar: *concern*. Concern about the direction of the project. Concern about its license. Concern about its governance. Concern about its “bullying” of “good-faith contributors”. Concern about the future of the ecosystem at the hands of a single maintainer. The chorus speaks in the plural, presents itself as a body of independent voices, and insists, with some frequency, that it is… *not alone*.
+
+The implicit claim under examination in this section is that there exists a *movement* of concerned individuals, spread across the ecosystem, all worried about Reticulum, and therefore (for some reason) deserving of a place at the table of decisions.
+
+A resolution of this claim requires one step: Count them.
+
+### Headcount
+
+This “movement” does have a headcount. It is not in the hundreds, and it is not in the dozens. It is a small number of people who appear, in various combinations and under various names, in the following roles:
+
+* Creators of the machine-generated “Reticulum implementations” examined in this chapter.
+* Creators of articles praising those implementations and lamenting the state of the
+  reference, its moral shortcomings, its unavailability or lack of something it already has.
+* Commenters “defending” the implementations when they are evaluated reasonably and critically,
+  most often by attempting simply to derail the discussion.
+* Critics of the Reticulum License on “open source” grounds.
+* “Concerned community members” objecting to the maintainer’s conduct.
+* Campaigners on online platforms; and
+* In some cases, a single individual performing *several* of these roles at once, under
+  different names, in the same week.
+
+The overlap is well documented at this point, across time and different platforms. The same phrasing, the same arguments, the same links, the same reactive reflexes, the same handful of accounts appearing in the same threads at the same moments. When the sockpuppets are unmasked (and they frequently unmask themselves) the cast does not grow, but rapidly shrinks.
+
+This is the most interesting single fact about the “movement”: **It isn’t one. It is a synthetic cast**, held together mostly by LLM-glue, reddit handles and hysteria. A cast is not a constituency. It performs; it does not represent. The difference matters quite a bit, because a great deal of this “movement’s” imagined power comes from the assumption that the *plural form* is actual evidence of plurality. If that sentence seemed opaque, notice how many times a statement or article uses “we” instead of “I”, and it will be less so.
+
+### Recycled Wine, Fermenting
+
+The cast is not only small, it is also, by any evidentiary standard, *forgetful*. Every major claim this “movement” advances has been advanced before, answered in public, with evidence, and often years ago - and is then advanced again, unchanged and completely ignoring any rationale or evidence presented previously (to the same people), as if the answer had never been written.
+
+* **The license argument.** Reticulum is “not really open source” because its license is not
+  approved by a particular orthodoxy. This is answered (now in a new and updated version, for the
+  fifth time) in full in [Open Source Means Open Source](#brandolinis-opensource). It was also
+  answered in public, at length, at the time of the license change - including the
+  arithmetic of who is actually restricted by which license. It is repeated *ad infinitum* anyway.
+  Quite a conversation starter, apparently.
+
+* **The distribution argument.** Reticulum is “not properly distributed” because it is not
+  packaged as a `.deb` or on some favoured catalogue. Reality: It is available on practically every
+  platform with a single command, packaged by the community in a wide range of channels, and
+  capable of updating itself over its own network. The argument has been answered; it is repeated.
+
+* **The “stepped back” narrative.** When the primary mirror of the project moved away from
+  a public internet platform, it was spun as the founder leaving for good, or now taking on dictatorial
+  powers, or abandoning his creation, or any variation or nonsensical combination thereof.
+  Those spins always center around justifying that *a vaccuum now needs to be filled*.
+  There was no such vaccuum. The narrative is repeated in various forms whenever convenient.
+
+* **The enclosure narrative.** The license is reframed as a “power grab” or an “enclosure”
+  of the commons - as if a license whose protocol is public domain and whose conditions
+  restrict only harm and appropriation were a form of enclosure. The [most recent](https://gaggl.com/blogs/2026-09-05-enclosure-by-good-intentions/) (and mostly incoherent)
+  expression of this narrative is, once again, fluent, polite, and factually hollow. The
+  bizarre arguments supporting the “article” include: Defunct and abandoned forks presented
+  as living, community forks bearing the very Reticulum License mislabeled as AGPL license vehicles
+  (created by “concerned users”), companion app forks correctly retaining the Creative Commons
+  licensing used as further evidence of the same and completely abandoned projects propped up
+  as being “the ecosystem”. Another case of LLM generated nonsense that the “author” didn’t bother checking.
+  The intent is clear here, simply produce more *mass* of the bullshit, so it can be further
+  referenced, regurgitated and linked to.
+
+* **The “bullying” narrative.** Whenever the community declines to treat manufactured
+  controversies as legitimate, or calmly documents the falsity of claims, or (Lord forbid)
+  moves a forum post for violating clearly stated forum rules,
+  the response is the same: The documentation is “bullying”, the community is “excluding” people, the
+  maintainer is “unprofessional”. In the most recent example, those accusations were made by someone who, in the
+  same week, publically called for the Reticulum maintainer’s “removal from the equation”, forged a moderator’s
+  username, attempted to drag unrelated individuals into the campaign, and presented a new
+  round of outright falsehoods. Contrary to popular belief, the accusation of incivility
+  is not the last resort of the wronged; it is the standard reflex of the exposed.
+
+None of the “arguments” engages the answers given repeatedly, and extensively. That is the point, and the strategy. The arguments are not produced for the purpose of being engaged; they are produced for the purpose of *being repeated* - the same wine, poured into new bottles, on a cycle. Each cycle is short, cheap to produce, and (thanks to freely available fluent text generation) now nearly effortless. The intended audience is not the community, which has heard it all before. The intended audience is the newcomer, who has not.
+
+### The Method of Madness
+
+The method behind the pattern is consistent and simple enough to be described precisely:
+
+**Bullshit asymmetry**
+
+Producing a fluent, plausibly-sourced smear is now the work of minutes. Refuting it to the standard this manual demands is the work of days, and the refuted smear is replaced by the next one within the week. This asymmetry isn’t just a fine point of the campaign; **it is the campaign**. The goal is exhaustion - the slow conversion of the community’s time and attention from building to defending.
+
+**Weaponized concern**
+
+The register of the campaign is almost always the register of solicitude: “we are worried about the ecosystem”, “we just want what is best for the community”, “this is about the future of the project”. The concern is directed, without exception, at the things the campaign wants changed, and the change it wants is always the same: **The replacement of the reference’s authority with its own**. Concern is the *costume*; capture is the choreography. It is the oldest form of cheap power grab in the book.
+
+**Event seizure**
+
+Any event - a license change, a platform move, a forum moderation decision, a subreddit closure, a security notice, even the most banal messages from maintainers or known contributors - are seized, stripped of their actual context, and re-narrated as evidence of the same pre-written story. The subreddit that was closed after its moderator vanished and ceased moderating (according to *prior agreement with said moderator*) becomes “the maintainer shutting down dissent”. Moving away from a highly centralized online platform becomes “the founder retreating”. The license becomes “the enclosure”. The pattern is so reliable that the story could be pre-written by a lightly mechanized quill; only the date changes. The actual real-world context of these events is documented, in public, in each case; the re-narration proceeds regardless.
+
+**The legitimacy circuit**
+
+The campaign invests heavily in the places where legitimacy is minted: Conference talks, blog platforms, social threads, and forums - presented as if these appearances constituted some sort of ecosystem-wide groundswell rather than the same dozen people moving through the same circuit. The LLM-generated articles cite the LLM-generated ports; the ports are praised in the articles; the managers of the ports spread the articles, and echo them on the forums and internet platforms; the conference presentations cite the forums. Random bypassers with the need for a cause watch the conference presentations and take on the holy duty of Internet Soldier. The circuit is closed, self-referential, and (to a reader encountering it fresh) convincing. It is also, entirely, **a loop of bullshit**.
+
+**The prior-work minefield**
+
+The machine-generated implementations have a consequence beyond attention: They flood the space with fake “prior work”. The effect, as the license discussion predicted in the beginning of 2025, is the creation of a minefield of sloppy repositories that can later be matched against any genuine project, and attempt to claim prior art, or even worse: Dissuade actual, honest developers or builders from taking up a real project they might have succeeded with, because they now believe it has already been done. Just as importantly, it also buries real efforts under machine-generated noise. The machine-ports are not failed attempts to contribute. They are (disregarding intentions, but effectively) the campaign’s long game, deployed as inventory.
+
+### A Persistent, But Fragile Triad
+
+This chapter as a whole has documented three fronts: The legal-ideological attack on the license ([Open Source Means Open Source](#brandolinis-opensource)), the substitution and usurpation pattern in machine-generated implementations ([Assistance Versus Machine Substitution](#brandolinis-assistance-versus-substitution)), and the takeover narratives examined in this section. They are three fronts of the same operation, run by the same cast.
+
+* The license attack and other urgency-engineered narratives are the *cover*: They supply
+  the ideological justification for treating the reference as illegitimate, and needing replacement.
+* The ports are the *inventory*: they supply the “replacements” that the narrative claims
+  the ecosystem needs.
+* The takeover narrative is the *objective function*: the repeated, persistent, escalating claim that
+  the reference should be replaced, and that the speakers themself are the natural heirs.
+
+Each front depends on the others, and all three depend on a single, fragile assumption: That their audience cannot count. Restore the count, and the charade collapses into what it is:
+
+**A small group of people, obsessively orbiting a technology they did not build, synthetically producing the
+appearance of a constituency they do not have, in service of a takeover they cannot justify.**
+
+### What The Pattern Is Not
+
+It is important, to also say what this pattern is *not*, exactly because the campaign depends on being mistaken for such things.
+
+**It is not criticism**
+
+The Reticulum community has always had lively, rigorous criticism - of decisions, of priorities, of direction - and it has always engaged that criticism on the merits, and changed course and development priorities many times. The license discussions at the time of the change were extensive, public, and answered in full, including with the critics themselves. Core protocol decisions were always discussed and evaluated in the community. The complex coordination and execution of several protocol upgrades between a loosely organised group of developers, node operators and users have succeeded surprisingly fluidly. All of these are success stories that the “critics” **always** ignore. Real criticism engages the content and accepts evidence. The campaign engages nothing.
+
+**It is not a community**
+
+Communities *build things*, maintain them, and have skin in the game; long-term users, operators of nodes, authors of real applications, people whose traffic flows through the network every day. A community has a stake. The “movement” only has an agenda.
+
+**It is not a debate**
+
+A debate has parties who evaluate arguments and evidence, and as a function of that, the debate moves forward, perpetually. The campaign’s arguments, as shown above, are not designed to survive contact with answers, but to be repeated past them. You cannot debate a loop. You can decline to perform for it, though.
+
+### Intent & Consequence
+
+While it would provide for interesting speculation, we do not need to know what the individuals in the cast *intend*, and this document will not speculate about their inner lives. People may believe their own narratives entirely, or partly, or not at all; **the pattern is the same in any case**, and the pattern is what matters here, since it is the exact thing that has been so insidiously destructive and resource wasting for the actual Reticulum project and community, ever since Reticulum was more widely discovered, popularized, and became a prime target for all sorts of grift known to man.
+
+The consequences are very real:
+
+* **Time**. The community’s scarcest resource is the attention of skilled people who actually build
+  and maintain the network. The campaign converts that attention into reactive defence, on a cycle
+  with no end.
+
+* **Harm**. Hastily machine-generated implementations, marketed as drop-in replacements and carrying
+  traffic onto shared networks, mislead users and can damage the network and its neighbours.
+  We, the actual reticulum community, all rely on these networks every day, and it is my belief
+  that we need to defend them. The fabricated measurements and laundered authorship examined in this chapter are not
+  editorial embellishments; they are the mechanism by which real users are induced to run
+  unverified, and often destructive software.
+
+* **Erosion of the currency of trust**. Every manufactured scandal, every fluently polite smear, every
+  fabricated “movement” debases the currency of trust and degrades it for **everyone**;
+  including, most of all, the honest projects that come after. This is deep harm, and
+  it is the primary reason this chapter exists.
+
+Whatever the intent - profit, control, attention, or a simple, obsessive inability to stop - the mechanism is the same, and the response should be *calibrated to the mechanism as a whole*, not to the individual person acting as the current avatar for it.
+
+### Recognition & Response
+
+For anyone who encounters the pattern fresh, here is a proposal on how to recognise it, and what to do about it.
+
+**Recognition:** The pattern is recognisable in minutes, once the signs are known:
+
+* Claims that have been answered before, repeated as if never answered.
+* The register of solemn concern applied, without exception, in one direction.
+* A severe allergic reaction to answering any questions posed.
+* A cast that is small, overlapping, and frequently anonymous, with the *plural form* doing the
+  work of plurality.
+* Sockpuppet theater: The same person or footsoldiers thereof appearing as several “supporters”
+  (and occasionally slipping up mid-performance).
+* Articles, ports, and forum threads that cite and reference each other in a closed loop.
+* The immediate, reflexive turn to “bullying”, “exclusion” and “toxicity” whenever a claim is refuted.
+* A complete absence of engagement with the substance of the answers given, and a complete
+  absence of stake in the network itself.
+
+**Response:** A constructive response is one that is proportionate, and does not cost the
+community its resources, sanity and dignity:
+
+* Engage the content once, on its merits (if any), with evidence, in public, and then refer to the
+  existing records. The answers already exist; they do not need to be re-derived for every new
+  bottle of piss-sour burgundy served from a man behind the curtains. I will do my best to keep this
+  chapter up to date with such answers and records, for easy reference, but other great resources
+  exist.
+* Do not become part of the theater performance. The “movement” feeds on engagement in *any* form;
+  attention is its fuel, and outrage is as good as endorsement for them, if not better.
+* Do the headcount. When the audience is reminded that a “movement” is a dozen people
+  recycling answered falsehoods, its projected power dissipates. The power was never real;
+  only the audience’s own assumption of scale can make the illusion effective. A polished-looking
+  “ground up” implementation might look like the work of many people, but is most likely
+  just the result of an LLM looping on a laptop for a couple of months (this is weird, but it is
+  the reality we now live in). Four different users suddenly singing in unison may look like the
+  representatives of a broader sentiment, but is most likely the same person hiding behind the same keyboard.
+* Then, spend the saved time on the networks: On building real infrastructure, putting up nodes
+  and antennas, on real development, real maintenance, real coexistence, and on the people
+  *who actually use Reticulum*. The things that we can only do *together*, as humans. That is
+  what the fake “movement” cannot do, no matter how fluent and smooth its productions become.
+
+## Network Health & Coexistence
+
+### Substance Of The Networks
+
+Before examining health, we should consider what is being protected. The networks are not a repository. They are not a website, a social presence, or a set of marketing pages. They are a habitat: A living commons of communication, carried by, from a catious estimate, an intermesh now consisting of over a hundred thousand physical devices, embedded in a plethora of applications and packages, transporting terabytes of traffic every single day - real messages, real coordination, real people - across radios, serial lines, phones, laptops, and backbone servers, in cities, places and ways that no other network reaches.
+
+The protocol belongs to humanity; no one owns it. The network belongs to everyone on it, and its membership is defined by nothing other than participation: A node on a mast, a phone in a pocket, a server routing for its neighbourhood, a developer building on the commons. The network has no gatekeepers because it needs none; it is held together by the same physics and mathematics everywhere, and by a shared expectation of how members behave. That expectation - unwritten, unenforced by any central authority, and just as important as any code - is the subject of this section. The *Zen of Reticulum* calls the software a habitat. A habitat is healthy or unhealthy as a whole, and the health of this one is decided, every day, by the people who live in it.
+
+### Health Is A Property Of The Whole
+
+A network is not made healthy by the excellence of any single part. It is made healthy by the behaviour of every part on the shared medium, and how they interact. And the shared medium is the point. When your node transmits, it transmits into the same spectrum, the same line, the same time, the same mathematical address space, the same bandwidth that its neighbours depend on.
+
+The network cannot be certified by any single project’s claims. A node that is a bad neighbour, that invents its own channel behaviour on shared spectrum, that announces without discipline, that spawns tens of thousands of links to scrape the network, that floods and retries without mercy, is a hazard to every node that shares its medium, regardless of how well its “creator” imagines its own code to work in isolation.
+
+On a shared medium, “my software works” is not a complete sentence. The complete sentence is “my software works *and coexists*”. A network’s health deteriorates with its worst-behaved member, and every member has a responsibility to not be *that* member. There is no final, technical solution for this; the solutions are human.
+
+### A History Of What Works
+
+Let’s recall, because it is the ground truth this entire thing rests on, that the coexistence model has *worked* - is working, right now, **at scale**. Reticulum’s protocol decisions have been discussed and evaluated in the community, openly, for years. Protocol upgrades have been designed, coordinated, and executed between a loosely organised group of independent developers, node operators, and users - and have succeeded, repeatedly, without any corporate board, without any central command, and without the collapse that the skeptics predict every second week (while screaming for *GOVERNANCE*). The reference implementation has been developed in the open for over a decade, by a maintainer who answers for it, fixes bugs or issues within hours of their discovery, and is set down in code deliberately kept small enough (the entire protocol implementation under 15,000 lines, including its comments) for a human to read, verify, *and challenge*.
+
+This is the empirical baseline that every narrative examined in [A Movement Of A Dozen](#brandolinis-movement-of-a-dozen) conveniently ignores, in order to justify:
+
+* The claim that the project is a one-man dictatorship
+* The claim that the community is excluded
+* The claim that the networks need saving from their own founders
+
+The **reality**, documented and reproducible, is that a loose community of humans coordinates complex technical evolution *without* the apparatus the narratives insist is missing. The health of the networks is not a promise for the future; it is a demonstrated property of the past and present, under the leadership and community model that brought it into existence and navigated it through difficult decisions and situations over a decade. **My job is to keep it that way**, and you can be damned certain that I take it seriously.
+
+### The Role Of The Individual
+
+The networks are built by physical acts and human coordination. You cannot prompt an antenna into existence. No model can string up a dipole, or stand in the rain aligning a radio, or coordinate with a neighbour three valleys away about who covers which repeater frequency, or sit down with a newcomer and explain why their first node didn’t announce. These are the acts that make a network *organic* - present in the physical world, resilient because it is *real*, valuable because it is *human*. The machines and technology we use are tools aimed at a well-defined, openly described goal. But the networks themself are composed of intentional human actions, and every node operator is infrastructure for other humans.
+
+This has a corollary for the individual: You do not need permission, and you do not need to be an expert, to participate. Run a node. Help a neighbour. Ask questions in the community, and answer the questions you can. Build something small at first. The network grows by these acts, and they are the most meaningful ones - the things that can only be done together, as humans, in the physical world. The parasitic “movement” that haunts the peripheries of this ecosystem cannot do any of this. It cannot build a node because it does not exist, in any real connected and human sense; only people can, and people are precisely what a self-recurrent loop lacks.
+
+### The Place Of New Implementations
+
+The future of the network includes more implementations - and they are welcome. This chapter is not an argument against implementing Reticulum. The protocol is public domain, by design, and the network is made stronger by genuine diversity: More *good* implementations, honestly made, mean more resilience, more experimentation, more people who understand the protocol deeply *because they have built it themselves*. That is the goal: **For people to understand and own the technology they rely on**. Not to spew out 600,000 line rust ports that fills no meaningful gap or purpose.
+
+What the ecosystem needs, from every implementation, is the ordinary floor that [Evaluating A Reticulum Implementation](#brandolinis-evaluating) establishes, and that the reference has met for over a decade: A human who made it and answers for it; provenance disclosed; attribution given; benchmarks honest or absent; interop demonstrated against the real network; code a human can read. And it needs the one thing that costs nothing and changes everything: **Honest labeling**.
+
+An experimental implementation that says, plainly, as the first thing a user sees: “This is in-progress, experimental, do not depend on it yet, but help if you can”, that is a gift to the ecosystem. It contributes, it invites participation, and it protects users.
+
+The opposite, the polished “drop-in replacement”, does damage far beyond its own users: It dissuades the honest developers who might have built *the real thing*, because the polished slop persuades them the work is already done. That dissuasion is one of the quietest and most expensive harms in this entire affair, and the antidote is honesty at every project’s door.
+
+### Expanding The Commons
+
+Coexistence, reduced to its essentials, is a short formula; the duties of membership in a network no one owns:
+
+* **Be honest.** Say what you are, what you built, how you built it, and what you used to
+  build it. Label experimental work as experimental. Credit the work you build on, including
+  the reference implementation, in the licenses and in the prose. Concealment is not a
+  defence; it is a very clear diagnosis marker.
+
+* **Be owned.** Have a human who made the work and can answer for it. Use assistance, don’t
+  substitute. Never sign what you cannot answer for. The chain of accountability is the
+  community’s only verification at scale, and every link in it is a *person*, not a facade.
+
+* **Be a good neighbour.** Respect the shared mediums. Do not invent new behaviour in our
+  shared space and call it progress. The network belongs to its other members as much as
+  to you.
+
+* **Verify against the network.** Compatibility is a property demonstrated with actual nodes,
+  on actual media, against the actual current protocol, over a period of *years*, not 48 hours.
+  And not a claim pinned to an old snapshot over loopback.
+
+* **Participate as a member.** Ask, answer, help, build. *Advertising at* the community is not
+  the same as being part of it, and it is **not** the first thing you should do.
+
+None of this is a high bar. It is the bar the reference implementation has met, in public, for over a decade, and the bar the ecosystem has adopted organically itself, successfully, through every protocol upgrade it has ever coordinated, and everything running on Reticulum today, that people actually use. It is not a new requirement; it is the existing, working culture of the networks, now written down so that newcomers can find it and so that those who would exploit us cannot claim they never saw it.
+
+### Defence Of The Commons
+
+The networks need defending - not because they are under severe physical attacks (yet), but because attention, talent and resources is being stolen from them, trust is being mined against them, and its newcomers are being harvested by the machinery documented in this chapter. Defence, for a commons, has specific shapes, and it is not what the theater would like it to be.
+
+* Defence is **documentation**: Records kept public, of what was claimed, what was
+  answered, and what turned out true.
+* Defence is **a headcount**: Calm, unexcited reminders that a “movement” might just be a dozen
+  people having a tantrum.
+* Defence is **honesty in action**: The visible, ordinary practice of the good behaviour
+  by the people who actually run the networks.
+* And defence is **building**: Every node raised, every page of *real* documentation, every
+  honest implementation, every new user helped into the community with the knowledge to know
+  what they are doing is more durable than any rebuttal, because it adds to the thing being
+  defended.
+
+---
+
+**The theatre cannot keep up with a network.**
+
+**It can only orbit it, while it recycles its own sour piss.**
+
+---
+
+A lot of us rely on these networks every day. They carry our messages, our coordination, our friendships, and in some places, our safety. That is exactly why they are a target:
+
+They are valuable, free, and very hard to shut down. The response is not to become aggressive. It is to be *more* of what the network already is: Real, open, owned, and shared.
+
+*Mark*
+
+## Addendum A: The Prns Case
 
 ### Purpose & Scope
 
 This section provides a concrete example, which future evaluations can use as a template. Its purpose is not to be the last word on this particular subject, but to be an example of how the ideas in this chapter can be applied, and to make the next such examination easier.
 
-The subject of this case study is **Prns**, a project published at the repository `github.com/KenAKAFrosty/Prns`, presented as a “ground-up implementation of Reticulum, written in Rust”, marketed as faster, safer, and more strictly tested than the reference, and widely promoted with the claim of “up to 89× the throughput” of the reference implementation. The record described below is the project’s own, and sourced from its GitHub repository, analyzed locally.
+The subject of this case study is **Prns**, a project published at the repository `github.com/KenAKAFrosty/Prns`, presented as a “ground-up implementation of Reticulum, written in Rust”, marketed as faster, safer, and more strictly tested than the reference, widely promoted with the claim of “up to 89× the throughput” of the reference implementation, and an “author” actively engaged in the tactics described in [A Movement Of A Dozen](#brandolinis-recycled-wine) on online platforms. The record described below is the project’s own, and sourced from its GitHub repository, analyzed locally.
 
 ### The Project In Brief
 
@@ -660,11 +1208,13 @@ The first of the two deciding questions from [Evaluating A Reticulum Implementat
   being the reference’s companion messaging protocol - together with a daemon scaffold and
   a 233-line founding document, `docs/build-ethos.md`. That document declares the project’s
   goal as a “performance-focused drop-in-replacement for rnsd” and its governing principle
-  as: “Port the contract, not the implementation.” It further states, in the project’s own
-  words, that fidelity is owed to the reference “at exactly two boundaries”: “the wire” and
-  “the behaviour”.
+  as: “Port the contract, not the implementation.” It further states directly to the
+  machine-loop, that **“You owe the reference fidelity at exactly two boundaries:
+  The wire… The behavior. … Between those two boundaries, the model is yours”**.
+  At this point, the very first commit, effectively the whole of the implementation design
+  and any relevant decisions are handed over to the LLM.
 
-* **Continuous alignment to the reference.** 506 commits reference RNS or Reticulum
+* **Continuous ingestion from the reference.** 506 commits reference RNS or Reticulum
   source behaviour; the word “parity” appears in 49 commit messages. Commits cite the reference
   implementation’s own source locations (for example `Transport.py:1367`) when correcting
   their own divergences and mistakes.
@@ -674,8 +1224,8 @@ The first of the two deciding questions from [Evaluating A Reticulum Implementat
   implementation matching the reference’s packet header layout. The project’s own
   validation apparatus decodes wire vectors using the reference implementation’s own
   packet parser, and the interop suite consists of real, stock-RNS peer nodes - that is,
-  the reference itself, used as the ground truth against which this project’s output is
-  checked, and committed as accepted verified after 48 hours of the project’s recorded start.
+  the reference source itself, used as the ground truth against which this LLM output is
+  checked, and committed as accepted and verified after 48 hours of the project’s recorded start.
 
 * **The marketing mismatch.** The same record that documents all of the above describes the
   project, publicly, as “a ground-up implementation of Reticulum” - while declining, on its
@@ -783,31 +1333,27 @@ Evaluated against the conditions of [Evaluating A Reticulum Implementation](#bra
 
 * **Provenance and attribution.** Fails: The fake “ground-up” origin story; zero reference links
   on the website; a single well-hidden link in the README; a license file reading
-  “Copyright (c) 2026 The Prns Authors” over work directly generated from the licensed reference;
+  `Copyright (c) 2026 The Prns Authors` over work directly generated from the licensed reference;
   no original copyright or permission notice anywhere.
 
 * **Agency and answerability.** Fails on every criterion of [Assistance Versus Machine Substitution](#brandolinis-assistance-versus-substitution):
-  unauthored scope, uniform generation, discovery by regeneration, laundered provenance,
+  Unauthored scope, uniform generation, discovery by regeneration, laundered provenance,
   authorship by assignment.
 
-* **Engineering reality.** Fails: The benchmark apparatus above; interop demonstrated only
-  against a pinned, outdated reference version (RNS 1.4.2; some published suites against
-  1.4.0) over loopback, with the project’s own result tables documenting interop failures
-  with stock RNS; the reference version itself drifts across the project’s publication history
-  while the marketing claims current parity; a nonstandard “turbo” sub-GHz mode invented for shared spectrum,
-  in a codebase whose own history shows it had not yet correctly understood the
-  reference’s duty-cycle accounting when the invention was layered on; vendored prebuilt
-  binaries and a republished fork of an upstream crate (`nrf-softdevice 0.1.0-prns.1`)
-  with no verifiable provenance; committed WASM bundles.
+* **Engineering.** Fails: The benchmark apparatus above; interop demonstrated only
+  against a pinned, outdated reference version over loopback while the marketing claims current
+  parity, interop failures with stock RNS; vendored prebuilt binaries and a republished fork
+  of an upstream crate (`nrf-softdevice 0.1.0-prns.1`) with no verifiable provenance;
+  committed WASM bundles.
 
-* **Network citizenship.** Fails: Invented spectrum behaviour, and compatibility claims
+* **Network behaviour.** Fails: Invented spectrum behaviour and compatibility claims
   about third-party applications of the reference ecosystem (Sideband, NomadNet, MeshChat)
   that are not established by any evidence.
 
 * **Monetary and influence signals.** The marketing apparatus - website before protocol,
-  day-three twelve-language marketing, false benchmark headlines, “audited” claims - is the
-  conformal surface described in [Evaluating A Reticulum Implementation](#brandolinis-evaluating):
-  the surface is where this project invested.
+  day-three twelve-language marketing, false benchmark headlines, “audited” and “formal proof”
+  claims - the conformal surface described in [Evaluating A Reticulum Implementation](#brandolinis-evaluating):
+  is where this project invested.
 
 ### Licensing Analysis
 
@@ -827,7 +1373,7 @@ Prns is distributed claiming dual MIT/Apache-2.0 licensing. It is, however, a di
 
 ### Consequences
 
-The consequences of this pattern are examined in the following sections - the harm to users and to the network in [A Movement Of A Dozen](#brandolinis-movement-of-a-dozen), and the human dimension in [Network Health & Coexistence](#brandolinis-health-and-coexistence). This section’s contribution is narrower and intended as an instructive example: This is what a substitution project looks like, in full, on its own record. It is a reference example for [Evaluating A Reticulum Implementation](#brandolinis-evaluating), and it demonstrates, in one case, most of the elements this chapter describes.
+The consequences of this pattern are examined in the following sections: The harm to users and to the network in [A Movement Of A Dozen](#brandolinis-movement-of-a-dozen), and the human dimension in [Network Health & Coexistence](#brandolinis-health-and-coexistence). The contribution of this addendum is narrower and intended as an instructive example: This is what a substitution project looks like, in full, on its own record. It is a reference example for [Evaluating A Reticulum Implementation](#brandolinis-evaluating), and it demonstrates, in one case, most of the elements this chapter describes.
 
 ### Verdict
 
@@ -838,298 +1384,3 @@ The proposed conclusion, for users and for the network: Treat the Prns project a
 ### Dating
 
 This examination reflects the publicly available material as of September 2026; the repository in question continued to receive commits at the time of writing, so readers should treat citations to commits and files as point-in-time evidence. A [forensics snapshot](https://github.com/markqvist/forensics_prns) is publicly available on GitHub.
-
-## The Movement Of A Dozen
-
-### Presentation, Elongated
-
-Whenever Reticulum defends itself, its license, or its community - or simply continues to exist - a familiar chorus appears. The register is always similar: *concern*. Concern about the direction of the project. Concern about its license. Concern about its governance. Concern about its “bullying” of “good-faith contributors”. Concern about the future of the ecosystem at the hands of a single maintainer. The chorus speaks in the plural, presents itself as a body of independent voices, and insists, with some frequency, that it is… *not alone*.
-
-The implicit claim under examination in this section is that there exists a *movement* of concerned individuals, spread across the ecosystem, all worried about Reticulum, and therefore (for some reason) deserving of a place at the table of decisions.
-
-A resolution of this claim requires one step: Count them.
-
-### Headcount
-
-This “movement” does have a headcount. It is not in the hundreds, and it is not in the dozens. It is a small number of people who appear, in various combinations and under various names, in the following roles:
-
-* Creators of the machine-generated “Reticulum implementations” examined in this chapter
-* Creators of articles praising those implementations and lamenting the state of the
-  reference, its moral shortcomings, its unavailability or lack of something it already has.
-* Commenters “defending” the implementations when they are evaluated reasonably and critically,
-  most often by attempting simply to derail the discussion.
-* Critics of the Reticulum License on “open source” grounds
-* “Concerned community members” objecting to the maintainer’s conduct
-* Campaigners on online platforms; and
-* In some cases, a single individual performing *several* of these roles at once, under
-  different names, in the same week.
-
-The overlap is well documented at this point, across time and different platforms. The same phrasing, the same arguments, the same links, the same reactive reflexes, the same handful of accounts appearing in the same threads at the same moments. When the sockpuppet accounts are unmasked (and they frequently unmask themselves) the cast does not grow, but rapidly shrinks.
-
-This is the most interesting single fact about the “movement”: **It isn’t one. It is a synthetic cast**, held together mostly by LLM-glue, reddit handles and hysteria. A cast is not a constituency. It performs; it does not represent. The difference matters quite a bit, because a great deal of this “movement’s” imagined power comes from the assumption that the *plural form* is actual evidence of plurality. If that sentence seemed opaque, notice how many times a statement or article uses “we” instead of “I”, and it will be less so.
-
-### Recycled Wine, Fermenting
-
-The cast is not only small, it is also, by any evidentiary standard, *forgetful*. Every major claim this “movement” advances has been advanced before, answered in public, with evidence, and often years ago - and is then advanced again, unchanged and completely ignoring any rationale or evidence presented previously (to the same people), as if the answer had never been written.
-
-* **The license argument.** Reticulum is “not really open source” because its license is not
-  approved by a particular orthodoxy. This is answered (now in a new and updated version, for the
-  fifth time) in full in [Open Source Means Open Source](#brandolinis-opensource). It was also
-  answered in public, at length, at the time of the license change - including the
-  arithmetic of who is actually restricted by which license. It is repeated *ad infinitum* anyway.
-  Quite a conversation starter, apparently.
-
-* **The distribution argument.** Reticulum is “not properly distributed” because it is not
-  packaged as a `.deb` or on some favoured catalogue. Reality: It is available on practically every
-  platform with a single command, packaged by the community in a wide range of channels, and
-  capable of updating itself over its own network. The argument has been answered; it is repeated.
-
-* **The “stepped back” narrative.** When the primary mirror of the project moved away from
-  a public internet platform, it was spun as the founder leaving for good, or now taking on dictatorial
-  powers, or abandoning his creation, or any variation or nonsensical combination thereof.
-  Those spins always center around justifying that *a vaccuum now needs to be filled*.
-  There was no such vaccuum. The narrative is repeated in various forms whenever convenient.
-
-* **The enclosure narrative.** The license is reframed as a “power grab” or an “enclosure”
-  of the commons - as if a license whose protocol is public domain and whose conditions
-  restrict only harm and appropriation were a form of enclosure. The [most recent](https://gaggl.com/blogs/2026-09-05-enclosure-by-good-intentions/) (and mostly incoherent)
-  expression of this narrative is, once again, fluent, polite, and factually hollow. The
-  bizarre arguments supporting the “article” include: Defunct and abandoned forks presented
-  as living, community forks bearing the very Reticulum License mislabeled as AGPL license vehicles
-  (created by “concerned users”), companion app forks correctly retaining the Creative Commons
-  licensing used as further evidence of the same and completely abandoned projects propped up
-  as being “the ecosystem”. Another case of LLM generated nonsense that the “author” didn’t bother checking.
-  The intent is clear here, simply produce more *mass* of the bullshit, so it can be further
-  referenced, regurgitated and linked to.
-
-* **The “bullying” narrative.** Whenever the community declines to treat manufactured
-  controversies as legitimate, or calmly documents the falsity of claims, or (Lord forbid)
-  moves a forum post for violating clearly stated forum rules,
-  the response is the same: The documentation is “bullying”, the community is “excluding” people, the
-  maintainer is “unprofessional”. In the most recent example, those accusations were made by someone who, in the
-  same week, publically called for the Reticulum maintainer’s “removal from the equation”, forged a moderator’s
-  username, attempted to drag unrelated individuals into the campaign, and presented a new
-  round of outright falsehoods. Contrary to popular belief, the accusation of incivility
-  is not the last resort of the wronged; it is the standard reflex of the exposed.
-
-None of the “arguments” engages the answers given repeatedly, and extensively. That is the point, and the strategy. The arguments are not produced for the purpose of being engaged; they are produced for the purpose of *being repeated* - the same wine, poured into new bottles, on a cycle. Each cycle is short, cheap to produce, and (thanks to freely available fluent text generation) now nearly effortless. The intended audience is not the community, which has heard it all before. The intended audience is the newcomer, who has not.
-
-### The Method, of Madness
-
-The method behind the pattern is consistent and simple enough to be described precisely:
-
-**Bullshit asymmetry**
-
-Producing a fluent, plausibly-sourced smear is now the work of minutes. Refuting it to the standard this manual demands is the work of days, and the refuted smear is replaced by the next one within the week. This asymmetry isn’t just a fine point of the campaign; **it is the campaign**. The goal is exhaustion - the slow conversion of the community’s time and attention from building to defending.
-
-**Weaponized concern**
-
-The register of the campaign is almost always the register of solicitude: “we are worried about the ecosystem”, “we just want what is best for the community”, “this is about the future of the project”. The concern is directed, without exception, at the things the campaign wants changed, and the change it wants is always the same: **The replacement of the reference’s authority with its own**. Concern is the *costume*; capture is the choreography. It is the oldest form of cheap power grab in the book.
-
-**Event seizure**
-
-Any event - a license change, a platform move, a forum moderation decision, a subreddit closure, a security notice, even the most banal messages from maintainers or known contributors - are seized, stripped of their actual context, and re-narrated as evidence of the same pre-written story. The subreddit that was closed after its moderator vanished  and ceased moderating (according to *prior agreement with said moderator*) becomes “the maintainer shutting down dissent”. Moving away from a highly centralized online platform becomes “the founder retreating”. The license becomes “the enclosure”. The pattern is so reliable that the story could be pre-written by by a lightly mechanized quill; only the date changes. The actual real-world context of these events is documented, in public, in each case; the re-narration proceeds regardless.
-
-**The legitimacy circuit**
-
-The campaign invests heavily in the places where legitimacy is minted: Conference talks, blog platforms, social threads, and forums - presented as if these appearances constituted some sort of ecosystem-wide groundswell rather than the same dozen people moving through the same circuit. The LLM-generated articles cite the LLM-generated ports; the ports are praised in the articles; the managers of the ports spread the articles, and echo them on the forums and internet platforms; the conference presentations cite the forums. Random bypassers with the need for a cause watch the conference presentations and take on the holy duty of Internet Soldier. The circuit is closed, self-referential, and (to a reader encountering it fresh) convincing. It is also, entirely, **a loop of bullshit**.
-
-**The prior-work minefield**
-
-The machine-generated implementations have a consequence beyond attention: They flood the space with fake “prior work”. The effect, as the license discussion predicted in the beginning of 2025, is the creation of a minefield of sloppy repositories that can later be matched against any genuine project, and attempt to claim prior art, or even worse: Dissuade actual, honest developers or builders from taking up a real project they might have succeeded with, because they now believe it has already been done. Just as importantly, it also buries real efforts under machine-generated noise. The machine-ports are not failed attempts to contribute. They are (disregarding intentions, but effectively) the campaign’s long game, deployed as inventory.
-
-### A Persistent, But Fragile Triad
-
-This chapter as a whole has documented three fronts: The legal-ideological attack on the license ([Open Source Means Open Source](#brandolinis-opensource)), the substitution and usurpation pattern in machine-generated implementations ([Assistance Versus Machine Substitution](#brandolinis-assistance-versus-substitution)), and the takeover narratives examined in this section. They are three fronts of the same operation, run by the same cast.
-
-* The license attack and other urgency-engineered narratives are the *cover*: They supply
-  the ideological justification for treating the reference as illegitimate, and needing replacement.
-* The ports are the *inventory*: they supply the “replacements” that the narrative claims
-  the ecosystem needs.
-* The takeover narrative is the *objective function*: the repeated, persistent, escalating claim that
-  the reference should be replaced, and that the speakers themself are the natural heirs.
-
-Each front depends on the others, and all three depend on a single, fragile assumption: That their audience cannot count. Restore the count, and the charade collapses into what it is:
-
-**A small group of people, obsessively orbiting a technology they did not build, synthetically producing the
-appearance of a constituency they do not have, in service of a takeover they cannot justify.**
-
-### What The Pattern Is Not
-
-It is important, to also say what this pattern is *not*, exactly because the campaign depends on being mistaken for such things.
-
-**It is not criticism**
-
-The Reticulum community has always had lively, rigorous criticism - of decisions, of priorities, of direction - and it has always engaged that criticism on the merits, and changed course and development priorities many times. The license discussions at the time of the change were extensive, public, and answered in full, including with the critics themselves. Core protocol decisions were always discussed and evaluated in the community. The complex coordination and execution of several protocol upgrades between a loosely organised group of developers, node operators and users have succeeded surprisingly fluidly. All of these are success stories that the “critics” **always** ignore. Real criticism engages the content and accepts evidence. The campaign engages nothing.
-
-**It is not a community**
-
-Communities *build things*, maintain them, and have skin in the game; long-term users, operators of nodes, authors of real applications, people whose traffic flows through the network every day. A community has a stake. The “movement” only has an agenda.
-
-**It is not a debate**
-
-A debate has parties who evaluate arguments and evidence, and as a function of that, the debate moves forward, perpetually. The campaign’s arguments, as shown above, are not designed to survive contact with answers, but to be repeated past them. You cannot debate a loop. You can decline to perform for it, though.
-
-### Intent & Consequence
-
-While it would provide for interesting speculation, we do not need to know what the individuals in the cast *intend*, and this document will not speculate about their inner lives. People may believe their own narratives entirely, or partly, or not at all; **the pattern is the same in any case**, and the pattern is what matters here, since it is the exact thing that has been so insidiously destructive and resource wasting for the actual Reticulum project and community, ever since Reticulum was more widely discovered, popularized, and became a prime target for all sorts of grift known to man.
-
-The consequences are very real:
-
-* **Time**. The community’s scarcest resource is the attention of skilled people who actually build
-  and maintain the network. The campaign converts that attention into reactive defence, on a cycle
-  with no end.
-
-* **Harm**. Hastily machine-generated implementations, marketed as drop-in replacements and carrying
-  traffic onto shared networks, mislead users and can damage the network and its neighbours.
-  We, the actual reticulum community, all rely on these networks every day, and it is my belief
-  that we need to defend them. The fabricated measurements and laundered authorship examined in this chapter are not
-  editorial embellishments; they are the mechanism by which real users are induced to run
-  unverified, and often destructive software.
-
-* **Erosion of the currency of trust**. Every manufactured scandal, every fluently polite smear, every
-  fabricated “movement” debases the currency of trust and degrades it for **everyone**;
-  including, most of all, the honest projects that come after. This is deep harm, and
-  it is the primary reason this chapter exists.
-
-Whatever the intent - profit, control, attention, or a simple, obsessive inability to stop - the mechanism is the same, and the response should be *calibrated to the mechanism as a whole*, not to the individual person acting as the current avatar for it.
-
-### Recognition & Response
-
-For anyone who encounters the pattern fresh, here is a proposal on how to recognise it, and what to do about it.
-
-**Recognition:** The pattern is recognisable in minutes, once the signs are known:
-
-* Claims that have been answered before, repeated as if never answered.
-* The register of solemn concern applied, without exception, in one direction.
-* A severe allergic reaction to answering any questions posed.
-* A cast that is small, overlapping, and frequently anonymous, with the *plural form* doing the
-  work of plurality.
-* Sockpuppet theater: The same person or footsoldiers thereof appearing as several “supporters”
-  (and occasionally slipping up mid-performance).
-* Articles, ports, and forum threads that cite and reference each other in a closed loop.
-* The immediate, reflexive turn to “bullying”, “exclusion” and “toxicity” whenever the record is
-  documented.
-* A complete absence of engagement with the substance of the answers given, and a complete
-  absence of stake in the network itself.
-
-**Response:** A constructive response is one that is proportionate, and does not cost the
-community its resources, sanity and dignity:
-
-* Engage the content once, on its merits (if any), with evidence, in public, and then refer to the
-  existing records. The answers already exist; they do not need to be re-derived for every new
-  bottle of piss-sour burgundy served from a man behind the curtains. I will do my best to keep this
-  chapter up to date with such answers and records, for easy reference, but other great resources
-  exist.
-* Do not become part of the theater performance. The “movement” feeds on engagement in *any* form;
-  attention is its fuel, and outrage is as good as endorsement for them, if not better.
-* Do the headcount. When the audience is reminded that a “movement” is a dozen people
-  recycling answered falsehoods, its projected power dissipates. The power was never real;
-  only the audience’s own assumption of scale can make the illusion effective. A polished-looking
-  “ground up” implementation might look like the work of many people, but is most likely
-  just the result of an LLM looping on a laptop for a couple of months (this is weird, but it is
-  the reality we now live in). Four different users suddenly singing in unison may look like the
-  representatives of a broader sentiment, but is most likely the same person hiding behind the same keyboard.
-* Then, spend the saved time on the networks: On building real infrastructure, putting up nodes
-  and antennas, on real development, real maintenance, real coexistence, and on the people
-  *who actually use Reticulum*. The things that we can only do *together*, as humans. That is
-  what the fake “movement” cannot do, no matter how fluent and smooth its productions become.
-
-## Network Health & Coexistence
-
-### Substance Of The Networks
-
-Before examining health, we should consider what is being protected. The networks are not a repository. They are not a website, a social presence, or a set of marketing pages. They are a habitat: A living commons of communication, carried by, from a catious estimate, an intermesh now consisting of over a hundred thousand physical devices, embedded in a plethora of applications and packages, transporting terabytes of traffic every single day - real messages, real coordination, real people - across radios, serial lines, phones, laptops, and backbone servers, in cities, places and ways that no other network reaches.
-
-The protocol belongs to humanity; no one owns it. The network belongs to everyone on it, and its membership is defined by nothing other than participation: A node on a mast, a phone in a pocket, a server routing for its neighbourhood, a developer building on the commons. The network has no gatekeepers because it needs none; it is held together by the same physics and mathematics everywhere, and by a shared expectation of how members behave. That expectation - unwritten, unenforced by any central authority, and just as important as any code - is the subject of this section. The *Zen of Reticulum* calls the software a habitat. A habitat is healthy or unhealthy as a whole, and the health of this one is decided, every day, by the people who live in it.
-
-### Health Is A Property Of The Whole
-
-A network is not made healthy by the excellence of any single part. It is made healthy by the behaviour of every part on the shared medium, and how they interact. And the shared medium is the point. When your node transmits, it transmits into the same spectrum, the same line, the same time, the same mathematical address space, the same bandwidth that its neighbours depend on. Duty cycles, channel etiquette, retry behaviour, announce discipline: These are not private performance details. They are the terms of coexistence, and they bind every member as tightly as the protocol itself.
-
-This is why the health of the network cannot be certified by any single project’s claims, and why the evaluation framework of [Evaluating A Reticulum Implementation](#brandolinis-evaluating) includes respectful citizenship as a core category. A node that is a bad neighbour - that invents its own channel behaviour on shared spectrum, that announces without discipline, that spawns tens of thousands of links to scrape the network, that floods and retries without mercy - is a hazard to every node that shares its medium, regardless of how well its “creator” imagines its own code to work in isolation. On a shared medium, “my software works” is not a complete sentence. The complete sentence is “my software works *and coexists*”. A network’s health deteriorates with its worst-behaved member, and every member has a responsibility to not be *that* member. There is no final, technical solution for this; the solutions are human.
-
-### A History Of What Works
-
-Let’s recall, because it is the ground truth this entire thing rests on, that the coexistence model has *worked* - is working, right now, **at scale**. Reticulum’s protocol decisions have been discussed and evaluated in the community, openly, for years. Protocol upgrades have been designed, coordinated, and executed between a loosely organised group of independent developers, node operators, and users - and have succeeded, repeatedly, without any corporate board, without any central command, and without the collapse that the skeptics predict every second week (while screaming for *GOVERNANCE*). The reference implementation has been developed in the open for over a decade, by a maintainer who answers for it, fixes bugs or issues within hours of their discovery, and is set down in code deliberately kept small enough (the entire protocol implementation under 15,000 lines, including its comments) for a human to read, verify, *and challenge*.
-
-This is the empirical baseline that every narrative examined in [A Movement Of A Dozen](#brandolinis-movement-of-a-dozen) conveniently ignores, in order to justify:
-
-* The claim that the project is a one-man dictatorship
-* The claim that the community is excluded
-* The claim that the networks need saving from their own founders
-
-The **reality**, documented and reproducible, is that a loose community of humans coordinates complex technical evolution *without* the apparatus the narratives insist is missing. The health of the networks is not a promise for the future; it is a demonstrated property of the past and present, under the leadership and community model that brought it into existence and navigated it through difficult decisions and situations over a decade. **My job is to keep it that way**, and you can be damned certain that I take it seriously.
-
-### The Role Of The Individual
-
-The networks are built by physical acts and human coordination. You cannot prompt an antenna into existence. No model can string up a dipole, or stand in the rain aligning a radio, or coordinate with a neighbour three valleys away about who covers which repeater frequency, or sit down with a newcomer and explain why their first node didn’t announce. These are the acts that make a network *organic* - present in the physical world, resilient because it is *real*, valuable because it is *human*. The machines and technology we use are tools aimed at a well-defined, openly described goal. But the networks themself are composed of intentional human actions, and every node operator is infrastructure for other humans.
-
-This has a corollary for the individual: You do not need permission, and you do not need to be an expert, to participate. Run a node. Help a neighbour. Ask questions in the community, and answer the questions you can. Build something small at first. The network grows by these acts, and they are the most meaningful ones - the things that can only be done together, as humans, in the physical world. The parasitic “movement” that haunts the peripheries of this ecosystem cannot do any of this. It cannot build a node because it does not exist, in any real connected and human sense; only people can, and people are precisely what a self-recurrent loop lacks.
-
-### The Place Of New Implementations
-
-The future of the network includes more implementations - and they are welcome. This chapter is not an argument against implementing Reticulum. The protocol is public domain, by design, and the network is made stronger by genuine diversity: More *good* implementations, honestly made, mean more resilience, more experimentation, more people who understand the protocol deeply *because they have built it themselves*. That is the goal: **For people to understand and own the technology they rely on**. Not to spew out a 637,000 line rust port that fills no meaningful gap or purpose.
-
-What the ecosystem needs, from every implementation, is the ordinary floor that [Evaluating A Reticulum Implementation](#brandolinis-evaluating) establishes, and that the reference has met for over a decade: A human who made it and answers for it; provenance disclosed; attribution given; benchmarks honest or absent; interop demonstrated against the real network; code a human can read. And it needs the one thing that costs nothing and changes everything: **Honest labeling**.
-
-An experimental implementation that says, plainly, as the first thing a user sees: “This is in-progress, experimental, do not depend on it yet, but help if you can”, that is a gift to the ecosystem. It contributes, it invites participation, and it protects users.
-
-The opposite, the polished “drop-in replacement” with fabricated measurements and laundered authorship, does damage far beyond its own users: It dissuades the honest developers who might have built *the real thing*, because the polished slop persuades them the work is already done. That dissuasion is one of the quietest and most expensive harms in this entire affair, and the antidote is honesty at every project’s door.
-
-### Expanding The Commons
-
-Coexistence, reduced to its essentials, is a short formula; the duties of membership in a network no one owns:
-
-* **Be honest.** Say what you are, what you built, how you built it, and what you used to
-  build it. Label experimental work as experimental. Credit the work you build on, including
-  the reference implementation, in the licenses and in the prose. Concealment is not a
-  defence; it is a very clear diagnosis marker.
-
-* **Be owned.** Have a human who made the work and can answer for it. Use assistance, don’t
-  substitute. Never sign what you cannot answer for. The chain of accountability is the
-  community’s only verification at scale, and every link in it is a *person*, not a facade.
-
-* **Be a good neighbour.** Respect the shared mediums. Do not invent new behaviour in our
-  shared space and call it progress. The network belongs to its other members as much as
-  to you.
-
-* **Measure honestly, or not at all.** An unfudged measurement is worth more than a headline.
-  If you compare, compare against reality - stock, current, real - and publish the methodology
-  first. That way, we can *all* learn and improve.
-
-* **Verify against the network.** Compatibility is a property demonstrated with actual nodes,
-  on actual media, against the actual current protocol, over a period of *years*, not 48 hours.
-  And not a claim pinned to an old snapshot over loopback.
-
-* **Participate as a member.** Ask, answer, help, build. *Advertising at* the community is not
-  the same as being part of it, and it is **not** the first thing you should do.
-
-None of this is a high bar. It is the bar the reference implementation has met, in public, for over a decade, and the bar the ecosystem has adopted organically itself, successfully, through every protocol upgrade it has ever coordinated, and everything running on Reticulum today, that people actually use. It is not a new requirement; it is the existing, working culture of the networks, now written down so that newcomers can find it and so that those who would exploit us cannot claim they never saw it.
-
-### Defence Of The Commons
-
-The networks need defending - not because they are under severe physical attacks (yet), but because attention, talent and resources is being stolen from them, trust is being mined against them, and its newcomers are being harvested by the machinery documented in this chapter. Defence, for a commons, has specific shapes, and it is not what the theater would like it to be.
-
-* Defence is **documentation**: Records, kept public, of what was claimed, what was
-  answered, and what turned out true.
-* Defence is **a headcount**: Calm, unexcited reminders that a “movement” might just be a dozen
-  people having a tantrum.
-* Defence is **honesty in action**: The visible, ordinary practice of the good behaviour
-  by the people who actually run the networks.
-* And defence is **building**: Every node raised, every page of *real* documentation, every
-  honest implementation, every new user helped into the community with the knowledge to know
-  what they are doing is more durable than any rebuttal, because it adds to the thing being
-  defended.
-
----
-
-**The theatre cannot keep up with a network.**
-
-**It can only orbit it, while it recycles its own sour piss.**
-
----
-
-A lot of us rely on these networks every day. They carry our messages, our coordination, our friendships, and in some places, our safety. That is exactly why they are a target:
-
-They are valuable, free, and very hard to shut down. The response is not to become aggressive. It is to be *more* of what the network already is: Real, open, owned, and shared.
