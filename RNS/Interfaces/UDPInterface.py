@@ -1,6 +1,6 @@
 # Reticulum License
 #
-# Copyright (c) 2016-2025 Mark Qvist
+# Copyright (c) 2016-2026 Mark Qvist
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -113,6 +113,14 @@ class UDPInterface(Interface):
             self.forward_ip = forwardip
             self.forward_port = forwardport
 
+    def detach(self):
+        self.detached = True
+        self.online = False
+        if self.server:
+            try:
+                self.server.server_close()
+                self.server.shutdown()
+            except Exception as e: RNS.log(f"Could not shut down UDP listener for {self}: {e}", RNS.LOG_ERROR)
 
     def process_incoming(self, data):
         if not data: return

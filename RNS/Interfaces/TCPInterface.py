@@ -1,6 +1,6 @@
 # Reticulum License
 #
-# Copyright (c) 2016-2025 Mark Qvist
+# Copyright (c) 2016-2026 Mark Qvist
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -427,7 +427,7 @@ class TCPClientInterface(Interface):
             self.online = False
             RNS.log("An interface error occurred for "+str(self)+", the contained exception was: "+str(e), RNS.LOG_WARNING)
 
-            if self.initiator:
+            if self.initiator and not self.detached:
                 RNS.log("Attempting to reconnect...", RNS.LOG_WARNING)
                 self.reconnect()
             else:
@@ -453,12 +453,9 @@ class TCPClientInterface(Interface):
         if not self.initiator:
             RNS.Transport.remove_interface(self)
 
-
     def __str__(self):
-        if ":" in self.target_ip:
-            ip_str = f"[{self.target_ip}]"
-        else:
-            ip_str = f"{self.target_ip}"
+        if ":" in self.target_ip: ip_str = f"[{self.target_ip}]"
+        else:                     ip_str = f"{self.target_ip}"
 
         return "TCPInterface["+str(self.name)+"/"+ip_str+":"+str(self.target_port)+"]"
 
@@ -687,10 +684,8 @@ class TCPServerInterface(Interface):
 
 
     def __str__(self):
-        if ":" in self.bind_ip:
-            ip_str = f"[{self.bind_ip}]"
-        else:
-            ip_str = f"{self.bind_ip}"
+        if ":" in self.bind_ip: ip_str = f"[{self.bind_ip}]"
+        else:                   ip_str = f"{self.bind_ip}"
 
         return "TCPServerInterface["+self.name+"/"+ip_str+":"+str(self.bind_port)+"]"
 
