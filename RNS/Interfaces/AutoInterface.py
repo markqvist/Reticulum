@@ -127,6 +127,7 @@ class AutoInterface(Interface):
         self.link_local_addresses = []
         self.adopted_interfaces = {}
         self.interface_servers = {}
+        self.discovery_sockets = []
         self.multicast_echoes = {}
         self.initial_echoes = {}
         self.timed_out_interfaces = {}
@@ -268,6 +269,8 @@ class AutoInterface(Interface):
                                     addr_info = socket.getaddrinfo(link_local_addr+"%"+ifname, self.unicast_discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
                                     unicast_discovery_socket.bind(addr_info[0][4])
 
+                                self.discovery_sockets.append(unicast_discovery_socket)
+
                                 mcast_addr = self.mcast_discovery_address
                                 RNS.log(str(self)+" Creating multicast discovery listener on "+str(ifname)+" with address "+str(mcast_addr), RNS.LOG_EXTREME)
 
@@ -295,6 +298,8 @@ class AutoInterface(Interface):
                                         addr_info = socket.getaddrinfo(mcast_addr, self.discovery_port, socket.AF_INET6, socket.SOCK_DGRAM)
 
                                     discovery_socket.bind(addr_info[0][4])
+
+                                self.discovery_sockets.append(discovery_socket)
 
                                 # Set up thread for multicast discovery packets
                                 def discovery_loop(): self.discovery_handler(discovery_socket, ifname)
@@ -358,9 +363,9 @@ class AutoInterface(Interface):
             thread.daemon = True
             thread.start()
         
-        while True:
+        while not self.detached:
             data, ipv6_src = socket.recvfrom(1024)
-            if self.final_init_done:
+            if self.final_init_done and data and ipv6_src:
                 peering_hash = data[:RNS.Identity.HASHLENGTH//8]
                 expected_hash = RNS.Identity.full_hash(self.group_id+ipv6_src[0].encode("utf-8"))
                 if peering_hash == expected_hash:
@@ -369,7 +374,7 @@ class AutoInterface(Interface):
                     RNS.log(str(self)+" received peering packet on "+str(ifname)+" from "+str(ipv6_src[0])+", but authentication hash was incorrect.", RNS.LOG_DEBUG)
 
     def peer_jobs(self):
-        while True:
+        while not self.detached:
             time.sleep(self.peer_job_interval)
             now = time.time()
             timed_out_peers = []
@@ -478,7 +483,7 @@ class AutoInterface(Interface):
                 
 
     def announce_handler(self, ifname):
-        while True:
+        while not self.detached:
             self.peer_announce(ifname)
             time.sleep(self.announce_interval)
             
@@ -604,7 +609,20 @@ class AutoInterface(Interface):
 
     def process_outgoing(self, data): pass
 
-    def detach(self): self.online = False
+    def detach(self):
+        self.online = False
+        self.detached = True
+
+        RNS.log(f"Shutting down all UDP listeners for {self}", RNS.LOG_NOTICE)
+        for ifname in self.interface_servers:
+            try:
+                self.interface_servers[ifname].server_close()
+                self.interface_servers[ifname].shutdown()
+            except Exception as e: RNS.log(f"Could not shut down UDP listener {ifname} for {self}: {e}", RNS.LOG_ERROR)
+
+        for s in self.discovery_sockets:
+            try: s.close()
+            except Exception as e: RNS.log(f"Error while shutting down discovery socket {s} for {self}: {e}", RNS.LOG_ERROR)
 
     def __str__(self): return f"AutoInterface[{self.name}]"
 

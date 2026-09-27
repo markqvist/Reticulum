@@ -436,6 +436,9 @@ class Interface:
     def detach(self):
         pass
 
+    def teardown(self):
+        pass
+
     @staticmethod
     def get_config_obj(config_in):
         if type(config_in) == ConfigObj: return config_in
