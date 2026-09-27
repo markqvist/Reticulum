@@ -256,8 +256,7 @@ You can easily add `rnsd` as an always-on service by [configuring a service](#us
 
 ### The rnstatus Utility
 
-Using the `rnstatus` utility, you can view the status of configured Reticulum
-interfaces, similar to the `ifconfig` program.
+Using the `rnstatus` utility, you can view the status of and control configured Reticulum interfaces, similar to the `ifconfig` program.
 
 **Usage Examples**
 
@@ -331,6 +330,9 @@ options:
   -h, --help            show this help message and exit
   --config CONFIG       path to alternative Reticulum config directory
   --version             show program's version number and exit
+  --attach name         Attach interface by name
+  --detach name         Detach interface by name
+  --reload name         Reload interface by name
   -a, --all             show all interfaces
   -A, --announce-stats  show announce stats
   -P, --pr-stats        show path request stats

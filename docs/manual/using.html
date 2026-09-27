@@ -505,8 +505,7 @@ options:
 </section>
 <section id="the-rnstatus-utility">
 <h3>The rnstatus Utility<a class="headerlink" href="#the-rnstatus-utility" title="Link to this heading">¶</a></h3>
-<p>Using the <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> utility, you can view the status of configured Reticulum
-interfaces, similar to the <code class="docutils literal notranslate"><span class="pre">ifconfig</span></code> program.</p>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code> utility, you can view the status of and control configured Reticulum interfaces, similar to the <code class="docutils literal notranslate"><span class="pre">ifconfig</span></code> program.</p>
 <p><strong>Usage Examples</strong></p>
 <p>Run <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code>:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnstatus
@@ -572,6 +571,9 @@ options:
   -h, --help            show this help message and exit
   --config CONFIG       path to alternative Reticulum config directory
   --version             show program&#39;s version number and exit
+  --attach name         Attach interface by name
+  --detach name         Detach interface by name
+  --reload name         Reload interface by name
   -a, --all             show all interfaces
   -A, --announce-stats  show announce stats
   -P, --pr-stats        show path request stats
