@@ -1,6 +1,6 @@
 # Reticulum License
 #
-# Copyright (c) 2016-2025 Mark Qvist
+# Copyright (c) 2016-2026 Mark Qvist
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -128,6 +128,7 @@ class KISSInterface(Interface):
         self.beacon_d = beacon_data.encode("utf-8")
         self.first_tx = None
         self.bitrate  = KISSInterface.BITRATE_GUESS
+        self.reconnecting = False
 
         self.packet_queue    = []
         self.flow_control    = flow_control
@@ -149,15 +150,23 @@ class KISSInterface(Interface):
 
         try:
             self.open_port()
+            if self.serial.is_open: self.configure_device()
+            else: raise IOError("Could not open serial port")
+
         except Exception as e:
-            RNS.log("Could not open serial port "+self.port, RNS.LOG_ERROR)
-            raise e
+            RNS.log(f"Could not open serial port for {self}", RNS.LOG_ERROR)
+            RNS.log(f"The contained exception was: {e}", RNS.LOG_ERROR)
+            RNS.log(f"Reticulum will attempt to bring up this interface periodically", RNS.LOG_ERROR)
+            if not self.detached and not self.reconnecting:
+                thread = threading.Thread(target=self.reconnect_port)
+                thread.daemon = True
+                thread.start()
 
-        if self.serial.is_open:
-            self.configure_device()
-        else:
-            raise IOError("Could not open serial port")
-
+    def detach(self):
+        self.detached = True
+        self.online = False
+        try: self.serial.close()
+        except Exception as e: RNS.log(f"Could not close port for {self} at detach: {e}", RNS.LOG_ERROR)
 
     def open_port(self):
         RNS.log("Opening serial port "+self.port+"...")
@@ -417,24 +426,23 @@ class KISSInterface(Interface):
             RNS.log("Reticulum will attempt to reconnect the interface periodically.", RNS.LOG_ERROR)
 
         self.online = False
-        self.serial.close()
-        self.reconnect_port()
+        try: self.serial.close()
+        except Exception as e: RNS.log(f"Could not close port for {self}", RNS.LOG_ERROR)
+        if not self.detached and not self.reconnecting: self.reconnect_port()
 
     def reconnect_port(self):
+        self.reconnecting = True
         while not self.online:
             try:
                 time.sleep(5)
                 RNS.log("Attempting to reconnect serial port "+str(self.port)+" for "+str(self)+"...", RNS.LOG_VERBOSE)
                 self.open_port()
-                if self.serial.is_open:
-                    self.configure_device()
-            except Exception as e:
-                RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                if self.serial.is_open: self.configure_device()
+            except Exception as e: RNS.log("Error while reconnecting port, the contained exception was: "+str(e), RNS.LOG_ERROR)
 
-        RNS.log("Reconnected serial port for "+str(self))
+        self.reconnecting = False
+        if self.online: RNS.log("Reconnected serial port for "+str(self))
 
-    def should_ingress_limit(self):
-        return False
+    def should_ingress_limit(self): return False
 
-    def __str__(self):
-        return "KISSInterface["+self.name+"]"
+    def __str__(self): return "KISSInterface["+self.name+"]"
