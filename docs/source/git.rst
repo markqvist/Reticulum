@@ -143,6 +143,9 @@ To create a new empty repository on a remote node:
 
 This creates a bare Git repository at the specified path. You must have ``create`` permission for the target group. When a repository is created, the creator automatically receives ``adm`` (admin) permissions on the repository through an auto-generated ``.allowed`` file.
 
+.. tip::
+  If you want to use a different primary branch name than ``master``, you can change it inside the bare git repository directory with ``git symbolic-ref HEAD refs/heads/name_of_other_branch``.
+
 **All Command-Line Options (rngit create)**
 
 .. code:: text

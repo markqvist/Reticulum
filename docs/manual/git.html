@@ -358,6 +358,10 @@ Repository public/myrepo created
 </pre></div>
 </div>
 <p>This creates a bare Git repository at the specified path. You must have <code class="docutils literal notranslate"><span class="pre">create</span></code> permission for the target group. When a repository is created, the creator automatically receives <code class="docutils literal notranslate"><span class="pre">adm</span></code> (admin) permissions on the repository through an auto-generated <code class="docutils literal notranslate"><span class="pre">.allowed</span></code> file.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you want to use a different primary branch name than <code class="docutils literal notranslate"><span class="pre">master</span></code>, you can change it inside the bare git repository directory with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">symbolic-ref</span> <span class="pre">HEAD</span> <span class="pre">refs/heads/name_of_other_branch</span></code>.</p>
+</div>
 <p><strong>All Command-Line Options (rngit create)</strong></p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: rngit create [-h] [--config CONFIG] [--rnsconfig RNSCONFIG]
                     [-i PATH] [-v] [-q] [--version]
