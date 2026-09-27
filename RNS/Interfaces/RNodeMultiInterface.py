@@ -1,6 +1,6 @@
 # Reticulum License
 #
-# Copyright (c) 2016-2025 Mark Qvist
+# Copyright (c) 2016-2026 Mark Qvist
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -916,6 +916,7 @@ class RNodeMultiInterface(Interface):
             if interface != 0:
                 self.setRadioState(KISS.RADIO_STATE_OFF, interface)
         self.leave()
+        self.serial.close()
 
     def teardown_subinterfaces(self):
         for interface in self.subinterfaces:

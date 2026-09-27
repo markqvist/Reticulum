@@ -1504,13 +1504,13 @@ class RNodeInterface(Interface):
 
         except Exception as e:
             self.online = False
-            RNS.log("A serial port error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
-            RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
+            if not self.detached:
+                RNS.log("A serial port error occurred, the contained exception was: "+str(e), RNS.LOG_ERROR)
+                RNS.log("The interface "+str(self)+" experienced an unrecoverable error and is now offline.", RNS.LOG_ERROR)
 
-            if RNS.Reticulum.panic_on_interface_error:
-                RNS.panic()
+                if RNS.Reticulum.panic_on_interface_error: RNS.panic()
 
-            RNS.log("Reticulum will attempt to reconnect the interface periodically.", RNS.LOG_ERROR)
+                RNS.log("Reticulum will attempt to reconnect the interface periodically.", RNS.LOG_ERROR)
 
         self.online = False
 
@@ -1570,10 +1570,14 @@ class RNodeInterface(Interface):
         except Exception as e:
             RNS.log(f"An error occurred while detaching {self}: {e}", RNS.LOG_ERROR)
 
-        if self.use_ble: self.ble.close()
-        if self.use_tcp:
+        if self.use_ble:
+            self.ble.close()
+            self.ble.cleanup()
+        elif self.use_tcp:
             time.sleep(0.5)
             self.tcp.close()
+        else:
+            self.serial.close()
 
     def should_ingress_limit(self):
         return False
@@ -1651,6 +1655,9 @@ class BLEConnection(BluetoothDispatcher):
             data = self.owner.ble_rx_queue
             self.owner.ble_rx_queue = b""
             return data
+
+    def cleanup(self):
+        self.should_run = False
 
     def close(self):
         try:
