@@ -215,6 +215,14 @@ instance_name = default
 # required_discovery_value = 14
 
 
+# You can disable allowing interfaces to be attached, de-
+# tached or reloaded via rnstatus, for example if running
+# on a shared system where users with normal RPC access
+# should not be allowed to control interface states.
+
+# enable_interface_management = no
+
+
 # You can configure Reticulum to panic and forcibly close
 # if an unrecoverable interface error occurs, such as the
 # hardware device for an interface disappearing. This is

@@ -159,7 +159,8 @@ def get_remote_status(destination_hash, include_lstats, include_profiling, ident
 def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=False, astats=False, pstats=False, lstats=False,
                   sorting=None, sort_reverse=False, remote=None, management_identity=None, must_exit=True, rns_instance=None,
                   traffic_totals=False, discovered_interfaces=False, config_entries=False, burst_filter=False, blocked_ips=False,
-                  queue_stats=False, pps=False, profiling=False, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT):
+                  queue_stats=False, pps=False, profiling=False, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT,
+                  attach=None, detach=None, reload=None):
   
     if remote: require_shared = False
     else: require_shared = True
@@ -175,6 +176,37 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
         print("No shared RNS instance available to get status from")
         if must_exit: exit(1)
         else: return
+
+    if attach:
+        result = reticulum.attach_interface(attach)
+        if   result == True:  print(f"Interface {attach} was attached")
+        elif result == False: print(f"Could not attach interface {attach}")
+        elif result == None:  print(f"The interface {attach} does not exist")
+        else:                 print(f"Unknown error while attaching interface {attach}")
+        
+        if result == True: exit(0)
+        else:              exit(1)
+
+    if detach:
+        result = reticulum.detach_interface(detach)
+        if   result == True:  print(f"Interface {detach} was detached")
+        elif result == False: print(f"Could not detach interface {detach}")
+        elif result == None:  print(f"The interface {detach} does not exist")
+        else:                 print(f"Unknown error while detaching interface {detach}")
+        
+        if result == True: exit(0)
+        else:              exit(1)
+
+    if reload:
+        result = reticulum.reload_interface(reload)
+        if   result == True:  print(f"Interface {reload} was reloaded")
+        elif result == False: print(f"Could not reload interface {reload}")
+        elif result == None:  print(f"The interface {reload} does not exist")
+        else:                 print(f"Unknown error while reloading interface {reload}")
+        
+        if result == True: exit(0)
+        else:              exit(1)
+
 
     link_count = None
     active_link_count = None
@@ -832,6 +864,10 @@ def main(must_exit=True, rns_instance=None):
         parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
         parser.add_argument("--version", action="version", version="rnstatus {version}".format(version=__version__))
 
+        parser.add_argument("--attach", action="store", metavar="name", help="Attach interface by name", default=None, type=str)
+        parser.add_argument("--detach", action="store", metavar="name", help="Detach interface by name", default=None, type=str)
+        parser.add_argument("--reload", action="store", metavar="name", help="Reload interface by name", default=None, type=str)
+
         parser.add_argument("-a", "--all", action="store_true", help="show all interfaces", default=False)
         parser.add_argument("-A", "--announce-stats", action="store_true", help="show announce stats", default=False)
         parser.add_argument("-P", "--pr-stats", action="store_true", help="show path request stats", default=False)
@@ -898,7 +934,8 @@ def main(must_exit=True, rns_instance=None):
                           astats=args.announce_stats, pstats=args.pr_stats, lstats=args.link_stats, sorting=args.sort, sort_reverse=args.reverse,
                           remote=args.R, management_identity=args.i, remote_timeout=args.w, must_exit=must_exit, rns_instance=rns_instance,
                           traffic_totals=args.totals, discovered_interfaces=args.discovered, config_entries=args.D, burst_filter=args.burst,
-                          blocked_ips=args.blocked_ips, queue_stats=args.queues, pps=args.pps, profiling=args.profiling)
+                          blocked_ips=args.blocked_ips, queue_stats=args.queues, pps=args.pps, profiling=args.profiling,
+                          attach=args.attach, detach=args.detach, reload=args.reload)
 
     except KeyboardInterrupt:
         print("")

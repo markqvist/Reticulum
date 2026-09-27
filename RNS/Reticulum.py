@@ -1,6 +1,6 @@
 # Reticulum License
 #
-# Copyright (c) 2016-2025 Mark Qvist
+# Copyright (c) 2016-2026 Mark Qvist
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -257,6 +257,7 @@ class Reticulum:
         Reticulum.__local_hops_delta                  = False
         Reticulum.__link_mtu_discovery                = Reticulum.LINK_MTU_DISCOVERY
         Reticulum.__remote_management_enabled         = False
+        Reticulum.__interface_management_enabled      = True
         Reticulum.__use_implicit_proof                = True
         Reticulum.__allow_probes                      = False
         Reticulum.__discovery_enabled                 = False
@@ -548,6 +549,11 @@ class Reticulum:
                     v = self.config["reticulum"].as_bool(option)
                     if v == True: Reticulum.__remote_management_enabled = True
                 
+                if option == "enable_interface_management":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v == False: Reticulum.__interface_management_enabled = False
+                    else:          Reticulum.__interface_management_enabled = True
+                
                 if option == "remote_management_allowed":
                     v = self.config["reticulum"].as_list(option)
                     for hexhash in v:
@@ -757,7 +763,79 @@ class Reticulum:
 
             RNS.log("System interfaces are ready", RNS.LOG_VERBOSE)
 
-    def _synthesize_interface(self, config, name, instance_init=False):
+    def _attach_interface(self, name):
+        if not Reticulum.__interface_management_enabled: return False
+        try:
+            interfaces = { iface.name: iface for iface in RNS.Transport.interfaces }
+            if name in interfaces:
+                RNS.log(f"Attempt to attach existing interface \"{name}\"", RNS.LOG_WARNING)
+                return False
+
+            else:
+                try: config = ConfigObj(self.configpath)
+                except Exception as e:
+                    RNS.log(f"Could not parse the configuration at {self.configpath} during interface attach", RNS.LOG_ERROR)
+                    return None
+
+                if "interfaces" in config:
+                    if not name in config["interfaces"]:
+                        RNS.log(f"Cannot attach interface \"{name}\", no configuration entry exists", RNS.LOG_ERROR)
+                        return None
+
+                    else:
+                        interface_config = config["interfaces"][name]
+                        self._synthesize_interface(interface_config, name, force_attach=True)
+                        RNS.log(f"Interface \"{name}\" was attached", RNS.LOG_NOTICE)
+                        return True
+
+        except Exception as e: RNS.log(f"Error while detaching interface \"{name}\": {e}", RNS.LOG_ERROR)
+        return False
+
+    def _detach_interface(self, name):
+        if not Reticulum.__interface_management_enabled: return False
+        try:
+            interfaces = { iface.name: iface for iface in RNS.Transport.interfaces }
+            if not name in interfaces:
+                RNS.log(f"Attempt to detach non-existing interface \"{name}\"", RNS.LOG_WARNING)
+                return None
+
+            else:
+                interface = interfaces[name]
+                if isinstance(interface, I2PInterface.I2PInterface):           return False
+                if isinstance(interface, LocalInterface.LocalClientInterface): return False
+                if isinstance(interface, LocalInterface.LocalServerInterface): return False
+                if interface.spawned_interfaces:
+                    if   type(interface.spawned_interfaces) == dict: spawned = list(interface.spawned_interfaces.values())
+                    elif type(interface.spawned_interfaces) == list: spawned = interface.spawned_interfaces.copy()
+                    for s in spawned:
+                        s.detach()
+                        s.teardown()
+                        RNS.Transport.remove_interface(s)
+
+                interface.detach()
+                RNS.Transport.remove_interface(interface)
+                RNS.log(f"Interface \"{name}\" was detached", RNS.LOG_NOTICE)
+                return True
+
+        except Exception as e: RNS.log(f"Error while detaching interface \"{name}\": {e}", RNS.LOG_ERROR); RNS.trace_exception(e)
+        return False
+
+    def _reload_interface(self, name):
+        if not Reticulum.__interface_management_enabled: return False
+        interfaces = { iface.name: iface for iface in RNS.Transport.interfaces }
+        if not name in interfaces:
+            RNS.log(f"Attempt to reload non-existing interface \"{name}\"", RNS.LOG_WARNING)
+            return None
+
+        if self._detach_interface(name) and self._attach_interface(name):
+            RNS.log(f"Interface \"{name}\" was reloaded", RNS.LOG_NOTICE)
+            return True
+
+        else:
+            RNS.log(f"Could not reload interface \"{name}\"", RNS.LOG_NOTICE)
+            return False
+
+    def _synthesize_interface(self, config, name, instance_init=False, force_attach=False):
         c = config
         interface_mode = Interface.Interface.MODE_FULL
         
@@ -1009,7 +1087,7 @@ class Reticulum:
                     interface.final_init()
 
             interface = None
-            if (("interface_enabled" in c) and c.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True):
+            if (("interface_enabled" in c) and c.as_bool("interface_enabled") == True) or (("enabled" in c) and c.as_bool("enabled") == True) or force_attach:
                 interface_config = c
                 interface_config["name"] = name
                 interface_config["selected_interface_mode"] = interface_mode
@@ -1113,7 +1191,6 @@ class Reticulum:
                         except Exception as e:
                             RNS.log(f"External interface initialisation failed for {interface_type} / {name}", RNS.LOG_ERROR)
                             RNS.trace_exception(e)
-
             else:
                 RNS.log("Skipping disabled interface \""+name+"\"", RNS.LOG_DEBUG)
 
@@ -1299,6 +1376,12 @@ class Reticulum:
                     if path == "profiling_results":        self.rpc_return(conn, self.get_profiling_results())
                     if path == "blackholed_identities":    self.rpc_return(conn, self.get_blackholed_identities())
                     if path == "is_blackholed":            self.rpc_return(conn, self.is_blackholed(call["identity_hash"]))
+
+                if "manage" in call:
+                    path = call["manage"]
+                    if path == "attach_interface":         self.rpc_return(conn, self.attach_interface(call["name"]))
+                    if path == "detach_interface":         self.rpc_return(conn, self.detach_interface(call["name"]))
+                    if path == "reload_interface":         self.rpc_return(conn, self.reload_interface(call["name"]))
 
                 if "drop" in call:
                     path = call["drop"]
@@ -1867,21 +1950,39 @@ class Reticulum:
             if RNS.Profiler.ran(): return RNS.Profiler.results()
             else: return None
 
-    def halt_interface(self, interface):
-        pass
+    def attach_interface(self, interface_name):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = self.get_rpc_client()
+            rpc_connection.send_bytes(mp.packb({"manage": "attach_interface", "name": interface_name}))
+            response = mp.unpackb(rpc_connection.recv_bytes())
+            return response
+            
+        else: return self._attach_interface(interface_name)
 
-    def resume_interface(self, interface):
-        pass
+    def detach_interface(self, interface_name):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = self.get_rpc_client()
+            rpc_connection.send_bytes(mp.packb({"manage": "detach_interface", "name": interface_name}))
+            response = mp.unpackb(rpc_connection.recv_bytes())
+            return response
+            
+        else: return self._detach_interface(interface_name)
 
-    def reload_interface(self, interface):
-        pass
+    def reload_interface(self, interface_name):
+        if self.is_connected_to_shared_instance:
+            rpc_connection = self.get_rpc_client()
+            rpc_connection.send_bytes(mp.packb({"manage": "reload_interface", "name": interface_name}))
+            response = mp.unpackb(rpc_connection.recv_bytes())
+            return response
+            
+        else: return self._reload_interface(interface_name)
 
     def get_blackholed_identities(self):
         if self.is_connected_to_shared_instance:
-                rpc_connection = self.get_rpc_client()
-                rpc_connection.send_bytes(mp.packb({"get": "blackholed_identities"}))
-                response = mp.unpackb(rpc_connection.recv_bytes())
-                return response
+            rpc_connection = self.get_rpc_client()
+            rpc_connection.send_bytes(mp.packb({"get": "blackholed_identities"}))
+            response = mp.unpackb(rpc_connection.recv_bytes())
+            return response
             
         else: return RNS.Transport.blackholed_identities
 
@@ -1892,10 +1993,10 @@ class Reticulum:
         if len(identity_hash) != RNS.Reticulum.TRUNCATED_HASHLENGTH//8: raise ValueError("Invalid identity hash length for blackhole check")
 
         if self.is_connected_to_shared_instance:
-                rpc_connection = self.get_rpc_client()
-                rpc_connection.send_bytes(mp.packb({"get": "is_blackholed", "identity_hash": identity_hash}))
-                response = mp.unpackb(rpc_connection.recv_bytes())
-                return response
+            rpc_connection = self.get_rpc_client()
+            rpc_connection.send_bytes(mp.packb({"get": "is_blackholed", "identity_hash": identity_hash}))
+            response = mp.unpackb(rpc_connection.recv_bytes())
+            return response
 
         else: return identity_hash in RNS.Transport.blackholed_identities
 
