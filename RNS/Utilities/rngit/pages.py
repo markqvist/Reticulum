@@ -123,9 +123,10 @@ class NomadNetworkNode():
     # want to use tabs, three spaces is all you get.
     TAB_WIDTH       = "   "
 
-    RENDERABLE_EXTS = [".md", ".mu"]
-    RENDER_DEFAULT  = [".md", ".mu"]
-    IMAGE_EXTS      = [".webp", ".png", ".jpg", ".jpeg", ".gif", ".tiff", ".tif", ".bmp"]
+    CONVERTABLE_EXTS = [".md"]
+    RENDERABLE_EXTS  = [".md", ".mu"]
+    RENDER_DEFAULT   = [".md", ".mu"]
+    IMAGE_EXTS       = [".webp", ".png", ".jpg", ".jpeg", ".gif", ".tiff", ".tif", ".bmp"]
 
     def __init__(self, owner=None):
         if not owner: raise TypeError(f"Invalid owner {owner} for {self}")
@@ -743,6 +744,7 @@ class NomadNetworkNode():
         file_path = file_path.removeprefix("./").replace("/./", "/")
         file_ext = os.path.splitext(file_path)[1].lower()
         renderable = file_ext in self.RENDERABLE_EXTS
+        convertable = file_ext in self.CONVERTABLE_EXTS
         if not renderable: raw = True; render = False
         else:
             if raw: render = False
@@ -769,14 +771,16 @@ class NomadNetworkNode():
         nav_parts.append(">>\n" + breadcrumb + "\n")
         sep = self.icon("sep")
 
-        dl_link  = self.m_link("Download", self.FILE_DOWNLOAD, g=group_name, r=repo_name, ref=ref, path=file_path)
+        dl_link = self.m_link("Download", self.FILE_DOWNLOAD, g=group_name, r=repo_name, ref=ref, path=file_path)
         if not renderable: nav_parts.append(f"\nDisplaying Raw {sep} {dl_link}\n")
         else:
             rnd_link = self.m_link("View rendered", self.PATH_BLOB, g=group_name, r=repo_name, ref=ref, path=file_path, render="y")
             raw_link = self.m_link("View raw", self.PATH_BLOB, g=group_name, r=repo_name, ref=ref, path=file_path, raw="y")
+            mu_link = self.m_link("as micron", self.FILE_DOWNLOAD, g=group_name, r=repo_name, ref=ref, path=file_path, fmt="mu")
             if render: render_controls = f"Displaying Rendered {sep} {raw_link}"
             else:      render_controls = f"Displaying Raw {sep} {rnd_link}"
-            nav_parts.append(f"\n{render_controls} {sep} {dl_link}\n")
+            if convertable: nav_parts.append(f"\n{render_controls} {sep} {dl_link} {self.CLR_DIM}{mu_link}`f\n")
+            else:           nav_parts.append(f"\n{render_controls} {sep} {dl_link}\n")
 
         # Get blob info
         blob_info = self.get_blob_info(repo_path, resolved_ref, file_path)
@@ -1874,9 +1878,15 @@ class NomadNetworkNode():
         group_name = data.get("var_g", "")   if data else ""
         repo_name = data.get("var_r", "")    if data else ""
         ref = data.get("var_ref", "HEAD")    if data else "HEAD"
+        file_fmt  = data.get("var_fmt", "")  if data else ""
         file_path = data.get("var_path", "") if data else ""
         file_path = urllib.parse.unquote_plus(file_path)
         file_name = os.path.basename(file_path)
+        file_ext  = os.path.splitext(file_path)[1].lower()
+        convertable = file_ext in self.CONVERTABLE_EXTS
+        if file_fmt and not convertable:
+            RNS.log(f"Download conversion request for non-convertable file", RNS.LOG_DEBUG)
+            return None
 
         repo = self.get_accessible_repository(remote_identity, group_name, repo_name)
         if not repo:
@@ -1903,7 +1913,47 @@ class NomadNetworkNode():
             stream = self.get_blob_stream(repo_path, resolved_ref, file_path)
             if stream is not None:
                 self.owner.download_succeeded(group_name, repo_name, remote_identity)
-                return [stream, {"name": file_name.encode("utf-8")}]
+                if not file_fmt: return [stream, {"name": file_name.encode("utf-8")}]
+                elif file_fmt == "mu":
+                    link = self.active_links.get(link_id)
+                    if not link:
+                        RNS.log(f"Could not resolve link for file conversion of {file_path}", RNS.LOG_WARNING)
+                        return None
+
+                    if not hasattr(link, "temporary_directories"): link.temporary_directories = []
+                    tmpdir = tempfile.TemporaryDirectory()
+                    link.temporary_directories.append(tmpdir)
+
+                    stem = os.path.splitext(os.path.basename(file_path))[0]
+                    response_name = stem + ".mu"
+
+                    try:
+                        path_components = file_path.strip("/").split("/")
+                        path = "/".join(path_components[:-1])+"/" if len(path_components) > 1 else ""
+                        url_scope = f":/page/blob.mu`g={group_name}|r={repo_name}|ref={ref}|path={path}"
+                        mdc = MarkdownToMicron(max_width=self.MAX_RENDER_WIDTH, syntax_highlighter=self.highlighter, url_scope=url_scope)
+                        mu = mdc.format_block(stream.read().decode("utf-8")).rstrip().encode("utf-8")
+
+                        if not mu:
+                            if tmpdir in link.temporary_directories: link.temporary_directories.remove(tmpdir)
+                            tmpdir.cleanup()
+                            return None
+
+                        fd, spool_path = tempfile.mkstemp(prefix=stem+".", suffix=".mu", dir=tmpdir.name)
+                        os.close(fd)
+                        with open(spool_path, "wb") as f: f.write(mu)
+
+                        spool = open(spool_path, "rb")
+                        return [spool, {"name": f"{os.path.splitext(file_name)[0]}.mu".encode("utf-8")}]
+
+                    except Exception as e:
+                        RNS.log(f"Error during file conversion of {file_path} for {link}: {e}", RNS.LOG_WARNING)
+                        if tmpdir in link.temporary_directories: link.temporary_directories.remove(tmpdir)
+                        try: tmpdir.cleanup()
+                        except Exception: pass
+                        return None
+
+                else: return None
             
             else:
                 RNS.log(f"Could not resolve blob stream for download request {group_name}/{repo_name}/{ref}/{file_path}", RNS.LOG_WARNING)
