@@ -2,7 +2,7 @@ Recently, and mostly from people who I've never seen before, the opinions about 
 
 - The decision to no longer mirror release notes on GitHub.
 - Some people feeling there were too many "barriers to entry" to joining RNS development.
-- The project not really being "open source" because random strangers couldn't just "contribute".
+- The project not really being "[open source](https://reticulum.network/manual/brandolinis.html#open-source-means-open-source)" because random strangers couldn't just "contribute".
 
 Joakim posted some very relevant observations about how Reticulum operates, along with the following quote:
 
@@ -10,7 +10,7 @@ Joakim posted some very relevant observations about how Reticulum operates, alon
 
 That E. F. Schumacher quote perfectly illustrates the ontological schism that makes it so tiresome to deal with stuff like this.
 
-There is, in this day and age, between different people, widely different base conceptual integrations of what "open source" means. For many people, "open source" has become synonymous **not** with skilled people working together in a coordinated and careful way on complex engineering challenges, but a sort of growth- and attention-focused "free-for-all" *behavioral* codex that must be followed above all else; a *social* modus operandi of fake inclusivity where everyone "should have their voice heard", and adherence to that specific process is weighed much higher than the final results.
+There is, in this day and age, between different people, widely different base conceptual integrations of what "open source" means. For many people, "open source" has become synonymous **not** with skilled people working together in a coordinated and careful way on complex engineering challenges, but a sort of growth- and attention-focused "free-for-all" *behavioral* codex that must be followed above all else; a *social* modus operandi of fake inclusivity where everyone "should have their voice heard", and adherence to that specific *process* is weighed much higher than the final results.
 
 I do not subscribe to, and consequently do not operate the Reticulum project under *any* versions of that idea.
 
@@ -28,7 +28,7 @@ I do not subscribe to, and consequently do not operate the Reticulum project und
 
 Can you imagine how much time that wasted? Can you imagine what we could have accomplished with that time instead?
 
-The only thing that this creates is *noise* and confusion. Clogging up the mental and physical workspaces, of people who are actually investing time and effort on the project with stuff like that is objectively just taking time that could have been used on development, and replacing it with *nothing*.
+The only thing that this creates is *noise* and confusion. Clogging up the mental and physical workspaces, of people who are actually investing time and effort on the project, with stuff like that is objectively just taking time that could have been used on development, and replacing it with *nothing*.
 
 I was receiving *actual* bug reports, pull requests, proper technical investigations and patches via methods outside GitHub and "public" internet-based channels *way* before GitHub interaction and similar was closed down. That was were almost *all* of the real contributions were coming from, anyway. Apparently, and not unsurprisingly, the people who has invested the time and effort to understand Reticulum also prefer to collaborate in this way. Since leaving the GitHub madhouse behind, the signal-to-noise ratio has **significantly** increased.
 
@@ -46,7 +46,7 @@ When this pattern repeats, over and over, the only sensible, measured and constr
 
 So, now it's your turn. Go look at the diffs for the last six months. What does it look like I have been doing?
 
-But I will be damned straight with you all, and say that part of that solution is **absolutely** to erect barriers to entry. You can fucking bet your arse on that. I don't want opinionated man-babies running around in my living-room at 3am. I don't want to clean up the floor after a wannabe "dev-ops stars" with LLMs and a peripheral case of influencitis has puked all over the office.
+But I will be damned straight with you all, and say that part of that solution is **absolutely** to erect barriers to entry. You can fucking bet your arse on that. I don't want opinionated man-babies running around in my living-room at 3am. I don't want to clean up the floor after a wannabe "dev-ops star" with LLMs and a peripheral case of influencitis has puked all over the office.
 
 - If you want to join the fun of changing core networking code that thousands of people rely on for communication
    daily, you better know what the fuck you're doing.
