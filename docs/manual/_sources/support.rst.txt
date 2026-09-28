@@ -28,9 +28,6 @@ Donations are gratefully accepted via the following channels:
     Ko-Fi:
     https://ko-fi.com/markqvist
 
-Are certain features in the development roadmap are important to you or your
-organisation? Make them a reality quickly by sponsoring their implementation.
-
 .. raw:: latex
 
     \newpage

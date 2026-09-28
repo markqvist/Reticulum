@@ -24,9 +24,6 @@ Ko-Fi:
 https://ko-fi.com/markqvist
 ```
 
-Are certain features in the development roadmap are important to you or your
-organisation? Make them a reality quickly by sponsoring their implementation.
-
 ## Provide Feedback
 
 Feedback on the usage, functioning and potential dysfunctioning of any and
