@@ -14,7 +14,7 @@ In order to keep the discourse navigable and useful, the following types of post
 
 - Spam.
 - Questions that have already been adequately answered elsewhere. Utilize search functions.
-- Low-effort posts or comments that contain no actual information or useful substance. [This is not a tea-house](./This Is Not a Teahouse.md).
+- Low-effort posts or comments that contain no actual information or useful substance. [This is not a tea-house](./This%20Is%20Not%20a%20Teahouse.md).
 - Post or comments solely containing personal opinions or beliefs without adding anything to the discussion. Facebook and X exists.
 - Content that simply waste the developer's / maintainer's time with completely obvious "ideas", "insights" or "recommendations". Yes, we have *at least* 8 neurons ourselves.
 - Posts that fail to understand that developing a highly complex software project with a very small amount of resources and people takes time. Imagining perfection on our behalf is useless.
@@ -27,7 +27,7 @@ If you find this "harsh", "unfair" or "unwelcoming", go somewhere else. This is 
 
 ## Reporting Bugs
 
-If you have found a bug or issue in this project, please report it to the maintainer over LXMF, or if strictly not possible, over email. Detailed and serious bug reports can also be posted in the various on-network forums and RRC channels that the developers frequent. Due to the realities described in [This Is Not a Teahouse](./This Is Not a Teahouse.md), there is no way to report issues or request features over the internet.
+If you have found a bug or issue in this project, please report it to the maintainer over LXMF, or if strictly not possible, over email. Detailed and serious bug reports can also be posted in the various on-network forums and RRC channels that the developers frequent. Due to the realities described in [This Is Not a Teahouse](./This%20Is%20Not%20a%20Teahouse.md), there is no way to report issues or request features over the internet.
 
 ## Writing Code
 
