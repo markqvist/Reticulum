@@ -1,11 +1,13 @@
-### 2026-09-11: RNS 1.5.4
+### 2026-09-28: RNS 1.5.5
 
-This release improves RNode BLE connectivity reliability on desktop operating systems.
+This release adds live interface attach, detach and reload, as well as a few improvements to `rngit` and fixes discovered `I2PInterface` configuration snippets.
 
 **Changes**
-- Fixed RNode BLE device address acquisition on windows, by **Nickie Deuxyeux**
-- Fixed RNode BLE re-connection deadlock on desktop
-- Improved RNode BLE reconnect reliability
+- Added ability to `--attach`, `--detach` and `--reload` interfaces to the `rnstatus` utility
+- Added ability to download micron-converted versions of markdown files to the `rngit` page node
+- Added workdoc counts to filter scope links to the `rngit` page node
+- Fixed `I2PInterface` discovery config snippets not including `.b32.i2p`
+- Updated documentation and manual
 
 **Verified Retrieval**
 You can retrieve and verify this release over Reticulum using the built-in `rngit release` utility. To retrieve only the installation `.whl` package, and the release manifest for future updates, you can use:
@@ -34,6 +36,15 @@ rnid -i bc7291552be7a58f361522990465165c -V rns_*.rsm *.rsg
 ```
 
 The `rnid` utility will then verify the signatures, and display whether they are valid. If the signature cannot be verified, the release has been tampered with and should be discarded.
+
+### 2026-09-11: RNS 1.5.4
+
+This release improves RNode BLE connectivity reliability on desktop operating systems.
+
+**Changes**
+- Fixed RNode BLE device address acquisition on windows, by **Nickie Deuxyeux**
+- Fixed RNode BLE re-connection deadlock on desktop
+- Improved RNode BLE reconnect reliability
 
 ### 2026-09-10: RNS 1.5.3
 
