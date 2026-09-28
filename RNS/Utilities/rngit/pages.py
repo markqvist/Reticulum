@@ -1480,6 +1480,9 @@ class NomadNetworkNode():
             content = self.m_heading("Error", 2) + "\nThe requested repository was not found.\n"
             return self.render_template(content, st=st)
 
+        work_path = f"{repo['path']}.work"
+        scopes_to_show = ["active", "completed", "proposed"] if scope == "all" else [scope]
+
         content_parts = []
         nav_parts = []
 
@@ -1494,17 +1497,46 @@ class NomadNetworkNode():
         cmplt_s = "`_" if scope == "completed" else ""
         prpsd_s = "`_" if scope == "proposed" else ""
         all_s = "`_" if scope == "all" else ""
+
+        # Count work documents
+        scope_counts = {"active": 0, "completed": 0, "proposed": 0}
+        for s in ["active", "completed", "proposed"]:
+            try:
+                folder_path = os.path.join(work_path, s)
+                if os.path.isdir(folder_path):
+                    for entry in os.listdir(folder_path):
+                        try:
+                            doc_dir = os.path.join(folder_path, entry)
+                            if not os.path.isdir(doc_dir): continue
+
+                            doc_id = int(entry)
+                            read_access = self.resolve_doc_permission(remote_identity, group_name, repo_name, doc_id, self.owner.PERM_READ)
+                            if not read_access: continue
+
+                            root_path = os.path.join(doc_dir, "root")
+                            if not os.path.isfile(root_path): continue
+                            scope_counts[s] += 1
+                        except Exception as e: RNS.trace_exception(e)
+            except Exception as e: RNS.trace_exception(e)
+        
+        force_counts = True
+        adc = scope_counts['active']
+        cdc = scope_counts['completed']
+        pdc = scope_counts['proposed']
+        tdc = adc+cdc+pdc
+        adc_str = f" ({adc})" if force_counts or (not scope == "active"    and adc) else ""
+        cdc_str = f" ({cdc})" if force_counts or (not scope == "completed" and cdc) else ""
+        pdc_str = f" ({pdc})" if force_counts or (not scope == "proposed"  and pdc) else ""
+        tdc_str = f" ({tdc})" if force_counts or (not scope == "all"       and tdc) else ""
+
         filter_links = []
-        filter_links.append(active_s+self.m_link("Active", self.PATH_WORK, g=group_name, r=repo_name, scope="active")+active_s)
-        filter_links.append(cmplt_s+self.m_link("Completed", self.PATH_WORK, g=group_name, r=repo_name, scope="completed")+cmplt_s)
-        filter_links.append(prpsd_s+self.m_link("Proposed", self.PATH_WORK, g=group_name, r=repo_name, scope="proposed")+prpsd_s)
-        filter_links.append(all_s+self.m_link("All", self.PATH_WORK, g=group_name, r=repo_name, scope="all")+all_s)
+        filter_links.append(active_s+self.m_link("Active", self.PATH_WORK, g=group_name, r=repo_name, scope="active")+active_s+adc_str)
+        filter_links.append(cmplt_s+self.m_link("Completed", self.PATH_WORK, g=group_name, r=repo_name, scope="completed")+cmplt_s+cdc_str)
+        filter_links.append(prpsd_s+self.m_link("Proposed", self.PATH_WORK, g=group_name, r=repo_name, scope="proposed")+prpsd_s+pdc_str)
+        filter_links.append(all_s+self.m_link("All", self.PATH_WORK, g=group_name, r=repo_name, scope="all")+all_s+tdc_str)
         content_parts.append(f" {sep} ".join(filter_links) + "\n\n")
 
         # Load work documents
-        work_path = f"{repo['path']}.work"
-        scopes_to_show = ["active", "completed", "proposed"] if scope == "all" else [scope]
-
         for s in scopes_to_show:
             folder_path = os.path.join(work_path, s)
 
@@ -1536,11 +1568,11 @@ class NomadNetworkNode():
             docs.sort(key=lambda x: max(x["created"], x["edited"]), reverse=True)
 
             if not docs:
-                content_parts.append(self.m_heading(f"{s.capitalize()} ({len(docs)})", 2)+f"\n`*No {s} work documents`*\n")
+                content_parts.append(self.m_heading(f"{s.capitalize()}", 2)+f"\n`*No {s} work documents`*\n")
                 content_parts.append("\n")
 
             else:
-                content_parts.append(self.m_heading(f"{s.capitalize()} ({len(docs)})", 2))
+                content_parts.append(self.m_heading(f"{s.capitalize()}", 2))
                 content_parts.append("\n")
 
                 for doc in docs:
