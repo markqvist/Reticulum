@@ -58,10 +58,12 @@ class LocalClientInterface(Interface):
     def __init__(self, owner, name, target_port = None, connected_socket=None, socket_path=None):
         super().__init__()
 
-        self.epoll_backend    = False
-        self.HW_MTU           = 262144
-        self.online           = False
-        self.ifac_size        = self.DEFAULT_IFAC_SIZE
+        self.owner         = owner
+        self.bitrate       = 1_000_000_000
+        self.epoll_backend = False
+        self.HW_MTU        = 262144
+        self.online        = False
+        self.ifac_size     = self.DEFAULT_IFAC_SIZE
         
         if socket_path != None and RNS.Reticulum.get_instance().use_af_unix: self.socket_path = f"\0rns/{socket_path}"
         else: self.socket_path = None
@@ -110,8 +112,6 @@ class LocalClientInterface(Interface):
             self.target_port = target_port
             self.connect()
 
-        self.owner   = owner
-        self.bitrate = 1_000_000_000
         self.online  = True
         self.writing = False
 
