@@ -345,6 +345,8 @@ class InterfaceAnnounceHandler:
                     if INTERFACE_TYPE in unpacked:
                         interface_type = unpacked[INTERFACE_TYPE]
                         name           = self.sanitize_name(unpacked[NAME])
+                        impl_name      = unpacked[TRANSPORT_IMPL] if TRANSPORT_IMPL in unpacked else None
+                        impl_version   = unpacked[TRANSPORT_VERS] if TRANSPORT_VERS in unpacked else None
 
                         if type(unpacked[TRANSPORT]) != bool: raise ValueError("Invalid data in transport field of announce")
                         if type(unpacked[LATITUDE])  not in [type(None), float]: raise ValueError("Invalid data in latitude field of announce")
@@ -359,6 +361,8 @@ class InterfaceAnnounceHandler:
                                 raise ValueError("Invalid data in reachable_on field of announce")
 
                         info = {"type":         interface_type,
+                                "impl_name":    impl_name,
+                                "version":      impl_version,
                                 "transport":    unpacked[TRANSPORT],
                                 "name":         name or f"Discovered {interface_type}",
                                 "received":     time.time(),
@@ -574,11 +578,13 @@ class InterfaceDiscovery():
             interface_type = info["type"]
             discovery_hash = info["discovery_hash"]
             discovered_type = info["type"]
+            has_impl_info = "impl_name" in info and "version" in info and info["impl_name"] and info["version"]
+            version_str = f" ({info['impl_name']} {info['version']})" if has_impl_info else " (unknown implementation)"
             if not discovered_type in self.DISCOVERABLE_TYPES: return
             hops = info["hops"]; ms = "" if hops == 1 else "s"
             filename = RNS.hexrep(discovery_hash, delimit=False)
             filepath = os.path.join(self.storagepath, filename)
-            RNS.log(f"Discovered {interface_type} {hops} hop{ms} away with stamp value {value}: {name}", RNS.LOG_DEBUG)
+            RNS.log(f"Discovered {interface_type}{version_str} {hops} hop{ms} away with stamp value {value}: {name}", RNS.LOG_DEBUG)
             with self.discovery_lock:
                 if not os.path.isfile(filepath):
                     try:

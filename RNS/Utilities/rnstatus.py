@@ -243,6 +243,8 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         name = i["name"]
                         if_type = i["type"]
                         status = i["status"]
+                        has_impl_info = "impl_name" in i and "version" in i and i["impl_name"] and i["version"]
+                        impl_str = f"{i['impl_name']} {i['version']}" if has_impl_info else "Unknown"
 
                         if status == "available": status_display = "Available"
                         elif status == "unknown": status_display = "Unknown"
@@ -279,6 +281,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
 
                         print(f"Name         : {name}")
                         print(f"Type         : {if_type}")
+                        print(f"Stack        : {impl_str}")
                         print(f"Status       : {status_display}")
                         print(f"Transport    : {transport_str}")
                         print(f"Distance     : {i['hops']} hop{'' if i['hops'] == 1 else 's'}")
@@ -303,12 +306,15 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                     except Exception as e: pass
               
             else:
-                print(f"{'Name':<25} {'Type':<12} {'Status':<12} {'Last Heard':<12} {'Value':<8} {'Location':<15}")
-                print("-" * 89)
+                print(f"{'Name':<25} {'Type':<10}   {'Status':<10} {'Last Heard':<12} {'Value':<7} {'Running':<16} {'Location':<15}")
+                print("-" * 110)
                 
                 for i in filtered_ifs:
                     try:
                         name = i["name"][:24] + "…" if len(i["name"]) > 24 else i["name"]
+                        has_impl_info = "impl_name" in i and "version" in i and i["impl_name"] and i["version"]
+                        impl_str = f"{i['impl_name']} {i['version']}" if has_impl_info else "Unknown"
+                        if len(impl_str) > 16: impl_str = impl_str[:15]+"…"
                         
                         if_type = i["type"].replace("Interface", "")
                         
@@ -341,7 +347,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                             location = f"{lat}, {lon}"
                         else: location = "N/A"
                         
-                        print(f"{name:<25} {if_type:<12} {status_display:<12} {last_heard_display:<12} {value:<8} {location:<15}")
+                        print(f"{name:<25} {if_type:<10} {status_display:<12} {last_heard_display:<12} {value:<7} {impl_str:<16} {location:<15}")
 
                     except Exception as e:
                         pass
