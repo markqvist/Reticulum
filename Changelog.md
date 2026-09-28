@@ -7,6 +7,7 @@ This release adds live interface attach, detach and reload, as well as a few imp
 - Added ability to download micron-converted versions of markdown files to the `rngit` page node
 - Added workdoc counts to filter scope links to the `rngit` page node
 - Fixed `I2PInterface` discovery config snippets not including `.b32.i2p`
+- Fixed a potential race condition in `LocalInterface` initialization.
 - Updated documentation and manual
 
 **Verified Retrieval**
