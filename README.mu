@@ -268,7 +268,7 @@ Please note that by default, installing Reticulum will `!require`! OpenSSL and P
 
 If you want to use the internal pure-python primitives, it is `!highly advisable`! that you have a good understanding of the risks that this pose, and make an informed decision on whether those risks are acceptable to you.
 
-Reticulum is relatively young software, and should be considered as such. While it has been built with cryptography best-practices very foremost in mind, it _has not_ been externally security audited, and there could very well be privacy or security breaking bugs. If you want to help out, or help sponsor an audit, please do get in touch.
+Having been in development for ten, and wider deployment for around five years, Reticulum is relatively young software, and should be considered as such. While it has been carefully built with cryptography best-practices very foremost in mind, there could very well still be privacy or security breaking bugs.
 
 >> Acknowledgements & Credits
 
