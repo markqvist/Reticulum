@@ -483,6 +483,9 @@ class InterfaceDiscovery():
     AUTOCONNECT_TYPES  = ["BackboneInterface", "TCPServerInterface"]
     DISCOVERABLE_TYPES = ["BackboneInterface", "TCPServerInterface", "I2PInterface", "RNodeInterface", "WeaveInterface", "KISSInterface"]
 
+    AUTOCONNECT_IMPLS  = ["RNS"]
+    AUTOCONNECT_MIN_V  = "1.5.2"
+
     AC_TRANSPORT_MODE  = RNS.Interfaces.Interface.Interface.MODE_GATEWAY
     AC_GRAVITY         = 0
 

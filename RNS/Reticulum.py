@@ -263,6 +263,7 @@ class Reticulum:
         Reticulum.__discovery_enabled                 = False
         Reticulum.__discover_interfaces               = False
         Reticulum.__autoconnect_discovered_interfaces = False
+        Reticulum.__autoconnect_unverified            = False
         Reticulum.__autoconnect_interface_mode        = None
         Reticulum.__autoconnect_interface_gravity     = None
         Reticulum.__autoconnect_announces_to_internal = None
@@ -627,6 +628,10 @@ class Reticulum:
                 if option == "autoconnect_discovered_interfaces":
                     v = self.config["reticulum"].as_int(option)
                     if v > 0: Reticulum.__autoconnect_discovered_interfaces = v
+
+                if option == "autoconnect_unverified_implementations":
+                    v = self.config["reticulum"].as_bool(option)
+                    Reticulum.__autoconnect_unverified = v
 
                 if option == "autoconnect_interface_mode":
                     v = None; dmode = str(self.config["reticulum"]["autoconnect_interface_mode"]).lower()
@@ -2141,6 +2146,10 @@ class Reticulum:
     @staticmethod
     def should_autoconnect_discovered_interfaces():
         return Reticulum.__autoconnect_discovered_interfaces > 0
+
+    @staticmethod
+    def should_autoconnect_unverified_implementations():
+        return Reticulum.__autoconnect_unverified
 
     @staticmethod
     def autoconnect_interface_mode():

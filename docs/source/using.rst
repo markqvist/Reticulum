@@ -1234,6 +1234,8 @@ For more fine-grained control over how discovered interfaces are auto-connected,
 
 * The ``autoconnect_announces_to_internal`` option allows you to specify that auto-connected interfaces should propagate announces to ``internal`` mode interfaces, even if the auto-connected interface's mode would normally not allow for this.
 
+* The ``autoconnect_unverified_implementations`` option will allow the interface discovery system to auto-connect to *any* announced interface, even those coming from unverified, experimental or potentially broken implementations. Be very careful with this option.
+
 Remote Management
 -----------------
 
