@@ -763,8 +763,8 @@ class Reticulum:
 
             RNS.log("System interfaces are ready", RNS.LOG_VERBOSE)
 
-    def _attach_interface(self, name):
-        if not Reticulum.__interface_management_enabled: return False
+    def _attach_interface(self, name, internal_forced=False):
+        if not internal_forced and not Reticulum.__interface_management_enabled: return False
         try:
             interfaces = { iface.name: iface for iface in RNS.Transport.interfaces }
             if name in interfaces:
@@ -791,8 +791,8 @@ class Reticulum:
         except Exception as e: RNS.log(f"Error while detaching interface \"{name}\": {e}", RNS.LOG_ERROR)
         return False
 
-    def _detach_interface(self, name):
-        if not Reticulum.__interface_management_enabled: return False
+    def _detach_interface(self, name, internal_forced=False):
+        if not internal_forced and not Reticulum.__interface_management_enabled: return False
         try:
             interfaces = { iface.name: iface for iface in RNS.Transport.interfaces }
             if not name in interfaces:
@@ -820,8 +820,8 @@ class Reticulum:
         except Exception as e: RNS.log(f"Error while detaching interface \"{name}\": {e}", RNS.LOG_ERROR); RNS.trace_exception(e)
         return False
 
-    def _reload_interface(self, name):
-        if not Reticulum.__interface_management_enabled: return False
+    def _reload_interface(self, name, internal_forced=False):
+        if not internal_forced and not Reticulum.__interface_management_enabled: return False
         interfaces = { iface.name: iface for iface in RNS.Transport.interfaces }
         if not name in interfaces:
             RNS.log(f"Attempt to reload non-existing interface \"{name}\"", RNS.LOG_WARNING)

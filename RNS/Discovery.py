@@ -710,9 +710,9 @@ class InterfaceDiscovery():
                     RNS.log(f"Error while de-registering auto-connected interface from transport: {e}", RNS.LOG_ERROR)
 
     def teardown_interface(self, interface):
-        interface.detach()
-        RNS.Transport.remove_interface(interface)
-        if interface in self.monitored_interfaces: self.monitored_interfaces.remove(interface)
+        was_detached = RNS.Reticulum.get_instance()._detach_interface(interface.name, internal_forced=True)
+        if was_detached and interface in self.monitored_interfaces: self.monitored_interfaces.remove(interface)
+        if not was_detached: RNS.log(f"Could not detach auto-connected interface {interface}", RNS.LOG_ERROR)
 
     def autoconnect_count(self):
         return len([i for i in RNS.Transport.interfaces if hasattr(i, "autoconnect_hash")])
