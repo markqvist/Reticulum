@@ -827,7 +827,7 @@ class Reticulum:
             RNS.log(f"Attempt to reload non-existing interface \"{name}\"", RNS.LOG_WARNING)
             return None
 
-        if self._detach_interface(name) and self._attach_interface(name):
+        if self._detach_interface(name, internal_forced=internal_forced) and self._attach_interface(name, internal_forced=internal_forced):
             RNS.log(f"Interface \"{name}\" was reloaded", RNS.LOG_NOTICE)
             return True
 
