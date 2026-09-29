@@ -882,15 +882,19 @@ class Reticulum:
                 
         ifac_netname = None
         if "networkname" in c:
-            if c["networkname"] != "": ifac_netname = c["networkname"]
+            if c["networkname"] == "None": RNS.log("Ambiguous IFAC network name \"None\", this value is ignored and an IFAC network name has NOT been set", RNS.LOG_WARNING)
+            if c["networkname"] != "" and c["networkname"] != "None": ifac_netname = c["networkname"]
         if "network_name" in c:
-            if c["network_name"] != "": ifac_netname = c["network_name"]
+            if c["network_name"] == "None": RNS.log("Ambiguous IFAC network name \"None\", this value is ignored and an IFAC network name has NOT been set", RNS.LOG_WARNING)
+            if c["network_name"] != "" and c["network_name"] != "None": ifac_netname = c["network_name"]
 
         ifac_netkey = None
         if "passphrase" in c:
-            if c["passphrase"] != "": ifac_netkey = c["passphrase"]
+            if c["passphrase"] == "None": RNS.log("Ambiguous IFAC passphrase \"None\", this value is ignored and an IFAC passphrase has NOT been set", RNS.LOG_WARNING)
+            if c["passphrase"] != "" and c["passphrase"] != "None": ifac_netkey = c["passphrase"]
         if "pass_phrase" in c:
-            if c["pass_phrase"] != "": ifac_netkey = c["pass_phrase"]
+            if c["pass_phrase"] == "None": RNS.log("Ambiguous IFAC passphrase \"None\", this value is ignored and an IFAC passphrase has NOT been set", RNS.LOG_WARNING)
+            if c["pass_phrase"] != "" and c["pass_phrase"] != "None": ifac_netkey = c["pass_phrase"]
                 
         ingress_control = True
         if "ingress_control" in c: ingress_control = c.as_bool("ingress_control")
@@ -1082,6 +1086,11 @@ class Reticulum:
 
                         interface.ifac_identity = RNS.Identity.from_bytes(interface.ifac_key)
                         interface.ifac_signature = interface.ifac_identity.sign(RNS.Identity.full_hash(interface.ifac_key))
+
+                    elif interface.discoverable and interface.discovery_publish_ifac:
+                        RNS.log(f"IFAC publishing was enabled for discoverable interface {interface}, but neither IFAC netname nor passphrase is configured", RNS.LOG_WARNING)
+                        RNS.log(f"Disabling IFAC publishing for {interface}", RNS.LOG_WARNING)
+                        interface.discovery_publish_ifac = False
 
                     RNS.Transport.add_interface(interface)
                     interface.final_init()

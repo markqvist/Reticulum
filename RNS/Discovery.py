@@ -234,8 +234,8 @@ class InterfaceAnnouncer():
                 info[MODULATION]      = self.sanitize(interface.discovery_modulation)
 
             if interface.discovery_publish_ifac == True:
-                info[IFAC_NETNAME]    = self.sanitize(interface.ifac_netname)
-                info[IFAC_NETKEY]     = self.sanitize(interface.ifac_netkey)
+                if interface.ifac_netname: info[IFAC_NETNAME] = self.sanitize(interface.ifac_netname)
+                if interface.ifac_netkey:  info[IFAC_NETKEY]  = self.sanitize(interface.ifac_netkey)
 
             packed    = msgpack.packb(info)
             infohash  = RNS.Identity.full_hash(packed)
@@ -375,8 +375,8 @@ class InterfaceAnnounceHandler:
                                 "longitude":    unpacked[LONGITUDE],
                                 "height":       unpacked[HEIGHT]}
 
-                        if IFAC_NETNAME in unpacked: info["ifac_netname"] = str(unpacked[IFAC_NETNAME])
-                        if IFAC_NETKEY  in unpacked: info["ifac_netkey"]  = str(unpacked[IFAC_NETKEY])
+                        if IFAC_NETNAME in unpacked and unpacked[IFAC_NETNAME] and type(unpacked[IFAC_NETNAME]) == str: info["ifac_netname"] = str(unpacked[IFAC_NETNAME])
+                        if IFAC_NETKEY  in unpacked and unpacked[IFAC_NETKEY]  and type(unpacked[IFAC_NETKEY])  == str: info["ifac_netkey"]  = str(unpacked[IFAC_NETKEY])
 
                         if interface_type in ["BackboneInterface", "TCPServerInterface"]:
                             backbone_support     = not RNS.vendor.platformutils.is_windows() and not RNS.vendor.platformutils.is_darwin()
@@ -532,7 +532,16 @@ class InterfaceDiscovery():
                 should_remove = False
                 heard_delta   = now-info["last_heard"]
                 info["name"]  = InterfaceAnnounceHandler.sanitize_name(info["name"])
-                
+
+                # TODO: Temporary measure to sanitize invalidly persisted "None" values
+                # for incorrect IFAC parameters published due to unguarded nonsensical
+                # node-side configuration. Potentially remove once nodes upgrade to RNS
+                # versions that guard against the configuration mismatch.
+                try:
+                    if "ifac_netname" in info and info["ifac_netname"] == "None": info.pop("ifac_netname")
+                    if "ifac_netkey"  in info and info["ifac_netkey"]  == "None": info.pop("ifac_netkey")
+                except Exception as e: RNS.log(f"Error while sanitizing discovery info: {e}", RNS.LOG_ERROR)
+
                 if   heard_delta > self.THRESHOLD_REMOVE: should_remove = True
                 elif not "transport_id" in info or not info["transport_id"]: should_remove = True
                 elif not "network_id" in info or not info["network_id"]: should_remove = True
@@ -788,8 +797,16 @@ class InterfaceDiscovery():
                             config_entry = info["config_entry"]
                             interface_config = {}
                             interface_config["name"] = f"{interface_name}"
-                            ifac_netname = info["ifac_netname"] if "ifac_netname" in info else None
-                            ifac_netkey  = info["ifac_netkey"]  if "ifac_netkey"  in info else None
+
+                            # TODO: Temporary measure to sanitize invalidly persisted "None" values
+                            # for incorrect IFAC parameters published due to unguarded nonsensical
+                            # node-side configuration. Potentially remove once nodes upgrade to RNS
+                            # versions that guard against the configuration mismatch.
+                            if "ifac_netname" in info and info["ifac_netname"] == "None": info["ifac_netname"] = None
+                            if "ifac_netkey"  in info and info["ifac_netkey"]  == "None": info["ifac_netkey"]  = None
+
+                            ifac_netname = info["ifac_netname"] if "ifac_netname" in info and info["ifac_netname"] else None
+                            ifac_netkey  = info["ifac_netkey"]  if "ifac_netkey"  in info and info["ifac_netkey"]  else None
                             interface    = None
 
                             if interface_type == "BackboneInterface":
