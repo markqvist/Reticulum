@@ -1395,7 +1395,7 @@ class RequestReceipt():
             time.sleep(0.1)
 
     def request_timed_out(self, packet_receipt):
-        if self in self.link.pending_requests and self.status == RequestReceipt.DELIVERED:
+        if self in self.link.pending_requests and self.status in [RequestReceipt.DELIVERED, RequestReceipt.SENT]:
             self.status = RequestReceipt.FAILED
             self.concluded_at = time.time()
             self.link.pending_requests.remove(self)
@@ -1405,7 +1405,7 @@ class RequestReceipt():
                 except Exception as e: RNS.log("Error while executing request timed out callback from "+str(self)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
 
     def response_rejected(self):
-        if self in self.link.pending_requests and self.status == RequestReceipt.DELIVERED:
+        if self in self.link.pending_requests and self.status in [RequestReceipt.DELIVERED, RequestReceipt.SENT]:
             self.status = RequestReceipt.FAILED
             self.concluded_at = time.time()
             self.link.pending_requests.remove(self)
