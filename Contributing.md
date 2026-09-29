@@ -33,7 +33,11 @@ If you have found a bug or issue in this project, please report it to the mainta
 
 Patches and code contributions are *generally* only welcomed from developers already known to the community, with a proven track-record of competence, skill, careful and considerate design and responsible conduct. If we do not know you yet, but you have created something that you believe lives up to such standards, we are eager to hear from you.
 
-The current development priorities and work documents are not publicly available on the internet, but shared and coordinated directly between the developers over Reticulum itself, following the principles outlined in [Distributed Development](https://reticulum.network/manual/distributed.html).
+Current development priorities and work documents are not publicly available on the internet, but shared and coordinated directly between the developers over Reticulum itself, following the principles outlined in [Distributed Development](https://reticulum.network/manual/distributed.html).
+
+## Commit Signing
+
+All commits in Reticulum and related projects **must** be signed with a Reticulum identity. If you want your author credentials to be included directly in the commit log, ensure that you have [configured commit signing](https://reticulum.network/manual/git.html#commit-signing). Bare patches submitted manually or fetched remote commits without signatures are still very welcome, but we will review, squash merge and sign with the key of the maintainer that approved the changes. Attribution will be provided in the commit message instead (unless you wish to remain anonymous).
 
 ## Machine Assistance & LLMs
 
