@@ -661,22 +661,27 @@ class InterfaceDiscovery():
             autoconnected_interfaces = self.autoconnect_count()
             for interface in self.monitored_interfaces:
                 try:
-                    if interface.online:
-                        online_interfaces += 1
-                        if hasattr(interface, "autoconnect_down") and interface.autoconnect_down != None:
-                            RNS.log(f"Auto-discovered interface {interface} reconnected")
-                            interface.autoconnect_down = None
+                    if not interface in RNS.Transport.interfaces:
+                        RNS.log(f"A monitored auto-connected interface was manually detached, removing from monitoring", RNS.LOG_DEBUG)
+                        detached_interfaces.append(interface)
 
                     else:
-                        if not hasattr(interface, "autoconnect_down") or interface.autoconnect_down == None:
-                            RNS.log(f"Auto-discovered interface {interface} disconnected", RNS.LOG_DEBUG)
-                            interface.autoconnect_down = time.time()
+                        if interface.online:
+                            online_interfaces += 1
+                            if hasattr(interface, "autoconnect_down") and interface.autoconnect_down != None:
+                                RNS.log(f"Auto-discovered interface {interface} reconnected")
+                                interface.autoconnect_down = None
 
                         else:
-                            down_for = time.time()-interface.autoconnect_down
-                            if down_for >= self.detach_threshold:
-                                RNS.log(f"Auto-discovered interface {interface} has been down for {RNS.prettytime(down_for)}, detaching", RNS.LOG_DEBUG)
-                                detached_interfaces.append(interface)
+                            if not hasattr(interface, "autoconnect_down") or interface.autoconnect_down == None:
+                                RNS.log(f"Auto-discovered interface {interface} disconnected", RNS.LOG_DEBUG)
+                                interface.autoconnect_down = time.time()
+
+                            else:
+                                down_for = time.time()-interface.autoconnect_down
+                                if down_for >= self.detach_threshold:
+                                    RNS.log(f"Auto-discovered interface {interface} has been down for {RNS.prettytime(down_for)}, detaching", RNS.LOG_DEBUG)
+                                    detached_interfaces.append(interface)
 
                 except Exception as e:
                     RNS.log(f"Error while checking auto-connected interface state for {interface}: {e}", RNS.LOG_ERROR)
@@ -710,9 +715,11 @@ class InterfaceDiscovery():
                     RNS.log(f"Error while de-registering auto-connected interface from transport: {e}", RNS.LOG_ERROR)
 
     def teardown_interface(self, interface):
-        was_detached = RNS.Reticulum.get_instance()._detach_interface(interface.name, internal_forced=True)
-        if was_detached and interface in self.monitored_interfaces: self.monitored_interfaces.remove(interface)
-        if not was_detached: RNS.log(f"Could not detach auto-connected interface {interface}", RNS.LOG_ERROR)
+        if interface in RNS.Transport.interfaces:
+            was_detached = RNS.Reticulum.get_instance()._detach_interface(interface.name, internal_forced=True)
+            if not was_detached: RNS.log(f"Detach of auto-connected interface {interface} did not succeed", RNS.LOG_ERROR)
+
+        if interface in self.monitored_interfaces: self.monitored_interfaces.remove(interface)
 
     def autoconnect_count(self):
         return len([i for i in RNS.Transport.interfaces if hasattr(i, "autoconnect_hash")])
