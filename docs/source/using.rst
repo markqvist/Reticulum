@@ -369,6 +369,8 @@ Filter output to only show some interfaces:
     -w seconds            timeout before giving up on remote queries
     -d, --discovered      list discovered interfaces
     -D                    show details and config entries for discovered interfaces
+    --show-stale          show stale discovery entries
+    --show-unknown        show discovery entries without version info
     -m, --monitor         continuously monitor status
     -I, --monitor-interval seconds
                           refresh interval for monitor mode (default: 1)

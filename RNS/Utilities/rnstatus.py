@@ -160,7 +160,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                   sorting=None, sort_reverse=False, remote=None, management_identity=None, must_exit=True, rns_instance=None,
                   traffic_totals=False, discovered_interfaces=False, config_entries=False, burst_filter=False, blocked_ips=False,
                   queue_stats=False, pps=False, profiling=False, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT,
-                  attach=None, detach=None, reload=None):
+                  attach=None, detach=None, reload=None, show_stale=False, show_unknown=False):
   
     if remote: require_shared = False
     else: require_shared = True
@@ -251,6 +251,9 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         elif status == "stale":   status_display = "Stale"
                         else:                     status_display = status
 
+                        if status == "stale" and not show_stale:   continue
+                        if not has_impl_info and not show_unknown: continue
+
                         now  = time.time()
                         dago = now-i["discovered"]
                         hago = now-i["last_heard"]
@@ -323,6 +326,9 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         elif status == "unknown": status_display = "? Unknown"
                         elif status == "stale":   status_display = "× Stale"
                         else:                     status_display = status
+
+                        if status == "stale" and not show_stale:   continue
+                        if not has_impl_info and not show_unknown: continue
                         
                         now = time.time()
                         last_heard = i["last_heard"]
@@ -892,6 +898,8 @@ def main(must_exit=True, rns_instance=None):
         parser.add_argument("-w", action="store", metavar="seconds", type=float, help="timeout before giving up on remote queries", default=RNS.Transport.PATH_REQUEST_TIMEOUT)
         parser.add_argument("-d", "--discovered", action="store_true", help="list discovered interfaces", default=False)
         parser.add_argument("-D",                 action="store_true", help="show details and config entries for discovered interfaces", default=False)
+        parser.add_argument("--show-stale",       action="store_true", help="show stale discovery entries", default=False)
+        parser.add_argument("--show-unknown",     action="store_true", help="show discovery entries without version info", default=False)
         parser.add_argument("-m", "--monitor", action="store_true", help="continuously monitor status", default=False)
         parser.add_argument("-I", "--monitor-interval", action="store", metavar="seconds", type=float, help="refresh interval for monitor mode (default: 1)", default=1.0)
         parser.add_argument('-v', '--verbose', action='count', default=0)
@@ -922,7 +930,8 @@ def main(must_exit=True, rns_instance=None):
                                   astats=args.announce_stats, pstats=args.pr_stats, lstats=args.link_stats, sorting=args.sort, sort_reverse=args.reverse,
                                   remote=args.R, management_identity=args.i, remote_timeout=args.w, must_exit=False, rns_instance=reticulum,
                                   traffic_totals=args.totals, discovered_interfaces=args.discovered, config_entries=args.D, burst_filter=args.burst,
-                                  blocked_ips=args.blocked_ips, queue_stats=args.queues, pps=args.pps, profiling=args.profiling)
+                                  blocked_ips=args.blocked_ips, queue_stats=args.queues, pps=args.pps, profiling=args.profiling,
+                                  show_stale=args.show_stale, show_unknown=args.show_unknown)
               
                 finally:
                     sys.stdout = old_stdout
@@ -941,7 +950,7 @@ def main(must_exit=True, rns_instance=None):
                           remote=args.R, management_identity=args.i, remote_timeout=args.w, must_exit=must_exit, rns_instance=rns_instance,
                           traffic_totals=args.totals, discovered_interfaces=args.discovered, config_entries=args.D, burst_filter=args.burst,
                           blocked_ips=args.blocked_ips, queue_stats=args.queues, pps=args.pps, profiling=args.profiling,
-                          attach=args.attach, detach=args.detach, reload=args.reload)
+                          attach=args.attach, detach=args.detach, reload=args.reload, show_stale=args.show_stale, show_unknown=args.show_unknown)
 
     except KeyboardInterrupt:
         print("")
