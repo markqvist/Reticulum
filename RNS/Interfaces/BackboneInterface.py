@@ -509,7 +509,7 @@ class BackboneInterface(Interface):
                             interfaces = list(BackboneInterface.spawned_interface_filenos.values())
 
                             if q_depth > BackboneInterface.DP_IC_MID_WM:
-                                producers = [iface for iface in interfaces if iface.dp_ingress_packets > 0 and not isinstance(interface, RNS.Interfaces.LocalInterface.LocalClientInterface)]
+                                producers = [iface for iface in interfaces if iface.dp_ingress_packets > 0 and not isinstance(iface, RNS.Interfaces.LocalInterface.LocalClientInterface)]
                                 if producers:
                                     producers.sort(key=lambda p: p.dp_ingress_packets, reverse=True)
                                     selected = producers[0]
