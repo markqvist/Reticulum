@@ -1,12 +1,26 @@
-### 2026-09-28: RNS 1.5.5
+### 2026-09-29: RNS 1.5.5
 
-This release adds live interface attach, detach and reload, as well as a few improvements to `rngit` and fixes discovered `I2PInterface` configuration snippets.
+This release adds live interface attach, detach and reload, as well as significant improvements to discovered interface auto-connects. Auto-connecting interfaces is now also supported on Windows and macOS.
+
+It also brings improvements to `rngit` and fixes discovered `I2PInterface` configuration snippets, along with a number of other bugs.
 
 **Changes**
 - Added ability to `--attach`, `--detach` and `--reload` interfaces to the `rnstatus` utility
+- Added interface discovery auto-connect support on Windows and macOS
 - Added ability to download micron-converted versions of markdown files to the `rngit` page node
 - Added workdoc counts to filter scope links to the `rngit` page node
+
+- Added stack info to `rnstatus` discovered interfaces output
+- Added `--show-stale` and `--show-unknown` options to `rnstatus`
+- Added atomic, sequential naming of auto-connected interfaces on annonuced name collisions
+- Added auto-connect implementation and version criteria
+- Added configuration option for allowing auto-connects to discovered interfaces with missing version info
+- Improved sanitization of nonsensical interface discovery IFAC announce data
 - Fixed `I2PInterface` discovery config snippets not including `.b32.i2p`
+- Fixed timeout and response rejects not being processed for single-packet requests, by **JRG**
+- Fixed missing configurable property propagations on spawned interfaces, by **JRG**
+- Fixed ingress control producer comprehension at mid-watermark using incorrect variable name for interface type check, by **JRG**
+- Fixed instances of `announce_cap` property ensurance logic not storing announce cap value as a fraction, by **JRG**
 - Fixed a potential race condition in `LocalInterface` initialization.
 - Updated documentation and manual
 
