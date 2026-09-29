@@ -487,6 +487,7 @@ class InterfaceDiscovery():
     AC_GRAVITY         = 0
 
     discovery_lock     = Lock()
+    autoconnect_lock   = Lock()
 
     def __init__(self, required_value=InterfaceAnnouncer.DEFAULT_STAMP_VALUE, callback=None, discover_interfaces=True):
         if not required_value: required_value = InterfaceAnnouncer.DEFAULT_STAMP_VALUE
@@ -765,6 +766,16 @@ class InterfaceDiscovery():
 
         return exists
 
+    def autoconnect_interface_name(self, name):
+        names = {interface.name for interface in RNS.Transport.interfaces}
+        if not name in names: return name
+        else:
+            n = 2; seq_name = f"{name} ({n})"
+            while seq_name in names:
+                n += 1; seq_name = f"{name} ({n})"
+
+            return seq_name
+
     def autoconnect(self, info):
         try:
             if RNS.Reticulum.should_autoconnect_discovered_interfaces():
@@ -800,43 +811,49 @@ class InterfaceDiscovery():
                                 RNS.log(f"Not auto-connecting discovered interface with invalid IP address: {info['reachable_on']}", RNS.LOG_DEBUG)
                                 return
 
-                            interface_name = info["name"]
-                            config_entry = info["config_entry"]
-                            interface_config = {}
-                            interface_config["name"] = f"{interface_name}"
+                            with self.autoconnect_lock:
+                                if self.interface_exists(info): return
 
-                            # TODO: Temporary measure to sanitize invalidly persisted "None" values
-                            # for incorrect IFAC parameters published due to unguarded nonsensical
-                            # node-side configuration. Potentially remove once nodes upgrade to RNS
-                            # versions that guard against the configuration mismatch.
-                            if "ifac_netname" in info and info["ifac_netname"] == "None": info["ifac_netname"] = None
-                            if "ifac_netkey"  in info and info["ifac_netkey"]  == "None": info["ifac_netkey"]  = None
+                                interface_name = self.autoconnect_interface_name(info["name"])
+                                if interface_name != info["name"]:
+                                    RNS.log(f"Auto-connect name collision for \"{info['name']}\", connecting as \"{interface_name}\"", RNS.LOG_NOTICE)
 
-                            ifac_netname = info["ifac_netname"] if "ifac_netname" in info and info["ifac_netname"] else None
-                            ifac_netkey  = info["ifac_netkey"]  if "ifac_netkey"  in info and info["ifac_netkey"]  else None
-                            interface    = None
+                                config_entry = info["config_entry"]
+                                interface_config = {}
+                                interface_config["name"] = f"{interface_name}"
 
-                            if interface_type == "BackboneInterface":
-                                from RNS.Interfaces import BackboneInterface
-                                interface_config["target_host"] = info["reachable_on"]
-                                interface_config["target_port"] = info["port"]
-                                interface = BackboneInterface.BackboneClientInterface(RNS.Transport, interface_config)
+                                # TODO: Temporary measure to sanitize invalidly persisted "None" values
+                                # for incorrect IFAC parameters published due to unguarded nonsensical
+                                # node-side configuration. Potentially remove once nodes upgrade to RNS
+                                # versions that guard against the configuration mismatch.
+                                if "ifac_netname" in info and info["ifac_netname"] == "None": info["ifac_netname"] = None
+                                if "ifac_netkey"  in info and info["ifac_netkey"]  == "None": info["ifac_netkey"]  = None
 
-                            if interface:
-                                RNS.log(f"Auto-connecting discovered {interface_type} {interface_name}")
-                                interface.autoconnect_hash = endpoint_hash
-                                interface.autoconnect_source = info["network_id"]
-                                if RNS.Reticulum.autoconnect_interface_mode(): mode = RNS.Reticulum.autoconnect_interface_mode()
-                                else: mode = self.AC_TRANSPORT_MODE if RNS.Reticulum.transport_enabled() else None
-                                internal_a = True if RNS.Reticulum.autoconnect_announces_to_internal() else None
-                                gravity    = RNS.Reticulum.autoconnect_interface_gravity() or self.AC_GRAVITY
-                                ar_target  = RNS.Reticulum.get_instance()._default_ar_target() if RNS.Reticulum.transport_enabled() else None
-                                ar_penalty = RNS.Reticulum.get_instance()._default_ar_penalty() if RNS.Reticulum.transport_enabled() else None
-                                ar_grace   = RNS.Reticulum.get_instance()._default_ar_grace() if RNS.Reticulum.transport_enabled() else None
-                                RNS.Reticulum.get_instance()._add_interface(interface, mode=mode, ifac_netname=ifac_netname, ifac_netkey=ifac_netkey, configured_bitrate=5E6,
-                                                                            announce_rate_target=ar_target, announce_rate_grace=ar_grace, announce_rate_penalty=ar_penalty,
-                                                                            announces_to_internal=internal_a, gravity=gravity)
-                                self.monitor_interface(interface)
+                                ifac_netname = info["ifac_netname"] if "ifac_netname" in info and info["ifac_netname"] else None
+                                ifac_netkey  = info["ifac_netkey"]  if "ifac_netkey"  in info and info["ifac_netkey"]  else None
+                                interface    = None
+
+                                if interface_type == "BackboneInterface":
+                                    from RNS.Interfaces import BackboneInterface
+                                    interface_config["target_host"] = info["reachable_on"]
+                                    interface_config["target_port"] = info["port"]
+                                    interface = BackboneInterface.BackboneClientInterface(RNS.Transport, interface_config)
+
+                                if interface:
+                                    RNS.log(f"Auto-connecting discovered {interface_type} {interface_name}")
+                                    interface.autoconnect_hash = endpoint_hash
+                                    interface.autoconnect_source = info["network_id"]
+                                    if RNS.Reticulum.autoconnect_interface_mode(): mode = RNS.Reticulum.autoconnect_interface_mode()
+                                    else: mode = self.AC_TRANSPORT_MODE if RNS.Reticulum.transport_enabled() else None
+                                    internal_a = True if RNS.Reticulum.autoconnect_announces_to_internal() else None
+                                    gravity    = RNS.Reticulum.autoconnect_interface_gravity() or self.AC_GRAVITY
+                                    ar_target  = RNS.Reticulum.get_instance()._default_ar_target() if RNS.Reticulum.transport_enabled() else None
+                                    ar_penalty = RNS.Reticulum.get_instance()._default_ar_penalty() if RNS.Reticulum.transport_enabled() else None
+                                    ar_grace   = RNS.Reticulum.get_instance()._default_ar_grace() if RNS.Reticulum.transport_enabled() else None
+                                    RNS.Reticulum.get_instance()._add_interface(interface, mode=mode, ifac_netname=ifac_netname, ifac_netkey=ifac_netkey, configured_bitrate=5E6,
+                                                                                announce_rate_target=ar_target, announce_rate_grace=ar_grace, announce_rate_penalty=ar_penalty,
+                                                                                announces_to_internal=internal_a, gravity=gravity)
+                                    self.monitor_interface(interface)
 
         except Exception as e:
             RNS.log(f"Error while auto-connecting discovered interface: {e}", RNS.LOG_ERROR)
