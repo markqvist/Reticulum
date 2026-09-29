@@ -208,6 +208,7 @@ class TCPClientInterface(Interface):
         
     def detach(self):
         self.online = False
+        self.detached = True
         if self.socket != None:
             if hasattr(self.socket, "close"):
                 if callable(self.socket.close):
@@ -272,7 +273,7 @@ class TCPClientInterface(Interface):
             if not self.reconnecting:
                 self.reconnecting = True
                 attempts = 0
-                while not self.online:
+                while not self.online and not self.detached:
                     time.sleep(TCPClientInterface.RECONNECT_WAIT)
                     attempts += 1
 
