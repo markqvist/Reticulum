@@ -779,6 +779,16 @@ class InterfaceDiscovery():
 
             return seq_name
 
+    def autoconnect_qualified(self, info):
+        if RNS.Reticulum.should_autoconnect_unverified_implementations(): return True
+        if not "impl_name" in info:                                       return False
+        if not info["impl_name"] in self.AUTOCONNECT_IMPLS:               return False
+        if not "version" in info or not info["version"]:                  return False
+
+        version = version_tuple(info["version"])
+        if version == None: return False
+        return version >= version_tuple(self.AUTOCONNECT_MIN_V)
+
     def autoconnect(self, info):
         try:
             if RNS.Reticulum.should_autoconnect_discovered_interfaces():
@@ -786,6 +796,11 @@ class InterfaceDiscovery():
                 if autoconnected_count < RNS.Reticulum.max_autoconnected_interfaces():
                     interface_type = info["type"]
                     if interface_type in self.AUTOCONNECT_TYPES:
+                        if not self.autoconnect_qualified(info):
+                            impl = f"{info['impl_name']} {info['version']}" if ("impl_name" in info and "version" in info and info["impl_name"] and info["version"]) else "unknown implementation"
+                            RNS.log(f"Not auto-connecting discovered {interface_type} {info['name']} ({impl}), auto-connect criteria not satisfied", RNS.LOG_DEBUG)
+                            return
+
                         endpoint_hash = self.endpoint_hash(info)
                         exists = self.interface_exists(info)
 
@@ -976,6 +991,18 @@ def is_hostname(hostname):
     if re.match(r"[0-9]+$", components[-1]): return False
     allowed = re.compile(r"(?!-)[a-z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
     return all(allowed.match(label) for label in components)
+
+def version_tuple(version_string):
+    if type(version_string) != str: return None
+    try:
+        components = []
+        for component in version_string.strip().split("."):
+            match = re.match(r"[0-9]+", component)
+            if match == None: break
+            components.append(int(match.group(0)))
+        if len(components) == 0: return None
+        return tuple(components)
+    except Exception as e: return None
 
 san_map = ""
 for i in range(48, 58):  san_map += bytes([i]).decode("ascii")
