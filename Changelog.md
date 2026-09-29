@@ -1,6 +1,6 @@
 ### 2026-09-29: RNS 1.5.5
 
-This release adds live interface attach, detach and reload, as well as significant improvements to discovered interface auto-connects. Auto-connecting interfaces is now also supported on Windows and macOS.
+This release adds live interface attach, detach and reload, as well as significant improvements to interface discovery. Auto-connecting interfaces is now also supported on Windows and macOS.
 
 It also brings improvements to `rngit` and fixes discovered `I2PInterface` configuration snippets, along with a number of other bugs.
 
@@ -9,11 +9,10 @@ It also brings improvements to `rngit` and fixes discovered `I2PInterface` confi
 - Added interface discovery auto-connect support on Windows and macOS
 - Added ability to download micron-converted versions of markdown files to the `rngit` page node
 - Added workdoc counts to filter scope links to the `rngit` page node
-
-- Added stack info to `rnstatus` discovered interfaces output
+- Added version info to `rnstatus` discovered interfaces output
 - Added `--show-stale` and `--show-unknown` options to `rnstatus`
-- Added atomic, sequential naming of auto-connected interfaces on annonuced name collisions
-- Added auto-connect implementation and version criteria
+- Added sequential naming of auto-connected interfaces on announced name collisions
+- Added auto-connect implementation and version criteria filtering
 - Added configuration option for allowing auto-connects to discovered interfaces with missing version info
 - Improved sanitization of nonsensical interface discovery IFAC announce data
 - Fixed `I2PInterface` discovery config snippets not including `.b32.i2p`
