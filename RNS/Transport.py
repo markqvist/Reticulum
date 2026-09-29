@@ -1521,7 +1521,7 @@ class Transport:
                                 # TODO: Rethink whether this is actually optimal.
                                 if packet.hops > 0:
 
-                                    if not hasattr(interface, "announce_cap"):        interface.announce_cap = RNS.Reticulum.ANNOUNCE_CAP
+                                    if not hasattr(interface, "announce_cap"):        interface.announce_cap = RNS.Reticulum.ANNOUNCE_CAP/100.0
                                     if not hasattr(interface, "announce_allowed_at"): interface.announce_allowed_at = 0
                                     if not hasattr(interface, "announce_queue"):      interface.announce_queue = []
 
@@ -3299,7 +3299,7 @@ class Transport:
         packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = on_interface)
 
         if on_interface != None and recursive:
-            if not hasattr(on_interface, "announce_cap"):        on_interface.announce_cap = RNS.Reticulum.ANNOUNCE_CAP
+            if not hasattr(on_interface, "announce_cap"):        on_interface.announce_cap = RNS.Reticulum.ANNOUNCE_CAP/100.0
             if not hasattr(on_interface, "announce_allowed_at"): on_interface.announce_allowed_at = 0
             if not hasattr(on_interface, "announce_queue"):      on_interface.announce_queue = []
 

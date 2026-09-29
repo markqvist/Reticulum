@@ -389,7 +389,7 @@ class Interface:
 
     def process_announce_queue(self):
         if not hasattr(self, "announce_cap"):
-            self.announce_cap = RNS.Reticulum.ANNOUNCE_CAP
+            self.announce_cap = RNS.Reticulum.ANNOUNCE_CAP/100.0
 
         if hasattr(self, "announce_queue"):
             try:
