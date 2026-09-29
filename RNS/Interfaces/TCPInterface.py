@@ -635,6 +635,10 @@ class TCPServerInterface(Interface):
         spawned_interface.announce_rate_penalty = self.announce_rate_penalty
         spawned_interface.mode = self.mode
         spawned_interface.gravity = self.gravity
+        spawned_interface.recursive_prs = self.recursive_prs
+        spawned_interface.announces_from_internal = self.announces_from_internal
+        spawned_interface.announces_to_internal = self.announces_to_internal
+        spawned_interface.announce_cap = self.announce_cap
         spawned_interface.HW_MTU = self.HW_MTU
         spawned_interface.online = True
         RNS.log("Spawned new TCPClient Interface: "+str(spawned_interface), RNS.LOG_VERBOSE)

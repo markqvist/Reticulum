@@ -738,6 +738,10 @@ class BackboneInterface(Interface):
             spawned_interface.announce_rate_penalty = self.announce_rate_penalty
             spawned_interface.mode = self.mode
             spawned_interface.gravity = self.gravity
+            spawned_interface.recursive_prs = self.recursive_prs
+            spawned_interface.announces_from_internal = self.announces_from_internal
+            spawned_interface.announces_to_internal = self.announces_to_internal
+            spawned_interface.announce_cap = self.announce_cap
             spawned_interface.HW_MTU = self.HW_MTU
             RNS.log("Spawned new BackboneClient Interface: "+str(spawned_interface), RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
             RNS.Transport.add_interface(spawned_interface)
