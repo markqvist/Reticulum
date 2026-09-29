@@ -591,6 +591,8 @@ options:
   -w seconds            timeout before giving up on remote queries
   -d, --discovered      list discovered interfaces
   -D                    show details and config entries for discovered interfaces
+  --show-stale          show stale discovery entries
+  --show-unknown        show discovery entries without version info
   -m, --monitor         continuously monitor status
   -I, --monitor-interval seconds
                         refresh interval for monitor mode (default: 1)
@@ -1314,6 +1316,7 @@ network_identity = ~/.reticulum/storage/identities/my_network
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">autoconnect_interface_mode</span></code> options specifies which mode discovered interfaces should be created with when auto-connecting.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">autoconnect_announces_to_internal</span></code> option allows you to specify that auto-connected interfaces should propagate announces to <code class="docutils literal notranslate"><span class="pre">internal</span></code> mode interfaces, even if the auto-connected interface’s mode would normally not allow for this.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">autoconnect_unverified_implementations</span></code> option will allow the interface discovery system to auto-connect to <em>any</em> announced interface, even those coming from unverified, experimental or potentially broken implementations. Be very careful with this option.</p></li>
 </ul>
 </section>
 <section id="remote-management">
