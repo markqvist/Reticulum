@@ -930,11 +930,10 @@ class BackboneClientInterface(Interface):
 
     def detach(self):
         self.online = False
+        self.detached = True
         if self.socket != None:
             if hasattr(self.socket, "close"):
                 if callable(self.socket.close):
-                    self.detached = True
-                    
                     try:
                         if self.socket != None: self.socket.shutdown(socket.SHUT_RDWR)
                     except Exception as e:
