@@ -114,6 +114,7 @@ class Interface:
         self.HW_MTU   = None
         self.__hash   = None
 
+        self.announce_cap             = RNS.Reticulum.ANNOUNCE_CAP/100.0
         self.supports_discovery       = False
         self.discoverable             = False
         self.last_discovery_announce  = 0
