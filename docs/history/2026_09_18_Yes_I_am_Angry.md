@@ -228,7 +228,7 @@ The scraper was hitting *every node across the entire fucking intermesh*, from a
 
 For what reason? To gouge tens of **millions** of requests to a broken piece of shit software that an idiot deployed and left running without oversight, trying to infintely download **everything that everyone had ever put on their nodes several times over** on a recursive loop.
 
-Who made that stop? I did, because I contacted the idiot and talked him out of it.
+Who made that stop? I did, because I [contacted](https://github.com/roogle-dev/reticulum-phantom/issues/4) the idiot and talked him out of it.
 
 Let's hear more of your brilliant ideas about how to "protect the commons" you fucking ape.
 
