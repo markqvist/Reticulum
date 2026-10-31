@@ -264,9 +264,11 @@ class KnownDestinationsStore:
 
         try:
             # Pre-release migrations, will be folded into finalized schema before 1.6.0 release
+            self._conn.execute("BEGIN")
             if 0 < db_version < 2: self._conn.execute("ALTER TABLE known_destinations ADD COLUMN lr_cost REAL")
             if 0 < db_version < 3: self._conn.execute("ALTER TABLE known_destinations ALTER COLUMN packet_hash DROP NOT NULL")
             self._conn.execute("PRAGMA user_version = 3")
+            self._conn.execute("COMMIT")
             self._conn.commit()
         except Exception as e:
             import RNS
