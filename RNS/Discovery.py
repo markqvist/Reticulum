@@ -330,7 +330,7 @@ class InterfaceAnnounceHandler:
                         while len(self.valid_cache) > self.valid_cache_max: self.valid_cache.pop(next(iter(self.valid_cache)))
 
                 if not valid:
-                    RNS.log(f"Ignored discovered interface with insufficient stamp value {value}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                    RNS.log(f"Ignored discovered interface with insufficient stamp value {RNS.prettycost(value)}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                     self.invalid_cache.append(fullhash)
                     return
 
