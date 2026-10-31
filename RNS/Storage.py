@@ -28,11 +28,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from array import array
+import RNS
 import hashlib
 import threading
 import os
 import time
+from array import array
 
 class AnnounceRateTable:
     # Columnar store for announce rate tracking. Layout:
@@ -219,15 +220,17 @@ class KnownDestinationsStore:
 
     def __init__(self, db_path, hash_width=16, read_only=False):
         import sqlite3
-        self.sqlite3       = sqlite3
-        self.db_path       = db_path
-        self.hash_width    = hash_width
-        self.read_only     = read_only
-        self._dirty_upsert = set()
-        self._dirty_delete = set()
-        self._ratchet_upserts = {}
-        self._ratchet_deletes = set()
-        self._flush_lock   = threading.Lock()
+        self.sqlite3             = sqlite3
+        self.db_path             = db_path
+        self.hash_width          = hash_width
+        self.read_only           = read_only
+        self._dirty_upsert       = set()
+        self._dirty_delete       = set()
+        self._ratchet_upserts    = {}
+        self._ratchet_deletes    = set()
+        self._kd_quarantine      = {}
+        self._ratchet_quarantine = {}
+        self._flush_lock         = threading.Lock()
 
         if read_only: self._conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, check_same_thread=False, isolation_level=None)
         else:
@@ -262,16 +265,17 @@ class KnownDestinationsStore:
             ratchet          BLOB NOT NULL,
             received         REAL NOT NULL)""")
 
+        # Pre-release migrations
+        # Will be folded into finalized schema before 1.6.0 release
         try:
-            # Pre-release migrations, will be folded into finalized schema before 1.6.0 release
             self._conn.execute("BEGIN")
             if 0 < db_version < 2: self._conn.execute("ALTER TABLE known_destinations ADD COLUMN lr_cost REAL")
             if 0 < db_version < 3: self._conn.execute("ALTER TABLE known_destinations ALTER COLUMN packet_hash DROP NOT NULL")
             self._conn.execute("PRAGMA user_version = 3")
             self._conn.execute("COMMIT")
             self._conn.commit()
+
         except Exception as e:
-            import RNS
             RNS.log(f"Pre-release database migration failed: {e}", RNS.LOG_CRITICAL)
             RNS.log(f"You will need to remove the known_destinations.db* files from your storage directory", RNS.LOG_CRITICAL)
             RNS.log(f"On the next instance start, the database will be rebuilt", RNS.LOG_CRITICAL)
@@ -290,6 +294,7 @@ class KnownDestinationsStore:
     def mark_dirty(self, destination_hash):
         if self.read_only: return
         self._dirty_delete.discard(destination_hash)
+        self._kd_quarantine.pop(destination_hash, None)
         self._dirty_upsert.add(destination_hash)
 
     # Caller must hold Identity.known_destinations_lock
@@ -297,6 +302,8 @@ class KnownDestinationsStore:
         if self.read_only: return
         self._dirty_upsert.discard(destination_hash)
         self._dirty_delete.add(destination_hash)
+        self._kd_quarantine.pop(destination_hash, None)
+        self._ratchet_quarantine.pop(destination_hash, None)
 
     # Caller must hold Identity.known_destinations_lock
     def take_pending(self):
@@ -311,6 +318,41 @@ class KnownDestinationsStore:
         self._ratchet_deletes = set()
         return upserts, deletes, ratchet_upserts, ratchet_deletes
 
+    # Caller must hold the flush lock and have an already open transaction
+    def __wrap_exec(self, sql, rows):
+        rejects = []
+
+        # By default, run batched queries in chunks.
+        for i in range(0, len(rows), 4096):
+            chunk = rows[i:i+4096]
+            try:
+                self._conn.execute("SAVEPOINT chunk")
+                self._conn.executemany(sql, chunk)
+                self._conn.execute("RELEASE chunk")
+
+            # But on integrity and data errors, roll back the chunk
+            # and iterate per-row, so we can catch any violating
+            # entries and quarantine them. A later, sane update
+            # will then unquarantine and heal upon arrival.
+            #
+            # Other exceptions are intentionally not caught here,
+            # so they can propagate directly.
+            except (self.sqlite3.IntegrityError, self.sqlite3.DataError):
+                self._conn.execute("ROLLBACK TO chunk")
+                for row in chunk:
+                    try:
+                        self._conn.execute("SAVEPOINT row")
+                        self._conn.execute(sql, row)
+                        self._conn.execute("RELEASE row")
+
+                    except (self.sqlite3.IntegrityError, self.sqlite3.DataError) as e:
+                        self._conn.execute("ROLLBACK TO row")
+                        rejects.append((row[0], str(e)))
+
+                self._conn.execute("RELEASE chunk")
+
+        return rejects
+
     # May be called without any locks held
     def apply(self, upserts, deletes, ratchet_upserts, ratchet_deletes, known_destinations):
         if self.read_only: return 0
@@ -323,6 +365,7 @@ class KnownDestinationsStore:
             ratchet_removables = []
 
             for destination_hash in upserts:
+                if destination_hash in self._kd_quarantine: continue
                 entry = known_destinations.get(destination_hash)
                 if entry != None: rows.append(self.__entry_row(destination_hash, entry))
 
@@ -331,23 +374,30 @@ class KnownDestinationsStore:
 
             for destination_hash, ratchet_entry in ratchet_upserts.items():
                 # Ratchets of purged destinations must be removed as well
-                if destination_hash in known_destinations: ratchet_rows.append((destination_hash, *ratchet_entry))
-                else:                                      ratchet_removables.append((destination_hash,))
+                if destination_hash not in known_destinations:         ratchet_removables.append((destination_hash,))
+                elif destination_hash not in self._ratchet_quarantine: ratchet_rows.append((destination_hash, *ratchet_entry))
 
             for destination_hash in ratchet_deletes:
                 if destination_hash not in known_destinations: ratchet_removables.append((destination_hash,))
 
+            kd_rejects      = []
+            ratchet_rejects = []
             try:
                 self._conn.execute("BEGIN")
-                for i in range(0, len(rows), 4096):               self._conn.executemany("INSERT INTO known_destinations (destination_hash, last_heard, packet_hash, public_key, app_data, used, stamp, stamp_value, lr_cost, identity_hash) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(destination_hash) DO UPDATE SET last_heard=excluded.last_heard, packet_hash=excluded.packet_hash, public_key=excluded.public_key, app_data=excluded.app_data, used=excluded.used, stamp=excluded.stamp, stamp_value=excluded.stamp_value, lr_cost=excluded.lr_cost, identity_hash=excluded.identity_hash", rows[i:i+4096])
-                for i in range(0, len(removables), 4096):         self._conn.executemany("DELETE FROM known_destinations WHERE destination_hash=?", removables[i:i+4096])
-                for i in range(0, len(ratchet_rows), 4096):       self._conn.executemany("INSERT INTO ratchets VALUES (?,?,?) ON CONFLICT(destination_hash) DO UPDATE SET ratchet=excluded.ratchet, received=excluded.received", ratchet_rows[i:i+4096])
-                for i in range(0, len(ratchet_removables), 4096): self._conn.executemany("DELETE FROM ratchets WHERE destination_hash=?", ratchet_removables[i:i+4096])
+                kd_rejects      += self.__wrap_exec("INSERT INTO known_destinations (destination_hash, last_heard, packet_hash, public_key, app_data, used, stamp, stamp_value, lr_cost, identity_hash) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(destination_hash) DO UPDATE SET last_heard=excluded.last_heard, packet_hash=excluded.packet_hash, public_key=excluded.public_key, app_data=excluded.app_data, used=excluded.used, stamp=excluded.stamp, stamp_value=excluded.stamp_value, lr_cost=excluded.lr_cost, identity_hash=excluded.identity_hash", rows)
+                kd_rejects      += self.__wrap_exec("DELETE FROM known_destinations WHERE destination_hash=?", removables)
+                ratchet_rejects += self.__wrap_exec("INSERT INTO ratchets VALUES (?,?,?) ON CONFLICT(destination_hash) DO UPDATE SET ratchet=excluded.ratchet, received=excluded.received", ratchet_rows)
+                ratchet_rejects += self.__wrap_exec("DELETE FROM ratchets WHERE destination_hash=?", ratchet_removables)
                 self._conn.commit()
 
             except Exception:
-                # Re-mark everything as dirty, so the changes are retried
-                # on the next flush, then propagate.
+                # If an exception is not handled in the batch query wrapper,
+                # we will have to roll back the transaction, and mark all
+                # attempted entries as dirty. A failure state like such
+                # should not happen, and this is a last resort; at this
+                # point, writes may stall until an updated entry for
+                # the violating row(s) arrive and heal the invalid
+                # dirty entries, so this is raised for logging.
                 self._dirty_upsert    |= {row[0] for row in rows}
                 self._dirty_delete    |= {row[0] for row in removables}
                 self._ratchet_upserts |= {row[0]: row[1:] for row in ratchet_rows}
@@ -355,7 +405,19 @@ class KnownDestinationsStore:
                 self._conn.rollback()
                 raise
 
-            return len(rows) + len(removables) + len(ratchet_rows) + len(ratchet_removables)
+            # Track failed persists and one-time log per failure. A later
+            # update of the destination clears the quarantine state and
+            # allows persist to retry with the (hopefully) valid data.
+            if len(kd_rejects) > 0 or len(ratchet_rejects) > 0:
+                for destination_hash, error in kd_rejects:
+                    self._kd_quarantine[destination_hash] = (error, time.time())
+                    RNS.log(f"Invalid known destination data for {RNS.prettyhexrep(destination_hash)} at persist. The contained exception was: {error}", RNS.LOG_ERROR)
+
+                for destination_hash, error in ratchet_rejects:
+                    self._ratchet_quarantine[destination_hash] = (error, time.time())
+                    RNS.log(f"Invalid ratchet data for {RNS.prettyhexrep(destination_hash)} at persist. The contained exception was: {error}", RNS.LOG_ERROR)
+
+            return len(rows)+len(removables)+len(ratchet_rows)+len(ratchet_removables)-len(kd_rejects)-len(ratchet_rejects)
 
     def load_all(self):
         cursor = self._conn.execute("SELECT destination_hash, last_heard, packet_hash, public_key, app_data, used, stamp, stamp_value, lr_cost FROM known_destinations")
@@ -367,6 +429,7 @@ class KnownDestinationsStore:
     # Caller must hold Identity.known_destinations_lock.
     def remember_ratchet(self, destination_hash, ratchet, now):
         if self.read_only: return False
+        self._ratchet_quarantine.pop(destination_hash, None)
 
         pending = self._ratchet_upserts.get(destination_hash)
         if pending != None:
@@ -401,6 +464,7 @@ class KnownDestinationsStore:
         if self.read_only: return
         self._ratchet_upserts.pop(destination_hash, None)
         self._ratchet_deletes.add(destination_hash)
+        self._ratchet_quarantine.pop(destination_hash, None)
 
     def expire_ratchets(self, cutoff):
         if self.read_only: return []
@@ -430,7 +494,6 @@ class KnownDestinationsStore:
             for row in rows: yield row[0], row[1], row[2]
 
     def import_legacy_ratchets(self, dir_path, expiry_cutoff, known_destinations, ratchet_width=32):
-        import RNS
         from .vendor import umsgpack
         imported = 0
         for filename in os.listdir(dir_path):
