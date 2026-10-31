@@ -248,7 +248,7 @@ class KnownDestinationsStore:
         self._conn.execute("""CREATE TABLE IF NOT EXISTS known_destinations (
             destination_hash BLOB PRIMARY KEY,
             last_heard       REAL NOT NULL,
-            packet_hash      BLOB NOT NULL,
+            packet_hash      BLOB,
             public_key       BLOB NOT NULL,
             app_data         BLOB,
             used             REAL NOT NULL DEFAULT 0,
