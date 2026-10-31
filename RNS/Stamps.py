@@ -707,7 +707,7 @@ def job_android_persistent(stamp_cost, workblock, message_id, size, mode=MODE_ST
 
                 if time.time()-last_progress > 10:
                     elapsed = max(time.time()-start_time, 1E-6)
-                    RNS.log(f"Stamp ({stamp_cost}) generation running, {RNS.prettyshorttime(elapsed)} elapsed", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                    RNS.log(f"Stamp ({cost_from_fp(stamp_cost)}) generation running, {RNS.prettyshorttime(elapsed)} elapsed", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                     last_progress = time.time()
 
                 time.sleep(0.05)
