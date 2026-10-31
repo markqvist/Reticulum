@@ -286,6 +286,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                 try: table = sorted(table, key=lambda e: e["used"], reverse=True)
                 except Exception as e: pass
 
+            now = time.time()
             for path in table:
                 if destination_hash == None or destination_hash == path["hash"]:
                     displayed += 1
@@ -296,7 +297,8 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                     else:
                         if usage: u_str = f", last used {RNS.prettytime(now-path['used'])} ago" if path["used"] else ", never used"
                         else: u_str = ""
-                    print(RNS.prettyhexrep(path["hash"])+" is "+str(path["hops"])+" hop"+m_str+" away via "+RNS.prettyhexrep(path["via"])+" on "+path["interface"]+" expires "+RNS.timestamp_str(path["expires"])+u_str)
+                    # print(RNS.prettyhexrep(path["hash"])+" is "+str(path["hops"])+" hop"+m_str+" away via "+RNS.prettyhexrep(path["via"])+" on "+path["interface"]+" expires "+RNS.timestamp_str(path["expires"])+u_str)
+                    print(f"{RNS.prettyhexrep(path['hash'])} {path["hops"]:>3}h via {RNS.prettyhexrep(path['via'])} on {path['interface']} expires in {RNS.prettytime(path["expires"]-now, compact=True)} (dv:{RNS.prettycost(path["value"])}/lc:{RNS.prettycost(path["lr_cost"])})")
 
             if destination_hash != None and displayed == 0:
                 print("No path known")

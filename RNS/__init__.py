@@ -41,6 +41,7 @@ import bisect
 from ._version import __version__
 from collections import deque
 from functools import partial, wraps
+from RNS.Stamps import quantize_cost
 
 py_modules  = glob.glob(os.path.dirname(__file__)+"/*.py")
 pyc_modules = glob.glob(os.path.dirname(__file__)+"/*.pyc")
@@ -178,6 +179,11 @@ def prettyhexrep(data):
     delimiter = ""
     hexrep = "<"+delimiter.join("{:02x}".format(c) for c in data)+">"
     return hexrep
+
+def prettycost(value):
+    if value == None: return "?"
+    elif not type(value) in (float, int): return "?"
+    else: return f"{quantize_cost(value):.3f}"
 
 def prettyspeed(num, suffix="b"):
     return prettysize(num/8, suffix=suffix)+"ps"

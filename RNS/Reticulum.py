@@ -1829,10 +1829,13 @@ class Reticulum:
             for dst_hash in RNS.Transport.path_table:
                 path_hops = RNS.Transport.path_table[dst_hash][2]
                 if max_hops == None or path_hops <= max_hops:
+                    known_destination = RNS.Identity.known_destinations.get(dst_hash, None)
+                    dst_value = known_destination[6] if known_destination else None
+                    lr_cost   = known_destination[7] if known_destination else None
                     entry = { "hash": dst_hash, "timestamp": RNS.Transport.path_table[dst_hash][0],
                               "via": RNS.Transport.path_table[dst_hash][1], "hops": path_hops,
-                              "expires": RNS.Transport.path_table[dst_hash][3],
-                              "used": RNS.Transport.path_table[dst_hash][7],
+                              "expires": RNS.Transport.path_table[dst_hash][3], "value": dst_value,
+                              "used": RNS.Transport.path_table[dst_hash][7], "lr_cost": lr_cost,
                               "interface": str(RNS.Transport.path_table[dst_hash][5]) }
                     path_table.append(entry)
 

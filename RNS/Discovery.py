@@ -596,7 +596,7 @@ class InterfaceDiscovery():
             hops = info["hops"]; ms = "" if hops == 1 else "s"
             filename = RNS.hexrep(discovery_hash, delimit=False)
             filepath = os.path.join(self.storagepath, filename)
-            RNS.log(f"Discovered {interface_type}{version_str} {hops} hop{ms} away with stamp value {value}: {name}", RNS.LOG_DEBUG)
+            RNS.log(f"Discovered {interface_type}{version_str} {hops} hop{ms} away with stamp value {RNS.prettystampval(value)}: {name}", RNS.LOG_DEBUG)
             with self.discovery_lock:
                 if not os.path.isfile(filepath):
                     try:
