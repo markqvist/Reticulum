@@ -262,6 +262,7 @@ class KnownDestinationsStore:
             ratchet          BLOB NOT NULL,
             received         REAL NOT NULL)""")
 
+        # Pre-release migrations, will be folded into finalized schema befor 1.6.0 release
         if 0 < db_version < 2: self._conn.execute("ALTER TABLE known_destinations ADD COLUMN lr_cost REAL")
 
         self._conn.execute("PRAGMA user_version = 2")
