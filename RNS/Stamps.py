@@ -556,7 +556,13 @@ def job_linux(stamp_cost, workblock, message_id, size, mode=MODE_STAMP):
 
     return stamp, total_rounds
 
+ANDROID_PREFER_NACL    = True
+ANDROID_USE_PERSISTENT = True
 def job_android(stamp_cost, workblock, message_id, size, mode=MODE_STAMP):
+    if ANDROID_USE_PERSISTENT: return job_android_persistent(stamp_cost, workblock, message_id, size, mode)
+    else:                      return job_android_legacy(stamp_cost, workblock, message_id, size, mode)
+
+def job_android_legacy(stamp_cost, workblock, message_id, size, mode=MODE_STAMP):
     # Semaphore support is flaky to non-existent on
     # Android, so we need to manually dispatch and
     # manage workloads here, while periodically
@@ -569,9 +575,10 @@ def job_android(stamp_cost, workblock, message_id, size, mode=MODE_STAMP):
     
     use_nacl = False
     try:
-        import nacl.encoding
-        import nacl.hash
-        use_nacl = True
+        if ANDROID_PREFER_NACL:
+            import nacl.encoding
+            import nacl.hash
+            use_nacl = True
     except: pass
 
     if use_nacl:
@@ -640,9 +647,10 @@ def job_android_persistent(stamp_cost, workblock, message_id, size, mode=MODE_ST
 
     use_nacl = False
     try:
-        import nacl.encoding
-        import nacl.hash
-        use_nacl = True
+        if ANDROID_PREFER_NACL:
+            import nacl.encoding
+            import nacl.hash
+            use_nacl = True
     except: pass
 
     if use_nacl:
@@ -699,7 +707,7 @@ def job_android_persistent(stamp_cost, workblock, message_id, size, mode=MODE_ST
 
                 if time.time()-last_progress > 10:
                     elapsed = max(time.time()-start_time, 1E-6)
-                    RNS.log(f"Stamp generation running, {RNS.prettyshorttime(elapsed)} elapsed", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                    RNS.log(f"Stamp ({stamp_cost}) generation running, {RNS.prettyshorttime(elapsed)} elapsed", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                     last_progress = time.time()
 
                 time.sleep(0.05)
