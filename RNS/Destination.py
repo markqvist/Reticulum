@@ -201,7 +201,7 @@ class Destination:
             stamp_entry = load_destination_stamp(self.hash, self.stamp_material(), RNS.Transport.DESTINATION_COST)
             if stamp_entry != None:
                 self.stamp, self.stamp_value = stamp_entry
-                RNS.log(f"Loaded stamp with value {self.stamp_value} for {self}", RNS.LOG_DEBUG)
+                RNS.log(f"Loaded stamp with value {RNS.prettycost(self.stamp_value)} for {self}", RNS.LOG_DEBUG)
 
         self.default_app_data = None
         self.callback = None
