@@ -564,15 +564,12 @@ class Transport:
                                                                               random_blobs, receiving_interface,
                                                                               announce_packet.packet_hash, used]
 
-                                RNS.log("Loaded path table entry for "+RNS.prettyhexrep(destination_hash)+" from storage", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
+                                RNS.log(f"Loaded path table entry for {RNS.prettyhexrep(destination_hash)} from storage", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
                             else:
-                                RNS.log("Could not reconstruct path table entry from storage for "+RNS.prettyhexrep(destination_hash), RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
-                                if announce_packet == None:
-                                    RNS.log("The announce packet could not be loaded from cache", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
-                                if receiving_interface == None:
-                                    RNS.log("The interface is no longer available", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
-                                if blackholed:
-                                    RNS.log("The associated identity is blackholed", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
+                                RNS.log(f"Could not reconstruct path table entry from storage for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
+                                if announce_packet == None:     RNS.log("The announce packet could not be loaded from cache", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
+                                if receiving_interface == None: RNS.log("The interface is no longer available", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
+                                if blackholed:                  RNS.log("The associated identity is blackholed", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
 
                     if len(Transport.path_table) == 1: specifier = "entry"
                     else:                              specifier = "entries"
@@ -1435,7 +1432,7 @@ class Transport:
         with Transport.stamper_thread_lock:
             if Transport.stamper_thread == None or not Transport.stamper_thread.is_alive():
                 Transport.stamper_thread = threading.Thread(target=Transport.stamper_job, daemon=True)
-                RNS.log("Starting announce stamper worker", RNS.LOG_DEBUG)
+                RNS.log("Starting stamp worker", RNS.LOG_DEBUG)
                 Transport.stamper_thread.start()
 
     @staticmethod

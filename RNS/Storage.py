@@ -248,6 +248,12 @@ class KnownDestinationsStore:
     def __create_schema(self):
         db_version = self._conn.execute("PRAGMA user_version").fetchone()[0]
 
+        # Pre-release database cleanup
+        # TODO: Remove this in 1.6.1
+        if db_version > 0:
+            RNS.log(f"Pre-release database detected, rebuilding known destinations DB to release format", RNS.LOG_WARNING)
+            self._conn.execute("DROP TABLE IF EXISTS known_destinations")
+
         self._conn.execute("""CREATE TABLE IF NOT EXISTS known_destinations (
             destination_hash BLOB PRIMARY KEY,
             last_heard       REAL NOT NULL,
@@ -265,23 +271,17 @@ class KnownDestinationsStore:
             ratchet          BLOB NOT NULL,
             received         REAL NOT NULL)""")
 
-        # Pre-release migrations
-        # Will be folded into finalized schema before 1.6.0 release
+        # Schema migrations
         try:
             self._conn.execute("BEGIN")
-            if 0 < db_version < 2: self._conn.execute("ALTER TABLE known_destinations ADD COLUMN lr_cost REAL")
-            if 0 < db_version < 3: self._conn.execute("ALTER TABLE known_destinations ALTER COLUMN packet_hash DROP NOT NULL")
-            self._conn.execute("PRAGMA user_version = 3")
+            # No migrations yet
+            self._conn.execute("PRAGMA user_version = 0")
             self._conn.execute("COMMIT")
             self._conn.commit()
 
         except Exception as e:
-            RNS.log(f"Pre-release database migration failed: {e}", RNS.LOG_CRITICAL)
-            RNS.log(f"You will need to remove the known_destinations.db* files from your storage directory", RNS.LOG_CRITICAL)
-            RNS.log(f"On the next instance start, the database will be rebuilt", RNS.LOG_CRITICAL)
-            RNS.log(f"Exiting now", RNS.LOG_CRITICAL)
-            time.sleep(1)
-            RNS.panic()
+            RNS.log(f"Known destinations database version migration failed: {e}", RNS.LOG_CRITICAL)
+            RNS.log(f"You will need to remove the known_destinations.db* files from your storage directory so it can be rebuilt", RNS.LOG_CRITICAL)
 
     def __entry_row(self, destination_hash, entry):
         stamp         = entry[5] if len(entry) > 5 else None
