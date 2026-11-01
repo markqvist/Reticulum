@@ -769,7 +769,24 @@ class Identity:
 
         # Check cached announce validations
         cached_validation = Identity.announce_valid_cache.get(packet.packet_hash, None)
-        if cached_validation: return Identity.__finalize_av(cached_validation, cache_hit=True)
+        if cached_validation:
+            try:
+                if RNS.Transport.STAMPS_ENABLED and RNS.Transport.STAMPS_ENFORCED:
+                    if required_value == None:
+                        if packet.receiving_interface: cost_target = packet.receiving_interface.destination_cost
+                        else:                          cost_target = RNS.Transport.DESTINATION_COST
+                    else: cost_target = required_value
+
+                    cached_stamp_value = cached_validation.get("stamp_value", None)
+                    if cached_stamp_value == None: return "no_stamp" if signal_stamp else False
+                    elif quantize_cost(cost_target) > quantize_cost(cached_stamp_value):
+                        return "invalid_stamp" if signal_stamp else False
+
+            except Exception as e:
+                RNS.log(f"Error while processing cached valid announce: {e}", RNS.LOG_DEBUG)
+                return False
+
+            return Identity.__finalize_av(cached_validation, cache_hit=True)
 
         if required_value == None:
             if packet.receiving_interface: required_value = packet.receiving_interface.destination_cost
