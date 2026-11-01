@@ -154,6 +154,8 @@ class ReticulumGitClient():
             print(f"Failed to initialize Reticulum: {e}", file=sys.stderr)
             return
 
+        self.reticulum.wants_destination_type(f"{APP_NAME}.repositories")
+
         self.__apply_config()
         self.ready = True
 

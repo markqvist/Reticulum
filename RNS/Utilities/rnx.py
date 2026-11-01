@@ -342,6 +342,8 @@ def execute(configdir, identitypath = None, verbosity = 0, quietness = 0, detail
         targetloglevel = 3+verbosity-quietness
         reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
 
+    reticulum.wants_destination_type(f"{APP_NAME}.execute")
+
     if identity == None:
         prepare_identity(identitypath)
 

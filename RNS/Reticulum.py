@@ -186,6 +186,7 @@ class Reticulum:
         # out cleanup operations.
         if not Reticulum.__exit_handler_ran:
             Reticulum.__exit_handler_ran = True
+            Reticulum.__instance.unwants_all_destination_types()
             if not Reticulum.__interface_detach_ran: RNS.Transport.detach_interfaces()
             RNS.Transport.exit_handler()
             RNS.Identity.exit_handler()
@@ -470,6 +471,20 @@ class Reticulum:
                 elif option == "logtimestamps":
                     value = self.config["logging"].as_bool(option)
                     RNS.logtimestamps = bool(value)
+
+        if "filter" in self.config:
+            for option in self.config["filter"]:
+                if option == "required_only":
+                    v = self.config["filter"].as_bool(option)
+                    RNS.Transport.required_destinations_only = v
+
+                if option == "ignored_types":
+                    entries = self.config["filter"].as_list(option)
+                    for entry in entries: RNS.Transport.block_destination_type(entry)
+
+                if option == "allowed_types":
+                    entries = self.config["filter"].as_list(option)
+                    for entry in entries: RNS.Transport.allow_destination_type(entry)
 
         if "stamps" in self.config:
             for option in self.config["stamps"]:
@@ -1483,6 +1498,23 @@ class Reticulum:
                     identity_hash = call["unblackhole_identity"]
                     self.rpc_return(conn, self.unblackhole_identity(identity_hash))
 
+                if "wants_destination_type" in call:
+                    full_name = call["wants_destination_type"]
+                    requester = call["requester"]
+                    signature = call["signature"]
+                    self.rpc_return(conn, self.wants_destination_type(full_name, requester, signature))
+
+                if "unwants_destination_type" in call:
+                    full_name = call["unwants_destination_type"]
+                    requester = call["requester"]
+                    signature = call["signature"]
+                    self.rpc_return(conn, self.unwants_destination_type(full_name, requester, signature))
+
+                if "unwants_all_destination_types" in call:
+                    requester = call["requester"]
+                    signature = call["signature"]
+                    self.rpc_return(conn, self.unwants_all_destination_types(requester, signature))
+
                 if "destination_data" in call:
                     operation = call["destination_data"]
                     destination_hash = call["destination_hash"]
@@ -1561,10 +1593,15 @@ class Reticulum:
 
     def get_interface_stats(self):
         if self.is_connected_to_shared_instance:
-            rpc_connection = self.get_rpc_client()
-            rpc_connection.send_bytes(mp.packb({"get": "interface_stats"}))
-            response = mp.unpackb(rpc_connection.recv_bytes())
-            return response
+            try:
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send_bytes(mp.packb({"get": "interface_stats"}))
+                response = mp.unpackb(rpc_connection.recv_bytes())
+                return response
+
+            except Exception as e:
+                RNS.log(f"Shared instance RPC failed while getting interface stats: {e}", RNS.LOG_ERROR)
+                return None
 
         else:
             interfaces = []
@@ -1817,10 +1854,14 @@ class Reticulum:
 
     def get_path_table(self, max_hops=None):
         if self.is_connected_to_shared_instance:
-            rpc_connection = self.get_rpc_client()
-            rpc_connection.send_bytes(mp.packb({"get": "path_table", "max_hops": max_hops}))
-            response = mp.unpackb(rpc_connection.recv_bytes())
-            return response
+            try:
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send_bytes(mp.packb({"get": "path_table", "max_hops": max_hops}))
+                response = mp.unpackb(rpc_connection.recv_bytes())
+                return response
+            except Exception as e:
+                RNS.log(f"Shared instance RPC failed while getting path table: {e}", RNS.LOG_ERROR)
+                return []
 
         else:
             path_table = []
@@ -1841,10 +1882,14 @@ class Reticulum:
 
     def get_rate_table(self):
         if self.is_connected_to_shared_instance:
-            rpc_connection = self.get_rpc_client()
-            rpc_connection.send_bytes(mp.packb({"get": "rate_table"}))
-            response = mp.unpackb(rpc_connection.recv_bytes())
-            return response
+            try:
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send_bytes(mp.packb({"get": "rate_table"}))
+                response = mp.unpackb(rpc_connection.recv_bytes())
+                return response
+            except Exception as e:
+                RNS.log(f"Shared instance RPC failed while getting rate table: {e}", RNS.LOG_ERROR)
+                return []
 
         else:
             rate_table = []
@@ -2003,20 +2048,28 @@ class Reticulum:
 
     def get_link_distribution(self):
         if self.is_connected_to_shared_instance:
-            rpc_connection = self.get_rpc_client()
-            rpc_connection.send_bytes(mp.packb({"get": "link_distribution"}))
-            response = mp.unpackb(rpc_connection.recv_bytes())
-            return response
+            try:
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send_bytes(mp.packb({"get": "link_distribution"}))
+                response = mp.unpackb(rpc_connection.recv_bytes())
+                return response
+            except Exception as e:
+                RNS.log(f"Shared instance RPC failed while getting link distribution: {e}", RNS.LOG_ERROR)
+                return None
 
         else:
             return RNS.Transport.link_distribution()
 
     def get_packet_rssi(self, packet_hash):
         if self.is_connected_to_shared_instance:
-            rpc_connection = self.get_rpc_client()
-            rpc_connection.send_bytes(mp.packb({"get": "packet_rssi", "packet_hash": packet_hash}))
-            response = mp.unpackb(rpc_connection.recv_bytes())
-            return response
+            try:
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send_bytes(mp.packb({"get": "packet_rssi", "packet_hash": packet_hash}))
+                response = mp.unpackb(rpc_connection.recv_bytes())
+                return response
+            except Exception as e:
+                RNS.log(f"Shared instance RPC failed while getting packet RSSI: {e}", RNS.LOG_ERROR)
+                return None
 
         else:
             for entry in RNS.Transport.local_client_rssi_cache:
@@ -2027,10 +2080,14 @@ class Reticulum:
 
     def get_packet_snr(self, packet_hash):
         if self.is_connected_to_shared_instance:
-            rpc_connection = self.get_rpc_client()
-            rpc_connection.send_bytes(mp.packb({"get": "packet_snr", "packet_hash": packet_hash}))
-            response = mp.unpackb(rpc_connection.recv_bytes())
-            return response
+            try:
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send_bytes(mp.packb({"get": "packet_snr", "packet_hash": packet_hash}))
+                response = mp.unpackb(rpc_connection.recv_bytes())
+                return response
+            except Exception as e:
+                RNS.log(f"Shared instance RPC failed while getting packet SNR: {e}", RNS.LOG_ERROR)
+                return None
 
         else:
             for entry in RNS.Transport.local_client_snr_cache:
@@ -2041,10 +2098,14 @@ class Reticulum:
 
     def get_packet_q(self, packet_hash):
         if self.is_connected_to_shared_instance:
-            rpc_connection = self.get_rpc_client()
-            rpc_connection.send_bytes(mp.packb({"get": "packet_q", "packet_hash": packet_hash}))
-            response = mp.unpackb(rpc_connection.recv_bytes())
-            return response
+            try:
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send_bytes(mp.packb({"get": "packet_q", "packet_hash": packet_hash}))
+                response = mp.unpackb(rpc_connection.recv_bytes())
+                return response
+            except Exception as e:
+                RNS.log(f"Shared instance RPC failed while getting packet link quality: {e}", RNS.LOG_ERROR)
+                return None
 
         else:
             for entry in RNS.Transport.local_client_q_cache:
@@ -2135,6 +2196,60 @@ class Reticulum:
                 return response
             
             else: return RNS.Transport.unblackhole_identity(identity_hash)
+
+    # For now, this is available on shared instance clients
+    # only, so an application cannot squelch announce ingress
+    # for other applications and the node as a whole.
+    def required_announces_only(self, enabled=True):
+        if not enabled in [True, False]: return False
+        if not self.is_connected_to_shared_instance: return False
+        else: RNS.Transport.required_destinations_only = enabled
+        return True
+
+    def wants_destination_type(self, full_name, requester=None, signature=None):
+        if not requester: requester = RNS.Transport.application_identity.hash
+        if self.is_connected_to_shared_instance:
+            try:
+                RNS.Transport._wants_destination_type(full_name, requester, signature)
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send_bytes(mp.packb({"wants_destination_type": full_name, "requester": requester, "signature": signature}))
+                response = mp.unpackb(rpc_connection.recv_bytes())
+                return response
+            except Exception as e:
+                RNS.log(f"Shared instance RPC failed while setting destination type filters: {e}", RNS.LOG_ERROR)
+                return False
+
+        else: return RNS.Transport._wants_destination_type(full_name, requester, signature)
+
+    def unwants_destination_type(self, full_name, requester=None, signature=None):
+        if not requester: requester = RNS.Transport.application_identity.hash
+        if self.is_connected_to_shared_instance:
+            try:
+                RNS.Transport._unwants_destination_type(full_name, requester, signature)
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send_bytes(mp.packb({"unwants_destination_type": full_name, "requester": requester, "signature": signature}))
+                response = mp.unpackb(rpc_connection.recv_bytes())
+                return response
+            except Exception as e:
+                RNS.log(f"Shared instance RPC failed while setting destination type filters: {e}", RNS.LOG_ERROR)
+                return False
+
+        else: return RNS.Transport._unwants_destination_type(full_name, requester, signature)
+
+    def unwants_all_destination_types(self, requester=None, signature=None):
+        if not requester: requester = RNS.Transport.application_identity.hash
+        if self.is_connected_to_shared_instance:
+            try:
+                RNS.Transport._unwants_all_destination_types(requester, signature)
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send_bytes(mp.packb({"unwants_all_destination_types": True, "requester": requester, "signature": signature}))
+                response = mp.unpackb(rpc_connection.recv_bytes())
+                return response
+            except Exception as e:
+                RNS.log(f"Shared instance RPC failed while setting destination type filters: {e}", RNS.LOG_ERROR)
+                return False
+
+        else: return RNS.Transport._unwants_all_destination_types(requester, signature)
 
     @staticmethod
     def should_use_implicit_proof():

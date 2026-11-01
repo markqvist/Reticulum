@@ -148,6 +148,14 @@ class Destination:
 
         return Destination.hash(identity, app_name, *aspects)
 
+    @staticmethod
+    def name_hash(full_name):
+        components = Destination.app_and_aspects_from_name(full_name)
+        app_name = str(components[0])
+        aspects  = f".{'.'.join(components[1])}" if components[1] else ""
+        name     = f"{app_name}{aspects}".encode("utf-8")
+        return RNS.Identity.full_hash(name)[:(RNS.Identity.NAME_HASH_LENGTH//8)]
+
     def __init__(self, identity, direction, type, app_name, *aspects):
         # Check input values and build name string
         if "." in app_name: raise ValueError("Dots can't be used in app names") 

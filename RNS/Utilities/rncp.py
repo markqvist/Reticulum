@@ -387,6 +387,7 @@ def fetch(configdir, identitypath = None, verbosity = 0, quietness = 0, destinat
         RNS.exit(1)
 
     reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
+    reticulum.wants_destination_type(f"{APP_NAME}.receive")
 
     if identity == None:
         prepare_identity(identitypath)
@@ -643,6 +644,7 @@ def send(configdir, identitypath = None, verbosity = 0, quietness = 0, destinati
     print(f"{erase_str}", end="")
 
     reticulum = RNS.Reticulum(configdir=configdir, loglevel=targetloglevel)
+    reticulum.wants_destination_type(f"{APP_NAME}.receive")
 
     if identity == None:
         prepare_identity(identitypath)

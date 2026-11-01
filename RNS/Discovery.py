@@ -905,6 +905,7 @@ class BlackholeUpdater():
 
     def start(self):
         if not self.should_run:
+            RNS.Reticulum.get_instance().wants_destination_type("rnstransport.info.blackhole")
             source_count = len(RNS.Reticulum.blackhole_sources())
             ms = "" if source_count == 1 else "s"
             RNS.log(f"Starting blackhole updater with {source_count} source{ms}", RNS.LOG_DEBUG)

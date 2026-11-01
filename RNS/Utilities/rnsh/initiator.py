@@ -153,6 +153,8 @@ async def _initiate_link(configdir, rnsconfigdir, identitypath=None, logfile=Non
         RNS.logfile = logfile
         _reticulum = RNS.Reticulum(configdir=rnsconfigdir, loglevel=targetloglevel, logdest=RNS.LOG_FILE)
 
+    _reticulum.wants_destination_type(f"{rnsh.APP_NAME}")
+
     if _identity is None:
         _identity = rnsh.prepare_identity(identity_path=identitypath, service_name=None, configdir=configdir)
 

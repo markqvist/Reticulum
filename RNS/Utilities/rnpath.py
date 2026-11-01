@@ -106,6 +106,8 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
 
     global remote_link, reticulum
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
+    reticulum.wants_destination_type("rnstransport.remote.management")
+    reticulum.wants_destination_type("rnstransport.info.blackhole")
     if remote:
         try:
             dest_len = (RNS.Reticulum.TRUNCATED_HASHLENGTH//8)*2

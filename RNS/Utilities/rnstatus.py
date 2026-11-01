@@ -171,6 +171,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
             must_exit = False
         else:
             reticulum = RNS.Reticulum(configdir=configdir, loglevel=3+verbosity, require_shared_instance=require_shared)
+            reticulum.wants_destination_type("rnstransport.remote.management")
 
     except Exception as e:
         print("No shared RNS instance available to get status from")
@@ -922,7 +923,9 @@ def main(must_exit=True, rns_instance=None):
             if args.R: require_shared = False
             else:      require_shared = True
           
-            try: reticulum = RNS.Reticulum(configdir=configarg, loglevel=3+args.verbose, require_shared_instance=require_shared)
+            try:
+                reticulum = RNS.Reticulum(configdir=configarg, loglevel=3+args.verbose, require_shared_instance=require_shared)
+                reticulum.wants_destination_type("rnstransport.remote.management")
             except Exception as e:
                 print("No shared RNS instance available to get status from")
                 exit(1)

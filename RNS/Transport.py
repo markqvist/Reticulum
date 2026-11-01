@@ -264,6 +264,11 @@ class Transport:
     inflight_path_requests      = {}           # A table for tracking in-flight path request
     path_states                 = {}           # A table for keeping track of path states
     blackholed_identities       = {}           # A table for keeping track of blackholed identities
+    blocked_destination_types   = {}           # A table for keeping track of ignored destination types
+    allowed_destination_types   = {}           # A table for keeping track of allowed destination types
+    client_destination_types    = {}           # A table for keeping track of destination types needed by applications
+    destination_type_map        = {}           # Lookup table for destination type names
+    required_destinations_only  = False
     announce_rate_table         = AnnounceRateTable(max_timestamps=MAX_RATE_TIMESTAMPS)
     
     discovery_path_requests     = {}           # A table for keeping track of path requests on behalf of other nodes
@@ -398,6 +403,7 @@ class Transport:
 
     identity                    = None
     network_identity            = None
+    application_identity        = None
 
     _identity                   = None
     _should_run                 = True
@@ -438,6 +444,8 @@ class Transport:
                 RNS.log(f"Initialized ephemeral transport identity {RNS.prettyhexrep(Transport.identity.hash)}", RNS.LOG_VERBOSE) if RNS.sl(RNS.LOG_VERBOSE) else None
 
             if RNS.Reticulum.local_hops_delta(): Transport.local_hops_delta = (ord(os.urandom(1))%6)+2
+
+        if Transport.application_identity == None: Transport.application_identity = RNS.Identity()
 
         if not RNS.Reticulum.transport_enabled() or Transport.owner.is_connected_to_shared_instance:
             Transport.unused_path_linger = Transport.UNUSED_PATH_LINGER_LEAF
@@ -2014,6 +2022,18 @@ class Transport:
 
         # Ingress limit announces early
         if packet.packet_type == RNS.Packet.ANNOUNCE:
+            name_hash = packet.data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8]
+            if len(name_hash) != RNS.Identity.NAME_HASH_LENGTH//8: return packet.receiving_interface.protocol_violation(f"Malformed announce packet with size {len(packet.data)}")
+
+            if Transport.blocked_destination_types and name_hash in Transport.blocked_destination_types: return
+            if Transport.required_destinations_only:
+                if   name_hash in Transport.allowed_destination_types:                   allowed = True
+                elif name_hash in Transport.client_destination_types:                    allowed = True
+                elif Transport.is_local_client_interface(packet.receiving_interface):    allowed = True if packet.hops == 1 else False # 1 == 0 really, yes it's weird  ~. . .~
+                elif Transport.interface_to_shared_instance(packet.receiving_interface): allowed = True if packet.hops == 1 else False # 1 == 0 really, yes it's weird    `-`
+                else:                                                                    allowed = False
+                if not allowed: return
+
             if len(raw) > RNS.Reticulum.MTU: return packet.receiving_interface.protocol_violation(f"Excessive announce packet frame size of {len(raw)} bytes") if packet.receiving_interface else None
             if traffic_class < Transport.TC_ANNOUNCE: traffic_class = Transport.TC_ANNOUNCE
             announce_signature_valid = RNS.Identity.validate_announce(packet, only_validate_signature=True, signal_blackholed=True, signal_stamp=True)
@@ -4513,6 +4533,7 @@ class Transport:
         RNS.Identity._reset_validation_caches()
         Transport.remove_blackholed_paths()
 
+    @staticmethod
     def remove_blackholed_paths():
         drop_destinations = []
         for destination_hash in Transport.path_table.copy():
@@ -4561,6 +4582,87 @@ class Transport:
         except Exception as e:
             RNS.log(f"Error while persisting blackhole list: {e}", RNS.LOG_ERROR)
             RNS.trace_exception(e)
+
+    ##############################
+    # Destination Type Filtering #
+    ##############################
+
+    destination_filters_lock = threading.Lock()
+
+    @staticmethod
+    def block_destination_type(full_name):
+        try:
+            name_hash = RNS.Destination.name_hash(full_name)
+            with Transport.destination_filters_lock:
+                Transport.blocked_destination_types[name_hash] = [True]
+                Transport.client_destination_types.pop(name_hash, None)
+                Transport.destination_type_map[name_hash] = full_name
+            RNS.log(f"Blocked {full_name} {RNS.prettyhexrep(name_hash)} destinations", RNS.LOG_DEBUG)
+            return True
+        except Exception as e: RNS.log(f"Could not add {full_name} destination type to blocked list: {e}", RNS.LOG_ERROR)
+        return False
+
+    @staticmethod
+    def allow_destination_type(full_name):
+        try:
+            name_hash = RNS.Destination.name_hash(full_name)
+            with Transport.destination_filters_lock:
+                Transport.allowed_destination_types[name_hash] = [True]
+                Transport.destination_type_map[name_hash] = full_name
+            if Transport.required_destinations_only: RNS.log(f"Allowing {Transport.destination_type_name(name_hash)} {RNS.prettyhexrep(name_hash)} destinations", RNS.LOG_DEBUG)
+            return True
+        except Exception as e: RNS.log(f"Could not add {Transport.destination_type_name(name_hash)} destination type to allowed list: {e}", RNS.LOG_ERROR)
+        return False
+
+    @staticmethod
+    def _wants_destination_type(full_name, requester, signature):
+        try:
+            name_hash = RNS.Destination.name_hash(full_name)
+            if not name_hash in Transport.blocked_destination_types:
+                with Transport.destination_filters_lock:
+                    # TODO: Add requester signature validation
+                    entry = Transport.client_destination_types.get(name_hash, [True, {}])
+                    entry[1][requester] = [True]
+                    Transport.client_destination_types[name_hash] = entry
+                    Transport.destination_type_map[name_hash] = full_name
+                RNS.log(f"Registered {Transport.destination_type_name(name_hash)} {RNS.prettyhexrep(name_hash)} destinations requirement for {RNS.prettyhexrep(requester)}", RNS.LOG_DEBUG)
+                return True
+
+        except Exception as e: RNS.log(f"Could not add {Transport.destination_type_name(name_hash)} destination type to clients required list: {e}", RNS.LOG_ERROR)
+        return False
+
+    @staticmethod
+    def _unwants_destination_type(full_name, requester, signature, name_hash=None):
+        try:
+            if not name_hash: name_hash = RNS.Destination.name_hash(full_name)
+            with Transport.destination_filters_lock:
+                # TODO: Add requester signature validation
+                entry = Transport.client_destination_types.get(name_hash, None)
+                if entry:
+                    was_registered = entry[1].pop(requester, None)
+                    if was_registered: RNS.log(f"Deregistered {Transport.destination_type_name(name_hash)} {RNS.prettyhexrep(name_hash)} destinations requirement for {RNS.prettyhexrep(requester)}", RNS.LOG_DEBUG)
+                    if len(entry[1]) == 0:
+                        Transport.client_destination_types.pop(name_hash, None)
+                        RNS.log(f"No remaining requesters for {Transport.destination_type_name(name_hash)} {RNS.prettyhexrep(name_hash)} destinations, type deregistered", RNS.LOG_DEBUG)
+                    if was_registered: return True
+
+        except Exception as e: RNS.log(f"Could not remove {Transport.destination_type_name(name_hash)} destination type for {RNS.prettyhexrep(requester)} from clients required list: {e}", RNS.LOG_ERROR)
+        return False
+
+    @staticmethod
+    def _unwants_all_destination_types(requester, signature):
+        try:
+            for name_hash in Transport.client_destination_types.copy():
+                Transport._unwants_destination_type(None, requester, signature, name_hash=name_hash)
+            RNS.log(f"Deregistered all destination requirements for {RNS.prettyhexrep(requester)}", RNS.LOG_DEBUG)
+            return True
+
+        except Exception as e: RNS.log(f"Could not deregister all destination types for {RNS.prettyhexrep(requester)} from clients required list: {e}", RNS.LOG_ERROR); RNS.trace_exception(e)
+        return False
+
+    @staticmethod
+    def destination_type_name(name_hash):
+        return f"<{Transport.destination_type_map.get(name_hash, 'unknown')}>"
 
     ###################
     # Various Helpers #

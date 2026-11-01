@@ -57,14 +57,15 @@ def program_setup(configdir, rnsconfigdir=None, verbosity=0, quietness=0, servic
     targetverbosity = verbosity-quietness
 
     if service:
-        targetlogdest  = RNS.LOG_FILE
+        targetlogdest   = RNS.LOG_FILE
         targetverbosity = None
     else:
-        targetlogdest  = RNS.LOG_STDOUT
+        targetlogdest   = RNS.LOG_STDOUT
 
     if print_identity: git_node = ReticulumGitNode(configdir=configdir, print_identity=True)
 
-    reticulum  = RNS.Reticulum(configdir=rnsconfigdir, verbosity=targetverbosity, logdest=targetlogdest)
+    reticulum = RNS.Reticulum(configdir=rnsconfigdir, verbosity=targetverbosity, logdest=targetlogdest)
+    reticulum.wants_destination_type(f"{APP_NAME}.repositories")
 
     if not task:
         RNS.log("Starting Reticulum Git Node...", RNS.LOG_NOTICE)
