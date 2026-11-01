@@ -41,7 +41,8 @@ from .vendor import umsgpack as umsgpack
 from RNS.Cryptography import X25519PrivateKey, X25519PublicKey, Ed25519PrivateKey, Ed25519PublicKey
 from RNS.Cryptography import Token
 from RNS.Storage import KnownDestinationsStore
-from RNS.Stamps import stamp_workblock, stamp_valid, stamp_value, generate_stamped_key, cost_from_bytes
+from RNS.Stamps import stamp_workblock, stamp_valid, stamp_value, generate_stamped_key
+from RNS.Stamps import cost_from_bytes, quantize_cost
 
 
 class Identity:
@@ -673,7 +674,103 @@ class Identity:
             return None
 
     @staticmethod
+    def _reset_validation_caches():
+        Identity.announce_valid_cache   = {}
+        Identity.announce_invalid_cache = {}
+
+    __valid_cache_count = 0
+    __valid_cache_max   = 128
+    @staticmethod
+    def __cache_valid_announce(result):
+        Identity.__valid_cache_count += 1
+        result["id"] = Identity.__valid_cache_count
+        packet_hash = result["packet_hash"]
+        if packet_hash and not packet_hash in Identity.announce_valid_cache:
+            Identity.announce_valid_cache[packet_hash] = result
+
+        Identity.announce_invalid_cache.pop(packet_hash, None)
+
+        try:
+            while len(Identity.announce_valid_cache) > Identity.__valid_cache_max:
+                Identity.announce_valid_cache.pop(next(iter(Identity.announce_valid_cache)))
+        except Exception as e: RNS.log(f"Error while culling announce validation cache: {e}", RNS.LOG_DEBUG)
+
+        return True
+
+    __invalid_cache_count = 0
+    __invalid_cache_max   = 128
+    @staticmethod
+    def __cache_invalid_announce(packet, signal=None, stamp_value=None):
+        Identity.__invalid_cache_count += 1
+        result = (signal or False, stamp_value)
+        if packet.packet_hash: Identity.announce_invalid_cache[packet.packet_hash] = result
+
+        try:
+            while len(Identity.announce_invalid_cache) > Identity.__invalid_cache_max:
+                Identity.announce_invalid_cache.pop(next(iter(Identity.announce_invalid_cache)))
+        except Exception as e: RNS.log(f"Error while culling announce invalidation cache: {e}", RNS.LOG_DEBUG)
+
+        return result[0]
+
+    @staticmethod
+    def __finalize_av(r, cache_hit=False):
+        # We are also re-persisting here on cache hit in the edge (but very possible) case
+        # that a path was culled (for example because of interface teardown), and its
+        # associated destination data was removed. Known destinations must always cover
+        # what is in the path table, anything else is state inconsintency.
+        if not cache_hit or not r["destination_hash"] in Identity.known_destinations:
+            RNS.Identity.remember(r["packet_hash"], r["destination_hash"], r["public_key"], app_data=r["app_data"],
+                                  stamp=r["stamp"], stamp_value=r["stamp_value"], lr_cost=r["lr_cost"])
+
+            if r["ratchet"]: Identity._remember_ratchet(r["destination_hash"], r["ratchet"])
+
+        valid_announce_loglevel = RNS.LOG_EXTREME # TODO: Reset to LOG_EXTREME
+        if RNS.sl(valid_announce_loglevel):
+            if r["rssi"] != None or r["snr"] != None:
+                signal_str = " ["
+                if r["rssi"] != None:
+                    signal_str += "RSSI "+str(r["rssi"])+"dBm"
+                    if r["snr"] != None: signal_str += ", "
+                if r["snr"] != None: signal_str += "SNR "+str(r["snr"])+"dB"
+                signal_str += "]"
+            else: signal_str = ""
+
+            if r["transport_id"] != None: RNS.log("Valid announce for "+RNS.prettyhexrep(r["destination_hash"])+" "+str(r["hops"])+" hops away, received via "+RNS.prettyhexrep(r["transport_id"])+" on "+str(r["receiving_interface"])+signal_str, valid_announce_loglevel)
+            else: RNS.log("Valid announce for "+RNS.prettyhexrep(r["destination_hash"])+" "+str(r["hops"])+" hops away, received on "+str(r["receiving_interface"])+signal_str, valid_announce_loglevel)
+
+        return True
+
+    announce_valid_cache   = {}
+    announce_invalid_cache = {}
+
+    @staticmethod
     def validate_announce(packet, only_validate_signature=False, signal_blackholed=False, signal_stamp=False, required_value=None):
+        # Check cached announce invalidations
+        cached_invalidation = Identity.announce_invalid_cache.get(packet.packet_hash, None)
+        if cached_invalidation:
+            try:
+                if cached_invalidation[0] != "invalid_stamp":
+                    if   cached_invalidation[0] == "no_stamp":   return cached_invalidation[0] if signal_stamp else False
+                    elif cached_invalidation[0] == "blackholed": return cached_invalidation[0] if signal_blackholed else False
+                    else:                                        return False
+                elif cached_invalidation[1] != None:
+                    rcvd_value = quantize_cost(cached_invalidation[1])
+                    if packet.receiving_interface: cost_target = packet.receiving_interface.destination_cost
+                    else:                          cost_target = RNS.Transport.DESTINATION_COST
+                    if quantize_cost(cost_target) > quantize_cost(rcvd_value): return "invalid_stamp" if signal_stamp else False
+                    else: pass # Stamp value above target for this interface, allow re-validation
+                else:
+                    RNS.log(f"Incoherent state in cached announce invalidation, rejecting announce", RNS.LOG_WARNING)
+                    return False
+
+            except Exception as e:
+                RNS.log(f"Error while processing cached invalid announce: {e}", RNS.LOG_DEBUG)
+                return False
+
+        # Check cached announce validations
+        cached_validation = Identity.announce_valid_cache.get(packet.packet_hash, None)
+        if cached_validation: return Identity.__finalize_av(cached_validation, cache_hit=True)
+
         if required_value == None:
             if packet.receiving_interface: required_value = packet.receiving_interface.destination_cost
             else:                          required_value = RNS.Transport.DESTINATION_COST
@@ -742,16 +839,16 @@ class Identity:
                         # RNS.log(f"Checking potential stamp in announce with app_data len {len(app_data)} for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_DEBUG) # TODO: Remove after 1.6.1
                         dst_stamped = True
                         try:
-                            stamp    = ext_payload[Identity.EXTHEADERLENGTH:Identity.EXTHEADERLENGTH+Identity.STAMPLENGTH]
-                            material = destination_hash+public_key+name_hash
-                            wb       = stamp_workblock(material, expand_rounds=0)
-                            valid    = stamp_valid(stamp, required_value, wb)
+                            stamp     = ext_payload[Identity.EXTHEADERLENGTH:Identity.EXTHEADERLENGTH+Identity.STAMPLENGTH]
+                            material  = destination_hash+public_key+name_hash
+                            wb        = stamp_workblock(material, expand_rounds=0)
+                            valid     = stamp_valid(stamp, required_value, wb)
+                            dst_value = stamp_value(wb, stamp)
 
                             if valid:
                                 app_data = app_data[:-Identity.EXTPAYLOADLENGTH]
                                 if not len(app_data): app_data = None
                                 stamp_validated = True
-                                dst_value       = stamp_value(wb, stamp)
                                 dst_lr_cost     = ext_lr_cost
 
                         except Exception as e: RNS.log(f"Announce stamp parsing failed: {e}", RNS.LOG_ERROR)
@@ -766,11 +863,11 @@ class Identity:
 
                 if RNS.Transport.STAMPS_ENABLED and RNS.Transport.STAMPS_ENFORCED:
                     if not dst_stamped:
-                        if signal_stamp: return "no_stamp"
-                        else:            return False
+                        if signal_stamp: return Identity.__cache_invalid_announce(packet, "no_stamp")
+                        else:            return Identity.__cache_invalid_announce(packet)
                     elif not stamp_validated:
-                        if signal_stamp: return "invalid_stamp"
-                        else:            return False
+                        if signal_stamp: return Identity.__cache_invalid_announce(packet, "invalid_stamp", dst_value)
+                        else:            return Identity.__cache_invalid_announce(packet)
 
                 announced_identity = Identity(create_keys=False)
                 announced_identity.load_public_key(public_key)
@@ -778,8 +875,8 @@ class Identity:
                 if len(RNS.Transport.blackholed_identities) > 0:
                     if announced_identity.hash in RNS.Transport.blackholed_identities:
                         RNS.log(f"Invalidated and dropped announce from blackholed identity {RNS.prettyhexrep(announced_identity.hash)}", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
-                        if signal_blackholed: return "blackholed"
-                        else:                 return False
+                        if signal_blackholed: return Identity.__cache_invalid_announce(packet, "blackholed")
+                        else:                 return Identity.__cache_invalid_announce(packet)
 
                 if announced_identity.pub != None and (packet.announce_signature_validated or announced_identity.validate(signature, signed_data)):
                     packet.announce_signature_validated = True
@@ -789,6 +886,7 @@ class Identity:
 
                     hash_material = name_hash+announced_identity.hash
                     expected_hash = RNS.Identity.full_hash(hash_material)[:RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
+                    del announced_identity
 
                     if destination_hash == expected_hash:
                         # Check if we already have a public key for this destination
@@ -799,43 +897,29 @@ class Identity:
                                 # that someone manages a hash collision, we reject the announce.
                                 RNS.log("Received announce with valid signature and destination hash, but announced public key does not match already known public key.", RNS.LOG_CRITICAL)
                                 RNS.log("This may indicate an attempt to modify network paths, or a random hash collision. The announce was rejected.", RNS.LOG_CRITICAL)
-                                return False
+                                return Identity.__cache_invalid_announce(packet)
 
-                        RNS.Identity.remember(packet.get_hash(), destination_hash, public_key,
-                                              app_data=app_data, stamp=stamp, stamp_value=dst_value, lr_cost=dst_lr_cost)
+                        validation_result = { "packet_hash": packet.packet_hash, "destination_hash": destination_hash,
+                                              "public_key": public_key, "ratchet": ratchet, "app_data": app_data, "stamp": stamp,
+                                              "stamp_value": dst_value, "lr_cost": dst_lr_cost, "transport_id": packet.transport_id,
+                                              "hops": packet.hops, "receiving_interface": str(packet.receiving_interface),
+                                              "rssi": packet.rssi, "snr": packet.snr, "q": packet.q }
 
-                        del announced_identity
-
-                        if packet.rssi != None or packet.snr != None:
-                            signal_str = " ["
-                            if packet.rssi != None:
-                                signal_str += "RSSI "+str(packet.rssi)+"dBm"
-                                if packet.snr != None: signal_str += ", "
-                            if packet.snr != None: signal_str += "SNR "+str(packet.snr)+"dB"
-                            signal_str += "]"
-
-                        else: signal_str = ""
-
-                        if hasattr(packet, "transport_id") and packet.transport_id != None:
-                            RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received via "+RNS.prettyhexrep(packet.transport_id)+" on "+str(packet.receiving_interface)+signal_str, RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
-                        else:
-                            RNS.log("Valid announce for "+RNS.prettyhexrep(destination_hash)+" "+str(packet.hops)+" hops away, received on "+str(packet.receiving_interface)+signal_str, RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
-
-                        if ratchet: Identity._remember_ratchet(destination_hash, ratchet)
-
-                        return True
+                        Identity.__finalize_av(validation_result)
+                        return Identity.__cache_valid_announce(validation_result)
 
                     else:
                         RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash)+": Destination mismatch.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-                        return False
+                        return Identity.__cache_invalid_announce(packet)
 
                 else:
                     RNS.log("Received invalid announce for "+RNS.prettyhexrep(destination_hash)+": Invalid signature.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                     del announced_identity
-                    return False
+                    return Identity.__cache_invalid_announce(packet)
         
         except Exception as e:
             RNS.log("Error occurred while validating announce. The contained exception was: "+str(e), RNS.LOG_ERROR)
+            RNS.trace_exception(e) # TODO: Remove debug
             return False
 
     @staticmethod

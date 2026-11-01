@@ -2625,36 +2625,38 @@ class Transport:
 
                             # If we have any local clients connected, we re-
                             # transmit the announce to them immediately
-                            if (len(Transport.local_client_interfaces)):
+                            if len(Transport.local_client_interfaces):
                                 announce_identity = RNS.Identity.recall(packet.destination_hash, _no_use=True)
-                                announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
-                                announce_destination.hash = packet.destination_hash
-                                announce_destination.hexhash = announce_destination.hash.hex()
-                                announce_context = RNS.Packet.NONE
-                                announce_data = packet.data
-
-                                # TODO: Shouldn't the context be PATH_RESPONSE in the first case here?
-                                if is_from_local_client and packet.context == RNS.Packet.PATH_RESPONSE:
-                                    for local_interface in Transport.local_client_interfaces:
-                                        if packet.receiving_interface != local_interface:
-                                            new_announce = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE, # <-- This one?
-                                                                      context = announce_context, header_type = RNS.Packet.HEADER_2,
-                                                                      transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash,
-                                                                      attached_interface = local_interface, context_flag = packet.context_flag)
-                                            
-                                            new_announce.hops = packet.hops
-                                            new_announce.send()
-
+                                if not announce_identity: RNS.log(f"Aborting local-client announce rebroadcast for {RNS.prettyhexrep(destination_hash)}, the path was cleaned while waiting for announce rebroadcast", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
                                 else:
-                                    for local_interface in Transport.local_client_interfaces:
-                                        if packet.receiving_interface != local_interface:
-                                            new_announce = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE,
-                                                                      context = announce_context, header_type = RNS.Packet.HEADER_2,
-                                                                      transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash,
-                                                                      attached_interface = local_interface, context_flag = packet.context_flag)
+                                    announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
+                                    announce_destination.hash = packet.destination_hash
+                                    announce_destination.hexhash = announce_destination.hash.hex()
+                                    announce_context = RNS.Packet.NONE
+                                    announce_data = packet.data
 
-                                            new_announce.hops = packet.hops
-                                            new_announce.send()
+                                    # TODO: Shouldn't the context be PATH_RESPONSE in the first case here?
+                                    if is_from_local_client and packet.context == RNS.Packet.PATH_RESPONSE:
+                                        for local_interface in Transport.local_client_interfaces:
+                                            if packet.receiving_interface != local_interface:
+                                                new_announce = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE, # <-- This one?
+                                                                          context = announce_context, header_type = RNS.Packet.HEADER_2,
+                                                                          transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash,
+                                                                          attached_interface = local_interface, context_flag = packet.context_flag)
+
+                                                new_announce.hops = packet.hops
+                                                new_announce.send()
+
+                                    else:
+                                        for local_interface in Transport.local_client_interfaces:
+                                            if packet.receiving_interface != local_interface:
+                                                new_announce = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE,
+                                                                          context = announce_context, header_type = RNS.Packet.HEADER_2,
+                                                                          transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash,
+                                                                          attached_interface = local_interface, context_flag = packet.context_flag)
+
+                                                new_announce.hops = packet.hops
+                                                new_announce.send()
 
                             # If we have any waiting discovery path requests
                             # for this destination, we retransmit to that
@@ -2668,19 +2670,21 @@ class Transport:
                                     interface_str = " on "+str(attached_interface)
                                     RNS.log("Got matching announce, answering waiting discovery path request for "+RNS.prettyhexrep(packet.destination_hash)+interface_str, RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
                                     announce_identity = RNS.Identity.recall(packet.destination_hash, _no_use=False)
-                                    announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
-                                    announce_destination.hash = packet.destination_hash
-                                    announce_destination.hexhash = announce_destination.hash.hex()
-                                    announce_context = RNS.Packet.NONE
-                                    announce_data = packet.data
+                                    if not announce_identity: RNS.log(f"Aborting path request answer for {RNS.prettyhexrep(destination_hash)}, the path was cleaned while waiting for the response", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
+                                    else:
+                                        announce_destination = RNS.Destination(announce_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "unknown", "unknown");
+                                        announce_destination.hash = packet.destination_hash
+                                        announce_destination.hexhash = announce_destination.hash.hex()
+                                        announce_context = RNS.Packet.NONE
+                                        announce_data = packet.data
 
-                                    new_announce = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE,
-                                                              context = RNS.Packet.PATH_RESPONSE, header_type = RNS.Packet.HEADER_2,
-                                                              transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash,
-                                                              attached_interface = attached_interface, context_flag = packet.context_flag)
+                                        new_announce = RNS.Packet(announce_destination, announce_data, RNS.Packet.ANNOUNCE,
+                                                                  context = RNS.Packet.PATH_RESPONSE, header_type = RNS.Packet.HEADER_2,
+                                                                  transport_type = Transport.TRANSPORT, transport_id = Transport.identity.hash,
+                                                                  attached_interface = attached_interface, context_flag = packet.context_flag)
 
-                                    new_announce.hops = packet.hops
-                                    new_announce.send()
+                                        new_announce.hops = packet.hops
+                                        new_announce.send()
 
                             if not Transport.owner.is_connected_to_shared_instance: Transport.cache(packet, force_cache=True, packet_type="announce")
                             if rate_blocked:
@@ -2728,12 +2732,13 @@ class Transport:
                             # Call externally registered callbacks from apps
                             # wanting to know when an announce arrives
                             with Transport.announce_handler_lock:
+                                announce_identity = RNS.Identity.recall(packet.destination_hash, _no_use=True)
                                 for handler in Transport.announce_handlers:
+                                    if not announce_identity: break
                                     try:
                                         # Check that the announced destination matches
                                         # the handlers aspect filter
                                         execute_callback = False
-                                        announce_identity = RNS.Identity.recall(packet.destination_hash, _no_use=True)
 
                                         # If the handlers aspect filter is set to
                                         # None, we execute the callback in all cases
@@ -4435,6 +4440,7 @@ class Transport:
                 Transport.blackholed_identities[identity_hash] = entry
                 Transport.persist_blackhole()
                 Transport.remove_blackholed_paths()
+                RNS.Identity._reset_validation_caches()
                 RNS.log(f"Blackholed identity {RNS.prettyhexrep(identity_hash)}", RNS.LOG_INFO)
                 return True
 
@@ -4456,6 +4462,7 @@ class Transport:
             if identity_hash in Transport.blackholed_identities:
                 Transport.blackholed_identities.pop(identity_hash)
                 Transport.persist_blackhole()
+                RNS.Identity._reset_validation_caches()
                 RNS.log(f"Lifted blackhole for identity {RNS.prettyhexrep(identity_hash)}", RNS.LOG_INFO)
                 return True
 
@@ -4503,6 +4510,7 @@ class Transport:
                 RNS.log(f"Could not load blackholed identities from source file {filename}: {e}", RNS.LOG_ERROR)
                 RNS.trace_exception(e)
 
+        RNS.Identity._reset_validation_caches()
         Transport.remove_blackholed_paths()
 
     def remove_blackholed_paths():

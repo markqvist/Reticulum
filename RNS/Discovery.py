@@ -943,8 +943,9 @@ class BlackholeUpdater():
                     if os.path.isfile(sourcelistpath): os.unlink(sourcelistpath)
                     os.rename(tmppath, sourcelistpath)
                 
-                except Exception as e:
-                    RNS.log(f"Error while persisting blackhole list from {RNS.prettyhexrep(remote_identity.hash)}: {e}", RNS.LOG_ERROR)
+                except Exception as e: RNS.log(f"Error while persisting blackhole list from {RNS.prettyhexrep(remote_identity.hash)}: {e}", RNS.LOG_ERROR)
+
+                RNS.Identity._reset_validation_caches()
 
         RNS.log(f"Blackhole list update from {RNS.prettyhexrep(remote_identity.hash)} completed", RNS.LOG_DEBUG)
 
