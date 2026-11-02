@@ -2078,8 +2078,9 @@ class Transport:
                     ext_payload      = pr[3]
                     tag_valid        = False
 
-                    if len(packet.data) > Transport.PR_LENGTH and len(packet.data) != Transport.PR_STAMPED_LENGTH:
-                        if packet.receiving_interface: packet.receiving_interface.protocol_violation("Excessive path request tag size")
+                    pr_length = len(packet.data)
+                    if pr_length != Transport.PR_STAMPED_LENGTH and pr_length != Transport.PR_LENGTH and pr_length != Transport.PR_LEGACY_LENGTH: # TODO: Only allow stamped size after transition
+                        if packet.receiving_interface: return packet.receiving_interface.protocol_violation(f"Invalid path request size {pr_length}")
 
                     unique_tag = destination_hash+tag_bytes
 
@@ -3954,6 +3955,7 @@ class Transport:
     PR_EXT_PAYLOADLENGTH = PR_EXT_HEADERLENGTH+PR_EXT_STAMPLENGTH
     PR_LENGTH            = 3*RNS.Identity.TRUNCATED_HASHLENGTH//8
     PR_STAMPED_LENGTH    = PR_LENGTH+PR_EXT_PAYLOADLENGTH
+    PR_LEGACY_LENGTH     = 2*RNS.Identity.TRUNCATED_HASHLENGTH//8 # TODO: Remove after transition
     @staticmethod
     def parse_path_request(data):
         DL = RNS.Identity.TRUNCATED_HASHLENGTH//8
