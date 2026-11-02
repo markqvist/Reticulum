@@ -347,21 +347,23 @@ def generate_stamped_key(material, stamp_cost):
 def cancel_work(message_id):
     if RNS.vendor.platformutils.is_windows() or RNS.vendor.platformutils.is_darwin():
         try:
-            if message_id in active_jobs:
-                active_jobs[message_id] = True
+            if message_id in active_jobs: active_jobs[message_id] = True
+            else: return False
 
         except Exception as e:
             RNS.log("Error while terminating stamp generation workers: {e}", RNS.LOG_ERROR)
             RNS.trace_exception(e)
+            return False
 
     elif RNS.vendor.platformutils.is_android():
         try:
-            if message_id in active_jobs:
-                active_jobs[message_id] = True
+            if message_id in active_jobs: active_jobs[message_id] = True
+            else: return False
 
         except Exception as e:
             RNS.log("Error while terminating stamp generation workers: {e}", RNS.LOG_ERROR)
             RNS.trace_exception(e)
+            return False
 
     else:
         try:
@@ -374,10 +376,14 @@ def cancel_work(message_id):
                     stop_event.set()
                     result_queue.put(None)
                     active_jobs.pop(message_id)
+            else: return False
 
         except Exception as e:
             RNS.log("Error while terminating stamp generation workers: {e}", RNS.LOG_ERROR)
             RNS.trace_exception(e)
+            return False
+
+    return True
 
 def job_simple(stamp_cost, workblock, message_id, size, mode=MODE_STAMP):
     # A simple, single-process stamp generator.
@@ -709,6 +715,8 @@ def job_android_persistent(stamp_cost, workblock, message_id, size, mode=MODE_ST
                     elapsed = max(time.time()-start_time, 1E-6)
                     RNS.log(f"Stamp ({cost_from_fp(stamp_cost)}) generation running, {RNS.prettyshorttime(elapsed)} elapsed", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                     last_progress = time.time()
+
+                if message_id in active_jobs and active_jobs[message_id] == True: stop_flag[0] = 1
 
                 time.sleep(0.05)
 
