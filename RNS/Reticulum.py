@@ -2204,6 +2204,8 @@ class Reticulum:
         if not enabled in [True, False]: return False
         if not self.is_connected_to_shared_instance: return False
         else: RNS.Transport.required_destinations_only = enabled
+        if enabled: RNS.log(f"Setting announce filtering to required only", RNS.LOG_DEBUG)
+        else:       RNS.log(f"Setting announce filtering to all", RNS.LOG_DEBUG)
         return True
 
     def wants_destination_type(self, full_name, requester=None, signature=None):
