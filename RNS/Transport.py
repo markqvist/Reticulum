@@ -2067,11 +2067,7 @@ class Transport:
             elif len(packet.data) > Transport.PR_STAMPED_LENGTH: return packet.receiving_interface.protocol_violation(f"Excessive path request size of {len(packet.data)} bytes") if packet.receiving_interface else None
             else:
                 pr = Transport.parse_path_request(packet.data)
-                if pr == None:
-                    destination_hash = packet.data[:RNS.Identity.TRUNCATED_HASHLENGTH//8]
-                    RNS.log(f"Ignoring tagless path request for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
-                    return packet.receiving_interface.protocol_violation("Tagless path request") if packet.receiving_interface else None
-
+                if pr == None: return packet.receiving_interface.protocol_violation("Tagless path request", level=RNS.LOG_PATHING) if packet.receiving_interface else None
                 else:
                     destination_hash = pr[0]
                     tag_bytes        = pr[2]
@@ -2080,7 +2076,7 @@ class Transport:
 
                     pr_length = len(packet.data)
                     if pr_length != Transport.PR_STAMPED_LENGTH and pr_length != Transport.PR_LENGTH and pr_length != Transport.PR_LEGACY_LENGTH: # TODO: Only allow stamped size after transition
-                        if packet.receiving_interface: return packet.receiving_interface.protocol_violation(f"Invalid path request size {pr_length}")
+                        if packet.receiving_interface: return packet.receiving_interface.protocol_violation(f"Invalid path request size {pr_length}", level=RNS.LOG_PATHING)
 
                     unique_tag = destination_hash+tag_bytes
 

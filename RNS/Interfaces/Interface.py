@@ -328,9 +328,10 @@ class Interface:
         if hasattr(self, "parent_interface") and self.parent_interface != None:
             self.parent_interface.sent_path_request(size=size, from_spawned=True)
 
-    def protocol_violation(self, description=None):
+    def protocol_violation(self, description=None, level=None):
+        if level == None: level = RNS.LOG_DEBUG
         self.protocol_violations += 1
-        RNS.log(f"Protocol violation on {self}: {description}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+        RNS.log(f"Protocol violation on {self}: {description}", level) if RNS.sl(level) else None
         return None
 
     def ifac_violation(self, description=None):
