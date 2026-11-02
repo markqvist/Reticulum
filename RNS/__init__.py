@@ -181,8 +181,8 @@ def prettyhexrep(data):
     return hexrep
 
 def prettycost(value):
-    if value == None: return "?"
-    elif not type(value) in (float, int): return "?"
+    if value == None: return "n"
+    elif not type(value) in (float, int): return "n"
     else: return f"{quantize_cost(value):.3f}"
 
 def prettyspeed(num, suffix="b"):

@@ -2725,7 +2725,7 @@ class Transport:
                             Transport.mark_path_unknown_state(packet.destination_hash)
                             if RNS.sl(RNS.LOG_PATHING):
                                 destination_value = RNS.Identity.recall_stamp_value(packet.destination_hash)
-                                value_str = f" (v:{destination_value})" if destination_value else " (v:n)"
+                                value_str = f" (v:{RNS.prettycost(destination_value)})" if destination_value else " (v:n)"
                                 RNS.log(f"Destination {RNS.prettyhexrep(packet.destination_hash)}{value_str} is now {announce_hops} hops away via {RNS.prettyhexrep(received_from)} on {packet.receiving_interface}", RNS.LOG_PATHING)
 
                             if packet.destination_hash in Transport.path_requests:
