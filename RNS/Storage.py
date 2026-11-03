@@ -552,10 +552,10 @@ class AnnounceCache:
         self._flush_lock = threading.Lock()
         self._conn       = sqlite3.connect(db_path, check_same_thread=False, isolation_level=None)
 
+        self._conn.execute("PRAGMA auto_vacuum=INCREMENTAL")
         self._conn.execute("PRAGMA journal_mode=WAL")
         self._conn.execute("PRAGMA synchronous=NORMAL")
         self._conn.execute("PRAGMA journal_size_limit=8388608")
-        self._conn.execute("PRAGMA auto_vacuum=INCREMENTAL")
         self.__create_schema()
 
     def __create_schema(self):
