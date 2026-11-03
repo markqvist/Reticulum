@@ -232,9 +232,9 @@ class KnownDestinationsStore:
         self._ratchet_quarantine = {}
         self._flush_lock         = threading.Lock()
 
-        if read_only: self._conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, check_same_thread=False, isolation_level=None)
+        if read_only: self._conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, check_same_thread=False, isolation_level=None, cached_statements=0)
         else:
-            self._conn = sqlite3.connect(db_path, check_same_thread=False, isolation_level=None)
+            self._conn = sqlite3.connect(db_path, check_same_thread=False, isolation_level=None, cached_statements=0)
             self._conn.execute("PRAGMA journal_mode=WAL")
             self._conn.execute("PRAGMA synchronous=NORMAL")
             self._conn.execute("PRAGMA journal_size_limit=8388608")
@@ -438,7 +438,9 @@ class KnownDestinationsStore:
                 return False
 
         else:
-            row = self._conn.execute("SELECT ratchet FROM ratchets WHERE destination_hash=?", (destination_hash,)).fetchone()
+            with self._flush_lock:
+                row = self._conn.execute("SELECT ratchet FROM ratchets WHERE destination_hash=?", (destination_hash,)).fetchone()
+
             if row != None and row[0] == ratchet:
                 # Discard any pending delete mark queued
                 # before this ratchet arrived
@@ -454,7 +456,9 @@ class KnownDestinationsStore:
         if pending != None: return pending[0], pending[1]
         if destination_hash in self._ratchet_deletes: return None
 
-        row = self._conn.execute("SELECT ratchet, received FROM ratchets WHERE destination_hash=?", (destination_hash,)).fetchone()
+        with self._flush_lock:
+            row = self._conn.execute("SELECT ratchet, received FROM ratchets WHERE destination_hash=?", (destination_hash,)).fetchone()
+
         if row != None: return row[0], row[1]
 
         return None
@@ -550,7 +554,7 @@ class AnnounceCache:
         self.db_path     = db_path
         self._pending    = {}
         self._flush_lock = threading.Lock()
-        self._conn       = sqlite3.connect(db_path, check_same_thread=False, isolation_level=None)
+        self._conn       = sqlite3.connect(db_path, check_same_thread=False, isolation_level=None, cached_statements=0)
 
         self._conn.execute("PRAGMA auto_vacuum=INCREMENTAL")
         self._conn.execute("PRAGMA journal_mode=WAL")
@@ -577,7 +581,9 @@ class AnnounceCache:
         pending = self._pending.get(packet_hash)
         if pending != None: return pending[1], pending[2]
 
-        row = self._conn.execute("SELECT raw, interface_reference FROM cached_announces WHERE packet_hash=?", (packet_hash,)).fetchone()
+        with self._flush_lock:
+            row = self._conn.execute("SELECT raw, interface_reference FROM cached_announces WHERE packet_hash=?", (packet_hash,)).fetchone()
+
         if row != None: return row[0], row[1]
 
         return None
