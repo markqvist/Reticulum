@@ -426,7 +426,6 @@ class KnownDestinationsStore:
             if not rows: break
             for row in rows: yield row[0], [row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]]
 
-    # Caller must hold Identity.known_destinations_lock.
     def remember_ratchet(self, destination_hash, ratchet, now):
         if self.read_only: return False
         self._ratchet_quarantine.pop(destination_hash, None)
