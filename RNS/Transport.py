@@ -258,7 +258,8 @@ class Transport:
     reverse_table               = {}           # A lookup table for storing packet hashes used to return proofs and replies
     link_table                  = {}           # A lookup table containing hops for links
     held_announces              = {}           # A table containing temporarily held announce-table entries
-    announce_handlers           = []           # A table storing externally registered announce handlers
+    announce_handlers           = {}           # A table storing externally registered announce handlers
+    pending_callbacks           = []           # A table storing pending callbacks
     tunnels                     = {}           # A table storing tunnels to other transport instances
     path_requests               = {}           # A table for storing path request timestamps
     inflight_path_requests      = {}           # A table for tracking in-flight path request
@@ -1390,6 +1391,11 @@ class Transport:
 
                     except Exception as e:
                         RNS.log(f"Error while checking blackholed identities: {e}", RNS.LOG_ERROR)
+
+                # Launch deferred callbacks
+                while Transport.pending_callbacks:
+                    try: Transport.pending_callbacks.pop(0).start()
+                    except Exception as e: RNS.log(f"Could not launch pending callback: {e}", RNS.LOG_WARNING)
 
             if Transport.should_collect:
                 Transport.mem_dirty = True
@@ -2749,20 +2755,21 @@ class Transport:
                             # Call externally registered callbacks from apps
                             # wanting to know when an announce arrives
                             with Transport.announce_handler_lock:
-                                announce_identity = RNS.Identity.recall(packet.destination_hash, _no_use=True)
-                                for handler in Transport.announce_handlers:
-                                    if not announce_identity: break
-                                    try:
-                                        # Check that the announced destination matches
-                                        # the handlers aspect filter
-                                        execute_callback = False
+                                name_hash = packet.data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8]
+                                announce_identity = None
+                                announce_app_data = None
 
-                                        # If the handlers aspect filter is set to
-                                        # None, we execute the callback in all cases
-                                        if handler.aspect_filter == None: execute_callback = True
-                                        else:
-                                            handler_expected_hash = RNS.Destination.hash_from_name_and_identity(handler.aspect_filter, announce_identity)
-                                            if packet.destination_hash == handler_expected_hash: execute_callback = True
+                                announce_handlers = []
+                                announce_handlers.extend(Transport.announce_handlers.get(name_hash, []))
+                                announce_handlers.extend(Transport.announce_handlers.get(None, []))
+                                for handler in announce_handlers:
+                                    if not announce_identity: announce_identity = RNS.Identity.recall(packet.destination_hash, _no_use=True)
+                                    if not announce_identity: break
+                                    if handler.paused: continue
+                                    try:
+                                        handler_args     = handler._rns_transport_cb_signature_len
+                                        handler_job      = None
+                                        execute_callback = True
 
                                         # If this is a path response, check whether the
                                         # handler wants to receive it.
@@ -2771,36 +2778,34 @@ class Transport:
                                             else: execute_callback = False
 
                                         if execute_callback:
-                                            if len(inspect.signature(handler.received_announce).parameters) == 3:
-                                                def job(handler=handler, packet=packet, announce_identity=announce_identity):
-                                                    handler.received_announce(destination_hash=packet.destination_hash,
-                                                                              announced_identity=announce_identity,
-                                                                              app_data=RNS.Identity.recall_app_data(packet.destination_hash, _no_use=True))
-                                                threading.Thread(target=job, daemon=True).start()
-                                            
-                                            elif len(inspect.signature(handler.received_announce).parameters) == 4:
-                                                def job(handler=handler, packet=packet, announce_identity=announce_identity):
-                                                    handler.received_announce(destination_hash=packet.destination_hash,
-                                                                              announced_identity=announce_identity,
-                                                                              app_data=RNS.Identity.recall_app_data(packet.destination_hash, _no_use=True),
-                                                                              announce_packet_hash = packet.packet_hash)
-                                                threading.Thread(target=job, daemon=True).start()
-                                            
-                                            elif len(inspect.signature(handler.received_announce).parameters) == 5:
-                                                def job(handler=handler, packet=packet, announce_identity=announce_identity):
-                                                    handler.received_announce(destination_hash=packet.destination_hash,
-                                                                              announced_identity=announce_identity,
-                                                                              app_data=RNS.Identity.recall_app_data(packet.destination_hash, _no_use=True),
-                                                                              announce_packet_hash = packet.packet_hash,
-                                                                              is_path_response = packet.context == RNS.Packet.PATH_RESPONSE)
-                                                threading.Thread(target=job, daemon=True).start()
+                                            if not announce_app_data:
+                                                announce_app_data = RNS.Identity.recall_app_data(packet.destination_hash, _no_use=True)
 
-                                            else:
-                                                raise TypeError("Invalid signature for announce handler callback")
+                                            if handler_args == 3:
+                                                def job(handler=handler, packet=packet, announce_identity=announce_identity):
+                                                    handler.received_announce(destination_hash=packet.destination_hash, announced_identity=announce_identity,
+                                                                              app_data=announce_app_data)
+                                                handler_job = job
+
+                                            elif handler_args == 4:
+                                                def job(handler=handler, packet=packet, announce_identity=announce_identity):
+                                                    handler.received_announce(destination_hash=packet.destination_hash, announced_identity=announce_identity,
+                                                                              app_data=announce_app_data, announce_packet_hash=packet.packet_hash)
+                                                handler_job = job
+
+                                            elif handler_args == 5:
+                                                def job(handler=handler, packet=packet, announce_identity=announce_identity):
+                                                    handler.received_announce(destination_hash=packet.destination_hash, announced_identity=announce_identity,
+                                                                              app_data=announce_app_data, announce_packet_hash=packet.packet_hash,
+                                                                              is_path_response=packet.context == RNS.Packet.PATH_RESPONSE)
+                                                handler_job = job
+
+                                            else: raise TypeError("Invalid signature for announce handler callback")
+
+                                        if handler_job: Transport.pending_callbacks.append(threading.Thread(target=job, daemon=True))
 
                                     except Exception as e:
-                                        RNS.log("Error while processing external announce callback.", RNS.LOG_ERROR)
-                                        RNS.log("The contained exception was: "+str(e), RNS.LOG_ERROR)
+                                        RNS.log(f"Error while processing external announce callback: {e}", RNS.LOG_ERROR)
                                         RNS.trace_exception(e)
 
         # Handling for link requests to local destinations
@@ -3216,7 +3221,17 @@ class Transport:
         """
         with Transport.announce_handler_lock:
             if hasattr(handler, "received_announce") and callable(handler.received_announce):
-                if hasattr(handler, "aspect_filter"): Transport.announce_handlers.append(handler)
+                if hasattr(handler, "aspect_filter"):
+                    try:
+                        name_hash = RNS.Destination.name_hash(handler.aspect_filter) if handler.aspect_filter else None
+                        handler._rns_transport_cb_signature_len = len(inspect.signature(handler.received_announce).parameters)
+                        if not hasattr(handler, "paused"): handler.paused = False
+                        handlers = Transport.announce_handlers.get(name_hash, [])
+                        if not handler in handlers: handlers.append(handler)
+                        Transport.announce_handlers[name_hash] = handlers
+                    except Exception as e:
+                        RNS.log(f"Could not register announce handler for {handler.aspect_filter}: {e}", RNS.LOG_WARNING)
+                        RNS.trace_exception(e)
 
     @staticmethod
     def deregister_announce_handler(handler):
@@ -3226,7 +3241,17 @@ class Transport:
         :param handler: The announce handler to be deregistered.
         """
         with Transport.announce_handler_lock:
-            while handler in Transport.announce_handlers: Transport.announce_handlers.remove(handler)
+            if hasattr(handler, "aspect_filter"):
+                try:
+                    name_hash = RNS.Destination.name_hash(handler.aspect_filter) if handler.aspect_filter else None
+                    handlers = Transport.announce_handlers.get(name_hash, None)
+                    if handlers:
+                        while handler in handlers: handlers.remove(handler)
+                        if handlers: Transport.announce_handlers[name_hash] = handlers
+                        else: Transport.announce_handlers.pop(name_hash)
+                except Exception as e:
+                    RNS.log(f"Could not deregister announce handler for {handler.aspect_filter}: {e}", RNS.LOG_WARNING)
+                    RNS.trace_exception(e)
 
         Transport.should_collect = True
 
