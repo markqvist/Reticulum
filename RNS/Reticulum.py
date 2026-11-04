@@ -2219,7 +2219,7 @@ class Reticulum:
                 response = mp.unpackb(rpc_connection.recv_bytes())
                 return response
             except Exception as e:
-                RNS.log(f"Shared instance RPC failed while setting destination type filters: {e}", RNS.LOG_ERROR)
+                RNS.log(f"Shared instance RPC failed while setting destination type filters: {e}", RNS.LOG_DEBUG)
                 return False
 
         else: return RNS.Transport._wants_destination_type(full_name, requester, signature)
@@ -2234,7 +2234,7 @@ class Reticulum:
                 response = mp.unpackb(rpc_connection.recv_bytes())
                 return response
             except Exception as e:
-                RNS.log(f"Shared instance RPC failed while setting destination type filters: {e}", RNS.LOG_ERROR)
+                RNS.log(f"Shared instance RPC failed while setting destination type filters: {e}", RNS.LOG_DEBUG)
                 return False
 
         else: return RNS.Transport._unwants_destination_type(full_name, requester, signature)
@@ -2249,7 +2249,7 @@ class Reticulum:
                 response = mp.unpackb(rpc_connection.recv_bytes())
                 return response
             except Exception as e:
-                RNS.log(f"Shared instance RPC failed while setting destination type filters: {e}", RNS.LOG_ERROR)
+                RNS.log(f"Shared instance RPC failed while setting destination type filters: {e}", RNS.LOG_DEBUG)
                 return False
 
         else: return RNS.Transport._unwants_all_destination_types(requester, signature)
