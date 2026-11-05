@@ -576,6 +576,7 @@ class Identity:
 
     @staticmethod
     def _clean_ratchets():
+        if Identity.known_destinations_store != None: return
         RNS.log("Cleaning ratchets...", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
         try:
             count = 0

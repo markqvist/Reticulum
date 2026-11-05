@@ -10,7 +10,7 @@ The memory management system has been completely reworked, and significantly imp
 
 **Path Table Sharding**
 
-This release implements the initial transport awareness and mechanisms for emergent path table sharding. Transport instances will no longer attempt to hold full inter-network path tables in memory, but keep only paths relevant to the nodes they are transporting traffic for. Unused paths are now kept for much shorter periods of time, and used as a rolling pool that potential new traffic corridors can form into. The system is entirely passive, and adds no inter-node coordination or additional protocol mechanics. The current release brings the foundation, and the upcoming 1.6.x releases will tune and improve it.
+This release implements the initial transport awareness and mechanisms for emergent path table sharding. Transport instances will no longer attempt to hold full inter-network path tables in memory, but keep only paths relevant to the nodes they are transporting traffic for. Unused paths are now kept for much shorter periods of time, and used as a rolling pool that potential new traffic corridors can form into. The system is entirely passive, and adds no inter-node coordination or additional protocol mechanics. The current release brings the foundation, and the upcoming 1.6.x releases will tune, improve it and add the remaining pieces of the functionality.
 
 **Network Stamps**
 
@@ -50,6 +50,7 @@ The `1.6.0` and `1.6.1` releases will be an important time for observing the on-
 - Added heap-tracking memory management
 - Added `hop_limiter` configuration option
 - Added cost-aware interface discovery and auto-connects
+- Significantly improved stamper performance on Android
 - Optimized and improved stamper implementation
 - Optimized announce rate table implementation
 - Optimized packet filter hashlist implementation
