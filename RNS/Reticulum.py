@@ -214,7 +214,8 @@ class Reticulum:
         return Reticulum.__instance
 
     def __init__(self,configdir=None, loglevel=None, logdest=None, verbosity=None,
-                 require_shared_instance=False, shared_instance_type=None):
+                 require_shared_instance=False, shared_instance_type=None,
+                 enable_stamping=False, enforce_stamps=False):
         """
         Initialises and starts a Reticulum instance. This must be
         done before any other operations, and Reticulum will not
@@ -348,6 +349,17 @@ class Reticulum:
         self.__apply_config()
         RNS.log(f"Utilising cryptography backend \"{RNS.Cryptography.Provider.backend()}\"", RNS.LOG_DEBUG)
         RNS.log(f"Configuration loaded from {self.configpath}", RNS.LOG_VERBOSE)
+
+        if enable_stamping:
+            RNS.log(f"Network stamp generation activated", RNS.LOG_VERBOSE)
+            RNS.Transport.STAMP_DESTINATIONS = True
+            RNS.Transport.STAMP_PRS          = True
+            RNS.Transport.STAMP_LRS          = True
+
+        if enforce_stamps:
+            RNS.log(f"Network stamp enforcement activated", RNS.LOG_VERBOSE)
+            RNS.Transport.STAMPS_ENFORCED    = True
+            RNS.Transport.LR_STAMPS_ENFORCED = True
 
         RNS.Identity.load_known_destinations()
         if not self.is_connected_to_shared_instance: RNS.Identity._clean_ratchets()
