@@ -171,6 +171,7 @@ class Destination:
         self.proof_strategy = Destination.PROVE_NONE
         self.stamp = None
         self.stamp_value = None
+        self.stamp_generation_lock = threading.Lock()
         self._target_value = RNS.Transport.DESTINATION_VALUE
         self._link_cost = None
         self.ratchets = None
@@ -262,6 +263,26 @@ class Destination:
 
         return False
 
+    def _await_stamp(self):
+        with self.stamp_generation_lock:
+            if self.stamp == None or self.stamp_value == None or self.stamp_value < quantize_cost(self.target_value):
+                stamp_entry = load_destination_stamp(self.hash, self.stamp_material(), self.target_value)
+                if stamp_entry != None: self.stamp, self.stamp_value = stamp_entry
+                else:
+                    stamp, stamp_value = generate_stamp(self.stamp_material(), stamp_cost=self.target_value,
+                                                        expand_rounds=0, size=RNS.Identity.STAMPLENGTH)
+                    if stamp == None:
+                        RNS.log(f"Could not generate destination stamp for {RNS.prettyhexrep(self.hash)}, announce emission cancelled", RNS.LOG_WARNING)
+                        return
+
+                    self.stamp       = stamp
+                    self.stamp_value = stamp_value
+                    store_destination_stamp(self.hash, stamp, stamp_value)
+                    RNS.log(f"Generated and persisted stamp with value {self.stamp_value} for {self}", RNS.LOG_DEBUG)
+
+        if self.stamp == None: return False
+        else:                  return True
+
     def announce(self, app_data=None, path_response=False, attached_interface=None, tag=None, send=True):
         """
         Creates an announce packet for this destination and broadcasts it on all
@@ -325,21 +346,7 @@ class Destination:
                         app_data = returned_app_data
 
             if RNS.Transport.STAMP_DESTINATIONS:
-                if self.stamp == None or self.stamp_value == None or self.stamp_value < quantize_cost(self.target_value):
-                    stamp_entry = load_destination_stamp(self.hash, self.stamp_material(), self.target_value)
-                    if stamp_entry != None: self.stamp, self.stamp_value = stamp_entry
-                    else:
-                        stamp, stamp_value = generate_stamp(self.stamp_material(), stamp_cost=self.target_value,
-                                                            expand_rounds=0, size=RNS.Identity.STAMPLENGTH)
-                        if stamp == None:
-                            RNS.log(f"Could not generate destination stamp for {RNS.prettyhexrep(self.hash)}, announce emission cancelled", RNS.LOG_WARNING)
-                            return
-
-                        self.stamp       = stamp
-                        self.stamp_value = stamp_value
-                        store_destination_stamp(self.hash, stamp, stamp_value)
-                        RNS.log(f"Generated and persisted stamp with value {self.stamp_value} for {self}", RNS.LOG_DEBUG)
-
+                self._await_stamp()
                 cost_bytes  = cost_to_bytes(self.get_link_cost())
                 ext_payload = bytes([RNS.Identity.EXTPAYLOADMARKER, self.get_ext_flags()])+self.stamp+bytes([cost_bytes[1], cost_bytes[0]])
 
