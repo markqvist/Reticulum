@@ -492,6 +492,7 @@ class Transport:
 
         if RNS.Reticulum.publish_blackhole_enabled() and not Transport.owner.is_connected_to_shared_instance:
             Transport.blackhole_destination = RNS.Destination(Transport.identity, RNS.Destination.IN, RNS.Destination.SINGLE, Transport.APP_NAME, "info", "blackhole")
+            Transport.blackhole_destination.set_link_cost(5.25)
             Transport.blackhole_destination.register_request_handler("/list", response_generator = Transport.blackhole_list_handler, allow=RNS.Destination.ALLOW_ALL)
             Transport.mgmt_destinations.append(Transport.blackhole_destination)
             Transport.mgmt_hashes.append(Transport.blackhole_destination.hash)
