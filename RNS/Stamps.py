@@ -42,12 +42,13 @@ import contextlib
 import multiprocessing
 from bisect import bisect_right
 
+WORKBLOCK_EXPAND_CHUNK      = 256
 WORKBLOCK_EXPAND_ROUNDS     = 3000
 STAMP_SIZE                  = 32
 PN_VALIDATION_POOL_MIN_SIZE = 256
 USE_WORKER_MANAGER          = False
-POOLING_THRESHOLD_COST      = 15
-KEYSTAMP_POOLING_THRESHOLD  = 12
+POOLING_THRESHOLD_COST      = 14
+KEYSTAMP_POOLING_THRESHOLD  = 10
 STOP_CHECK_INTERVAL         = 64
 
 MODE_STAMP                  = 0x00
@@ -88,7 +89,7 @@ def stamp_workblock(material, expand_rounds=WORKBLOCK_EXPAND_ROUNDS, no_expand=F
     wb_st = time.time()
     workblock = b""
     for n in range(expand_rounds):
-        workblock += RNS.Cryptography.hkdf(length=256, derive_from=material,
+        workblock += RNS.Cryptography.hkdf(length=WORKBLOCK_EXPAND_CHUNK, derive_from=material,
                                            salt=RNS.Identity.full_hash(material+msgpack.packb(n)),
                                            context=None)
     wb_time = time.time() - wb_st
@@ -562,8 +563,12 @@ def job_linux(stamp_cost, workblock, message_id, size, mode=MODE_STAMP):
 
     return stamp, total_rounds
 
-ANDROID_PREFER_NACL    = True
-ANDROID_USE_PERSISTENT = True
+ANDROID_PREFER_NACL                = True
+ANDROID_USE_PERSISTENT             = True
+ANDROID_LOW_DIFFICULTY_JOBS        = 1
+ANDROID_NO_POOL_WB_EXPAND_MAX      = 4
+ANDROID_POOLING_THRESHOLD_COST     = 8
+ANDROID_KEYSTAMP_POOLING_THRESHOLD = 6
 def job_android(stamp_cost, workblock, message_id, size, mode=MODE_STAMP):
     if ANDROID_USE_PERSISTENT: return job_android_persistent(stamp_cost, workblock, message_id, size, mode)
     else:                      return job_android_legacy(stamp_cost, workblock, message_id, size, mode)
@@ -669,11 +674,20 @@ def job_android_persistent(stamp_cost, workblock, message_id, size, mode=MODE_ST
     try: jobs = len(os.sched_getaffinity(0))
     except Exception: jobs = multiprocessing.cpu_count()
 
+    no_pool = False
+    if len(workblock) <= WORKBLOCK_EXPAND_CHUNK*ANDROID_NO_POOL_WB_EXPAND_MAX:
+        if   mode == MODE_STAMP    and stamp_cost < ANDROID_POOLING_THRESHOLD_COST_FP:     no_pool = True
+        elif mode == MODE_KEYSTAMP and stamp_cost < ANDROID_KEYSTAMP_POOLING_THRESHOLD_FP: no_pool = True
+
+    if no_pool:
+        RNS.log(f"Low stamp difficulty, using {ANDROID_LOW_DIFFICULTY_JOBS} worker{'s' if ANDROID_LOW_DIFFICULTY_JOBS != 1 else ''} instead of {jobs}", RNS.LOG_DEBUG)
+        jobs = ANDROID_LOW_DIFFICULTY_JOBS
+
     results_dict = wm.dict()
     stop_flag = mmap.mmap(-1, 1, flags=mmap.MAP_SHARED | getattr(mmap, "MAP_ANONYMOUS", 0))
     active_jobs[message_id] = False
 
-    RNS.log(f"Dispatching {jobs} workers for stamp generation...", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+    RNS.log(f"Dispatching {jobs} worker{'s' if jobs != 1 else ''} for stamp generation...", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
     def job(worker_id):
         rounds = 0
@@ -919,5 +933,7 @@ def load_destination_stamp(destination_hash, material, required_value):
 # Pooling Configuration #
 #########################
 
-POOLING_THRESHOLD_COST_FP     = POOLING_THRESHOLD_COST*COST_FP
-KEYSTAMP_POOLING_THRESHOLD_FP = KEYSTAMP_POOLING_THRESHOLD*COST_FP
+POOLING_THRESHOLD_COST_FP             = POOLING_THRESHOLD_COST*COST_FP
+KEYSTAMP_POOLING_THRESHOLD_FP         = KEYSTAMP_POOLING_THRESHOLD*COST_FP
+ANDROID_POOLING_THRESHOLD_COST_FP     = ANDROID_POOLING_THRESHOLD_COST*COST_FP
+ANDROID_KEYSTAMP_POOLING_THRESHOLD_FP = ANDROID_KEYSTAMP_POOLING_THRESHOLD*COST_FP
