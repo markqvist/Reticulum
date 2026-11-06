@@ -4016,7 +4016,7 @@ class Transport:
         return stamp_valid(stamp, required_value, workblock)
 
     @staticmethod
-    def stamp_path_request(destination_hash, on_interface=None, tag=None, recursive=False):
+    def stamp_path_request(destination_hash, on_interface=None, tag=None, recursive=False, return_payload=False):
         if tag == None: request_tag = RNS.Identity.get_random_hash()
         else:           request_tag = tag
 
@@ -4047,7 +4047,8 @@ class Transport:
                 Transport.pr_stamp_cache.pop(next(iter(Transport.pr_stamp_cache)))
 
         ext_payload = bytes([RNS.Identity.EXTPAYLOADMARKER, 0x00])+stamp
-        Transport.request_path(destination_hash, on_interface=on_interface, tag=request_tag, recursive=recursive, ext_payload=ext_payload)
+        if return_payload: return request_tag, ext_payload
+        else: Transport.request_path(destination_hash, on_interface=on_interface, tag=request_tag, recursive=recursive, ext_payload=ext_payload)
 
     discovery_pr_tx_throttle = 0.5
     discovery_pr_tx_lock     = Lock()
@@ -4070,8 +4071,13 @@ class Transport:
                     if blocked_if == None: Transport.request_path(destination_hash)
                     else:
                         request_tag = RNS.Identity.get_random_hash()
+                        ext_payload = None
+                        if Transport.STAMP_PRS:
+                            RNS.log(f"Stamping discovery path request for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                            request_tag, ext_payload = Transport.stamp_path_request(destination_hash, tag=request_tag, return_payload=True)
+
                         for interface in Transport.interfaces:
-                            if interface != blocked_if: Transport.request_path(destination_hash, on_interface=interface, tag=request_tag)
+                            if interface != blocked_if: Transport.request_path(destination_hash, on_interface=interface, tag=request_tag, ext_payload=ext_payload)
                             else: pass
 
     #################################
