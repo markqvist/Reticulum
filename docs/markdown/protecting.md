@@ -33,7 +33,7 @@ While the core functionality is completely automatic, and handled by Reticulum i
 
 The *value* of a stamp is a decimal representation of how difficult a stamp was to create, on a scale from `0.0` to `100.0`. The scale is **exponential**. An increase of one point is equal to *doubling* the average compute time required. Fractional values are supported, such as `14.125`.
 
-Internally, the fractional part is quantized to `256` different values, giving an approximately `0.4%` difficulty increase per step. You can use any decimal number when configuring stamps, such as `9.3691` and you do not have to worry about “landing on” the correct step values. Reticulum will automatically handle the quantization, wire-transport representation and value comparisons.
+Internally, the fractional part is quantized to `256` different values, giving an approximately `0.27%` difficulty increase per step. You can use any decimal number when configuring stamps, such as `9.3691` and you do not have to worry about “landing on” the correct step values. Reticulum will automatically handle the quantization, wire-transport representation and value comparisons.
 
 The term *cost* is used everywhere a stamp value *requirement* is configured or specified. In general, *value* refers to the actual, determined value of a given stamp, *cost* refers to a value requirement.
 
