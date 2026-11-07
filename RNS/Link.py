@@ -192,7 +192,7 @@ class Link:
                 stamp_material     = owner.hash + peer_sig_pub_bytes
                 value              = stamp_value(stamp_material, peer_pub_bytes)
 
-                if RNS.Transport.LR_STAMPS_ENFORCED and stamp_valid(peer_pub_bytes, owner.get_link_cost(), stamp_material): raise ValueError(f"Insufficient link request stamp value {value}")
+                if RNS.Transport.LR_STAMPS_ENFORCED and not stamp_valid(peer_pub_bytes, owner.get_link_cost(), stamp_material): raise ValueError(f"Insufficient link request stamp value {value}")
 
                 link = Link(owner=owner, peer_pub_bytes=peer_pub_bytes, peer_sig_pub_bytes=peer_sig_pub_bytes)
                 link.set_link_id(packet)
