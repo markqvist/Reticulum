@@ -218,7 +218,7 @@
 <li class="toctree-l1"><a class="reference internal" href="zen.html">Zen of Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="software.html">Programs Using Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="using.html">Using Reticulum on Your System</a></li>
-<li class="toctree-l1"><a class="reference internal" href="stamps.html">Protecting Open Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="protecting.html">Protecting Open Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Configuring Interfaces</a></li>
@@ -463,7 +463,7 @@ specify the target Yggdrasil IPv6 address and port, like so:</p>
 </div>
 </section>
 <section id="automated-blocking">
-<h3>Automated Blocking<a class="headerlink" href="#automated-blocking" title="Link to this heading">¶</a></h3>
+<span id="interfaces-fastflap"></span><h3>Automated Blocking<a class="headerlink" href="#automated-blocking" title="Link to this heading">¶</a></h3>
 <p>Listener instances of <code class="docutils literal notranslate"><span class="pre">BackboneInterface</span></code> will automatically block fast-flapping clients,
 that repeatedly connect for a short amount of time, and then disconnect. Such behavior usually
 occurs from clients trying to spam the network with announces or path requests, by connecting, dumping

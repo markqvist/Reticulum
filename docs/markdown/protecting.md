@@ -76,28 +76,6 @@ Reticulum, and its included utilities, provide sane default cost requirements an
 
 In reality, different kinds of networks will want to configure different kinds of costs and value targets for their use. For instance-wide defaults and settings, you can configure these in the `[stamps]` section of the Reticulum configuration file:
 
-> * The `stamp_destinations` option enables generation and emission
->   of destination stamps in announces. This is a transitory option.
->   It will become mandatory and enabled by default in RNS `1.6.1`.
->   
-> * The `stamp_prs` option enables stamping of path requests emitted
->   by this instance. This is a transitory option. It will become
->   mandatory and enabled by default in RNS `1.6.1`.
->   
-> * The `always_stamp_lrs` option will stamp *all* outgoing link
->   requests, even to destinations that have not announced a link
->   request cost (and will, in that case, use the configured or
->   default link request cost). This option is mostly useful for
->   testing and diagnostics. In general use, Reticulum will handle
->   link request stamping and cost targets automatically.
->   
-> * The `enforce_stamps` option allows early activation of stamp
->   enforcement. When enabled, announces and path requests that do
->   not meet the configured cost requirements are dropped, and link
->   requests with insufficient stamps are ignored. This is a transitory
->   option. It will become mandatory and enabled by default in RNS
->   `1.6.2`.
->   
 > * The `destination_cost` option sets the default required stamp
 >   cost for announced destinations to be accepted, and have their
 >   announces propagated by this node. Defaults to `23.5`.
@@ -130,6 +108,28 @@ In reality, different kinds of networks will want to configure different kinds o
 >   not generated within this timespan, the generation is cancelled,
 >   and the link request or path request fails. Defaults to `15`
 >   seconds for both options.
+>   
+> * The `stamp_destinations` option enables generation and emission
+>   of destination stamps in announces. This is a transitory option.
+>   It will become mandatory and enabled by default in RNS `1.6.1`.
+>   
+> * The `stamp_prs` option enables stamping of path requests emitted
+>   by this instance. This is a transitory option. It will become
+>   mandatory and enabled by default in RNS `1.6.1`.
+>   
+> * The `always_stamp_lrs` option will stamp *all* outgoing link
+>   requests, even to destinations that have not announced a link
+>   request cost (and will, in that case, use the configured or
+>   default link request cost). This option is mostly useful for
+>   testing and diagnostics. In general use, Reticulum will handle
+>   link request stamping and cost targets automatically.
+>   
+> * The `enforce_stamps` option allows early activation of stamp
+>   enforcement. When enabled, announces and path requests that do
+>   not meet the configured cost requirements are dropped, and link
+>   requests with insufficient stamps are ignored. This is a transitory
+>   option. It will become mandatory and enabled by default in RNS
+>   `1.6.2`.
 >   
 
 An example of customised stamp cost and value configuration follows below:
@@ -289,10 +289,46 @@ RNS.Reticulum.get_instance().required_announces_only(True)
 
 Your application will now only receive, and have to process, the announces and paths that it actually cares about.
 
-## Blackhole Management
-
-TODO: Short section explaining the blackhole system conceptually (including distributed updates from other nodes), with a few terse examples for either locally - or across an entire managed network - blocking specific identities (and therefore any destination types created by such), as well as blocking incoming (identified) link requests from that identity at terminus.
-
 ## Ingress & Burst Control
 
-TODO: Short section explaining the rate-limiting, ingress control and burst limiters conceptually, with a few, terse examples on how to configure them (linked references to other more extensive documentation sections of the options).
+In addition to the economic incentives created by stamps, Reticulum enforces a set of hydraulic limits on how much announce traffic any peer or destination can inject into the network. These mechanisms work automatically, require no operator configuration (but can be tuned, if required), and apply equally to all peers.
+
+At the most basic level, the `announce_cap` mechanism limits the bandwidth any interface will allocate to propagating announces and other network upkeep traffic, and prioritises the local topology. Destinations that rapidly re-announce are down-prioritised in the transmission queue, so attempting to gain reach through announce spam has the exact *opposite* effect.
+
+On top of this, per-destination announce rate control can be configured on any interface, or as instance-wide defaults. Once configured, announces *received* for any one destination will only be re-broadcast to other interfaces at the configured target rate, no matter how often they are received. A grace period allows occasional rate violations, and a configurable penalty extends the interval between propagated announces for destinations that repeatedly exceed their target.
+
+The final layer protects against bursts of announces for *newly created* destinations. If an interface receives a large influx of announces for previously unknown destinations in a short amount of time, these are held in a bounded queue, while announces for known and established destinations continue to be processed without interruption. After the burst subsides, and an additional waiting period has passed, held announces are released slowly until the queue is cleared.
+
+A node that connects to a public interface, announces a large number of bogus destinations, and then disconnects, will therefore never get those destinations into path tables at all. When the interface they arrived on disappears, the held announces are simply dropped and forgotten.
+
+Ingress control operates at the level of individual sub-interfaces, so one misbehaving client cannot disrupt announce processing for other clients connected to the same listener. Combined with stamps, these mechanisms are complementary:
+
+Rate limiting bounds the *rate* at which abuse can occur, for everyone, while stamps make the *volume* of abuse from any actor computationally expensive.
+
+Full configuration details are available in the [Announce Rate Control](interfaces.md#interfaces-announcerates) and [New Destination Rate Limiting](interfaces.md#interfaces-ingress-control) sections.
+
+## Blackhole Management
+
+The *blackhole* system allows any node operator or individual user to block specific identities at the transport layer.
+
+Once an identity has been blackholed on a node, announces originating from *any* destination associated with that identity are dropped, and the node will refuse to transport traffic, or establish and maintain links, to the blackholed identity’s destinations.
+
+It is important to understand the scope of this mechanism corrrectly. There is fundamentally **no way** to *globally* block or censor any identity or destination in Reticulum networks. A blackhole entry only applies on the network segments that enforce it, which is the exact intention. Operators retain full control over what is allowed on their own segments, while no one can impose restrictions on segments they do not operate.
+
+Blackholes can be managed directly with the `rnpath` utility. Identities can be blocked (optionally with an expiry duration and a human-readable reason), unblocked, and the current local blocklist can be inspected at any time. This is well suited for immediate responses to announce spam, unwanted content or malicious behaviour observed on your own networks.
+
+For anything larger than a few nodes, manual blocklist maintenance quickly becomes impractical. Reticulum therefore allows an instance to subscribe to blackhole lists published by trusted transport identities, periodically retrieving and merging them into the local list, and conversely to publish its own list to subscribers.
+
+This makes it possible to federate community-maintained blocklists across large networks, with the important caveat that subscribing to a list is an act of trust in its maintainer. See the [Blackhole Management](using.md#using-blackhole-management) section for full details on local management, automated list sourcing and publishing.
+
+## Fast-Flap Blocking
+
+High-performance listener interfaces, such as [BackboneInterface](interfaces.md#interfaces-backbone), will automatically block *fast-flapping* clients; remote peers that repeatedly connect for a very short amount of time, and then disconnect.
+
+This behaviour usually stems from attempts to dump announce or path request spam onto the network in short bursts, while rotating connections in an attempt to evade per-interface rate limits, but it can also be caused by broken implementations or automated scanning tools.
+
+Such bypass attempts generally have very limited effect. Ingress limiters trigger *immediately* once rate limits are exceeded, but the behaviour still causes needless interface rotation and wasted resources on the transport instance.
+
+With fast-flap blocking enabled, a client that exceeds the allowed flap grace is simply not allocated an actual interface again, for the configured block duration.
+
+On the `BackboneInterface` type, fast-flap blocking is enabled by default, with sensible standard settings. All parameters can be adjusted if necessary. See the [Automated Blocking](interfaces.md#interfaces-fastflap) section of the Interfaces chapter.

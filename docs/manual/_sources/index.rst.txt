@@ -23,7 +23,7 @@ to participate in the development of Reticulum itself.
    zen
    software
    using
-   stamps
+   protecting
    understanding
    hardware
    interfaces

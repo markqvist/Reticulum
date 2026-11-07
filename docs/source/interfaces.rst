@@ -230,6 +230,8 @@ specify the target Yggdrasil IPv6 address and port, like so:
       target_host = 201:5d78:af73:5caf:a4de:a79f:3278:71e5
       target_port = 4343
 
+.. _interfaces-fastflap:
+
 Automated Blocking
 ------------------
 Listener instances of ``BackboneInterface`` will automatically block fast-flapping clients,

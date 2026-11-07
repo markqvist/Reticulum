@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Protecting Open Networks" href="stamps.html"><link rel="prev" title="Programs Using Reticulum" href="software.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Protecting Open Networks" href="protecting.html"><link rel="prev" title="Programs Using Reticulum" href="software.html">
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
@@ -218,7 +218,7 @@
 <li class="toctree-l1"><a class="reference internal" href="zen.html">Zen of Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="software.html">Programs Using Reticulum</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Using Reticulum on Your System</a></li>
-<li class="toctree-l1"><a class="reference internal" href="stamps.html">Protecting Open Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="protecting.html">Protecting Open Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interfaces.html">Configuring Interfaces</a></li>
@@ -1435,7 +1435,7 @@ remote_management_allowed = 9fb6d773498fb3feda407ed8ef2c3229, 2d882c5586e548d79b
 <p><strong>Federation and Trust</strong></p>
 <p>The blackhole system relies on the trust relationship between the subscriber and the publisher. By subscribing to a source, you are implicitly trusting that source to only block identities that are genuinely detrimental to the network.</p>
 <p>As the ecosystem matures, this system is designed to integrate with <strong>Network Identities</strong>. This allows communities to verify that a published blackhole list is actually provided by a specific network or organization with a certain level of reputation and trustworthiness, adding a layer of cryptographic trust to the federation process. This prevents malicious actors from publishing fake lists intended to censor legitimate traffic.</p>
-<p>For operators, this creates a scalable model where maintaining a single high-quality blocklist can protect thousands of downstream peers, drastically reducing the administrative.</p>
+<p>For operators, this creates a scalable model where maintaining a single high-quality blocklist can protect thousands of downstream peers, drastically reducing the administrative overhead.</p>
 </section>
 </section>
 <section id="improving-system-configuration">
@@ -1564,7 +1564,7 @@ systemctl --user enable rnsd.service
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="stamps.html">
+          <a class="next-page" href="protecting.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
