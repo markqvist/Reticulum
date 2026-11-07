@@ -498,6 +498,10 @@ class Reticulum:
                     entries = self.config["filter"].as_list(option)
                     for entry in entries: RNS.Transport.allow_destination_type(entry)
 
+                if option == "hop_limiter":
+                    v = self.config["filter"].as_int(option)
+                    RNS.Transport.HOP_LIMITER = max(0, min(v, RNS.Transport.PATHFINDER_M))
+
         if "stamps" in self.config:
             for option in self.config["stamps"]:
                 if option == "enforce_stamps":
@@ -585,10 +589,6 @@ class Reticulum:
                     v = self.config["reticulum"].as_bool(option)
                     if v == True: Reticulum.__transport_enabled = True
 
-                if option == "hop_limiter":
-                    v = self.config["reticulum"].as_int(option)
-                    RNS.Transport.HOP_LIMITER = max(1, min(v, RNS.Transport.PATHFINDER_M))
-                
                 if option == "static_transport_identity":
                     v = self.config["reticulum"].as_bool(option)
                     if v == True: Reticulum.__static_transport_identity = True
