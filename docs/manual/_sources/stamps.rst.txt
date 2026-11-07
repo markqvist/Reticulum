@@ -237,15 +237,87 @@ As with destination stamps, this is a one-time generation procedure, that happen
 Filtering & QoS
 ===============
 
-TODO: Section explaining the ``[filter]`` configuration options, for creating allow and blocklists for specific destination types.
+In addition to the stamp functionality explored above, Reticulum includes filtering options that allow operators to explicitly deny or allow certain destination *types* across an entire instance.
 
+After filtering, all packets that are ultimately allowed into the transport engine, are sorted into prioritized QoS queues, which are drained and processed in priority order.
+
+This provides a powerful system for both filtering, classifying and ensuring latency and service quality for the traffic and application types a node operator wants to provide.
+
+Instance Configuration
+----------------------
+
+The filtering subsystem can operate in two modes:
+
+ * | **Ignored Mode** will allow any destination type in the instance, *except* for those that have been explicitly added to the ``ignored_types`` list. This mode is useful for blocking the traffic of specific destination types from being transported across the instance.
+
+ * | **Required Only Mode** will allow *only* the destination types explicitly defined as required, and ignore *all* other types. A base set of required destination types can be defined instance-wide in the ``allowed_types`` list.
+
+   | In addition, any application using the shared instance can temporarily request required destination types for its use. Applications that request required destination types will automatically have them granted, unless they are included in the ``ignored_types`` list.
+
+The filtering defaults and base settings are configured in the ``[filter]`` section of the configuration file. For example, it is possible to explicitly ignore a series of destination types, while also limiting hop reach to a more local topology:
+
+.. code:: ini
+
+  [filter]
+    hop_limiter = 14
+    ignored_types = application.that.spams, traffic.heavy.service
+
+In some situations, you may want to allow *only* certain destination types. If, for example, you are creating a high-performance transport node intended to handle thousands of simultaneous voice calls at minimal latency, you
+
+.. code:: ini
+
+  [filter]
+    required_only = yes
+    allowed_types = lxst.telephony
+
+The filtering subsystem provided in RNS `1.6.0` is functional and useful, but at an early stage, and relatively basic. In the upcoming releases, it will be expanded into a much more comprehensive and flexible system, that will include custom QoS and traffic class tagging, advanced rule definitions and more.
+
+.. important::
+   As the filtering and QoS system is developed and matures, the ``required_only`` mode will become the default operating mode for non-transport instances, since applications can already now dynamically request what destination types they are interested in.
+
+   This ensures that a local, non-transport node (running on resource-limited hardware, for example), does not have to process announces for, and waste CPU and memory on destination types that are completely irrelevant to it. It also greatly reduces power consumption on battery-powered and mobile devices, while they are connected to large and busy networks.
+
+   If you are a developer, see the following section.
+
+For Developers
+--------------
+
+At some point during the ``1.6.x`` release cycle, RNS will move to using the ``required_only`` mode for *non-transport* instances by default. This means that applications will, in most cases, have to request what types of destinations they are interested in receiving announces from.
+
+If your application is using only using the utility primitives included in RNS, or established protocols such as LXMF or LXST, **there is nothing you have to do**. The protocol primitives *themselves* request their required destination types, and this is the general pattern to follow here:
+
+- If an application uses a common protocol or primitive, it is the importable primitive, protocol module, or relevant internal functionality that should request destination type requirements, at the point where they are actually needed.
+- Higher level application layers should not have to guess at or request destination types, unless it explicitly creates outbound destinations that are not covered by any already-used protocols or primitives.
+
+If your protocol or application needs to receive announces for a specific destination type, it is very easy to register it. For example, at startup (or when the destination type is actually required), simply run something like:
+
+.. code:: python
+
+  RNS.Reticulum.get_instance().wants_destination_type("my_app.service")
+
+You do not *have to* explicitly deregister destination type requirements. Reticulum automatically deregisters when the shared instance connection for the application is torn down, but you may *want* to in certain cases, which follows the same pattern:
+
+.. code:: python
+
+  RNS.Reticulum.get_instance().unwants_destination_type("my_app.service")
+
+That's really all there is to it. If you already now want to make you application more CPU, memory and battery efficient, you can tell Reticulum to start serving only required destinations to it with only one line of additional code. A full setup of this functionality might look something like:
+
+.. code:: python
+
+  for destination_type in self.REQUIRED_DESTINATION_TYPES:
+      RNS.Reticulum.get_instance().wants_destination_type(destination_type)
+
+  RNS.Reticulum.get_instance().required_announces_only(True)
+
+Your application will now only receive, and have to process, the announces and paths that it actually cares about.
 
 Blackhole Management
 ====================
 
-TODO: Section explaining the blackhole system conceptually (including distributed updates from other nodes), with a few terse examples for either locally - or across an entire managed network - blocking specific identities (and therefore any destination types created by such), as well as blocking incoming (identified) link requests from that identity at terminus.
+TODO: Short section explaining the blackhole system conceptually (including distributed updates from other nodes), with a few terse examples for either locally - or across an entire managed network - blocking specific identities (and therefore any destination types created by such), as well as blocking incoming (identified) link requests from that identity at terminus.
 
 Ingress & Burst Control
 =======================
 
-TODO: Section explaining the rate-limiting, ingress control and burst limiters conceptually, with a few, terse examples on how to configure them (linked references to other more extensive documentation sections of the options).
+TODO: Short section explaining the rate-limiting, ingress control and burst limiters conceptually, with a few, terse examples on how to configure them (linked references to other more extensive documentation sections of the options).

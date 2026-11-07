@@ -492,15 +492,80 @@ seconds for both options.</div>
 </section>
 <section id="filtering-qos">
 <h2>Filtering &amp; QoS<a class="headerlink" href="#filtering-qos" title="Link to this heading">¶</a></h2>
-<p>TODO: Section explaining the <code class="docutils literal notranslate"><span class="pre">[filter]</span></code> configuration options, for creating allow and blocklists for specific destination types.</p>
+<p>In addition to the stamp functionality explored above, Reticulum includes filtering options that allow operators to explicitly deny or allow certain destination <em>types</em> across an entire instance.</p>
+<p>After filtering, all packets that are ultimately allowed into the transport engine, are sorted into prioritized QoS queues, which are drained and processed in priority order.</p>
+<p>This provides a powerful system for both filtering, classifying and ensuring latency and service quality for the traffic and application types a node operator wants to provide.</p>
+<section id="id1">
+<h3>Instance Configuration<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p>The filtering subsystem can operate in two modes:</p>
+<blockquote>
+<div><ul>
+<li><div class="line-block">
+<div class="line"><strong>Ignored Mode</strong> will allow any destination type in the instance, <em>except</em> for those that have been explicitly added to the <code class="docutils literal notranslate"><span class="pre">ignored_types</span></code> list. This mode is useful for blocking the traffic of specific destination types from being transported across the instance.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><strong>Required Only Mode</strong> will allow <em>only</em> the destination types explicitly defined as required, and ignore <em>all</em> other types. A base set of required destination types can be defined instance-wide in the <code class="docutils literal notranslate"><span class="pre">allowed_types</span></code> list.</div>
+</div>
+<div class="line-block">
+<div class="line">In addition, any application using the shared instance can temporarily request required destination types for its use. Applications that request required destination types will automatically have them granted, unless they are included in the <code class="docutils literal notranslate"><span class="pre">ignored_types</span></code> list.</div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+<p>The filtering defaults and base settings are configured in the <code class="docutils literal notranslate"><span class="pre">[filter]</span></code> section of the configuration file. For example, it is possible to explicitly ignore a series of destination types, while also limiting hop reach to a more local topology:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[filter]</span>
+<span class="w">  </span><span class="na">hop_limiter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">14</span>
+<span class="w">  </span><span class="na">ignored_types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">application.that.spams, traffic.heavy.service</span>
+</pre></div>
+</div>
+<p>In some situations, you may want to allow <em>only</em> certain destination types. If, for example, you are creating a high-performance transport node intended to handle thousands of simultaneous voice calls at minimal latency, you</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[filter]</span>
+<span class="w">  </span><span class="na">required_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="w">  </span><span class="na">allowed_types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">lxst.telephony</span>
+</pre></div>
+</div>
+<p>The filtering subsystem provided in RNS <cite>1.6.0</cite> is functional and useful, but at an early stage, and relatively basic. In the upcoming releases, it will be expanded into a much more comprehensive and flexible system, that will include custom QoS and traffic class tagging, advanced rule definitions and more.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>As the filtering and QoS system is developed and matures, the <code class="docutils literal notranslate"><span class="pre">required_only</span></code> mode will become the default operating mode for non-transport instances, since applications can already now dynamically request what destination types they are interested in.</p>
+<p>This ensures that a local, non-transport node (running on resource-limited hardware, for example), does not have to process announces for, and waste CPU and memory on destination types that are completely irrelevant to it. It also greatly reduces power consumption on battery-powered and mobile devices, while they are connected to large and busy networks.</p>
+<p>If you are a developer, see the following section.</p>
+</div>
+</section>
+<section id="id2">
+<h3>For Developers<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>At some point during the <code class="docutils literal notranslate"><span class="pre">1.6.x</span></code> release cycle, RNS will move to using the <code class="docutils literal notranslate"><span class="pre">required_only</span></code> mode for <em>non-transport</em> instances by default. This means that applications will, in most cases, have to request what types of destinations they are interested in receiving announces from.</p>
+<p>If your application is using only using the utility primitives included in RNS, or established protocols such as LXMF or LXST, <strong>there is nothing you have to do</strong>. The protocol primitives <em>themselves</em> request their required destination types, and this is the general pattern to follow here:</p>
+<ul class="simple">
+<li><p>If an application uses a common protocol or primitive, it is the importable primitive, protocol module, or relevant internal functionality that should request destination type requirements, at the point where they are actually needed.</p></li>
+<li><p>Higher level application layers should not have to guess at or request destination types, unless it explicitly creates outbound destinations that are not covered by any already-used protocols or primitives.</p></li>
+</ul>
+<p>If your protocol or application needs to receive announces for a specific destination type, it is very easy to register it. For example, at startup (or when the destination type is actually required), simply run something like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">wants_destination_type</span><span class="p">(</span><span class="s2">&quot;my_app.service&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You do not <em>have to</em> explicitly deregister destination type requirements. Reticulum automatically deregisters when the shared instance connection for the application is torn down, but you may <em>want</em> to in certain cases, which follows the same pattern:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">unwants_destination_type</span><span class="p">(</span><span class="s2">&quot;my_app.service&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>That’s really all there is to it. If you already now want to make you application more CPU, memory and battery efficient, you can tell Reticulum to start serving only required destinations to it with only one line of additional code. A full setup of this functionality might look something like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">destination_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">REQUIRED_DESTINATION_TYPES</span><span class="p">:</span>
+    <span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">wants_destination_type</span><span class="p">(</span><span class="n">destination_type</span><span class="p">)</span>
+
+<span class="n">RNS</span><span class="o">.</span><span class="n">Reticulum</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">required_announces_only</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Your application will now only receive, and have to process, the announces and paths that it actually cares about.</p>
+</section>
 </section>
 <section id="blackhole-management">
 <h2>Blackhole Management<a class="headerlink" href="#blackhole-management" title="Link to this heading">¶</a></h2>
-<p>TODO: Section explaining the blackhole system conceptually (including distributed updates from other nodes), with a few terse examples for either locally - or across an entire managed network - blocking specific identities (and therefore any destination types created by such), as well as blocking incoming (identified) link requests from that identity at terminus.</p>
+<p>TODO: Short section explaining the blackhole system conceptually (including distributed updates from other nodes), with a few terse examples for either locally - or across an entire managed network - blocking specific identities (and therefore any destination types created by such), as well as blocking incoming (identified) link requests from that identity at terminus.</p>
 </section>
 <section id="ingress-burst-control">
 <h2>Ingress &amp; Burst Control<a class="headerlink" href="#ingress-burst-control" title="Link to this heading">¶</a></h2>
-<p>TODO: Section explaining the rate-limiting, ingress control and burst limiters conceptually, with a few, terse examples on how to configure them (linked references to other more extensive documentation sections of the options).</p>
+<p>TODO: Short section explaining the rate-limiting, ingress control and burst limiters conceptually, with a few, terse examples on how to configure them (linked references to other more extensive documentation sections of the options).</p>
 </section>
 </section>
 
@@ -569,7 +634,11 @@ seconds for both options.</div>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#filtering-qos">Filtering &amp; QoS</a></li>
+<li><a class="reference internal" href="#filtering-qos">Filtering &amp; QoS</a><ul>
+<li><a class="reference internal" href="#id1">Instance Configuration</a></li>
+<li><a class="reference internal" href="#id2">For Developers</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#blackhole-management">Blackhole Management</a></li>
 <li><a class="reference internal" href="#ingress-burst-control">Ingress &amp; Burst Control</a></li>
 </ul>

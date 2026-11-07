@@ -136,6 +136,8 @@ to participate in the development of Reticulum itself.
     * [On-Network Types](stamps.md#on-network-types)
     * [Configuring Stamps](stamps.md#configuring-stamps)
   * [Filtering & QoS](stamps.md#filtering-qos)
+    * [Instance Configuration](stamps.md#id1)
+    * [For Developers](stamps.md#id2)
   * [Blackhole Management](stamps.md#blackhole-management)
   * [Ingress & Burst Control](stamps.md#ingress-burst-control)
 * [Understanding Reticulum](understanding.md)
