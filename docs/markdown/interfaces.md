@@ -910,13 +910,6 @@ Reticulum includes a powerful system for publishing your local interfaces to the
 
 When an interface is made **discoverable**, your Reticulum instance will periodically broadcast an announce packet containing the connection details and parameters required for other peers to establish a connection. These announces are propagated over the network using the standard Reticulum announce mechanism using the `rnstransport.discovery.interface` destination type.
 
-#### NOTE
-To use the interface discovery functionality, the `LXMF` module must be installed in your Python environment. You can install it using pip:
-
-```sh
-pip install lxmf
-```
-
 ### Enabling Discovery
 
 Interface discovery is enabled on a per-interface basis. To make a specific interface discoverable, you must add the `discoverable` option to that interface’s configuration block and set it to `yes`.

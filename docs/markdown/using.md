@@ -178,12 +178,14 @@ change anything, and you may already be connected to a wider network. If not,
 you will probably need to add relevant *interfaces* to the configuration, in
 order to communicate with other systems.
 
-You can generate a much more verbose configuration example by running the command:
+The example above does not document all the available options, only the basics.
+To explore all the various configuration options available, you can generate a
+much more verbose and complete configuration example by running the command:
 
 `rnsd --exampleconfig`
 
-The output includes examples for most interface types supported
-by Reticulum, along with additional options and configuration parameters.
+The output includes examples for most interface types supported by Reticulum,
+along with additional options and configuration parameters.
 
 It is a good idea to read the comments and explanations in the above default config.
 It will teach you the basic concepts you need to understand to configure your network.
@@ -617,7 +619,7 @@ Or fetch a file from the remote system:
 $ rncp --fetch ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
 ```
 
-The default identity file is stored in `~/.reticulum/identities/rncp`, but you can use
+The default identity file is stored in `~/.reticulum/storage/identities/rncp`, but you can use
 another one, which will be created if it does not already exist
 
 ```text
@@ -700,7 +702,7 @@ Or enter the interactive mode pseudo-shell:
 $ rnx 7a55144adf826958a9529a3bcf08b149 -x
 ```
 
-The default identity file is stored in `~/.reticulum/identities/rnx`, but you can use
+The default identity file is stored in `~/.reticulum/storage/identities/rnx`, but you can use
 another one, which will be created if it does not already exist
 
 ```text
@@ -912,9 +914,10 @@ When connecting to a remote listener, several options are available:
 
 **Identity & Destination**
 
-The default identity file for `rnsh` is stored at
-`~/.reticulum/identities/rnsh`, but you can specify a different one with the
-`-i` option, which will be created if it does not already exist:
+The default initiator identity file for `rnsh` is stored at
+`~/.rns/identity` (default listener identity is in `~/.rns/identity.default`),
+but you can specify a different one with the `-i` option, which will be created if
+it does not already exist:
 
 ```text
 $ rnsh -l -i /path/to/identity
@@ -1402,6 +1405,7 @@ Type=simple
 Restart=always
 RestartSec=3
 User=USERNAMEHERE
+Environment=MALLOC_ARENA_MAX=2
 ExecStart=rnsd --service
 
 [Install]
@@ -1442,6 +1446,7 @@ After=default.target
 Type=simple
 Restart=always
 RestartSec=3
+Environment=MALLOC_ARENA_MAX=2
 ExecStart=RNS_BIN_DIR/rnsd --service
 
 [Install]

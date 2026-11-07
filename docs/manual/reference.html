@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>API Reference - Reticulum Network Stack 1.5.7 documentation</title>
+        <title>API Reference - Reticulum Network Stack 1.6.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.5.7 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.6.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.5.7 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.6.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -218,6 +218,7 @@
 <li class="toctree-l1"><a class="reference internal" href="zen.html">Zen of Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="software.html">Programs Using Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="using.html">Using Reticulum on Your System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stamps.html">Protecting Open Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interfaces.html">Configuring Interfaces</a></li>
@@ -270,7 +271,7 @@ This chapter lists and explains all classes exposed by the Reticulum Network Sta
 <p id="api-reticulum"><h3> Reticulum </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Reticulum">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Reticulum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loglevel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logdest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_shared_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_instance_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Reticulum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loglevel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logdest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_shared_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_instance_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_stamping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enforce_stamps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Reticulum" title="Link to this definition">¶</a></dt>
 <dd><p>This class is used to initialise access to Reticulum within a
 program. You must create exactly one instance of this class before
 carrying out any other RNS operations, such as creating destinations
@@ -453,7 +454,7 @@ can remotely query and manage this instance.</p>
 to be considered valid and remembered.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The required stamp value as an integer.</p>
+<dd class="field-odd"><p>The required stamp value as a float.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -510,7 +511,7 @@ interfaces are discovered.</p>
 <p id="api-identity"><h3> Identity </h3></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="RNS.Identity">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Identity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">create_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RNS.</span></span><span class="sig-name descname"><span class="pre">Identity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">create_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity" title="Link to this definition">¶</a></dt>
 <dd><p>This class is used to manage identities in Reticulum. It provides methods
 for encryption, decryption, signatures and verification, and is the basis
 for all encrypted communication over Reticulum networks.</p>
@@ -584,6 +585,34 @@ search for an identity from a known <em>identity hash</em>, by setting the
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>Bytes</em> containing app_data, or <em>None</em> if the destination is unknown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.recall_stamp_value">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">recall_stamp_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.recall_stamp_value" title="Link to this definition">¶</a></dt>
+<dd><p>Recall last heard announce stamp value for a destination hash.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>destination_hash</strong> – Destination hash as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Float</em>, or <em>None</em> if the destination is unknown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.recall_link_cost">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">recall_link_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.recall_link_cost" title="Link to this definition">¶</a></dt>
+<dd><p>Recall the link request stamp cost announced by a destination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>destination_hash</strong> – Destination hash as <em>bytes</em>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Float</em>, or <em>None</em> if the destination is unknown or has not announced a cost.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -700,6 +729,16 @@ communication for the identity. Be very careful with this method.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if the file was saved, otherwise False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Identity.get_value">
+<span class="sig-name descname"><span class="pre">get_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Identity.get_value" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The stamp value of this identity as a <em>float</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -909,6 +948,41 @@ relevant interfaces. Application specific data can be added to the announce.</p>
 <li><p><strong>app_data</strong> – <em>bytes</em> containing the app_data.</p></li>
 <li><p><strong>path_response</strong> – Internal flag used by <a class="reference internal" href="#api-transport"><span class="std std-ref">RNS.Transport</span></a>. Ignore.</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.set_value">
+<span class="sig-name descname"><span class="pre">set_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.set_value" title="Link to this definition">¶</a></dt>
+<dd><p>Sets the target stamp value for this destination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> – The target value as a <em>float</em>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.set_link_cost">
+<span class="sig-name descname"><span class="pre">set_link_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cost</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.set_link_cost" title="Link to this definition">¶</a></dt>
+<dd><p>Sets the required link establishment stamp cost for this destination. Set to 0 to disable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cost</strong> – The required cost as a <em>float</em>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RNS.Destination.get_link_cost">
+<span class="sig-name descname"><span class="pre">get_link_cost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Destination.get_link_cost" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the link request stamp cost to be announced for this
+destination, as a float. If no destination-specific cost has
+been set, the default link request cost is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The announced link request cost as a <em>float</em>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2285,7 +2359,7 @@ blocks until the path is available, or the timeout is reached.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="RNS.Transport.request_path">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">request_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_interface</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Transport.request_path" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">request_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_interface</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RNS.Transport.request_path" title="Link to this definition">¶</a></dt>
 <dd><p>Requests a path to the destination from the network. If
 another reachable peer on the network knows a path, it
 will announce it.</p>
@@ -2294,6 +2368,7 @@ will announce it.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>destination_hash</strong> – A destination hash as <em>bytes</em>.</p></li>
 <li><p><strong>on_interface</strong> – If specified, the path request will only be sent on this interface. In normal use, Reticulum handles this automatically, and this parameter should not be used.</p></li>
+<li><p><strong>ext_payload</strong> – Internal use by <a class="reference internal" href="#api-transport"><span class="std std-ref">RNS.Transport</span></a>. Ignore.</p></li>
 </ul>
 </dd>
 </dl>
@@ -2411,6 +2486,8 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Identity.TRUNCATED_HASHLENGTH"><code class="docutils literal notranslate"><span class="pre">TRUNCATED_HASHLENGTH</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.recall"><code class="docutils literal notranslate"><span class="pre">recall()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.recall_app_data"><code class="docutils literal notranslate"><span class="pre">recall_app_data()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.recall_stamp_value"><code class="docutils literal notranslate"><span class="pre">recall_stamp_value()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.recall_link_cost"><code class="docutils literal notranslate"><span class="pre">recall_link_cost()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.full_hash"><code class="docutils literal notranslate"><span class="pre">full_hash()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.truncated_hash"><code class="docutils literal notranslate"><span class="pre">truncated_hash()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.get_random_hash"><code class="docutils literal notranslate"><span class="pre">get_random_hash()</span></code></a></li>
@@ -2419,6 +2496,7 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Identity.from_file"><code class="docutils literal notranslate"><span class="pre">from_file()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.to_file"><code class="docutils literal notranslate"><span class="pre">to_file()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.pub_to_file"><code class="docutils literal notranslate"><span class="pre">pub_to_file()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Identity.get_value"><code class="docutils literal notranslate"><span class="pre">get_value()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.get_private_key"><code class="docutils literal notranslate"><span class="pre">get_private_key()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.get_public_key"><code class="docutils literal notranslate"><span class="pre">get_public_key()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Identity.load_private_key"><code class="docutils literal notranslate"><span class="pre">load_private_key()</span></code></a></li>
@@ -2437,6 +2515,9 @@ will announce it.</p>
 <li><a class="reference internal" href="#RNS.Destination.hash_from_name_and_identity"><code class="docutils literal notranslate"><span class="pre">hash_from_name_and_identity()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.hash"><code class="docutils literal notranslate"><span class="pre">hash()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.announce"><code class="docutils literal notranslate"><span class="pre">announce()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.set_value"><code class="docutils literal notranslate"><span class="pre">set_value()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.set_link_cost"><code class="docutils literal notranslate"><span class="pre">set_link_cost()</span></code></a></li>
+<li><a class="reference internal" href="#RNS.Destination.get_link_cost"><code class="docutils literal notranslate"><span class="pre">get_link_cost()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.accepts_links"><code class="docutils literal notranslate"><span class="pre">accepts_links()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.set_link_established_callback"><code class="docutils literal notranslate"><span class="pre">set_link_established_callback()</span></code></a></li>
 <li><a class="reference internal" href="#RNS.Destination.set_packet_callback"><code class="docutils literal notranslate"><span class="pre">set_packet_callback()</span></code></a></li>
@@ -2589,7 +2670,7 @@ will announce it.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=2b2ec289"></script>
+</div><script src="_static/documentation_options.js?v=72d88caf"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

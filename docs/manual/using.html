@@ -3,11 +3,11 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Understanding Reticulum" href="understanding.html"><link rel="prev" title="Programs Using Reticulum" href="software.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Protecting Open Networks" href="stamps.html"><link rel="prev" title="Programs Using Reticulum" href="software.html">
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>Using Reticulum on Your System - Reticulum Network Stack 1.5.7 documentation</title>
+        <title>Using Reticulum on Your System - Reticulum Network Stack 1.6.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.5.7 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.6.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.5.7 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.6.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -218,6 +218,7 @@
 <li class="toctree-l1"><a class="reference internal" href="zen.html">Zen of Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="software.html">Programs Using Reticulum</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Using Reticulum on Your System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stamps.html">Protecting Open Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interfaces.html">Configuring Interfaces</a></li>
@@ -443,10 +444,12 @@ configuration file is created. The default configuration looks like this:</p>
 change anything, and you may already be connected to a wider network. If not,
 you will probably need to add relevant <em>interfaces</em> to the configuration, in
 order to communicate with other systems.</p>
-<p>You can generate a much more verbose configuration example by running the command:</p>
+<p>The example above does not document all the available options, only the basics.
+To explore all the various configuration options available, you can generate a
+much more verbose and complete configuration example by running the command:</p>
 <p><code class="docutils literal notranslate"><span class="pre">rnsd</span> <span class="pre">--exampleconfig</span></code></p>
-<p>The output includes examples for most interface types supported
-by Reticulum, along with additional options and configuration parameters.</p>
+<p>The output includes examples for most interface types supported by Reticulum,
+along with additional options and configuration parameters.</p>
 <p>It is a good idea to read the comments and explanations in the above default config.
 It will teach you the basic concepts you need to understand to configure your network.
 Once you have done that, take a look at the <a class="reference internal" href="interfaces.html#interfaces-main"><span class="std std-ref">Interfaces</span></a> chapter
@@ -821,7 +824,7 @@ and simply running the program in listener mode:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rncp --fetch ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e
 </pre></div>
 </div>
-<p>The default identity file is stored in <code class="docutils literal notranslate"><span class="pre">~/.reticulum/identities/rncp</span></code>, but you can use
+<p>The default identity file is stored in <code class="docutils literal notranslate"><span class="pre">~/.reticulum/storage/identities/rncp</span></code>, but you can use
 another one, which will be created if it does not already exist</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rncp ~/path/to/file.tgz 73cbd378bb0286ed11a707c13447bb1e -i /path/to/identity
 </pre></div>
@@ -891,7 +894,7 @@ at the <a class="reference internal" href="#using-rnsh"><span class="std std-ref
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnx 7a55144adf826958a9529a3bcf08b149 -x
 </pre></div>
 </div>
-<p>The default identity file is stored in <code class="docutils literal notranslate"><span class="pre">~/.reticulum/identities/rnx</span></code>, but you can use
+<p>The default identity file is stored in <code class="docutils literal notranslate"><span class="pre">~/.reticulum/storage/identities/rnx</span></code>, but you can use
 another one, which will be created if it does not already exist</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnx 7a55144adf826958a9529a3bcf08b149 -i /path/to/identity -x
 </pre></div>
@@ -1065,9 +1068,10 @@ the remote process, rather than always returning <code class="docutils literal n
 seconds. By default, the timeout matches the Reticulum path request timeout.</p></li>
 </ul>
 <p><strong>Identity &amp; Destination</strong></p>
-<p>The default identity file for <code class="docutils literal notranslate"><span class="pre">rnsh</span></code> is stored at
-<code class="docutils literal notranslate"><span class="pre">~/.reticulum/identities/rnsh</span></code>, but you can specify a different one with the
-<code class="docutils literal notranslate"><span class="pre">-i</span></code> option, which will be created if it does not already exist:</p>
+<p>The default initiator identity file for <code class="docutils literal notranslate"><span class="pre">rnsh</span></code> is stored at
+<code class="docutils literal notranslate"><span class="pre">~/.rns/identity</span></code> (default listener identity is in <code class="docutils literal notranslate"><span class="pre">~/.rns/identity.default</span></code>),
+but you can specify a different one with the <code class="docutils literal notranslate"><span class="pre">-i</span></code> option, which will be created if
+it does not already exist:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rnsh -l -i /path/to/identity
 </pre></div>
 </div>
@@ -1497,6 +1501,7 @@ Type=simple
 Restart=always
 RestartSec=3
 User=USERNAMEHERE
+Environment=MALLOC_ARENA_MAX=2
 ExecStart=rnsd --service
 
 [Install]
@@ -1531,6 +1536,7 @@ After=default.target
 Type=simple
 Restart=always
 RestartSec=3
+Environment=MALLOC_ARENA_MAX=2
 ExecStart=RNS_BIN_DIR/rnsd --service
 
 [Install]
@@ -1558,12 +1564,12 @@ systemctl --user enable rnsd.service
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="understanding.html">
+          <a class="next-page" href="stamps.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Understanding Reticulum</div>
+                <div class="title">Protecting Open Networks</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -1650,7 +1656,7 @@ systemctl --user enable rnsd.service
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=2b2ec289"></script>
+</div><script src="_static/documentation_options.js?v=72d88caf"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

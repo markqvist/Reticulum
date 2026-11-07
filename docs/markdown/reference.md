@@ -3,7 +3,7 @@
 Communication over Reticulum networks is achieved by using a simple set of classes exposed by the RNS API.
 This chapter lists and explains all classes exposed by the Reticulum Network Stack API, along with their method signatures and usage. It can be used as a reference while writing applications that utilise Reticulum, or it can be read in entirity to gain an understanding of the complete functionality of RNS from a developers perspective.
 
-### `class RNS.Reticulum(configdir=None, loglevel=None, logdest=None, verbosity=None, require_shared_instance=False, shared_instance_type=None)`
+### `class RNS.Reticulum(configdir=None, loglevel=None, logdest=None, verbosity=None, require_shared_instance=False, shared_instance_type=None, enable_stamping=False, enforce_stamps=False)`
 
 This class is used to initialise access to Reticulum within a
 program. You must create exactly one instance of this class before
@@ -156,7 +156,7 @@ Returns the required stamp value for a discovered interface
 to be considered valid and remembered.
 
 * **Returns:**
-  The required stamp value as an integer.
+  The required stamp value as a float.
 
 #### `static publish_blackhole_enabled()`
 
@@ -189,7 +189,7 @@ interfaces are discovered.
 * **Returns:**
   A list of identity hashes.
 
-### `class RNS.Identity(create_keys=True)`
+### `class RNS.Identity(create_keys=True, value=None)`
 
 This class is used to manage identities in Reticulum. It provides methods
 for encryption, decryption, signatures and verification, and is the basis
@@ -246,6 +246,26 @@ Recall last heard app_data for a destination hash.
 
 * **Returns:**
   *Bytes* containing app_data, or *None* if the destination is unknown.
+
+#### `static recall_stamp_value(destination_hash)`
+
+Recall last heard announce stamp value for a destination hash.
+
+* **Parameters:**
+  **destination_hash** – Destination hash as *bytes*.
+
+* **Returns:**
+  *Float*, or *None* if the destination is unknown.
+
+#### `static recall_link_cost(destination_hash)`
+
+Recall the link request stamp cost announced by a destination.
+
+* **Parameters:**
+  **destination_hash** – Destination hash as *bytes*.
+
+* **Returns:**
+  *Float*, or *None* if the destination is unknown or has not announced a cost.
 
 #### `static full_hash(data)`
 
@@ -330,6 +350,11 @@ Saves the public identity to a file.
 
 * **Returns:**
   True if the file was saved, otherwise False.
+
+#### `get_value()`
+
+* **Returns:**
+  The stamp value of this identity as a *float*
 
 #### `get_private_key()`
 
@@ -466,6 +491,29 @@ relevant interfaces. Application specific data can be added to the announce.
 * **Parameters:**
   * **app_data** – *bytes* containing the app_data.
   * **path_response** – Internal flag used by [RNS.Transport](#api-transport). Ignore.
+
+#### `set_value(value)`
+
+Sets the target stamp value for this destination.
+
+* **Parameters:**
+  **value** – The target value as a *float*.
+
+#### `set_link_cost(cost)`
+
+Sets the required link establishment stamp cost for this destination. Set to 0 to disable.
+
+* **Parameters:**
+  **cost** – The required cost as a *float*.
+
+#### `get_link_cost()`
+
+Returns the link request stamp cost to be announced for this
+destination, as a float. If no destination-specific cost has
+been set, the default link request cost is returned.
+
+* **Returns:**
+  The announced link request cost as a *float*.
 
 #### `accepts_links(accepts=None)`
 
@@ -1373,7 +1421,7 @@ blocks until the path is available, or the timeout is reached.
 * **Returns:**
   *True* if a path to the destination is found, otherwise *False*.
 
-#### `static request_path(destination_hash, on_interface=None, tag=None, recursive=False)`
+#### `static request_path(destination_hash, on_interface=None, tag=None, recursive=False, ext_payload=None)`
 
 Requests a path to the destination from the network. If
 another reachable peer on the network knows a path, it
@@ -1382,6 +1430,7 @@ will announce it.
 * **Parameters:**
   * **destination_hash** – A destination hash as *bytes*.
   * **on_interface** – If specified, the path request will only be sent on this interface. In normal use, Reticulum handles this automatically, and this parameter should not be used.
+  * **ext_payload** – Internal use by [RNS.Transport](#api-transport). Ignore.
 
 #### `static blackhole_identity(identity_hash, until=None, reason=None)`
 

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#"><link rel="search" title="Search" href="search.html">
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 --><title>Index - Reticulum Network Stack 1.5.7 documentation</title>
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 --><title>Index - Reticulum Network Stack 1.6.0 documentation</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.5.7 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.6.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.5.7 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.6.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -216,6 +216,7 @@
 <li class="toctree-l1"><a class="reference internal" href="zen.html">Zen of Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="software.html">Programs Using Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="using.html">Using Reticulum on Your System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stamps.html">Protecting Open Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="understanding.html">Understanding Reticulum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hardware.html">Communications Hardware</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interfaces.html">Configuring Interfaces</a></li>
@@ -444,6 +445,8 @@
 </li>
         <li><a href="reference.html#RNS.Reticulum.get_instance">get_instance() (RNS.Reticulum static method)</a>
 </li>
+        <li><a href="reference.html#RNS.Destination.get_link_cost">get_link_cost() (RNS.Destination method)</a>
+</li>
         <li><a href="reference.html#RNS.Reticulum.get_lowest_interface_bitrate">get_lowest_interface_bitrate() (RNS.Reticulum method)</a>
 </li>
         <li><a href="reference.html#RNS.Link.get_mdu">get_mdu() (RNS.Link method)</a>
@@ -511,6 +514,8 @@
 </li>
         </ul></li>
         <li><a href="reference.html#RNS.Resource.get_transfer_size">get_transfer_size() (RNS.Resource method)</a>
+</li>
+        <li><a href="reference.html#RNS.Identity.get_value">get_value() (RNS.Identity method)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -680,12 +685,16 @@
 </li>
         <li><a href="reference.html#RNS.Identity.recall_app_data">recall_app_data() (RNS.Identity static method)</a>
 </li>
-        <li><a href="reference.html#RNS.Transport.register_announce_handler">register_announce_handler() (RNS.Transport static method)</a>
+        <li><a href="reference.html#RNS.Identity.recall_link_cost">recall_link_cost() (RNS.Identity static method)</a>
 </li>
-        <li><a href="reference.html#RNS.Channel.Channel.register_message_type">register_message_type() (RNS.Channel.Channel method)</a>
+        <li><a href="reference.html#RNS.Identity.recall_stamp_value">recall_stamp_value() (RNS.Identity static method)</a>
+</li>
+        <li><a href="reference.html#RNS.Transport.register_announce_handler">register_announce_handler() (RNS.Transport static method)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference.html#RNS.Channel.Channel.register_message_type">register_message_type() (RNS.Channel.Channel method)</a>
+</li>
         <li><a href="reference.html#RNS.Destination.register_request_handler">register_request_handler() (RNS.Destination method)</a>
 </li>
         <li><a href="reference.html#RNS.Reticulum.remote_management_enabled">remote_management_enabled() (RNS.Reticulum static method)</a>
@@ -728,6 +737,8 @@
 </li>
         <li><a href="reference.html#RNS.Link.set_link_closed_callback">set_link_closed_callback() (RNS.Link method)</a>
 </li>
+        <li><a href="reference.html#RNS.Destination.set_link_cost">set_link_cost() (RNS.Destination method)</a>
+</li>
         <li><a href="reference.html#RNS.Destination.set_link_established_callback">set_link_established_callback() (RNS.Destination method)</a>
 </li>
         <li><a href="reference.html#RNS.Destination.set_max_request_size">set_max_request_size() (RNS.Destination method)</a>
@@ -761,6 +772,8 @@
         <li><a href="reference.html#RNS.PacketReceipt.set_timeout">set_timeout() (RNS.PacketReceipt method)</a>
 </li>
         <li><a href="reference.html#RNS.PacketReceipt.set_timeout_callback">set_timeout_callback() (RNS.PacketReceipt method)</a>
+</li>
+        <li><a href="reference.html#RNS.Destination.set_value">set_value() (RNS.Destination method)</a>
 </li>
         <li><a href="reference.html#RNS.Reticulum.should_use_implicit_proof">should_use_implicit_proof() (RNS.Reticulum static method)</a>
 </li>
@@ -857,7 +870,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=2b2ec289"></script>
+</div><script src="_static/documentation_options.js?v=72d88caf"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
