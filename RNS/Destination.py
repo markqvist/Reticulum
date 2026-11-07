@@ -272,8 +272,8 @@ class Destination:
                     stamp, stamp_value = generate_stamp(self.stamp_material(), stamp_cost=self.target_value,
                                                         expand_rounds=0, size=RNS.Identity.STAMPLENGTH)
                     if stamp == None:
-                        RNS.log(f"Could not generate destination stamp for {RNS.prettyhexrep(self.hash)}, announce emission cancelled", RNS.LOG_WARNING)
-                        return
+                        RNS.log(f"Destination stamp generation for {RNS.prettyhexrep(self.hash)} failed or was aborted", RNS.LOG_DEBUG)
+                        return False
 
                     self.stamp       = stamp
                     self.stamp_value = stamp_value
@@ -346,7 +346,10 @@ class Destination:
                         app_data = returned_app_data
 
             if RNS.Transport.STAMP_DESTINATIONS:
-                self._await_stamp()
+                if not self._await_stamp():
+                    RNS.log(f"Could not generate destination stamp for {RNS.prettyhexrep(self.hash)}, announce emission cancelled", RNS.LOG_WARNING)
+                    return None
+
                 cost_bytes  = cost_to_bytes(self.get_link_cost())
                 ext_payload = bytes([RNS.Identity.EXTPAYLOADMARKER, self.get_ext_flags()])+self.stamp+bytes([cost_bytes[1], cost_bytes[0]])
 
