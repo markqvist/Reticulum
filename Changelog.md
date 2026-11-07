@@ -39,24 +39,38 @@ The `1.6.0` and `1.6.1` releases will be an important time for observing the on-
 - Added link request cost signalling to announces
 - Added fractional stamp value support
 - Added path usage tracking
-- Added path retainment prioritization for slow interfaces
 - Added automatic path table culling based on traffic and usage
+- Added path retainment prioritization for slow interfaces
 - Added unused path pool monitoring and handling
 - Added managed storage backend using SQLite
 - Added fallback to legacy file-based storage if SQLite is unavailable
 - Added managed storage for known destinations and ratchets
 - Added managed storage for cached announces
-- Added more comprehensive metrics to status output structure
+- Added memory-density optimized announce rate table implementation
+- Added memory-density optimized packet hashlist implementation
 - Added heap-tracking memory management
+- Added more comprehensive metrics to status output structure
+- Added improved filtering backend capabilities
+- Added new `[filter]` configuration section
 - Added `hop_limiter` configuration option
+- Added allow and ignore lists for destination types
+- Added ability for applications to receive required announces only
 - Added cost-aware interface discovery and auto-connects
+- Added cost and value display to `rnstatus` and `rnpath` utilities
+- Added `app_flag` signalling to resource advertisements
+- Added link MTU aware resource advertisements
+- Significantly improved inbound announce handling performance
 - Significantly improved stamper performance on Android
+- Significantly improved announce handler callback performance
 - Optimized and improved stamper implementation
-- Optimized announce rate table implementation
-- Optimized packet filter hashlist implementation
+- Optimized announce rate table handling
+- Optimized packet filter hashlist handling
+- Improved early filtering and malformed packet detection
+- Improved path request protocol violation handling
 - Fixed `RNodeInterface` phy stats regression on Android
 - Fixed missing interface parameter inheritances
 - Fixed `rngit` default config path typo for `~/.config/rngit` case
+- Fixed invalid RPC error handling in some cases
 - Fixed various minor bugs and inconsistencies
 - Updated documentation
 
