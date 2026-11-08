@@ -261,7 +261,7 @@ If you are a developer, see the following section.
 
 At some point during the `1.6.x` release cycle, RNS will move to using the `required_only` mode for *non-transport* instances by default. This means that applications will, in most cases, have to request what types of destinations they are interested in receiving announces from.
 
-If your application is using only using the utility primitives included in RNS, or established protocols such as LXMF or LXST, **there is nothing you have to do**. The protocol primitives *themselves* request their required destination types, and this is the general pattern to follow here:
+If your application is only using the utility primitives included in RNS, or established protocols such as LXMF or LXST, **there is nothing you have to do**. The protocol primitives *themselves* request their required destination types, and this is the general pattern to follow here:
 
 - If an application uses a common protocol or primitive, it is the importable primitive, protocol module, or relevant internal functionality that should request destination type requirements, at the point where they are actually needed.
 - Higher level application layers should not have to guess at or request destination types, unless it explicitly creates outbound destinations that are not covered by any already-used protocols or primitives.
@@ -278,7 +278,7 @@ You do not *have to* explicitly deregister destination type requirements. Reticu
 RNS.Reticulum.get_instance().unwants_destination_type("my_app.service")
 ```
 
-That’s really all there is to it. If you already now want to make you application more CPU, memory and battery efficient, you can tell Reticulum to start serving only required destinations to it with only one line of additional code. A full setup of this functionality might look something like:
+That’s really all there is to it. If you already now want to make you application more CPU, memory and battery efficient, you can tell Reticulum to start serving only required destinations to it with only a few lines of additional code. A full setup of this functionality might look something like:
 
 ```python
 for destination_type in self.REQUIRED_DESTINATION_TYPES:
@@ -295,7 +295,7 @@ In addition to the economic incentives created by stamps, Reticulum enforces a s
 
 At the most basic level, the `announce_cap` mechanism limits the bandwidth any interface will allocate to propagating announces and other network upkeep traffic, and prioritises the local topology. Destinations that rapidly re-announce are down-prioritised in the transmission queue, so attempting to gain reach through announce spam has the exact *opposite* effect.
 
-On top of this, per-destination announce rate control can be configured on any interface, or as instance-wide defaults. Once configured, announces *received* for any one destination will only be re-broadcast to other interfaces at the configured target rate, no matter how often they are received. A grace period allows occasional rate violations, and a configurable penalty extends the interval between propagated announces for destinations that repeatedly exceed their target.
+On top of this, per-destination announce rate control can be configured on any interface, or as instance-wide defaults. Once configured, announces *received* for any one destination will only be re-broadcast to other interfaces at the configured target rate, no matter how often they are received. The grace option allows occasional rate violations, and a configurable penalty extends the interval between propagated announces for destinations that repeatedly exceed their target.
 
 The final layer protects against bursts of announces for *newly created* destinations. If an interface receives a large influx of announces for previously unknown destinations in a short amount of time, these are held in a bounded queue, while announces for known and established destinations continue to be processed without interruption. After the burst subsides, and an additional waiting period has passed, held announces are released slowly until the queue is cleared.
 
