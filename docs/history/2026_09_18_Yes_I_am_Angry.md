@@ -204,6 +204,8 @@ Those people, are in their own words, "Killing Reticulum" (quote, Lew Palm, "aut
 
 And all of those are [void and null](https://reticulum.network/manual/brandolinis.html#void-grants-legal-foundations-of-machine-generated-code), because what they *really* chose is **copyright violation**, and complete disrespect ([as is now becoming tradition](https://reticulum.network/manual/brandolinis.html#licensing-analysis)) for open source development practices, attribution and basic decency.
 
+*(**Important Note From The Future, added November 2026**: When the maintainer of Ratspeak discovered he had made made a mistake in the licensing, he promptly contacted me, and corrected everything within a few hours. As of this update, all the Ratspeak implementations and derivatives are correctly distributed under the Reticulum License.)*
+
 > Underneath the licence choice sits a harder problem, and it is the one this site keeps coming back to: a system can be decentralised in its architecture and completely centralised in who decides things.
 
 Oooooh... Tension. Drama. Tell me more, let's have the juicy details, huh? Outrage incoming, I can feel it! Ramp up your audience like a good boy, Leo!
