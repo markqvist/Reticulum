@@ -319,7 +319,7 @@
 <li><p><strong>Path Request Stamps</strong> are also detached stamps, but generated <em>individually</em> for every path request emitted on the network. These will typically have a much lower cost requirement than destination stamps, but if a node is overwhelmed by path requests, it can be tuned higher.</p>
 <p>The stamp is generated against the individually unique <em>emission</em>, so that unstamped or low-value path requests for a destination cannot disrupt the resolution of legitimate ones toward that same destination.</p>
 </li>
-<li><p><strong>Link Request Stamps</strong> embedded stamps, carried in the ephemeral link request keyset. They are therefore completely transparent to the network, but can still be verified extremely quickly by any node along the link request path, who can then make a decision on whether or not to transport it.</p>
+<li><p><strong>Link Request Stamps</strong> are embedded stamps, carried in the ephemeral link request keyset. They are therefore completely transparent to the network, but can still be verified extremely quickly by any node along the link request path, who can then make a decision on whether or not to transport it.</p>
 <p>Link request cost targets are set by the <em>endpoint destinations individually</em>. Every destination that includes a stamp in its announces will also include link request cost signalling. This means that any node that hears an announce from the destination will also know what link request stamp value to target, when establishing links to that destination.</p>
 <p>Furthermore, spam and link request abuse can be filtered before even reaching the destination, if at least one node along the path validates the link request stamp value and cost requirement.</p>
 </li>
@@ -519,13 +519,13 @@ option. It will become mandatory and enabled by default in RNS
 <span class="w">  </span><span class="na">ignored_types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">application.that.spams, traffic.heavy.service</span>
 </pre></div>
 </div>
-<p>In some situations, you may want to allow <em>only</em> certain destination types. If, for example, you are creating a high-performance transport node intended to handle thousands of simultaneous voice calls at minimal latency, you</p>
+<p>In some situations, you may want to allow <em>only</em> certain destination types. If, for example, you are creating a high-performance transport node intended to handle thousands of simultaneous voice calls at minimal latency, a configuration might look something like:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[filter]</span>
 <span class="w">  </span><span class="na">required_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
 <span class="w">  </span><span class="na">allowed_types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">lxst.telephony</span>
 </pre></div>
 </div>
-<p>The filtering subsystem provided in RNS <cite>1.6.0</cite> is functional and useful, but at an early stage, and relatively basic. In the upcoming releases, it will be expanded into a much more comprehensive and flexible system, that will include custom QoS and traffic class tagging, advanced rule definitions and more.</p>
+<p>The filtering subsystem provided in RNS <code class="docutils literal notranslate"><span class="pre">1.6.0</span></code> is functional and useful, but at an early stage, and relatively basic. In the upcoming releases, it will be expanded into a much more comprehensive and flexible system, that will include custom QoS and traffic class tagging, advanced rule definitions and more.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>As the filtering and QoS system is developed and matures, the <code class="docutils literal notranslate"><span class="pre">required_only</span></code> mode will become the default operating mode for non-transport instances, since applications can already now dynamically request what destination types they are interested in.</p>

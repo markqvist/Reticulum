@@ -71,7 +71,7 @@ The base primitives are used to implement scenario-specific network-level primit
 
    The stamp is generated against the individually unique *emission*, so that unstamped or low-value path requests for a destination cannot disrupt the resolution of legitimate ones toward that same destination.
 
- * **Link Request Stamps** embedded stamps, carried in the ephemeral link request keyset. They are therefore completely transparent to the network, but can still be verified extremely quickly by any node along the link request path, who can then make a decision on whether or not to transport it.
+ * **Link Request Stamps** are embedded stamps, carried in the ephemeral link request keyset. They are therefore completely transparent to the network, but can still be verified extremely quickly by any node along the link request path, who can then make a decision on whether or not to transport it.
 
    Link request cost targets are set by the *endpoint destinations individually*. Every destination that includes a stamp in its announces will also include link request cost signalling. This means that any node that hears an announce from the destination will also know what link request stamp value to target, when establishing links to that destination.
 
@@ -262,7 +262,7 @@ The filtering defaults and base settings are configured in the ``[filter]`` sect
     hop_limiter = 14
     ignored_types = application.that.spams, traffic.heavy.service
 
-In some situations, you may want to allow *only* certain destination types. If, for example, you are creating a high-performance transport node intended to handle thousands of simultaneous voice calls at minimal latency, you
+In some situations, you may want to allow *only* certain destination types. If, for example, you are creating a high-performance transport node intended to handle thousands of simultaneous voice calls at minimal latency, a configuration might look something like:
 
 .. code:: ini
 
@@ -270,7 +270,7 @@ In some situations, you may want to allow *only* certain destination types. If, 
     required_only = yes
     allowed_types = lxst.telephony
 
-The filtering subsystem provided in RNS `1.6.0` is functional and useful, but at an early stage, and relatively basic. In the upcoming releases, it will be expanded into a much more comprehensive and flexible system, that will include custom QoS and traffic class tagging, advanced rule definitions and more.
+The filtering subsystem provided in RNS ``1.6.0`` is functional and useful, but at an early stage, and relatively basic. In the upcoming releases, it will be expanded into a much more comprehensive and flexible system, that will include custom QoS and traffic class tagging, advanced rule definitions and more.
 
 .. important::
    As the filtering and QoS system is developed and matures, the ``required_only`` mode will become the default operating mode for non-transport instances, since applications can already now dynamically request what destination types they are interested in.
