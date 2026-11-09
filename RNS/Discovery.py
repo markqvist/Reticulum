@@ -323,9 +323,19 @@ class InterfaceAnnounceHandler:
                         stamp     = app_data[-self.stamper.STAMP_SIZE:]
                         packed    = app_data[:-self.stamper.STAMP_SIZE]
                         infohash  = RNS.Identity.full_hash(packed)
-                        workblock = self.stamper.stamp_workblock(infohash, expand_rounds=InterfaceAnnouncer.WORKBLOCK_EXPAND_ROUNDS)
-                        value     = self.stamper.stamp_value(workblock, stamp)
-                        valid     = self.stamper.stamp_valid(stamp, self.required_value, workblock)
+
+                        # Transitory mechanism, check non-expanded workblock validity first.
+                        workblock_ne  = self.stamper.stamp_workblock(infohash, expand_rounds=0)
+                        valid_ne      = self.stamper.stamp_valid(stamp, self.required_value, workblock_ne)
+                        if valid_ne:
+                            value     = self.stamper.stamp_value(workblock_ne, stamp)
+                            valid     = valid_ne
+
+                        else:
+                            workblock = self.stamper.stamp_workblock(infohash, expand_rounds=InterfaceAnnouncer.WORKBLOCK_EXPAND_ROUNDS)
+                            value     = self.stamper.stamp_value(workblock, stamp)
+                            valid     = self.stamper.stamp_valid(stamp, self.required_value, workblock)
+
                         self.valid_cache[fullhash] = {"valid": valid, "value": value, "packed": packed, "stamp": stamp}
                         while len(self.valid_cache) > self.valid_cache_max: self.valid_cache.pop(next(iter(self.valid_cache)))
 
