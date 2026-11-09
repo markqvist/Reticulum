@@ -44,6 +44,8 @@ from bisect import bisect_right
 
 WORKBLOCK_EXPAND_CHUNK      = 256
 WORKBLOCK_EXPAND_ROUNDS     = 3000
+EXPAND_PROBE_COUNT          = 8
+RSTATE_MULTIPLIER           = 2
 STAMP_SIZE                  = 32
 PN_VALIDATION_POOL_MIN_SIZE = 256
 USE_WORKER_MANAGER          = False
@@ -85,16 +87,89 @@ def worker_context(ctx, stamp_cost, workblock, message_id):
         stop_event.clear()
 
 def stamp_workblock(material, expand_rounds=WORKBLOCK_EXPAND_ROUNDS, no_expand=False):
+    return _stamp_workblock(material, expand_rounds=expand_rounds, no_expand=no_expand)
+
+def _stamp_workblock(material, expand_rounds=WORKBLOCK_EXPAND_ROUNDS, no_expand=False):
     if no_expand or not expand_rounds: return material
     wb_st = time.time()
-    workblock = b""
+    workblock = bytearray()
     for n in range(expand_rounds):
         workblock += RNS.Cryptography.hkdf(length=WORKBLOCK_EXPAND_CHUNK, derive_from=material,
                                            salt=RNS.Identity.full_hash(material+msgpack.packb(n)),
                                            context=None)
     wb_time = time.time() - wb_st
 
-    return workblock
+    return bytes(workblock)
+
+def _stamp_workblock_future(material, expand_rounds=WORKBLOCK_EXPAND_ROUNDS, no_expand=False):
+    if no_expand or not expand_rounds: return material
+
+    # Method aliases
+    hkdf      = RNS.Cryptography.hkdf
+    full_hash = RNS.Identity.full_hash
+
+    # Generation parameters
+    probe_len = 64                     # SHA-256 block size
+    chunk_len = WORKBLOCK_EXPAND_CHUNK # Must be a multiple of probe_len
+    assert chunk_len % probe_len == 0
+
+    # State initialization
+    workblock = bytearray()
+    rstate    = hkdf(length=chunk_len*RSTATE_MULTIPLIER, derive_from=full_hash(material), salt=None, context=None)
+
+    # Expansion loop
+    for n in range(expand_rounds):
+        # Pack round number to bytes
+        pn = msgpack.packb(n)
+
+        #############################################################
+        # For every round (after we have enough existing material),
+        # we perform a pseudo-random extraction from the already
+        # expanded part of the workblock.
+        if len(workblock) < probe_len: pgmat = b""
+        else:
+            pgmat = bytearray()
+            for k in range(EXPAND_PROBE_COUNT):
+                # Pseudo-randomly determine an extraction index over the
+                # entire surface of the expanded workblock so far. Since
+                # each index is derived from the rolling chain state at
+                # its round, the material required at later rounds is
+                # unknowable while the workblock is being built, and no
+                # part of it can therefore be safely(*) discarded before
+                # the entire expansion is complete. Any dropped part would
+                # have to be regenerated whenever a subsequent extraction
+                # happens to require it, binding the extraction to memory.
+                pk = msgpack.packb(k)
+                index = (int.from_bytes(full_hash(rstate+pn+pk), byteorder="big") % (len(workblock)//probe_len)) * probe_len
+                # (*) Yes, in theory, you could keep a LRU cache of WB
+                # chunks and rstate entries. For the configuration used
+                # here, you can save ~12% memory before the required
+                # compute cost for those savings explode into absurdity.
+                # The set of parameters used here were chosen to minimize
+                # verifier cost while ensuring a very steep (practically
+                # infeasible) compute saturation point at around 15%.
+
+                # Extract probe_len bytes at the determined index as the
+                # previously generated material component for the genera-
+                # tion of the next chunk.
+                pgmat.extend(workblock[index:index+probe_len])
+
+            pgmat = bytes(pgmat)
+
+        # Compute the salt for this round as the SHA-256 hash of the
+        # concatenation of the rolling state value, the extracted
+        # previously generated material and the round number.
+        salt  = full_hash(rstate+pgmat+pn)
+
+        # Derive the current workblock chunk from the rolling state
+        # value and the previously generated material component,
+        # using the salt we just computed.
+        chunk = hkdf(length=chunk_len, derive_from=rstate+pgmat, salt=salt, context=None)
+
+        workblock.extend(chunk)
+        rstate = hkdf(length=chunk_len*RSTATE_MULTIPLIER, derive_from=rstate+chunk, salt=None, context=None)
+
+    return bytes(workblock)
 
 def stamp_value_legacy(workblock, stamp):
     if not workblock: workblock = b""
@@ -312,7 +387,7 @@ def generate_stamp(message_id, stamp_cost, expand_rounds=WORKBLOCK_EXPAND_ROUNDS
 # - stamp_value(material, public_key_bytes)
 #
 # WARNING: Never attempt to use this for Ed25519 *signature* key
-# creation, is NOT a valid approach. The keypairs emitted by
+# creation, it is NOT a valid approach. The keypairs emitted by
 # this function must ONLY be used as X25519 keys.
 def generate_stamped_key(material, stamp_cost):
     if material == None: material = b""
