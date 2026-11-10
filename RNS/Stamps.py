@@ -481,8 +481,8 @@ def job_simple(stamp_cost, workblock, message_id, size, mode=MODE_STAMP):
         speed = r / max(time.time()-st, 1E-6)
         RNS.log(f"Stamp generation running. {r} rounds completed so far, {RNS.prettysize(speed, suffix='')} rounds per second", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
 
-    if mode == MODE_STAMP:    result, rounds, _ = _loop_hash(workblock, target, size, stop_check, progress)
-    else:                     result, rounds, _ = _loop_key(workblock, target, stop_check)
+    if mode == MODE_STAMP: result, rounds, _ = _loop_hash(workblock, target, size, stop_check, progress)
+    else:                  result, rounds, _ = _loop_key(workblock, target, stop_check)
 
     cancelled = (active_jobs[message_id] == True)
     active_jobs.pop(message_id)
