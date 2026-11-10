@@ -49,6 +49,8 @@ RSTATE_MULTIPLIER           = 2
 STAMP_SIZE                  = 32
 PN_VALIDATION_POOL_MIN_SIZE = 256
 USE_WORKER_MANAGER          = False
+MAX_WORKERS                 = None
+NICENESS                    = 16
 POOLING_THRESHOLD_COST      = 14
 KEYSTAMP_POOLING_THRESHOLD  = 10
 STOP_CHECK_INTERVAL         = 64
@@ -492,6 +494,7 @@ def job_linux_managed(stamp_cost, workblock, message_id, size, mode=MODE_STAMP):
     ctx = multiprocessing.get_context("fork")
     cores = multiprocessing.cpu_count()
     jobs = cores if cores <= 12 else int(cores/2)
+    if MAX_WORKERS and jobs > MAX_WORKERS: jobs = MAX_WORKERS
     
     allow_kill = True
     stamp = None
@@ -501,6 +504,9 @@ def job_linux_managed(stamp_cost, workblock, message_id, size, mode=MODE_STAMP):
         RNS.log(f"Starting {jobs} stamp generation workers", RNS.LOG_DEBUG)
         
         def job(stop_event, sc, wb, pn, mode):
+            try: os.nice(NICENESS)
+            except: pass
+
             target = target_from_fp(sc)
 
             if mode == MODE_STAMP: result, rounds, _ = _loop_hash(wb, target, size, stop_event.is_set)
@@ -572,8 +578,12 @@ def job_linux(stamp_cost, workblock, message_id, size, mode=MODE_STAMP):
     stop_event   = multiprocessing.Event()
     result_queue = multiprocessing.Queue(1)
     rounds_queue = multiprocessing.Queue()
+    if MAX_WORKERS and jobs > MAX_WORKERS: jobs = MAX_WORKERS
 
     def job(stop_event, pn, sc, wb, mode):
+        try: os.nice(NICENESS)
+        except: pass
+
         target = target_from_fp(sc)
 
         if mode == MODE_STAMP: result, rounds, _ = _loop_hash(wb, target, size, stop_event.is_set)
@@ -748,6 +758,8 @@ def job_android_persistent(stamp_cost, workblock, message_id, size, mode=MODE_ST
     wm = ctx.Manager()
     try: jobs = len(os.sched_getaffinity(0))
     except Exception: jobs = multiprocessing.cpu_count()
+
+    if MAX_WORKERS and jobs > MAX_WORKERS: jobs = MAX_WORKERS
 
     no_pool = False
     if len(workblock) <= WORKBLOCK_EXPAND_CHUNK*ANDROID_NO_POOL_WB_EXPAND_MAX:

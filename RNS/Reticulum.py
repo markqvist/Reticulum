@@ -550,6 +550,14 @@ class Reticulum:
                     v = self.config["stamps"].as_float(option)
                     RNS.Transport.PR_STAMP_TIMEOUT = max(0.020, v)
 
+                if option == "max_workers":
+                    v = self.config["stamps"].as_int(option)
+                    RNS.Stamps.MAX_WORKERS = max(1, v)
+
+                if option == "worker_niceness":
+                    v = self.config["stamps"].as_int(option)
+                    RNS.Stamps.NICENESS = min(20, max(0, v))
+
         if "reticulum" in self.config:
             for option in self.config["reticulum"]:
                 value = self.config["reticulum"][option]
