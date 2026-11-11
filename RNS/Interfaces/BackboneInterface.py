@@ -1007,6 +1007,7 @@ class BackboneClientInterface(Interface):
     def reconnect(self):
         if self.initiator:
             if not self.reconnecting:
+                BackboneInterface._dp_ec_reset(self)
                 self.reconnecting = True
                 attempts = 0
                 while not self.online and not self.detached:
