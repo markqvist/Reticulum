@@ -1761,10 +1761,6 @@ class Transport:
                                 # allowed, and do not conform to bandwidth caps.
                                 # TODO: Rethink whether this is actually optimal.
                                 if packet.hops > 0:
-
-                                    if not hasattr(interface, "announce_cap"):        interface.announce_cap = RNS.Reticulum.ANNOUNCE_CAP/100.0
-                                    if not hasattr(interface, "announce_allowed_at"): interface.announce_allowed_at = 0
-
                                     queued_announces = True if len(interface.announce_queue) > 0 else False
                                     if not queued_announces and outbound_time > interface.announce_allowed_at and interface.bitrate != None and interface.bitrate != 0:
                                         tx_time   = (len(packet.raw)*8) / interface.bitrate
@@ -3735,9 +3731,6 @@ class Transport:
         packet = RNS.Packet(path_request_dst, path_request_data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = on_interface)
 
         if on_interface != None and recursive:
-            if not hasattr(on_interface, "announce_cap"):        on_interface.announce_cap = RNS.Reticulum.ANNOUNCE_CAP/100.0
-            if not hasattr(on_interface, "announce_allowed_at"): on_interface.announce_allowed_at = 0
-
             queued_announces = True if len(on_interface.announce_queue) > 0 else False
             if queued_announces:
                 RNS.log("Blocking recursive path request on "+str(on_interface)+" due to queued announces", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
