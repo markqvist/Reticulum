@@ -69,7 +69,7 @@ class Interface:
 
     # Maximum amount of ingress limited announces
     # to hold at any given time.
-    MAX_HELD_ANNOUNCES  = 256
+    MAX_HELD_ANNOUNCES  = 64
 
     # Control parameters
     DEFAULT_GRAVITY          = 0
