@@ -2014,11 +2014,11 @@ class Transport:
 
         if Transport.identity == None: return
 
-        if interface and len(raw) > interface.HW_MTU + (interface.ifac_size or 0):
+        if interface and len(raw) > interface.HW_MTU + (interface.ifac_size or 0): # TODO: Check, we shouldn't need to add IFAC size here
             return interface.protocol_violation(f"Frame size exceeded MTU of {interface.HW_MTU} on {interface}")
 
         packet = RNS.Packet(None, raw)
-        if not packet.unpack(): return interface.protocol_violation(f"Malformed packet ({len(raw)} bytes)") if interface else None
+        if not packet.unpack(): return interface.protocol_violation(f"Malformed packet ({len(raw)} bytes)", level=RNS.LOG_EXTREME) if interface else None
         if not packet.hops < Transport.HOP_LIMITER: return interface.hop_limiter_hit()
         if not Transport.packet_filter(packet): return interface.packet_filter_hit()
         traffic_class = tc or Transport.TC_DATA
@@ -2031,6 +2031,7 @@ class Transport:
         if packet.packet_type == RNS.Packet.ANNOUNCE:
             name_hash = packet.data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8]
             if len(name_hash) != RNS.Identity.NAME_HASH_LENGTH//8: return packet.receiving_interface.protocol_violation(f"Malformed announce packet with size {len(packet.data)}")
+            if len(raw) > RNS.Reticulum.MTU: return packet.receiving_interface.protocol_violation(f"Excessive announce packet frame size of {len(raw)} bytes") if packet.receiving_interface else None
 
             if Transport.blocked_destination_types and name_hash in Transport.blocked_destination_types: return
             if Transport.required_destinations_only:
@@ -2041,7 +2042,6 @@ class Transport:
                 else:                                                                    allowed = False
                 if not allowed: return
 
-            if len(raw) > RNS.Reticulum.MTU: return packet.receiving_interface.protocol_violation(f"Excessive announce packet frame size of {len(raw)} bytes") if packet.receiving_interface else None
             if traffic_class < Transport.TC_ANNOUNCE: traffic_class = Transport.TC_ANNOUNCE
             announce_signature_valid = RNS.Identity.validate_announce(packet, only_validate_signature=True, signal_blackholed=True, signal_stamp=True)
             if   announce_signature_valid == "blackholed":    return None

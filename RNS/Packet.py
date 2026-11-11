@@ -279,7 +279,7 @@ class Packet:
             return True
 
         except Exception as e:
-            RNS.log(f"Received malformed packet, dropping it. The contained exception was: {e}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+            RNS.log(f"Dropping malformed packet. The contained exception was: {e}", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
             return False
 
     def send(self):
