@@ -1805,18 +1805,12 @@ class Transport:
                                                     timer.start()
 
                                                     if RNS.sl(RNS.LOG_EXTREME):
-                                                        if wait_time < 1: wait_time_str = str(round(wait_time*1000,2))+"ms"
-                                                        else:             wait_time_str = str(round(wait_time*1,2))+"s"
-                                                        ql_str = str(len(interface.announce_queue))
-                                                        RNS.log("Added announce to queue (height "+ql_str+") on "+str(interface)+" for processing in "+wait_time_str, RNS.LOG_EXTREME)
+                                                        RNS.log(f"Added announce to queue (height {len(interface.announce_queue)}) on {interface} for processing in {RNS.prettyshorttime(wait_time, compact=True, tight=True)}", RNS.LOG_EXTREME)
 
                                                 else:
                                                     if RNS.sl(RNS.LOG_EXTREME):
                                                         wait_time = max(interface.announce_allowed_at - time.time(), 0)
-                                                        if wait_time < 1: wait_time_str = str(round(wait_time*1000,2))+"ms"
-                                                        else:             wait_time_str = str(round(wait_time*1,2))+"s"
-                                                        ql_str = str(len(interface.announce_queue))
-                                                        RNS.log("Added announce to queue (height "+ql_str+") on "+str(interface)+" for processing in "+wait_time_str, RNS.LOG_EXTREME)
+                                                        RNS.log(f"Added announce to queue (height {len(interface.announce_queue)}) on {interface} for processing in {RNS.prettyshorttime(wait_time, compact=True, tight=True)}", RNS.LOG_EXTREME)
 
                                         else: pass
                                 
