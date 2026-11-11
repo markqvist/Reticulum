@@ -148,6 +148,7 @@ class Interface:
         self.ic_held_release_interval = RNS.Reticulum.get_instance()._default_ic_held_release_interval()
         self.ec_pr_freq               = RNS.Reticulum.get_instance()._default_ec_pr_freq()
         self.egress_control           = RNS.Reticulum.get_instance()._default_egress_control()
+        self.announce_queue           = []
         self.held_announces           = {}
         self.transmit_buffer          = None
 
@@ -408,10 +409,12 @@ class Interface:
             return hz
 
     def process_announce_queue(self):
+        if not self.announce_queue: return
+
         if not hasattr(self, "announce_cap"):
             self.announce_cap = RNS.Reticulum.ANNOUNCE_CAP/100.0
 
-        if hasattr(self, "announce_queue"):
+        if self.announce_queue:
             try:
                 now = time.time()
                 stale = []

@@ -1764,7 +1764,6 @@ class Transport:
 
                                     if not hasattr(interface, "announce_cap"):        interface.announce_cap = RNS.Reticulum.ANNOUNCE_CAP/100.0
                                     if not hasattr(interface, "announce_allowed_at"): interface.announce_allowed_at = 0
-                                    if not hasattr(interface, "announce_queue"):      interface.announce_queue = []
 
                                     queued_announces = True if len(interface.announce_queue) > 0 else False
                                     if not queued_announces and outbound_time > interface.announce_allowed_at and interface.bitrate != None and interface.bitrate != 0:
@@ -3738,7 +3737,6 @@ class Transport:
         if on_interface != None and recursive:
             if not hasattr(on_interface, "announce_cap"):        on_interface.announce_cap = RNS.Reticulum.ANNOUNCE_CAP/100.0
             if not hasattr(on_interface, "announce_allowed_at"): on_interface.announce_allowed_at = 0
-            if not hasattr(on_interface, "announce_queue"):      on_interface.announce_queue = []
 
             queued_announces = True if len(on_interface.announce_queue) > 0 else False
             if queued_announces:
