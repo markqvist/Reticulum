@@ -223,16 +223,19 @@ class Transport:
 
     LINK_TIMEOUT                = RNS.Link.STALE_TIME * 1.25
     ALLOW_LINK_PATH_REBALANCE   = True
-    REVERSE_TIMEOUT             = 8*60         # Reverse table entries are removed after 8 minutes
+    REVERSE_TIMEOUT             = 3*60         # Reverse table entries are removed after 3 minutes
     PATH_TIMEOUT                = 60*60*24*7   # Path table entry retainment after last cryptographically verifiable liveness event
     UNUSED_PATH_LINGER          = 60*60*1.75   # Linger time for never used paths
     UNUSED_PATH_LINGER_LEAF     = 60*12        # Linger time for never used paths on non-transport instances
     UNUSED_DESTINATION_LINGER   = 60*6         # Linger time for pathless and never used destinations
-    PATH_POOL_UNUSED_TARGET     = 2048         # Max unused path table pool target, unused destinations are culled to reach it
+    PATH_POOL_UNUSED_MAX        = 1536         # Max unused path table pool target, unused destinations are culled to reach it
+    PATH_POOL_UNUSED_MIN        = 512          # Min unused path table pool target
+    PATH_POOL_USED_TARGET       = 2048         # Unused path pool will start decreasing once this used target is reached
     PATH_SLOW_BITRATE           = 25000        # Bitrate threshold for interfaces to be considered slow
     PATH_SLOW_LINGER_FACTOR     = 10           # Linger time multiplier for never used paths on slow interfaces
     TUNNEL_TIMEOUT              = 60*60*8      # Tunnel table entries are removed if unused for eight hours
     TUNNEL_PATH_TIMEOUT         = 60*60*8      # Tunnel path table entries are removed if unused for eight hours
+    TUNNEL_RECONNECT_WINDOW     = 60*10        # Tunnel table entries await interface reappearance for 10 minutes
     RATE_TABLE_RETAIN           = 60*60        # Default announce rate table retainment, increased dynamically
     MAX_RECEIPTS                = 1024         # Maximum number of receipts to keep track of
     MAX_RATE_TIMESTAMPS         = 16           # Maximum number of announce timestamps to keep per destination
@@ -604,6 +607,9 @@ class Transport:
                         interface_hash = serialised_tunnel[IDX_TT_IF]
                         serialised_paths = serialised_tunnel[IDX_TT_PATHS]
                         expires = serialised_tunnel[IDX_TT_EXPIRES]
+
+                        if expires > now+Transport.TUNNEL_RECONNECT_WINDOW:
+                            expires = now+Transport.TUNNEL_RECONNECT_WINDOW
 
                         tunnel_paths = {}
                         for serialised_entry in serialised_paths:
@@ -1120,6 +1126,8 @@ class Transport:
                         now = time.time()
                         check_unused = now > Transport.pool_size_last_checked+Transport.pool_size_check_interval
                         unused_paths = []
+                        used_count   = 0
+                        unused_count = 0
 
                         for destination_hash in Transport.path_table:
                             path_entry         = Transport.path_table[destination_hash]
@@ -1130,6 +1138,9 @@ class Transport:
 
                             interface_bitrate  = getattr(attached_interface, "bitrate", None)
                             slow_interface     = interface_bitrate != None and 0 < interface_bitrate < Transport.PATH_SLOW_BITRATE
+
+                            if path_used: used_count   += 1
+                            else:         unused_count += 1
 
                             if check_unused and not path_used:
                                 unused_paths.append(((1 if slow_interface else 0), path_expiry, destination_hash))
@@ -1147,9 +1158,11 @@ class Transport:
                                 Transport.should_collect = True
                                 RNS.log(f"Removing never used path to {RNS.prettyhexrep(destination_hash)}", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
 
-                        if len(unused_paths) > Transport.PATH_POOL_UNUSED_TARGET:
-                            cull_count = len(unused_paths) - Transport.PATH_POOL_UNUSED_TARGET
-                            RNS.log(f"Culling {cull_count} never used path table entries to reach pool size target {Transport.PATH_POOL_UNUSED_TARGET}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                        unused_trim        = max(0, used_count-Transport.PATH_POOL_USED_TARGET)
+                        unused_pool_target = max(Transport.PATH_POOL_UNUSED_MIN, Transport.PATH_POOL_UNUSED_MAX-unused_trim)
+                        if len(unused_paths) > unused_pool_target:
+                            cull_count = len(unused_paths) - unused_pool_target
+                            RNS.log(f"Culling {cull_count} never used path table entries to reach pool size target {unused_pool_target}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
                             unused_paths.sort()
                             for cull_entry in unused_paths[:cull_count]:
                                 stale_paths.append(cull_entry[2])
@@ -1211,6 +1224,7 @@ class Transport:
                             else:
                                 if tunnel_entry[IDX_TT_IF] and not tunnel_entry[IDX_TT_IF] in Transport.interfaces:
                                     RNS.log(f"Removing non-existent tunnel interface {tunnel_entry[IDX_TT_IF]}", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None
+                                    tunnel_entry[IDX_TT_EXPIRES] = time.time() + Transport.TUNNEL_RECONNECT_WINDOW
                                     tunnel_entry[IDX_TT_IF] = None
 
                                 stale_tunnel_paths = []
