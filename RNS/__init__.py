@@ -87,7 +87,7 @@ instance_random.seed(os.urandom(10))
 
 _always_override_destination = False
 
-logging_lock = threading.Lock()
+logging_lock = threading.RLock()
 
 def loglevelname(level):
     if (level == LOG_CRITICAL): return "[Critical]"
