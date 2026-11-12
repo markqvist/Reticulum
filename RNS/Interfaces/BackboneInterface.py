@@ -52,6 +52,8 @@ class BackboneInterface(Interface):
     fast_flapping_lock  = threading.Lock()
     fast_flapping       = {}
 
+    CLIENT_LIMIT        = 500
+
     DP_IC_HIGH_WM_PCT   = 90
     DP_IC_MID_WM_PCT    = 68
     DP_IC_LOW_WM_PCT    = 10
@@ -135,6 +137,7 @@ class BackboneInterface(Interface):
         port           = int(c["port"]) if "port" in c else None
         bindip         = c["listen_ip"] if "listen_ip" in c else None
         bindport       = int(c["listen_port"]) if "listen_port" in c else None
+        client_limit   = int(c["client_limit"]) if "client_limit" in c else None
         prefer_ipv6    = c.as_bool("prefer_ipv6") if "prefer_ipv6" in c else False
         flap_block     = c.as_bool("block_fast_flapping") if "block_fast_flapping" in c else BackboneInterface.BLOCK_FAST_FLAPPING
         flap_threshold = c.as_float("fast_flapping_threshold") if "fast_flapping_threshold" in c else BackboneInterface.FAST_FLAP_THRESHOLD
@@ -152,6 +155,7 @@ class BackboneInterface(Interface):
         self.mode = RNS.Interfaces.Interface.Interface.MODE_FULL
         self.spawned_interfaces = []
         self.supports_discovery = True
+        self.client_limit = client_limit or self.CLIENT_LIMIT
         self.block_fast_flapping = flap_block
         self.fast_flap_threshold = flap_threshold
         self.fast_flap_grace = flap_grace
@@ -687,6 +691,8 @@ class BackboneInterface(Interface):
     
     def incoming_connection(self, socket):
         try:
+            if len(self.spawned_interfaces) >= self.client_limit: return False
+
             remote_ip = socket.getpeername()[0]
             remote_port = str(socket.getpeername()[1])
             if self.blocked_ip_count > 0:
