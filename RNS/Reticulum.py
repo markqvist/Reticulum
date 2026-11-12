@@ -833,6 +833,22 @@ class Reticulum:
         if self.local_socket_path == None and self.use_af_unix:
             self.local_socket_path = "default"
 
+        if os.path.isfile(Reticulum.configdir+"/blocked_ips"):
+            try:
+                with open(Reticulum.configdir+"/blocked_ips", "r") as f:
+                    expire = time.time()+(60*60*24*365.25*1000)
+                    blocked_ips = f.read().strip().splitlines()
+                    blocked_count = 0
+                    for line in blocked_ips:
+                        blocked_ip = line.strip()
+                        if blocked_ip.startswith("#"): continue
+                        if RNS.Discovery.is_ip_address(blocked_ip):
+                            BackboneInterface.BackboneInterface.fast_flapping[blocked_ip] = [expire, expire, 0xFFFF]
+                            blocked_count += 1
+                    RNS.log(f"Loaded {blocked_count} blocked IPs", RNS.LOG_VERBOSE)
+
+            except Exception as e: RNS.log(f"Error while loading blocked IP list: {e}", RNS.LOG_ERROR)
+
         dql = RNS.Reticulum.default_data_queue_length() or RNS.Transport.INBOUND_DA_QUEUE_LENGTH
         BackboneInterface.BackboneInterface.DP_IC_HIGH_WM  = max(4, int((BackboneInterface.BackboneInterface.DP_IC_HIGH_WM_PCT/100.0) * dql))
         BackboneInterface.BackboneInterface.DP_IC_MID_WM   = max(2, int((BackboneInterface.BackboneInterface.DP_IC_MID_WM_PCT/100.0)  * dql))
