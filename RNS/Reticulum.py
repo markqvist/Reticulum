@@ -902,7 +902,7 @@ class Reticulum:
     def _detach_interface(self, name, internal_forced=False, interface_instance=None):
         if not internal_forced and not Reticulum.__interface_management_enabled: return False
         try:
-            if interface_instance: interface = interface_instances
+            if interface_instance: interface = interface_instance
             else:
                 interfaces = { iface.name: iface for iface in RNS.Transport.interfaces }
                 interface  = interfaces.get(name, None)
