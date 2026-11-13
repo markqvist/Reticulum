@@ -1794,7 +1794,6 @@ class Reticulum:
 
                 ifstats["name"]                        = str(interface)
                 ifstats["short_name"]                  = str(interface.name)
-                ifstats["tunnel_id"]                   = interface.tunnel_id or interface.local_tunnel_id
                 ifstats["hash"]                        = interface.get_hash()
                 ifstats["type"]                        = str(type(interface).__name__)
                 ifstats["mtu"]                         = interface.HW_MTU
@@ -1836,6 +1835,8 @@ class Reticulum:
                 ifstats["protocol_violations"]         = interface.protocol_violations
                 ifstats["ifac_violations"]             = interface.ifac_violations
                 ifstats["packet_filter_hits"]          = interface.packet_filter_hits
+                ifstats["tunnel_id"]                   = interface.tunnel_id or interface.local_tunnel_id
+                ifstats["remote_transport_id"]         = interface.remote_transport.hash if interface.remote_transport else None
 
                 interfaces.append(ifstats)
 

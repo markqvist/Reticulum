@@ -155,6 +155,7 @@ class BackboneInterface(Interface):
         self.mode = RNS.Interfaces.Interface.Interface.MODE_FULL
         self.spawned_interfaces = []
         self.supports_discovery = True
+        self.tunnels_allowed = True
         self.client_limit = client_limit or self.CLIENT_LIMIT
         self.block_fast_flapping = flap_block
         self.fast_flap_threshold = flap_threshold
@@ -883,6 +884,7 @@ class BackboneClientInterface(Interface):
         self.OUT              = False
         self.socket           = None
         self.parent_interface = None
+        self.tunnels_allowed  = True
         self.name             = name
         self.initiator        = False
         self.reconnecting     = False
@@ -936,8 +938,7 @@ class BackboneClientInterface(Interface):
             thread = threading.Thread(target=self.reconnect)
             thread.daemon = True
             thread.start()
-        else:
-            self.wants_tunnel = True
+        else: self.wants_tunnel = True
 
     def set_timeouts_linux(self):
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_USER_TIMEOUT, int(BackboneClientInterface.TCP_USER_TIMEOUT * 1000))

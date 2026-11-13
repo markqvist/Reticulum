@@ -559,6 +559,9 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if tstats and "tunnel_id" in ifstat:
                             print(f"    Tunnel ID : {RNS.prettyhexrep(ifstat['tunnel_id']) if ifstat['tunnel_id'] else 'None'}")
 
+                        if tstats and "remote_transport_id" in ifstat:
+                            print(f"    Rem.Tr.ID : {RNS.prettyhexrep(ifstat['remote_transport_id']) if ifstat['remote_transport_id'] else 'Unknown'}")
+
                         if "noise_floor" in ifstat:
                             if not "interference" in ifstat: nstr = ""
                             else:

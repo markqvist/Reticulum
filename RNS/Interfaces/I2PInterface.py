@@ -353,6 +353,7 @@ class I2PInterfacePeer(Interface):
         self.online           = False
         self.detached         = False
         self.kiss_framing     = False
+        self.tunnels_allowed  = True
         self.i2p_tunneled     = True
         self.i2p_dest         = None
         self.i2p_tunnel_ready = False
@@ -738,6 +739,7 @@ class I2PInterface(Interface):
         self.owner = owner
         self.connectable = connectable
         self.i2p_tunneled = True
+        self.tunnels_allowed = True
         self.peers = peers
         self.mode = RNS.Interfaces.Interface.Interface.MODE_FULL
 

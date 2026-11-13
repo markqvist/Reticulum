@@ -126,6 +126,7 @@ class TCPClientInterface(Interface):
         self.writing          = False
         self.online           = False
         self.detached         = False
+        self.tunnels_allowed  = True
         self.kiss_framing     = kiss_framing
         self.i2p_tunneled     = i2p_tunneled
         self.mode             = RNS.Interfaces.Interface.Interface.MODE_FULL
@@ -529,6 +530,7 @@ class TCPServerInterface(Interface):
         self.OUT = False
         self.name = name
         self.detached = False
+        self.tunnels_allowed = True
 
         self.i2p_tunneled = i2p_tunneled
         self.mode         = RNS.Interfaces.Interface.Interface.MODE_FULL

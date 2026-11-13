@@ -3125,6 +3125,11 @@ class Transport:
     @staticmethod
     def tunnel_synthesize_handler(data, packet):
         try:
+            if not packet.receiving_interface.tunnels_allowed: return
+            if packet.receiving_interface.remote_transport:
+                RNS.log(f"Tunnel already synthesized on {packet.receiving_interface}, ignoring synthesis packet", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                return
+
             expected_length = RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8+RNS.Identity.SIGLENGTH//8
             if len(data) == expected_length:
                 public_key     = data[:RNS.Identity.KEYSIZE//8]
@@ -3140,6 +3145,7 @@ class Transport:
                 remote_transport_identity.load_public_key(public_key)
 
                 if remote_transport_identity.validate(signature, signed_data):
+                    packet.receiving_interface.remote_transport = remote_transport_identity
                     Transport.handle_tunnel(tunnel_id, packet.receiving_interface)
 
                 else:

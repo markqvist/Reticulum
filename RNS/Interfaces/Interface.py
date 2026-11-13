@@ -130,6 +130,8 @@ class Interface:
         self.spawned_interfaces       = None
         self.tunnel_id                = None
         self.local_tunnel_id          = None
+        self.tunnels_allowed          = False
+        self.remote_transport         = None
         self.ingress_control          = True
         self.phy_keepalive            = False
         self.shared_medium            = False
