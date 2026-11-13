@@ -160,7 +160,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                   sorting=None, sort_reverse=False, remote=None, management_identity=None, must_exit=True, rns_instance=None,
                   traffic_totals=False, discovered_interfaces=False, config_entries=False, burst_filter=False, blocked_ips=False,
                   queue_stats=False, pps=False, profiling=False, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT,
-                  attach=None, detach=None, reload=None, show_stale=False, show_unknown=False, fstats=False):
+                  attach=None, detach=None, reload=None, show_stale=False, show_unknown=False, fstats=False, tstats=False):
   
     if remote: require_shared = False
     else: require_shared = True
@@ -556,8 +556,8 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "bitrate" in ifstat and ifstat["bitrate"] != None:
                             print(f"    Rate      : {speed_str(ifstat['bitrate'])}, MTU {ifstat['mtu']}")
 
-                        # if "tunnel_id" in ifstat: # TODO: Add switch
-                        #     print(f"    Tunnel ID : {RNS.prettyhexrep(ifstat['tunnel_id']) if ifstat['tunnel_id'] else 'None'}")
+                        if tstats and "tunnel_id" in ifstat:
+                            print(f"    Tunnel ID : {RNS.prettyhexrep(ifstat['tunnel_id']) if ifstat['tunnel_id'] else 'None'}")
 
                         if "noise_floor" in ifstat:
                             if not "interference" in ifstat: nstr = ""
@@ -927,6 +927,7 @@ def main(must_exit=True, rns_instance=None):
         parser.add_argument("-B", "--burst", action="store_true", help="only show interfaces with active bursts", default=False)
         parser.add_argument("-b", "--blocked-ips", action="store_true", help="show blocked IPs per interface", default=False)
         parser.add_argument("-t", "--totals", action="store_true", help="display traffic totals", default=False)
+        parser.add_argument("-T", "--tunnels", action="store_true", help="display tunnel information", default=False)
         parser.add_argument("-p", "--pps", action="store_true", help="display packets per second in totals", default=False)
         parser.add_argument("-q", "--queues", action="store_true", help="display queue stats", default=False)
         parser.add_argument("-z", "--profiling", action="store_true", help="display live profiling results", default=False)
@@ -973,7 +974,7 @@ def main(must_exit=True, rns_instance=None):
                                   remote=args.R, management_identity=args.i, remote_timeout=args.w, must_exit=False, rns_instance=reticulum,
                                   traffic_totals=args.totals, discovered_interfaces=args.discovered, config_entries=args.D, burst_filter=args.burst,
                                   blocked_ips=args.blocked_ips, queue_stats=args.queues, pps=args.pps, profiling=args.profiling,
-                                  show_stale=args.show_stale, show_unknown=args.show_unknown, fstats=args.filter_stats)
+                                  show_stale=args.show_stale, show_unknown=args.show_unknown, fstats=args.filter_stats, tstats=args.tunnels)
               
                 finally:
                     sys.stdout = old_stdout
@@ -992,7 +993,7 @@ def main(must_exit=True, rns_instance=None):
                           remote=args.R, management_identity=args.i, remote_timeout=args.w, must_exit=must_exit, rns_instance=rns_instance,
                           traffic_totals=args.totals, discovered_interfaces=args.discovered, config_entries=args.D, burst_filter=args.burst,
                           blocked_ips=args.blocked_ips, queue_stats=args.queues, pps=args.pps, profiling=args.profiling,
-                          attach=args.attach, detach=args.detach, reload=args.reload, show_stale=args.show_stale,
+                          attach=args.attach, detach=args.detach, reload=args.reload, show_stale=args.show_stale, tstats=args.tunnels,
                           show_unknown=args.show_unknown, fstats=args.filter_stats)
 
     except KeyboardInterrupt:

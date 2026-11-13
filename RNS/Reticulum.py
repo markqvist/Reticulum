@@ -899,16 +899,25 @@ class Reticulum:
         except Exception as e: RNS.log(f"Error while detaching interface \"{name}\": {e}", RNS.LOG_ERROR)
         return False
 
-    def _detach_interface(self, name, internal_forced=False):
+    def _detach_interface(self, name, internal_forced=False, interface_instance=None):
         if not internal_forced and not Reticulum.__interface_management_enabled: return False
         try:
-            interfaces = { iface.name: iface for iface in RNS.Transport.interfaces }
-            if not name in interfaces:
-                RNS.log(f"Attempt to detach non-existing interface \"{name}\"", RNS.LOG_WARNING)
+            if interface_instance: interface = interface_instances
+            else:
+                interfaces = { iface.name: iface for iface in RNS.Transport.interfaces }
+                interface  = interfaces.get(name, None)
+                if not interface:
+                    try: tunnel_id = bytes.fromhex(name)
+                    except: return None
+                    tunnel_ids       = { iface.tunnel_id:       iface for iface in RNS.Transport.interfaces if iface.tunnel_id }
+                    local_tunnel_ids = { iface.local_tunnel_id: iface for iface in RNS.Transport.interfaces if iface.local_tunnel_id }
+                    interface        = tunnel_ids.get(tunnel_id, None) or local_tunnel_ids.get(tunnel_id, None)
+
+            if not interface:
+                RNS.log(f"Attempt to detach non-existing interface \"{name or interface}\"", RNS.LOG_WARNING)
                 return None
 
             else:
-                interface = interfaces[name]
                 if isinstance(interface, I2PInterface.I2PInterface):           return False
                 if isinstance(interface, LocalInterface.LocalClientInterface): return False
                 if isinstance(interface, LocalInterface.LocalServerInterface): return False
@@ -922,7 +931,7 @@ class Reticulum:
 
                 interface.detach()
                 RNS.Transport.remove_interface(interface)
-                RNS.log(f"Interface \"{name}\" was detached", RNS.LOG_NOTICE)
+                RNS.log(f"Interface {interface} was detached", RNS.LOG_NOTICE)
                 return True
 
         except Exception as e: RNS.log(f"Error while detaching interface \"{name}\": {e}", RNS.LOG_ERROR); RNS.trace_exception(e)
@@ -1785,7 +1794,7 @@ class Reticulum:
 
                 ifstats["name"]                        = str(interface)
                 ifstats["short_name"]                  = str(interface.name)
-                ifstats["tunnel_id"]                   = interface.tunnel_id
+                ifstats["tunnel_id"]                   = interface.tunnel_id or interface.local_tunnel_id
                 ifstats["hash"]                        = interface.get_hash()
                 ifstats["type"]                        = str(type(interface).__name__)
                 ifstats["mtu"]                         = interface.HW_MTU

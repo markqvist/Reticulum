@@ -3118,6 +3118,7 @@ class Transport:
             packet.send()
 
             interface.wants_tunnel = False
+            interface.local_tunnel_id = tunnel_id
 
         except Exception as e: RNS.log(f"Could not synthesize tunnel for {interface}: {e}", RNS.LOG_ERROR)
 
@@ -3140,6 +3141,10 @@ class Transport:
 
                 if remote_transport_identity.validate(signature, signed_data):
                     Transport.handle_tunnel(tunnel_id, packet.receiving_interface)
+
+                else:
+                    RNS.log(f"Invalid tunnel synthesis signature, tearing down interface {packet.receiving_interface}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                    RNS.Reticulum.get_instance()._detach_interface(None, interface_instance=packet.receiving_interface, internal_forced=True)
 
         except Exception as e:
             RNS.log("An error occurred while validating tunnel establishment packet.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None

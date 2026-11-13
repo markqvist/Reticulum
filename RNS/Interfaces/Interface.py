@@ -39,7 +39,6 @@ class Interface:
     OUT = False
     FWD = False
     RPT = False
-    name = None
 
     # Interface mode definitions
     MODE_FULL           = 0x01
@@ -96,6 +95,7 @@ class Interface:
     DEFAULT_IFAC_SIZE = 16
 
     def __init__(self):
+        self.name     = None
         self.rxb      = 0
         self.txb      = 0
         self.frxb     = 0
@@ -129,6 +129,7 @@ class Interface:
         self.parent_interface         = None
         self.spawned_interfaces       = None
         self.tunnel_id                = None
+        self.local_tunnel_id          = None
         self.ingress_control          = True
         self.phy_keepalive            = False
         self.shared_medium            = False
