@@ -53,6 +53,7 @@ import configparser
 import multiprocessing.connection
 import importlib.util
 import threading
+import weakref
 import signal
 import atexit
 import struct
@@ -178,6 +179,7 @@ class Reticulum:
 
     __interface_detach_ran = False
     __exit_handler_ran = False
+    RPC_EXIT_TIMEOUT = 0.5
     @staticmethod
     def exit_handler():
         # This exit handler is called whenever Reticulum is asked to
@@ -186,7 +188,18 @@ class Reticulum:
         # out cleanup operations.
         if not Reticulum.__exit_handler_ran:
             Reticulum.__exit_handler_ran = True
-            Reticulum.__instance.unwants_all_destination_types()
+
+            for conn in list(Reticulum.__open_rpc_conns):
+                try: conn.close()
+                except Exception: pass
+
+            try:
+                deregister_job = threading.Thread(target=Reticulum.__instance.unwants_all_destination_types, daemon=True)
+                deregister_job.start()
+                deregister_job.join(timeout=Reticulum.RPC_EXIT_TIMEOUT)
+                if deregister_job.is_alive(): RNS.log("Shared instance RPC timed out during exit", RNS.LOG_DEBUG)
+            except Exception as e: RNS.log(f"Could not deregister destination types at exit: {e}", RNS.LOG_DEBUG)
+
             if not Reticulum.__interface_detach_ran: RNS.Transport.detach_interfaces()
             RNS.Transport.exit_handler()
             RNS.Identity.exit_handler()
@@ -1580,7 +1593,11 @@ class Reticulum:
             except Exception as e: RNS.log("An error ocurred while handling RPC call from local client: "+str(e), RNS.LOG_ERROR)
             finally: conn.close() if conn else None
 
-    def get_rpc_client(self): return multiprocessing.connection.Client(self.rpc_addr, family=self.rpc_type, authkey=self.rpc_key)
+    __open_rpc_conns = weakref.WeakSet()
+    def get_rpc_client(self):
+        conn = multiprocessing.connection.Client(self.rpc_addr, family=self.rpc_type, authkey=self.rpc_key)
+        Reticulum.__open_rpc_conns.add(conn)
+        return conn
 
     def _used_destination_data(self, destination_hash):
         if self.is_connected_to_shared_instance:
