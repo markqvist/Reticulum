@@ -426,8 +426,6 @@ class I2PInterfacePeer(Interface):
                 while self.awaiting_i2p_tunnel: time.sleep(0.25)
                 time.sleep(2)
                 
-                if not self.kiss_framing: self.wants_tunnel = True
-
                 if not self.connect(initial=True):
                     thread = threading.Thread(target=self.reconnect)
                     thread.daemon = True
@@ -480,10 +478,27 @@ class I2PInterfacePeer(Interface):
 
                     self.socket = None
 
+    def early_synthesis(self, packet):
+        if not self.detached:
+            if not packet.packed: packet.pack()
+
+            if self.kiss_framing: frame = bytes([KISS.FEND])+bytes([KISS.CMD_DATA])+KISS.escape(packet.raw)+bytes([KISS.FEND])
+            else:                 frame = bytes([HDLC.FLAG])+HDLC.escape(packet.raw)+bytes([HDLC.FLAG])
+
+            self.socket.sendall(frame)
+            self.txb += len(frame)
+            self.last_write = time.time()
+            if hasattr(self, "parent_interface") and self.parent_interface != None and self.parent_count: self.parent_interface.txb += len(frame)
+
     def connect(self, initial=False):
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((self.target_ip, self.target_port))
+
+            if not self.kiss_framing:
+                self.wants_tunnel = True
+                RNS.Transport.synthesize_tunnel(self)
+
             self.online  = True
         
         except Exception as e:
@@ -500,8 +515,6 @@ class I2PInterfacePeer(Interface):
         self.online  = True
         self.writing = False
         self.never_connected = False
-
-        if not self.kiss_framing and self.wants_tunnel: RNS.Transport.synthesize_tunnel(self)
 
         return True
 
@@ -531,7 +544,6 @@ class I2PInterfacePeer(Interface):
                 thread = threading.Thread(target=self.read_loop)
                 thread.daemon = True
                 thread.start()
-                if not self.kiss_framing: RNS.Transport.synthesize_tunnel(self)
 
         else:
             RNS.log("Attempt to reconnect on a non-initiator I2P interface. This should not happen.", RNS.LOG_ERROR)

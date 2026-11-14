@@ -176,8 +176,6 @@ class TCPClientInterface(Interface):
             thread = threading.Thread(target=self.read_loop)
             thread.daemon = True
             thread.start()
-            if not self.kiss_framing:
-                self.wants_tunnel = True
 
     def set_timeouts_linux(self):
         if not self.i2p_tunneled:
@@ -229,6 +227,18 @@ class TCPClientInterface(Interface):
 
                     self.socket = None
 
+    def early_synthesis(self, packet):
+        if not self.detached:
+            if not packet.packed: packet.pack()
+
+            if self.kiss_framing: frame = bytes([KISS.FEND])+bytes([KISS.CMD_DATA])+KISS.escape(packet.raw)+bytes([KISS.FEND])
+            else:                 frame = bytes([HDLC.FLAG])+HDLC.escape(packet.raw)+bytes([HDLC.FLAG])
+
+            self.socket.sendall(frame)
+            self.txb += len(frame)
+            if hasattr(self, "parent_interface") and self.parent_interface != None:
+                self.parent_interface.txb += len(frame)
+
     def connect(self, initial=False):
         try:
             if initial:
@@ -243,6 +253,11 @@ class TCPClientInterface(Interface):
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             self.socket.connect(target_address)
             self.socket.settimeout(None)
+
+            if not self.kiss_framing:
+                self.wants_tunnel = True
+                RNS.Transport.synthesize_tunnel(self)
+
             self.online  = True
 
             if initial:
@@ -283,9 +298,7 @@ class TCPClientInterface(Interface):
                         self.teardown()
                         break
 
-                    try:
-                        self.connect()
-
+                    try: self.connect()
                     except Exception as e:
                         RNS.log("Connection attempt for "+str(self)+" failed: "+str(e), RNS.LOG_DEBUG)
 
@@ -296,8 +309,6 @@ class TCPClientInterface(Interface):
                 thread = threading.Thread(target=self.read_loop)
                 thread.daemon = True
                 thread.start()
-                if not self.kiss_framing:
-                    RNS.Transport.synthesize_tunnel(self)
 
         else:
             RNS.log("Attempt to reconnect on a non-initiator TCP interface. This should not happen.", RNS.LOG_ERROR)
