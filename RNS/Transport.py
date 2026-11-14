@@ -690,6 +690,10 @@ class Transport:
         Transport.ready = True
 
         # Synthesize tunnels for any interfaces wanting it
+        # TODO: This is, in practice deprecated, since
+        # interfaces requiring tunnels are now early-
+        # init synthesizing on connect. Clean up at
+        # opportune moment.
         for interface in Transport.interfaces:
             interface.tunnel_id = None
             if hasattr(interface, "wants_tunnel") and interface.wants_tunnel:
@@ -1384,6 +1388,7 @@ class Transport:
                             interface.should_ingress_limit_pr()
                             interface.process_held_announces()
                             if interface.phy_keepalive: interface.send_keepalive()
+                            if interface.wants_tunnel and interface.online: Transport.synthesize_tunnel(interface)
                         Transport.interface_last_jobs = time.time()
                     except Exception as e:
                         RNS.log(f"Error while processing held per-interface announces: {e}", RNS.LOG_WARNING)
@@ -3115,9 +3120,12 @@ class Transport:
 
     @staticmethod
     def synthesize_tunnel(interface):
+        if not Transport.identity: return
+        if not interface.wants_tunnel: return
+
         try:
             interface_hash = interface.get_hash()
-            public_key     = RNS.Transport.identity.get_public_key()
+            public_key     = Transport.identity.get_public_key()
             random_hash    = RNS.Identity.get_random_hash()
             
             tunnel_id_data = public_key+interface_hash
@@ -3131,7 +3139,10 @@ class Transport:
             tnl_snth_dst   = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "tunnel", "synthesize")
 
             packet = RNS.Packet(tnl_snth_dst, data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = interface)
-            packet.send()
+
+            if interface.online:                        packet.send()
+            elif hasattr(interface, "early_synthesis"): interface.early_synthesis(packet)
+            else:                                       return
 
             interface.wants_tunnel = False
             interface.local_tunnel_id = tunnel_id

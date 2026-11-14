@@ -131,6 +131,7 @@ class Interface:
         self.tunnel_id                = None
         self.local_tunnel_id          = None
         self.tunnels_allowed          = False
+        self.wants_tunnel             = False
         self.remote_transport         = None
         self.ingress_control          = True
         self.phy_keepalive            = False
