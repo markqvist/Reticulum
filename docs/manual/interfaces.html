@@ -1651,13 +1651,13 @@ sub-interfaces when a new client connects.</div>
 </li>
 <li><div class="line-block">
 <div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_freq_new</span></code> option sets the maximum announce ingress
-frequency for newly spawned interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">3.5</span></code>
+frequency for newly spawned interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">3.0</span></code>
 announces per second.</div>
 </div>
 </li>
 <li><div class="line-block">
 <div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_freq</span></code> option sets the maximum announce ingress
-frequency for other interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">12</span></code> announces
+frequency for other interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">10.0</span></code> announces
 per second.</div>
 </div>
 <blockquote>
@@ -1669,27 +1669,27 @@ not processed until later.</em></p>
 <li><div class="line-block">
 <div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_max_held_announces</span></code> option sets the maximum amount of
 unique announces that will be held in the queue. Any additional
-unique announces will be dropped. Defaults to <code class="docutils literal notranslate"><span class="pre">256</span></code> announces.</div>
+unique announces will be dropped. Defaults to <code class="docutils literal notranslate"><span class="pre">64</span></code> announces.</div>
 </div>
 </li>
 <li><div class="line-block">
 <div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_hold</span></code> option sets how much time (in seconds) must
 pass after the burst frequency drops below its threshold, for the
-announce burst to be considered cleared. Defaults to <code class="docutils literal notranslate"><span class="pre">60</span></code>
+announce burst to be considered cleared. Defaults to <code class="docutils literal notranslate"><span class="pre">15</span></code>
 seconds.</div>
 </div>
 </li>
 <li><div class="line-block">
 <div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_burst_penalty</span></code> option sets how much time (in seconds) must
 pass after the burst is considered cleared, before held announces can
-start being released from the queue. Defaults to <code class="docutils literal notranslate"><span class="pre">5*60</span></code>
+start being released from the queue. Defaults to <code class="docutils literal notranslate"><span class="pre">15</span></code>
 seconds.</div>
 </div>
 </li>
 <li><div class="line-block">
 <div class="line">The <code class="docutils literal notranslate"><span class="pre">ic_held_release_interval</span></code> option sets how much time (in seconds)
 must pass between releasing each held announce from the queue. Defaults
-to <code class="docutils literal notranslate"><span class="pre">30</span></code> seconds.</div>
+to <code class="docutils literal notranslate"><span class="pre">5</span></code> seconds.</div>
 </div>
 </li>
 </ul>

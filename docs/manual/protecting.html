@@ -513,10 +513,15 @@ option. It will become mandatory and enabled by default in RNS
 </li>
 </ul>
 </div></blockquote>
-<p>The filtering defaults and base settings are configured in the <code class="docutils literal notranslate"><span class="pre">[filter]</span></code> section of the configuration file. For example, it is possible to explicitly ignore a series of destination types, while also limiting hop reach to a more local topology:</p>
+<p>The filtering defaults and base settings are configured in the <code class="docutils literal notranslate"><span class="pre">[filter]</span></code> section of the configuration file. For example, it is possible to explicitly ignore a series of destination types, while also limiting hop reach to a more local topology.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">hop_limiter</span></code> in the filter section is an instance-wide setting. You can also use the <code class="docutils literal notranslate"><span class="pre">hop_limiter</span></code> option <em>per-interface</em> if you want to limit hops on some interfaces only.</p>
+</div>
+<p>If you do not know the human readable destination type aspects for a destination type you want to ignore, you can also add entries as 10-byte (20 hexadecimal character) hashes using the <code class="docutils literal notranslate"><span class="pre">&lt;c4ace368262d845c9dd3&gt;</span></code> format.</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[filter]</span>
 <span class="w">  </span><span class="na">hop_limiter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">14</span>
-<span class="w">  </span><span class="na">ignored_types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">application.that.spams, traffic.heavy.service</span>
+<span class="w">  </span><span class="na">ignored_types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">application.that.spams, traffic.heavy.service, &lt;c4ace368262d845c9dd3&gt;</span>
 </pre></div>
 </div>
 <p>In some situations, you may want to allow <em>only</em> certain destination types. If, for example, you are creating a high-performance transport node intended to handle thousands of simultaneous voice calls at minimal latency, a configuration might look something like:</p>
@@ -532,6 +537,37 @@ option. It will become mandatory and enabled by default in RNS
 <p>This ensures that a local, non-transport node (running on resource-limited hardware, for example), does not have to process announces for, and waste CPU and memory on destination types that are completely irrelevant to it. It also greatly reduces power consumption on battery-powered and mobile devices, while they are connected to large and busy networks.</p>
 <p>If you are a developer, see the following section.</p>
 </div>
+</section>
+<section id="blocking-transport-nodes">
+<h3>Blocking Transport Nodes<a class="headerlink" href="#blocking-transport-nodes" title="Link to this heading">¶</a></h3>
+<p>Misbehaving, spamming and broken transport nodes can be completely blocked using the <span class="xref std std-ref">Blackhole system</span>. First, obtain the Transport Identity hash of a misbehaving transport node, using <code class="docutils literal notranslate"><span class="pre">rnstatus</span></code>:</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>$ rnstatus -FATa &quot;71.29.190.5&quot;
+
+BackboneInterface[Client on Bern IPv4/71.29.190.5:37062]
+   Status    : Up
+   Mode      : Gateway
+   Rate      : 250.00 Mbps, MTU 65536
+   Running   : Unknown implementation
+   Rem.Tr.ID : &lt;a0c289d131c7bfa8d5ddc8b652c0f40d&gt;
+   Held      : 64 announces
+   Violatns. : 382 protocol
+   Flt. Hits : 92
+   Announces : 147174↓ 11193↑ total, 140554 filtered
+               1.2 Hz↑    (↓0% / ↑0% of flow)
+               7.8 Hz↓    (t:6h/p:0s/g:1) burst for 4h, 54m and 42.69s
+   Traffic   : ↑4.75 MB    0 bps
+               ↓1.50 MB    0 bps
+   Filtered  : ↑0 B  0 bps
+               ↓55.43 MB  380.14 Kbps
+</pre></div>
+</div>
+<p>You can then block it by its Transport ID:</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>$ rnpath -B a0c289d131c7bfa8d5ddc8b652c0f40d --reason &quot;Broken node&quot;
+
+Blackholed identity a0c289d131c7bfa8d5ddc8b652c0f40d
+</pre></div>
+</div>
+<p>Its connection will be immediately torn down, and further reconnection attempts will be ignored.</p>
 </section>
 <section id="id2">
 <h3>For Developers<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
@@ -571,7 +607,7 @@ option. It will become mandatory and enabled by default in RNS
 <p>Full configuration details are available in the <a class="reference internal" href="interfaces.html#interfaces-announcerates"><span class="std std-ref">Announce Rate Control</span></a> and <a class="reference internal" href="interfaces.html#interfaces-ingress-control"><span class="std std-ref">New Destination Rate Limiting</span></a> sections.</p>
 </section>
 <section id="blackhole-management">
-<h2>Blackhole Management<a class="headerlink" href="#blackhole-management" title="Link to this heading">¶</a></h2>
+<span id="protecting-blachole"></span><h2>Blackhole Management<a class="headerlink" href="#blackhole-management" title="Link to this heading">¶</a></h2>
 <p>The <em>blackhole</em> system allows any node operator or individual user to block specific identities at the transport layer.</p>
 <p>Once an identity has been blackholed on a node, announces originating from <em>any</em> destination associated with that identity are dropped, and the node will refuse to transport traffic, or establish and maintain links, to the blackholed identity’s destinations.</p>
 <p>It is important to understand the scope of this mechanism corrrectly. There is fundamentally <strong>no way</strong> to <em>globally</em> block or censor any identity or destination in Reticulum networks. A blackhole entry only applies on the network segments that enforce it, which is the exact intention. Operators retain full control over what is allowed on their own segments, while no one can impose restrictions on segments they do not operate.</p>
@@ -656,6 +692,7 @@ option. It will become mandatory and enabled by default in RNS
 </li>
 <li><a class="reference internal" href="#filtering-qos">Filtering &amp; QoS</a><ul>
 <li><a class="reference internal" href="#id1">Instance Configuration</a></li>
+<li><a class="reference internal" href="#blocking-transport-nodes">Blocking Transport Nodes</a></li>
 <li><a class="reference internal" href="#id2">For Developers</a></li>
 </ul>
 </li>

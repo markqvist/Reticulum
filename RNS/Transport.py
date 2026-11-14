@@ -4756,7 +4756,14 @@ class Transport:
     @staticmethod
     def block_destination_type(full_name):
         try:
-            name_hash = RNS.Destination.name_hash(full_name)
+            name_hash = None
+            if not full_name: return
+            if full_name.startswith("<") and full_name.endswith(">"):
+                full_name = full_name[1:1+RNS.Identity.NAME_HASH_LENGTH//8*2]
+                try: name_hash = bytes.fromhex(full_name)
+                except: name_hash = None
+
+            name_hash = name_hash or RNS.Destination.name_hash(full_name)
             with Transport.destination_filters_lock:
                 Transport.blocked_destination_types[name_hash] = [True]
                 Transport.client_destination_types.pop(name_hash, None)
@@ -4769,7 +4776,14 @@ class Transport:
     @staticmethod
     def allow_destination_type(full_name):
         try:
-            name_hash = RNS.Destination.name_hash(full_name)
+            name_hash = None
+            if not full_name: return
+            if full_name.startswith("<") and full_name.endswith(">"):
+                full_name = full_name[1:1+RNS.Identity.NAME_HASH_LENGTH//8*2]
+                try: name_hash = bytes.fromhex(full_name)
+                except: name_hash = None
+
+            name_hash = name_hash or RNS.Destination.name_hash(full_name)
             with Transport.destination_filters_lock:
                 Transport.allowed_destination_types[name_hash] = [True]
                 Transport.destination_type_map[name_hash] = full_name

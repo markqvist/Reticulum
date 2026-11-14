@@ -232,12 +232,14 @@ The filtering subsystem can operate in two modes:
 >   In addition, any application using the shared instance can temporarily request required destination types for its use. Applications that request required destination types will automatically have them granted, unless they are included in the `ignored_types` list.
 >   
 
-The filtering defaults and base settings are configured in the `[filter]` section of the configuration file. For example, it is possible to explicitly ignore a series of destination types, while also limiting hop reach to a more local topology:
+The filtering defaults and base settings are configured in the `[filter]` section of the configuration file. For example, it is possible to explicitly ignore a series of destination types, while also limiting hop reach to a more local topology.
+
+If you do not know the human readable destination type aspects for a destination type you want to ignore, you can also add entries as 10-byte (20 hexadecimal character) hashes using the `<c4ace368262d845c9dd3>` format.
 
 ```ini
 [filter]
   hop_limiter = 14
-  ignored_types = application.that.spams, traffic.heavy.service
+  ignored_types = application.that.spams, traffic.heavy.service, <c4ace368262d845c9dd3>
 ```
 
 In some situations, you may want to allow *only* certain destination types. If, for example, you are creating a high-performance transport node intended to handle thousands of simultaneous voice calls at minimal latency, a configuration might look something like:
@@ -256,6 +258,41 @@ As the filtering and QoS system is developed and matures, the `required_only` mo
 This ensures that a local, non-transport node (running on resource-limited hardware, for example), does not have to process announces for, and waste CPU and memory on destination types that are completely irrelevant to it. It also greatly reduces power consumption on battery-powered and mobile devices, while they are connected to large and busy networks.
 
 If you are a developer, see the following section.
+
+### Blocking Transport Nodes
+
+Misbehaving, spamming and broken transport nodes can be completely blocked using the Blackhole system. First, obtain the Transport Identity hash of a misbehaving transport node, using `rnstatus`:
+
+```txt
+$ rnstatus -FATa "71.29.190.5"
+
+BackboneInterface[Client on Bern IPv4/71.29.190.5:37062]
+   Status    : Up
+   Mode      : Gateway
+   Rate      : 250.00 Mbps, MTU 65536
+   Running   : Unknown implementation
+   Rem.Tr.ID : <a0c289d131c7bfa8d5ddc8b652c0f40d>
+   Held      : 64 announces
+   Violatns. : 382 protocol
+   Flt. Hits : 92
+   Announces : 147174↓ 11193↑ total, 140554 filtered
+               1.2 Hz↑    (↓0% / ↑0% of flow)
+               7.8 Hz↓    (t:6h/p:0s/g:1) burst for 4h, 54m and 42.69s
+   Traffic   : ↑4.75 MB    0 bps
+               ↓1.50 MB    0 bps
+   Filtered  : ↑0 B  0 bps
+               ↓55.43 MB  380.14 Kbps
+```
+
+You can then block it by its Transport ID:
+
+```txt
+$ rnpath -B a0c289d131c7bfa8d5ddc8b652c0f40d --reason "Broken node"
+
+Blackholed identity a0c289d131c7bfa8d5ddc8b652c0f40d
+```
+
+Its connection will be immediately torn down, and further reconnection attempts will be ignored.
 
 ### For Developers
 

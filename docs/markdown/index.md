@@ -137,6 +137,7 @@ to participate in the development of Reticulum itself.
     * [Configuring Stamps](protecting.md#configuring-stamps)
   * [Filtering & QoS](protecting.md#filtering-qos)
     * [Instance Configuration](protecting.md#id1)
+    * [Blocking Transport Nodes](protecting.md#blocking-transport-nodes)
     * [For Developers](protecting.md#id2)
   * [Ingress & Burst Control](protecting.md#ingress-burst-control)
   * [Blackhole Management](protecting.md#blackhole-management)
