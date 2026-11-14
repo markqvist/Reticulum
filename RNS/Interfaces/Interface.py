@@ -290,6 +290,24 @@ class Interface:
             return True
         else: return self.filtered_announce()
 
+    def __keep_held_announce(self, destination_hash, announce_packet, path_entry):
+        receiving_interface = path_entry[5] # IDX_PT_RVCD_IF
+        if receiving_interface == None: return True
+
+        announce_emitted = RNS.Transport.announce_emitted(announce_packet)
+        path_timebase = 0
+        for random_blob in path_entry[4][:]: # IDX_PT_RANDBLOBS
+            emitted = RNS.Transport.timebase_from_random_blob(random_blob)
+            if emitted > path_timebase: path_timebase = emitted
+            if path_timebase > announce_emitted: break
+
+        if announce_emitted > path_timebase: return True
+        if announce_emitted < path_timebase: return False
+        if announce_packet.receiving_interface.gravity > receiving_interface.gravity:
+            return True
+
+        return RNS.Transport.path_states.get(destination_hash) == RNS.Transport.STATE_UNRESPONSIVE
+
     def process_held_announces(self):
         try:
             if len(self.held_announces) > 0 and time.time() > self.ic_held_release:
@@ -298,16 +316,31 @@ class Interface:
                 if ia_freq < freq_threshold:
                     selected_announce_packet = None
                     min_hops = RNS.Transport.PATHFINDER_M
-                    for destination_hash in self.held_announces:
-                        announce_packet = self.held_announces[destination_hash]
+                    cull_entries = []
+                    for destination_hash in self.held_announces.copy():
+                        announce_packet = self.held_announces.get(destination_hash)
+                        if not announce_packet: continue
+
+                        # If we can determine that a held announce has become
+                        # useless for any potential path table updates, we'll
+                        # remove it immediately instead of waiting for it to
+                        # eventually get released, freeing up other held queue
+                        # slots for potentially useful new announces.
+                        path_entry = RNS.Transport.path_table.get(destination_hash)
+                        if path_entry and not self.__keep_held_announce(destination_hash, announce_packet, path_entry):
+                            cull_entries.append(destination_hash)
+                            continue
+
                         if announce_packet.hops < min_hops:
                             min_hops = announce_packet.hops
                             selected_announce_packet = announce_packet
 
+                    for destination_hash in cull_entries: self.held_announces.pop(destination_hash, None)
+
                     if selected_announce_packet != None:
                         RNS.log("Releasing held announce packet "+str(selected_announce_packet)+" from "+str(self), RNS.LOG_EXTREME)
                         self.ic_held_release = time.time() + self.ic_held_release_interval
-                        self.held_announces.pop(selected_announce_packet.destination_hash)
+                        self.held_announces.pop(selected_announce_packet.destination_hash, None)
                         RNS.Transport.inbound(selected_announce_packet.raw, selected_announce_packet.receiving_interface, tc=RNS.Transport.TC_INGRESS_LIMITED, ifac_handled=True)
         
         except Exception as e:
