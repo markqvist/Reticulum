@@ -2107,9 +2107,6 @@ class Transport:
             elif not announce_signature_valid:
                 return packet.receiving_interface.protocol_violation(f"Invalid announce signature for {RNS.prettyhexrep(packet.destination_hash)}")
 
-            else: packet.receiving_interface.received_announce(size=len(packet.raw))
-            Transport.announce_rxc += 1
-
             announced_destination_known = packet.destination_hash in Transport.path_table
             if not announced_destination_known:
                 # This is an unknown destination, and we'll apply
@@ -2120,7 +2117,12 @@ class Transport:
                     RNS.log(f"Skipping ingress limit check for {RNS.prettyhexrep(packet.destination_hash)} due to waiting path requests", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
 
                 elif packet.receiving_interface.should_ingress_limit():
-                    return packet.receiving_interface.hold_announce(packet)
+                    accepted = packet.receiving_interface.hold_announce(packet)
+                    packet.receiving_interface.received_announce(size=0)
+                    return accepted
+
+            packet.receiving_interface.received_announce(size=len(raw))
+            Transport.announce_rxc += 1
 
         # Ingress limit path requests early
         elif packet.destination_hash == Transport.pr_destination_hash:
@@ -2181,7 +2183,7 @@ class Transport:
                         else: RNS.log(f"Unstamped path request for {RNS.prettyhexrep(destination_hash)}", RNS.LOG_EXTREME) if RNS.sl(RNS.LOG_EXTREME) else None # TODO: Remove after transition, simply drop
 
                         if not stamp_ok:
-                            if Transport.STAMPS_ENFORCED: return
+                            if Transport.STAMPS_ENFORCED: return None
 
                     packet.receiving_interface.received_path_request(size=len(raw))
                     Transport.pr_rxc += 1
@@ -2210,7 +2212,7 @@ class Transport:
 
                                     Transport.discovery_path_requests[destination_hash] = pr_entry
 
-                        return
+                        return True
 
                     # TODO: Add early filtering here for non-transport nodes; there's no
                     # reason to process further if we know we don't have the destination
