@@ -762,11 +762,11 @@ class Transport:
                 frxb = 0; ftxb = 0; frxs = 0; ftxs = 0;
                 iafreq = 0; oafreq = 0; ipfreq = 0; opfreq = 0
 
-                for interface in Transport.interfaces:
+                for interface in Transport.interfaces.copy():
                     if not hasattr(interface, "parent_interface") or interface.parent_interface == None:
                         if hasattr(interface, "is_local_shared_instance"): continue
                         if hasattr(interface, "transport_traffic_counter"):
-                            now = time.time()
+                            now = time.monotonic()
 
                             irxb  = interface.rxb;  itxb  = interface.txb
                             iarxb = interface.arxb; iatxb = interface.atxb
@@ -811,7 +811,7 @@ class Transport:
                             tc["frxb"] = ifrxb; tc["ftxb"] = iftxb
 
                         else:
-                            interface.transport_traffic_counter = { "ts": time.time(), "rxb": interface.rxb, "txb": interface.txb,
+                            interface.transport_traffic_counter = { "ts": time.monotonic(), "rxb": interface.rxb, "txb": interface.txb,
                                                                     "arxb": interface.arxb, "atxb": interface.atxb,
                                                                     "prxb": interface.prxb, "ptxb": interface.ptxb,
                                                                     "frxb": interface.frxb, "ftxb": interface.ftxb }
@@ -819,7 +819,7 @@ class Transport:
                 else:
                     if not cts: ts = Transport.start_time
                     else:       ts = cts
-                    cts  = time.time(); td = cts - ts
+                    cts  = time.monotonic(); td = cts - ts
                     rpps = (Transport.rx_packets - rxp) / td
                     tpps = (Transport.tx_packets - txp) / td
                     rxp  = Transport.rx_packets
@@ -1958,13 +1958,13 @@ class Transport:
     @staticmethod
     def inbound(raw, interface=None, tc=None, ifac_handled=False, no_accounting=False):
         try:
-            accepted = Transport.preprocess_inbound(raw=raw, interface=interface, tc=tc, ifac_handled=ifac_handled)
+            accepted = Transport.preprocess_inbound(raw=raw, interface=interface, tc=tc, ifac_handled=ifac_handled, no_accounting=no_accounting)
             if accepted: Transport.accepted_inbound(raw=raw, interface=interface) if not no_accounting else None
             else:        Transport.filtered_inbound(raw=raw, interface=interface) if not no_accounting else None
         except Exception as e:
             RNS.log(f"Error while processing inbound on {interface}: {e}", RNS.LOG_ERROR)
             RNS.trace_exception(e)
-            Transport.filtered_inbound(raw=raw, interface=interface)
+            Transport.filtered_inbound(raw=raw, interface=interface) if not no_accounting else None
 
     @staticmethod
     def handle_ifac(raw, interface):
@@ -2031,7 +2031,7 @@ class Transport:
             return False, None
 
     @staticmethod
-    def preprocess_inbound(raw, interface=None, tc=None, ifac_handled=False):
+    def preprocess_inbound(raw, interface=None, tc=None, ifac_handled=False, no_accounting=False):
         if not interface:
             RNS.log(f"No interface set on inbound packet, dropping", RNS.LOG_WARNING)
             return None
@@ -2107,6 +2107,7 @@ class Transport:
             elif not announce_signature_valid:
                 return packet.receiving_interface.protocol_violation(f"Invalid announce signature for {RNS.prettyhexrep(packet.destination_hash)}")
 
+            announce_size = len(raw)
             announced_destination_known = packet.destination_hash in Transport.path_table
             if not announced_destination_known:
                 # This is an unknown destination, and we'll apply
@@ -2117,11 +2118,11 @@ class Transport:
                     RNS.log(f"Skipping ingress limit check for {RNS.prettyhexrep(packet.destination_hash)} due to waiting path requests", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
 
                 elif packet.receiving_interface.should_ingress_limit():
-                    accepted = packet.receiving_interface.hold_announce(packet)
+                    packet.receiving_interface.hold_announce(packet)
                     packet.receiving_interface.received_announce(size=0)
-                    return accepted
+                    return False
 
-            packet.receiving_interface.received_announce(size=len(raw))
+            packet.receiving_interface.received_announce(size=announce_size)
             Transport.announce_rxc += 1
 
         # Ingress limit path requests early

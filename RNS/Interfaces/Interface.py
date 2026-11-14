@@ -308,8 +308,7 @@ class Interface:
                         RNS.log("Releasing held announce packet "+str(selected_announce_packet)+" from "+str(self), RNS.LOG_EXTREME)
                         self.ic_held_release = time.time() + self.ic_held_release_interval
                         self.held_announces.pop(selected_announce_packet.destination_hash)
-                        def release(): RNS.Transport.inbound(selected_announce_packet.raw, selected_announce_packet.receiving_interface, tc=RNS.Transport.TC_INGRESS_LIMITED, ifac_handled=True, no_accounting=True)
-                        threading.Thread(target=release, daemon=True).start()
+                        RNS.Transport.inbound(selected_announce_packet.raw, selected_announce_packet.receiving_interface, tc=RNS.Transport.TC_INGRESS_LIMITED, ifac_handled=True)
         
         except Exception as e:
             RNS.log("An error occurred while processing held announces for "+str(self), RNS.LOG_ERROR)
