@@ -2086,9 +2086,9 @@ class Transport:
 
         # Ingress limit announces early
         if packet.packet_type == RNS.Packet.ANNOUNCE:
-            name_hash = packet.data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8]
-            if len(name_hash) != RNS.Identity.NAME_HASH_LENGTH//8: return packet.receiving_interface.protocol_violation(f"Malformed announce packet with size {len(packet.data)}")
             if len(raw) > RNS.Reticulum.MTU: return packet.receiving_interface.protocol_violation(f"Excessive announce packet frame size of {len(raw)} bytes")
+            if len(packet.data) < RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8+10: return packet.receiving_interface.protocol_violation(f"Insufficient announce payload of {len(packet.data)} bytes")
+            name_hash = packet.data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8]
 
             if Transport.blocked_destination_types and name_hash in Transport.blocked_destination_types: return
             if Transport.required_destinations_only:
@@ -2099,6 +2099,20 @@ class Transport:
                 else:                                                                    allowed = False
                 if not allowed: return packet.receiving_interface.filtered_announce()
 
+            path_entry = Transport.path_table.get(packet.destination_hash)
+            announced_destination_known = path_entry != None
+            if announced_destination_known:
+                # Prefilter announces we can already now determine would
+                # never provide path table updates or other functionality
+                prefilter_conditions  = packet.context != RNS.Packet.PATH_RESPONSE                           \
+                                        and not packet.destination_hash in Transport.path_requests           \
+                                        and not packet.destination_hash in Transport.discovery_path_requests \
+                                        and not packet.destination_hash in Transport.announce_table          \
+
+                if prefilter_conditions and not Transport.announce_prefilter(packet, path_entry):
+                    packet.receiving_interface.received_announce(size=0)
+                    return packet.receiving_interface.filtered_announce()
+
             if traffic_class < Transport.TC_ANNOUNCE: traffic_class = Transport.TC_ANNOUNCE
             announce_signature_valid = RNS.Identity.validate_announce(packet, only_validate_signature=True, signal_blackholed=True, signal_stamp=True)
             if   announce_signature_valid == "blackholed":    return packet.receiving_interface.filtered_announce()
@@ -2108,7 +2122,6 @@ class Transport:
                 return packet.receiving_interface.protocol_violation(f"Invalid announce signature for {RNS.prettyhexrep(packet.destination_hash)}")
 
             announce_size = len(raw)
-            announced_destination_known = packet.destination_hash in Transport.path_table
             if not announced_destination_known:
                 # This is an unknown destination, and we'll apply
                 # potential ingress limiting. Already known
@@ -4315,6 +4328,26 @@ class Transport:
         announce_emitted = Transport.timebase_from_random_blob(random_blob)
 
         return announce_emitted
+
+    @staticmethod
+    def announce_prefilter(announce_packet, path_entry):
+        destination_hash = announce_packet.destination_hash
+        receiving_interface = path_entry[IDX_PT_RVCD_IF]
+        if receiving_interface == None: return True
+
+        announce_emitted = RNS.Transport.announce_emitted(announce_packet)
+        path_timebase = 0
+        for random_blob in path_entry[IDX_PT_RANDBLOBS][:]:
+            emitted = RNS.Transport.timebase_from_random_blob(random_blob)
+            if emitted > path_timebase: path_timebase = emitted
+            if path_timebase > announce_emitted: break
+
+        if announce_emitted > path_timebase: return True
+        if announce_emitted < path_timebase: return False
+        if announce_packet.receiving_interface.gravity > receiving_interface.gravity:
+            return True
+
+        return RNS.Transport.path_states.get(destination_hash) == RNS.Transport.STATE_UNRESPONSIVE
 
     #####################
     # State Persistence #

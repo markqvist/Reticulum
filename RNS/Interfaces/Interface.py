@@ -290,24 +290,6 @@ class Interface:
             return True
         else: return self.filtered_announce()
 
-    def __keep_held_announce(self, destination_hash, announce_packet, path_entry):
-        receiving_interface = path_entry[5] # IDX_PT_RVCD_IF
-        if receiving_interface == None: return True
-
-        announce_emitted = RNS.Transport.announce_emitted(announce_packet)
-        path_timebase = 0
-        for random_blob in path_entry[4][:]: # IDX_PT_RANDBLOBS
-            emitted = RNS.Transport.timebase_from_random_blob(random_blob)
-            if emitted > path_timebase: path_timebase = emitted
-            if path_timebase > announce_emitted: break
-
-        if announce_emitted > path_timebase: return True
-        if announce_emitted < path_timebase: return False
-        if announce_packet.receiving_interface.gravity > receiving_interface.gravity:
-            return True
-
-        return RNS.Transport.path_states.get(destination_hash) == RNS.Transport.STATE_UNRESPONSIVE
-
     def process_held_announces(self):
         try:
             if len(self.held_announces) > 0 and time.time() > self.ic_held_release:
@@ -327,7 +309,7 @@ class Interface:
                         # eventually get released, freeing up other held queue
                         # slots for potentially useful new announces.
                         path_entry = RNS.Transport.path_table.get(destination_hash)
-                        if path_entry and not self.__keep_held_announce(destination_hash, announce_packet, path_entry):
+                        if path_entry and not RNS.Transport.announce_prefilter(announce_packet, path_entry):
                             cull_entries.append(destination_hash)
                             continue
 
