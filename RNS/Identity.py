@@ -680,7 +680,7 @@ class Identity:
         Identity.announce_invalid_cache = {}
 
     __valid_cache_count = 0
-    __valid_cache_max   = 128
+    __valid_cache_max   = 384
     @staticmethod
     def __cache_valid_announce(result):
         Identity.__valid_cache_count += 1
@@ -699,7 +699,7 @@ class Identity:
         return True
 
     __invalid_cache_count = 0
-    __invalid_cache_max   = 128
+    __invalid_cache_max   = 384
     @staticmethod
     def __cache_invalid_announce(packet, signal=None, stamp_value=None):
         Identity.__invalid_cache_count += 1
