@@ -1010,6 +1010,11 @@ class Reticulum:
         gravity = self._default_gravity()
         if "gravity" in c: gravity = c.as_int("gravity")
 
+        hop_limiter = None
+        if "hop_limiter" in c:
+            v = c.as_int("hop_limiter")
+            hop_limiter = max(0, min(v, RNS.Transport.PATHFINDER_M))
+
         destination_cost = None
         if "destination_cost" in c:
             v = c.as_float("destination_cost")
@@ -1170,11 +1175,12 @@ class Reticulum:
                     if "outgoing" in c and c.as_bool("outgoing") == False: interface.OUT = False
                     else:                                                  interface.OUT = True
 
-                    interface.mode = interface_mode
-                    interface.gravity = gravity
-                    interface.announce_cap = announce_cap
-                    interface.bootstrap_only = bootstrap_only
-                    if configured_bitrate: interface.bitrate = configured_bitrate
+                    interface.mode                            = interface_mode
+                    interface.gravity                         = gravity
+                    interface.hop_limiter                     = hop_limiter
+                    interface.announce_cap                    = announce_cap
+                    interface.bootstrap_only                  = bootstrap_only
+                    if configured_bitrate: interface.bitrate  = configured_bitrate
                     interface.optimise_mtu()
                     
                     if ifac_size != None: interface.ifac_size = ifac_size

@@ -134,6 +134,7 @@ class Interface:
         self.wants_tunnel             = False
         self.remote_transport         = None
         self.ingress_control          = True
+        self.hop_limiter              = None
         self.phy_keepalive            = False
         self.shared_medium            = False
         

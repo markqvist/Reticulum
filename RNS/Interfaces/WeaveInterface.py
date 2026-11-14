@@ -975,6 +975,7 @@ class WeaveInterface(Interface):
 
             spawned_interface.mode = self.mode
             spawned_interface.gravity = self.gravity
+            spawned_interface.hop_limiter = self.hop_limiter
             spawned_interface.HW_MTU = self.HW_MTU
             spawned_interface._online = True
 

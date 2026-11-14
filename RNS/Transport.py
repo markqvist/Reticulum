@@ -2082,6 +2082,7 @@ class Transport:
 
         packet = RNS.Packet(None, raw)
         if not packet.unpack(): return interface.protocol_violation(f"Malformed packet ({len(raw)} bytes)", level=RNS.LOG_EXTREME) if interface else None
+        if interface.hop_limiter and not packet.hops < interface.hop_limiter: return interface.hop_limiter_hit()
         if not packet.hops < Transport.HOP_LIMITER: return interface.hop_limiter_hit()
         if not Transport.packet_filter(packet): return interface.packet_filter_hit()
         traffic_class = tc or Transport.TC_DATA

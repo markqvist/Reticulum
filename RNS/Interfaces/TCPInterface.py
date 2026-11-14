@@ -648,6 +648,7 @@ class TCPServerInterface(Interface):
         spawned_interface.announce_rate_penalty = self.announce_rate_penalty
         spawned_interface.mode = self.mode
         spawned_interface.gravity = self.gravity
+        spawned_interface.hop_limiter = self.hop_limiter
         spawned_interface.recursive_prs = self.recursive_prs
         spawned_interface.announces_from_internal = self.announces_from_internal
         spawned_interface.announces_to_internal = self.announces_to_internal
