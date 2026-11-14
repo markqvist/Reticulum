@@ -825,7 +825,7 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                 if   strdiff > 0: ftxstat += " "*strdiff
                 elif strdiff < 0: frxstat += " "*-strdiff
 
-                if "frxs" in ifstat and "ftxs" in ifstat:
+                if "frxs" in stats and "ftxs" in stats:
                     frxstat += "  "+RNS.prettyspeed(stats["frxs"])
                     ftxstat += "  "+RNS.prettyspeed(stats["ftxs"])
                 print(f"\n Filtered     : {ftxstat}\n                {frxstat}")

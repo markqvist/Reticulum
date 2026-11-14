@@ -573,7 +573,7 @@ class Transport:
 
                             if len(Transport.blackholed_identities) > 0:
                                 path_identity = RNS.Identity.recall(destination_hash, _no_use=True)
-                                if path_identity in Transport.blackholed_identities: blackholed = True
+                                if path_identity and path_identity.hash in Transport.blackholed_identities: blackholed = True
                                 del path_identity
 
                             if announce_packet != None and receiving_interface != None and blackholed == False:
@@ -3144,13 +3144,18 @@ class Transport:
                 remote_transport_identity = RNS.Identity(create_keys=False)
                 remote_transport_identity.load_public_key(public_key)
 
-                if remote_transport_identity.validate(signature, signed_data):
-                    packet.receiving_interface.remote_transport = remote_transport_identity
-                    Transport.handle_tunnel(tunnel_id, packet.receiving_interface)
+                if not remote_transport_identity.validate(signature, signed_data):
+                    RNS.log(f"Invalid tunnel synthesis signature, tearing down {packet.receiving_interface}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                    RNS.Reticulum.get_instance()._detach_interface(None, interface_instance=packet.receiving_interface, internal_forced=True)
 
                 else:
-                    RNS.log(f"Invalid tunnel synthesis signature, tearing down interface {packet.receiving_interface}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-                    RNS.Reticulum.get_instance()._detach_interface(None, interface_instance=packet.receiving_interface, internal_forced=True)
+                    if remote_transport_identity.hash in Transport.blackholed_identities:
+                        RNS.log(f"Tunnel synthesis from blackholed transport node {RNS.prettyhexrep(remote_transport_identity.hash)}, tearing down {packet.receiving_interface}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                        RNS.Reticulum.get_instance()._detach_interface(None, interface_instance=packet.receiving_interface, internal_forced=True)
+
+                    else:
+                        packet.receiving_interface.remote_transport = remote_transport_identity
+                        Transport.handle_tunnel(tunnel_id, packet.receiving_interface)
 
         except Exception as e:
             RNS.log("An error occurred while validating tunnel establishment packet.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
@@ -4657,6 +4662,15 @@ class Transport:
         if len(drop_destinations) > 0:
             ms = "" if len(drop_destinations) == 1 else "s"
             RNS.log(f"Removed {len(drop_destinations)} destination{ms} associated with blackholed identities from path table", RNS.LOG_INFO)
+
+        detach_interfaces = []
+        for interface in Transport.interfaces:
+            if interface.remote_transport and interface.remote_transport.hash in Transport.blackholed_identities:
+                detach_interfaces.append(interface)
+
+        for interface in detach_interfaces:
+            RNS.log(f"Tearing down {interface} from blackholed transport node {RNS.prettyhexrep(interface.remote_transport.hash)}", RNS.LOG_INFO)
+            RNS.Reticulum.get_instance()._detach_interface(None, interface_instance=interface, internal_forced=True)
 
     @staticmethod
     def blackhole_list_handler(path, data, request_id, link_id, remote_identity, requested_at):

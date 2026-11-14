@@ -930,6 +930,10 @@ class Reticulum:
                         RNS.Transport.remove_interface(s)
 
                 interface.detach()
+                if interface.parent_interface and interface.parent_interface.spawned_interfaces:
+                    if interface in interface.parent_interface.spawned_interfaces:
+                        interface.teardown()
+
                 RNS.Transport.remove_interface(interface)
                 RNS.log(f"Interface {interface} was detached", RNS.LOG_NOTICE)
                 return True
