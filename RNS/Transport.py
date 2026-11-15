@@ -45,7 +45,7 @@ from threading import Lock, Condition
 from .vendor import umsgpack as umsgpack
 from RNS.Interfaces.BackboneInterface import BackboneInterface
 from RNS.Storage import AnnounceRateTable, PacketHashlist, AnnounceCache
-from RNS.Stamps import generate_stamp, stamp_workblock, stamp_valid, stamp_value, cancel_work
+from RNS.Stamps import generate_stamp, stamp_workblock, stamp_valid, stamp_value, quantize_cost, cancel_work
 
 class InboundQueues:
     __slots__ = ("_cond", "_queues", "_sizes", "_dropped", "_hw_mark")
@@ -3121,78 +3121,129 @@ class Transport:
     #####################
 
     @staticmethod
-    def synthesize_tunnel(interface):
+    def synthesize_tunnel(interface, reverse=False):
         if not Transport.identity: return
-        if not interface.wants_tunnel: return
+        if not reverse and not interface.wants_tunnel: return
 
         try:
+            ext_info = { RNS.Discovery.TRANSPORT_IMPL: RNS.Discovery.IMPLEMENTATION_NAME,
+                         RNS.Discovery.TRANSPORT_VERS: RNS.Discovery.RNS_VERSION,
+                         RNS.Discovery.TRANSPORT:      RNS.Reticulum.transport_enabled(),
+                         RNS.Discovery.DST_COST:       interface.destination_cost,
+                         RNS.Discovery.PR_COST:        interface.pr_cost }
+
             interface_hash = interface.get_hash()
             public_key     = Transport.identity.get_public_key()
             random_hash    = RNS.Identity.get_random_hash()
             
             tunnel_id_data = public_key+interface_hash
             tunnel_id      = RNS.Identity.full_hash(tunnel_id_data)
+            ext_payload    = umsgpack.packb(ext_info)
 
-            signed_data    = tunnel_id_data+random_hash
+            signed_data    = tunnel_id_data+random_hash+ext_payload
             signature      = Transport.identity.sign(signed_data)
-            
-            data           = signed_data+signature
+
+            data           = tunnel_id_data+random_hash+signature+ext_payload
 
             tnl_snth_dst   = RNS.Destination(None, RNS.Destination.OUT, RNS.Destination.PLAIN, Transport.APP_NAME, "tunnel", "synthesize")
 
             packet = RNS.Packet(tnl_snth_dst, data, packet_type = RNS.Packet.DATA, transport_type = RNS.Transport.BROADCAST, header_type = RNS.Packet.HEADER_1, attached_interface = interface)
+            interface.synthesis_emitted = True
 
             if interface.online:                        packet.send()
             elif hasattr(interface, "early_synthesis"): interface.early_synthesis(packet)
             else:                                       return
 
             interface.wants_tunnel = False
-            interface.local_tunnel_id = tunnel_id
+            if not reverse: interface.local_tunnel_id = tunnel_id
 
         except Exception as e: RNS.log(f"Could not synthesize tunnel for {interface}: {e}", RNS.LOG_ERROR)
 
     @staticmethod
     def tunnel_synthesize_handler(data, packet):
         try:
+            if not packet.receiving_interface: return
             if not packet.receiving_interface.tunnels_allowed: return
             if packet.receiving_interface.remote_transport: return packet.receiving_interface.protocol_violation(f"Tunnel synthesis packet on already established tunnel")
             if packet.receiving_interface.synthesis_received: return packet.receiving_interface.protocol_violation(f"Additional synthesis packet received")
-            packet.receiving_interface.synthesis_received = True
+            interface = packet.receiving_interface
+            interface.synthesis_received = True
 
-            max_length      = RNS.Packet.MDU
-            required_length = RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8+RNS.Identity.SIGLENGTH//8
-            if len(data) > max_length: return packet.receiving_interface.protocol_violation("Excessive tunnel synthesis packet size")
-            if len(data) < required_length: return packet.receiving_interface.protocol_violation("Insufficient tunnel synthesis packet size")
+            data_len     = len(data)
+            max_len      = RNS.Packet.MDU
+            required_len = RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8+RNS.Identity.SIGLENGTH//8
+            if data_len > max_len: return interface.protocol_violation("Excessive tunnel synthesis packet size")
+            if data_len < required_len: return interface.protocol_violation("Insufficient tunnel synthesis packet size")
             else:
                 key_size       = RNS.Identity.KEYSIZE//8
                 sig_len        = RNS.Identity.SIGLENGTH//8
                 hash_len       = RNS.Identity.HASHLENGTH//8
                 trunc_hash_len = RNS.Reticulum.TRUNCATED_HASHLENGTH//8
 
+                ext_payload    = b""
                 public_key     = data[:key_size]
                 interface_hash = data[key_size:key_size+hash_len]
                 tunnel_id_data = public_key+interface_hash
                 tunnel_id      = RNS.Identity.full_hash(tunnel_id_data)
                 random_hash    = data[key_size+hash_len:key_size+hash_len+trunc_hash_len]
+
+                if data_len > required_len:
+                    ext_payload = data[required_len:]
                 
                 signature      = data[key_size+hash_len+trunc_hash_len:key_size+hash_len+trunc_hash_len+sig_len]
-                signed_data    = tunnel_id_data+random_hash
+                signed_data    = tunnel_id_data+random_hash+ext_payload
 
                 remote_transport_identity = RNS.Identity(create_keys=False)
                 remote_transport_identity.load_public_key(public_key)
 
                 if not remote_transport_identity.validate(signature, signed_data):
-                    RNS.log(f"Invalid tunnel synthesis signature, tearing down {packet.receiving_interface}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-                    RNS.Reticulum.get_instance()._detach_interface(None, interface_instance=packet.receiving_interface, internal_forced=True)
+                    RNS.log(f"Invalid tunnel synthesis signature, tearing down {interface}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                    RNS.Reticulum.get_instance()._detach_interface(None, interface_instance=interface, internal_forced=True)
 
                 else:
                     if remote_transport_identity.hash in Transport.blackholed_identities:
-                        RNS.log(f"Tunnel synthesis from blackholed transport node {RNS.prettyhexrep(remote_transport_identity.hash)}, tearing down {packet.receiving_interface}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-                        RNS.Reticulum.get_instance()._detach_interface(None, interface_instance=packet.receiving_interface, internal_forced=True)
+                        RNS.log(f"Tunnel synthesis from blackholed transport node {RNS.prettyhexrep(remote_transport_identity.hash)}, tearing down {interface}", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                        RNS.Reticulum.get_instance()._detach_interface(None, interface_instance=interface, internal_forced=True)
 
                     else:
-                        packet.receiving_interface.remote_transport = remote_transport_identity
-                        Transport.handle_tunnel(tunnel_id, packet.receiving_interface)
+                        if ext_payload:
+                            try: ext_payload = umsgpack.unpackb(ext_payload)
+                            except Exception as e: return interface.protocol_violation("Undecodable ext_payload in tunnel synthesis packet")
+                            if type(ext_payload) != dict: return interface.protocol_violation("Invalid ext_payload data type in tunnel synthesis packet")
+                            if not RNS.Discovery.TRANSPORT_IMPL in ext_payload: return interface.protocol_violation("Missing implementation info in tunnel synthesis packet")
+                            if not RNS.Discovery.TRANSPORT_VERS in ext_payload: return interface.protocol_violation("Missing version info in tunnel synthesis packet")
+                            if not RNS.Discovery.TRANSPORT      in ext_payload: return interface.protocol_violation("Missing transport status in tunnel synthesis packet")
+                            if not RNS.Discovery.DST_COST       in ext_payload: return interface.protocol_violation("Missing destination cost in tunnel synthesis packet")
+                            if not RNS.Discovery.PR_COST        in ext_payload: return interface.protocol_violation("Missing path request cost in tunnel synthesis packet")
+
+                            try:
+                                ext_impl_name = ext_payload[RNS.Discovery.TRANSPORT_IMPL]
+                                ext_impl_vers = ext_payload[RNS.Discovery.TRANSPORT_VERS]
+                                ext_transport = ext_payload[RNS.Discovery.TRANSPORT]
+                                ext_dst_cost  = ext_payload[RNS.Discovery.DST_COST]
+                                ext_pr_cost   = ext_payload[RNS.Discovery.PR_COST]
+                                remote_impl   = RNS.Discovery.InterfaceAnnounceHandler.sanitize_name(ext_impl_name)
+                                remote_vers   = RNS.Discovery.version_tuple(ext_impl_vers)
+
+                                if not remote_vers: return interface.protocol_violation("Invalid version info in tunnel synthesis packet")
+                                if not remote_impl or not remote_impl == ext_impl_name: return interface.protocol_violation("Invalid implementation info in tunnel synthesis packet")
+                                if not type(ext_dst_cost)  == float: return interface.protocol_violation("Invalid destination cost in tunnel synthesis packet")
+                                if not type(ext_pr_cost)   == float: return interface.protocol_violation("Invalid path request cost in tunnel synthesis packet")
+                                if not type(ext_transport) == bool:  return interface.protocol_violation("Invalid transport status in tunnel synthesis packet")
+
+                                interface.remote_impl      = remote_impl
+                                interface.remote_vers      = remote_vers
+                                interface.remote_dst_cost  = quantize_cost(ext_dst_cost)
+                                interface.remote_pr_cost   = quantize_cost(ext_pr_cost)
+                                interface.remote_is_tn     = ext_transport
+
+                                if not interface.synthesis_emitted: Transport.synthesize_tunnel(interface, reverse=True)
+
+                            except Exception as e: return interface.protocol_violation(f"Tunnel synthesis parsing caused exception: {e}")
+
+                        if not interface.local_tunnel_id: interface.tunnel_id = tunnel_id
+                        interface.remote_transport = remote_transport_identity
+                        if not interface.local_tunnel_id: Transport.handle_tunnel(tunnel_id, interface)
 
         except Exception as e:
             RNS.log("An error occurred while validating tunnel establishment packet.", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
@@ -3214,14 +3265,12 @@ class Transport:
             paths = {}
             with Transport.tunnels_lock:
                 tunnel_entry = [tunnel_id, interface, paths, expires]
-                interface.tunnel_id = tunnel_id
                 Transport.tunnels[tunnel_id] = tunnel_entry
         else:
             RNS.log("Tunnel endpoint "+RNS.prettyhexrep(tunnel_id)+" reappeared. Restoring paths...", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
             tunnel_entry = Transport.tunnels[tunnel_id]
             tunnel_entry[IDX_TT_IF] = interface
             tunnel_entry[IDX_TT_EXPIRES] = expires
-            interface.tunnel_id = tunnel_id
             paths = tunnel_entry[IDX_TT_PATHS]
 
             deprecated_paths = []

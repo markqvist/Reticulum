@@ -999,6 +999,8 @@ class BackboneClientInterface(Interface):
             self.socket.settimeout(None)
 
             self.wants_tunnel = True
+            self.remote_transport = None
+            self.synthesis_received = False
             BackboneInterface.add_client_socket(self.socket, self)
             RNS.Transport.synthesize_tunnel(self)
             self.online  = True

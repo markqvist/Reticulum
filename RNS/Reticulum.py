@@ -1877,6 +1877,19 @@ class Reticulum:
                 ifstats["tunnel_id"]                   = interface.tunnel_id or interface.local_tunnel_id
                 ifstats["remote_transport_id"]         = interface.remote_transport.hash if interface.remote_transport else None
 
+                if interface.shared_medium:
+                    ifstats["rem_impl"]     = None
+                    ifstats["rem_vers"]     = None
+                    ifstats["rem_is_tn"]    = None
+                    ifstats["rem_dst_cost"] = None
+                    ifstats["rem_pr_cost"]  = None
+                else:
+                    ifstats["rem_impl"]     = interface.remote_impl
+                    ifstats["rem_vers"]     = interface.remote_vers
+                    ifstats["rem_is_tn"]    = interface.remote_is_tn
+                    ifstats["rem_dst_cost"] = interface.remote_dst_cost
+                    ifstats["rem_pr_cost"]  = interface.remote_pr_cost
+
                 interfaces.append(ifstats)
 
             qsnapshot            = RNS.Transport.inbound_queues.snapshot()

@@ -256,6 +256,8 @@ class TCPClientInterface(Interface):
 
             if not self.kiss_framing:
                 self.wants_tunnel = True
+                self.remote_transport = None
+                self.synthesis_received = False
                 RNS.Transport.synthesize_tunnel(self)
 
             self.online  = True

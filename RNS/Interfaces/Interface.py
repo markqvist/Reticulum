@@ -132,12 +132,19 @@ class Interface:
         self.local_tunnel_id          = None
         self.tunnels_allowed          = False
         self.synthesis_received       = False
+        self.synthesis_emitted        = False
         self.wants_tunnel             = False
         self.remote_transport         = None
         self.ingress_control          = True
         self.hop_limiter              = None
         self.phy_keepalive            = False
         self.shared_medium            = False
+
+        self.remote_impl              = None
+        self.remote_vers              = None
+        self.remote_dst_cost          = None
+        self.remote_pr_cost           = None
+        self.remote_is_tn             = None
         
         self.ic_burst_active          = False
         self.ic_burst_activated       = 0
