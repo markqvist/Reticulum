@@ -2093,6 +2093,7 @@ class Transport:
         # Ingress limit announces early
         if packet.packet_type == RNS.Packet.ANNOUNCE:
             if len(raw) > RNS.Reticulum.MTU: return packet.receiving_interface.protocol_violation(f"Excessive announce packet frame size of {len(raw)} bytes")
+            if packet.header_type == RNS.Packet.HEADER_1 and RNS.Reticulum.MTU-len(raw) < RNS.Reticulum.TRUNCATED_HASHLENGTH//8: return packet.receiving_interface.protocol_violation(f"Excessive announce payload of {len(packet.data)} bytes")
             if len(packet.data) < RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8+10: return packet.receiving_interface.protocol_violation(f"Insufficient announce payload of {len(packet.data)} bytes")
             name_hash = packet.data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Identity.NAME_HASH_LENGTH//8]
 
