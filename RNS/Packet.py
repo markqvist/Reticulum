@@ -235,8 +235,13 @@ class Packet:
         self.header += bytes([self.context])
         self.raw = self.header + self.ciphertext
 
+        if self.packet_type == Packet.ANNOUNCE and self.header_type == Packet.HEADER_1:
+            transport_id_length = RNS.Reticulum.TRUNCATED_HASHLENGTH//8
+            if len(self.raw)+transport_id_length > self.MTU:
+                raise IOError(f"Transport-inserted announce packet size of {len(self.raw)+transport_id_length} exceeds MTU of {self.MTU} bytes")
+
         if len(self.raw) > self.MTU:
-            raise IOError("Packet size of "+str(len(self.raw))+" exceeds MTU of "+str(self.MTU)+" bytes")
+            raise IOError(f"Packet size of {len(self.raw)} exceeds MTU of {self.MTU} bytes")
 
         self.packed = True
         self.update_hash()
