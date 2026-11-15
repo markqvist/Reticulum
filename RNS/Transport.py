@@ -4856,6 +4856,7 @@ class Transport:
 
     @staticmethod
     def exit_handler():
+        if not os.getpid() == RNS.Reticulum.get_instance_pid(): return
         Transport._should_run = False
         Transport.void_queues()
         if not Transport.owner.is_connected_to_shared_instance:

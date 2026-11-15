@@ -422,6 +422,11 @@ def generate_stamped_key(material, stamp_cost):
 
     return keypair, value
 
+def cancel_all_work():
+    RNS.log(f"Stopping all stamp workers", RNS.LOG_DEBUG)
+    active_ids = list(active_jobs.keys())
+    for active_id in active_ids: cancel_work(active_id)
+
 def cancel_work(message_id):
     if RNS.vendor.platformutils.is_windows() or RNS.vendor.platformutils.is_darwin():
         try:

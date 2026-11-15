@@ -176,6 +176,7 @@ class Reticulum:
     gracious_persist_lock = Lock()
 
     __instance       = None
+    __pid            = os.getpid()
 
     __interface_detach_ran = False
     __exit_handler_ran = False
@@ -186,6 +187,9 @@ class Reticulum:
         # shut down, and will in turn call exit handlers in other
         # classes, saving necessary information to disk and carrying
         # out cleanup operations.
+        if not os.getpid() == Reticulum.__pid:
+            Reticulum.__exit_handler_ran = True
+
         if not Reticulum.__exit_handler_ran:
             Reticulum.__exit_handler_ran = True
 
@@ -194,10 +198,11 @@ class Reticulum:
                 except Exception: pass
 
             try:
-                deregister_job = threading.Thread(target=Reticulum.__instance.unwants_all_destination_types, daemon=True)
-                deregister_job.start()
-                deregister_job.join(timeout=Reticulum.RPC_EXIT_TIMEOUT)
-                if deregister_job.is_alive(): RNS.log("Shared instance RPC timed out during exit", RNS.LOG_DEBUG)
+                if Reticulum.__instance.is_connected_to_shared_instance:
+                    deregister_job = threading.Thread(target=Reticulum.__instance.unwants_all_destination_types, daemon=True)
+                    deregister_job.start()
+                    deregister_job.join(timeout=Reticulum.RPC_EXIT_TIMEOUT)
+                    if deregister_job.is_alive(): RNS.log("Shared instance RPC timed out during exit", RNS.LOG_DEBUG)
             except Exception as e: RNS.log(f"Could not deregister destination types at exit: {e}", RNS.LOG_DEBUG)
 
             if not Reticulum.__interface_detach_ran: RNS.Transport.detach_interfaces()
@@ -209,13 +214,13 @@ class Reticulum:
 
     @staticmethod
     def sigint_handler(signal, frame):
-        RNS.Transport.detach_interfaces()
+        if os.getpid() == Reticulum.__pid: RNS.Transport.detach_interfaces()
         Reticulum.__interface_detach_ran = True
         RNS.exit()
 
     @staticmethod
     def sigterm_handler(signal, frame):
-        RNS.Transport.detach_interfaces()
+        if os.getpid() == Reticulum.__pid: RNS.Transport.detach_interfaces()
         Reticulum.__interface_detach_ran = True
         RNS.exit()
 
@@ -225,6 +230,13 @@ class Reticulum:
         Returns the currently running Reticulum instance.
         """
         return Reticulum.__instance
+
+    @staticmethod
+    def get_instance_pid():
+        """
+        Returns the main process ID of the currently running Reticulum instance.
+        """
+        return Reticulum.__pid
 
     def __init__(self,configdir=None, loglevel=None, logdest=None, verbosity=None,
                  require_shared_instance=False, shared_instance_type=None,
