@@ -191,8 +191,8 @@ class Transport:
     STAMPS_ENABLED              = True         # Whether to check for and validate stamps on announces and path requests
     STAMPS_ENFORCED             = False        # Whether to enforce stamp requirements
     LR_STAMPS_ENFORCED          = False        # Whether to enforce link request stamp requirements
-    STAMP_DESTINATIONS          = False        # Whether to stamp destination announces emitted from this instance
-    STAMP_PRS                   = False        # Whether to stamp path requests emitted from this instance
+    STAMP_DESTINATIONS          = True         # Whether to stamp destination announces emitted from this instance
+    STAMP_PRS                   = True         # Whether to stamp path requests emitted from this instance
     STAMP_LRS                   = True         # Whether to stamp link requests emitted from this instance
     ALWAYS_STAMP_LRS            = False        # Whether to stamp link requests even when no link cost is announced
     STAMP_COST_CAP              = 100          # Global hard cap on stamp cost to ensure search-space viability at 14-byte stamp sizes
