@@ -520,6 +520,7 @@ class InterfaceDiscovery():
         if not os.path.isdir(self.storagepath): os.makedirs(self.storagepath)
         
         if discover_interfaces:
+            RNS.Reticulum.get_instance().wants_destination_type("rnstransport.discovery.interface")
             self.handler = InterfaceAnnounceHandler(callback=self.interface_discovered, required_value=self.required_value)
             RNS.Transport.register_announce_handler(self.handler)
             threading.Thread(target=self.connect_discovered, daemon=True).start()
