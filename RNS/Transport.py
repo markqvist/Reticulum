@@ -3155,19 +3155,27 @@ class Transport:
     def tunnel_synthesize_handler(data, packet):
         try:
             if not packet.receiving_interface.tunnels_allowed: return
-            if packet.receiving_interface.remote_transport:
-                RNS.log(f"Tunnel already synthesized on {packet.receiving_interface}, ignoring synthesis packet", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
-                return
+            if packet.receiving_interface.remote_transport: return packet.receiving_interface.protocol_violation(f"Tunnel synthesis packet on already established tunnel")
+            if packet.receiving_interface.synthesis_received: return packet.receiving_interface.protocol_violation(f"Additional synthesis packet received")
+            packet.receiving_interface.synthesis_received = True
 
-            expected_length = RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8+RNS.Identity.SIGLENGTH//8
-            if len(data) == expected_length:
-                public_key     = data[:RNS.Identity.KEYSIZE//8]
-                interface_hash = data[RNS.Identity.KEYSIZE//8:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8]
+            max_length      = RNS.Packet.MDU
+            required_length = RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8+RNS.Identity.SIGLENGTH//8
+            if len(data) > max_length: return packet.receiving_interface.protocol_violation("Excessive tunnel synthesis packet size")
+            if len(data) < required_length: return packet.receiving_interface.protocol_violation("Insufficient tunnel synthesis packet size")
+            else:
+                key_size       = RNS.Identity.KEYSIZE//8
+                sig_len        = RNS.Identity.SIGLENGTH//8
+                hash_len       = RNS.Identity.HASHLENGTH//8
+                trunc_hash_len = RNS.Reticulum.TRUNCATED_HASHLENGTH//8
+
+                public_key     = data[:key_size]
+                interface_hash = data[key_size:key_size+hash_len]
                 tunnel_id_data = public_key+interface_hash
                 tunnel_id      = RNS.Identity.full_hash(tunnel_id_data)
-                random_hash    = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8:RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8]
+                random_hash    = data[key_size+hash_len:key_size+hash_len+trunc_hash_len]
                 
-                signature      = data[RNS.Identity.KEYSIZE//8+RNS.Identity.HASHLENGTH//8+RNS.Reticulum.TRUNCATED_HASHLENGTH//8:expected_length]
+                signature      = data[key_size+hash_len+trunc_hash_len:key_size+hash_len+trunc_hash_len+sig_len]
                 signed_data    = tunnel_id_data+random_hash
 
                 remote_transport_identity = RNS.Identity(create_keys=False)
