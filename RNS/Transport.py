@@ -963,6 +963,7 @@ class Transport:
                                     packet = announce_entry[IDX_AT_PACKET]
                                     block_rebroadcasts = announce_entry[IDX_AT_BLCK_RBRD]
                                     attached_interface = announce_entry[IDX_AT_ATTCHD_IF]
+                                    blocked_interfaces = announce_entry[IDX_AT_DEDUP_IFS]
                                     announce_context = RNS.Packet.NONE
                                     if block_rebroadcasts: announce_context = RNS.Packet.PATH_RESPONSE
                                     announce_data = packet.data
@@ -984,6 +985,7 @@ class Transport:
                                                                 transport_type = Transport.TRANSPORT,
                                                                 transport_id = Transport.identity.hash,
                                                                 attached_interface = attached_interface,
+                                                                blocked_interfaces = blocked_interfaces or None,
                                                                 context_flag = packet.context_flag)
 
                                         new_packet.hops = announce_entry[4]
@@ -1723,7 +1725,9 @@ class Transport:
         else:
             stored_hash = False
             if packet.attached_interface: potential_interfaces = [packet.attached_interface]
-            else:                         potential_interfaces = Transport.interfaces
+            else:
+                if not packet.blocked_interfaces: potential_interfaces = Transport.interfaces
+                else: potential_interfaces = [interface for interface in Transport.interfaces if not interface in packet.blocked_interfaces]
 
             for interface in potential_interfaces:
                 if interface.OUT and interface.online:
@@ -2657,7 +2661,13 @@ class Transport:
                                             should_add = True
                                         else: should_add = False
 
-                        if should_add:
+                        if not should_add:
+                            waiting_announce = Transport.announce_table.get(packet.destination_hash, None)
+                            if waiting_announce and waiting_announce[IDX_AT_PACKET].packet_hash == packet.packet_hash:
+                                if not packet.receiving_interface.shared_medium:
+                                    waiting_announce[IDX_AT_DEDUP_IFS].add(packet.receiving_interface)
+
+                        else:
                             now = time.time()
                             is_from_local_client = Transport.from_local_client(packet)
 
@@ -2703,6 +2713,7 @@ class Transport:
                                             local_rebroadcasts, # 6: IDX_AT_LCL_RBRD
                                             block_rebroadcasts, # 7: IDX_AT_BLCK_RBRD
                                             attached_interface, # 8: IDX_AT_ATTCHD_IF
+                                            set(),              # 9: IDX_AT_DEDUP_IFS
                                         ]
 
                             elif is_from_local_client and packet.context == RNS.Packet.PATH_RESPONSE:
@@ -2725,7 +2736,8 @@ class Transport:
                                                 packet,
                                                 local_rebroadcasts,
                                                 block_rebroadcasts,
-                                                attached_interface
+                                                attached_interface,
+                                                set(),
                                             ]
 
                             # If we have any local clients connected, we re-
@@ -4022,7 +4034,7 @@ class Transport:
                         Transport.held_announces[packet.destination_hash] = held_entry
                     
                     with Transport.announce_table_lock:
-                        Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, announce_hops, packet, local_rebroadcasts, block_rebroadcasts, attached_interface]
+                        Transport.announce_table[packet.destination_hash] = [now, retransmit_timeout, retries, received_from, announce_hops, packet, local_rebroadcasts, block_rebroadcasts, attached_interface, set()]
 
                     if not Transport.owner.is_connected_to_shared_instance: RNS.Identity._used_destination_data(packet.destination_hash)
 
@@ -5095,6 +5107,7 @@ IDX_AT_PACKET    = 5
 IDX_AT_LCL_RBRD  = 6
 IDX_AT_BLCK_RBRD = 7
 IDX_AT_ATTCHD_IF = 8
+IDX_AT_DEDUP_IFS = 9
 
 # Transport.link_table entry indices
 IDX_LT_TIMESTAMP = 0
