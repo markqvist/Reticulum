@@ -291,6 +291,9 @@ class Reticulum:
         Reticulum.__discover_interfaces               = False
         Reticulum.__autoconnect_discovered_interfaces = False
         Reticulum.__autoconnect_unverified            = False
+        Reticulum.__autoconnect_warn                  = 6
+        Reticulum.__autoconnect_cap                   = 12
+        Reticulum.__autoconnect_caps_disabled         = False
         Reticulum.__autoconnect_interface_mode        = None
         Reticulum.__autoconnect_interface_gravity     = None
         Reticulum.__autoconnect_announces_to_internal = None
@@ -737,9 +740,32 @@ class Reticulum:
                         except Exception as e: raise ValueError(f"Invalid identity hash for interface discovery source: {hexhash}")
                         if not source_identity_hash in Reticulum.__interface_sources: Reticulum.__interface_sources.append(source_identity_hash)
 
+                if option == "autoconnect_discovered_interfaces_disable_caps":
+                    v = self.config["reticulum"].as_bool(option)
+                    if v: Reticulum.__autoconnect_caps_disabled = True
+
                 if option == "autoconnect_discovered_interfaces":
                     v = self.config["reticulum"].as_int(option)
                     if v > 0: Reticulum.__autoconnect_discovered_interfaces = v
+                    if not Reticulum.__autoconnect_caps_disabled:
+                        if Reticulum.__autoconnect_discovered_interfaces > Reticulum.__autoconnect_cap:
+                            Reticulum.__autoconnect_discovered_interfaces = Reticulum.__autoconnect_cap
+                            RNS.log(f"", RNS.LOG_WARNING)
+                            RNS.log(f"Auto-connect interface target was capped to {Reticulum.__autoconnect_discovered_interfaces}", RNS.LOG_WARNING)
+                            RNS.log(f"Using large numbers of auto-connected interfaces will not lead to better", RNS.LOG_WARNING)
+                            RNS.log(f"connectivity or redundancy. If you really know what you're doing, and are", RNS.LOG_WARNING)
+                            RNS.log(f"certain that you need this, you will also know how to get around this check.", RNS.LOG_WARNING)
+                        if Reticulum.__autoconnect_discovered_interfaces > Reticulum.__autoconnect_warn:
+                            RNS.log(f"", RNS.LOG_WARNING)
+                            RNS.log(f"You have configured more than {Reticulum.__autoconnect_warn} auto-connect interfaces.", RNS.LOG_WARNING)
+                            RNS.log(f"In almost all situations, this is excessive, and should be avoided.", RNS.LOG_WARNING)
+                            RNS.log(f"For a normal home or office node, 2-3 autoconnects will be sufficient.", RNS.LOG_WARNING)
+                            RNS.log(f"", RNS.LOG_WARNING)
+                            RNS.log(f"If you're running a fast, well-connected transport node that can actually", RNS.LOG_WARNING)
+                            RNS.log(f"provide additional capacity and transport to the network, you can consider", RNS.LOG_WARNING)
+                            RNS.log(f"raising this number to {Reticulum.__autoconnect_warn}-{Reticulum.__autoconnect_warn+3}. Only in the rarest of cases will going beyond", RNS.LOG_WARNING)
+                            RNS.log(f"this actually provide any benefit.", RNS.LOG_WARNING)
+                            RNS.log(f"", RNS.LOG_WARNING)
 
                 if option == "autoconnect_unverified_implementations":
                     v = self.config["reticulum"].as_bool(option)
