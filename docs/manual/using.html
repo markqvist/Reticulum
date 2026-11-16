@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/rns_logo_512.png" as="image">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25.dev1 -->
-        <title>Using Reticulum on Your System - Reticulum Network Stack 1.6.0 documentation</title>
+        <title>Using Reticulum on Your System - Reticulum Network Stack 1.6.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Reticulum Network Stack 1.6.0 documentation</div></a>
+      <a href="index.html"><div class="brand">Reticulum Network Stack 1.6.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -204,7 +204,7 @@
     <img class="sidebar-logo" src="_static/rns_logo_512.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Reticulum Network Stack 1.6.0 documentation</span>
+  <span class="sidebar-brand-text">Reticulum Network Stack 1.6.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1245,6 +1245,15 @@ section of this manual.</p>
 <li><p>Maintain connectivity to RNS instances with unknown or changing IP addresses</p></li>
 </ul>
 <p>Discovered interfaces can be <strong>auto-connected</strong> by Reticulum, which makes it possible to create setups where an arbitrary interface can act simply as a bootstrap connection, that can be torn down again once more suitable interfaces have been discovered and connected.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>While it might be tempting to configure Reticulum to auto-connect dozens of interfaces, this will not provide you with any benefit. It will also waste the limited resources of transport node operators. In almost all situations, using 2-3 auto-connected interfaces will be sufficient.</p>
+<p><strong>Remember</strong>: A deeper, more branched topology is <em>much</em> more efficient than a completely flat fan-out, where everyone connects to everyone!</p>
+<p>For <strong>devices that connect directly</strong> to the distributed backbone, such as phones and other mobile devices, use one or two auto-connects - or a fixed node you that you like, and an auto-connect as redundant backup.</p>
+<p>For a transport <strong>node in your home</strong>, serving all devices within it, 2 or 3 autoconnects will be reasonable.</p>
+<p>For a <strong>fast boundary node</strong> that sits between a large, internal network with hundreds of active destinations, you can consider using five to six auto-connects. The same is a sensible number for general-purpose transport-providing backbone nodes on the public internet.</p>
+<p>In extreme cases, you <em>can</em> consider using up to 12 auto-connected interfaces. Almost nobody will need this, but there are edge cases where it could potentially be useful. Do not auto-connect that wide unless you are prepared and capable of processing some serious traffic.</p>
+</div>
 <p>The interface discovery mechanism uses announces sent over Reticulum itself, and supports both publicly readable interfaces and private, encrypted discovery, that can only be decoded by specified <em>network identities</em>. It is also possible to specify which network identities should be considered valid sources for discovered interfaces, so that interfaces published by unknown entities are ignored.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1656,7 +1665,7 @@ systemctl --user enable rnsd.service
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=72d88caf"></script>
+</div><script src="_static/documentation_options.js?v=d6a008b6"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

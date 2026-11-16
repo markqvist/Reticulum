@@ -1104,6 +1104,19 @@ Reticulum includes built-in functionality for discovering connectable interfaces
 
 Discovered interfaces can be **auto-connected** by Reticulum, which makes it possible to create setups where an arbitrary interface can act simply as a bootstrap connection, that can be torn down again once more suitable interfaces have been discovered and connected.
 
+#### IMPORTANT
+While it might be tempting to configure Reticulum to auto-connect dozens of interfaces, this will not provide you with any benefit. It will also waste the limited resources of transport node operators. In almost all situations, using 2-3 auto-connected interfaces will be sufficient.
+
+**Remember**: A deeper, more branched topology is *much* more efficient than a completely flat fan-out, where everyone connects to everyone!
+
+For **devices that connect directly** to the distributed backbone, such as phones and other mobile devices, use one or two auto-connects - or a fixed node you that you like, and an auto-connect as redundant backup.
+
+For a transport **node in your home**, serving all devices within it, 2 or 3 autoconnects will be reasonable.
+
+For a **fast boundary node** that sits between a large, internal network with hundreds of active destinations, you can consider using five to six auto-connects. The same is a sensible number for general-purpose transport-providing backbone nodes on the public internet.
+
+In extreme cases, you *can* consider using up to 12 auto-connected interfaces. Almost nobody will need this, but there are edge cases where it could potentially be useful. Do not auto-connect that wide unless you are prepared and capable of processing some serious traffic.
+
 The interface discovery mechanism uses announces sent over Reticulum itself, and supports both publicly readable interfaces and private, encrypted discovery, that can only be decoded by specified *network identities*. It is also possible to specify which network identities should be considered valid sources for discovered interfaces, so that interfaces published by unknown entities are ignored.
 
 #### NOTE

@@ -77,6 +77,10 @@ The default per-hop timeout value used in various timeout calculations.
 
 Returns the currently running Reticulum instance.
 
+#### `static get_instance_pid()`
+
+Returns the main process ID of the currently running Reticulum instance.
+
 #### `get_first_hop_timeout(destination)`
 
 Returns a best-effort estimate of a reasonable minimum

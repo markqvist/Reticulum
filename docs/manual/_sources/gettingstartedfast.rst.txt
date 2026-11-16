@@ -163,7 +163,11 @@ A global, distributed backbone of Reticulum Transport Nodes is being run by volu
 As a good starting point, you can find interface definitions for connecting your own networks to this backbone on websites such as `directory.rns.recipes <https://directory.rns.recipes/>`_ and `rmap.world <https://rmap.world/>`_.
 
 .. tip::
-  Don't rely on just a single connection to the distributed backbone for everyday use. It is much better to have several redundant connections configured, and enable the interface discovery options, so your nodes can continously discover peering opportunities as the network evolves. Refer to the :ref:`Bootstrapping Connectivity<bootstrapping-connectivity>` section to understand the options.
+  Don't rely on just a single connection to the distributed backbone for everyday use. It is much better to have several redundant connections configured, and enable the interface discovery options, so your nodes can continously discover peering opportunities as the network evolves.
+
+  But don't overdo it either! Auto-connecting to a hundred different nodes will waste capacity for node operators and not provide any benefit for yourself either.
+
+  Refer to the :ref:`Discovering Interfaces<using-interface_discovery>` section to understand the options.
 
 
 
