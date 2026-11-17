@@ -30,6 +30,7 @@ BUFFER_TEST_TARGET = 256000
 BUFFER_TEST_TARGET_SLOW = 1800
 SLOW_TEST_MARKER = b"@SLOW_TEST_MARKER"
 LINK_UP_WAIT = 0.050
+LINK_TIMEOUT = 1.000
 
 def targets_job(caller):
     cmd = "python -c \"from tests.link import targets; targets()\""
@@ -60,6 +61,12 @@ def close_rns():
     global c_rns
     if c_rns != None:
         c_rns.m_proc.kill()
+
+def await_link(link, timeout):
+    deadline = time.time()+timeout
+    time.sleep(LINK_UP_WAIT)
+    while link.status < RNS.Link.ACTIVE and time.time() < deadline:
+        time.sleep(LINK_UP_WAIT)
 
 class TestLink(unittest.TestCase):
     def setUp(self):
@@ -115,7 +122,7 @@ class TestLink(unittest.TestCase):
         
         print("Testing default mode link establishment...")
         l1 = RNS.Link(dest)
-        time.sleep(LINK_UP_WAIT)
+        await_link(l1, LINK_TIMEOUT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         l1.teardown()
@@ -130,7 +137,7 @@ class TestLink(unittest.TestCase):
         
         print("Testing AES_256_CBC mode link establishment...")
         l3 = RNS.Link(dest, mode=RNS.Link.MODE_AES256_CBC)
-        time.sleep(LINK_UP_WAIT)
+        await_link(l3, LINK_TIMEOUT)
         self.assertEqual(l3.status, RNS.Link.ACTIVE)
         self.assertEqual(l3.mode, RNS.Link.MODE_AES256_CBC)
         self.assertEqual(len(l3.derived_key), 64)
@@ -157,7 +164,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
-        time.sleep(LINK_UP_WAIT)
+        await_link(l1, LINK_TIMEOUT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         b = 0
@@ -230,7 +237,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest, mode=RNS.Link.MODE_AES256_CBC)
-        time.sleep(LINK_UP_WAIT)
+        await_link(l1, LINK_TIMEOUT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         b = 0
@@ -303,7 +310,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
-        time.sleep(LINK_UP_WAIT)
+        await_link(l1, LINK_TIMEOUT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         resource_timeout = 120
@@ -367,7 +374,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
-        time.sleep(LINK_UP_WAIT)
+        await_link(l1, LINK_TIMEOUT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         resource_timeout = 120
@@ -423,7 +430,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
-        time.sleep(LINK_UP_WAIT)
+        await_link(l1, LINK_TIMEOUT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         resource_timeout = 120
@@ -482,7 +489,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
-        time.sleep(LINK_UP_WAIT)
+        await_link(l1, LINK_TIMEOUT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         resource_timeout = 120
@@ -544,7 +551,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
         
         l1 = RNS.Link(dest)
-        time.sleep(LINK_UP_WAIT)
+        await_link(l1, LINK_TIMEOUT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         resource_timeout = 120
@@ -599,7 +606,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
 
         l1 = RNS.Link(dest)
-        time.sleep(1)
+        await_link(l1, LINK_TIMEOUT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
 
         received = []
@@ -651,7 +658,7 @@ class TestLink(unittest.TestCase):
         self.assertEqual(dest.hash, bytes.fromhex("fb48da0e82e6e01ba0c014513f74540d"))
 
         l1 = RNS.Link(dest)
-        time.sleep(LINK_UP_WAIT)
+        await_link(l1, LINK_TIMEOUT)
         self.assertEqual(l1.status, RNS.Link.ACTIVE)
         buffer = None
 
