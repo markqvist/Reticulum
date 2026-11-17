@@ -2724,6 +2724,7 @@ class Transport:
                                 # If this is a path response from a local client,
                                 # check if any external interfaces have pending
                                 # path requests.
+                                Transport.mark_path_responsive(packet.destination_hash)
                                 with Transport.pending_local_prs_lock:
                                     if packet.destination_hash in Transport.pending_local_path_requests:
                                         desiring_interface = Transport.pending_local_path_requests.pop(packet.destination_hash)
