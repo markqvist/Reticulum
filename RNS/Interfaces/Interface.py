@@ -167,6 +167,7 @@ class Interface:
         self.egress_control           = RNS.Reticulum.get_instance()._default_egress_control()
         self.announce_queue           = []
         self.held_announces           = {}
+        self.ifac_identity            = None
         self.transmit_buffer          = None
 
         self.ia_freq_deque = deque(maxlen=Interface.IA_FREQ_SAMPLES)

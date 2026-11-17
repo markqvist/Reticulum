@@ -922,18 +922,16 @@ class BackboneClientInterface(Interface):
             self.target_port = target_port
             self.initiator   = True
 
-            if connect_timeout != None:
-                self.connect_timeout = connect_timeout
-            else:
-                self.connect_timeout = BackboneClientInterface.INITIAL_CONNECT_TIMEOUT
-            
-            if BackboneClientInterface.SYNCHRONOUS_START:
-                self.initial_connect()
-            else:
-                thread = threading.Thread(target=self.initial_connect)
-                thread.daemon = True
-                thread.start()
-            
+            if connect_timeout != None: self.connect_timeout = connect_timeout
+            else:                       self.connect_timeout = BackboneClientInterface.INITIAL_CONNECT_TIMEOUT
+
+    def final_init(self):
+        if BackboneClientInterface.SYNCHRONOUS_START: self.initial_connect()
+        else:
+            thread = threading.Thread(target=self.initial_connect)
+            thread.daemon = True
+            thread.start()
+
     def initial_connect(self):
         if not self.connect(initial=True):
             thread = threading.Thread(target=self.reconnect)
@@ -969,7 +967,9 @@ class BackboneClientInterface(Interface):
     def early_synthesis(self, packet):
         if not self.detached:
             if not packet.packed: packet.pack()
-            frame = HDLC.frame(packet.raw)
+            if self.ifac_identity: raw = RNS.Transport.handle_outgoing_ifac(self, packet.raw);
+            else:                  raw = packet.raw
+            frame = HDLC.frame(raw)
             if not self.transmit_buffer.append(frame, self.tx_hwm):
                 raise IOError("Transmit buffer overflow at early tunnel synthesis")
 

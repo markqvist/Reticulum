@@ -481,9 +481,11 @@ class I2PInterfacePeer(Interface):
     def early_synthesis(self, packet):
         if not self.detached:
             if not packet.packed: packet.pack()
+            if self.ifac_identity: raw = RNS.Transport.handle_outgoing_ifac(self, packet.raw);
+            else:                  raw = packet.raw
 
-            if self.kiss_framing: frame = bytes([KISS.FEND])+bytes([KISS.CMD_DATA])+KISS.escape(packet.raw)+bytes([KISS.FEND])
-            else:                 frame = bytes([HDLC.FLAG])+HDLC.escape(packet.raw)+bytes([HDLC.FLAG])
+            if self.kiss_framing: frame = bytes([KISS.FEND])+bytes([KISS.CMD_DATA])+KISS.escape(raw)+bytes([KISS.FEND])
+            else:                 frame = bytes([HDLC.FLAG])+HDLC.escape(raw)+bytes([HDLC.FLAG])
 
             self.socket.sendall(frame)
             self.txb += len(frame)
@@ -803,6 +805,7 @@ class I2PInterface(Interface):
         thread.daemon = True
         thread.start()
 
+    def final_init(self):
         if self.connectable:
             def tunnel_job():
                 while True:
