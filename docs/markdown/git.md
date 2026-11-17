@@ -566,7 +566,7 @@ To enable the page node, add the following to your `~/.rngit/config` file:
 
 ```text
 [pages]
-serve_nomadnet = yes
+  serve_nomadnet = yes
 ```
 
 When the page node is enabled, `rngit` will listen on a Nomad Network node destination in addition to the Git repository destination. You can view the destination hash by running:
@@ -578,6 +578,15 @@ Git Peer Identity         : <959e10e5efc1bd9d97a4083babe51dea>
 Repository Node Identity  : <153cb870b4665b8c1c348896292b0bad>
 Repositories Destination  : <0d7334d411d00120cbad24edf355fdd2>
 Nomad Network Destination : <50824b711717f97c2fb1166ceddd5ea9>
+```
+
+You can configure the destination stamp value and required link establishment cost with the following options:
+
+```text
+[pages]
+  serve_nomadnet = yes
+  stamp_value = 25.0
+  link_cost = 18.0
 ```
 
 ### Accessing Repository Pages
@@ -659,8 +668,8 @@ By default, the page node uses Nerd Font icons. If you prefer simpler icons or y
 
 ```text
 [pages]
-serve_nomadnet = yes
-unicode_icons = yes
+  serve_nomadnet = yes
+  unicode_icons = yes
 ```
 
 ### Repository Statistics
@@ -686,6 +695,8 @@ A complete node configuration might look like this:
   node_name = My Git Node
   announce_interval = 360
   record_stats = yes
+  stamp_value = 27.5
+  link_cost = 18.5
 
 [repositories]
   public = /var/git/public
@@ -698,6 +709,8 @@ A complete node configuration might look like this:
 [pages]
   serve_nomadnet = yes
   unicode_icons = no
+  stamp_value = 27.5
+  link_cost = 18.7
 ```
 
 ## Verified Releases

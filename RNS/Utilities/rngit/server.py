@@ -1977,6 +1977,8 @@ class ReticulumGitNode():
 
     CLONE_PROTOS    = ["rns", "http", "https", "ssh"]
 
+    DEFAULT_LINK_COST = 18.0
+
     def __init__(self, configdir=None, verbosity=None, print_identity=False):
         self.identity            = None
         self.userdir             = os.path.expanduser("~")
@@ -1989,6 +1991,8 @@ class ReticulumGitNode():
         self.blocked_identities  = {}
         self.last_announce       = 0
         self.announce_interval   = 0
+        self.stamp_value         = None
+        self.link_cost           = self.DEFAULT_LINK_COST
         self.stats_enabled       = False
         self.stats_job_interval  = 180
         self.last_stats_job      = time.time()
@@ -2059,6 +2063,8 @@ class ReticulumGitNode():
                 exit(0)
 
             self.destination = RNS.Destination(self.identity, RNS.Destination.IN, RNS.Destination.SINGLE, APP_NAME, "repositories")
+            if self.stamp_value: self.destination.set_value(self.stamp_value)
+            self.destination.set_link_cost(self.link_cost)
             self.destination.set_link_established_callback(self.remote_connected)
             self.register_request_handlers()
             RNS.log(f"Reticulum Git Node listening on {RNS.prettyhexrep(self.destination.hash)}", RNS.LOG_NOTICE)
@@ -2205,6 +2211,8 @@ class ReticulumGitNode():
             section = self.config["rngit"]
             if "node_name" in section: self.node_name = section["node_name"]
             if "announce_interval" in section: self.announce_interval = section.as_int("announce_interval")*60
+            if "stamp_value" in section: self.stamp_value = RNS.Stamps.quantize_cost(section.as_float("stamp_value"))
+            if "link_cost" in section: self.link_cost = RNS.Stamps.quantize_cost(section.as_float("link_cost"))
             if "mirror_interval" in section: self.mirror_interval = max(section.as_int("mirror_interval")*60*60, 0)
             if "record_stats" in section: self.stats_enabled = section.as_bool("record_stats")
             if "stats_ignore_identities" in section:
@@ -4926,6 +4934,16 @@ announce_interval = 360
 
 # node_name = Anonymous Git Node
 
+# You can configure the required link stamp cost for
+# connecting to the repository node.
+
+# link_cost = 18.0
+
+# The target stamp value for the repositories destination
+# can also be configured.
+
+# stamp_value = 25.0
+
 # You can enable collecting view, fetch and push statistics
 # which can be displayed on the stats pages of repositories.
 # Remember to set the "s" (stats) permission appropriately
@@ -5043,6 +5061,16 @@ internal = rw:9710b86ba12c42d1d8f30f74fe509286
 # variable.
 
 # serve_nomadnet = no
+
+# You can configure the required link stamp cost for
+# connecting to the page node.
+
+# link_cost = 18.0
+
+# The target stamp value for the node destination can
+# also be configured.
+
+# stamp_value = 25.0
 
 # It is possible to disable Nerd Font icons and instead
 # use simpler (but more compatible) unicode icons.
