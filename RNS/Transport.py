@@ -2731,7 +2731,9 @@ class Transport:
                                     if packet.destination_hash in Transport.pending_local_path_requests:
                                         desiring_interface = Transport.pending_local_path_requests.pop(packet.destination_hash)
                                         retransmit_timeout = now
-                                        retries = Transport.PATHFINDER_R
+                                        retries            = Transport.PATHFINDER_R
+                                        attached_interface = desiring_interface
+                                        block_rebroadcasts = True
 
                                         with Transport.announce_table_lock:
                                             Transport.announce_table[packet.destination_hash] = [
