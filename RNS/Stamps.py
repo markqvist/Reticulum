@@ -1029,3 +1029,65 @@ POOLING_THRESHOLD_COST_FP             = POOLING_THRESHOLD_COST*COST_FP
 KEYSTAMP_POOLING_THRESHOLD_FP         = KEYSTAMP_POOLING_THRESHOLD*COST_FP
 ANDROID_POOLING_THRESHOLD_COST_FP     = ANDROID_POOLING_THRESHOLD_COST*COST_FP
 ANDROID_KEYSTAMP_POOLING_THRESHOLD_FP = ANDROID_KEYSTAMP_POOLING_THRESHOLD*COST_FP
+
+#########################
+# Multiprocessing Patch #
+#########################
+
+# CPython has a bug in multiprocessing's bootstrap code,
+# where the initial stdin close() will deadlock if any
+# part of the forking process is already holding the
+# buffered I/O lock for the stdin fd. Since the locking
+# state is inherited by the child process, this lock can
+# never be released, and all children deadlock immediately
+# before any application code is reached.
+#
+# This code run-time patches multiprocessing to detach
+# stdin via a lock-free fd duplication instead, and parks
+# the hazardous file descriptor to avoid potential later,
+# GC-initiated deadlocking.
+#
+# All downstream forks from this process are affected by
+# this, yes, and it might seem a tad aggressive, but I'd
+# argue that this is what CPython should have done in the
+# first place, and that it is strictly a better approach.
+
+_stale_stdin = None
+
+def _patched_close_stdin():
+    if sys.stdin is None: return
+    try:
+        fd = os.open(os.devnull, os.O_RDONLY)
+        try: os.dup2(fd, 0)
+        finally: os.close(fd)
+    except OSError: pass
+
+    # We ensure a global anchor to the old
+    # stdin, so GC cannot inadvertly hit a
+    # deadlocking close() via __del__
+    global _stale_stdin
+    _stale_stdin = sys.stdin
+
+    try: sys.stdin = open(0, encoding="utf-8", closefd=False)
+    except Exception: sys.stdin = None
+
+_patched_close_stdin._rns_safe = True
+
+def _patch_mp_stdin():
+    try:
+        import multiprocessing.util as mputil
+    except ImportError: return
+    current = getattr(mputil, "_close_stdin", None)
+
+    # If future CPython removes _close_stdin,
+    # we'll abort the patch here.
+    if current is None: return
+
+    # Only patch if we haven't already done so,
+    # or, in a potential future fixed CPython,
+    # detected that the method is now safe.
+    if getattr(current, "_rns_safe", False): return
+    mputil._close_stdin = _patched_close_stdin
+
+# Only attempt patching on POSIX
+if not RNS.vendor.platformutils.is_windows(): _patch_mp_stdin()
