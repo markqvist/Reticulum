@@ -422,18 +422,7 @@ class Transport:
     def internal_identity(): return Transport._identity
 
     @staticmethod
-    def start(reticulum_instance):
-        Transport.owner = reticulum_instance
-
-        Transport.INBOUND_DA_QUEUE_LENGTH = RNS.Reticulum.default_data_queue_length()     or Transport.INBOUND_DA_QUEUE_LENGTH
-        Transport.INBOUND_AN_QUEUE_LENGTH = RNS.Reticulum.default_announce_queue_length() or Transport.INBOUND_AN_QUEUE_LENGTH
-        Transport.INBOUND_PR_QUEUE_LENGTH = RNS.Reticulum.default_pr_queue_length()       or Transport.INBOUND_PR_QUEUE_LENGTH
-        Transport.INBOUND_IL_QUEUE_LENGTH = RNS.Reticulum.default_il_queue_length()       or Transport.INBOUND_IL_QUEUE_LENGTH
-        Transport.inbound_queues = InboundQueues((Transport.INBOUND_DA_QUEUE_LENGTH,
-                                                  Transport.INBOUND_AN_QUEUE_LENGTH,
-                                                  Transport.INBOUND_PR_QUEUE_LENGTH,
-                                                  Transport.INBOUND_IL_QUEUE_LENGTH))
-
+    def ensure_identity():
         if Transport.identity == None:
             transport_identity_path = RNS.Reticulum.storagepath+"/transport_identity"
             if os.path.isfile(transport_identity_path):
@@ -449,12 +438,27 @@ class Transport:
             Transport._identity = Transport.identity
             if not RNS.Reticulum.transport_enabled() and not RNS.Reticulum.static_transport_identity():
                 Transport._identity = Transport.identity
-                Transport.identity   = RNS.Identity()
+                Transport.identity  = RNS.Identity()
                 RNS.log(f"Initialized ephemeral transport identity {RNS.prettyhexrep(Transport.identity.hash)}", RNS.LOG_VERBOSE) if RNS.sl(RNS.LOG_VERBOSE) else None
 
             if RNS.Reticulum.local_hops_delta(): Transport.local_hops_delta = (ord(os.urandom(1))%6)+2
 
         if Transport.application_identity == None: Transport.application_identity = RNS.Identity()
+
+    @staticmethod
+    def start(reticulum_instance):
+        Transport.owner = reticulum_instance
+
+        Transport.INBOUND_DA_QUEUE_LENGTH = RNS.Reticulum.default_data_queue_length()     or Transport.INBOUND_DA_QUEUE_LENGTH
+        Transport.INBOUND_AN_QUEUE_LENGTH = RNS.Reticulum.default_announce_queue_length() or Transport.INBOUND_AN_QUEUE_LENGTH
+        Transport.INBOUND_PR_QUEUE_LENGTH = RNS.Reticulum.default_pr_queue_length()       or Transport.INBOUND_PR_QUEUE_LENGTH
+        Transport.INBOUND_IL_QUEUE_LENGTH = RNS.Reticulum.default_il_queue_length()       or Transport.INBOUND_IL_QUEUE_LENGTH
+        Transport.inbound_queues = InboundQueues((Transport.INBOUND_DA_QUEUE_LENGTH,
+                                                  Transport.INBOUND_AN_QUEUE_LENGTH,
+                                                  Transport.INBOUND_PR_QUEUE_LENGTH,
+                                                  Transport.INBOUND_IL_QUEUE_LENGTH))
+
+        Transport.ensure_identity()
 
         if not RNS.Reticulum.transport_enabled() or Transport.owner.is_connected_to_shared_instance:
             Transport.unused_path_linger = Transport.UNUSED_PATH_LINGER_LEAF
@@ -1606,9 +1610,8 @@ class Transport:
     @staticmethod
     def transmit(interface, raw):
         try:
-            if hasattr(interface, "ifac_identity") and interface.ifac_identity != None:
-                interface.process_outgoing(Transport.handle_outgoing_ifac(interface, raw))
-            else: interface.process_outgoing(raw)
+            if interface.ifac_identity != None: interface.process_outgoing(Transport.handle_outgoing_ifac(interface, raw))
+            else:                               interface.process_outgoing(raw)
             Transport.tx_packets += 1
 
         except Exception as e: RNS.log("Error while transmitting on "+str(interface)+". The contained exception was: "+str(e), RNS.LOG_ERROR)
@@ -2056,7 +2059,7 @@ class Transport:
         # If interface access codes are enabled,
         # we must authenticate each packet.
         if len(raw) > 2:
-            if interface != None and hasattr(interface, "ifac_identity") and interface.ifac_identity != None:
+            if interface != None and interface.ifac_identity != None:
                 if not ifac_handled:
                     # Check that IFAC flag is set
                     if raw[0] & 0x80 == 0x80:

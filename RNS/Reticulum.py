@@ -905,6 +905,7 @@ class Reticulum:
         BackboneInterface.BackboneInterface.DP_IC_MID_WM   = max(2, int((BackboneInterface.BackboneInterface.DP_IC_MID_WM_PCT/100.0)  * dql))
         BackboneInterface.BackboneInterface.DP_IC_LOW_WM   = max(0, int((BackboneInterface.BackboneInterface.DP_IC_LOW_WM_PCT/100.0)  * dql))
 
+        RNS.Transport.ensure_identity()
         self.__start_local_interface()
 
         if self.is_shared_instance or self.is_standalone_instance:
