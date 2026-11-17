@@ -1194,9 +1194,10 @@ class Transport:
                                 Transport.should_collect = True
                                 RNS.log(f"Path to {RNS.prettyhexrep(destination_hash)} was removed since the attached interface no longer exists", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
                             elif path_used == 0 and now > path_timestamp + (Transport.unused_path_linger * (Transport.PATH_SLOW_LINGER_FACTOR if slow_interface else 1)):
-                                stale_paths.append(destination_hash)
-                                Transport.should_collect = True
-                                RNS.log(f"Removing never used path to {RNS.prettyhexrep(destination_hash)}", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
+                                if not Transport.is_local_client_interface(attached_interface):
+                                    stale_paths.append(destination_hash)
+                                    Transport.should_collect = True
+                                    RNS.log(f"Removing never used path to {RNS.prettyhexrep(destination_hash)}", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
                             elif path_hops > Transport.HOP_LIMITER:
                                 stale_paths.append(destination_hash)
                                 Transport.should_collect = True
@@ -2822,7 +2823,9 @@ class Transport:
                                 path_table_entry = [now, received_from, announce_hops, expires, random_blobs, packet.receiving_interface, packet.packet_hash, path_used]
                                 with Transport.path_table_lock: Transport.path_table[packet.destination_hash] = path_table_entry
 
-                            Transport.mark_path_unknown_state(packet.destination_hash)
+                            if is_from_local_client: Transport.mark_path_responsive(packet.destination_hash)
+                            else:                    Transport.mark_path_unknown_state(packet.destination_hash)
+
                             if RNS.sl(RNS.LOG_PATHING):
                                 destination_value = RNS.Identity.recall_stamp_value(packet.destination_hash)
                                 value_str = f" (v:{RNS.prettycost(destination_value)})" if destination_value else " (v:n)"
