@@ -389,10 +389,6 @@ class Reticulum:
             RNS.Transport.STAMPS_ENFORCED    = True
             RNS.Transport.LR_STAMPS_ENFORCED = True
 
-        RNS.Identity.load_known_destinations()
-        if not self.is_connected_to_shared_instance: RNS.Identity._clean_ratchets()
-        RNS.Transport.start(self)
-
         if self.use_af_unix:
             self.rpc_addr = f"\0rns/{self.local_socket_path}/rpc"
             self.rpc_type = "AF_UNIX"
@@ -403,6 +399,10 @@ class Reticulum:
         if self.rpc_key == None:
             self.rpc_key  = RNS.Identity.full_hash(RNS.Transport.internal_identity().get_private_key())
         
+        RNS.Identity.load_known_destinations()
+        if not self.is_connected_to_shared_instance: RNS.Identity._clean_ratchets()
+        RNS.Transport.start(self)
+
         if self.is_shared_instance:
             self.rpc_listener = multiprocessing.connection.Listener(self.rpc_addr, family=self.rpc_type, authkey=self.rpc_key)
             thread = threading.Thread(target=self.rpc_loop)
@@ -1569,6 +1569,7 @@ class Reticulum:
 
                     if path == "interface_stats":          self.rpc_return(conn, self.get_interface_stats())
                     if path == "rate_table":               self.rpc_return(conn, self.get_rate_table())
+                    if path == "known_destinations":       self.rpc_return(conn, self.get_known_destinations())
                     if path == "next_hop_if_name":         self.rpc_return(conn, self.get_next_hop_if_name(call["destination_hash"]))
                     if path == "next_hop":                 self.rpc_return(conn, self.get_next_hop(call["destination_hash"]))
                     if path == "first_hop_timeout":        self.rpc_return(conn, self.get_first_hop_timeout(call["destination_hash"]))
@@ -2043,6 +2044,25 @@ class Reticulum:
                     rate_table.append(entry)
 
             return rate_table
+
+    def get_known_destinations(self):
+        if self.is_connected_to_shared_instance:
+            try:
+                rpc_connection = self.get_rpc_client()
+                rpc_connection.send_bytes(mp.packb({"get": "known_destinations"}))
+                response = mp.unpackb(rpc_connection.recv_bytes())
+                return response
+            except Exception as e:
+                RNS.log(f"Shared instance RPC failed while getting known destinations: {e}", RNS.LOG_ERROR)
+                return {}
+
+        else:
+            known_destinations = {}
+            with RNS.Identity.known_destinations_lock:
+                for dst_hash in RNS.Identity.known_destinations:
+                    known_destinations[dst_hash] = RNS.Identity.known_destinations[dst_hash]
+
+            return known_destinations
 
     def drop_path(self, destination):
         if self.is_connected_to_shared_instance:

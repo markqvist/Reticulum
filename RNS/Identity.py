@@ -266,11 +266,19 @@ class Identity:
                         count += 1
 
                 store.close()
-                RNS.log(f"Loaded {count} known destinations from shared instance database", RNS.LOG_VERBOSE)
+                RNS.log(f"Loaded {count} known destinations from shared instance", RNS.LOG_VERBOSE)
 
             except Exception as e:
-                with Identity.known_destinations_lock: Identity.known_destinations = {}
-                RNS.log("Could not load known destinations from shared instance database, continuing with an empty table. The contained exception was: "+str(e), RNS.LOG_ERROR)
+                try:
+                    RNS.log(f"Could not load known destinations from shared instance database: {e}", RNS.LOG_DEBUG)
+                    RNS.log(f"Potentially running in split mode, attempting to load known destinations over RPC...", RNS.LOG_DEBUG)
+                    known_destinations = RNS.Reticulum.get_instance().get_known_destinations() or {}
+                    with Identity.known_destinations_lock: Identity.known_destinations = known_destinations
+                    RNS.log(f"Loaded {len(Identity.known_destinations)} known destinations from shared instance", RNS.LOG_VERBOSE)
+
+                except Exception as e:
+                    with Identity.known_destinations_lock: Identity.known_destinations = {}
+                    RNS.log(f"Could not load known destinations from shared instance: {e}", RNS.LOG_ERROR)
 
             return
 
