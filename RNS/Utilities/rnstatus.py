@@ -556,14 +556,15 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                         if "bitrate" in ifstat and ifstat["bitrate"] != None:
                             print(f"    Rate      : {speed_str(ifstat['bitrate'])}, MTU {ifstat['mtu']}")
 
-                        if tstats:
+                        if tstats and not clients:
                             print(f"    Tunnel ID : {RNS.hexrep(ifstat['tunnel_id'], delimit=False) if ifstat['tunnel_id'] else 'None'}")
 
                         if tstats and ifstat["tunnel_id"]:
                             print(f"    Rem.Tr.ID : {RNS.prettyhexrep(ifstat['remote_transport_id']) if ifstat['remote_transport_id'] else 'Unknown'}")
 
+                            trns_str = ", transport enabled" if ifstat['rem_is_tn'] else ", no transport"
                             impl_str = f"{ifstat['rem_impl']}" if ifstat['rem_impl'] else "Unknown implementation"
-                            vers_str = f" {'.'.join([str(v) for v in ifstat['rem_vers']])}" if ifstat['rem_vers'] else ", unknown version"
+                            vers_str = f" {'.'.join([str(v) for v in ifstat['rem_vers']])}{trns_str}" if ifstat['rem_vers'] else ", unknown version"
                             print(f"    Rem.Vers. : {impl_str}{vers_str}")
 
                             dst_cost_str = f"Dst {RNS.prettycost(ifstat['rem_dst_cost'])}" if ifstat["rem_dst_cost"] != None else "Dst ?"
