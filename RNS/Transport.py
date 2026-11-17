@@ -2588,6 +2588,7 @@ class Transport:
                     if not random_blob: return packet.receiving_interface.protocol_violation("No random blob in data") if packet.receiving_interface else None
 
                     with Transport.inbound_announce_lock:
+                        table_insertion_only = False
                         existing_path_entry = Transport.path_table.get(packet.destination_hash)
                         announced_destination_known = existing_path_entry != None
                         if not announced_destination_known:
@@ -2665,6 +2666,7 @@ class Transport:
                                         if Transport.path_is_unresponsive(packet.destination_hash):
                                             RNS.log("Replacing path table entry for "+str(RNS.prettyhexrep(packet.destination_hash))+" with new announce, since previously tried path was unresponsive", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
                                             should_add = True
+                                            table_insertion_only = True
                                         else: should_add = False
 
                         if not should_add:
@@ -2708,19 +2710,20 @@ class Transport:
                                         retransmit_timeout = now
                                         retries = Transport.PATHFINDER_R
 
-                                    with Transport.announce_table_lock:
-                                        Transport.announce_table[packet.destination_hash] = [
-                                            now,                # 0: IDX_AT_TIMESTAMP
-                                            retransmit_timeout, # 1: IDX_AT_RTRNS_TMO
-                                            retries,            # 2: IDX_AT_RETRIES
-                                            received_from,      # 3: IDX_AT_RCVD_IF
-                                            announce_hops,      # 4: IDX_AT_HOPS
-                                            packet,             # 5: IDX_AT_PACKET
-                                            local_rebroadcasts, # 6: IDX_AT_LCL_RBRD
-                                            block_rebroadcasts, # 7: IDX_AT_BLCK_RBRD
-                                            attached_interface, # 8: IDX_AT_ATTCHD_IF
-                                            set(),              # 9: IDX_AT_DEDUP_IFS
-                                        ]
+                                    if not table_insertion_only:
+                                        with Transport.announce_table_lock:
+                                            Transport.announce_table[packet.destination_hash] = [
+                                                now,                # 0: IDX_AT_TIMESTAMP
+                                                retransmit_timeout, # 1: IDX_AT_RTRNS_TMO
+                                                retries,            # 2: IDX_AT_RETRIES
+                                                received_from,      # 3: IDX_AT_RCVD_IF
+                                                announce_hops,      # 4: IDX_AT_HOPS
+                                                packet,             # 5: IDX_AT_PACKET
+                                                local_rebroadcasts, # 6: IDX_AT_LCL_RBRD
+                                                block_rebroadcasts, # 7: IDX_AT_BLCK_RBRD
+                                                attached_interface, # 8: IDX_AT_ATTCHD_IF
+                                                set(),              # 9: IDX_AT_DEDUP_IFS
+                                            ]
 
                             elif is_from_local_client and packet.context == RNS.Packet.PATH_RESPONSE:
                                 # If this is a path response from a local client,
