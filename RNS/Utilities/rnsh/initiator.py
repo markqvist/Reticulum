@@ -169,14 +169,13 @@ async def _initiate_link(configdir, rnsconfigdir, identitypath=None, logfile=Non
         listener_identity = RNS.Identity.recall(destination_hash)
         _destination = RNS.Destination(listener_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, rnsh.APP_NAME)
 
+    RNS.log(f"Establishing link with {RNS.prettyhexrep(destination_hash)}", RNS.LOG_INFO)
     if _link is None or _link.status == RNS.Link.PENDING:
-        RNS.log("No link", RNS.LOG_DEBUG)
         _link = RNS.Link(_destination)
         _link.did_identify = False
 
         _link.set_link_closed_callback(_client_link_closed)
 
-    RNS.log(f"Establishing link with {RNS.prettyhexrep(destination_hash)}", RNS.LOG_INFO)
     if not await _spin(until=lambda: _link.status == RNS.Link.ACTIVE, msg=f"Establishing link with {RNS.prettyhexrep(destination_hash)}",
                        timeout=timeout, quiet=quietness > 0):
         raise RemoteExecutionError("Could not establish link with " + RNS.prettyhexrep(destination_hash))
