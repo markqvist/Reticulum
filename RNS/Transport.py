@@ -886,7 +886,9 @@ class Transport:
                                 # If we are not a Transport Instance, finding a pending link
                                 # that was never activated will trigger an expiry of the path
                                 # to the destination, and an attempt to rediscover the path.
-                                if not RNS.Reticulum.transport_enabled():
+                                path_entry = Transport.path_table.get(link.destination.hash, None)
+                                local_destination = path_entry and path_entry[IDX_PT_HOPS] == 0
+                                if not local_destination and not RNS.Reticulum.transport_enabled():
                                     Transport.expire_path(link.destination.hash)
 
                                     # If we are connected to a shared instance, it will take
@@ -1109,8 +1111,9 @@ class Transport:
                                     # attempt to rediscover a path to the destination, if this
                                     # has not already happened recently.
                                     elif not path_request_throttle and lr_taken_hops == 0:
-                                        RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[IDX_LT_DSTHASH])+" since an attempted local client link was never established", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
-                                        path_request_conditions = True
+                                        if not Transport.hops_to(link_entry[IDX_LT_DSTHASH]) == 0:
+                                            RNS.log("Trying to rediscover path for "+RNS.prettyhexrep(link_entry[IDX_LT_DSTHASH])+" since an attempted local client link was never established", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
+                                            path_request_conditions = True
 
                                     # If the link destination was previously only 1 hop
                                     # away, this likely means that it was local to one
@@ -1185,7 +1188,7 @@ class Transport:
                             if check_unused and not path_used:
                                 unused_paths.append(((1 if slow_interface else 0), path_expiry, destination_hash))
 
-                            if now > path_expiry:
+                            if now > path_expiry and path_hops != 0:
                                 stale_paths.append(destination_hash)
                                 Transport.should_collect = True
                                 RNS.log(f"Path to {RNS.prettyhexrep(destination_hash)} timed out and was removed", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
@@ -1193,11 +1196,10 @@ class Transport:
                                 stale_paths.append(destination_hash)
                                 Transport.should_collect = True
                                 RNS.log(f"Path to {RNS.prettyhexrep(destination_hash)} was removed since the attached interface no longer exists", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
-                            elif path_used == 0 and now > path_timestamp + (Transport.unused_path_linger * (Transport.PATH_SLOW_LINGER_FACTOR if slow_interface else 1)):
-                                if not Transport.is_local_client_interface(attached_interface):
-                                    stale_paths.append(destination_hash)
-                                    Transport.should_collect = True
-                                    RNS.log(f"Removing never used path to {RNS.prettyhexrep(destination_hash)}", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
+                            elif path_hops != 0 and path_used == 0 and now > path_timestamp + (Transport.unused_path_linger * (Transport.PATH_SLOW_LINGER_FACTOR if slow_interface else 1)):
+                                stale_paths.append(destination_hash)
+                                Transport.should_collect = True
+                                RNS.log(f"Removing never used path to {RNS.prettyhexrep(destination_hash)}", RNS.LOG_PATHING) if RNS.sl(RNS.LOG_PATHING) else None
                             elif path_hops > Transport.HOP_LIMITER:
                                 stale_paths.append(destination_hash)
                                 Transport.should_collect = True
