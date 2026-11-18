@@ -854,8 +854,8 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                     drxs = stats["rxs"]*(drxpct/100.0)
                     dtxs = stats["txs"]*(dtxpct/100.0)
 
-                    lrxspct = min(100.0, (stats["lrxs"] / drxs)*100.0) if stats["rxs"] and stats["lrxs"] else 0.0
-                    ltxspct = min(100.0, (stats["ltxs"] / dtxs)*100.0) if stats["txs"] and stats["ltxs"] else 0.0
+                    lrxspct = min(100.0, (stats["lrxs"] / drxs)*100.0) if drxs and stats["lrxs"] else 0.0
+                    ltxspct = min(100.0, (stats["ltxs"] / dtxs)*100.0) if dtxs and stats["ltxs"] else 0.0
 
                     lrxstat = lrxb_str+"  "+RNS.prettyspeed(stats["lrxs"])+f", {int(lrxspct)}% of data flow"
                     ltxstat = ltxb_str+"  "+RNS.prettyspeed(stats["ltxs"])+f", {int(ltxspct)}% of data flow"
