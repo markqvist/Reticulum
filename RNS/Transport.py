@@ -272,6 +272,7 @@ class Transport:
     allowed_destination_types   = {}           # A table for keeping track of allowed destination types
     client_destination_types    = {}           # A table for keeping track of destination types needed by applications
     destination_type_map        = {}           # Lookup table for destination type names
+    flagged_type_map            = {}           # Lookup table for flagged destination type names
     required_destinations_only  = False
     announce_rate_table         = AnnounceRateTable(max_timestamps=MAX_RATE_TIMESTAMPS)
     
@@ -2460,7 +2461,8 @@ class Transport:
                                             packet.hops,                    # 5: Taken hops
                                             packet.destination_hash,        # 6: Original destination hash
                                             False,                          # 7: Validated
-                                            proof_timeout ]                 # 8: Proof timeout timestamp
+                                            proof_timeout,                  # 8: Proof timeout timestamp
+                                            0 ]                             # 9: Traffic counter
 
                             with Transport.link_table_lock: Transport.link_table[RNS.Link.link_id_from_lr_packet(packet)] = link_entry
                             link_request_handled = True
@@ -2527,6 +2529,7 @@ class Transport:
 
                         active_time = time.time()
                         Transport.link_table[packet.destination_hash][IDX_LT_TIMESTAMP] = active_time
+                        Transport.link_table[packet.destination_hash][IDX_LT_TRXB] += len(new_raw)
                         link_path_entry = Transport.path_table.get(Transport.link_table[packet.destination_hash][IDX_LT_DSTHASH])
                         if link_path_entry: link_path_entry[IDX_PT_USED] = active_time
 
@@ -3766,23 +3769,32 @@ class Transport:
     def link_distribution():
         link_destinations = {}
 
-        # TODO: Finish implementation
-        return link_destinations
+        try:
+            for link_id in Transport.link_table:
+                link_entry = Transport.link_table.get(link_id)
+                if link_entry:
+                    active           = link_entry[IDX_LT_VALIDATED]
+                    link_destination = link_entry[IDX_LT_DSTHASH]
+                    link_traffic     = link_entry[IDX_LT_TRXB]
+                    from_interface   = link_entry[IDX_LT_RCVD_IF]
 
-        # try:
-        #     for link_id in Transport.link_table:
-        #         link_entry = Transport.link_table.get(link_id)
-        #         if link_entry:
-        #             link_destination = link_entry[IDX_LT_DSTHASH]
-        #             active           = link_entry[IDX_LT_VALIDATED]
+                    entry = link_destinations.get(link_destination, None)
+                    if not entry:
+                        entry = { "active": 0, "pending": 0,
+                                  "traffic": 0, "from_ifs": set() }
 
-        #             if not link_destination in link_destinations:
-        #                 link_destinations[link_destination] = {}
+                        link_destinations[link_destination] = entry
 
-        #             else:
-        #                 pass
+                    entry["traffic"] += link_traffic
+                    entry["from_ifs"].add(from_interface.get_hash())
+                    if active: entry["active"]  += 1
+                    else:      entry["pending"] += 1
 
-        # except Exception as e: RNS.log(f"Error while getting link distribution stats: {e}", RNS.LOG_DEBUG)
+
+            return link_destinations
+
+        except Exception as e: RNS.log(f"Error while getting link distribution stats: {e}", RNS.LOG_DEBUG)
+        return {}
 
     #################
     # Path Handling #
@@ -4853,6 +4865,7 @@ class Transport:
                 Transport.blocked_destination_types[name_hash] = [True]
                 Transport.client_destination_types.pop(name_hash, None)
                 Transport.destination_type_map[name_hash] = full_name
+                Transport.flagged_type_map[name_hash] = full_name
             RNS.log(f"Blocked {full_name} {RNS.prettyhexrep(name_hash)} destinations", RNS.LOG_DEBUG)
             return True
         except Exception as e: RNS.log(f"Could not add {full_name} destination type to blocked list: {e}", RNS.LOG_ERROR)
@@ -4925,7 +4938,9 @@ class Transport:
 
     @staticmethod
     def destination_type_name(name_hash):
-        return f"<{Transport.destination_type_map.get(name_hash, 'unknown')}>"
+        if   name_hash in Transport.destination_type_map: return Transport.destination_type_map[name_hash]
+        elif name_hash in Transport.flagged_type_map:     return Transport.flagged_type_map[name_hash]
+        else:                                             return RNS.hexrep(name_hash, delimit=False)
 
     ###################
     # Various Helpers #
@@ -5133,6 +5148,7 @@ IDX_LT_HOPS      = 5
 IDX_LT_DSTHASH   = 6
 IDX_LT_VALIDATED = 7
 IDX_LT_PROOF_TMO = 8
+IDX_LT_TRXB      = 9
 
 # Transport.tunnels entry indices
 IDX_TT_TUNNEL_ID = 0
