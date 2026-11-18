@@ -563,89 +563,92 @@ def main():
         exit()
 
 def analyze_tables(path_table=None, rate_table=None, link_distribution=None, capture=None):
-    if not path_table:
-        print("No path table to analyze")
-        exit()
+    print("Not yet implemented")
+    exit()
 
-    else:
-        print(f"Analyzing tables...")
+    # if not path_table:
+    #     print("No path table to analyze")
+    #     exit()
 
-        # TODO: If a `capture` path is specified, we save and (if existing) load from
-        # this file, so that `rnpath --analyze` can be run at intervals, and continuously
-        # collect data, instead of only providing an at-the-moment snapshot view.
+    # else:
+    #     print(f"Analyzing tables...")
 
-        # Locally initialize announce cache to be able to
-        # fetch full announce packet data
-        if RNS.Transport.owner.is_connected_to_shared_instance: RNS.Transport.init_announce_cache()
-        tm = RNS.Transport.destination_type_map
-        total = len(path_table)
-        destinations      = {}
-        unresolvable      = 0
-        unknown_types     = set()
-        known_types       = set()
-        unknown_type_dsts = 0
-        known_type_dsts   = 0
-        for path in path_table:
-            dst_hash  = path["hash"]
-            dst_hops  = path["hops"]
-            last_used = path["used"]
-            name_hash = None
-            kd_entry  = RNS.Identity.known_destinations.get(dst_hash, None)
+    #     # TODO: If a `capture` path is specified, we save and (if existing) load from
+    #     # this file, so that `rnpath --analyze` can be run at intervals, and continuously
+    #     # collect data, instead of only providing an at-the-moment snapshot view.
 
-            # New destinations may have arrived after our initial known
-            # destinations snapshot, which is fine, we just count the few
-            # that miss here for now.
-            if not kd_entry: unresolvable += 1
+    #     # Locally initialize announce cache to be able to
+    #     # fetch full announce packet data
+    #     if RNS.Transport.owner.is_connected_to_shared_instance: RNS.Transport.init_announce_cache()
+    #     tm = RNS.Transport.destination_type_map
+    #     total = len(path_table)
+    #     destinations      = {}
+    #     unresolvable      = 0
+    #     unknown_types     = set()
+    #     known_types       = set()
+    #     unknown_type_dsts = 0
+    #     known_type_dsts   = 0
+    #     for path in path_table:
+    #         dst_hash  = path["hash"]
+    #         dst_hops  = path["hops"]
+    #         last_used = path["used"]
+    #         name_hash = None
+    #         kd_entry  = RNS.Identity.known_destinations.get(dst_hash, None)
 
-            # Enrich data with information from cached announces
-            else:
-                dst_value       = kd_entry[6]
-                dst_lr_cost     = kd_entry[7]
-                announce_hash   = kd_entry[1]
-                announce_packet = RNS.Transport.get_cached_packet(announce_hash, packet_type="announce")
-                if not announce_packet: unresolvable += 1; continue
+    #         # New destinations may have arrived after our initial known
+    #         # destinations snapshot, which is fine, we just count the few
+    #         # that miss here for now.
+    #         if not kd_entry: unresolvable += 1
 
-                try: announce_packet.unpack()
-                except: unresolvable +=1; continue
+    #         # Enrich data with information from cached announces
+    #         else:
+    #             dst_value       = kd_entry[6]
+    #             dst_lr_cost     = kd_entry[7]
+    #             announce_hash   = kd_entry[1]
+    #             announce_packet = RNS.Transport.get_cached_packet(announce_hash, packet_type="announce")
+    #             if not announce_packet: unresolvable += 1; continue
 
-                keysize       = RNS.Identity.KEYSIZE//8
-                name_hash_len = RNS.Identity.NAME_HASH_LENGTH//8
-                name_hash     = announce_packet.data[keysize:keysize+name_hash_len]
-                app_data      = kd_entry[3] or RNS.Identity.recall_app_data(dst_hash, _no_use=True)
-                app_data_len  = len(app_data) if app_data else None # No len counting if no app data
+    #             try: announce_packet.unpack()
+    #             except: unresolvable +=1; continue
 
-                if name_hash in tm: known_type_dsts   += 1; known_types.add(name_hash)
-                else:               unknown_type_dsts += 1; unknown_types.add(name_hash)
+    #             keysize       = RNS.Identity.KEYSIZE//8
+    #             name_hash_len = RNS.Identity.NAME_HASH_LENGTH//8
+    #             name_hash     = announce_packet.data[keysize:keysize+name_hash_len]
+    #             app_data      = kd_entry[3] or RNS.Identity.recall_app_data(dst_hash, _no_use=True)
+    #             app_data_len  = len(app_data) if app_data else None # No len counting if no app data
 
-                # TODO: Create actual data structure for use in analysis
-                entry = {}
+    #             if name_hash in tm: known_type_dsts   += 1; known_types.add(name_hash)
+    #             else:               unknown_type_dsts += 1; unknown_types.add(name_hash)
 
-                destinations[dst_hash] = entry
+    #             # TODO: Create actual data structure for use in analysis
+    #             entry = {}
 
-        if rate_table:
-            # TODO: Incorporate and enrich with data from rate table
-            pass
+    #             destinations[dst_hash] = entry
 
-        if link_distribution:
-            # TODO: Incorporate and enrich with link distribution data
-            pass
+    #     if rate_table:
+    #         # TODO: Incorporate and enrich with data from rate table
+    #         pass
 
-        # TODO: Actually analyze tables
-        pass
+    #     if link_distribution:
+    #         # TODO: Incorporate and enrich with link distribution data
+    #         pass
 
-        # TODO: Actually print a comprehensive, beautifully formatted
-        # overview, charts and data. This is a stub.
-        print(f"Known types        : {len(known_types)}")
-        print(f"Unknown types      : {len(unknown_types)}")
-        print(f"Total types        : {len(known_types)+len(unknown_types)}")
-        print(f"Known type dests   : {known_type_dsts}")
-        print(f"Unknown type dests : {unknown_type_dsts}")
-        print(f"Total type dests   : {known_type_dsts+unknown_type_dsts}")
+    #     # TODO: Actually analyze tables
+    #     pass
 
-        # TODO: Ensure we get the terminal width if possible, and fall back to
-        # a sensible default if not, so everything is rendered beautifully.
+    #     # TODO: Actually print a comprehensive, beautifully formatted
+    #     # overview, charts and data. This is a stub.
+    #     print(f"Known types        : {len(known_types)}")
+    #     print(f"Unknown types      : {len(unknown_types)}")
+    #     print(f"Total types        : {len(known_types)+len(unknown_types)}")
+    #     print(f"Known type dests   : {known_type_dsts}")
+    #     print(f"Unknown type dests : {unknown_type_dsts}")
+    #     print(f"Total type dests   : {known_type_dsts+unknown_type_dsts}")
 
-        exit()
+    #     # TODO: Ensure we get the terminal width if possible, and fall back to
+    #     # a sensible default if not, so everything is rendered beautifully.
+
+    #     exit()
 
 def pretty_date(time=False):
     from datetime import datetime
