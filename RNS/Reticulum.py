@@ -2043,7 +2043,8 @@ class Reticulum:
                               "expires": RNS.Transport.path_table[dst_hash][3], "value": dst_value,
                               "used": RNS.Transport.path_table[dst_hash][7], "lr_cost": lr_cost,
                               "interface": str(RNS.Transport.path_table[dst_hash][5]),
-                              "interface_hash": RNS.Transport.path_table[dst_hash][5].get_hash() }
+                              "interface_hash": RNS.Transport.path_table[dst_hash][5].get_hash(),
+                              "state": RNS.Transport.get_path_state(dst_hash) }
                     path_table.append(entry)
 
             return path_table

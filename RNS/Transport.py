@@ -3864,6 +3864,10 @@ class Transport:
             return False
 
     @staticmethod
+    def get_path_state(destination_hash):
+        return Transport.path_states.get(destination_hash, Transport.STATE_UNKNOWN)
+
+    @staticmethod
     def await_path(destination_hash, timeout=None, on_interface=None):
         """
         Requests a path to the destination from the network and

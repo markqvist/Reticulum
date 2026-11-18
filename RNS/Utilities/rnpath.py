@@ -300,6 +300,11 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                         if not path["value"]: continue
                         if path["value"] < min_value: continue
 
+                    if   path["state"] == RNS.Transport.STATE_RESPONSIVE:   state_str = " (R)"
+                    elif path["state"] == RNS.Transport.STATE_UNRESPONSIVE: state_str = " (u)"
+                    elif path["state"] == RNS.Transport.STATE_UNKNOWN:      state_str = " (?)"
+                    else:                                                   state_str = " (?)"
+
                     exp_str = RNS.timestamp_str(path["expires"])
                     if path["hops"] == 1: m_str = " "
                     else: m_str = "s"
@@ -310,7 +315,7 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
                         else: u_str = ""
                     via_str = f" via {RNS.prettyhexrep(path['via'])}" if vias else ""
                     exp_str = f" expires in {RNS.prettytime(path['expires']-now, compact=True)}" if expinfo else ""
-                    print(f"{RNS.prettyhexrep(path['hash'])} {path['hops']:>3}h{via_str} on {path['interface']}{exp_str} (dv:{RNS.prettycost(path['value'])}/lc:{RNS.prettycost(path['lr_cost'])}){u_str}")
+                    print(f"{RNS.prettyhexrep(path['hash'])} {path['hops']:>3}h{state_str}{via_str} on {path['interface']}{exp_str} (dv:{RNS.prettycost(path['value'])}/lc:{RNS.prettycost(path['lr_cost'])}){u_str}")
 
             if destination_hash != None and displayed == 0:
                 print("No path known")
