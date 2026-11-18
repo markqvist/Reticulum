@@ -101,8 +101,8 @@ def parse_hash(input_str):
 
 def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity, timeout, drop_queues,
                   drop_via, max_hops, remote=None, management_identity=None, remote_timeout=RNS.Transport.PATH_REQUEST_TIMEOUT,
-                  blackholed=False, blackhole=False, unblackhole=False, blackhole_duration=None, blackhole_reason=None,
-                  remote_blackhole_list=False, remote_blackhole_list_filter=None, usage=False, no_output=False, json=False):
+                  blackholed=False, blackhole=False, unblackhole=False, blackhole_duration=None, blackhole_reason=None, remote_blackhole_list=False, remote_blackhole_list_filter=None,
+                  active=False, usage=False, vias=False, expinfo=False, min_value=None, no_output=False, json=False):
 
     global remote_link, reticulum
     reticulum = RNS.Reticulum(configdir = configdir, loglevel = 3+verbosity)
@@ -292,14 +292,21 @@ def program_setup(configdir, table, rates, drop, destination_hexhash, verbosity,
             for path in table:
                 if destination_hash == None or destination_hash == path["hash"]:
                     displayed += 1
+                    if min_value:
+                        if not path["value"]: continue
+                        if path["value"] < min_value: continue
+
                     exp_str = RNS.timestamp_str(path["expires"])
                     if path["hops"] == 1: m_str = " "
                     else: m_str = "s"
                     if not "used" in path: u_str = ", no usage info"
                     else:
+                        if active and not path["used"]: continue
                         if usage: u_str = f", last used {RNS.prettytime(now-path['used'])} ago" if path["used"] else ", never used"
                         else: u_str = ""
-                    print(f"{RNS.prettyhexrep(path['hash'])} {path['hops']:>3}h via {RNS.prettyhexrep(path['via'])} on {path['interface']} expires in {RNS.prettytime(path['expires']-now, compact=True)} (dv:{RNS.prettycost(path['value'])}/lc:{RNS.prettycost(path['lr_cost'])}){u_str}")
+                    via_str = f" via {RNS.prettyhexrep(path['via'])}" if vias else ""
+                    exp_str = f" expires in {RNS.prettytime(path['expires']-now, compact=True)}" if expinfo else ""
+                    print(f"{RNS.prettyhexrep(path['hash'])} {path['hops']:>3}h{via_str} on {path['interface']}{exp_str} (dv:{RNS.prettycost(path['value'])}/lc:{RNS.prettycost(path['lr_cost'])}){u_str}")
 
             if destination_hash != None and displayed == 0:
                 print("No path known")
@@ -496,8 +503,12 @@ def main():
         parser.add_argument("--config", action="store", default=None, help="path to alternative Reticulum config directory", type=str)
         parser.add_argument("--version", action="version", version="rnpath {version}".format(version=__version__))
         parser.add_argument("-t", "--table", action="store_true", help="show all known paths", default=False)
+        parser.add_argument("-a", "--active", action="store_true", help="show in-use paths only", default=False)
         parser.add_argument("-u", "--usage", action="store_true", help="show path usage time", default=False)
+        parser.add_argument("-V", "--vias", action="store_true", help="show via transport IDs", default=False)
+        parser.add_argument("-E", "--expiry", action="store_true", help="show path expiry times", default=False)
         parser.add_argument("-m", "--max", action="store", metavar="hops", type=int, help="maximum hops to filter path table by", default=None)
+        parser.add_argument("-M", "--min-value", action="store", metavar="hops", type=float, help="minimum value to filter path table by", default=None)
         parser.add_argument("-r", "--rates", action="store_true", help="show announce rate info", default=False)
         parser.add_argument("-d", "--drop", action="store_true", help="remove the path to a destination", default=False)
         parser.add_argument("-D", "--drop-announces", action="store_true", help="drop all queued announces", default=False)
@@ -527,11 +538,11 @@ def main():
             parser.print_help()
             print("")
         else:
-            program_setup(configdir = configarg, table = args.table, rates = args.rates, drop = args.drop, destination_hexhash = args.destination,
-                          verbosity = args.verbose, timeout = args.w, drop_queues = args.drop_announces, drop_via = args.drop_via, max_hops = args.max,
+            program_setup(configdir=configarg, table=args.table, rates=args.rates, drop=args.drop, destination_hexhash=args.destination,
+                          verbosity=args.verbose, timeout=args.w, drop_queues=args.drop_announces, drop_via=args.drop_via, max_hops=args.max, min_value=args.min_value,
                           remote=args.R, management_identity=args.i, remote_timeout=args.W, blackholed=args.blackholed, blackhole=args.blackhole,
                           unblackhole=args.unblackhole, blackhole_duration=args.duration, blackhole_reason=args.reason, remote_blackhole_list=args.blackholed_list,
-                          remote_blackhole_list_filter=args.list_filter, usage=args.usage, json=args.json)
+                          remote_blackhole_list_filter=args.list_filter, usage=args.usage, vias=args.vias, active=args.active, expinfo=args.expiry, json=args.json)
 
             sys.exit(0)
 
