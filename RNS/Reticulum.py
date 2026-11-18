@@ -1956,6 +1956,10 @@ class Reticulum:
             stats["txb"]         = RNS.Transport.traffic_txb
             stats["rxs"]         = RNS.Transport.speed_rx
             stats["txs"]         = RNS.Transport.speed_tx
+            stats["lrxb"]        = RNS.Transport.link_rxb
+            stats["ltxb"]        = RNS.Transport.link_txb
+            stats["lrxs"]        = RNS.Transport.link_speed_rx
+            stats["ltxs"]        = RNS.Transport.link_speed_tx
             stats["frxb"]        = RNS.Transport.filtered_rxb
             stats["ftxb"]        = RNS.Transport.filtered_txb
             stats["frxs"]        = RNS.Transport.filtered_speed_rx

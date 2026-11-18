@@ -839,6 +839,28 @@ def program_setup(configdir, dispall=False, verbosity=0, name_filter=None, json=
                     ftxstat += "  "+RNS.prettyspeed(stats["ftxs"])
                 print(f"\n Filtered     : {ftxstat}\n                {frxstat}")
 
+            if lstats:
+                if "lrxb" in stats and "ltxb" in stats and "lrxs" in stats and "ltxs" in stats:
+                    lrxb_str = "↓"+RNS.prettysize(stats["lrxb"])
+                    ltxb_str = "↑"+RNS.prettysize(stats["ltxb"])
+                    strdiff = len(lrxb_str)-len(ltxb_str)
+                    if   strdiff > 0: ltxb_str += " "*strdiff
+                    elif strdiff < 0: lrxb_str += " "*-strdiff
+
+                    parxs  = stats["prxs"]+stats["arxs"]
+                    patxs  = stats["ptxs"]+stats["atxs"]
+                    drxpct = 100.0-min(100.0, (parxs / stats["rxs"])*100.0) if stats["rxs"] else 100.0
+                    dtxpct = 100.0-min(100.0, (patxs / stats["txs"])*100.0) if stats["txs"] else 100.0
+                    drxs = stats["rxs"]*(drxpct/100.0)
+                    dtxs = stats["txs"]*(dtxpct/100.0)
+
+                    lrxspct = min(100.0, (stats["lrxs"] / drxs)*100.0) if stats["rxs"] and stats["lrxs"] else 0.0
+                    ltxspct = min(100.0, (stats["ltxs"] / dtxs)*100.0) if stats["txs"] and stats["ltxs"] else 0.0
+
+                    lrxstat = lrxb_str+"  "+RNS.prettyspeed(stats["lrxs"])+f", {int(lrxspct)}% of data flow"
+                    ltxstat = ltxb_str+"  "+RNS.prettyspeed(stats["ltxs"])+f", {int(ltxspct)}% of data flow"
+                    print(f"\n Links        : {ltxstat}\n                {lrxstat}")
+
             if pstats:
                 if "prxb" in stats and "ptxb" in stats and "prxs" in stats and "ptxs" in stats:
                     prxb_str = "↓"+RNS.prettysize(stats["prxb"])

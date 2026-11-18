@@ -380,6 +380,8 @@ class Transport:
 
     traffic_rxb                 = 0
     traffic_txb                 = 0
+    link_rxb                    = 0
+    link_txb                    = 0
     filtered_rxb                = 0
     filtered_txb                = 0
     filtered_arxc               = 0
@@ -393,6 +395,8 @@ class Transport:
     pr_txb                      = 0
     speed_rx                    = 0
     speed_tx                    = 0
+    link_speed_rx               = 0
+    link_speed_tx               = 0
     filtered_speed_rx           = 0
     filtered_speed_tx           = 0
     announce_speed_rx           = 0
@@ -760,7 +764,8 @@ class Transport:
 
     @staticmethod
     def count_traffic_loop():
-        rxp = 0; txp = 0; cts = None
+        rxp  = 0; txp  = 0; cts = None
+        lrxb = 0; ltxb = 0;
 
         while True:
             time.sleep(1)
@@ -772,8 +777,8 @@ class Transport:
                 iafreq = 0; oafreq = 0; ipfreq = 0; opfreq = 0
 
                 for interface in Transport.interfaces.copy():
-                    if not hasattr(interface, "parent_interface") or interface.parent_interface == None:
-                        if hasattr(interface, "is_local_shared_instance"): continue
+                    if interface.parent_interface == None:
+                        if interface.is_local_shared_instance: continue
                         if hasattr(interface, "transport_traffic_counter"):
                             now = time.monotonic()
 
@@ -824,7 +829,8 @@ class Transport:
                                                                     "arxb": interface.arxb, "atxb": interface.atxb,
                                                                     "prxb": interface.prxb, "ptxb": interface.ptxb,
                                                                     "frxb": interface.frxb, "ftxb": interface.ftxb }
-                if not Transport.start_time: rpps = 0; tpps = 0
+
+                if not Transport.start_time: rpps = 0; tpps = 0; lrxs = 0; ltxs = 0
                 else:
                     if not cts: ts = Transport.start_time
                     else:       ts = cts
@@ -833,6 +839,10 @@ class Transport:
                     tpps = (Transport.tx_packets - txp) / td
                     rxp  = Transport.rx_packets
                     txp  = Transport.tx_packets
+                    lrxs = (Transport.link_rxb  - lrxb)*8 / td
+                    ltxs = (Transport.link_txb  - ltxb)*8 / td
+                    lrxb = Transport.link_rxb
+                    ltxb = Transport.link_txb
 
                 Transport.rx_pps             = int(round(rpps))
                 Transport.tx_pps             = int(round(tpps))
@@ -840,6 +850,8 @@ class Transport:
                 Transport.traffic_txb       += txb
                 Transport.speed_rx           = rxs
                 Transport.speed_tx           = txs
+                Transport.link_speed_rx      = lrxs
+                Transport.link_speed_tx      = ltxs
                 Transport.filtered_rxb      += frxb
                 Transport.filtered_txb      += ftxb
                 Transport.filtered_speed_rx  = frxs
@@ -2494,6 +2506,9 @@ class Transport:
                         RNS.log(f"Pre-validation link packet from {packet.receiving_interface}", RNS.LOG_WARNING) # TODO: Remove
                         return packet.receiving_interface.protocol_violation("Link packet received before link validation") if packet.receiving_interface else None
 
+                    if not Transport.is_local_client_interface(packet.receiving_interface):
+                        Transport.link_rxb += len(packet.raw)
+
                     # If receiving and outbound interface is
                     # the same for this link, direction doesn't
                     # matter, and we simply repeat the packet.
@@ -2527,9 +2542,11 @@ class Transport:
                         new_raw += packet.raw[2:]
                         Transport.transmit(outbound_interface, new_raw)
 
+                        raw_len = len(new_raw)
                         active_time = time.time()
+                        if not Transport.is_local_client_interface(outbound_interface): Transport.link_txb += raw_len
                         Transport.link_table[packet.destination_hash][IDX_LT_TIMESTAMP] = active_time
-                        Transport.link_table[packet.destination_hash][IDX_LT_TRXB] += len(new_raw)
+                        Transport.link_table[packet.destination_hash][IDX_LT_TRXB] += raw_len
                         link_path_entry = Transport.path_table.get(Transport.link_table[packet.destination_hash][IDX_LT_DSTHASH])
                         if link_path_entry: link_path_entry[IDX_PT_USED] = active_time
 
@@ -4291,20 +4308,20 @@ class Transport:
 
     @staticmethod
     def is_local_client_interface(interface):
-        if hasattr(interface, "parent_interface"):
-            if hasattr(interface.parent_interface, "is_local_shared_instance"): return True
-            else:                                                               return False
-        else:                                                                   return False
+        if interface.parent_interface:
+            if interface.parent_interface.is_local_shared_instance: return True
+            else:                                                   return False
+        else:                                                       return False
 
     @staticmethod
     def is_shared_instance(interface):
-        if hasattr(interface, "is_local_shared_instance"): return True
-        else:                                              return False
+        if interface.is_local_shared_instance: return True
+        else:                                  return False
 
     @staticmethod
     def interface_to_shared_instance(interface):
-        if hasattr(interface, "is_connected_to_shared_instance"): return True
-        else:                                                     return False
+        if interface.is_connected_to_shared_instance: return True
+        else:                                         return False
 
     @staticmethod
     def interface_hashes():

@@ -126,6 +126,7 @@ class Interface:
         self.recursive_prs            = False
         self.announces_from_internal  = True
         self.announces_to_internal    = None
+        self.is_local_shared_instance = False
         self.parent_interface         = None
         self.spawned_interfaces       = None
         self.tunnel_id                = None
@@ -201,6 +202,8 @@ class Interface:
         self.r_stat_rssi       = None
         self.r_stat_snr        = None
         self.r_stat_q          = None
+
+        self.is_connected_to_shared_instance = False
 
     def get_hash(self):
         if not self.__hash: self.__hash = RNS.Identity.full_hash(str(self).encode("utf-8"))
